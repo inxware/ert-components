@@ -17,7 +17,8 @@ fi
 LOCAL_BASE="../"
 
 if [ ! -n "${REPOSITORY_BASE}" ]; then
-	REPOSITORY_BASE="ssh://repo-user@server:/home/inx-data/data/Repos/"
+	REPOSITORY_BASE="ssj://git@github.com:inxware/"
+#	REPOSITORY_BASE="ssh://repo-user@server:/home/inx-data/data/Repos/"
 fi
 
 #
