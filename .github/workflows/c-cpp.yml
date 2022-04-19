@@ -19,7 +19,7 @@ jobs:
     - name: checkout ert components
       uses: actions/checkout@v3
       with:
-        path: ert-components
+        path: ert-components2
         
     - name: Checkout tools repo
       uses: actions/checkout@v3
