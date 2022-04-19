@@ -33,6 +33,8 @@ jobs:
         path: ert-contrib-middleware
         ref: refs/heads/main
         lfs: true
+    - name: checkfs
+      run: tree -L 2
     - name: make
       run: make -j 8
     - name: make check
