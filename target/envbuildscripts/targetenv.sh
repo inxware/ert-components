@@ -59,7 +59,7 @@ fi
  
 #and the component libraries
 
-test -d "../ert-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/target_packages/" && (cp -PR --remove-destination "../ert-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/target_packages/"* "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/" || exit) || echo "£No component libraries found"
+test -d "../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/target_packages/" && (cp -PR --remove-destination "../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/target_packages/"* "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/" || exit) || echo "£No component libraries found"
 
 
 #create version information file - this maybe overwritten when code is submitted to a server

@@ -55,7 +55,7 @@ INC_DIRS+=$(EHS_COMMON_KAPI_PATH) $(EHS_COMMON_EHS_PATH) $(EHS_COMMON_COMPONENTS
 INC_DIRS+=$(EHS_COMMON_TOOLKIT_CORE_PATH)
 
 
-export EHS_COMPONENT_SUPPORT_BASE=$(EHS_ROOT_PATH)/../ert-middleware
+export EHS_COMPONENT_SUPPORT_BASE=$(EHS_ROOT_PATH)/../ert-contrib-middleware
 export EHS_CORE_SUPPORT_BASE=$(EHS_ROOT_PATH)/../ert-build-support
 
 #We need to export this for bash targetenv scripts to use

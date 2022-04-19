@@ -67,7 +67,7 @@ export LIB_DIRS+=/usr/lib
 export LIB_DIRS+=/usr/lib/x86_64-linux-gnu/
 else 
 ifdef EHS_CLIB_OVERRIDE_PATH
-# The clib overrde path should be used if a  different clib to the one used to identify the ert-middleware is desired.
+# The clib overrde path should be used if a  different clib to the one used to identify the ert-contrib-middleware is desired.
 export INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/include/
 export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
 export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
@@ -110,7 +110,7 @@ ifndef EHS_GNU_OS_VERSION
 #EHS_GNU_OS_VERSION=$(TOOLCHAIN_PATH)
 export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_ARCH)-$(EHS_GNU_OS)_$(EHS_GNU_ARCH)-$(EHS_GNU_OS)_$(COMPONENT_VARIANT)
 else
-#*************************** DEFAULT  ert-middleware**********************************************************  
+#*************************** DEFAULT  ert-contrib-middleware**********************************************************  
 # The ert-middlewre ipath is prefixed by the tolchain identifier and the clib identiifier 
 export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_ARCH)-$(EHS_GNU_OS)$(EHS_GNU_OS_VERSION)_$(EHS_GNU_ARCH)-$(EHS_GNU_OS)$(EHS_GNU_OS_VERSION)_$(COMPONENT_VARIANT)
 #************************************************************************************************************   
@@ -129,7 +129,7 @@ else
 export INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)
 export LIB_DIRS+=$(EHS_COMPONENT_SUPPORT_LIBS)
 endif
-export INC_DIRS+=../EHS-kernel/Common/Kernel
+# we can't do this for  puvlic version, so copy files the KAPI - export INC_DIRS+=../EHS-kernel/Common/Kernel
 
 ##export LD_LIBRARY_PATH+=:$(EHS_COMPONENT_SUPPORT_LIBS)
 ####################   Configure the toolchain parameters ############################## 
