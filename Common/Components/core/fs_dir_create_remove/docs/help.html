@@ -1,0 +1,141 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+FileSystemDirList1
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to create and remove directories on the host device. A directory is created with the path specified by the parameter Directory when the input event <a href="#[In]create">[In]create</a> is asserted. The path specified by the parameter Directory is overridden by the data input <a href="#[In]path">[In]path</a>. If the directory was successfully created then the input event <a href="#[Out]created">[Out]created</a> is triggered else <a href="#[Out]error">[Out]error</a> is triggered.
+</p>
+<p class=component>
+A directory is removed at the path specified the by parameter Directory when the input event <a href="#[In]remove">[In]remove</a> is asserted. The path specified by the parameter Directory is overridden by the data input <a href="#[In]path">[In]path</a>. If the directory was successfully removed then the input event <a href="#[Out]removed">[Out]removed</a> is triggered else <a href="#[Out]error">[Out]error</a> is triggered. An error is produced if there is no directory at the path specified or if the directory could not be removed. The EmptyOnly parameter is a Boolean value that specifies if the directory must be empty before it can be successfully removed.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+create:
+<a name="[In]create">
+</h6>
+<p class=ports>Input event, creates the directory.</p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+path:
+<a name="[In]path">
+</h6>
+<p class=ports>Data input, the path of the directory to create or remove.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+created:
+<a name="[Out]created">
+</h6>
+<p class=ports>Output event, triggered when the directory is successfully created.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+error:
+<a name="[Out]error">
+</h6>
+<p class=ports>Output event, triggered when the directory fails to be created.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+remove:
+<a name="[In]remove">
+</h6>
+<p class=ports>Input event, removes the directory.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+removed:
+<a name="[Out]removed">
+</h6>
+<p class=ports>Output event, triggered when the directory is successfully removed.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+error:
+<a name="[Out]error">
+</h6>
+<p class=ports>Output event, triggered when the directory fails to be removed.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]">[In]</a>, <a href="#[In]dir">[In]dir</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]name">[Out]name</a>, <a href="#[Out]Valid">[Out]Valid</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+Directory:
+</h6>
+<p class=parameters>
+The path of the directory to create or remove.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+S,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+Media Directory,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+
+</li><li>
+<h6 class=parameters>
+EmptyOnly:
+</h6>
+<p class=parameters>
+Boolean value to indicate whether the directory must be empty before it is removed.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+B,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+0,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+1,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+1
+</p>
+
+
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

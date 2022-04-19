@@ -1,0 +1,189 @@
+#V:2.0.0
+#B:3
+#D:Y2012M2d10h11m55s46
+#N:testWidgetDragDrop
+1
+1	100000	90000
+BEGIN gui_text_real2
+%%%_portait_png g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 2 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I 1 I -1 I -1 F -1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_x g0000000.gui 0 1 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_y g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	6 I -1 I -1 I -1 I -1 I -1 I 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_width g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	4	6 I -1 I -1 I -1 I -1 I -1 I 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_height g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	5	6 I -1 I -1 I -1 I -1 I -1 I 5 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_Int1
+100 
+Run_ConstantInt	1	1	-1	0 	1 I 6 	0 
+END
+BEGIN GUI_Image_File
+%%%_widget11 g0000000.gui 1 0 
+create	1	1	6	1 S 1 	4 I 2 I -1 I -1 I -1 	2 -1 8 
+destroy	1	1	7	0 	0 	1 6 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	8	5 I -1 I -1 I 6 I -1 I -1 	4 I 2 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+screenshot.jpg 
+Run_ConstantString	1	1	-1	0 	1 S 4 	0 
+END
+BEGIN Constant_String1
+portrait.png 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN MultiplexFourInputString
+*
+Run_Input1	1	1	2	1 S 2 	1 S 1 	1 7 
+Run_Input2	1	1	9	1 S 3 	1 S 1 	1 7 
+Run_Input3	1	1	10	1 S 4 	1 S 1 	1 7 
+Run_Input4	1	1	11	1 S 5 	1 S 1 	1 7 
+END
+BEGIN Constant_String1
+screenshot.png 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN Constant_String1
+screenshot.gif 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN gui_text_real2
+%%%_screenshot_png g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 9 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN gui_text_real2
+%%%_screenshot_jpg g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 10 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN gui_text_real2
+%%%_screenshot_gif g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 11 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN Constant_Int1
+1 
+Run_ConstantInt	1	1	-1	0 	1 I 8 	0 
+END
+BEGIN Constant_Int1
+100 
+Run_ConstantInt	1	1	-1	0 	1 I 1 	0 
+END
+BEGIN gui_viewport
+%%%_viewport1 g0000000.gui 
+create	1	1	1	0 	8 I -1 I -1 I -1 I -1 I -1 I -1 I 13 I 16 	4 -1 12 19 18 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN EventCounter
+*
+Count	1	1	12	0 	1 I 3 	1 3 
+END
+BEGIN EventCounter
+*
+Count	1	1	13	0 	1 I 4 	1 4 
+END
+BEGIN EventCounter
+*
+Count	1	1	14	0 	1 I 5 	1 5 
+END
+BEGIN time_clock
+100000 1 1 
+start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 15 
+END
+BEGIN EventCounter
+*
+Count	1	1	15	0 	1 I 7 	1 16 
+END
+BEGIN MultiplyTwoInputInt
+*
+Run_MultiplyTwoInputInt	1	1	16	2 I 7 I 8 	1 I -1 	1 -1 
+END
+BEGIN EventTwoInputLatchingAnd
+*
+And1	1	1	17	0 	0 	1 14 
+And2	1	1	18	0 	0 	1 14 
+Reset	1	1	19	0 	0 	1 26 
+END
+BEGIN gui_patch
+%%%_widget13 g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 17 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	20	5 I 9 I 10 I -1 I -1 I -1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN AddAccumulateInt
+*
+Run_AddAccumulateInt	1	1	21	1 I 11 	1 I 12 	1 -1 
+END
+BEGIN AdditionTwoInputInt
+*
+Run_AdditionTwoInputInt	1	1	22	2 I 12 I 13 	1 I 9 	1 25 
+END
+BEGIN Constant_Int1
+0 
+Run_ConstantInt	1	1	-1	0 	1 I 14 	0 
+END
+BEGIN MultiplexTwoInputInt
+*
+Run_Input1	1	1	13	1 I 13 	1 I 11 	1 21 
+Run_Input2	1	1	1	1 I 14 	1 I 11 	1 21 
+END
+BEGIN AddAccumulateInt
+*
+Run_AddAccumulateInt	1	1	23	1 I 15 	1 I 18 	1 -1 
+END
+BEGIN Constant_Int1
+0 
+Run_ConstantInt	1	1	-1	0 	1 I 17 	0 
+END
+BEGIN MultiplexTwoInputInt
+*
+Run_Input1	1	1	13	1 I 16 	1 I 15 	1 23 
+Run_Input2	1	1	1	1 I 17 	1 I 15 	1 23 
+END
+BEGIN AdditionTwoInputInt
+*
+Run_AdditionTwoInputInt	1	1	24	2 I 18 I 16 	1 I 10 	1 -1 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	25	0 	0 	1 20 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	14	0 	0 	1 22 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	14	0 	0 	1 24 
+END
+BEGIN EventSelfResetTwoInputLatchingAnd
+*
+And1	1	1	14	0 	0 	1 13 
+And2	1	1	26	0 	0 	1 13 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

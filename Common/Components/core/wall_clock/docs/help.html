@@ -1,0 +1,118 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+wall_clock
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to set and retrieve the current system date and time. The date-time format is the w3c standard where the complete date is displayed with the hours, minutes and seconds in the format YYYY-MM-DDThh:mm:ss where YYYY is a 4-digit year, MM is a 2-digit month, DD is a 2-digit day of the month, hh is 2 digits of the hour, mm is 2 digits of the minute and ss is 2 digits of the second. For example 1997-07-16T19:20:30 is a valid date-time string.
+</p>
+<p class=component>
+When the input event <a href="#[In]get">[In]get</a> is asserted, the current date and time is presented to the data output <a href="#[Out]Date String">[Out]Date String</a> in the w3c format described above and the corresponding output event is triggered. Also the number of minutes elapsed since 1970-01-01T00:00:00 is presented to the data output <a href="#[Out]Mins 1970">[Out]Mins 1970</a> and the residual number of seconds presented to the data output <a href="#[Out]& secs">[Out]& secs</a>.
+</p>
+<p class=component>
+When the input event <a href="#[In]set">[In]set</a> is asserted, the sytem date and time is set to the date-time string, in the w3c format described above, presented to the data input <a href="#[Out]time">[Out]time</a>.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+get:
+<a name="[In]get">
+</h6>
+<p class=ports>Input event, gets the current system time.</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+Date String:
+<a name="[Out]Date String">
+</h6>
+<p class=ports>Data output, the system date and time in the w3c format YYYY-MM-DDThh:mm:ss.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+------:
+<a name="[Out]------">
+</h6>
+<p class=ports>Output event, triggered when the corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+set:
+<a name="[In]set">
+</h6>
+<p class=ports>Input event, sets the current system time.</p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+time:
+<a name="[In]time">
+</h6>
+<p class=ports>Data input, the date and time to set the system to, in the form YYYY-MM-DDThh:mm:ss.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+-----:
+<a name="[Out]-----">
+</h6>
+<p class=ports>Output event, triggered when the corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+Mins 1970:
+<a name="[Out]Mins 1970">
+</h6>
+<p class=ports>Data output, the number of minutes elapsed since 1970-01-01T00:00:00.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+& secs:
+<a name="[Out]& secs">
+</h6>
+<p class=ports>Data output, the residual number of seconds after the minutes elapsed since 1970-01-01T00:00:00.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]get">[In]get</a>, <a href="#[Out]Date String">[Out]Date String</a>, <a href="#[Out]------">[Out]------</a>, <a href="#[In]set">[In]set</a>, <a href="#[In]time">[In]time</a>, <a href="#[Out]-----">[Out]-----</a>, <a href="#[Out]Mins 1970">[Out]Mins 1970</a>, <a href="#[Out]& secs">[Out]& secs</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<p class=parameters>None.</p>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

@@ -1,0 +1,30 @@
+#!/bin/bash
+########################################################################
+# Copyright : inx limited, Sheffield, UK, 2008
+# License   : wwww.inx-systems.com/inxware_license.html
+# Type      : Target deployed unencrypted code
+# Support   : support.inx-systems.com
+# Description:
+# Installs EHS into a gnome linux environment, creating an Icon for it.
+########################################################################
+
+if [[ -d ~/.local/share/applications ]] ; then
+  echo "[Desktop Entry]" > ~/.local/share/applications/inxware-RT.desktop
+  echo "Encoding=UTF-8" >> ~/.local/share/applications/inxware-RT.desktop
+  echo "Type=Application" >> ~/.local/share/applications/inxware-RT.desktop
+  echo "Exec=$PWD/bin/run_ehs.sh" >> ~/.local/share/cd applications/inxware-RT.desktop
+  echo "Icon=inx-icon" >> ~/.local/share/applications/inxware-RT.desktop
+  echo "Name=inxware runtime" >> ~/.local/share/applications/inxware-RT.desktop
+  echo "GenericName=Web Browser" >> ~/.local/share/applications/inxware-RT.desktop
+  echo "Categories=Audio;Video;AudioVideo;Development" >> ~/.local/share/applications/inxware-RT.desktop
+  chmod +x ~/.local/share/applications/inxware-RT.desktop
+  cp ~/.local/share/applications/inxware-RT.desktop ~/Desktop
+  mkdir -p ~/.icons
+  cp $PWD/inx-icon.png ~/.icons/
+else
+  echo "Sorry can't install launchers on this Desktop"
+  echo "Please run \"run_ehs.sh\" manually to start the inxware runtime" 
+fi
+
+
+

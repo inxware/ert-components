@@ -1,0 +1,46 @@
+#V:2.0.0
+#B:9
+#D:Y2018M1d12h0m21s2
+#N:testTextCase
+1
+1	100000	90000
+BEGIN TextCaseDemultiplexer_Event 0
+"This Onexxxx!" "Another for 2" somethingwithoutspaces NULL "This One!" NULL NULL NULL 
+Run	1	1	1	9 S 1 S -1 S -1 S -1 S -1 S -1 S -1 S -1 S -1 	0 	9 -1 -1 -1 -1 2 -1 -1 -1 -1 
+END
+BEGIN TextCaseDemultiplexer_Event 0
+"Bogus" "Overwrite Me" "And Overwrite Me" NULL NULL NULL NULL NULL 
+Run	1	1	1	9 S 2 S -1 S 3 S 3 S 3 S -1 S 3 S -1 S 2 	0 	9 -1 -1 -1 -1 -1 -1 -1 3 -1 
+END
+BEGIN gui_text_string2 0
+%%%_ParameterTest g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_InputTest g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	6 I -1 I -1 I -1 I -1 I -1 S 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+Another One that might Change 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN Constant_String1 0
+This One! 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN Constant_String1 0
+PASSED! 
+Run_ConstantString	1	1	-1	0 	1 S 4 	0 
+END
+BEGIN Constant_String1 0
+Another One that mightdiff 1 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

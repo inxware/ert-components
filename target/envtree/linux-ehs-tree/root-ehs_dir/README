@@ -1,0 +1,17 @@
+
+This tar file contains a complete inxware runtime executable environment.
+
+To install simply expand the tar file to where you want to install the application 
+(e.g. in your home directory under ~/apps).
+
+run the install script to install launcher icons in the application menu and desktop.
+
+The runtime environment is self contained, including a copy of glibc if the version on your machine is too old.
+By default the runtime will make use of the host's version of glibc, but if this causes problems runtime can 
+be made to use the internel version using the following run command:
+
+run_ehs.sh NO_RESTART LIB_INX
+
+ 
+
+

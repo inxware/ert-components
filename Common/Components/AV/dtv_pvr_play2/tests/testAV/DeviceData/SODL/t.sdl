@@ -1,0 +1,107 @@
+#V:2.0.0
+#B:60
+#D:Y2018M1d22h23m1s39
+#N:testAV
+1
+1	100000	90000
+BEGIN DtvPvrPlay2 0
+%%%_Video g0000000.gui 
+setinput	1	1	1	1 S 1 	0 	2 9 8 
+get	1	1	2	0 	5 S 6 I 4 I 3 I 1 I 2 	1 6 
+play	1	1	3	0 	0 	2 -1 8 
+faster	1	1	4	0 	0 	1 -1 
+stop	1	1	5	0 	0 	1 7 
+END
+BEGIN Constant_String1 0
+testvideo.mp4 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN gui_text_string2 0
+%%%_other g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 5 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+STOP 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN Constant_Int1 0
+50 
+Run_ConstantInt	1	1	-1	0 	1 I -1 	0 
+END
+BEGIN gui_text_int2 0
+%%%_Info g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	6	6 I -1 I -1 I -1 I -1 I -1 I 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_Play g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 3 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+PLAY 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN time_clock 0
+500000 1 1 
+start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 2 
+END
+BEGIN gui_text_string2 0
+%%%_Stopping g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	7	0 	0 	1 -1 
+hide	1	1	3	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_Ended g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	8	0 	0 	1 -1 
+hide	1	1	3	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 5 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+Stop Recieved 
+Run_ConstantString	1	1	-1	0 	1 S 4 	0 
+END
+BEGIN Constant_String1 0
+Ended (No Stop) 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN Constant_String1 0
+testaudio.mp3 
+Run_ConstantString	1	1	-1	0 	1 S -1 	0 
+END
+BEGIN gui_text_string2 0
+%%%_Medtadata g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	9	6 I -1 I -1 I -1 I -1 I -1 S 6 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_Speed g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 4 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	6	6 I -1 I -1 I -1 I -1 I -1 I 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_time g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	6	6 I -1 I -1 I -1 I -1 I -1 I 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_Position g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	6	6 I -1 I -1 I -1 I -1 I -1 I 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

@@ -1,0 +1,55 @@
+h1.component {
+text-align:center;font-family:arial;font-size:20px;color:black;
+}
+h2.component {
+text-align:leftr;font-family:arial;font-size:17px;color:black;
+}
+h3.ports, h3.parameters, h3.stateMachine, h3.licenceType, h3.supplier, h3.more, h3.profiles, h3.toolbox, h3.version {
+font-family:arial;font-size:17px;color:black;
+}
+h3.dependencies {
+font-family:arial;font-size:17px;color:black;display:none;
+}
+h6.ports, h6.parameters, h6.profiles {
+font-family:arial;font-size:14px;color:black;display:inline;
+}
+h6.dependencies {
+font-family:arial;font-size:14px;color:black;display:inline;
+}
+h6.portsInt {
+font-family:arial;font-size:14px;color:blue;display:inline;
+}
+h6.portsBool {
+font-family:arial;font-size:14px;color:rgb(240,200,000);display:inline;
+}
+h6.portsStr {
+font-family:arial;font-size:14px;color:red;display:inline;
+}
+h6.portsReal {
+font-family:arial;font-size:14px;color:green;display:inline;
+}
+p.image {
+text-align:center;font-family:arial;font-size:10px;color:black;
+}
+p.link {
+font-family:arial;font-size:13px;color:black;
+}
+p.component, p.stateMachine, p.licenceType, p.more, p.supplier, p.toolbox, p.version {
+font-family:arial;font-size:14px;color:black;
+}
+p.ports, p.parameters, p.profiles {
+font-family:arial;font-size:14px;color:black;display:inline;
+}
+p.dependencies {
+font-family:arial;font-size:14px;color:black;display:inline;
+}
+ul.noBullet {
+<!--list-style-type: none-->
+}
+ul.dependencies {
+display:inline;
+}
+li.dependencies {
+display:inline;
+}
+

@@ -1,0 +1,22 @@
+<smil xmlns="http://www.w3.org/2001/SMIL20/Language">
+<head>
+	<meta name="tableconfig_55" content="0,0"  />
+	<textStyling>
+		<textStyle xml:id="TextStyle_55_normal" textFontFamily="Arial" textFontSize="Small" />
+		<textStyle xml:id="TextStyle_55_title" textFontFamily="Arial" textFontSize="Small" />
+		<textStyle xml:id="TextStyle_55_table" textFontFamily="Arial" textFontSize="Small" />
+	</textStyling>
+	<layout>
+		<root-layout width="1600" height="900"   />
+		<region xml:id="RegionId_55_0" top="10%" left="08%" right="40%" bottom="95%" textStyle="TextStyle_55_title"/>
+		<region xml:id="RegionId_55_1" top="100%" left="50%" right="100%" bottom="0%" textStyle="TextStyle_55_normal"/>
+	</layout>
+</head>
+<body>
+	<seq begin="wallclock( 00:00:00 )" end="wallclock( 23:59:00 )" xml:id="SectionId_55" >
+		<media src="/_data/01 Silver.m4a"  region="RegionId_55_1" />
+		<media src="/_data/02 Nocturnal Me.m4a"  region="RegionId_55_0" />
+		<media src="/_data/08 My Kingdom.m4a"  region="RegionId_55_0" />
+	</seq>
+</body>
+</smil>

@@ -1,0 +1,2057 @@
+#include "ehs_types.h"
+#include "time_clock.h"
+#include "fid.h"
+#include "timer.h"
+#include "hal_time.h" //for implementation of strptime()
+#include "hal_string.h"
+#include "hal.h" /* Needed for logging */
+#include "app_data.h"
+#include "hal_time.h"
+#include "playManager.h"
+#include "globals.h"
+#include "hal_mem.h"
+#include "hal_process.h"
+#include "hal_media.h"
+
+EHS_FB_FUNCTIONS_START(PlayManager)
+								EHS_FB_FUNCTION_ENTRY(EHS_FB_MEDIA_PLAYMANAGER_NEXT_PLAYLIST_NAME, PlayManager_Next_Playlist) EHS_FB_FUNCTION_ENTRY(EHS_FB_MEDIA_PLAYMANAGER_TICK_NAME, PlayManager_Tick)
+				EHS_FB_FUNCTION_ENTRY(EHS_FB_MEDIA_PLAYMANAGER_PLAYED_NAME, PlayManager_Played)
+				EHS_FB_FUNCTION_ENTRY(EHS_FB_MEDIA_PLAYMANAGER_STARTED_NAME, PlayManager_Started)
+				EHS_FB_FUNCTION_ENTRY(EHS_FB_MEDIA_PLAYMANAGER_NEXT_URL_NAME, PlayManager_Next_URL)
+				EHS_FB_FUNCTION_ENTRY(EHS_FB_MEDIA_PLAYMANAGER_GOT_NAME, PlayManager_Got)
+				EHS_FB_FUNCTION_ENTRY(EHS_FB_MEDIA_PLAYMANAGER_SET_PATHS_NAME, PlayManager_Set_Paths)
+				EHS_FB_FUNCTIONS_END
+
+
+/* Port Mappings */
+#define EHS_FB_PLAYMANAGER_TICK_MEDIAFILE 0 // 1
+#define EHS_FB_PLAYMANAGER_TICK_CLASS 1 // 2
+#define EHS_FB_PLAYMANAGER_TICK_TEXT 2 // 3
+#define EHS_FB_PLAYMANAGER_TICK_TYPE 3 // 4
+#define EHS_FB_PLAYMANAGER_TICK_ID 4 // 5
+#define EHS_FB_PLAYMANAGER_TICK_PLAYNOW 1 // 6
+#define EHS_FB_PLAYMANAGER_TICK_PLAYREMOTE 2 //7
+
+//#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_INPATH 1 //-0
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_PLAYLIST_PATH_IN 0 //-1
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_PLAYLIST_PATH_OUT 0 //-2
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_URL 1 //-3
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_LOCAL_FILE 2 //-4
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_NEXT_EVENT_TIME 3 //-5
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_ID 4 //-6
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_FINISH 1 //-7
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_GET 2 //-8
+
+
+#define EHS_FB_PLAYMANAGER_GOT_XXX 0
+#define EHS_FB_PLAYMANAGER_GOT_XXXX 0
+#define EHS_FB_PLAYMANAGER_GOT_XXXXX 0
+
+
+typedef enum {
+	EHS_PLAYMANAGER_REPEAT_DAY = 0,
+	EHS_PLAYMANAGER_REPEAT_MONTH = 1,
+	EHS_PLAYMANAGER_REPEAT_YEAR = 2,
+	EHS_PLAYMANAGER_REPEAT_NONE = 3
+} EhsPlayManagerRepeatEnum;
+
+//This is used to identify what type of node we are dealing with. Begin means we are in a list - not just the beginning.
+typedef enum {
+	EHS_PLAYMANAGER_EVENT_OBJECT = 0,
+	EHS_PLAYMANAGER_EVENT_NEWLIST = 1,
+	EHS_PLAYMANAGER_EVENT_MIDLIST = 2,
+	EHS_PLAYMANAGER_EVENT_END = 3,
+	EHS_PLAYMANAGER_EVENT_UNKOWN = 4
+} EhsPlayManagerEventTypeEnum;
+
+/*
+ * Used to identify if a list object is to be parsed as seq,par or excl.
+ */
+typedef enum {
+	EHS_PLAYMANAGER_EVENTLIST_SEQ = 0,
+	EHS_PLAYMANAGER_EVENTLIST_PAR = 1,
+	EHS_PLAYMANAGER_EVENTLIST_EXCL = 2,
+	EHS_PLAYMANAGER_EVENTLIST_UNKOWN = 3
+} EhsPlayManagerEventListTypeEnum;
+
+/*
+ * This is thype returned by the SMIL parser to indicate to the event manager if the SMIL chunk event should be destroyed or not
+ */
+
+typedef enum {
+	EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE = 0, EHS_PLAYMANAGER_SMIL_CHUNK_KEEP = 1,EHS_PLAYMANAGER_SMIL_CHUNK_ENDED = 2
+} EhsPlayManagerSMILNodeActionEnum;
+
+/*
+ * The following is used to record the media files that have been downloaded.
+ */
+typedef struct EhsPlayManagerMediaLocationStruct {
+	ehs_char url[512];
+	ehs_char localFile[512];
+	struct EhsPlayManagerMediaLocationStruct *pNext;
+} EhsPlayManagerMediaLocation;
+
+
+
+typedef struct EhsPlayManagerEventListForParStruct {
+	struct EhsPlayManagerEventListForParStruct *pNext;
+	ehs_uint32 ID;
+} EhsPlayManagerEventListForParType;
+
+/*
+ * Records XML strings of playlist content associated with a partiular event.
+ * This is the list of all playable nodes that have been parsed.
+ * The structure identifies the following:
+ * 	The event is a repeat event
+ *  The event is a list and there is more to parse (in pPlaylist)
+ *  The meta data for the object that has already been parsed.
+ */
+typedef struct EhsPlayManagerEventStruct {
+	struct EhsPlayManagerEventStruct *pNext;
+	time_t eventTime; // this is the start time that is checkedon each clock tick..
+	time_t eventEndTime; // we need to keep this for lists and NOW FOR EVERY EVENT THAT HAS ONE!- end times with a copy of the data...
+	EhsPlayManagerRepeatEnum repeat; // if the event is not fully qualified (e.g. by date) then this identifies the repeat period which is assumed when course tiem data is not specified.
+	EhsPlayManagerEventTypeEnum type; // is this a list begin type, end of list type, or a SINGLE track type (with specific data).
+	EhsPlayManagerEventListTypeEnum eventListType; // this is either seq, par, or excl.
+	ehs_uint32 playlistSize;
+	xmlTextReaderPtr memoryReader; //Reads the in memory playlist we are currently playing
+	ehs_char* pPlaylist; // this contains shunks of playlists containing lists that are to be iterated.
+	ehs_char* pMediaSource; //this is the source attribute for a media object. populated by the media object parser.
+	ehs_char* class; // class this is used by the app to divert stuff around.
+	ehs_char* srcType;// we don't use this yet.
+	ehs_char*region;
+	ehs_bool bCurrentPlayStarted; // this for any object or list that has started. When this is set the list's end time is checked.
+	ehs_uint32 WaitingForObjectUniqueID; // this is the unique ID that needs to be checked and reset if a list event is pending entries to complete..
+	ehs_uint32 SendersObjectUniqueID; // this is the unique ID that will be emitted when the event asserts (if this is a firable one).
+	ehs_uint32 ListUniqueID; /*This is nearly obsolete but is used to indicate an event is a list event if > 0*/ // this is the unique ID shared between start and end events - so that end events can kill all events created.
+							 // Note it should not be necessary for child objects or lists to be removed when an end event occurs as long as none are posted where the begin event is later than the end event
+
+	EhsPlayManagerEventListForParType * parEventList; //This is populated for para list types and contains IDs of all the objects held in the list that have yet to be received.
+	//ehs_bool parListAllPlayed; // This is set when a parlist has been fully played.
+} EhsPlayManagerEvent;
+
+typedef struct {
+	EhsTimerType xTimer;
+	ehs_uint32 NewPlaylistStartGracePeriod; // this is the time (in clock ticks that must occur before any events from a new playlist are asserted
+	EhsCallbackQueueType xQueue;
+	EhsCallbackQueueEntryType xEntry;
+	EhsTickType tPeriod;
+	ehs_bool bRetriggerable;
+	ehs_bool bPeriodic;
+	EhsPlayManagerEvent *pEvent;
+	ehs_uint32 pWaitingOnEvent; // This is the ID of the last event ired that must be acked to move on to the next.=0 when acked.
+	ehs_uint32 ObjectUniqueID; // this is the instance global value incremeneted for every object fired. This is used for knowing when the next started can be fired.
+	ehs_uint32 ListUniqueID; // current unique ID that is given to list events.
+	//This is to serialise the firing of each event (i.e. the started event must occur for each fire, until the next one is allowed.
+	pthread_mutex_t EhsL_eventList;
+	EhsTPMutexClass EhsTPMutex_eventList; //Not currently used, use global mutex in target_process.c
+	//ehs_char *pPlaylist; //Pointer to the current chunk of XML that represents out playlist
+
+	xmlTextReaderPtr fileReader; //Reads the master playlist from the file system
+	xmlTextReaderPtr srcFileReader; //Reads the master playlist from the file system for generating GET events
+	EhsPlayManagerMediaLocation* pMediaList;
+	ehs_char downloadURL[512];
+	ehs_char downloadPath[512];
+	ehs_uint32 newPlaylistBehaviour;
+	ehs_bool playing;
+	EhsFunctionInstanceDataType* pFireFIData; // this is populated with the tick call-back pfi data, so that other functions (like next playlist) can call the fire function.
+} EhsPlayManagerType;
+
+/*
+ehs_uint16 seqTag(xmlTextReaderPtr reader, EhsPlayManagerType* pPlayManager,
+		time_t * parent_start_time, time_t * parent_end_time);
+*/
+
+static void PrintEvent(EhsPlayManagerEvent *pEvent) {
+	printf(
+			"//EVENT//\neventTime=%ld\ntype=%i\npPlaylist=%s\npMediaSource=%s, ID=%d, TYPE=%s, ListType=%d Addr=%x\n",
+			pEvent->eventTime, pEvent->type, pEvent->pPlaylist,
+			pEvent->pMediaSource,pEvent->WaitingForObjectUniqueID,pEvent->srcType,pEvent->eventListType,pEvent);
+}
+
+EHS_LOCAL ehs_bool ClearMediaList(EhsPlayManagerType* pPlayManager);
+
+
+EHS_FB_IDENTIFY_FUNCTION(PlayManager) {
+	EHS_TRACE_FUNCTION(EHS_FB_IDENTIFY_NAME(PlayManager));
+	EHS_FB_IDENTIFY_MEMORY = sizeof(EhsPlayManagerType);
+}
+
+#define EHS_SMILPARSER_TICK_TIME 20000
+#define EHS_SMILPARSER_DEFAULT_START_GRACE 5000000 // 5 second start time
+
+EHS_FB_INIT_FUNCTION(PlayManager) {
+	EhsPlayManagerType* pPlayManager = EHS_FB_INIT_CONTEXT;
+	const char* pParams;
+	ehs_uint32 nPeriodIn_uS;
+	ehs_uint8 nByte;
+	EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(PlayManager));
+	//initialise libxml library
+	xmlInitParser(); //According to the docs for libxml this is required for safe multi threaded use of the libxml libraries
+	LIBXML_TEST_VERSION
+	/* set up the callback queue to call the callback function */
+	//printf("INIT::::::: pPlayManager addr=%x",pPlayManager);
+	pPlayManager->xQueue = NULL;
+	pPlayManager->pFireFIData = EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(-1); // add the instance data for the fire function
+	EhsCallbackQueue_register(&(pPlayManager->xQueue),
+			EHS_FB_RUN_NAME(PlayManager_Tick),
+			EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(-1), &(pPlayManager->xEntry));
+	/* Initialise the timer */
+	pPlayManager->xTimer.pCallback = &(pPlayManager->xQueue);
+	pPlayManager->tPeriod = EhsTgtTimer_usToTick(EHS_SMILPARSER_TICK_TIME); // 100ms or do we want 10.
+	pPlayManager->xTimer.tPeriod = pPlayManager->tPeriod;
+	pPlayManager->NewPlaylistStartGracePeriod= (EHS_SMILPARSER_DEFAULT_START_GRACE/EHS_SMILPARSER_TICK_TIME);
+	pPlayManager->bPeriodic = EHS_TRUE;
+	pPlayManager->bRetriggerable = EHS_TRUE;
+	//Point the event list at NULL so that we know it is empty
+	pPlayManager->pEvent = NULL;
+	//Same for the playlist
+	//pPlayManager->pPlaylist = NULL;
+	pPlayManager->ObjectUniqueID = 1;
+	pPlayManager->ListUniqueID=1;
+	pPlayManager->fileReader = NULL;
+	pPlayManager->srcFileReader = NULL;
+	pPlayManager->pMediaList = NULL;
+	pPlayManager->downloadURL[0] = '\0';
+	pPlayManager->downloadPath[0] = '\0';
+	pPlayManager->newPlaylistBehaviour = 1;
+	pPlayManager->playing = EHS_FALSE;
+	//Set up the mutex for the event list
+	//No longer used, everything is done in target_process.c
+	/*pthread_mutex_init(&(pPlayManager->EhsL_eventList),NULL);
+	 pPlayManager->EhsTPMutex_eventList = (EhsTPMutexStruct)&(pPlayManager->EhsL_eventList);*/
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/*
+ * This get the next tag in the SMIL file and returns its string.
+ * This will just skip comments
+ */
+
+static ehs_char* getNextTag(xmlTextReaderPtr reader) {
+	ehs_char* nextTag = NULL;
+	ehs_char* name;
+	int ret = 0;
+	ret = xmlTextReaderRead(reader);
+	while (ret == 1) {
+		name = (ehs_char*) xmlTextReaderConstName(reader); // This is dealoocated with reader  -don't deallocate!
+		//Ignore #text, #comment
+		if ((strcmp("#text", name) == 0) || (strcmp("#comment", name) == 0)) {
+			//node is a comment or node body so should be discarded for the next node
+			ret = xmlTextReaderRead(reader);
+		} else {
+			//this not a comment or text body so is therefore the next node to be parsed so stop looping
+			nextTag = name; // @todo is this bit causes a crashes when the the list is cleared (and the XML is destroyed)?
+			ret = 0; //this breaks the loop
+		}
+	}
+	return nextTag;
+}
+
+
+/* This updates the start and end time if these are repeat events
+ * ( if the end time is ==0 this is not changed ).
+ *
+ */
+
+EHS_LOCAL void UpdateEventTime(EhsPlayManagerEvent *pEvent) {
+	struct tm eventTM;
+	switch (pEvent->repeat) {
+	case EHS_PLAYMANAGER_REPEAT_YEAR:
+		//Add 1 year to event time
+		gmtime_r(&(pEvent->eventTime), &eventTM);
+		eventTM.tm_year = eventTM.tm_year + 1;
+		pEvent->eventTime = mktime(&eventTM);
+		if (pEvent->eventEndTime) {
+			gmtime_r(&(pEvent->eventEndTime), &eventTM);
+			eventTM.tm_year = eventTM.tm_year + 1;
+			pEvent->eventEndTime = mktime(&eventTM);
+
+		}
+		break;
+	case EHS_PLAYMANAGER_REPEAT_MONTH:
+		//Add 1 month to event time
+		gmtime_r(&(pEvent->eventTime), &eventTM);
+		//Deal with year rolling over
+		if (eventTM.tm_mon == 12) {
+			eventTM.tm_mon = 1;
+			eventTM.tm_year = eventTM.tm_year + 1;
+		} else {
+			eventTM.tm_mon = eventTM.tm_mon + 1;
+		}
+		pEvent->eventTime = mktime(&eventTM);
+		if (pEvent->eventEndTime) {
+			gmtime_r(&(pEvent->eventEndTime), &eventTM);
+			if (eventTM.tm_mon == 12) {
+				eventTM.tm_mon = 1;
+				eventTM.tm_year = eventTM.tm_year + 1;
+			} else {
+				eventTM.tm_mon = eventTM.tm_mon + 1;
+			}
+			eventTM.tm_year = eventTM.tm_year + 1;
+			pEvent->eventEndTime = mktime(&eventTM);
+		}
+
+		break;
+	case EHS_PLAYMANAGER_REPEAT_DAY:
+		//Add 24 hours to event time
+		pEvent->eventTime = pEvent->eventTime
+				+ EHS_FB_MEDIA_PLAYMANAGER_DAY_SECONDS; //number of seconds in 24 hours
+		if (pEvent->eventEndTime) {
+			pEvent->eventEndTime = pEvent->eventEndTime
+							+ EHS_FB_MEDIA_PLAYMANAGER_DAY_SECONDS; //number of seconds in 24 hours
+			}
+		break;
+	default:
+		;
+		//removeEvent(pEvent); cant call this because we need the previous and playmanage structure.
+	}
+
+}
+
+static void parseWallClockValue(ehs_char* value, EhsPlayManagerEvent *pEvent, ehs_bool bEndTime) {
+	int length = 0;
+	time_t t = -1;
+	struct tm tm;
+	struct tm currenttm;
+	time_t currentt;
+	ehs_char *pEndBrace, *pWallClockValue;
+	//test length of value, if it is longer than "wallclock(" then test to see if it starts with wallclock
+	if (strlen(value) >= 10) {
+		if (strncmp(value, "wallclock(", 10) == 0) {
+			//starts with wallclock, now chomp whitespace from that brace
+			pWallClockValue = &value[10];
+			while (*pWallClockValue == ' ') {
+				pWallClockValue++;
+			}
+			//get positon of closing brace
+			pEndBrace = strchr(value, ')');
+			if (pEndBrace != NULL) {
+				//then chomp whitespace backwards
+				do {
+					pEndBrace--;
+				} while (*pEndBrace == ' ');
+				//make sure the end is greater than the start otherwise something has gone wrong (like an empty wallclock value)
+				if (pWallClockValue < pEndBrace) {
+					//Set the character one after the end our wallclock value as null so that our string terminates
+					*(pEndBrace + 1) = '\0'; //left hand side says "increment pEndBrace to point at the next char then set the value held within", we must remember to set this to non null otherwise we risk leaking memory in the xml clean up function
+					//get current time and date so we can fill in any missing values
+					currentt = time(NULL);
+					gmtime_r(&currentt, &currenttm);
+					//Find out what format the time is in
+					//we are going to strlen, since each datetime format is of a different length we can use that to reliably determine the format
+					length = strlen(pWallClockValue);
+					switch (length) {
+					//hh:mm:ss
+					case 8:
+						if ((void *) strptime((char*) pWallClockValue,
+								"%H:%M:%S", &tm) != NULL) {
+							tm.tm_mday = currenttm.tm_mday;
+							tm.tm_mon = currenttm.tm_mon;
+							tm.tm_year = currenttm.tm_year;
+							if (!bEndTime) pEvent->repeat = EHS_PLAYMANAGER_REPEAT_DAY; //repeat daily
+						}
+						break;
+						//DDThh:mm:ss
+					case 11:
+						if ((void *) strptime(pWallClockValue, "%dT%H:%M:%S",
+								&tm) != NULL) {
+							tm.tm_mon = currenttm.tm_mon;
+							tm.tm_year = currenttm.tm_year;
+							if (!bEndTime) pEvent->repeat = EHS_PLAYMANAGER_REPEAT_MONTH; //repeat monthly, 1 is reserved for week repeat
+						}
+						break;
+						//MM-DDThh:mm:ss
+					case 14:
+						if ((void *) strptime(pWallClockValue,
+								"%m-%dT%H:%M:%S", &tm) != NULL) {
+							tm.tm_year = currenttm.tm_year;
+							if (!bEndTime) pEvent->repeat = EHS_PLAYMANAGER_REPEAT_YEAR; //repeat yearly, probably not needed
+						}
+						break;
+						//YYYY-MM-DDThh:mm:ss
+					case 19:
+						strptime(pWallClockValue, "%Y-%m-%dT%H:%M:%S", &tm);
+						if (!bEndTime) pEvent->repeat = EHS_PLAYMANAGER_REPEAT_NONE; //no repeat
+						break;
+					default:
+						if (length > 19) { // try umatching a fully qualified time - perhaps has time zone implemented.
+							strptime(pWallClockValue, "%Y-%m-%dT%H:%M:%S", &tm);
+							if (!bEndTime) pEvent->repeat = EHS_PLAYMANAGER_REPEAT_NONE; //no repeat
+							break;
+						} else {
+							//printf("Wallclock Value not recognised\n");
+						}
+					}
+					//printf("parseWallClockValue:current: year: %d; month: %d; day: %d; hour: %d; minute: %d; second: %d, week day: %d, year day: %d\n", currenttm.tm_year, currenttm.tm_mon, currenttm.tm_mday, currenttm.tm_hour, currenttm.tm_min, currenttm.tm_sec, currenttm.tm_wday, currenttm.tm_yday);
+					//printf("parseWallClockValue:calculated: year: %d; month: %d; day: %d; hour: %d; minute: %d; second: %d, week day: %d, year day: %d\n", tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_wday, tm.tm_yday);
+					//parsed time so lets see what we have
+					t = mktime(&tm);
+					if (!bEndTime) {
+						pEvent->eventTime = t;
+					}
+					else {
+						pEvent->eventEndTime = t;
+					}
+					*(pEndBrace + 1) = ' '; //Clear away null character we put in earlier so that we don't leak memory
+				} else {
+					//badly positioned braces for wallclock value
+				}
+			} else {
+				//could not find end of wallclock value
+			}
+		} else {
+			//does not start with wallclock(
+		}
+	} else {
+		//not long enough to be a wallclock value
+	}
+}
+
+/*
+ * called when the closing body tag is expected
+ */
+
+static void closingBodyTag(xmlTextReaderPtr reader) {
+	ehs_char* nextTag;
+	nextTag = getNextTag(reader);
+	if (nextTag != NULL) {
+		if ((strcmp(nextTag, "smil") == 0) && (xmlTextReaderNodeType(reader)
+				== 15)) {
+			//closing smilTag found so just stop!
+		} else {
+			printf("closingBodyTag: expected closing smil. Found %s\n", nextTag);
+		}
+	} else {
+		printf("closingBodyTag: failed to get nextTag\n");
+	}
+}
+
+/*
+ * Call this to post an event into the list for playing.
+ * The event supplied will be pre-populated with a time or a waiting flag if it belongs to a sequence.
+ */
+
+static void addToEventList(EhsPlayManagerEvent* pNewEvent,
+		EhsPlayManagerType* pPlayManager) {
+	EhsPlayManagerEvent *pCurrentEvent = NULL;
+	//if list is empty just put it on as the first item
+	//printf("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW New Event =%x, next=%x\n",pNewEvent,pNewEvent->pNext);
+	pNewEvent->pNext = NULL;//Just in case it was not inited properly.
+	if (pPlayManager->pEvent == NULL) {
+		pPlayManager->pEvent = pNewEvent;
+		//printf("\nAdding Event to List - first - time = %d\n",pNewEvent->eventTime);
+	} else {
+		//List is not empty so run over it and find the new place for it
+		pCurrentEvent = pPlayManager->pEvent;
+		//Positioning logic is that it should go at the end of the list, we can thus assume that the list will be time ordered due to assuming we are only dealing with time ordered playlists at this phase
+		//printf("QQQQQQaddToEventList:pCurrentEvent =%x\n", pCurrentEvent);
+		while (pCurrentEvent->pNext != NULL) {
+			//printf("QQQQaddToEventList:pCurrentEvent=%x pCurrentEvent->pNext =%x, pCurrentEvent-.PARSTUFF =%x, resource=%s\n", pCurrentEvent,pCurrentEvent->pNext,pCurrentEvent->parEventList,pCurrentEvent->pMediaSource);
+			pCurrentEvent = pCurrentEvent->pNext;
+		}
+		//We have reached the end of the event list. pCurrentEvent should point to the last entry in the list
+		pCurrentEvent->pNext = pNewEvent;
+		//printf("\nAdding Event to List\n");
+	}
+	//printf("addToEventList\n");
+	//PrintEvent(pNewEvent);
+}
+
+/*
+ * Clears all events for the playmanager
+ */
+
+EHS_LOCAL void clearEventList(EhsPlayManagerType* pPlayManager) {
+	EhsPlayManagerEvent *pCurrentEvent = pPlayManager->pEvent;
+	EhsPlayManagerEvent *pNextEvent = NULL;
+	printf("CLEARING EVENTLIST\n");
+	//while not NULL free the event and move on
+	EHSH_LOG_INFO("Clearing Event List");
+	while (pCurrentEvent != NULL) {
+		pNextEvent = pCurrentEvent->pNext;
+		FreeAllEventMemory(pCurrentEvent);
+		pCurrentEvent = pNextEvent;
+
+	}
+	ClearMediaList(pPlayManager);
+	pPlayManager->pEvent = NULL; //flag it is empty
+	printf("Last Event is %x\n", pCurrentEvent);
+	//also clear the memory reader so that the played port won't start upsetting things if we have no events
+}
+
+InitEvent(EhsPlayManagerEvent * Event) {
+
+	Event->eventTime = 0;
+	Event->eventEndTime = 0;
+	Event->repeat = EHS_PLAYMANAGER_REPEAT_NONE;
+	Event->pNext = NULL;
+	Event->type = EHS_PLAYMANAGER_EVENT_UNKOWN;
+	Event->eventListType = EHS_PLAYMANAGER_EVENTLIST_UNKOWN;
+	Event->playlistSize = 0;
+	Event->memoryReader = NULL;
+	Event->pPlaylist = NULL;
+	Event->pMediaSource = NULL;
+	Event->class = NULL;
+	Event->srcType = NULL;
+	Event->region = NULL;
+	Event->WaitingForObjectUniqueID = 0; //  Default is 0 so we play non-list stuff .. (idiot!)
+	Event->SendersObjectUniqueID = -1; // Default sender is different to 0 in case it slips through.
+	Event->ListUniqueID = 0; //set to zero to indicate this is not a list related event
+	Event->bCurrentPlayStarted =EHS_FALSE;
+	Event->parEventList=NULL;
+	//Event->parListAllPlayed=EHS_FALSE;
+	//before the next element in the list is parsed. default to 0 which means ready to play.
+}
+
+/*
+ *
+ * CreateTimeEvent - populates the event structure. from SMIL attributes.
+ * It will also populate an end event structure if there is an end time present.
+ * The end time structure is always of the type EHS_PLAYMANAGER_EVENT_END - and should be populated
+ * with the ID and resource name.
+ *
+ * Call this to populate an event (supplied) with the time data is parsed from the next SMIL node. *
+ *
+ * This is used for all SMIL nodes that might have time data begin & end.
+ * If there is no time data the default parent time value is assigned as the begin time.
+ */
+
+//@todo this should check the inout end time against the read-in one and use the the earliset for the end time.
+ehs_bool CreateTimeEvent(xmlTextReaderPtr reader,
+		EhsPlayManagerEvent **pStartEvent, EhsPlayManagerEvent **pEndEvent,
+		time_t * parent_start_time, time_t * parent_end_time, ehs_bool MediaObject) {
+	ehs_char * value = NULL;
+	ehs_bool ret = EHS_FALSE;
+	//We will always have a start event - even if the begin is not present. We will use the parent time in this case.
+	//printf("b4 Allocated pStartEvent=%x\n", *pStartEvent);
+	*pStartEvent
+			= (EhsPlayManagerEvent*) EhsHMem_tempAlloc(sizeof(EhsPlayManagerEvent)); //assume we have an end event for now
+	//printf("Allocated pStartEvent=%x\n", *pStartEvent);
+
+	if ((*pStartEvent) != NULL) {
+		InitEvent(*pStartEvent);
+
+		ret = EHS_TRUE;
+		(*pStartEvent)->pNext = NULL; // just an initialiser for the linked list.
+		//(*pStartEvent)->type = EHS_PLAYMANAGER_EVENT_BEGIN;// this could be an immediate event or a list type
+		(*pStartEvent)->repeat = EHS_PLAYMANAGER_REPEAT_NONE; //assume no repeat to start with
+		value = xmlTextReaderGetAttribute(reader, "begin"); // get the start time wall clock value
+		//Test for NULL value, if it is null then just use current time
+		if (value == NULL) {
+			(*pStartEvent)->eventTime = *parent_start_time;//This will cause it to fire on the parent time instead
+		} else {
+			parseWallClockValue(value, (*pStartEvent), EHS_FALSE); // populate the event data with the time value. This creates an absolute time and records if it was a a regular event.
+			xmlFree(value); // remove the XML for the attribute only ??
+		}
+		//	if ((*pStartEvent)->eventTime > 0) { //otherwise we try and sort out the cross misnight problem for non-fully specified wall-clock times
+		//@todo we should repeat all the above for weeks & months? - unlikely we have a sequence that crosses these types of boundaries for more than one day?			value = xmlTextReaderGetAttribute(reader, "end");
+		//if there is no end time then free the end event because we don't need one
+		value = xmlTextReaderGetAttribute(reader, "end");
+
+		//put this in a new element of the start event.
+		if ((value == NULL) && (*parent_end_time == 0)) { // there is not end time implied for this
+			(*pEndEvent) = NULL;
+			//printf("XXXX->No time Found for parent or child , adding event for this event\n");
+		} else {
+#ifdef EHS_PLAYMANAGER_CREATE_END_EVENTS
+			(*pEndEvent)
+			= (EhsPlayManagerEvent*) EhsHMem_tempAlloc(sizeof(EhsPlayManagerEvent)); //assume we have an end event for now
+			if ((*pEndEvent) != NULL) {
+				InitEvent(*pEndEvent);
+				(*pEndEvent)->type = EHS_PLAYMANAGER_EVENT_END;
+				(*pEndEvent)->repeat = EHS_PLAYMANAGER_REPEAT_NONE; //assume no repeat to start with
+				if (value == NULL) {
+					(*pEndEvent)->eventTime = *parent_end_time;
+					//printf(
+							"XXXX->Not Found end time, adding event for this event\n");
+
+				} else {
+					printf(
+							"XXXX->Found end time, adding event for this event = %d\n",
+							value);
+
+					parseWallClockValue(value, (*pEndEvent)); // populate the event data with the time value. This creates an absolute time and records if it was a a regular event.
+
+					xmlFree(value); // remove the XML for the attribute only ??
+				}
+#else
+			// Yes this is when we have found an end time  in the SMIL, we add it to the start event ....
+			if (value != NULL) {
+				parseWallClockValue(value, (*pStartEvent), EHS_TRUE); // now add the end event info to the start event..
+			}
+#endif
+
+		}
+
+#ifdef EHS_PLAYMANAGER_CREATE_END_EVENTS
+		if (((*pEndEvent) != NULL) && ((*pEndEvent)->eventTime != 0)) // Do some logic here to allow cross midnight, week end or months ends for regular events
+		{
+			//if (*pEndEvent)->eventTime is less than (*pStartEvent)->event but within a day of it then add one day to (*pEndEvent), this is to represent playlists that run over midnight
+			if (((*pEndEvent)->eventTime < (*pStartEvent)->eventTime)
+					&& ((*pEndEvent)->eventTime > (*pStartEvent)->eventTime
+							- EHS_FB_MEDIA_PLAYMANAGER_DAY_SECONDS)) {
+				(*pEndEvent)->eventTime = (*pEndEvent)->eventTime
+				+ EHS_FB_MEDIA_PLAYMANAGER_DAY_SECONDS; //this should be safe to assume one day as any other repeat period would specify the days so the confusion would not occur in the first place
+			}
+			(*pStartEvent)->eventEndTime=(*pEndEvent)->eventTime;// we need to copy this for list types so the end time can be identified by children
+		}
+		if ((*pEndEvent) && ((*pEndEvent)->eventTime == 0)) { //only create an end event if this is a Media Object.otherwise just update the parent time.
+			EhsHMem_tempFree(*pEndEvent);
+			*pEndEvent = NULL;
+		}
+#endif
+
+	} else { // we couldn't alloc a start event
+		ret = EHS_FALSE;
+		EHSH_LOG_ERROR("Could not allocate start event memory");
+	}
+	return ret;
+} /*end Function
+
+ return ret;// returns if we got at least a being time. If not the begin time is still populated with now
+ //we may be returning nulls here
+ }
+
+ /*
+ * Called when a list type (seq, par or excl tag) is first found and the active node in the reader is the
+ * beginning of one of these list types.
+ *
+ * Extracts the header info and creates a begin entry for a time when it will be parsed.
+ * This is done mainly for the sequence type entries where the timing is only known once media is playing.
+ * par and excl tpyes are done with similar "live " parsing to make things simpler.
+ *
+ * The input time is used if nothing is specified. This doesn't need to be updated because the whole sequence that it would apply to is dealt with here.
+ */
+
+ehs_uint16 CreateListEvent(xmlTextReaderPtr reader,
+		EhsPlayManagerType* pPlayManager, time_t * parent_start_time,time_t * parent_end_time,
+		EhsPlayManagerEventListTypeEnum ListEventType, ehs_uint32 nEntryID) {
+
+	time_t begin, end;
+	ehs_char* nextTag;
+	ehs_char* value;
+	ehs_uint16 ret = EHS_TRUE;
+	ehs_char* innerXML = NULL;
+	ehs_char* ehsInnerXML = NULL;
+	ehs_uint32 innerXMLsize = 0;
+<<<<<<< .mine
+	EhsPlayManagerEvent *pStartEvent, *pEndEvent;
+	pStartEvent = (EhsPlayManagerEvent*)EhsHMem_tempAlloc(sizeof(EhsPlayManagerEvent));
+	PlayManagerEventInit(pStartEvent);
+	if(pStartEvent!=NULL)
+	{
+		pStartEvent->pNext = NULL;
+		pStartEvent->type = EHS_PLAYMANAGER_EVENT_BEGIN;
+		pStartEvent->repeat = EHS_PLAYMANAGER_REPEAT_NONE; //assume no repeat to start with
+		pEndEvent = (EhsPlayManagerEvent*)EhsHMem_tempAlloc(sizeof(EhsPlayManagerEvent)); //assume we have an end event for now
+		if(pEndEvent!=NULL)
+		{
+			pEndEvent->pNext = NULL;
+			pEndEvent->type = EHS_PLAYMANAGER_EVENT_END;
+			pEndEvent->repeat = EHS_PLAYMANAGER_REPEAT_NONE; //assume no repeat to start with
+			//Process begin attribute
+			value = xmlTextReaderGetAttribute(reader, "begin"); // get the start time wall clock value
+			//Test for NULL value, if it is null then just use current time
+			if(value==NULL)
+			{
+				pStartEvent->eventTime = 0;//This will cause it to fire straight next basically
+			}
+			else
+			{
+				parseWallClockValue(value, pStartEvent); // populate the event data with the time value. This creates an absolute time and records if it was a a regular event.
+				xmlFree(value); // remove the XML for the attribute only ??
+			}
+			if(pStartEvent->eventTime!=-1)
+			{
+				//process end attribute
+				value = xmlTextReaderGetAttribute(reader, "end");
+				//if there is no end time then free the end event because we don't need one
+				if(value==NULL)
+				{
+					EhsHMem_tempFree(pEndEvent); // So we didn't need it after all - remove here. Ideally we would onyl allocate with the -ve logic.
+					pEndEvent=NULL;
+				}
+				else
+				{
+					parseWallClockValue(value, pEndEvent); // add the end time from the time value. This creates an absolute time and records if it was a a regular event.
+					xmlFree(value);
+				}
+				if((pEndEvent!=NULL)&&(pEndEvent->eventTime!=-1)) // Do some logic here to allow cross idnight, week end or months ends for regular events
+				{
+					//if pEndEvent->eventTime is less than pStartEvent->event but within a day of it then add one day to pEndEvent, this is to represent playlists that run over midnight
+					if((pEndEvent->eventTime<pStartEvent->eventTime)&&(pEndEvent->eventTime>pStartEvent->eventTime-EHS_FB_MEDIA_PLAYMANAGER_DAY_SECONDS))
+					{
+						pEndEvent->eventTime = pEndEvent->eventTime + EHS_FB_MEDIA_PLAYMANAGER_DAY_SECONDS; //this should be safe to assume one day as any other repeat period would specify the days so the confusion would not occur in the first place
+					}
+					//@tod we should repeat all the above for weeks & months?.
+
+
+=======
+	EhsPlayManagerEvent *pStartEvent=NULL;
+	EhsPlayManagerEvent		*pEndEvent=NULL;
+	//pStartEvent	= (EhsPlayManagerEvent*) EhsHMem_tempAlloc(sizeof(EhsPlayManagerEvent)); // need this even if no begin is found, because we will post a now.
+	//if (pStartEvent != NULL) {
+	//	pEndEvent = (EhsPlayManagerEvent*) EhsHMem_tempAlloc(sizeof(EhsPlayManagerEvent)); //assume we have an end event for now
+	// we will call a timer parser  even if we couln't alloc an end struct
+	CreateTimeEvent(reader, &pStartEvent, &pEndEvent, parent_start_time, parent_end_time, EHS_FALSE);//@todo we need parent start and end time... create and populate the events and time data from the attribs or default to the parent time (which maybe now).
+	//if (pStartEvent->ListUniqueID) {
+	pPlayManager->ListUniqueID++;
+	pStartEvent->ListUniqueID=pPlayManager->ListUniqueID;
+		if (pEndEvent) pEndEvent->ListUniqueID=pStartEvent->ListUniqueID;
+>>>>>>> .r2932
+
+	//}
+		//printf("CreateListEventCreateListEventCreateListEventCreateListEventCreateListEventCreateListEvent\npStartEvent time = %d\n",pStartEvent->eventTime);
+	//printf("YYYYYYYYYYYYYYYYYY - Setting to the newlist type\n");
+	pStartEvent->type = EHS_PLAYMANAGER_EVENT_NEWLIST; // this used by fire to decide if more parsing is required.
+	pStartEvent->eventListType = ListEventType;
+	//extract the sequential section to be parsed when it's start time occurs (could be now!).
+	/* Get the first entry and store it in the event handler structure to parsed as we progress through the sequence */
+	/* Start reading the sequence entries - Get the XML that represents this sequence */
+	//read the next tag to get to first in the queue.
+
+	//xmlTextReaderRead(reader);
+	//getNextTag(reader); // This would move the the first tag for reading - we don't want to do this..
+
+
+	innerXML = xmlTextReaderReadOuterXml(reader); //We use OuterXml because that gives us a valid XML structure in memory (<seq><audio /><audio /></seq>), if we use InnerXml then we can't parse it later
+	if (innerXML) xmlTextReaderNext(reader);//xmlTextReaderRead(reader); //read this node & subtree off the above doesn't seem to do it?
+	//printf("innerXML =%s\n",innerXML);
+	if (innerXML != NULL) {
+		//Copy the sequence content XML to EHS memory allocation so that it will be deallocated if the function block gets reloaded @todo is this memory free for new playlists?
+		innerXMLsize = strlen(innerXML);
+		ehsInnerXML
+				= (ehs_char*) EhsHMem_tempAlloc(sizeof(ehs_char)*innerXMLsize);
+		if (ehsInnerXML != NULL) {
+			EhsStrncpy(ehsInnerXML, innerXML, innerXMLsize); // use the EHs version of strcpy one day.
+			pStartEvent->pPlaylist = ehsInnerXML; //@tpdo is this still true? : Currently we don't cope with parallel sequences so we only need one list.
+			//point at the dynamic memory blob for this event. @todo we need to make this an array/linked list with an ID that can be signalled / identified when a player event completes.
+			pStartEvent->playlistSize = innerXMLsize;
+			pStartEvent->memoryReader = NULL;// Set to null to make sure it gets initialised on the first timeed call on this structure. //xmlReaderForMemory(pStartEvent->pPlaylist,pStartEvent->playlistSize, NULL, NULL, XML_PARSE_RECOVER);
+			pStartEvent->SendersObjectUniqueID = nEntryID; // assign the node ID so that end events are posted to waiting tasks.
+			//printf("+++++++++++++++  Creating BEGIN Event List = entryID=%d+++++++++++++++\n",nEntryID);
+			addToEventList(pStartEvent, pPlayManager); // in sequences we won't allow individual begin times for objects (perhaps).
+#ifdef EHS_PLAYMANAGER_CREATE_END_EVENTS
+			if (pEndEvent) {
+				//printf("+++++++++++++++  Creating END Event to List +++++++++++++++\n");
+				addToEventList(pEndEvent, pPlayManager); //(if we have one)
+			}
+#endif
+		} else {
+			ret = EHS_FALSE;
+			EHSH_LOG_ERROR("Failed to get memory allocation from EHS");
+		}
+		//Free up the allocation from libxml
+		xmlFree(innerXML);
+	} else {
+		printf(
+				"ERROR: seqTag(): Failed to get the innerXML, probably means the playlist is corrupt\n");
+	}
+	return ret;
+}
+
+ehs_uint16 unknownTag(xmlTextReaderPtr reader,
+		EhsPlayManagerType* pPlayManager, time_t * parent_start_time, time_t * parent_end_time, ehs_uint32 nEntryID) {
+	ehs_char* nextTag = NULL;
+	ehs_bool ret = EHS_FALSE;
+	nextTag = getNextTag(reader); // this is returned so be careful to tidy up !
+	printf("Throwing away tag: %s\n", nextTag);
+}
+
+ehs_uint16 seqTag(xmlTextReaderPtr reader, EhsPlayManagerType* pPlayManager,
+		time_t * parent_start_time, time_t * parent_end_time, ehs_uint32 nEntryID) {
+	return CreateListEvent(reader, pPlayManager, parent_start_time, parent_end_time,
+			EHS_PLAYMANAGER_EVENTLIST_SEQ,  nEntryID); // just do par header. Don't parse everything inside.
+}
+
+/*
+ * Called when an excl tag entry is found
+ */
+
+ehs_uint16 exclTag(xmlTextReaderPtr reader, EhsPlayManagerType* pPlayManager,
+		time_t * parent_start_time,time_t * parent_end_time, ehs_uint32 nEntryID) {
+	//Possibly we need to do something here to indicate that the following sequence events are going to exclusive rather than parrallel. Haven't figured that out yet.
+
+	return CreateListEvent(reader, pPlayManager, parent_start_time, parent_end_time,
+			EHS_PLAYMANAGER_EVENTLIST_EXCL,  nEntryID); // just do par header. Don't parse everything inside.
+}
+
+/*
+ * We have found a parallel tag - We iterate through all in the node and continue.
+ * Then we need to look for the structural ones and continue.
+ * We can call this recursively if we find another parallel.
+ *
+ */
+
+ehs_uint16 parTag(xmlTextReaderPtr reader, EhsPlayManagerType* pPlayManager,
+		time_t * parent_start_time, time_t * parent_end_time, ehs_uint32 nEntryID) {
+	//We might want to parse the whole thing here and create immediates, but for now lets do the same as for sequentials.
+	return CreateListEvent(reader, pPlayManager, parent_start_time, parent_end_time,
+			EHS_PLAYMANAGER_EVENTLIST_PAR,  nEntryID); // just do par header. Don't parse everything inside.
+}
+
+/*
+ * This is called when we have found an Object (i.e. media) tag in a ;i
+ * This is fully parsed and the event structure is all that is needed to fire it.
+ * This does notfire the event even if it is ready. Instead it is added
+ * to the events list, even if no  wallclock value is found.
+ *
+ * This is almost a duplication of the CreateListEvent FUnction
+ */
+
+static void refObjectTag(xmlTextReaderPtr reader,
+		EhsPlayManagerType* pPlayManager, time_t * parent_start_time, time_t * parent_end_time, ehs_uint32 nEntryID, ehs_char * tagType) {
+	ehs_char* value, *class, *type, *region;
+	ehs_char* src;
+	ehs_char* nextTag;
+	ehs_uint32 valueSize = 0;
+//	static ehs_bool firstouput=EHS_TRUE;
+	//EhsPlayManagerEvent *pEvent;
+	//Need to create an event comprising of the src and the begin time
+	EhsPlayManagerEvent *pEndEvent, *pStartEvent;//alocated in EhsHMem_tempAlloc
+	/* Read any specific time info for the file */
+	//printf("IN refObjectTag-------pPlayManager=%x----------------------------\n",pPlayManager);
+	if (CreateTimeEvent(reader, &pStartEvent, &pEndEvent, parent_start_time, parent_end_time, EHS_TRUE)) {//populate the time from the attribs or default to the parent time (which maybe now).
+
+		//need to find out why the fire event for the
+
+		if (pStartEvent->eventTime != -1) // in case we tried to read the clock data and got garbage.
+		{
+			//process src attribute
+			value = xmlTextReaderGetAttribute(reader, "src");
+			class = xmlTextReaderGetAttribute(reader, "class");
+			type = xmlTextReaderGetAttribute(reader, "type"); //rtsp/http/ftp @todo store this for caching and new output port required.
+			region = xmlTextReaderGetAttribute(reader, "region"); //a label that shouold refer to a region define in the header @todo look up the parameters of the read and assert these.
+			pStartEvent->pMediaSource = value; // don't need to copy -assign allocated pointers
+			pStartEvent->class = class; // class this is used by the app to divert stuff around.
+			//pStartEvent->srcXferType = type;// we don't use this yet. http:,rtp:,ftp,...
+			//EhsStrcpy(pStartEvent->srcType, tagType);
+			pStartEvent->srcType=tagType; //tag type is allocated by xmlreader.
+			pStartEvent->region = region; // label for the region
+			pStartEvent->type = EHS_PLAYMANAGER_EVENT_OBJECT;
+			//set the playlist of the event as the src attribute
+			//valueSize = strlen(value);
+			//src = (ehs_char*) EhsHMem_tempAlloc(sizeof(ehs_char)*(valueSize+1));
+
+
+			pStartEvent->SendersObjectUniqueID = nEntryID;
+			addToEventList(pStartEvent, pPlayManager);
+	//		firstouput=EHS_FALSE;
+#ifdef EHS_PLAYMANAGER_CREATE_END_EVENTS
+			if (pEndEvent) { //@todo we need an ID here to match this to the begine event. We don't know the ID given at fire at the mmoment...
+				pEndEvent->pMediaSource = value; // don't need to copy -assign allocated pointers
+				pEndEvent->class = class; // class this is used by the app to divert stuff around.
+				pEndEvent->srcType = tagType;// we don't use this yet. http:,rtp:,ftp,...
+				pEndEvent->region = region; // label for the region
+				pEndEvent->type = EHS_PLAYMANAGER_EVENT_END;
+				addToEventList(pEndEvent, pPlayManager);
+			}
+#endif
+
+		} else {
+			printf("WARNING: begin time not in the correct format");
+		}
+
+	} else {
+		printf("ERROR: Could not get memory allocation for the event");
+	}
+
+
+}
+
+ehs_bool  AddParallelListMustComplete(EhsPlayManagerEvent * parEventList, ehs_uint32 ID);
+
+/*
+ * This is called and pass the body of a new playlist. It selects the correct parser for an element
+ * The element parser will parse all untill it's end tag - so it will operate within one level of the tree per call.
+ * This function can be called recurively for each level of the subtree
+ *
+ */
+
+#define EHS_NODE_TYPE_ATTRIBUTE_FIELD 2
+#define EHS_NODE_TYPE_COMMENT 8
+#define EHS_NODE_TYPE_START_ELEMENT 1 //a normal element
+#define EHS_NODE_TYPE_END_ELEMENT 15 //a normal element
+
+/*
+ * This is thype returned by the SMIL parser to indicate to the event manager if the SMIL chunk event should be destroyed or not
+
+ typedef enum {
+ EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE= 0,
+ EHS_PLAYMANAGER_SMIL_CHUNK_KEEP = 1,
+ } EhsPlayManagerSMILNodeActionEnum;
+ */
+
+/*
+ * Returns status of node - so that the caller can delete events for list types if appropriate.
+ * If an end node is found then the name is returned in element_type.
+ * If no recognised node was found then element_type is an empty string.
+ *
+ * element_type returns the type of element that was found - in case the caller is interested - if not then set this to null and it will be ignored.
+ *
+ * This function is also passed the default start time (i.e. of the parent) if no start time is prescribed).
+ * If the object type is a structural element (i.e. a parent) then the time is updated in the return value.
+ */
+
+EhsPlayManagerSMILNodeActionEnum ProcessNextSMILbody(xmlTextReaderPtr reader,EhsPlayManagerEvent *pEvent,
+		EhsPlayManagerType* pPlayManager, ehs_char * element_type,
+		time_t * parent_start_time, time_t * parent_end_time) {
+	ehs_char* nextTag = NULL;
+	ehs_bool event_created=EHS_FALSE; // used to indicate if an event was created from the node
+	EhsPlayManagerSMILNodeActionEnum ret = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;//@todo rename these to something more meaningful.
+	//printf("$$$$$$$$$$$In ProcessNextSMILbody - pPlayManager=%x", pPlayManager);
+	nextTag = getNextTag(reader); // this is returned so be careful to tidy up !
+	if (element_type)
+		EhsStrcpy(element_type, "");
+	if (nextTag != NULL) {
+		pPlayManager->ObjectUniqueID++; // get the ID ready for this event
+		if (xmlTextReaderNodeType(reader) == EHS_NODE_TYPE_START_ELEMENT) { // this the beginning of an XML element
+			//printf("ProcessNextSMILbody::EHS_NODE_TYPE_START_ELEMENT\n");
+
+			//if (isaSmilRefElement(nextTag)) { //first check it is one we support
+
+			/* Test for New List type Items and create the list types for them*/
+
+			if ((strcmp("excl", nextTag) == 0)) {
+				//printf("ProcessNextSMILbody::excl\n");
+				ret = EHS_PLAYMANAGER_SMIL_CHUNK_KEEP;
+				exclTag(reader, pPlayManager, parent_start_time,parent_end_time,pPlayManager->ObjectUniqueID); //read the attributes for this and then come back here to read the contents.
+				if (ret && element_type)
+					EhsStrcpy(element_type, "excl");
+				event_created=EHS_TRUE;
+			} else if (strcmp("par", nextTag) == 0) {
+				//printf("ProcessNextSMILbody::par\n");
+				ret = EHS_PLAYMANAGER_SMIL_CHUNK_KEEP;
+				parTag(reader, pPlayManager, parent_start_time,parent_end_time,pPlayManager->ObjectUniqueID); //read the attributes for this and then come back here to read the contents.
+				if (ret && element_type)
+					EhsStrcpy(element_type, "par");
+				event_created=EHS_TRUE;
+			} else if (strcmp("seq", nextTag) == 0) {
+				//printf("ProcessNextSMILbody::seq\n");
+				ret = EHS_PLAYMANAGER_SMIL_CHUNK_KEEP;
+				seqTag(reader, pPlayManager, parent_start_time,parent_end_time,pPlayManager->ObjectUniqueID); //read the attributes for this and post the section to be parsed by the scheduler. return here to parse the remaining SMIL
+				if (ret && element_type)
+					EhsStrcpy(element_type, "seq"); //@todo shojuldn't this be done in the tag reader (e.g. seqTag)?
+				/* Test for new Object to be parsed and an firable event to be produced */
+				event_created=EHS_TRUE;
+			} else if (isaSmilOtherImmediateElement(nextTag) // read an immediate object tag and create an event for it.
+					|| isaSmilRefElement(nextTag)) {
+				//printf("XXX--pPlayManager=%x\n", pPlayManager);
+				refObjectTag(reader, pPlayManager, parent_start_time,parent_end_time,pPlayManager->ObjectUniqueID,nextTag); // this will not return a new time as it is not a parent, pass in the list event so it can ben tagged with the ID when playing.
+				ret = EHS_PLAYMANAGER_SMIL_CHUNK_KEEP;
+				event_created=EHS_TRUE;
+			} else { // this something we don't know or care about (e.g. body). IMPORTANT - THIS MEANS WE DON'T SPIN ON TINGS WE DON'T UNDERSTAND
+				if (reader) {
+					ret = unknownTag(reader, pPlayManager, parent_start_time,parent_end_time,pPlayManager->ObjectUniqueID); //read the attributes for this and post the section to be parsed by the scheduler. return here to parse the remaining SMIL
+					ret = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;
+				}
+				if (ret && element_type) {
+					EhsStrcpy(element_type, "unknown");
+					ret = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;
+				}
+				event_created=EHS_FALSE;
+			}
+
+/* We need to assign a unique ID to evet entry in SMIL: objects & list entries. */
+			//pStartEvent->SendersObjectUniqueID = pPlayManager->ObjectUniqueID++; // store in the event for searching for MIDLIST events when ended evets are received.
+
+			if (event_created && pEvent) { // new node creates AND we must have a parent event - We don't have one for the first list/object.
+			if (pEvent->eventListType == EHS_PLAYMANAGER_EVENTLIST_SEQ) { // for sequences we need to give the parent the ID to know when to read the next..
+				pEvent->WaitingForObjectUniqueID
+						= pPlayManager->ObjectUniqueID;// we set this to the index the child has just been set too. (not pEvent->SendersObjectUniqueID;
+				//printf("Doing a:  SendersObjectUniqueID=%d\n",pPlayManager->ObjectUniqueID);
+			} else if (pEvent->eventListType == EHS_PLAYMANAGER_EVENTLIST_PAR) {
+				pEvent->WaitingForObjectUniqueID = 0;// 0; // do this for parallels, so it only fires after all it's entries are complete..
+				//printf("))))))AddParallelListMustComplete (%d) to event %x\n",pPlayManager->ObjectUniqueID,pEvent);
+				AddParallelListMustComplete(pEvent, pPlayManager->ObjectUniqueID); // par types need to know all the
+			}
+		}
+
+		} //end of this being a node start type
+		else if (xmlTextReaderNodeType(reader) == EHS_NODE_TYPE_END_ELEMENT) {
+
+			nextTag = NULL;
+
+			if (pEvent->eventListType==EHS_PLAYMANAGER_EVENTLIST_SEQ) {
+				//find any pending events..
+				//printf("Found an end node and I'm a sequence type\n");
+				NotifyParallelListIsComplete(pPlayManager,pEvent->SendersObjectUniqueID);
+				NotifyAnObjectIsComplete(pPlayManager, pEvent->SendersObjectUniqueID);
+				ret = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE; // all done for this today..
+			}
+			else
+			if (pEvent->eventListType==EHS_PLAYMANAGER_EVENTLIST_PAR) { // just cos we got to the end doesn't mean all stuff has played or ended..
+				//find any pending events..
+				printf("Found an end node and I'm a parallel type\n");
+				pEvent->WaitingForObjectUniqueID=pPlayManager->ObjectUniqueID; // need to set this to not execute with a non-zero number that won't be fired by an object.
+				//NotifyParallelListIsComplete(pPlayManager,pEvent->SendersObjectUniqueID); // we need to only do this once all the events have played out - this just means we've posted them all.
+				//NotifyAnObjectIsComplete(pPlayManager, pEvent->SendersObjectUniqueID);
+				ret = EHS_PLAYMANAGER_SMIL_CHUNK_KEEP; // or should be ended?
+			}
+			else {
+				nextTag = getNextTag(reader); //dump this? read off the closing tag. We don't check it is the right type, as this function doesn't know
+				if (element_type)
+					EhsStrcpy(element_type, "end"); // make a copy in case the caller want to check what got closed.
+				//xmlTextReaderClose(pEvent->MemoryReader); // this gets removed by the event remover -
+				//xmlFreeTextReader(pEvent->MemoryReader);
+				ret = EHS_PLAYMANAGER_SMIL_CHUNK_ENDED;
+			}
+
+		} else {
+			//printf("Found a node type we don't expect here. Found %s\n",nextTag);
+			ret = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;
+		}
+
+	} // end of not NULL
+	else {
+		printf("bodyTag: failed to get nextTag\n");
+		ret = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;
+	}
+	/* Don't deallocate - this is done when reader is deallocated.
+	 *
+	 if (nextTag != NULL)
+	 xmlFree(nextTag);
+	 nextTag = NULL;
+	 */
+
+	return ret;
+}
+
+/*
+ * Called when SMIL header close tag is expected. This calls the next SMIL body read function.
+ */
+
+static void closingHeadTag(xmlTextReaderPtr reader,
+		EhsPlayManagerType* pPlayManager) {
+	ehs_char* nextTag;
+	time_t parent_start_time = 0;
+	time_t parent_end_time = 0;
+	EhsPlayManagerSMILNodeActionEnum SMIL_chunk_property;
+	ehs_char element_type[128];//@todo this is nast we don't even use it - get rid.
+
+	nextTag = getNextTag(reader);
+	if (nextTag != NULL) {
+		if ((strcmp("body", nextTag) == 0) && (xmlTextReaderNodeType(reader)
+				== 1)) {
+			//@todo this should iterate untill we get a return value of REMOVE - which means we have done all in the head list.
+			SMIL_chunk_property = ProcessNextSMILbody(reader, NULL, pPlayManager,
+					element_type, &parent_start_time, &parent_end_time);// this parses the entire file (storing sequences in the events for the sequencces).
+			//@todo do we need to clean this up (Remove Event)?
+		} else {
+			printf("closingHeadTag: expected opening body. found %s\n", nextTag);
+		}
+	} else {
+		printf("closingHeadTag: failed to get nextTag\n");
+	}
+}
+
+static void headTag(xmlTextReaderPtr reader, EhsPlayManagerType* pPlayManager) {
+	ehs_char* nextTag;
+	nextTag = getNextTag(reader);
+	if (nextTag != NULL) {
+		if ((strcmp("head", nextTag) == 0) && (xmlTextReaderNodeType(reader)
+				== 15)) {
+			closingHeadTag(reader, pPlayManager);
+		} else {
+			printf("expected closing head. found %s\n", nextTag);
+		}
+	} else {
+		printf("headTag: failed to get nextTag\n");
+	}
+}
+
+static void smilTag(xmlTextReaderPtr reader, EhsPlayManagerType* pPlayManager) {
+	ehs_char* nextTag;
+	nextTag = getNextTag(reader);
+	if (nextTag != NULL) {
+		if (strcmp("head", nextTag) == 0) {
+			headTag(reader, pPlayManager);
+		} else {
+			printf("expected head found %s\n", nextTag);
+		}
+	} else {
+		printf("smilTag: failed to get nextTag\n");
+	}
+}
+
+/*@todo need a function that will find the earliest event in new data added to the schedule and then delete all existing events later than this. */
+
+/* This is called for identifying all the source elements that need to be downloaded for
+ *  next in a sequence is read-off and events etc. maybe fired.
+ * This does the same stuff as the fire function when a timed event occurs...
+ *
+ * Parses the SMIL XML body, identifying events and extracting the XML subtree for
+ * these events and producing the next data in sequenced SMIL content.
+ *
+ *
+ *@todo this function assumes all timed events are arranged in order in the file (e.g. earliest events come first in the file - this is not generally SMIL's case
+ *@todo Resource management of this code is not very clear - what happens when the events list is cleared?
+ */
+
+EHS_LOCAL void readSrcs(EhsPlayManagerType* pPlayManager,
+		EhsFunctionInstanceDataType* pFIdata, ehs_uint32 getPortNumber,
+		ehs_uint32 urlPortNumber, ehs_uint32 pathPortNumber) {
+	//keeping reading tags and looking for src attributes, when we find one fire the GET port
+	ehs_uint32 fired = 0;
+	ehs_char* nextTag;
+	ehs_char* value;
+	ehs_char preparedOutput[512];
+	ehs_char* slashPos = NULL;
+	nextTag = getNextTag(pPlayManager->srcFileReader); // find the next tag in the SMIL file
+	while ((nextTag != NULL) && (fired == 0)) //stop if we can't read anymore or we have fired the GET port
+	{
+		//Try to find a src attribute
+		value = xmlTextReaderGetAttribute(pPlayManager->srcFileReader, "src"); //
+		if (value != NULL) {
+			//we found a src attribute
+			//if it starts with http: then it is a full URL to be left unmangled
+			if (strncmp("http:", value, 5) == 0) {
+				EhsTPMutex_lock(EhsTPMutex_fbIO);
+				EhsStrcpy(EHS_FB_OUT_S(urlPortNumber), value);
+				//save path will be the downloadPath plus the end of the URL
+				slashPos = strchr(&value[7], '/');
+				if (slashPos != NULL) {
+					EhsStrcpy(preparedOutput, pPlayManager->downloadPath);
+					strcat(preparedOutput, slashPos + 1);
+					EhsStrcpy(EHS_FB_OUT_S(pathPortNumber), preparedOutput);
+				}
+				EhsTPMutex_unlock(EhsTPMutex_fbIO);
+			} else {
+
+				//assume path is a local path so we need to prepend the value of the download server
+				EhsStrcpy(preparedOutput, pPlayManager->downloadURL);
+				strcat(preparedOutput, value);
+				//printf("-----------Trying to Download %s\n",preparedOutput);
+				EhsTPMutex_lock(EhsTPMutex_fbIO);
+				EhsStrcpy(EHS_FB_OUT_S(urlPortNumber), preparedOutput);
+				//Now prepend the download path to the path of the file
+				EhsStrcpy(preparedOutput, pPlayManager->downloadPath);
+				strcat(preparedOutput, value);
+				//printf("-----------to Target %s\n",preparedOutput);
+				EhsStrcpy(EHS_FB_OUT_S(pathPortNumber), preparedOutput);
+				EhsTPMutex_unlock(EhsTPMutex_fbIO);
+			}
+			//always output thetime of play
+			//EhsStrcpy(EHS_FB_OUT_S(1),"SEQUENCED");
+
+			xmlFree(value);
+			fired = 1;
+			//printf("A6:");
+			EHS_FB_FINISH(getPortNumber);
+			//printf("B6\n");
+		} else {
+			nextTag = getNextTag(pPlayManager->srcFileReader);
+		}
+	}
+	//if nextTag is NULL then clear the reader because we don't need it anymore
+	if (nextTag == NULL) {
+		xmlTextReaderClose(pPlayManager->srcFileReader);
+		xmlFreeTextReader(pPlayManager->srcFileReader);
+		pPlayManager->srcFileReader = NULL;
+	}
+}
+
+/*
+ * Read a new playlist file.
+ * First read header and check we have a SMIL file.
+ * Create (and destroy previous) xmls reader object and then call readSrcs
+ * to assign pfi data to event call- backs.
+ */
+
+
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(PlayManager_Next_Playlist) {
+	xmlTextReaderPtr fileReader = NULL;
+	ehs_char* nextTag;
+	EhsTPMutex_lock(EhsTPMutex_playManager);
+	EhsPlayManagerType* pPlayManager = (EhsPlayManagerType*) EHS_FB_RUN_CONTEXT;
+	ehs_char filename[512]; //Initialise some memory for reading in the filename
+
+	/* Clear the playlist @todo this will be a configuration option = alternative is to lean all, or leave untill first event in new playlist fires */
+	clearEventList(pPlayManager);
+	pPlayManager->NewPlaylistStartGracePeriod= (EHS_SMILPARSER_DEFAULT_START_GRACE/EHS_SMILPARSER_TICK_TIME);
+	//we start the poller here because it won't start in the init function for some reason
+	if (!EhsTimer_running(&(pPlayManager->xTimer))) {
+		EhsTimer_set(&(pPlayManager->xTimer),
+				EHS_CURRENT_TIME_OFFSET(pPlayManager->tPeriod));
+	}
+	//Read in the SMIL playlist filename
+	EhsTPMutex_lock(EhsTPMutex_fbIO);
+	EhsStrcpy(filename, EHS_FB_IN_S(0));
+	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+	//printf("PlayManager_Next_Playlist: filename=%s\n",filename);
+	//Create a reader for it, being careful to dispose of our existing one
+	if (pPlayManager->fileReader != NULL) {
+		xmlTextReaderClose(pPlayManager->fileReader);
+		xmlFreeTextReader(pPlayManager->fileReader);
+		pPlayManager->fileReader = NULL;
+	}
+	fileReader = xmlReaderForFile(filename, NULL, 0);
+	//Start parsing the file
+	if (fileReader != NULL) {
+		nextTag = getNextTag(fileReader);
+		if (nextTag != NULL) {
+			if (strcmp("smil", nextTag) == 0) {
+
+				smilTag(fileReader, pPlayManager); // This parses the entire SMIL file (creating it's own parent time).
+				//The exception is for sequences whihc are parsed as they become live
+
+
+				//update the instance fileReader so that we can read the XML later on when an event fires
+				pPlayManager->fileReader = fileReader;
+				//After we have done parsing for the events then set the parser for the src attributes going
+				if (pPlayManager->srcFileReader != NULL) {
+					xmlTextReaderClose(pPlayManager->srcFileReader);
+					xmlFreeTextReader(pPlayManager->srcFileReader);
+				}
+				pPlayManager->srcFileReader = xmlReaderForFile(filename, NULL,
+						0);
+
+
+				if (pPlayManager->srcFileReader != NULL) {
+					// ehs_uint32 getPortNumber,ehs_uint32 urlPortNumber, ehs_uint32 pathPortNumber)
+					printf("Calling readSrc from Next Playlist\n");
+					readSrcs(pPlayManager, pFIdata, EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_GET, EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_URL,EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_LOCAL_FILE ); // find the first event data
+				} else {
+					printf(
+							"ERROR: PlayManager_Next_Playlist: Failed to open file\n");
+				}
+			} else {
+				printf(
+						"ERROR: PlayManager_Next_Playlist: expected smil, found %s\n",
+						nextTag);
+			}
+		} else {
+			printf(
+					"ERROR: PlayManager_Next_Playlist: failed to read first tag\n");
+		}
+	} else {
+		printf("ERROR: PlayManager_Next_Playlist: failed to open SMIL file\n");
+		//EHS_MSG_ERROR_FILE_NOT_OPEN("playmanager SMIL File");
+	}
+	EhsTPMutex_unlock(EhsTPMutex_playManager);
+	//Fire finish port
+	//printf("A7:");
+	EHS_FB_FINISH(EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_FINISH);
+	//printf("B7\n");
+}
+
+/* Clear media List for the playlist
+ *
+ */
+
+EHS_LOCAL ehs_bool ClearMediaList(EhsPlayManagerType* pPlayManager) {
+	EhsPlayManagerMediaLocation *pML_temp, * pML  = pPlayManager->pMediaList;
+	while (pML != NULL) {
+		pML_temp=pML;
+		pML = pML->pNext;
+		EhsHMem_tempFree(pML_temp);
+	}
+	pPlayManager->pMediaList=NULL;
+	//printf("\n---- Compared %d media",i);
+	return EHS_TRUE;
+}
+
+
+
+/*
+ *
+ * THis function finds the local path of the file from the entry in the Playlist.
+ * @todo this function should contain a mode switch (flag set as a parameter) so that the the global local file name
+ *
+ */
+EHS_LOCAL ehs_char* lookupMedia(ehs_char* value,
+		EhsPlayManagerType* pPlayManager) {
+	ehs_char prepared[512];
+	int i = 0;
+	EhsPlayManagerMediaLocation* pML = NULL;
+	//printf("\n\n))))))))Looking for %s\n",value);
+	//@todo this function takes a long time to execute?
+	if (EhsStrncmp("http:", value, 5) == 0) {
+		//full URL so we do not need to do any manipulation
+	} else {
+		//assume path is a local path so we need to prepend the value of the download server
+		EhsStrcpy(prepared, pPlayManager->downloadURL);
+		strcat(prepared, value);
+		value = prepared;
+	}
+	//printf("lookupMedia: starting lookup with %s\n",value);
+	//loop through media list, when you find a match on the URL then return the path, otherwise return NULL
+	pML = pPlayManager->pMediaList;
+	//printf("\n---- LookUpMedia media");
+	while (pML != NULL) {
+		i++;
+		//printf("\nComparing %s with %s",value,pML->url);
+		if (EhsStrcmp(value, pML->url) == 0) {
+			//printf("lookupMedia: found match, returning %s\n",pML->localFile);
+			//printf("\n---- Compared %d media",i);
+			return pML->localFile;
+		}
+		pML = pML->pNext;
+	}
+	//printf("\n---- Compared %d media",i);
+	return NULL;
+}
+
+// THis ifor elements that reference external resources and need a download..
+ehs_bool isaSmilRefElement(ehs_char* nextTag) {
+	if ((strcmp("ref", nextTag) == 0) || (strcmp("audio", nextTag) == 0)
+			|| (strcmp("media", nextTag) == 0) || (strcmp("video", nextTag)
+			== 0) || (strcmp("img", nextTag) == 0) || (strcmp("text", nextTag)
+			== 0) || (strcmp("animation", nextTag) == 0) || (strcmp(
+			"textstream", nextTag) == 0)) {
+		return EHS_TRUE;
+	} else {
+		return EHS_FALSE;
+	}
+}
+
+// This ifor elements that cause an output but do not need a download..
+ehs_bool isaSmilOtherImmediateElement(ehs_char* nextTag) {
+	if ((strcmp("smilText", nextTag) == 0)) {//list of items that are not url references go here
+		return EHS_TRUE;
+	} else {
+		return EHS_FALSE;
+	}
+}
+
+
+/* outputs the event info on the ports
+ * If path is null (the local media path) then the function will attempt to output the media source info instead
+ *
+ * This can be used also to assert end of media events, by passing an empty string as path to tell the media player to play nothing
+ */
+
+ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayManagerEvent* pEvent, ehs_char* path) {
+	EhsPlayManagerType* pPlayManager = (EhsPlayManagerType*) pFIdata->pObjData;
+	/*
+	 *
+	 printf("-------------------------------------------------------->\n");
+	PrintEvent(pEvent);
+	printf("-------------------------------------------------------->\n");
+	 */
+	if (pEvent->class)
+		EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_CLASS), pEvent->class);
+		else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_CLASS), "");
+
+	EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_TEXT), ""); //don't have text yet.
+	if (pEvent->srcType) {
+		//printf("Type = %s\n",pEvent->srcType);
+		EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_TYPE), pEvent->srcType);
+	}
+		else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_TYPE), "");
+
+	if (path != NULL) {
+		//printf("VVV Found Outputting= %s\n", path);
+		EhsTPMutex_lock(EhsTPMutex_fbIO);
+		//strcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE), path);
+
+		EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE),
+							path);
+
+		EhsTPMutex_unlock(EhsTPMutex_fbIO);
+		//EhsHMem_tempFree(path); this is uneeded
+		//Fire the new play port
+		//EHS_FB_FINISH(1);
+	} else {
+		if (pEvent->pMediaSource) {
+			EhsTPMutex_lock(EhsTPMutex_fbIO);
+			EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE),
+								"");
+			EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE),
+					pPlayManager->downloadURL); // add base directory
+			EhsStrcat(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE),
+					pEvent->pMediaSource);
+			printf("Not Found Streaming from URL= %s\n", EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE));
+			EhsTPMutex_unlock(EhsTPMutex_fbIO);
+		} else {
+			EhsTPMutex_lock(EhsTPMutex_fbIO);
+			strcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE), "");
+			EhsTPMutex_unlock(EhsTPMutex_fbIO);
+		}
+	}
+	EhsTPMutex_lock(EhsTPMutex_fbIO);
+	//Fire the new play port
+	EHS_FB_OUT_I(EHS_FB_PLAYMANAGER_TICK_ID) = pEvent->SendersObjectUniqueID; // output the unique ID if we are an object.
+	//printf("A8:");
+	if (path)
+		EHS_FB_FINISH(EHS_FB_PLAYMANAGER_TICK_PLAYNOW);
+		else EHS_FB_FINISH(EHS_FB_PLAYMANAGER_TICK_PLAYREMOTE);
+	//printf("B8\n");
+	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+}
+
+
+EHS_LOCAL void DeleteListEventsWithListID(EhsPlayManagerType* pPlayManager,
+		ehs_uint32 ListID) {
+	EhsPlayManagerEvent* pCurrentEvent,*pTempEvent;
+	EhsPlayManagerEvent* pPreviousEvent = NULL;
+	//printf("DeleteListEventsWithListID\n");
+	pCurrentEvent = pPlayManager->pEvent; // this is the linked list of events - not a specific event.
+	while (pCurrentEvent != NULL) {
+		pTempEvent = pCurrentEvent;
+		if (pCurrentEvent->ListUniqueID == ListID) {
+			removeEvent(pPreviousEvent, pCurrentEvent, pPlayManager);
+			//pPreviousEvent = the same!
+		}
+		else {
+			pPreviousEvent = pCurrentEvent;
+		}
+		pCurrentEvent = pTempEvent->pNext; // use temp as the current may have gone
+	}
+
+}
+
+/*
+ *
+ * This function is called by the timer (cab be called by others too - the PFI data is in the object to use.
+ * The PFI data is shared with the fire function so macros for this apply to do port operations,
+ * the pEvent info on what the context of the event is (e.g. a sequence begin)
+ * And the PlayManager contains the current state of the XML parser.
+ */
+/*
+asd() {
+	ehv k="next need to ge the end of list to work OK and remove the list event.";
+}
+*/
+//
+//This is used to identify what type of node we are dealing with. Begin means we are in a list - not just the beginning.
+
+#define EHS_TICK_MEDIA_FILE 0 //first output in IDF
+#define EHS_TICK_CLASS_INFO 1
+#define EHS_TICK_SMIL_TEXT 2
+#define EHS_TICK_EVENT_TYPE 3
+#define EHS_TICK_PLAY_NOW 1 //first event
+#define EHS_TICK_PLAY_REMOTE 2 //second event
+EHS_LOCAL EhsPlayManagerSMILNodeActionEnum fireEvent(
+		EhsFunctionInstanceDataType* pFIdata, EhsPlayManagerEvent* pEvent,
+		EhsPlayManagerType* pPlayManager, ehs_bool bEndEvent) {
+	ehs_char* nextTag = NULL;
+	//ehs_char* value = NULL; //this is tpyicall the reference data, but might be other things
+	//ehs_char* class = NULL; // generic attribute for ref and other elements
+	//ehs_char* type = NULL; // generic attribute for ref and other elements
+	//ehs_char* region = NULL; // generic attribute for ref and other elements
+	ehs_char* path = NULL;
+	ehs_char element_type[32];// this written into by ProcessNextSMILbody().
+	EhsPlayManagerSMILNodeActionEnum SMIL_chunk_property =
+			EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;
+	//ehs_char* node_element_data = NULL;
+	ehs_char path_local[512];
+	//printf("In fireEvent\n");
+	//seems the list event is being called as an object when it should be skipped until the next is done???
+	if (bEndEvent == EHS_FALSE) {
+		if (pEvent->type == EHS_PLAYMANAGER_EVENT_NEWLIST) // We require further parsing for this type (  par, seq, excl.)
+		{ // This does not cause an output directly!!!! don't set flags or fire anything!
+			//	test for the Wait for unique ID.
+			if (pEvent->memoryReader == NULL) { // first time this struct has been called
+				pEvent->memoryReader = xmlReaderForMemory(pEvent->pPlaylist,
+						pEvent->playlistSize, NULL, NULL, XML_PARSE_RECOVER);
+			}
+			getNextTag(pEvent->memoryReader); // this is returned so be careful to tidy up !;
+			SMIL_chunk_property = ProcessNextSMILbody(pEvent->memoryReader,
+					pEvent, pPlayManager, &element_type, &(pEvent->eventTime),
+					&(pEvent->eventEndTime)); // we will just read an entry here and do what ever is necessaey including deleteing the event when we encounter the end of the list.
+			if (SMIL_chunk_property != EHS_PLAYMANAGER_SMIL_CHUNK_ENDED)
+				SMIL_chunk_property = EHS_PLAYMANAGER_SMIL_CHUNK_KEEP; //override the parser because we are in a memory ready!
+			else
+				SMIL_chunk_property = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;
+			pEvent->type = EHS_PLAYMANAGER_EVENT_MIDLIST;
+		} else if (pEvent->type == EHS_PLAYMANAGER_EVENT_MIDLIST) // We require further parsing for this type (  par, seq, excl.)
+		{ // This doesn't ire an event eaither this just extracts the next object (or other!)
+			SMIL_chunk_property = ProcessNextSMILbody(pEvent->memoryReader,
+					pEvent, pPlayManager, &element_type, &(pEvent->eventTime),
+					&(pEvent->eventEndTime)); // we will just read an entry here
+			// issue: will  &(pEvent->eventTime) be deleted while the time is still being used?
+		} else if (pEvent->type == EHS_PLAYMANAGER_EVENT_OBJECT) {
+			//printf("Processing Single Track : %s\n", pEvent->pMediaSource);
+			//pEvent->pPlaylist is the src we want so use that to lookup
+			if (pEvent->pMediaSource)
+				path = lookupMedia(pEvent->pMediaSource, pPlayManager);
+			else {
+				//leave path as null and let the output assert function choose the alternative.
+				//EHSH_LOG_ERROR("No Media Source found for the direable event");
+			}
+			//printf("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ Path =%s\n",path);
+			assertObjectEventOutputs(pFIdata, pEvent, path);
+			//@todo the following should really be in the assert object bit...
+			//printf("pPlayManager->pWaitingOnEvent=%x\n",pEvent->SendersObjectUniqueID);
+			pPlayManager->pWaitingOnEvent = pEvent->SendersObjectUniqueID; // when we assert objects we need set the port output marshelling flags.
+
+			if (pEvent->eventEndTime) {
+				SMIL_chunk_property = EHS_PLAYMANAGER_SMIL_CHUNK_KEEP; // keep the event so that the end time event is used
+			} else {
+				SMIL_chunk_property = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE; // if no end time then remove the event
+			}
+		}
+	} else { // we're an end event so end the event (remove from list and assert stuff if we are an object..
+		//printf("----> EVENT END - (pEvent->bCurrentPlayStarted  TRUE) = %x\n",pEvent->ListUniqueID);
+		SMIL_chunk_property = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;
+		//Determine if this playlist is the current one being played ->ListUniqueID is the indicator
+		//@todo we need to implement this .... not sure how
+		if (pEvent->ListUniqueID) { //we could also test one of the list types...
+			//printf("EVENT END - pEvent->ListUniqueID");
+
+			//we need to just update the event???
+			//DeleteListEventsWithListID(pPlayManager, pEvent->ListUniqueID); @todo we can probably remove the ListUniqueID thing now...
+			//UpdateAndCleanUp(pEvent);
+			SMIL_chunk_property = EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE; // force a time update or removal
+			if (pEvent->type == EHS_PLAYMANAGER_EVENT_MIDLIST) {
+				pEvent->type = EHS_PLAYMANAGER_EVENT_NEWLIST; // this is so it's ready to start again... (@todo Need to reset the memory reader????)
+			}
+			//@todo we might want to iterate all objects here, but These should  take of themsleves as they inherit the end time.
+			//look	at ListUniqueID.... where assigned and how used...
+		} else { // end event of an object
+			//printf("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZXXXXXXXXX\n");
+			assertObjectEventOutputs(pFIdata, pEvent, ""); // This is an object so assert blank media so that the correct media player will stop.
+			//printf("pPlayManager->pWaitingOnEvent=%x\n",pEvent->SendersObjectUniqueID);
+			pPlayManager->pWaitingOnEvent= pEvent->SendersObjectUniqueID; // when we assert objects we need set the port output marshelling flags.
+
+		}
+	}
+	/*
+	 if (value)
+	 xmlFree(value); // value is allocated by XML lib
+	 if (class)
+	 xmlFree(class); // value is allocated by XML lib
+	 if (type)
+	 xmlFree(type); // value is allocated by XML lib
+	 if (region)
+	 xmlFree(region); // value is allocated by XML lib
+	 if (node_element_data)
+	 xmlFree(node_element_data);
+	 */
+	/* update the next time here too.. @todo needs to be done before first event is fired too..*/
+	//printf("Firing Complete Returning Event Clean-Up Action = %d\n",SMIL_chunk_property);
+	return SMIL_chunk_property;
+}
+
+void FreeAllEventMemory(EhsPlayManagerEvent* pEvent) {
+
+//printf("pEvent->class=%x, pEvent->pMediaSource, =%x, pEvent->region = %x,pEvent->srcType =%x ,pEvent->memoryReader = %x, pEvent->pPlaylist = %x\n",pEvent->class, pEvent->pMediaSource, pEvent->region,pEvent->srcType ,pEvent->memoryReader, pEvent->pPlaylist);
+	if (pEvent->class)
+		xmlFree(pEvent->class);
+	if (pEvent->pMediaSource)
+			xmlFree(pEvent->pMediaSource);
+	if (pEvent->region)
+			xmlFree(pEvent->region);
+	/*
+	 (pEvent->srcType) - this is dealocated with the reader
+	*/
+	if (pEvent->memoryReader) {
+		xmlTextReaderClose(pEvent->memoryReader);
+		xmlFreeTextReader(pEvent->memoryReader);
+	}
+
+	if (pEvent->pPlaylist) {
+		EhsHMem_tempFree(pEvent->pPlaylist);
+	}
+	EhsHMem_tempFree(pEvent);
+	pEvent=NULL;
+}
+
+/*
+ * Removes event from the linked list that is seatrched in ticks().
+ */
+
+void removeEvent(EhsPlayManagerEvent* pPrev,
+		EhsPlayManagerEvent* pEvent, EhsPlayManagerType* pPlayManager) {
+	//if (pPrev) printf("REMOVING EVENT = %x, previous=%x - previous->next=%x\n",pEvent,pPrev,pPrev->pNext);
+	if (pPrev == NULL) {
+		if (pEvent->pNext) { // @todo we don't really need this!!
+			//Event we are removing is the first in the list so point the event list pointer at the next on
+			pPlayManager->pEvent = pEvent->pNext;
+		} else {
+			// This is the only one in the list - unnecessary logic but for clarity..
+			pPlayManager->pEvent = NULL;
+		}
+	} else {
+		//not the first event so we have to update the pointer of the previous one to skip it
+		pPrev->pNext = pEvent->pNext;
+		//printf("TTTTT:pPrev->pNext = pEvent->pNext=%x\n",pPrev->pNext);
+	}
+	FreeAllEventMemory(pEvent);
+	//Free the memory for that event
+
+}
+
+/* This function is called from the interface for indicating a media object has been started and new data can now be sent out.
+ * This only needs to look at the last event that has been posted (We hardly need to do use an ID but we will check anyway
+ *
+ * This function is similar to the played function except started is serialised so that start events must be dealt with sequentially
+ * as they are produced.
+ */
+
+EHS_FB_RUN_FUNCTION(PlayManager_Started) {
+	//printf("PlayManager_Played\n");
+	EhsPlayManagerType* pPlayManager = (EhsPlayManagerType*) EHS_FB_RUN_CONTEXT;
+	//EhsPlayManagerEvent *pCurrentEvent = NULL;
+	ehs_uint32 played;
+
+	if (pPlayManager->pWaitingOnEvent == 0) {
+		EHSH_LOG_ERROR("We were'nt event waiting - but should have been ?????");
+		return;
+	}
+
+	played = EHS_FB_IN_I(0);
+	EhsTPMutex_lock(EhsTPMutex_playManager);
+
+	if ( pPlayManager->pWaitingOnEvent== played) {
+		//printf("Got expected Started event, setting to 0 to and - moving on...\n");
+		pPlayManager->pWaitingOnEvent = 0; // signal to fire that the next fire can be done.
+
+	} else {
+		printf("STARTED: Didn't get the marshalling ID (%d - expecting %d) that the previous has been played yet\n",played, pPlayManager->pWaitingOnEvent);
+		/*
+		 * printf(
+				"Got the wrong ID Back, but looking for it's owner anyway - if we find it elsewhere we might fire this...\n pCurrentEvent->WaitingForObjectUniqueID (%d) =! played (%d)",
+				pCurrentEvent->WaitingForObjectUniqueID, played);
+
+		pCurrentEvent = pPlayManager->pEvent; // this is the linked list of events - not a specific event.
+		while (pCurrentEvent != NULL) {
+			if (pCurrentEvent->WaitingForObjectUniqueID == played) {
+				pPlayManager->pWaitingOnEvent = NULL; //@todo We want a time-out approach here to do this....
+			}
+			pCurrentEvent = pCurrentEvent->pNext;
+		}
+		*/
+	}
+	EhsTPMutex_unlock(EhsTPMutex_playManager);
+	//printf("A9:");
+	EHS_FB_FINISH(1);
+	//printf("B9\n");
+}
+
+/*
+ * This sets the waiting flag for a sequence list with the fired event ID or the ended list ID.
+ */
+ehs_bool NotifyAnObjectIsComplete(EhsPlayManagerType* pPlayManager,
+	ehs_uint32 played) {
+	EhsPlayManagerEvent *pCurrentEvent = NULL;
+	//printf("Doing a:  NotifyAnObjectIsComplete - ID=%d\n",played);
+	pCurrentEvent = pPlayManager->pEvent;
+	while (pCurrentEvent != NULL) {
+		if (pCurrentEvent->WaitingForObjectUniqueID == played) {
+			pCurrentEvent->WaitingForObjectUniqueID = 0; //set this to zero - it will be reset if there is more for this event.
+			//printf("Found The Played ID (%d)- Setting to play on next tick\n",played);
+		}
+		pCurrentEvent = pCurrentEvent->pNext;
+	}
+}
+
+/*
+ * adds a new ID to a parallel list of child objects that must be done before the par list is finished.
+ */
+
+ehs_bool AddParallelListMustComplete(EhsPlayManagerEvent * parEvent,
+		ehs_uint32 ID) {
+	EhsPlayManagerEventListForParType *IDlink = NULL;
+	EhsPlayManagerEventListForParType *IDlinktemp = NULL;
+
+	IDlink = parEvent->parEventList;
+	if (IDlink == NULL) { // this means we are the beginning of the list.
+		parEvent->parEventList
+				=EhsHMem_tempAlloc(sizeof(EhsPlayManagerEventListForParType));
+		parEvent->parEventList->pNext = NULL;
+		parEvent->parEventList->ID = ID;
+	} else { //printf("// find the end of the queue\n");
+		while (IDlink != NULL) {
+			IDlinktemp = IDlink;
+			IDlink = IDlink->pNext; // find the end of the list.
+		}
+		//printf("IDlinktemp=%x\n",IDlinktemp);
+		if (IDlinktemp) {
+			IDlinktemp->pNext
+					=EhsHMem_tempAlloc(sizeof(EhsPlayManagerEventListForParType));
+			if (IDlinktemp->pNext) {
+				IDlinktemp->pNext->pNext = NULL;
+				IDlinktemp->pNext->ID = ID;
+			}
+		}
+	}
+
+}
+
+ehs_bool NotifyParallelListIsComplete(EhsPlayManagerType* pPlayManager,
+		ehs_uint32 played) {
+
+	EhsPlayManagerEvent *pCurrentEvent = NULL;
+	//EhsPlayManagerEvent *pPreviousEvent = NULL;
+	EhsPlayManagerEventListForParType *parEventList = NULL;
+	EhsPlayManagerEventListForParType *parEventListPrev = NULL;
+	ehs_bool ret=EHS_FALSE;// return not the end of the list here...
+	//printf("---------<>NotifyParallelListIsComplete (ID=%d) = E=%x, EList=%x\n",played, pPlayManager->pEvent, pPlayManager->pEvent->parEventList);
+	pCurrentEvent = pPlayManager->pEvent; // this is the first linked list of events - not a specific event.
+	while (pCurrentEvent != NULL) {
+		if (pCurrentEvent->parEventList) { // this has a list of events in a par group.
+			parEventList = pCurrentEvent->parEventList;
+			parEventListPrev = NULL;
+			while (parEventList != NULL) {
+				if (parEventList->ID == played) { // remove ID from list.
+					//printf("Found EventList ID = %d",played);
+					if (parEventListPrev) {// we are not at the beginning of the list
+						parEventListPrev->pNext = parEventList->pNext; // this skips the entry
+						//parEventListPrev = the same ;
+					}
+					else { //this is the head of the list
+						pCurrentEvent->parEventList= parEventList->pNext; // this skips the entry too
+						//parEventListPrev = the same ;
+					}
+					EhsHMem_tempFree(parEventList); // remove this we don't need anything now - just need to tidy up the links for the remaining search.
+					parEventList = parEventList->pNext; // set the next version
+
+					// leave the previous one as was
+
+					if (pCurrentEvent->parEventList == NULL) { // IMPORTANT: this is the end of the list - this means the node has finished...
+						printf("Ending a Parallel List (%x) - Notifying ID = %d\n",pCurrentEvent,pCurrentEvent->SendersObjectUniqueID);
+						//@todo consider putting the notifiers in the event handler that will run next and update the event - this is recursive but should be OK...
+						NotifyParallelListIsComplete(pPlayManager,pCurrentEvent->SendersObjectUniqueID); // we need to only do this once all the events have played out - this just means we've posted them all.
+						NotifyAnObjectIsComplete(pPlayManager, pCurrentEvent->SendersObjectUniqueID);
+						pCurrentEvent->WaitingForObjectUniqueID=0;//   This is the signal to fire the event (again) - so it can asseert it's end ID;
+						ret=EHS_TRUE;
+					}
+
+				} else { // skip to next
+					parEventListPrev = parEventList;
+					if (parEventList)
+						parEventList = parEventList->pNext;
+				}
+			}
+		}
+		//printf("pCurrentEvent WAS=%x\n",pCurrentEvent);
+		pCurrentEvent = pCurrentEvent->pNext;
+	}
+	return ret;
+}
+
+/* This function is called from the interface for indicating a media object has completed.
+ * This typically leads to the next file in a sequence if we are in a sequence section.
+ *
+ * this function will look up the media that has been played:
+ * if this is for any type (par or seq)
+ * it will Read to the next node from the XMIL snippet in the pEvent structure.
+ * if this is not the end of sequence it will post this to be fired next time.
+ *
+ *
+ */
+
+EHS_FB_RUN_FUNCTION(PlayManager_Played) {
+	//printf("PlayManager_Played\n");
+	EhsPlayManagerType* pPlayManager = (EhsPlayManagerType*) EHS_FB_RUN_CONTEXT;
+	ehs_char *nextTag = NULL;
+	ehs_char *value = NULL;
+	ehs_char *path = NULL;
+	EhsPlayManagerEvent *pTempEvent,*pCurrentEvent = NULL;
+	EhsPlayManagerEvent *pPreviousEvent = NULL;
+
+	ehs_uint32 played;
+	//pEventType *pNext=NULL;
+
+	EhsTPMutex_lock(EhsTPMutex_playManager);
+	//loop through and set the ID to 0 (indicating the parent list is ready to continue).
+	played = EHS_FB_IN_I(0); // we only read the ID here
+printf("XX->Played %d\n",played);
+	pCurrentEvent = pPlayManager->pEvent; // this is the linked list of events - not a specific event.
+	//first look for the start event and remove from the list so we don't have stray end events in the list
+	//remove the send event:
+	while (pCurrentEvent != NULL) {
+		pTempEvent = pCurrentEvent;
+		if (pCurrentEvent->SendersObjectUniqueID == played) {
+			removeEvent(pPreviousEvent, pCurrentEvent, pPlayManager);
+			//PreviousEvent =stays the same
+			//printf("Remvoving the object that has been played \n");
+		} else {
+			pPreviousEvent = pCurrentEvent;
+		}
+		pCurrentEvent = pTempEvent->pNext;
+	}
+
+    // now find any list events that are waiting for the last to be played.
+	NotifyAnObjectIsComplete(pPlayManager,played);
+
+   //Look for parallel lists that we might tick off an entry on.
+	NotifyParallelListIsComplete(pPlayManager,played); // This will set a flag on the par event to complete.
+
+	EhsTPMutex_unlock(EhsTPMutex_playManager);
+	//printf("A1:");
+	EHS_FB_FINISH(1);
+	//printf("B1\n");
+}
+
+EhsPlayManagerSMILNodeActionEnum fireEventandCleanUp(
+		EhsFunctionInstanceDataType* pFIdata, EhsPlayManagerEvent* pPrev,
+		EhsPlayManagerEvent* pEvent, EhsPlayManagerType* pPlayManager, ehs_bool bEndEvent) {
+
+	EhsPlayManagerSMILNodeActionEnum SMIL_chunk_property = fireEvent(pFIdata,
+			pEvent, pPlayManager, bEndEvent);
+	pEvent->bCurrentPlayStarted = EHS_TRUE; // this allows this to be tested for the end time and fire will ignore it...
+	//If repeat type is none then remove it
+	//@todo SMIL_chunk_property should have the types to idnicate if the node had it's own time inserted or not it used the parent one.
+	if (SMIL_chunk_property != EHS_PLAYMANAGER_SMIL_CHUNK_KEEP) { // a list event that hasn't finished or any other type of event
+		switch (pEvent->repeat) {
+		case EHS_PLAYMANAGER_REPEAT_NONE:
+			//printf("Event Fired: Removing this structure (ID=%d)\n",pEvent->WaitingForObjectUniqueID);
+			removeEvent(pPrev, pEvent, pPlayManager);
+			break;
+		/*
+		case EHS_PLAYMANAGER_REPEAT_xxx:
+					printf("lEAVING EVENT LIST IN THE EVENT LIST\n");
+					break;
+					*/
+		default:
+			//event has a repeat type other than none so should have the time it fires updated
+			UpdateEventTime(pEvent);
+			break;
+		}
+	} else { //SMIL_chunk_property == EHS_PLAYMANAGER_SMIL_CHUNK_KEEP
+		// Nothing needs doing if this is a list event and we are not at the end.
+	}
+	return SMIL_chunk_property;
+}
+
+/*
+ * Prefer not to have this behaviour at the moment - i.e. the new material should start playing instead of
+ * current playlist in the time interval. However the current track should ideally not be interrupted.
+ * This will probably be handled by the application whereby the New Playlist trigger is delayed untill the end of the current track (if one is playing)
+ * @todo if there is an easy way of doing this delay within the function block code this would be ideal.
+ *  @todo - this behaviour could be made a function block enabled feature switch (via an inout integer to select behaviour).
+ *  i.e.
+ *  (1) new content only occurs next day/week/month if already started (as commented code below ++++ ).
+ *  (2) New content starts as soon as next track is complete if withing schedule.
+ *  (3) New content starts straight away, interrupting current track.
+ *
+ *  @todo this system expects there is only a single event occuring at a time
+ */
+
+/*
+ * This function is called periodically and decides if an any events in the list are to be fired.
+ * It also decides if the event is a repeat type and reposts it (via a call to update time) if it is.
+ */
+
+#define EHS_TICK_PLAYLIST 0
+
+EHS_FB_RUN_FUNCTION(PlayManager_Tick) {
+
+	//return;
+	ehs_uint32 eventCount = 0;
+	EhsPlayManagerType* pPlayManager; // we only use this to look up cached media
+	time_t currentt;
+	EhsPlayManagerEvent *pCurrentEvent = NULL;
+	EhsPlayManagerEvent *pPrev = NULL;
+	EhsPlayManagerEvent *pNext = NULL;
+	EhsPlayManagerSMILNodeActionEnum SMIL_chunk_property =
+			EHS_PLAYMANAGER_SMIL_CHUNK_REMOVE;
+	//Get the instance data for the playManager so that we have access to the event list
+	EhsTPMutex_lock(EhsTPMutex_playManager);
+	pPlayManager = (EhsPlayManagerType*) EHS_FB_RUN_CONTEXT;
+	//Establish if we are playing a track still or not
+	EhsTPMutex_lock(EhsTPMutex_fbIO);
+	/* This is not actually in the IDF at the moment! this is an output!!!
+	 if(EHS_FB_IN_CONNECTED(0)) //@todo should we re-instate this?
+	 {
+	 pPlayManager->playing = EHS_FB_IN_B(0); // this pretty much obsolete at the moment..
+	 }
+	 */
+
+	//printf("TICK:\n");
+	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+	pCurrentEvent = pPlayManager->pEvent; // this is the linked list of events - not a specific event.
+	//test for empty list
+	if (pPlayManager->NewPlaylistStartGracePeriod <= 0) { // wait for the grace period before doing anything after a new playlist is loaded
+		if (pCurrentEvent != NULL) {
+			//printf("\n++++++++++++++++++2\n");
+
+			//Event list is not empty so lets start comparing times and see if we should trigger any events
+			//First we need the current time_t
+			currentt = time(NULL);
+			//Iterate over the list of events till we hit the end (indicated by pointing at NULL)
+			//printf(" TIME = %d - pPlayManager->pWaitingOnEvent=%d\n",currentt,pPlayManager->pWaitingOnEvent);
+
+			while (pCurrentEvent != NULL) {
+				//PrintEvent(pCurrentEvent);
+				//printf("STARTED= %d: Adrr=%x, Senders EventID=%d, WaitingID=%d, ListID=%d,EventTime=%d,EventEndTime=%d\n",pCurrentEvent->bCurrentPlayStarted,pCurrentEvent,pCurrentEvent->SendersObjectUniqueID,pCurrentEvent->WaitingForObjectUniqueID,pCurrentEvent->ListUniqueID,pCurrentEvent->eventTime,pCurrentEvent->eventEndTime);
+				eventCount++;
+				pNext = pCurrentEvent->pNext;
+				//printf("current_t=%d, pCurrentEvent->eventTime=%d, ID=%d - Waiting=%d\n",currentt,pCurrentEvent->eventTime,pCurrentEvent->WaitingForObjectUniqueID,pPlayManager->pWaitingOnEvent);
+				//if we're not an END event and we are elapsed and
+				if (((!pCurrentEvent->bCurrentPlayStarted)
+						|| (pCurrentEvent->ListUniqueID > 0)) && /*only fire an event if it is not started or a list event */
+				(((pPlayManager->pWaitingOnEvent == 0) && (currentt
+						>= pCurrentEvent->eventTime)) && /* is it's start expired & has the previous one been dealt with */
+				((pCurrentEvent->WaitingForObjectUniqueID == 0) /* is it either a list waiting for next */
+				/* || (
+				 (pCurrentEvent->WaitingForObjectUniqueID != 0) && (pCurrentEvent->ListUniqueID==0) // or an output object waiting for the last to have been output?
+				 ) */
+				)))/* if the event has a pending finish to continue*/
+				{
+					if (pPlayManager->playing) //@todo this should only be active when new stuff has just been added.
+					{
+						//printf("Playing!!\n");
+						//media is currently playing so we need to look at our new playlist behaviour
+						switch (pPlayManager->newPlaylistBehaviour) {
+						case 1: // defer playing this event.
+							/*@todo if there is something playling then it will be deferred again so we hope this isn't a systematic issue with the playlist -
+							 this behaviour is intended only at the time a new playlist is downloaded.
+							 */
+							//printf("XXXXXXXXXXCase 1:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ");
+							//PrintEvent (pCurrentEvent);
+							//update the event time but don't fire it
+							UpdateEventTime(pCurrentEvent);
+							break;
+						case 2: // leave it on the quese (as "late") so we will play the track as soon as the playing flag is dropped
+							//		//printf("XXXXXXXXXXCase 2:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ");
+							//PrintEvent (pCurrentEvent);
+							//printf("XXXXXXXXXXCase 2:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ");
+
+							//do nothing, this will cause it to try and fire it next time, by then maybe it will have stopped playing //@todo if it has then does the previous event get deleted.
+							break;
+						default: // raise the event even if playing.
+							//third case just start going immediately
+							//printf("XXXXXXXXXXCase 3:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ");
+							//PrintEvent (pCurrentEvent);
+							break;
+						}
+					} else { /* Normal behaviour is defined here */
+						//no media playing so just fire away
+
+						if ((currentt < pCurrentEvent->eventEndTime)
+								|| (pCurrentEvent->eventEndTime == 0)) { // check that the event hasn't expired...
+							//printf("Found a good Start Event \n");
+							//PrintEvent(pCurrentEvent);
+							fireEventandCleanUp(pFIdata, pPrev, pCurrentEvent,
+									pPlayManager, EHS_FALSE); // this sets to an end event if it wasn't before
+						} else {
+							printf(
+									"Found out of date Start Event (end time already expired) - deferring or deleting..\n");
+							UpdateEventTime(pCurrentEvent);
+						}
+					}
+
+				} else // do we have an end event expired and we have fired the last media request (we don't care if it finished if we ignore misses in the media finshed tests..)
+				if ( /*(pCurrentEvent->bCurrentPlayStarted) &&*/((currentt
+						>= pCurrentEvent->eventEndTime)
+						&& (pCurrentEvent->eventEndTime)
+						&& (pPlayManager->pWaitingOnEvent == 0))) {
+					// next event is still in the future
+					printf("Found an END Event  \n");
+					fireEventandCleanUp(pFIdata, pPrev, pCurrentEvent,
+							pPlayManager, EHS_TRUE); // this sets to an end event if it wasn't before
+
+				} else {
+					//eventTime is still in the future so we can ignore it
+					/*Set the previous event here, if haven't ignored the event then we will have been removed
+					 it so should only update previous pointer when we have ignored it
+					 */
+					//pPrev = pCurrentEvent;
+				}
+				//get the next event
+				pPrev = pCurrentEvent;
+				pCurrentEvent = pNext;
+			}
+		}
+	} else { // We're in the grace period so count down.
+		pPlayManager->NewPlaylistStartGracePeriod--;
+	}
+	EhsTPMutex_unlock(EhsTPMutex_playManager); EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(PlayManager_Tick));
+}
+
+/* [Next URL]
+ * This function is for iterating through the playlist and producing URLS for each content file.
+ * Once a function has been retrieved the got event can asserted by downloader to register that the file has been
+ * received. The received got registers the file in a list so that at the time of play it can be identified if the
+ * file should be played from the local copy. The got event does NOT TRIGGER THE NEXT URL TO BE DOWNLOADED - Typically the got event output
+ * trigger will be connected to trigger the next URL trigger.
+ *
+ */
+
+EHS_FB_RUN_FUNCTION(PlayManager_Next_URL) {
+	EhsPlayManagerType* pPlayManager = (EhsPlayManagerType*) EHS_FB_RUN_CONTEXT;
+	EhsTPMutex_lock(EhsTPMutex_playManager);
+	if (pPlayManager->srcFileReader != NULL) {
+
+		printf("Calling readSrc from Next URL\n");
+		// ehs_uint32 getPortNumber,ehs_uint32 urlPortNumber, ehs_uint32 pathPortNumber)
+		readSrcs(pPlayManager, pFIdata, 2, 0, 1); // get the next event data
+	}
+	EhsTPMutex_unlock(EhsTPMutex_playManager);
+	//printf("A2:");
+	EHS_FB_FINISH(1);
+	//printf("B2\n");
+}
+
+EHS_FB_RUN_FUNCTION(PlayManager_Got) {
+	EhsTPMutex_lock(EhsTPMutex_playManager);
+	EhsPlayManagerType* pPlayManager = (EhsPlayManagerType*) EHS_FB_RUN_CONTEXT;
+	EhsPlayManagerMediaLocation* pMediaLocation;
+	EhsPlayManagerMediaLocation* pCurrent = NULL;
+	//Read input values
+	ehs_char inURL[512];
+	inURL[0] = '\0';
+	ehs_char inLocalFile[512];
+	inLocalFile[0] = '\0';
+	EhsTPMutex_lock(EhsTPMutex_fbIO);
+	if (EHS_FB_IN_CONNECTED(0)) {
+		EhsStrcpy(inURL, EHS_FB_IN_S(0));
+	}
+	if (EHS_FB_IN_CONNECTED(1)) {
+		EhsStrcpy(inLocalFile, EHS_FB_IN_S(1));
+	}
+	EhsStrcpy(EHS_FB_OUT_S(0), inURL);
+	EhsStrcpy(EHS_FB_OUT_S(1), inLocalFile);
+	printf("PlayManager_Got: URL=%s Local=%s \n",inURL,inLocalFile);
+	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+	//Create a new media location object
+	pMediaLocation
+			= (EhsPlayManagerMediaLocation*) EhsHMem_tempAlloc(sizeof(EhsPlayManagerMediaLocation));
+	/* need to initialise the linked list to pointers to null */
+	if (pMediaLocation != NULL) {
+		EhsStrncpy(pMediaLocation->url, inURL, 511);
+		EhsStrncpy(pMediaLocation->localFile, inLocalFile, 512);
+		pMediaLocation->pNext = NULL; // this prevents a crash of the next link not being 0 or valid.
+		//Add an entry to our list of locations
+
+		//if list is empty just put it on as the first item
+		if (pPlayManager->pMediaList == NULL) {
+			pPlayManager->pMediaList = pMediaLocation;
+		} else {
+			//List is not empty so run over it and find the new place for it
+			pCurrent = pPlayManager->pMediaList;
+			//Positioning logic is that it should go at the end of the list, we can thus assume that the list will be time ordered due to assuming we are only dealing with time ordered playlists at this phase
+			while (pCurrent->pNext != NULL) {
+				pCurrent = pCurrent->pNext;
+			}
+			//We have reached the end of the event list. pCurrentEvent should point to the last entry in the list
+			pCurrent->pNext = pMediaLocation;
+		}
+
+	}
+
+	EhsTPMutex_unlock(EhsTPMutex_playManager);
+	//printf("A4:");
+	EHS_FB_FINISH(1);
+	//printf("B4\n");
+}
+
+EHS_FB_RUN_FUNCTION(PlayManager_Set_Paths) {
+	EhsPlayManagerType* pPlayManager = (EhsPlayManagerType*) EHS_FB_RUN_CONTEXT;
+	EhsTPMutex_lock(EhsTPMutex_playManager);
+	EhsTPMutex_lock(EhsTPMutex_fbIO);
+	if (EHS_FB_IN_CONNECTED(0)) {
+		EhsStrcpy(pPlayManager->downloadURL, EHS_FB_IN_S(0));
+		EhsStrcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+		//printf ("¬¬¬¬¬¬¬¬¬¬¬Setting URL base to %s\n",pPlayManager->downloadURL);
+	}
+	if (EHS_FB_IN_CONNECTED(1)) {
+		EhsStrcpy(pPlayManager->downloadPath, EHS_FB_IN_S(1));
+		EhsStrcpy(EHS_FB_OUT_S(1), EHS_FB_IN_S(1));
+	}
+	if (EHS_FB_IN_CONNECTED(2)) {
+		pPlayManager->newPlaylistBehaviour = EHS_FB_IN_I(2);
+		EHS_FB_OUT_I(2) = EHS_FB_IN_I(2);
+	}
+	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+	EhsTPMutex_unlock(EhsTPMutex_playManager);
+	//printf("A5:");
+	EHS_FB_FINISH(1);
+	//printf("B5\n");
+
+}

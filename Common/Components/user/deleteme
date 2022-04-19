@@ -1,0 +1,401 @@
+
+//ICB HEADER MACRO START -- DO NOT ALTER
+#include "inx-parameters.h"
+#include "inx-component.h"
+#include "inx-inx-netsocket.h"
+//ICB HEADER MACRO END -- DO NOT ALTER
+//ICB STATE VAR MACRO START -- DO NOT ALTER
+/* My Component state data structure. - Use this in your code! */
+typedef struct
+{
+	ehs_bool server;
+	ehs_char* URL;
+	ehs_sint32 port;
+	ehs_sint32 tcp_udp;
+	EhsTgtTcpSocketType listen_socket;
+	EhsTgtTcpSocketType connection_socket;
+} inx_netSocket_state_type; //Reference this, maybe store your config parameters in here too.
+//ICB STATE VAR MACRO END -- DO NOT ALTER
+//ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
+/* Populate the data structure used by EHS and map the function names to strings identified in CDF */
+EHS_FB_FUNCTIONS_START(netSocket)
+EHS_FB_FUNCTION_ENTRY("open", netSocket_open)
+EHS_FB_FUNCTION_ENTRY("close", netSocket_close)
+EHS_FB_FUNCTION_ENTRY("send", netSocket_send)
+EHS_FB_FUNCTION_ENTRY("receive", netSocket_receive)
+EHS_FB_FUNCTIONS_END
+//ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
+//ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
+/* Friendly labels for the run function data and event function argument enumerations */
+#define INX_netSocket_ARG_open_port 1
+#define INX_netSocket_ARG_open_url 2
+#define INX_netSocket_ARG_open_opened 1
+#define INX_netSocket_ARG_open_erroropened_error 2
+#define INX_netSocket_ARG_send_error 1
+#define INX_netSocket_ARG_close_errorclose_error 1
+#define INX_netSocket_ARG_close_closed 2
+#define INX_netSocket_ARG_send_error 1
+#define INX_netSocket_ARG_receive_received 1
+#define INX_netSocket_ARG_open_errnoerrorno 1
+#define INX_netSocket_ARG_open_opened 1
+#define INX_netSocket_ARG_open_erroropened_error 2
+#define INX_netSocket_ARG_close_errnoerrorno 1
+#define INX_netSocket_ARG_close_errorclose_error 1
+#define INX_netSocket_ARG_close_closed 2
+#define INX_netSocket_ARG_send_datadata_in 1
+#define INX_netSocket_ARG_send_errnoerrorno 1
+#define INX_netSocket_ARG_send_error 1
+#define INX_netSocket_ARG_receive_data 1
+#define INX_netSocket_ARG_receive_received 1
+#define INX_netSocket_ARG_open_opened 1
+#define INX_netSocket_ARG_open_erroropened_error 2
+#define INX_netSocket_ARG_close_errnoerrorno 1
+#define INX_netSocket_ARG_close_errorclose_error 1
+#define INX_netSocket_ARG_close_closed 2
+#define INX_netSocket_ARG_send_datadata_in 1
+#define INX_netSocket_ARG_send_errnoerrorno 1
+#define INX_netSocket_ARG_send_error 1
+#define INX_netSocket_ARG_receive_data 1
+#define INX_netSocket_ARG_receive_received 1
+//ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
+//ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
+/* Parameters */
+/* Create some macros for the default parameters */
+#define INX_FB_netSocket_server 
+#define INX_FB_netSocket_URL 
+#define INX_FB_netSocket_port 8000
+#define INX_FB_netSocket_tcp/udp 0
+//ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
+//ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Identify the function block to EHS.
+ * This function provides access to:
+ *  - string containing parameter text
+ * EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this function block's context
+ */
+EHS_FB_IDENTIFY_FUNCTION(netSocket)
+{
+/* Uncomment the following if you need to parse the parameters to calculate memory required */
+/*
+	ehs_bool server;
+	ehs_char* URL;
+	ehs_sint32 port;
+	ehs_sint32 tcp/udp;
+	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%d %s %d %d",&server,&URL,&port,&tcp/udp); */
+	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_netSocket_state_type);
+}
+//ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+//ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area provided by EHS for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+
+EHS_FB_INIT_FUNCTION(netSocket)
+{
+	ehs_bool server;
+	ehs_char* URL;
+	ehs_sint32 port;
+	ehs_sint32 tcp_udp;
+	ehs_bool bRet = EHS_TRUE; /* assume success */
+	//this is the reference to the object data for this instance of the function block
+	inx_netSocket_state_type* inx_netSocket_state = (inx_netSocket_state_type*)EHS_FB_INIT_CONTEXT;
+	/* read the initialisation parameters */
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %s %d %d",&server,&URL,&port,&tcp_udp);
+	inx_netSocket_state->server=server;
+	EhsStrcpy(inx_netSocket_state->URL,URL);
+	inx_netSocket_state->port=port;
+	inx_netSocket_state->tcp_udp=tcp_udp;
+
+	/* Add any further intialisation code here */
+	return bRet; /* initialisation always succeeds */
+}
+
+ehs_bool netSocket_receive(void)
+{
+	ehs_uint8 bBuffIn[EHS_TGT_TCP_IN_BUFF_SIZE]; /* buffer for incoming data */
+	ehs_sint32 nDataReceived;
+	/* amount of data received by TCP/IP */
+	ehs_uint8 *pData = bBuffIn;
+	ehs_bool bDisconnect = EHS_FALSE; /* assume we want to stay connected */
+
+	nDataReceived = EhsTgtTcp_recvNonblock(EhsSvcTcpSocketConnection, pData, EHS_TGT_TCP_IN_BUFF_SIZE);
+
+	if (nDataReceived > 0) /* did we receive data? */
+	{
+		nDataReceived = (ehs_sint32)EhsSvcTcp_expandEscapes(pData,(ehs_uint32)nDataReceived,&bDisconnect);
+		if(bDisconnect)
+		{
+			EhsSvcTcp_log("***Client instructed a disconnect\n");
+		}
+		EhsSvcTcp_log("***Received %d bytes\n", nDataReceived);
+		EhsSvcTcp_logBinaryData(pData,(ehs_uint32)nDataReceived);
+
+		/* pass received data onto EHS */
+		while (nDataReceived > 0) {
+			/* push data onto the queue until no data remains */
+			ehs_sint32 nDataPushed = (ehs_sint32)EhsConsoleQueue_push(EhsTgtConsoleInputQueueRef, pData, (ehs_uint32)nDataReceived);
+			EhsSvcTcp_log("***Pushed %d bytes\n", nDataPushed);
+			EhsSvcTcp_logBinaryData(pData,(ehs_uint32)nDataPushed);
+
+			/* advance pointer to start of data that hasn't yet been pushed */
+			pData += nDataPushed;
+			nDataReceived = (nDataReceived - nDataPushed);
+			/* If EHS couldn't handle everything, give it a chance to consume the data that's on the queue already */
+			if (nDataReceived > 0L)
+			{
+				EhsSleep(EHS_TIME_us(EHS_TGT_TCP_SUSPENDTIME_us));
+			}
+		}
+	}
+	else if (nDataReceived == EHS_TGT_TCP_SOCKET_ERROR)
+	{
+		if(EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_AGAIN)
+		{
+			EhsSvcTcp_logSocketError("EhsSvcTcp_receive.recv", EhsTgtTcp_getErrorCode(EHS_FALSE));
+			bDisconnect = EHS_TRUE;
+		}
+	}
+	else
+	{
+		/* we didn't receive anything, but it's ok */
+		bDisconnect = EHS_FALSE;
+	}
+
+	return (!bDisconnect); /*lint !e960 This is not an implicity type conversion */
+}
+
+/**
+ * Send data from EHS to the client.
+ *
+ * @return true if we remain connected to the target
+ */
+ehs_bool EHS_FB_RUN_FUNCTION(netSocket_send)
+{
+	ehs_bool bConnected = EHS_TRUE; /* assume that we stay connected */
+
+	/* do we have any data to send? */
+	if (!EhsConsoleQueue_isEmpty(EhsTgtConsoleOutputQueueRef))
+	{
+		ehs_uint8 bBuffOut[EHS_TGT_TCP_OUT_BUFF_SIZE];
+		ehs_sint32 nDataSize;
+
+		/* send one bufferful of data. This prevents EHS from monopolising a conversation. */
+		//EHSH_LOG_INFO("QPop: in = %d, out = %d\n", EhsTgtConsoleOutputQueueRef->uInIdx, EhsTgtConsoleOutputQueueRef->uOutIdx);
+		nDataSize = (ehs_sint32)EhsConsoleQueue_pop(EhsTgtConsoleOutputQueueRef, bBuffOut, EHS_TGT_TCP_OUT_BUFF_SIZE);
+		EhsSvcTcp_log("***Sent %d bytes\n", nDataSize);
+		EhsSvcTcp_logBinaryData((const ehs_uint8*)bBuffOut, (ehs_uint32)nDataSize);
+
+		/***** send bBuff to TCP/IP ****/
+		if (EHS_TGT_TCP_SOCKET_ERROR == send((EhsTgtTcpSocketType)EhsSvcTcpSocketConnection, (const ehs_char *)bBuffOut , (ehs_sint32)nDataSize, (ehs_sint32)0))
+		{
+			EhsSvcTcp_logSocketError("EhsSvcTcp_send.send", EhsTgtTcp_getErrorCode(EHS_TRUE));
+			bConnected = EHS_FALSE;
+		}
+	}
+	return bConnected;
+}
+
+hsSvcTcp_waitForClient(socket ) {
+
+while (inx_netSocket_state->closenow==-1) {EhsSleep(10ms); /*wait for any previous closes to finsih*/
+inx_netSocket_state_type* inx_netSocket_state = (inx_netSocket_state_type*)EHS_FB_RUN_CONTEXT;
+/* Wait for a connection */
+inx_netSocket_state->connection_socket = EHS_TGT_TCP_INVALID_SOCKET;
+	while (inx_netSocket_state->connection_socket == EHS_TGT_TCP_INVALID_SOCKET) /* keep on trying */
+	{
+		inx_netSocket_state->connection_socket = accept( EhsSvcTcpSocketListen, NULL, NULL);
+		if (inx_netSocket_state->connection_socket == EHS_TGT_TCP_INVALID_SOCKET)
+		{
+			EHSH_LOG_WARN("accept (ignoring)");
+		}
+	}
+}
+
+/* Server thread - Waits for connections and writes data to a buffer and calls the receive callback function and sends any data */
+EHS_FB_THREAD_FUNCTION(netSocket_waitforconnection) {
+	ehs_bool init =EHS_TRUE;
+/* Now start polling for data */
+while(init)
+	{
+		/* tcpip initialisation */
+		ehs_bool ClientConnected = EHS_TRUE;
+		ehs_uint32 TestUsageCount = 0u;
+
+		//EhsSvcTcp_log("***Client connected\n");
+
+		while (ClientConnected && !inx_netSocket_state->closenow)
+		{
+			TestUsageCount++;
+			ClientConnected = EhsSvcTcp_receive();
+
+			if (ClientConnected)
+			{
+				ClientConnected = EhsSvcTcp_send();
+			}
+
+		}
+
+		init = EhsSvcTgtTcp_closeConnection(inx_netSocket_state->connection_socket);
+		if (init != EHS_FALSE) {EHSH_LOG_ERROR("COuld not close socket trying again");} //todo this should dtop trying at some point.
+		inx_netSocket_state->closenow=-1; /* So the a close falg setter knows it is closed or another opener*/
+	}
+}
+
+
+//ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
+//ICB FUNCTION open MACRO START -- DO NOT ALTER
+/**
+ * Definition of netSocket_open.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(netSocket_open)
+{
+	inx_netSocket_state_type* inx_netSocket_state = (inx_netSocket_state_type*)EHS_FB_RUN_CONTEXT;
+	ehs_bool OK=EHS_TRUE;
+	EhsTgtTcpSockAddrInType connection; /* used to construct the address of the EhsTgtTcpSocketType we're creating */
+	ehs_bool ret = EHS_FALSE; /* assume initialisation fails */
+	ehs_uint8 retVal;
+
+	// Your code here
+	if (EHS_FB_IN_CONNECTED_API2(INX_netSocket_ARG_open_port))
+		inx_netSocket_state->portEHS_FB_IN_I_API2(INX_netSocket_ARG_open_port) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_netSocket_ARG_open_url))
+		EHS_FB_IN_S_API2(INX_netSocket_ARG_open_url) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_netSocket_ARG_open_errnoerrorno))
+		EHS_FB_OUT_I_API2(INX_netSocket_ARG_open_errnoerrorno) ;
+	/* UDP port listen */
+	if (inx_netSocket_state->server && inx_netSocket_state->tcp_udp ) {
+
+	} /* TCP socket listen - wait for accept */
+	else if (inx_netSocket_state->server && !inx_netSocket_state->tcp_udp ) {
+			/* Close any existing - do the quick way or we will need thread */
+			if (inx_netSocket_state->socket != EHS_TGT_TCP_INVALID_SOCKET) {
+				stop listening thread
+				closeXX(inx_netSocket_state->socket);
+				inx_netSocket_state->socket=EHS_TGT_TCP_INVALID_SOCKET;
+			}
+			/* set up connection ready for bind */
+			memset(&connection, 0, sizeof(connection));
+			connection.sin_family = AF_INET;
+			connection.sin_addr.s_addr = htonl(INADDR_ANY); /* Maybe add specific options this as an option one day*/
+			connection.sin_port = htons( inx_netSocket_state->port  );
+
+			/* Create EhsTgtTcpSocketType */
+			inx_netSocket_state->socket = EHS_TGT_TCP_INVALID_SOCKET;
+			inx_netSocket_state->socket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+			if (EhsSvcTcpSocketListen == EHS_TGT_TCP_INVALID_SOCKET)
+			{
+				EHSH_LOG_ERROR("Could not open socket");
+				return;
+			}
+			/* Bind EhsTgtTcpSocketType */
+			else if ( bind( inx_netSocket_state->socket, (EhsTgtTcpSockAddrType*) &connection, (ehs_sint32)sizeof(connection) ) == EHS_TGT_TCP_SOCKET_ERROR)
+			{
+				EHSH_LOG_ERROR("Could not bind socket");
+				return;
+			}
+			/* Listen for incoming connections. Allows for 1 pending connection only */
+			else if (listen( inx_netSocket_state->socket, 1) == EHS_TGT_TCP_SOCKET_ERROR) /*todo 1 maybe allo more than one client*/
+			{
+				EHSH_LOG_ERROR("Could not listen socket");
+								return;
+			}
+			else
+			{
+				ret = EHS_TRUE;
+			}
+
+			/* @todo we might want to move this up the sequence a bit
+			 * this sets the socket to use linger (l_onoff = 1) but have a linger time of 0 (l_linger = 0)
+			 * and is required in order for the socket to close immediately after close() is called
+			 * It is recommended to use these settings for SO_LINGER rather than turn linger off (l_onoff = 0)
+			 * which may have implementation specific consequences - ie might use TIME_WAIT before releasing socket
+			 */
+			EhsLinger Option;
+			Option.l_onoff = 1;
+			Option.l_linger = 0;
+			retVal = setsockopt(inx_netSocket_state->socket, SOL_SOCKET, SO_LINGER, (const  char *) &Option,  sizeof(EhsLinger));
+			//printf("setsockopt:retVal=[%i]\n",retVal);
+
+	} /* UDP port send - do nothing for open*/
+	else if (!inx_netSocket_state->server && inx_netSocket_state->tcp_udp ) {
+
+	} /* TCP socket open socket client*/
+	else if (inx_netSocket_state->server && !inx_netSocket_state->tcp_udp ) {
+	}
+
+	if () {
+		EHS_FB_FINISH(INX_netSocket_ARG_open_opened);
+	} else {
+		EHS_FB_FINISH(INX_netSocket_ARG_open_erroropened_error);
+	}
+	return;
+}
+
+//ICB FUNCTION open MACRO END -- DO NOT ALTER
+//ICB FUNCTION close MACRO START -- DO NOT ALTER
+/**
+ * Definition of netSocket_close.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(netSocket_close)
+{
+	inx_netSocket_state_type* inx_netSocket_state = (inx_netSocket_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_netSocket_ARG_close_errnoerrorno))
+		EHS_FB_OUT_I_API2(INX_netSocket_ARG_close_errnoerrorno) ;
+	EHS_FB_FINISH(INX_netSocket_ARG_close_errorclose_error);
+	EHS_FB_FINISH(INX_netSocket_ARG_close_closed);
+	return;
+}
+//ICB FUNCTION close MACRO END -- DO NOT ALTER
+//ICB FUNCTION send MACRO START -- DO NOT ALTER
+/**
+ * Definition of netSocket_send.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(netSocket_send)
+{
+	inx_netSocket_state_type* inx_netSocket_state = (inx_netSocket_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_IN_CONNECTED_API2(INX_netSocket_ARG_send_datadata_in))
+		EHS_FB_IN_S_API2(INX_netSocket_ARG_send_datadata_in) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_netSocket_ARG_send_errnoerrorno))
+		EHS_FB_OUT_I_API2(INX_netSocket_ARG_send_errnoerrorno) ;
+	EHS_FB_FINISH(INX_netSocket_ARG_send_error);
+	return;
+}
+//ICB FUNCTION send MACRO END -- DO NOT ALTER
+//ICB FUNCTION receive MACRO START -- DO NOT ALTER
+/**
+ * Definition of netSocket_receive.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(netSocket_receive)
+{
+	inx_netSocket_state_type* inx_netSocket_state = (inx_netSocket_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_netSocket_ARG_receive_data))
+		EHS_FB_OUT_S_API2(INX_netSocket_ARG_receive_data) ;
+	EHS_FB_FINISH(INX_netSocket_ARG_receive_received);
+	return;
+}
+//ICB FUNCTION receive MACRO END -- DO NOT ALTER

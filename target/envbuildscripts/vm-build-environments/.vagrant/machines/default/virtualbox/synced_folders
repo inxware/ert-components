@@ -1,0 +1,1 @@
+{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/home/pierre/workspace/INX/EHS/target/envbuildscripts/vm-build-environments","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}},"virtualbox":{"/vagrant_data":{"guestpath":"/vagrant_data","hostpath":"/home/pierre/workspace/INX","disabled":false,"__vagrantfile":true}}}

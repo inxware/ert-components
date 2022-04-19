@@ -1,0 +1,29 @@
+#include <X11/Xlib.h>
+#include <gst/gst.h>
+#include "hal_dtv.h"
+
+struct EhsTDPlaybackStruct {
+	EhsFBMediaPlayerStateEnum xPlaybackState; //= EHS_FB_STATE_NOT_LOADED; /**< What state is the playback in? */
+	ehs_sint32 nPlaySpeed; //= 0; /**< What speed are we playing at the current time? */
+	ehs_char LoadedFilename[EHS_TD_FILES_MAX_PATH];
+	ehs_bool mediaFormat;
+	int nVolume;
+
+	GstElement *playbin;//the target specific object that we interact with for playback
+
+	EhsFunctionInstanceDataType *pFIdata; //needed for call backs on gstreamer bus events
+#ifdef EHS_GUI_SUPPORT
+	Window window; //X handle of the GDK window so that we can pass it to the vlc media player
+	Display *pDisplay; //Pointer to the GDK handle for the VLC window. Used for rezing.
+#endif /*EHS_GUI_SUPPORT*/
+}EhsTDPlaybackStructClass;
+
+EHS_GLOBAL Window EhsTDPlayback_createWindow(EhsFbPvrPlayClass* pPvrPlay);
+
+EHS_GLOBAL void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay);
+
+EHS_GLOBAL void EhsTDPlayback_setWindow(EhsFbPvrPlayClass* pPvrPlay);
+
+EHS_GLOBAL void EhsTDPlayback_updateZorder(EhsFbPvrPlayClass* pPvr);
+
+

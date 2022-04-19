@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Name>testEventIdentifierAndSwitcher</Name>
+  <CommercialName>testEventIdentifier</CommercialName>
+  <Version>1.0</Version>
+  <Description>test of how event identifier and switcher are used together. Manual reset</Description>
+</root>

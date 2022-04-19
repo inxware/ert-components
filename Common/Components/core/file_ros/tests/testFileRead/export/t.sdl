@@ -1,0 +1,103 @@
+#V:2.0.0
+#B:42
+#D:Y2012M4d5h2m23s39
+#N:testFileRead
+1
+1	100000	90000
+BEGIN EventCounter
+*
+Count	1	1	2	0 	1 I 2 	1 5 
+END
+BEGIN gui_text_string2
+%%%_dirOut g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 16 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	6 I -1 I -1 I -1 I -1 I -1 S 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_setDir g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 15 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	4	6 I -1 I -1 I -1 I -1 I -1 I 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN MultiplexFourInputInt
+*
+Run_Input1	1	1	5	1 I 2 	1 I 1 	1 4 
+Run_Input2	1	1	6	1 I 3 	1 I 1 	1 4 
+Run_Input3	1	1	7	1 I 4 	1 I 1 	1 4 
+END
+BEGIN Constant_Int1
+-1 
+Run_ConstantInt	1	1	-1	0 	1 I 3 	0 
+END
+BEGIN Constant_Int1
+-2 
+Run_ConstantInt	1	1	-1	0 	1 I 4 	0 
+END
+BEGIN FILE_ReadOnly_String
+readme.txt 0 (\n) 1 
+Run_OpenFILE_ReadOnly_String	1	1	8	1 S 2 	1 I -1 	2 -1 -1 
+Run_CloseFILE_ReadOnly_String	1	1	9	0 	1 I -1 	2 18 19 
+Run_ReadFILE_ReadOnly_String	1	1	10	0 	2 S 3 I -1 	2 11 -1 
+END
+BEGIN gui_text_string2
+%%%_fileOut g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 10 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	9	6 I -1 I -1 I -1 I -1 I -1 S 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+ 
+Run_ConstantString	1	1	-1	0 	1 S 4 	0 
+END
+BEGIN Constant_String1
+/ 
+Run_ConstantString	1	1	-1	0 	1 S -1 	0 
+END
+BEGIN gui_text_string2
+%%%_output g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	11	6 I -1 I -1 I -1 I -1 I -1 S 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_real2
+%%%_outputF g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	12	6 I -1 I -1 I -1 I -1 I -1 F 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_bool2
+%%%_outputB g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	13	6 I -1 I -1 I -1 I -1 I -1 B 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_outputI g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	14	6 I -1 I -1 I -1 I -1 I -1 I 5 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN FileSystemDirList1
+NULL 0 
+set	1	1	15	1 S 4 	0 	1 2 
+get	1	1	16	0 	1 S 1 	4 9 17 7 6 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	9	0 	0 	1 3 
+Or2	1	1	17	0 	0 	1 3 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	18	0 	0 	1 8 
+Or2	1	1	19	0 	0 	1 8 
+END
+BEGIN Constant_String1
+readme.txt 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

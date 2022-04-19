@@ -1,0 +1,138 @@
+//ICB HEADER MACRO START -- DO NOT ALTER
+#include "inx-parameters.h"
+#include "inx-component.h"
+#include "inx-pwm.h"
+#include "heatrod_config.h"
+#include "ehs_main.h" // we run th main from here!
+//ICB HEADER MACRO END -- DO NOT ALTER
+
+//ICB STATE VAR MACRO START -- DO NOT ALTER
+/* My Component state data structure. - Use this in your code! */
+typedef struct inx_pwm_state
+{
+	ehs_uint8 pin;
+} inx_pwm_state_type; //Reference this, maybe store your config parameters in here too.
+//ICB STATE VAR MACRO END -- DO NOT ALTER
+//ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
+/* Populate the data structure used by EHS and map the function names to strings identified in CDF */
+EHS_FB_FUNCTIONS_START(pwm)
+EHS_FB_FUNCTION_ENTRY("config", pwm_config)
+EHS_FB_FUNCTION_ENTRY("enable", pwm_enable)
+EHS_FB_FUNCTION_ENTRY("duty", pwm_duty)
+EHS_FB_FUNCTIONS_END
+//ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
+//ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
+/* Friendly labels for the run function data and event function argument enumerations */
+#define INX_pwm_ARG_config_finishconfig 1
+#define INX_pwm_ARG_config_hz 1
+#define INX_pwm_ARG_config_pin 2
+#define INX_pwm_ARG_enable_finishenable 1
+#define INX_pwm_ARG_enable_enable 1
+#define INX_pwm_ARG_duty_finishduty 1
+#define INX_pwm_ARG_duty_percent 1
+//ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
+//ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
+/* Parameters */
+/* Create some macros for the default parameters */
+//ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
+//ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Identify the function block to EHS.
+ * This function provides access to:
+ *  - string containing parameter text
+ * EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this function block's context
+ */
+EHS_FB_IDENTIFY_FUNCTION(pwm)
+{
+/* Uncomment the following if you need to parse the parameters to calculate memory required */
+/*
+	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
+	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_pwm_state_type);
+}
+//ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+//ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area provided by EHS for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+
+EHS_FB_INIT_FUNCTION(pwm)
+{
+	ehs_bool bRet = EHS_TRUE; /* assume success */
+	
+	//this is the reference to the object data for this instance of the function block
+	//inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_INIT_CONTEXT;
+	/* read the initialisation parameters */
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+	/* Add any further intialisation code here */
+	return bRet; /* initialisation always succeeds */
+}
+//ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
+//ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
+EHS_FB_DESTROY_FUNCTION(pwm)
+{
+	//inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_DESTROY_CONTEXT;
+	//Your code below here
+	return EHS_TRUE;
+}
+//ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
+
+//ICB FUNCTION config MACRO START -- DO NOT ALTER
+/**
+ * Definition of pwm_config.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(pwm_config)
+{
+	inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_config_hz) && EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_config_pin)){
+		inx_pwm_state->pin=EHS_FB_IN_I_API2(INX_pwm_ARG_config_pin);
+		inxPWMConfig(EHS_FB_IN_I_API2(INX_pwm_ARG_config_hz),inx_pwm_state->pin);
+	}
+	EHS_FB_FINISH(INX_pwm_ARG_config_finishconfig);
+}//ICB FUNCTION config MACRO END -- DO NOT ALTER THIS LINE
+
+//ICB FUNCTION enable MACRO START -- DO NOT ALTER
+/**
+ * Definition of pwm_enable.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(pwm_enable)
+{
+	//inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_enable_enable)){
+		inxPWMEnable(EHS_FB_IN_B_API2(INX_pwm_ARG_enable_enable));
+	}
+	EHS_FB_FINISH(INX_pwm_ARG_enable_finishenable);
+}//ICB FUNCTION read MACRO END -- DO NOT ALTER THIS LINE
+
+//ICB FUNCTION duty MACRO START -- DO NOT ALTER
+/**
+ * Definition of pwm_duty.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(pwm_duty)
+{
+	inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_duty_percent)){
+		inxPWMDuty(inx_pwm_state->pin,EHS_FB_IN_B_API2(INX_pwm_ARG_duty_percent));
+	}
+	EHS_FB_FINISH(INX_pwm_ARG_duty_finishduty);
+}//ICB FUNCTION duty MACRO END -- DO NOT ALTER THIS LINE

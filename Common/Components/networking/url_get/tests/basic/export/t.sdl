@@ -1,0 +1,125 @@
+#V:2.0.0
+#B:287
+#D:Y2012M8d31h9m22s7
+#N:basic
+1
+1	100000	90000
+BEGIN gui_text_string2 0
+%%%_LoginError g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 5 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN time_clock 0
+500000 0 1 
+start	1	1	3	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 6 
+END
+BEGIN UrlGet 0
+http://devport.inx-systems.com/headers.php NULL stuffXX.txt 0 1 0 0 60 1 pdrezet HelloWorld23445 NULL NULL 1 0 
+getpost	1	1	4	14 S -1 S -1 S -1 I -1 I -1 B -1 S -1 S -1 S -1 S -1 S -1 B -1 B -1 B -1 	5 S 2 S 1 I -1 S 4 I -1 	4 14 7 2 12 
+savecookies	1	1	5	0 	0 	1 -1 
+getmoredata	1	1	6	0 	0 	0 
+END
+BEGIN gui_text_string2 0
+%%%_loginReturned g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 4 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	7	6 I -1 I -1 I -1 I -1 I -1 S 2 	4 I -1 I -1 I -1 I -1 	1 3 
+END
+BEGIN gui_text_string2 0
+%%%_HTTPSlReturn g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 17 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	8	6 I -1 I -1 I -1 I -1 I -1 S 3 	4 I -1 I -1 I -1 I -1 	1 9 
+END
+BEGIN time_clock 0
+500000 0 1 
+start	1	1	9	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 10 
+END
+BEGIN UrlGet 0
+https://www.google.com NULL stuff.txt 0 1 0 0 60 1 NULL NULL NULL NULL 1 0 
+getpost	1	1	4	14 S -1 S -1 S -1 I -1 I -1 B -1 S -1 S -1 S -1 S -1 S -1 B -1 B -1 B -1 	5 S -1 S 3 I -1 S -1 I -1 	4 -1 -1 8 -1 
+savecookies	1	1	5	0 	0 	1 -1 
+getmoredata	1	1	10	0 	0 	0 
+END
+BEGIN gui_text_string2 0
+%%%_HTTPSError g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	11	6 I -1 I -1 I -1 I -1 I -1 S 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	12	0 	0 	1 11 
+Or2	1	1	7	0 	0 	1 11 
+END
+BEGIN CatString 0
+ 
+Run_CatString	1	1	13	2 S 5 S 6 	1 S 8 	1 -1 
+END
+BEGIN MultiplexTwoInputString 0
+*
+Run_Input1	1	1	14	1 S 7 	1 S 5 	1 15 
+Run_Input2	1	1	7	1 S 8 	1 S 5 	1 15 
+END
+BEGIN Constant_String1 0
+ 
+Run_ConstantString	1	1	-1	0 	1 S 7 	0 
+END
+BEGIN MultiplexTwoInputString 0
+*
+Run_Input1	1	1	14	1 S 7 	1 S 6 	1 16 
+Run_Input2	1	1	7	1 S 2 	1 S 6 	1 16 
+END
+BEGIN EventSelfResetTwoInputLatchingAnd 0
+*
+And1	1	1	15	0 	0 	1 13 
+And2	1	1	16	0 	0 	1 13 
+END
+BEGIN Constant_String1 0
+SomeNicestuff=3487568 
+Run_ConstantString	1	1	-1	0 	1 S 9 	0 
+END
+BEGIN string_format 0
+%s\r%s\r 
+run	1	1	1	2 S 9 S 10 	1 S -1 	1 -1 
+END
+BEGIN Constant_String1 0
+SomeMorestuff=1111111111 
+Run_ConstantString	1	1	-1	0 	1 S 10 	0 
+END
+BEGIN Constant_Bool1 0
+0 
+Run_ConstantBool	1	1	-1	0 	1 B -1 	0 
+END
+BEGIN Constant_Bool1 0
+0 
+Run_ConstantBool	1	1	-1	0 	1 B -1 	0 
+END
+BEGIN UrlGet 0
+http://data.inx-systems.net/testdata.txt NULL NULL 0 0 0 0 60 1 NULL NULL NULL NULL 0 0 
+getpost	1	1	17	14 S -1 S -1 S -1 I -1 I -1 B -1 S -1 S -1 S -1 S -1 S -1 B -1 B -1 B -1 	5 S 11 S -1 I -1 S -1 I -1 	4 19 23 22 -1 
+getmoredata	1	1	18	0 	0 	0 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 () 0 
+Run_OpenFILE_WriteOnly_String	1	1	19	1 S -1 	1 I -1 	2 24 -1 
+Run_CloseFILE_WriteOnly_String	1	1	20	0 	1 I -1 	2 -1 -1 
+Run_WriteFILE_WriteOnly_String	1	1	21	1 S 11 	1 I -1 	2 18 -1 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	18	0 	0 	1 20 
+And2	1	1	22	0 	0 	1 20 
+Reset	1	1	23	0 	0 	1 21 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	24	0 	0 	1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

@@ -1,0 +1,139 @@
+socket = require("socket");
+http = require("socket.http");
+ltn12 = require("ltn12");
+require("lfs");
+
+--@todo this needs to update with the devman override files
+
+DEVMANURL="http://devman.inx-systems.com"
+
+function rmdir(path)
+	for file in lfs.dir(path) do
+          	if file ~= "." and file ~= ".." then
+              		local f = path..'/'..file;
+              		print ("\t "..f);
+              		local attr = lfs.attributes (f);
+              		assert (type(attr) == "table");
+              		if attr.mode == "directory" then
+                  		rmdir (f);
+				os.remove(f);
+              		else
+                  		os.remove(f);
+                  	end
+          	end
+      	end
+	os.remove(path);
+end
+
+function dirExists(dir)
+	ret=0;
+	dirExists = io.open(dir.."/wibble", "w");
+	if dirExists then
+		dirExists:close();
+		os.remove(dir.."/wibble");
+		ret=1;
+	end
+	return ret;
+end
+
+function getPlatform()
+	platformStr = "";
+	platformFile = io.open("../sysdata/platform", "r");
+	if platformFile then
+		platformStr = platformFile:read("*line");
+		platformStr = string.gsub(platformStr, "[ \t\n]*$", "");
+		platformFile:close();
+	else
+		print("Unable to obtain platform");
+	end
+	return platformStr;
+end
+
+-- get platform
+platform = getPlatform();
+
+-- set busy flag for sys download directory 1
+-- @todo The following file should be checked for existence before continuing.
+-- @todo This file should keep a lock count so that it can be unlocked on count/out.
+workingFlag = io.open("../devman/core/working.flag", "w");
+if (workingFlag) then	
+workingFlag:close();
+end
+
+
+INXDEVICEID=""
+macAddrFile = io.open("../devman/core/ID.tmp", "r");
+if macAddrFile then
+	INXDEVICEID = macAddrFile:read("*line");
+	macAddrFile:close();
+end
+
+-- want at least two chars for a valid ID
+if string.len(INXDEVICEID) < 2 then
+	if platform == "linux" then
+		f = io.popen("ifconfig eth0 | grep HWaddr | awk '{print $5}'");
+		INXDEVICEID = f:read();
+	elseif platform == "win32" then
+		f = io.popen("ipconfig /all");
+		ipf = f:read("*all");
+		for macaddr in string.gmatch(ipf, "Physical Address.*: (.*)%s*Dhcp") do
+			INXDEVICEID = macaddr;
+		end
+	else
+		-- don't know so assume this is *nix
+		f = io.popen("ifconfig eth0 | grep HWaddr | awk '{print $5}'");
+		INXDEVICEID = f:read();
+	end
+end
+
+if string.len(INXDEVICEID) < 2 then
+	-- still failed use hard-wired value
+	INXDEVICEID="LOST_ID_DEVICE";
+end
+
+
+-- save this for another time - this should be deleted at boot time if the card is swapped to new devices
+idFile = io.open("../devman/core/ID.tmp", "w");
+idFile:write(INXDEVICEID);
+idFile:close();
+
+-- first check to see if there is anything on the server
+print("id="..INXDEVICEID);
+response, code = http.request(DEVMANURL.."/cgi-bin/isupdated.cgi","Group=DEFAULT&DeviceType=DEFAULT&DeviceID="..INXDEVICEID)
+--print("ready flag ="..response);
+response = string.gsub(response, "[ \t\n]*$", "");
+if response == "data_ready" then
+	--Server has data available 
+        -- check to see the directories are all in tact and fix if not
+	--print("data is ready");
+	-- clear download dir for new download
+	if dirExists("../devman/core/download") == "1" then
+		rmdir("../devman/core/download");
+	end
+	lfs.mkdir("../devman/core/download");
+	-- get the data if it exists.
+	-- procedure to get data from the server
+	response, code = http.request(DEVMANURL.."/cgi-bin/downloading.cgi","Group=DEFAULT&DeviceType=DEFAULT&DeviceID="..INXDEVICEID);
+	reponse, code = http.request {
+		url = DEVMANURL.."/DeviceGroup/DEFAULT/DEFAULT/"..INXDEVICEID.."/dldata.tgz",
+		sink = ltn12.sink.file(io.open("../devman/core/download/dldata.tgz", "w"))
+	}
+	reponse, code = http.request {
+		url = DEVMANURL.."/DeviceGroup/DEFAULT/DEFAULT/"..INXDEVICEID.."/dldata.sh",
+		sink = ltn12.sink.file(io.open("../devman/core/download/dldata.sh", "w"))
+	}
+	--print("response="..response.."code="..code);
+	--execute dldata.sh
+	lfs.chdir("../devman/core");
+	if platform == "linux" then
+		os.execute("./run_dldata");
+	elseif platform == "win32" then
+		os.execute("run_dldata.cmd");
+	else
+		print("Unknown platform - Unable to run script");
+	end
+	response, code = http.request(DEVMANURL.."/cgi-bin/updated.cgi","Group=DEFAULT&DeviceType=DEFAULT&DeviceID="..INXDEVICEID);
+end
+
+os.remove("../devman/core/working.flag");
+

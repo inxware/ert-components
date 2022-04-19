@@ -1,0 +1,73 @@
+#V:2.0.0
+#B:2
+#D:Y2012M4d18h10m27s53
+#N:testEventIdentifierAndSwitcher2
+1
+1	100000	90000
+BEGIN IndexedMultiplexer_Event
+0 
+Run_Input3	1	1	2	0 	1 I 1 	1 5 
+Run_Input4	1	1	3	0 	1 I 1 	1 5 
+END
+BEGIN EventCounterVersatile1
+1000 0 
+Run_StartEventCounter	1	1	1	0 	0 	1 -1 
+Run_CountEventCounter	1	1	4	2 I -1 I -1 	1 I 2 	2 7 -1 
+END
+BEGIN gui_text_int2
+%%%_widget0 g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	5	6 I -1 I -1 I -1 I -1 I -1 I 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_patch
+%%%_widget1 g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 2 -1 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN gui_patch
+%%%_widget2 g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 3 -1 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_widget4 g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 19 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	6	6 I -1 I -1 I -1 I -1 I -1 I 2 	4 I -1 I -1 I -1 I -1 	1 9 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	7	0 	0 	1 6 
+Or2	1	1	8	0 	0 	1 6 
+END
+BEGIN IndexedDemultiplexer_Event
+*
+Run	1	1	9	1 I 3 	1 I -1 	10 10 11 12 13 14 15 16 17 -1 -1 
+END
+BEGIN IndexedMultiplexer_Event
+0 
+Run_Input1	1	1	10	0 	1 I 4 	1 18 
+Run_Input2	1	1	11	0 	1 I 4 	1 18 
+Run_Input3	1	1	12	0 	1 I 4 	1 18 
+Run_Input4	1	1	13	0 	1 I 4 	1 18 
+Run_Input5	1	1	14	0 	1 I 4 	1 18 
+Run_Input6	1	1	15	0 	1 I 4 	1 18 
+Run_Input7	1	1	16	0 	1 I 4 	1 18 
+Run_Input8	1	1	17	0 	1 I 4 	1 18 
+END
+BEGIN gui_text_int2
+%%%_widget5 g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	18	6 I -1 I -1 I -1 I -1 I -1 I 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN FIFO_Int
+50 
+Run_PopFIFOInt	1	1	19	0 	1 I 3 	2 4 -1 
+Run_PushFIFOInt	1	1	5	1 I 1 	0 	2 -1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

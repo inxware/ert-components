@@ -1,0 +1,18 @@
+#V:2.0.0
+#B:3
+#D:Y2020M2d10h20m51s0
+#N:Test
+1
+1	100000	90000
+BEGIN Constant_Int1 0
+79 
+Run_ConstantInt	1	1	-1	0 	1 I 1 	0 
+END
+BEGIN unity 0
+*
+write	1	1	1	1 B 0 	0 	1 1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

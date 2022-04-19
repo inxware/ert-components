@@ -1,0 +1,483 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+DevmanPlayer
+</h1>
+<!--General Description-->
+<p class=component>
+This component provides contact with a devman server to enable the exchange of playlists and player status information. The component detects new playlists made available on the devman server, downloads them and notifies the application that it is available and where it is stored. The function block is not playlist format aware and does not parse the playlists to identify tracks that need to be downloaded. This Function block is neither responsible for downloading content references in the playlist. This is done by the playlist manager in conjunction with a downloader function block. 
+</p>
+<h3 class=component>
+Devman Server Commands
+</h3>
+<p class=component>
+The Devman server can issue the following commands (in XML format) to the application:
+</p>
+<ul>
+<li>
+<b>mediaSrcURL</b> - updates the base URL where media is downloaded from. (persistently stored to configs/devman-player/MediaSrcUrl.cfg)
+</li>
+<li>
+<b>playlist</b> - is the name of the playlist to play. This can be a fully qualified URL or just a path/filename that is appended to  <b>mediaSrcURL</b> if no domain is provided. (persistently stored to configs/devman-player/PlayListURL.cfg)
+</li>
+<li>		
+<b>NewDevmanPlayerURL</b> - Add  the priority devman server URL. This will add a new devman server to the top of the list. The previous server name will remain in the list. new
+</li>
+<li>		
+<b>RemovePlaylist</b> - Identifies a list of media paths to delete. The format of the path is currently devman server-specific.	
+</li>
+</li>
+<li>		
+<b>RemoveOldContent</b> - Signal that "old" content can be removed. The definition of old is defined by the application.
+</li>
+<li>		
+<b>RemoveAllContent</b> - Signal that all content should be removed.
+</li>
+<li>		
+<b>Override_Content_Directory</b> - Signal that a specific track should be played, which should override any currently playling track. (e.g. announcements). A URL (or local path) will be provided by Devman.
+</li>
+<li>		
+<b>Set_Playmode</b> - playmodes are application specific enumerated modes. e.g. 0 - mute, 1 - play constant, 2 - play from playlist. (persistently stored to configs/devman-player/PlayMode.cfg)
+</li>
+<li>		
+<b>SetPlayerParameters->nVolume</b> - updates the volume that the device should play media. It is application specific if this volume is managed by specific players or the overall system volume.
+(persistently stored to configs/devman-player/Volume.cfg
+</li>
+<li>		
+<b>SetPlayerParameters->channels</b> - updates the number of channels that should be used (e.g. stereo or mono mode). It is application/player specific how this would be handled.
+(persistently stored to configs/devman-player/Channels.cfg
+</li>
+<li>		
+<b>state</b> Controls the overall audio state of the device e.g. audio muted or not muted. It is application specific how to implement mute/unmute functionality. 
+configs/devman-player/Mute.cfg
+</li>
+</ul>
+
+
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+Activate:
+<a name="[In]Activate">
+</h6>
+Starts the Devman client polling the server to provide return path data and to check for updates.
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Activate ------------:
+<a name="[Out]------------">
+</h6>
+Signals Devman is active 
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[In]
+De-activate:
+<a name="[In]De-activate">
+</h6>
+Stops the device polling the Devman Server to send status information and/or receiving new messages
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+------------:
+<a name="[Out]------------">
+De-activation complete
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[In]
+Set url:
+<a name="[In]Set url">
+</h6>
+This will change the Devman sever URL that is polled. This change only persists while the application is running. It is not persisted after restart. This would need to be done directly by editing the devman/config/server file.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+URL:
+<a name="[In]URL">
+</h6>
+URL in standard URI format, including specific end-nodes.
+<p class=ports></p>
+  </li>
+  
+  <li>
+<h6 class=portsStr>
+[Out]
+URL:
+<a name="[Out]URL">
+</h6>
+Output of the Devman URL, which can be set from the Devman server as well as the application.
+<p class=ports></p>
+</li>
+
+  <li>
+<h6 class=ports>
+[In]
+Config:
+<a name="[In]Config">
+</h6>
+Set playlist path and devman polling rate.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+plylst path:
+<a name="[In]plylst path">
+</h6>
+Deprecated: Playlist path is not currently supported in Devman. Applications can choose their own local paths for playlists.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+update rate:
+<a name="[In]update rate">
+</h6>
+Time in seconds between Devman server polls.
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[In]
+track info:
+<a name="[In]track info">
+</h6>
+Set the media meta-data to report back to Devman.
+<p class=ports></p>
+  </li>
+  
+  <li>
+<h6 class=portsStr>
+[In]
+playlist:
+<a name="[In]playlist">
+</h6>
+Confirm the currently active playlist to Devman. 
+<p class=ports></p>
+  </li>
+  
+  <li>
+<h6 class=portsInt>
+[In]
+player mode:
+<a name="[In]player mode">
+</h6>
+Current track/video index in the playlist that is reported in the Devman Portal.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+curr. media:
+<a name="[In]curr. media">
+</h6>
+Currently playing track/video name that is reported in the Devman Portal.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+start time:
+<a name="[In]start time">
+</h6>
+The time at which the current media started to play that is reported in the Devman Portal.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+media duration:
+<a name="[In]media duration">
+</h6>
+Report the duration the current track should play for.
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+new playlist:
+<a name="[Out]new playlist">
+</h6>
+A new play list is published from Devman
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+plylst URL:
+<a name="[Out]plylst URL">
+</h6>
+New playlist URL published from Devman.
+<p class=ports></p>
+  </li>
+  
+  <li>
+<h6 class=portsStr>
+[Out]
+X-playlist:
+<a name="[Out]X-playlist">
+</h6>
+Playlist filename extracted from the full playlist URL. This does not include any preceeding path directories. 
+<p class=ports></p>
+  </li>
+  
+  <li>
+<h6 class=portsStr>
+[Out]
+media/ URL:
+<a name="[Out]media/ URL">
+</h6>
+New media base URL published from Devman.
+<p class=ports></p>
+  </li>
+  <li>
+<h6 class=portsStr>
+[Out]
+media /path:
+<a name="[Out]media /path">
+</h6>
+Local Path to media base. This is extracted from the above full media URL by removing the URI domain.
+<p class=ports></p>
+  </li>
+  <li>
+<h6 class=ports>
+[Out]
+rem. list:
+<a name="[Out]rem. list">
+</h6>
+Signal from Devman to remove specific list of content files.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+files:
+<a name="[Out]files">
+</h6>
+list of content files from Devman to remove. The format of the list is not defined. Reference to the local root path of playlist of media files maybe indicated in a proprietary way depending on the media server implementation. 
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+rem. unused:
+<a name="[Out]rem. unused">
+</h6>
+Signal from Devman to remove "old" files, as defined by the application.
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+rem. all:
+<a name="[Out]rem. all">
+</h6>
+Signal from Devman to remove all media files. (i.e. typically everything under ./media/*).
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Override:
+<a name="[Out]Override">
+</h6>
+Signal from Devman to play an override media clip.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+track url:
+<a name="[Out]track url">
+</h6>
+Optional URL from Devman of the override media clip to play.
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+media parms:
+<a name="[Out]media parms">
+</h6>
+New media player parameters are available from the Devman Server
+<p class=ports></p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+volume:
+<a name="[Out]volume">
+</h6>
+volume in % (0-100) has been set by Devman Server
+<p class=ports></p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+channels:
+<a name="[Out]channels">
+</h6>
+Number of audio channels to play (typically 2 for stereo)
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+set mute:
+<a name="[Out]set mute">
+</h6>
+Mute state has been changed from Devman.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsBool>
+[Out]
+on/off:
+<a name="[Out]on/off">
+</h6>
+Mute state (true for mute).
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+status:
+<a name="[Out]status">
+</h6>
+Devman Server status has changed.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+state:
+<a name="[Out]state">
+</h6>
+Devman Server state (Note: currently this is always 0 irrespective of server request errors and status).
+<p class=ports></p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+player state:
+<a name="[In]player state">
+</h6>
+Media player status to report back to Devman. 0 - mute, 1-playing, 2 - paused, 3 -error.
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+Raw XML:
+<a name="[Out]Raw XML">
+</h6>
+String containing the RAW XML from the Devman Server.
+<p class=ports></p>
+  </li></ul>
+<p>
+<!--EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]Activate">[In]Activate</a>, <a href="#[Out]------------">[Out]------------</a>, <a href="#[In]De-activate">[In]De-activate</a>, <a href="#[Out]------------">[Out]------------</a>, <a href="#[In]Set url">[In]Set url</a>, <a href="#[In]URL">[In]URL</a>, <a href="#[Out]------------">[Out]------------</a>, <a href="#[In]Config">[In]Config</a>, <a href="#[In]plylst path">[In]plylst path</a>, <a href="#[In]update rate">[In]update rate</a>, <a href="#[Out]------------">[Out]------------</a>, <a href="#[In]track info">[In]track info</a>, <a href="#[In]plylst index">[In]plylst index</a>, <a href="#[In]curr. media">[In]curr. media</a>, <a href="#[In]start time">[In]start time</a>, <a href="#[In]media duration">[In]media duration</a>, <a href="#[Out]new playlist">[Out]new playlist</a>, <a href="#[Out]plylst URL">[Out]plylst URL</a>, <a href="#[Out]media/ URL">[Out]media/ URL</a>, <a href="#[Out]rem. list">[Out]rem. list</a>, <a href="#[Out]files">[Out]files</a>, <a href="#[Out]rem. unused">[Out]rem. unused</a>, <a href="#[Out]rem. all">[Out]rem. all</a>, <a href="#[Out]Override">[Out]Override</a>, <a href="#[Out]track url">[Out]track url</a>, <a href="#[Out]media parms">[Out]media parms</a>, <a href="#[Out]volume">[Out]volume</a>, <a href="#[Out]channels">[Out]channels</a>, <a href="#[Out]set mute">[Out]set mute</a>, <a href="#[Out]on/off">[Out]on/off</a>, <a href="#[Out]status">[Out]status</a>, <a href="#[Out]state">[Out]state</a>, <a href="#[Out]media /path">[Out]media /path</a>, <a href="#[In]playlist">[In]playlist</a>, <a href="#[In]player state">[In]player state</a>, <a href="#[Out]X-playlist">[Out]X-playlist</a>, <a href="#[Out]Raw XML">[Out]Raw XML</a>, <a href="#[Out]URL">[Out]URL</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+Devman Server URL:
+</h6>
+<p class=parameters>
+Devman server URL to poll.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+S,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+"",
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+"",
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+  </li><li>
+<h6 class=parameters>
+Playlist Path:
+</h6>
+<p class=parameters>
+Local playlist path to store playlists in.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+S,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+"",
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+"",
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+  </li><li>
+<h6 class=parameters>
+Devman Ping Period:
+</h6>
+<p class=parameters>
+Devman ping period in seconds
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+I,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+1,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+3600,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+60
+</p>
+  </li><li>
+<h6 class=parameters>
+Use Devman Core URL:
+</h6>
+<p class=parameters>
+Use the URL specified by core Devman URL. The standard Devman path to the media URI is added to this if true.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+B,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+1,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+  </li><li>
+<h6 class=parameters>
+Start on Init:
+</h6>
+<p class=parameters>
+Start checking on application init.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+B,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+1,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>TBC.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<ul class=noBullet><li>
+<h6 class=profiles>Media: </h6>
+<p class=profiles></p>
+</li></ul>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>GUI/Level1.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier>inx ltd.</p>
+<!--More Info on Website-->
+<h3 class=more>More Information</h3>
+<p class=link><a href=http://www.inx-systems.net target=_blank>More information - external website hosted by the Component Supplier.</a></p>
+</body></html>

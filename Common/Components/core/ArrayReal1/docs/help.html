@@ -1,0 +1,184 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+ArrayReal1
+</h1>
+<!--General Description-->
+<p class=component>
+This component acts as an array for 32-bit floating point data. When the input event <a href="#[In]write">[In]write</a> is asserted, the input data <a href="#[In]data">[In]data</a> is added to the array at the index specified by <a href="#[In]indexW">[In]index</a> and the output event <a href="#[Out]write">[Out]write</a> is triggered. When the input event <a href="#[In]read">[In]read</a> is asserted, the data in the array at the index specified by <a href="#[In]indexR">[In]index</a> is presented to the output <a href="#[Out]data">[Out]data</a> and the output event <a href="#[Out]read">[Out]read</a> is triggered.
+</p>
+<p class=component>
+Please note that the array is zero indexed and the maxmum index is therefore the value of the parameter specifying the maximum size of the array - 1. If an index of less than 0 or greater than or equal to the maximum array size is used when writing to or reading from the array then the corresponding output event <a href="#[Out]err">[Out]err</a> will be triggered. Also note that data is persistent at the output <a href="#[Out]data">[Out]data</a>.
+</p>
+<p class=component>
+The default value parameter specifies the default value for uninitialised values in the array.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+
+
+<h6 class=portsReal>
+[In]
+data:
+<a name="[In]data">
+</h6>
+<p class=ports>Data input.</p>
+  </li><li>
+<h6 class=portsReal>
+[Out]
+data:
+<a name="[Out]data">
+</h6>
+<p class=ports>Data output.</p>
+  </li><li>
+
+
+<h6 class=ports>
+[In]
+write:
+<a name="[In]write">
+</h6>
+<p class=ports>Input event, writes the input <a href="#[In]data">[In]data</a> to the array at index <a href="#[In]indexW">[In]index</a>.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+index:
+<a name="[In]indexW">
+</h6>
+<p class=ports>Data input, specified the index in the array to write the input <a href="#[In]data">[In]data</a> to.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+write:
+<a name="[Out]write">
+</h6>
+<p class=ports>Output event, triggered if the array has been successfully written to.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+err:
+<a name="[Out]err">
+</h6>
+<p class=ports>Output event, triggered if there has been an error when writing to the array.</p>
+  </li><li>
+
+
+<h6 class=ports>
+[In]
+read:
+<a name="[In]read">
+</h6>
+<p class=ports>Input event, reads data from the array at index <a href="#[In]indexW">[In]index</a> and presents it to the output <a href="#[Out]data">[Out]data</a>.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+index:
+<a name="[In]indexR">
+</h6>
+<p class=ports>Data input, specified the index in the array to read the data in the array.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+read:
+<a name="[Out]read">
+</h6>
+<p class=ports>Output event, triggered if the array has been successfully read.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+err:
+<a name="[Out]err">
+</h6>
+<p class=ports>Output event, triggered if there has been an error when reading the array.</p>
+  </li><li>
+
+
+<h6 class=ports>
+[In]
+clear:
+<a name="[In]clear">
+</h6>
+<p class=ports>Input event, clears the array and triggers the output event <a href="#[Out]clear">[Out]clear</a>.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+clear:
+<a name="[Out]clear">
+</h6>
+<p class=ports>Output event.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]clear">[In]clear</a>, <a href="#[In]write">[In]write</a>, <a href="#[In]read">[In]read</a>, <a href="#[In]indexW">[In]index</a>, <a href="#[In]indexR">[In]index</a>, <a href="#[In]data">[In]data</a>, <a href="#[Out]data">[Out]data</a>, <a href="#[Out]clear">[Out]clear</a>, <a href="#[Out]write">[Out]write</a>, <a href="#[Out]read">[Out]read</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+size:
+</h6>
+<p class=parameters>
+Maximum number of items allocated memory for in the array
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+I,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+2,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+1024,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+1024
+</p>
+  </li><li>
+<h6 class=parameters>
+default value:
+</h6>
+<p class=parameters>
+default value for uninitialised values
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+F,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+NaN
+</p>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

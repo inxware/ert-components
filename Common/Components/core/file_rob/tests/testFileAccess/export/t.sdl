@@ -1,0 +1,80 @@
+#V:2.0.0
+#B:165
+#D:Y2011M11d14h16m8s16
+#N:testFileSystem
+1
+1	100000	90000
+BEGIN gui_text_string2
+%%%_output g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_read g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 6 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 I 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_close g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 5 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	6 I -1 I -1 I -1 I -1 I -1 I 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+aa 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN FILE_WriteOnly_Real
+out.txt 8 (\n) 4 0 
+Run_OpenFILE_WriteOnly_Real	1	1	4	0 	1 I 7 	2 8 9 
+Run_CloseFILE_WriteOnly_Real	1	1	5	0 	1 I 7 	2 10 11 
+Run_WriteFILE_WriteOnly_Real	1	1	6	1 F 1 	1 I 7 	2 12 13 
+END
+BEGIN gui_text_int2
+%%%_open g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 4 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	7	6 I -1 I -1 I -1 I -1 I -1 I 5 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN MultiplexTwoInputInt
+*
+Run_Input1	1	1	8	1 I 6 	1 I 5 	1 7 
+Run_Input2	1	1	9	1 I 7 	1 I 5 	1 7 
+END
+BEGIN Constant_Int1
+-1 
+Run_ConstantInt	1	1	-1	0 	1 I 6 	0 
+END
+BEGIN MultiplexTwoInputInt
+*
+Run_Input1	1	1	10	1 I 6 	1 I 2 	1 3 
+Run_Input2	1	1	11	1 I 7 	1 I 2 	1 3 
+END
+BEGIN MultiplexTwoInputInt
+*
+Run_Input1	1	1	12	1 I 6 	1 I 1 	1 2 
+Run_Input2	1	1	13	1 I 7 	1 I 1 	1 2 
+END
+BEGIN Constant_Bool1
+1 
+Run_ConstantBool	1	1	-1	0 	1 B 1 	0 
+END
+BEGIN Constant_Real1
+1.12345 
+Run_ConstantReal	1	1	-1	0 	1 F 1 	0 
+END
+BEGIN Constant_Int1
+-123 
+Run_ConstantInt	1	1	-1	0 	1 I 3 	0 
+END
+BEGIN gui_text_real2
+%%%_floatOut g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	12	6 I -1 I -1 I -1 I -1 I -1 F 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

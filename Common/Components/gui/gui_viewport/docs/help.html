@@ -1,0 +1,277 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+gui_viewport
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to specify the position (relative to the screen origin), dimensions, colour and transparency of the viewport. These properties are specified in the viewport widget properties in the GUI Builder, IGB. In addition the data inputs <a href="#[In]off.x">[In]off.x</a> and <a href="#[In]off.y">[In]off.y</a> can be used to change the position of the viewport by specifying the offset from its original position in the x and y axis respectively. The data inputs <a href="#[In]off.wid">[In]off.wid</a> and <a href="#[In]off.ht">[In]off.ht</a> can be used to specify an offset in the width and the height of the viewport from the original dimensions and <a href="#[In]alpha">[In]alpha</a> can be used to change the alpha value of the transparency of the viewport.
+</p>
+<p class=component>
+The input event <a href="#[In]create">[In]create</a> will create a surface on which widgets can be displayed and <a href="#[In]destroy">[In]destroy</a> destroys the surface. When the input event <a href="#[In]create">[In]create</a> is triggered, data is presented to outputs <a href="#[Out]abs x">[Out]abs x</a>, <a href="#[Out]abs y">[Out]abs y</a>, <a href="#[Out]wid">[Out]wid</a> and <a href="#[Out]ht">[Out]ht</a>, describing the absolute position and dimensions of the viewport as created.
+</p>
+<p class=component>
+The input events <a href="#[In]show">[In]show</a> and <a href="#[In]hide">[In]hide</a> will show and hide the viewport. The state of the viewport as shown or hidden is persistent, so that if <a href="#[In]show">[In]show</a> is asserted before <a href="#[In]create">[In]create</a>, the viewport will be shown when <a href="#[In]create">[In]create</a> is asserted.
+</p>
+<p class=component>
+When the input event <a href="#[In]update">[In]update</a> is asserted, the values presented to the inputs <a href="#[In]off.x">[In]off.x</a>, <a href="#[In]off.y">[In]off.y</a>, <a href="#[In]off.wid">[In]off.wid</a>, <a href="#[In]off.ht">[In]off.ht</a> and <a href="#[In]alpha">[In]alpha</a> will be used to update the viewport widget properties. Data is presented to outputs <a href="#[Out]abs x">[Out]abs x</a>, <a href="#[Out]abs y">[Out]abs y</a>, <a href="#[Out]wid">[Out]wid</a> and <a href="#[Out]ht">[Out]ht</a>, describing the updated absolute position and dimensions of the viewport. It should be noted that the data inputs <a href="#[In]off.x">[In]off.x</a> and <a href="#[In]off.y">[In]off.y</a> specify the offset in the x and y axis from its original position and the data outputs <a href="#[Out]abs x">[Out]abs x</a> and <a href="#[Out]abs y">[Out]abs y</a> refer to the absolute x and y coordinates of the viewport in reference to the screen origin.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+create:
+<a name="[In]create">
+</h6>
+<p class=ports>Input event, creates a surface to display widgets.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+destroy:
+<a name="[In]destroy">
+</h6>
+<p class=ports>Input event, destroys the surface displaying widgets.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+show:
+<a name="[In]show">
+</h6>
+<p class=ports>Input event, shows the viewport.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+hide:
+<a name="[In]hide">
+</h6>
+<p class=ports>Input event, hides the viewport.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+update:
+<a name="[In]update">
+</h6>
+<p class=ports>Input event, updates the properties of the viewport.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+off.x:
+<a name="[In]off.x">
+</h6>
+<p class=ports>Data input, specifies the offset in the x axis of the viewport from its initial position when the update event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+off.y:
+<a name="[In]off.y">
+</h6>
+<p class=ports>Data input, specifies the offset in the y axis of the viewport from its initial position when the update event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+off.wid:
+<a name="[In]off.wid">
+</h6>
+<p class=ports>Data input, specifies the offset in width of the viewport from its original dimensions when the update event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+off.ht:
+<a name="[In]off.ht">
+</h6>
+<p class=ports>Data input, specifies the offset in height of the viewport from its original dimensions when the update event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+alpha:
+<a name="[In]alpha">
+</h6>
+<p class=ports>Data input, specifies the alpha transparency of the viewport when the update event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+abs x:
+<a name="[Out]abs x">
+</h6>
+<p class=ports>Data output, the x coordinate of the viewport relative to the screen origin presented when the create or update events are triggered.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+abs y:
+<a name="[Out]abs y">
+</h6>
+<p class=ports>Data output, the y coordinate of the viewport relative to the screen origin presented when the create or update events are triggered.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+wid:
+<a name="[Out]wid">
+</h6>
+<p class=ports>Data output, the width of the viewport presented when the create or update events are triggered.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+ht:
+<a name="[Out]ht">
+</h6>
+<p class=ports>Data output, the height of the viewport presented when the create or update events are triggered.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]">
+</h6>
+<p class=ports>Output event, triggered when the input event <a href="#[In]create">[In]create</a> is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]">
+</h6>
+<p class=ports>Output event, triggered when the input event <a href="#[In]destroy">[In]destroy</a> is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]">
+</h6>
+<p class=ports>Output event, triggered when the input event <a href="#[In]show">[In]show</a> is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]">
+</h6>
+<p class=ports>Output event, triggered when the input event <a href="#[In]hide">[In]hide</a> is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]">
+</h6>
+<p class=ports>Output event, triggered when the input event <a href="#[In]update">[In]update</a> is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+mouse down:
+<a name="[Out]mouse down">
+</h6>
+<p class=ports>Output event, triggered when the user presses the mouse button.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+mouse up:
+<a name="[Out]mouse up">
+</h6>
+<p class=ports>Output event, triggered when the user releases the mouse button.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+abs x:
+<a name="[Out]abs x">
+</h6>
+<p class=ports>Data output, the x coordinate of the mouse pointer relative to the viewport origin presented when the mouse down or mouse up events are triggered.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+abs y:
+<a name="[Out]abs y">
+</h6>
+<p class=ports>Data output, the y coordinate of the mouse pointer relative to the viewport origin presented when the mouse down or mouse up events are triggered.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+mouse drag:
+<a name="[Out]mouse drag">
+</h6>
+<p class=ports>Output event, triggered when the user moves the mouse with the button held down which is interpreted as a drag event.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+off.x:
+<a name="[Out]off.x">
+</h6>
+<p class=ports>Data output, the offset in the x coordinate from the mouse down coordinates and the current mouse pointer coordinates presented when the mouse drag event is triggered.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+off.y:
+<a name="[Out]off.y">
+</h6>
+<p class=ports>Data output, the offset in the y coordinate from the mouse down coordinates and the current mouse pointer coordinates presented when the mouse drag event is triggered.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]create">[In]create</a>, <a href="#[In]destroy">[In]destroy</a>, <a href="#[In]show">[In]show</a>, <a href="#[In]hide">[In]hide</a>, <a href="#[In]update">[In]update</a>, <a href="#[In]off.x">[In]off.x</a>, <a href="#[In]off.y">[In]off.y</a>, <a href="#[In]off.wid">[In]off.wid</a>, <a href="#[In]off.ht">[In]off.ht</a>, <a href="#[In]alpha">[In]alpha</a>, <a href="#[Out]x">[Out]x</a>, <a href="#[Out]y">[Out]y</a>, <a href="#[Out]wid">[Out]wid</a>, <a href="#[Out]ht">[Out]ht</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]click">[Out]click</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+Widget Tag:
+</h6>
+<p class=parameters>
+Name of the widget as displayed in the GUI builder.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+WT,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+widget,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+widget tag,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+  </li><li>
+<h6 class=parameters>
+Widget-Group:
+</h6>
+<p class=parameters>
+Group that the widget belongs to in the GUI builder.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+ST,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+default,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+widget group,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>GUI.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

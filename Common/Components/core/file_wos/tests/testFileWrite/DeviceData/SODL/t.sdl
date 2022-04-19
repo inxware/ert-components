@@ -1,0 +1,84 @@
+#V:2.0.0
+#B:16
+#D:Y2012M3d22h15m38s29
+#N:testFileWrite
+1
+1	100000	90000
+BEGIN FILE_WriteOnly_String
+out.txt 0 (\n) 0 
+Run_WriteFILE_WriteOnly_String	1	1	2	1 S 1 	1 I -1 	2 -1 -1 
+END
+BEGIN FILE_ReadOnly_String
+deleteMe2/out1.txt 0 (\n) 
+Run_OpenFILE_ReadOnly_String	1	1	1	1 S -1 	1 I -1 	2 -1 -1 
+Run_ReadFILE_ReadOnly_String	1	1	3	0 	2 S 1 I -1 	2 2 -1 
+END
+BEGIN gui_text_string2
+%%%_output g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 3 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_close g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 8 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_fileA g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 4 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN MultiplexThreeInputString
+*
+Run_Input1	1	1	4	1 S 2 	1 S 4 	1 7 
+Run_Input2	1	1	5	1 S 3 	1 S 4 	1 7 
+END
+BEGIN gui_text_string2
+%%%_fileB g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 5 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+out1.txt 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN Constant_String1
+out2.txt 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN FILE_WriteOnly_Bool
+out.txt () 0 
+Run_WriteFILE_WriteOnly_Bool	1	1	6	1 B 1 	1 I -1 	2 -1 -1 
+END
+BEGIN FILE_WriteOnly_Real
+out.txt 0 (\n) 3 0 
+Run_OpenFILE_WriteOnly_Real	1	1	7	1 S 4 	1 I -1 	2 -1 -1 
+Run_CloseFILE_WriteOnly_Real	1	1	8	0 	1 I -1 	2 -1 -1 
+Run_WriteFILE_WriteOnly_Real	1	1	9	1 F 1 	1 I -1 	2 -1 -1 
+END
+BEGIN FILE_ReadOnly_Real
+deleteMe2R/out1.txt 0 (\n) 
+Run_OpenFILE_ReadOnly_Real	1	1	1	1 S -1 	1 I -1 	2 -1 -1 
+Run_ReadFILE_ReadOnly_Real	1	1	10	0 	2 F 1 I -1 	2 9 -1 
+END
+BEGIN FILE_ReadOnly_Int
+out.txt 0 ( ) 
+Run_OpenFILE_ReadOnly_Int	1	1	1	1 S -1 	1 I -1 	2 -1 -1 
+END
+BEGIN FILE_ReadOnly_Bool
+deleteMe2B/out1.txt () 
+Run_OpenFILE_ReadOnly_Bool	1	1	1	1 S -1 	1 I -1 	2 -1 -1 
+END
+BEGIN gui_text_real2
+%%%_outputF g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 10 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	9	6 I -1 I -1 I -1 I -1 I -1 F 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

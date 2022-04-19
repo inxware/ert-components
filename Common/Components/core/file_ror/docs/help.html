@@ -1,0 +1,199 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+FILE_ReadOnly_Real
+</h1>
+<!--General Description-->
+<p class=component>
+This components is used to read 32-bit floating point data from a file. The data presented to the input port <a href="#[In]path">[In]path</a> specifies the path of the file to open. The path is relative to the User Data directory, "userdata", in the EHS installation directory. If no data is presented to <a href="#[In]path">[In]path</a> then the file path is specified using the File name parameter.
+</p>
+<p class=component>
+It is also possible to specify an absolute path for the file by prefixing "localhost:" to the file path. <b>Users are advised not to use this method as the absolute file path is device dependent.</b>
+</p>
+<p class=component>
+The data in the file can be structured in a number of ways. The Field Width parameter is used to indicate that the data is of a fixed width format with each data item consisting of <i>n</i> characters where <i>n</i> is the Field Width. A Field Width of "0" indicates that the data is not of a fixed width format. The Delimiter parameter specifies the delimiting character for separating data items in the file. Please note that the delimiter must be enclosed in brackets so that "( )" indicates the use of a single space as a delimiter and "(\n)" denotes the use of a line break as a delimiter. A Delimiter parameter of "()" or "" indicates that no delimiter is used in the file.
+</p>
+<p class=component>
+The data must be either delimited or of a fixed width format or a combination of the two. A combination of Field Width and Delimiter parameters can be used to indicate that the data is delimited by a special character but to only read in the first <i>n</i> characters of each data item and discard any additional characters where <i>n</i> is the Field Width.
+</p>
+<p class=component>
+Each data item is read in one item at a time when the input event <a href="#[In]read">[In]read</a> is asserted and the data item is presented to the data output <a href="#[Out]data">[Out]data</a>. The file must be opened before it can be read using the input event <a href="#[In]open">[In]open</a>. If there is an error when opening, closing or reading the file then an error code is presented to the data output <a href="#[Out]err code">[Out]err code</a> and the corresponding error event is asserted.
+</p>
+<p class=component>
+The file is closed when the input event <a href="#[In]close">[In]close</a> is asserted and is released by this process. Please note that the input event <a href="#[In]open">[In]open</a> closes a previously opened file before opening another. Therefore if multiple files are being read sequentially, it is not necessary to trigger the input event <a href="#[In]close">[In]close</a> inbetween the opening, and reading of, each file.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+open:
+<a name="[In]open">
+</h6>
+<p class=ports>Input event, opens the file in preparation for reading.</p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+path:
+<a name="[In]path">
+</h6>
+<p class=ports>Data input, the file path, relative to the User Data directory, of the file to open.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+..:
+<a name="[Out]..">
+</h6>
+<p class=ports>Output event, triggered if the file is opened succesfully.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+err:
+<a name="[Out]err">
+</h6>
+<p class=ports>Output event, triggered if there is an error opening the file.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+close:
+<a name="[In]close">
+</h6>
+<p class=ports>Input event, closes the file and releases it.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+..:
+<a name="[Out]..">
+</h6>
+<p class=ports>Output event, triggered if the file is closed succesfully.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+err:
+<a name="[Out]err">
+</h6>
+<p class=ports>Output event, triggered if there is an error closing the file.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+read:
+<a name="[In]read">
+</h6>
+<p class=ports>Input event, reads a data item from the file.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+..:
+<a name="[Out]..">
+</h6>
+<p class=ports>Output event, triggered if the file is read succesfully.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+err:
+<a name="[Out]err">
+</h6>
+<p class=ports>Output event, triggered if there is an error reading the file.</p>
+  </li><li>
+<h6 class=portsReal>
+[Out]
+data:
+<a name="[Out]data">
+</h6>
+<p class=ports>Data output, the data item read from the file.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+err code:
+<a name="[Out]err code">
+</h6>
+<p class=ports>Data output, an error code produced if the input events open, close or read fail.</p>
+</li></ul>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]open">[In]open</a>, <a href="#[Out]">[Out]</a>, <a href="#[In]close">[In]close</a>, <a href="#[Out]">[Out]</a>, <a href="#[In]read">[In]read</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]err code">[Out]err code</a>, <a href="#[Out]">[Out]</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+File name:
+</h6>
+<p class=parameters>
+The input file path.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+S,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+out.txt
+</p>
+  </li><li>
+<h6 class=parameters>
+Field Width:
+</h6>
+<p class=parameters>
+Fixed Width data structure.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+I,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+0,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+100,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+0
+</p>
+  </li><li>
+<h6 class=parameters>
+Delimiter:
+</h6>
+<p class=parameters>
+Character used to delimit data, in the form "(x)" where "x" is the delimiter.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+S,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+( )
+</p>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

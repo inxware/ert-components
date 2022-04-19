@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=ehs
+Comment=The BRIX App Runtime
+Exec=/opt/ehs/bin/run_ehs.sh NO_RESTART LIB_HOST 
+Icon=/opt/ehs/inx-icon.png
+Terminal=0
+Type=Application
+Encoding=UTF-8
+Categories=Network;Application;Development

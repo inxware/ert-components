@@ -1,0 +1,266 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+EventCounterVersatile1
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to count events and present the count at the data output <a href="#[Out]cnt">[Out]cnt</a>. This is a more versatile version of the basic counter and can be incremented when the input event <a href="#[In]inc">[In]inc</a> is asserted or decremented when the input event <a href="#[In]dec">[In]dec</a> is asserted. A maximum and minimum threshold can be set by specifying the parameters Max. Threshold and Min. Threshold or by overriding the parameters by presenting values to the data inputs <a href="#[In]max">[In]max</a> and <a href="#[In]min">[In]min</a> respectively. Note that if a value of 0 is used for the Max. Threshold parameter then the Max. Threshold is set to 2147483647, which is the maximum permissible value.
+</p>
+<p class=component>
+An initial value for the count can be set by presenting a value to the data input <a href="#[In]ini">[In]ini</a>, if the port is not connected the Initial Value parameter value is used. Similarly a step size for each increment or decrement event can be set by presenting a value to the data input <a href="#[In]step">[In]step</a>, if the port is not connected the Step Size parameter value is used. Note that the minimum step size is 1.
+</p>
+<p class=component>
+The <a href="#[In]enable">[In]enable</a> and <a href="#[In]disable">[In]disable</a> event inputs can be used to enable and disable the counter, meaning that the count will be incremented or decremented if and only if the counter is enabled. The <a href="#[In]rst">[In]rst</a> event input is used to reset the count to its initial value. 
+</p>
+<p class=component>
+If the count exceeds the upper threshold then the overflow output event <a href="#[Out]ovfU">[Out]ovf</a> is triggered, similarly if the count exceeds the lower threshold then the overflow output event <a href="#[Out]ovfL">[Out]ovf</a> is triggered. If and only if the count does not exceed the thresholds when an increment or decrement event is asserted, then the corresponding output event will be triggered and the count value will be presented to the data output <a href="#[Out]cnt">[Out]cnt</a>.
+</p>
+<p class=component>
+The count will always be inside the bounds of the minimum and maximum thresholds. Fo example if the initial value is set to be greater than the maximum threshold, then the initial value will be capped at the maximum threshold, the same holds true for an initial value that is less than the minimum threshold. 
+</p>
+<p class=component>
+At each increment, the count is only incremented if the sum of count value and the step size is less than or equal to the maximum threshold. The same rule applies to decrement events with respect to the minimum threshold. For example if the step size is 3, the count is 8 and the maximum threshold is 10, then on the next increment event the count will remain on 8 and the output event <a href="#[Out]ovfU">[Out]ovf</a> will be triggered. If the step size is 2, the count is 8 and the maximum threshold is 10, then on the next increment event the count will incremented to 10 and the input event <a href="#[In]inc">[In]inc</a> will be triggered and a value of 10 presented to the data output <a href="#[Out]cnt">[Out]cnt</a>.
+</p>
+<p class=component>
+If the values presented to either of the data inputs <a href="#[In]max">[In]max</a> or <a href="#[In]min">[In]min</a> change then the new thresholds will be used on the next increment, decrement or reset events. If the value of the counter is greater than the new maximum threshold then the counter will be set to the maximum threshold and similarly if the the counter is less than the new minimum threshold then the counter will be set to the minimum threshold. Note that the counter value is changed to be within the new thresholds before the increment or decrement of its value. For example when the input event <a href="#[In]inc">[In]inc</a> is triggerred, if the counter value is below the new minimum threshold it will be set to the new minimum threshold and before its value is incremented and presented to the data output <a href="#[Out]cnt">[Out]cnt</a>.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+rst:
+<a name="[In]rst">
+</h6>
+<p class=ports>Input event, resets the count to its intial value.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+inc:
+<a name="[In]inc">
+</h6>
+<p class=ports>Input event, triggers an increment of the counter and presents the count to the data output <a href="#[Out]cnt">[Out]cnt</a>.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+dec:
+<a name="[In]dec">
+</h6>
+<p class=ports>Input event, triggers an decrement of the counter and presents the count to the data output <a href="#[Out]cnt">[Out]cnt</a>.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+enable:
+<a name="[In]enable">
+</h6>
+<p class=ports>Input event, the counter will register increment or decrement events after this event is triggered.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+disable:
+<a name="[In]disable">
+</h6>
+<p class=ports>Input event, the counter will not register increment or decrement events after this event is triggered.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+ini:
+<a name="[In]init">
+</h6>
+<p class=ports>Data input, the initial value for the counter. Overrides the parameter Initial Value.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+step:
+<a name="[In]step">
+</h6>
+<p class=ports>Data input, the value by which the count is incremented or decremented by. Overrides the parameter Step Size.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+max:
+<a name="[In]max">
+</h6>
+<p class=ports>Data input, the maximum threshold for the counter. Overrides the parameter Max. Threshold.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+min:
+<a name="[In]min">
+</h6>
+<p class=ports>Data input, the minimum threshold for the counter. Overrides the parameter Min. Threshold.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+cnt:
+<a name="[Out]cnt">
+</h6>
+<p class=ports>Data output, the current count.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]inc">
+</h6>
+<p class=ports>Output event, is asserted if and only if an increment event is received and the count is less than the maximum threshold.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]dec">
+</h6>
+<p class=ports>Output event, is asserted if and only if a decrement event is received and the count is greater than the minimum threshold.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]rst">
+</h6>
+<p class=ports>Output event.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]enable">
+</h6>
+<p class=ports>Output event.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]disable">
+</h6>
+<p class=ports>Output event.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+ovf:
+<a name="[Out]ovfU">
+</h6>
+<p class=ports>Output event, is asserted if and only if an increment event is received and the count is equal to or greater than the maximum threshold.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+ovf:
+<a name="[Out]ovfL">
+</h6>
+<p class=ports>Output event, is asserted if and only if a decrement event is received and the count is equal to or less than the minimum threshold.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]start">[In]start</a>, <a href="#[In]inc">[In]inc</a>, <a href="#[In]dec">[In]dec</a>, <a href="#[In]rst">[In]rst</a>, <a href="#[In]stop">[In]stop</a>, <a href="#[In]max">[In]max</a>, <a href="#[In]min">[In]min</a>, <a href="#[Out]cnt">[Out]cnt</a>, <a href="#[Out]inc">[Out]</a>, <a href="#[Out]dec">[Out]</a>, <a href="#[Out]start">[Out]</a>, <a href="#[Out]stop">[Out]</a>, <a href="#[Out]rst">[Out]</a>, <a href="#[Out]ovf">[Out]ovfU</a>, <a href="#[Out]ovfL">[Out]ovf</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet>
+
+<li>
+<h6 class=parameters>
+Enable at Init:
+</h6>
+<p class=parameters>
+Enable the counter at initialisation time if TRUE, else counter is disabled at initialisation time.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+B,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+1
+</p>
+  </li><li>
+<h6 class=parameters>
+Initial Value:
+</h6>
+<p class=parameters>
+Initial Value for count.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+I,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+-2147483648,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+2147483647,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+0
+</p>
+  </li><li>
+<h6 class=parameters>
+Step Size:
+</h6>
+<p class=parameters>
+Value incremented/decremented on each count.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+I,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+1,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+2147483647,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+1
+</p>
+  </li><li>
+<h6 class=parameters>
+Max. Threshold:
+</h6>
+<p class=parameters>
+Threshold value for ovf event.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+I,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+-2147483648,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+2147483647,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+1000
+</p>
+  </li><li>
+<h6 class=parameters>
+Min. Threshold:
+</h6>
+<p class=parameters>
+Threshold value for ovf event.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+I,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+-2147483648,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+2147483647,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+0
+</p>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

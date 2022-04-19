@@ -1,0 +1,96 @@
+#ifndef EHS_COMP_API2_H
+#define EHS_COMP_API2_H
+
+#include "ehs_types.h"
+
+/** @file ehs_comp_api2.h
+ * A redinition of some macros in ehs_fb_types.h
+ * 
+ * 
+ * Copyright (c) inx limited, 2006. All rights reserved.
+ */
+
+
+
+/*********************************************************************************************/
+/* Function block definitions */
+
+
+
+
+/*********************************************************************************************/
+/* Connection macros used by components
+ *  * -----> index Starts at 1 !!!!!!!!
+ *********************************************************************************************/
+
+/**
+ * Get input x - generic version - needs to be casted before use
+ */
+#define EHS_FB_IN_API2(x) EHS_FB_RUN_FUNCTION_INSTANCE->pIn[x-1]
+
+/**
+ * Check whether input x is connected or not
+ */
+#define EHS_FB_IN_CONNECTED_API2(x) ((EHS_FB_RUN_FUNCTION_INSTANCE->pIn) && (EHS_FB_IN_API2(x) != EhsDataConnectionTable.xDummyIn))
+
+/**
+ * Get input x as an integer
+ */
+#define EHS_FB_IN_I_API2(x) *(EhsDataflowIntType*)EHS_FB_IN_API2(x)
+
+/**
+ * Get input x as a float
+ */
+#define EHS_FB_IN_F_API2(x) *(EhsDataflowFloatType*)EHS_FB_IN_API2(x)
+
+/**
+ * Get input x as a bool
+ */
+#define EHS_FB_IN_B_API2(x) *(ehs_bool*)EHS_FB_IN_API2(x)
+
+/**
+ * Get input x as a string
+ */
+#define EHS_FB_IN_S_API2(x) (char*)EHS_FB_IN_API2(x)
+
+/**
+ * Check whether output x is connected or not
+ */
+#define EHS_FB_OUT_CONNECTED_API2(x) ((EHS_FB_RUN_FUNCTION_INSTANCE->pOut) && (EHS_FB_OUT_API2(x) != EhsDataConnectionTable.xDummy))
+
+/**
+ * Get output x - generic version
+ */
+#define EHS_FB_OUT_API2(x) (EHS_FB_RUN_FUNCTION_INSTANCE->pOut[x-1])
+
+/**
+ * Get output x as a bool
+ */
+#define EHS_FB_OUT_B_API2(x) *(ehs_bool*)EHS_FB_OUT_API2(x)
+
+/**
+ *  Get output x as an integer
+ */
+#define EHS_FB_OUT_I_API2(x) *(EhsDataflowIntType*)EHS_FB_OUT_API2(x)
+
+/**
+ * Get output x as a float
+ */
+#define EHS_FB_OUT_F_API2(x) *(EhsDataflowFloatType*)EHS_FB_OUT_API2(x)
+
+/**
+ * Get output x as a string
+ */
+#define EHS_FB_OUT_S_API2(x) (char*)EHS_FB_OUT_API2(x)
+
+/**
+ * Assert event x
+ */
+#define EHS_FB_FINISH_API2(x) EhsFunctionInstanceData_triggerEvent(EHS_FB_RUN_CONTEXT_REF,(x))
+
+/*********************************************************************************************/
+
+
+/* @todo Add all the paramter parsing functions as consistent Macros in here */
+#endif /* EHS_COMP_API2_H */
+

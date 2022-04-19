@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=iAB
+Comment=The BRIX Application Builder
+Exec=/usr/bin/iab 
+Icon=/usr/share/icons/iab-icon.png
+Terminal=0
+Type=Application
+Encoding=UTF-8
+Categories=Application;Development

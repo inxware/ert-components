@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Name>testFileRead</Name>
+  <CommercialName>testFileIO</CommercialName>
+  <Version>1.0</Version>
+  <Description>Reads a line at a time from each file in the directory</Description>
+</root>

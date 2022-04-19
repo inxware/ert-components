@@ -1,0 +1,106 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+Devman Server Interface
+</h1>
+<!--General Description-->
+<p class=component>
+This component provides input and output to the devman server. </p>
+<h3 class=component>
+System
+</h3>
+<p class=component>
+
+</p>
+<ul>
+
+
+</ul>
+
+
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+
+<h5 class=ports> 
+reset
+</h5> - remove the JSON file accumulated through read.
+
+
+<li>
+<h5 class=ports> read </h5> - Loads and concatenates a JSON data structure string in memory to be queried. </p>
+<p/>
+
+<p/>
+The query string is a subset of JSON path not supporting wild cards. An extension to this is the use of '?' as a query string for a field, which will return a list of map keys rather than values at the given nesting level in the JSON data (See examples below).  
+</li>
+
+<li>
+<h5 class=ports> query</h5> Query the JSON using JSONPath and Key listing query strings of the form </p>
+<h6 class=ports> query JSON values and subtrees</h6>
+
+[firstLevel][secondLevel][X], where each field represents the nesting key path to a value (or JSON subtree) under the final map key 'X'.</p>
+ query strings may also be of the form </p>
+  ["firstLevel"][ "secondLevel"][...]  </p>
+  ['firstLevel']['secondLevel'][...] or </p>
+  firstLevel.secondLevel or </p>
+  firstLevel </p>
+  $.firstLevel </p>
+<h6 class=ports> query key names using wild cards </h6> 
+  The only wildcard support provided is for retrieving a list of map keys (rather than values) at a node in the JSON. </p>
+  the ? operator is used. e.g.
+  [?] - returns all the first level map keys.  Array are ignored</p>
+  [X][?] - returns all the maps keys under the the 'X' map. Arrays are ignored </p>
+</li>
+
+</ul>
+<p/>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+
+</h6>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>TBC.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<ul class=noBullet><li>
+<h6 class=profiles>Media: </h6>
+<p class=profiles></p>
+</li></ul>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>GUI/Level1.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier>inx ltd.</p>
+<!--More Info on Website-->
+<h3 class=more>More Information</h3>
+<p class=link><a href=http://www.inx-systems.net target=_blank>More information - external website hosted by the Component Supplier.</a></p>
+</body></html>

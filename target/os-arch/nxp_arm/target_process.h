@@ -1,0 +1,69 @@
+/** @file target_process.h
+ * The target-specific declarations required to support the HAL for process services
+ * and related OS interations are defined here.
+ * This file should only be included by hal_process.h
+ *
+ * @author: inx limited
+ * @version: $Revision: 1650 $
+ * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
+ *
+ * Copyright (c) inx limited, 2006. All rights reserved.
+ */
+
+#ifndef EHS_TARGET_PROCESS_H
+#define EHS_TARGET_PROCESS_H
+
+#ifndef EHS_HAL_PROCESS_H
+#error "This file should only be included by hal_process.h"
+#endif
+
+/*****************************************************************************/
+/* Included files */
+#include "sys.h"
+
+/********************************storage class specified for parameter ‘bcmp’*********************************************/
+/* Define macros  */
+#define PTHREAD_COND_INITIALIZER 0
+#define PTHREAD_MUTEX_INITIALIZER 0
+//#define pthread_mutex_lock(x) sys_mutex_lock(x)
+#define pthread_mutex_lock(x) do {} while(0)
+//#define pthread_mutex_unlock(x) sys_mutex_unlock(x)
+#define pthread_mutex_unlock(x) do {} while(0)
+#define pthread_cond_broadcast(x) do {} while(0)
+//#define pthread_mutex_destroy(x) sys_mutex_free(x)
+#define pthread_mutex_destroy(x) do {} while(0)
+/**
+ * Lock a mutex to indicate the start of a region where we perform exclusive handling by a thread/process
+ *
+ * @param[in] pMutexRef Indicates the identity of the mutex we are locking
+ */
+//#define EhsTPMutex_lock(pMutexRef) {fprintf(stderr,"lock %x\n",pMutexRef);pthread_mutex_lock((pthread_mutex_t *)pMutexRef);}
+#define EhsTPMutex_lock(pMutexRef) pthread_mutex_lock((pthread_mutex_t *)pMutexRef)
+/**
+ * Release a mutex indicating the end of a unique access region
+ *
+ * @param[in] pMutexRef Indicates the identity of the mutex we are releasing
+ */
+//#define EhsTPMutex_unlock(pMutexRef) {fprintf(stderr,"unlock%x\n",pMutexRef);pthread_mutex_unlock((pthread_mutex_t *)pMutexRef);}
+#define EhsTPMutex_unlock(pMutexRef) pthread_mutex_unlock((pthread_mutex_t *)pMutexRef)
+/**
+ * Called by the TCP/IP thread to see if it is an orphan process
+ *
+ * @return true if the current parent process Id is different to the original parent process id
+ * and this process is the TCP/IP process
+ */
+#define EhsTgtProcess_isOrphan(x) (EHS_FALSE)
+
+typedef sys_thread_t EhsTPThread;
+typedef sys_mutex_t pthread_cond_t;
+typedef sys_mutex_t pthread_mutex_t;
+
+/**
+ * Target specific exit function
+ * completed.
+ * @param[in] szCmd Command to execute
+ */
+void EhsTargetExit(ehs_uint16);
+
+ehs_bool EhsTP_shellExecuteStdout(char* sZstdout,const char * szCmd, int max_buffer_len) ;
+#endif /* EHS_TARGET_PROCESS_H */

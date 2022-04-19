@@ -1,0 +1,11 @@
+
+[Desktop Entry]
+Name=iGB
+Comment=The BRIX GUI Layout Tools
+Exec=/usr/bin/igb 
+Icon=/usr/share/icons/igb-icon.png
+Terminal=0
+Type=Application
+Encoding=UTF-8
+Categories=Application;Development
+

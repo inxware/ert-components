@@ -1,0 +1,147 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+DemultiplexFourOutputInt
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to distribute integer data <a href="#[In]Val">[In]</a>, to an output corresponding to the input event received. For example if the input event <a href="#[In]s1">[In]s1</a> is triggered, then the input data <a href="#[In]Val">[In]</a> will be presented to output <a href="#[Out]o1">[Out]o1</a> and fire the associated event <a href="#[Out]1">[Out]1</a>. Note that the data persists at the outputs.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=portsInt>
+[In]
+:
+<a name="[In]Val">
+</h6>
+<p class=ports>Data input, value of the data to be distributed.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+o1:
+<a name="[Out]o1">
+</h6>
+<p class=ports>Data output 1.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+o2:
+<a name="[Out]o2">
+</h6>
+<p class=ports>Data output 2.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+o3:
+<a name="[Out]o3">
+</h6>
+<p class=ports>Data output 3.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+o4:
+<a name="[Out]o4">
+</h6>
+<p class=ports>Data output 4.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+s1:
+<a name="[In]s1">
+</h6>
+<p class=ports>Event input 1, triggers the corresponding output event and presents data to output <a href="#[Out]o1">[Out]o1</a>.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+s2:
+<a name="[In]s2">
+</h6>
+<p class=ports>Event input 2, triggers the corresponding output event and presents data to output <a href="#[Out]o2">[Out]o2</a>.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+s3:
+<a name="[In]s3">
+</h6>
+<p class=ports>Event input 3, triggers the corresponding output event and presents data to output <a href="#[Out]o3">[Out]o3</a>.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+s4:
+<a name="[In]s4">
+</h6>
+<p class=ports>Event input 4, triggers the corresponding output event and presents data to output <a href="#[Out]o4">[Out]o4</a>.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]f1">
+</h6>
+<p class=ports>Event output 1.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]f2">
+</h6>
+<p class=ports>Event output 2.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]f3">
+</h6>
+<p class=ports>Event output 3.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]f4">
+</h6>
+<p class=ports>Event output 4.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]Val">[In]</a>, <a href="#[Out]o1">[Out]o1</a>, <a href="#[Out]o2">[Out]o2</a>, <a href="#[Out]o3">[Out]o3</a>, <a href="#[Out]o4">[Out]o4</a>, <a href="#[In]s1">[In]s1</a>, <a href="#[In]s2">[In]s2</a>, <a href="#[In]s3">[In]s3</a>, <a href="#[In]s4">[In]s4</a>, <a href="#[Out]f1">[Out]</a>, <a href="#[Out]f2">[Out]</a>, <a href="#[Out]f3">[Out]</a>, <a href="#[Out]f4">[Out]</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<p class=parameters>None.</p>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

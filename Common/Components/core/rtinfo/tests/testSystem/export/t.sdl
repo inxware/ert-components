@@ -1,0 +1,54 @@
+#V:2.0.0
+#B:21
+#D:Y2012M7d18h21m45s12
+#N:testSystem
+1
+1	100000	90000
+BEGIN RuntimeInfo 0
+*
+getstat	1	1	1	0 	6 S -1 I -1 I -1 S -1 S -1 S -1 	1 -1 
+getdyn	1	1	2	0 	5 S 2 I -1 I -1 I 1 I 2 	2 4 5 
+reqpairid	1	1	3	0 	0 	0 
+END
+BEGIN Constant_String1 0
+Get Dynamic Info 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN gui_text_string2 0
+%%%_test g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 2 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_output g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	4	6 I -1 I -1 I -1 I -1 I -1 S 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_output2 g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	4	6 I -1 I -1 I -1 I -1 I -1 I 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_PairingID g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	5	6 I -1 I -1 I -1 I -1 I -1 I 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_RequestPairingID g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 3 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+Request Pairing Info 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

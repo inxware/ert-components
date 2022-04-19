@@ -1,0 +1,91 @@
+#V:2.0.0
+#B:102
+#D:Y2018M1d22h19m9s13
+#N:TestSMILLayout
+1
+1	100000	90000
+BEGIN PlayManager 0
+0 0 -1 
+Next_Playlist	1	1	2	1 S 1 	4 S -1 S 2 S 3 I 2 	3 -1 5 -1 
+Played	1	1	3	1 I 1 	0 	1 -1 
+Next_URL	1	1	4	0 	3 S 2 S 3 I 2 	3 -1 5 -1 
+Got	1	1	5	3 S 2 S 3 I 2 	2 S -1 S -1 	1 14 
+Started	1	1	6	1 I 1 	0 	0 
+Tick	1	1	-1	0 	10 S 8 S -1 S -1 S -1 I 1 S -1 S -1 S 5 S 9 S 10 	5 12 13 -1 17 7 
+END
+BEGIN JSONObject 0
+*
+reset	1	1	7	0 	0 	1 8 
+read	1	1	8	1 S 5 	0 	1 -1 
+query	1	1	9	8 S 6 S -1 S -1 S -1 S -1 S -1 S -1 S -1 	8 S -1 S -1 S 7 S -1 S -1 S -1 S -1 S -1 	2 -1 10 
+END
+BEGIN gui_text_string2 0
+%%%_QueryInfo g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	10	6 I -1 I -1 I -1 I -1 I -1 S 7 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_MediaFile g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 15 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	11	6 I -1 I -1 I -1 I -1 I -1 S 8 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_LayoutJSON g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	7	6 I -1 I -1 I -1 I -1 I -1 S 5 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_ARJSON g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	7	6 I -1 I -1 I -1 I -1 I -1 S 9 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+smil.xml 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN time_clock 0
+50000000 0 0 
+start	1	1	11	3 I -1 B -1 B -1 	0 	1 6 
+tick	1	1	-1	0 	0 	1 16 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	12	0 	0 	1 11 
+Or2	1	1	13	0 	0 	1 11 
+END
+BEGIN gui_text_string2 0
+%%%_regionId g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	9	6 I -1 I -1 I -1 I -1 I -1 S 6 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN string_format 0
+[%s] 
+run	1	1	11	2 S 10 S -1 	1 S 6 	1 9 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	14	0 	0 	1 4 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	15	0 	0 	1 2 
+Or2	1	1	1	0 	0 	1 2 
+END
+BEGIN Constant_String1 0
+media/schedmedia/_data/ 
+Run_ConstantString	1	1	-1	0 	1 S 4 	0 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	16	0 	0 	1 3 
+Or2	1	1	17	0 	0 	1 3 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

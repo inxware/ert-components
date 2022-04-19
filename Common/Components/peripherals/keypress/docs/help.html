@@ -1,0 +1,381 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+GUI_keypress
+</h1>
+<!--General Description-->
+<p class=component>
+Detects when a key is pressed and asserts the character represented by the key and the ASCII or extended key code of the key.
+</p>
+<p class=component>
+When a non-control key is pressed the <a href="#[Out]key">[Out]key</a> event fires and asserts the ASCII or extended key code to the <a href="#[Out]ascii">[Out]ascii</a> port and asserts the character represented by the key to the <a href="#[Out]char">[Out]char</a> port.
+</p>
+<p class=component>
+The ASCII key codes asserted range from 32 (space) to 126 (~) inclusive. Please refer to <a href=http://www.asciitable.com/>http://www.asciitable.com/</a> for the full table of codes.
+</p>
+<p class=component>
+Control keys are also detected by this Function Block and integer codes are asserted on <a href="#[Out]control">[Out]control</a>  <a href="#[Out]id">[Out]id</a> ports.
+</p>
+<p class=component>
+The control key IDs are listed below:
+	<table  border="1">
+		<thead>
+			<tr>
+				<th class="center" scope="col">
+					ID
+				</th>
+				<th class="center" scope="col">
+					Control Key
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<th scope="row">
+					<code>1</code>
+				</th>
+				<td>
+					<code>Enter</code>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<code>3</code>
+				</th>
+				<td>
+					<code>Backspace</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>2</code>
+				</th>
+				<td>
+					<code> exit/Escape</code>
+				</td>
+			</tr>
+			<tr>
+		<th scope="row">
+					<code>4</code>
+				</th>
+				<td>
+					<code>Forward tab</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>5</code>
+				</th>
+				<td>
+					<code> Back tab (Not yet implemented)</code>
+				</td>
+			</tr>
+			<tr>
+		<th scope="row">
+					<code>10</code>
+				</th>
+				<td>
+					<code>Cursor key up</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>11</code>
+				</th>
+				<td>
+					<code>Cursor key down</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>12</code>
+				</th>
+				<td>
+					<code>Cursor key left</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>13</code>
+				</th>
+				<td>
+					<code>Cursor key right</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>14</code>
+				</th>
+				<td>
+					<code>Page up</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>15</code>
+				</th>
+				<td>
+					<code>Page Down</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>16</code>
+				</th>
+				<td>
+					<code>Rnd</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>17</code>
+				</th>
+				<td>
+					<code>Home</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>18</code>
+				</th>
+				<td>
+					<code>Menu</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>101</code>
+				</th>
+				<td>
+					<code>F1</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>102</code>
+				</th>
+				<td>
+					<code>F2</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>103</code>
+				</th>
+				<td>
+					<code>F3</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>104</code>
+				</th>
+				<td>
+					<code>F4</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>105</code>
+				</th>
+				<td>
+					<code>F5</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>106</code>
+				</th>
+				<td>
+					<code>F6</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>107</code>
+				</th>
+				<td>
+					<code>F7</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>108</code>
+				</th>
+				<td>
+					<code>F8</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>109</code>
+				</th>
+				<td>
+					<code>F9</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>110</code>
+				</th>
+				<td>
+					<code>F10</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>111</code>
+				</th>
+				<td>
+					<code>F11</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>112</code>
+				</th>
+				<td>
+					<code>F12</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>111</code>
+				</th>
+				<td>
+					<code>Left Shift</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>20</code>
+				</th>
+				<td>
+					<code>Right Shift</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>21</code>
+				</th>
+				<td>
+					<code>Left Ctrl</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>22</code>
+				</th>
+				<td>
+					<code>Right Ctrl</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>23</code>
+				</th>
+				<td>
+					<code>Alt (left)</code>
+				</td>
+			</tr>
+			<tr>
+			<th scope="row">
+					<code>24</code>
+				</th>
+				<td>
+					<code>Alt (right)</code>
+				</td>
+			</tr>
+			<tr>
+		</tbody>
+	</table>
+
+
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+
+<h6 class=ports>
+[Out]
+key:
+<a name="[Out]key">
+</h6>
+<p class=ports>Output Event, fires when a non-control key is pressed.</p>
+  </li><li>
+
+<h6 class=portsInt>
+[Out]
+ascii:
+<a name="[Out]ascii">
+</h6>
+<p class=ports>Data Output, ASCII code of key pressed.</p>
+  </li><li>
+
+<h6 class=portsStr>
+[Out]
+char:
+<a name="[Out]char">
+</h6>
+<p class=ports>Data Output, character represented by key pressed.</p>
+  </li><li>
+
+<h6 class=ports>
+[Out]
+control:
+<a name="[Out]control">
+</h6>
+<p class=ports>Output Event, fires when a control key is pressed.</p>
+  </li><li>
+
+<h6 class=portsInt>
+[Out]
+id:
+<a name="[Out]id">
+</h6>
+<p class=ports>Data Output, ID of the control key pressed.</p>
+</li></ul>
+
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<p class=profiles>None.</p>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>GUI/Level1.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier>inx ltd.</p>
+<!--More Info on Website-->
+<h3 class=more>More Information</h3>
+<p class=link><a href=http://www.inx-systems.net target=_blank>More information - external website hosted by the Component Supplier.</a></p>
+</body></html>

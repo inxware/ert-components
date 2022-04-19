@@ -1,0 +1,370 @@
+socket = require("socket");
+http = require("socket.http");
+ltn12 = require("ltn12");
+lfs = require("lfs");
+
+-- We specifiy the default DEVMAN mon without the /cgi-bin/devmon.cgi 
+-- so that we can be overridden by the the core update parameter.
+DEVMANURL="http://devman.inx-systems.com"
+
+function getPlatform()
+	platformStr = "";
+	platformFile = io.open("../sysdata/platform", "r");
+	if platformFile then
+		platformStr = platformFile:read("*line");
+		platformStr = string.gsub(platformStr, "[ \t\n]*$", "");
+		platformFile:close();
+	else
+		print("Unable to obtain platform");
+	end
+	return platformStr;
+end
+
+function split(str, c)
+	a = string.find(str, c)
+	str = str:gsub("^%s*(.-)", "%1") --remove leading white space
+	str = str.." "
+	a,b = string.find(str, c)
+	aCount = 0
+	start = 1
+	array = {}
+	last = 0
+	
+	while a do
+		array[aCount] = string.sub(str, start, a - 1)
+		str = string.sub(str,b+1)
+		a,b = string.find(str, c)
+		aCount = aCount + 1
+	end
+	
+	return array
+end
+
+function rmdir(path)
+	for file in lfs.dir(path) do
+          	if file ~= "." and file ~= ".." then
+              		local f = path..'/'..file;
+              		print ("\t "..f);
+              		local attr = lfs.attributes (f);
+              		assert (type(attr) == "table");
+              		if attr.mode == "directory" then
+                  		rmdir (f);
+				os.remove(f);
+              		else
+                  		os.remove(f);
+                  	end
+          	end
+      	end
+end
+
+function dev_main(ehs_version, ehs_build, sdl_version, sdl_date, app_name)
+	retStr = "";
+	--debugFile = io.open("devman.debug", "w");
+	--debugFile:write("Running Lua script\n");
+	-- get platform
+	platform = getPlatform();
+
+	-- set busy flag for sys download directory 1
+	workingFlag = io.open("../devman/plugins/0/working.flag", "w");
+	if (workingFlag) then
+		workingFlag:close();
+	end	
+	-- check if server url is set in devman.url otherwise use default
+	devmanUrlFile = io.open("../devman/plugins/0/DEVMANMONURL.inx", "r");
+	if devmanUrlFile then
+	-- print ("Found DevmanFile");
+		temp = devmanUrlFile:read("*line");
+		-- To Do check it is valid url. For now check for http
+		for url in string.gmatch(temp, "http.*") do
+			DEVMANURL = url;
+		end
+		devmanUrlFile:close();
+	else -- try the core updator URL path
+		devmanUrlFile = io.open("../devman/core/DEVMANURL", "r");
+		if devmanUrlFile then
+			temp = devmanUrlFile:read("*line");
+			-- To Do check it is valid url. For now check for http
+			for url in string.gmatch(temp, "http.*") do
+				DEVMANURL = url;
+			end
+			devmanUrlFile:close();
+		end
+	end -- end looking for URL override files
+	
+	--print ("DEVMANMON URL="..DEVMANURL.."\n");
+
+
+macAddrFile = io.open("../devman/core/HWID_NETIP", "r");
+if  macAddrFile  then
+	INXDEVICEID = macAddrFile:read("*line"); 
+	ipaddr = macAddrFile:read("*line"); -- next line is the IP address
+	macAddrFile:close();
+else
+	print("net file doesn't exist\n");
+	INXDEVICEID="n/a";
+	ipaddr="n/a";
+end
+
+
+-- want at least 5 chars for a valid ID
+if string.len(INXDEVICEID) < 5 then
+-- print ("Warning: No ID file data - getting from OS\n");
+	if platform == "linux" then
+		f = io.popen("export LD_LIBRARY_PATH=; ifconfig eth0 | grep HWaddr | awk '{print $5}'"); -- @todo replace this with lua string searching 
+		if (f) then
+			INXDEVICEID = f:read("*l");
+			f:close();
+		else
+			INXDEVICEID = "n/a";
+		end
+		
+	elseif platform == "win32" then
+		f = io.popen("ipconfig /all");
+		ipf = f:read("*all");
+		for macaddr in string.gmatch(ipf, "Physical Address.*: (.*)%s*Dhcp") do
+			INXDEVICEID = macaddr;
+		end
+		f:close();
+	else
+		print("Unknown platform - Cannot obtain INX deviceId");
+		INXDEVICEID="unknown-devmon";
+	end
+end
+INXDEVICEID = string.gsub(INXDEVICEID, "[ \t\n\r]*$", "");
+if (INXDEVICEID == null) then
+	INXDEVICEID="unknown"
+end
+
+
+-- get more static parameters
+date = os.time();
+device_date = os.date("%Y-%m-%d %H:%M:%S", date);
+
+--the following are input parameters
+--ehs_version = arg[1];
+--ehs_build = arg[2];
+--sdl_version = arg[3];
+--sdl_date = arg[4];
+--app_name = arg[5];
+
+if app_name == nil then
+	app_name = "n/a";
+end
+if sdl_date == nil then
+	sdl_date = "n/a";
+end
+if sdl_version == nil then
+	sdl_version = "n/a";
+end
+
+if platform == "linux" then
+	-- print ("LINUX");
+	-- ToDo: Have 1 df -k  rather than 2 and don't use grep - also try to remove the /root/ehs install assumption
+	-- todo the following should use df with a file path and then just split the second line (i.e. ignore the title line)
+	f = io.popen("export unset LD_LIBRARY_PATH df -k --no-sync ");
+	temp_file_str = f:read("*l");--ignore the header
+	--print ("XXX:"..temp_file_str);
+	temp_file_str = f:read("*l");-- read the actual data
+	--print ("XXX:"..temp_file_str);
+	f:close();
+	if (temp_file_str) then
+		temp_file_array = split(temp_file_str, " +");
+		device_system_space_total_KB = temp_file_array[1];
+		device_system_space_used_KB = temp_file_array[2];
+		--print ("\ndevice_system_space_total_KB="..device_system_space_total_KB.."\ndevice_system_space_used_KB="..device_system_space_used_KB.."\n");
+	else
+		device_system_space_total_KB = "-1";
+		device_system_space_used_KB = "-1";
+	end
+	f = io.open("../userdata/media", "r");
+	if (f) then
+		f:close();
+		f = io.popen("export LD_LIBRARY_PATH=; df -k --no-sync ../userdata/media"); -- if we have this folder we will ony check this as it will be mounted specially.
+	else
+		f = io.popen("export LD_LIBRARY_PATH=; df -k --no-sync ../userdata");
+	end
+	temp_file_str = f:read("*l");--ignore the header
+	temp_file_str = f:read("*l");-- read the actual data
+	f:close();
+	if (temp_file_str) then 
+		temp_file_array = split(temp_file_str, " +");	
+		if ( temp_file_array[1] ) then
+			device_user_space_total_KB = temp_file_array[1];
+		end
+		if (temp_file_array[2]) then
+			device_user_space_used_KB = temp_file_array[2];
+		end
+	end
+	if device_user_space_total_KB == nil then
+		device_user_space_total_KB = "";
+	end
+	if device_user_space_used_KB == nil then
+		device_user_space_used_KB = "";
+	end
+	--print ("\ndevice_user_space_total_KB="..device_user_space_total_KB.."\ndevice_user_space_used_KB="..device_user_space_used_KB.."\n");
+	
+	f = io.popen("export LD_LIBRARY_PATH= ; ls -l /root/ehs/bin/ehs.exe |awk '{print $6 \" \" $7}'");
+	ehs_date = f:read("*l");
+	-- read the pid proc info twice in 100ms to calc the cput useage:
+	f:close();
+	-- @todo the following only works on non LIB_HOST starts
+	f = io.popen("export LD_LIBRARY_PATH=; ps -p \`pidof ld-linux.so.2` -o pcpu -o pmem -o rss -o vsz -o start --no-headers\n");
+	percproc_ehs = "n/a";
+	percmem_ehs = "n/a";
+	virtmem_ehs = "n/a";
+	ehs_startdate = "n/a";
+	ps_str = f:read("*l");
+	f:close();
+	--print ("PS-string="..ps_str.."\n");
+	if (ps_str) then
+		ps_str = ps_str.." ";
+	else
+		ps_str = "0";
+	end 
+	ps_array = split(ps_str, " +");
+	if (ps_array[0]) then 
+		percproc_ehs = ps_array[0]; 
+	end
+	if (ps_array[1]) then
+		percmem_ehs = ps_array[1]; 
+	end 
+	if (ps_array[3]) then 
+		virtmem_ehs = ps_array[3]; 
+	end
+	if (ps_array[4]) then 
+		ehs_startdate = ps_array[4]; --We should add the next element as the date returned in ps contains whitespace 
+		if (ps_array[5]) then 
+			ehs_startdate = ehs_startdate.." "..ps_array[5];  
+		end
+	end
+
+	
+	f = io.popen("export LD_LIBRARY_PATH=; cat /proc/meminfo |grep MemTotal |awk '{print $2}'");
+	total_physmem = f:read("*l");
+	f:close();
+	-- IP address is set at the beginning.
+	
+elseif platform == "win32" then
+	
+	device_system_space_total_KB = "";
+	device_system_space_used_KB = "";
+	device_user_space_total_KB = "";
+	if device_user_space_total_KB == nil then
+		device_user_space_total_KB = "";
+	end
+	device_user_space_used_KB = "";
+	if device_user_space_used_KB == nil then
+		device_user_space_used_KB = "";
+	end
+	f = io.popen("dir ..\\bin\\ehs.exe");
+	ehsDir = f:read("*a");
+	for temp in string.gmatch(ehsDir, ".-(%d+/%d+/%d+%s+%d+:%d+).-ehs.exe[\n\r]") do
+		ehs_date = temp;
+	end
+	-- windows equivalent of ps is tasklist /v
+	--f = io.popen("export LD_LIBRARY_PATH=;  ps aux |grep '[a-Z0-9\.:\/+\s]\+ehs.exe$' |awk '{print $3 \" \" $4 \" \" $5 \" \" $9}'");
+	--f = io.popen("export LD_LIBRARY_PATH=; ps aux |grep ehs.exe |awk '{print $3 \" \" $4 \" \" $5 \" \" $9}'");
+	--ps_str = f:read("*l");
+	--ps_str = ps_str.." ";
+	--ps_array = split(ps_str, " ");
+	percproc_ehs = "n/a";
+	percmem_ehs = "n/a";
+	virtmem_ehs = "n/a";
+	ehs_startdate = "n/a";
+	-- mem reports memory in windows
+	--f = io.popen("cat /proc/meminfo |grep MemTotal |awk '{print $2}'");
+	total_physmem = "";
+	f = io.popen("ipconfig");
+	ipconf = f:read("*all");
+	for temp in string.gmatch(ipconf, "IP Address.*: (.-)%s+Subnet") do
+		ipaddr = temp;
+	end
+	f:close();
+end
+
+-- debug
+--debugFile = io.open("e:\\devman.debug", "w");
+--debugFile:write("INX DeviceId="..INXDEVICEID.."\n");
+--debugFile:write("date="..device_date.."\n");
+--debugFile:write("app_name="..app_name.."\n");
+--debugFile:write("sdl_date="..sdl_date.."\n");
+--debugFile:write("sdl_version="..sdl_version.."\n");
+--debugFile:write("date="..device_date.."\n");
+--debugFile:write("total space="..device_system_space_total_KB.."\n");
+
+-- send to devman
+response, code = http.request(DEVMANURL.."/cgi-bin/devmon.cgi","DeviceID="..INXDEVICEID..
+"&Group=DEFAULT&DeviceType=DEFAULT"..
+"&device_date="..device_date..
+"&device_system_space_total_KB="..device_system_space_total_KB..
+"&device_system_space_used_KB="..device_system_space_used_KB..
+"&device_user_space_total_KB="..device_user_space_total_KB..
+"&device_user_space_used_KB="..device_user_space_used_KB..
+"&ehs_version="..ehs_version..
+"&ehs_date="..ehs_date..
+"&app_name="..app_name..
+"&sdl_date="..sdl_date..
+"&percproc_ehs="..percproc_ehs..
+"&percmem_ehs="..percmem_ehs..
+"&virtmem_ehs="..virtmem_ehs..
+"&ehs_startdate="..ehs_startdate..
+"&total_physmem="..total_physmem..
+"&sdl_version="..sdl_version..
+"&ipaddr="..ipaddr);
+
+
+if response then
+	if string.find(response, "ChangeDevmanURL") then
+		for temp in string.gmatch(response, "<ChangeDevmanURL>(.-)<ChangeDevmanURL/>") do
+			url = temp;
+		end
+		devmanUrlFile = io.open("../devman/plugins/0/DEVMANMONURL.inx", "w");
+		devmanUrlFile:write(url);
+		devmanUrlFile:close();
+	end
+	-- update device date
+	if string.find(response, "UpdateDeviceDate") then
+		for temp in string.gmatch(response, "<UpdateDeviceDate>(.-)<UpdateDeviceDate/>") do
+			date = temp;
+		end
+		-- Need to be root to execute the date command
+		os.execute("date "..date);
+	end
+	-- set device reset time
+	if string.find(response, "SetDeviceResetTime") then
+		for temp in string.gmatch(response, "<SetDeviceResetTime>(.-)<SetDeviceResetTime/>") do
+			time = temp;
+		end
+		devmanCronFile = io.open("../sysdata/devman.cron", "w");
+		devmanCronFile:write(time.." /root/ehs/bin/reboot.sh > /dev/null\n"); -- this is unix specific.
+		devmanCronFile:close();
+	end
+	-- clear storage
+	-- todo posix only
+	if string.find(response, "ClearStorage") then
+		for temp in string.gmatch(response, "<ClearStorage>(.-)<ClearStorage/>") do
+			days = temp;
+		end
+		if days == "0" then
+			--rmdir("../userdata/media"); -- todo this should only remove all content not the directory.
+			os.execute("rm -Rf ../userdata/media/*");
+		else
+			days = days - 1;
+			print("days="..days);
+			os.execute("find ../userdata/ -atime +"..days.." | grep -v '../userdata/$' | xargs rm -rf");
+		end
+	end
+	-- restart ehs
+	if string.find(response, "<Restart\>") then
+		os.execute("../bin/restart.sh");
+	end
+	-- reboot
+	if string.find(response, "<Reboot\>") then
+		os.execute("../bin/reboot.sh");
+	end
+end
+
+	return INXDEVICEID, device_user_space_total_KB, device_user_space_used_KB; -- return these as strings
+
+end
+dev_main("n/a","n/a","n/a","n/a","n/a");

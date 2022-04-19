@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Name>testFileWrite</Name>
+  <CommercialName>testFileWrite</CommercialName>
+  <Version>1.0</Version>
+  <Description>reads from a file and writes each line to a different file. Destination file selected by clicking on fileA or fileB</Description>
+</root>

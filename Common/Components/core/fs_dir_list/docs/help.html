@@ -1,0 +1,183 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+FileSystemDirList1
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to retrieve a list of entries in a directory, the entries are retrieved one at a time until there are no more entries to retrieve. <br> 
+The directory is specified by the parameter Directory and is overridden to the data input <a href="#[In]dir">[In]dir</a> when the input event <a href="#[In]set dir">[In]set dir</a> is asserted. If a valid directory has been specified then the output event <a href="#[Out]Ready">[Out]Ready</a> is triggered, else <a href="#[Out]Error">[Out]Error</a> is triggered. 
+The directory path is relative to "userdata" in the EHS root directory unless the "use app dir" option is true, in which case the files are relative to "appdata" which are are packaged in the RESOURCE section of iAB's project. <br>
+If it is required, the root directory of the device can be referenced by prefixing the path with the "/" character if OS specific file system data is needed (This should be avoided!).
+</p>
+<p class=component>
+A list of entries in the directory is presented, one entry at a time, to the data output <a href="#[Out]name">[Out]name</a> on each occassion that the input event <a href="#[In]get entry">[In]get entry</a> is asserted and the output event <a href="#[Out]file">[Out]file</a> or <a href="#[Out]dir">[Out]dir</a> is triggered depending on whether the entry is a file or directory respectively. If there are no further entries in the list then the output event <a href="#[Out]no more">[Out]no more</a> is triggered when the input event <a href="#[In]get entry">[In]get entry</a> is asserted. The parameter FindFiles is a Boolean value that specifies if files should be retrieved from the list of entries. Similarly the parameter FindDirs is a Boolean value that specifies if directories should be retrieved from the list of entries.
+</p>
+<p class=component>
+The reset input event <a href="#[In]reset">[In]reset</a> will retrieve the first entry in the list the next time that the input event <a href="#[In]get entry">[In]get entry</a> is asserted. If the input event <a href="#[In]set dir">[In]set dir</a> is triggered then this also resets to retrieve the first entry in the list for the specified directory.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+set dir:
+<a name="[In]set dir">
+</h6>
+<p class=ports>Input event, sets the directory to list the entries of.</p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+dir:
+<a name="[In]dir">
+</h6>
+<p class=ports>Data input, the path of the directory to list.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Ready:
+<a name="[Out]Ready">
+</h6>
+<p class=ports>Output event, triggered when the path specified is a valid directory.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Error:
+<a name="[Out]Error">
+</h6>
+<p class=ports>Output event, triggered when the path specified is not a valid directory.</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+name:
+<a name="[Out]Name">
+</h6>
+<p class=ports>Data output, the name of the entry retrieved from the list.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+file:
+<a name="[Out]file">
+</h6>
+<p class=ports>Output event, triggered when the entry retrieved is a file.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+dir:
+<a name="[Out]dir">
+</h6>
+<p class=ports>Output event, triggered when the entry retrieved is a directory.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+no more:
+<a name="[Out]no more">
+</h6>
+<p class=ports>Output event, triggered when there are no more entries to retrieve.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+reset:
+<a name="[In]reset">
+</h6>
+<p class=ports>Input event, resets to retrieve the first entry of the list.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+------:
+<a name="[Out]------">
+</h6>
+<p class=ports>Output event.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]">[In]</a>, <a href="#[In]dir">[In]dir</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]name">[Out]name</a>, <a href="#[Out]Valid">[Out]Valid</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+Directory:
+</h6>
+<p class=parameters>
+The path of the directory to list the entries of.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+S,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+Media Directory,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+
+</li><li>
+<h6 class=parameters>
+FindFiles:
+</h6>
+<p class=parameters>
+Boolean value to indicate whether files are retrieved from the list.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+B,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+0,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+1,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+1
+</p>
+
+</li><li>
+<h6 class=parameters>
+FindDirs:
+</h6>
+<p class=parameters>
+Boolean value to indicate whether directories are retrieved from the list.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+B,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+0,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+1,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+0
+</p>
+
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

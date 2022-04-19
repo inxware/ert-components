@@ -1,0 +1,983 @@
+/* stringfn.c
+ *
+ * src file for string functions.  String functions manipulate strings.
+ * Any function appearing in this file must also be listed in objRefTable.c
+ * for it to be included in the list of functions available to the EHS.
+ *
+ * For definition of arguments in Ncapsa functions (Identify_, Init_ and Run_)
+ * please see types.h.
+ *
+ * Lucid project stage two - NcapsaLtd - May 2005
+*/
+
+#include <string.h>
+#include <ctype.h>
+
+#include "globals.h"
+#include "ehs_fb_types.h"
+#include "stringfn.h"
+#include "fid.h"
+#include "app_data.h"
+#include "hal-api.h" /* Required for logging */
+
+
+/* Some genericl context/init structures */
+
+struct String_SingleParameter {
+	ehs_char szURL[EHS_STRING_LENGTH_MAX];
+};
+
+
+/******************************************************************************/
+/* Define string_cat function block */
+
+EHS_FB_FUNCTIONS_START(string_cat)
+EHS_FB_FUNCTION_ENTRY("Run_CatString", string_cat)
+EHS_FB_FUNCTIONS_END
+
+EHS_FB_IDENTIFY_FUNCTION(string_cat)
+{
+	if (EHS_FB_INIT_PARAMETERS && EhsStrcmp(EHS_FB_IDENTIFY_PARAMETERS,"null")) { /* replace these nulls with a const (inited from a header MACRO) to save memory*/
+			EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1;
+		}
+	else EHS_FB_IDENTIFY_MEMORY=0; /* This will cause a null to be sent as the parameter */
+}
+
+EHS_FB_INIT_FUNCTION(string_cat)
+{
+	if (EHS_FB_INIT_PARAMETERS && EHS_FB_INIT_CONTEXT) {
+		EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
+	}
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_cat)
+{
+
+	char szData1[EHS_STRING_LENGTH_MAX*4];// = {'\0'}; /* THis could be avoided is strxpy isn't used as this will avoid src-dest issue...*/
+	/* who did this?
+	char* s1 = &szData1[0];
+	char szData2[EHS_STRING_LENGTH_MAX];// = {'\0'};
+	char* s2 = &szData2[0];
+	//char szData3[EHS_STRING_LENGTH_MAX * 2];// = {'\0'};
+	char* s3 = &szData3[0];
+	*/
+	ehs_uint32 len1,len2,totallen;
+	ehs_char* sOut=EHS_FB_OUT_S(0);
+	ehs_char* s1=EHS_FB_IN_S(0);
+	ehs_char* s2;
+	if (EHS_FB_IN_CONNECTED(1)) s2=EHS_FB_IN_S(1);
+	else s2=(char*)EHS_FB_RUN_CONTEXT;
+
+	if (s2 && EHS_FB_IN_CONNECTED(0)) {
+		len1 = EhsStrlen(s1);
+		len2 = EhsStrlen(s2);
+		totallen = len1 + len2;
+		if (totallen >= EHS_STRING_LENGTH_MAX)
+			len2 = EHS_STRING_LENGTH_MAX - len1;
+		EhsStrncpy(szData1, s1, len1);/*Use numbered copy here to avoid issue when the inout and output are the same buffer*/
+		EhsStrncpy(&szData1[len1], s2, len2);
+		szData1[len1 + len2] = '\0';// terminate it too
+		EhsStrcpy(sOut, szData1);
+
+	} else {
+		if (EHS_FB_IN_CONNECTED(0)) {
+			EhsStrcpy(sOut, s1);
+		}else {
+			EhsStrcpy(sOut, "");
+		}
+	}
+	EHS_FB_FINISH(1);
+	return;
+}
+
+
+
+
+/******************************************************************************/
+/* Define string_cmp function block */
+
+EHS_FB_FUNCTIONS_START(string_cmp)
+EHS_FB_FUNCTION_ENTRY("Run_CmpString", string_cmp)
+EHS_FB_FUNCTIONS_END
+
+
+EHS_FB_IDENTIFY_FUNCTION(string_cmp)
+{
+	if (EHS_FB_INIT_PARAMETERS && EhsStrcmp(EHS_FB_IDENTIFY_PARAMETERS,"null")) {
+
+			EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1;
+		}
+	else EHS_FB_IDENTIFY_MEMORY=0; /* This will cause a null to be sent as the parameter */
+}
+
+EHS_FB_INIT_FUNCTION(string_cmp)
+{
+
+	if (EHS_FB_INIT_PARAMETERS && EHS_FB_INIT_CONTEXT) {
+		EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
+	}
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_cmp)
+{
+	//char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
+	char* s1;//= &szData1[0];
+	//char szData2[EHS_STRING_LENGTH_MAX] = {'\0'};
+	char* s2;// = &szData2[0];
+	int nCmp;
+
+	s1=EHS_FB_IN_S(0);
+	if (EHS_FB_IN_CONNECTED(1)) {
+		s2=EHS_FB_IN_S(1);
+	}
+	else { /* else use the iAB provided string */
+		s2=(char*)EHS_FB_RUN_CONTEXT;
+	}
+	if (s2 && EHS_FB_IN_CONNECTED(0)) { /* we might be null */
+		nCmp = EhsStrcmp(s1, s2);
+		if (!nCmp) {
+			EHS_FB_OUT_B(0) = EHS_TRUE;
+		} else {
+			EHS_FB_OUT_B(0) = EHS_FALSE;
+		}
+	} else {
+		EHS_FB_OUT_B(0) = EHS_FALSE;
+	}
+	EHS_FB_FINISH(1);
+	return;
+}
+/******************************************************************************/
+/* Define FormatString function block 2 input*/
+
+EHS_FB_FUNCTIONS_START(string_format)
+EHS_FB_FUNCTION_ENTRY("run", string_format)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(string_format)
+{
+	EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1;
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(string_format)
+{
+	EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function. Use the inputs to format a string using our context
+ * as the format parameter.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_format)
+{
+	ehs_char escaped[EHS_STRING_LENGTH_MAX];
+
+	ehs_char * empty="";
+	ehs_char *in_ptrs[2];
+	ehs_uint8 i;
+	for (i=0;i<2;i++) { /* if we have missing inputs we will insert empty strings */
+		if (EHS_FB_IN_CONNECTED(i)) {
+			in_ptrs[i]=EHS_FB_IN_S(i); /* point at the connections */
+		}
+		else in_ptrs[i]=empty;
+	}
+
+
+	EhsParseEscapeChars(escaped, EHS_FB_RUN_CONTEXT);
+#ifdef INX_DEPRECATED
+	if (EHS_FB_IN_CONNECTED(0) && EHS_FB_IN_CONNECTED(1)) {
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,EHS_FB_IN_S(0),EHS_FB_IN_S(1));
+	} else if (EHS_FB_IN_CONNECTED(0)) {
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,EHS_FB_IN_S(0));
+	} else if (EHS_FB_IN_CONNECTED(1)) {
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,EHS_FB_IN_S(1));
+	} else {
+		EhsSprintf(EHS_FB_OUT_S(0),"%s",escaped);
+	}
+#else
+	EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1]);
+#endif
+
+	EHS_FB_FINISH(1);
+}
+
+
+/* Define FormatString function block 8 input with dynamic formatting */
+
+EHS_FB_FUNCTIONS_START(string_format8)
+EHS_FB_FUNCTION_ENTRY("run", string_format8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(string_format8)
+{
+	EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1; /* only the formatting string is stored */
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(string_format8)
+{
+	EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function. Use the inputs to format a string using our context
+ * as the format parameter.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_format8)
+{
+	ehs_uint8 i,connectioncount=0;
+	ehs_uint8 fmt_count=0;
+	ehs_char * empty="";
+	ehs_char * fmt;
+	ehs_char *in_ptrs[8];
+	ehs_char escaped[EHS_STRING_LENGTH_MAX];
+
+	for (i=0;i<8;i++) { /* if we have missing inputs we will insert empty strings */
+		if (EHS_FB_IN_CONNECTED(i)) {
+			in_ptrs[i]=EHS_FB_IN_S(i); /* point at the connections */
+			connectioncount++;
+		}
+		else in_ptrs[i]=empty;
+	}
+	if (EHS_FB_IN_CONNECTED(8)) fmt=EHS_FB_IN_S(8);
+	else fmt=EHS_FB_RUN_CONTEXT;
+	for (i=0;i<EhsStrlen(fmt)-1;i++) {
+		if (fmt[i]=='%' && fmt[i+1]=='s') fmt_count++;
+	}
+
+	EhsParseEscapeChars(escaped, fmt);
+
+	for (i=0;i<EhsStrlen(escaped)-1;i++) { // remove non-string formatters that would need a different sink pointer type.
+			if (i == 0 || escaped[i-1] != '*')  { // we can parse discarded numbers
+				if (escaped[i] == '%' && (
+						escaped[i+1] == 'i' ||
+								escaped[i+1] == 'd' ||
+								escaped[i+1] == 'u' ||
+								escaped[i+1] == 'o' ||
+								escaped[i+1] == 'x' ||
+								escaped[i+1] == 'f' ||
+								escaped[i+1] == 'e' ||
+								escaped[i+1] == 'g' ||
+								escaped[i+1] == 'a' ||
+								escaped[i+1] == 'p' ||
+								escaped[i+1] == 'n' ||
+								escaped[i+1] == 'h' ||
+								escaped[i+1] == 'l' ||
+								escaped[i+1] == 'j' ||
+								escaped[i+1] == 'z' ||
+								escaped[i+1] == 't' ||
+								escaped[i+1] == 'L'
+										)) {
+					EHSH_LOG_ERROR(" Formatter contains non string specifiers, which are not supported");
+					EHS_FB_FINISH(1);
+					return;
+				}
+
+			}
+		}
+
+	switch (fmt_count) {
+	case 0 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped); /* no string insertions */
+		break;
+	case 1 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);
+		break;
+	case 2 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1]);
+		break;
+	case 3 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2]);
+		break;
+	case 4 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3]);
+		break;
+	case 5 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4]);
+		break;
+	case 6 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5]);
+		break;
+	case 7 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6]);
+		break;
+	case 8 :
+		EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6],in_ptrs[7]);
+		break;
+	default :
+		EHSH_LOG_ERROR("Format Specifier in string_format8 contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
+	}
+	EHS_FB_FINISH(1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Define string scan function block with up to 8 outputs and dynamic formatting */
+
+EHS_FB_FUNCTIONS_START(stringfn_scanf8)
+EHS_FB_FUNCTION_ENTRY("run", stringfn_scanf8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(stringfn_scanf8)
+{
+	EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1; /* only the formatting string is stored */
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(stringfn_scanf8)
+{
+	EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function. Use the inputs to format a string using our context
+ * as the format parameter.
+ *
+ * @todo this is not reobust for non string formats (e.g. only does %s , others will cause a crash!
+ * @todo  same string issue for sprintf
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(stringfn_scanf8)
+{
+	ehs_uint8 i,connectioncount=0; /* not really used - we need to know sequence */
+	ehs_uint8 fmt_count=0;
+	//ehs_char * empty="";
+	ehs_char * fmt;
+	ehs_char *out_ptrs[8];
+	ehs_char escaped[EHS_STRING_LENGTH_MAX];
+	ehs_bool allgood = EHS_TRUE;
+
+
+	//printf("EHS_FB_IN_CONNECTED(1) = %d fmt=EHS_FB_IN_S(1)=[%s], parms = [%s]",EHS_FB_IN_CONNECTED(1),EHS_FB_IN_S(1),null/*EHS_FB_RUN_CONTEXT*/);
+	if (EHS_FB_IN_CONNECTED(1)) fmt=EHS_FB_IN_S(1);
+	else fmt=EHS_FB_RUN_CONTEXT;
+	if (EhsStrlen(fmt) > 0) {
+		for (i=0;i<EhsStrlen(fmt)-1;i++) {
+			if (fmt[i]=='%' && (fmt[i+1]=='s' ||  fmt[i+1]=='['))  fmt_count++;
+			/* also count fixed width chars and ID them so we can null blank where they are written to */
+			if (	(fmt[i]=='%' && fmt[i+1]=='c') ||
+					((fmt[i+1] >= '0' && fmt[i+1] <= '9') && (fmt[i+2] == 'c')) ||
+					((fmt[i+1] >= '0' && fmt[i+1] <= '9') && (fmt[i+2] >= '0' && fmt[i+2] <= '9' && fmt[i+3] == 'c')) ) {
+				fmt_count++;
+
+				if (fmt_count < 8 && EHS_FB_OUT_CONNECTED(fmt_count)) EhsMemset(EHS_FB_OUT_S(fmt_count),'\0',EHS_STRING_LENGTH_MAX-1); // null everywhere as scanf doesn't for characters
+			}
+
+		}
+
+		/* check we are all connected properly and fail if we are not */
+		for (i=0;i<8;i++) { /* if we have missing inputs we will insert empty strings */
+			if (EHS_FB_OUT_CONNECTED(i)) {
+				out_ptrs[i]=EHS_FB_OUT_S(i); /* point at the connections */
+				connectioncount++;
+			}
+			else {
+				out_ptrs[i] = NULL; /* doesn't really help scanf */
+				if (i < fmt_count) {
+					//EHSH_LOG_INFO("Not all outputs are connected ");
+					allgood = EHS_FALSE;
+				}
+			}
+		}
+
+		EhsParseEscapeChars(escaped, fmt);
+		for (i=0;i<EhsStrlen(escaped)-1;i++) { // remove non-string formatters that would need a different sink pointer type.
+			if (i == 0 || escaped[i-1] != '*')  { // we can parse discarded numbers
+				if (escaped[i] == '%' && (
+						escaped[i+1] == 'i' ||
+						escaped[i+1] == 'd' ||
+						escaped[i+1] == 'u' ||
+						escaped[i+1] == 'o' ||
+						escaped[i+1] == 'x' ||
+						escaped[i+1] == 'f' ||
+						escaped[i+1] == 'e' ||
+						escaped[i+1] == 'g' ||
+						escaped[i+1] == 'a' ||
+						escaped[i+1] == 'p' ||
+						escaped[i+1] == 'n' ||
+						escaped[i+1] == 'h' ||
+						escaped[i+1] == 'l' ||
+						escaped[i+1] == 'j' ||
+						escaped[i+1] == 'z' ||
+						escaped[i+1] == 't' ||
+						escaped[i+1] == 'L'
+				)) {
+					EHSH_LOG_ERROR(" Formatter contains non string specifiers, which are not supported");
+					allgood = EHS_FALSE;
+				}
+			}
+		}
+		if (allgood) {
+			switch (fmt_count) {
+			case 0 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped); /* no string insertions */
+				break;
+			case 1 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0]);
+				break;
+			case 2 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1]);
+				break;
+			case 3 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2]);
+				break;
+			case 4 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3]);
+				break;
+			case 5 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4]);
+				break;
+			case 6 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5]);
+				break;
+			case 7 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5],out_ptrs[6]);
+				break;
+			case 8 :
+				EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5],out_ptrs[6],out_ptrs[7]);
+				break;
+			default :
+				EHSH_LOG_ERROR("Format Specifier in string_format8 contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
+				allgood = EHS_FALSE;
+			}
+		}
+		if ( allgood ) EHS_FB_FINISH(1);
+		else EHS_FB_FINISH(2);
+	}
+	else {
+		EHS_FB_FINISH(1); /* Don't show an error for an empty format */
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/******************************************************************************/
+/* Define string_len function block */
+
+EHS_FB_FUNCTIONS_START(string_len)
+EHS_FB_FUNCTION_ENTRY("Run_LenString", string_len)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_len)
+{
+	/*
+	 *
+	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
+	char* s1 = &szData1[0];
+	
+	strcpy(s1, EHS_FB_IN_S(0));
+	*/
+	EHS_FB_OUT_I(0) = (int)EhsStrlen(EHS_FB_IN_S(0));
+	EHS_FB_FINISH(1);
+	return;
+}
+
+/******************************************************************************/
+/* Define string_find function block */
+
+EHS_FB_FUNCTIONS_START(string_find)
+EHS_FB_FUNCTION_ENTRY("Run_FindString", string_find)
+EHS_FB_FUNCTIONS_END
+
+struct String_find_struct {
+	ehs_bool backwards;
+	ehs_char findstring[EHS_STRING_LENGTH_MAX]; /* @todo not brave enough to make dynamic as end of stuct*/
+} ;
+
+EHS_FB_IDENTIFY_FUNCTION(string_find)
+{
+	//if (EHS_FB_INIT_PARAMETERS && EhsStrcmp(EHS_FB_IDENTIFY_PARAMETERS,"null")) { /* replace these nulls with a const (inited from a header MACRO) to save memory*/
+	EHS_FB_IDENTIFY_MEMORY = sizeof(struct String_find_struct);//EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1;
+	//	}
+	//else EHS_FB_IDENTIFY_MEMORY=0; /* This will cause a null to be sent as the parameter */
+}
+
+EHS_FB_INIT_FUNCTION(string_find)
+{
+	struct String_find_struct *parms=(struct String_find_struct*)EHS_FB_INIT_CONTEXT;
+	if (EHS_FB_INIT_PARAMETERS) {
+		EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhd%s",&parms->backwards,parms->findstring);
+	}
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_find)
+{
+	char* s1;// = &szData1[0];
+	char* s2;// = &szData2[0];
+	char* s3;// = &szData3[0];
+	ehs_uint16 i,j;
+	struct String_find_struct *parms=(struct String_find_struct*)EHS_FB_RUN_CONTEXT;
+	s1=EHS_FB_IN_S(0); /*OK unchecked -  This will point to our null string if not conncted */
+	if (EHS_FB_IN_CONNECTED(1)) s2=EHS_FB_IN_S(1);
+	else s2=(char*)parms->findstring;
+	if (s1 == NULL ) {
+		//printf("S1  == NULL!!!!!!\n");
+		return;
+	}
+	if (parms->backwards == EHS_FALSE) {
+		s3 = EhsStrstr(s1, s2);
+//		if (s3) printf("FOUND [%s] in [%s] at [%d]\n",s2,s1,s3-s1);
+//		else printf("Not found [%s] in [%s] at [%d]\n",s2,s1,-1);
+	}
+	else { /* reverse search not so easy... */
+		ehs_uint16 targstrlen=EhsStrlen(s1); /* @todo string lenght must be less the 65K length. */
+		ehs_uint16 matcstrlen=EhsStrlen(s2);
+		j=0;
+		s3 = NULL; /* Assume No match */
+		for (i=targstrlen-matcstrlen;i>0;i--) {
+			if (s1[i+1] == s2[0]) {
+				s3 = &s1[i+1]; /* set the output to the beginning assuming a match */
+				for (j=1;j<matcstrlen;j++) {
+					if (s1[i+j+1] != s2[j]) {
+						break;
+					}
+				}
+				if (j != matcstrlen) s3 = NULL; /* We didn't get a match so dump - yes this works with 1 char patterns*/
+				else {
+					break; /* we've got one so exit with S3*/
+					
+				}
+			}
+			else { /* optimised*/
+				//printf("No Match for %s\n",s2);
+				s3 = NULL; /* No match */
+			}
+		}
+	}
+
+	if (s3 && s2 && EHS_FB_IN_CONNECTED(0)) /* Only if we have something to find */
+	{
+		EhsStrcpy(EHS_FB_OUT_S(0), s3);
+		EHS_FB_OUT_I(2) = s3-s1; /* return the 0-based index - Todo we should do pointer arithmatic.. */
+		EHS_FB_OUT_B(1) = EHS_TRUE;
+	}
+	else
+	{
+		strcpy(EHS_FB_OUT_S(0), "");
+		EHS_FB_OUT_I(2) = -1; /* further error signal */
+		EHS_FB_OUT_B(1) = EHS_FALSE;
+	}
+	EHS_FB_FINISH(1);
+	return;
+}
+
+/******************************************************************************/
+/* Define string_toUpper function block */
+
+EHS_FB_FUNCTIONS_START(string_toUpper)
+EHS_FB_FUNCTION_ENTRY("Run_ToUpperString", string_toUpper)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_toUpper)
+{
+	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
+	char* s1 = &szData1[0];
+	char szData2[EHS_STRING_LENGTH_MAX] = {'\0'};
+	char* s2 = &szData2[0];
+	#ifndef POSIX
+	ehs_uint16 i;
+	#endif
+	// PP: optimisation : read directly from input buffer
+	strcpy(s1, EHS_FB_IN_S(0));
+	#ifdef POSIX
+	s2 = strupr(s1);
+	#else
+	for (i=0;i<strlen(s1);i++) {
+	  s2[i]=toupper(s1[i]);
+	}
+	#endif
+	// PP: optimisation : write directly to ouput buffer
+	strcpy(EHS_FB_OUT_S(0), s2);
+	EHS_FB_FINISH(1);
+	return;
+}
+
+/******************************************************************************/
+/* Define string_toLower function block */
+
+EHS_FB_FUNCTIONS_START(string_toLower)
+EHS_FB_FUNCTION_ENTRY("Run_ToLowerString", string_toLower)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_toLower)
+{
+	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
+	char* s1 = &szData1[0];
+	char szData2[EHS_STRING_LENGTH_MAX] = {'\0'};
+	char* s2 = &szData2[0];
+	#ifndef POSIX
+	ehs_uint16 i;
+	#endif
+	strcpy(s1, EHS_FB_IN_S(0));
+	#ifdef POSIX
+	s2 = strlwr(s1);
+	#else
+	for (i=0;i<strlen(s1);i++) {
+	  s2[i]=tolower(s1[i]);
+	}
+	#endif
+	// PP: optimisation : why not write this directly to output buffer?
+	strcpy(EHS_FB_OUT_S(0), s2);
+	EHS_FB_FINISH(1);
+	return;
+}
+
+/******************************************************************************/
+/* Define string_charAt function block */
+
+EHS_FB_FUNCTIONS_START(string_charAt)
+EHS_FB_FUNCTION_ENTRY("Run_CharAtString", string_charAt)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_charAt)
+{
+
+//	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
+//	char szData2[2] = {'\0','\0'};
+//	int index;
+
+//	strcpy(szData1, EHS_FB_IN_S(0));
+//	index = EHS_FB_IN_I(1);
+//	szData2[0] = szData1[index];
+//	strcpy(EHS_FB_OUT_S(0), szData2);
+
+
+	char *szData1;
+  char *szData2;
+	int index;
+
+  szData1 = EHS_FB_IN_S(0);
+  szData2 = EHS_FB_OUT_S(0);
+	index = EHS_FB_IN_I(1);
+
+
+  if (EHS_FB_IN_CONNECTED(1) && index >= 0 && index < EhsStrlen(szData1)) {
+    szData2[0] = szData1[index];
+    szData2[1] = '\0';  
+  } else {
+    szData2[0] = '\0';  
+  }  
+
+
+	EHS_FB_FINISH(1);
+	return;
+}
+
+/******************************************************************************/
+/* Define string_strAt function block */
+
+EHS_FB_FUNCTIONS_START(string_strAt)
+EHS_FB_FUNCTION_ENTRY("Run_StrAtString", string_strAt)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_strAt)
+{
+//	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
+  char *szData1;
+  char *szData2;
+	int index;
+	
+//	strcpy(szData1, EHS_FB_IN_S(0));
+  szData1 = EHS_FB_IN_S(0);
+  szData2 = EHS_FB_OUT_S(0);
+	index = EHS_FB_IN_I(1);
+
+
+  if (EHS_FB_IN_CONNECTED(1) && index >= 0 && index < EhsStrlen(szData1)) {
+    strcpy(szData2, &szData1[index]);  
+  } else {
+    szData2[0] = '\0';  
+  }  
+
+
+	EHS_FB_FINISH(1);
+	return;
+}
+
+/******************************************************************************/
+/* Define string_insert function block */
+
+EHS_FB_FUNCTIONS_START(string_insert)
+EHS_FB_FUNCTION_ENTRY("Run_InsertString", string_insert)
+EHS_FB_FUNCTIONS_END
+
+
+struct EhsT_Insertstringparms{
+	ehs_uint16 index;
+	ehs_char string[EHS_STRING_LENGTH_MAX]; /* should make this dynamic */
+};
+
+EHS_FB_IDENTIFY_FUNCTION(string_insert)
+{
+	EHS_FB_IDENTIFY_MEMORY = sizeof(struct EhsT_Insertstringparms);
+}
+
+EHS_FB_INIT_FUNCTION(string_insert)
+{
+	struct EhsT_Insertstringparms *parms=EHS_FB_INIT_CONTEXT;
+	parms->index=0;
+	parms->string[0]='\0';
+	EhsSscanf(EHS_FB_INIT_PARAMETERS, "%d%s",&parms->index,parms->string);
+	if (EhsStrcmp(parms->string,"null")==0||EhsStrcmp(parms->string,"NULL")==0) EhsStrcpy(parms->string,"");
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_insert) {
+
+	char *szData1; //base string
+	char *szData2; //string to insert
+	char *tmp;//[EHS_STRING_LENGTH_MAX] = { '\0' };
+	int index, size2;
+	struct EhsT_Insertstringparms *parms = EHS_FB_RUN_CONTEXT;
+
+	if (EHS_FB_IN_CONNECTED(0)) {
+		tmp=EHS_FB_OUT_S(0);
+		szData1 = EHS_FB_IN_S(0);
+
+		if (EHS_FB_IN_CONNECTED(1))
+			szData2 = EHS_FB_IN_S(1);
+		else
+			szData2 = parms->string;
+
+		if (EHS_FB_IN_CONNECTED(2))
+			index = EHS_FB_IN_I(2);
+		else
+			index = parms->index;
+
+		if (index >= 0 && index < EhsStrlen(szData1)) {
+			size2 = EhsStrlen(szData2);
+			EhsStrncpy(tmp, szData1, index);
+			EhsStrcat(&tmp[index], szData2);
+			EhsStrcat(&tmp[size2 + index], &szData1[index]);
+		} else
+			EhsStrcpy(EHS_FB_OUT_S(0), "");
+
+	} else
+		EhsStrcpy(EHS_FB_OUT_S(0), "");/* Nout if there is no inout */
+	EHS_FB_FINISH(1);
+	return;
+}
+
+
+struct EhsT_Substringparms{
+	ehs_uint16 index;
+	ehs_uint16 length;
+};
+/******************************************************************************/
+/* Define string_sub function block */
+
+EHS_FB_FUNCTIONS_START(string_sub)
+EHS_FB_FUNCTION_ENTRY("Run_SubString", string_sub)
+EHS_FB_FUNCTIONS_END
+
+EHS_FB_IDENTIFY_FUNCTION(string_sub)
+{
+	EHS_FB_IDENTIFY_MEMORY = sizeof(struct EhsT_Substringparms);
+}
+
+EHS_FB_INIT_FUNCTION(string_sub)
+{
+	struct EhsT_Substringparms *parms=EHS_FB_INIT_CONTEXT;
+	parms->index=0;
+	parms->length=0;
+	EhsSscanf(EHS_FB_INIT_PARAMETERS, "%d%d",&parms->index,&parms->length);
+	return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_sub) {
+	//	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
+	//	char szData2[EHS_STRING_LENGTH_MAX] = {'\0'};
+	char *szData1;
+	char *szData2;
+	int start, length, i, finish;
+
+	struct EhsT_Substringparms* parms = (struct EhsT_Substringparms *) EHS_FB_RUN_CONTEXT;
+
+	//	strcpy(szData1, EHS_FB_IN_S(0));
+	szData1 = EHS_FB_IN_S(0);
+	szData2 = EHS_FB_OUT_S(0);
+
+	if (EHS_FB_IN_CONNECTED(1))
+		start = EHS_FB_IN_I(1);
+	else start=parms->index;
+	if (EHS_FB_IN_CONNECTED(2))
+		length = EHS_FB_IN_I(2);
+	else length=parms->length;
+	finish = start + length;
+	if (finish > EhsStrlen(szData1)) {
+		finish = EhsStrlen(szData1);
+	}
+	szData2[0] = '\0';
+	if (EHS_FB_IN_CONNECTED(0) && start >= 0 && start
+			< EhsStrlen(szData1)) {
+		for (i = start; i < finish; i++) {
+			szData2[i - start] = szData1[i];
+		}
+		szData2[i - start] = '\0';
+	}
+	else { /* truncate if nothing sensible */
+		szData2[0] = '\0';
+	}
+	EHS_FB_FINISH(1);
+	return;
+}

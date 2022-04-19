@@ -1,0 +1,63 @@
+#V:2.0.0
+#B:32
+#D:Y2020M6d11h0m31s24
+#N:DevicePairing
+1
+1	100000	90000
+BEGIN unity2 0
+*
+create	1	1	2	3 S 1 S -1 S 2 	1 S -1 	2 3 -1 
+setmedia	1	1	3	4 S 3 S -1 S 4 S -1 	0 	1 -1 
+END
+BEGIN Constant_String1 0
+1 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN Constant_String1 0
+{"id": "3","top": "0%","left": "0%","bottom": "100%","right": "100%","textType" : "title","fgrColor":"255.255.255.255","bgrColor":"186.147.4.255","type":"quad","textConfig":{"color":"230.240.255.255","fontScale":0.45,"alignment":"left"}, "flags":"textSpinsCube|usePreviousMedia|mediaAlwaysPlay"} 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN Constant_String1 0
+smilText 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN DevmanInterface 0
+appname1 processname1 
+send	1	1	4	1 S 5 	0 	1 -1 
+END
+BEGIN wall_clock 0
+*
+get	1	1	5	0 	3 S -1 I 2 I 3 	1 8 
+END
+BEGIN ConvertorIntToString 0
+*
+Run_ConvertorIntToString	1	1	6	1 I 1 	1 S 6 	1 7 
+END
+BEGIN string_format 0
+{"pairing":{"code":"%s"}} 
+run	1	1	7	2 S 6 S -1 	1 S 5 	1 4 
+END
+BEGIN EventTwoInputOr 0
+*
+Or2	1	1	1	0 	0 	1 5 
+END
+BEGIN MultiplyTwoInputInt 0
+*
+Run_MultiplyTwoInputInt	1	1	8	2 I 2 I 3 	1 I 4 	1 9 
+END
+BEGIN ModulusInt 0
+*
+Run_ModulusInt	1	1	9	2 I 4 I 5 	1 I 1 	1 6 
+END
+BEGIN Constant_Int1 0
+999999 
+Run_ConstantInt	1	1	-1	0 	1 I 5 	0 
+END
+BEGIN string_format 0
+Your Pairing Code is %s\nlogin to https://cms.tellisign.com  
+run	1	1	4	2 S 6 S -1 	1 S 4 	1 2 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

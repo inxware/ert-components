@@ -1,0 +1,416 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+PlayManager
+</h1>
+<!--General Description-->
+<p class=component>
+Manages parsing SMIL playlists and controlling media players. 
+The function block manages downloading content and subsequently asserts time-triggered ouput events as defined in the SMIL playlist.
+<p>
+The SMIL format is defined in <a href="https://www.w3.org/TR/SMIL20/cover.html"> https://www.w3.org/TR/SMIL20/cover.html</a>. The following functions are supported:
+
+<h4>Section and Media Entries</h4> 
+<ul> 
+<li> seq    : SMIL sequence list. All content is played in sequence </li>
+<li> par	: SMIL par list. All content is started at the same time, unless a start time is specified.  </li>
+</ul>
+<h4>Content Entries</h4> 
+<ul> 
+<li> media    : Specify remote or locally stored media URL using src= attribute. e.g. (src="http://a.b.c/d/e.mp3" or src="/d/e.mp3" for locally downloaded).  </li>
+<li> img	  : Specify remote or local image URL using src= attribute. e.g. (src="(http://a.b.c/d/e.jpg" or src="/d/e.jpg" for locally downloaded). </li>
+<li> smilText : Specify immediate text to display (e.g. &ltsmilText&gtHello There!&lt/smilText&gt  </li>
+<li> audio    : same as media </li>
+<li> video    : same as media </li>
+</ul>
+
+<h4>Section and Content Attributes</h4> 
+<ul> 
+<li> begin  : wallclock time values only as below </li>
+<li> end	: wallclock time values only as below  </li>
+<li> dur    : relative duration times as HH:MM:SS, seconds (e.g. 22s), minutes (e.g. 10.5min or 10.5m), hours (e.g. 1.5h)  </li>
+<li> class  : Free text that is output for content.  </li>
+<li> region	: layout ID defined in the &ltlayout&gt header section    </li>
+<li> xml:id : ID that is output for all media  </li>
+</ul>
+
+</p>
+</p>
+<p class=component>
+SMIL timing synatx is extended with the following wall-clock related features to allow various repeat rates:
+<ul>
+<li> Daily    : HH:MM:SS </li>
+<li> Weekly	: wTHH:MM:SS </li>
+ <li> 2 weekly : W1wTHH:MM:SS / W2wTHH:MM:SS </li>
+ <li> monthly	: ddTHH:MM:SS </li>
+ <li> yearly	: mm-ddTHH:MM:SS </li>
+ <li> Once only : YY-mm-ddTHH:MM:SS </li>
+</ul>
+This SMIL parser supports layout features, with specific extensions to allow dynamic layouts using xml:id to reference layout themes.
+<ul>
+<li> textstyle IDs to be used in regions </li>
+<li> textstyle region IDs mapped to layouts </li>
+<li> root aspect ration (used to trigger screen oritentation changes) </li>
+</ul>
+<p>
+e.g.
+</p>
+<textarea rows="20" cols="100" ">
+<smil xmlns="http://www.w3.org/2001/SMIL20/Language">
+<head>
+	<meta name="tableconfig_55" content="0,0"  />
+	<textStyling>
+		<textStyle xml:id="TextStyle_55_normal" textFontFamily="Arial" textFontSize="Small" />
+		<textStyle xml:id="TextStyle_55_title" textFontFamily="Arial" textFontSize="Small" />
+		<textStyle xml:id="TextStyle_55_table" textFontFamily="Arial" textFontSize="Small" />
+	</textStyling>
+	<layout>
+		<root-layout width="1600" height="900"   />
+		<region xml:id="RegionId_55_0"  top="50%" left="0%" right="100%" bottom="0%" textStyle="TextStyle_55_title"/>
+		<region xml:id="RegionId_55_1" top="100%" left="0%" right="100%" bottom="50%" textStyle="TextStyle_55_normal"/>
+	</layout>
+</head>
+<body>
+	<seq begin="wallclock( 00:00:00 )" end="wallclock( 23:59:00 )" xml:id="SectionId_55" >
+		<media src="/_data/01 Silver.m4a"  region="RegionId_55_1" dur="50s" />
+		<media src="/_data/02 Nocturnal Me.m4a"  region="RegionId_55_0" dur="1:30" />
+		<media src="/_data/08 My Kingdom.m4a"  region="RegionId_55_0" dur="1.5h"/>
+	</seq>
+</body>
+</smil>
+</textarea>
+</p>
+<p>
+Some very specific start up behaviour is identified by the parameters to allow for different download/start sequences to enable maximum robustness.
+</p>
+
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=portsStr>
+[In]
+
+<a name="[In]Playlist path">
+</h6>
+<p class=ports>Playlist path: This is the local file system path of a SMIL file.</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+Media File: 
+<a name="[Out]Media File">
+</h6>
+<p class=ports>This is the local filesystem path to a media oject to be played.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+New Playlist: 
+<a name="[In]New Playlist">
+</h6>
+<p class=ports>Triggers reading a new playlist (see parameters for initialisation options)</p>
+  </li><li>
+<h6 class=ports>
+[Out] ------------:
+<a name="[Out]------------">
+</h6>
+<p class=ports>asserted when playlist path has been defined.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+Last Ended: 
+<a name="[In]Last Ended">
+</h6>
+<p class=ports>Must be asserted if a media object finishes.</p>
+  </li><li>
+<h6 class=ports>
+[Out] --------------:
+<a name="[Out]--------------">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+Playlist path: 
+<a name="[Out]Playlist path">
+</h6>
+<p class=ports>Copy of the playlist filename concetanted on to the download path (if provided).</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Play Now: 
+<a name="[Out]Play Now">
+</h6>
+<p class=ports>Event asserted when a new media object should be played.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+play remote:
+<a name="[Out]play remote">
+</h6>
+<p class=ports>Asserted if the file has not (yet) been downloaded locally </p>
+  </li><li>
+<h6 class=ports>
+[In]
+Next URL: 
+<a name="[In]Next URL">
+</h6>
+<p class=ports>This must triggeref for all files that have been downloaded after the respective file has been downloaded and usually after the "got" event has been processed.</p>
+  </li><li>
+<h6 class=ports>
+[Out] ------------: 
+<a name="[Out]------------">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Get: 
+<a name="[Out]Get">
+</h6>
+<p class=ports>This is intially asserted when a new playlist with downloadabe content is found. it is subsequently fired after the "Next URL" event has been fired, until there is no more content to download.</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+URL: 
+<a name="[Out]URL">
+</h6>
+<p class=ports>This is a media URL if the content is not found locally (e.g. has a http:// prefix on the media name, which implies it should be streamed, rather than downloaded and played locally.)</p>
+  </li><li>
+<h6 class=ports>
+[In]
+Got: 
+<a name="[In]Got">
+</h6>
+<p class=ports>This should be asserted when a media file has been downloaded for local play to indicate it can be found locally.</p>
+  </li><li>
+<h6 class=ports>
+[Out] ------------:
+<a name="[Out]------------">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+URL: 
+<a name="[In]URL">
+</h6>
+<p class=ports>This is the  URL of any file that has been downloaded after the remote media download server URL has been prepended (usually a copy of the output).</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]------------:
+<a name="[Out]------------">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+Local File: 
+<a name="[In]Local File">
+</h6>
+<p class=ports>This is the local filename of a downloaded file after the appropriate "local path" prefix has been prepended (usually a copy of the output below).</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]------------:
+<a name="[Out]------------">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+Local File:
+<a name="[Out]Local File">
+</h6>
+<p class=ports>This is the local filename of a downloaded file after the appropriate "local path" prefix has been prepended.</p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+DL URL:
+<a name="[In]DL URL">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+DL local:
+<a name="[In]DL local">
+</h6>
+<p class=ports>This is the  URL of any file that has been downloaded after the remote media download server URL has been prepended</p>
+  </li><li>
+<h6 class=ports>
+[In]
+Set Paths:
+<a name="[In]Set Paths">
+</h6>
+<p class=ports>trigger if a dynamic local media path and server base URL is being used. </p>
+  </li><li>
+<h6 class=ports>
+[Out]------------:
+<a name="[Out]------------">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[Out]-------------:
+<a name="[Out]-------------">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=portsStr>
+[Out]--------------:
+<a name="[Out]--------------">
+</h6>
+<p class=ports></p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+Priorities:
+<a name="[In]Priorities">
+</h6>
+<p class=ports>For setting the start mode dynamically. See parameters below</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Earliest:
+<a name="[Out]Earliest">
+</h6>
+<p class=ports>Asserted when new earlist start and finish times are available</p>
+</li><li>
+<h6 class=portsStr>
+[Out]
+start time:
+<a name="[Out]start time">
+</h6>
+<p class=ports>This identifies the next media start time in the playlist</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+Stop time:
+<a name="[Out]Stop time">
+</h6>
+<p class=ports>The next time when the current media, will be instructed to stop</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+class:
+<a name="[Out]class">
+</h6>
+<p class=ports>This is an optional W3C SMIL object class string that might be included in SMIL</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+Text:
+<a name="[Out]Text">
+</h6>
+<p class=ports>This any text (instead of media) in the SMIL file to display</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+Type:
+<a name="[Out]Type">
+</h6>
+<p class=ports>This is an optional  W3C SMIL meda type string</p>
+  </li><li>
+<h6 class=ports>
+[In]
+Started Play:
+<a name="[In]Started Play">
+</h6>
+<p class=ports>assert this when the media has been played and the ID has been presented on the ID port below. This is required for marshelling simultaneous plays times</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+ID:
+<a name="[In]ID">
+</h6>
+<p class=ports>The item ID to be played, as defined by the outputted ID </p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+ID:
+<a name="[In]ID">
+</h6>
+<p class=ports>The item ID of an played object after it has ended (including endings caused by instructions by this function block)</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+ID:
+<a name="[In]ID">
+</h6>
+<p class=ports> The item ID of a downloaded file as defined by the get ID outout.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+ID:
+<a name="[Out]ID">
+</h6>
+<p class=ports> The ID of a media object that is to be played.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+ID:
+<a name="[Out]ID">
+</h6>
+<p class=ports> The ID of a file that needs to be downloaded. </p>
+  </li></ul>
+<p>
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet>
+<li>
+Start Behaviour:
+<ul>
+<li> 0:Clear all in the current playlist </li>
+<li> 1:Clear only events later than the current event's earlist event </li>
+<li> 2:Concatenate bth playlist and keep both playlist's events (Dangerous!) </li>
+</ul>   
+</li>
+<li>
+Wait for downloads before start: set to true if play events should only be active after all media has been downloaded.  
+</li>
+<li>
+Download Grace Period : number of seconds waited after a new play list before Play events can occur if "Wait for downloads before start" = FALSE. Otherwise this is a timout value of all downloads do not comeplete in the allowed time (unless set -1, in which case there is no timout for waiting)    
+
+</li>
+</ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<ul class=noBullet><li>
+<h6 class=profiles>Media: </h6>
+<p class=profiles></p>
+</li></ul>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>GUI/Level1.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier>inx ltd.</p>
+<!--More Info on Website-->
+<h3 class=more>More Information</h3>
+<p class=link><a href=http://www.inx-systems.net target=_blank>More information - external website hosted by the Component Supplier.</a></p>
+</body></html>

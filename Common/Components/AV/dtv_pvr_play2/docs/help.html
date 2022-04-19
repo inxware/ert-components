@@ -1,0 +1,413 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+DtvPvrPlay2
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to play audio or video from local media files or stream from remote URLs. If the media is an audio file then there is no widget displayed in the GUI, however a widget is still required in the GUI Builder, IGB. For video media the position and dimensions of the widget are specified in the widget properties in the GUI Builder, IGB. In addition the data inputs <a href="#[In]off.x">[In]off.x</a> and <a href="#[In]off.y">[In]off.y</a> can be used to change the position of the widget when the input event <a href="#[In]setWindow">[In]setWindow</a> is asserted, by specifying the offset from its original position in the x and y axis respectively. The data inputs <a href="#[In]wid">[In]wid</a> and <a href="#[In]ht">[In]ht</a> can be used to change the width and the height of the widget when the input event <a href="#[In]setWindow">[In]setWindow</a> is asserted. It should be noted that the data inputs <a href="#[In]off.x">[In]off.x</a> and <a href="#[In]off.y">[In]off.y</a> specify the offset in the x and y axis from its original position and the data outputs <a href="#[Out]abs x">[Out]abs x</a> and <a href="#[Out]abs y">[Out]abs y</a> refer to the absolute x and y coordinates of the widget in reference to the viewport. This allows the data output to be used to detect if widgets are overlapping in the GUI.
+</p>
+<p class=component>
+The input event <a href="#[In]set input">[In]set input</a> is used to load the media file as specified by the data input <a href="#[In]path/URL">[In]path/URL</a> and configure the decoder. The input events <a href="#[In]play">[In]play</a>, <a href="#[In]pause">[In]pause</a>, <a href="#[In]reverse">[In]reverse</a>, <a href="#[In]faster">[In]faster</a>, <a href="#[In]slower">[In]slower</a> and  <a href="#[In]stop">[In]stop</a> control the playback of the media. The input events <a href="#[In]faster">[In]faster</a> and <a href="#[In]slower">[In]slower</a> increase and descrease the playback speed by the some increment that is implementation specific but typically doubles the playback speed each time it is triggered. So to return the playback speed to normal (100%) after doubling the speed 3 times by triggering <a href="#[In]faster">[In]faster</a>, <a href="#[In]slower">[In]slower</a> must be triggered 3 times.
+</p>
+<p class=component>
+During playback, when the input event <a href="#[In]set pos">[In]set pos</a> is asserted, the value presented to the data input <a href="#[In](%)">[In](%)</a> specifies the point (as a percentage of the length of the media) at which the media should be played from. Similarly when the input event <a href="#[In]set time">[In]set time</a> is asserted, the value presented to the data input <a href="#[In](s)">[In](s)</a> specifies the time (in seconds) at which the media should be played from. Please note, these values are not persistent and the media will always play from the start when the input event <a href="#[In]play">[In]play</a> is asserted.
+</p>
+<p class=component>
+The input events <a href="#[In]to front">[In]to front</a> and <a href="#[In]to back">[In]to back</a> are used to change the z-order of the widget and bring the media to the front and obscure other widgets or to send the media to the back and show other widgets on top of it. The input event <a href="#[In]setVol">[In]setVol</a> takes the value presented at the data input <a href="#[In](%)">[In](%)</a> and sets the volume of the playback accordingly.
+</p>
+<p class=component>
+When the input event <a href="#[In]getinfo">[In]getinfo</a> is asserted, information is presented to the data outputs corresponding to the position (%) and time (s) inputs events <a href="#[In]set pos">[In]set pos</a> and <a href="#[In]set time">[In]set time</a>. Information is also presented at the data outputs <a href="#[Out]length info">[Out]length info</a> and <a href="#[Out]speed info">[Out]speed info</a> regarding the length of the media (in seconds) and the current playback speed (as a percentage of normal speed).
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+set input:
+<a name="[In]set input">
+</h6>
+<p class=ports>Input event, loads the media specified in the data input <a href="#[In]path/URL">[In]path/URL</a>.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=portsStr>
+[In]
+path/URL:
+<a name="[In]path/URL">
+</h6>
+<p class=ports>Data input, the media file path or URL to be loaded.</p>
+  </li><li>
+<h6 class=portsStr>
+[Out]
+meta:
+<a name="[Out]meta">
+</h6>
+<p class=ports>Data output, presents meta data contained in media file when input event <a href="#[In]set input">[In]set input</a> is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+set pos:
+<a name="[In]set pos">
+</h6>
+<p class=ports>Input event, sets the position for playback as specified by the data input <a href="#[In](%)">[In](%)</a> as a percentage of the media length.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+(%):
+<a name="[In](%)">
+</h6>
+<p class=ports>Data input, the position from which to play the media.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+---info:
+<a name="[Out]---info">
+</h6>
+<p class=ports>Data output, the position from which to play the media.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+set time:
+<a name="[In]set time">
+</h6>
+<p class=ports>Input event, sets the position for playback as specified by the data input <a href="#[In](s)">[In](s)</a> as time in seconds.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+------------:
+<a name="[Out]------------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+(s):
+<a name="[In](s)">
+</h6>
+<p class=ports>Data input, the position from which to play the media.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+---info:
+<a name="[Out]---info">
+</h6>
+<p class=ports>Data output, the position from which to play the media.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+getinfo:
+<a name="[In]getinfo">
+</h6>
+<p class=ports>Input event, when triggered it presents information to the data outputs regarding current position as a percentage of media length, current position as time in seconds, the length of the media and the playback speed as a percentage of the normal speed.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+------------:
+<a name="[Out]------------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+length info:
+<a name="[Out]length info">
+</h6>
+<p class=ports>Data output, the length of the media in seconds.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+speed info:
+<a name="[Out]speed info">
+</h6>
+<p class=ports>Data output, the current playback speed as a percentage of normal.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+play:
+<a name="[In]play">
+</h6>
+<p class=ports>Input event, starts playing the media.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+pause:
+<a name="[In]pause">
+</h6>
+<p class=ports>Input event, pauses the media.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+reverse:
+<a name="[In]reverse">
+</h6>
+<p class=ports>Input event, reverses the direction of play.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+faster:
+<a name="[In]faster">
+</h6>
+<p class=ports>Input event, typically doubles the playback speed but is implementation specific.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+slower:
+<a name="[In]slower">
+</h6>
+<p class=ports>Input event, typically halves the play speed but is implementation specific.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+stop:
+<a name="[In]stop">
+</h6>
+<p class=ports>Input event, stps the media from playing.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+ended:
+<a name="[Out]ended">
+</h6>
+<p class=ports>Output event, is asserted when the media has ended.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+setVol:
+<a name="[In]setVol">
+</h6>
+<p class=ports>Input event, sets the volume of the playback.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+(%):
+<a name="[In](%)">
+</h6>
+<p class=ports>Data input, the volume of the playback as a percentage.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+setWindow:
+<a name="[In]setWindow">
+</h6>
+<p class=ports>Input event, sets the widget properties to the values presented at the data inputs <a href="#[In]off.x">[In]off.x</a>, <a href="#[In]off.y">[In]off.y</a>, <a href="#[In]w">[In]w</a> and <a href="#[In]h">[In]h</a>.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+off.x:
+<a name="[In]off.x">
+</h6>
+<p class=ports>Data input, specifies the offset in the x axis of the widget from its initial position.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+off.y:
+<a name="[In]off.y">
+</h6>
+<p class=ports>Data input, specifies the offset in the y axis of the widget from its initial position.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+w:
+<a name="[In]w">
+</h6>
+<p class=ports>Data input, specifies the width of the widget.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+h:
+<a name="[In]h">
+</h6>
+<p class=ports>Data input, specifies the height of the widget.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+abs x:
+<a name="[Out]abs x">
+</h6>
+<p class=ports>Data output, the x coordinate of the widget relative to the viewport origin.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+abs y:
+<a name="[Out]abs y">
+</h6>
+<p class=ports>Data output, the y coordinate of the widget relative to the viewport origin.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+w:
+<a name="[Out]w">
+</h6>
+<p class=ports>Data output, the width of the widget.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+h:
+<a name="[Out]h">
+</h6>
+<p class=ports>Data output, the height of the widget.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+to front:
+<a name="[In]to front">
+</h6>
+<p class=ports>Input event, brings the media player to the front.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+to back:
+<a name="[In]to back">
+</h6>
+<p class=ports>Input event, sends the media player to the front.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+----------:
+<a name="[Out]----------">
+</h6>
+<p class=ports>Output event, triggered when corresponding input event is asserted.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]set input">[In]set input</a>, <a href="#[In]path/URL">[In]path/URL</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[In]set pos">[In]set pos</a>, <a href="#[In](%)">[In](%)</a>, <a href="#[Out]------------">[Out]------------</a>, <a href="#[In]set time">[In]set time</a>, <a href="#[In](s)">[In](s)</a>, <a href="#[Out]------------">[Out]------------</a>, <a href="#[In]getinfo">[In]getinfo</a>, <a href="#[Out]meta">[Out]meta</a>, <a href="#[Out]---info">[Out]---info</a>, <a href="#[Out]---info">[Out]---info</a>, <a href="#[Out]length info">[Out]length info</a>, <a href="#[Out]speed info">[Out]speed info</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[In]play">[In]play</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[In]pause">[In]pause</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[In]reverse">[In]reverse</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[In]faster">[In]faster</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[In]slower">[In]slower</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[In]stop">[In]stop</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]ended">[Out]ended</a>, <a href="#[In]setVol">[In]setVol</a>, <a href="#[In](%)">[In](%)</a>, <a href="#[In]setWindow">[In]setWindow</a>, <a href="#[In]x">[In]x</a>, <a href="#[In]y">[In]y</a>, <a href="#[In]w">[In]w</a>, <a href="#[In]h">[In]h</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[Out]abs x">[Out]abs x</a>, <a href="#[Out]abs y">[Out]abs y</a>, <a href="#[Out]abs w">[Out]abs w</a>, <a href="#[Out]abs h">[Out]abs h</a>, <a href="#[In]to front">[In]to front</a>, <a href="#[In]to back">[In]to back</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[Out]----------">[Out]----------</a>, <a href="#[Out]----------">[Out]----------</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+Widget Tag:
+</h6>
+<p class=parameters>
+Name of the widget as displayed in the GUI builder.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+WT,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+widget,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+widget tag,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+  </li><li>
+<h6 class=parameters>
+Widget-Group:
+</h6>
+<p class=parameters>
+Group that the widget belongs to in the GUI builder.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+ST,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+default,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+widget group,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>AV.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

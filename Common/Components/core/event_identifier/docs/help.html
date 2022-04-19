@@ -1,0 +1,156 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+IndexedMultiplexer_Event
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to identify which event has fired. The use case is where there is a set of components that can be triggered by many events but the identity of the event needs to be known after the set of components has completed it process.
+</p>
+<p class=component>
+When one of the input events 1-8, is triggered, the output event <a href="#[Out]Go">[Out]Go</a> is asserted and the index of the event that was triggered is presented to the data output <a href="#[Out]Ind">[Out]Ind</a>. The value of the the data output <a href="#[Out]Ind">[Out]Ind</a> can then be used to identify which event was triggered.
+</p>
+<p class=component>
+The Event Identifier has two modes of operation, controlled by the parameter Requires Resetting. Mode 1 is the default, when the parameter Requires Resetting is set to 1, then once the output event <a href="#[Out]Go">[Out]Go</a> has been triggered, it cannot be triggered again until the Event Identifier is reset by triggering the input event <a href="#[In]Reset">[In]Reset</a>. Mode 2, when the parameter Requires Resetting is set to 0, will automatically reset the Event Identifier everytime it is triggered so that everytime one of the input events 1-8, is triggered, the output event <a href="#[Out]Go">[Out]Go</a> is asserted and the index of the event that was triggered is presented to the data output <a href="#[Out]Ind">[Out]Ind</a>.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+1:
+<a name="[In]1">
+</h6>
+<p class=ports>Event input 1.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+2:
+<a name="[In]2">
+</h6>
+<p class=ports>Event input 2.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+3:
+<a name="[In]3">
+</h6>
+<p class=ports>Event input 3.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+4:
+<a name="[In]4">
+</h6>
+<p class=ports>Event input 4.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+5:
+<a name="[In]5">
+</h6>
+<p class=ports>Event input 5.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+6:
+<a name="[In]6">
+</h6>
+<p class=ports>Event input 6.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+7:
+<a name="[In]7">
+</h6>
+<p class=ports>Event input 7.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+8:
+<a name="[In]8">
+</h6>
+<p class=ports>Event input 8.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Go:
+<a name="[Out]Go">
+</h6>
+<p class=ports>Event output, triggered if any of the input events 1-8 are triggered, if and only if, the Event Identifier is in a state where it is ready to be triggered.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+Ind:
+<a name="[Out]Ind">
+</h6>
+<p class=ports>Data output, index of the event that was triggered.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+Reset:
+<a name="[In]Reset">
+</h6>
+<p class=ports>Event input, resets the Event Identifier to a state where it is ready to be triggered by one of the input events 1-8.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Reset:
+<a name="[Out]Reset">
+</h6>
+<p class=ports>Event output, triggered when the input event <a href="#[In]Reset">[In]Reset</a> is triggered.</p>
+</li></ul>
+<p>
+<!--
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+Requires Resetting:
+</h6>
+<p class=parameters>
+
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+B,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+1
+</p>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

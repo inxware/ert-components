@@ -1,0 +1,45 @@
+*****************
+** MANIFEST
+*****************
+
+The EHS repo is maintained at url = ssh://inx-data@server/home/inx-data/data/Repos/EHS.git
+This build system for EHS requires linux (debian usually) and the following repos to be cecked out in to the same directory:
+
+EHS                (Contains this readme file)
+EHS-build-support  (Contains toolchains and Basic OS dependencies)
+comp-lib-support   (Contains optional pre-built components for each suport platform)
+
+It is advisable to also check out the following repos to build production installs:
+apps               (Contains applications which maybe installed into production packages)
+
+The following repositories are required for building and deploying inxware tools and services:
+dist               (Desktop tool environment strucuture)
+tools              (Desktop tools source code)
+BrixBuild          (Build system to create the BRIX product variant of inxware - packages referenced on the Brix web site)
+DevmanServer  
+brix               (OpenGL development version of tools  )
+
+All the above repos are available at ssh://inx-data@server/home/inx-data/data/Repos/*.git
+
+*****************
+** BUILDING EHS
+*****************
+
+The command steps needed to build EHS for a specific target:
+
+make help 
+
+to get a list of supported targets type
+./configure help
+
+************************
+** Specific Pltform Notes
+*************************
+
+Ambifier minis/mcros on Jessie:
+./configure linux_x86_gtk_gst_ambifier
+make prepdeps
+make all
+make targetenv HOST_OS_CONFIG_SCRIPTS_EXTRA="0140-update-kernel-4-8-16-debian"
+make targetenv_version
+make targetenv_deb UPLOAD=ambifier@www.ambifier.com/home/ambifier/deb-repo

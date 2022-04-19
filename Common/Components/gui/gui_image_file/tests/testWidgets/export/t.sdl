@@ -1,0 +1,129 @@
+#V:2.0.0
+#B:87
+#D:Y2018M1d22h12m32s30
+#N:testWidgets
+1
+1	100000	90000
+BEGIN gui_text_real2 0
+%%%_FloatingNumber g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 4 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 F 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_patch 0
+%%%_Patch g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 3 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	5 I 1 I 2 I 3 I 4 I -1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_viewport 0
+%%%_viewport g0000000.gui 1 -1 -1 -1 -1 
+create	1	1	1	0 	8 I -1 I -1 I 8 I 9 I 6 I 7 I -1 I -1 	4 -1 5 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	4	5 I 5 I 5 I 5 I 5 I -1 	4 I -1 I -1 I 8 I 9 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_x g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	5	6 I -1 I -1 I -1 I -1 I -1 I 6 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_y g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	5	6 I -1 I -1 I -1 I -1 I -1 I 7 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_width g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	5	6 I -1 I -1 I -1 I -1 I -1 I 8 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_height g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	5	6 I -1 I -1 I -1 I -1 I -1 I 9 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_Int1 0
+10 
+Run_ConstantInt	1	1	-1	0 	1 I -1 	0 
+END
+BEGIN GUI_Image_File 0
+%%%_Image g0000000.gui 1 0 1 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 7 2 -1 
+load	1	1	2	1 S 1 	0 	1 -1 
+show	1	1	6	0 	0 	1 -1 
+update	1	1	3	5 I 1 I 2 I 3 I 4 I -1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+screenshot.png 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN gui_text_bool2 0
+%%%_Boolean g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 B 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_IntegerNumber g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I 1 I 2 I 3 I 4 I -1 I 10 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2 0
+%%%_StringValue g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_Int1 0
+100 
+Run_ConstantInt	1	1	-1	0 	1 I 5 	0 
+END
+BEGIN Constant_Real1 0
+3.142 
+Run_ConstantReal	1	1	-1	0 	1 F 1 	0 
+END
+BEGIN Constant_Int1 0
+999 
+Run_ConstantInt	1	1	-1	0 	1 I 10 	0 
+END
+BEGIN Constant_Bool1 0
+1 
+Run_ConstantBool	1	1	-1	0 	1 B 1 	0 
+END
+BEGIN Constant_String1 0
+String Value 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	7	0 	0 	1 6 
+END
+BEGIN Constant_Int1 0
+30 
+Run_ConstantInt	1	1	-1	0 	1 I 1 	0 
+END
+BEGIN Constant_Int1 0
+400 
+Run_ConstantInt	1	1	-1	0 	1 I 3 	0 
+END
+BEGIN Constant_Int1 0
+50 
+Run_ConstantInt	1	1	-1	0 	1 I 2 	0 
+END
+BEGIN Constant_Int1 0
+0 
+Run_ConstantInt	1	1	-1	0 	1 I 4 	0 
+END
+BEGIN Constant_String1 0
+media/schedmedia/_data/image.jpg 
+Run_ConstantString	1	1	-1	0 	1 S -1 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

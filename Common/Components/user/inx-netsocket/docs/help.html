@@ -1,0 +1,139 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+Socket Client 
+</h1>
+<!--General Description-->
+<p class=component>
+This function block provides a TCP IP ot UDP IP socket for connecting to IP ports on remote or local servers.  
+<p>
+State behaviour: The component is stateful and must be in the open state to send or receive data (TCP or UDP) to and from a server. 
+<p>
+Once a connection to a server is established data may be received from the server. Further data may be sent by the server in following packets. There is no marshalling of data by the function block and overruns are possible with large data packets! 
+
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet>
+<li>
+<h6 class=ports>
+[In] Open: 
+<a name="[In]Open">
+</h6>
+<p class=ports>Opens the port provided and try connect to the server</p>
+ </li>
+ <li>
+<h6 class=portsStr>
+[In] url
+<a name="[In]port">
+</h6>
+<p class=ports>The remoe IP address to connect to.</p>
+  </li>
+ <li>
+<h6 class=portsInt>
+[In] port
+<a name="[In]port">
+</h6>
+<p class=ports>The remote IP port (service) on which to connect to.</p>
+  </li>
+  <li>
+<h6 class=ports>
+[In] close: 
+<a name="[In]Open">
+</h6>
+<p class=ports>Disconects from the server and stops accepting data packets from the client</p>
+ </li>
+ <li>
+<h6 class=ports>
+[Out]Received:
+<a name="[Out]Received">
+</h6>
+<p class=ports>Asserted when a data respose is received from a server. Only active when the port is opnened (even in UDP mode).</p>
+  </li><li>
+<h6 class=portsStr>
+[Out] data
+<a name="[In]data">
+</h6>
+<p class=ports>Data received. NULL terminated string. -> Note this is not buffered so must be consumed immediately (e.g. into a FIFO) to ensure large data streams are acquired </p>
+  </li><li>
+<h6 class=portsInt>
+[Out] size:
+<a name="size">
+</h6>
+<p class=ports>Number of bytes received. </p>
+  </li>
+<li>
+<h6 class=ports>
+[In] send 
+<a name="[In]send">
+</h6>
+<p class=ports>Send data to connected server.</p>
+  </li><li>
+<h6 class=portsStr>
+[In] data 
+<a name="[In]data">
+</h6>
+<p class=ports>Data to send to server. Binary or string data may be sent, but null terminated string format is expected of there is no dta length specified.</p>
+  </li>
+  <li>
+<h6 class=portsInt>
+[In] inSize:
+<a name="[In]inSize">
+</h6>
+<p class=ports>Size of data buffer to send back to the server.</p>
+  </li>
+<!--Parameters - form - short desc: long desc-->
+</ul>
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet>
+<li>
+Interface : The remote network interface to connect to  
+</li>
+<li>
+Port : The IP port to connect to.
+</li>
+<li>
+udp : set to 1 for UDP data grams and 0 for TCP data streams.
+</li>
+</ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Statefull.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<ul class=noBullet><li>
+<h6 class=profiles>Networking: </h6>
+<p class=profiles></p>
+</li></ul>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Network/Level1.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier>inx ltd.</p>
+<!--More Info on Website-->
+<h3 class=more>More Information</h3>
+<p class=link><a href=http://www.inx-systems.net target=_blank>More information - external website hosted by the Component Supplier.</a></p>
+</body></html>

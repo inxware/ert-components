@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphics>
+<initialPosition>
+  <xcoord>10</xcoord>
+  <ycoord>10</ycoord>
+  <width>400</width>
+  <height>640</height>
+</initialPosition>
+<colour>
+  <red>22</red>
+  <green>32</green>
+  <blue>22</blue>
+  <alpha>255</alpha>
+</colour>
+<hasFrame>1</hasFrame>
+<zorder>1</zorder>
+</graphics>

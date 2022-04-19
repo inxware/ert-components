@@ -1,0 +1,124 @@
+#V:2.0.0
+#B:3
+#D:Y2012M7d18h22m57s55
+#N:8 input tests
+1
+1	100000	90000
+BEGIN string_format8 0
+%s%s%s%s%s%s%s%s 
+run	1	1	1	9 S 1 S 2 S 3 S 4 S 5 S 6 S 7 S 8 S 9 	1 S 10 	1 2 
+END
+BEGIN Constant_String1 0
+Test1 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN Constant_String1 0
+Test2 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN Constant_String1 0
+Test3 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN Constant_String1 0
+Test4 
+Run_ConstantString	1	1	-1	0 	1 S 4 	0 
+END
+BEGIN Constant_String1 0
+Test8 
+Run_ConstantString	1	1	-1	0 	1 S 8 	0 
+END
+BEGIN Constant_String1 0
+Test6 
+Run_ConstantString	1	1	-1	0 	1 S 6 	0 
+END
+BEGIN Constant_String1 0
+Test5 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN Constant_String1 0
+Test7 
+Run_ConstantString	1	1	-1	0 	1 S 7 	0 
+END
+BEGIN gui_text_string2 0
+%%%_TestAllInoutFormat g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 10 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+Do1=[%s],Do2=[%s],Do3=[%s],Do4=[%s],Do5=[%s],Do6=[%s],Do7=[%s],Do8=[%s] 
+Run_ConstantString	1	1	-1	0 	1 S 9 	0 
+END
+BEGIN string_format8 0
+Do1=[%s],Do2=[%s],Do3=[%s],Do4=[%s],Do5=[%s],Do6=[%s],Do7=[%s],Do8=[%s] 
+run	1	1	1	9 S 11 S 12 S 13 S 14 S 15 S 16 S 17 S 18 S -1 	1 S 19 	1 3 
+END
+BEGIN Constant_String1 0
+Test1 
+Run_ConstantString	1	1	-1	0 	1 S 11 	0 
+END
+BEGIN Constant_String1 0
+Test2 
+Run_ConstantString	1	1	-1	0 	1 S 12 	0 
+END
+BEGIN Constant_String1 0
+Test3 
+Run_ConstantString	1	1	-1	0 	1 S 13 	0 
+END
+BEGIN Constant_String1 0
+Test4 
+Run_ConstantString	1	1	-1	0 	1 S 14 	0 
+END
+BEGIN Constant_String1 0
+Test8 
+Run_ConstantString	1	1	-1	0 	1 S 18 	0 
+END
+BEGIN Constant_String1 0
+Test6 
+Run_ConstantString	1	1	-1	0 	1 S 16 	0 
+END
+BEGIN Constant_String1 0
+Test5 
+Run_ConstantString	1	1	-1	0 	1 S 15 	0 
+END
+BEGIN Constant_String1 0
+Test7 
+Run_ConstantString	1	1	-1	0 	1 S 17 	0 
+END
+BEGIN gui_text_string2 0
+%%%_TestAllParameterFormat g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	6 I -1 I -1 I -1 I -1 I -1 S 19 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN string_format8 0
+%s%s%s%s%s%s%s%s 
+run	1	1	1	9 S 20 S 21 S 22 S -1 S -1 S -1 S -1 S -1 S 23 	1 S 24 	1 4 
+END
+BEGIN Constant_String1 0
+Test1 
+Run_ConstantString	1	1	-1	0 	1 S 20 	0 
+END
+BEGIN Constant_String1 0
+Test2 
+Run_ConstantString	1	1	-1	0 	1 S 21 	0 
+END
+BEGIN Constant_String1 0
+Test3 
+Run_ConstantString	1	1	-1	0 	1 S 22 	0 
+END
+BEGIN gui_text_string2 0
+%%%_PartialConnectsAndLess%s g0000000.gui 0 0 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	3 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	4	6 I -1 I -1 I -1 I -1 I -1 S 24 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1 0
+Do1=[%s],Do2=[%s],Do3=[%s],Do4=[%s],Do5=[%s],Do6=[%s], 
+Run_ConstantString	1	1	-1	0 	1 S 23 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

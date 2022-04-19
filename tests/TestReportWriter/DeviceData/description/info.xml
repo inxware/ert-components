@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Name>TestReportWriter</Name>
+  <CommercialName>TestReportWriter</CommercialName>
+  <Version>1.0</Version>
+  <Description>Writes out JSON test report to file.</Description>
+</root>

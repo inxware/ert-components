@@ -1,0 +1,73 @@
+#V:2.0.0
+#B:47
+#D:Y2011M11d9h14m46s6
+#N:appinfo
+1
+1	100000	90000
+BEGIN gui_text_string2
+%%%_AppName g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_date g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_minEHS g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_Dependencies g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_ProcGroup g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	2	6 I -1 I -1 I -1 I -1 I -1 S 5 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_buildNo g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	6 I -1 I -1 I -1 I -1 I -1 I 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_widget6 g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 5 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	4	6 I -1 I -1 I -1 I -1 I -1 S 6 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN AppInfo
+ 
+getinfo	1	1	1	1 S -1 	7 S -1 I -1 S 2 S 3 S 4 S 5 S 1 	1 2 
+END
+BEGIN AppGet
+www.inx-systems.com/cgi-bin/ 
+listremote	1	1	1	2 S -1 S -1 	2 S -1 S -1 	2 -1 -1 
+END
+BEGIN FileSystemDirList1
+NULL 1 0 
+set	1	1	1	1 S 7 	0 	2 6 -1 
+get	1	1	5	0 	1 S 6 	3 4 -1 -1 
+END
+BEGIN Constant_String1
+../userdata/stuff 
+Run_ConstantString	1	1	-1	0 	1 S 7 	0 
+END
+BEGIN EventCounter
+*
+Count	1	1	6	0 	1 I 1 	1 3 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

@@ -1,0 +1,9 @@
+monitor semihosting disable
+monitor reset
+load ./ehs.exe
+#load ./target/os-arch/nxp_arm/heatrod_controller/Debug/frdmk64f_lwip_httpsrv_freertos.axf
+monitor reset
+#monitor semihosting enable
+#mon semihosting IOClient 2
+#c
+quit

@@ -1,0 +1,102 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+ICalc
+</h1>
+<!--General Description-->
+<p class=component>
+This component allows a mathematical expression to be entered in the Expression parameter, and performs an operation on the data input <a href="#[In]A">[In]A</a> and presents the result to the data output.
+</p>
+<p class=component>
+The integer operations that are supported are as follows: <i>+, -, *, /, %, ^, abs(x), square(x), min(x,y), max(x,y), sin(&#945;,&#920;), cos(&#945;,&#920;)</i> where <i>&#945;</i> is a multiplier applied to the result and <i>&#920;</i> is the angle. The data inputs <i>A</i> can be substituted for <i>x,y,&#945;</i> or <i>&#920;</i>, for example <i>(A*A)/square(A)</i>.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=portsInt>
+[In]
+A:
+<a name="[In]A">
+</h6>
+<p class=ports>Data input.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+:
+<a name="[Out]">
+</h6>
+<p class=ports>Data output, the result of the calculation.</p>
+  </li><li>
+<h6 class=ports>
+[In]
+:
+<a name="[In]">
+</h6>
+<p class=ports>Input event, performs the calculation specified by the Expression parameter on the data inputs.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+:
+<a name="[Out]">
+</h6>
+<p class=ports>Output event.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]A">[In]A</a>, <a href="#[In]B">[In]B</a>, <a href="#[In]C">[In]C</a>, <a href="#[In]D">[In]D</a>, <a href="#[In]E">[In]E</a>, <a href="#[In]F">[In]F</a>, <a href="#[In]G">[In]G</a>, <a href="#[In]H">[In]H</a>, <a href="#[Out]">[Out]</a>, <a href="#[In]">[In]</a>, <a href="#[Out]">[Out]</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<ul class=noBullet><li>
+<h6 class=parameters>
+Expression:
+</h6>
+<p class=parameters>
+The expression to calculate.
+<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
+S,
+</p><h6 class=parameters>Min Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Max Value: </h6><p class=parameters>
+None,
+</p><h6 class=parameters>Default Value: </h6><p class=parameters>
+None
+</p>
+</li></ul>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>

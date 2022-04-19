@@ -1,0 +1,106 @@
+/** @file targetos_init.c
+ * Initialization/reset/termination code for the OS
+ *
+ * @author: inx limited
+ * @version: $Revision: 1242 $
+ * @date: $Date$
+ *
+ * Copyright (c) inx limited, 2008. All rights reserved.
+ */
+
+/**
+ * @page Verification Verification report
+ * @section hal_graphics_font
+ * @anchor hal_graphics_font
+ * @subsection misra MISRA compliance:
+ * test.c demonstrated MISRA compliant on
+ * Last modified on $Date:$
+ *
+ * This file contained no derogations to the MISRA standard.
+ */
+
+/*****************************************************************************/
+/* Included files */
+#define EHS_TARGET_CODE /* Ensure header files include target-internal values */
+#include "targetvideo_init.h"
+#include "blockref_table.h"
+#include "hal_viewport.h"
+
+/*****************************************************************************/
+/* Declare macros and local typedefs used by this file */
+
+/*****************************************************************************/
+/* Declare prototypes of local functions */
+
+/*****************************************************************************/
+/* Variables defined with file-scope */
+
+/*****************************************************************************/
+/* Variables defined with global-scope */
+
+EhsBlockRefType EhsBlockRefTable_Dtv[];
+
+
+/*****************************************************************************/
+/* Function definitions */
+
+/**
+ * Perform necessary Operating system setup upon system initialisation
+ */
+void EhsTVideoSys_init(void)
+{
+ //PPP://
+	/*
+	if  (!EhsTV_initVlc()) {
+		exit(1);
+	}
+*/
+}
+
+void EhsTV_ReInitVideo(const EhsGraphicsRectangleClass*  pBounds) {
+//@todo: does nothing here yet
+
+}
+
+
+void EhsTV_hideVideoPort()
+{
+//	gdk_window_hide(vlcWindow);
+}
+
+void EhsTV_showVideoPort()
+{
+//	gdk_window_show(vlcWindow);
+}
+
+
+
+/**
+ * Called to shutdown the target prior to shutting down EHS
+ */
+void EhsTVideoSys_term(void)
+{
+}
+
+/**
+ * Perform setup before loading in a new application
+ */
+void EhsTVideoApp_init(void)
+{
+}
+
+/**
+ * Called to clean up after the execution of an application in order to make
+ * sure everything has been stopped.
+ */
+void EhsTVideoApp_term(void)
+{
+}
+
+
+/**
+ * Perform necessary target setup per application execution
+ */
+void EhsTVideoApp_reset(void)
+{
+}

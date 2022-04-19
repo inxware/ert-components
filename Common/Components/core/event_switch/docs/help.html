@@ -1,0 +1,147 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+
+<!--Name of Component-->
+<h1 class=component>
+IndexedDemultiplexer_Event
+</h1>
+<!--General Description-->
+<p class=component>
+This component is used to fire an event corresponding to the index of the integer data input <a href="#[In]Ind">[In]Ind</a>. When the input event <a href="#[In]Go">[In]Go</a> is triggered, either the output event is fired that corrsponds to the index of <a href="#[In]Ind">[In]Ind</a>, or if the index of <a href="#[In]Ind">[In]Ind</a> exceeds the number of event outputs, then the overflow event <a href="#[Out]Overflow">[Out]Overflow</a> is fired and the value of the output <a href="#[Out]Offset">[Out]Offset</a> is set to the value of the input <a href="#[In]Ind">[In]Ind</a> minus the number of event outputs. The overflow event <a href="#[Out]Overflow">[Out]Overflow</a> is used to cascade components of this type by passing the overflow event <a href="#[Out]Overflow">[Out]Overflow</a> and the data output <a href="#[Out]Offset">[Out]Offset</a> to the input of the next component in the cascade.
+</p>
+<!--Ports - form - short desc: long desc-->
+<h3 class=ports>Ports</h3>
+<ul class=noBullet><li>
+<h6 class=ports>
+[In]
+Go:
+<a name="[In]Go">
+</h6>
+<p class=ports>Event input, triggers the output event corresponding to the value of input <a href="#[In]Ind">[In]Ind</a>.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+--:
+<a name="[Out]--">
+</h6>
+<p class=ports>Event output, triggered when the input event <a href="#[In]Go">[In]Go</a> is triggered.</p>
+  </li><li>
+<h6 class=portsInt>
+[In]
+Ind:
+<a name="[In]Ind">
+</h6>
+<p class=ports>Data input, index of the event to be fired.</p>
+  </li><li>
+<h6 class=portsInt>
+[Out]
+Offset:
+<a name="[Out]Offset">
+</h6>
+<p class=ports>Data output, value of the index minus the number of event outputs.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+1:
+<a name="[Out]1">
+</h6>
+<p class=ports>Event output 1.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+2:
+<a name="[Out]2">
+</h6>
+<p class=ports>Event output 2.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+3:
+<a name="[Out]3">
+</h6>
+<p class=ports>Event output 3.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+4:
+<a name="[Out]4">
+</h6>
+<p class=ports>Event output 4.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+5:
+<a name="[Out]5">
+</h6>
+<p class=ports>Event output 5.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+6:
+<a name="[Out]6">
+</h6>
+<p class=ports>Event output 6.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+7:
+<a name="[Out]7">
+</h6>
+<p class=ports>Event output 7.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+8:
+<a name="[Out]8">
+</h6>
+<p class=ports>Event output 8.</p>
+  </li><li>
+<h6 class=ports>
+[Out]
+Overflow:
+<a name="[Out]Overflow">
+</h6>
+<p class=ports>Event output, fired if the index of <a href="#[In]Ind">[In]Ind</a> exceeds the number of event outputs.</p>
+</li></ul>
+<p>
+<!--
+EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]Go">[In]Go</a>, <a href="#[In]">[In]</a>, <a href="#[In]Ind">[In]Ind</a>, <a href="#[Out]Offset">[Out]Offset</a>, <a href="#[Out]1">[Out]1</a>, <a href="#[Out]2">[Out]2</a>, <a href="#[Out]3">[Out]3</a>, <a href="#[Out]4">[Out]4</a>, <a href="#[Out]5">[Out]5</a>, <a href="#[Out]6">[Out]6</a>, <a href="#[Out]7">[Out]7</a>, <a href="#[Out]8">[Out]8</a>, <a href="#[Out]Overflow">[Out]Overflow</a>,
+-->
+</p>
+<!--Parameters - form - short desc: long desc-->
+<h3 class=parameters>Parameters</h3>
+<p class=parameters>None.</p>
+<!--State Machine - form - image - example-->
+<h3 class=stateMachine>State Machine</h3>
+<p class=stateMachine>Stateless.</p>
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<h3 class=profiles>Profiles</h3>
+<p class=profiles>All.</p>
+<!--Toolbox-->
+<h3 class=toolbox>Toolbox</h3>
+<p class=toolbox>Core.</p>
+<!--Version-->
+<h3 class=version>Version</h3>
+<p class=version>v2.1.</p>
+<!--Dependencies - form - list-->
+<h3 class=dependencies>Native Dependencies</h3>
+<ul class=dependencies><li class=dependencies>
+<h6 class=dependencies>TDK1.1: </h6>
+<p class=dependencies></p>
+</li></ul>
+<!--Licence Type-->
+<h3 class=licenceType>Licence Type</h3>
+<p class=licenceType>LGPL.</p>
+<!--Component Supplier-->
+<h3 class=supplier>Component Supplier</h3>
+<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
+</body></html>
