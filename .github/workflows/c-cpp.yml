@@ -12,15 +12,13 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
+    - name: wipe
+      run: rm -Rf
     - uses: actions/checkout@v3
-    - name: configure
-      run: ./configure linux_x86_gtk_gst
-      
-    - name: checkout ert components
-      uses: actions/checkout@v3
       with:
-        path: ert-components2
-        
+        path: ert-components
+    - name: configure 
+      run: ./configure linux_x86_gtk_gst
     - name: Checkout tools repo
       uses: actions/checkout@v3
       with:
@@ -28,7 +26,6 @@ jobs:
         path: ert-build-support
         ref: refs/heads/main
         lfs: true
-        
     - name: Checkout contrib middleware repo
       uses: actions/checkout@v3
       with:
@@ -36,12 +33,11 @@ jobs:
         path: ert-contrib-middleware
         ref: refs/heads/main
         lfs: true
-        
     - name: checkfs
-      run: tree -L 2 ../
+      run: cd ert-components && tree -L 2 ../
     - name: make
       run: make -j 8
-    - name: make check
+    - name: make targetenv
       run: make targetenv
     - name: make distcheck
       run: make targetenv_deb
