@@ -16,7 +16,7 @@ jobs:
       with:
         path: ert-components
     - name: configure 
-    - run: |
+      run: |
          cd ../ert-components 
          pwd 
          tree -L 2 ../ 
