@@ -16,10 +16,9 @@ jobs:
       with:
         path: ert-components
     - name: configure 
-      run: |
-         cd ../ert-components 
-         pwd 
-         tree -L 2 ../ 
+      run: | 
+         ls 
+         tree -L 4 ../ 
          ./configure linux_x86_gtk_gst
     - name: Checkout tools repo
       uses: actions/checkout@v3
