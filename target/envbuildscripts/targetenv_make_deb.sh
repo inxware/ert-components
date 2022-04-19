@@ -119,7 +119,6 @@ if [ "${SYSTEM_VARIANT}" == "ambifier2" -o "${SYSTEM_VARIANT}" == "ambifier-deb1
   echo "Architecture: amd64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 else
 echo "SYSTEM_VARIANT=$SYSTEM_VARIANT"
-exit 5
   echo "Architecture: i386" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 #echo "Depends: " >> ./debian/DEBIAN/control
   if [ "${SYSTEM_VARIANT}" == "ambifier" -o "${SYSTEM_VARIANT}" == "ambifier-debug" ]; then
