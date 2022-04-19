@@ -15,15 +15,22 @@ jobs:
     - uses: actions/checkout@v3
     - name: configure
       run: ./configure linux_x86_gtk_gst
-    - uses: actions/checkout@master
-       with:
-          name: inxware/ert-build-support
-          #ref: refs/heads/release
-          lfs: true
-     uses: actions/checkout@master
-       with:
-          name: inxware/ert-contrib-middleware
-          lfs: true
+   - name: checkout ert components
+     uses: actions/checkout@v3
+     with:
+       path: ert-components
+   - name: Checkout tools repo
+     uses: actions/checkout@v3
+     with:
+        repository: inxware/ert-build-support
+        path: ert-build-support
+        lfs: true
+   - name: Checkout contrib middleware repo
+     uses: actions/checkout@v3
+     with:
+        repository: inxware/ert-contrib-middleware
+        path: ert-contrib-middleware
+        lfs: true
     - name: make
       run: make -j 8
     - name: make check
