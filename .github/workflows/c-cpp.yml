@@ -42,7 +42,7 @@ jobs:
       run: |
            cd ert-components
            make targetenv
-#    - name: make distcheck
-#      run: |
-#           cd ert-components
-#           make targetenv_deb
+    - name: make distcheck
+      run: |
+           cd ert-components
+           make targetenv_deb
