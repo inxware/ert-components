@@ -29,18 +29,20 @@ jobs:
         path: ert-contrib-middleware
         ref: refs/heads/main
         lfs: true
-    - name: checkfs
-      run: |
-         cd ert-components
-         tree -L 2 ../
     - name: configure 
       run: | 
-         ls 
-         tree -L 4 ../ 
+         cd ert-components 
+         tree -L 4 ../
          ./configure linux_x86_gtk_gst
     - name: make
-      run: make -j 8
+      run: |
+          cd ert-components
+          make -j 8
     - name: make targetenv
-      run: make targetenv
+      run: |
+           cd ert-components
+           make targetenv
     - name: make distcheck
-      run: make targetenv_deb
+      run: |
+           cd ert-components
+           make targetenv_deb
