@@ -15,10 +15,12 @@ jobs:
     - uses: actions/checkout@v3
     - name: configure
       run: ./configure linux_x86_gtk_gst
+      
     - name: checkout ert components
       uses: actions/checkout@v3
       with:
         path: ert-components
+        
     - name: Checkout tools repo
       uses: actions/checkout@v3
       with:
@@ -26,6 +28,7 @@ jobs:
         path: ert-build-support
         ref: refs/heads/main
         lfs: true
+        
     - name: Checkout contrib middleware repo
       uses: actions/checkout@v3
       with:
@@ -33,6 +36,7 @@ jobs:
         path: ert-contrib-middleware
         ref: refs/heads/main
         lfs: true
+        
     - name: checkfs
       run: tree -L 2 ../
     - name: make
