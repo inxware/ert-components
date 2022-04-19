@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - name: wipe
-      run: rm -Rf
     - uses: actions/checkout@v3
       with:
         path: ert-components
@@ -38,7 +36,9 @@ jobs:
         ref: refs/heads/main
         lfs: true
     - name: checkfs
-      run: cd ert-components && tree -L 2 ../
+      run: |
+         cd ert-components
+         tree -L 2 ../
     - name: make
       run: make -j 8
     - name: make targetenv
