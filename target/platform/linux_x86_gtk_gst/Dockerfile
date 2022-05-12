@@ -16,10 +16,10 @@ RUN mkdir -m 700 /root/.ssh; \
 
 RUN echo "cloning to build support repos"
 RUN git clone https://github.com/inxware/ert-build-support.git
-
+RUN echo "build support successfully done"
 RUN echo "cloning to build contrib middleware"
-RUN git clone git@github.com:inxware/ert-contrib-middleware.git
-
+RUN git clone https://github.com/inxware/ert-contrib-middleware.git
+RUN echo "middleware contri successfully done"
 RUN git clone git@github.com:inxware/ert-components.git
 RUN cd ert-components
 COPY configure /configure
