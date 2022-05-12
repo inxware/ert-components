@@ -28,16 +28,16 @@ RUN apt-get -y install openssh-client && apt-get install -y make && apt-get -y i
 #RUN ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 RUN echo "cloning to build support repos"
-RUN git clone https://github.com/inxware/ert-build-support.git
+RUN git clone git@github.com:inxware/ert-build-support.git
 WORKDIR "/ert-build-support"
-RUN git lfs pull
+RUN git config lfs. pull
 RUN echo "build support successfully done"
 RUN echo "cloning to build contrib middleware"
-RUN git clone https://github.com/inxware/ert-contrib-middleware.git
+RUN git clone git@github.com:inxware/ert-contrib-middleware.git
 WORKDIR "/ert-contrib-middleware"
 RUN git lfs pull
 RUN echo "middleware contri successfully done"
-RUN git clone https://github.com/inxware/ert-components.git
+RUN git clone git@github.com:inxware/ert-components.git
 RUN echo "ert components successfully done"
 
 WORKDIR "/ert-components"
