@@ -7,8 +7,10 @@ RUN apt-get install -y git
 #RUN mkdir -m 700 /root/.ssh; \
 #  touch -m 600 /root/.ssh/known_hosts; \
 #  ssh-keyscan github.com > /root/.ssh/known_hosts
+
+RUN ssh-keygen -q -t rsa -N '' -f /keys/id_rsa
 RUN mkdir -p /root/.ssh
-ADD id_rsa /root/.ssh/id_rsa
+ADD /keys/id_rsa /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
