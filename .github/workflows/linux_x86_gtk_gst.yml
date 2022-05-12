@@ -13,9 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        path: ert-components
-        run: | 
-          echo "debug: check working okay"
-          docker build /target/platform/linux_x86_gtk_gst/ --tag x86_gtk_gst_image
-          docker run x86_gtk_gst_image
+    - name: "running into docker"
+      run: | 
+        echo "debug: check working okay"
+        docker build /target/platform/linux_x86_gtk_gst/ --tag x86_gtk_gst_image
+        docker run x86_gtk_gst_image
