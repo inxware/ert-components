@@ -1,0 +1,48 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: ert-components
+    - name: Checkout tools repo
+      uses: actions/checkout@v3
+      with:
+        repository: inxware/ert-build-support
+        path: ert-build-support
+        ref: refs/heads/main
+        lfs: true
+    - name: Checkout contrib middleware repo
+      uses: actions/checkout@v3
+      with:
+        repository: inxware/ert-contrib-middleware
+        path: ert-contrib-middleware
+        ref: refs/heads/main
+        lfs: true
+    - name: configure 
+      run: | 
+         cd ert-components 
+         tree -L 4 ../
+         ./configure linux_x86
+    - name: make
+      run: |
+          cd ert-components
+          make -j 8
+    - name: make targetenv
+      run: |
+           cd ert-components
+           make targetenv
+    - name: make distcheck
+      run: |
+           cd ert-components
+           make targetenv_deb
