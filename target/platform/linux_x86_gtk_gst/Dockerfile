@@ -9,7 +9,7 @@ RUN apt-get -y install openssh-client && apt-get install -y make && apt-get -y i
 
 
 #now using public repo @pierre make it public for now
-#RUN chmod 666 /dev/tty
+RUN chmod 666 /dev/tty
 RUN mkdir -p /.ssh && chmod 700 /.ssh
 RUN ssh-keygen -q -t rsa -N '' -f /.ssh/id_rsa
 #COPY /root/.ssh/id_rsa > /root/.ssh/id_rsa
