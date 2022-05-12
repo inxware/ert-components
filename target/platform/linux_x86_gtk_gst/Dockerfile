@@ -37,6 +37,7 @@ RUN git lfs clone https://github.com/inxware/ert-contrib-middleware.git
 WORKDIR "/ert-contrib-middleware"
 RUN git lfs pull
 RUN echo "middleware contri successfully done"
+RUN ls -l
 RUN git lfs clone https://github.com/inxware/ert-components.git
 RUN echo "ert components successfully done"
 
