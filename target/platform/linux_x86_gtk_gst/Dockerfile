@@ -1,8 +1,19 @@
 From debian:9
-RUN git checkout inxware/ert-build-support
-RUN git checkout inxware/ert-contrib-middleware
+RUN echo "Successfully entered and fetched debian:9"
+RUN apt-get update
+RUN echo "installing git"
+RUN apt-get install -y git
+
+RUN echo "cloning to build support repos"
+RUN git clone git@github.com:inxware/ert-build-support.git
+
+RUN echo "cloning to build contrib middleware"
+RUN git clone git@github.com:inxware/ert-contrib-middleware.git
+
+RUN git clone git@github.com:inxware/ert-components.git
+RUN cd ert-components
 COPY configure /configure
-ENTRYPOINT [./configure] CMD[linux_x86_gts_gst]
+ENTRYPOINT ["./configure"] CMD["linux_x86_gts_gst"]
 RUN make
 RUN make targetenv
 RUN make targetenv_deb
