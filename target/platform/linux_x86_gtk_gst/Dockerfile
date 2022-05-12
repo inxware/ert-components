@@ -3,7 +3,7 @@ RUN echo "Successfully entered and fetched debian:9"
 RUN apt-get update
 RUN echo "installing git"
 RUN apt-get install -y git
-RUN apt-get -y install openssh-client && apt-get install -y make && sudo apt-get install git-lfs
+RUN apt-get -y install openssh-client && apt-get install -y make && apt-get -y install git-lfs
 
 
 #now using public repo @pierre make it public for now
