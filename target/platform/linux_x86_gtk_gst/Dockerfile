@@ -6,7 +6,7 @@ RUN apt-get install -y git
 RUN apt-get -y install openssh-client
 
 RUN mkdir -p /root/.ssh
-RUN ssh-keygen -q -t rsa -N '' -f /keys/id_rsa
+RUN ssh-keygen -q -t rsa -N '' -f /root/.ssh/iid_rsa
 RUN echo /keys/id_rsa > /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
 RUN touch /root/.ssh/known_hosts
