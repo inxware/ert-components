@@ -5,12 +5,15 @@ RUN echo "installing git"
 RUN apt-get install -y git
 RUN apt-get -y install openssh-client
 
-RUN mkdir -p /root/.ssh
-RUN ssh-keygen -q -t rsa -N '' -f /root/.ssh/iid_rsa
-COPY /keys/id_rsa > /root/.ssh/id_rsa
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
+RUN ssh-keygen -q -t rsa -N '' -f /root/.ssh/id_rsa
+#COPY /root/.ssh/id_rsa > /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
 RUN touch /root/.ssh/known_hosts
-RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+RUN ssh-keyscan -t rsa -H gitlab.com >> /root/.ssh/known_hosts
+#RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+
 
 #RUN ssh-keygen -q -t rsa -N '' -f /keys/id_rsa
 #RUN mkdir -p /root/.ssh
