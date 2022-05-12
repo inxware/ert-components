@@ -13,15 +13,7 @@ RUN touch /.ssh/known_hosts
 RUN ssh-keyscan -t rsa -H gitlab.com >> /.ssh/known_hosts
 #RUN ssh-keyscan github.com >> /.ssh/known_hosts
 
-
-
-#RUN ssh-keygen -q -t rsa -N '' -f /keys/id_rsa
-#RUN mkdir -p /root/.ssh
-#RUN cp keys/id_rsa /root/.ssh/id_rsa
-#RUN chmod 600 /root/.ssh/id_rsa
-#RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
-
-RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
+RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /.ssh/config
 RUN ssh -v git@github.com
 
 #RUN mkdir /root/.ssh/
