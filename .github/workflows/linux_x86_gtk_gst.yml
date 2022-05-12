@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  linux_x86_gtk_gst:
 
     runs-on: ubuntu-18.04
 
@@ -33,7 +33,7 @@ jobs:
       run: | 
          cd ert-components 
          tree -L 4 ../
-         ./configure linux_x86
+         ./configure linux_x86_gtk_gst
     - name: make
       run: |
           cd ert-components
