@@ -12,6 +12,8 @@ ARG SSH_PRIVATE_KEY SHA256:0slcqdYlkRQJZE062JaS9lb2NjK2eT8hTLYO1u4WKEk
 RUN mkdir -p /root/.ssh
 RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
+RUN touch /root/.ssh/known_hosts
+RUN ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
 
 #RUN ssh-keygen -q -t rsa -N '' -f /keys/id_rsa
 #RUN mkdir -p /root/.ssh
