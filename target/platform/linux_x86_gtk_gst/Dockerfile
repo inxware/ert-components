@@ -15,7 +15,7 @@ RUN mkdir -m 700 /root/.ssh; \
 #RUN ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 RUN echo "cloning to build support repos"
-RUN git clone git@github.com:inxware/ert-build-support.git
+RUN git clone https://github.com/inxware/ert-build-support.git
 
 RUN echo "cloning to build contrib middleware"
 RUN git clone git@github.com:inxware/ert-contrib-middleware.git
