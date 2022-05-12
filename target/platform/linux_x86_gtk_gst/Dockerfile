@@ -10,16 +10,16 @@ RUN apt-get -y install openssh-client && apt-get install -y make && apt-get -y i
 
 #now using public repo @pierre make it public for now
 #RUN chmod 666 /dev/tty
-#RUN mkdir -p /.ssh && chmod 700 /.ssh
-#RUN ssh-keygen -q -t rsa -N '' -f /.ssh/id_rsa
-##COPY /root/.ssh/id_rsa > /root/.ssh/id_rsa
-#RUN chmod 600 /.ssh/id_rsa
-#RUN touch /.ssh/known_hosts
-#RUN ssh-keyscan -t rsa -H gitlab.com >> /.ssh/known_hosts
-##RUN ssh-keyscan github.com >> /.ssh/known_hosts
-#RUN touch /.ssh/config && chmod 666 /.ssh/config
-#RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /.ssh/config
-#RUN ssh -v git@github.com
+RUN mkdir -p /.ssh && chmod 700 /.ssh
+RUN ssh-keygen -q -t rsa -N '' -f /.ssh/id_rsa
+#COPY /root/.ssh/id_rsa > /root/.ssh/id_rsa
+RUN chmod 600 /.ssh/id_rsa
+RUN touch /.ssh/known_hosts
+RUN ssh-keyscan -t rsa -H gitlab.com >> /.ssh/known_hosts
+#RUN ssh-keyscan github.com >> /.ssh/known_hosts
+RUN touch /.ssh/config && chmod 666 /.ssh/config
+RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /.ssh/config
+RUN ssh -v git@github.com
 
 #RUN mkdir /root/.ssh/
 #ARG SSH_PRIVATE_KEY
