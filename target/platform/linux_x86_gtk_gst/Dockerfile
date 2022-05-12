@@ -30,7 +30,7 @@ RUN apt-get -y install openssh-client && apt-get install -y make && apt-get -y i
 RUN echo "cloning to build support repos"
 RUN git lfs clone https://github.com/inxware/ert-build-support.git
 WORKDIR "/ert-build-support"
-RUN git config pull
+RUN git lfs pull
 RUN echo "build support successfully done"
 RUN echo "cloning to build contrib middleware"
 RUN git lfs clone https://github.com/inxware/ert-contrib-middleware.git
