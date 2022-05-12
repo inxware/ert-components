@@ -36,6 +36,8 @@ RUN echo "ert components successfully done"
 WORKDIR "/ert-components"
 RUN ls -l
 #COPY configure /configure
+ENV CC=gcc-11
+ENV CXX=g++-11
 ENTRYPOINT ["./configure"] CMD["linux_x86_gts_gst"]
 RUN make
 RUN make targetenv
