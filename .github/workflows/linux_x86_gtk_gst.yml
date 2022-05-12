@@ -15,5 +15,5 @@ jobs:
     - uses: actions/checkout@main
     - name: "running into docker"
       run: | 
-        docker build /target/platform/linux_x86_gtk_gst/Dockerfile --tag x86_gtk_gst_image
+        docker build - < /target/platform/linux_x86_gtk_gst/Dockerfile --tag x86_gtk_gst_image
         docker run x86_gtk_gst_image
