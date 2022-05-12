@@ -32,12 +32,17 @@ RUN git lfs clone https://github.com/inxware/ert-build-support.git
 WORKDIR "/ert-build-support"
 RUN git lfs pull
 RUN echo "build support successfully done"
+
+WORKDIR "/"
 RUN echo "cloning to build contrib middleware"
 RUN git lfs clone https://github.com/inxware/ert-contrib-middleware.git
 WORKDIR "/ert-contrib-middleware"
 RUN git lfs pull
 RUN echo "middleware contri successfully done"
 RUN ls -l
+
+WORKDIR "/"
+RUN echo "cloning to build ert-components"
 RUN git lfs clone https://github.com/inxware/ert-components.git
 RUN echo "ert components successfully done"
 
