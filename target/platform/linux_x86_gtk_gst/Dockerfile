@@ -3,6 +3,7 @@ RUN echo "Successfully entered and fetched debian:9"
 RUN apt-get update
 RUN echo "installing git"
 RUN apt-get install -y git
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
 RUN apt-get -y install openssh-client && apt-get install -y make && apt-get -y install git-lfs
 
 
