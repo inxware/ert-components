@@ -8,6 +8,8 @@ RUN mkdir -m 700 /root/.ssh; \
   touch -m 600 /root/.ssh/known_hosts; \
   ssh-keyscan github.com > /root/.ssh/known_hosts
 
+RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config 
+
 #RUN mkdir /root/.ssh/
 #ARG SSH_PRIVATE_KEY
 #RUN echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_ed25519
