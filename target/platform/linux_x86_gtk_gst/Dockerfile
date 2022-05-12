@@ -8,11 +8,16 @@ RUN apt-get install -y git
 #  touch -m 600 /root/.ssh/known_hosts; \
 #  ssh-keyscan github.com > /root/.ssh/known_hosts
 
-RUN ssh-keygen -q -t rsa -N '' -f /keys/id_rsa
+ARG SSH_PRIVATE_KEY SHA256:0slcqdYlkRQJZE062JaS9lb2NjK2eT8hTLYO1u4WKEk
 RUN mkdir -p /root/.ssh
-RUN cp keys/id_rsa /root/.ssh/id_rsa
+RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
-RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+#RUN ssh-keygen -q -t rsa -N '' -f /keys/id_rsa
+#RUN mkdir -p /root/.ssh
+#RUN cp keys/id_rsa /root/.ssh/id_rsa
+#RUN chmod 600 /root/.ssh/id_rsa
+#RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
 RUN ssh -v git@github.com
