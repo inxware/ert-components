@@ -13,7 +13,7 @@ RUN chmod 600 /.ssh/id_rsa
 RUN touch /.ssh/known_hosts
 RUN ssh-keyscan -t rsa -H gitlab.com >> /.ssh/known_hosts
 #RUN ssh-keyscan github.com >> /.ssh/known_hosts
-RUN chmod 666 /.ssh/config
+RUN touch /.ssh/config && chmod 666 /.ssh/config
 RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /.ssh/config
 RUN ssh -v git@github.com
 
