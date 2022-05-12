@@ -4,11 +4,16 @@ RUN apt-get update
 RUN echo "installing git"
 RUN apt-get install -y git
 
-RUN mkdir -m 700 /root/.ssh; \
-  touch -m 600 /root/.ssh/known_hosts; \
-  ssh-keyscan github.com > /root/.ssh/known_hosts
+#RUN mkdir -m 700 /root/.ssh; \
+#  touch -m 600 /root/.ssh/known_hosts; \
+#  ssh-keyscan github.com > /root/.ssh/known_hosts
+RUN mkdir -p /root/.ssh
+RUN cp /var/my-app/id_rsa /root/.ssh/id_rsa
+RUN chmod 600 /root/.ssh/id_rsa
+RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
-RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config 
+RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
+RUN ssh -v git@github.com
 
 #RUN mkdir /root/.ssh/
 #ARG SSH_PRIVATE_KEY
