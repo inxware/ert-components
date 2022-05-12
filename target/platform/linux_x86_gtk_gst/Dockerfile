@@ -4,11 +4,15 @@ RUN apt-get update
 RUN echo "installing git"
 RUN apt-get install -y git
 
-RUN mkdir /root/.ssh/
-ARG SSH_PRIVATE_KEY
-RUN echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_ed25519
-RUN chmod 600 ~/.ssh/id_ed25519
-RUN ssh-keyscan github.com >> ~/.ssh/known_hosts
+RUN mkdir -m 700 /root/.ssh; \
+  touch -m 600 /root/.ssh/known_hosts; \
+  ssh-keyscan github.com > /root/.ssh/known_hosts
+
+#RUN mkdir /root/.ssh/
+#ARG SSH_PRIVATE_KEY
+#RUN echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_ed25519
+#RUN chmod 600 ~/.ssh/id_ed25519
+#RUN ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 RUN echo "cloning to build support repos"
 RUN git clone git@github.com:inxware/ert-build-support.git
