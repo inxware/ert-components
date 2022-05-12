@@ -3,7 +3,7 @@ RUN echo "Successfully entered and fetched debian:9"
 RUN apt-get update
 RUN echo "installing git"
 RUN apt-get install -y git
-RUN apt-get -y install openssh-client
+RUN apt-get -y install openssh-client && apt-get install -y make
 
 
 #now using public repo @pierre make it public for now
