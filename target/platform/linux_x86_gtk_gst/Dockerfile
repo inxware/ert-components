@@ -33,8 +33,7 @@ RUN git clone https://github.com/inxware/ert-contrib-middleware.git
 RUN echo "middleware contri successfully done"
 RUN git clone https://github.com/inxware/ert-components.git
 RUN echo "ert components successfully done"
-RUN cd ert-components
-RUN ls -l
+WORKDIR "ert-components"
 COPY configure /configure
 ENTRYPOINT ["./configure"] CMD["linux_x86_gts_gst"]
 RUN make
