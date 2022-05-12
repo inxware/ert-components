@@ -10,7 +10,7 @@ RUN apt-get install -y git
 
 RUN ssh-keygen -q -t rsa -N '' -f /keys/id_rsa
 RUN mkdir -p /root/.ssh
-ADD /keys/id_rsa /root/.ssh/id_rsa
+RUN cp keys/id_rsa /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
