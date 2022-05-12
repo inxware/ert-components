@@ -20,7 +20,7 @@ RUN echo "build support successfully done"
 RUN echo "cloning to build contrib middleware"
 RUN git clone https://github.com/inxware/ert-contrib-middleware.git
 RUN echo "middleware contri successfully done"
-RUN git clone https://{zuhaibasgher}:{just4fun1}@github.com/{zuhaibasgher}/inxware/ert-components.git
+RUN git clone https://github.com/inxware/ert-components.git
 #https://{zuhaibasgher}:{just4fun1}@github.com/{zuhaibasgher}/project.git
 RUN echo "ert components successfully done"
 RUN cd ert-components
