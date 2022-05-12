@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: linux_x86_gtk_gst CI
 
 on:
   push:
@@ -15,34 +15,6 @@ jobs:
     - uses: actions/checkout@v3
       with:
         path: ert-components
-    - name: Checkout tools repo
-      uses: actions/checkout@v3
-      with:
-        repository: inxware/ert-build-support
-        path: ert-build-support
-        ref: refs/heads/main
-        lfs: true
-    - name: Checkout contrib middleware repo
-      uses: actions/checkout@v3
-      with:
-        repository: inxware/ert-contrib-middleware
-        path: ert-contrib-middleware
-        ref: refs/heads/main
-        lfs: true
-    - name: configure 
-      run: | 
-         cd ert-components 
-         tree -L 4 ../
-         ./configure linux_x86_gtk_gst
-    - name: make
-      run: |
-          cd ert-components
-          make -j 8
-    - name: make targetenv
-      run: |
-           cd ert-components
-           make targetenv
-    - name: make distcheck
-      run: |
-           cd ert-components
-           make targetenv_deb
+        run: | 
+          docker build /target/platform/linux_x86_gtk_gst/ --tag x86_gtk_gst_image
+          docker run x86_gtk_gst_image
