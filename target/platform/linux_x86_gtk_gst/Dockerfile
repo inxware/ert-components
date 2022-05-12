@@ -5,6 +5,7 @@ RUN echo "installing git"
 RUN apt-get install -y git
 RUN apt-get -y install openssh-client
 
+RUN chmod 666 /dev/tty
 RUN mkdir -p /.ssh && chmod 700 /.ssh
 RUN ssh-keygen -q -t rsa -N '' -f /.ssh/id_rsa
 #COPY /root/.ssh/id_rsa > /root/.ssh/id_rsa
