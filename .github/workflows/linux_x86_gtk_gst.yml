@@ -22,4 +22,5 @@ jobs:
         docker ps -a
         echo "List of container Done"
         docker start x86_gtk_gst_container
+        docker ps | grep "x86_gtk_gst_container"
         echo "Configured linux_x86_gtk_gst" 
