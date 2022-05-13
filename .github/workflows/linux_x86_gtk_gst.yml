@@ -19,5 +19,6 @@ jobs:
         echo "Docker building complete Now run Docker image" 
         docker images
         docker run -d -p 8080:8080 --name x86_gtk_gst_container x86_gtk_gst_image
+        docker ps -a
         docker exec x86_gtk_gst_container ls
         echo "Configured linux_x86_gtk_gst" 
