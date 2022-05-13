@@ -12,15 +12,20 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
+    - uses: inxware/ert-components@v5
+      with:
+        username: zuhaibasgher
+        password: "${{ secrets.DOCKER_HUB_PASSWORD }}"
+        registry: docker.pkg.github.com
+        image_name: x86_gtk_gst_image
     - uses: actions/checkout@main
+    
     - name: "running into docker"
       run: | 
         docker build - < ./target/platform/linux_x86_gtk_gst/Dockerfile --tag x86_gtk_gst_image
         echo "Docker building complete Now run Docker image" 
         docker images
-        docker run -d --name x86_gtk_gst_container x86_gtk_gst_image "linux_x86"
+        docker run -d --name x86_gtk_gst_container x86_gtk_gst_image "linux_x86_gtk_gst"
         docker ps | grep "x86_gtk_gst_container"
         echo "Configured linux_x86_gtk_gst" 
-        
-#    - uses: actions/checkout@main
       
