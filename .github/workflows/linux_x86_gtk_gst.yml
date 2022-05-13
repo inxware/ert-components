@@ -19,4 +19,5 @@ jobs:
         echo "Docker building complete Now run Docker image" 
         docker images
         docker container run x86_gtk_gst_image:latest
+        docker exec x86_gtk_gst_image ls
         echo "Configured linux_x86_gtk_gst" 
