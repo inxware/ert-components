@@ -32,7 +32,7 @@ WORKDIR inxware
 
 RUN echo "cloning to build support repos"
 RUN git lfs clone https://github.com/inxware/ert-build-support.git
-WORKDIR "/ert-build-support"
+WORKDIR "inxware/ert-build-support/"
 RUN git lfs pull
 RUN echo "build support successfully done"
 
