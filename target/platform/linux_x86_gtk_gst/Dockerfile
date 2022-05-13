@@ -51,7 +51,7 @@ RUN apt-get -y install openssh-client && apt-get install -y make && apt-get -y i
 ##COPY configure /configure
 ENV CC=gcc-11
 ENV CXX=g++-11
-ENTRYPOINT ["./configure"] #CMD["linux_x86_gts_gst"]
+ENTRYPOINT  ['/bin/bash'] #["./configure"] #CMD["linux_x86_gts_gst"]
 #RUN make
 #RUN make targetenv
 #RUN make targetenv_deb
