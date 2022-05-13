@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - uses: inxware/ert-components@main
+    - uses: actions/checkout@main
       with:
         username: zuhaibasgher
         password: "${{ secrets.DOCKER_HUB_PASSWORD }}"
