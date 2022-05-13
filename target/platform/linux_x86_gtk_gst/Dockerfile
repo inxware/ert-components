@@ -33,14 +33,14 @@ WORKDIR inxware
 RUN echo "cloning to build support repos"
 RUN git lfs clone https://github.com/inxware/ert-build-support.git
 WORKDIR "home/inxware/ert-build-support"
-#RUN git lfs pull
+RUN git lfs pull
 RUN echo "build support successfully done"
 
 WORKDIR "/home/inxware/"
 RUN echo "cloning to build contrib middleware"
 RUN git lfs clone https://github.com/inxware/ert-contrib-middleware.git
-#WORKDIR "/home/inxware/ert-contrib-middleware"
-#RUN git lfs pull
+WORKDIR "/home/inxware/ert-contrib-middleware"
+RUN git lfs pull
 RUN echo "middleware contri successfully done"
 RUN ls -l
 
