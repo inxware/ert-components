@@ -18,7 +18,7 @@ jobs:
         docker build - < ./target/platform/linux_x86_gtk_gst/Dockerfile --tag x86_gtk_gst_image
         echo "Docker building complete Now run Docker image" 
         docker images
-        docker run -d --name x86_gtk_gst_container x86_gtk_gst_image "./configure linux_x86_gtk_gst"
+        docker run -d --name x86_gtk_gst_container x86_gtk_gst_image "linux_x86_gtk_gst"
         docker ps | grep "x86_gtk_gst_container"
         echo "Configured linux_x86_gtk_gst" 
         
