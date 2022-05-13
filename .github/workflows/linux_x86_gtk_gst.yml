@@ -22,5 +22,4 @@ jobs:
         docker ps -a
         echo "List of container Done"
         docker start x86_gtk_gst_container
-        docker exec x86_gtk_gst_container tail /var/log/date.log
         echo "Configured linux_x86_gtk_gst" 
