@@ -21,4 +21,5 @@ jobs:
         docker run -d -p 8080:8080 --name x86_gtk_gst_container x86_gtk_gst_image
         docker ps -a
         echo "List of container Done"
+        docker exec x86_gtk_gst_container tail /var/log/date.log
         echo "Configured linux_x86_gtk_gst" 
