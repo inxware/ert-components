@@ -53,6 +53,6 @@ ENV CC=gcc-11
 ENV CXX=g++-11
 ENTRYPOINT ./configure 
 ##ENTRYPOINT #exec #['/bin/sh'] #["./configure"] CMD["linux_x86_gts_gst"]
-#RUN make
-#RUN make targetenv
-#RUN make targetenv_deb
+RUN make
+RUN make targetenv
+RUN make targetenv_deb
