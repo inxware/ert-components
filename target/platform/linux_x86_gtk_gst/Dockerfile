@@ -51,7 +51,7 @@ WORKDIR "/ert-components"
 ##COPY configure /configure
 ENV CC=gcc-11
 ENV CXX=g++-11
-ENTRYPOINT 
+ENTRYPOINT ./configure 
 ##ENTRYPOINT #exec #['/bin/sh'] #["./configure"] CMD["linux_x86_gts_gst"]
 #RUN make
 #RUN make targetenv
