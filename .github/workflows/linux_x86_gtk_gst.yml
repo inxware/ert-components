@@ -18,5 +18,5 @@ jobs:
         docker build - < ./target/platform/linux_x86_gtk_gst/Dockerfile --tag x86_gtk_gst_image
         echo "Docker building complete Now run Docker image" 
         docker images
-        docker container run --entrypoint x86_gtk_gst_image:latest "./configure linux_x86_gtk_gst"
+        docker container run x86_gtk_gst_image:latest "./configure linux_x86_gtk_gst"
         echo "Configured linux_x86_gtk_gst" 
