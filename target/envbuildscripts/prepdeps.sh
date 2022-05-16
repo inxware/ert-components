@@ -80,7 +80,7 @@ else
 	#svn co $EHS_CORE_SUPPORT_SERVER_PATH $EHS_CORE_SUPPORT_LOCAL_PATH
 fi
 
-echo "Retrieving component support support build directory for $EHS_OS_$ARCH"
+echo "Retrieving component support support build directory for $(EHS_GNU_OS_ARCH)$"
 if [ -e $EHS_COMPONENT_SUPPORT_LOCAL_PATH ]; then 
 	echo updating ert-contrib-middleware library repository to $EHS_COMPONENT_SUPPORT_LOCAL_PATH
 	pushd $EHS_COMPONENT_SUPPORT_LOCAL_PATH
@@ -162,12 +162,11 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     if ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}  &> /dev/null ; then
         echo "Using existing Docker image "
         echo "Current PWD = "$(pwd)
-        ${SUDO_COMMAND} docker run --rm --privileged -it \
+        ${SUDO_COMMAND} docker run --user $(id -u):$(id -g) --rm  --privileged -it \
              -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             sh -c "pwd &&  make -j 8 && make targetenv"
         #sh -c "pwd && ls -al && ls -al ../"
-        #docker run -a -it DOCKER_IMAGE --mount -t bind inxware "../" cd inxware/ert-components && make -j 8  
     else 
        echo "Trying to build the dockerfile"
         #Try and build the image
@@ -189,7 +188,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
             ${SUDO_COMMAND} docker build  -f ${PATH_TO_TARGET_DOCKERFILE} -t  ${DOCKER_IMAGE}  .
           
              echo "Current PWD = "$(pwd)
-            ${SUDO_COMMAND} docker run --rm --privileged -it \
+            ${SUDO_COMMAND} docker run --user $(id -u):$(id -g) --rm --privileged -it \
              -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             sh -c "pwd &&  make -j 8 && make targetenv"
