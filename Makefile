@@ -1,15 +1,13 @@
 #
-#
-#
-# Makefile for EHS
+# Makefile for ert-components
 #
 #
 
-# @author: inx limited, Pierre Drezet
+# @author: inx limited
 # @version: $Revision: 5639 $
 # @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
 # 
-# Copyright (c) inx Ltd, 2007. All rights reserved.
+# Copyright (c) inx Ltd, 2022. All rights reserved.
 #
 # Overrides from command line:
 # TARGET - specify a different target
@@ -79,25 +77,6 @@ VPATH+=./
 
 #Get OS specfic HAL code
 include $(EHS_PLATFORM_PATH)/../platform.mk
-
-#
-# add required object files to OBJECTS
-#
-#Core EHS
-ifndef EXCLUDE_EHS_COMMON
-
-include $(EHS_COMMON_EHS_PATH)/ehs.mk
-ifdef EHS_BUILD_MONOLITHIC_KERNEL
-include $(EHS_COMMON_KERNEL_PATH)/kernel.mk
-endif
-include $(EHS_COMMON_HAL_PATH)/HAL.mk
-
-#Configure the Components Code used
-#build the common Layer (The common components.mk file will conditionally compile depending on Component Options
-include $(EHS_COMMON_COMPONENTS_PATH)/components.mk
-#All target stuff is done from the platform.mk file (indirectly) relative target specific layer
-
-endif
 
 .PHONY: chkconfig
 .PHONY: help

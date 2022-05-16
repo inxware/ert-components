@@ -220,6 +220,7 @@ size_t size[2];
 	  curl_easy_cleanup(ObjData->curl);
 	  EhsHMem_permFree(ObjData);
   }
+  return 0;
 }
 
 #define UNWISE_MAX(a, b) ((a) < (b) ? (b) : (a))
@@ -256,7 +257,7 @@ EhsThreadFuncReturnType HAL_AppGetRead_data(void *XObjData)
 #endif
 	/* Add any ssl certificates */
 	//EhsHSetUpClientTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, NULL /* combined in PEM */, NULL);
-#warning "put the above ack in"
+	//TODO put the above back in
 	EhsHSetUpCaTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CA_CERTIFICATE);
 
 	EhsHSetUpServerSecurity(ObjData->curl,&ObjData->server_info);

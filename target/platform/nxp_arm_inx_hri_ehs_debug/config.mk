@@ -18,7 +18,7 @@
 ################################################################################################################
 
 # SYSTEM_VARIANT is primarilly for conditional compilation for very specific features
-export SYSTEM_VARIANT=nxp_arm
+export SYSTEM_VARIANT=nxp-arm
 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
 export COMPONENT_VARIANT=
@@ -40,12 +40,13 @@ export EHS_SKIP_GNULIBRARIES=1
 export EHS_COMMS_TASK=tcp_server_common
 export EHS_COMMS_API_SUPPORT=lwip
 
-export TOOLCHAIN_NAME=nxp-arm
+#export TOOLCHAIN_NAME=nxp-arm
 export CC_OVERRIDE=arm-none-eabi-gcc
-export EHS_CLIB_OVERRIDE_PATH=nxp-arm
+#export EHS_CLIB_OVERRIDE_PATH=nxp-arm
 export EHS_PERIPHERAL_DEVICE_SUPPORT=all
 export EHS_PERIPHERALS_GPIO=yes
 #DEFS += EHS_COMMS_API_SUPPORT=lwip
+#todo2022 - none of theb following should be necessary: 
 DEFS += EHS_LWIP
 DEFS += EHS_DEBUG_TCPIP_CONSOLE
 DEFS += EHS_COMMS_TASK=tcp_server_common

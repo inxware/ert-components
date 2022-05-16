@@ -17,11 +17,6 @@
 /**
  * Defines the default target identifier for this instance of EHS
  */
-#ifndef EHS_TARGET_DEFAULT_ID
-#define EHS_TARGET_DEFAULT_ID "(base/device)"
-#endif
-/* #define EHS_TARGET_EVENT_MODEL */ /**< defined if an external event/interrupt drives the main EHS loop */
-/* #define EHS_RTA_TRACE_SUPPORT *//**< Defined if RTA-TRACE is supported by the target */
 
 //@todo all macros should be assigned values so that the override works
 #ifndef EHS_TARGET_FP_SUPPORT
@@ -36,18 +31,10 @@
 #define EHS_MAX_FONTS 10 /**< Maximum number of fonts that can be held on this target at one time */
 #endif
 
-#ifndef EHS_CONFIG_MAX_THREADS
-#define EHS_CONFIG_MAX_THREADS 25 /**< Maximum number of threads the application supports @todo remove this parameter*/
-#endif
 
-#ifndef EHS_CONFIG_MEM_CHECK
-//#define EHS_CONFIG_MEM_CHECK	/**< Check for overrun of allocated memory. Takes additional time and memory */
-#endif
 
-#ifndef EHS_GROUP_PERIOD_MIN
-#define EHS_GROUP_PERIOD_MIN 70 /**< Defines the minimum group period (in system ticks) */
-#endif
 
+/* Warning! these must match the kernel values (until they can be published to the kernel */
 #ifdef EHS_TOOLKIT_DEPRECATED  //@todo careful that compiler doesn't calculate vales that are overriden
 #ifndef EHS_TOOLKIT_DEPRECATED_QTY
 #define EHS_TOOLKIT_DEPRECATED_QTY 1
@@ -78,15 +65,8 @@
 #ifndef EHS_FILE_BUFF_SIZE
 #define EHS_FILE_BUFF_SIZE 1024 /**< Size of buffers used to read/write to files */
 #endif
-/**
- * Defines how allocated memory is to be aligned.
- * 1 is byte aligned, 2 is word aligned, 4 is dword aligned
- */
-#ifndef EHS_TGT_MEMORY_ALLOC_ALIGN
-#define EHS_TGT_MEMORY_ALLOC_ALIGN 1
-#endif
-/**
- * Maximum event queue size. Due to implementation approach,
+
+/* Maximum event queue size. Due to implementation approach,
  * this *must* be a power of 2, and less than 2<<15. See EhsEventQueueType
  */
 #ifndef EHS_MAX_EVENT_QUEUE_SIZE
@@ -110,17 +90,6 @@
 
 #ifndef EHS_TIME_BETWEEN_FRAMES
 #define EHS_TIME_BETWEEN_FRAMES 40 /*Desired framerate of GTK window*/
-#endif
-
-
-//#ifndef EHS_CONFIG_MEM_CHECK
-//#define EHS_CONFIG_MEM_CHECK	/**< Check for overrun of allocated memory. Takes additional time and memory */
-//#endif
-
-
-
-#ifndef EHS_GROUP_PERIOD_MIN
-#define EHS_GROUP_PERIOD_MIN 70 /**< Defines the minimum group period (in system ticks) */
 #endif
 
 

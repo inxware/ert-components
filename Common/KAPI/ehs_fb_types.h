@@ -166,7 +166,11 @@ void Ehs_FB_ThreadComplete();
 /* non-public stuff */
 
 typedef struct {
+#ifndef EHRT1
 	const ehs_char szName[EHS_FUNCTION_SIZE]; /**< Function name */
+#else
+	const ehs_uint16 szName; /**< Function name */
+#endif
 	EhsRunFuncType fpRunFunc; /**< Pointer to the function corresponding to the name */
 } EhsFuncRefType;
 

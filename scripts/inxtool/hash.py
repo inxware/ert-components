@@ -4,8 +4,15 @@ def toEscHex(value):
     x=format(value, 'X')
     return re.sub('(..)', r'\\x\1', x)
 
+def toHex(value, exp_len):
+    x=format(value, 'X')
+    while len(x) < exp_len:
+        x = "0" + x
+    return x
+
 class Hash(object):
-    def __init__(self, value, usebin):
+    def __init__(self, hashtype, value, usebin):
+        self.hashtype = hashtype
         self.value=value
         self.usebin=usebin
         self.hash=self.calculate()
@@ -19,6 +26,14 @@ class Hash(object):
     def calculate(self):
         raise "Override this function!"
 
+    def getHashType(self):
+        return self.hashtype
+
+    def isInteger(self):
+        if self.hashtype != None and self.hashtype[0] == 'i':
+            return True
+        return False
+
 class Hash32CRC(Hash):
     def calculate(self):
         if self.value is not None:
@@ -26,16 +41,16 @@ class Hash32CRC(Hash):
             if self.usebin == True:
                 return toEscHex(crc32)
             else:
-                return format(crc32, 'X')
+                return toHex(crc32, 8)
         return None
 
 class Hash16CRC(Hash):
 
-    def __init__(self, value, usebin):
+    def __init__(self, hashtype, value, usebin):
         self.POLYNOMIAL = 0x1021
         self.PRESET = 0
         self._tab = [ self._initial(i) for i in range(256) ]
-        super().__init__(value, usebin)
+        super().__init__(hashtype, value, usebin)
 
     def _initial(self,c):
         crc = 0
@@ -76,17 +91,17 @@ class Hash16CRC(Hash):
             if self.usebin == True:
                 return toEscHex(crc16)
             else:
-                return format(crc16, 'X')
+                return toHex(crc16, 4)
         return None
 
 def HashFactory(value, type):
-    if type == "32CRC" or type == "32crc":
-        return Hash32CRC(value,False)
+    if type == "32CRC" or type == "32crc" or type == "i32CRC" or type == "i32crc":
+        return Hash32CRC(type, value,False)
     elif type == "b32CRC" or type == "b32crc":
-        return Hash32CRC(value,True)
-    elif type == "16CRC" or type == "16crc":
-        return Hash16CRC(value,False)
+        return Hash32CRC(type, value,True)
+    elif type == "16CRC" or type == "16crc" or type == "i16CRC" or type == "i16crc":
+        return Hash16CRC(type, value,False)
     elif type == "b16CRC" or type == "b16crc":
-        return Hash16CRC(value,True)
+        return Hash16CRC(type, value,True)
     # add other types
     return None

@@ -24,8 +24,9 @@
 #ifndef EHS_MESSAGES_H
 #define EHS_MESSAGES_H
 
-
+#ifdef  EHS_DEBUG_TCPIP_CONSOLE
 #include "hal_console.h"
+#endif
 #include "hal_logger.h"
 
 
@@ -115,9 +116,15 @@
 #define EHS_MSG_PARSER_PARAMS_MISSING "**Error: Parameters missing when parameter file was expected"
 #define EHS_MSG_PARSER_PARAMS_TAG_NOT_FOUND(x) "**Error: Parameter file didn't contain tag %s",x
 #define EHS_MSG_PARSER_PARAMS_TAG_MULTIPLE(x) "**Error: Parameter file contained multiple instances of tag %s",x
+#ifdef EHRT1
+    #define EHS_MSG_PARSER_BLOCK_NAME_INVALID(x) "**Error: Function block name %x not recognised",x
+    #define EHS_MSG_PARSER_BLOCK_VERS_INVALID(x,vers) "**Error: Function block name %x found but vers %d not recognised",x
+    #define EHS_MSG_PARSER_FUNCTION_NAME_INVALID(x,y) "**Error: Function name [%x] not recognised in [%x]",x,y
+#else //#if EHRT1
 #define EHS_MSG_PARSER_BLOCK_NAME_INVALID(x) "**Error: Function block name %s not recognised",x
 #define EHS_MSG_PARSER_BLOCK_VERS_INVALID(x,vers) "**Error: Function block name %s found but vers %d not recognised",x
-#define EHS_MSG_PARSER_FUNCTION_NAME_INVALID(x,y) "**Error: Function name [%s] not recognised in [%s]",x,y
+    #define EHS_MSG_PARSER_FUNCTION_NAME_INVALID(x,y) "**Error: Function name [%s] not recognised in [%x]",x,y
+#endif //#else #if EHRT1
 #define EHS_MSG_PARSER_ATOMIC_FLAG_MISSING "**Error: Atomic flag missing from function definition"
 #define EHS_MSG_PARSER_GROUPID_MISSING "**Error: Group ID missing from function definition"
 #define EHS_MSG_PARSER_GROUPID_INVALID(x) "**Error: Group ID %-d specified by function doesn't exist",x

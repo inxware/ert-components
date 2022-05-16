@@ -48,17 +48,8 @@ endif
 endif
 
 
-
-ifdef EHS_COMMS_API_SUPPORT
-ifneq ($(EHS_COMMS_API_SUPPORT), none)
-EHS_TARGET_COMMS_API_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/comms/$(EHS_COMMS_API_SUPPORT)
-DEFS+=EHS_COMMS_API_SUPPORT
-
-include $(EHS_TARGET_COMMS_API_PATH)/comms.mk
-#ifeq ($(EHS_COMMS_API_SUPPORT), bsdsockets)
-#@todo move the DEF to the comms.mk file
-#endif
-endif
+ifndef EHS_COMMS_TASK
+EHS_COMMS_TASK=tcp_server_common
 endif
 
 #include files to use the TCP/IP interface as a server on this platform - Not in common??

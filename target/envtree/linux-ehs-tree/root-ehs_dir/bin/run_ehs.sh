@@ -123,13 +123,13 @@ fi
 #start X in case it isn't
 # Note the Xorg/X process name may differ between Debian 9 and 11
 export DISPLAY=:0.0
-if ! pidof Xorg > /dev/null
+if ! pidof Xorg && ! pidof X > /dev/null
 then
  X &
 fi
 
 sleep 5
-if ! pidof Xorg > /dev/null
+if ! pidof X && ! pidof Xorg> /dev/null
 then
  export DISPLAY=:1
  Xvfb :1 -screen 1 1024x768x16 &

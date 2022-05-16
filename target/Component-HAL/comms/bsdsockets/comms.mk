@@ -23,10 +23,13 @@
 #  EHS_TARGET_COMMS_API_PATH - path to the current directory (set by platform makefile)
 
 
+ifdef  EHS_COMMS_API_SUPPORT
+include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/tcp.mk
+endif
+
 include $(EHS_TARGET_COMMS_API_PATH)/deps.mk
 include $(EHS_TARGET_COMMS_API_PATH)/Components/components.mk
 #include the common funtions
-include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/tcp.mk
 
 VPATH+=: $(EHS_TARGET_COMMS_API_PATH)
 INC_DIRS += $(EHS_TARGET_COMMS_API_PATH)

@@ -10,8 +10,6 @@
 
 /**
  * @page Verification Verification report
- * @section hal_graphics_font
- * @anchor hal_graphics_font
  * @subsection misra MISRA compliance:
  * test.c demonstrated MISRA compliant on 
  * Last modified on $Date:$
@@ -37,8 +35,10 @@
 
 /*****************************************************************************/
 /* Variables defined with global-scope */
+#ifdef  EHS_DEBUG_TCPIP_CONSOLE
 EHS_GLOBAL EhsConsoleQueueType EhsTgtConsoleInputQueue;
 EHS_GLOBAL EhsConsoleQueueType EhsTgtConsoleOutputQueue;
+#endif
 /*****************************************************************************/
 /* Function definitions */
 
@@ -47,10 +47,12 @@ EHS_GLOBAL EhsConsoleQueueType EhsTgtConsoleOutputQueue;
  */
 void EhsTCommsSys_init(void)
 {
+#ifdef EHS_DEBUG_TCPIP_CONSOLE
 	EhsTgtConsoleInputQueueRef = &EhsTgtConsoleInputQueue;
 	EhsTgtConsoleOutputQueueRef = &EhsTgtConsoleOutputQueue;
 	EhsConsoleQueue_reset(EhsTgtConsoleInputQueueRef);
 	EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
+#endif
 }
 
 /**

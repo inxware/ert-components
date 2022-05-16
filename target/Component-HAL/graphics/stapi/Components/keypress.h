@@ -15,7 +15,11 @@
 #include "ehs_types.h"
 #include "callback_queue.h"
 
+#ifndef EHRT1
 #define EHS_FB_KEYPRESS_NAME "gtk_keypress"
+#else
+#define EHS_FB_KEYPRESS_NAME 0x38B4
+#endif
 
 /*
  * Provides a callback chain to call whenever a key gets pressed.

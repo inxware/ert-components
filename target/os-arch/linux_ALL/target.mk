@@ -21,9 +21,7 @@ ifdef EHS_ANDROID
 #LIB+=idn
 else
 ifndef EHS_SKIP_GNULIBRARIES
-
-ifeq ($(EHS_NATIVE_DEBIAN_BUILD),yes)
-
+    ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
 LIB+=idn2
 else
 LIB+=idn
@@ -39,3 +37,8 @@ ifndef EHS_SKIP_GNULIBRARIES
 LIB +=archive
 endif
 endif
+
+ifndef EHS_COMMS_API_SUPPORT
+export  EHS_COMMS_API_SUPPORT=bsdsockets
+endif
+

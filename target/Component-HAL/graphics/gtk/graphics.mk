@@ -40,7 +40,7 @@ INC_DIRS += $(EHS_TARGET_GRAPHICS_PATH)/Components
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/glib-2.0
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)/glib-2.0/include # target specific data is in here
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/gio-unix-2.0
-ifeq ($(EHS_NATIVE_DEBIAN_BUILD),yes)
+ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
 INC_DIRS += /usr/include/gtk-2.0
 INC_DIRS += /usr/lib/x86_64-linux-gnu/gtk-2.0/include/
 INC_DIRS += /usr/include/glib-2.0
@@ -164,7 +164,8 @@ LIB+= Xcursor
 #LIB+= png
 LIB+= png12
 else
-	ifeq ($(EHS_NATIVE_DEBIAN_BUILD),yes)
+## TODO2022 This needs to be conditional on the OS version  not whether a host builld or not
+	ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
 		EHS_PNG_LIB := png16
 	endif
 	ifeq ($(EHS_PNG_LIB),)

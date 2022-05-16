@@ -288,7 +288,7 @@ const char* EhsGetSint16FromString(ehs_sint16* output, const char* input)
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer), or null if parse fails
  */
-const char* EhsGetUint16FromString(ehs_uint16* output, const char* input)
+const ehs_char* EhsGetUint16FromString(ehs_uint16* output,const ehs_char* input)
 {
 	ehs_uint32 nValue;
 	input = EhsGetUint32FromString(&nValue, input);

@@ -1,32 +1,36 @@
-# Prerequisites
-*.d
-
-# Object files
+# Compiled Source #
+###################
 *.o
-*.ko
-*.obj
-*.elf
+*.so
+*.class
+*.exe
+*.a
 
 # Linker output
 *.ilk
 *.map
 *.exp
 
-# Precompiled Headers
-*.gch
-*.pch
+# Make sure we don't accidently checking certs into the repo
+*.crt
+*.pem
+*.p12
 
 # Libraries
 *.lib
 *.a
 *.la
 *.lo
-
 # Shared objects (inc. Windows DLLs)
 *.dll
 *.so
 *.so.*
 *.dylib
+
+# build temp file #
+###################
+TARGET.cfg
+.vagrant
 
 # Executables
 *.exe
@@ -36,8 +40,68 @@
 *.x86_64
 *.hex
 
+# eclipse project files #
+########################
+.project
+.cproject
+.cdtproject
+.externalToolBuilders
+
 # Debug files
 *.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# android #
+###########
+*.apk
+*.dex
+
+# vs project files #
+####################
+.vs
+
+Common/Components/user/deleteme2
+facebook_auth.php
+fb.json
+target/Component-HAL/graphics/gtk/target_viewport.c.save
+target/Component-HAL/webkit/android.zip
+target/os-arch/android_ALL/android-native-project/lint.xml
+target/platform/linux_arm_gtk_gst_raspberrypi/config.mk.orig
+/docs/doxygen/
+/Releases/
+target/os-arch/android_ALL/Unity_EHS/.idea/codeStyles/Project.xml
+target/os-arch/android_ALL/Unity_EHS/.idea/vcs.xml
+target/os-arch/android_ALL/Unity_EHS/.idea/Unity_EHS.iml
+target/os-arch/android_ALL/Unity_EHS/.idea/modules.xml
+target/os-arch/android_ALL/Unity_EHS/.idea/.gitignore
+Common/Components/user/unity2/tests/unityTest/ProjMetaData.lock
+Common/Components/user/New folder/Test/export/t.sdl
+Common/Components/user/unity2/tests/unityDevmanIntegration2/ProjMetaData.lock
+target/os-arch/nxp_arm/heatrod_controller/heatrod_controller JLink Windows Debug.launch
+target/os-arch/nxp_arm/heatrod_controller/heatrod_controller JLink Debug.launch
+target/os-arch/nxp_arm/heatrod_controller/.cproject
+Common/Components/user/unity2/tests/unityDevmanIntegration2-pmld/app.tar.gz
+.DS_Store
+._.DS_Store
+=======
+#stack usage files
+*.su
+#compiled firmware images
+*.bin
+#built nxp images
+*.axf
+#stack usage files
 *.su
 *.idb
 *.pdb

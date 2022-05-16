@@ -12,8 +12,9 @@ globals.h : target_config.h ehs_types.h
 
 hal-api.h : globals.h ehs_types.h hal.h hal_mem.h hal_logger.h hal_time.h hal_process.h hal_xml_minimal.h hal_file.h hal_string.h hal_appstorage.h callback_queue.h  hal_media.h messages.h inx-parameters.h hal_console.h hal_webkit.h hal_lua.h hal_network.h hal_url.h hal_devapps.h hal_devman.h hal_viewport.h
 
+ifdef  EHS_DEBUG_TCPIP_CONSOLE
 hal_console.h :  target_types.h target_console.h
-
+endif
 hal_devapps.h : globals.h hal_url.h hal_devman.h hal_appstorage.h
 
 hal_devman.h : target.h

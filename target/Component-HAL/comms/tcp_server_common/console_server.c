@@ -295,7 +295,7 @@ ehs_bool EhsSvcTcp_waitForClient()
 		#ifdef EHS_LWIP
 			//accept is blocking on lwip
 		#else
-			EhsSleepUs(5000000); //* Don#t loop too quick
+			EhsSleepUs(500000); //* Don#t loop too quick
 		#endif
 	}
 	return EHS_TRUE;
@@ -312,7 +312,7 @@ ehs_bool EhsSvcTcp_waitForClient()
  */
 #ifdef EHS_LWIP
 #else //#ifdef EHS_LWIP
-	#warning "PMLD need to change this function to only change the first escape (to read the command) and then it needs to be called from a mnore logical place rather than on the whole received buffer"
+	//TODO "PMLD need to change this function to only change the first escape (to read the command) and then it needs to be called from a mnore logical place rather than on the whole received buffer"
 #endif //#else #ifdef EHS_LWIP
 // We shouls also write up what the format is in a doc as it is a tool API too.
 ehs_uint32 EhsSvcTcp_expandEscapes(ehs_uint8 *pData, ehs_uint32 nSize, ehs_bool *pbDisconnect)
@@ -429,11 +429,13 @@ ehs_bool EhsSvcTcp_receive(void)
 	}
 	else if (nDataReceived == EHS_TGT_TCP_SOCKET_ERROR)
 	{
-		if(EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_AGAIN)
-		{
+		//PBB 2022-04-14 in my testing nDataReceive==-1 and EhsTgtTcp_getErrorCode(EHS_TRUE)==11
+		//indicates the other side has disconnected so we should disconnect as well
+		//if(EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_AGAIN)
+		//{
 			EhsSvcTcp_logSocketError("EhsSvcTcp_receive.recv", EhsTgtTcp_getErrorCode(EHS_FALSE));
 			bDisconnect = EHS_TRUE;
-		}
+		//}
 		#ifdef EHS_LWIP
 			EhsSleepUs(1000000LL);
 		#endif
@@ -553,7 +555,7 @@ EhsThreadFuncReturnType EhsSvcTcp_server(void* pData)
 			#ifdef EHS_LWIP
 			#else
 				EhsSleepUs(5000LL);//EHS_TGT_TCP_SUSPENDTIME_us)); /* Make this more friendly when there is a connection & data transfer */
-				//EhsSleepUs(20000);
+
 				//EHS_TGT_TCP_SUSPENDTIME_us
 			#endif
 			if (ClientConnected)

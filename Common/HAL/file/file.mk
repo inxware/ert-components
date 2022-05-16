@@ -34,5 +34,3 @@ VPATH+=: $(EHS_COMMON_HAL_PATH)/file
 #LIB += archive
 #endif
 
-#z is a dependencu of this
-LIB+=z

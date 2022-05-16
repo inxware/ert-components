@@ -4,7 +4,7 @@
 # Called by ../../../Makefile
 #
 
-# @author: inx limited, Pierre Drezet
+# @author: inx limited
 # @version: $Revision: 43 $
 # @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
 # 
@@ -13,12 +13,10 @@
 #
 
 #DEBUG OPTIONS
-EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
-export EHS_DEBUG=yes
-endif
+#todo2022 the DEFS += stuff shouldn't be necessary in any plattfrom/config.mk files - remove and more to os-arch  make files
+export EHS_DEBUGALL=true
+#todo2022 add the follwing as an alternative consoleonly debug enabled:
+#export EHS_DEBUG_TCPIP_CONSOLE=yes -- ##currently this doesn't work because it looks like most code-level debug is conditional on DEBUG all defs rather than console only defs we would prefer
 
 ################################################################################################################
 # Define the specific variant of the architecture and OS - this selects different component support library sets
@@ -39,19 +37,18 @@ export COMPONENT_VARIANT=gtk_gst
 #################################################################################################################
 # MUST SET the following for any component config: 
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
-export EHS_GNU_ARCH=amd64
-export EHS_GNU_OS=linux-gnu
-export EHS_GNU_OS_VERSION=-4.4.6
-#Optional if different clib build is required - dangerous!
-#export EHS_GNU_CLIB_ARCH_OVERRIDE=i686
-export KERNEL_VERSION=linux/4.9
-# EHS Section 
-# ehs is more generic
 export EHS_ARCH=amd64
 export EHS_OS=linux
 
-export TOOLCHAIN_NAME=i686-pc-linux-gnu-5.2.0
-export CC_OVERRIDE=i686-pc-linux-gnu-gcc
+
+#
+export TOOLCHAIN_NAME=HOST
+#export CC_OVERRIDE= gcc
+#some hosts have very old ar's installed separately to gcc's ar
+#export LINK_OVERRIDE=gcc-ar
+
+#export EHS_GNU_ARCH=amd64
+#export EHS_GNU_OS=linux-gnu
 
 
 #
@@ -62,7 +59,6 @@ export CC_OVERRIDE=i686-pc-linux-gnu-gcc
 export EHS_GUI_SUPPORT=gtk
 #IS_RGBA=yes - delete this it is not used ..
 
-#
 # uncomment this variable if the platform requires audio / video support
 export EHS_AV_SUPPORT=gst
 
@@ -88,15 +84,6 @@ export EHS_DEVMAN_MON_SUPPORT=yes
 # uncomment this variable if the platform needs to support deprecated toolkit
 export EHS_TOOLKIT_DEPRECATED=yes
 
-#
-# uncomment this variable if the platform requires networking support
-#
-# Set this to reflect the Comms API (e.g. BSD or Winsock)
-export EHS_COMMS_API_SUPPORT=bsdsockets
-
-#
-# Set this to reflect the type of communication task (e.g. tcp_server_common, ...)
-export EHS_COMMS_TASK=tcp_server_common
 #@todo this should just go to the bdcsockets and winsockets .mk files
 
 #This include RCUs, text displays, etc.

@@ -24,7 +24,7 @@ INC_DIRS += $(EHS_TARGET_AV_PATH)/../gst10_common
 
 include $(EHS_TARGET_AV_PATH)/../gst10_common/deps.mk
 
-ifeq ($(EHS_NATIVE_DEBIAN_BUILD),yes)
+ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
 INC_DIRS += /usr/include/gstreamer-1.0
 else
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/gstreamer-1.0

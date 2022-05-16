@@ -10,4 +10,4 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
 cd ${DIR}
-INX_IOT_VARIANT=nxp_arm_heatrod_hrcdispv2_release ./iot-make-upload.sh
+INX_IOT_VARIANT=nxp-arm_heatrod_hrcdispv2_release ./iot-make-upload.sh

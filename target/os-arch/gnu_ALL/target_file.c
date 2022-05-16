@@ -306,7 +306,7 @@ ehs_sint32 EhsTDFiles_countDirFiles ( const char *path ){
         }
     }
     else{
-    	EHSH_LOG_ERROR("%s is not a directory");
+    	EHSH_LOG_ERROR("%s is not a directory",path);
         return -1;
     }
 

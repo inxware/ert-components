@@ -38,3 +38,28 @@ OBJECTS+=   callback_queue.$(OBJ)
 
 VPATH+=$(EHS_COMMON_EHS_PATH)
 VPATH+=$(EHS_COMMON_KAPI_PATH)
+
+ifdef EHS_DEBUGALL
+#todo2022 - This is a bit of amess - seems we want some strucuture to these being set?
+DEFS += EHS_RUNTIME_LOGGER_ENABLED
+DEFS += EHS_DEBUG_AV
+EHS_DEBUG=yes
+EHS_DEBUG_TCPIP_CONSOLE=yes
+endif
+
+ifdef  EHS_DEBUG_TCPIP_CONSOLE 
+DEFS += EHS_DEBUG_TCPIP_CONSOLE
+endif
+
+#todo2022 - this should go in the comms.mk file
+ifdef EHS_COMMS_API_SUPPORT
+ifneq ($(EHS_COMMS_API_SUPPORT), none)
+EHS_TARGET_COMMS_API_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/comms/$(EHS_COMMS_API_SUPPORT)
+DEFS+=EHS_COMMS_API_SUPPORT
+INC_DIRS+=EHS_TARGET_COMMS_API_PATH
+include $(EHS_TARGET_COMMS_API_PATH)/comms.mk
+#ifeq ($(EHS_COMMS_API_SUPPORT), bsdsockets)
+#@todo move the DEF to the comms.mk file
+#endif
+endif
+endif

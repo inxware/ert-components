@@ -55,8 +55,8 @@ DEFS+=EHS_AV_SUPPORT
 endif
 endif
 
+#warning "Disabled user components because it is breaking the arm build when the block_reftable.h is included"
 include $(EHS_COMMON_COMPONENTS_PATH)/user/usercomponents.mk
-
 
 
 ################ Networking Group - Keep together! ################################

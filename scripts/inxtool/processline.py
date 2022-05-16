@@ -26,7 +26,7 @@ class ProcessLine(object):
             return new
         if new is not None and old is not None and \
            new != old:
-            text=b"#ifdef EHS_USE_STRING_IDS\n"
+            text=b"#ifndef EHRT1\n"
             text=text+old
             text=text+b"#else\n"
             text=text+new
@@ -44,6 +44,9 @@ class UpdateIdsProcessLine(ProcessLine):
             return True
         return False
 
+    def replace(self, line, valuestring, hashstring):
+        return line.replace(b'"'+valuestring+b'"', hashstring)
+
     def process(self):
         line=self.line
         if line is None or line == b"":
@@ -54,10 +57,13 @@ class UpdateIdsProcessLine(ProcessLine):
             for value in strings:
                 hashObject=HashFactory(value, self.config.getHash())
                 if hashObject is not None:
+                    if hashObject.isInteger():
+                        self.hashstring=str('0x' + hashObject.getHash() ).encode("UTF-8")
+                    else:
                     self.hashstring=str('"' + hashObject.getHash() + '"').encode("UTF-8")
-                    self.valuestring=b'"' + value + b'"'
+                    self.valuestring=value
                     self.report.addSummaryInfo(self.valuestring,self.hashstring)
-                    self.processed=self.keepold(line, line.replace(self.valuestring, self.hashstring))
+                    self.processed=self.keepold(line, self.replace(line, self.valuestring, self.hashstring))
                     return True
         return False
 
@@ -87,9 +93,44 @@ class UpdateIdsFunctionsProcessLine(UpdateIdsProcessLine):
             return True
         return False
 
+class UpdateIdsFunctionsNewProcessLine(UpdateIdsFunctionsProcessLine):
+
+    def replace(self, line, valuestring, hashstring):
+        value=b'"'+valuestring+b'"'
+        id_value=b'FUNCTION_NAME_ID_'+valuestring.upper()
+        return line.replace(value, id_value)
+
+    def keepold(self, old, new):
+        if not self.config.getKeepOld():
+            return new
+        if new is not None and old is not None and \
+           new != old:
+            id_value=b'FUNCTION_NAME_ID_'+self.valuestring.upper()
+            text=b"#ifndef EHRT1\n"
+            text=text+b"#define "+id_value+b" "+b'"'+self.valuestring+b'"'
+            text=text+b"\n#else\n"
+            text=text+b"#define "+id_value+b" "+self.hashstring
+            text=text+b"\n#endif\n"
+            text=text+new
+            return text
+        return new
+
+class UpdateIdsInxWareProcessLine(UpdateIdsProcessLine):
+
+    def check(self, line):
+        # Update IDs of the hash defines
+        if b'INXWARE_FB' in line and b'#define' in line \
+        and b'"' in line:
+            return True
+        return False
+
 def ProcessLineFactory(line, type):
     if type == "updateid":
         return UpdateIdsProcessLine(line)
     if type == "updatefooid":
         return UpdateIdsFunctionsProcessLine(line)
+    if type == "updatefoonewid":
+        return UpdateIdsFunctionsNewProcessLine(line)
+    if type == "updateinxwareid":
+        return UpdateIdsInxWareProcessLine(line)
     return None

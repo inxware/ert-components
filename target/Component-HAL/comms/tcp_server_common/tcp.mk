@@ -1,5 +1,6 @@
 #
-# Makefile fragment to build the generic parts of TCP server support for EHS.
+# Mafile for theb console server code
+#todo2022 this probably shouldn't be included if EHS_DEBUG_TCPIP_CONSOLE isn't defined - hence conditional build below
 
 # Called by ../../platform/<platform-type>
 #
@@ -23,9 +24,11 @@
 
 include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/deps.mk
 
+#todo2022 - shouldn't these be done in the console.mk file
+ifdef EHS_DEBUG_TCPIP_CONSOLE
 OBJECTS+= console_server.$(OBJ)
 OBJECTS += target_console.$(OBJ)
-
+endif
 
 VPATH+=: $(EHS_TARGET_SERVER_PATH)
 

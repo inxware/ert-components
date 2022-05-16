@@ -25,9 +25,9 @@
 
 include $(EHS_TARGET_COMMS_API_PATH)/deps.mk
 include $(EHS_TARGET_COMMS_API_PATH)/Components/components.mk
-
+ifdef  EHS_COMMS_API_SUPPORT
 include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/tcp.mk
-
+endif
 VPATH+=: $(EHS_TARGET_COMMS_API_PATH)
 INC_DIRS += $(EHS_TARGET_COMMS_API_PATH)
 

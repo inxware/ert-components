@@ -13,7 +13,8 @@ pushd ../TARGET_TREES/ehs_env-$TARGET/bin/cslib
 #ln -fs libfaad.so.2 libfaad.so.0
 popd
 
-./targetenv_clean_config.h $TARGET
+# Don'think the following ecver ran - so removing it
+#./targetenv_clean_config.sh $TARGET
 
 if [ -d ../apps/ ];then 
 pushd ../apps/

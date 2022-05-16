@@ -209,7 +209,7 @@ void EhsHURLSetProxyDataFromFile() {
  */
 ehs_bool EhsHURLGlobalInit() {
 	EhsHURLSetProxyDataFromFile(); /* Load the proxy info - Needs a reboot unless this is done again somewhere */
-	if (curl_global_init(CURL_GLOBAL_DEFAULT/* CURL_GLOBAL_ALL /*CURL_GLOBAL_NOTHING*/ /*CURL_GLOBAL_ALL*/)) {
+	if (curl_global_init(CURL_GLOBAL_DEFAULT/* CURL_GLOBAL_ALL CURL_GLOBAL_NOTHING CURL_GLOBAL_ALL*/)) {
 		return EHS_FALSE;// something wrong
 	}
 	else {
@@ -267,7 +267,7 @@ ehs_bool EhsHCreateQueryString(CURL * curl,ehs_char * current_post, ehs_char * t
 ehs_bool EhsHCreateQueryStringNum(ehs_char * current_post, ehs_char * tag,const ehs_uint32 value, ehs_uint32 max_length) {
 	ehs_char sZtemp[16]; //big enough for a 32 bit number
 	EhsSprintf(sZtemp, "%d", value);
-	EhsHCreateQueryString(NULL,current_post, tag, sZtemp, max_length);
+	return EhsHCreateQueryString(NULL,current_post, tag, sZtemp, max_length);
 }
 
 
@@ -382,6 +382,7 @@ ehs_bool EhsHSetUpCaTlsCertificate(CURL *curl, RuntimePathType location, ehs_cha
  *  		If there are passwords set then use them
  *  */
 ehs_bool EhsHSetUpServerSecurity(CURL *curl,EhsNetworkServerInfo_t * server_info) {
+	ehs_bool ret=EHS_TRUE;
 	CURLcode success;
 	ehs_char szTempString[EHS_STRING_LENGTH_MAX];
 	if ((EhsStrlen(server_info->http_username) > 0) && (EhsStrlen(server_info->http_password) > 0)) {
@@ -400,13 +401,19 @@ ehs_bool EhsHSetUpServerSecurity(CURL *curl,EhsNetworkServerInfo_t * server_info
 		}
 		else {*/
 			success=curl_easy_setopt(curl, CURLOPT_PROXYAUTH, CURLAUTH_DIGEST); // @todo these arguements need to be made specific
-			if (CURLE_OK != success) EHSH_LOG_ERROR("CURL ERROR: CURLOPT_PROXYAUTH");
+			if (CURLE_OK != success) {
+				EHSH_LOG_ERROR("CURL ERROR: CURLOPT_PROXYAUTH");
+				ret=EHS_FALSE;
+			}
 		//}
 		EhsDebugPrintf("hal_url::Set security to digest only with uname %s and password %s\n",server_info->http_username, server_info->http_password);
 		break;
 	case EHS_NETWORK_SECURITY_BEST:
 		success=curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-		if (CURLE_OK != success) EHSH_LOG_ERROR("CURL ERROR: CURLOPT_HTTPAUTH");
+		if (CURLE_OK != success){
+			EHSH_LOG_ERROR("CURL ERROR: CURLOPT_HTTPAUTH");
+			ret=EHS_FALSE;
+		}
 		//printf("Set security to any with uname %s and password %s\n",server_info->http_username, server_info->http_password);
 		break;
 	case EHS_NETWORK_SECURITY_NONE:
@@ -414,6 +421,7 @@ ehs_bool EhsHSetUpServerSecurity(CURL *curl,EhsNetworkServerInfo_t * server_info
 		//curl_easy_setopt(easyhandle, CURLOPT_HTTPAUTH, XXCURLAUTH_DIGEST);
 		;
 	}
+	return ret;
 }
 
 ehs_bool EhsHSetUpLocalProxy(CURL *curl) {
@@ -430,6 +438,7 @@ if (EhsHGlobalNetworkConfig.proxy_required) {
 		curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, szTempString);
 		curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS4); //@todo need to make this a parameter too
 	}
+	return EHS_TRUE;
 }
 
 /*** \brief Returns a structure in which data can be downloaded using LIBCURL'swrite function

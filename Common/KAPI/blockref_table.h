@@ -33,7 +33,11 @@
 
 typedef const struct
 {
+	#ifdef EHRT1
+		const ehs_uint16 szName; /**< Function block name */
+	#else //#ifdef EHRT1
 	const ehs_char *szName; /**< Function block name */
+	#endif //#else #ifdef EHRT1
 	ehs_uint16 nVers; /**< Function block version */
 	EhsInitFuncType fpInitFunc; /**< The initialise function for this function block */
 	EhsDestroyFuncType fpDestroyFunc; /**< The initialise function for this function block */
@@ -53,6 +57,7 @@ typedef const struct
 //#define EHS_BLOCKREF_ENTRY_API2(x,vers) {(EHS_FB_VAR_TO_STRING(x)),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
 //#define EHS_BLOCKREF_ENTRY_WITH_DESTROY(name,x) {(name),(EhsInitFuncType)EHS_FB_INIT_NAME(x), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME(x), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(x),  EHS_FB_FUNCTABLE_NAME(x)}
 //#define EHS_BLOCKREF_ENTRY_WITH_DESTROY_API2(x,vers) {(EHS_FB_VAR_TO_STRING(x)),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME_API2(x,vers), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
+//TODO2022 ASK aptrick what the (0) do in these functions - has the user components got a different implementation??
 #define EHS_BLOCKREF_ENTRY(name,x) {(name), (0), (EhsInitFuncType)EHS_FB_INIT_NAME(x), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(x), EHS_FB_FUNCTABLE_NAME(x)}
 #define EHS_BLOCKREF_ENTRY_API2(x,vers) {(EHS_FB_VAR_TO_STRING(x)), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
 #define EHS_BLOCKREF_ENTRY_WITH_DESTROY(name,x) {(name), (0),(EhsInitFuncType)EHS_FB_INIT_NAME(x), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME(x), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(x),  EHS_FB_FUNCTABLE_NAME(x)}
@@ -127,7 +132,11 @@ EHS_GLOBAL ehs_bool EhsToolkitTable_addTable(EhsBlockRefType* pTable);
  * @param nVers Vers to search table for
  * @return NULL if no matching name and vers found, or pointer to block reference if it is found.
  */
+#ifndef EHRT1
 EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVers, const ehs_char* szName, ehs_uint16 nVers);
+#else
+EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVers, const ehs_uint16 szName, ehs_uint16 nVers);
+#endif
 
 
 /**
@@ -137,7 +146,11 @@ EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVer
  * @param szName Function name to search table for
  * @return NULL if name not found, or pointer to EhsFuncRefType reference if it is found.
  */
+#ifndef EHRT1
 EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_char* szName);
+#else
+EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_uint16 szName);
+#endif
 
 
 

@@ -314,7 +314,7 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
        fclose(pf);
 */
 	/*
-	 *   struct timeval ru_utime; /* user time used
+	 *   struct timeval ru_utime; // user time used
     struct timeval ru_stime; // system time used
     long   ru_maxrss;        // maximum resident set size
     long   ru_ixrss;         // integral shared memory size
@@ -542,6 +542,7 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
 	EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
 	get_cpu_ram_info(&(pEhsMetaData->CPUUsage), &(pEhsMetaData->RAMTotal_KB),&(pEhsMetaData->RAMUsed_KB),&(pEhsMetaData->RAMAvail_KB));
 	//getOSVersion(pEhsMetaData->OSVersion);
+	return EHS_FALSE;
 }
 
 /**

@@ -29,10 +29,15 @@
 
 #include "app_data.h" // Needed for the app meta data structure.
 #include "targetos_init.h"
-#include "hal_console.h"
+
 #ifdef EHS_COMMS_API_SUPPORT
-#include "targetcomms_init.h"
+
+#ifdef  EHS_DEBUG_TCPIP_CONSOLE
+#include "hal_console.h"
 #include "console_server.h"
+#endif
+
+#include "targetcomms_init.h"
 #endif
 
 //@todo the following are a bit specialist for here - should have an AV HAL.
@@ -691,12 +696,24 @@ ehs_bool EhsHRequestEHSInterrupt() {
 	else  {return EHS_FALSE;}
 }
 
+
+
+
 /* This returns the requested state and sets it back to the default "continue" command */
 EHS_GLOBAL Ehs_ConsoleCommand_Type EhsHFSMGetInternallyRequestedCommand(){
 	Ehs_ConsoleCommand_Type state = EhsMetaData.InternallyRequestedCommand;
 	EhsMetaData.InternallyRequestedCommand=	EHS_CONTINUE;
 	return state;
 }
+
+#ifndef EHS_DEBUG_TCPIP_CONSOLE
+/* satisfy kernel's processing if we don't have the console enabled with the bhe follwing stubs*/
+//TODO2022 Refactor console support to be not potentially only TCPIP (e.g. also serial,...)and make it always included to avoid having to do things  like this
+ehs_bool EhsConsoleInputHit() {return EHS_FALSE;}
+ehs_uint16 EhsConsolePrintf(const ehs_char* fmt, ...) {return 0;}
+ehs_bool EhsConsoleToFile(ehs_uint32 size, const ehs_char* name)  { return EHS_TRUE;}
+ehs_uint32 EhsConsoleGetLine(char *buff, ehs_uint16 size) {return 0;}
+#endif
 
 /* Tell EHS to change state
  * This can bounce the request and return false if it thinks the current request is more important
@@ -726,9 +743,9 @@ EHS_GLOBAL void EhsHFSMForceInternallyRequestedCommand(Ehs_ConsoleCommand_Type s
  */
 void EhsExit(ehs_uint16 exitCode)
 {
-	//* todo attempt to do nice things with toolkits (e.g.g shutdown gtk, close sockets etc.)
+	// todo attempt to do nice things with toolkits (e.g.g shutdown gtk, close sockets etc.)
 	static ehs_bool bExited = EHS_FALSE; // don't let EhsHSys_term() run twice!
-	#ifdef EHS_COMMS_API_SUPPORT
+	#ifdef EHS_DEBUG_TCPIP_CONSOLE // todo2022 this should be a higher level comms close down - not just the console?
 		EhsSvcTcp_closeConnection();
 	#endif //EHS_COMMS_API_SUPPORT
 	if (!bExited) {

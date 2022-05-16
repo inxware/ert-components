@@ -165,8 +165,6 @@ ehs_bool EhsHDevmanAddURLtoHeadList(ehs_char * ehs_path, ehs_char * URL) {
 	if (szTemp2 == NULL)
 		return EHS_FALSE; //lazy escape..
 	ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
-	if (szCanonicalFilePath == NULL)
-		return EHS_FALSE; //lazy escape..
 	EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_DEVMAN_DIR ,ehs_path ,EHS_TRUE);
 
 	for (i = 0; i < 999; i++) { // loop to find out how many we have in the list. Gaps are the end of the list!
@@ -211,8 +209,6 @@ ehs_bool EhsHDevmanRemoveURLSFromList(ehs_char * ehs_path, ehs_uint16 index) {
 	if (szTemp == NULL)
 		return EHS_FALSE; //lazy escape..
 	ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
-	if (szCanonicalFilePath == NULL)
-		return EHS_FALSE; //lazy escape..
 	EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_DEVMAN_DIR ,ehs_path ,EHS_TRUE);
 
 	// remove the file
@@ -251,8 +247,6 @@ ehs_bool EhsHDevmanRemoveHeadURLFromList(ehs_char * ehs_path) {
 	if (szTemp2 == NULL)
 			return EHS_FALSE;
 	ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
-	if (szCanonicalFilePath == NULL)
-		return EHS_FALSE; //lazy escape..
 	EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_DEVMAN_DIR ,ehs_path ,EHS_TRUE);
 
 	EhsSprintf(szTemp, "%s.%03d", szCanonicalFilePath, 1); // test if There is a second server listed
@@ -288,8 +282,6 @@ ehs_bool EhsHDevmanRemoveSpecificURLFromList(ehs_char * ehs_path, ehs_char * URL
 	if (szTemp == NULL)
 		return EHS_FALSE;
 	ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
-	if (szCanonicalFilePath == NULL)
-		return EHS_FALSE; //lazy escape..
 	EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_DEVMAN_DIR ,ehs_path ,EHS_TRUE);
 	maxlen = EhsStrlen(URL);
 	szTemp2 = EhsHMem_tempAlloc(maxlen>EHS_DEVMAN_FILE_PATH_LENGTH?(sizeof(char)*maxlen):EHS_DEVMAN_FILE_PATH_LENGTH);
@@ -635,7 +627,7 @@ void *DevmanMonThread(void *arg) {
 	ehs_bool trynext=EHS_TRUE; /*flag to identify if the next in the list should be tried */
 	//ehs_uint32 ret32=0;
 	long http_no = 0L; //=(ehs_uint32*) (&sZuserdata[EHS_STRING_LENGTH_MAX_LARGE-(sizeof(ehs_uint32) )]);
-	EhsH_URLwrite_data_bufferType * buffer_struct;
+	EhsH_URLwrite_data_bufferType * buffer_struct=NULL;
 	static CURL *curl=NULL; //todo this should be made dynamic butt persistent.
 	ehs_sint16 CurrentURLindex = 0;
 	ehs_bool status = EHS_FALSE;
@@ -662,8 +654,8 @@ void *DevmanMonThread(void *arg) {
 		EHSH_LOG_ERROR("Could not initialise URL access");
 		goto curl_init_error;
 	}
-
-	if (buffer_struct = EhsHDoAllGenericConfig(curl, &server_info, 64 * 1024,50000,120)) { // create a buffer "large enough for all" - 30s timeouts
+	buffer_struct = EhsHDoAllGenericConfig(curl, &server_info, 64 * 1024,50000,120);
+	if (buffer_struct) { // create a buffer "large enough for all" - 30s timeouts
 		// Create the post
 		EhsHSetUpLocalProxy(curl);
 

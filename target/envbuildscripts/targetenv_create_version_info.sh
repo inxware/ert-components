@@ -73,7 +73,7 @@ else
 			#svn commit -m "Updating version string to ${MAJORMAJOR_V}.${MAJOR_V}.${MINOR_VV}" ./Releases/version_strings
 			
 			git add ./Releases/version_strings
-			git commit -m "Checking in revision file for ${VERSION_NAME} with time stamp ${TIME_STAMP}" ./Releases/version_strings
+			git commit -m "Checking in revision file for ${VERSION_NAME} with time stamp ${TIME_STAMP} (build=${TARGET})" ./Releases/version_strings
 			git push
 			
 		else
@@ -99,7 +99,7 @@ echo  "EHS" >> $TARGET_BASE_DIR/sysdata/version.nfo
 
 ########################################################################
 if [ "${INC_VERSION}" == "yes" ];then
-VERSION_NAME="${MAJORMAJOR_V}.${MAJOR_V}.${MINOR_VV}"
+VERSION_NAME="${MAJORMAJOR_V}.${MAJOR_V}.${MINOR_VV}-${TARGET}"
 # Create in repo SVN tag and give this a proper name
 #Checking in all code
 echo "Creating Tag ${TIME_STAMP}-${VERSION_NAME} in the repository"

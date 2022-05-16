@@ -12,4 +12,4 @@ target_tcp.h : target.h
 
 targetcomms_init.$(OBJ) : targetcomms_init.h hal_console.h 
 
-target_tcp.$(OBJ) : target_tcp.h hal_string.h console_server.h
+target_tcp.$(OBJ) : target_tcp.h hal_string.h 

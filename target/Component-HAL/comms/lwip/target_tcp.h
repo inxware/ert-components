@@ -12,7 +12,11 @@
 #define EHS_TARGET_TCP_H
 
 #include "target.h"
+
+#ifdef EHS_DEBUG_TCPIP_CONSOLE
 #include "console_queue.h"
+#endif
+
 #include "sockets.h"
 
 /**

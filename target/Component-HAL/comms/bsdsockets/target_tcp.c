@@ -34,8 +34,8 @@
 #include <sys/types.h> /* required for recv */
 #include <string.h> /* required for memset */
 #include "target_tcp.h"
-#include "hal_string.h"
-#include "console_server.h"
+#include "hal.h"
+#include "target.h"
 
 
 #include <linux/netlink.h>
@@ -225,6 +225,7 @@ const ehs_char * EhsTgtTcp_getErrorText(ehs_char *buff, EhsTgtTcpErrType nErrCod
 #else
 	EhsStrcpy(buff,"DISABLED ERROR CODE TRANSLATION");
 #endif
+	return buff;
 }
 
 /**
@@ -287,7 +288,7 @@ ehs_bool EhsSvcTgtTcp_closeConnection(EhsTgtTcpSocketType EhsSvcTcpSocketConnect
 		if (retVal != 0) {
 			if (EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_NOTCONN)
 			{
-				EhsSvcTcp_logSocketError("EhsSvcTcp_closeConnection.shutdown", EhsTgtTcp_getErrorCode(EHS_FALSE));
+				EHSH_LOG_ERROR("EhsSvcTcp_closeConnection.shutdown", EhsTgtTcp_getErrorCode(EHS_FALSE));
 			}
 			else
 			{

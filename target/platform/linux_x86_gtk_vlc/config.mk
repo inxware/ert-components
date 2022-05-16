@@ -91,16 +91,6 @@ export EHS_DEVMAN_MON_SUPPORT=yes
 # uncomment this variable if the platform needs to support deprecated toolkit
 export EHS_TOOLKIT_DEPRECATED=yes
 
-#
-# uncomment this variable if the platform requires networking support
-#
-# Set this to reflect the Comms API (e.g. BSD or Winsock)
-export EHS_COMMS_API_SUPPORT=bsdsockets
-
-#
-# Set this to reflect the type of communication task (e.g. tcp_server_common, ...)
-export EHS_COMMS_TASK=tcp_server_common
-#@todo this should just go to the bdcsockets and winsockets .mk files
 
 #This include RCUs, text displays, etc.
 export EHS_PERIPHERAL_DEVICE_SUPPORT=all

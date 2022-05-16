@@ -136,7 +136,7 @@ ehs_uint16 EhsConsolePrintf(const ehs_char* fmt, ...) /*lint !e960 Allowable der
 	do
 	{
 		/* always print error messages on stdout */
-		if (pBuff[0] == '*')
+		if (1 || pBuff[0] == '*')
 		{
 			printf(szBuffer); /*lint !e534 Safe to ignore return value here */
 			printf("\n");

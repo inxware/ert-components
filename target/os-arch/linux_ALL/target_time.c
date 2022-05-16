@@ -52,6 +52,15 @@
 #include <errno.h>
 #include <time.h>
 
+#ifdef EHS_USE_ORDINARY_NANOSLEEP
+	
+#else //#ifdef EHS_USE_ORDINARY_NANOSLEEP
+	int clock_nanosleep(clockid_t clockid, int flags,
+                           const struct timespec *request,
+                           struct timespec *remain);
+#endif //#else #ifdef EHS_USE_ORDINARY_NANOSLEEP
+
+
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 
@@ -129,7 +138,7 @@ void EhsSleep(EhsTickType tSleepTime)
 	clock_nanosleep(CLOCK_MONOTONIC,0,&tSleep,NULL); /*  This may not use hrtimer?*/
 #endif
 	/* alternative implementation using select:
-	 * select(0,NULL,NULL,NULL,&tSleep); /*lint !e534 Return value not of interest here * /
+	 * select(0,NULL,NULL,NULL,&tSleep); //lint !e534 Return value not of interest here
 	 */
 }
 
@@ -149,7 +158,7 @@ void EhsSleepUs(ehs_uint32 tSleepTime)
 	clock_nanosleep(CLOCK_MONOTONIC,0,&tSleep,NULL); /*  This may not use hrtimer?*/
 #endif
 	/* alternative implementation using select:
-	 * select(0,NULL,NULL,NULL,&tSleep); /*lint !e534 Return value not of interest here * /
+	 * select(0,NULL,NULL,NULL,&tSleep); //lint !e534 Return value not of interest here
 	 */
 }
 

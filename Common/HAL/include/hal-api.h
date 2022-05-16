@@ -41,7 +41,7 @@
 #include "messages.h"
 #include "inx-parameters.h"
 
-#ifdef EHS_COMMS_TASK
+#ifdef  EHS_DEBUG_TCPIP_CONSOLE
 #include "hal_console.h"
 #endif
 #ifdef EHS_WEBKIT_SUPPORT

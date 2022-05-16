@@ -27,6 +27,7 @@ export UPLOAD
 
 ########################################################
 #create File system, including target specific parts and version information
+echo  "running ./target/envbuildscripts/targetenv_directories.sh" $SPECIFIC_TARGET
 ./target/envbuildscripts/targetenv_directories.sh $SPECIFIC_TARGET
 
 ### EHS ################################################
@@ -51,7 +52,7 @@ rm -f ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib/*.a
 rm -Rf ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib/gcc
 # additional clib libraries if built separately
 if [ ! -n "${EHS_CLIB_OVERRIDE_PATH}" ];then
-test -e "../ert-build-support/support_libs/target_libs/${EHS_GNU_ARCH}-${EHS_GNU_OS}${EHS_GNU_OS_VERSION}${EHS_SPECIAL_CLIB_EXT}/target_packages" && cp -PR "../ert-build-support/support_libs/target_libs/${EHS_GNU_ARCH}-${EHS_GNU_OS}${EHS_GNU_OS_VERSION}${EHS_SPECIAL_CLIB_EXT}/target_packages/"* "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin" || echo "no additional core libraries found"
+test -e "../ert-build-support/support_libs/target_libs/$(EHS_GNU_OS_ARCH)${EHS_SPECIAL_CLIB_EXT}/target_packages" && cp -PR "../ert-build-support/support_libs/target_libs/$(EHS_GNU_OS_ARCH)${EHS_SPECIAL_CLIB_EXT}/target_packages/"* "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin" || echo "no additional core libraries found"
 else
 echo "WARNING - using CLIB override path =${EHS_CLIB_OVERRIDE_PATH}"
 test -e "../ert-build-support/support_libs/target_libsx/${EHS_CLIB_OVERRIDE_PATH}/target_packages" && cp -PR "../ert-build-support/support_libs/target_libs/${EHS_CLIB_OVERRIDE_PATH}/target_packages/"* "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin" || echo "no additional support libraries found"

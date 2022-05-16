@@ -35,7 +35,7 @@
 #include <unistd.h>
 
 #include "target.h"
-#ifdef  EHS_COMMS_API_SUPPORT
+#ifdef   EHS_DEBUG_TCPIP_CONSOLE
 #include "console_server.h"
 #endif
 #include "globals.h"

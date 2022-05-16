@@ -34,7 +34,9 @@
 #include <string.h> /* required for memset */
 #include "target_tcp.h"
 #include "hal_string.h"
+#ifdef EHS_DEBUG_TCPIP_CONSOLE 
 #include "console_server.h"
+#endif
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */

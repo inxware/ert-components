@@ -61,7 +61,7 @@ EHS_GLOBAL const char* EhsGetSint32FromString(ehs_sint32 * output, const char* i
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer)
  */
-EHS_GLOBAL const char* EhsGetUint16FromString(ehs_uint16 * output, const char* input);
+EHS_GLOBAL const ehs_char* EhsGetUint16FromString(ehs_uint16 * output,const ehs_char* input);
 
 /**
  * Read an unsigned 8-bit integer from a line of the SODL file.

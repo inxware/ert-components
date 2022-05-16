@@ -9,3 +9,7 @@ OBJECTS += target_file.$(OBJ)
 OBJECTS += target_process.$(OBJ) 
 OBJECTS += target_main.$(OBJ)
 OBJECTS += target_math.$(OBJ) 
+
+# We nearly always need this for GNU targets
+LIB+=z
+

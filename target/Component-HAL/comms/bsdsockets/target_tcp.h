@@ -30,7 +30,7 @@
 #include <errno.h>            /* access to errno & error values */
 #include <stdarg.h>				/* variable length parameters for TCP logging */
 
-#include "target.h"
+//#include "target.h"
 #include "console_queue.h"
 
 /**

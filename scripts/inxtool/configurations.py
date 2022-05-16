@@ -8,7 +8,7 @@ class Configurations(object):
         self.exts="c,h"
         self.apply=False
         self.reportfile=None
-        self.keepold=False
+        self.keepold=True # always keep old
         self.hash="32CRC"
 
     def getRoot(self):

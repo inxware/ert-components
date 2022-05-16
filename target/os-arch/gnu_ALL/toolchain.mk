@@ -3,10 +3,20 @@
 
 #Setup the toolchain path
 #defaulting to HOST gcc
+# Set up the toolchain paths, depending on platform target paramters. 
+# TOOLCHAIN_NAME is an override, should only be set by config.mk and not constructed
+#set the build host's machine's architecture (it is always linux so far...)
+export EHS_BUILD_MAC_ARCH=$(shell uname -m)
+
 ifdef TOOLCHAIN_NAME
-export TOOLCHAIN_PATH=/$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_NAME)
+    ifeq ($(TOOLCHAIN_NAME),HOST)
+        export EHS_HOST_DEBIAN_BUILD=yes
+        export TOOLCHAIN_PATH=HOST
 else
-export TOOLCHAIN_PATH=/$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_ARCH)-$(EHS_GNU_OS)$(EHS_GNU_OS_VERSION)
+        export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_NAME)
+    endif
+else
+	export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)$(EHS_GNU_OS_VERSION)
 endif
 
 CC:=gcc
@@ -19,43 +29,36 @@ CPP:=$(CC_OVERRIDE)
 LINK:=$(CC_OVERRIDE)
 endif
 
+ifdef LINK_OVERRIDE
+    LINK:=$(LINK_OVERRIDE)
+endif
+
 ifdef TOOLCHAIN_PATH
-#ifneq "$(TOOLCHAIN)" ""
+ifneq ($(TOOLCHAIN_PATH),HOST)
 CC:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(CC)
 CPP:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(CPP)
 LINK:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(LINK)
-#endif
-endif
-
 #this is needed for toolchains with dynamic libcloog
 export LD_LIBRARY_PATH=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/lib/
 #@todo we should make the above a non os specific override flag - we shouldn't know about os names here
 ifneq ($(EHS_GNU_OS),mingw32msvc) 
-
 #If there is a sysroot directory in the toolchain we'll try and use it otherwise we will revert to the core support library root
-ifneq "$(wildcard $(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/sysroot)" ""
-
-export CC_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/sysroot
-export LD_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/sysroot
-
-else
-
-ifdef EHS_CLIB_OVERRIDE_PATH
-
-export CC_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build
-export LD_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build
-
-else
-
+    ifneq ($(wildcard $(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/sysroot),"")
+	export CC_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/sysroot
+	export LD_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/sysroot
+    else
+	ifdef EHS_CLIB_OVERRIDE_PATH
+	    export CC_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build
+	    export LD_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build
+	else
 ##we'llidentify it from gcc
-
 #$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)
 #@todo - we should probably put this back??
-#export CC_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_ARCH)-$(EHS_GNU_OS)$(EHS_GNU_OS_VERSION)$(EHS_SPECIAL_CLIB_EXT)/build
-#export LD_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_ARCH)-$(EHS_GNU_OS)$(EHS_GNU_OS_VERSION)$(EHS_SPECIAL_CLIB_EXT)/build
-
-endif
-
+            #export CC_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build
+            #export LD_SWITCHES+=--sysroot=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build
+	endif
+    endif
+endif 
 endif
 endif 
 
@@ -104,14 +107,10 @@ LNKFLAGS+= $(foreach i,$(LIB),-Wl,-l$i)
 ifeq ($(EHS_GNU_OS),mingw32msvc)
 #LIB+=pthreadGC2
 LIB+=pthreadGCE2# apprently we need this one?
-else
+endif
 # This is needed for some clibs with stupid ld scripts pointing at absolute paths 
 
-#This is generally needed
-ifndef EHS_ANDROID
-LIB+=pthread
-endif
-endif
+
 #clib also @todo
 
 #

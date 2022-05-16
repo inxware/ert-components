@@ -90,15 +90,6 @@ export EHS_DEVMAN_MON_SUPPORT=yes
 ##export EHS_TOOLKIT_DEPRECATED=yes
 #@todo remove all TK_DEPRECATE symbols - no longer used
 
-#
-# uncomment this variable if the platform requires networking support
-#
-# Set this to reflect the Comms API (e.g. BSD or Winsock)
-#export  EHS_COMMS_API_SUPPORT=bsdsockets
-export  EHS_COMMS_API_SUPPORT=winsock
-#
-# Set this to reflect the type of communication task (e.g. tcp_server_common, ...)
-export EHS_COMMS_TASK=tcp_server_common
 #@todo this should just go to the bdcsockets and winsockets .mk files
 
 # Keyboard and stuff..

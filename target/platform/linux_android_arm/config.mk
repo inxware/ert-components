@@ -62,7 +62,7 @@ export EHS_GNU_OS=linux
 
 export CC_OVERRIDE=arm-linux-androideabi-gcc
 export TOOLCHAIN_NAME=linux-android-armv7a
-export CC_SWITCHES+=-fPIC
+export CC_SWITCHES+=-fpic
 # ehs is more generic
 export EHS_ARCH=arm
 export EHS_OS=linux-android
@@ -100,13 +100,3 @@ export EHS_DEVMAN_MON_SUPPORT=yes
 # uncomment this variable if the platform needs to support deprecated toolkit
 ##export EHS_TOOLKIT_DEPRECATED=yes
 
-#
-# uncomment this variable if the platform requires networking support
-#
-# Set this to reflect the Comms API (e.g. BSD or Winsock)
-export EHS_COMMS_API_SUPPORT=bsdsockets
-
-#
-# Set this to reflect the type of communication task (e.g. tcp_server_common, ...)
-export EHS_COMMS_TASK=tcp_server_common
-#@todo this should just go to the bdcsockets and winsockets .mk files
