@@ -34,6 +34,6 @@ WORKDIR "/ert-components"
 ENTRYPOINT ./configure
 ##ENTRYPOINT #exec #['/bin/sh'] #["./configure"] CMD["linux_x86_gts_gst"]
 RUN make prepdeps
-RUN make
+#RUN make
 #RUN make targetenv
 #RUN make targetenv_deb
