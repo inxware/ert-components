@@ -29,7 +29,7 @@ endif
 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
 #Note - windows targets in componentlibrary use hyphens between components (randomly)
-export COMPONENT_VARIANT=gtk_gst-no-gstlibs
+export COMPONENT_VARIANT=gtk_gst
 
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
 #export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
