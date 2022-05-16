@@ -54,6 +54,7 @@ ENTRYPOINT ./configure
 #ENV CXX=g++-11
 
 ##ENTRYPOINT #exec #['/bin/sh'] #["./configure"] CMD["linux_x86_gts_gst"]
-#RUN make
+RUN make prepdeps
+RUN make
 #RUN make targetenv
 #RUN make targetenv_deb
