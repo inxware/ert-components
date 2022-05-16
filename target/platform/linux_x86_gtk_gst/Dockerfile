@@ -7,7 +7,7 @@ RUN apt install -y curl
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
 RUN apt-get -y install openssh-client && apt-get install -y make && apt-get -y install git-lfs
 RUN apt-get install -y build-essential libcurl4-openssl-dev libarchive-dev libexpat1-dev libidn2-0-dev  zlib1g-dev
-
+ENTRYPOINT 
 
 #now using public repo @pierre make it public for now
 #RUN chmod 666 /dev/tty
@@ -52,7 +52,7 @@ RUN apt-get install -y build-essential libcurl4-openssl-dev libarchive-dev libex
 ##COPY configure /configure
 #ENV CC=gcc-11
 #ENV CXX=g++-11
-ENTRYPOINT 
+
 ##ENTRYPOINT #exec #['/bin/sh'] #["./configure"] CMD["linux_x86_gts_gst"]
 #RUN make
 #RUN make targetenv
