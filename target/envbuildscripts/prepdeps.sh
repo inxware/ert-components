@@ -19,13 +19,13 @@ fi
 LOCAL_BASE="../"
 
 if [ ! -n "${REPOSITORY_BASE}" ]; then
-	REPOSITORY_BASE="ssh://repo-user@server:/home/inx-data/data/Repos/"
+	REPOSITORY_BASE="ssh://git@github.com:inxware/"
 fi
 
 #
 # CORE PLATFORM SUPPORT FOR EHS
 #
-EHS_CORE_SUPPORT_DIR="EHS-build-support"
+EHS_CORE_SUPPORT_DIR="ert-build-support"
 EHS_CORE_SUPPORT_REPO="${EHS_CORE_SUPPORT_DIR}.git"
 
 #EHS_CORE_SUPPORT_PATH_FROM_BASE="${EHS_CORE_SUPPORT_DIR}/target_libs/"
