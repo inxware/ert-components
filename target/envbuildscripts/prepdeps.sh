@@ -162,7 +162,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     if ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}  &> /dev/null ; then
         echo "Using existing Docker image "
         echo "Current PWD = "$(pwd)
-        ${SUDO_COMMAND} docker run  --privileged -it \
+        ${SUDO_COMMAND} docker run --rm --privileged -it \
              -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             sh -c "pwd &&  make -j 8 && make targetenv"
@@ -189,7 +189,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
             ${SUDO_COMMAND} docker build  -f ${PATH_TO_TARGET_DOCKERFILE} -t  ${DOCKER_IMAGE}  .
           
              echo "Current PWD = "$(pwd)
-            ${SUDO_COMMAND} docker run  --privileged -it \
+            ${SUDO_COMMAND} docker run --rm --privileged -it \
              -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             sh -c "pwd &&  make -j 8 && make targetenv"

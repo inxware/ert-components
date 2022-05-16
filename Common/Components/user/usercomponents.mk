@@ -19,7 +19,7 @@ OBJECTS += inx-xml_stream.$(OBJ)
 OBJECTS += inx-JSONObjectFunctionBlock.$(OBJ)
 
 #@todo this is for the xml stream parser - should be out somewhere more sensible..
-ifeq ($(EHS_GNU_OS),$(filter $(EHS_GNU_OS),mingw32msvc w64-mingw32))
+ifeq ($(EHS_GNU_OS),w64-mingw32)
 LIB+= expat-1
 else
 ifeq ($(SYSTEM_VARIANT),RASPBERRYPI)
