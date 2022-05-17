@@ -27,6 +27,7 @@ jobs:
       run: | 
         docker build - < ./target/platform/linux_amd64/Dockerfile --tag inxwaretesting
         echo "Configured inxwaretesting"
+        docker push docker.io/zuhaibasgher/inxwaretesting
         
     - name: "Push created image to dockerhub repository"
       run: |
