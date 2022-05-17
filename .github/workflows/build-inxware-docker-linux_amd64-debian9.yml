@@ -25,9 +25,9 @@ jobs:
 #    - uses: actions/checkout@main
     - name: "running into docker"
       run: | 
-        docker build - < ./target/platform/linux_amd64/Dockerfile --tag inxwaretesting
+        docker build - < ./target/platform/linux_amd64/Dockerfile --tag zuhaibasgher/inxwaretesting
         echo "Configured inxwaretesting"
-        docker push docker.io/zuhaibasgher/inxwaretesting
+        docker push zuhaibasgher/inxwaretesting
         
     - name: "Push created image to dockerhub repository"
       run: |
