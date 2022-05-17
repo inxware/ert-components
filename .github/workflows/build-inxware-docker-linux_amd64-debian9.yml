@@ -30,8 +30,6 @@ jobs:
     - name: "running into docker"
       run: | 
         docker build - < ./target/platform/linux_amd64/Dockerfile --tag linux_amd64_image
-        echo "Docker building complete Now run Docker image" 
-        docker ps | grep "linux_amd64_image_container"
         echo "Configured linux_amd64_image"
         
     - name: "Push created image to dockerhub repository"
