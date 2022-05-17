@@ -11,3 +11,4 @@ RUN make prefix=/usr/local install
 RUN git --version 
 RUN apt install -y curl
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
+RUN git lfs install
