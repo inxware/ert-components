@@ -7,7 +7,7 @@ RUN cd /usr/src/
 RUN wget https://github.com/git/git/archive/v2.18.0.tar.gz -O git.tar.gz
 RUN tar -xf git.tar.gz
 RUN cd git-*
-RUN cd usr/local/
+RUN cd usr/local/bin/
 RUN make  all
 RUN make install
 RUN git --version 
