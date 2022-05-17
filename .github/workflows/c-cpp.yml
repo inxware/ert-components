@@ -14,28 +14,26 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        path: ert-componentsX
+        path: ert-components
     - name: Checkout tools repo
       uses: actions/checkout@v3
       with:
         repository: inxware/ert-build-support
-        path: ert-build-supportX
+        path: ert-build-support
         ref: refs/heads/main
         lfs: true
     - name: Checkout contrib middleware repo
       uses: actions/checkout@v3
       with:
         repository: inxware/ert-contrib-middleware
-        path: ert-contrib-middlewareX
+        path: ert-contrib-middleware
         ref: refs/heads/main
         lfs: true
     - name: configure 
       run: | 
-        ls -l 
-        ls -l ../
-        ls -l ../
          cd ../ert-components
          tree -L 4 ../../
+         pwd
          ./configure linux_x86_gtk_gst
     - name: make
       run: |
