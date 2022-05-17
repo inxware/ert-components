@@ -135,9 +135,9 @@ fi
 
 ########################################################################
 #update local archive
-mkdir -p "../../ert-components/$ARCHIVE_DIRECTORY"
-cp dldata.tgz "../../ert-components/$ARCHIVE_DIRECTORY/"
-cp dldata.sh  "../../ert-components/$ARCHIVE_DIRECTORY/"
+mkdir -p "../../EHS/$ARCHIVE_DIRECTORY"
+cp dldata.tgz "../../EHS/$ARCHIVE_DIRECTORY/"
+cp dldata.sh  "../../EHS/$ARCHIVE_DIRECTORY/"
 
 ########################################################################
 ##Update to server
