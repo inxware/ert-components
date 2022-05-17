@@ -9,4 +9,4 @@ RUN sudo tar -xf git.tar.gz
 RUN cd git-*
 RUN make prefix=/usr/local all
 RUN make prefix=/usr/local install
-RUN git --version
+RUN git --version 
