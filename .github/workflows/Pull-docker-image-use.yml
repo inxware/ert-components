@@ -10,7 +10,7 @@ jobs:
   build:
 
     runs-on: zuhaibasgher/inxwaretesting
-#    container: zuhaibasgher/inxwaretesting
+    container: zuhaibasgher/inxwaretesting
     steps:
     - uses: actions/checkout@v3
       with:
