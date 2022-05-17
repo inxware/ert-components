@@ -31,18 +31,26 @@ jobs:
         lfs: true
     - name: configure 
       run: | 
-         cd ert-components 
+         pwd
+         cd ert-components
+         pwd
          tree -L 4 ../
          ./configure linux_x86_gtk_gst
     - name: make
       run: |
+          pwd
           cd ert-components
+          pwd
           make -j 8
     - name: make targetenv
       run: |
+          pwd
            cd ert-components
+           pwd
            make targetenv
     - name: make distcheck
       run: |
+           pwd
            cd ert-components
+           pwd
            make targetenv_deb
