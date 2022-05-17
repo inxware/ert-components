@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: zuhaibasgher/inxwaretesting
+    runs-on: debian:9
     container: zuhaibasgher/inxwaretesting
     steps:
     - uses: actions/checkout@v3
