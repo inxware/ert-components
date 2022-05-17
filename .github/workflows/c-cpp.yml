@@ -37,13 +37,16 @@ jobs:
          ./configure linux_x86_gtk_gst
     - name: make
       run: |
+         cd ert-components
          pwd
          make -j 8
     - name: make targetenv
       run: |
-           pwd
-           make targetenv
+         cd ert-components
+         pwd
+         make targetenv
     - name: make distcheck
       run: |
+         cd ert-components
          pwd
          make targetenv_deb
