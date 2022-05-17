@@ -1,0 +1,52 @@
+name: Pull-Custom-Docker-Image
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+    container: zuhaibasgher/inxwaretesting
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: ert-components
+    - name: Checkout tools repo
+      uses: actions/checkout@v3
+      with:
+        repository: inxware/ert-build-support
+        path: ert-build-support
+        ref: refs/heads/main
+        lfs: true
+    - name: Checkout contrib middleware repo
+      uses: actions/checkout@v3
+      with:
+        repository: inxware/ert-contrib-middleware
+        path: ert-contrib-middleware
+        ref: refs/heads/main
+        lfs: true
+    - name: configure 
+      run: | 
+         cd ert-components
+         tree -L 4 ../../
+         pwd
+         ./configure linux_x86_gtk_gst
+    - name: make
+      run: |
+         cd ert-components
+         pwd
+         make -j 8
+    - name: make targetenv
+      run: |
+         cd ert-components
+         pwd
+         make targetenv
+    - name: make distcheck
+      run: |
+         cd ert-components
+         pwd
+         make targetenv_deb
