@@ -9,12 +9,26 @@ on:
         required: false
         type: string
 jobs:
+  linux_x86_gtk_gst:
 
-  build:
-
-    runs-on: ubuntu:18.04
+    runs-on: ubuntu-18.04
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file <target/platform/XXX/Dockerfile> --tag my-image-name:$(date +%s)
+    - uses: actions/checkout@main
+    - name: Login to DockerHub Registry
+      run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        
+        
+#    - uses: actions/checkout@main
+    - name: "running into docker"
+      run: | 
+        docker build - < ./target/platform/linux_amd64/Dockerfile --tag linux_amd64_image
+        echo "Docker building complete Now run Docker image" 
+        docker run -d --name x86_gtk_gst_container x86_gtk_gst_image "linux_x86_gtk_gst"
+        docker ps | grep "x86_gtk_gst_container"
+        echo "Configured linux_x86_gtk_gst"
+        
+    - name: "Push created image to dockerhub repository"
+      run: |
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/inxwaretesting
+        echo "Pushed Complete"
