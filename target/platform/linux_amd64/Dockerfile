@@ -7,10 +7,6 @@ RUN cd /usr/src/
 RUN wget https://github.com/git/git/archive/v2.18.0.tar.gz -O git.tar.gz
 RUN tar -xf git.tar.gz
 WORKDIR git-2.18.0
-RUN pwd
-RUN ls -l
-WORKDIR usr/local/bin/
-RUN ls -l
-RUN make  all
-RUN make install
+RUN make prefix=/usr/local all
+RUN make prefix=/usr/local install
 RUN git --version 
