@@ -1,11 +1,13 @@
 name: inxware/linux_amd64-buildenv
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
+  workflow_call:
+    inputs:
+      username:
+        description: 'A username passed from the caller workflow'
+        default: 'john-doe'
+        required: false
+        type: string
 jobs:
 
   build:
