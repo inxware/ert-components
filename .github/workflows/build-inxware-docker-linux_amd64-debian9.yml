@@ -31,7 +31,7 @@ jobs:
       run: | 
         docker build - < ./target/platform/linux_amd64/Dockerfile --tag linux_amd64_image
         echo "Docker building complete Now run Docker image" 
-        docker run -d --name x86_gtk_gst_container x86_gtk_gst_image "linux_x86_gtk_gst"
+        docker run -d --name x86_gtk_gst_container x86_gtk_gst_image "linux_amd64_image"
         docker ps | grep "x86_gtk_gst_container"
         echo "Configured linux_x86_gtk_gst"
         
