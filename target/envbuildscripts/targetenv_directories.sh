@@ -25,7 +25,7 @@ mkdir -p $STAGING_DIRECTORY
 #@todo Use $STAGING_DIRECTORY instead of the recompiled path in al the following
 
 mkdir -p ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET
-cp -PR ../EHS/target/envtree/Generic-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/  
+cp -PR ../ert-components/target/envtree/Generic-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/  
 
 echo "#~~~~~~~~~~ Adding Generic Devman Components to ert file system  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~#"
 mkdir -p ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/devman
@@ -36,9 +36,9 @@ cp -PR ./target/envtree/Generic-ehs-tree/devman/plugins/player-ehs_dir/* ../TARG
 echo "#~~~~~~~~~~ Adding specificdDevman components to ert file system  ~~~~~~~~~~~~~~~~~~~~~~~~~~~#"
 # Copy the target specific files to the file system
 # note - may not be target specific files for some OSs
-test -e ../EHS/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir && cp -PR ../EHS/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
-test -e ../EHS/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir && cp -PR ../EHS/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
-test -e ../EHS/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir && cp -PR ../EHS/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
+test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
+test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
+test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
 
 
 ########################################################################

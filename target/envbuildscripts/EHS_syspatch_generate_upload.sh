@@ -31,8 +31,8 @@ TARGET_ENV_NAME="ehs_env-$TARGET"
 
 export STAGING_DIRECTORY="../TARGET_TREES/$TARGET_ENV_NAME"
 
-if [ ! -e ../EHS ] ;then
-	echo this script must be run from the EHS directory.
+if [ ! -e ../ert-components ] ;then
+	echo this script must be run from the ert-components directory.
 	exit
 fi
 
@@ -135,9 +135,9 @@ fi
 
 ########################################################################
 #update local archive
-mkdir -p "../../EHS/$ARCHIVE_DIRECTORY"
-cp dldata.tgz "../../EHS/$ARCHIVE_DIRECTORY/"
-cp dldata.sh  "../../EHS/$ARCHIVE_DIRECTORY/"
+mkdir -p "../../ert-components/$ARCHIVE_DIRECTORY"
+cp dldata.tgz "../../ert-components/$ARCHIVE_DIRECTORY/"
+cp dldata.sh  "../../ert-components/$ARCHIVE_DIRECTORY/"
 
 ########################################################################
 ##Update to server

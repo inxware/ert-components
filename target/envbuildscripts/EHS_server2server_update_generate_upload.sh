@@ -34,8 +34,8 @@ if [[ "$SPECIFIC_TARGET" == *"android"* ]]; then
 	
 	export STAGING_DIRECTORY="${PWD}/../TARGET_TREES/${TARGET_ENV_NAME}"
 	
-	if [ ! -e ../EHS ] ;then
-		echo this script must be run from the EHS directory.
+	if [ ! -e ../ert-components] ;then
+		echo this script must be run from the ert-components directory.
 		exit
 	fi
 	 

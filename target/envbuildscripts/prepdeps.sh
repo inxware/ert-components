@@ -65,7 +65,7 @@ EHS_COMPONENT_SUPPORT_SERVER_PATH="${REPOSITORY_BASE}/${EHS_CORE_SUPPORT_REPO}"
 if [ 1 == 1 ];then
 
 
-#echo "Retrieving core target  support build directory for $EHS_OS_$ARCH from $EHS_COMPONENT_SUPPORT_LOCAL_PATH"
+#echo "Retrieving core target  support build directory for ${EHS_GNU_OS_ARCH} from ${EHS_COMPONENT_SUPPORT_LOCAL_PATH}"
 
 if [ -e $EHS_CORE_SUPPORT_LOCAL_PATH ]; then 
 	echo updating ert-build-support repository to $EHS_CORE_SUPPORT_LOCAL_PATH
@@ -80,7 +80,7 @@ else
 	#svn co $EHS_CORE_SUPPORT_SERVER_PATH $EHS_CORE_SUPPORT_LOCAL_PATH
 fi
 
-echo "Retrieving component support support build directory for $(EHS_GNU_OS_ARCH)$"
+echo "Retrieving component support support build directory for ${EHS_GNU_OS_ARCH}"
 if [ -e $EHS_COMPONENT_SUPPORT_LOCAL_PATH ]; then 
 	echo updating ert-contrib-middleware library repository to $EHS_COMPONENT_SUPPORT_LOCAL_PATH
 	pushd $EHS_COMPONENT_SUPPORT_LOCAL_PATH
@@ -140,11 +140,11 @@ SUDO_COMMAND= # Dot do this use the docker group instead:
 #if newgrp docker ; then
 #echo Switched to docker group OK
 #else
+echo "Running in Docker Container..."
 echo "If you get access errors then you probably don't belong to the docker group - please fix this with"
-echo "$sudo groupadd docker"
-echo -e "$sudo usermod -aG docker \$USER"
-
-echo "newgrp docker" 
+echo -e "  \$sudo groupadd docker"
+echo -e "  \$sudo usermod -aG docker \$USER"
+echo -e "  \$newgrp docker"
 #fi
 PATH_TO_TARGET_DOCKER_IMAGE="${PWD}/target/platform/${1}/Dockerimagename"
 PATH_TO_TARGET_DOCKERFILE="${PWD}/target/platform/${1}/Dockerfile"
@@ -165,7 +165,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
         ${SUDO_COMMAND} docker run --user $(id -u):$(id -g) --rm  --privileged -it \
              -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
-            sh -c "pwd &&  make -j 8 && make targetenv"
+            sh -c "pwd && ls -l .. && make -j 8 && make targetenv"
         #sh -c "pwd && ls -al && ls -al ../"
     else 
        echo "Trying to build the dockerfile"
@@ -191,7 +191,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
             ${SUDO_COMMAND} docker run --user $(id -u):$(id -g) --rm --privileged -it \
              -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
-            sh -c "pwd &&  make -j 8 && make targetenv"
+            sh -c "pwd && ls -l .. &&  make -j 8 && make targetenv"
             fi
     fi
     popd
