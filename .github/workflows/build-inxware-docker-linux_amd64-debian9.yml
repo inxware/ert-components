@@ -1,13 +1,16 @@
 name: inxware/linux_amd64-buildenv
 
 on:
-  workflow_call:
-    inputs:
-      username:
-        description: 'A username passed from the caller workflow'
-        default: 'john-doe'
-        required: false
-        type: string
+  push:
+    branches:
+      - main
+#  workflow_call:
+#   inputs:
+#      username:
+#        description: 'A username passed from the caller workflow'
+#        default: 'john-doe'
+#        required: false
+#        type: string
 jobs:
   linux_x86_gtk_gst:
 
