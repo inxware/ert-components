@@ -9,8 +9,8 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
-    container: zuhaibasgher/inxwaretesting
+    runs-on: zuhaibasgher/inxwaretesting
+#    container: zuhaibasgher/inxwaretesting
     steps:
     - uses: actions/checkout@v3
       with:
