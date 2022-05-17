@@ -6,7 +6,8 @@ RUN apt-get install -y build-essential libcurl4-openssl-dev libarchive-dev libex
 RUN cd /usr/src/
 RUN wget https://github.com/git/git/archive/v2.18.0.tar.gz -O git.tar.gz
 RUN tar -xf git.tar.gz
-RUN cd git-*
+RUN cd git-2.18.0
+RUN pwd
 RUN ls -l
 RUN cd usr/local/bin/
 RUN ls -l
