@@ -18,19 +18,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@main
-    - name: Login to DockerHub Registry
-      env:
-        DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }} 
-        
+    - name: Login to DockerHub Registry        
       run:  docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }} 
         
         
 #    - uses: actions/checkout@main
     - name: "running into docker"
       run: | 
-        docker build - < ./target/platform/linux_amd64/Dockerfile --tag linux_amd64_image
-        echo "Configured linux_amd64_image"
+        docker build - < ./target/platform/linux_amd64/Dockerfile --tag inxwaretesting
+        echo "Configured inxwaretesting"
         
     - name: "Push created image to dockerhub repository"
       run: |
