@@ -34,7 +34,7 @@ jobs:
          cd ert-components
          tree -L 4 ../../
          pwd
-         ./configure linux_x86_gtk_gst
+         ./configure linux_amd64
     - name: make prepdeps
       run: |
          cd ert-components
