@@ -39,7 +39,12 @@ jobs:
            pwd
            ./configure linux_amd64
            ps -eaf
-    - name: make -j 8
+    - name: make
+      run: |
+           cd ert-components
+           pwd
+           make -j8
+    - name: make targetenv
       run: |
            cd ert-components
            pwd
