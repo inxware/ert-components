@@ -1,9 +1,9 @@
-name: inxware/linux_amd64-buildenv
+name: inxware/Debian-9
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - '/target/platform/docker/Debian-9/Dockerfile'
 #  workflow_call:
 #   inputs:
 #      username:
