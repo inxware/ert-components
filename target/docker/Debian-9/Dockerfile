@@ -8,7 +8,7 @@ RUN tar -xf git.tar.gz
 WORKDIR git-2.18.0
 RUN make prefix=/usr/local all
 RUN make prefix=/usr/local install
-RUN git --version 
+RUN git --version
 RUN apt-get install -y curl
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
 RUN apt-get install git-lfs
