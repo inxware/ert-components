@@ -43,7 +43,7 @@ endif
 
 #if the platform doesn't specify a specific libc/middleware version with EHS_GNU_OS_VERSION then set it to the same as the toolchain
 ifdef EHS_GNU_OS_VERSION
-	EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)$(EHS_GNU_OS_VERSION)
+	EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)#$(EHS_GNU_OS_VERSION)
 else 
     EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)
 endif
