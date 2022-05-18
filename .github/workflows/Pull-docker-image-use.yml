@@ -40,11 +40,6 @@ jobs:
          cd ert-components
          pwd
          make prepdeps
-    - name: make
-      run: |
-         cd ert-components
-         pwd
-         make -j 8
     - name: make targetenv
       run: |
          cd ert-components
