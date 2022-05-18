@@ -12,7 +12,7 @@ on:
 #        required: false
 #        type: string
 jobs:
-  linux_x86_gtk_gst:
+  Build-Push-Debian-9:
 
     runs-on: ubuntu-18.04
 
