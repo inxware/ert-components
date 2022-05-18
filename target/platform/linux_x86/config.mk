@@ -41,7 +41,7 @@ export COMPONENT_VARIANT=gtk_gst
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
 export EHS_GNU_ARCH=i686-pc
 export EHS_GNU_OS=linux-gnu
-export EHS_GNU_OS_VERSION=-4.4.6
+#export EHS_GNU_OS_VERSION=-4.4.6
 export CC_OVERRIDE=i686-pc-linux-gnu-gcc
 #export EHS_GNU_OS_VERSION=i686-pc-linux-gnu-4.4.6
 #use toolchain clib environment
