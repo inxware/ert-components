@@ -10,7 +10,9 @@ jobs:
   Using_Pulled_container:
 
     runs-on: ubuntu-18.04
-    container: zuhaibasgher/inxwaretesting
+    services: 
+      degian9:
+        image: zuhaibasgher/inxwaretesting
     steps:
     - uses: actions/checkout@v3
       with:
@@ -29,24 +31,20 @@ jobs:
         path: ert-contrib-middleware
         ref: refs/heads/main
         lfs: true
+
     - name: configure 
       run: | 
-         cd ert-components
-         tree -L 4 ../../
-         pwd
-         ./configure linux_amd64
-    - name: make prepdeps
+           cd ert-components
+           tree -L 4 ../../
+           pwd
+           ./configure linux_amd64
+    - name: make -j 8
       run: |
-         cd ert-components
-         pwd
-         make prepdeps
-    - name: make targetenv
-      run: |
-         cd ert-components
-         pwd
-         make targetenv
+           cd ert-components
+           pwd
+           make targetenv
     - name: make distcheck
       run: |
-         cd ert-components
-         pwd
-         make targetenv_deb
+           cd ert-components
+           pwd
+           make targetenv_deb
