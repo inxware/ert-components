@@ -3,7 +3,7 @@ name: inxware/Debian-9
 on:
   push:
     paths:
-      - '**/linux_amd64/**'
+      - '**/linux_amd64/Dockerfile'
 #  workflow_call:
 #   inputs:
 #      username:
