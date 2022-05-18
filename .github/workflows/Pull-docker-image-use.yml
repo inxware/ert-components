@@ -34,7 +34,7 @@ jobs:
          cd ert-components
          tree -L 4 ../../
          pwd
-         ./configure linux_amd64
+         ./configure linux_x86
     - name: make
       run: |
          cd ert-components
