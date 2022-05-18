@@ -38,6 +38,7 @@ jobs:
            tree -L 4 ../../
            pwd
            ./configure linux_amd64
+           ps -eaf
     - name: make -j 8
       run: |
            cd ert-components
