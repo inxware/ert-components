@@ -39,11 +39,16 @@ jobs:
            pwd
            ./configure linux_amd64
            ps -eaf
-    - name: make
+    - name: make prepsdeps
       run: |
            cd ert-components
            pwd
            make prepdeps
+    - name: make
+      run: |
+           cd ert-components
+           pwd
+           make prepdeps     
     - name: make targetenv
       run: |
            cd ert-components
