@@ -1,0 +1,5 @@
+name: 'Use custom docker file'
+description: 'use custom docker image which is on docker hub'
+runs:
+  using: 'docker'
+  image: 'zuhaibasgher/inxwaretesting'
