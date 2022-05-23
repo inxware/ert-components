@@ -1,5 +1,4 @@
-name: inxware/Debian-9
-
+name: update-docker-linux_amd64_debian9
 on:
   push:
     paths:
