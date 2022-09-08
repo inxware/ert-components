@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: inxware/ubuntu18-build-essential
 
     steps:
     - uses: actions/checkout@v3
