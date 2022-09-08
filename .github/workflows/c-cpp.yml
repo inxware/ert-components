@@ -16,7 +16,7 @@ jobs:
       with:
         path: testing_ert-components
     - name: Checkout tools repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3 
       with:
         repository: inxware/ert-build-support
         path: ert-build-support
