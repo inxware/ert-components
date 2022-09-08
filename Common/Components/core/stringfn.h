@@ -1,13 +1,19 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * stringfn.h
  *
  * function prototypes for stringFunctions.c
  *
- * @author: ??
- * @version: $Revision: 4565 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ * @author: inx limited
+ *
  */
 
 #ifndef EHS_STRING_FUNCTIONS_H
@@ -16,7 +22,10 @@
 
 /******************************************************************************/
 /* Declare FormatString */
-#define EHS_STRING_FORMAT_NAME "string_format"
+
+#define EHS_FB_NAME_string_format "string_format"
+#define EHS_FB_ID_string_format 0xDF0A
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_format);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_format);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format);
@@ -26,7 +35,10 @@ EHS_FB_FUNCTIONS(string_format)
 
 /******************************************************************************/
 /* Declare FormatString8 */
-#define EHS_STRING_FORMAT_NAME8 "string_format8"
+
+#define EHS_FB_NAME_string_format8 "string_format8"
+#define EHS_FB_ID_string_format8 0xD55E
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_format8);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_format8);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format8);
@@ -36,7 +48,10 @@ EHS_FB_FUNCTIONS(string_format8)
 
 /******************************************************************************/
 /* Declare FormatString8 */
-#define EHS_STRING_SCANF8_NAME "stringfn_scan8"
+
+#define EHS_FB_NAME_stringfn_scan8"stringfn_scan8"
+#define EHS_FB_ID_stringfn_scan8 0xD325
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(stringfn_scanf8);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(stringfn_scanf8);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(stringfn_scanf8);
@@ -46,7 +61,10 @@ EHS_FB_FUNCTIONS(stringfn_scanf8)
 
 /******************************************************************************/
 /* Declare string_cat */
-#define EHS_CAT_STRING_NAME "CatString"
+
+#define EHS_FB_NAME_CatString "CatString"
+#define EHS_FB_ID_CatString 0x56CC
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_cat);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_cat);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_cat);
@@ -56,7 +74,10 @@ EHS_FB_FUNCTIONS(string_cat)
 
 /******************************************************************************/
 /* Declare string_cmp */
-#define EHS_CMP_STRING_NAME "CmpString"
+
+#define EHS_FB_NAME_CmpString "CmpString"
+#define EHS_FB_ID_CmpString 0xC389
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_cmp);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_cmp);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_cmp);
@@ -66,7 +87,10 @@ EHS_FB_FUNCTIONS(string_cmp)
 
 /******************************************************************************/
 /* Declare string_len */
-#define EHS_LEN_STRING_NAME "LenString"
+
+#define EHS_FB_NAME_LenString "LenString"
+#define EHS_FB_ID_LenString 0x9437
+
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_len);
 
 /* declare the table for use by the blockref table */
@@ -74,7 +98,10 @@ EHS_FB_FUNCTIONS(string_len)
 
 /******************************************************************************/
 /* Declare string_find */
-#define EHS_FIND_STRING_NAME "FindString"
+
+#define EHS_FB_NAME_FindString "FindString"
+#define EHS_FB_ID_FindString 0x7D98
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_find);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_find);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_find);
@@ -85,7 +112,10 @@ EHS_FB_FUNCTIONS(string_find)
 
 /******************************************************************************/
 /* Declare string_toUpper */
-#define EHS_TO_UPPER_STRING_NAME "ToUpperString"
+
+#define EHS_FB_NAME_ToUpperString "ToUpperString"
+#define EHS_FB_ID_ToUpperString 0xF2A3
+
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_toUpper);
 
 /* declare the table for use by the blockref table */
@@ -93,7 +123,10 @@ EHS_FB_FUNCTIONS(string_toUpper)
 
 /******************************************************************************/
 /* Declare string_toLower */
-#define EHS_TO_LOWER_STRING_NAME "ToLowerString"
+
+#define EHS_FB_NAME_ToLowerString "ToLowerString"
+#define EHS_FB_ID_ToLowerString 0x3BCE
+
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_toLower);
 
 /* declare the table for use by the blockref table */
@@ -101,7 +134,9 @@ EHS_FB_FUNCTIONS(string_toLower)
 
 /******************************************************************************/
 /* Declare string_charAt */
-#define EHS_CHAR_AT_STRING_NAME "CharAtString"
+#define EHS_FB_NAME_CharAtString "CharAtString"
+#define EHS_FB_ID_CharAtString 0xFE14
+
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_charAt);
 
 /* declare the table for use by the blockref table */
@@ -109,7 +144,10 @@ EHS_FB_FUNCTIONS(string_charAt)
 
 /******************************************************************************/
 /* Declare string_strAt */
-#define EHS_STR_AT_STRING_NAME "StrAtString"
+
+#define EHS_FB_NAME_StrAtString "StrAtString"
+#define EHS_FB_ID_StrAtString 0x64DA
+
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_strAt);
 
 /* declare the table for use by the blockref table */
@@ -117,7 +155,10 @@ EHS_FB_FUNCTIONS(string_strAt)
 
 /******************************************************************************/
 /* Declare string_insert */
-#define EHS_INSERT_STRING_NAME "InsertString"
+
+#define EHS_FB_NAME_InsertString "InsertString"
+#define EHS_FB_ID_InsertString 0xC01A
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_insert);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_insert);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_insert);
@@ -127,7 +168,10 @@ EHS_FB_FUNCTIONS(string_insert)
 
 /******************************************************************************/
 /* Declare string_sub */
-#define EHS_SUBSTRING_NAME "SubString"
+
+#define EHS_FB_NAME_SubString "SubString"
+#define EHS_FB_ID_SubString 0xA876
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_sub);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_sub);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_sub);

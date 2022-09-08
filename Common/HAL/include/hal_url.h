@@ -1,14 +1,18 @@
-
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
 #ifndef _HAL_URL_H_
 #define _HAL_URL_H_
 /** @file hal_xml.h
  * Definitions for Common utilities for supporting xml access
  *
- * @author: Pierre Drezet
- * @version: $Revision: 1691 $
- * @date: $Date$
+ * @author: inx limited
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 //#include "hal-api.h" // need stuff from a few places in the hal
@@ -37,10 +41,11 @@ ehs_bool EhsHURLGlobalInit() ;
 #define EHS_POST_STRING_LENGTH_MAX 50000U
 
 
-typedef struct EhsNetworkServerInfo {
-	ehs_char http_username[EHS_STRING_LENGTH_MAX];
-	ehs_char http_password[EHS_STRING_LENGTH_MAX];
-		ehs_uint32 authentication;
+typedef struct EhsNetworkServerInfo
+{
+    ehs_char http_username[EHS_STRING_LENGTH_MAX];
+    ehs_char http_password[EHS_STRING_LENGTH_MAX];
+    ehs_uint32 authentication;
 } EhsNetworkServerInfo_t;
 
 /** This is the call back function prototype that can be called at the end of a receiving a chunk
@@ -53,21 +58,22 @@ typedef ehs_uint32 (*EhsHURLget_write_chunk_CB)(void * userdata,void * bufferdat
  * and can also be configured to pause reading (e.g.when a data threshold has been reached)
  *  by setting the WaitToContinue falg to true.
  */
-typedef struct EhsHwrite_data_buffer {
-	FILE *filehandle; /* File handle, if not null data will also be written into here */
-	//ehs_char poisontest1[64];
-	ehs_uint32 size;   /* size of buffer chunk */
-	ehs_uint32 current_position; /* NUmber of bytes downloaded */
-	ehs_uint32 nDutyPause_us; /* delay that the function shoiuld have before accepting more data */
-	ehs_bool bWaitToContinue; /* wait before continuing - this is set by the user for the mode */
-	ehs_bool bWait; /* semaphore to wait before continuing */
-	ehs_bool bOverflowed; /* set if data is larger than the remaing buffer size */
-	ehs_bool bAbort; /* flag set by client to signal aborting the request */
-	EhsHURLget_write_chunk_CB   fpChunkDoneCallbackFunction; /* function called if not null when a chunk has been downloaded. */
-	//ehs_char poisontest6[64];
-	void *   vChunkDoneCallbackFunctionContext; /* context of the above function call */
+typedef struct EhsHwrite_data_buffer
+{
+    FILE *filehandle; /* File handle, if not null data will also be written into here */
+    //ehs_char poisontest1[64];
+    ehs_uint32 size;   /* size of buffer chunk */
+    ehs_uint32 current_position; /* NUmber of bytes downloaded */
+    ehs_uint32 nDutyPause_us; /* delay that the function shoiuld have before accepting more data */
+    ehs_bool bWaitToContinue; /* wait before continuing - this is set by the user for the mode */
+    ehs_bool bWait; /* semaphore to wait before continuing */
+    ehs_bool bOverflowed; /* set if data is larger than the remaing buffer size */
+    ehs_bool bAbort; /* flag set by client to signal aborting the request */
+    EhsHURLget_write_chunk_CB   fpChunkDoneCallbackFunction; /* function called if not null when a chunk has been downloaded. */
+    //ehs_char poisontest6[64];
+    void *   vChunkDoneCallbackFunctionContext; /* context of the above function call */
     //ehs_char poisontest2[64];;
-	ehs_char * buffer; /* buffer for data chunk data */
+    ehs_char * buffer; /* buffer for data chunk data */
     //ehs_char poisontest3[64];
 } EhsH_URLwrite_data_bufferType;
 
@@ -93,16 +99,16 @@ ehs_char* EhsGetHostAndPathFromURL(ehs_char * szHost, const ehs_char * szUrl);
  * Create Post String (This should be moved to the HAL Layer
  */
 ehs_bool EhsHCreateQueryString(CURL * curl,ehs_char * current_querystring, ehs_char * tag,
-		const ehs_char* value, ehs_uint32 max_length);
+                               const ehs_char* value, ehs_uint32 max_length);
 
 /* and a version foe dealing with integers
  * don't need the curl handle here because we don't need to URL encode integers
  * */
 ehs_bool EhsHCreateQueryStringNum( ehs_char * current_post, ehs_char * tag,
-		const ehs_uint32 value, ehs_uint32 max_length);
+                                   const ehs_uint32 value, ehs_uint32 max_length);
 
 
-RuntimePathType xdirectory_type;
+EHS_GLOBAL RuntimePathType xdirectory_type;
 
 /* Security and authentication configuration */
 ehs_bool EhsHSetUpClientTlsCertificate(CURL *curl, RuntimePathType directory_type, ehs_char * cert_path,ehs_char * key_path, ehs_char * pPassphrase);

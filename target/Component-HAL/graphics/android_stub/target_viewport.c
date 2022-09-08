@@ -1,13 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
 
 /** @file target_viewport.c
  * This file provides the definitions for EhsTargetViewportClass, which
  * drives the target's graphic device
  *
- * @author: Pierre Drezet
- * @version: $Revision: 5545 $
- * @date: $Date$
+ * @author: inx limited
  *
- * Copyright (c) inx Ltd, 2014. All rights reserved.
  */
 
 /**
@@ -62,8 +67,8 @@
 int EhsTraceLevel = 0;
 static char* currentFunc;
 #define INDENT(x) ((x==0)?"":((x==1)?">":((x==2)?">>":((x==3)?">>>":(">..>")))))
-#define ENTER(x) {ehs_uint32 ticks = EhsTgtTimer_tickTous(EhsTgtTimer_now());/*printf("%s%u.%-6u:Enter %s\n",INDENT(EhsTraceLevel),ticks/1000000,ticks%1000000,#x);*/EhsTraceLevel++;currentFunc = #x;}
-#define LEAVE(x) {ehs_uint32 ticks = EhsTgtTimer_tickTous(EhsTgtTimer_now());--EhsTraceLevel;/*printf("%s%u.%-6u:Leave %s\n",INDENT(EhsTraceLevel),ticks/1000000,ticks%1000000,#x);*/}
+#define ENTER(x) {ehs_uint32 ticks = EhsTgtTimer_tickTous(EhsTgtTimer_now());EhsTraceLevel++;currentFunc = #x;}
+#define LEAVE(x) {ehs_uint32 ticks = EhsTgtTimer_tickTous(EhsTgtTimer_now());--EhsTraceLevel;}
 #else
 #define ENTER(x)
 #define LEAVE(x)
@@ -71,9 +76,10 @@ static char* currentFunc;
 
 
 
-int engine_init_display(struct engine* engine/*, EhsTVClass* pViewport*/){
+int engine_init_display(struct engine* engine/*, EhsTVClass* pViewport*/)
+{
 
-	return 0;
+    return 0;
 }
 
 
@@ -88,9 +94,9 @@ EhsTVClass EhsTV; // Global handle of viewport strcuture
 
 ehs_bool EhsTV_init(EhsTVClass* pViewport)
 {
-	ehs_bool bInitialised = EHS_TRUE; /* has initialisation been successful? assume it has */
+    ehs_bool bInitialised = EHS_TRUE; /* has initialisation been successful? assume it has */
 
-	return bInitialised;
+    return bInitialised;
 }
 
 
@@ -112,7 +118,8 @@ void EhsTV_reset(EhsTVClass* pViewport)
  * These are tasks that are delayed until after the widgets are created
  * This is specifically so that the viewport widget attributes can be applied to the window before it is shown
  */
-void EhsTV_show(EhsTVClass* pViewport) {
+void EhsTV_show(EhsTVClass* pViewport)
+{
 }
 
 /**
@@ -145,7 +152,8 @@ void EhsTV_fade(EhsTVClass* pViewport, EhsGraphicsColourClass nColour)
 
 
 /* show a frame on the viewport */
-void EhsTV_showFrame(EhsTVClass* pViewport, ehs_bool bAddFrame) {
+void EhsTV_showFrame(EhsTVClass* pViewport, ehs_bool bAddFrame)
+{
 
 }
 
@@ -231,26 +239,29 @@ void EhsTVSurface_destroy(EhsTVClass* pViewport, EhsTVSurfaceClass* pSurface)
  */
 EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,ehs_uint16 nWidth, ehs_uint16 nHeight, EhsGraphicsColourFormatEnum eFormat,EhsGraphicsColourClass* pPalette, ehs_uint16 nPaletteSize)
 {
-	return NULL;
+    return NULL;
 }
 
 /**
  * Provide access to pixels representing the surface, create them if they don't exist @todo check crating is wise
  */
-void* EhsTVSurface_pixels(EhsTVSurfaceClass* pSurface) {
-	void* pRet = NULL;
+void* EhsTVSurface_pixels(EhsTVSurfaceClass* pSurface)
+{
+    void* pRet = NULL;
 
-	return pRet;
+    return pRet;
 }
 
 
-void EhsTVSurface_finalisePixels (EhsTVSurfaceClass* pSurface) {
-	
+void EhsTVSurface_finalisePixels (EhsTVSurfaceClass* pSurface)
+{
+
 }
 
-ehs_uint16 EhsTVSurface_height(EhsTVSurfaceClass* pSurface) {
-	ehs_uint16 nRet = 0u;
-	return nRet;
+ehs_uint16 EhsTVSurface_height(EhsTVSurfaceClass* pSurface)
+{
+    ehs_uint16 nRet = 0u;
+    return nRet;
 }
 
 /**
@@ -258,19 +269,21 @@ ehs_uint16 EhsTVSurface_height(EhsTVSurfaceClass* pSurface) {
  * index = x + y * pitch
  *
  */
-ehs_uint16 EhsTVSurface_pitch(EhsTVSurfaceClass* pSurface) {
-	ehs_uint16 nRet = 0u;
+ehs_uint16 EhsTVSurface_pitch(EhsTVSurfaceClass* pSurface)
+{
+    ehs_uint16 nRet = 0u;
 
-	return nRet;
+    return nRet;
 }
 
 /**
  * Return the width of the bitmap
  */
-ehs_uint16 EhsTVSurface_width(EhsTVSurfaceClass* pSurface) {
-	ehs_uint16 nRet = 0u;
+ehs_uint16 EhsTVSurface_width(EhsTVSurfaceClass* pSurface)
+{
+    ehs_uint16 nRet = 0u;
 
-	return nRet;
+    return nRet;
 }
 
 
@@ -307,10 +320,10 @@ void EhsTV_setZOrder(ehs_uint16 zorder)
 void EhsT_android_event_button_press(ehs_uint32 x, ehs_uint32 y)
 {
 
-	EhsTPMutex_lock(EhsTPMutex_widgetTable);
-	EhsWidgetTable_triggerViewportMouseDown(&EhsWidgetTable,x,y);
-	EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(&EhsWidgetTable,x,y);
-	EhsTPMutex_unlock(EhsTPMutex_widgetTable);
+    EhsTPMutex_lock(EhsTPMutex_widgetTable);
+    EhsWidgetTable_triggerViewportMouseDown(&EhsWidgetTable,x,y);
+    EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(&EhsWidgetTable,x,y);
+    EhsTPMutex_unlock(EhsTPMutex_widgetTable);
 
 }
 
@@ -319,28 +332,30 @@ void EhsT_android_event_button_press(ehs_uint32 x, ehs_uint32 y)
 /**
  * Callback function for handling mouse button release events from the mouse.
  */
-void EhsT_android_event_button_release(ehs_uint32 x, ehs_uint32 y) {
+void EhsT_android_event_button_release(ehs_uint32 x, ehs_uint32 y)
+{
 
 
-	EhsTPMutex_lock(EhsTPMutex_widgetTable);
-	EhsWidgetTable_triggerViewportMouseUp(&EhsWidgetTable,x,y);
-	EhsWidgetTable_registerMouseUpOnWidgetMatchCoords(&EhsWidgetTable,x,y);
-	EhsTPMutex_unlock(EhsTPMutex_widgetTable);
+    EhsTPMutex_lock(EhsTPMutex_widgetTable);
+    EhsWidgetTable_triggerViewportMouseUp(&EhsWidgetTable,x,y);
+    EhsWidgetTable_registerMouseUpOnWidgetMatchCoords(&EhsWidgetTable,x,y);
+    EhsTPMutex_unlock(EhsTPMutex_widgetTable);
 
 }
 
 /**
  * Callback function for handling mouse button hold down and move events from the mouse.
  */
-void EhsT_android_event_motion_notify( ehs_uint32 x, ehs_uint32 y)  {
+void EhsT_android_event_motion_notify( ehs_uint32 x, ehs_uint32 y)
+{
 
-	EhsTPMutex_lock(EhsTPMutex_widgetTable);
-	EhsWidgetTable_triggerViewportMouseDrag(&EhsWidgetTable,x,y);
-	EhsTPMutex_unlock(EhsTPMutex_widgetTable);
+    EhsTPMutex_lock(EhsTPMutex_widgetTable);
+    EhsWidgetTable_triggerViewportMouseDrag(&EhsWidgetTable,x,y);
+    EhsTPMutex_unlock(EhsTPMutex_widgetTable);
 
 }
 
-ehs_bool EhsTV_getScreenSize(ehs_sint32 *nScreenWidth, ehs_sint32 *nScreenHeight) 
+ehs_bool EhsTV_getScreenSize(ehs_sint32 *nScreenWidth, ehs_sint32 *nScreenHeight)
 {
 }
 

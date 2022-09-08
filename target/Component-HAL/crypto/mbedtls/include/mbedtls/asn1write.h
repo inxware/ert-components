@@ -55,7 +55,7 @@ int mbedtls_asn1_write_len( unsigned char **p, unsigned char *start, size_t len 
  * \return          the length written or a negative error code
  */
 int mbedtls_asn1_write_tag( unsigned char **p, unsigned char *start,
-                    unsigned char tag );
+                            unsigned char tag );
 
 /**
  * \brief           Write raw buffer data
@@ -69,7 +69,7 @@ int mbedtls_asn1_write_tag( unsigned char **p, unsigned char *start,
  * \return          the length written or a negative error code
  */
 int mbedtls_asn1_write_raw_buffer( unsigned char **p, unsigned char *start,
-                           const unsigned char *buf, size_t size );
+                                   const unsigned char *buf, size_t size );
 
 #if defined(MBEDTLS_BIGNUM_C)
 /**
@@ -108,7 +108,7 @@ int mbedtls_asn1_write_null( unsigned char **p, unsigned char *start );
  * \return          the length written or a negative error code
  */
 int mbedtls_asn1_write_oid( unsigned char **p, unsigned char *start,
-                    const char *oid, size_t oid_len );
+                            const char *oid, size_t oid_len );
 
 /**
  * \brief           Write an AlgorithmIdentifier sequence in ASN.1 format
@@ -124,8 +124,8 @@ int mbedtls_asn1_write_oid( unsigned char **p, unsigned char *start,
  * \return          the length written or a negative error code
  */
 int mbedtls_asn1_write_algorithm_identifier( unsigned char **p, unsigned char *start,
-                                     const char *oid, size_t oid_len,
-                                     size_t par_len );
+        const char *oid, size_t oid_len,
+        size_t par_len );
 
 /**
  * \brief           Write a boolean tag (MBEDTLS_ASN1_BOOLEAN) and value in ASN.1 format
@@ -164,7 +164,7 @@ int mbedtls_asn1_write_int( unsigned char **p, unsigned char *start, int val );
  * \return          the length written or a negative error code
  */
 int mbedtls_asn1_write_printable_string( unsigned char **p, unsigned char *start,
-                                 const char *text, size_t text_len );
+        const char *text, size_t text_len );
 
 /**
  * \brief           Write an IA5 string tag (MBEDTLS_ASN1_IA5_STRING) and
@@ -179,7 +179,7 @@ int mbedtls_asn1_write_printable_string( unsigned char **p, unsigned char *start
  * \return          the length written or a negative error code
  */
 int mbedtls_asn1_write_ia5_string( unsigned char **p, unsigned char *start,
-                           const char *text, size_t text_len );
+                                   const char *text, size_t text_len );
 
 /**
  * \brief           Write a bitstring tag (MBEDTLS_ASN1_BIT_STRING) and
@@ -194,7 +194,7 @@ int mbedtls_asn1_write_ia5_string( unsigned char **p, unsigned char *start,
  * \return          the length written or a negative error code
  */
 int mbedtls_asn1_write_bitstring( unsigned char **p, unsigned char *start,
-                          const unsigned char *buf, size_t bits );
+                                  const unsigned char *buf, size_t bits );
 
 /**
  * \brief           Write an octet string tag (MBEDTLS_ASN1_OCTET_STRING) and
@@ -209,7 +209,7 @@ int mbedtls_asn1_write_bitstring( unsigned char **p, unsigned char *start,
  * \return          the length written or a negative error code
  */
 int mbedtls_asn1_write_octet_string( unsigned char **p, unsigned char *start,
-                             const unsigned char *buf, size_t size );
+                                     const unsigned char *buf, size_t size );
 
 /**
  * \brief           Create or find a specific named_data entry for writing in a
@@ -228,9 +228,9 @@ int mbedtls_asn1_write_octet_string( unsigned char **p, unsigned char *start,
  *              to the new / existing entry.
  */
 mbedtls_asn1_named_data *mbedtls_asn1_store_named_data( mbedtls_asn1_named_data **list,
-                                        const char *oid, size_t oid_len,
-                                        const unsigned char *val,
-                                        size_t val_len );
+        const char *oid, size_t oid_len,
+        const unsigned char *val,
+        size_t val_len );
 
 #ifdef __cplusplus
 }

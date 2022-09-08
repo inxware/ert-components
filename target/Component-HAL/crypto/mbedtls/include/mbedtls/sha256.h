@@ -91,7 +91,7 @@ void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 );
  * \param ilen     length of the input data
  */
 void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *input,
-                    size_t ilen );
+                            size_t ilen );
 
 /**
  * \brief          SHA-256 final digest
@@ -125,7 +125,7 @@ extern "C" {
  * \param is224    0 = use SHA256, 1 = use SHA224
  */
 void mbedtls_sha256( const unsigned char *input, size_t ilen,
-           unsigned char output[32], int is224 );
+                     unsigned char output[32], int is224 );
 
 /**
  * \brief          Checkup routine

@@ -119,7 +119,7 @@ extern void (*mbedtls_free)( void *ptr );
  * \return              0 if successful
  */
 int mbedtls_platform_set_calloc_free( void * (*calloc_func)( size_t, size_t ),
-                              void (*free_func)( void * ) );
+                                      void (*free_func)( void * ) );
 #endif /* MBEDTLS_PLATFORM_FREE_MACRO && MBEDTLS_PLATFORM_CALLOC_MACRO */
 #else /* !MBEDTLS_PLATFORM_MEMORY */
 #define mbedtls_free       free
@@ -142,7 +142,7 @@ extern int (*mbedtls_fprintf)( FILE *stream, const char *format, ... );
  * \return              0
  */
 int mbedtls_platform_set_fprintf( int (*fprintf_func)( FILE *stream, const char *,
-                                               ... ) );
+                                  ... ) );
 #else
 #if defined(MBEDTLS_PLATFORM_FPRINTF_MACRO)
 #define mbedtls_fprintf    MBEDTLS_PLATFORM_FPRINTF_MACRO
@@ -198,7 +198,7 @@ extern int (*mbedtls_snprintf)( char * s, size_t n, const char * format, ... );
  * \return              0
  */
 int mbedtls_platform_set_snprintf( int (*snprintf_func)( char * s, size_t n,
-                                                 const char * format, ... ) );
+                                   const char * format, ... ) );
 #else /* MBEDTLS_PLATFORM_SNPRINTF_ALT */
 #if defined(MBEDTLS_PLATFORM_SNPRINTF_MACRO)
 #define mbedtls_snprintf   MBEDTLS_PLATFORM_SNPRINTF_MACRO
@@ -302,9 +302,9 @@ extern int (*mbedtls_nv_seed_write)( unsigned char *buf, size_t buf_len );
  * \return              0
  */
 int mbedtls_platform_set_nv_seed(
-            int (*nv_seed_read_func)( unsigned char *buf, size_t buf_len ),
-            int (*nv_seed_write_func)( unsigned char *buf, size_t buf_len )
-            );
+    int (*nv_seed_read_func)( unsigned char *buf, size_t buf_len ),
+    int (*nv_seed_write_func)( unsigned char *buf, size_t buf_len )
+);
 #else
 #if defined(MBEDTLS_PLATFORM_NV_SEED_READ_MACRO) && \
     defined(MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO)

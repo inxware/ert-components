@@ -65,7 +65,7 @@ extern "C" {
 #if 0
 typedef struct
 {
-  struct tcp_pcb *tpcb;             /**< The underlying tcp control block */
+    struct tcp_pcb *tpcb;             /**< The underlying tcp control block */
 }
 mbedtls_net_context;
 #else
@@ -217,7 +217,7 @@ int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len );
  *                 requires a different strategy.
  */
 int mbedtls_net_recv_timeout( void *ctx, unsigned char *buf, size_t len,
-                      uint32_t timeout );
+                              uint32_t timeout );
 
 /**
  * \brief          Gracefully shutdown the connection and free associated data

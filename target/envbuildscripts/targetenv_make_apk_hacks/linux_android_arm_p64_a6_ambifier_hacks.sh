@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 BUILD_MODE="$1" 
 
 export REPOSITORY_ANDROID_STUDIO_ROOT="$EHS_ROOT/target/os-arch/android_ALL/android_studio_ehs"
@@ -18,15 +18,17 @@ export EHS_PRODUCT_NAME="ambifier"
 source ${EHS_ROOT}"/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_make_apk_utils.sh"
 source ${EHS_ROOT}"/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_make_apk_setup.sh"
 
+# todo rename CopyEHSTools() to what it actualy does e.g. CopyDefautApp
+#todo2022 can't these function be remved from a config file? we just want paramters not code that will likely get broken in stranger ways...
 SetupTargetEnv_CopyEHSTools(){
     TOOLS_DIR=${EHS_ROOT}/../apps/
     GetApplicationRepo $TOOLS_DIR
     
     if [ -d "$TOOLS_DIR" ] && [ -d "$ANDROID_STUDIO_TOOLS_PATH" ]; then
-        echo "Coping the TSA tools app to the project."
+        echo "Copying the TSA tools app to the project."
         cp -Rf ${EHS_ROOT}/../apps/customer-apps/TSA/ambifier-v0.6.0-integrated/export/* ${ANDROID_STUDIO_TOOLS_PATH} || CancelFailed
     else
-        echo "Failed to copy the tools app!"
+        echo "Failed to copy the TSA app!"
         CancelFailed   
     fi
 }

@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file targetos_init.c
  * Initialization/reset/termination code for the OS
  *
  * @author: inx limited
- * @version: $Revision: 3946 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2008. All rights reserved.
  */
 
 /**
@@ -50,14 +56,14 @@ extern EhsBlockRefType EhsBlockRefTable_Dtv[];
  */
 void EhsTGfxSys_init()
 {
-	EHSH_LOG_INFO("early GFX init");
-	if (0) {
-		if (!EhsTV_init(&EhsTV))
-		{
-			printf("Target viewport initialisation failed\n");
-			exit(1);
-		}
-	}
+    EHSH_LOG_INFO("early GFX init");
+    if (0)
+    {
+        if (!EhsTV_init(&EhsTV))
+        {
+            exit(1);
+        }
+    }
 }
 
 /**
@@ -66,14 +72,14 @@ void EhsTGfxSys_init()
  */
 void EhsTGfxSys_initLate(void * userdata)
 {
-	EHSH_LOG_INFO("late GFX init");
-	struct EhsTVStruct* pViewport = &EhsTV;
-	pViewport->engine = userdata;
-	if (!EhsTV_init(&EhsTV))
-	{
-		EHSH_LOG_ERROR("Target viewport initialisation failed");
-		exit(1);
-	}
+    EHSH_LOG_INFO("late GFX init");
+    struct EhsTVStruct* pViewport = &EhsTV;
+    pViewport->engine = userdata;
+    if (!EhsTV_init(&EhsTV))
+    {
+        EHSH_LOG_ERROR("Target viewport initialisation failed");
+        exit(1);
+    }
 }
 
 /**
@@ -96,7 +102,7 @@ void EhsTGfxApp_init(void)
  */
 void EhsTGfxApp_term(void)
 {
-	//EhsTV_reset(&EhsTV); //not generic - moved to common code
+    //EhsTV_reset(&EhsTV); //not generic - moved to common code
 }
 
 

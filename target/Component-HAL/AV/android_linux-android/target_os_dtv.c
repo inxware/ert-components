@@ -1,3 +1,12 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 #include "target_os_dtv.h"
 #include "target_dtv.h"
 
@@ -12,7 +21,8 @@ static jmethodID methodID_JNI_AV_RegisterCallback;
 static jmethodID methodID_JNI_AV_GetIntAttribute;
 static int id_count = 1000;
 
-ehs_bool EhsTDPlayback_initJNI(struct android_app* state) {
+ehs_bool EhsTDPlayback_initJNI(struct android_app* state)
+{
 
     EHSH_LOG_INFO("Initialisation of EhsTDPlayback JNI.");
     vm = state->activity->vm;
@@ -30,20 +40,29 @@ ehs_bool EhsTDPlayback_initJNI(struct android_app* state) {
     methodID_JNI_AV_Command = (*env)->GetMethodID(env, classEhsNativeActivity, "JNI_AV_Command", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     methodID_JNI_AV_RegisterCallback = (*env)->GetMethodID(env, classEhsNativeActivity, "JNI_AV_RegisterCallback", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     methodID_JNI_AV_GetIntAttribute = (*env)->GetMethodID(env, classEhsNativeActivity, "JNI_AV_GetIntAttribute", "(Ljava/lang/String;Ljava/lang/String;)I");
-    
-    if (methodID_JNI_AV_Command) {
+
+    if (methodID_JNI_AV_Command)
+    {
         EHSH_LOG_INFO("Created 'JNI_AV_Command' for JNI ().");
-    }else {
+    }
+    else
+    {
         EHSH_LOG_ERROR("Failed to create 'JNI_AV_Command' for JNI.");
     }
-    if (methodID_JNI_AV_RegisterCallback) {
+    if (methodID_JNI_AV_RegisterCallback)
+    {
         EHSH_LOG_INFO("Created 'JNI_AV_RegisterCallback' for JNI ().");
-    }else {
+    }
+    else
+    {
         EHSH_LOG_ERROR("Failed to create 'JNI_AV_RegisterCallback' for JNI.");
     }
-    if (methodID_JNI_AV_GetIntAttribute) {
+    if (methodID_JNI_AV_GetIntAttribute)
+    {
         EHSH_LOG_INFO("Created 'JNI_AV_GetIntAttribute' for JNI ().");
-    }else {
+    }
+    else
+    {
         EHSH_LOG_ERROR("Failed to create 'JNI_AV_GetIntAttribute' for JNI.");
     }
     (*vm)->DetachCurrentThread(vm);
@@ -53,10 +72,12 @@ ehs_bool EhsTDPlayback_initJNI(struct android_app* state) {
     return EHS_TRUE;
 }
 
-ehs_bool EhsTDPlayback_JNI_AV_Command(const ehs_char* jniID, const ehs_char* jniCmdName, const ehs_char* jniData) {
-    
-    if (methodID_JNI_AV_Command) {
-       
+ehs_bool EhsTDPlayback_JNI_AV_Command(const ehs_char* jniID, const ehs_char* jniCmdName, const ehs_char* jniData)
+{
+
+    if (methodID_JNI_AV_Command)
+    {
+
         (*vm)->AttachCurrentThread(vm, &env, NULL);
 
         jstring _jniID = (*env)->NewStringUTF(env, jniID);
@@ -73,10 +94,12 @@ ehs_bool EhsTDPlayback_JNI_AV_Command(const ehs_char* jniID, const ehs_char* jni
     return EHS_FALSE;
 }
 
-ehs_bool EhsTDPlayback_JNI_AV_RegisterCallback(const ehs_char* jniID, const ehs_char* jniCallbackName, const ehs_char* jniDataPtr) {
-    
-    if (methodID_JNI_AV_RegisterCallback) {
-       
+ehs_bool EhsTDPlayback_JNI_AV_RegisterCallback(const ehs_char* jniID, const ehs_char* jniCallbackName, const ehs_char* jniDataPtr)
+{
+
+    if (methodID_JNI_AV_RegisterCallback)
+    {
+
         (*vm)->AttachCurrentThread(vm, &env, NULL);
 
         jstring _jniID = (*env)->NewStringUTF(env, jniID);
@@ -93,9 +116,11 @@ ehs_bool EhsTDPlayback_JNI_AV_RegisterCallback(const ehs_char* jniID, const ehs_
     return EHS_FALSE;
 }
 
-int EhsTDPlayback_JNI_AV_GetIntAttribute(const ehs_char* jniID, const ehs_char* jniAttribName) {
-    if (methodID_JNI_AV_GetIntAttribute) {
-       
+int EhsTDPlayback_JNI_AV_GetIntAttribute(const ehs_char* jniID, const ehs_char* jniAttribName)
+{
+    if (methodID_JNI_AV_GetIntAttribute)
+    {
+
         (*vm)->AttachCurrentThread(vm, &env, NULL);
 
         jstring _jniID = (*env)->NewStringUTF(env, jniID);
@@ -111,34 +136,37 @@ int EhsTDPlayback_JNI_AV_GetIntAttribute(const ehs_char* jniID, const ehs_char* 
     return -1;
 }
 
-void* EhsTDPlayback_init(EhsFbPvrPlayClass *pPvrPlay) {
-        //Initialise the structure for our target dependent dtv
-        ehs_char full_plugin_path[EHS_SYS_MAXPATHLENGTH];
-        struct EhsTDPlaybackStruct* pPlayback =(struct EhsTDPlaybackStruct*) EhsHMem_tempAlloc(sizeof(struct EhsTDPlaybackStruct));
-        if (!pPlayback){
-                printf("Failed to allocate memory for dtv\n");
-                return NULL;
-        }
-        
-        pPlayback->xPlaybackState = EHS_FB_STATE_NOT_LOADED; //@todo move to the holding class
-        pPlayback->nPlaySpeed = 0; //@todo move to the holding class
-        pPlayback->mediaFormat=EHS_FALSE;
-        pPlayback->nVolume=50; //@todo move to the holding class //set a defailt value. persistent values are set by the player manager
-        // need a unique id for the function block
-        // @TODO - find a better way than a counter
-        sprintf(pPlayback->id, "%d", id_count);
-        EHSH_LOG_INFO("EHS JNI ID : %s.", pPlayback->id);
-        EhsTDPlayback_android_register(pPlayback->id, pPvrPlay);
-        id_count++;
-	return pPlayback;
+void* EhsTDPlayback_init(EhsFbPvrPlayClass *pPvrPlay)
+{
+    //Initialise the structure for our target dependent dtv
+    ehs_char full_plugin_path[EHS_SYS_MAXPATHLENGTH];
+    struct EhsTDPlaybackStruct* pPlayback =(struct EhsTDPlaybackStruct*) EhsHMem_tempAlloc(sizeof(struct EhsTDPlaybackStruct));
+    if (!pPlayback)
+    {
+        return NULL;
+    }
+
+    pPlayback->xPlaybackState = EHS_FB_STATE_NOT_LOADED; //@todo move to the holding class
+    pPlayback->nPlaySpeed = 0; //@todo move to the holding class
+    pPlayback->mediaFormat=EHS_FALSE;
+    pPlayback->nVolume=50; //@todo move to the holding class //set a defailt value. persistent values are set by the player manager
+    // need a unique id for the function block
+    // @TODO - find a better way than a counter
+    sprintf(pPlayback->id, "%d", id_count);
+    EHSH_LOG_INFO("EHS JNI ID : %s.", pPlayback->id);
+    EhsTDPlayback_android_register(pPlayback->id, pPvrPlay);
+    id_count++;
+    return pPlayback;
 }
 
-EHS_GLOBAL void EhsTDPlayback_closeWindow(EhsFbPvrPlayClass* pPvrPlay){
+EHS_GLOBAL void EhsTDPlayback_closeWindow(EhsFbPvrPlayClass* pPvrPlay)
+{
 
 }
 
-EHS_GLOBAL void EhsTDPlayback_setWindow(EhsFbPvrPlayClass* pPvrPlay) {
+EHS_GLOBAL void EhsTDPlayback_setWindow(EhsFbPvrPlayClass* pPvrPlay)
+{
 
 }
 
-EHS_GLOBAL void EhsTDPlayback_updateZorder(EhsFbPvrPlayClass* pPvr){}
+EHS_GLOBAL void EhsTDPlayback_updateZorder(EhsFbPvrPlayClass* pPvr) {}

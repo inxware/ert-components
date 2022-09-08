@@ -1,13 +1,17 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
 /**
  * @file devman_player.h
  *
  * function prototypes for devman_player.c (devman player function block)
  *
- * @author: Sam Gardner
- * @version: $Revision: 1248 $
- * @date: $Date: $
- * 
- * Copyright (c) inx limited, 2008. All rights reserved.
+ * @author: inx limited
  */
 
 #ifndef _EHS_DEVMAN_PLAYER_H
@@ -15,18 +19,10 @@
 
 /******************************************************************************/
 /* Declare IDF references - depricated!!! just use the names or do want to decouple? */
-#define EHS_FB_DEVMAN_PLAYER_NAME "DevmanPlayer"
-#define EHS_FB_DEVMAN_PLAYER_START_CHECKING "startchecking"
-#define EHS_FB_DEVMAN_PLAYER_STOP_CHECKING "stopchecking"
-#define EHS_FB_DEVMAN_PLAYER_CHANGE_URL "changeurl"
-#define EHS_FB_DEVMAN_PLAYER_RECONFIGURE "reconfigure"
-#define EHS_FB_DEVMAN_PLAYER_TRACK_CHANGED "trackchanged"
-#define EHS_FB_DEVMAN_PLAYER_PASS_THRU_NEXT "passthru_next"
-#define EHS_FB_DEVMAN_PLAYER_PASS_THRU_SEND "passthru_send"
-#define EHS_FB_DEVMAN_PLAYER_RESET "reset"
-#define EHS_FB_DEVMAN_PLAYER_OUT "out"
-//#define EHS_FB_DEVMAN_PLAYER_START_FROM_DISK "startfromdisk"
-//#define EHS_FB_DEVMAN_PLAYER_CLEAR_PLAYLIST "clearplaylist"
+
+#define EHS_FB_NAME_DevmanPlayer "DevmanPlayer"
+#define EHS_FB_ID_DevmanPlayer 0xB0BC
+
 
 /* declare functions provided by this function block */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DevmanPlayer);

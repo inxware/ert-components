@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -9,61 +18,76 @@
 /* My Component state data structure. - Use this in your code! */
 typedef struct inx_mqtt_publish_state
 {
-	ehs_bool needProcessing;
-	ehs_uint8 qos;
-	ehs_char topic[EHS_STRING_LENGTH_MAX];
-	ehs_char message[EHS_STRING_LENGTH_MAX];
-	struct inx_mqtt_publish_state* pNext;
-	struct inx_mqtt_publish_state* pPrev;
-	EhsFunctionInstanceDataType* pFIdata;
+    ehs_bool needProcessing;
+    ehs_uint8 qos;
+    ehs_char topic[EHS_STRING_LENGTH_MAX];
+    ehs_char message[EHS_STRING_LENGTH_MAX];
+    struct inx_mqtt_publish_state* pNext;
+    struct inx_mqtt_publish_state* pPrev;
+    EhsFunctionInstanceDataType* pFIdata;
 } inx_mqtt_publish_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 static inx_mqtt_publish_state_type* gpFirstWidget=NULL;
 
-static inx_mqtt_publish_state_type* inxMQTTPublishGetLastWidget(){
-	inx_mqtt_publish_state_type* widget=gpFirstWidget;
-	while(widget!=NULL && widget->pNext!=NULL){
-		widget=widget->pNext;
-		if(widget==widget->pNext){
-			EHSH_LOG_ERROR("inxMQTTSubscribeGetLastWidget infinite loop found");
-			widget->pNext=NULL;
-		}
-	}
-	return widget;
+static inx_mqtt_publish_state_type* inxMQTTPublishGetLastWidget()
+{
+    inx_mqtt_publish_state_type* widget=gpFirstWidget;
+    while(widget!=NULL && widget->pNext!=NULL)
+    {
+        widget=widget->pNext;
+        if(widget==widget->pNext)
+        {
+            EHSH_LOG_ERROR("inxMQTTSubscribeGetLastWidget infinite loop found");
+            widget->pNext=NULL;
+        }
+    }
+    return widget;
 }
 
-static inx_mqtt_publish_state_type* inxMQTTPublishGetFirstWidgetNeedProcessing(){
-	inx_mqtt_publish_state_type* widget=gpFirstWidget;
-	while(widget!=NULL && widget->needProcessing==EHS_FALSE && widget->pNext!=NULL){
-		widget=widget->pNext;
-		if(widget==widget->pNext){
-			EHSH_LOG_ERROR("inxMQTTPublishGetLastWidget infinite loop found");
-			widget->pNext=NULL;
-		}
-	}
-	if(widget==NULL){
+static inx_mqtt_publish_state_type* inxMQTTPublishGetFirstWidgetNeedProcessing()
+{
+    inx_mqtt_publish_state_type* widget=gpFirstWidget;
+    while(widget!=NULL && widget->needProcessing==EHS_FALSE && widget->pNext!=NULL)
+    {
+        widget=widget->pNext;
+        if(widget==widget->pNext)
+        {
+            EHSH_LOG_ERROR("inxMQTTPublishGetLastWidget infinite loop found");
+            widget->pNext=NULL;
+        }
+    }
+    if(widget==NULL)
+    {
 
-	}else{
-		if(widget->needProcessing==EHS_FALSE){
-			widget=NULL;
-		}
-	}
-	return widget;
+    }
+    else
+    {
+        if(widget->needProcessing==EHS_FALSE)
+        {
+            widget=NULL;
+        }
+    }
+    return widget;
 }
 
-static void inxMQTTPublishRegisterWidget(inx_mqtt_publish_state_type* pState){
-	if(gpFirstWidget==NULL){
-		gpFirstWidget=pState;
-		return;
-	}
+static void inxMQTTPublishRegisterWidget(inx_mqtt_publish_state_type* pState)
+{
+    if(gpFirstWidget==NULL)
+    {
+        gpFirstWidget=pState;
+        return;
+    }
 
-	inx_mqtt_publish_state_type* lastWidget=inxMQTTPublishGetLastWidget();
-	if(lastWidget==NULL){
-		gpFirstWidget=pState;
-	}else{
-		lastWidget->pNext=pState;
-		pState->pPrev=lastWidget;
-	}
+    inx_mqtt_publish_state_type* lastWidget=inxMQTTPublishGetLastWidget();
+    if(lastWidget==NULL)
+    {
+        gpFirstWidget=pState;
+    }
+    else
+    {
+        lastWidget->pNext=pState;
+        pState->pPrev=lastWidget;
+    }
 }
 
 /*static void inxMQTTPublishRemoveWidget(inx_mqtt_publish_state_type* pState){
@@ -83,7 +107,8 @@ static void inxMQTTPublishRegisterWidget(inx_mqtt_publish_state_type* pState){
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(mqtt_publish)
-EHS_FB_FUNCTION_ENTRY("publish", mqtt_publish_publish)
+
+EHS_FB_FUNCTION_ENTRY("publish", 0x00, mqtt_publish_publish)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -107,10 +132,10 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(mqtt_publish)
 {
-/* Uncomment the following if you need to parse the parameters to calculate memory required */
-/*
-	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
-	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_mqtt_publish_state_type);
+    /* Uncomment the following if you need to parse the parameters to calculate memory required */
+    /*
+    	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
+    EHS_FB_IDENTIFY_MEMORY = sizeof(inx_mqtt_publish_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
@@ -123,36 +148,36 @@ EHS_FB_IDENTIFY_FUNCTION(mqtt_publish)
 
 EHS_FB_INIT_FUNCTION(mqtt_publish)
 {
-	ehs_bool bRet = EHS_TRUE; /* assume success */
-	
-	//this is the reference to the object data for this instance of the function block
-	inx_mqtt_publish_state_type* inx_mqtt_publish_state = (inx_mqtt_publish_state_type*)EHS_FB_INIT_CONTEXT;
-	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
-	inx_mqtt_publish_state->pFIdata=NULL;
-	inx_mqtt_publish_state->pNext=NULL;
-	inx_mqtt_publish_state->pPrev=NULL;
-	inx_mqtt_publish_state->qos=0;
-	inx_mqtt_publish_state->needProcessing=EHS_FALSE;
-	inx_mqtt_publish_state->topic[0]='\0';
-	inx_mqtt_publish_state->message[0]='\0';
+    ehs_bool bRet = EHS_TRUE; /* assume success */
 
-	/* Add any further intialisation code here */
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	inxMQTTPublishRegisterWidget(inx_mqtt_publish_state);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
-	return bRet; /* initialisation always succeeds */
+    //this is the reference to the object data for this instance of the function block
+    inx_mqtt_publish_state_type* inx_mqtt_publish_state = (inx_mqtt_publish_state_type*)EHS_FB_INIT_CONTEXT;
+    /* read the initialisation parameters */
+    //EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+    inx_mqtt_publish_state->pFIdata=NULL;
+    inx_mqtt_publish_state->pNext=NULL;
+    inx_mqtt_publish_state->pPrev=NULL;
+    inx_mqtt_publish_state->qos=0;
+    inx_mqtt_publish_state->needProcessing=EHS_FALSE;
+    inx_mqtt_publish_state->topic[0]='\0';
+    inx_mqtt_publish_state->message[0]='\0';
+
+    /* Add any further intialisation code here */
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    inxMQTTPublishRegisterWidget(inx_mqtt_publish_state);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    return bRet; /* initialisation always succeeds */
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(mqtt_publish)
 {
-	/*
-	inx_mqtt_publish_state_type *inx_mqtt_publish_state = (inx_mqtt_publish_state_type*)EHS_FB_DESTROY_CONTEXT;
-	*/
-	//Your code below here
-	gpFirstWidget=NULL;
-	return EHS_TRUE;
+    /*
+    inx_mqtt_publish_state_type *inx_mqtt_publish_state = (inx_mqtt_publish_state_type*)EHS_FB_DESTROY_CONTEXT;
+    */
+    //Your code below here
+    gpFirstWidget=NULL;
+    return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 
@@ -166,28 +191,31 @@ EHS_FB_DESTROY_FUNCTION(mqtt_publish)
  */
 EHS_FB_RUN_FUNCTION(mqtt_publish_publish)
 {
-	inx_mqtt_publish_state_type* inx_mqtt_publish_state = (inx_mqtt_publish_state_type*)EHS_FB_RUN_CONTEXT;
+    inx_mqtt_publish_state_type* inx_mqtt_publish_state = (inx_mqtt_publish_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	EHSH_LOG_INFO("PBB mqtt_publish_publish");
-	//create a pointer to our run data so that we can process events from unity later
-	inx_mqtt_publish_state->pFIdata = EHS_FB_RUN_CONTEXT_REF;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_publish_ARG_publish_topic)){
-		EhsSprintf(inx_mqtt_publish_state->topic,"%s",EHS_FB_IN_S_API2(INX_mqtt_publish_ARG_publish_topic));
-	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_publish_ARG_publish_payload)){
-		EhsSprintf(inx_mqtt_publish_state->message,"%s",EHS_FB_IN_S_API2(INX_mqtt_publish_ARG_publish_payload));
-	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_publish_ARG_publish_qos)){
-		inx_mqtt_publish_state->qos=EHS_FB_IN_I_API2(INX_mqtt_publish_ARG_publish_qos);
-	}
-	inx_mqtt_publish_state->needProcessing=EHS_TRUE;
-	//we'll run the finish when we actually poll this one
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
-	/*
-	EHS_FB_FINISH(INX_mqtt_publish_ARG_publish_finishpublish);
-	*/
+    // Your code here
+    //EHSH_LOG_INFO("PBB mqtt_publish_publish");
+    //create a pointer to our run data so that we can process events from unity later
+    inx_mqtt_publish_state->pFIdata = EHS_FB_RUN_CONTEXT_REF;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_publish_ARG_publish_topic))
+    {
+        EhsSprintf(inx_mqtt_publish_state->topic,"%s",EHS_FB_IN_S_API2(INX_mqtt_publish_ARG_publish_topic));
+    }
+    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_publish_ARG_publish_payload))
+    {
+        EhsSprintf(inx_mqtt_publish_state->message,"%s",EHS_FB_IN_S_API2(INX_mqtt_publish_ARG_publish_payload));
+    }
+    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_publish_ARG_publish_qos))
+    {
+        inx_mqtt_publish_state->qos=EHS_FB_IN_I_API2(INX_mqtt_publish_ARG_publish_qos);
+    }
+    inx_mqtt_publish_state->needProcessing=EHS_TRUE;
+    //we'll run the finish when we actually poll this one
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    /*
+    EHS_FB_FINISH(INX_mqtt_publish_ARG_publish_finishpublish);
+    */
 }//ICB FUNCTION publish MACRO END -- DO NOT ALTER THIS LINE
 
 #ifdef EHS_MINGW
@@ -196,25 +224,32 @@ EHS_FB_RUN_FUNCTION(mqtt_publish_publish)
 #define EHS_MQTT_PUBLISH_EXPORT // nothing
 #endif
 
-EHS_MQTT_PUBLISH_EXPORT ehs_bool EhsMQTTPublishWritePoll(char* topic, char* payload,uint8_t* qos){
-	ehs_bool success=EHS_FALSE;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	inx_mqtt_publish_state_type* pState=inxMQTTPublishGetFirstWidgetNeedProcessing();
-	if(pState==NULL){
-		success=EHS_FALSE;
-	}else{
-		EhsFunctionInstanceDataType* pFIdata=pState->pFIdata;
-		if(pFIdata==NULL){
+EHS_MQTT_PUBLISH_EXPORT ehs_bool EhsMQTTPublishWritePoll(char* topic, char* payload,uint8_t* qos)
+{
+    ehs_bool success=EHS_FALSE;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    inx_mqtt_publish_state_type* pState=inxMQTTPublishGetFirstWidgetNeedProcessing();
+    if(pState==NULL)
+    {
+        success=EHS_FALSE;
+    }
+    else
+    {
+        EhsFunctionInstanceDataType* pFIdata=pState->pFIdata;
+        if(pFIdata==NULL)
+        {
 
-		}else{
-			EhsSprintf(topic,"%s",pState->topic);
-			EhsSprintf(payload,"%s",pState->message);
-			*qos=pState->qos;
-			pState->needProcessing=EHS_FALSE;
-			success=EHS_TRUE;
-			EHS_FB_FINISH(INX_mqtt_publish_ARG_publish_finishpublish);
-		}
-	}
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
-	return success;
+        }
+        else
+        {
+            EhsSprintf(topic,"%s",pState->topic);
+            EhsSprintf(payload,"%s",pState->message);
+            *qos=pState->qos;
+            pState->needProcessing=EHS_FALSE;
+            success=EHS_TRUE;
+            EHS_FB_FINISH(INX_mqtt_publish_ARG_publish_finishpublish);
+        }
+    }
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    return success;
 }

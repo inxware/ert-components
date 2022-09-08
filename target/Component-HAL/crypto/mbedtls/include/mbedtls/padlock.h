@@ -75,9 +75,9 @@ int mbedtls_padlock_has_support( int feature );
  * \return         0 if success, 1 if operation failed
  */
 int mbedtls_padlock_xcryptecb( mbedtls_aes_context *ctx,
-                       int mode,
-                       const unsigned char input[16],
-                       unsigned char output[16] );
+                               int mode,
+                               const unsigned char input[16],
+                               unsigned char output[16] );
 
 /**
  * \brief          PadLock AES-CBC buffer en(de)cryption
@@ -92,11 +92,11 @@ int mbedtls_padlock_xcryptecb( mbedtls_aes_context *ctx,
  * \return         0 if success, 1 if operation failed
  */
 int mbedtls_padlock_xcryptcbc( mbedtls_aes_context *ctx,
-                       int mode,
-                       size_t length,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output );
+                               int mode,
+                               size_t length,
+                               unsigned char iv[16],
+                               const unsigned char *input,
+                               unsigned char *output );
 
 #ifdef __cplusplus
 }

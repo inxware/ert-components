@@ -72,7 +72,7 @@ void mbedtls_arc4_free( mbedtls_arc4_context *ctx );
  * \param keylen   length of the key, in bytes
  */
 void mbedtls_arc4_setup( mbedtls_arc4_context *ctx, const unsigned char *key,
-                 unsigned int keylen );
+                         unsigned int keylen );
 
 /**
  * \brief          ARC4 cipher function
@@ -85,7 +85,7 @@ void mbedtls_arc4_setup( mbedtls_arc4_context *ctx, const unsigned char *key,
  * \return         0 if successful
  */
 int mbedtls_arc4_crypt( mbedtls_arc4_context *ctx, size_t length, const unsigned char *input,
-                unsigned char *output );
+                        unsigned char *output );
 
 #ifdef __cplusplus
 }

@@ -35,19 +35,20 @@ int stream_size;
     struct inflate_state FAR *state;
 
     if (version == Z_NULL || version[0] != ZLIB_VERSION[0] ||
-        stream_size != (int)(sizeof(z_stream)))
+            stream_size != (int)(sizeof(z_stream)))
         return Z_VERSION_ERROR;
     if (strm == Z_NULL || window == Z_NULL ||
-        windowBits < 8 || windowBits > 15)
+            windowBits < 8 || windowBits > 15)
         return Z_STREAM_ERROR;
     strm->msg = Z_NULL;                 /* in case we return an error */
-    if (strm->zalloc == (alloc_func)0) {
+    if (strm->zalloc == (alloc_func)0)
+    {
         strm->zalloc = zcalloc;
         strm->opaque = (voidpf)0;
     }
     if (strm->zfree == (free_func)0) strm->zfree = zcfree;
     state = (struct inflate_state FAR *)ZALLOC(strm, 1,
-                                               sizeof(struct inflate_state));
+            sizeof(struct inflate_state));
     if (state == Z_NULL) return Z_MEM_ERROR;
     Tracev((stderr, "inflate: allocated\n"));
     strm->state = (struct internal_state FAR *)state;
@@ -79,7 +80,8 @@ struct inflate_state FAR *state;
     static code fixed[544];
 
     /* build fixed huffman tables if first call (may not be thread safe) */
-    if (virgin) {
+    if (virgin)
+    {
         unsigned sym, bits;
         static code *next;
 
@@ -258,7 +260,7 @@ void FAR *out_desc;
     unsigned len;               /* length to copy for repeats, bits to drop */
     int ret;                    /* return code */
     static const unsigned short order[19] = /* permutation of code lengths */
-        {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+    {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 
     /* Check that the strm exists and that the state was initialized */
     if (strm == Z_NULL || strm->state == Z_NULL)
@@ -279,10 +281,12 @@ void FAR *out_desc;
 
     /* Inflate until end of block marked as last */
     for (;;)
-        switch (state->mode) {
+        switch (state->mode)
+        {
         case TYPE:
             /* determine and dispatch block type */
-            if (state->last) {
+            if (state->last)
+            {
                 BYTEBITS();
                 state->mode = DONE;
                 break;
@@ -290,7 +294,8 @@ void FAR *out_desc;
             NEEDBITS(3);
             state->last = BITS(1);
             DROPBITS(1);
-            switch (BITS(2)) {
+            switch (BITS(2))
+            {
             case 0:                             /* stored block */
                 Tracev((stderr, "inflate:     stored block%s\n",
                         state->last ? " (last)" : ""));
@@ -318,7 +323,8 @@ void FAR *out_desc;
             /* get and verify stored block length */
             BYTEBITS();                         /* go to byte boundary */
             NEEDBITS(32);
-            if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff)) {
+            if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff))
+            {
                 strm->msg = (char *)"invalid stored block lengths";
                 state->mode = BAD;
                 break;
@@ -329,7 +335,8 @@ void FAR *out_desc;
             INITBITS();
 
             /* copy stored block from input to output */
-            while (state->length != 0) {
+            while (state->length != 0)
+            {
                 copy = state->length;
                 PULL();
                 ROOM();
@@ -356,7 +363,8 @@ void FAR *out_desc;
             state->ncode = BITS(4) + 4;
             DROPBITS(4);
 #ifndef PKZIP_BUG_WORKAROUND
-            if (state->nlen > 286 || state->ndist > 30) {
+            if (state->nlen > 286 || state->ndist > 30)
+            {
                 strm->msg = (char *)"too many length or distance symbols";
                 state->mode = BAD;
                 break;
@@ -366,7 +374,8 @@ void FAR *out_desc;
 
             /* get code length code lengths (not a typo) */
             state->have = 0;
-            while (state->have < state->ncode) {
+            while (state->have < state->ncode)
+            {
                 NEEDBITS(3);
                 state->lens[order[state->have++]] = (unsigned short)BITS(3);
                 DROPBITS(3);
@@ -378,7 +387,8 @@ void FAR *out_desc;
             state->lenbits = 7;
             ret = inflate_table(CODES, state->lens, 19, &(state->next),
                                 &(state->lenbits), state->work);
-            if (ret) {
+            if (ret)
+            {
                 strm->msg = (char *)"invalid code lengths set";
                 state->mode = BAD;
                 break;
@@ -387,22 +397,28 @@ void FAR *out_desc;
 
             /* get length and distance code code lengths */
             state->have = 0;
-            while (state->have < state->nlen + state->ndist) {
-                for (;;) {
+            while (state->have < state->nlen + state->ndist)
+            {
+                for (;;)
+                {
                     this = state->lencode[BITS(state->lenbits)];
                     if ((unsigned)(this.bits) <= bits) break;
                     PULLBYTE();
                 }
-                if (this.val < 16) {
+                if (this.val < 16)
+                {
                     NEEDBITS(this.bits);
                     DROPBITS(this.bits);
                     state->lens[state->have++] = this.val;
                 }
-                else {
-                    if (this.val == 16) {
+                else
+                {
+                    if (this.val == 16)
+                    {
                         NEEDBITS(this.bits + 2);
                         DROPBITS(this.bits);
-                        if (state->have == 0) {
+                        if (state->have == 0)
+                        {
                             strm->msg = (char *)"invalid bit length repeat";
                             state->mode = BAD;
                             break;
@@ -411,21 +427,24 @@ void FAR *out_desc;
                         copy = 3 + BITS(2);
                         DROPBITS(2);
                     }
-                    else if (this.val == 17) {
+                    else if (this.val == 17)
+                    {
                         NEEDBITS(this.bits + 3);
                         DROPBITS(this.bits);
                         len = 0;
                         copy = 3 + BITS(3);
                         DROPBITS(3);
                     }
-                    else {
+                    else
+                    {
                         NEEDBITS(this.bits + 7);
                         DROPBITS(this.bits);
                         len = 0;
                         copy = 11 + BITS(7);
                         DROPBITS(7);
                     }
-                    if (state->have + copy > state->nlen + state->ndist) {
+                    if (state->have + copy > state->nlen + state->ndist)
+                    {
                         strm->msg = (char *)"invalid bit length repeat";
                         state->mode = BAD;
                         break;
@@ -444,7 +463,8 @@ void FAR *out_desc;
             state->lenbits = 9;
             ret = inflate_table(LENS, state->lens, state->nlen, &(state->next),
                                 &(state->lenbits), state->work);
-            if (ret) {
+            if (ret)
+            {
                 strm->msg = (char *)"invalid literal/lengths set";
                 state->mode = BAD;
                 break;
@@ -452,8 +472,9 @@ void FAR *out_desc;
             state->distcode = (code const FAR *)(state->next);
             state->distbits = 6;
             ret = inflate_table(DISTS, state->lens + state->nlen, state->ndist,
-                            &(state->next), &(state->distbits), state->work);
-            if (ret) {
+                                &(state->next), &(state->distbits), state->work);
+            if (ret)
+            {
                 strm->msg = (char *)"invalid distances set";
                 state->mode = BAD;
                 break;
@@ -463,7 +484,8 @@ void FAR *out_desc;
 
         case LEN:
             /* use inflate_fast() if we have enough input and output */
-            if (have >= 6 && left >= 258) {
+            if (have >= 6 && left >= 258)
+            {
                 RESTORE();
                 if (state->whave < state->wsize)
                     state->whave = state->wsize - left;
@@ -473,16 +495,19 @@ void FAR *out_desc;
             }
 
             /* get a literal, length, or end-of-block code */
-            for (;;) {
+            for (;;)
+            {
                 this = state->lencode[BITS(state->lenbits)];
                 if ((unsigned)(this.bits) <= bits) break;
                 PULLBYTE();
             }
-            if (this.op && (this.op & 0xf0) == 0) {
+            if (this.op && (this.op & 0xf0) == 0)
+            {
                 last = this;
-                for (;;) {
+                for (;;)
+                {
                     this = state->lencode[last.val +
-                            (BITS(last.bits + last.op) >> last.bits)];
+                                                   (BITS(last.bits + last.op) >> last.bits)];
                     if ((unsigned)(last.bits + this.bits) <= bits) break;
                     PULLBYTE();
                 }
@@ -492,10 +517,11 @@ void FAR *out_desc;
             state->length = (unsigned)this.val;
 
             /* process literal */
-            if (this.op == 0) {
+            if (this.op == 0)
+            {
                 Tracevv((stderr, this.val >= 0x20 && this.val < 0x7f ?
-                        "inflate:         literal '%c'\n" :
-                        "inflate:         literal 0x%02x\n", this.val));
+                         "inflate:         literal '%c'\n" :
+                         "inflate:         literal 0x%02x\n", this.val));
                 ROOM();
                 *put++ = (unsigned char)(state->length);
                 left--;
@@ -504,14 +530,16 @@ void FAR *out_desc;
             }
 
             /* process end of block */
-            if (this.op & 32) {
+            if (this.op & 32)
+            {
                 Tracevv((stderr, "inflate:         end of block\n"));
                 state->mode = TYPE;
                 break;
             }
 
             /* invalid code */
-            if (this.op & 64) {
+            if (this.op & 64)
+            {
                 strm->msg = (char *)"invalid literal/length code";
                 state->mode = BAD;
                 break;
@@ -519,7 +547,8 @@ void FAR *out_desc;
 
             /* length code -- get extra bits, if any */
             state->extra = (unsigned)(this.op) & 15;
-            if (state->extra != 0) {
+            if (state->extra != 0)
+            {
                 NEEDBITS(state->extra);
                 state->length += BITS(state->extra);
                 DROPBITS(state->extra);
@@ -527,23 +556,27 @@ void FAR *out_desc;
             Tracevv((stderr, "inflate:         length %u\n", state->length));
 
             /* get distance code */
-            for (;;) {
+            for (;;)
+            {
                 this = state->distcode[BITS(state->distbits)];
                 if ((unsigned)(this.bits) <= bits) break;
                 PULLBYTE();
             }
-            if ((this.op & 0xf0) == 0) {
+            if ((this.op & 0xf0) == 0)
+            {
                 last = this;
-                for (;;) {
+                for (;;)
+                {
                     this = state->distcode[last.val +
-                            (BITS(last.bits + last.op) >> last.bits)];
+                                                    (BITS(last.bits + last.op) >> last.bits)];
                     if ((unsigned)(last.bits + this.bits) <= bits) break;
                     PULLBYTE();
                 }
                 DROPBITS(last.bits);
             }
             DROPBITS(this.bits);
-            if (this.op & 64) {
+            if (this.op & 64)
+            {
                 strm->msg = (char *)"invalid distance code";
                 state->mode = BAD;
                 break;
@@ -552,13 +585,15 @@ void FAR *out_desc;
 
             /* get distance extra bits, if any */
             state->extra = (unsigned)(this.op) & 15;
-            if (state->extra != 0) {
+            if (state->extra != 0)
+            {
                 NEEDBITS(state->extra);
                 state->offset += BITS(state->extra);
                 DROPBITS(state->extra);
             }
             if (state->offset > state->wsize - (state->whave < state->wsize ?
-                                                left : 0)) {
+                                                left : 0))
+            {
                 strm->msg = (char *)"invalid distance too far back";
                 state->mode = BAD;
                 break;
@@ -566,30 +601,37 @@ void FAR *out_desc;
             Tracevv((stderr, "inflate:         distance %u\n", state->offset));
 
             /* copy match from window to output */
-            do {
+            do
+            {
                 ROOM();
                 copy = state->wsize - state->offset;
-                if (copy < left) {
+                if (copy < left)
+                {
                     from = put + copy;
                     copy = left - copy;
                 }
-                else {
+                else
+                {
                     from = put - state->offset;
                     copy = left;
                 }
                 if (copy > state->length) copy = state->length;
                 state->length -= copy;
                 left -= copy;
-                do {
+                do
+                {
                     *put++ = *from++;
-                } while (--copy);
-            } while (state->length != 0);
+                }
+                while (--copy);
+            }
+            while (state->length != 0);
             break;
 
         case DONE:
             /* inflate stream terminated properly -- write leftover output */
             ret = Z_STREAM_END;
-            if (left < state->wsize) {
+            if (left < state->wsize)
+            {
                 if (out(out_desc, state->window, state->wsize - left))
                     ret = Z_BUF_ERROR;
             }
@@ -605,7 +647,7 @@ void FAR *out_desc;
         }
 
     /* Return unused input */
-  inf_leave:
+inf_leave:
     strm->next_in = next;
     strm->avail_in = have;
     return ret;

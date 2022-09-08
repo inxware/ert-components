@@ -46,8 +46,10 @@
 #include <string.h>
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -107,8 +109,8 @@ void mbedtls_ssl_cookie_free( mbedtls_ssl_cookie_ctx *ctx )
 }
 
 int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
-                      int (*f_rng)(void *, unsigned char *, size_t),
-                      void *p_rng )
+                              int (*f_rng)(void *, unsigned char *, size_t),
+                              void *p_rng )
 {
     int ret;
     unsigned char key[COOKIE_MD_OUTLEN];
@@ -143,9 +145,9 @@ static int ssl_cookie_hmac( mbedtls_md_context_t *hmac_ctx,
         return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
 
     if( mbedtls_md_hmac_reset(  hmac_ctx ) != 0 ||
-        mbedtls_md_hmac_update( hmac_ctx, time, 4 ) != 0 ||
-        mbedtls_md_hmac_update( hmac_ctx, cli_id, cli_id_len ) != 0 ||
-        mbedtls_md_hmac_finish( hmac_ctx, hmac_out ) != 0 )
+            mbedtls_md_hmac_update( hmac_ctx, time, 4 ) != 0 ||
+            mbedtls_md_hmac_update( hmac_ctx, cli_id, cli_id_len ) != 0 ||
+            mbedtls_md_hmac_finish( hmac_ctx, hmac_out ) != 0 )
     {
         return( MBEDTLS_ERR_SSL_INTERNAL_ERROR );
     }
@@ -160,8 +162,8 @@ static int ssl_cookie_hmac( mbedtls_md_context_t *hmac_ctx,
  * Generate cookie for DTLS ClientHello verification
  */
 int mbedtls_ssl_cookie_write( void *p_ctx,
-                      unsigned char **p, unsigned char *end,
-                      const unsigned char *cli_id, size_t cli_id_len )
+                              unsigned char **p, unsigned char *end,
+                              const unsigned char *cli_id, size_t cli_id_len )
 {
     int ret;
     mbedtls_ssl_cookie_ctx *ctx = (mbedtls_ssl_cookie_ctx *) p_ctx;
@@ -206,8 +208,8 @@ int mbedtls_ssl_cookie_write( void *p_ctx,
  * Check a cookie
  */
 int mbedtls_ssl_cookie_check( void *p_ctx,
-                      const unsigned char *cookie, size_t cookie_len,
-                      const unsigned char *cli_id, size_t cli_id_len )
+                              const unsigned char *cookie, size_t cookie_len,
+                              const unsigned char *cli_id, size_t cli_id_len )
 {
     unsigned char ref_hmac[COOKIE_HMAC_LEN];
     int ret = 0;

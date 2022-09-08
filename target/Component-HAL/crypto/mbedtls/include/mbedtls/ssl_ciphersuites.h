@@ -234,7 +234,8 @@ extern "C" {
 /* Reminder: update mbedtls_ssl_premaster_secret when adding a new key exchange.
  * Reminder: update MBEDTLS_KEY_EXCHANGE__xxx below
  */
-typedef enum {
+typedef enum
+{
     MBEDTLS_KEY_EXCHANGE_NONE = 0,
     MBEDTLS_KEY_EXCHANGE_RSA,
     MBEDTLS_KEY_EXCHANGE_DHE_RSA,

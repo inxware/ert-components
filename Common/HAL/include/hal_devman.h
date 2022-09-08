@@ -1,13 +1,19 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file target_process.h
  * The target-specific declarations required to support the HAL for process services
- * and related OS interations are defined here. 
+ * and related OS interations are defined here.
  * This file should only be included by hal_process.h
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 1242 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef DEVMAN_HAL_H
@@ -33,7 +39,6 @@
 #define EHS_DEVMAN_CLIENT_CERTIFICATE      "./core/certs/devman-client.crt"
 #define EHS_DEVMAN_CLIENT_CERTIFICATE_KEY  "./core/certs/devman-client-crt-key.pem" // Combined key and and certificate file
 
-
 /* define a retry rate for starting at the top of the URL list */
 
 #ifndef EHS_DEVMAN_CORE_RETRY_PERIOD_FIRSTURL
@@ -58,29 +63,29 @@
 #define EHS_MAXDEVMANNAMELEN 2048 // must be smaller than default string length //@todo
 
 #ifndef EHS_DEVMAN_DEFAULTBASEURL
- #define EHS_DEVMAN_DEFAULTBASEURL	"https://devman.inx-systems.com"
+#define EHS_DEVMAN_DEFAULTBASEURL	"https://devman.inx-systems.com"
 #endif
 
 
 /* This is the actual default target file for doing bitsn.bobs */
 #ifndef EHS_DEVMAN_MONITORURLPATHONLY
- #define EHS_DEVMAN_MONITORURLPATHONLY "/deviceHandler.php"
- //#define EHS_DEVMAN_MONITORURLPATHONLY "/cgi-bin/devmon.cgi" /* We need this to write to the directories for devport admin... */
+#define EHS_DEVMAN_MONITORURLPATHONLY "/deviceHandler.php"
+//#define EHS_DEVMAN_MONITORURLPATHONLY "/cgi-bin/devmon.cgi" /* We need this to write to the directories for devport admin... */
 #endif
 
 /* This is the actual default target file for requesting an app download */
 #ifndef EHS_DEVMAN_MONITORURLS
- #define EHS_DEVMAN_MONITORURLS EHS_DEVMAN_DEFAULTBASEURL EHS_DEVMAN_MONITORURLPATHONLY
+#define EHS_DEVMAN_MONITORURLS EHS_DEVMAN_DEFAULTBASEURL EHS_DEVMAN_MONITORURLPATHONLY
 #endif
 
 /* This is the actual default target file for requesting an app download */
 #ifndef EHS_DEVMAN_APPGETDEFAULTURLPATHONLY
- #define EHS_DEVMAN_APPGETDEFAULTURLPATHONLY "/downloadApp.php"
+#define EHS_DEVMAN_APPGETDEFAULTURLPATHONLY "/downloadApp.php"
 #endif
 
 /* This is the actual URI for requesting an app download */
 #ifndef EHS_DEVMAN_APPGETDEFAULTURL
- #define EHS_DEVMAN_APPGETDEFAULTURL EHS_DEVMAN_DEFAULTBASEURL EHS_DEVMAN_APPGETDEFAULTURLPATHONLY
+#define EHS_DEVMAN_APPGETDEFAULTURL EHS_DEVMAN_DEFAULTBASEURL EHS_DEVMAN_APPGETDEFAULTURLPATHONLY
 #endif
 /*****************************************************************************/
 /* Define types */
@@ -91,7 +96,7 @@
 /*****************************************************************************/
 /* Declare function prototypes  */
 
-/** 
+/**
  * Perform necessary Operating system setup upon system initialisation
  */
 EHS_GLOBAL void DevmanMon_init(void);

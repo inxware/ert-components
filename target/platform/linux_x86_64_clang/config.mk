@@ -1,40 +1,15 @@
-#
-# config.mk - Configuration properties of the current platform
-# 
-# Called by ../../../Makefile
-#
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
 
-# @author: inx limited, Pierre Drezet
-# @version: $Revision: 43 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
-# 
-# Copyright (c) inx limited, 2007. All rights reserved.
-#
-#
-
-#DEBUG OPTIONS
-#EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
-export EHS_DEBUG=yes
-endif
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
-DEFS += EHS_MQTT_SUPPORT
-export EHS_MQTT_SUPPORT=yes
-
-################################################################################################################
-# Define the specific variant of the architecture and OS - this selects different component support library sets
-################################################################################################################
-
-# SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
-#export SYSTEM_VARIANT=
-
-#COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-export COMPONENT_VARIANT=base
-
-# COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
+# @file config.mk 
+# inxware ERT configuration file for linux_x86_64_clang
+# @author: inx limited
 
 #################################################################################################################
 # Set general architecture and OS version 
@@ -42,52 +17,59 @@ export COMPONENT_VARIANT=base
 
 # MUST SET the following for any component config: 
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
-export EHS_GNU_ARCH=x86
+export EHS_GNU_ARCH=x86_64
 export EHS_GNU_OS=linux-gnu
-export EHS_GNU_OS_VERSION=x86_64-linux-gnu_clang10ubuntu18#use toolchain clib environment
-#Optional if different clib build is required - dangerous!
-#export EHS_GNU_CLIB_ARCH_OVERRIDE=i686
-export KERNEL_VERSION=linux/2.6.35.9
+export EHS_GNU_OS_VERSION=-clang10ubuntu18#use toolchain clib environment
+export COMPONENT_VARIANT=_aws-iot
 
 # EHS Section 
 # ehs is more generic
 export EHS_ARCH=x86
-export EHS_OS=linux
-export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=x86_64-linux-gnu_x86_64-linux-gnu_clang10ubuntu18_x86_64-linux-gnu_clang10ubuntu18_base
-export TOOLCHAIN_NAME=HOST
+export EHS_OS=linux_clang
+
 export CC_OVERRIDE=clang
-export INX_SYS_ROOT=../ert-contrib-middleware/target_libs/x86_64-linux-gnu_x86_64-linux-gnu_clang10ubuntu18_x86_64-linux-gnu_clang10ubuntu18_base/build
-#todo2022 Do we need this? If se will need to copy to kernel build
-CFLAGS+=-B../ert-build-support/toolchains/x86_64/x86_64-linux-gnu_clang10ubuntu18/bin
-export LINK_OVERRIDE=llvm-ar
+export LINK_OVERRIDE=clang
+# - for creating archives.
 
-#
-# uncomment this variable if the platform requires audio / video support
-export  EHS_AV_SUPPORT=devmanonly
-# @todo this should be the same as media support?
+################################################################################################################
+# Configure debug/production levels
+################################################################################################################
+# Set ALL debug use this:
+#DEBUG OPTIONS
+#EHS_DEBUGALL=true
+ifdef EHS_DEBUGALL
+# Or use one of the more fine-grained debug congurations
+# Or enable only stdout & serial console logging
+DEFS += EHS_RUNTIME_LOGGER_ENABLED
+DEFS += EHS_DEBUG_AV
+export EHS_DEBUG=yes
+endif
+DEFS += EHS_DEBUG_TCPIP_CONSOLE
 
-#
-# uncomment this variable if the platform requires media manager support (e.g. SMIL, DLNA).
-#EHS_VIDEO_SUPPORT=yes
-#EHS_VIDEO=none
-export  EHS_MEDIA_SUPPORT=all
-
-#
-# uncomment this variable if the platform requires NETWORKING e.g. devman plugins 
+################################################################################################################
+# Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
+################################################################################################################ 
 
 export EHS_NETWORKING_SUPPORT=all
+
 export EHS_COMPONENT_NETWORKING_SUPPORT=all
-
-#
-# uncomment this variable if the platform requires devman monitor support
+#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
 export EHS_DEVMAN_SUPPORT=all
+#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 export EHS_DEVMAN_MON_SUPPORT=yes 
-#todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
 
-#
-# uncomment this variable if the platform needs to support deprecated toolkit
-##export EHS_TOOLKIT_DEPRECATED=yes
+################################################################################################################
+# Select which source of contributed library dependencies are used to build the target
+################################################################################################################
+# COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory 
+# libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
+# $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
+#COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
+export COMPONENT_VARIANT=aws-iot
 
 
-#This include RCUs, text displays, etc.
-##export EHS_PERIPHERAL_DEVICE_SUPPORT=all
+
+export EHS_MQTT_SUPPORT=greengrass
+
+DEFS += EHS_SKIP_APPMANAGER
+################################### END OF TOOLBOX CONFIGURATION ###################################################

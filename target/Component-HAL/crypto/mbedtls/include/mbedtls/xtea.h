@@ -87,9 +87,9 @@ void mbedtls_xtea_setup( mbedtls_xtea_context *ctx, const unsigned char key[16] 
  * \return         0 if successful
  */
 int mbedtls_xtea_crypt_ecb( mbedtls_xtea_context *ctx,
-                    int mode,
-                    const unsigned char input[8],
-                    unsigned char output[8] );
+                            int mode,
+                            const unsigned char input[8],
+                            unsigned char output[8] );
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
 /**
@@ -106,11 +106,11 @@ int mbedtls_xtea_crypt_ecb( mbedtls_xtea_context *ctx,
  *                 MBEDTLS_ERR_XTEA_INVALID_INPUT_LENGTH if the length % 8 != 0
  */
 int mbedtls_xtea_crypt_cbc( mbedtls_xtea_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[8],
-                    const unsigned char *input,
-                    unsigned char *output);
+                            int mode,
+                            size_t length,
+                            unsigned char iv[8],
+                            const unsigned char *input,
+                            unsigned char *output);
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
 #ifdef __cplusplus

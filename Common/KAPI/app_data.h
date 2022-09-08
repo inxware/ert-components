@@ -1,14 +1,20 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file app_data.h
  * Declarations of global application data.
- * 
- * This is needed by all FB components to reference the FID and data tables 
+ *
+ * This is needed by all FB components to reference the FID and data tables
  * TODO - This shouldn't be includeded directly by function blocks? We have macros that do this that probably should include this file?
  *
  * @author: inx limited
- * @version: $Revision: 4683 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef EHS_APP_DATA_H
@@ -48,24 +54,25 @@ EHS_GLOBAL ehs_bool* bRuntablesReadyRef;
 /**
  * Type definition of the structure used to hold data passed between function blocks
  */
-typedef struct {
-	ehs_char xDummy[EHS_STRING_LENGTH_MAX]; /**< Just points to a chunk of memory
+typedef struct
+{
+    ehs_char xDummy[EHS_STRING_LENGTH_MAX]; /**< Just points to a chunk of memory
 										containing the largest of the possible
 										data types. */
-	ehs_char xDummyIn[1]; /* Seperate dummy for inouts to avoid random data read into FBs*/
-	EhsDataflowIntType* pnData;
-	ehs_bool* pbMonitorInt;
-	ehs_uint32 nNumInts; /* This is strictly speaking the highest index -1 */
-	EhsDataflowBoolType* pbData;
-	ehs_bool* pbMonitorBool;
-	ehs_uint32 nNumBools; /* This is strictly speaking the highest index -1 */
-	EhsDataflowStringType* pszData; /**< rows each containing a string of string_length_max characters */
-	ehs_bool* pbMonitorString;
-	ehs_uint32 nNumStrings; /* This is strictly speaking the highest index -1 */
+    ehs_char xDummyIn[1]; /* Seperate dummy for inouts to avoid random data read into FBs*/
+    EhsDataflowIntType* pnData;
+    ehs_bool* pbMonitorInt;
+    ehs_uint32 nNumInts; /* This is strictly speaking the highest index -1 */
+    EhsDataflowBoolType* pbData;
+    ehs_bool* pbMonitorBool;
+    ehs_uint32 nNumBools; /* This is strictly speaking the highest index -1 */
+    EhsDataflowStringType* pszData; /**< rows each containing a string of string_length_max characters */
+    ehs_bool* pbMonitorString;
+    ehs_uint32 nNumStrings; /* This is strictly speaking the highest index -1 */
 #ifdef EHS_TARGET_FP_SUPPORT
-	EhsDataflowFloatType* pfData;
-	ehs_bool* pbMonitorFloat;
-	ehs_uint32 nNumFloats; /* This is strictly speaking the highest index -1 */
+    EhsDataflowFloatType* pfData;
+    ehs_bool* pbMonitorFloat;
+    ehs_uint32 nNumFloats; /* This is strictly speaking the highest index -1 */
 #endif /* EHS_TARGET_FP_SUPPORT */
 } EhsDataConnectionTableType;
 
@@ -78,19 +85,21 @@ typedef struct {
  *
  */
 /* structure fr currently running  app meta data */
-typedef struct {
-	ehs_uint32 nSODLBuildNumber;
-	ehs_char zVersion[EHS_STRING_LENGTH_MAX];
-	ehs_char zSODLdate[EHS_STRING_LENGTH_MAX];
-	ehs_char zApplicationName[EHS_STRING_LENGTH_MAX];
+typedef struct
+{
+    ehs_uint32 nSODLBuildNumber;
+    ehs_char zVersion[EHS_STRING_LENGTH_MAX];
+    ehs_char zSODLdate[EHS_STRING_LENGTH_MAX];
+    ehs_char zApplicationName[EHS_STRING_LENGTH_MAX];
 } EhsApplicationMetaDataType;
 
 /* Destructor Function List Element */
 
-typedef struct EhsDestroyObjElementStruct {
-	EhsDestroyFuncType funcPtr;
-	EhsFunctionInstanceDataType* pFuncInst;
-	struct EhsDestroyObjElementStruct * next;
+typedef struct EhsDestroyObjElementStruct
+{
+    EhsDestroyFuncType funcPtr;
+    EhsFunctionInstanceDataType* pFuncInst;
+    struct EhsDestroyObjElementStruct * next;
 } EhsDestroyObjElementType;
 
 

@@ -1,12 +1,18 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file dtv_pvr_list.c
  *
  * Implementation of the PVR file list functions for the DTV toolkit
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 1248 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006), $
- * 
- * Copyright (c), inx limited, 2007. All rights reserved.
+ *
  */
 
 /**
@@ -19,8 +25,8 @@
  * None
  * @subsection description Description:
  * This function block allows the user to search the current list of recorded programmes.
- * 
- * Each time the start action is triggered, the "valid" port is set to indicate if it was 
+ *
+ * Each time the start action is triggered, the "valid" port is set to indicate if it was
  * possible to get a filename. If "valid" is true, the string output indicates the name of the
  * file. If valid is false, it indicates that the end of the collection has been reached - the
  * next time the start action is triggered, the collection will start reading from the beginning.
@@ -35,15 +41,16 @@
 #include "setCompletes.h"
 #include "hal-api.h" /* Needed for logging */
 EHS_FB_FUNCTIONS_START(DtvPvrList)
-//EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_LIST_RUN_NAME, DtvPvrList)
+//EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvPvrList)
 EHS_FB_FUNCTIONS_END
 
 /**
  * Structure for maintaining information about the DTV PVR List
  */
-struct DtvPvrListStruct {
-	ehs_char szLastFile[EHS_TD_FILES_MAX_FILENAME];	/**< The name of the last file read */
-	ehs_bool bFileValid;									/**< True if szLastFile contains a filename */
+struct DtvPvrListStruct
+{
+    ehs_char szLastFile[EHS_TD_FILES_MAX_FILENAME];	/**< The name of the last file read */
+    ehs_bool bFileValid;									/**< True if szLastFile contains a filename */
 };
 
 /**
@@ -51,7 +58,7 @@ struct DtvPvrListStruct {
  */
 EHS_FB_IDENTIFY_FUNCTION(DtvPvrList)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(struct DtvPvrListStruct);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(struct DtvPvrListStruct);
 }
 
 /**
@@ -59,12 +66,12 @@ EHS_FB_IDENTIFY_FUNCTION(DtvPvrList)
  */
 EHS_FB_INIT_FUNCTION(DtvPvrList)
 {
-	struct DtvPvrListStruct* pListInfo = (struct DtvPvrListStruct*)EHS_FB_INIT_CONTEXT;
-	
-	EhsTDFiles_init(EhsTDFilesRef);
-	pListInfo->bFileValid = EHS_FALSE;
-	
-	return EHS_TRUE; /* initialisation succeeded */
+    struct DtvPvrListStruct* pListInfo = (struct DtvPvrListStruct*)EHS_FB_INIT_CONTEXT;
+
+    EhsTDFiles_init(EhsTDFilesRef);
+    pListInfo->bFileValid = EHS_FALSE;
+
+    return EHS_TRUE; /* initialisation succeeded */
 }
 
 
@@ -74,24 +81,24 @@ EHS_FB_INIT_FUNCTION(DtvPvrList)
  */
 EHS_FB_RUN_FUNCTION(DtvPvrList)
 {
-	struct DtvPvrListStruct* pListInfo = (struct DtvPvrListStruct*)EHS_FB_RUN_CONTEXT;
-	
-	if (!pListInfo->bFileValid)
-	{
-		//pListInfo->bFileValid = EhsTDFiles_listFirst(EhsTDFilesRef,EHS_TD_FILEFLAG_FILE,pListInfo->szLastFile);
-	}
-	else
-	{
-		pListInfo->bFileValid = EhsTDFiles_listNext(EhsTDFilesRef, pListInfo->szLastFile);
-	}
-	
-	if (pListInfo->bFileValid)
-	{
-		EhsStrcpy(EHS_FB_OUT_S(1),pListInfo->szLastFile);		
-	}
-	EHS_FB_OUT_B(0) = pListInfo->bFileValid;
-	
-	EHS_FB_FINISH(1);
+    struct DtvPvrListStruct* pListInfo = (struct DtvPvrListStruct*)EHS_FB_RUN_CONTEXT;
+
+    if (!pListInfo->bFileValid)
+    {
+        //pListInfo->bFileValid = EhsTDFiles_listFirst(EhsTDFilesRef,EHS_TD_FILEFLAG_FILE,pListInfo->szLastFile);
+    }
+    else
+    {
+        pListInfo->bFileValid = EhsTDFiles_listNext(EhsTDFilesRef, pListInfo->szLastFile);
+    }
+
+    if (pListInfo->bFileValid)
+    {
+        EhsStrcpy(EHS_FB_OUT_S(1),pListInfo->szLastFile);
+    }
+    EHS_FB_OUT_B(0) = pListInfo->bFileValid;
+
+    EHS_FB_FINISH(1);
 }
 
 

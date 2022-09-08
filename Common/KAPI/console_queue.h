@@ -1,15 +1,21 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file console_queue.h
  * In this file, the console queue type is defined and the associated functions to
  * operate upon it are declared. This file is derived from event_queue.h
  * Please ensure changes are reflected there too.
  *
  * @sa event_queue.h
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 780 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef EHS_CONSOLE_QUEUE_H
@@ -26,11 +32,12 @@
  * Otherwise an interrupt between one instruction and the other could cause havoc
  * if the interrupt results in another queue operation.
  */
-typedef struct {
-	ehs_uint32 uInIdx; /**< Pointer to the next place to write the input. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
-	ehs_uint32 uOutIdx; /**< Pointer to the next place to read the output. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
-	//ehs_bool EhsConsole_buffer_empty; // default is true.Note we could optiimise this for memory by checking for uInIdx == uOutIdx instead.
-	ehs_uint8 xQueue[EHS_MAX_CONSOLE_QUEUE_SIZE]; /**< Contents of the event queue */
+typedef struct
+{
+    ehs_uint32 uInIdx; /**< Pointer to the next place to write the input. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
+    ehs_uint32 uOutIdx; /**< Pointer to the next place to read the output. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
+    //ehs_bool EhsConsole_buffer_empty; // default is true.Note we could optiimise this for memory by checking for uInIdx == uOutIdx instead.
+    ehs_uint8 xQueue[EHS_MAX_CONSOLE_QUEUE_SIZE]; /**< Contents of the event queue */
 } EhsConsoleQueueType;
 
 /**

@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file hal.h
  * Declares the interface for the general hal functions.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 5606 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef EHS_HAL_H
@@ -14,41 +20,49 @@
 #include "globals.h"
 /* \todo we need to overcome what we should iunclude for globals. ehs_types.h - we are getting recursion */
 
-#include <time.h> ///\todo should this be here or in target?
 #include "hal_process.h"
+// We don't include this because it has a dependency on hal.h 
+// #include "hal_file.h"
 /*****************************************************************************/
 /* Define macros  */
 
 /*****************************************************************************/
 /* Define types */
 
+/*****************************************************************************/
+/* Run state machine */
 typedef enum ehs_startupmode_enum {EHSMETADATA_NODEBUGONSTARTS=0,EHSMETADATA_DEBUGONRESTART,EHSMETADATA_DEBUGONSTART} ehs_startupmode_t;
+
+/* Target tree implemented */
+ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob) ;
+
 
 /*@todo this could HAL? - should be a new EHS object file.
  * Also should be made private - but some target OS stuff needs changing to use setters getters */
-typedef struct {
-	/* The following are truly global - not per EHS */
-	ehs_char zArgv0[EHS_STRING_LENGTH_MAX]; // contains the calling coommand.
-	ehs_char zArgv1[EHS_STRING_LENGTH_MAX]; // contains the calling coommand.
-	ehs_char zDeviceIPAddr[EHS_STRING_LENGTH_MAX]; // if we are networked get IP address here
-	ehs_char zDeviceID[EHS_STRING_LENGTH_MAX]; // Use the Hardware ID (e.g. MAC address).
-	ehs_char zEhsStartedDirectory[EHS_STRING_LENGTH_MAX]; // contains the cwd when EHS was first started
+typedef struct
+{
+    /* The following are truly global - not per EHS */
+    ehs_char zArgv0[EHS_STRING_LENGTH_MAX]; // contains the calling coommand.
+    ehs_char zArgv1[EHS_STRING_LENGTH_MAX]; // contains the calling coommand.
+    ehs_char zDeviceIPAddr[EHS_STRING_LENGTH_MAX]; // if we are networked get IP address here
+    ehs_char zDeviceID[EHS_STRING_LENGTH_MAX]; // Use the Hardware ID (e.g. MAC address).
+    ehs_char zEhsStartedDirectory[EHS_STRING_LENGTH_MAX]; // contains the cwd when EHS was first started
 
 
     /* The following are for a specific instance of EHS */
-	time_t DynamicUpdateTime; //Time stamp of the last Dynamic update to the structure
-	ehs_bool bStaticUpdate; //flag to identify static elements are valid
-	ehs_uint32 nRepoID;
-	ehs_char zVersion[EHS_STRING_LENGTH_MAX];
-	ehs_char zBuildDate[EHS_STRING_LENGTH_MAX];
-	ehs_char zEHSStartDate[EHS_STRING_LENGTH_MAX];
-	ehs_char zTargetVariant[EHS_STRING_LENGTH_MAX];
-	ehs_char zModuleList[EHS_STRING_LENGTH_MAX]; //@todo this may need to be made larger?
+    time_t DynamicUpdateTime; //Time stamp of the last Dynamic update to the structure
+    ehs_bool bStaticUpdate; //flag to identify static elements are valid
+    ehs_uint32 nRepoID;
+    ehs_char zVersion[EHS_STRING_LENGTH_MAX];
+    ehs_char zBuildDate[EHS_STRING_LENGTH_MAX];
+    ehs_char zEHSStartDate[EHS_STRING_LENGTH_MAX];
+    ehs_char zTargetVariant[EHS_STRING_LENGTH_MAX];
+    ehs_char zModuleList[EHS_STRING_LENGTH_MAX]; //@todo this may need to be made larger?
 
-	/* The remainder is environment information - but with potentially EHS instance specific information*/
-	ehs_startupmode_t DebugOnStart;
-	ehs_char zInstallRootDirectory[EHS_STRING_LENGTH_MAX]; // Path to ehs/.
-	ehs_char zUserDirectory[EHS_STRING_LENGTH_MAX]; // Path to user directory, may be in <user home>/userdata or if root user <install dir>/userdata.
+    /* The remainder is environment information - but with potentially EHS instance specific information*/
+    ehs_startupmode_t DebugOnStart;
+    ehs_char zInstallRootDirectory[EHS_STRING_LENGTH_MAX]; // Path to ehs/.
+    ehs_char zUserDirectory[EHS_STRING_LENGTH_MAX]; // Path to user directory, may be in <user home>/userdata or if root user <install dir>/userdata.
     ehs_char AppCurrentLive[EHS_STRING_LENGTH_MAX]; //Canonical Application Name of current Live App.
     ehs_char NextAppToRun[EHS_STRING_LENGTH_MAX]; //Canonical Application Name of next App to run. //@todo - ensure initialised as an empty string
 
@@ -56,32 +70,32 @@ typedef struct {
     ehs_uint8 PairedOrganisationIDRequested; /* 0: no pairing data updates, 1 pairing data valid, 2 pairing data pending, 3 paring data invalid*/
 
     ehs_uint32 RAMUsed_KB;
-	ehs_uint32 RAMTotal_KB;
-	ehs_uint32 RAMAvail_KB;
-	ehs_uint32 nUserSpaceUsed_KB;
-	ehs_uint32 nUserSpaceTotal_KB;
-	//ehs_uint32 nUserSpaceAvail_KB;
-	ehs_uint32 nSysSpaceUsed_KB;
-	ehs_uint32 nSysSpaceTotal_KB;
-	//ehs_uint32 nUserSpaceAvail_KB;
-	ehs_uint16 CPUUsage; /* % CPU usage by EHS */
-	//ehs_char OSVersion[EHS_STRING_LENGTH_MAX];
-	ehs_bool NewDevmanMiscDLData;
-	ehs_bool NewDevmanMiscULData; // probably don't need this because we send everything always
-	//ehs_char xxxx[20];
-	ehs_bool devmanPingFail ;
-	time_t devmanLastGoodPing;
+    ehs_uint32 RAMTotal_KB;
+    ehs_uint32 RAMAvail_KB;
+    ehs_uint32 nUserSpaceUsed_KB;
+    ehs_uint32 nUserSpaceTotal_KB;
+    //ehs_uint32 nUserSpaceAvail_KB;
+    ehs_uint32 nSysSpaceUsed_KB;
+    ehs_uint32 nSysSpaceTotal_KB;
+    //ehs_uint32 nUserSpaceAvail_KB;
+    ehs_uint16 CPUUsage; /* % CPU usage by EHS */
+    //ehs_char OSVersion[EHS_STRING_LENGTH_MAX];
+    ehs_bool NewDevmanMiscDLData;
+    ehs_bool NewDevmanMiscULData; // probably don't need this because we send everything always
+    //ehs_char xxxx[20];
+    ehs_bool devmanPingFail ;
+    time_t devmanLastGoodPing;
 
-	pthread_cond_t condDevmanNewMiscDLData;
-	pthread_mutex_t mutexDevmanNewMiscDLData;
+    pthread_cond_t condDevmanNewMiscDLData;
+    pthread_mutex_t mutexDevmanNewMiscDLData;
 
-	Ehs_ConsoleCommand_Type InternallyRequestedCommand;
-	ehs_char zDevmanMiscDLDataType[EHS_STRING_LENGTH_MAX];
-	ehs_char zDevmanMiscDLData[EHS_STRING_LENGTH_MAX];
-	ehs_char zDevmanNewMiscDLData[EHS_STRING_LENGTH_MAX];
-	ehs_char zDevmanMiscULData[EHS_STRING_LENGTH_MAX];
-	ehs_char zSysInfo[EHS_STRING_LENGTH_MAX];
-	/* EHS state machine */
+    Ehs_ConsoleCommand_Type InternallyRequestedCommand;
+    ehs_char zDevmanMiscDLDataType[EHS_STRING_LENGTH_MAX];
+    ehs_char zDevmanMiscDLData[EHS_STRING_LENGTH_MAX];
+    ehs_char zDevmanNewMiscDLData[EHS_STRING_LENGTH_MAX];
+    ehs_char zDevmanMiscULData[EHS_STRING_LENGTH_MAX];
+    ehs_char zSysInfo[EHS_STRING_LENGTH_MAX];
+    /* EHS state machine */
 
 } EhsMetaDataType;
 
@@ -139,12 +153,7 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetTargetVariant();
 EHS_GLOBAL const ehs_char* EhsHMetaGetEHSStartDate();
 EHS_GLOBAL const ehs_char * EhsHMetaGetOSVersion();
 
-/* Devman connectivity monitoring */
-ehs_bool EhsHMetaGetMissedPing() ;
-/* returns the time in seconds since the last successful ping */
-time_t EhsHMetaGetCPUMissedPingTime() ;
-void EhsHMetaResetMissedPingTime();
-void EhsHMetaSetMissedPing();
+
 
 /* and the apps meta data */
 
@@ -209,6 +218,18 @@ EHS_GLOBAL void EhsHApp_term(void);
 /* Date in W3c format */
 ehs_bool EhsHSysUpdateDate(ehs_char * datestring);
 
+
+/* Devman connectivity monitoring */
+ehs_bool EhsHMetaGetMissedPing() ;
+/* returns the time in seconds since the last successful ping */
+time_t EhsHMetaGetCPUMissedPingTime() ;
+void EhsHMetaResetMissedPingTime();
+void EhsHMetaSetMissedPing();
+
+
+#ifndef EHS_SKIP_COMPONENT_ONLY_HAL
+
+
 /* Device Pairing Support */
 void EhsHAppMetaRequestPairedOrganisation(); /* request a new pairing value from server */
 void EhsHSysUpdatePairedOrganisation(ehs_uint32 id); /* set to a valid value */
@@ -226,7 +247,7 @@ ehs_bool EhsHSysRestart(); /* hard EHS restart - OS level - restarts with the de
 ehs_bool EhsHSysReboot();
 
 
-/* Devman DatA TO SHARE */
+/* Devman Data TO SHARE */
 ehs_bool EhsHMetaIsNewDevmanMiscDLData() ;
 void EhsHMetaSetNewDevmanMiscDLDataNew(ehs_bool val);
 ehs_char* EhsHMetaGetPtrToDevmanMiscDLData();
@@ -260,8 +281,8 @@ ehs_bool EhsHOsSys_UpdateEnvironment();
  */
 EHS_GLOBAL const ehs_char* EhsHCSoundGetVers();
 
-/* Target tree implemented */
-ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob) ;
+
+#endif
 
 
 #endif /* EHS_HAL_H */

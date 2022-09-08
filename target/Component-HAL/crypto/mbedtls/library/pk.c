@@ -40,8 +40,10 @@
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -74,24 +76,25 @@ void mbedtls_pk_free( mbedtls_pk_context *ctx )
  */
 const mbedtls_pk_info_t * mbedtls_pk_info_from_type( mbedtls_pk_type_t pk_type )
 {
-    switch( pk_type ) {
+    switch( pk_type )
+    {
 #if defined(MBEDTLS_RSA_C)
-        case MBEDTLS_PK_RSA:
-            return( &mbedtls_rsa_info );
+    case MBEDTLS_PK_RSA:
+        return( &mbedtls_rsa_info );
 #endif
 #if defined(MBEDTLS_ECP_C)
-        case MBEDTLS_PK_ECKEY:
-            return( &mbedtls_eckey_info );
-        case MBEDTLS_PK_ECKEY_DH:
-            return( &mbedtls_eckeydh_info );
+    case MBEDTLS_PK_ECKEY:
+        return( &mbedtls_eckey_info );
+    case MBEDTLS_PK_ECKEY_DH:
+        return( &mbedtls_eckeydh_info );
 #endif
 #if defined(MBEDTLS_ECDSA_C)
-        case MBEDTLS_PK_ECDSA:
-            return( &mbedtls_ecdsa_info );
+    case MBEDTLS_PK_ECDSA:
+        return( &mbedtls_ecdsa_info );
 #endif
-        /* MBEDTLS_PK_RSA_ALT omitted on purpose */
-        default:
-            return( NULL );
+    /* MBEDTLS_PK_RSA_ALT omitted on purpose */
+    default:
+        return( NULL );
     }
 }
 
@@ -116,9 +119,9 @@ int mbedtls_pk_setup( mbedtls_pk_context *ctx, const mbedtls_pk_info_t *info )
  * Initialize an RSA-alt context
  */
 int mbedtls_pk_setup_rsa_alt( mbedtls_pk_context *ctx, void * key,
-                         mbedtls_pk_rsa_alt_decrypt_func decrypt_func,
-                         mbedtls_pk_rsa_alt_sign_func sign_func,
-                         mbedtls_pk_rsa_alt_key_len_func key_len_func )
+                              mbedtls_pk_rsa_alt_decrypt_func decrypt_func,
+                              mbedtls_pk_rsa_alt_sign_func sign_func,
+                              mbedtls_pk_rsa_alt_key_len_func key_len_func )
 {
     mbedtls_rsa_alt_context *rsa_alt;
     const mbedtls_pk_info_t *info = &mbedtls_rsa_alt_info;
@@ -175,11 +178,11 @@ static inline int pk_hashlen_helper( mbedtls_md_type_t md_alg, size_t *hash_len 
  * Verify a signature
  */
 int mbedtls_pk_verify( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
-               const unsigned char *hash, size_t hash_len,
-               const unsigned char *sig, size_t sig_len )
+                       const unsigned char *hash, size_t hash_len,
+                       const unsigned char *sig, size_t sig_len )
 {
     if( ctx == NULL || ctx->pk_info == NULL ||
-        pk_hashlen_helper( md_alg, &hash_len ) != 0 )
+            pk_hashlen_helper( md_alg, &hash_len ) != 0 )
         return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
 
     if( ctx->pk_info->verify_func == NULL )
@@ -193,9 +196,9 @@ int mbedtls_pk_verify( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
  * Verify a signature with options
  */
 int mbedtls_pk_verify_ext( mbedtls_pk_type_t type, const void *options,
-                   mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
-                   const unsigned char *hash, size_t hash_len,
-                   const unsigned char *sig, size_t sig_len )
+                           mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
+                           const unsigned char *hash, size_t hash_len,
+                           const unsigned char *sig, size_t sig_len )
 {
     if( ctx == NULL || ctx->pk_info == NULL )
         return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
@@ -246,12 +249,12 @@ int mbedtls_pk_verify_ext( mbedtls_pk_type_t type, const void *options,
  * Make a signature
  */
 int mbedtls_pk_sign( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
-             const unsigned char *hash, size_t hash_len,
-             unsigned char *sig, size_t *sig_len,
-             int (*f_rng)(void *, unsigned char *, size_t), void *p_rng )
+                     const unsigned char *hash, size_t hash_len,
+                     unsigned char *sig, size_t *sig_len,
+                     int (*f_rng)(void *, unsigned char *, size_t), void *p_rng )
 {
     if( ctx == NULL || ctx->pk_info == NULL ||
-        pk_hashlen_helper( md_alg, &hash_len ) != 0 )
+            pk_hashlen_helper( md_alg, &hash_len ) != 0 )
         return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
 
     if( ctx->pk_info->sign_func == NULL )
@@ -265,9 +268,9 @@ int mbedtls_pk_sign( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
  * Decrypt message
  */
 int mbedtls_pk_decrypt( mbedtls_pk_context *ctx,
-                const unsigned char *input, size_t ilen,
-                unsigned char *output, size_t *olen, size_t osize,
-                int (*f_rng)(void *, unsigned char *, size_t), void *p_rng )
+                        const unsigned char *input, size_t ilen,
+                        unsigned char *output, size_t *olen, size_t osize,
+                        int (*f_rng)(void *, unsigned char *, size_t), void *p_rng )
 {
     if( ctx == NULL || ctx->pk_info == NULL )
         return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
@@ -276,16 +279,16 @@ int mbedtls_pk_decrypt( mbedtls_pk_context *ctx,
         return( MBEDTLS_ERR_PK_TYPE_MISMATCH );
 
     return( ctx->pk_info->decrypt_func( ctx->pk_ctx, input, ilen,
-                output, olen, osize, f_rng, p_rng ) );
+                                        output, olen, osize, f_rng, p_rng ) );
 }
 
 /*
  * Encrypt message
  */
 int mbedtls_pk_encrypt( mbedtls_pk_context *ctx,
-                const unsigned char *input, size_t ilen,
-                unsigned char *output, size_t *olen, size_t osize,
-                int (*f_rng)(void *, unsigned char *, size_t), void *p_rng )
+                        const unsigned char *input, size_t ilen,
+                        unsigned char *output, size_t *olen, size_t osize,
+                        int (*f_rng)(void *, unsigned char *, size_t), void *p_rng )
 {
     if( ctx == NULL || ctx->pk_info == NULL )
         return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
@@ -294,7 +297,7 @@ int mbedtls_pk_encrypt( mbedtls_pk_context *ctx,
         return( MBEDTLS_ERR_PK_TYPE_MISMATCH );
 
     return( ctx->pk_info->encrypt_func( ctx->pk_ctx, input, ilen,
-                output, olen, osize, f_rng, p_rng ) );
+                                        output, olen, osize, f_rng, p_rng ) );
 }
 
 /*
@@ -303,8 +306,8 @@ int mbedtls_pk_encrypt( mbedtls_pk_context *ctx,
 int mbedtls_pk_check_pair( const mbedtls_pk_context *pub, const mbedtls_pk_context *prv )
 {
     if( pub == NULL || pub->pk_info == NULL ||
-        prv == NULL || prv->pk_info == NULL ||
-        prv->pk_info->check_pair_func == NULL )
+            prv == NULL || prv->pk_info == NULL ||
+            prv->pk_info->check_pair_func == NULL )
     {
         return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
     }

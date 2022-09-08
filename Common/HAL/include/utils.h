@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file utils.c
  * In this file, declaration for useful utilities for EHS are given
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 1248 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef EHS_UTILS_H
@@ -82,7 +88,7 @@ const ehs_char* EhsGetSint16FromString(ehs_sint16 * output, const ehs_char* inpu
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer), or null if parse fails
  */
-const ehs_char* EhsGetUint16FromString(ehs_uint16* output, const ehs_char* input);
+const ehs_char* EhsGetUint16FromString(ehs_uint16* output,const ehs_char* input);
 
 /**
  * Read an unsigned 8-bit integer from a line of the SODL file.

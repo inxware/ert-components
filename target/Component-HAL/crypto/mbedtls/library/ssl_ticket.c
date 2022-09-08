@@ -42,8 +42,10 @@
 #include <string.h>
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -104,7 +106,7 @@ static int ssl_ticket_update_keys( mbedtls_ssl_ticket_context *ctx )
         uint32_t key_time = ctx->keys[ctx->active].generation_time;
 
         if( current_time > key_time &&
-            current_time - key_time < ctx->ticket_lifetime )
+                current_time - key_time < ctx->ticket_lifetime )
         {
             return( 0 );
         }
@@ -115,16 +117,16 @@ static int ssl_ticket_update_keys( mbedtls_ssl_ticket_context *ctx )
     }
     else
 #endif /* MBEDTLS_HAVE_TIME */
-        return( 0 );
+    return( 0 );
 }
 
 /*
  * Setup context for actual use
  */
 int mbedtls_ssl_ticket_setup( mbedtls_ssl_ticket_context *ctx,
-    int (*f_rng)(void *, unsigned char *, size_t), void *p_rng,
-    mbedtls_cipher_type_t cipher,
-    uint32_t lifetime )
+                              int (*f_rng)(void *, unsigned char *, size_t), void *p_rng,
+                              mbedtls_cipher_type_t cipher,
+                              uint32_t lifetime )
 {
     int ret;
     const mbedtls_cipher_info_t *cipher_info;
@@ -139,7 +141,7 @@ int mbedtls_ssl_ticket_setup( mbedtls_ssl_ticket_context *ctx,
         return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
 
     if( cipher_info->mode != MBEDTLS_MODE_GCM &&
-        cipher_info->mode != MBEDTLS_MODE_CCM )
+            cipher_info->mode != MBEDTLS_MODE_CCM )
     {
         return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
     }
@@ -148,13 +150,13 @@ int mbedtls_ssl_ticket_setup( mbedtls_ssl_ticket_context *ctx,
         return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
 
     if( ( ret = mbedtls_cipher_setup( &ctx->keys[0].ctx, cipher_info ) ) != 0 ||
-        ( ret = mbedtls_cipher_setup( &ctx->keys[1].ctx, cipher_info ) ) != 0 )
+            ( ret = mbedtls_cipher_setup( &ctx->keys[1].ctx, cipher_info ) ) != 0 )
     {
         return( ret );
     }
 
     if( ( ret = ssl_ticket_gen_key( ctx, 0 ) ) != 0 ||
-        ( ret = ssl_ticket_gen_key( ctx, 1 ) ) != 0 )
+            ( ret = ssl_ticket_gen_key( ctx, 1 ) ) != 0 )
     {
         return( ret );
     }
@@ -253,7 +255,7 @@ static int ssl_load_session( mbedtls_ssl_session *session,
         mbedtls_x509_crt_init( session->peer_cert );
 
         if( ( ret = mbedtls_x509_crt_parse_der( session->peer_cert,
-                                        p, cert_len ) ) != 0 )
+                                                p, cert_len ) ) != 0 )
         {
             mbedtls_x509_crt_free( session->peer_cert );
             mbedtls_free( session->peer_cert );
@@ -331,9 +333,9 @@ int mbedtls_ssl_ticket_write( void *p_ticket,
     /* Dump session state */
     if( ( ret = ssl_save_session( session,
                                   state, end - state, &clear_len ) ) != 0 ||
-        (unsigned long) clear_len > 65535 )
+            (unsigned long) clear_len > 65535 )
     {
-         goto cleanup;
+        goto cleanup;
     }
     state_len_bytes[0] = ( clear_len >> 8 ) & 0xff;
     state_len_bytes[1] = ( clear_len      ) & 0xff;
@@ -341,8 +343,8 @@ int mbedtls_ssl_ticket_write( void *p_ticket,
     /* Encrypt and authenticate */
     tag = state + clear_len;
     if( ( ret = mbedtls_cipher_auth_encrypt( &key->ctx,
-                    iv, 12, key_name, 4 + 12 + 2,
-                    state, clear_len, state, &ciph_len, tag, 16 ) ) != 0 )
+                iv, 12, key_name, 4 + 12 + 2,
+                state, clear_len, state, &ciph_len, tag, 16 ) ) != 0 )
     {
         goto cleanup;
     }
@@ -367,8 +369,8 @@ cleanup:
  * Select key based on name
  */
 static mbedtls_ssl_ticket_key *ssl_ticket_select_key(
-        mbedtls_ssl_ticket_context *ctx,
-        const unsigned char name[4] )
+    mbedtls_ssl_ticket_context *ctx,
+    const unsigned char name[4] )
 {
     unsigned char i;
 
@@ -432,8 +434,8 @@ int mbedtls_ssl_ticket_parse( void *p_ticket,
 
     /* Decrypt and authenticate */
     if( ( ret = mbedtls_cipher_auth_decrypt( &key->ctx, iv, 12,
-                    key_name, 4 + 12 + 2, ticket, enc_len,
-                    ticket, &clear_len, tag, 16 ) ) != 0 )
+                key_name, 4 + 12 + 2, ticket, enc_len,
+                ticket, &clear_len, tag, 16 ) ) != 0 )
     {
         if( ret == MBEDTLS_ERR_CIPHER_AUTH_FAILED )
             ret = MBEDTLS_ERR_SSL_INVALID_MAC;
@@ -456,7 +458,7 @@ int mbedtls_ssl_ticket_parse( void *p_ticket,
         mbedtls_time_t current_time = mbedtls_time( NULL );
 
         if( current_time < session->start ||
-            (uint32_t)( current_time - session->start ) > ctx->ticket_lifetime )
+                (uint32_t)( current_time - session->start ) > ctx->ticket_lifetime )
         {
             ret = MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED;
             goto cleanup;

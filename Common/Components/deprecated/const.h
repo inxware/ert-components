@@ -1,13 +1,19 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * const.h
  *
  * function prototypes for the constFunctions.c - Constant blocks of all types
  *
- * @author: Dr A Coombes
- * @version: $Revision: 333 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ * @author: inx limited
+ *
  */
 
 #ifndef EHS_CONST_H
@@ -16,7 +22,9 @@
 
 /******************************************************************************/
 /* Declare integer constant */
-#define EHS_FB_CONSTANT_INT_NAME ("Constant_Int")
+#define EHS_FB_NAME_Constant_Int ("Constant_Int")
+#define EHS_FB_ID_Constant_Int (0x46F9)
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConstantInt);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConstantInt);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConstantInt);
@@ -26,7 +34,9 @@ EHS_FB_FUNCTIONS(ConstantInt)
 
 /******************************************************************************/
 /* Declare string constant */
-#define EHS_FB_CONSTANT_STRING_NAME "Constant_String"
+#define EHS_FB_NAME_Constant_String "Constant_String"
+#define EHS_FB_ID_Constant_String 0xB704
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConstantString);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConstantString);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConstantString);
@@ -37,7 +47,9 @@ EHS_FB_FUNCTIONS(ConstantString)
 
 /******************************************************************************/
 /* Declare boolean constant */
-#define EHS_FB_CONSTANT_BOOL_NAME ("Constant_Bool")
+#define EHS_FB_NAME_Constant_Bool ("Constant_Bool")
+#define EHS_FB_ID_Constant_Bool (0x7BDF)
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConstantBool);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConstantBool);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConstantBool);
@@ -49,7 +61,9 @@ EHS_FB_FUNCTIONS(ConstantBool)
 #ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
 /* Declare float constant */
-#define EHS_FB_CONSTANT_FLOAT_NAME ("Constant_Real")
+#define EHS_FB_NAME_Constant_Real ("Constant_Real")
+#define EHS_FB_ID_Constant_Real (0xD9FF)
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConstantFloat);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConstantFloat);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConstantFloat);

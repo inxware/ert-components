@@ -36,7 +36,8 @@
 extern "C" {
 #endif
 
-typedef enum {
+typedef enum
+{
     MBEDTLS_MD_NONE=0,
     MBEDTLS_MD_MD2,
     MBEDTLS_MD_MD4,
@@ -63,7 +64,8 @@ typedef struct mbedtls_md_info_t mbedtls_md_info_t;
 /**
  * Generic message digest context.
  */
-typedef struct {
+typedef struct
+{
     /** Information about the associated message digest */
     const mbedtls_md_info_t *md_info;
 
@@ -253,7 +255,7 @@ int mbedtls_md_finish( mbedtls_md_context_t *ctx, unsigned char *output );
  *                 verification fails.
  */
 int mbedtls_md( const mbedtls_md_info_t *md_info, const unsigned char *input, size_t ilen,
-        unsigned char *output );
+                unsigned char *output );
 
 #if defined(MBEDTLS_FS_IO)
 /**
@@ -283,7 +285,7 @@ int mbedtls_md_file( const mbedtls_md_info_t *md_info, const char *path,
  *                  verification fails.
  */
 int mbedtls_md_hmac_starts( mbedtls_md_context_t *ctx, const unsigned char *key,
-                    size_t keylen );
+                            size_t keylen );
 
 /**
  * \brief           Generic HMAC process buffer.
@@ -299,7 +301,7 @@ int mbedtls_md_hmac_starts( mbedtls_md_context_t *ctx, const unsigned char *key,
  *                  verification fails.
  */
 int mbedtls_md_hmac_update( mbedtls_md_context_t *ctx, const unsigned char *input,
-                    size_t ilen );
+                            size_t ilen );
 
 /**
  * \brief           Output HMAC.
@@ -340,8 +342,8 @@ int mbedtls_md_hmac_reset( mbedtls_md_context_t *ctx );
  *                 verification fails.
  */
 int mbedtls_md_hmac( const mbedtls_md_info_t *md_info, const unsigned char *key, size_t keylen,
-                const unsigned char *input, size_t ilen,
-                unsigned char *output );
+                     const unsigned char *input, size_t ilen,
+                     unsigned char *output );
 
 /* Internal use */
 int mbedtls_md_process( mbedtls_md_context_t *ctx, const unsigned char *data );

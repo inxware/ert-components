@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file targetos_init.c
  * Initialization/reset/termination code for the OS
  *
  * @author: inx limited
- * @version: $Revision: 3935 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2008. All rights reserved.
  */
 
 /**
@@ -57,10 +63,10 @@
  */
 void EhsTOsSys_init(void)
 {
-	EhsTPMutex_init();
-	EhsTgtTimer_init();
-	/* start TCP/IP server thread */
-	 // Moved to common code : EhsHThread_execute(EhsSvcTcp_server,NULL,-90); // start with low priority for debugging portal
+    EhsTPMutex_init();
+    EhsTgtTimer_init();
+    /* start TCP/IP server thread */
+    // Moved to common code : EhsHThread_execute(EhsSvcTcp_server,NULL,-90); // start with low priority for debugging portal
 
 }
 
@@ -88,33 +94,36 @@ static void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP )
     DWORD dwBufLen = sizeof(AdapterInfo);
 // Call GetAdapterInfo
     DWORD dwStatus = GetAdaptersInfo(
-        AdapterInfo,
-        &dwBufLen);
+                         AdapterInfo,
+                         &dwBufLen);
 
 // Verify return value is valid, no buffer overflow
-    if (dwStatus == ERROR_SUCCESS) {
+    if (dwStatus == ERROR_SUCCESS)
+    {
 // Contains pointer to current adapter info
-    PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo; //@todo check for validity
-    MACData = pAdapterInfo->Address;
-    //do {
-   EhsSprintf(buf,"%02X-%02X-%02X-%02X-%02X-%02X",MACData[0], MACData[1], MACData[2], MACData[3], MACData[4],MACData[5]);
-   EhsSprintf(bufIP,"%s",pAdapterInfo->IpAddressList.IpAddress.String);
-   }
-    else {
-    	EhsStrcpy(buf,"MACID_UNKOWN");
-    	EhsStrcpy(bufIP,"IP ADDRESS_UNKOWN");
+        PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo; //@todo check for validity
+        MACData = pAdapterInfo->Address;
+        //do {
+        EhsSprintf(buf,"%02X-%02X-%02X-%02X-%02X-%02X",MACData[0], MACData[1], MACData[2], MACData[3], MACData[4],MACData[5]);
+        EhsSprintf(bufIP,"%s",pAdapterInfo->IpAddressList.IpAddress.String);
+    }
+    else
+    {
+        EhsStrcpy(buf,"MACID_UNKOWN");
+        EhsStrcpy(bufIP,"IP ADDRESS_UNKOWN");
     }
 }
 
 
-ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData,ehs_uint8 which) {
+ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData,ehs_uint8 which)
+{
 
-	pEhsMetaData->nUserSpaceUsed_KB=0; //@todo here
-	pEhsMetaData->nUserSpaceTotal_KB=0;
-	//EhsStrcpy(pEhsMetaData->zDeviceIPAddr,"unknown");  // if we are networked get IP address here
-	//EhsStrcpy(pEhsMetaData->zDeviceID,"none"); //@todo here
-	EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
-	//EHSH_LOG_INFO("\nDEVICE_ID=%s\n",pEhsMetaData->zDeviceID); // @todo note this can get any network ID, not a specific one
+    pEhsMetaData->nUserSpaceUsed_KB=0; //@todo here
+    pEhsMetaData->nUserSpaceTotal_KB=0;
+    //EhsStrcpy(pEhsMetaData->zDeviceIPAddr,"unknown");  // if we are networked get IP address here
+    //EhsStrcpy(pEhsMetaData->zDeviceID,"none"); //@todo here
+    EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
+    //EHSH_LOG_INFO("\nDEVICE_ID=%s\n",pEhsMetaData->zDeviceID); // @todo note this can get any network ID, not a specific one
 }
 
 /**
@@ -122,7 +131,7 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData,ehs_uint8 wh
  */
 void EhsTOsSys_term(void)
 {
-	// Leave the mutexes to the OS EhsTPMutex_term();
+    // Leave the mutexes to the OS EhsTPMutex_term();
 }
 
 /**
@@ -151,10 +160,10 @@ void EhsTOsApp_reset(void)
 
 
 /* Mingw - @todo merge this
- * 
- * 
+ *
+ *
 void EhsBinSearchPath(void ) {
- ehs_char * path_var [4024]; // @ todo make this a temporatry var.  USE: EhsHMem_tempAlloc EhsHMem_tempFree 
+ ehs_char * path_var [4024]; // @ todo make this a temporatry var.  USE: EhsHMem_tempAlloc EhsHMem_tempFree
  char szCwd[1024] = {'\0'};
 
  strncpy (path_var,"PATH=",4024);
@@ -163,41 +172,39 @@ void EhsBinSearchPath(void ) {
  strncat(path_var,";",4024);
  strncat(path_var,getenv("PATH"),4024);
  putenv (path_var); //path_var
- printf(getenv("PATH"));
 }
  */
 /* 	This needs to be done for all the other targets too */
 
 void EhsBinSearchPath(void )
 {
-	// Linux target uses run_ehs.sh script to set the environment variables.
-	// putenv doesn't seem to do it properly.
-	/*
-	ehs_char* szPathVar = (ehs_char*)EhsHMem_tempAlloc(4024 * sizeof(ehs_char));
-	ehs_char* szCwd = (ehs_char*)EhsHMem_tempAlloc(1024 * sizeof(ehs_char));
+    // Linux target uses run_ehs.sh script to set the environment variables.
+    // putenv doesn't seem to do it properly.
+    /*
+    ehs_char* szPathVar = (ehs_char*)EhsHMem_tempAlloc(4024 * sizeof(ehs_char));
+    ehs_char* szCwd = (ehs_char*)EhsHMem_tempAlloc(1024 * sizeof(ehs_char));
 
-	// set PATH environment variable
-	strncpy (szPathVar,"PATH=",4024);
-	getcwd(szCwd, 1024);
-	strncat(szPathVar,szCwd,4024);
-	if (getenv("PATH")) {
-		strncat(szPathVar,":",4024);
-		strncat(szPathVar,getenv("PATH"),4024);
-	}
-	//putenv (szPathVar); //path_var
-	printf("%s\n",getenv("PATH"));
+    // set PATH environment variable
+    strncpy (szPathVar,"PATH=",4024);
+    getcwd(szCwd, 1024);
+    strncat(szPathVar,szCwd,4024);
+    if (getenv("PATH")) {
+    	strncat(szPathVar,":",4024);
+    	strncat(szPathVar,getenv("PATH"),4024);
+    }
+    //putenv (szPathVar); //path_var
 
-	// set LUA_PATH environment variable
-	strncpy (szPathVar,"LUA_PATH='",4024);
-	strncat(szPathVar,szCwd,4024);
-	strncat(szPathVar,"/../share/lua/5.1/?.lua;;'",4024);
+    // set LUA_PATH environment variable
+    strncpy (szPathVar,"LUA_PATH='",4024);
+    strncat(szPathVar,szCwd,4024);
+    strncat(szPathVar,"/../share/lua/5.1/?.lua;;'",4024);
 
-	// set LUA_CPATH environment variable
-	strncpy (szPathVar,"LUA_CPATH='",4024);
-	strncat(szPathVar,szCwd,4024);
-	strncat(szPathVar,"/../lib/lua/5.1/?.so;;'",4024);
+    // set LUA_CPATH environment variable
+    strncpy (szPathVar,"LUA_CPATH='",4024);
+    strncat(szPathVar,szCwd,4024);
+    strncat(szPathVar,"/../lib/lua/5.1/?.so;;'",4024);
 
-	EhsHMem_tempFree(szPathVar);
-	EhsHMem_tempFree(szCwd);
-	*/
+    EhsHMem_tempFree(szPathVar);
+    EhsHMem_tempFree(szCwd);
+    */
 }

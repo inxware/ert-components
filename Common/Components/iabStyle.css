@@ -1,55 +1,188 @@
+body{
+    background-color: white;
+    font-size: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+}
 h1.component {
-text-align:center;font-family:arial;font-size:20px;color:black;
+text-align:center;font-family:arial;font-size:18px;color:black;
 }
 h2.component {
-text-align:leftr;font-family:arial;font-size:17px;color:black;
+text-align:leftr;font-family:arial;font-size:15px;color:black;
 }
 h3.ports, h3.parameters, h3.stateMachine, h3.licenceType, h3.supplier, h3.more, h3.profiles, h3.toolbox, h3.version {
-font-family:arial;font-size:17px;color:black;
+font-family:arial;font-size:15px;color:black;
 }
 h3.dependencies {
-font-family:arial;font-size:17px;color:black;display:none;
+font-family:arial;font-size:15px;color:black;display:none;
+}
+h4{
+font-family:arial;font-size:13px;color:black;
 }
 h6.ports, h6.parameters, h6.profiles {
-font-family:arial;font-size:14px;color:black;display:inline;
+font-family:arial;font-size:12px;color:black;display:inline;
 }
 h6.dependencies {
-font-family:arial;font-size:14px;color:black;display:inline;
+font-family:arial;font-size:12px;color:black;display:inline;
 }
 h6.portsInt {
-font-family:arial;font-size:14px;color:blue;display:inline;
+font-family:arial;font-size:12px;color:blue;display:inline;
 }
 h6.portsBool {
-font-family:arial;font-size:14px;color:rgb(240,200,000);display:inline;
+font-family:arial;font-size:12px;color:rgb(240,200,000);display:inline;
 }
 h6.portsStr {
-font-family:arial;font-size:14px;color:red;display:inline;
+font-family:arial;font-size:12px;color:red;display:inline;
 }
 h6.portsReal {
-font-family:arial;font-size:14px;color:green;display:inline;
+font-family:arial;font-size:12px;color:green;display:inline;
 }
 p.image {
 text-align:center;font-family:arial;font-size:10px;color:black;
 }
 p.link {
-font-family:arial;font-size:13px;color:black;
+font-family:arial;font-size:11px;color:black;
 }
 p.component, p.stateMachine, p.licenceType, p.more, p.supplier, p.toolbox, p.version {
-font-family:arial;font-size:14px;color:black;
+font-family:arial;font-size:12px;color:black;
 }
 p.ports, p.parameters, p.profiles {
-font-family:arial;font-size:14px;color:black;display:inline;
+font-family:arial;font-size:12px;color:black;display:inline;
 }
 p.dependencies {
-font-family:arial;font-size:14px;color:black;display:inline;
+font-family:arial;font-size:12px;color:black;display:inline;
 }
+table{
+    font-size:12px;
+    border: none;/*1px solid grey;*/
+    width:100%
+}
+tr{
+    border: none;/*1px solid grey;*/
+}
+td{
+    padding: 0 10px;
+    border: none;/*1px solid grey;*/
+    text-align:left;
+}
+th{
+    align-content: left;
+    background-color: lightgrey;
+    width:50px;
+    text-align:left;
+}
+.heading-cell{
+    align-content: Left;
+    background-color: lightgrey;
+}
+.table_params{
+
+}
+mark{
+    padding:4px;
+    background-color: greenyellow;
+    border-radius:7px;
+    font-weight: 700;
+}
+
+.fsm_blob{
+    background-color: greenyellow;
+    color:blue;
+    padding: 3px 3px;
+    white-space: nowrap;
+    border: 1px solid black;
+    height:11px;
+    border-radius:2px;
+   /* border-radius:7px;
+    font-weight: bold;
+    padding:6px 6px;
+    min-height:16px;
+     font-weight: 600;
+    */
+}
+
+.fsm_row{
+    white-space: nowrap;
+    padding: 4px 4px;
+}
+
+.table_params td, .table_params tr, .table_params th{
+    padding: 2px;
+    
+}
+
+/* Note these don't work on current webkit version, so hard coded in the table header for now instead */
+td:first-child {
+    width: 90px;
+    white-space: nowrap;
+    font-weight: bold;
+}
+tr:nth-child(even) {background: #F9F9FC}
+tr:nth-child(odd) {background: #FFFFFF}
+
+
 ul.noBullet {
-<!--list-style-type: none-->
+/*list-style-type: none*/
 }
 ul.dependencies {
 display:inline;
 }
 li.dependencies {
 display:inline;
+}
+
+.page_container{
+    width: 100%
+}
+
+
+#toc_container {
+    background: #00f9f9 none repeat scroll 0 0;
+    margin-bottom: 1em;
+    padding: 5px;
+    height: 20px;
+ /* border: 1px solid #aaa;
+    display: table;
+    width: 95%;*/
+}
+.section_heading {
+    /* background: #f9f9f9 none repeat scroll 0 0;
+     border: 1px solid #aaa;
+     display: table;
+     margin-bottom: 1em;
+     padding: 8px;
+     width: 95%;*/
+     height: 18px;
+     background: #00f0f0 none repeat scroll 0 0;
+     margin-bottom: 1em;
+     padding: 5px;
+ }
+
+.toc_span{
+    font-family:arial;font-size:15px;color:black;
+    float: left;
+    padding: 0 10px;
+}
+
+.toc_span_items{
+    padding: 0 10px;
+    float: right;
+    font-family:arial;font-size:13px;color:blue
+}
+
+.toc_title {
+    font-weight: 700;
+    text-align: center;
+}
+
+#toc_container li, #toc_container ul, #toc_container ul li{
+    list-style: outside none none !important;
+}
+
+.toc_link{
+    text-decoration:none;
+}
+
+li.dependencies {
+display:none;
 }
 

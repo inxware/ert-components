@@ -1,12 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 
 /** @file widget_viewport.c
  * Definitions for the patch widget handling functions
  *
- * @author: inx limited, PBeaumont
- * @version: $Revision: 1303 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
+ * @author: inx limited
  *
- * Copyright (c) inx limited, UK. All rights reserved.
  */
 //#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
 
@@ -19,7 +25,7 @@
 /**
  * Define the global viewport info
  */
-EhsViewportInformation EhsPrimaryViewportInfo={0};
+EhsViewportInformation EhsPrimaryViewportInfo= {0};
 
 #define EHSGRAPHICSINFOFILE "graphics.nfo"
 #define EHSGRAPHICS_XCOORD "xcoord"
@@ -38,272 +44,312 @@ EhsViewportInformation EhsPrimaryViewportInfo={0};
  * These are read from file.
  * @todo move the file reading somewhere else. We don't want a dependency on a file system and file in the viewport code.
  */
-void EhsPrimaryViewportInfo_new() {
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_FALSE; //dktodo - remove, not needed now use file
-	EhsPrimaryViewportInfo.nX = 0;
-	EhsPrimaryViewportInfo.nY = 0;
-	EhsPrimaryViewportInfo.nWidth  = EHS_CONFIG_DISPLAY_WIDTH; 	//these are defined in the platform config header file
-	EhsPrimaryViewportInfo.nHeight = EHS_CONFIG_DISPLAY_HEIGHT; //these are defined in the platform config header file
-	EhsPrimaryViewportInfo.nColour.sComp.nRed = 20;				//dk - gstreamer is making keying out rgb=0,0,0 and making window transparent
-	EhsPrimaryViewportInfo.nColour.sComp.nGreen = 20;
-	EhsPrimaryViewportInfo.nColour.sComp.nBlue = 20;
-	EhsPrimaryViewportInfo.nColour.sComp.nAlpha = 255;			//always black and opaque defaults
-	EhsPrimaryViewportInfo.bHasFrame = EHS_FALSE;
-	EhsPrimaryViewportInfo.nZOrder = 2;							// default to top-most
+void EhsPrimaryViewportInfo_new()
+{
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_FALSE; //dktodo - remove, not needed now use file
+    EhsPrimaryViewportInfo.nX = 0;
+    EhsPrimaryViewportInfo.nY = 0;
+    EhsPrimaryViewportInfo.nWidth  = EHS_CONFIG_DISPLAY_WIDTH; 	//these are defined in the platform config header file
+    EhsPrimaryViewportInfo.nHeight = EHS_CONFIG_DISPLAY_HEIGHT; //these are defined in the platform config header file
+    EhsPrimaryViewportInfo.nColour.sComp.nRed = 20;				//dk - gstreamer is making keying out rgb=0,0,0 and making window transparent
+    EhsPrimaryViewportInfo.nColour.sComp.nGreen = 20;
+    EhsPrimaryViewportInfo.nColour.sComp.nBlue = 20;
+    EhsPrimaryViewportInfo.nColour.sComp.nAlpha = 255;			//always black and opaque defaults
+    EhsPrimaryViewportInfo.bHasFrame = EHS_FALSE;
+    EhsPrimaryViewportInfo.nZOrder = 2;							// default to top-most
 }
 
 /* To depricate: this to read from an XML string not a file. In fact we don't really want a dependency on XML either, so we should change to a
  * a C API function for configuration otherwise.
  */
-void getEHSDefaultConfigFromFile() {
-	ehs_FILE* EhsGraphicsFile;
-	EhsGraphicsFile = Ehs_SysFopen(EHSGRAPHICSINFOFILE,"r"); /* if sysdata doesn't exist baarf */
-		if (!EhsGraphicsFile) {
-			EHSH_LOG_INFO("Can't open graphics info file, using EHS defaults instead");
-		} else {
-			ehs_char returndata[EHS_STRING_LENGTH_MAX];
-			char * element_start;
-			char element_cropped[EHS_STRING_LENGTH_MAX];
-			ehs_uint16 nVal;
-			ehs_uint16 nRed = -1;
-			ehs_uint16 nGreen = -1;
-			ehs_uint16 nBlue = -1;
+void getEHSDefaultConfigFromFile()
+{
+    ehs_FILE* EhsGraphicsFile;
+    EhsGraphicsFile = Ehs_SysFopen(EHSGRAPHICSINFOFILE,"r"); /* if sysdata doesn't exist baarf */
+    if (!EhsGraphicsFile)
+    {
+        EHSH_LOG_INFO("Can't open graphics info file, using EHS defaults instead");
+    }
+    else
+    {
+        ehs_char returndata[EHS_STRING_LENGTH_MAX];
+        char * element_start;
+        char element_cropped[EHS_STRING_LENGTH_MAX];
+        ehs_uint16 nVal;
+        ehs_uint16 nRed = -1;
+        ehs_uint16 nGreen = -1;
+        ehs_uint16 nBlue = -1;
 
-			// read to end of file
-			while (EhsFgets(returndata,EHS_STRING_LENGTH_MAX,EhsGraphicsFile) != NULL) {
-				//printf("DATA XXX [ %s ] XXXXX\n",returndata);
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_XCOORD)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					if (EhsGetUint16FromString(&nVal,element_cropped)) {
-						EhsPrimaryViewportInfo_setX(nVal);
-						//printf("DATA GOT X Position =%hd\n",nVal);
-					}//else printf("DATA 1 not written");
-				}///else printf("DATA 2 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_YCOORD)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					if (EhsGetUint16FromString(&nVal,element_cropped)) {
-						EhsPrimaryViewportInfo_setY(nVal);
-						//printf("DATA GOT Y Position =%hd\n",nVal);
-					}//else printf("DATA 3 not written");
-				}//else printf("DATA 4 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_WIDTH)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					if (EhsGetUint16FromString(&nVal,element_cropped)) {
-						EhsPrimaryViewportInfo_setWidth(nVal);
-						//printf("DATA GOT WIDTH =%hd\n",nVal);
-					}//else printf("DATA 5 not written");
-				}//else printf("DATA 6 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_HEIGHT)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					if (EhsGetUint16FromString(&nVal,element_cropped)) {
-						EhsPrimaryViewportInfo_setHeight(nVal);
-						//printf("DATA GOT HEIGHT =%hd\n",nVal);
-					}//else printf("DATA 7 not written");
-				}//else printf("DATA 8 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_RED)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					EhsGetUint16FromString(&nRed,element_cropped);
-				}//else printf("DATA 9 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_GREEN)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					EhsGetUint16FromString(&nGreen,element_cropped);
-				}//else printf("DATA 10 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_BLUE)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					EhsGetUint16FromString(&nBlue,element_cropped);
-				}//else printf("DATA 11 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_ALPHA)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					if (EhsGetUint16FromString(&nVal,element_cropped)) {
-						EhsPrimaryViewportInfo_setAlpha(nVal);
-						//printf("DATA GOT Alpha =%hd\n",nVal);
-					}//else printf("DATA 12 not written");
-				}//else printf("DATA 11 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_HASFRAME)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					if (EhsGetUint16FromString(&nVal,element_cropped)) {
-						EhsPrimaryViewportInfo_setHasFrame(nVal);
-					}//else printf("DATA 1 not written");
-				}//else printf("DATA 1 not written");
-				if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_ZORDER)) {
-					Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-					if (EhsGetUint16FromString(&nVal,element_cropped)) {
-						EhsPrimaryViewportInfo_setZOrder(nVal);
-					}//else printf("DATA 12 not written");
-				}//else printf("DATA 13 not written");
+        // read to end of file
+        while (EhsFgets(returndata,EHS_STRING_LENGTH_MAX,EhsGraphicsFile) != NULL)
+        {
 
-			}
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_XCOORD))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                if (EhsGetUint16FromString(&nVal,element_cropped))
+                {
+                    EhsPrimaryViewportInfo_setX(nVal);
 
-			//printf("DATA GOT RGB =%hd,%hd,%hd\n",nRed,nGreen,nBlue);
-			if ((nRed >= 0) && (nGreen >= 0) && (nBlue >= 0)) {
-				EhsPrimaryViewportInfo_setColourRGB(nRed, nGreen, nBlue);
-			}
-			//printf("DATA Done Loop");
-			EhsFclose(EhsGraphicsFile);
-		}
+                }
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_YCOORD))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                if (EhsGetUint16FromString(&nVal,element_cropped))
+                {
+                    EhsPrimaryViewportInfo_setY(nVal);
+                   
+                }
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_WIDTH))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                if (EhsGetUint16FromString(&nVal,element_cropped))
+                {
+                    EhsPrimaryViewportInfo_setWidth(nVal);
+                    
+                }
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_HEIGHT))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                if (EhsGetUint16FromString(&nVal,element_cropped))
+                {
+                    EhsPrimaryViewportInfo_setHeight(nVal);
+                    
+                }
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_RED))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                EhsGetUint16FromString(&nRed,element_cropped);
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_GREEN))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                EhsGetUint16FromString(&nGreen,element_cropped);
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_BLUE))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                EhsGetUint16FromString(&nBlue,element_cropped);
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_ALPHA))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                if (EhsGetUint16FromString(&nVal,element_cropped))
+                {
+                    EhsPrimaryViewportInfo_setAlpha(nVal);
+                    
+                }
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_HASFRAME))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                if (EhsGetUint16FromString(&nVal,element_cropped))
+                {
+                    EhsPrimaryViewportInfo_setHasFrame(nVal);
+                }
+            }
+            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_ZORDER))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                if (EhsGetUint16FromString(&nVal,element_cropped))
+                {
+                    EhsPrimaryViewportInfo_setZOrder(nVal);
+                }
+            }
+
+        }
+
+       
+        if ((nRed >= 0) && (nGreen >= 0) && (nBlue >= 0))
+        {
+            EhsPrimaryViewportInfo_setColourRGB(nRed, nGreen, nBlue);
+        }
+        EhsFclose(EhsGraphicsFile);
+    }
 }
 
 /**
  * gets the x coord of the primary viewport - currently there is only 1 viewport
  */
-ehs_uint16 EhsPrimaryViewportInfo_getX() {
-	ehs_uint16 nX;
+ehs_uint16 EhsPrimaryViewportInfo_getX()
+{
+    ehs_uint16 nX;
 
-	nX = EhsPrimaryViewportInfo.nX;
-	return nX;
+    nX = EhsPrimaryViewportInfo.nX;
+    return nX;
 }
 
 /**
  * sets the x coord of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setX(ehs_uint16 nX) {
+void EhsPrimaryViewportInfo_setX(ehs_uint16 nX)
+{
 
-	EhsPrimaryViewportInfo.nX = nX;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.nX = nX;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 /**
  * gets the y coord of the primary viewport - currently there is only 1 viewport
  */
-ehs_uint16 EhsPrimaryViewportInfo_getY() {
-	ehs_uint16 nY;
+ehs_uint16 EhsPrimaryViewportInfo_getY()
+{
+    ehs_uint16 nY;
 
-	nY = EhsPrimaryViewportInfo.nY;
-	return nY;
+    nY = EhsPrimaryViewportInfo.nY;
+    return nY;
 }
 
 /**
  * sets the y coord of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setY(ehs_uint16 nY) {
+void EhsPrimaryViewportInfo_setY(ehs_uint16 nY)
+{
 
-	EhsPrimaryViewportInfo.nY = nY;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.nY = nY;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 /**
  * gets the width of the primary viewport - currently there is only 1 viewport
  */
-ehs_uint16 EhsPrimaryViewportInfo_getWidth() {
-	ehs_uint16 nWidth;
+ehs_uint16 EhsPrimaryViewportInfo_getWidth()
+{
+    ehs_uint16 nWidth;
 
-	nWidth = EhsPrimaryViewportInfo.nWidth;
-	return nWidth;
+    nWidth = EhsPrimaryViewportInfo.nWidth;
+    return nWidth;
 }
 
 /**
  * sets the width of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setWidth(ehs_uint16 nWidth) {
+void EhsPrimaryViewportInfo_setWidth(ehs_uint16 nWidth)
+{
 
-	EhsPrimaryViewportInfo.nWidth = nWidth;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.nWidth = nWidth;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 /**
  * gets the height of the primary viewport - currently there is only 1 viewport
  */
-ehs_uint16 EhsPrimaryViewportInfo_getHeight() {
-	ehs_uint16 nHeight;
+ehs_uint16 EhsPrimaryViewportInfo_getHeight()
+{
+    ehs_uint16 nHeight;
 
-	nHeight = EhsPrimaryViewportInfo.nHeight;
-	return nHeight;
+    nHeight = EhsPrimaryViewportInfo.nHeight;
+    return nHeight;
 }
 
 /**
  * sets the height of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setHeight(ehs_uint16 nHeight) {
+void EhsPrimaryViewportInfo_setHeight(ehs_uint16 nHeight)
+{
 
-	EhsPrimaryViewportInfo.nHeight = nHeight;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.nHeight = nHeight;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 /**
  * gets the colour of the primary viewport - currently there is only 1 viewport
  */
-EhsGraphicsColourClass EhsPrimaryViewportInfo_getColour() {
-	EhsGraphicsColourClass nColour;
+EhsGraphicsColourClass EhsPrimaryViewportInfo_getColour()
+{
+    EhsGraphicsColourClass nColour;
 
-	nColour = EhsPrimaryViewportInfo.nColour;
-	return nColour;
+    nColour = EhsPrimaryViewportInfo.nColour;
+    return nColour;
 }
 
 /**
  * sets the colour of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setColour(EhsGraphicsColourClass nColour) {
+void EhsPrimaryViewportInfo_setColour(EhsGraphicsColourClass nColour)
+{
 
-	EhsPrimaryViewportInfo.nColour = nColour;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.nColour = nColour;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 /**
  * sets the colour of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setColourRGB(ehs_uint16 nRed, ehs_uint16 nGreen, ehs_uint16 nBlue) {
+void EhsPrimaryViewportInfo_setColourRGB(ehs_uint16 nRed, ehs_uint16 nGreen, ehs_uint16 nBlue)
+{
 
-	EhsPrimaryViewportInfo.nColour.sComp.nRed = nRed;
-	EhsPrimaryViewportInfo.nColour.sComp.nGreen = nGreen;
-	EhsPrimaryViewportInfo.nColour.sComp.nBlue = nBlue;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.nColour.sComp.nRed = nRed;
+    EhsPrimaryViewportInfo.nColour.sComp.nGreen = nGreen;
+    EhsPrimaryViewportInfo.nColour.sComp.nBlue = nBlue;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 /**
  * gets the alpha transparency of the primary viewport - currently there is only 1 viewport
  */
-ehs_uint16 EhsPrimaryViewportInfo_getAlpha() {
-	ehs_uint16 nAlpha;
+ehs_uint16 EhsPrimaryViewportInfo_getAlpha()
+{
+    ehs_uint16 nAlpha;
 
-	nAlpha = EhsPrimaryViewportInfo.nColour.sComp.nAlpha;
-	return nAlpha;
+    nAlpha = EhsPrimaryViewportInfo.nColour.sComp.nAlpha;
+    return nAlpha;
 }
 
 /**
  * sets the alpha transparency of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setAlpha(ehs_uint16 nAlpha) {
+void EhsPrimaryViewportInfo_setAlpha(ehs_uint16 nAlpha)
+{
 
-	EhsPrimaryViewportInfo.nColour.sComp.nAlpha = nAlpha;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.nColour.sComp.nAlpha = nAlpha;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 /**
  * gets the hasFrame of the primary viewport - currently there is only 1 viewport
  */
-ehs_bool EhsPrimaryViewportInfo_getHasFrame() {
-	ehs_bool bHasFrame;
+ehs_bool EhsPrimaryViewportInfo_getHasFrame()
+{
+    ehs_bool bHasFrame;
 
-	bHasFrame = EhsPrimaryViewportInfo.bHasFrame;
-	return bHasFrame;
+    bHasFrame = EhsPrimaryViewportInfo.bHasFrame;
+    return bHasFrame;
 }
 
 /**
  * sets the hasFrame of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setHasFrame(ehs_bool bHasFrame) {
+void EhsPrimaryViewportInfo_setHasFrame(ehs_bool bHasFrame)
+{
 
-	EhsPrimaryViewportInfo.bHasFrame = bHasFrame;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.bHasFrame = bHasFrame;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 /**
  * gets the ZOrder of the primary viewport - currently there is only 1 viewport
  */
-ehs_uint16 EhsPrimaryViewportInfo_getZOrder() {
-	ehs_uint16 nZOrder;
+ehs_uint16 EhsPrimaryViewportInfo_getZOrder()
+{
+    ehs_uint16 nZOrder;
 
-	nZOrder = EhsPrimaryViewportInfo.nZOrder;
-	return nZOrder;
+    nZOrder = EhsPrimaryViewportInfo.nZOrder;
+    return nZOrder;
 }
 
 /**
  * sets the ZOrder of the primary viewport - currently there is only 1 viewport
  */
-void EhsPrimaryViewportInfo_setZOrder(ehs_uint16 nZOrder) {
+void EhsPrimaryViewportInfo_setZOrder(ehs_uint16 nZOrder)
+{
 
-	EhsPrimaryViewportInfo.nZOrder = nZOrder;
-	EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
+    EhsPrimaryViewportInfo.nZOrder = nZOrder;
+    EhsPrimaryViewportInfo.bDefaultsChanged = EHS_TRUE;
 }
 
 
@@ -370,30 +416,29 @@ ehs_bool created = 0;
 
 EhsWidgetClass* EhsWidgetViewport_init(const EhsGraphicsRectangleClass* pBounds, ehs_uint16 nZ, EhsGraphicsColourClass xColour)
 {
-	EhsWidgetClass* pWidget = EhsWidgetTable_new(&EhsWidgetTable);
+    EhsWidgetClass* pWidget = EhsWidgetTable_new(&EhsWidgetTable);
 
-	if (pWidget)
-	{
-		pWidget->eWidgetKind = EHS_WIDGET_KIND_VIEWPORT; //this stops it being composited onto itself
-		pWidget->nState = EHS_WIDGET_STATE_INIT;
-		EhsMemcpy(&(pWidget->xOrigRect),pBounds,sizeof(EhsGraphicsRectangleClass));
-		EhsMemcpy(&(pWidget->xCurRect),pBounds,sizeof(EhsGraphicsRectangleClass));
-		EhsMemcpy(&(pWidget->xDesignRect),pBounds,sizeof(EhsGraphicsRectangleClass));
+    if (pWidget)
+    {
+        pWidget->eWidgetKind = EHS_WIDGET_KIND_VIEWPORT; //this stops it being composited onto itself
+        pWidget->nState = EHS_WIDGET_STATE_INIT;
+        EhsMemcpy(&(pWidget->xOrigRect),pBounds,sizeof(EhsGraphicsRectangleClass));
+        EhsMemcpy(&(pWidget->xCurRect),pBounds,sizeof(EhsGraphicsRectangleClass));
+        EhsMemcpy(&(pWidget->xDesignRect),pBounds,sizeof(EhsGraphicsRectangleClass));
 
-		pWidget->nZ = nZ;
-		pWidget->pfCreateFunc = EhsWidgetViewport_create; //@todo these should be removed?
-		pWidget->pfDestroyFunc = EhsWidgetViewport_destroy; //@todo these should be removed?
-		pWidget->pfFadeFunc = (fadeFunc_t) EhsWidgetViewport_fade;
-		pWidget->pfDrawFunc = EhsWidgetViewport_draw;
-		pWidget->specificWidgetType.patch.xColour = xColour;
-		pWidget->specificWidgetType.patch.nBaseAlpha = xColour.sComp.nAlpha; /* @todo this needs to revert patch DROP the BG part of the elements */
-		//printf("EhsWidgetViewport_init - EhsWidgetTable = %x",EhsWidgetTable);
-		EhsWidgetTable_updateZOrder(&EhsWidgetTable, pWidget);
-		pWidget->bMaintainAspectRatio = EHS_FALSE; // not implemented for viewport
-		pWidget->bCaptureClicksIgnoringZOrder = EHS_FALSE; // not implemented for viewport
-	}
+        pWidget->nZ = nZ;
+        pWidget->pfCreateFunc = EhsWidgetViewport_create; //@todo these should be removed?
+        pWidget->pfDestroyFunc = EhsWidgetViewport_destroy; //@todo these should be removed?
+        pWidget->pfFadeFunc = (fadeFunc_t) EhsWidgetViewport_fade;
+        pWidget->pfDrawFunc = EhsWidgetViewport_draw;
+        pWidget->specificWidgetType.patch.xColour = xColour;
+        pWidget->specificWidgetType.patch.nBaseAlpha = xColour.sComp.nAlpha; /* @todo this needs to revert patch DROP the BG part of the elements */
+        EhsWidgetTable_updateZOrder(&EhsWidgetTable, pWidget);
+        pWidget->bMaintainAspectRatio = EHS_FALSE; // not implemented for viewport
+        pWidget->bCaptureClicksIgnoringZOrder = EHS_FALSE; // not implemented for viewport
+    }
 
-	return pWidget;
+    return pWidget;
 }
 
 
@@ -406,19 +451,12 @@ EhsWidgetClass* EhsWidgetViewport_init(const EhsGraphicsRectangleClass* pBounds,
 ehs_bool EhsWidgetViewport_create(EhsWidgetClass* pWidget)
 {
 //#ifdef NOT_DEFINED // This sgould be a visibility thing for now
-	if(!created)
-	{
-		/*
-		 * We've done this!
-		 if (!EhsTV_init(&EhsTV))
-		{
-			printf("Target viewport initialisation failed\n");
-		}
-		*/
-		created = 1;
-	}
+    if(!created)
+    {
+        created = 1;
+    }
 //#endif
-	return EHS_TRUE;
+    return EHS_TRUE;
 }
 
 /**
@@ -428,7 +466,7 @@ ehs_bool EhsWidgetViewport_create(EhsWidgetClass* pWidget)
  */
 void EhsWidgetViewport_destroy(EhsWidgetClass* pWidget)
 {
-	/* no specific widget destruction activities are required */
+    /* no specific widget destruction activities are required */
 }
 
 /**
@@ -454,33 +492,32 @@ void EhsWidgetViewport_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpo
 ehs_bool EhsWidgetViewport_fade(struct EhsWidgetStruct* pWidget, ehs_uint8 nOpacity, ehs_uint8 nRed, ehs_uint8 nGreen, ehs_uint8 nBlue)
 {
 #ifdef WASTE_TIME
-	ehs_bool bChanged = EHS_FALSE;
-	EhsGraphicsColourClass nColour;
-	/* determine the new foreground and background opacity required by this widget */
-	ehs_uint16 nCalcOpacity = (pWidget->specificWidgetType.pathc -- -- whatever -- .nBgBaseAlpha);// * nOpacity) / 255;
-	/* scale down to 8-bit */
-	ehs_uint8 nOpacityByte = (ehs_uint8)nCalcOpacity;
+    ehs_bool bChanged = EHS_FALSE;
+    EhsGraphicsColourClass nColour;
+    /* determine the new foreground and background opacity required by this widget */
+    ehs_uint16 nCalcOpacity = (pWidget->specificWidgetType.pathc -- -- whatever -- nBgBaseAlpha);// * nOpacity) / 255;
+    /* scale down to 8-bit */
+    ehs_uint8 nOpacityByte = (ehs_uint8)nCalcOpacity;
 
-	/*Put 8 bit colour values together in to one 32bit value*/
-	nColour.sComp.nRed = nRed;
-	nColour.sComp.nGreen = nGreen;
-	nColour.sComp.nBlue = nBlue;
-	nColour.sComp.nAlpha = nOpacityByte;
+    /*Put 8 bit colour values together in to one 32bit value*/
+    nColour.sComp.nRed = nRed;
+    nColour.sComp.nGreen = nGreen;
+    nColour.sComp.nBlue = nBlue;
+    nColour.sComp.nAlpha = nOpacityByte;
 
-	/*If any of the values are different to what is already store then tell the viewport to change colour */
-	if ((nOpacityByte != pWidget->specificWidgetType.patch -- whatever .xBgColour.sComp.nAlpha) || (nRed != pWidget->specificWidgetType.patch --- .xBgColour.sComp.nRed) || (nGreen != pWidget->specificWidgetType.patch .xBgColour.sComp.nGreen) || (nBlue != pWidget->specificWidgetType.patch --.xBgColour.sComp.nBlue))
-	{
-		pWidget->specificWidgetType.patch --.xBgColour.sComp.nAlpha = nOpacityByte;
-		pWidget->specificWidgetType.patch --.xBgColour.sComp.nRed = nRed;
-		pWidget->specificWidgetType.patch --.xBgColour.sComp.nGreen = nGreen;
-		pWidget->specificWidgetType.patch --.xBgColour.sComp.nBlue = nBlue;
+    /*If any of the values are different to what is already store then tell the viewport to change colour */
+    if ((nOpacityByte != pWidget->specificWidgetType.patch -- whatever .xBgColour.sComp.nAlpha) || (nRed != pWidget->specificWidgetType.patch -- 		whatever .xBgColour.sComp.nRed) || (nGreen != pWidget->specificWidgetType.patch .xBgColour.sComp.nGreen) || (nBlue != pWidget->specificWidgetType.patch -- whatever .xBgColour.sComp.nBlue))
+    {
+        pWidget->specificWidgetType.patch --whatever .xBgColour.sComp.nAlpha = nOpacityByte;
+        pWidget->specificWidgetType.patch --whatever .xBgColour.sComp.nRed = nRed;
+        pWidget->specificWidgetType.patch --whatever .xBgColour.sComp.nGreen = nGreen;
+        pWidget->specificWidgetType.patch --whatever .xBgColour.sComp.nBlue = nBlue;
 
-		bChanged = EHS_TRUE;
-	}
+        bChanged = EHS_TRUE;
+    }
 #endif
-	//printf("Fading with the call back..");
-	EhsTV_fade(&EhsTV, pWidget->specificWidgetType.patch.xColour);
-	return EHS_TRUE;
+    EhsTV_fade(&EhsTV, pWidget->specificWidgetType.patch.xColour);
+    return EHS_TRUE;
 }
 
 /**
@@ -488,33 +525,33 @@ ehs_bool EhsWidgetViewport_fade(struct EhsWidgetStruct* pWidget, ehs_uint8 nOpac
  */
 ehs_bool EhsWidgetViewport_update(EhsWidgetClass* pWidget, EhsDataflowIntType nX, EhsDataflowIntType nY, EhsDataflowIntType nDeltaWid, EhsDataflowIntType nDeltaHt)
 {
-	EhsTV_move(&EhsTV, nX, nY, nDeltaWid, nDeltaHt);
-	return EHS_TRUE;
+    EhsTV_move(&EhsTV, nX, nY, nDeltaWid, nDeltaHt);
+    return EHS_TRUE;
 }
 
 
 /* This sets the window to absolute reference position */
 ehs_bool EhsWidgetViewport_setwindow(EhsWidgetClass* pWidget, EhsDataflowIntType nX, EhsDataflowIntType nY, EhsDataflowIntType nWid, EhsDataflowIntType nHt)
 {
-	EhsTV_setwindow(&EhsTV, EHS_TRUE, nX, nY, nWid, nHt);
-	return EHS_TRUE;
+    EhsTV_setwindow(&EhsTV, EHS_TRUE, nX, nY, nWid, nHt);
+    return EHS_TRUE;
 }
 
 /* The following function sets the viewport to the default value in case a viewport widget is not in the application
  * This may not be needed as the hardware init should use defaults and create a window in any case.
  */
 
-ehs_bool EhsWidgetViewport_default_config(){
+ehs_bool EhsWidgetViewport_default_config()
+{
 
-	// NB - target_viewport:EhsTV_init() defines viewRectangle which uses the same defaults to set paintable area in the viewport
-	EhsPrimaryViewportInfo_new();
-	getEHSDefaultConfigFromFile();
+    // NB - target_viewport:EhsTV_init() defines viewRectangle which uses the same defaults to set paintable area in the viewport
+    EhsPrimaryViewportInfo_new();
+    getEHSDefaultConfigFromFile();
 
-//	printf("\n\nEhsWidgetViewport_default_config nWidth=[%d]\n",EhsPrimaryViewportInfo.nWidth);
-	EhsTV_setwindow(&EhsTV, EHS_FALSE, EhsPrimaryViewportInfo.nX, EhsPrimaryViewportInfo.nY, EhsPrimaryViewportInfo.nWidth, EhsPrimaryViewportInfo.nHeight);
-	EhsTV_fade(&EhsTV, EhsPrimaryViewportInfo.nColour);
-	EhsTV_showFrame(&EhsTV, EhsPrimaryViewportInfo.bHasFrame);
-	EhsTV_setZOrder(EhsPrimaryViewportInfo.nZOrder);
+    EhsTV_setwindow(&EhsTV, EHS_FALSE, EhsPrimaryViewportInfo.nX, EhsPrimaryViewportInfo.nY, EhsPrimaryViewportInfo.nWidth, EhsPrimaryViewportInfo.nHeight);
+    EhsTV_fade(&EhsTV, EhsPrimaryViewportInfo.nColour);
+    EhsTV_showFrame(&EhsTV, EhsPrimaryViewportInfo.bHasFrame);
+    EhsTV_setZOrder(EhsPrimaryViewportInfo.nZOrder);
 }
 
 
@@ -525,8 +562,8 @@ ehs_bool EhsWidgetViewport_default_config(){
  */
 ehs_bool EhsWidgetViewport_hide(struct EhsWidgetStruct* pWidget)
 {
-	EhsTV_hideViewport();
-	return EHS_TRUE;
+    EhsTV_hideViewport();
+    return EHS_TRUE;
 }
 
 /**
@@ -535,23 +572,25 @@ ehs_bool EhsWidgetViewport_hide(struct EhsWidgetStruct* pWidget)
  */
 ehs_bool EhsWidgetViewport_show(struct EhsWidgetStruct* pWidget)
 {
-	EhsTV_showViewport(pWidget->nZ);
-	return EHS_TRUE;
+    EhsTV_showViewport(pWidget->nZ);
+    return EHS_TRUE;
 }
 
 
 /** @brief sets the targetview parameters to full screen and returns the full screen size in parameters.
  * this does not do any actual graphical updates
  */
-ehs_bool EhsWidgetsetToScreenSize(ehs_sint32 *nScreenWidth, ehs_sint32 *nScreenHeight) {
+ehs_bool EhsWidgetsetToScreenSize(ehs_sint32 *nScreenWidth, ehs_sint32 *nScreenHeight)
+{
 
-	ehs_bool ret = EhsTV_getScreenSize(nScreenWidth,  nScreenHeight);
-	//printf("w=%d, h = %d\n",nScreenWidth,  nScreenHeight);
-	if (ret) {
-		EhsPrimaryViewportInfo_setWidth((ehs_uint16) *nScreenWidth);
-		EhsPrimaryViewportInfo_setHeight((ehs_uint16) *nScreenHeight);
-	}
-	return ret;
+    ehs_bool ret = EhsTV_getScreenSize(nScreenWidth,  nScreenHeight);
+
+    if (ret)
+    {
+        EhsPrimaryViewportInfo_setWidth((ehs_uint16) *nScreenWidth);
+        EhsPrimaryViewportInfo_setHeight((ehs_uint16) *nScreenHeight);
+    }
+    return ret;
 
 }
 

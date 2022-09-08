@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file timer.h
  * Declarations for the timer functions
  *
  * @author: inx limited
- * @version: $Revision: 1617 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #ifndef EHS_TIMER_H
@@ -18,12 +24,13 @@
  * Handles the configuration of a timer. Operates in a linked list ordered by "tNext".
  *
  */
-typedef struct EhsTimerStruct {
-	EhsTickType tPeriod;	/**< Timer period. 0 indicates "single-shot" (non-repeating) timer */
-	EhsTickType tNext;	/**< Time when a timer event will next occur for this timer */
-	struct EhsTimerStruct* pNext;	/**< Next item in the linked list. If a single shot timer and this
+typedef struct EhsTimerStruct
+{
+    EhsTickType tPeriod;	/**< Timer period. 0 indicates "single-shot" (non-repeating) timer */
+    EhsTickType tNext;	/**< Time when a timer event will next occur for this timer */
+    struct EhsTimerStruct* pNext;	/**< Next item in the linked list. If a single shot timer and this
 									 * points to itself, it means the timer has expired */
-	EhsCallbackQueueType* pCallback; /**< Pointer to the callback queue to execute upon timer expiry */
+    EhsCallbackQueueType* pCallback; /**< Pointer to the callback queue to execute upon timer expiry */
 } EhsTimerType;
 
 /**

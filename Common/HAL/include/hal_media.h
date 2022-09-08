@@ -1,13 +1,19 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file hal_media.h
  * Declares the interface for the media components.
- * 
- * @author: Patrick Beaumont
- * @version: $Revision: 1 $
- * @date: $Date: 2010-06-02 16:22:28 +0000 (Wed, 02 Jun 2010) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
+ * @author: inx limited
+ *
  */
- 
+
 #ifndef EHS_HAL_MEDIA_H
 #define EHS_HAL_MEDIA_H
 

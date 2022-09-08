@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file hal_file.h
  * In this file, all of the hardware abstraction layer declarations relating to file handling are given.
  *
  * @author: inx limited
- * @version: $Revision: 5125 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 /**
@@ -37,14 +43,15 @@
 
 
 /* THis is used for selecting what kind of directory HAL file system commands will operate with */
-typedef enum {
-EHS_RUNTIME_BIN_DIR,
-EHS_RUNTIME_APPDATA_DIR,
-EHS_RUNTIME_SYSDATA_DIR,
-EHS_RUNTIME_USERDATA_DIR,
-EHS_RUNTIME_DEVMAN_DIR,
-EHS_RUNTIME_APPDATAFALLBACKS_DIR,
-EHS_RUNTIME_OS_ROOT // Privileged!!
+typedef enum
+{
+    EHS_RUNTIME_BIN_DIR,
+    EHS_RUNTIME_APPDATA_DIR,
+    EHS_RUNTIME_SYSDATA_DIR,
+    EHS_RUNTIME_USERDATA_DIR,
+    EHS_RUNTIME_DEVMAN_DIR,
+    EHS_RUNTIME_APPDATAFALLBACKS_DIR,
+    EHS_RUNTIME_OS_ROOT // Privileged!!
 } RuntimePathType;
 
 
@@ -170,7 +177,6 @@ ehs_bool EhsHMetagetCurrentAppDir(ehs_char * szParameterFilePath);
 
 /** \brief set up the file path environment */
 ehs_bool EhsHUpdateFilePathEnvironment(EhsMetaDataType * pEhsMetaData);
-
 /** \brief this function tries to open a file in the user directory */
 ehs_bool Ehs_CDtoApp();
 /** \brief check if a file or directory exists (note directres supported here for consistency rather than usefulness as we don't currently have subdirectories in applications) */
@@ -186,10 +192,24 @@ ehs_bool Ehs_UserMkdir(char * szPathname) ; /* return true on success */
 ehs_bool Ehs_UserRmdir(char * szPathname) ;
 ehs_uint8 Ehs_User_PathExists(char * szPathname);
 ehs_bool Ehs_UserRm(char * szPathname);
+
+
+#ifndef EHS_TARGET_FILE_SKIP_STAT
+ehs_bool EhsTF_stat(ehs_char* szPath,struct stat *statbuf);
+ehs_bool EhsTF_utime(ehs_char* szPath,struct utimbuf *new_times);
 ehs_bool Ehs_UserStat(char * szPathname, struct stat *statbuf);
 ehs_bool Ehs_UserUtime(char * szPathname, struct utimbuf *new_times);
+#else
+//stubbed versions - we should probablt define an ehs_stat type that is void * for clients...
+ehs_bool EhsTF_stat(ehs_char* szPath,void *statbuf);
+ehs_bool EhsTF_utime(ehs_char* szPath,void *new_times);
+ehs_bool Ehs_UserStat(char * szPathname, void *statbuf);
+ehs_bool Ehs_UserUtime(char * szPathname, void *new_times);
+#endif
+
+
 ehs_bool Ehs_UserRename(const ehs_char * szOrigFilename,
-		const ehs_char * szToFilename);
+                        const ehs_char * szToFilename);
 
 /* These shouldn't be component facing */
 /* return 0 if OK, 1 for error */
@@ -207,8 +227,7 @@ ehs_bool Ehs_SysRename(const ehs_char * szOrigFilename,const ehs_char * szToFile
  */
 ehs_bool EhsTF_mkdir(const char * szParameterFilePath); //@todo  get rif of all this TF prefix crap and call make one prefix for all HAL calls
 ehs_uint8 EhsTF_exists(const ehs_char* fname);
-ehs_bool EhsTF_stat(ehs_char* szPath,struct stat *statbuf);
-ehs_bool EhsTF_utime(ehs_char* szPath,struct utimbuf *new_times);
+
 /* Some URL string manipulation functions
  *
  */
@@ -235,8 +254,9 @@ typedef struct EhsTDFilesStruct EhsTDFilesClass;
 
 
 typedef enum { EHS_TD_FILEFLAG_NONE = 0,
-	EHS_TD_FILEFLAG_FILE = 1,
-	EHS_TD_FILEFLAG_FOLDER = 2} EhsTDFileFlagEnum;
+               EHS_TD_FILEFLAG_FILE = 1,
+               EHS_TD_FILEFLAG_FOLDER = 2
+             } EhsTDFileFlagEnum;
 
 
 

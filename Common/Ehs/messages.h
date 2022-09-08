@@ -1,12 +1,18 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file messages.h
  * All messages are gathered into a single place (this file) to support global changes,
  * setting specific message styles, and to support internationalization.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 4748 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 /**
@@ -14,7 +20,7 @@
  * @section messages_h
  * @anchor messages_h
  * @subsection misra MISRA compliance:
- * Demonstrated MISRA compliant on 
+ * Demonstrated MISRA compliant on
  * Last modified on $Date:$
  *
  * This file contained the following derogations to the MISRA standard:
@@ -117,13 +123,13 @@
 #define EHS_MSG_PARSER_PARAMS_TAG_NOT_FOUND(x) "**Error: Parameter file didn't contain tag %s",x
 #define EHS_MSG_PARSER_PARAMS_TAG_MULTIPLE(x) "**Error: Parameter file contained multiple instances of tag %s",x
 #ifdef EHRT1
-    #define EHS_MSG_PARSER_BLOCK_NAME_INVALID(x) "**Error: Function block name %x not recognised",x
-    #define EHS_MSG_PARSER_BLOCK_VERS_INVALID(x,vers) "**Error: Function block name %x found but vers %d not recognised",x
-    #define EHS_MSG_PARSER_FUNCTION_NAME_INVALID(x,y) "**Error: Function name [%x] not recognised in [%x]",x,y
+#define EHS_MSG_PARSER_BLOCK_NAME_INVALID(x) "**Error: Function block name %x not recognised",x
+#define EHS_MSG_PARSER_BLOCK_VERS_INVALID(x,vers) "**Error: Function block name %x found but vers %d not recognised",x
+#define EHS_MSG_PARSER_FUNCTION_NAME_INVALID(x,y) "**Error: Function name [%x] not recognised in [%x]",x,y
 #else //#if EHRT1
 #define EHS_MSG_PARSER_BLOCK_NAME_INVALID(x) "**Error: Function block name %s not recognised",x
 #define EHS_MSG_PARSER_BLOCK_VERS_INVALID(x,vers) "**Error: Function block name %s found but vers %d not recognised",x
-    #define EHS_MSG_PARSER_FUNCTION_NAME_INVALID(x,y) "**Error: Function name [%s] not recognised in [%x]",x,y
+#define EHS_MSG_PARSER_FUNCTION_NAME_INVALID(x,y) "**Error: Function name [%s] not recognised in [%x]",x,y
 #endif //#else #if EHRT1
 #define EHS_MSG_PARSER_ATOMIC_FLAG_MISSING "**Error: Atomic flag missing from function definition"
 #define EHS_MSG_PARSER_GROUPID_MISSING "**Error: Group ID missing from function definition"

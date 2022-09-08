@@ -1,26 +1,15 @@
-#
-# config.mk - Configuration properties of the current platform
-# 
-# Called by ../../../Makefile
-#
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
 
+# @file config.mk 
+# inxware ERT configuration file for linux_amd64
 # @author: inx limited
-# @version: $Revision: 43 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
-# 
-# Copyright (c) inx limited, 2007. All rights reserved.
-#
-#
-#
-# uncomment this variable if the platform requires graphics support
-
-#DEBUG OPTIONS
-EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
-export EHS_DEBUG=yes
-endif
 
 #################################################################################################################
 # Set general architecture and OS version 
@@ -31,37 +20,37 @@ endif
 export EHS_ARCH=amd64
 export EHS_OS=linux
 
-export EHS_HOST_DEBIAN_BUILD=yes
-#export EHS_GNU_ARCH=amd64
-#export EHS_GNU_OS=linux-gnu
-
-
-#export EHS_GNU_OS_VERSION=#use toolchain clib environment
-#Optional if different clib build is required - dangerous!
-#export EHS_GNU_CLIB_ARCH_OVERRIDE=i686
-#export KERNEL_VERSION=linux/x.x
-
+# TOOLCHAIN_NAME is an optional alternative location to find the toolchain. 
+# Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
 export TOOLCHAIN_NAME=HOST
-#export CC_OVERRIDE= gcc
-#some hosts have very old ar's installed separately to gcc's ar
-#export LINK_OVERRIDE=gcc-ar
-#
 
+################################################################################################################
+# Configure debug/production levels
+################################################################################################################
+#DEBUG OPTIONS
+# Set ALL debug use this:
+EHS_DEBUGALL=true
+ifdef EHS_DEBUGALL
+# Or use one of the more fine-grained debug congurations
+# Or enable only stdout & serial console logging
+DEFS += EHS_RUNTIME_LOGGER_ENABLED
+#enable TCPIP debugger connections (Do not enable for secure production builds)
+DEFS += EHS_DEBUG_TCPIP_CONSOLE
+export EHS_DEBUG=yes
+endif
 
-#
+################################################################################################################
+# Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
+################################################################################################################
+
 # Set this to reflect the type of communication task (e.g. tcp_server_common, ...)
 #todo2022 - check disabling Network Support builds (with the EHS_COMMS_TASK enabled -as we gett link errors from mismatched builds here)
 export EHS_NETWORKING_SUPPORT=all
+# To enable full TCPIP networking toolbox ("netx" DCC=3)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                   #
 export EHS_COMPONENT_NETWORKING_SUPPORT=all
 
-#
-# uncomment this variable if the platform requires devman monitor support
+#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
 export EHS_DEVMAN_SUPPORT=all
+#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 export EHS_DEVMAN_MON_SUPPORT=yes 
-#todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
-
-#
-# uncomment this variable if the platform needs to support deprecated toolkit
-##export EHS_TOOLKIT_DEPRECATED=yes
-
-
+################################### END OF TOOLBOX CONFIGURATION ###################################################

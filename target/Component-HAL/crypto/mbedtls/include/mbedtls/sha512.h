@@ -91,7 +91,7 @@ void mbedtls_sha512_starts( mbedtls_sha512_context *ctx, int is384 );
  * \param ilen     length of the input data
  */
 void mbedtls_sha512_update( mbedtls_sha512_context *ctx, const unsigned char *input,
-                    size_t ilen );
+                            size_t ilen );
 
 /**
  * \brief          SHA-512 final digest
@@ -122,7 +122,7 @@ extern "C" {
  * \param is384    0 = use SHA512, 1 = use SHA384
  */
 void mbedtls_sha512( const unsigned char *input, size_t ilen,
-             unsigned char output[64], int is384 );
+                     unsigned char output[64], int is384 );
 
 /**
  * \brief          Checkup routine

@@ -1,15 +1,21 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file callback_queue.c
- * In this file, the functions to operate upon the console queue type are defined 
+ * In this file, the functions to operate upon the console queue type are defined
  * This file is derived from event_queue.c
  * Please ensure changes are reflected there too.
  *
  * @sa event_queue.c
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 2884 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006), $
- * 
- * Copyright (c), inx limited, 2007. All rights reserved.
+ *
  */
 
 /* @todo - mark this for deletion - we don't need this really this is so that a list of FB functions can be
@@ -27,7 +33,7 @@
  */
 void EhsCallbackQueue_clear(EhsCallbackQueueType* pQueue)
 {
-	*pQueue=NULL;
+    *pQueue=NULL;
 }
 
 /**
@@ -39,16 +45,16 @@ void EhsCallbackQueue_clear(EhsCallbackQueueType* pQueue)
  * held in the function instance data type)
  */
 
-void EhsCallbackQueue_register(EhsCallbackQueueType* pQueue, 
-										  EhsRunFuncType fpRunFunc, 
-										  EhsFunctionInstanceDataType* pFuncInst,
-										  EhsCallbackQueueEntryType *pEntry)
+void EhsCallbackQueue_register(EhsCallbackQueueType* pQueue,
+                               EhsRunFuncType fpRunFunc,
+                               EhsFunctionInstanceDataType* pFuncInst,
+                               EhsCallbackQueueEntryType *pEntry)
 {
-	pEntry->fpRunFunc = fpRunFunc;
-	pEntry->pFuncInst = pFuncInst;
-	pEntry->pNext = *pQueue;
+    pEntry->fpRunFunc = fpRunFunc;
+    pEntry->pFuncInst = pFuncInst;
+    pEntry->pNext = *pQueue;
 
-	*pQueue = pEntry;
+    *pQueue = pEntry;
 }
 
 /**
@@ -57,18 +63,18 @@ void EhsCallbackQueue_register(EhsCallbackQueueType* pQueue,
  */
 void EhsCallbackQueue_execute(EhsCallbackQueueType* pQueue)
 {
-	EhsCallbackQueueEntryType* pEntry;
+    EhsCallbackQueueEntryType* pEntry;
 
-	if (pQueue && (EhsKEState == EHSKE_STATE_RUNNING))
-	{
+    if (pQueue && (EhsKEState == EHSKE_STATE_RUNNING))
+    {
 
-		pEntry = *pQueue;
-		while (pEntry)
-		{
-			pEntry->fpRunFunc(pEntry->pFuncInst);
-			pEntry = pEntry->pNext;
-		}
-	}
+        pEntry = *pQueue;
+        while (pEntry)
+        {
+            pEntry->fpRunFunc(pEntry->pFuncInst);
+            pEntry = pEntry->pNext;
+        }
+    }
 }
 
 

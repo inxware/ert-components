@@ -1,5 +1,6 @@
 import glob, os
 from processline import *
+from hash import *
 
 class Report(object):
     def __init__(self, config):
@@ -105,6 +106,17 @@ class Converter(object):
         self.error=""
 
     def run(self):
+        genHash=self.config.getGenHashStr()
+        if genHash is not None:
+            hashObject=HashFactory(bytearray(genHash,'utf-8'), self.config.getHash())
+            if hashObject is not None:
+                hashstring=None
+                if hashObject.isInteger():
+                    hashstring=str('0x' + hashObject.getHash() ).encode("UTF-8")
+                else:
+                    hashstring=str('"' + hashObject.getHash() + '"').encode("UTF-8")
+                print(hashstring.decode("utf-8"))
+            return False
         root=self.config.getRoot()
         if root == "":
             self.error="Failed to process files. The root directory must be specified. See help (-h) for further details."
@@ -125,10 +137,14 @@ class Converter(object):
     def process(self, filepath):
         # read file and process each line of this file
         lines=[] # processed lines
+        lines_buf=[]
         filetext=""
         with open(filepath, 'rb') as file:
             for line in file:
-                pl=ProcessLineFactory(line, self.mode)
+                if len(lines_buf) > 3:
+                    lines_buf.pop(0)
+                lines_buf.append(line)
+                pl=ProcessLineFactory(line, lines_buf, self.mode)
                 if pl is not None:
                     pl.config=self.config
                     pl.report=self.report

@@ -3,12 +3,12 @@
 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 echo " Copying TSA scheduler application "
 if [ -d ../apps/ ];then 
-pushd ../apps/ || exit
-git pull origin RELEASE-PRODUCTION || exit
+pushd ../apps/
+git pull origin RELEASE-PRODUCTION
 popd
 else
-pushd .. || exit
-git clone ssh://repo-user@server:/home/inx-data/data/Repos/apps.git || exit
+pushd ..
+git clone ssh://repo-user@server:/home/inx-data/data/Repos/apps.git
 git checkout RELEASE-PRODUCTION
 popd
 fi
@@ -20,19 +20,10 @@ echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
 # Install ssl certificates and keys
-#clear text for adnoc's private LAN.
-#mkdir -p ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/
-#cp  -f ./target/envtree/certificates/ambifier/devman-ca.crt ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/
-#cp  -f ./target/envtree/certificates/ambifier/devman-client-crt-key.pem ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/
 
-#if [  ]
-#configure the devman URLs:
-echo "Adding adnoc's devman URLs"
-#echo "http://devman.ambifier.com" > ../TARGET_TREES/ehs_env-$TARGET/devman/core/config/DEVMANURL.000
-echo "https://adnocdevman.inx-systems.net" > ../TARGET_TREES/ehs_env-$TARGET/devman/core/config/DEVMANURL.000
-#echo "http://devman.ambifier.com/cgi-bin/devman_player.cgi" > ../TARGET_TREES/ehs_env-$TARGET/devman/plugins/1/DEVMANPLAYERURL.000
+This is not done using filesystem for android apks for security
 
-#and make the media directory:
+#make the media directory:
 mkdir -p ../TARGET_TREES/ehs_env-$TARGET/userdata/media
 #remove things we don't want
 

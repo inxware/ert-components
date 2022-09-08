@@ -101,9 +101,9 @@ int (*mbedtls_mutex_unlock)( mbedtls_threading_mutex_t * ) = threading_mutex_fai
  * Set functions pointers and initialize global mutexes
  */
 void mbedtls_threading_set_alt( void (*mutex_init)( mbedtls_threading_mutex_t * ),
-                       void (*mutex_free)( mbedtls_threading_mutex_t * ),
-                       int (*mutex_lock)( mbedtls_threading_mutex_t * ),
-                       int (*mutex_unlock)( mbedtls_threading_mutex_t * ) )
+                                void (*mutex_free)( mbedtls_threading_mutex_t * ),
+                                int (*mutex_lock)( mbedtls_threading_mutex_t * ),
+                                int (*mutex_unlock)( mbedtls_threading_mutex_t * ) )
 {
     mbedtls_mutex_init = mutex_init;
     mbedtls_mutex_free = mutex_free;

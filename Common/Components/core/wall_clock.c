@@ -1,13 +1,19 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * wall_clock.c
  *
  * function declarations for wall_clock
  *
  * @author: inx limited
- * @version: $Revision: 1248 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ *
  */
 
 
@@ -22,8 +28,10 @@
 /* Define state function block */
 
 EHS_FB_FUNCTIONS_START(wall_clock)
-EHS_FB_FUNCTION_ENTRY("get", wall_clock_get)
-EHS_FB_FUNCTION_ENTRY("set", wall_clock_set)
+
+EHS_FB_FUNCTION_ENTRY("get", 0x00, wall_clock_get)
+
+EHS_FB_FUNCTION_ENTRY("set", 0x01, wall_clock_set)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -53,8 +61,8 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(wall_clock)
 {
-	EHS_TRACE_FUNCTION(EHS_FB_IDENTIFY_NAME(wall_clock));
-	EHS_FB_IDENTIFY_MEMORY = 0;//sizeof(EhsTimeClockType);
+    EHS_TRACE_FUNCTION(EHS_FB_IDENTIFY_NAME(wall_clock));
+    EHS_FB_IDENTIFY_MEMORY = 0;//sizeof(EhsTimeClockType);
 }
 
 /**
@@ -66,9 +74,9 @@ EHS_FB_IDENTIFY_FUNCTION(wall_clock)
  */
 EHS_FB_INIT_FUNCTION(wall_clock)
 {
-	//EhsTimeClockType* pTimeClock = EHS_FB_INIT_CONTEXT;
-	//const char* pParams;
-	return EHS_TRUE; /* initialisation always succeeds */
+    //EhsTimeClockType* pTimeClock = EHS_FB_INIT_CONTEXT;
+    //const char* pParams;
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -80,14 +88,14 @@ EHS_FB_INIT_FUNCTION(wall_clock)
  */
 EHS_FB_RUN_FUNCTION(wall_clock_get)
 {
-	ehs_sint64 time_value;
-	EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(wall_clock_));
-	time_value = EhsHGetdateTime(EHS_FB_OUT_S(EHS_FB_WALLCLOCK_GET_DATA),EHS_TRUE);
-	EHS_FB_OUT_I(EHS_FB_WALLCLOCK_GET_MINS) = time_value/60; //minutes since 1970
-	EHS_FB_OUT_I(EHS_FB_WALLCLOCK_GET_SECS) = time_value%60; //and the residual seconds
-	 //EhsStrcpy(EHS_FB_OUT_S(EHS_FB_WALLCLOCK_GET_DATA), sZtemp);
-	 EHS_FB_FINISH(EHS_FB_WALLCLOCK_GET_DONE);
-	return;
+    ehs_sint64 time_value;
+    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(wall_clock_));
+    time_value = EhsHGetdateTime(EHS_FB_OUT_S(EHS_FB_WALLCLOCK_GET_DATA),EHS_TRUE);
+    EHS_FB_OUT_I(EHS_FB_WALLCLOCK_GET_MINS) = time_value/60; //minutes since 1970
+    EHS_FB_OUT_I(EHS_FB_WALLCLOCK_GET_SECS) = time_value%60; //and the residual seconds
+    //EhsStrcpy(EHS_FB_OUT_S(EHS_FB_WALLCLOCK_GET_DATA), sZtemp);
+    EHS_FB_FINISH(EHS_FB_WALLCLOCK_GET_DONE);
+    return;
 }
 
 /**
@@ -99,7 +107,7 @@ EHS_FB_RUN_FUNCTION(wall_clock_get)
  */
 EHS_FB_RUN_FUNCTION(wall_clock_set)
 {
-	//EhsTimeClockType* pTimeClock = (EhsTimeClockType*)EHS_FB_RUN_CONTEXT;
-	return;
+    //EhsTimeClockType* pTimeClock = (EhsTimeClockType*)EHS_FB_RUN_CONTEXT;
+    return;
 }
 

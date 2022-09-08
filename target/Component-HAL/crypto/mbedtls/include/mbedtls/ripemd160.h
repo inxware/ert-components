@@ -72,7 +72,7 @@ void mbedtls_ripemd160_free( mbedtls_ripemd160_context *ctx );
  * \param src      The context to be cloned
  */
 void mbedtls_ripemd160_clone( mbedtls_ripemd160_context *dst,
-                        const mbedtls_ripemd160_context *src );
+                              const mbedtls_ripemd160_context *src );
 
 /**
  * \brief          RIPEMD-160 context setup
@@ -89,7 +89,7 @@ void mbedtls_ripemd160_starts( mbedtls_ripemd160_context *ctx );
  * \param ilen     length of the input data
  */
 void mbedtls_ripemd160_update( mbedtls_ripemd160_context *ctx,
-                       const unsigned char *input, size_t ilen );
+                               const unsigned char *input, size_t ilen );
 
 /**
  * \brief          RIPEMD-160 final digest
@@ -122,7 +122,7 @@ extern "C" {
  * \param output   RIPEMD-160 checksum result
  */
 void mbedtls_ripemd160( const unsigned char *input, size_t ilen,
-                unsigned char output[20] );
+                        unsigned char output[20] );
 
 /**
  * \brief          Checkup routine

@@ -1,23 +1,30 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file group_table.c
  * Contains the declarations of functions and types required for accessing the EHS trigger table
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 4930 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006), $
- * 
- * Copyright (c), inx limited, 2007. All rights reserved.
+ *
  */
 
-#include "target.h"
+#include "target_types.h"
 #ifndef EHS_TRIGGER_TABLE_H
 #define EHS_TRIGGER_TABLE_H
 
 /**
  * A trigger table is an array of EhsTriggerType with a size parameter
  */
-typedef struct{
-	ehs_uint32 nSize; /**< Number of entries currently defined */
-	EhsTriggerType* pTrigger; /**< Table containing entries */
+typedef struct
+{
+    ehs_uint32 nSize; /**< Number of entries currently defined */
+    EhsTriggerType* pTrigger; /**< Table containing entries */
 } EhsTriggerTableType;
 
 /**

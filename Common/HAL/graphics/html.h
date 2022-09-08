@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file html.h
  * Declares features needed to parse/handle HTML-like text for rendering.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 4416 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef EHS_HAL_GRAPHICS_HTML_H
@@ -23,13 +29,14 @@
 /**
  * Contains an HTML string converted into a compressed form - this replaces
  * long HTML symbols with shorter items
- */ 
-typedef struct {
-	ehs_char* szHtml;		/* actual HTML string */
-	ehs_uint32 nMaxLen;		/* maximum length of the current HTML string */
-	ehs_bool bFixedMaxLen;	/* maximum length is fixed (i.e. can't be increased) */
-	ehs_char* szWord;		/* holds the last word read */
-	ehs_uint32 nWordLen;	/* length of the memory allocated to hold the word */
+ */
+typedef struct
+{
+    ehs_char* szHtml;		/* actual HTML string */
+    ehs_uint32 nMaxLen;		/* maximum length of the current HTML string */
+    ehs_bool bFixedMaxLen;	/* maximum length is fixed (i.e. can't be increased) */
+    ehs_char* szWord;		/* holds the last word read */
+    ehs_uint32 nWordLen;	/* length of the memory allocated to hold the word */
 } EhsHGHtmlStringClass;
 
 /**
@@ -41,15 +48,16 @@ typedef struct {
  * binary string with 1s or 0s: 11011xxx1xxxxxxx (i.e. 0xd880 | 0-0x7f or 0x100-0x17f,
  * or 0x200-0x27f, ... or 0x700-77f
  */
-typedef enum EhsHGHtmlWordEnum {
-	EHSHG_HTML_WORD_STYLE_TEXT,
-	EHSHG_HTML_WORD_BREAK		= 0xd880,
-	EHSHG_HTML_WORD_PARA		= 0xd881,
-	EHSHG_HTML_WORD_STYLE_START	= 0xd882,
-	EHSHG_HTML_WORD_STYLE_END   = 0xd883,
-	EHSHG_HTML_WORD_IMG			= 0xd884,
-	
-	EHSHG_HTML_WORD_PARAM_END	= 0xdfff
+typedef enum EhsHGHtmlWordEnum
+{
+    EHSHG_HTML_WORD_STYLE_TEXT,
+    EHSHG_HTML_WORD_BREAK		= 0xd880,
+    EHSHG_HTML_WORD_PARA		= 0xd881,
+    EHSHG_HTML_WORD_STYLE_START	= 0xd882,
+    EHSHG_HTML_WORD_STYLE_END   = 0xd883,
+    EHSHG_HTML_WORD_IMG			= 0xd884,
+
+    EHSHG_HTML_WORD_PARAM_END	= 0xdfff
 } EhsHGHtmlWordType;
 
 /*****************************************************************************/
@@ -72,7 +80,7 @@ EHS_GLOBAL ehs_bool EhsHGHtmlString_init(EhsHGHtmlStringClass* pHtml, ehs_uint32
  * @param[in,out] pHtml Pointer to the HTML structure that has been parsed
  * @param[in] szRawString The initial string to convert
  * @return true if parsing has been successful
- */ 
+ */
 EHS_GLOBAL ehs_bool EhsHGHtmlString_parse(EhsHGHtmlStringClass* pHtml, const ehs_char* szRawString,ehs_bool parse);
 
 /**

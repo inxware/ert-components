@@ -34,7 +34,8 @@
 #include <api/yajl_common.h>
 
 /** possible data types that a yajl_val_s can hold */
-typedef enum {
+typedef enum
+{
     yajl_t_string = 1,
     yajl_t_number = 2,
     yajl_t_object = 3,
@@ -71,7 +72,8 @@ struct yajl_val_s
     union
     {
         char * string;
-        struct {
+        struct
+        {
             long long i; /*< integer value, if representable. */
             double  d;   /*< double value, if representable. */
             /** Signals whether the \em i and \em d members are
@@ -80,12 +82,14 @@ struct yajl_val_s
             char   *r;   /*< unparsed number in string form. */
             unsigned int flags;
         } number;
-        struct {
+        struct
+        {
             const char **keys; /*< Array of keys */
             yajl_val *values; /*< Array of values. */
             size_t len; /*< Number of key-value-pairs. */
         } object;
-        struct {
+        struct
+        {
             yajl_val *values; /*< Array of elements. */
             size_t len; /*< Number of elements. */
         } array;
@@ -133,7 +137,7 @@ YAJL_API void yajl_tree_free (yajl_val v);
  * \param type the yajl_type of the object you seek, or yajl_t_any if any will do.
  *
  * \returns a pointer to the found value, or NULL if we came up empty.
- * 
+ *
  * Future Ideas:  it'd be nice to move path to a string and implement support for
  * a teeny tiny micro language here, so you can extract array elements, do things
  * like .first and .last, even .length.  Inspiration from JSONPath and css selectors?

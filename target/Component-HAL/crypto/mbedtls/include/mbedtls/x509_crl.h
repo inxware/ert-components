@@ -106,7 +106,7 @@ mbedtls_x509_crl;
  * \return         0 if successful, or a specific X509 or PEM error code
  */
 int mbedtls_x509_crl_parse_der( mbedtls_x509_crl *chain,
-                        const unsigned char *buf, size_t buflen );
+                                const unsigned char *buf, size_t buflen );
 /**
  * \brief          Parse one or more CRLs and append them to the chained list
  *
@@ -147,7 +147,7 @@ int mbedtls_x509_crl_parse_file( mbedtls_x509_crl *chain, const char *path );
  *                 terminated nul byte), or a negative error code.
  */
 int mbedtls_x509_crl_info( char *buf, size_t size, const char *prefix,
-                   const mbedtls_x509_crl *crl );
+                           const mbedtls_x509_crl *crl );
 
 /**
  * \brief          Initialize a CRL (chain)

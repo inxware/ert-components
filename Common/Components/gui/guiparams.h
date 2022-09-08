@@ -1,13 +1,19 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file guiparams.h
  * This declares a type for dealing with GUI parameters and functions
  * to deal with it.
  *
  * @author: inx limited
- * @version: $Revision: 1500 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 #ifndef _EHS_GUIPARAMS_H
@@ -26,28 +32,32 @@ typedef enum {EHS_WIDGET_CLASS_INVALID, EHS_WIDGET_CLASS_BITMAP, EHS_WIDGET_CLAS
  * Hold the parameters for a GUI object. Derived from the GUI
  * parameters block. Readonly during the life of the application.
  */
-typedef struct {
-	EhsGraphicsRectangleClass xRect; /**< Bounding box of widget */
-	ehs_uint32 nZorder; /**< Z-order. Lower values go behind higher ones  */
-	EhsWidgetClassType eClass; /**< Indicates what kind of widget are we dealing */
-	union {
-		struct {
-			ehs_char szBitmapName[EHS_STRING_LENGTH_MAX]; /**< Filename holding the bitmap */
-			ehs_uint8 nImageAlpha ; /** This is a value for the whole image's alpha value */
-		} xBitmap;
-		struct {
-			EhsGraphicsColourClass xFgColour; /**< Colour of foreground */
-			EhsGraphicsColourClass xBgColour; /**< Colour of background */
-			ehs_uint16 nIndentL;	/**< Left indent */
-			ehs_uint16 nIndentR;	/**< Right indent */
-			ehs_uint16 nIndentT;	/**< Top indent */
-			ehs_uint16 nIndentB;	/**< Bottom indent */
-			ehs_uint16 nLineSep;	/**< Separation between lines */
-			ehs_bool bRelativeCoords; /**< used to identify of coords. should be interpreted as percentage of screen */
-			ehs_char szFontName[EHS_FILESTRING_SIZE];	/**< Font name (if any) */
-		} xTextbox;
-		EhsGraphicsColourClass xPatch; /**< Colour of patch */
-	} uClass;
+typedef struct
+{
+    EhsGraphicsRectangleClass xRect; /**< Bounding box of widget */
+    ehs_uint32 nZorder; /**< Z-order. Lower values go behind higher ones  */
+    EhsWidgetClassType eClass; /**< Indicates what kind of widget are we dealing */
+    union
+    {
+        struct
+        {
+            ehs_char szBitmapName[EHS_STRING_LENGTH_MAX]; /**< Filename holding the bitmap */
+            ehs_uint8 nImageAlpha ; /** This is a value for the whole image's alpha value */
+        } xBitmap;
+        struct
+        {
+            EhsGraphicsColourClass xFgColour; /**< Colour of foreground */
+            EhsGraphicsColourClass xBgColour; /**< Colour of background */
+            ehs_uint16 nIndentL;	/**< Left indent */
+            ehs_uint16 nIndentR;	/**< Right indent */
+            ehs_uint16 nIndentT;	/**< Top indent */
+            ehs_uint16 nIndentB;	/**< Bottom indent */
+            ehs_uint16 nLineSep;	/**< Separation between lines */
+            ehs_bool bRelativeCoords; /**< used to identify of coords. should be interpreted as percentage of screen */
+            ehs_char szFontName[EHS_FILESTRING_SIZE];	/**< Font name (if any) */
+        } xTextbox;
+        EhsGraphicsColourClass xPatch; /**< Colour of patch */
+    } uClass;
 
 } EhsGuiParamsType;
 

@@ -31,7 +31,8 @@
 
 #include <string.h>
 
-static const char *features[] = {
+static const char *features[] =
+{
 #if defined(MBEDTLS_VERSION_FEATURES)
 #if defined(MBEDTLS_HAVE_ASM)
     "MBEDTLS_HAVE_ASM",

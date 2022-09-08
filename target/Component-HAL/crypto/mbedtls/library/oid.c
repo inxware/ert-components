@@ -155,7 +155,8 @@ int FN_NAME( ATTR1_TYPE ATTR1, ATTR2_TYPE ATTR2, const char **oid ,         \
 /*
  * For X520 attribute types
  */
-typedef struct {
+typedef struct
+{
     mbedtls_oid_descriptor_t    descriptor;
     const char          *short_name;
 } oid_x520_attr_t;
@@ -251,7 +252,8 @@ FN_OID_GET_ATTR1(mbedtls_oid_get_attr_short_name, oid_x520_attr_t, x520_attr, co
 /*
  * For X509 extensions
  */
-typedef struct {
+typedef struct
+{
     mbedtls_oid_descriptor_t    descriptor;
     int                 ext_type;
 } oid_x509_ext_t;
@@ -306,7 +308,8 @@ FN_OID_GET_ATTR1(mbedtls_oid_get_extended_key_usage, mbedtls_oid_descriptor_t, e
 /*
  * For SignatureAlgorithmIdentifier
  */
-typedef struct {
+typedef struct
+{
     mbedtls_oid_descriptor_t    descriptor;
     mbedtls_md_type_t           md_alg;
     mbedtls_pk_type_t           pk_alg;
@@ -389,7 +392,8 @@ FN_OID_GET_OID_BY_ATTR2(mbedtls_oid_get_oid_by_sig_alg, oid_sig_alg_t, oid_sig_a
 /*
  * For PublicKeyInfo (PKCS1, RFC 5480)
  */
-typedef struct {
+typedef struct
+{
     mbedtls_oid_descriptor_t    descriptor;
     mbedtls_pk_type_t           pk_alg;
 } oid_pk_alg_t;
@@ -422,7 +426,8 @@ FN_OID_GET_OID_BY_ATTR1(mbedtls_oid_get_oid_by_pk_alg, oid_pk_alg_t, oid_pk_alg,
 /*
  * For namedCurve (RFC 5480)
  */
-typedef struct {
+typedef struct
+{
     mbedtls_oid_descriptor_t    descriptor;
     mbedtls_ecp_group_id        grp_id;
 } oid_ecp_grp_t;
@@ -488,7 +493,8 @@ FN_OID_GET_OID_BY_ATTR1(mbedtls_oid_get_oid_by_ec_grp, oid_ecp_grp_t, oid_ecp_gr
 /*
  * For PKCS#5 PBES2 encryption algorithm
  */
-typedef struct {
+typedef struct
+{
     mbedtls_oid_descriptor_t    descriptor;
     mbedtls_cipher_type_t       cipher_alg;
 } oid_cipher_alg_t;
@@ -517,7 +523,8 @@ FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedt
 /*
  * For digestAlgorithm
  */
-typedef struct {
+typedef struct
+{
     mbedtls_oid_descriptor_t    descriptor;
     mbedtls_md_type_t           md_alg;
 } oid_md_alg_t;
@@ -571,7 +578,8 @@ FN_OID_GET_OID_BY_ATTR1(mbedtls_oid_get_oid_by_md, oid_md_alg_t, oid_md_alg, mbe
 /*
  * For PKCS#12 PBEs
  */
-typedef struct {
+typedef struct
+{
     mbedtls_oid_descriptor_t    descriptor;
     mbedtls_md_type_t           md_alg;
     mbedtls_cipher_type_t       cipher_alg;
@@ -608,7 +616,7 @@ FN_OID_GET_ATTR2(mbedtls_oid_get_pkcs12_pbe_alg, oid_pkcs12_pbe_alg_t, pkcs12_pb
 
 /* Return the x.y.z.... style numeric string for the given OID */
 int mbedtls_oid_get_numeric_string( char *buf, size_t size,
-                            const mbedtls_asn1_buf *oid )
+                                    const mbedtls_asn1_buf *oid )
 {
     int ret;
     size_t i, n;

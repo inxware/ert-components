@@ -19,9 +19,12 @@ SetupTargetEnv(){
     fi
     echo "Copying Android Studio project ($REPOSITORY_ANDROID_STUDIO_ROOT) to $ANDROID_STUDIO_ROOT"
     cp -r $REPOSITORY_ANDROID_STUDIO_ROOT/* $ANDROID_STUDIO_ROOT || exit 1
-    if ! [ -d "$ANDROID_STUDIO_JNILIBS_PATH" ] ; then
+    if [ -z "$ANDROID_STUDIO_JNILIBS_PATH" ] ; then
         echo "Android Studio project JniLibs path must be specified."
         exit 1
+    fi
+    if ! [ -d "$ANDROID_STUDIO_JNILIBS_PATH" ] ; then
+        mkdir -p $ANDROID_STUDIO_JNILIBS_PATH || exit 1
     fi
     echo "Copy .so lib to Android Studio project JniLibs ($ANDROID_STUDIO_JNILIBS_PATH)"
     cp "$EHS_ANDROID_LIB_FILE" "$ANDROID_STUDIO_JNILIBS_PATH/libnative-activity.so" || exit 1

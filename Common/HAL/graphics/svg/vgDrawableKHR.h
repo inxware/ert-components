@@ -3,15 +3,15 @@
  *
  *  Version : 6.4.0_2271s
  *     Date : 20080508-20.49.08
- *                
+ *
  *
  * (c) COPYRIGHT 2002- 2008 Open Text Corp. - BitFlash Division. ALL RIGHTS RESERVED
  *
  *
  * This software is the property and confidential information of Open Text and is furnished under
- * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.  
+ * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.
  *
- * This software may not be copied, transmitted, provided to or otherwise made available to any other person, 
+ * This software may not be copied, transmitted, provided to or otherwise made available to any other person,
  * company, corporation or other entity except as specified in the terms of said license.
  *
  * This copyright notice may not be removed or altered without the prior written permission of Open Text.
@@ -32,9 +32,9 @@ extern "C" {
  * patterns. The BFSVGT core also supports render caching of aggregate graphical elements using drawables,
  * providing significant performance enhancement in many cases.<br>
  *
- * This extension is necessary since OpenVG does not directly specify a native graphics interface, including 
- * support for contexts or rendering targets. EGL is available and suggested in the OpenVG spec to provide 
- * the needed functionality but other interfaces can be used instead. For an external OpenVG implementation 
+ * This extension is necessary since OpenVG does not directly specify a native graphics interface, including
+ * support for contexts or rendering targets. EGL is available and suggested in the OpenVG spec to provide
+ * the needed functionality but other interfaces can be used instead. For an external OpenVG implementation
  * (i.e. BF_CFG_USE_EXTERNAL_OPENVG is defined in BFConfig.h) if this extension
  * is not present then the BFSVGT core uses EGL and OpenVG functions to provide
  * the drawables functionality. If EGL is not used in conjunction with the external
@@ -42,7 +42,7 @@ extern "C" {
  * use this extension define BF_CFG_USE_EXTERNAL_OPENVG_DRAWABLE_EXT in BFConfig.h and implement the
  * functions listed below as part of the external OpenVG implementation linked with the BFSVGT core.<br>
  *
- * The drawable interface specified here is based on a draft proposal (OVG_KHR_drawable_object.7.txt) of the 
+ * The drawable interface specified here is based on a draft proposal (OVG_KHR_drawable_object.7.txt) of the
  * OpenVG Working Group.
  *
  */
@@ -53,7 +53,7 @@ extern "C" {
 typedef VGHandle VGDrawableKHR; /**< definition if opaque type for a drawable */
 
 /** an enumeration of the possible types of images that can make up a drawable */
-typedef enum 
+typedef enum
 {
     VG_DRAWABLE_ATTACHMENT_COLOR_KHR             = 0x2400,  /**< indicates a color image, to be used as a render target */
     VG_DRAWABLE_ATTACHMENT_MASK_KHR              = 0x2401   /**< indicates an alpha mask image, currently not supported */
@@ -61,14 +61,14 @@ typedef enum
 
 
 /**
-vgCreateDrawableKHR 
+vgCreateDrawableKHR
 
-vgCreateDrawableKHR creates a drawable object from the 
+vgCreateDrawableKHR creates a drawable object from the
       attachment points and corresponding VGImage objects. An opaque handle to the drawable
       object is returned. See OVG_KHR_drawable_object.7.txt
       for a full specification of this function. Note that the BFSVGT core makes no use
       of alpha masks hence support for the VG_DRAWABLE_ATTACHMENT_MASK_KHR enumerant is not
-      strictly required. 
+      strictly required.
       \param count          number of attachment points and associated images
                             to make up the drawable created
       \param attachments    array of count VGDrawableAttachmentKHR enumerants
@@ -85,7 +85,7 @@ vgDestroyDrawableKHR destroys a VGDrawableKHR object
       previously created with a call to the function vgCraeteDrawableKHR.
       In destroying the VGDrawableKHR object the function will release
       the state needed to represent the drawable, but will not
-      destroy the VGImage objects that were used to create it. See 
+      destroy the VGImage objects that were used to create it. See
       OVG_KHR_drawable_object.7.txt for a full specification of this function.
       \param drawable   the drawable to destroy.
  */
@@ -94,8 +94,8 @@ void vgDestroyDrawableKHR(VGDrawableKHR drawable);
 /**
 vgValidDrawableFormatKHR
       vgValidDrawableFormatKHR takes a combination of VGDrawableAttachmentKHR
-      enumerants, and of VGImageFormat enumerants, and returns whether it is 
-      supported by the current OpenVG context. See 
+      enumerants, and of VGImageFormat enumerants, and returns whether it is
+      supported by the current OpenVG context. See
       OVG_KHR_drawable_object.7.txt for a full specification of this function.
       Note that the BFSVGT core does not call this function, its specification
       is included only for completeness. The BFSVGT core expects the
@@ -115,7 +115,7 @@ vgBindDrawableKHR
       vgBindDrawableKHR replaces the current drawable in
       the current OpenVG context with the specified one, making it the render
       target. The special handle VG_DEFAULT_DRAWABLE_KHR may be used to bind
-      the drawable that was initially provided by the native graphics interface. See 
+      the drawable that was initially provided by the native graphics interface. See
       OVG_KHR_drawable_object.7.txt for a full specification of this function.
       \param drawable   the drawable to bind as the render target.
       \return           VG_TRUE if the drawable was successfully bound to the
@@ -125,10 +125,10 @@ VGboolean vgBindDrawableKHR(VGDrawableKHR drawable);
 
 /**
 vgGetBoundDrawableKHR
-vgGetBoundDrawableKHR returns a VGDrawableKHR handle to the drawable 
+vgGetBoundDrawableKHR returns a VGDrawableKHR handle to the drawable
       object that is bound to the current OpenVG context. The default drawable
-      handle (VG_DEFAULT_DRAWABLE_KHR) is used to represent the drawable 
-      provided by the native graphics interface. See 
+      handle (VG_DEFAULT_DRAWABLE_KHR) is used to represent the drawable
+      provided by the native graphics interface. See
       OVG_KHR_drawable_object.7.txt for a full specification of this function.
       \return   handle to the currently bound drawable.
  */

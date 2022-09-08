@@ -1,25 +1,53 @@
 <html>
+
 <head>
-<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
 </head>
 
 <body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">string_format</span>
+    <!--  <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span> -->
+    </div>
 
-<!--Name of Component-->
-<h1 class=component>
-string_format
-</h1>
-<!--General Description-->
+    <!--General Description-->
+    <p class=component>
+      This component formats 8 string inputs - see <a href="../../stringfn_formats/docs/help.html"> here </a> for further documentation.
+      </p>
+    <!--Parameters - form - short desc: long desc-->
 
-<p class=component>
-This component formats 8 string inputs - see <a href="../../stringfn_formats/docs/help.html"> here </a> for further documentation.
-</p>
-<p class=licenceType>LGPL.</p>
-<!--Component Supplier-->
-<h3 class=supplier>Component Supplier</h3>
-<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
-</body></html>
+
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+     <!-- <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span> -->
+    </div>
+     <table>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          MPL2.0
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+
+</html>

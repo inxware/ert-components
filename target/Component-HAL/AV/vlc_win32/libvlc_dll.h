@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file libvlc_dll.h
  * description
  *
  * @author: inx limited
- * @version: $Revision: 1238 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #ifndef EHS_LIBVLC_H
@@ -93,9 +99,10 @@ typedef struct libvlc_input_t libvlc_input_t;	/**< from libvlc_internal.h */
 
 /******************************* from vlc_es.h *******************************/
 
-struct video_palette_t {
-	int i_entries;
-	uint8_t palette[256][4];
+struct video_palette_t
+{
+    int i_entries;
+    uint8_t palette[256][4];
 };
 
 typedef struct video_palette_t video_palette_t;
@@ -134,13 +141,14 @@ typedef struct subpicture_region_t subpicture_region_t;
 /**
  * from vlc_video.h
  */
-struct plane_t {
-	uint8_t* p_pixels;
-	int i_lines;
-	int i_pitch;
-	int i_pixel_pitch;
-	int i_visible_lines;
-	int i_visible_pitch;
+struct plane_t
+{
+    uint8_t* p_pixels;
+    int i_lines;
+    int i_pitch;
+    int i_pixel_pitch;
+    int i_visible_lines;
+    int i_visible_pitch;
 };
 
 /**
@@ -177,9 +185,12 @@ struct picture_heap_t
     vlc_bool_t      b_allow_modify_pics;
 
     /* Stuff used for truecolor RGB planes */
-    uint32_t i_rmask; int i_rrshift, i_lrshift;
-    uint32_t i_gmask; int i_rgshift, i_lgshift;
-    uint32_t i_bmask; int i_rbshift, i_lbshift;
+    uint32_t i_rmask;
+    int i_rrshift, i_lrshift;
+    uint32_t i_gmask;
+    int i_rgshift, i_lgshift;
+    uint32_t i_bmask;
+    int i_rbshift, i_lbshift;
 
     /** Stuff used for palettized RGB planes */
     void (* pf_setpalette) ( vout_thread_t *, uint16_t *, uint16_t *, uint16_t * );
@@ -329,7 +340,7 @@ struct subpicture_t
     int          i_original_picture_height;/**< original height of the movie */
     vlc_bool_t   b_absolute;                       /**< position is absolute */
     int          i_flags;                                /**< position flags */
-     /**@}*/
+    /**@}*/
 
     /** Pointer to function that renders this subtitle in a picture */
     void ( *pf_render )  ( vout_thread_t *, picture_t *, const subpicture_t * );
@@ -338,9 +349,9 @@ struct subpicture_t
 
     /** Pointer to functions for region management */
     subpicture_region_t * ( *pf_create_region ) ( vlc_object_t *,
-                                                  video_format_t * );
+            video_format_t * );
     subpicture_region_t * ( *pf_make_region ) ( vlc_object_t *,
-                                                video_format_t *, picture_t * );
+            video_format_t *, picture_t * );
     void ( *pf_destroy_region ) ( vlc_object_t *, subpicture_region_t * );
 
     /** Private data - the subtitle plugin might want to put stuff here to
@@ -351,11 +362,12 @@ struct subpicture_t
 /**
  * from libvlc_internal.h
  */
-struct libvlc_instance_t {
-	/* vlc_t*		*/ void* p_vlc;
-	/* playlist_t*	*/ void* p_playlist;
-	/* vlm_t*		*/ void* p_vlm;
-	int i_vlc_id;
+struct libvlc_instance_t
+{
+    /* vlc_t*		*/ void* p_vlc;
+    /* playlist_t*	*/ void* p_playlist;
+    /* vlm_t*		*/ void* p_vlm;
+    int i_vlc_id;
 };
 
 /**
@@ -399,10 +411,10 @@ typedef struct vout_chroma_t
  */
 struct vout_thread_t
 {
-/** \name VLC_COMMON_MEMBERS
- * these members are common for all vlc objects
- */
-/**@{*/
+    /** \name VLC_COMMON_MEMBERS
+     * these members are common for all vlc objects
+     */
+    /**@{*/
     vlc_object_internals_t *p_internals;
     short   i_object_id;   /* ACC int -> short, to fit memory */
     short   i_object_type; /* ACC int -> short, to fit memory */
@@ -435,7 +447,7 @@ struct vout_thread_t
 
     /** Just a reminder so that people don't cast garbage */
     int be_sure_to_add_VLC_COMMON_MEMBERS_to_struct;
-/**@} End of VLC_COMMON_MEMBERS */
+    /**@} End of VLC_COMMON_MEMBERS */
 
     /** \name Thread properties and locks */
     /**@{*/
@@ -576,15 +588,15 @@ DeclareLibFunction(float,libvlc_input_get_position, ( libvlc_input_t *p_input, l
 /**
  * Create an initialised libvlc instance
  */
-DeclareLibFunction(libvlc_instance_t *,libvlc_new,( int , const char *const *, libvlc_exception_t *));
+DeclareLibFunction(libvlc_instance_t *,libvlc_new,( int, const char *const *, libvlc_exception_t *));
 
 /**
  * Set the default parent drawable for video outputs
  */
 DeclareLibFunction(void,libvlc_video_set_parent,(  	libvlc_instance_t *   	,
-		libvlc_drawable_t  	,
-		libvlc_exception_t *
-	))
+                   libvlc_drawable_t  	,
+                   libvlc_exception_t *
+                                                ))
 
 /**
  * Add an item to the playlist
@@ -652,9 +664,9 @@ DeclareLibFunction(char const*,VLC_Version,(void ))
 DeclareLibFunction(void,libvlc_media_release,( libvlc_media_t *p_meta_desc ))
 
 DeclareLibFunction(libvlc_media_t *,libvlc_media_new,(
-                                   libvlc_instance_t *p_instance,
-                                   const char * psz_mrl,
-                                   libvlc_exception_t *p_e ))
+                       libvlc_instance_t *p_instance,
+                       const char * psz_mrl,
+                       libvlc_exception_t *p_e ))
 
 DeclareLibFunction(libvlc_media_player_t *, libvlc_media_player_new_from_media,( libvlc_media_t *, libvlc_exception_t * ))
 DeclareLibFunction(void,libvlc_media_player_set_drawable, ( libvlc_media_player_t *, libvlc_drawable_t, libvlc_exception_t * ))

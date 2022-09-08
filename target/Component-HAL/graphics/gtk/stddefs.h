@@ -250,7 +250,7 @@ typedef U64 S64;
                                                 (Value).MSW = (Value).MSW+tempLSW; \
                                             } \
                                          }
-                                        
+
 /*Value=Value>>Shift, where Value is U64 type*/
 #define I64_ShiftRight(Shift,Value)   if (((unsigned)(Shift)) >= 64)  \
                                         {(Value).LSW = (Value).MSW = 0;}   \
@@ -415,10 +415,10 @@ typedef partition_t ST_Partition_t;
 
 /* BOOL type constant values */
 #ifndef TRUE
-    #define TRUE (1 == 1)
+#define TRUE (1 == 1)
 #endif
 #ifndef FALSE
-    #define FALSE (!TRUE)
+#define FALSE (!TRUE)
 #endif
 
 /* Common driver error constants */

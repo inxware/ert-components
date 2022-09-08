@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
+
 /** @file tgttest_dummy.c
  * This contains dummy function and data definitions necessary to perform EHS target tests
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 3787 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 /*****************************************************************************/
@@ -14,12 +20,12 @@
 
 EhsBlockRefType EhsBlockRefTable_Dtv[] =
 {
-	{0}
+    {0}
 };
 
 EhsBlockRefType EhsBlockRefTable_windows[] =
 {
-	{0}
+    {0}
 };
 
 /*****************************************************************************/
@@ -29,7 +35,7 @@ EhsToolkitTableType EhsToolkitTable;
 
 ehs_bool EhsToolkitTable_addTable(EhsBlockRefType* pTable)
 {
-	return EHS_TRUE;
+    return EHS_TRUE;
 }
 
 /*****************************************************************************/
@@ -44,10 +50,10 @@ EhsWidgetTableClass EhsWidgetTable;
 
 #include "callback_queue.h"
 
-void EhsCallbackQueue_register(EhsCallbackQueueType* pQueue, 
-										  EhsRunFuncType fpRunFunc, 
-										  EhsFunctionInstanceDataType* pFuncInst,
-										  EhsCallbackQueueEntryType *pEntry)
+void EhsCallbackQueue_register(EhsCallbackQueueType* pQueue,
+                               EhsRunFuncType fpRunFunc,
+                               EhsFunctionInstanceDataType* pFuncInst,
+                               EhsCallbackQueueEntryType *pEntry)
 {
 
 }
@@ -63,9 +69,9 @@ void EhsCallbackQueue_execute(EhsCallbackQueueType* pQueue)
 
 /**
  * set the completed triggers of a given function instance
- * 
+ *
  * @param pByte pointer to the functions main table entry
- * 
+ *
  * @return int nNumComps - number of completes set
  */
 void EhsFunctionInstanceData_triggerEvent(EhsFunctionInstanceDataType* pFuncInst, ehs_uint32 x)
@@ -78,7 +84,7 @@ void EhsFunctionInstanceData_triggerEvent(EhsFunctionInstanceDataType* pFuncInst
 
 void EhsShutdown()
 {
-	EhsExit(0);
+    EhsExit(0);
 }
 
 /**
@@ -101,7 +107,7 @@ void	EhsTopfieldRemotePress(ehs_sint32 key)
 {
 }
 
-	EhsCallbackQueueType EhsTopfieldRemoteCallback;
+EhsCallbackQueueType EhsTopfieldRemoteCallback;
 
 
 /*****************************************************************************/

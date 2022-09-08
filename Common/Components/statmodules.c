@@ -1,11 +1,17 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file modules.c
  * Definitions of statically linked library modules.
- * 
- * @author: Pierre Drezet
- * @version: $Revision: 2710 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inxLtd, 2011. All rights reserved.
+ *
+ * @author: inx limited
+ *
  */
 
 //#include "target_config.h"
@@ -23,9 +29,9 @@
 extern EhsBlockRefType EhsBlockRefTable_core[];
 
 
-		/**
- * Declares the core GUI function block toolkit
- */
+/**
+* Declares the core GUI function block toolkit
+*/
 #ifdef EHS_GUI_SUPPORT
 #include "hal_viewport.h"
 #include "widget.h"
@@ -47,8 +53,9 @@ extern EhsBlockRefType  EhsBlockRefTable_coreGui[];
 extern EhsBlockRefType  EhsBlockRefTable_Peripherals[];
 #endif
 
-
+#ifdef EHS_AV_SUPPORT
 extern EhsBlockRefType  EhsBlockRefTable_Media[];
+#endif
 
 /*****************************************************************************/
 /* Declare function prototypes */
@@ -90,74 +97,74 @@ extern EhsBlockRefType  EhsBlockRefTable_usercomponents[];
  */
 void EhsAddStaticModules()
 {
-	/* now add the toolkits */
-	EhsToolkitTable_addTable(EhsBlockRefTable_core);
+    /* now add the toolkits */
+    EhsToolkitTable_addTable(EhsBlockRefTable_core);
 #ifdef EHS_TOOLKIT_DEPRECATED
-	EhsToolkitTable_addTable(EhsBlockRefTable_deprecated);
+    EhsToolkitTable_addTable(EhsBlockRefTable_deprecated);
 #endif
 
 #ifdef EHS_TOOLKIT_SANDBOX
-	EhsToolkitTable_addTable(EhsBlockRefTable_sandbox);
+    EhsToolkitTable_addTable(EhsBlockRefTable_sandbox);
 #endif
 
 #ifdef EHS_GUI_SUPPORT
-	EhsToolkitTable_addTable(EhsBlockRefTable_coreGui);
-	//@todo the following should really be renamed to Keyboard Support and made a generic component.
-	//@todo Also there is no header construct for cases where we do have HW specific components
+    EhsToolkitTable_addTable(EhsBlockRefTable_coreGui);
+    //@todo the following should really be renamed to Keyboard Support and made a generic component.
+    //@todo Also there is no header construct for cases where we do have HW specific components
     //Badidea:extern EhsBlockRefType EhsBlockRefTable_gtk[]; //@todo This should be declared in the same way as the above...
-	//Badidea:EhsToolkitTable_addTable(EhsBlockRefTable_gtk);
+    //Badidea:EhsToolkitTable_addTable(EhsBlockRefTable_gtk);
 
 #endif /* EHS_GUI_SUPPORT */
 
 #ifdef EHS_PERIPHERAL_DEVICE_SUPPORT
-	EhsToolkitTable_addTable(EhsBlockRefTable_Peripherals);
+    EhsToolkitTable_addTable(EhsBlockRefTable_Peripherals);
 #endif
 
 // PPP://THE DTV TOOLKIT WAS LOADED IN THE INITIALISATION FUNCTIONS FOR DTV IMPLEMENTATIONS.
 #ifdef EHS_AV_SUPPORT
-	// content moved the media toolkit EhsToolkitTable_addTable(EhsBlockRefTable_Dtv); //@toodo the Dtv stuff should be refactored into the media directory
-	EhsToolkitTable_addTable(EhsBlockRefTable_Media);
+    // content moved the media toolkit EhsToolkitTable_addTable(EhsBlockRefTable_Dtv); //@toodo the Dtv stuff should be refactored into the media directory
+    EhsToolkitTable_addTable(EhsBlockRefTable_Media);
 #else
-	#if defined(EHS_ANDROID) || defined(EHS_UNITY3D_WIDGETS)
-		EhsToolkitTable_addTable(EhsBlockRefTable_Media);
-	#endif
+#if defined(EHS_ANDROID) || defined(EHS_UNITY3D_WIDGETS)
+    EhsToolkitTable_addTable(EhsBlockRefTable_Media);
+#endif
 #endif
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
-	EhsToolkitTable_addTable(EhsBlockRefTable_networking);
+    EhsToolkitTable_addTable(EhsBlockRefTable_networking);
 #endif
 
 #ifdef EHS_USER_COMPONENT_SUPPORT
-	EhsToolkitTable_addTable(EhsBlockRefTable_usercomponents);
+    EhsToolkitTable_addTable(EhsBlockRefTable_usercomponents);
 #endif
 }
 
 ehs_bool EhsInitStaticModules()
 {
-	//*bNewSodlFlagRef=0 This is done in the app reset already; // This is the signal for closing Dynamic Threads in component software
-	#ifdef EHS_GUI_SUPPORT
-		EhsWidgetTable_init(&EhsWidgetTable); //
-		EhsTV_reset(&EhsTV); // @todo PD this should be moved into toolkit initialisation functions - instead of conditional compile.
-		EhsTV_clear(&EhsTV);
-	#endif /* EHS_GUI_SUPPORT */
+    //*bNewSodlFlagRef=0 This is done in the app reset already; // This is the signal for closing Dynamic Threads in component software
+#ifdef EHS_GUI_SUPPORT
+    EhsWidgetTable_init(&EhsWidgetTable); //
+    EhsTV_reset(&EhsTV); // @todo PD this should be moved into toolkit initialisation functions - instead of conditional compile.
+    EhsTV_clear(&EhsTV);
+#endif /* EHS_GUI_SUPPORT */
 
-return EHS_TRUE;
+    return EHS_TRUE;
 }
 
 ehs_bool EhsShutdownStaticModules()
 {
-	return EHS_TRUE;
+    return EHS_TRUE;
 }
 
 
 /* Lightweight resets when application is terminated and new is to load */
 ehs_bool EhsResetStaticModules()
 {
-	EhsTimer_init(); /* releases memory previously allocated, ... */
+    EhsTimer_init(); /* releases memory previously allocated, ... */
 #ifdef EHS_GUI_SUPPORT
-	EhsWidgetTable_reset(&EhsWidgetTable); //
-	EhsTV_reset(&EhsTV); // @todo PD this should be moved into toolkit initialisation functions - instead of conditional compile.
-	//EhsTV_clear(&EhsTV); //THIS IS DONE INSIDE EhsTV_reset() clear the viewport screen
-	//EHSH_LOG_TRACE("Clearing the VIEWPORT");
+    EhsWidgetTable_reset(&EhsWidgetTable); //
+    EhsTV_reset(&EhsTV); // @todo PD this should be moved into toolkit initialisation functions - instead of conditional compile.
+    //EhsTV_clear(&EhsTV); //THIS IS DONE INSIDE EhsTV_reset() clear the viewport screen
+    //EHSH_LOG_TRACE("Clearing the VIEWPORT");
 #endif /* EHS_GUI_SUPPORT */
-	return EHS_TRUE;
+    return EHS_TRUE;
 }

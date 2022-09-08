@@ -52,7 +52,7 @@
 #include "deflate.h"
 
 const char deflate_copyright[] =
-   " deflate 1.2.3 Copyright 1995-2005 Jean-loup Gailly ";
+    " deflate 1.2.3 Copyright 1995-2005 Jean-loup Gailly ";
 /*
   If you use the zlib library in a product, an acknowledgment is welcome
   in the documentation of your product. If for some reason you cannot
@@ -63,7 +63,8 @@ const char deflate_copyright[] =
 /* ===========================================================================
  *  Function prototypes.
  */
-typedef enum {
+typedef enum
+{
     need_more,      /* block not completed, need more input or more output */
     block_done,     /* block flush performed */
     finish_started, /* finish started, need only more output at next deflate */
@@ -85,8 +86,8 @@ local void flush_pending  OF((z_streamp strm));
 local int read_buf        OF((z_streamp strm, Bytef *buf, unsigned size));
 #ifndef FASTEST
 #ifdef ASMV
-      void match_init OF((void)); /* asm code initialization */
-      uInt longest_match  OF((deflate_state *s, IPos cur_match));
+void match_init OF((void)); /* asm code initialization */
+uInt longest_match  OF((deflate_state *s, IPos cur_match));
 #else
 local uInt longest_match  OF((deflate_state *s, IPos cur_match));
 #endif
@@ -120,33 +121,38 @@ local  void check_match OF((deflate_state *s, IPos start, IPos match,
  * exclude worst case performance for pathological files. Better values may be
  * found for specific files.
  */
-typedef struct config_s {
-   ush good_length; /* reduce lazy search above this match length */
-   ush max_lazy;    /* do not perform lazy search above this match length */
-   ush nice_length; /* quit search above this match length */
-   ush max_chain;
-   compress_func func;
+typedef struct config_s
+{
+    ush good_length; /* reduce lazy search above this match length */
+    ush max_lazy;    /* do not perform lazy search above this match length */
+    ush nice_length; /* quit search above this match length */
+    ush max_chain;
+    compress_func func;
 } config;
 
 #ifdef FASTEST
-local const config configuration_table[2] = {
-/*      good lazy nice chain */
-/* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
-/* 1 */ {4,    4,  8,    4, deflate_fast}}; /* max speed, no lazy matches */
+local const config configuration_table[2] =
+{
+    /*      good lazy nice chain */
+    /* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
+    /* 1 */ {4,    4,  8,    4, deflate_fast}
+}; /* max speed, no lazy matches */
 #else
-local const config configuration_table[10] = {
-/*      good lazy nice chain */
-/* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
-/* 1 */ {4,    4,  8,    4, deflate_fast}, /* max speed, no lazy matches */
-/* 2 */ {4,    5, 16,    8, deflate_fast},
-/* 3 */ {4,    6, 32,   32, deflate_fast},
+local const config configuration_table[10] =
+{
+    /*      good lazy nice chain */
+    /* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
+    /* 1 */ {4,    4,  8,    4, deflate_fast}, /* max speed, no lazy matches */
+    /* 2 */ {4,    5, 16,    8, deflate_fast},
+    /* 3 */ {4,    6, 32,   32, deflate_fast},
 
-/* 4 */ {4,    4, 16,   16, deflate_slow},  /* lazy matches */
-/* 5 */ {8,   16, 32,   32, deflate_slow},
-/* 6 */ {8,   16, 128, 128, deflate_slow},
-/* 7 */ {8,   32, 128, 256, deflate_slow},
-/* 8 */ {32, 128, 258, 1024, deflate_slow},
-/* 9 */ {32, 258, 258, 4096, deflate_slow}}; /* max compression */
+    /* 4 */ {4,    4, 16,   16, deflate_slow},  /* lazy matches */
+    /* 5 */ {8,   16, 32,   32, deflate_slow},
+    /* 6 */ {8,   16, 128, 128, deflate_slow},
+    /* 7 */ {8,   32, 128, 256, deflate_slow},
+    /* 8 */ {32, 128, 258, 1024, deflate_slow},
+    /* 9 */ {32, 258, 258, 4096, deflate_slow}
+}; /* max compression */
 #endif
 
 /* Note: the deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
@@ -158,7 +164,10 @@ local const config configuration_table[10] = {
 /* result of memcmp for equal strings */
 
 #ifndef NO_DUMMY_DECL
-struct static_tree_desc_s {int dummy;}; /* for buggy compilers */
+struct static_tree_desc_s
+{
+    int dummy;
+}; /* for buggy compilers */
 #endif
 
 /* ===========================================================================
@@ -202,10 +211,10 @@ struct static_tree_desc_s {int dummy;}; /* for buggy compilers */
 
 /* ========================================================================= */
 int ZEXPORT deflateInit_(strm, level, version, stream_size)
-    z_streamp strm;
-    int level;
-    const char *version;
-    int stream_size;
+z_streamp strm;
+int level;
+const char *version;
+int stream_size;
 {
     return deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS, DEF_MEM_LEVEL,
                          Z_DEFAULT_STRATEGY, version, stream_size);
@@ -214,15 +223,15 @@ int ZEXPORT deflateInit_(strm, level, version, stream_size)
 
 /* ========================================================================= */
 int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
-                  version, stream_size)
-    z_streamp strm;
-    int  level;
-    int  method;
-    int  windowBits;
-    int  memLevel;
-    int  strategy;
-    const char *version;
-    int stream_size;
+                          version, stream_size)
+z_streamp strm;
+int  level;
+int  method;
+int  windowBits;
+int  memLevel;
+int  strategy;
+const char *version;
+int stream_size;
 {
     deflate_state *s;
     int wrap = 1;
@@ -234,13 +243,15 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
      */
 
     if (version == Z_NULL || version[0] != my_version[0] ||
-        stream_size != sizeof(z_stream)) {
+            stream_size != sizeof(z_stream))
+    {
         return Z_VERSION_ERROR;
     }
     if (strm == Z_NULL) return Z_STREAM_ERROR;
 
     strm->msg = Z_NULL;
-    if (strm->zalloc == (alloc_func)0) {
+    if (strm->zalloc == (alloc_func)0)
+    {
         strm->zalloc = zcalloc;
         strm->opaque = (voidpf)0;
     }
@@ -252,19 +263,22 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
     if (level == Z_DEFAULT_COMPRESSION) level = 6;
 #endif
 
-    if (windowBits < 0) { /* suppress zlib wrapper */
+    if (windowBits < 0)   /* suppress zlib wrapper */
+    {
         wrap = 0;
         windowBits = -windowBits;
     }
 #ifdef GZIP
-    else if (windowBits > 15) {
+    else if (windowBits > 15)
+    {
         wrap = 2;       /* write gzip wrapper instead */
         windowBits -= 16;
     }
 #endif
     if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method != Z_DEFLATED ||
-        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
-        strategy < 0 || strategy > Z_FIXED) {
+            windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
+            strategy < 0 || strategy > Z_FIXED)
+    {
         return Z_STREAM_ERROR;
     }
     if (windowBits == 8) windowBits = 9;  /* until 256-byte window bug fixed */
@@ -295,7 +309,8 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
     s->pending_buf_size = (ulg)s->lit_bufsize * (sizeof(ush)+2L);
 
     if (s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
-        s->pending_buf == Z_NULL) {
+            s->pending_buf == Z_NULL)
+    {
         s->status = FINISH_STATE;
         strm->msg = (char*)ERR_MSG(Z_MEM_ERROR);
         deflateEnd (strm);
@@ -313,9 +328,9 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
 
 /* ========================================================================= */
 int ZEXPORT deflateSetDictionary (strm, dictionary, dictLength)
-    z_streamp strm;
-    const Bytef *dictionary;
-    uInt  dictLength;
+z_streamp strm;
+const Bytef *dictionary;
+uInt  dictLength;
 {
     deflate_state *s;
     uInt length = dictLength;
@@ -323,8 +338,8 @@ int ZEXPORT deflateSetDictionary (strm, dictionary, dictLength)
     IPos hash_head = 0;
 
     if (strm == Z_NULL || strm->state == Z_NULL || dictionary == Z_NULL ||
-        strm->state->wrap == 2 ||
-        (strm->state->wrap == 1 && strm->state->status != INIT_STATE))
+            strm->state->wrap == 2 ||
+            (strm->state->wrap == 1 && strm->state->status != INIT_STATE))
         return Z_STREAM_ERROR;
 
     s = strm->state;
@@ -332,7 +347,8 @@ int ZEXPORT deflateSetDictionary (strm, dictionary, dictLength)
         strm->adler = adler32(strm->adler, dictionary, dictLength);
 
     if (length < MIN_MATCH) return Z_OK;
-    if (length > MAX_DIST(s)) {
+    if (length > MAX_DIST(s))
+    {
         length = MAX_DIST(s);
         dictionary += dictLength - length; /* use the tail of the dictionary */
     }
@@ -346,7 +362,8 @@ int ZEXPORT deflateSetDictionary (strm, dictionary, dictLength)
      */
     s->ins_h = s->window[0];
     UPDATE_HASH(s, s->ins_h, s->window[1]);
-    for (n = 0; n <= length - MIN_MATCH; n++) {
+    for (n = 0; n <= length - MIN_MATCH; n++)
+    {
         INSERT_STRING(s, n, hash_head);
     }
     if (hash_head) hash_head = 0;  /* to make compiler happy */
@@ -355,12 +372,13 @@ int ZEXPORT deflateSetDictionary (strm, dictionary, dictLength)
 
 /* ========================================================================= */
 int ZEXPORT deflateReset (strm)
-    z_streamp strm;
+z_streamp strm;
 {
     deflate_state *s;
 
     if (strm == Z_NULL || strm->state == Z_NULL ||
-        strm->zalloc == (alloc_func)0 || strm->zfree == (free_func)0) {
+            strm->zalloc == (alloc_func)0 || strm->zfree == (free_func)0)
+    {
         return Z_STREAM_ERROR;
     }
 
@@ -372,7 +390,8 @@ int ZEXPORT deflateReset (strm)
     s->pending = 0;
     s->pending_out = s->pending_buf;
 
-    if (s->wrap < 0) {
+    if (s->wrap < 0)
+    {
         s->wrap = -s->wrap; /* was made negative by deflate(..., Z_FINISH); */
     }
     s->status = s->wrap ? INIT_STATE : BUSY_STATE;
@@ -391,8 +410,8 @@ int ZEXPORT deflateReset (strm)
 
 /* ========================================================================= */
 int ZEXPORT deflateSetHeader (strm, head)
-    z_streamp strm;
-    gz_headerp head;
+z_streamp strm;
+gz_headerp head;
 {
     if (strm == Z_NULL || strm->state == Z_NULL) return Z_STREAM_ERROR;
     if (strm->state->wrap != 2) return Z_STREAM_ERROR;
@@ -402,9 +421,9 @@ int ZEXPORT deflateSetHeader (strm, head)
 
 /* ========================================================================= */
 int ZEXPORT deflatePrime (strm, bits, value)
-    z_streamp strm;
-    int bits;
-    int value;
+z_streamp strm;
+int bits;
+int value;
 {
     if (strm == Z_NULL || strm->state == Z_NULL) return Z_STREAM_ERROR;
     strm->state->bi_valid = bits;
@@ -414,9 +433,9 @@ int ZEXPORT deflatePrime (strm, bits, value)
 
 /* ========================================================================= */
 int ZEXPORT deflateParams(strm, level, strategy)
-    z_streamp strm;
-    int level;
-    int strategy;
+z_streamp strm;
+int level;
+int strategy;
 {
     deflate_state *s;
     compress_func func;
@@ -430,16 +449,19 @@ int ZEXPORT deflateParams(strm, level, strategy)
 #else
     if (level == Z_DEFAULT_COMPRESSION) level = 6;
 #endif
-    if (level < 0 || level > 9 || strategy < 0 || strategy > Z_FIXED) {
+    if (level < 0 || level > 9 || strategy < 0 || strategy > Z_FIXED)
+    {
         return Z_STREAM_ERROR;
     }
     func = configuration_table[s->level].func;
 
-    if (func != configuration_table[level].func && strm->total_in != 0) {
+    if (func != configuration_table[level].func && strm->total_in != 0)
+    {
         /* Flush the last buffer: */
         err = deflate(strm, Z_PARTIAL_FLUSH);
     }
-    if (s->level != level) {
+    if (s->level != level)
+    {
         s->level = level;
         s->max_lazy_match   = configuration_table[level].max_lazy;
         s->good_match       = configuration_table[level].good_length;
@@ -452,11 +474,11 @@ int ZEXPORT deflateParams(strm, level, strategy)
 
 /* ========================================================================= */
 int ZEXPORT deflateTune(strm, good_length, max_lazy, nice_length, max_chain)
-    z_streamp strm;
-    int good_length;
-    int max_lazy;
-    int nice_length;
-    int max_chain;
+z_streamp strm;
+int good_length;
+int max_lazy;
+int nice_length;
+int max_chain;
 {
     deflate_state *s;
 
@@ -487,8 +509,8 @@ int ZEXPORT deflateTune(strm, good_length, max_lazy, nice_length, max_chain)
  * seem onerous for output buffer allocation.
  */
 uLong ZEXPORT deflateBound(strm, sourceLen)
-    z_streamp strm;
-    uLong sourceLen;
+z_streamp strm;
+uLong sourceLen;
 {
     deflate_state *s;
     uLong destLen;
@@ -516,8 +538,8 @@ uLong ZEXPORT deflateBound(strm, sourceLen)
  * pending_buf.
  */
 local void putShortMSB (s, b)
-    deflate_state *s;
-    uInt b;
+deflate_state *s;
+uInt b;
 {
     put_byte(s, (Byte)(b >> 8));
     put_byte(s, (Byte)(b & 0xff));
@@ -530,7 +552,7 @@ local void putShortMSB (s, b)
  * (See also read_buf()).
  */
 local void flush_pending(strm)
-    z_streamp strm;
+z_streamp strm;
 {
     unsigned len = strm->state->pending;
 
@@ -543,28 +565,31 @@ local void flush_pending(strm)
     strm->total_out += len;
     strm->avail_out  -= len;
     strm->state->pending -= len;
-    if (strm->state->pending == 0) {
+    if (strm->state->pending == 0)
+    {
         strm->state->pending_out = strm->state->pending_buf;
     }
 }
 
 /* ========================================================================= */
 int ZEXPORT deflate (strm, flush)
-    z_streamp strm;
-    int flush;
+z_streamp strm;
+int flush;
 {
     int old_flush; /* value of flush param for previous deflate call */
     deflate_state *s;
 
     if (strm == Z_NULL || strm->state == Z_NULL ||
-        flush > Z_FINISH || flush < 0) {
+            flush > Z_FINISH || flush < 0)
+    {
         return Z_STREAM_ERROR;
     }
     s = strm->state;
 
     if (strm->next_out == Z_NULL ||
-        (strm->next_in == Z_NULL && strm->avail_in != 0) ||
-        (s->status == FINISH_STATE && flush != Z_FINISH)) {
+            (strm->next_in == Z_NULL && strm->avail_in != 0) ||
+            (s->status == FINISH_STATE && flush != Z_FINISH))
+    {
         ERR_RETURN(strm, Z_STREAM_ERROR);
     }
     if (strm->avail_out == 0) ERR_RETURN(strm, Z_BUF_ERROR);
@@ -574,41 +599,46 @@ int ZEXPORT deflate (strm, flush)
     s->last_flush = flush;
 
     /* Write the header */
-    if (s->status == INIT_STATE) {
+    if (s->status == INIT_STATE)
+    {
 #ifdef GZIP
-        if (s->wrap == 2) {
+        if (s->wrap == 2)
+        {
             strm->adler = crc32(0L, Z_NULL, 0);
             put_byte(s, 31);
             put_byte(s, 139);
             put_byte(s, 8);
-            if (s->gzhead == NULL) {
+            if (s->gzhead == NULL)
+            {
                 put_byte(s, 0);
                 put_byte(s, 0);
                 put_byte(s, 0);
                 put_byte(s, 0);
                 put_byte(s, 0);
                 put_byte(s, s->level == 9 ? 2 :
-                            (s->strategy >= Z_HUFFMAN_ONLY || s->level < 2 ?
-                             4 : 0));
+                         (s->strategy >= Z_HUFFMAN_ONLY || s->level < 2 ?
+                          4 : 0));
                 put_byte(s, OS_CODE);
                 s->status = BUSY_STATE;
             }
-            else {
+            else
+            {
                 put_byte(s, (s->gzhead->text ? 1 : 0) +
-                            (s->gzhead->hcrc ? 2 : 0) +
-                            (s->gzhead->extra == Z_NULL ? 0 : 4) +
-                            (s->gzhead->name == Z_NULL ? 0 : 8) +
-                            (s->gzhead->comment == Z_NULL ? 0 : 16)
+                         (s->gzhead->hcrc ? 2 : 0) +
+                         (s->gzhead->extra == Z_NULL ? 0 : 4) +
+                         (s->gzhead->name == Z_NULL ? 0 : 8) +
+                         (s->gzhead->comment == Z_NULL ? 0 : 16)
                         );
                 put_byte(s, (Byte)(s->gzhead->time & 0xff));
                 put_byte(s, (Byte)((s->gzhead->time >> 8) & 0xff));
                 put_byte(s, (Byte)((s->gzhead->time >> 16) & 0xff));
                 put_byte(s, (Byte)((s->gzhead->time >> 24) & 0xff));
                 put_byte(s, s->level == 9 ? 2 :
-                            (s->strategy >= Z_HUFFMAN_ONLY || s->level < 2 ?
-                             4 : 0));
+                         (s->strategy >= Z_HUFFMAN_ONLY || s->level < 2 ?
+                          4 : 0));
                 put_byte(s, s->gzhead->os & 0xff);
-                if (s->gzhead->extra != NULL) {
+                if (s->gzhead->extra != NULL)
+                {
                     put_byte(s, s->gzhead->extra_len & 0xff);
                     put_byte(s, (s->gzhead->extra_len >> 8) & 0xff);
                 }
@@ -641,7 +671,8 @@ int ZEXPORT deflate (strm, flush)
             putShortMSB(s, header);
 
             /* Save the adler32 of the preset dictionary: */
-            if (s->strstart != 0) {
+            if (s->strstart != 0)
+            {
                 putShortMSB(s, (uInt)(strm->adler >> 16));
                 putShortMSB(s, (uInt)(strm->adler & 0xffff));
             }
@@ -649,12 +680,16 @@ int ZEXPORT deflate (strm, flush)
         }
     }
 #ifdef GZIP
-    if (s->status == EXTRA_STATE) {
-        if (s->gzhead->extra != NULL) {
+    if (s->status == EXTRA_STATE)
+    {
+        if (s->gzhead->extra != NULL)
+        {
             uInt beg = s->pending;  /* start of bytes to update crc */
 
-            while (s->gzindex < (s->gzhead->extra_len & 0xffff)) {
-                if (s->pending == s->pending_buf_size) {
+            while (s->gzindex < (s->gzhead->extra_len & 0xffff))
+            {
+                if (s->pending == s->pending_buf_size)
+                {
                     if (s->gzhead->hcrc && s->pending > beg)
                         strm->adler = crc32(strm->adler, s->pending_buf + beg,
                                             s->pending - beg);
@@ -669,7 +704,8 @@ int ZEXPORT deflate (strm, flush)
             if (s->gzhead->hcrc && s->pending > beg)
                 strm->adler = crc32(strm->adler, s->pending_buf + beg,
                                     s->pending - beg);
-            if (s->gzindex == s->gzhead->extra_len) {
+            if (s->gzindex == s->gzhead->extra_len)
+            {
                 s->gzindex = 0;
                 s->status = NAME_STATE;
             }
@@ -677,30 +713,37 @@ int ZEXPORT deflate (strm, flush)
         else
             s->status = NAME_STATE;
     }
-    if (s->status == NAME_STATE) {
-        if (s->gzhead->name != NULL) {
+    if (s->status == NAME_STATE)
+    {
+        if (s->gzhead->name != NULL)
+        {
             uInt beg = s->pending;  /* start of bytes to update crc */
             int val;
 
-            do {
-                if (s->pending == s->pending_buf_size) {
+            do
+            {
+                if (s->pending == s->pending_buf_size)
+                {
                     if (s->gzhead->hcrc && s->pending > beg)
                         strm->adler = crc32(strm->adler, s->pending_buf + beg,
                                             s->pending - beg);
                     flush_pending(strm);
                     beg = s->pending;
-                    if (s->pending == s->pending_buf_size) {
+                    if (s->pending == s->pending_buf_size)
+                    {
                         val = 1;
                         break;
                     }
                 }
                 val = s->gzhead->name[s->gzindex++];
                 put_byte(s, val);
-            } while (val != 0);
+            }
+            while (val != 0);
             if (s->gzhead->hcrc && s->pending > beg)
                 strm->adler = crc32(strm->adler, s->pending_buf + beg,
                                     s->pending - beg);
-            if (val == 0) {
+            if (val == 0)
+            {
                 s->gzindex = 0;
                 s->status = COMMENT_STATE;
             }
@@ -708,26 +751,32 @@ int ZEXPORT deflate (strm, flush)
         else
             s->status = COMMENT_STATE;
     }
-    if (s->status == COMMENT_STATE) {
-        if (s->gzhead->comment != NULL) {
+    if (s->status == COMMENT_STATE)
+    {
+        if (s->gzhead->comment != NULL)
+        {
             uInt beg = s->pending;  /* start of bytes to update crc */
             int val;
 
-            do {
-                if (s->pending == s->pending_buf_size) {
+            do
+            {
+                if (s->pending == s->pending_buf_size)
+                {
                     if (s->gzhead->hcrc && s->pending > beg)
                         strm->adler = crc32(strm->adler, s->pending_buf + beg,
                                             s->pending - beg);
                     flush_pending(strm);
                     beg = s->pending;
-                    if (s->pending == s->pending_buf_size) {
+                    if (s->pending == s->pending_buf_size)
+                    {
                         val = 1;
                         break;
                     }
                 }
                 val = s->gzhead->comment[s->gzindex++];
                 put_byte(s, val);
-            } while (val != 0);
+            }
+            while (val != 0);
             if (s->gzhead->hcrc && s->pending > beg)
                 strm->adler = crc32(strm->adler, s->pending_buf + beg,
                                     s->pending - beg);
@@ -737,11 +786,14 @@ int ZEXPORT deflate (strm, flush)
         else
             s->status = HCRC_STATE;
     }
-    if (s->status == HCRC_STATE) {
-        if (s->gzhead->hcrc) {
+    if (s->status == HCRC_STATE)
+    {
+        if (s->gzhead->hcrc)
+        {
             if (s->pending + 2 > s->pending_buf_size)
                 flush_pending(strm);
-            if (s->pending + 2 <= s->pending_buf_size) {
+            if (s->pending + 2 <= s->pending_buf_size)
+            {
                 put_byte(s, (Byte)(strm->adler & 0xff));
                 put_byte(s, (Byte)((strm->adler >> 8) & 0xff));
                 strm->adler = crc32(0L, Z_NULL, 0);
@@ -754,9 +806,11 @@ int ZEXPORT deflate (strm, flush)
 #endif
 
     /* Flush as much pending output as possible */
-    if (s->pending != 0) {
+    if (s->pending != 0)
+    {
         flush_pending(strm);
-        if (strm->avail_out == 0) {
+        if (strm->avail_out == 0)
+        {
             /* Since avail_out is 0, deflate will be called again with
              * more output space, but possibly with both pending and
              * avail_in equal to zero. There won't be anything to do,
@@ -767,33 +821,40 @@ int ZEXPORT deflate (strm, flush)
             return Z_OK;
         }
 
-    /* Make sure there is something to do and avoid duplicate consecutive
-     * flushes. For repeated and useless calls with Z_FINISH, we keep
-     * returning Z_STREAM_END instead of Z_BUF_ERROR.
-     */
-    } else if (strm->avail_in == 0 && flush <= old_flush &&
-               flush != Z_FINISH) {
+        /* Make sure there is something to do and avoid duplicate consecutive
+         * flushes. For repeated and useless calls with Z_FINISH, we keep
+         * returning Z_STREAM_END instead of Z_BUF_ERROR.
+         */
+    }
+    else if (strm->avail_in == 0 && flush <= old_flush &&
+             flush != Z_FINISH)
+    {
         ERR_RETURN(strm, Z_BUF_ERROR);
     }
 
     /* User must not provide more input after the first FINISH: */
-    if (s->status == FINISH_STATE && strm->avail_in != 0) {
+    if (s->status == FINISH_STATE && strm->avail_in != 0)
+    {
         ERR_RETURN(strm, Z_BUF_ERROR);
     }
 
     /* Start a new block or continue the current one.
      */
     if (strm->avail_in != 0 || s->lookahead != 0 ||
-        (flush != Z_NO_FLUSH && s->status != FINISH_STATE)) {
+            (flush != Z_NO_FLUSH && s->status != FINISH_STATE))
+    {
         block_state bstate;
 
         bstate = (*(configuration_table[s->level].func))(s, flush);
 
-        if (bstate == finish_started || bstate == finish_done) {
+        if (bstate == finish_started || bstate == finish_done)
+        {
             s->status = FINISH_STATE;
         }
-        if (bstate == need_more || bstate == finish_started) {
-            if (strm->avail_out == 0) {
+        if (bstate == need_more || bstate == finish_started)
+        {
+            if (strm->avail_out == 0)
+            {
                 s->last_flush = -1; /* avoid BUF_ERROR next call, see above */
             }
             return Z_OK;
@@ -805,22 +866,28 @@ int ZEXPORT deflate (strm, flush)
              * one empty block.
              */
         }
-        if (bstate == block_done) {
-            if (flush == Z_PARTIAL_FLUSH) {
+        if (bstate == block_done)
+        {
+            if (flush == Z_PARTIAL_FLUSH)
+            {
                 _tr_align(s);
-            } else { /* FULL_FLUSH or SYNC_FLUSH */
+            }
+            else     /* FULL_FLUSH or SYNC_FLUSH */
+            {
                 _tr_stored_block(s, (char*)0, 0L, 0);
                 /* For a full flush, this empty block will be recognized
                  * as a special marker by inflate_sync().
                  */
-                if (flush == Z_FULL_FLUSH) {
+                if (flush == Z_FULL_FLUSH)
+                {
                     CLEAR_HASH(s);             /* forget history */
                 }
             }
             flush_pending(strm);
-            if (strm->avail_out == 0) {
-              s->last_flush = -1; /* avoid BUF_ERROR at next call, see above */
-              return Z_OK;
+            if (strm->avail_out == 0)
+            {
+                s->last_flush = -1; /* avoid BUF_ERROR at next call, see above */
+                return Z_OK;
             }
         }
     }
@@ -831,7 +898,8 @@ int ZEXPORT deflate (strm, flush)
 
     /* Write the trailer */
 #ifdef GZIP
-    if (s->wrap == 2) {
+    if (s->wrap == 2)
+    {
         put_byte(s, (Byte)(strm->adler & 0xff));
         put_byte(s, (Byte)((strm->adler >> 8) & 0xff));
         put_byte(s, (Byte)((strm->adler >> 16) & 0xff));
@@ -857,7 +925,7 @@ int ZEXPORT deflate (strm, flush)
 
 /* ========================================================================= */
 int ZEXPORT deflateEnd (strm)
-    z_streamp strm;
+z_streamp strm;
 {
     int status;
 
@@ -865,13 +933,14 @@ int ZEXPORT deflateEnd (strm)
 
     status = strm->state->status;
     if (status != INIT_STATE &&
-        status != EXTRA_STATE &&
-        status != NAME_STATE &&
-        status != COMMENT_STATE &&
-        status != HCRC_STATE &&
-        status != BUSY_STATE &&
-        status != FINISH_STATE) {
-      return Z_STREAM_ERROR;
+            status != EXTRA_STATE &&
+            status != NAME_STATE &&
+            status != COMMENT_STATE &&
+            status != HCRC_STATE &&
+            status != BUSY_STATE &&
+            status != FINISH_STATE)
+    {
+        return Z_STREAM_ERROR;
     }
 
     /* Deallocate in reverse order of allocations: */
@@ -892,8 +961,8 @@ int ZEXPORT deflateEnd (strm)
  * doesn't have enough memory anyway to duplicate compression states).
  */
 int ZEXPORT deflateCopy (dest, source)
-    z_streamp dest;
-    z_streamp source;
+z_streamp dest;
+z_streamp source;
 {
 #ifdef MAXSEG_64K
     return Z_STREAM_ERROR;
@@ -903,7 +972,8 @@ int ZEXPORT deflateCopy (dest, source)
     ushf *overlay;
 
 
-    if (source == Z_NULL || dest == Z_NULL || source->state == Z_NULL) {
+    if (source == Z_NULL || dest == Z_NULL || source->state == Z_NULL)
+    {
         return Z_STREAM_ERROR;
     }
 
@@ -924,7 +994,8 @@ int ZEXPORT deflateCopy (dest, source)
     ds->pending_buf = (uchf *) overlay;
 
     if (ds->window == Z_NULL || ds->prev == Z_NULL || ds->head == Z_NULL ||
-        ds->pending_buf == Z_NULL) {
+            ds->pending_buf == Z_NULL)
+    {
         deflateEnd (dest);
         return Z_MEM_ERROR;
     }
@@ -954,9 +1025,9 @@ int ZEXPORT deflateCopy (dest, source)
  * (See also flush_pending()).
  */
 local int read_buf(strm, buf, size)
-    z_streamp strm;
-    Bytef *buf;
-    unsigned size;
+z_streamp strm;
+Bytef *buf;
+unsigned size;
 {
     unsigned len = strm->avail_in;
 
@@ -965,11 +1036,13 @@ local int read_buf(strm, buf, size)
 
     strm->avail_in  -= len;
 
-    if (strm->state->wrap == 1) {
+    if (strm->state->wrap == 1)
+    {
         strm->adler = adler32(strm->adler, strm->next_in, len);
     }
 #ifdef GZIP
-    else if (strm->state->wrap == 2) {
+    else if (strm->state->wrap == 2)
+    {
         strm->adler = crc32(strm->adler, strm->next_in, len);
     }
 #endif
@@ -984,7 +1057,7 @@ local int read_buf(strm, buf, size)
  * Initialize the "longest match" routines for a new zlib stream
  */
 local void lm_init (s)
-    deflate_state *s;
+deflate_state *s;
 {
     s->window_size = (ulg)2L*s->w_size;
 
@@ -1025,8 +1098,8 @@ local void lm_init (s)
  * match.S. The code will be functionally equivalent.
  */
 local uInt longest_match(s, cur_match)
-    deflate_state *s;
-    IPos cur_match;                             /* current match */
+deflate_state *s;
+IPos cur_match;                             /* current match */
 {
     unsigned chain_length = s->max_chain_length;/* max hash chain length */
     register Bytef *scan = s->window + s->strstart; /* current string */
@@ -1035,7 +1108,7 @@ local uInt longest_match(s, cur_match)
     int best_len = s->prev_length;              /* best match length so far */
     int nice_match = s->nice_match;             /* stop if match long enough */
     IPos limit = s->strstart > (IPos)MAX_DIST(s) ?
-        s->strstart - (IPos)MAX_DIST(s) : NIL;
+                 s->strstart - (IPos)MAX_DIST(s) : NIL;
     /* Stop when cur_match becomes <= limit. To simplify the code,
      * we prevent matches with the string of window index 0.
      */
@@ -1061,7 +1134,8 @@ local uInt longest_match(s, cur_match)
     Assert(s->hash_bits >= 8 && MAX_MATCH == 258, "Code too clever");
 
     /* Do not waste too much time if we already have a good match: */
-    if (s->prev_length >= s->good_match) {
+    if (s->prev_length >= s->good_match)
+    {
         chain_length >>= 2;
     }
     /* Do not look for matches beyond the end of the input. This is necessary
@@ -1071,7 +1145,8 @@ local uInt longest_match(s, cur_match)
 
     Assert((ulg)s->strstart <= s->window_size-MIN_LOOKAHEAD, "need lookahead");
 
-    do {
+    do
+    {
         Assert(cur_match < s->strstart, "no future");
         match = s->window + cur_match;
 
@@ -1088,7 +1163,7 @@ local uInt longest_match(s, cur_match)
          * UNALIGNED_OK if your compiler uses a different size.
          */
         if (*(ushf*)(match+best_len-1) != scan_end ||
-            *(ushf*)match != scan_start) continue;
+                *(ushf*)match != scan_start) continue;
 
         /* It is not necessary to compare scan[2] and match[2] since they are
          * always equal when the other bytes match, given that the hash keys
@@ -1101,12 +1176,14 @@ local uInt longest_match(s, cur_match)
          */
         Assert(scan[2] == match[2], "scan[2]?");
         scan++, match++;
-        do {
-        } while (*(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 scan < strend);
+        do
+        {
+        }
+        while (*(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
+                *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
+                *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
+                *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
+                scan < strend);
         /* The funny "do {}" generates better code on most compilers */
 
         /* Here, scan <= window+strstart+257 */
@@ -1119,9 +1196,9 @@ local uInt longest_match(s, cur_match)
 #else /* UNALIGNED_OK */
 
         if (match[best_len]   != scan_end  ||
-            match[best_len-1] != scan_end1 ||
-            *match            != *scan     ||
-            *++match          != scan[1])      continue;
+                match[best_len-1] != scan_end1 ||
+                *match            != *scan     ||
+                *++match          != scan[1])      continue;
 
         /* The check at best_len-1 can be removed because it will be made
          * again later. (This heuristic is not always a win.)
@@ -1135,12 +1212,14 @@ local uInt longest_match(s, cur_match)
         /* We check for insufficient lookahead only every 8th comparison;
          * the 256th check will be made at strstart+258.
          */
-        do {
-        } while (*++scan == *++match && *++scan == *++match &&
-                 *++scan == *++match && *++scan == *++match &&
-                 *++scan == *++match && *++scan == *++match &&
-                 *++scan == *++match && *++scan == *++match &&
-                 scan < strend);
+        do
+        {
+        }
+        while (*++scan == *++match && *++scan == *++match &&
+                *++scan == *++match && *++scan == *++match &&
+                *++scan == *++match && *++scan == *++match &&
+                *++scan == *++match && *++scan == *++match &&
+                scan < strend);
 
         Assert(scan <= s->window+(unsigned)(s->window_size-1), "wild scan");
 
@@ -1149,7 +1228,8 @@ local uInt longest_match(s, cur_match)
 
 #endif /* UNALIGNED_OK */
 
-        if (len > best_len) {
+        if (len > best_len)
+        {
             s->match_start = cur_match;
             best_len = len;
             if (len >= nice_match) break;
@@ -1160,8 +1240,9 @@ local uInt longest_match(s, cur_match)
             scan_end   = scan[best_len];
 #endif
         }
-    } while ((cur_match = prev[cur_match & wmask]) > limit
-             && --chain_length != 0);
+    }
+    while ((cur_match = prev[cur_match & wmask]) > limit
+            && --chain_length != 0);
 
     if ((uInt)best_len <= s->lookahead) return (uInt)best_len;
     return s->lookahead;
@@ -1173,8 +1254,8 @@ local uInt longest_match(s, cur_match)
  * Optimized version for level == 1 or strategy == Z_RLE only
  */
 local uInt longest_match_fast(s, cur_match)
-    deflate_state *s;
-    IPos cur_match;                             /* current match */
+deflate_state *s;
+IPos cur_match;                             /* current match */
 {
     register Bytef *scan = s->window + s->strstart; /* current string */
     register Bytef *match;                       /* matched string */
@@ -1208,12 +1289,14 @@ local uInt longest_match_fast(s, cur_match)
     /* We check for insufficient lookahead only every 8th comparison;
      * the 256th check will be made at strstart+258.
      */
-    do {
-    } while (*++scan == *++match && *++scan == *++match &&
-             *++scan == *++match && *++scan == *++match &&
-             *++scan == *++match && *++scan == *++match &&
-             *++scan == *++match && *++scan == *++match &&
-             scan < strend);
+    do
+    {
+    }
+    while (*++scan == *++match && *++scan == *++match &&
+            *++scan == *++match && *++scan == *++match &&
+            *++scan == *++match && *++scan == *++match &&
+            *++scan == *++match && *++scan == *++match &&
+            scan < strend);
 
     Assert(scan <= s->window+(unsigned)(s->window_size-1), "wild scan");
 
@@ -1230,23 +1313,31 @@ local uInt longest_match_fast(s, cur_match)
  * Check that the match at match_start is indeed a match.
  */
 local void check_match(s, start, match, length)
-    deflate_state *s;
-    IPos start, match;
-    int length;
+deflate_state *s;
+IPos start, match;
+int length;
 {
     /* check that the match is indeed a match */
     if (zmemcmp(s->window + match,
-                s->window + start, length) != EQUAL) {
+                s->window + start, length) != EQUAL)
+    {
         fprintf(stderr, " start %u, match %u, length %d\n",
                 start, match, length);
-        do {
+        do
+        {
             fprintf(stderr, "%c%c", s->window[match++], s->window[start++]);
-        } while (--length != 0);
+        }
+        while (--length != 0);
         z_error("invalid match");
     }
-    if (z_verbose > 1) {
+    if (z_verbose > 1)
+    {
         fprintf(stderr,"\\[%d,%d]", start-match, length);
-        do { putc(s->window[start++], stderr); } while (--length != 0);
+        do
+        {
+            putc(s->window[start++], stderr);
+        }
+        while (--length != 0);
     }
 }
 #else
@@ -1264,22 +1355,27 @@ local void check_match(s, start, match, length)
  *    option -- not supported here).
  */
 local void fill_window(s)
-    deflate_state *s;
+deflate_state *s;
 {
     register unsigned n, m;
     register Posf *p;
     unsigned more;    /* Amount of free space at the end of the window. */
     uInt wsize = s->w_size;
 
-    do {
+    do
+    {
         more = (unsigned)(s->window_size -(ulg)s->lookahead -(ulg)s->strstart);
 
         /* Deal with !@#$% 64K limit: */
-        if (sizeof(int) <= 2) {
-            if (more == 0 && s->strstart == 0 && s->lookahead == 0) {
+        if (sizeof(int) <= 2)
+        {
+            if (more == 0 && s->strstart == 0 && s->lookahead == 0)
+            {
                 more = wsize;
 
-            } else if (more == (unsigned)(-1)) {
+            }
+            else if (more == (unsigned)(-1))
+            {
                 /* Very unlikely, but possible on 16 bit machine if
                  * strstart == 0 && lookahead == 1 (input done a byte at time)
                  */
@@ -1290,7 +1386,8 @@ local void fill_window(s)
         /* If the window is almost full and there is insufficient lookahead,
          * move the upper half to the lower one to make room in the upper half.
          */
-        if (s->strstart >= wsize+MAX_DIST(s)) {
+        if (s->strstart >= wsize+MAX_DIST(s))
+        {
 
             zmemcpy(s->window, s->window+wsize, (unsigned)wsize);
             s->match_start -= wsize;
@@ -1306,21 +1403,25 @@ local void fill_window(s)
             /* %%% avoid this when Z_RLE */
             n = s->hash_size;
             p = &s->head[n];
-            do {
+            do
+            {
                 m = *--p;
                 *p = (Pos)(m >= wsize ? m-wsize : NIL);
-            } while (--n);
+            }
+            while (--n);
 
             n = wsize;
 #ifndef FASTEST
             p = &s->prev[n];
-            do {
+            do
+            {
                 m = *--p;
                 *p = (Pos)(m >= wsize ? m-wsize : NIL);
                 /* If n is not on any hash chain, prev[n] is garbage but
                  * its value will never be used.
                  */
-            } while (--n);
+            }
+            while (--n);
 #endif
             more += wsize;
         }
@@ -1343,7 +1444,8 @@ local void fill_window(s)
         s->lookahead += n;
 
         /* Initialize the hash value now that we have some input: */
-        if (s->lookahead >= MIN_MATCH) {
+        if (s->lookahead >= MIN_MATCH)
+        {
             s->ins_h = s->window[s->strstart];
             UPDATE_HASH(s, s->ins_h, s->window[s->strstart+1]);
 #if MIN_MATCH != 3
@@ -1354,7 +1456,8 @@ local void fill_window(s)
          * but this is not important since only literal bytes will be emitted.
          */
 
-    } while (s->lookahead < MIN_LOOKAHEAD && s->strm->avail_in != 0);
+    }
+    while (s->lookahead < MIN_LOOKAHEAD && s->strm->avail_in != 0);
 }
 
 /* ===========================================================================
@@ -1388,8 +1491,8 @@ local void fill_window(s)
  * window to pending_buf.
  */
 local block_state deflate_stored(s, flush)
-    deflate_state *s;
-    int flush;
+deflate_state *s;
+int flush;
 {
     /* Stored blocks are limited to 0xffff bytes, pending_buf is limited
      * to pending_buf_size, and each stored block has a 5 byte header:
@@ -1397,14 +1500,17 @@ local block_state deflate_stored(s, flush)
     ulg max_block_size = 0xffff;
     ulg max_start;
 
-    if (max_block_size > s->pending_buf_size - 5) {
+    if (max_block_size > s->pending_buf_size - 5)
+    {
         max_block_size = s->pending_buf_size - 5;
     }
 
     /* Copy as much as possible from input to output: */
-    for (;;) {
+    for (;;)
+    {
         /* Fill the window as much as possible: */
-        if (s->lookahead <= 1) {
+        if (s->lookahead <= 1)
+        {
 
             Assert(s->strstart < s->w_size+MAX_DIST(s) ||
                    s->block_start >= (long)s->w_size, "slide too late");
@@ -1421,7 +1527,8 @@ local block_state deflate_stored(s, flush)
 
         /* Emit a stored block if pending_buf will be full: */
         max_start = s->block_start + max_block_size;
-        if (s->strstart == 0 || (ulg)s->strstart >= max_start) {
+        if (s->strstart == 0 || (ulg)s->strstart >= max_start)
+        {
             /* strstart == 0 is possible when wraparound on 16-bit machine */
             s->lookahead = (uInt)(s->strstart - max_start);
             s->strstart = (uInt)max_start;
@@ -1430,7 +1537,8 @@ local block_state deflate_stored(s, flush)
         /* Flush if we may have to slide, otherwise block_start may become
          * negative and the data will be gone:
          */
-        if (s->strstart - (uInt)s->block_start >= MAX_DIST(s)) {
+        if (s->strstart - (uInt)s->block_start >= MAX_DIST(s))
+        {
             FLUSH_BLOCK(s, 0);
         }
     }
@@ -1446,21 +1554,24 @@ local block_state deflate_stored(s, flush)
  * matches. It is used only for the fast compression options.
  */
 local block_state deflate_fast(s, flush)
-    deflate_state *s;
-    int flush;
+deflate_state *s;
+int flush;
 {
     IPos hash_head = NIL; /* head of the hash chain */
     int bflush;           /* set if current block must be flushed */
 
-    for (;;) {
+    for (;;)
+    {
         /* Make sure that we always have enough lookahead, except
          * at the end of the input file. We need MAX_MATCH bytes
          * for the next match, plus MIN_MATCH bytes to insert the
          * string following the next match.
          */
-        if (s->lookahead < MIN_LOOKAHEAD) {
+        if (s->lookahead < MIN_LOOKAHEAD)
+        {
             fill_window(s);
-            if (s->lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH) {
+            if (s->lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH)
+            {
                 return need_more;
             }
             if (s->lookahead == 0) break; /* flush the current block */
@@ -1469,33 +1580,40 @@ local block_state deflate_fast(s, flush)
         /* Insert the string window[strstart .. strstart+2] in the
          * dictionary, and set hash_head to the head of the hash chain:
          */
-        if (s->lookahead >= MIN_MATCH) {
+        if (s->lookahead >= MIN_MATCH)
+        {
             INSERT_STRING(s, s->strstart, hash_head);
         }
 
         /* Find the longest match, discarding those <= prev_length.
          * At this point we have always match_length < MIN_MATCH
          */
-        if (hash_head != NIL && s->strstart - hash_head <= MAX_DIST(s)) {
+        if (hash_head != NIL && s->strstart - hash_head <= MAX_DIST(s))
+        {
             /* To simplify the code, we prevent matches with the string
              * of window index 0 (in particular we have to avoid a match
              * of the string with itself at the start of the input file).
              */
 #ifdef FASTEST
             if ((s->strategy != Z_HUFFMAN_ONLY && s->strategy != Z_RLE) ||
-                (s->strategy == Z_RLE && s->strstart - hash_head == 1)) {
+                    (s->strategy == Z_RLE && s->strstart - hash_head == 1))
+            {
                 s->match_length = longest_match_fast (s, hash_head);
             }
 #else
-            if (s->strategy != Z_HUFFMAN_ONLY && s->strategy != Z_RLE) {
+            if (s->strategy != Z_HUFFMAN_ONLY && s->strategy != Z_RLE)
+            {
                 s->match_length = longest_match (s, hash_head);
-            } else if (s->strategy == Z_RLE && s->strstart - hash_head == 1) {
+            }
+            else if (s->strategy == Z_RLE && s->strstart - hash_head == 1)
+            {
                 s->match_length = longest_match_fast (s, hash_head);
             }
 #endif
             /* longest_match() or longest_match_fast() sets match_start */
         }
-        if (s->match_length >= MIN_MATCH) {
+        if (s->match_length >= MIN_MATCH)
+        {
             check_match(s, s->strstart, s->match_start, s->match_length);
 
             _tr_tally_dist(s, s->strstart - s->match_start,
@@ -1508,17 +1626,21 @@ local block_state deflate_fast(s, flush)
              */
 #ifndef FASTEST
             if (s->match_length <= s->max_insert_length &&
-                s->lookahead >= MIN_MATCH) {
+                    s->lookahead >= MIN_MATCH)
+            {
                 s->match_length--; /* string at strstart already in table */
-                do {
+                do
+                {
                     s->strstart++;
                     INSERT_STRING(s, s->strstart, hash_head);
                     /* strstart never exceeds WSIZE-MAX_MATCH, so there are
                      * always MIN_MATCH bytes ahead.
                      */
-                } while (--s->match_length != 0);
+                }
+                while (--s->match_length != 0);
                 s->strstart++;
-            } else
+            }
+            else
 #endif
             {
                 s->strstart += s->match_length;
@@ -1532,7 +1654,9 @@ local block_state deflate_fast(s, flush)
                  * matter since it will be recomputed at next deflate call.
                  */
             }
-        } else {
+        }
+        else
+        {
             /* No match, output a literal byte */
             Tracevv((stderr,"%c", s->window[s->strstart]));
             _tr_tally_lit (s, s->window[s->strstart], bflush);
@@ -1552,22 +1676,25 @@ local block_state deflate_fast(s, flush)
  * no better match at the next window position.
  */
 local block_state deflate_slow(s, flush)
-    deflate_state *s;
-    int flush;
+deflate_state *s;
+int flush;
 {
     IPos hash_head = NIL;    /* head of hash chain */
     int bflush;              /* set if current block must be flushed */
 
     /* Process the input block. */
-    for (;;) {
+    for (;;)
+    {
         /* Make sure that we always have enough lookahead, except
          * at the end of the input file. We need MAX_MATCH bytes
          * for the next match, plus MIN_MATCH bytes to insert the
          * string following the next match.
          */
-        if (s->lookahead < MIN_LOOKAHEAD) {
+        if (s->lookahead < MIN_LOOKAHEAD)
+        {
             fill_window(s);
-            if (s->lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH) {
+            if (s->lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH)
+            {
                 return need_more;
             }
             if (s->lookahead == 0) break; /* flush the current block */
@@ -1576,7 +1703,8 @@ local block_state deflate_slow(s, flush)
         /* Insert the string window[strstart .. strstart+2] in the
          * dictionary, and set hash_head to the head of the hash chain:
          */
-        if (s->lookahead >= MIN_MATCH) {
+        if (s->lookahead >= MIN_MATCH)
+        {
             INSERT_STRING(s, s->strstart, hash_head);
         }
 
@@ -1586,24 +1714,29 @@ local block_state deflate_slow(s, flush)
         s->match_length = MIN_MATCH-1;
 
         if (hash_head != NIL && s->prev_length < s->max_lazy_match &&
-            s->strstart - hash_head <= MAX_DIST(s)) {
+                s->strstart - hash_head <= MAX_DIST(s))
+        {
             /* To simplify the code, we prevent matches with the string
              * of window index 0 (in particular we have to avoid a match
              * of the string with itself at the start of the input file).
              */
-            if (s->strategy != Z_HUFFMAN_ONLY && s->strategy != Z_RLE) {
+            if (s->strategy != Z_HUFFMAN_ONLY && s->strategy != Z_RLE)
+            {
                 s->match_length = longest_match (s, hash_head);
-            } else if (s->strategy == Z_RLE && s->strstart - hash_head == 1) {
+            }
+            else if (s->strategy == Z_RLE && s->strstart - hash_head == 1)
+            {
                 s->match_length = longest_match_fast (s, hash_head);
             }
             /* longest_match() or longest_match_fast() sets match_start */
 
             if (s->match_length <= 5 && (s->strategy == Z_FILTERED
 #if TOO_FAR <= 32767
-                || (s->match_length == MIN_MATCH &&
-                    s->strstart - s->match_start > TOO_FAR)
+                                         || (s->match_length == MIN_MATCH &&
+                                             s->strstart - s->match_start > TOO_FAR)
 #endif
-                )) {
+                                        ))
+            {
 
                 /* If prev_match is also MIN_MATCH, match_start is garbage
                  * but we will ignore the current match anyway.
@@ -1614,7 +1747,8 @@ local block_state deflate_slow(s, flush)
         /* If there was a match at the previous step and the current
          * match is not better, output the previous match:
          */
-        if (s->prev_length >= MIN_MATCH && s->match_length <= s->prev_length) {
+        if (s->prev_length >= MIN_MATCH && s->match_length <= s->prev_length)
+        {
             uInt max_insert = s->strstart + s->lookahead - MIN_MATCH;
             /* Do not insert strings in hash table beyond this. */
 
@@ -1630,31 +1764,39 @@ local block_state deflate_slow(s, flush)
              */
             s->lookahead -= s->prev_length-1;
             s->prev_length -= 2;
-            do {
-                if (++s->strstart <= max_insert) {
+            do
+            {
+                if (++s->strstart <= max_insert)
+                {
                     INSERT_STRING(s, s->strstart, hash_head);
                 }
-            } while (--s->prev_length != 0);
+            }
+            while (--s->prev_length != 0);
             s->match_available = 0;
             s->match_length = MIN_MATCH-1;
             s->strstart++;
 
             if (bflush) FLUSH_BLOCK(s, 0);
 
-        } else if (s->match_available) {
+        }
+        else if (s->match_available)
+        {
             /* If there was no match at the previous position, output a
              * single literal. If there was a match but the current match
              * is longer, truncate the previous match to a single literal.
              */
             Tracevv((stderr,"%c", s->window[s->strstart-1]));
             _tr_tally_lit(s, s->window[s->strstart-1], bflush);
-            if (bflush) {
+            if (bflush)
+            {
                 FLUSH_BLOCK_ONLY(s, 0);
             }
             s->strstart++;
             s->lookahead--;
             if (s->strm->avail_out == 0) return need_more;
-        } else {
+        }
+        else
+        {
             /* There is no previous match to compare with, wait for
              * the next step to decide.
              */
@@ -1664,7 +1806,8 @@ local block_state deflate_slow(s, flush)
         }
     }
     Assert (flush != Z_NO_FLUSH, "no flush?");
-    if (s->match_available) {
+    if (s->match_available)
+    {
         Tracevv((stderr,"%c", s->window[s->strstart-1]));
         _tr_tally_lit(s, s->window[s->strstart-1], bflush);
         s->match_available = 0;
@@ -1681,8 +1824,8 @@ local block_state deflate_slow(s, flush)
  * deflate switches away from Z_RLE.)
  */
 local block_state deflate_rle(s, flush)
-    deflate_state *s;
-    int flush;
+deflate_state *s;
+int flush;
 {
     int bflush;         /* set if current block must be flushed */
     uInt run;           /* length of run */
@@ -1690,14 +1833,17 @@ local block_state deflate_rle(s, flush)
     uInt prev;          /* byte at distance one to match */
     Bytef *scan;        /* scan for end of run */
 
-    for (;;) {
+    for (;;)
+    {
         /* Make sure that we always have enough lookahead, except
          * at the end of the input file. We need MAX_MATCH bytes
          * for the longest encodable run.
          */
-        if (s->lookahead < MAX_MATCH) {
+        if (s->lookahead < MAX_MATCH)
+        {
             fill_window(s);
-            if (s->lookahead < MAX_MATCH && flush == Z_NO_FLUSH) {
+            if (s->lookahead < MAX_MATCH && flush == Z_NO_FLUSH)
+            {
                 return need_more;
             }
             if (s->lookahead == 0) break; /* flush the current block */
@@ -1705,23 +1851,29 @@ local block_state deflate_rle(s, flush)
 
         /* See how many times the previous byte repeats */
         run = 0;
-        if (s->strstart > 0) {      /* if there is a previous byte, that is */
+        if (s->strstart > 0)        /* if there is a previous byte, that is */
+        {
             max = s->lookahead < MAX_MATCH ? s->lookahead : MAX_MATCH;
             scan = s->window + s->strstart - 1;
             prev = *scan++;
-            do {
+            do
+            {
                 if (*scan++ != prev)
                     break;
-            } while (++run < max);
+            }
+            while (++run < max);
         }
 
         /* Emit match if have run of MIN_MATCH or longer, else emit literal */
-        if (run >= MIN_MATCH) {
+        if (run >= MIN_MATCH)
+        {
             check_match(s, s->strstart, s->strstart - 1, run);
             _tr_tally_dist(s, 1, run - MIN_MATCH, bflush);
             s->lookahead -= run;
             s->strstart += run;
-        } else {
+        }
+        else
+        {
             /* No match, output a literal byte */
             Tracevv((stderr,"%c", s->window[s->strstart]));
             _tr_tally_lit (s, s->window[s->strstart], bflush);

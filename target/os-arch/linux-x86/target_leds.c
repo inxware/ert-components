@@ -1,8 +1,16 @@
-/*
- * target_textdisplay.c
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
+/* @file target_leds.c
  *
- *  Created on: 08-Sep-2008
- *      Author: pbeaumont
+ * @author: inx limited
+ *
  */
 #include "target_textdisplay.h"
 #include "usblcd.h"
@@ -16,20 +24,20 @@ usblcd_operations* mylcd;
 EHS_GLOBAL void EhsInitLeds()
 {
 #ifdef USB_SUPPORT
-	mylcd = getPanel();
+    mylcd = getPanel();
 #endif
 }
 
 EHS_GLOBAL void EhsSetLed(int led, ehs_bool state)
 {
 #ifdef USB_SUPPORT
-	if(led == 6)
-	{
-		mylcd->backlight(mylcd, (int)state);
-	}
-	else
-	{
-		mylcd->setled(mylcd, led, (int)state);
-	}
+    if(led == 6)
+    {
+        mylcd->backlight(mylcd, (int)state);
+    }
+    else
+    {
+        mylcd->setled(mylcd, led, (int)state);
+    }
 #endif
 }

@@ -5,7 +5,7 @@ def extractStrings(line):
     return re.findall(b'"([^"]*)"', line)
 
 class ProcessLine(object):
-    def __init__(self, line):
+    def __init__(self, line, lines_buf):
         self.line=line
         self.report=None
         self.filepath=None
@@ -13,6 +13,7 @@ class ProcessLine(object):
         self.config=None
         self.valuestring=None
         self.hashstring=None
+        self.lines_buf=lines_buf
 
     def process(self):
         raise("Override this function!")
@@ -60,7 +61,7 @@ class UpdateIdsProcessLine(ProcessLine):
                     if hashObject.isInteger():
                         self.hashstring=str('0x' + hashObject.getHash() ).encode("UTF-8")
                     else:
-                    self.hashstring=str('"' + hashObject.getHash() + '"').encode("UTF-8")
+                        self.hashstring=str('"' + hashObject.getHash() + '"').encode("UTF-8")
                     self.valuestring=value
                     self.report.addSummaryInfo(self.valuestring,self.hashstring)
                     self.processed=self.keepold(line, self.replace(line, self.valuestring, self.hashstring))
@@ -74,12 +75,12 @@ class UpdateIdsProcessLine(ProcessLine):
             return None
         # check if already replaced, to avoid duplicates of kept
         if self.config.getKeepOld() and filetext.find(self.processed) >= 0:
-            self.report.addInfo(self.filepath, "Already modified:")
+            self.report.addInfo(self.filepath, "=============================================\nAlready modified:")
             self.report.addInfo(self.filepath, self.line.decode("UTF-8"))
             return None
         filetext=filetext.replace(self.line, self.processed)
         if self.filepath is not None:
-            self.report.addInfo(self.filepath, "Text:")
+            self.report.addInfo(self.filepath, "=============================================\nText:")
             self.report.addInfo(self.filepath, self.line.decode("UTF-8"))
             self.report.addInfo(self.filepath, "Was replaced with:")
             self.report.addInfo(self.filepath, self.processed.decode("UTF-8"))
@@ -124,13 +125,73 @@ class UpdateIdsInxWareProcessLine(UpdateIdsProcessLine):
             return True
         return False
 
-def ProcessLineFactory(line, type):
+class UpdateHashOnlyProcessLine(UpdateIdsProcessLine):
+    
+    def check(self, line):
+        # Update IDs of the hash defines
+        if b'#define' in line and b'0x' in line: # check if hex is defined
+            if b'EHS_FB' in line \
+            or b'FUNCTION_NAME_ID_' in line \
+            or b'INXWARE_FB' in line:
+                return True
+        return False
+
+    def check_str(self, line):
+        # Update IDs of the hash defines
+        if b'#define' in line and b'"' in line: # check if hex is defined
+            if b'EHS_FB' in line \
+            or b'FUNCTION_NAME_ID_' in line \
+            or b'INXWARE_FB' in line:
+                return True
+        return False
+    
+    def replace(self, line, valuestring, hashstring):
+        hash_start=line.find(b'0x')
+        number_start=hash_start+2
+        hash_val=line[hash_start:number_start+4]
+        print("%s -> %s" % (hash_val, hashstring))
+        return line.replace(hash_val, hashstring)
+
+    def keepold(self, old, new):
+        # no need to keep old in this case
+        return new
+            
+
+    def process(self):
+        line=self.line
+        if line is None or line == b"":
+            return False
+
+        if self.check(line):
+            line_with_string=None
+            for i in reversed(self.lines_buf):
+                if self.check_str(i):
+                    line_with_string=i
+                    break
+            if line_with_string is None:
+                print("Failed to find string id for (%s)"%line)
+                return False
+            strings=extractStrings(line_with_string)
+            for value in strings:
+                hashObject=HashFactory(value, self.config.getHash())
+                if hashObject is not None:
+                    self.hashstring=str('0x' + hashObject.getHash() ).encode("UTF-8")
+                    self.valuestring=value
+                    self.report.addSummaryInfo(self.valuestring,self.hashstring)
+                    self.processed=self.keepold(line, self.replace(line, self.valuestring, self.hashstring))
+                    return True
+        return False
+
+
+def ProcessLineFactory(line, lines_buf, type):
     if type == "updateid":
-        return UpdateIdsProcessLine(line)
+        return UpdateIdsProcessLine(line, lines_buf)
     if type == "updatefooid":
-        return UpdateIdsFunctionsProcessLine(line)
+        return UpdateIdsFunctionsProcessLine(line, lines_buf)
     if type == "updatefoonewid":
-        return UpdateIdsFunctionsNewProcessLine(line)
+        return UpdateIdsFunctionsNewProcessLine(line, lines_buf)
     if type == "updateinxwareid":
-        return UpdateIdsInxWareProcessLine(line)
+        return UpdateIdsInxWareProcessLine(line, lines_buf)
+    if type == "update_hash_only":
+        return UpdateHashOnlyProcessLine(line, lines_buf)
     return None

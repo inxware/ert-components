@@ -1,7 +1,0 @@
-target extended-remote /dev/ttyACM0
-monitor jtag_scan
-attach 1
-load ./heatrod_controller/Debug/frdmk64f_lwip_httpsrv_freertos.axf
-#compare-sections
-kill
-quit

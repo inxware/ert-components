@@ -3,28 +3,28 @@
  *
  *  Version : 6.4.0_2271s
  *     Date : 20080508-20.49.08
- *                
+ *
  *
  * (c) COPYRIGHT 2002- 2008 Open Text Corp. - BitFlash Division. ALL RIGHTS RESERVED
  *
  *
  * This software is the property and confidential information of Open Text and is furnished under
- * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.  
+ * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.
  *
- * This software may not be copied, transmitted, provided to or otherwise made available to any other person, 
+ * This software may not be copied, transmitted, provided to or otherwise made available to any other person,
  * company, corporation or other entity except as specified in the terms of said license.
  *
  * This copyright notice may not be removed or altered without the prior written permission of Open Text.
  *
  *
  */
-/** 
+/**
  * \file BFPlayer.h
  * This file defines the interface to the BitFlash Player.
  *
  * The interface is limited to the constructor/destructor and two functions
  * to send and free commands to the player.
- */                         
+ */
 #ifndef BITFLASH_BFPLAYER_H_
 #define BITFLASH_BFPLAYER_H_
 
@@ -35,7 +35,7 @@ BF_BEGIN_EXTERN_C
 
 
 /**
- * The top-level context providing the interface to all SVGT functionality 
+ * The top-level context providing the interface to all SVGT functionality
  */
 typedef struct BF__Player BFPlayer;
 
@@ -51,7 +51,7 @@ typedef struct BF__Player BFPlayer;
  */
 BF_PLAYER_IMPORT BFPlayer* BFcreatePlayer( void *pData, BFHeapContext *pGlobalMemoryCtx, BFHeapContext *pFastMemoryCtx );
 
-/** 
+/**
  * Destroy the player.
  *
  * \param pPlayer           pointer from BFcreatePlayer.
@@ -75,11 +75,11 @@ BF_PLAYER_IMPORT BFStatus BFprocessCommand( BFPlayer *pPlayer, BFPlayerCommand u
 
 
 
-/** 
+/**
  * Free any parameter allocated when processing a command.
- * Some of the commands return out parameters which are actually dynamically 
- * allocated. This function will free any allocated out parameter for the given 
- * command. The list of of commands which need to be freed is following: 
+ * Some of the commands return out parameters which are actually dynamically
+ * allocated. This function will free any allocated out parameter for the given
+ * command. The list of of commands which need to be freed is following:
  * #BF_COMMAND_POINTER_CLICK,
  * #BF_COMMAND_FOCUS_ACTIVATE,
  * #BF_COMMAND_POINTER_PICK

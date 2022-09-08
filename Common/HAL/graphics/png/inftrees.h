@@ -21,7 +21,8 @@
    of the bit buffer.  val is the actual byte to output in the case
    of a literal, the base length or distance, or the offset from
    the current table to the next table.  Each entry is four bytes. */
-typedef struct {
+typedef struct
+{
     unsigned char op;           /* operation, extra bits, table bits */
     unsigned char bits;         /* bits in this part of the code */
     unsigned short val;         /* offset in table or code value */
@@ -44,7 +45,8 @@ typedef struct {
 #define MAXD 592
 
 /* Type of code to build for inftable() */
-typedef enum {
+typedef enum
+{
     CODES,
     LENS,
     DISTS

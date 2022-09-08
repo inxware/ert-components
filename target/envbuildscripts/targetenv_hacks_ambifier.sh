@@ -1,8 +1,6 @@
 #!/bin/bash
 
 echo Gstreamer alsa audio libraries hack
-
-
 # Avoid compaints from the new alsa build with older libraries?
 rm -f ../TARGET_TREES/ehs_env-$TARGET/bin/cslib/libasound*
 
@@ -13,8 +11,6 @@ pushd ../TARGET_TREES/ehs_env-$TARGET/bin/cslib
 #ln -fs libfaad.so.2 libfaad.so.0
 popd
 
-# Don'think the following ecver ran - so removing it
-#./targetenv_clean_config.sh $TARGET
 
 if [ -d ../apps/ ];then 
 pushd ../apps/
@@ -27,14 +23,14 @@ git checkout RELEASE-PRODUCTION
 popd
 fi
 
-#cp -Rf ../apps/customer-apps/TSA/ambifier-v0.5.0-gui-priority-no-wds/export/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/
 cp -Rf ../apps/customer-apps/TSA/ambifier-v0.6.0-integrated/export/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/
 
 # Install ssl certificates and keys
 mkdir -p ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/
-# 32bit version of curl needs a full CA bundle it seems 
-cp  -f ./target/envtree/certificates/ambifier/cacert-devman.pem ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/devman-ca.crt
-cp  -f ./target/envtree/certificates/ambifier/devman-client-crt-key.pem ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/
+# 32bit version of curl needs a full CA bundle it seems
+echo "Copying server certificates" 
+cp  -f ../DevmanSecurity/devman.ambifier.com/devman-ca-bundle.crt ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/devman-ca.crt || exit
+cp  -f ../DevmanSecurity/devman.ambifier.com/devman-client-crt-key.pem ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/devman-client-crt-key.pem || exit
 
 #configure the devman URLs:
 echo "Adding TSA's devman URLs"
@@ -42,7 +38,7 @@ echo "Adding TSA's devman URLs"
 echo "https://devman.ambifier.com" > ../TARGET_TREES/ehs_env-$TARGET/devman/core/config/DEVMANURL.000
 #echo "http://devman.ambifier.com/cgi-bin/devman_player.cgi" > ../TARGET_TREES/ehs_env-$TARGET/devman/plugins/1/DEVMANPLAYERURL.000
 
-#and make the media directory:
+#make the media directory:
 mkdir -p ../TARGET_TREES/ehs_env-$TARGET/userdata/media
 #remove things we don't want
 

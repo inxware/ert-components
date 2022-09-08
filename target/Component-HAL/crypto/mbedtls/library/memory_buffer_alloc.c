@@ -43,8 +43,10 @@
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 #define MAGIC1       0xFF00AA55
@@ -99,11 +101,11 @@ static void debug_header( memory_header *hdr )
 #endif
 
     mbedtls_fprintf( stderr, "HDR:  PTR(%10zu), PREV(%10zu), NEXT(%10zu), "
-                              "ALLOC(%zu), SIZE(%10zu)\n",
-                      (size_t) hdr, (size_t) hdr->prev, (size_t) hdr->next,
-                      hdr->alloc, hdr->size );
+                     "ALLOC(%zu), SIZE(%10zu)\n",
+                     (size_t) hdr, (size_t) hdr->prev, (size_t) hdr->next,
+                     hdr->alloc, hdr->size );
     mbedtls_fprintf( stderr, "      FPREV(%10zu), FNEXT(%10zu)\n",
-                      (size_t) hdr->prev_free, (size_t) hdr->next_free );
+                     (size_t) hdr->prev_free, (size_t) hdr->next_free );
 
 #if defined(MBEDTLS_MEMORY_BACKTRACE)
     mbedtls_fprintf( stderr, "TRACE: \n" );
@@ -188,7 +190,7 @@ static int verify_chain()
     {
 #if defined(MBEDTLS_MEMORY_DEBUG)
         mbedtls_fprintf( stderr, "FATAL: verification of first header "
-                                  "failed\n" );
+                         "failed\n" );
 #endif
         return( 1 );
     }
@@ -197,7 +199,7 @@ static int verify_chain()
     {
 #if defined(MBEDTLS_MEMORY_DEBUG)
         mbedtls_fprintf( stderr, "FATAL: verification failed: "
-                                  "first->prev != NULL\n" );
+                         "first->prev != NULL\n" );
 #endif
         return( 1 );
     }
@@ -208,7 +210,7 @@ static int verify_chain()
         {
 #if defined(MBEDTLS_MEMORY_DEBUG)
             mbedtls_fprintf( stderr, "FATAL: verification of header "
-                                      "failed\n" );
+                             "failed\n" );
 #endif
             return( 1 );
         }
@@ -217,7 +219,7 @@ static int verify_chain()
         {
 #if defined(MBEDTLS_MEMORY_DEBUG)
             mbedtls_fprintf( stderr, "FATAL: verification failed: "
-                                      "cur->prev != prv\n" );
+                             "cur->prev != prv\n" );
 #endif
             return( 1 );
         }
@@ -271,7 +273,7 @@ static void *buffer_alloc_calloc( size_t n, size_t size )
     {
 #if defined(MBEDTLS_MEMORY_DEBUG)
         mbedtls_fprintf( stderr, "FATAL: block in free_list but allocated "
-                                  "data\n" );
+                         "data\n" );
 #endif
         mbedtls_exit( 1 );
     }
@@ -283,7 +285,7 @@ static void *buffer_alloc_calloc( size_t n, size_t size )
     // Found location, split block if > memory_header + 4 room left
     //
     if( cur->size - len < sizeof(memory_header) +
-                          MBEDTLS_MEMORY_ALIGN_MULTIPLE )
+            MBEDTLS_MEMORY_ALIGN_MULTIPLE )
     {
         cur->alloc = 1;
 
@@ -390,7 +392,7 @@ static void buffer_alloc_free( void *ptr )
     {
 #if defined(MBEDTLS_MEMORY_DEBUG)
         mbedtls_fprintf( stderr, "FATAL: mbedtls_free() outside of managed "
-                                  "space\n" );
+                         "space\n" );
 #endif
         mbedtls_exit( 1 );
     }
@@ -405,7 +407,7 @@ static void buffer_alloc_free( void *ptr )
     {
 #if defined(MBEDTLS_MEMORY_DEBUG)
         mbedtls_fprintf( stderr, "FATAL: mbedtls_free() on unallocated "
-                                  "data\n" );
+                         "data\n" );
 #endif
         mbedtls_exit( 1 );
     }
@@ -509,13 +511,13 @@ int mbedtls_memory_buffer_alloc_verify()
 void mbedtls_memory_buffer_alloc_status()
 {
     LWIP_PLATFORM_DIAG((
-                      "Current use: %zu blocks / %zu bytes, max: %zu blocks / "
-                      "%zu bytes (total %zu bytes), alloc / free: %zu / %zu\n",
-                      heap.header_count, heap.total_used,
-                      heap.maximum_header_count, heap.maximum_used,
-                      heap.maximum_header_count * sizeof( memory_header )
-                      + heap.maximum_used,
-                      heap.alloc_count, heap.free_count ));
+                           "Current use: %zu blocks / %zu bytes, max: %zu blocks / "
+                           "%zu bytes (total %zu bytes), alloc / free: %zu / %zu\n",
+                           heap.header_count, heap.total_used,
+                           heap.maximum_header_count, heap.maximum_used,
+                           heap.maximum_header_count * sizeof( memory_header )
+                           + heap.maximum_used,
+                           heap.alloc_count, heap.free_count ));
 
     if( heap.first->next == NULL )
         mbedtls_fprintf( stderr, "All memory de-allocated in stack buffer\n" );
@@ -576,7 +578,7 @@ void mbedtls_memory_buffer_alloc_init( unsigned char *buf, size_t len )
 #if defined(MBEDTLS_THREADING_C)
     mbedtls_mutex_init( &heap.mutex );
     mbedtls_platform_set_calloc_free( buffer_alloc_calloc_mutexed,
-                              buffer_alloc_free_mutexed );
+                                      buffer_alloc_free_mutexed );
 #else
     mbedtls_platform_set_calloc_free( buffer_alloc_calloc, buffer_alloc_free );
 #endif
@@ -585,9 +587,9 @@ void mbedtls_memory_buffer_alloc_init( unsigned char *buf, size_t len )
     {
         /* Adjust len first since buf is used in the computation */
         len -= MBEDTLS_MEMORY_ALIGN_MULTIPLE
-             - (size_t) buf % MBEDTLS_MEMORY_ALIGN_MULTIPLE;
+               - (size_t) buf % MBEDTLS_MEMORY_ALIGN_MULTIPLE;
         buf += MBEDTLS_MEMORY_ALIGN_MULTIPLE
-             - (size_t) buf % MBEDTLS_MEMORY_ALIGN_MULTIPLE;
+               - (size_t) buf % MBEDTLS_MEMORY_ALIGN_MULTIPLE;
     }
 
     heap.buf = buf;

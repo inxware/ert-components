@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file hal_dtv.h
  * In this file, all of the hardware abstraction layer functions relating to digital TV functions are given.
  *
  * @author: inx limited
- * @version: $Revision: 4054 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #ifndef EHS_HAL_DTV_H
@@ -38,20 +44,22 @@ typedef struct EhsTDPlaybackStruct EhsTDPlaybackClass;
 EHS_GLOBAL EhsCallbackQueueType EhsTDPlayEndCallback;
 
 /* This is typically set by the target specific codecs in their target specific structs*/
-typedef enum {
-	EHS_AUDIO,
-	EHS_VIDEO,
-	EHS_HTTPSTREAM,
-	EHS_UNKNOWN_MEDIA_TYPE
+typedef enum
+{
+    EHS_AUDIO,
+    EHS_VIDEO,
+    EHS_HTTPSTREAM,
+    EHS_UNKNOWN_MEDIA_TYPE
 } EhsFBMediaType;
 
-typedef enum {
-	EHS_FB_STATE_NOT_LOADED,
-	EHS_FB_STATE_LOADED,
-	EHS_FB_STATE_PLAYING,
-	EHS_FB_STATE_PAUSED,
-	EHS_FB_STATE_STOPPED,
-	EHS_FB_STATE_PLAY_ENDED
+typedef enum
+{
+    EHS_FB_STATE_NOT_LOADED,
+    EHS_FB_STATE_LOADED,
+    EHS_FB_STATE_PLAYING,
+    EHS_FB_STATE_PAUSED,
+    EHS_FB_STATE_STOPPED,
+    EHS_FB_STATE_PLAY_ENDED
 } EhsFBMediaPlayerStateEnum;
 
 /* delete me
@@ -68,21 +76,21 @@ typedef enum {
 //@todo should this be moved?
 struct EhsFbDtvPvrPlay2Struct
 {
-	//ehs_char szFilename[EHS_TD_FILES_MAX_PATH];	/**< contains the filename of the current DTV playback */
-	ehs_bool bPaused;
-	EhsFBMediaPlayerStateEnum MediaPlayerState;
-	//ehs_sint16 volume; // IN TARGET CODE! Persisted volume control so that this can be set when no media is being layed (i.. no object)
-	ehs_bool video_on_top;// This is a static variable that identifies if a video is rendered in fron or behind the OSD.
-	void* pTDPlayback; // this is the container for the target specific object.
-	//@todo - there is alot of generic stuff in pTDPlayback that should be in this structure instead.
-	ehs_uint16 nXpos; // these are the base positions
-	ehs_uint16 nYpos;
-	ehs_uint16 nWidth;
-	ehs_uint16 nHeight;
-	ehs_uint16 nXpos_adjusted; // these are the shifted positions
-	ehs_uint16 nYpos_adjusted;
-	ehs_uint16 nWidth_adjusted;
-	ehs_uint16 nHeight_adjusted;
+    //ehs_char szFilename[EHS_TD_FILES_MAX_PATH];	/**< contains the filename of the current DTV playback */
+    ehs_bool bPaused;
+    EhsFBMediaPlayerStateEnum MediaPlayerState;
+    //ehs_sint16 volume; // IN TARGET CODE! Persisted volume control so that this can be set when no media is being layed (i.. no object)
+    ehs_bool video_on_top;// This is a static variable that identifies if a video is rendered in fron or behind the OSD.
+    void* pTDPlayback; // this is the container for the target specific object.
+    //@todo - there is alot of generic stuff in pTDPlayback that should be in this structure instead.
+    ehs_uint16 nXpos; // these are the base positions
+    ehs_uint16 nYpos;
+    ehs_uint16 nWidth;
+    ehs_uint16 nHeight;
+    ehs_uint16 nXpos_adjusted; // these are the shifted positions
+    ehs_uint16 nYpos_adjusted;
+    ehs_uint16 nWidth_adjusted;
+    ehs_uint16 nHeight_adjusted;
 
 };
 typedef struct EhsFbDtvPvrPlay2Struct EhsFbPvrPlayClass;

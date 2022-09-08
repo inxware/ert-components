@@ -35,7 +35,8 @@ extern "C" {
 /**
  * \brief          CCM context structure
  */
-typedef struct {
+typedef struct
+{
     mbedtls_cipher_context_t cipher_ctx;    /*!< cipher context used */
 }
 mbedtls_ccm_context;
@@ -97,10 +98,10 @@ void mbedtls_ccm_free( mbedtls_ccm_context *ctx );
  * \return          0 if successful
  */
 int mbedtls_ccm_encrypt_and_tag( mbedtls_ccm_context *ctx, size_t length,
-                         const unsigned char *iv, size_t iv_len,
-                         const unsigned char *add, size_t add_len,
-                         const unsigned char *input, unsigned char *output,
-                         unsigned char *tag, size_t tag_len );
+                                 const unsigned char *iv, size_t iv_len,
+                                 const unsigned char *add, size_t add_len,
+                                 const unsigned char *input, unsigned char *output,
+                                 unsigned char *tag, size_t tag_len );
 
 /**
  * \brief           CCM buffer authenticated decryption
@@ -120,10 +121,10 @@ int mbedtls_ccm_encrypt_and_tag( mbedtls_ccm_context *ctx, size_t length,
  *                 MBEDTLS_ERR_CCM_AUTH_FAILED if tag does not match
  */
 int mbedtls_ccm_auth_decrypt( mbedtls_ccm_context *ctx, size_t length,
-                      const unsigned char *iv, size_t iv_len,
-                      const unsigned char *add, size_t add_len,
-                      const unsigned char *input, unsigned char *output,
-                      const unsigned char *tag, size_t tag_len );
+                              const unsigned char *iv, size_t iv_len,
+                              const unsigned char *add, size_t add_len,
+                              const unsigned char *input, unsigned char *output,
+                              const unsigned char *tag, size_t tag_len );
 
 #if defined(MBEDTLS_SELF_TEST) && defined(MBEDTLS_AES_C)
 /**

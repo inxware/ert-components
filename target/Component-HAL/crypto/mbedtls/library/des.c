@@ -49,8 +49,10 @@
 #if !defined(MBEDTLS_DES_ALT)
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = (unsigned char*)v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -335,15 +337,16 @@ void mbedtls_des3_free( mbedtls_des3_context *ctx )
 }
 
 static const unsigned char odd_parity_table[128] = { 1,  2,  4,  7,  8,
-        11, 13, 14, 16, 19, 21, 22, 25, 26, 28, 31, 32, 35, 37, 38, 41, 42, 44,
-        47, 49, 50, 52, 55, 56, 59, 61, 62, 64, 67, 69, 70, 73, 74, 76, 79, 81,
-        82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103, 104, 107, 109, 110, 112,
-        115, 117, 118, 121, 122, 124, 127, 128, 131, 133, 134, 137, 138, 140,
-        143, 145, 146, 148, 151, 152, 155, 157, 158, 161, 162, 164, 167, 168,
-        171, 173, 174, 176, 179, 181, 182, 185, 186, 188, 191, 193, 194, 196,
-        199, 200, 203, 205, 206, 208, 211, 213, 214, 217, 218, 220, 223, 224,
-        227, 229, 230, 233, 234, 236, 239, 241, 242, 244, 247, 248, 251, 253,
-        254 };
+                                                     11, 13, 14, 16, 19, 21, 22, 25, 26, 28, 31, 32, 35, 37, 38, 41, 42, 44,
+                                                     47, 49, 50, 52, 55, 56, 59, 61, 62, 64, 67, 69, 70, 73, 74, 76, 79, 81,
+                                                     82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103, 104, 107, 109, 110, 112,
+                                                     115, 117, 118, 121, 122, 124, 127, 128, 131, 133, 134, 137, 138, 140,
+                                                     143, 145, 146, 148, 151, 152, 155, 157, 158, 161, 162, 164, 167, 168,
+                                                     171, 173, 174, 176, 179, 181, 182, 185, 186, 188, 191, 193, 194, 196,
+                                                     199, 200, 203, 205, 206, 208, 211, 213, 214, 217, 218, 220, 223, 224,
+                                                     227, 229, 230, 233, 234, 236, 239, 241, 242, 244, 247, 248, 251, 253,
+                                                     254
+                                                   };
 
 void mbedtls_des_key_set_parity( unsigned char key[MBEDTLS_DES_KEY_SIZE] )
 {
@@ -434,18 +437,22 @@ void mbedtls_des_setkey( uint32_t SK[32], const unsigned char key[MBEDTLS_DES_KE
     /*
      * Permuted Choice 1
      */
-    T =  ((Y >>  4) ^ X) & 0x0F0F0F0F;  X ^= T; Y ^= (T <<  4);
-    T =  ((Y      ) ^ X) & 0x10101010;  X ^= T; Y ^= (T      );
+    T =  ((Y >>  4) ^ X) & 0x0F0F0F0F;
+    X ^= T;
+    Y ^= (T <<  4);
+    T =  ((Y      ) ^ X) & 0x10101010;
+    X ^= T;
+    Y ^= (T      );
 
     X =   (LHs[ (X      ) & 0xF] << 3) | (LHs[ (X >>  8) & 0xF ] << 2)
-        | (LHs[ (X >> 16) & 0xF] << 1) | (LHs[ (X >> 24) & 0xF ]     )
-        | (LHs[ (X >>  5) & 0xF] << 7) | (LHs[ (X >> 13) & 0xF ] << 6)
-        | (LHs[ (X >> 21) & 0xF] << 5) | (LHs[ (X >> 29) & 0xF ] << 4);
+          | (LHs[ (X >> 16) & 0xF] << 1) | (LHs[ (X >> 24) & 0xF ]     )
+          | (LHs[ (X >>  5) & 0xF] << 7) | (LHs[ (X >> 13) & 0xF ] << 6)
+          | (LHs[ (X >> 21) & 0xF] << 5) | (LHs[ (X >> 29) & 0xF ] << 4);
 
     Y =   (RHs[ (Y >>  1) & 0xF] << 3) | (RHs[ (Y >>  9) & 0xF ] << 2)
-        | (RHs[ (Y >> 17) & 0xF] << 1) | (RHs[ (Y >> 25) & 0xF ]     )
-        | (RHs[ (Y >>  4) & 0xF] << 7) | (RHs[ (Y >> 12) & 0xF ] << 6)
-        | (RHs[ (Y >> 20) & 0xF] << 5) | (RHs[ (Y >> 28) & 0xF ] << 4);
+          | (RHs[ (Y >> 17) & 0xF] << 1) | (RHs[ (Y >> 25) & 0xF ]     )
+          | (RHs[ (Y >>  4) & 0xF] << 7) | (RHs[ (Y >> 12) & 0xF ] << 6)
+          | (RHs[ (Y >> 20) & 0xF] << 5) | (RHs[ (Y >> 28) & 0xF ] << 4);
 
     X &= 0x0FFFFFFF;
     Y &= 0x0FFFFFFF;
@@ -467,28 +474,28 @@ void mbedtls_des_setkey( uint32_t SK[32], const unsigned char key[MBEDTLS_DES_KE
         }
 
         *SK++ =   ((X <<  4) & 0x24000000) | ((X << 28) & 0x10000000)
-                | ((X << 14) & 0x08000000) | ((X << 18) & 0x02080000)
-                | ((X <<  6) & 0x01000000) | ((X <<  9) & 0x00200000)
-                | ((X >>  1) & 0x00100000) | ((X << 10) & 0x00040000)
-                | ((X <<  2) & 0x00020000) | ((X >> 10) & 0x00010000)
-                | ((Y >> 13) & 0x00002000) | ((Y >>  4) & 0x00001000)
-                | ((Y <<  6) & 0x00000800) | ((Y >>  1) & 0x00000400)
-                | ((Y >> 14) & 0x00000200) | ((Y      ) & 0x00000100)
-                | ((Y >>  5) & 0x00000020) | ((Y >> 10) & 0x00000010)
-                | ((Y >>  3) & 0x00000008) | ((Y >> 18) & 0x00000004)
-                | ((Y >> 26) & 0x00000002) | ((Y >> 24) & 0x00000001);
+                  | ((X << 14) & 0x08000000) | ((X << 18) & 0x02080000)
+                  | ((X <<  6) & 0x01000000) | ((X <<  9) & 0x00200000)
+                  | ((X >>  1) & 0x00100000) | ((X << 10) & 0x00040000)
+                  | ((X <<  2) & 0x00020000) | ((X >> 10) & 0x00010000)
+                  | ((Y >> 13) & 0x00002000) | ((Y >>  4) & 0x00001000)
+                  | ((Y <<  6) & 0x00000800) | ((Y >>  1) & 0x00000400)
+                  | ((Y >> 14) & 0x00000200) | ((Y      ) & 0x00000100)
+                  | ((Y >>  5) & 0x00000020) | ((Y >> 10) & 0x00000010)
+                  | ((Y >>  3) & 0x00000008) | ((Y >> 18) & 0x00000004)
+                  | ((Y >> 26) & 0x00000002) | ((Y >> 24) & 0x00000001);
 
         *SK++ =   ((X << 15) & 0x20000000) | ((X << 17) & 0x10000000)
-                | ((X << 10) & 0x08000000) | ((X << 22) & 0x04000000)
-                | ((X >>  2) & 0x02000000) | ((X <<  1) & 0x01000000)
-                | ((X << 16) & 0x00200000) | ((X << 11) & 0x00100000)
-                | ((X <<  3) & 0x00080000) | ((X >>  6) & 0x00040000)
-                | ((X << 15) & 0x00020000) | ((X >>  4) & 0x00010000)
-                | ((Y >>  2) & 0x00002000) | ((Y <<  8) & 0x00001000)
-                | ((Y >> 14) & 0x00000808) | ((Y >>  9) & 0x00000400)
-                | ((Y      ) & 0x00000200) | ((Y <<  7) & 0x00000100)
-                | ((Y >>  7) & 0x00000020) | ((Y >>  3) & 0x00000011)
-                | ((Y <<  2) & 0x00000004) | ((Y >> 21) & 0x00000002);
+                  | ((X << 10) & 0x08000000) | ((X << 22) & 0x04000000)
+                  | ((X >>  2) & 0x02000000) | ((X <<  1) & 0x01000000)
+                  | ((X << 16) & 0x00200000) | ((X << 11) & 0x00100000)
+                  | ((X <<  3) & 0x00080000) | ((X >>  6) & 0x00040000)
+                  | ((X << 15) & 0x00020000) | ((X >>  4) & 0x00010000)
+                  | ((Y >>  2) & 0x00002000) | ((Y <<  8) & 0x00001000)
+                  | ((Y >> 14) & 0x00000808) | ((Y >>  9) & 0x00000400)
+                  | ((Y      ) & 0x00000200) | ((Y <<  7) & 0x00000100)
+                  | ((Y >>  7) & 0x00000020) | ((Y >>  3) & 0x00000011)
+                  | ((Y <<  2) & 0x00000004) | ((Y >> 21) & 0x00000002);
     }
 }
 #endif /* !MBEDTLS_DES_SETKEY_ALT */
@@ -557,7 +564,7 @@ static void des3_set2key( uint32_t esk[96],
  */
 #if !defined(MBEDTLS_DES_SETKEY_ENC_ALT)
 int mbedtls_des3_set2key_enc( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] )
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] )
 {
     uint32_t sk[96];
 
@@ -573,7 +580,7 @@ int mbedtls_des3_set2key_enc( mbedtls_des3_context *ctx,
  */
 #if !defined(MBEDTLS_DES_SETKEY_DEC_ALT)
 int mbedtls_des3_set2key_dec( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] )
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] )
 {
     uint32_t sk[96];
 
@@ -614,7 +621,7 @@ static void des3_set3key( uint32_t esk[96],
  */
 #if !defined(MBEDTLS_DES_SETKEY_ENC_ALT)
 int mbedtls_des3_set3key_enc( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] )
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] )
 {
     uint32_t sk[96];
 
@@ -630,7 +637,7 @@ int mbedtls_des3_set3key_enc( mbedtls_des3_context *ctx,
  */
 #if !defined(MBEDTLS_DES_SETKEY_DEC_ALT)
 int mbedtls_des3_set3key_dec( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] )
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] )
 {
     uint32_t sk[96];
 
@@ -646,8 +653,8 @@ int mbedtls_des3_set3key_dec( mbedtls_des3_context *ctx,
  */
 #if !defined(MBEDTLS_DES_CRYPT_ECB_ALT)
 int mbedtls_des_crypt_ecb( mbedtls_des_context *ctx,
-                    const unsigned char input[8],
-                    unsigned char output[8] )
+                           const unsigned char input[8],
+                           unsigned char output[8] )
 {
     int i;
     uint32_t X, Y, T, *SK;
@@ -680,11 +687,11 @@ int mbedtls_des_crypt_ecb( mbedtls_des_context *ctx,
  */
 #if !defined(MBEDTLS_DES_CRYPT_CBC_ALT)
 int mbedtls_des_crypt_cbc( mbedtls_des_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[8],
-                    const unsigned char *input,
-                    unsigned char *output )
+                           int mode,
+                           size_t length,
+                           unsigned char iv[8],
+                           const unsigned char *input,
+                           unsigned char *output )
 {
     int i;
     unsigned char temp[8];
@@ -735,8 +742,8 @@ int mbedtls_des_crypt_cbc( mbedtls_des_context *ctx,
  */
 #if !defined(MBEDTLS_DES3_CRYPT_ECB_ALT)
 int mbedtls_des3_crypt_ecb( mbedtls_des3_context *ctx,
-                     const unsigned char input[8],
-                     unsigned char output[8] )
+                            const unsigned char input[8],
+                            unsigned char output[8] )
 {
     int i;
     uint32_t X, Y, T, *SK;
@@ -781,11 +788,11 @@ int mbedtls_des3_crypt_ecb( mbedtls_des3_context *ctx,
  */
 #if !defined(MBEDTLS_DES3_CRYPT_CBC_ALT)
 int mbedtls_des3_crypt_cbc( mbedtls_des3_context *ctx,
-                     int mode,
-                     size_t length,
-                     unsigned char iv[8],
-                     const unsigned char *input,
-                     unsigned char *output )
+                            int mode,
+                            size_t length,
+                            unsigned char iv[8],
+                            const unsigned char *input,
+                            unsigned char *output )
 {
     int i;
     unsigned char temp[8];
@@ -912,8 +919,8 @@ int mbedtls_des_self_test( int verbose )
 
         if( verbose != 0 )
             mbedtls_printf( "  DES%c-ECB-%3d (%s): ",
-                             ( u == 0 ) ? ' ' : '3', 56 + u * 56,
-                             ( v == MBEDTLS_DES_DECRYPT ) ? "dec" : "enc" );
+                            ( u == 0 ) ? ' ' : '3', 56 + u * 56,
+                            ( v == MBEDTLS_DES_DECRYPT ) ? "dec" : "enc" );
 
         memcpy( buf, des3_test_buf, 8 );
 
@@ -957,8 +964,8 @@ int mbedtls_des_self_test( int verbose )
 
         if( ( v == MBEDTLS_DES_DECRYPT &&
                 memcmp( buf, des3_test_ecb_dec[u], 8 ) != 0 ) ||
-            ( v != MBEDTLS_DES_DECRYPT &&
-                memcmp( buf, des3_test_ecb_enc[u], 8 ) != 0 ) )
+                ( v != MBEDTLS_DES_DECRYPT &&
+                  memcmp( buf, des3_test_ecb_enc[u], 8 ) != 0 ) )
         {
             if( verbose != 0 )
                 mbedtls_printf( "failed\r\n" );
@@ -985,8 +992,8 @@ int mbedtls_des_self_test( int verbose )
 
         if( verbose != 0 )
             mbedtls_printf( "  DES%c-CBC-%3d (%s): ",
-                             ( u == 0 ) ? ' ' : '3', 56 + u * 56,
-                             ( v == MBEDTLS_DES_DECRYPT ) ? "dec" : "enc" );
+                            ( u == 0 ) ? ' ' : '3', 56 + u * 56,
+                            ( v == MBEDTLS_DES_DECRYPT ) ? "dec" : "enc" );
 
         memcpy( iv,  des3_test_iv,  8 );
         memcpy( prv, des3_test_iv,  8 );
@@ -1053,8 +1060,8 @@ int mbedtls_des_self_test( int verbose )
 
         if( ( v == MBEDTLS_DES_DECRYPT &&
                 memcmp( buf, des3_test_cbc_dec[u], 8 ) != 0 ) ||
-            ( v != MBEDTLS_DES_DECRYPT &&
-                memcmp( buf, des3_test_cbc_enc[u], 8 ) != 0 ) )
+                ( v != MBEDTLS_DES_DECRYPT &&
+                  memcmp( buf, des3_test_cbc_enc[u], 8 ) != 0 ) )
         {
             if( verbose != 0 )
                 mbedtls_printf( "failed\r\n" );

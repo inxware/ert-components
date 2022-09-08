@@ -51,6 +51,13 @@ class ArgumentParser(object):
                 except:
                     self.error="The hash type must be specified when using '-hash'. See help (-h) for further details."
                     return False
+            # print hash of a string
+            elif arg == "-genHash":
+                try:
+                    self.config.genHash=next(self.args)
+                except:
+                    self.error="The string for generating hash must be specified when using '-genHash'. See help (-h) for further details."
+                    return False
             # print help
             elif arg == "-h":
                 self.printHelp=True

@@ -49,46 +49,49 @@
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
  * Reminder: update profiles in x509_crt.c when adding a new hash!
  */
-static const int supported_digests[] = {
+static const int supported_digests[] =
+{
 
 #if defined(MBEDTLS_SHA512_C)
-        MBEDTLS_MD_SHA512,
-        MBEDTLS_MD_SHA384,
+    MBEDTLS_MD_SHA512,
+    MBEDTLS_MD_SHA384,
 #endif
 
 #if defined(MBEDTLS_SHA256_C)
-        MBEDTLS_MD_SHA256,
-        MBEDTLS_MD_SHA224,
+    MBEDTLS_MD_SHA256,
+    MBEDTLS_MD_SHA224,
 #endif
 
 #if defined(MBEDTLS_SHA1_C)
-        MBEDTLS_MD_SHA1,
+    MBEDTLS_MD_SHA1,
 #endif
 
 #if defined(MBEDTLS_RIPEMD160_C)
-        MBEDTLS_MD_RIPEMD160,
+    MBEDTLS_MD_RIPEMD160,
 #endif
 
 #if defined(MBEDTLS_MD5_C)
-        MBEDTLS_MD_MD5,
+    MBEDTLS_MD_MD5,
 #endif
 
 #if defined(MBEDTLS_MD4_C)
-        MBEDTLS_MD_MD4,
+    MBEDTLS_MD_MD4,
 #endif
 
 #if defined(MBEDTLS_MD2_C)
-        MBEDTLS_MD_MD2,
+    MBEDTLS_MD_MD2,
 #endif
 
-        MBEDTLS_MD_NONE
+    MBEDTLS_MD_NONE
 };
 
 const int *mbedtls_md_list( void )
@@ -142,39 +145,39 @@ const mbedtls_md_info_t *mbedtls_md_info_from_type( mbedtls_md_type_t md_type )
     switch( md_type )
     {
 #if defined(MBEDTLS_MD2_C)
-        case MBEDTLS_MD_MD2:
-            return( &mbedtls_md2_info );
+    case MBEDTLS_MD_MD2:
+        return( &mbedtls_md2_info );
 #endif
 #if defined(MBEDTLS_MD4_C)
-        case MBEDTLS_MD_MD4:
-            return( &mbedtls_md4_info );
+    case MBEDTLS_MD_MD4:
+        return( &mbedtls_md4_info );
 #endif
 #if defined(MBEDTLS_MD5_C)
-        case MBEDTLS_MD_MD5:
-            return( &mbedtls_md5_info );
+    case MBEDTLS_MD_MD5:
+        return( &mbedtls_md5_info );
 #endif
 #if defined(MBEDTLS_RIPEMD160_C)
-        case MBEDTLS_MD_RIPEMD160:
-            return( &mbedtls_ripemd160_info );
+    case MBEDTLS_MD_RIPEMD160:
+        return( &mbedtls_ripemd160_info );
 #endif
 #if defined(MBEDTLS_SHA1_C)
-        case MBEDTLS_MD_SHA1:
-            return( &mbedtls_sha1_info );
+    case MBEDTLS_MD_SHA1:
+        return( &mbedtls_sha1_info );
 #endif
 #if defined(MBEDTLS_SHA256_C)
-        case MBEDTLS_MD_SHA224:
-            return( &mbedtls_sha224_info );
-        case MBEDTLS_MD_SHA256:
-            return( &mbedtls_sha256_info );
+    case MBEDTLS_MD_SHA224:
+        return( &mbedtls_sha224_info );
+    case MBEDTLS_MD_SHA256:
+        return( &mbedtls_sha256_info );
 #endif
 #if defined(MBEDTLS_SHA512_C)
-        case MBEDTLS_MD_SHA384:
-            return( &mbedtls_sha384_info );
-        case MBEDTLS_MD_SHA512:
-            return( &mbedtls_sha512_info );
+    case MBEDTLS_MD_SHA384:
+        return( &mbedtls_sha384_info );
+    case MBEDTLS_MD_SHA512:
+        return( &mbedtls_sha512_info );
 #endif
-        default:
-            return( NULL );
+    default:
+        return( NULL );
     }
 }
 
@@ -204,8 +207,8 @@ int mbedtls_md_clone( mbedtls_md_context_t *dst,
                       const mbedtls_md_context_t *src )
 {
     if( dst == NULL || dst->md_info == NULL ||
-        src == NULL || src->md_info == NULL ||
-        dst->md_info != src->md_info )
+            src == NULL || src->md_info == NULL ||
+            dst->md_info != src->md_info )
     {
         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
     }
@@ -276,7 +279,7 @@ int mbedtls_md_finish( mbedtls_md_context_t *ctx, unsigned char *output )
 }
 
 int mbedtls_md( const mbedtls_md_info_t *md_info, const unsigned char *input, size_t ilen,
-            unsigned char *output )
+                unsigned char *output )
 {
     if( md_info == NULL )
         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
@@ -411,8 +414,8 @@ int mbedtls_md_hmac_reset( mbedtls_md_context_t *ctx )
 }
 
 int mbedtls_md_hmac( const mbedtls_md_info_t *md_info, const unsigned char *key, size_t keylen,
-                const unsigned char *input, size_t ilen,
-                unsigned char *output )
+                     const unsigned char *input, size_t ilen,
+                     unsigned char *output )
 {
     mbedtls_md_context_t ctx;
     int ret;

@@ -3,13 +3,12 @@
 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 echo " Copying TSA scheduler application "
 if [ -d ../apps/ ];then 
-pushd ../apps/ || exit
-git checkout RELEASE-PRODUCTION || exit
-git pull origin  RELEASE-PRODUCTION  || exit
+pushd ../apps/
+git pull origin RELEASE-PRODUCTION
 popd
 else
-pushd .. || exit
-git clone ssh://repo-user@server:/home/inx-data/data/Repos/apps.git || exit
+pushd ..
+git clone ssh://repo-user@server:/home/inx-data/data/Repos/apps.git
 git checkout  RELEASE-PRODUCTION
 popd
 fi
@@ -22,8 +21,9 @@ echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # Install ssl certificates and keys
 mkdir -p ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/
-cp  -f ./target/envtree/certificates/ambifier/devman-ca.crt ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/
-cp  -f ./target/envtree/certificates/ambifier/devman-client-crt-key.pem ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/
+echo "Copying server certificates" 
+cp  -f ../DevmanSecurity/devman.ambifier.com/devman-ca.crt ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/devman-ca.crt || exit
+cp  -f ../DevmanSecurity/devman.ambifier.com/devman-client-crt-key.pem ../TARGET_TREES/ehs_env-$TARGET/devman/core/certs/devman-client-crt-key.pem || exit
 
 echo "XX ========== XXXXXXXX Install Dependencies (e.g. Ambifier) XXXXXXXXXXXX ================ "
 # Add some ambifier 2 daemons we now integrate into one package
@@ -35,7 +35,7 @@ if [ "${SYSTEM_VARIANT}" == "ambifier2-debug" -o "${SYSTEM_VARIANT}" == "ambifie
 	
 fi
 
-echo "XX ========== XXXXXXXX ============= XXXXXXXXXXXX ================ "
+echo "XX ========== XXXXXXXX ====++++++++++++++++++++++++========= XXXXXXXXXXXX ================ "
 
 
 

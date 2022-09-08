@@ -76,8 +76,10 @@
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -188,8 +190,8 @@ static int x509_profile_check_key( const mbedtls_x509_crt_profile *profile,
 
 #if defined(MBEDTLS_ECP_C)
     if( pk_alg == MBEDTLS_PK_ECDSA ||
-        pk_alg == MBEDTLS_PK_ECKEY ||
-        pk_alg == MBEDTLS_PK_ECKEY_DH )
+            pk_alg == MBEDTLS_PK_ECKEY ||
+            pk_alg == MBEDTLS_PK_ECKEY_DH )
     {
         mbedtls_ecp_group_id gid = mbedtls_pk_ec( *pk )->grp.id;
 
@@ -214,7 +216,7 @@ static int x509_get_version( unsigned char **p,
     size_t len;
 
     if( ( ret = mbedtls_asn1_get_tag( p, end, &len,
-            MBEDTLS_ASN1_CONTEXT_SPECIFIC | MBEDTLS_ASN1_CONSTRUCTED | 0 ) ) != 0 )
+                                      MBEDTLS_ASN1_CONTEXT_SPECIFIC | MBEDTLS_ASN1_CONSTRUCTED | 0 ) ) != 0 )
     {
         if( ret == MBEDTLS_ERR_ASN1_UNEXPECTED_TAG )
         {
@@ -251,7 +253,7 @@ static int x509_get_dates( unsigned char **p,
     size_t len;
 
     if( ( ret = mbedtls_asn1_get_tag( p, end, &len,
-            MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+                                      MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
         return( MBEDTLS_ERR_X509_INVALID_DATE + ret );
 
     end = *p + len;
@@ -284,7 +286,7 @@ static int x509_get_uid( unsigned char **p,
     uid->tag = **p;
 
     if( ( ret = mbedtls_asn1_get_tag( p, end, &uid->len,
-            MBEDTLS_ASN1_CONTEXT_SPECIFIC | MBEDTLS_ASN1_CONSTRUCTED | n ) ) != 0 )
+                                      MBEDTLS_ASN1_CONTEXT_SPECIFIC | MBEDTLS_ASN1_CONSTRUCTED | n ) ) != 0 )
     {
         if( ret == MBEDTLS_ERR_ASN1_UNEXPECTED_TAG )
             return( 0 );
@@ -315,7 +317,7 @@ static int x509_get_basic_constraints( unsigned char **p,
     *max_pathlen = 0; /* endless */
 
     if( ( ret = mbedtls_asn1_get_tag( p, end, &len,
-            MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+                                      MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
         return( MBEDTLS_ERR_X509_INVALID_EXTENSIONS + ret );
 
     if( *p == end )
@@ -349,8 +351,8 @@ static int x509_get_basic_constraints( unsigned char **p,
 }
 
 static int x509_get_ns_cert_type( unsigned char **p,
-                                       const unsigned char *end,
-                                       unsigned char *ns_cert_type)
+                                  const unsigned char *end,
+                                  unsigned char *ns_cert_type)
 {
     int ret;
     mbedtls_x509_bitstring bs = { 0, 0, NULL };
@@ -398,8 +400,8 @@ static int x509_get_key_usage( unsigned char **p,
  * KeyPurposeId ::= OBJECT IDENTIFIER
  */
 static int x509_get_ext_key_usage( unsigned char **p,
-                               const unsigned char *end,
-                               mbedtls_x509_sequence *ext_key_usage)
+                                   const unsigned char *end,
+                                   mbedtls_x509_sequence *ext_key_usage)
 {
     int ret;
 
@@ -452,7 +454,7 @@ static int x509_get_subject_alt_name( unsigned char **p,
 
     /* Get main sequence tag */
     if( ( ret = mbedtls_asn1_get_tag( p, end, &len,
-            MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+                                      MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
         return( MBEDTLS_ERR_X509_INVALID_EXTENSIONS + ret );
 
     if( *p + len != end )
@@ -546,7 +548,7 @@ static int x509_get_crt_ext( unsigned char **p,
         int ext_type = 0;
 
         if( ( ret = mbedtls_asn1_get_tag( p, end, &len,
-                MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+                                          MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
             return( MBEDTLS_ERR_X509_INVALID_EXTENSIONS + ret );
 
         end_ext_data = *p + len;
@@ -566,12 +568,12 @@ static int x509_get_crt_ext( unsigned char **p,
 
         /* Get optional critical */
         if( ( ret = mbedtls_asn1_get_bool( p, end_ext_data, &is_critical ) ) != 0 &&
-            ( ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG ) )
+                ( ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG ) )
             return( MBEDTLS_ERR_X509_INVALID_EXTENSIONS + ret );
 
         /* Data should be octet string type */
         if( ( ret = mbedtls_asn1_get_tag( p, end_ext_data, &len,
-                MBEDTLS_ASN1_OCTET_STRING ) ) != 0 )
+                                          MBEDTLS_ASN1_OCTET_STRING ) ) != 0 )
             return( MBEDTLS_ERR_X509_INVALID_EXTENSIONS + ret );
 
         end_ext_octet = *p + len;
@@ -612,35 +614,35 @@ static int x509_get_crt_ext( unsigned char **p,
         case MBEDTLS_X509_EXT_BASIC_CONSTRAINTS:
             /* Parse basic constraints */
             if( ( ret = x509_get_basic_constraints( p, end_ext_octet,
-                    &crt->ca_istrue, &crt->max_pathlen ) ) != 0 )
+                                                    &crt->ca_istrue, &crt->max_pathlen ) ) != 0 )
                 return( ret );
             break;
 
         case MBEDTLS_X509_EXT_KEY_USAGE:
             /* Parse key usage */
             if( ( ret = x509_get_key_usage( p, end_ext_octet,
-                    &crt->key_usage ) ) != 0 )
+                                            &crt->key_usage ) ) != 0 )
                 return( ret );
             break;
 
         case MBEDTLS_X509_EXT_EXTENDED_KEY_USAGE:
             /* Parse extended key usage */
             if( ( ret = x509_get_ext_key_usage( p, end_ext_octet,
-                    &crt->ext_key_usage ) ) != 0 )
+                                                &crt->ext_key_usage ) ) != 0 )
                 return( ret );
             break;
 
         case MBEDTLS_X509_EXT_SUBJECT_ALT_NAME:
             /* Parse subject alt name */
             if( ( ret = x509_get_subject_alt_name( p, end_ext_octet,
-                    &crt->subject_alt_names ) ) != 0 )
+                                                   &crt->subject_alt_names ) ) != 0 )
                 return( ret );
             break;
 
         case MBEDTLS_X509_EXT_NS_CERT_TYPE:
             /* Parse netscape certificate type */
             if( ( ret = x509_get_ns_cert_type( p, end_ext_octet,
-                    &crt->ns_cert_type ) ) != 0 )
+                                               &crt->ns_cert_type ) ) != 0 )
                 return( ret );
             break;
 
@@ -689,7 +691,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
      *      signatureValue       BIT STRING  }
      */
     if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
-            MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+                                      MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
         return( MBEDTLS_ERR_X509_INVALID_FORMAT );
@@ -711,7 +713,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
 
     memcpy( p, buf, crt->raw.len );
 
-    // Direct pointers to the new buffer 
+    // Direct pointers to the new buffer
     p += crt->raw.len - len;
     end = crt_end = p + len;
 
@@ -721,7 +723,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
     crt->tbs.p = p;
 
     if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
-            MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+                                      MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
         return( MBEDTLS_ERR_X509_INVALID_FORMAT + ret );
@@ -738,9 +740,9 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
      * signature            AlgorithmIdentifier
      */
     if( ( ret = x509_get_version(  &p, end, &crt->version  ) ) != 0 ||
-        ( ret = mbedtls_x509_get_serial(   &p, end, &crt->serial   ) ) != 0 ||
-        ( ret = mbedtls_x509_get_alg(      &p, end, &crt->sig_oid,
-                                            &sig_params1 ) ) != 0 )
+            ( ret = mbedtls_x509_get_serial(   &p, end, &crt->serial   ) ) != 0 ||
+            ( ret = mbedtls_x509_get_alg(      &p, end, &crt->sig_oid,
+                    &sig_params1 ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
         return( ret );
@@ -755,8 +757,8 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
     }
 
     if( ( ret = mbedtls_x509_get_sig_alg( &crt->sig_oid, &sig_params1,
-                                  &crt->sig_md, &crt->sig_pk,
-                                  &crt->sig_opts ) ) != 0 )
+                                          &crt->sig_md, &crt->sig_pk,
+                                          &crt->sig_opts ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
         return( ret );
@@ -768,7 +770,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
     crt->issuer_raw.p = p;
 
     if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
-            MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+                                      MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
         return( MBEDTLS_ERR_X509_INVALID_FORMAT + ret );
@@ -789,7 +791,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
      *
      */
     if( ( ret = x509_get_dates( &p, end, &crt->valid_from,
-                                         &crt->valid_to ) ) != 0 )
+                                &crt->valid_to ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
         return( ret );
@@ -801,7 +803,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
     crt->subject_raw.p = p;
 
     if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
-            MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+                                      MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
         return( MBEDTLS_ERR_X509_INVALID_FORMAT + ret );
@@ -887,10 +889,10 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
     }
 
     if( crt->sig_oid.len != sig_oid2.len ||
-        memcmp( crt->sig_oid.p, sig_oid2.p, crt->sig_oid.len ) != 0 ||
-        sig_params1.len != sig_params2.len ||
-        ( sig_params1.len != 0 &&
-          memcmp( sig_params1.p, sig_params2.p, sig_params1.len ) != 0 ) )
+            memcmp( crt->sig_oid.p, sig_oid2.p, crt->sig_oid.len ) != 0 ||
+            sig_params1.len != sig_params2.len ||
+            ( sig_params1.len != 0 &&
+              memcmp( sig_params1.p, sig_params2.p, sig_params1.len ) != 0 ) )
     {
         mbedtls_x509_crt_free( crt );
         return( MBEDTLS_ERR_X509_SIG_MISMATCH );
@@ -917,7 +919,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt, const unsigned char *
  * chained list
  */
 int mbedtls_x509_crt_parse_der( mbedtls_x509_crt *chain, const unsigned char *buf,
-                        size_t buflen )
+                                size_t buflen )
 {
     int ret;
     mbedtls_x509_crt *crt = chain, *prev = NULL;
@@ -986,7 +988,7 @@ int mbedtls_x509_crt_parse( mbedtls_x509_crt *chain, const unsigned char *buf, s
      */
 #if defined(MBEDTLS_PEM_PARSE_C)
     if( buflen != 0 && buf[buflen - 1] == '\0' &&
-        strstr( (const char *) buf, "-----BEGIN CERTIFICATE-----" ) != NULL )
+            strstr( (const char *) buf, "-----BEGIN CERTIFICATE-----" ) != NULL )
     {
         buf_format = MBEDTLS_X509_FORMAT_PEM;
     }
@@ -1011,9 +1013,9 @@ int mbedtls_x509_crt_parse( mbedtls_x509_crt *chain, const unsigned char *buf, s
 
             /* If we get there, we know the string is null-terminated */
             ret = mbedtls_pem_read_buffer( &pem,
-                           "-----BEGIN CERTIFICATE-----",
-                           "-----END CERTIFICATE-----",
-                           buf, NULL, 0, &use_len );
+                                           "-----BEGIN CERTIFICATE-----",
+                                           "-----END CERTIFICATE-----",
+                                           buf, NULL, 0, &use_len );
 
             if( ret == 0 )
             {
@@ -1347,7 +1349,7 @@ static int x509_info_ext_key_usage( char **buf, size_t *size,
 #define BEFORE_COLON    18
 #define BC              "18"
 int mbedtls_x509_crt_info( char *buf, size_t size, const char *prefix,
-                   const mbedtls_x509_crt *crt )
+                           const mbedtls_x509_crt *crt )
 {
     int ret;
     size_t n;
@@ -1366,10 +1368,10 @@ int mbedtls_x509_crt_info( char *buf, size_t size, const char *prefix,
     }
 
     ret = mbedtls_snprintf( p, n, "%scert. version     : %d\n",
-                               prefix, crt->version );
+                            prefix, crt->version );
     MBEDTLS_X509_SAFE_SNPRINTF;
     ret = mbedtls_snprintf( p, n, "%sserial number     : ",
-                               prefix );
+                            prefix );
     MBEDTLS_X509_SAFE_SNPRINTF;
 
     ret = mbedtls_x509_serial_gets( p, n, &crt->serial );
@@ -1386,35 +1388,35 @@ int mbedtls_x509_crt_info( char *buf, size_t size, const char *prefix,
     MBEDTLS_X509_SAFE_SNPRINTF;
 
     ret = mbedtls_snprintf( p, n, "\n%sissued  on        : " \
-                   "%04d-%02d-%02d %02d:%02d:%02d", prefix,
-                   crt->valid_from.year, crt->valid_from.mon,
-                   crt->valid_from.day,  crt->valid_from.hour,
-                   crt->valid_from.min,  crt->valid_from.sec );
+                            "%04d-%02d-%02d %02d:%02d:%02d", prefix,
+                            crt->valid_from.year, crt->valid_from.mon,
+                            crt->valid_from.day,  crt->valid_from.hour,
+                            crt->valid_from.min,  crt->valid_from.sec );
     MBEDTLS_X509_SAFE_SNPRINTF;
 
     ret = mbedtls_snprintf( p, n, "\n%sexpires on        : " \
-                   "%04d-%02d-%02d %02d:%02d:%02d", prefix,
-                   crt->valid_to.year, crt->valid_to.mon,
-                   crt->valid_to.day,  crt->valid_to.hour,
-                   crt->valid_to.min,  crt->valid_to.sec );
+                            "%04d-%02d-%02d %02d:%02d:%02d", prefix,
+                            crt->valid_to.year, crt->valid_to.mon,
+                            crt->valid_to.day,  crt->valid_to.hour,
+                            crt->valid_to.min,  crt->valid_to.sec );
     MBEDTLS_X509_SAFE_SNPRINTF;
 
     ret = mbedtls_snprintf( p, n, "\n%ssigned using      : ", prefix );
     MBEDTLS_X509_SAFE_SNPRINTF;
 
     ret = mbedtls_x509_sig_alg_gets( p, n, &crt->sig_oid, crt->sig_pk,
-                             crt->sig_md, crt->sig_opts );
+                                     crt->sig_md, crt->sig_opts );
     MBEDTLS_X509_SAFE_SNPRINTF;
 
     /* Key size */
     if( ( ret = mbedtls_x509_key_size_helper( key_size_str, BEFORE_COLON,
-                                      mbedtls_pk_get_name( &crt->pk ) ) ) != 0 )
+                mbedtls_pk_get_name( &crt->pk ) ) ) != 0 )
     {
         return( ret );
     }
 
     ret = mbedtls_snprintf( p, n, "\n%s%-" BC "s: %d bits", prefix, key_size_str,
-                          (int) mbedtls_pk_get_bitlen( &crt->pk ) );
+                            (int) mbedtls_pk_get_bitlen( &crt->pk ) );
     MBEDTLS_X509_SAFE_SNPRINTF;
 
     /*
@@ -1424,7 +1426,7 @@ int mbedtls_x509_crt_info( char *buf, size_t size, const char *prefix,
     if( crt->ext_types & MBEDTLS_X509_EXT_BASIC_CONSTRAINTS )
     {
         ret = mbedtls_snprintf( p, n, "\n%sbasic constraints : CA=%s", prefix,
-                        crt->ca_istrue ? "true" : "false" );
+                                crt->ca_istrue ? "true" : "false" );
         MBEDTLS_X509_SAFE_SNPRINTF;
 
         if( crt->max_pathlen > 0 )
@@ -1440,7 +1442,7 @@ int mbedtls_x509_crt_info( char *buf, size_t size, const char *prefix,
         MBEDTLS_X509_SAFE_SNPRINTF;
 
         if( ( ret = x509_info_subject_alt_name( &p, &n,
-                                            &crt->subject_alt_names ) ) != 0 )
+                                                &crt->subject_alt_names ) ) != 0 )
             return( ret );
     }
 
@@ -1478,12 +1480,14 @@ int mbedtls_x509_crt_info( char *buf, size_t size, const char *prefix,
     return( (int) ( size - n ) );
 }
 
-struct x509_crt_verify_string {
+struct x509_crt_verify_string
+{
     int code;
     const char *string;
 };
 
-static const struct x509_crt_verify_string x509_crt_verify_strings[] = {
+static const struct x509_crt_verify_string x509_crt_verify_strings[] =
+{
     { MBEDTLS_X509_BADCERT_EXPIRED,       "The certificate validity has expired" },
     { MBEDTLS_X509_BADCERT_REVOKED,       "The certificate has been revoked (is on a CRL)" },
     { MBEDTLS_X509_BADCERT_CN_MISMATCH,   "The certificate Common Name (CN) does not match with the expected CN" },
@@ -1508,7 +1512,7 @@ static const struct x509_crt_verify_string x509_crt_verify_strings[] = {
 };
 
 int mbedtls_x509_crt_verify_info( char *buf, size_t size, const char *prefix,
-                          uint32_t flags )
+                                  uint32_t flags )
 {
     int ret;
     const struct x509_crt_verify_string *cur;
@@ -1528,7 +1532,7 @@ int mbedtls_x509_crt_verify_info( char *buf, size_t size, const char *prefix,
     if( flags != 0 )
     {
         ret = mbedtls_snprintf( p, n, "%sUnknown reason "
-                                       "(this should not happen)\n", prefix );
+                                "(this should not happen)\n", prefix );
         MBEDTLS_X509_SAFE_SNPRINTF;
     }
 
@@ -1541,7 +1545,7 @@ int mbedtls_x509_crt_check_key_usage( const mbedtls_x509_crt *crt,
 {
     unsigned int usage_must, usage_may;
     unsigned int may_mask = MBEDTLS_X509_KU_ENCIPHER_ONLY
-                          | MBEDTLS_X509_KU_DECIPHER_ONLY;
+                            | MBEDTLS_X509_KU_DECIPHER_ONLY;
 
     if( ( crt->ext_types & MBEDTLS_X509_EXT_KEY_USAGE ) == 0 )
         return( 0 );
@@ -1562,8 +1566,8 @@ int mbedtls_x509_crt_check_key_usage( const mbedtls_x509_crt *crt,
 
 #if defined(MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE)
 int mbedtls_x509_crt_check_extended_key_usage( const mbedtls_x509_crt *crt,
-                                       const char *usage_oid,
-                                       size_t usage_len )
+        const char *usage_oid,
+        size_t usage_len )
 {
     const mbedtls_x509_sequence *cur;
 
@@ -1579,7 +1583,7 @@ int mbedtls_x509_crt_check_extended_key_usage( const mbedtls_x509_crt *crt,
         const mbedtls_x509_buf *cur_oid = &cur->buf;
 
         if( cur_oid->len == usage_len &&
-            memcmp( cur_oid->p, usage_oid, usage_len ) == 0 )
+                memcmp( cur_oid->p, usage_oid, usage_len ) == 0 )
         {
             return( 0 );
         }
@@ -1603,7 +1607,7 @@ int mbedtls_x509_crt_is_revoked( const mbedtls_x509_crt *crt, const mbedtls_x509
     while( cur != NULL && cur->serial.len != 0 )
     {
         if( crt->serial.len == cur->serial.len &&
-            memcmp( crt->serial.p, cur->serial.p, crt->serial.len ) == 0 )
+                memcmp( crt->serial.p, cur->serial.p, crt->serial.len ) == 0 )
         {
             if( mbedtls_x509_time_is_past( &cur->revocation_date ) )
                 return( 1 );
@@ -1633,9 +1637,9 @@ static int x509_crt_verifycrl( mbedtls_x509_crt *crt, mbedtls_x509_crt *ca,
     while( crl_list != NULL )
     {
         if( crl_list->version == 0 ||
-            crl_list->issuer_raw.len != ca->subject_raw.len ||
-            memcmp( crl_list->issuer_raw.p, ca->subject_raw.p,
-                    crl_list->issuer_raw.len ) != 0 )
+                crl_list->issuer_raw.len != ca->subject_raw.len ||
+                memcmp( crl_list->issuer_raw.p, ca->subject_raw.p,
+                        crl_list->issuer_raw.len ) != 0 )
         {
             crl_list = crl_list->next;
             continue;
@@ -1677,8 +1681,8 @@ static int x509_crt_verifycrl( mbedtls_x509_crt *crt, mbedtls_x509_crt *ca,
             flags |= MBEDTLS_X509_BADCERT_BAD_KEY;
 
         if( mbedtls_pk_verify_ext( crl_list->sig_pk, crl_list->sig_opts, &ca->pk,
-                           crl_list->sig_md, hash, mbedtls_md_get_size( md_info ),
-                           crl_list->sig.p, crl_list->sig.len ) != 0 )
+                                   crl_list->sig_md, hash, mbedtls_md_get_size( md_info ),
+                                   crl_list->sig.p, crl_list->sig.len ) != 0 )
         {
             flags |= MBEDTLS_X509_BADCRL_NOT_TRUSTED;
             break;
@@ -1726,8 +1730,8 @@ static int x509_memcasecmp( const void *s1, const void *s2, size_t len )
             continue;
 
         if( diff == 32 &&
-            ( ( n1[i] >= 'a' && n1[i] <= 'z' ) ||
-              ( n1[i] >= 'A' && n1[i] <= 'Z' ) ) )
+                ( ( n1[i] >= 'a' && n1[i] <= 'z' ) ||
+                  ( n1[i] >= 'A' && n1[i] <= 'Z' ) ) )
         {
             continue;
         }
@@ -1762,7 +1766,7 @@ static int x509_check_wildcard( const char *cn, mbedtls_x509_buf *name )
         return( -1 );
 
     if( cn_len - cn_idx == name->len - 1 &&
-        x509_memcasecmp( name->p + 1, cn + cn_idx, name->len - 1 ) == 0 )
+            x509_memcasecmp( name->p + 1, cn + cn_idx, name->len - 1 ) == 0 )
     {
         return( 0 );
     }
@@ -1779,16 +1783,16 @@ static int x509_check_wildcard( const char *cn, mbedtls_x509_buf *name )
 static int x509_string_cmp( const mbedtls_x509_buf *a, const mbedtls_x509_buf *b )
 {
     if( a->tag == b->tag &&
-        a->len == b->len &&
-        memcmp( a->p, b->p, b->len ) == 0 )
+            a->len == b->len &&
+            memcmp( a->p, b->p, b->len ) == 0 )
     {
         return( 0 );
     }
 
     if( ( a->tag == MBEDTLS_ASN1_UTF8_STRING || a->tag == MBEDTLS_ASN1_PRINTABLE_STRING ) &&
-        ( b->tag == MBEDTLS_ASN1_UTF8_STRING || b->tag == MBEDTLS_ASN1_PRINTABLE_STRING ) &&
-        a->len == b->len &&
-        x509_memcasecmp( a->p, b->p, b->len ) == 0 )
+            ( b->tag == MBEDTLS_ASN1_UTF8_STRING || b->tag == MBEDTLS_ASN1_PRINTABLE_STRING ) &&
+            a->len == b->len &&
+            x509_memcasecmp( a->p, b->p, b->len ) == 0 )
     {
         return( 0 );
     }
@@ -1816,8 +1820,8 @@ static int x509_name_cmp( const mbedtls_x509_name *a, const mbedtls_x509_name *b
 
         /* type */
         if( a->oid.tag != b->oid.tag ||
-            a->oid.len != b->oid.len ||
-            memcmp( a->oid.p, b->oid.p, b->oid.len ) != 0 )
+                a->oid.len != b->oid.len ||
+                memcmp( a->oid.p, b->oid.p, b->oid.len ) != 0 )
         {
             return( -1 );
         }
@@ -1864,8 +1868,8 @@ static int x509_crt_check_parent( const mbedtls_x509_crt *child,
 
     /* Exception: self-signed end-entity certs that are locally trusted. */
     if( top && bottom &&
-        child->raw.len == parent->raw.len &&
-        memcmp( child->raw.p, parent->raw.p, child->raw.len ) == 0 )
+            child->raw.len == parent->raw.len &&
+            memcmp( child->raw.p, parent->raw.p, child->raw.len ) == 0 )
     {
         need_ca_bit = 0;
     }
@@ -1875,7 +1879,7 @@ static int x509_crt_check_parent( const mbedtls_x509_crt *child,
 
 #if defined(MBEDTLS_X509_CHECK_KEY_USAGE)
     if( need_ca_bit &&
-        mbedtls_x509_crt_check_key_usage( parent, MBEDTLS_X509_KU_KEY_CERT_SIGN ) != 0 )
+            mbedtls_x509_crt_check_key_usage( parent, MBEDTLS_X509_KU_KEY_CERT_SIGN ) != 0 )
     {
         return( -1 );
     }
@@ -1885,12 +1889,12 @@ static int x509_crt_check_parent( const mbedtls_x509_crt *child,
 }
 
 static int x509_crt_verify_top(
-                mbedtls_x509_crt *child, mbedtls_x509_crt *trust_ca,
-                mbedtls_x509_crl *ca_crl,
-                const mbedtls_x509_crt_profile *profile,
-                int path_cnt, int self_cnt, uint32_t *flags,
-                int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
-                void *p_vrfy )
+    mbedtls_x509_crt *child, mbedtls_x509_crt *trust_ca,
+    mbedtls_x509_crl *ca_crl,
+    const mbedtls_x509_crt_profile *profile,
+    int path_cnt, int self_cnt, uint32_t *flags,
+    int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
+    void *p_vrfy )
 {
     int ret;
     uint32_t ca_flags = 0;
@@ -1938,15 +1942,15 @@ static int x509_crt_verify_top(
          * the same as the trusted CA
          */
         if( child->subject_raw.len == trust_ca->subject_raw.len &&
-            memcmp( child->subject_raw.p, trust_ca->subject_raw.p,
-                            child->issuer_raw.len ) == 0 )
+                memcmp( child->subject_raw.p, trust_ca->subject_raw.p,
+                        child->issuer_raw.len ) == 0 )
         {
             check_path_cnt--;
         }
 
         /* Self signed certificates do not count towards the limit */
         if( trust_ca->max_pathlen > 0 &&
-            trust_ca->max_pathlen < check_path_cnt - self_cnt )
+                trust_ca->max_pathlen < check_path_cnt - self_cnt )
         {
             continue;
         }
@@ -1962,8 +1966,8 @@ static int x509_crt_verify_top(
         }
 
         if( mbedtls_pk_verify_ext( child->sig_pk, child->sig_opts, &trust_ca->pk,
-                           child->sig_md, hash, mbedtls_md_get_size( md_info ),
-                           child->sig.p, child->sig.len ) != 0 )
+                                   child->sig_md, hash, mbedtls_md_get_size( md_info ),
+                                   child->sig.p, child->sig.len ) != 0 )
         {
             continue;
         }
@@ -1985,9 +1989,9 @@ static int x509_crt_verify_top(
      * trusted CA certificate.
      */
     if( trust_ca != NULL &&
-        ( child->subject_raw.len != trust_ca->subject_raw.len ||
-          memcmp( child->subject_raw.p, trust_ca->subject_raw.p,
-                            child->issuer_raw.len ) != 0 ) )
+            ( child->subject_raw.len != trust_ca->subject_raw.len ||
+              memcmp( child->subject_raw.p, trust_ca->subject_raw.p,
+                      child->issuer_raw.len ) != 0 ) )
     {
 #if defined(MBEDTLS_X509_CRL_PARSE_C)
         /* Check trusted CA's CRL for the chain's top crt */
@@ -2019,12 +2023,12 @@ static int x509_crt_verify_top(
 }
 
 static int x509_crt_verify_child(
-                mbedtls_x509_crt *child, mbedtls_x509_crt *parent,
-                mbedtls_x509_crt *trust_ca, mbedtls_x509_crl *ca_crl,
-                const mbedtls_x509_crt_profile *profile,
-                int path_cnt, int self_cnt, uint32_t *flags,
-                int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
-                void *p_vrfy )
+    mbedtls_x509_crt *child, mbedtls_x509_crt *parent,
+    mbedtls_x509_crt *trust_ca, mbedtls_x509_crl *ca_crl,
+    const mbedtls_x509_crt_profile *profile,
+    int path_cnt, int self_cnt, uint32_t *flags,
+    int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
+    void *p_vrfy )
 {
     int ret;
     uint32_t parent_flags = 0;
@@ -2071,8 +2075,8 @@ static int x509_crt_verify_child(
             *flags |= MBEDTLS_X509_BADCERT_BAD_KEY;
 
         if( mbedtls_pk_verify_ext( child->sig_pk, child->sig_opts, &parent->pk,
-                           child->sig_md, hash, mbedtls_md_get_size( md_info ),
-                           child->sig.p, child->sig.len ) != 0 )
+                                   child->sig_md, hash, mbedtls_md_get_size( md_info ),
+                                   child->sig.p, child->sig.len ) != 0 )
         {
             *flags |= MBEDTLS_X509_BADCERT_NOT_TRUSTED;
         }
@@ -2085,8 +2089,8 @@ static int x509_crt_verify_child(
 
     /* Look for a grandparent in trusted CAs */
     for( grandparent = trust_ca;
-         grandparent != NULL;
-         grandparent = grandparent->next )
+            grandparent != NULL;
+            grandparent = grandparent->next )
     {
         if( x509_crt_check_parent( parent, grandparent,
                                    0, path_cnt == 0 ) == 0 )
@@ -2096,7 +2100,7 @@ static int x509_crt_verify_child(
     if( grandparent != NULL )
     {
         ret = x509_crt_verify_top( parent, grandparent, ca_crl, profile,
-                                path_cnt + 1, self_cnt, &parent_flags, f_vrfy, p_vrfy );
+                                   path_cnt + 1, self_cnt, &parent_flags, f_vrfy, p_vrfy );
         if( ret != 0 )
             return( ret );
     }
@@ -2104,14 +2108,14 @@ static int x509_crt_verify_child(
     {
         /* Look for a grandparent upwards the chain */
         for( grandparent = parent->next;
-             grandparent != NULL;
-             grandparent = grandparent->next )
+                grandparent != NULL;
+                grandparent = grandparent->next )
         {
             /* +2 because the current step is not yet accounted for
              * and because max_pathlen is one higher than it should be.
              * Also self signed certificates do not count to the limit. */
             if( grandparent->max_pathlen > 0 &&
-                grandparent->max_pathlen < 2 + path_cnt - self_cnt )
+                    grandparent->max_pathlen < 2 + path_cnt - self_cnt )
             {
                 continue;
             }
@@ -2154,14 +2158,14 @@ static int x509_crt_verify_child(
  * Verify the certificate validity
  */
 int mbedtls_x509_crt_verify( mbedtls_x509_crt *crt,
-                     mbedtls_x509_crt *trust_ca,
-                     mbedtls_x509_crl *ca_crl,
-                     const char *cn, uint32_t *flags,
-                     int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
-                     void *p_vrfy )
+                             mbedtls_x509_crt *trust_ca,
+                             mbedtls_x509_crl *ca_crl,
+                             const char *cn, uint32_t *flags,
+                             int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
+                             void *p_vrfy )
 {
     return( mbedtls_x509_crt_verify_with_profile( crt, trust_ca, ca_crl,
-                &mbedtls_x509_crt_profile_default, cn, flags, f_vrfy, p_vrfy ) );
+            &mbedtls_x509_crt_profile_default, cn, flags, f_vrfy, p_vrfy ) );
 }
 
 
@@ -2169,12 +2173,12 @@ int mbedtls_x509_crt_verify( mbedtls_x509_crt *crt,
  * Verify the certificate validity, with profile
  */
 int mbedtls_x509_crt_verify_with_profile( mbedtls_x509_crt *crt,
-                     mbedtls_x509_crt *trust_ca,
-                     mbedtls_x509_crl *ca_crl,
-                     const mbedtls_x509_crt_profile *profile,
-                     const char *cn, uint32_t *flags,
-                     int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
-                     void *p_vrfy )
+        mbedtls_x509_crt *trust_ca,
+        mbedtls_x509_crl *ca_crl,
+        const mbedtls_x509_crt_profile *profile,
+        const char *cn, uint32_t *flags,
+        int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
+        void *p_vrfy )
 {
     size_t cn_len;
     int ret;
@@ -2201,12 +2205,12 @@ int mbedtls_x509_crt_verify_with_profile( mbedtls_x509_crt *crt,
             while( cur != NULL )
             {
                 if( cur->buf.len == cn_len &&
-                    x509_memcasecmp( cn, cur->buf.p, cn_len ) == 0 )
+                        x509_memcasecmp( cn, cur->buf.p, cn_len ) == 0 )
                     break;
 
                 if( cur->buf.len > 2 &&
-                    memcmp( cur->buf.p, "*.", 2 ) == 0 &&
-                    x509_check_wildcard( cn, &cur->buf ) == 0 )
+                        memcmp( cur->buf.p, "*.", 2 ) == 0 &&
+                        x509_check_wildcard( cn, &cur->buf ) == 0 )
                 {
                     break;
                 }
@@ -2224,12 +2228,12 @@ int mbedtls_x509_crt_verify_with_profile( mbedtls_x509_crt *crt,
                 if( MBEDTLS_OID_CMP( MBEDTLS_OID_AT_CN, &name->oid ) == 0 )
                 {
                     if( name->val.len == cn_len &&
-                        x509_memcasecmp( name->val.p, cn, cn_len ) == 0 )
+                            x509_memcasecmp( name->val.p, cn, cn_len ) == 0 )
                         break;
 
                     if( name->val.len > 2 &&
-                        memcmp( name->val.p, "*.", 2 ) == 0 &&
-                        x509_check_wildcard( cn, &name->val ) == 0 )
+                            memcmp( name->val.p, "*.", 2 ) == 0 &&
+                            x509_check_wildcard( cn, &name->val ) == 0 )
                         break;
                 }
 

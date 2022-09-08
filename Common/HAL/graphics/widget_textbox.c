@@ -1,11 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
+
 /** @file widget_textbox.c
  * Definitions for the textbox widget handling functions
  *
  * @author: inx limited
- * @version: $Revision: 5525 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 //#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
@@ -74,49 +81,49 @@ EHS_LOCAL void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass
  * @return pointer to initialised widget, or NULL
  */
 EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, ehs_uint16 nZ,
-		ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB, ehs_uint16 nLineSep,
-		EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
-		EhsGraphicsFontClass* pFont)
+                                      ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB, ehs_uint16 nLineSep,
+                                      EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
+                                      EhsGraphicsFontClass* pFont)
 {
-	EhsWidgetClass* pWidget;
+    EhsWidgetClass* pWidget;
 
-	EhsTPMutex_lock(EhsTPMutex_viewport);
-	pWidget = EhsWidgetTable_new(&EhsWidgetTable);
+    EhsTPMutex_lock(EhsTPMutex_viewport);
+    pWidget = EhsWidgetTable_new(&EhsWidgetTable);
 
-	if (pWidget)
-	{
+    if (pWidget)
+    {
 
-		EhsWidget_init(pWidget,pBounds, nZ,  xFgColour.sComp.nAlpha);
+        EhsWidget_init(pWidget,pBounds, nZ,  xFgColour.sComp.nAlpha);
 
-		pWidget->eWidgetKind = EHS_WIDGET_KIND_TEXTBOX;
-		pWidget->nState = EHS_WIDGET_STATE_INIT;
-		pWidget->bOptimiseForSpeed = EHS_FALSE;
-		pWidget->bContentChanged = EHS_TRUE;
-		pWidget->pfCreateFunc = EhsWidgetTextbox_create;
-		pWidget->pfDestroyFunc = EhsWidgetTextbox_destroy;
-		pWidget->pfFadeFunc = EhsWidgetTextbox_fade;
-		pWidget->pfDrawFunc = EhsWidgetTextbox_draw;
+        pWidget->eWidgetKind = EHS_WIDGET_KIND_TEXTBOX;
+        pWidget->nState = EHS_WIDGET_STATE_INIT;
+        pWidget->bOptimiseForSpeed = EHS_FALSE;
+        pWidget->bContentChanged = EHS_TRUE;
+        pWidget->pfCreateFunc = EhsWidgetTextbox_create;
+        pWidget->pfDestroyFunc = EhsWidgetTextbox_destroy;
+        pWidget->pfFadeFunc = EhsWidgetTextbox_fade;
+        pWidget->pfDrawFunc = EhsWidgetTextbox_draw;
 
-		EHS_WIDGET_TEXTBOX(pWidget).xFgColour = xFgColour;
-		EHS_WIDGET_TEXTBOX(pWidget).nFgBaseAlpha = xFgColour.sComp.nAlpha;
-		EHS_WIDGET_TEXTBOX(pWidget).xBgColour = xBgColour;
-		EHS_WIDGET_TEXTBOX(pWidget).nBgBaseAlpha = xBgColour.sComp.nAlpha;
+        EHS_WIDGET_TEXTBOX(pWidget).xFgColour = xFgColour;
+        EHS_WIDGET_TEXTBOX(pWidget).nFgBaseAlpha = xFgColour.sComp.nAlpha;
+        EHS_WIDGET_TEXTBOX(pWidget).xBgColour = xBgColour;
+        EHS_WIDGET_TEXTBOX(pWidget).nBgBaseAlpha = xBgColour.sComp.nAlpha;
 //#ifdef EHS_GUI_TEXTWIDGET_SUPPORT_HTML
-		EhsHGHtmlString_init(&(EHS_WIDGET_TEXTBOX(pWidget).xText), EHS_STRING_LENGTH_MAX);
+        EhsHGHtmlString_init(&(EHS_WIDGET_TEXTBOX(pWidget).xText), EHS_STRING_LENGTH_MAX);
 //endif
-		EHS_WIDGET_TEXTBOX(pWidget).pSurface=NULL;
-		EHS_WIDGET_TEXTBOX(pWidget).pFont = pFont;
+        EHS_WIDGET_TEXTBOX(pWidget).pSurface=NULL;
+        EHS_WIDGET_TEXTBOX(pWidget).pFont = pFont;
 #define DEFAULT_INDENT 0
-		EHS_WIDGET_TEXTBOX(pWidget).nIndentBottom = nIndentB;
-		EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft = nIndentL;
-		EHS_WIDGET_TEXTBOX(pWidget).nIndentRight = nIndentR;
-		EHS_WIDGET_TEXTBOX(pWidget).nIndentTop = nIndentT;
-		EHS_WIDGET_TEXTBOX(pWidget).nLineSep = nLineSep;
-		EhsWidgetTable_updateZOrder(&EhsWidgetTable, pWidget);
-	}
-	else EHSH_LOG_ERROR("Could not initialise text box widget");
-	EhsTPMutex_unlock(EhsTPMutex_viewport);
-	return pWidget;
+        EHS_WIDGET_TEXTBOX(pWidget).nIndentBottom = nIndentB;
+        EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft = nIndentL;
+        EHS_WIDGET_TEXTBOX(pWidget).nIndentRight = nIndentR;
+        EHS_WIDGET_TEXTBOX(pWidget).nIndentTop = nIndentT;
+        EHS_WIDGET_TEXTBOX(pWidget).nLineSep = nLineSep;
+        EhsWidgetTable_updateZOrder(&EhsWidgetTable, pWidget);
+    }
+    else EHSH_LOG_ERROR("Could not initialise text box widget");
+    EhsTPMutex_unlock(EhsTPMutex_viewport);
+    return pWidget;
 }
 
 
@@ -128,10 +135,10 @@ EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, 
  */
 ehs_bool EhsWidgetTextbox_create(EhsWidgetClass* pWidget)
 {
-	/* No specific textbox creation activities are required */
-	/* todo this may in fact be where the glyph blitter should be called from for initial text - for efficiency */
+    /* No specific textbox creation activities are required */
+    /* todo this may in fact be where the glyph blitter should be called from for initial text - for efficiency */
 
-	return EHS_TRUE;
+    return EHS_TRUE;
 }
 
 /**
@@ -141,12 +148,13 @@ ehs_bool EhsWidgetTextbox_create(EhsWidgetClass* pWidget)
  */
 void EhsWidgetTextbox_destroy(EhsWidgetClass* pWidget)
 {
-	EhsTVSurfaceClass* pSurface = EHS_WIDGET_TEXTBOX(pWidget).pSurface;
-	if (pSurface) {
-		EhsTVSurface_destroy(&EhsTV, pSurface);/* todo the use of the globaL eHStv is not good or consistent with other functions, where it is passed in by the framework */
-	}
-	EHS_WIDGET_TEXTBOX(pWidget).pSurface = NULL;
-	/* no specific textbox destruction activities are required */
+    EhsTVSurfaceClass* pSurface = EHS_WIDGET_TEXTBOX(pWidget).pSurface;
+    if (pSurface)
+    {
+        EhsTVSurface_destroy(&EhsTV, pSurface);/* todo the use of the globaL eHStv is not good or consistent with other functions, where it is passed in by the framework */
+    }
+    EHS_WIDGET_TEXTBOX(pWidget).pSurface = NULL;
+    /* no specific textbox destruction activities are required */
 }
 
 /**
@@ -163,112 +171,122 @@ void EhsWidgetTextbox_destroy(EhsWidgetClass* pWidget)
  */
 void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
-	EhsTVSurfaceClass* pSurface;
-	ehs_bool bOk = EHS_TRUE; /* true so long as we can continue drawing to the surface */
+    EhsTVSurfaceClass* pSurface;
+    ehs_bool bOk = EHS_TRUE; /* true so long as we can continue drawing to the surface */
     if (EhsStrlen(EHS_WIDGET_TEXTBOX(pWidget).xText.szHtml) > EHS_STRING_LENGTH_MAX) EHS_WIDGET_TEXTBOX(pWidget).xText.szHtml[EHS_STRING_LENGTH_MAX] = '\0'; //truncate to avoid crashes
-	//LOGI("EHS:Textbox_draw--------");
-	//dktodo investigate: crashes android app if tries to draw textbox
-	if (pWidget->bContentChanged) {
-		if (!pWidget->bOptimiseForSpeed) {
-			EhsGraphicsColourClass xPalette[2];
-			EhsGraphicsRectangleClass xTextRect;
-			xTextRect.nHeight = pWidget->xCurRect.nHeight - (EHS_WIDGET_TEXTBOX(pWidget).nIndentTop +EHS_WIDGET_TEXTBOX(pWidget).nIndentBottom);
-			xTextRect.nWidth = pWidget->xCurRect.nWidth - (EHS_WIDGET_TEXTBOX(pWidget).nIndentRight + EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft);
-			xTextRect.nLeft = pWidget->xCurRect.nLeft + EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft;
-			xTextRect.nTop = pWidget->xCurRect.nTop + EHS_WIDGET_TEXTBOX(pWidget).nIndentTop;
-			xPalette[0] = EHS_WIDGET_TEXTBOX(pWidget).xBgColour;
-			xPalette[1] = EHS_WIDGET_TEXTBOX(pWidget).xFgColour;
-			if (pWidget->specificWidgetType.textbox.pSurface) EhsTVSurface_destroy(pViewport, pWidget->specificWidgetType.textbox.pSurface); /* there is no update function so remove and start again */
-			pSurface = EhsTVSurface_create(pViewport,pWidget->xCurRect.nWidth,pWidget->xCurRect.nHeight,EHS_GRAPHICS_COLOUR_A1,xPalette,2);//,EHS_TRUE);
-			EHS_WIDGET_TEXTBOX(pWidget).pSurface=pSurface;
-			if (pSurface) {
-				if (EHS_WIDGET_TEXTBOX(pWidget).pFont) {
-					ehs_uint32 nXPos, nYPos;
-					const void* pCurrentWord;
-					const ehs_char* szWord;
-					EhsHGHtmlWordType eType;
+    //LOGI("EHS:Textbox_draw--------");
+    //dktodo investigate: crashes android app if tries to draw textbox
+    if (pWidget->bContentChanged)
+    {
+        if (!pWidget->bOptimiseForSpeed)
+        {
+            EhsGraphicsColourClass xPalette[2];
+            EhsGraphicsRectangleClass xTextRect;
+            xTextRect.nHeight = pWidget->xCurRect.nHeight - (EHS_WIDGET_TEXTBOX(pWidget).nIndentTop +EHS_WIDGET_TEXTBOX(pWidget).nIndentBottom);
+            xTextRect.nWidth = pWidget->xCurRect.nWidth - (EHS_WIDGET_TEXTBOX(pWidget).nIndentRight + EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft);
+            xTextRect.nLeft = pWidget->xCurRect.nLeft + EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft;
+            xTextRect.nTop = pWidget->xCurRect.nTop + EHS_WIDGET_TEXTBOX(pWidget).nIndentTop;
+            xPalette[0] = EHS_WIDGET_TEXTBOX(pWidget).xBgColour;
+            xPalette[1] = EHS_WIDGET_TEXTBOX(pWidget).xFgColour;
+            if (pWidget->specificWidgetType.textbox.pSurface) EhsTVSurface_destroy(pViewport, pWidget->specificWidgetType.textbox.pSurface); /* there is no update function so remove and start again */
+            pSurface = EhsTVSurface_create(pViewport,pWidget->xCurRect.nWidth,pWidget->xCurRect.nHeight,EHS_GRAPHICS_COLOUR_A1,xPalette,2);//,EHS_TRUE);
+            EHS_WIDGET_TEXTBOX(pWidget).pSurface=pSurface;
+            if (pSurface)
+            {
+                if (EHS_WIDGET_TEXTBOX(pWidget).pFont)
+                {
+                    ehs_uint32 nXPos, nYPos;
+                    const void* pCurrentWord;
+                    const ehs_char* szWord;
+                    EhsHGHtmlWordType eType;
 
-					nXPos = xTextRect.nLeft - pWidget->xCurRect.nLeft;
-					nYPos = (xTextRect.nTop - pWidget->xCurRect.nTop)+EHS_WIDGET_TEXTBOX(pWidget).pFont->nMaxHt;
+                    nXPos = xTextRect.nLeft - pWidget->xCurRect.nLeft;
+                    nYPos = (xTextRect.nTop - pWidget->xCurRect.nTop)+EHS_WIDGET_TEXTBOX(pWidget).pFont->nMaxHt;
 
-					pCurrentWord = NULL;
-					/* iterate through the words in the string and deal word-by-word */
-					while(bOk && EhsHGHtmlString_getWord(&(EHS_WIDGET_TEXTBOX(pWidget).xText), &szWord, &eType, &pCurrentWord)) {
-						switch (eType) {
-						case EHSHG_HTML_WORD_STYLE_TEXT:
-							bOk = EhsGraphicsFont_drawWord(EHS_WIDGET_TEXTBOX(pWidget).pFont, pSurface,
-									&(pWidget->xCurRect),
-									&(xTextRect),
-									&nXPos, &nYPos, EHS_WIDGET_TEXTBOX(pWidget).nLineSep, EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft, szWord);
-							break;
-						case EHSHG_HTML_WORD_BREAK:
-							bOk = EhsGraphicsFont_newLine(EHS_WIDGET_TEXTBOX(pWidget).pFont, &(xTextRect), EHS_WIDGET_TEXTBOX(pWidget).nLineSep, &nXPos, &nYPos,
-									EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft);
-							break;
-						case EHSHG_HTML_WORD_PARA:
-							bOk = EhsGraphicsFont_newLine(EHS_WIDGET_TEXTBOX(pWidget).pFont, &(xTextRect),
-									EHS_WIDGET_TEXTBOX(pWidget).nLineSep, &nXPos, &nYPos, EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft);
-							bOk = bOk && EhsGraphicsFont_newLine(EHS_WIDGET_TEXTBOX(pWidget).pFont, &(xTextRect),
-									EHS_WIDGET_TEXTBOX(pWidget).nLineSep, &nXPos, &nYPos, EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft);
-							break;
-						case EHSHG_HTML_WORD_STYLE_START:
-							/*@todo implement support for styles */
-						case EHSHG_HTML_WORD_STYLE_END:
-						case EHSHG_HTML_WORD_IMG:
-							/*@todo implement support for in-line images */
-						default:
-							break;
-						}
-					}
-				}
-			}
-		} else {
-			/**< @todo replace this with a real surface */
-			EHSH_LOG_ERROR("Could not create surface for text box");
-			pSurface = NULL;
-		}
+                    pCurrentWord = NULL;
+                    /* iterate through the words in the string and deal word-by-word */
+                    while(bOk && EhsHGHtmlString_getWord(&(EHS_WIDGET_TEXTBOX(pWidget).xText), &szWord, &eType, &pCurrentWord))
+                    {
+                        switch (eType)
+                        {
+                        case EHSHG_HTML_WORD_STYLE_TEXT:
+                            bOk = EhsGraphicsFont_drawWord(EHS_WIDGET_TEXTBOX(pWidget).pFont, pSurface,
+                                                           &(pWidget->xCurRect),
+                                                           &(xTextRect),
+                                                           &nXPos, &nYPos, EHS_WIDGET_TEXTBOX(pWidget).nLineSep, EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft, szWord);
+                            break;
+                        case EHSHG_HTML_WORD_BREAK:
+                            bOk = EhsGraphicsFont_newLine(EHS_WIDGET_TEXTBOX(pWidget).pFont, &(xTextRect), EHS_WIDGET_TEXTBOX(pWidget).nLineSep, &nXPos, &nYPos,
+                                                          EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft);
+                            break;
+                        case EHSHG_HTML_WORD_PARA:
+                            bOk = EhsGraphicsFont_newLine(EHS_WIDGET_TEXTBOX(pWidget).pFont, &(xTextRect),
+                                                          EHS_WIDGET_TEXTBOX(pWidget).nLineSep, &nXPos, &nYPos, EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft);
+                            bOk = bOk && EhsGraphicsFont_newLine(EHS_WIDGET_TEXTBOX(pWidget).pFont, &(xTextRect),
+                                                                 EHS_WIDGET_TEXTBOX(pWidget).nLineSep, &nXPos, &nYPos, EHS_WIDGET_TEXTBOX(pWidget).nIndentLeft);
+                            break;
+                        case EHSHG_HTML_WORD_STYLE_START:
+                        /*@todo implement support for styles */
+                        case EHSHG_HTML_WORD_STYLE_END:
+                        case EHSHG_HTML_WORD_IMG:
+                        /*@todo implement support for in-line images */
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            /**< @todo replace this with a real surface */
+            EHSH_LOG_ERROR("Could not create surface for text box");
+            pSurface = NULL;
+        }
 
-		if (pSurface)
-		{
-			EhsGraphicsRectangleClass xSrc;
-			xSrc.nLeft = 0u;
-			xSrc.nTop = 0u;
-			xSrc.nWidth = pWidget->xCurRect.nWidth;
-			xSrc.nHeight = pWidget->xCurRect.nHeight;
-			EhsTVSurface_finalisePixels(pSurface); /* allows transfer to graphics memory e.g. for OpenGL.*/
-			EhsTV_blit_withlock(pViewport, pSurface, &(pWidget->xCurRect),&xSrc, 255u);
-			pWidget->bContentChanged = EHS_FALSE; /* This should be done in the common code */
+        if (pSurface)
+        {
+            EhsGraphicsRectangleClass xSrc;
+            xSrc.nLeft = 0u;
+            xSrc.nTop = 0u;
+            xSrc.nWidth = pWidget->xCurRect.nWidth;
+            xSrc.nHeight = pWidget->xCurRect.nHeight;
+            EhsTVSurface_finalisePixels(pSurface); /* allows transfer to graphics memory e.g. for OpenGL.*/
+            EhsTV_blit_withlock(pViewport, pSurface, &(pWidget->xCurRect),&xSrc, 255u);
+            pWidget->bContentChanged = EHS_FALSE; /* This should be done in the common code */
 
-			/* Review why this was once here */
+            /* Review why this was once here */
 #ifdef MAKE_IT_CRASH
-			if (!pWidget->bOptimiseForSpeed) {
-				EhsTVSurface_destroy(pViewport, pSurface);
-				pWidget->specificWidgetType.textbox.pSurface = NULL;
-			}
+            if (!pWidget->bOptimiseForSpeed)
+            {
+                EhsTVSurface_destroy(pViewport, pSurface);
+                pWidget->specificWidgetType.textbox.pSurface = NULL;
+            }
 
 #endif
-		}
-		//LOGI("Blitting TEXT with new content");
-	}
-	else { /* just need to fire off the blitter for the pre-created surface*/
-		EhsGraphicsRectangleClass xSrc;
-		xSrc.nLeft = 0u;
-		xSrc.nTop = 0u;
-		xSrc.nWidth = pWidget->xCurRect.nWidth;
-		xSrc.nHeight = pWidget->xCurRect.nHeight;
-		EhsTV_blit_withlock(pViewport, EHS_WIDGET_TEXTBOX(pWidget).pSurface, &(pWidget->xCurRect),&xSrc, 255u);
-	}
+        }
+        //LOGI("Blitting TEXT with new content");
+    }
+    else   /* just need to fire off the blitter for the pre-created surface*/
+    {
+        EhsGraphicsRectangleClass xSrc;
+        xSrc.nLeft = 0u;
+        xSrc.nTop = 0u;
+        xSrc.nWidth = pWidget->xCurRect.nWidth;
+        xSrc.nHeight = pWidget->xCurRect.nHeight;
+        EhsTV_blit_withlock(pViewport, EHS_WIDGET_TEXTBOX(pWidget).pSurface, &(pWidget->xCurRect),&xSrc, 255u);
+    }
 }
 
 #ifdef BLIT
 void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
-	EhsTVSurfaceClass* pSurface;
-	EhsGraphicsColourClass xPalette[2];
-	xPalette[0] = EHS_WIDGET_TEXTBOX(pWidget).xBgColour;
-	xPalette[1] = EHS_WIDGET_TEXTBOX(pWidget).xFgColour;
-	pSurface = EhsTVSurface_create(pViewport,pWidget->xCurRect.nWidth,pWidget->xCurRect.nHeight,EHS_GRAPHICS_COLOUR_A1,xPalette,2);//,EHS_TRUE);
-	EhsTVSurface_destroy(pViewport, pSurface);
+    EhsTVSurfaceClass* pSurface;
+    EhsGraphicsColourClass xPalette[2];
+    xPalette[0] = EHS_WIDGET_TEXTBOX(pWidget).xBgColour;
+    xPalette[1] = EHS_WIDGET_TEXTBOX(pWidget).xFgColour;
+    pSurface = EhsTVSurface_create(pViewport,pWidget->xCurRect.nWidth,pWidget->xCurRect.nHeight,EHS_GRAPHICS_COLOUR_A1,xPalette,2);//,EHS_TRUE);
+    EhsTVSurface_destroy(pViewport, pSurface);
 }
 #endif /*BLIT*/
 /**
@@ -280,22 +298,24 @@ void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpor
  */
 void EhsWidgetTextbox_write(struct EhsWidgetStruct* pWidget, const ehs_char* szText)
 {
-	EhsTPMutex_lock(EhsTPMutex_viewport);
-	/* @todo check for changes to HTML - don't update viewport if no change has occcured */
+    EhsTPMutex_lock(EhsTPMutex_viewport);
+    /* @todo check for changes to HTML - don't update viewport if no change has occcured */
 //#define	EHS_GUI_TEXTWIDGET_SUPPORT_HTML
 #ifdef EHS_GUI_TEXTWIDGET_SUPPORT_HTML
-	if (EhsHGHtmlString_parse(&(EHS_WIDGET_TEXTBOX(pWidget).xText),szText,EHS_TRUE)) {
+    if (EhsHGHtmlString_parse(&(EHS_WIDGET_TEXTBOX(pWidget).xText),szText,EHS_TRUE))
+    {
 #else
-		if (EhsHGHtmlString_parse(&(EHS_WIDGET_TEXTBOX(pWidget).xText),szText,EHS_FALSE)) {
+    if (EhsHGHtmlString_parse(&(EHS_WIDGET_TEXTBOX(pWidget).xText),szText,EHS_FALSE))
+    {
 #endif
-			/* if pWidget is visible, update viewport */
-			if (EHS_WIDGET_STATE_SHOWN(pWidget->nState))
-			{
-				EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
-			}
-		}
-		EhsTPMutex_unlock(EhsTPMutex_viewport);
-	}
+        /* if pWidget is visible, update viewport */
+        if (EHS_WIDGET_STATE_SHOWN(pWidget->nState))
+        {
+            EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
+        }
+    }
+    EhsTPMutex_unlock(EhsTPMutex_viewport);
+}
 
 /**
  * Fade the textbox according to an opacity value. Called from widget_fade, hence EhsTPMutex_viewport
@@ -305,23 +325,23 @@ void EhsWidgetTextbox_write(struct EhsWidgetStruct* pWidget, const ehs_char* szT
  */
 ehs_bool EhsWidgetTextbox_fade(struct EhsWidgetStruct* pWidget, ehs_uint8 nOpacity)
 {
-	ehs_bool bChanged = EHS_FALSE;
+    ehs_bool bChanged = EHS_FALSE;
 
-	/* determine the new foreground and background opacity required by this widget */
-	ehs_uint16 nCalcFgOpacity = (EHS_WIDGET_TEXTBOX(pWidget).nFgBaseAlpha * nOpacity) / 255;
-	ehs_uint16 nCalcBgOpacity = (EHS_WIDGET_TEXTBOX(pWidget).nBgBaseAlpha * nOpacity) / 255;
-	/* scale down to 8-bit */
-	ehs_uint8 nFgOpacity = (ehs_uint8)nCalcFgOpacity;
-	ehs_uint8 nBgOpacity = (ehs_uint8)nCalcBgOpacity;
+    /* determine the new foreground and background opacity required by this widget */
+    ehs_uint16 nCalcFgOpacity = (EHS_WIDGET_TEXTBOX(pWidget).nFgBaseAlpha * nOpacity) / 255;
+    ehs_uint16 nCalcBgOpacity = (EHS_WIDGET_TEXTBOX(pWidget).nBgBaseAlpha * nOpacity) / 255;
+    /* scale down to 8-bit */
+    ehs_uint8 nFgOpacity = (ehs_uint8)nCalcFgOpacity;
+    ehs_uint8 nBgOpacity = (ehs_uint8)nCalcBgOpacity;
 
-	/* is it any different to the opacity we have already? */
-	if ((nFgOpacity != EHS_WIDGET_TEXTBOX(pWidget).xFgColour.sComp.nAlpha) ||
-		(nBgOpacity != EHS_WIDGET_TEXTBOX(pWidget).xBgColour.sComp.nAlpha))
-	{
-		EHS_WIDGET_TEXTBOX(pWidget).xFgColour.sComp.nAlpha = nFgOpacity;
-		EHS_WIDGET_TEXTBOX(pWidget).xBgColour.sComp.nAlpha = nBgOpacity;
-		bChanged = EHS_TRUE;
-	}
+    /* is it any different to the opacity we have already? */
+    if ((nFgOpacity != EHS_WIDGET_TEXTBOX(pWidget).xFgColour.sComp.nAlpha) ||
+            (nBgOpacity != EHS_WIDGET_TEXTBOX(pWidget).xBgColour.sComp.nAlpha))
+    {
+        EHS_WIDGET_TEXTBOX(pWidget).xFgColour.sComp.nAlpha = nFgOpacity;
+        EHS_WIDGET_TEXTBOX(pWidget).xBgColour.sComp.nAlpha = nBgOpacity;
+        bChanged = EHS_TRUE;
+    }
 
-	return bChanged;
+    return bChanged;
 }

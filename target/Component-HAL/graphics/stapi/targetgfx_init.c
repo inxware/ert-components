@@ -1,19 +1,25 @@
-/** @file targetos_init.c
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
+/** @file targetgfx_init.c
  * Initialization/reset/termination code for the OS
  *
  * @author: inx limited
- * @version: $Revision: 2823 $
- * @date: $Date$
- * 
- * Copyright (c) inx limited, 2008. All rights reserved.
+ *
  */
 
 /**
  * @page Verification Verification report
- * @section hal_graphics_font
- * @anchor hal_graphics_font
+ * @section targetgfx_init
+ * @anchor targetgfx_init
  * @subsection misra MISRA compliance:
- * test.c demonstrated MISRA compliant on 
+ * test.c demonstrated MISRA compliant on
  * Last modified on $Date:$
  *
  * This file contained no derogations to the MISRA standard.
@@ -45,26 +51,25 @@ extern EhsBlockRefType EhsBlockRefTable_Dtv[];
 /*****************************************************************************/
 /* Function definitions */
 
-/** 
+/**
  * Perform necessary Operating system setup upon system initialisation
  */
 void EhsTGfxSys_init(void)
 {
-	if (!EhsToolkitTable_addTable(EhsBlockRefTable_Dtv)) 
-	{
-		EhsError(EHS_TGT_FATAL_TOOLKIT("DTV"));
-		EhsShutdown();
-	}
-	else
-	{
+    if (!EhsToolkitTable_addTable(EhsBlockRefTable_Dtv))
+    {
+        EhsError(EHS_TGT_FATAL_TOOLKIT("DTV"));
+        EhsShutdown();
+    }
+    else
+    {
 #ifdef EHS_GUI_SUPPORT
-		if (!EhsTV_init(&EhsTV))
-		{
-			printf("Target viewport initialisation failed\n");
-			exit(1);
-	    }
+        if (!EhsTV_init(&EhsTV))
+        {
+            exit(1);
+        }
 #endif /* EHS_GUI_SUPPORT */
-	}
+    }
 }
 
 /**
@@ -87,7 +92,7 @@ void EhsTGfxApp_init(void)
  */
 void EhsTGfxApp_term(void)
 {
-	//EhsTV_reset(&EhsTV); //note generic - moving to common code
+    //EhsTV_reset(&EhsTV); //note generic - moving to common code
 }
 
 

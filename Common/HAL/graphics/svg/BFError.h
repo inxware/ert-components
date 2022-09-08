@@ -3,15 +3,15 @@
  *
  *  Version : 6.4.0_2271s
  *     Date : 20080508-20.49.08
- *                
+ *
  *
  * (c) COPYRIGHT 2002- 2008 Open Text Corp. - BitFlash Division. ALL RIGHTS RESERVED
  *
  *
  * This software is the property and confidential information of Open Text and is furnished under
- * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.  
+ * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.
  *
- * This software may not be copied, transmitted, provided to or otherwise made available to any other person, 
+ * This software may not be copied, transmitted, provided to or otherwise made available to any other person,
  * company, corporation or other entity except as specified in the terms of said license.
  *
  * This copyright notice may not be removed or altered without the prior written permission of Open Text.
@@ -26,7 +26,7 @@
  * created January 20, 2002
  */
 
-                       
+
 #ifndef BITFLASH_ERROR_H_
 #define BITFLASH_ERROR_H_
 
@@ -78,7 +78,7 @@ BF_BEGIN_EXTERN_C
  * If this error happens while opening a document, the document is being
  * detroyed before BFprocessCommand returns. If this error happens
  * while rendering, rendering is given up, leaving the render buffer
- * in a partially rendered state, probably with seemingly erroneous 
+ * in a partially rendered state, probably with seemingly erroneous
  * graphical data
  */
 #define BF_PLAYER_OUT_OF_MEMORY                 (BF_PLAYER_ERROR | 5)
@@ -93,7 +93,7 @@ BF_BEGIN_EXTERN_C
 /* BF_PLAYER_INVALID_LAYER (deprectaed)         (BF_PLAYER_ERROR | 7) */
 
 
-/** 
+/**
  * Returned when a mathematical overflow happens while rendering.
  * This leaves the render buffer is a partially rendered state,
  * probably with seemingly erroneous graphical data
@@ -143,7 +143,7 @@ BF_BEGIN_EXTERN_C
 
 
 /**
- * Returned by BF_COMMAND_VIEW_REDRAW or BF_COMMAND_VIEW_ZOOM 
+ * Returned by BF_COMMAND_VIEW_REDRAW or BF_COMMAND_VIEW_ZOOM
  * when a zoom limit has been reached (max or min), provoking the
  * previous zoom level to be reapplied
  */
@@ -151,7 +151,7 @@ BF_BEGIN_EXTERN_C
 
 
 /**
- * Returned when invalid values are detected in the command's 
+ * Returned when invalid values are detected in the command's
  * params structure.
  */
 #define BF_PLAYER_INVALID_PARAMS                (BF_PLAYER_ERROR | 15)

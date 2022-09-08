@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /* logic.h
  *
  * logic functions that operate on Boolean data.
@@ -5,7 +14,6 @@
  * For definition of arguments in Ncapsa functions (Identify_, Init_ and Run_)
  * please see types.h.
  *
- * Lucid project stage one - NcapsaLtd - March 2005 - MDD
  */
 #include "logic.h"
 #include "setCompletes.h"
@@ -15,7 +23,8 @@
 /* Define xyzzy function block */
 
 EHS_FB_FUNCTIONS_START(LogicNot)
-EHS_FB_FUNCTION_ENTRY("Run_LogicNot", LogicNot)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicNot", 0x00, LogicNot)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -40,7 +49,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicNot)
  */
 EHS_FB_INIT_FUNCTION(LogicNot)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -52,20 +61,20 @@ EHS_FB_INIT_FUNCTION(LogicNot)
  */
 EHS_FB_RUN_FUNCTION(LogicNot)
 {
-	/* output != input...*/
-	ehs_bool in;
-	in = NCAPSA_bIn(0);
-	NCAPSA_bOut(0) = (ehs_bool)!in;
-	//printf("Notting in:%d, out: %d",in,!in);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    /* output != input...*/
+    ehs_bool in;
+    in = NCAPSA_bIn(0);
+    NCAPSA_bOut(0) = (ehs_bool)!in;
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define LogicTwoInputAnd function block */
 
 EHS_FB_FUNCTIONS_START(LogicTwoInputAnd)
-EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputAnd", LogicTwoInputAnd)
+
+EHS_FB_FUNCTION_ENTRY( "Run_LogicTwoInputAnd", 0x00, LogicTwoInputAnd)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -90,7 +99,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicTwoInputAnd)
  */
 EHS_FB_INIT_FUNCTION(LogicTwoInputAnd)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -102,24 +111,24 @@ EHS_FB_INIT_FUNCTION(LogicTwoInputAnd)
  */
 EHS_FB_RUN_FUNCTION(LogicTwoInputAnd)
 {
-	if (NCAPSA_bIn(0) && NCAPSA_bIn(1))
-	{
-		NCAPSA_bOut(0) = EHS_TRUE;
-	}
-	else
-	{
-		NCAPSA_bOut(0) = EHS_FALSE;
-	}
-	//printf("Anding in1:%d, in2: %d",NCAPSA_bIn(0),NCAPSA_bIn(1));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    if (NCAPSA_bIn(0) && NCAPSA_bIn(1))
+    {
+        NCAPSA_bOut(0) = EHS_TRUE;
+    }
+    else
+    {
+        NCAPSA_bOut(0) = EHS_FALSE;
+    }
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define LogicThreeInputAnd function block */
 
 EHS_FB_FUNCTIONS_START(LogicThreeInputAnd)
-EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputAnd", LogicThreeInputAnd)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputAnd", 0x00, LogicThreeInputAnd)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -144,7 +153,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicThreeInputAnd)
  */
 EHS_FB_INIT_FUNCTION(LogicThreeInputAnd)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -156,23 +165,24 @@ EHS_FB_INIT_FUNCTION(LogicThreeInputAnd)
  */
 EHS_FB_RUN_FUNCTION(LogicThreeInputAnd)
 {
-	if (NCAPSA_bIn(0) && NCAPSA_bIn(1) && NCAPSA_bIn(2))
-	{
-		NCAPSA_bOut(0) = EHS_TRUE;
-	}
-	else
-	{
-		NCAPSA_bOut(0) = EHS_FALSE;
-	}
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    if (NCAPSA_bIn(0) && NCAPSA_bIn(1) && NCAPSA_bIn(2))
+    {
+        NCAPSA_bOut(0) = EHS_TRUE;
+    }
+    else
+    {
+        NCAPSA_bOut(0) = EHS_FALSE;
+    }
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define LogicFourInputAnd function block */
 
 EHS_FB_FUNCTIONS_START(LogicFourInputAnd)
-EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputAnd", LogicFourInputAnd)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputAnd", 0x00, LogicFourInputAnd)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -197,7 +207,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicFourInputAnd)
  */
 EHS_FB_INIT_FUNCTION(LogicFourInputAnd)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -209,23 +219,24 @@ EHS_FB_INIT_FUNCTION(LogicFourInputAnd)
  */
 EHS_FB_RUN_FUNCTION(LogicFourInputAnd)
 {
-	if (NCAPSA_bIn(0) && NCAPSA_bIn(1) && NCAPSA_bIn(2)  && NCAPSA_bIn(3))
-	{
-		NCAPSA_bOut(0) = EHS_TRUE;
-	}
-	else
-	{
-		NCAPSA_bOut(0) = EHS_FALSE;
-	}
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    if (NCAPSA_bIn(0) && NCAPSA_bIn(1) && NCAPSA_bIn(2)  && NCAPSA_bIn(3))
+    {
+        NCAPSA_bOut(0) = EHS_TRUE;
+    }
+    else
+    {
+        NCAPSA_bOut(0) = EHS_FALSE;
+    }
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define LogicTwoInputOr function block */
 
 EHS_FB_FUNCTIONS_START(LogicTwoInputOr)
-EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputOr", LogicTwoInputOr)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputOr", 0x00, LogicTwoInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -250,7 +261,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicTwoInputOr)
  */
 EHS_FB_INIT_FUNCTION(LogicTwoInputOr)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -262,16 +273,16 @@ EHS_FB_INIT_FUNCTION(LogicTwoInputOr)
  */
 EHS_FB_RUN_FUNCTION(LogicTwoInputOr)
 {
-	if (NCAPSA_bIn(0) || NCAPSA_bIn(1))
-	{
-		NCAPSA_bOut(0) = EHS_TRUE;
-	}
-	else
-	{
-		NCAPSA_bOut(0) = EHS_FALSE;
-	}
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    if (NCAPSA_bIn(0) || NCAPSA_bIn(1))
+    {
+        NCAPSA_bOut(0) = EHS_TRUE;
+    }
+    else
+    {
+        NCAPSA_bOut(0) = EHS_FALSE;
+    }
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 
@@ -279,7 +290,8 @@ EHS_FB_RUN_FUNCTION(LogicTwoInputOr)
 /* Define LogicThreeInputOr function block */
 
 EHS_FB_FUNCTIONS_START(LogicThreeInputOr)
-EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputOr", LogicThreeInputOr)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputOr", 0x00, LogicThreeInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -304,7 +316,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicThreeInputOr)
  */
 EHS_FB_INIT_FUNCTION(LogicThreeInputOr)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -316,16 +328,16 @@ EHS_FB_INIT_FUNCTION(LogicThreeInputOr)
  */
 EHS_FB_RUN_FUNCTION(LogicThreeInputOr)
 {
-	if (NCAPSA_bIn(0) || NCAPSA_bIn(1) || NCAPSA_bIn(2))
-	{
-		NCAPSA_bOut(0) = EHS_TRUE;
-	}
-	else
-	{
-		NCAPSA_bOut(0) = EHS_FALSE;
-	}
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    if (NCAPSA_bIn(0) || NCAPSA_bIn(1) || NCAPSA_bIn(2))
+    {
+        NCAPSA_bOut(0) = EHS_TRUE;
+    }
+    else
+    {
+        NCAPSA_bOut(0) = EHS_FALSE;
+    }
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 
@@ -333,7 +345,8 @@ EHS_FB_RUN_FUNCTION(LogicThreeInputOr)
 /* Define xyzzy function block */
 
 EHS_FB_FUNCTIONS_START(LogicFourInputOr)
-EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputOr", LogicFourInputOr)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputOr", 0x00, LogicFourInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -358,7 +371,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicFourInputOr)
  */
 EHS_FB_INIT_FUNCTION(LogicFourInputOr)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -370,16 +383,16 @@ EHS_FB_INIT_FUNCTION(LogicFourInputOr)
  */
 EHS_FB_RUN_FUNCTION(LogicFourInputOr)
 {
-	if (NCAPSA_bIn(0) || NCAPSA_bIn(1) || NCAPSA_bIn(2) || NCAPSA_bIn(3))
-	{
-		NCAPSA_bOut(0) = EHS_TRUE;
-	}
-	else
-	{
-		NCAPSA_bOut(0) = EHS_FALSE;
-	}
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    if (NCAPSA_bIn(0) || NCAPSA_bIn(1) || NCAPSA_bIn(2) || NCAPSA_bIn(3))
+    {
+        NCAPSA_bOut(0) = EHS_TRUE;
+    }
+    else
+    {
+        NCAPSA_bOut(0) = EHS_FALSE;
+    }
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 
@@ -387,7 +400,8 @@ EHS_FB_RUN_FUNCTION(LogicFourInputOr)
 /* Define LogicTwoInputNor function block */
 
 EHS_FB_FUNCTIONS_START(LogicTwoInputNor)
-EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputNor", LogicTwoInputNor)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputNor", 0x00, LogicTwoInputNor)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -412,7 +426,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicTwoInputNor)
  */
 EHS_FB_INIT_FUNCTION(LogicTwoInputNor)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -424,16 +438,17 @@ EHS_FB_INIT_FUNCTION(LogicTwoInputNor)
  */
 EHS_FB_RUN_FUNCTION(LogicTwoInputNor)
 {
-	NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) || NCAPSA_bIn(1));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) || NCAPSA_bIn(1));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define LogicThreeInputNor function block */
 
 EHS_FB_FUNCTIONS_START(LogicThreeInputNor)
-EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputNor", LogicThreeInputNor)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputNor", 0x00, LogicThreeInputNor)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -458,7 +473,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicThreeInputNor)
  */
 EHS_FB_INIT_FUNCTION(LogicThreeInputNor)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -470,16 +485,17 @@ EHS_FB_INIT_FUNCTION(LogicThreeInputNor)
  */
 EHS_FB_RUN_FUNCTION(LogicThreeInputNor)
 {
-	NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) || NCAPSA_bIn(1) || NCAPSA_bIn(2));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) || NCAPSA_bIn(1) || NCAPSA_bIn(2));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define xyzzy function block */
 
 EHS_FB_FUNCTIONS_START(LogicFourInputNor)
-EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputNor", LogicFourInputNor)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputNor", 0x00, LogicFourInputNor)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -504,7 +520,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicFourInputNor)
  */
 EHS_FB_INIT_FUNCTION(LogicFourInputNor)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -516,16 +532,17 @@ EHS_FB_INIT_FUNCTION(LogicFourInputNor)
  */
 EHS_FB_RUN_FUNCTION(LogicFourInputNor)
 {
-	NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) || NCAPSA_bIn(1) || NCAPSA_bIn(2) || NCAPSA_bIn(3));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) || NCAPSA_bIn(1) || NCAPSA_bIn(2) || NCAPSA_bIn(3));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define xyzzy function block */
 
 EHS_FB_FUNCTIONS_START(LogicTwoInputNand)
-EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputNand", LogicTwoInputNand)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputNand", 0x00, LogicTwoInputNand)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -550,7 +567,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicTwoInputNand)
  */
 EHS_FB_INIT_FUNCTION(LogicTwoInputNand)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -562,16 +579,17 @@ EHS_FB_INIT_FUNCTION(LogicTwoInputNand)
  */
 EHS_FB_RUN_FUNCTION(LogicTwoInputNand)
 {
-	NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) && NCAPSA_bIn(1));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) && NCAPSA_bIn(1));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define xyzzy function block */
 
 EHS_FB_FUNCTIONS_START(LogicThreeInputNand)
-EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputNand", LogicThreeInputNand)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputNand", 0x00, LogicThreeInputNand)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -596,7 +614,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicThreeInputNand)
  */
 EHS_FB_INIT_FUNCTION(LogicThreeInputNand)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -608,16 +626,17 @@ EHS_FB_INIT_FUNCTION(LogicThreeInputNand)
  */
 EHS_FB_RUN_FUNCTION(LogicThreeInputNand)
 {
-	NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) && NCAPSA_bIn(1) && NCAPSA_bIn(2));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) && NCAPSA_bIn(1) && NCAPSA_bIn(2));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define LogicFourInputNand function block */
 
 EHS_FB_FUNCTIONS_START(LogicFourInputNand)
-EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputNand", LogicFourInputNand)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputNand", 0x00, LogicFourInputNand)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -642,7 +661,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicFourInputNand)
  */
 EHS_FB_INIT_FUNCTION(LogicFourInputNand)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -654,16 +673,17 @@ EHS_FB_INIT_FUNCTION(LogicFourInputNand)
  */
 EHS_FB_RUN_FUNCTION(LogicFourInputNand)
 {
-	NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) && NCAPSA_bIn(1) && NCAPSA_bIn(2) && NCAPSA_bIn(3));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    NCAPSA_bOut(0) = (ehs_bool)!(NCAPSA_bIn(0) && NCAPSA_bIn(1) && NCAPSA_bIn(2) && NCAPSA_bIn(3));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define xyzzy function block */
 
 EHS_FB_FUNCTIONS_START(LogicXor)
-EHS_FB_FUNCTION_ENTRY("Run_LogicXor", LogicXor)
+
+EHS_FB_FUNCTION_ENTRY("Run_LogicXor", 0x00, LogicXor)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -688,7 +708,7 @@ EHS_FB_IDENTIFY_FUNCTION(LogicXor)
  */
 EHS_FB_INIT_FUNCTION(LogicXor)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -700,9 +720,9 @@ EHS_FB_INIT_FUNCTION(LogicXor)
  */
 EHS_FB_RUN_FUNCTION(LogicXor)
 {
-	NCAPSA_bOut(0) = (ehs_bool)(NCAPSA_bIn(0) ^ NCAPSA_bIn(1));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    NCAPSA_bOut(0) = (ehs_bool)(NCAPSA_bIn(0) ^ NCAPSA_bIn(1));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 

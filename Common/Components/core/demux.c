@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /* demux.c
  *
  * src file for demultiplexer functions.  Demultiplexer functions have 2 or more
@@ -8,7 +17,6 @@
  * For definition of arguments in Ncapsa functions (Identify_, Init_ and Run_)
  * please see types.h.
  *
- * Lucid project stage two - NcapsaLtd - May 2005 - SDG
 */
 
 #include "target.h"
@@ -26,8 +34,10 @@
 /* Define DemultiplexTwoOutputInt function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexTwoOutputInt)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexTwoOutputInt1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexTwoOutputInt2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexTwoOutputInt1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexTwoOutputInt2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -53,7 +63,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexTwoOutputInt)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputInt)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -65,9 +75,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputInt)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputInt1)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -79,18 +89,21 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputInt1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputInt2)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define ConvertorBoolToTrigger function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexThreeOutputInt)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexThreeOutputInt1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexThreeOutputInt2)
-EHS_FB_FUNCTION_ENTRY("Run_Output3", DemultiplexThreeOutputInt3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexThreeOutputInt1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexThreeOutputInt2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexThreeOutputInt3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -115,7 +128,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexThreeOutputInt)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputInt)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -127,9 +140,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputInt)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputInt1)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -141,9 +154,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputInt1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputInt2)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -155,19 +168,23 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputInt2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputInt3)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define ConvertorBoolToTrigger function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexFourOutputInt)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexFourOutputInt1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexFourOutputInt2)
-EHS_FB_FUNCTION_ENTRY("Run_Output3", DemultiplexFourOutputInt3)
-EHS_FB_FUNCTION_ENTRY("Run_Output4", DemultiplexFourOutputInt4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexFourOutputInt1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexFourOutputInt2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexFourOutputInt3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x03, DemultiplexFourOutputInt4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -192,7 +209,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexFourOutputInt)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexFourOutputInt)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -204,9 +221,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexFourOutputInt)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt1)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -218,9 +235,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt2)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -232,9 +249,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt3)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -246,9 +263,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt3)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt4)
 {
-	EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 
@@ -256,8 +273,10 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt4)
 /* Define DemultiplexTwoOutputBool function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexTwoOutputBool)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexTwoOutputBool1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexTwoOutputBool2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexTwoOutputBool1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexTwoOutputBool2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -282,7 +301,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexTwoOutputBool)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputBool)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -294,9 +313,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputBool)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputBool1)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -308,18 +327,21 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputBool1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputBool2)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define ConvertorBoolToTrigger function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexThreeOutputBool)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexThreeOutputBool1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexThreeOutputBool2)
-EHS_FB_FUNCTION_ENTRY("Run_Output3", DemultiplexThreeOutputBool3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexThreeOutputBool1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexThreeOutputBool2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexThreeOutputBool3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -344,7 +366,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexThreeOutputBool)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputBool)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -356,9 +378,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputBool)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputBool1)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -370,9 +392,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputBool1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputBool2)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -384,19 +406,23 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputBool2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputBool3)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define DemultiplexFourOutputBool function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexFourOutputBool)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexFourOutputBool1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexFourOutputBool2)
-EHS_FB_FUNCTION_ENTRY("Run_Output3", DemultiplexFourOutputBool3)
-EHS_FB_FUNCTION_ENTRY("Run_Output4", DemultiplexFourOutputBool4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexFourOutputBool1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexFourOutputBool2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexFourOutputBool3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x03, DemultiplexFourOutputBool4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -421,7 +447,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexFourOutputBool)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexFourOutputBool)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -433,9 +459,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexFourOutputBool)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool1)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -447,9 +473,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool2)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -461,9 +487,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool3)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -475,17 +501,19 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool3)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool4)
 {
-	EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define ConvertorBoolToTrigger function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexTwoOutputString)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexTwoOutputString1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexTwoOutputString2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexTwoOutputString1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexTwoOutputString2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -510,7 +538,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexTwoOutputString)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputString)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -522,9 +550,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputString)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputString1)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -536,18 +564,21 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputString1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputString2)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define DemultiplexThreeOutputString function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexThreeOutputString)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexThreeOutputString1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexThreeOutputString2)
-EHS_FB_FUNCTION_ENTRY("Run_Output3", DemultiplexThreeOutputString3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexThreeOutputString1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexThreeOutputString2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexThreeOutputString3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -572,7 +603,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexThreeOutputString)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputString)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -584,9 +615,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputString)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString1)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -598,9 +629,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString2)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -612,19 +643,23 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString3)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define DemultiplexFourOutputString function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexFourOutputString)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexFourOutputString1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexFourOutputString2)
-EHS_FB_FUNCTION_ENTRY("Run_Output3", DemultiplexFourOutputString3)
-EHS_FB_FUNCTION_ENTRY("Run_Output4", DemultiplexFourOutputString4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexFourOutputString1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexFourOutputString2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexFourOutputString3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x03, DemultiplexFourOutputString4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -649,7 +684,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexFourOutputString)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexFourOutputString)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -661,9 +696,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexFourOutputString)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString1)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -675,9 +710,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString2)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -689,9 +724,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString3)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -703,16 +738,17 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString3)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString4)
 {
-	strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 
 /* common index demux initialisation functions */
 
-typedef struct {
-	ehs_sint32 offset;
+typedef struct
+{
+    ehs_sint32 offset;
 } EhsIndexedDemuxParms;
 
 
@@ -727,7 +763,7 @@ typedef struct {
  */
 EHS_FB_IDENTIFY_FUNCTION(IndexedDemultiplexer)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(EhsIndexedDemuxParms);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(EhsIndexedDemuxParms);
 }
 
 /**
@@ -739,22 +775,23 @@ EHS_FB_IDENTIFY_FUNCTION(IndexedDemultiplexer)
  */
 EHS_FB_INIT_FUNCTION(IndexedDemultiplexer)
 {
-	EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*) EHS_FB_INIT_CONTEXT;
-	pCtx->offset = atoi(EHS_FB_INIT_PARAMETERS);
-	return EHS_TRUE; /* initialisation always succeeds */
+    EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*) EHS_FB_INIT_CONTEXT;
+    pCtx->offset = atoi(EHS_FB_INIT_PARAMETERS);
+    return EHS_TRUE; /* initialisation always succeeds */
 }
-	 
+
 /******************************************************************************/
 /* Define IndexedDemultiplexer_String function block */
 //@todo - this code refers to function in Components sandbox, move/remove?
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_String)
-EHS_FB_FUNCTION_ENTRY("Run", IndexedDemultiplexer_String)
+
+EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_String)
 EHS_FB_FUNCTIONS_END
 
 /**
  * Copy the input to the output correpsonding to the input value
  * Also set the event corresponding to the input value.
- * 
+ *
  * If the input value is out of range, set the overflow.
  *
  * This function provides access to:
@@ -763,35 +800,39 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_String)
 {
-	EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
+    EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
 
-	EhsDataflowIntType index = EHS_FB_IN_I(1)+1-pCtx->offset;
+    EhsDataflowIntType index = EHS_FB_IN_I(1)+1-pCtx->offset;
 
-	if (index>8) {
-		EHS_FB_OUT_I(8)=index-8; /**< shouldn't this be EHS_FB_OUT_I(1) @todo check this */
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
-	}
-	else if (index<1) {
-	}
-	else { //Everything OK !
-		EhsStrcpy(EHS_FB_OUT_S(index-1), EHS_FB_IN_S(0)); // index-1+1: the output is offset by one as the offset is first output)
-		EHS_FB_OUT_I(8)=0;
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
-	}
-	return;
+    if (index>8)
+    {
+        EHS_FB_OUT_I(8)=index-8; /**< shouldn't this be EHS_FB_OUT_I(1) @todo check this */
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
+    }
+    else if (index<1)
+    {
+    }
+    else   //Everything OK !
+    {
+        EhsStrcpy(EHS_FB_OUT_S(index-1), EHS_FB_IN_S(0)); // index-1+1: the output is offset by one as the offset is first output)
+        EHS_FB_OUT_I(8)=0;
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
+    }
+    return;
 }
 
 /******************************************************************************/
 /* Define IndexedDemultiplexer_Int function block */
 //@todo - this code refers to function in Components sandbox, move/remove?
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_Int)
-EHS_FB_FUNCTION_ENTRY("Run", IndexedDemultiplexer_Int)
+
+EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_Int)
 EHS_FB_FUNCTIONS_END
 
 /**
  * Copy the input to the output correpsonding to the input value
  * Also set the event corresponding to the input value.
- * 
+ *
  * If the input value is out of range, set the overflow.
  *
  * This function provides access to:
@@ -800,37 +841,41 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Int)
 {
-	EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
+    EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
 
-	EhsDataflowIntType index = EHS_FB_IN_I(1)+1-pCtx->offset;
+    EhsDataflowIntType index = EHS_FB_IN_I(1)+1-pCtx->offset;
 
-	EhsDataflowIntType value = EHS_FB_IN_I(0);
+    EhsDataflowIntType value = EHS_FB_IN_I(0);
 
-	if (index>8) {
-		EHS_FB_OUT_I(8)=index-8; /**< shouldn't this be EHS_FB_OUT_I(1) @todo check this */
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
-	}
-	else if (index<1) {
-	}
-	else { //Everything OK !
-		EHS_FB_OUT_I(index-1) = value; // index-1+1: the output is offset by one as the offset is first output)
-		EHS_FB_OUT_I(8)=0;
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
-	}
-	return;
+    if (index>8)
+    {
+        EHS_FB_OUT_I(8)=index-8; /**< shouldn't this be EHS_FB_OUT_I(1) @todo check this */
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
+    }
+    else if (index<1)
+    {
+    }
+    else   //Everything OK !
+    {
+        EHS_FB_OUT_I(index-1) = value; // index-1+1: the output is offset by one as the offset is first output)
+        EHS_FB_OUT_I(8)=0;
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
+    }
+    return;
 }
 
 /******************************************************************************/
 /* Define IndexedDemultiplexer_Bool function block */
 //@todo - this code refers to function in Components sandbox, move/remove?
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_Bool)
-EHS_FB_FUNCTION_ENTRY("Run", IndexedDemultiplexer_Bool)
+
+EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_Bool)
 EHS_FB_FUNCTIONS_END
 
 /**
  * Copy the input to the output correpsonding to the input value
  * Also set the event corresponding to the input value.
- * 
+ *
  * If the input value is out of range, set the overflow.
  *
  * This function provides access to:
@@ -839,24 +884,27 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Bool)
 {
-	EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
+    EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
 
-	EhsDataflowIntType index = EHS_FB_IN_I(1)+1-pCtx->offset;
+    EhsDataflowIntType index = EHS_FB_IN_I(1)+1-pCtx->offset;
 
-	EhsDataflowBoolType value = EHS_FB_IN_B(0);
+    EhsDataflowBoolType value = EHS_FB_IN_B(0);
 
-	if (index>8) {
-		EHS_FB_OUT_I(8)=index-8; /**< shouldn't this be EHS_FB_OUT_I(1) @todo check this */
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
-	}
-	else if (index<1) {
-	}
-	else { //Everything OK !
-		EHS_FB_OUT_B(index-1) = value; // index-1+1: the output is offset by one as the offset is first output)
-		EHS_FB_OUT_I(8)=0;
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
-	}
-	return;
+    if (index>8)
+    {
+        EHS_FB_OUT_I(8)=index-8; /**< shouldn't this be EHS_FB_OUT_I(1) @todo check this */
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
+    }
+    else if (index<1)
+    {
+    }
+    else   //Everything OK !
+    {
+        EHS_FB_OUT_B(index-1) = value; // index-1+1: the output is offset by one as the offset is first output)
+        EHS_FB_OUT_I(8)=0;
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
+    }
+    return;
 }
 
 /******************************************************************************/
@@ -864,12 +912,13 @@ EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Bool)
 // other indexed demuxs have been moved to Components sandbox as can be replaced by other components combinations, this one can't so we're keeping it
 //@todo - move code to events
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_Event)
-EHS_FB_FUNCTION_ENTRY("Run", IndexedDemultiplexer_Event)
+
+EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_Event)
 EHS_FB_FUNCTIONS_END
 
 /**
  * Set the event corresponding to the input value.
- * 
+ *
  * If the input value is out of range, set the overflow.
  *
  * This function provides access to:
@@ -878,22 +927,25 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Event)
 {
-	EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
-	EhsDataflowIntType index = EHS_FB_IN_I(0)+1-pCtx->offset;
+    EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
+    EhsDataflowIntType index = EHS_FB_IN_I(0)+1-pCtx->offset;
 
-	// always trigger pass through
-	EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,10);
+    // always trigger pass through
+    EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,10);
 
-	if (index>8) {
-		EHS_FB_OUT_I(0)=index-8;
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
-	}
-	else if (index<1) {
-	}
-	else { //Everything OK !
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
-	}
-	return;
+    if (index>8)
+    {
+        EHS_FB_OUT_I(0)=index-8;
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
+    }
+    else if (index<1)
+    {
+    }
+    else   //Everything OK !
+    {
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
+    }
+    return;
 }
 
 /*************************************************************************************
@@ -901,8 +953,9 @@ EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Event)
  *  ************************************************************************************/
 
 
-typedef struct {
-	ehs_char * parmCases[8]; //allocated dynamically (auto deallocated) where entries are available
+typedef struct
+{
+    ehs_char * parmCases[8]; //allocated dynamically (auto deallocated) where entries are available
 } EhsTextCaseDemultiplexerParms;
 /**
  * Identify the function block. Determine the memory required.
@@ -916,7 +969,7 @@ typedef struct {
 
 EHS_FB_IDENTIFY_FUNCTION(TextCaseDemultiplexer_Event)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(EhsTextCaseDemultiplexerParms);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(EhsTextCaseDemultiplexerParms);
 }
 
 /**
@@ -930,35 +983,43 @@ EHS_FB_IDENTIFY_FUNCTION(TextCaseDemultiplexer_Event)
  */
 EHS_FB_INIT_FUNCTION(TextCaseDemultiplexer_Event)
 {
-	int i;
-	const ehs_char * pParams = (ehs_char *) EHS_FB_INIT_PARAMETERS;
-	ehs_char temp[EHS_STRING_LENGTH_MAX];
-	EhsTextCaseDemultiplexerParms *pCtx = (EhsTextCaseDemultiplexerParms*) EHS_FB_INIT_CONTEXT;
-	for (i = 0; i< 8 && pParams ; i++) {
-		temp[0]='\0';
-		pParams = EhsStrTrimL(pParams);
-		if (EhsStrncmp(pParams,"NULL",4) == 0) {
-			pCtx->parmCases[i] = NULL;
-			pParams+=4;
-		} else {
-			if (pParams[0] == '"') {
-				pParams = EhsGetQuoteDelimFromString(temp, pParams, EHS_STRING_LENGTH_MAX);
-			}
-			else { // assume we have some bare text
-				pParams = EhsGetWordFromString(temp, pParams);
-			}
+    int i;
+    const ehs_char * pParams = (ehs_char *) EHS_FB_INIT_PARAMETERS;
+    ehs_char temp[EHS_STRING_LENGTH_MAX];
+    EhsTextCaseDemultiplexerParms *pCtx = (EhsTextCaseDemultiplexerParms*) EHS_FB_INIT_CONTEXT;
+    for (i = 0; i< 8 && pParams ; i++)
+    {
+        temp[0]='\0';
+        pParams = EhsStrTrimL(pParams);
+        if (EhsStrncmp(pParams,"NULL",4) == 0)
+        {
+            pCtx->parmCases[i] = NULL;
+            pParams+=4;
+        }
+        else
+        {
+            if (pParams[0] == '"')
+            {
+                pParams = EhsGetQuoteDelimFromString(temp, pParams, EHS_STRING_LENGTH_MAX);
+            }
+            else   // assume we have some bare text
+            {
+                pParams = EhsGetWordFromString(temp, pParams);
+            }
 
-			if (EhsStrlen(temp) > 0) {
-				pCtx->parmCases[i] = EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX);
-				if (pCtx->parmCases[i])
-					EhsStrcpy(pCtx->parmCases[i],temp);
-			}
-			else {
-				pCtx->parmCases[i] = NULL;
-			}
-		}
-	}
-	return EHS_TRUE; /* initialisation always succeeds */
+            if (EhsStrlen(temp) > 0)
+            {
+                pCtx->parmCases[i] = EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX);
+                if (pCtx->parmCases[i])
+                    EhsStrcpy(pCtx->parmCases[i],temp);
+            }
+            else
+            {
+                pCtx->parmCases[i] = NULL;
+            }
+        }
+    }
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /******************************************************************************/
@@ -966,7 +1027,8 @@ EHS_FB_INIT_FUNCTION(TextCaseDemultiplexer_Event)
 // other indexed demuxs have been moved to Components sandbox as can be replaced by other components combinations, this one can't so we're keeping it
 //@todo - move code to events
 EHS_FB_FUNCTIONS_START(TextCaseDemultiplexer_Event)
-EHS_FB_FUNCTION_ENTRY("Run", TextCaseDemultiplexer_Event)
+
+EHS_FB_FUNCTION_ENTRY("Run", 0x00, TextCaseDemultiplexer_Event)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -989,33 +1051,38 @@ EHS_FB_FUNCTIONS_END
 
 EHS_FB_RUN_FUNCTION(TextCaseDemultiplexer_Event)
 {
-	EhsTextCaseDemultiplexerParms *pCtx = (EhsTextCaseDemultiplexerParms*)EHS_FB_RUN_CONTEXT;
-	int i;
-	ehs_char * psZcase[8] = {0};
-	ehs_bool bDefault = EHS_TRUE;
-	/* Choose where we get the cases from */
-	for (i = 0; i< 8 ; i++) {
-		if (EHS_FB_IN_CONNECTED_API2(i + EHS_PORTNUM_TextCaseDemultiplexer_Case_1)) psZcase[i] = EHS_FB_IN_S_API2( i + EHS_PORTNUM_TextCaseDemultiplexer_Case_1 );
-		else  psZcase[i] = pCtx->parmCases[i];
-	}
+    EhsTextCaseDemultiplexerParms *pCtx = (EhsTextCaseDemultiplexerParms*)EHS_FB_RUN_CONTEXT;
+    int i;
+    ehs_char * psZcase[8] = {0};
+    ehs_bool bDefault = EHS_TRUE;
+    /* Choose where we get the cases from */
+    for (i = 0; i< 8 ; i++)
+    {
+        if (EHS_FB_IN_CONNECTED_API2(i + EHS_PORTNUM_TextCaseDemultiplexer_Case_1)) psZcase[i] = EHS_FB_IN_S_API2( i + EHS_PORTNUM_TextCaseDemultiplexer_Case_1 );
+        else  psZcase[i] = pCtx->parmCases[i];
+    }
 
-	//return;
-	/*  Check for matches */
-	if (EHS_FB_IN_CONNECTED_API2(EHS_PORTNUM_TextCaseDemultiplexer_Test)) {
-		for (i = 0; i< 8 ; i++) {
-			if (psZcase[i]) {
-				if (EhsStrcmp(psZcase[i],EHS_FB_IN_S_API2(EHS_PORTNUM_TextCaseDemultiplexer_Test)) == 0) {
-					EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventCase1+i);
-					bDefault = EHS_FALSE;
-					break; // we only fire the first one found
-				}
-			}
-		}
-		if (bDefault == EHS_TRUE) EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventDefault);
-	}
-	else EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventDefault);
+    //return;
+    /*  Check for matches */
+    if (EHS_FB_IN_CONNECTED_API2(EHS_PORTNUM_TextCaseDemultiplexer_Test))
+    {
+        for (i = 0; i< 8 ; i++)
+        {
+            if (psZcase[i])
+            {
+                if (EhsStrcmp(psZcase[i],EHS_FB_IN_S_API2(EHS_PORTNUM_TextCaseDemultiplexer_Test)) == 0)
+                {
+                    EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventCase1+i);
+                    bDefault = EHS_FALSE;
+                    break; // we only fire the first one found
+                }
+            }
+        }
+        if (bDefault == EHS_TRUE) EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventDefault);
+    }
+    else EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventDefault);
 
-	return;
+    return;
 }
 
 
@@ -1024,8 +1091,10 @@ EHS_FB_RUN_FUNCTION(TextCaseDemultiplexer_Event)
 /* Define DemultiplexTwoOutputFloat function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexTwoOutputFloat)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexTwoOutputFloat1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexTwoOutputFloat2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexTwoOutputFloat1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexTwoOutputFloat2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1050,7 +1119,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexTwoOutputFloat)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputFloat)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -1062,9 +1131,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputFloat)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputFloat1)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -1076,18 +1145,21 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputFloat1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputFloat2)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define DemultiplexThreeOutputFloat function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexThreeOutputFloat)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexThreeOutputFloat1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexThreeOutputFloat2)
-EHS_FB_FUNCTION_ENTRY("Run_Output3", DemultiplexThreeOutputFloat3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexThreeOutputFloat1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexThreeOutputFloat2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexThreeOutputFloat3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1112,7 +1184,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexThreeOutputFloat)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputFloat)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -1124,9 +1196,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputFloat)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputFloat1)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -1138,9 +1210,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputFloat1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputFloat2)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -1152,19 +1224,23 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputFloat2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputFloat3)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define DemultiplexFourOutputFloat function block */
 
 EHS_FB_FUNCTIONS_START(DemultiplexFourOutputFloat)
-EHS_FB_FUNCTION_ENTRY("Run_Output1", DemultiplexFourOutputFloat1)
-EHS_FB_FUNCTION_ENTRY("Run_Output2", DemultiplexFourOutputFloat2)
-EHS_FB_FUNCTION_ENTRY("Run_Output3", DemultiplexFourOutputFloat3)
-EHS_FB_FUNCTION_ENTRY("Run_Output4", DemultiplexFourOutputFloat4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexFourOutputFloat1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexFourOutputFloat2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexFourOutputFloat3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x03, DemultiplexFourOutputFloat4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1189,7 +1265,7 @@ EHS_FB_IDENTIFY_FUNCTION(DemultiplexFourOutputFloat)
  */
 EHS_FB_INIT_FUNCTION(DemultiplexFourOutputFloat)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -1201,9 +1277,9 @@ EHS_FB_INIT_FUNCTION(DemultiplexFourOutputFloat)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat1)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -1215,9 +1291,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat2)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -1229,9 +1305,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat3)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /**
@@ -1243,22 +1319,23 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat3)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat4)
 {
-	EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
-	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-	return;
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
 }
 
 /******************************************************************************/
 /* Define IndexedDemultiplexer_Float function block */
 //@todo - this code refers to function in Components sandbox, move/remove?
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_Float)
-EHS_FB_FUNCTION_ENTRY("Run", IndexedDemultiplexer_Float)
+
+EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_Float)
 EHS_FB_FUNCTIONS_END
 
 /**
  * Copy the input to the output correpsonding to the input value
  * Also set the event corresponding to the input value.
- * 
+ *
  * If the input value is out of range, set the overflow.
  *
  * This function provides access to:
@@ -1267,24 +1344,27 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Float)
 {
-	EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
+    EhsIndexedDemuxParms *pCtx = (EhsIndexedDemuxParms*)EHS_FB_RUN_CONTEXT;
 
-	EhsDataflowIntType index = EHS_FB_IN_I(1)+1-pCtx->offset;
+    EhsDataflowIntType index = EHS_FB_IN_I(1)+1-pCtx->offset;
 
-	EhsDataflowFloatType value = EHS_FB_IN_F(0);
+    EhsDataflowFloatType value = EHS_FB_IN_F(0);
 
-	if (index>8) {
-		EHS_FB_OUT_I(8)=index-8; /**< shouldn't this be EHS_FB_OUT_I(1) @todo check this */
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
-	}
-	else if (index<1) {
-	}
-	else { //Everything OK !
-		EHS_FB_OUT_F(index-1) = value; // index-1+1: the output is offset by one as the offset is first output)
-		EHS_FB_OUT_I(8)=0;
-		EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
-	}
-	return;
+    if (index>8)
+    {
+        EHS_FB_OUT_I(8)=index-8; /**< shouldn't this be EHS_FB_OUT_I(1) @todo check this */
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,9);
+    }
+    else if (index<1)
+    {
+    }
+    else   //Everything OK !
+    {
+        EHS_FB_OUT_F(index-1) = value; // index-1+1: the output is offset by one as the offset is first output)
+        EHS_FB_OUT_I(8)=0;
+        EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
+    }
+    return;
 }
 
 #endif

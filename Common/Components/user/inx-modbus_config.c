@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx_uart.h"
 #include "inx-parameters.h"
@@ -8,7 +17,7 @@
 
 //ICB STATE VAR MACRO START -- DO NOT ALTER
 /* My Component state data structure. - Use this in your code! */
-typedef struct
+typedef struct inx_modbus_config_state
 {
 } inx_modbus_config_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
@@ -41,10 +50,10 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(modbus_config)
 {
-/* Uncomment the following if you need to parse the parameters to calculate memory required */
-/*
-	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
-	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_modbus_config_state_type);
+    /* Uncomment the following if you need to parse the parameters to calculate memory required */
+    /*
+    	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
+    EHS_FB_IDENTIFY_MEMORY = sizeof(inx_modbus_config_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
@@ -57,27 +66,27 @@ EHS_FB_IDENTIFY_FUNCTION(modbus_config)
 
 EHS_FB_INIT_FUNCTION(modbus_config)
 {
-	ehs_bool bRet = EHS_TRUE; /* assume success */
-	
-	//this is the reference to the object data for this instance of the function block
-	/*
-	inx_modbus_config_state_type* inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_INIT_CONTEXT;
-	*/
-	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+    ehs_bool bRet = EHS_TRUE; /* assume success */
 
-	/* Add any further intialisation code here */
-	return bRet; /* initialisation always succeeds */
+    //this is the reference to the object data for this instance of the function block
+    /*
+    inx_modbus_config_state_type* inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_INIT_CONTEXT;
+    */
+    /* read the initialisation parameters */
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+
+    /* Add any further intialisation code here */
+    return bRet; /* initialisation always succeeds */
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(modbus_config)
 {
-	/*
-	inx_modbus_config_state_type *inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_DESTROY_CONTEXT;
-	*/
-	//Your code below here
-	return EHS_TRUE;
+    /*
+    inx_modbus_config_state_type *inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_DESTROY_CONTEXT;
+    */
+    //Your code below here
+    return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 
@@ -91,16 +100,16 @@ EHS_FB_DESTROY_FUNCTION(modbus_config)
  */
 EHS_FB_RUN_FUNCTION(modbus_config_enable)
 {
-	/*
-	inx_modbus_config_state_type* inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_RUN_CONTEXT;
-	*/
-	
+    /*
+    inx_modbus_config_state_type* inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_RUN_CONTEXT;
+    */
 
-	// Your code here
-	ucMBAddress=(unsigned char)EHS_FB_IN_I_API2(INX_modbus_config_ARG_enable_id);
-	inxUARTModbusEnable();
-	if (EHS_FB_IN_CONNECTED_API2(INX_modbus_config_ARG_enable_id))
-	EHS_FB_FINISH(INX_modbus_config_ARG_enable_finishenable);
+
+    // Your code here
+    ucMBAddress=(unsigned char)EHS_FB_IN_I_API2(INX_modbus_config_ARG_enable_id);
+    inxUARTModbusEnable();
+    if (EHS_FB_IN_CONNECTED_API2(INX_modbus_config_ARG_enable_id))
+        EHS_FB_FINISH(INX_modbus_config_ARG_enable_finishenable);
 }//ICB FUNCTION enable MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION disable MACRO START -- DO NOT ALTER
 /**
@@ -112,10 +121,11 @@ EHS_FB_RUN_FUNCTION(modbus_config_enable)
  */
 EHS_FB_RUN_FUNCTION(modbus_config_disable)
 {
-	/*
-	inx_modbus_config_state_type* inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_RUN_CONTEXT;
-	*/
-	// Your code here
-	inxUARTModbusDisable();
-	EHS_FB_FINISH(INX_modbus_config_ARG_disable_finishdisable);
+    /*
+    inx_modbus_config_state_type* inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_RUN_CONTEXT;
+    */
+
+    // Your code here
+    inxUARTModbusDisable();
+    EHS_FB_FINISH(INX_modbus_config_ARG_disable_finishdisable);
 }//ICB FUNCTION disable MACRO END -- DO NOT ALTER THIS LINE

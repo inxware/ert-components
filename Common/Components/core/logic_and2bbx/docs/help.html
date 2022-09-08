@@ -1,97 +1,169 @@
 <html>
+
 <head>
-<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
 </head>
 
 <body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">LogicTwoInputAnd</span>
+      <!--these display in reverse order because they use float:right-->
+      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+    </div>
 
-<!--Name of Component-->
-<h1 class=component>
-LogicTwoInputAnd
-</h1>
-<!--General Description-->
-<p class=component>
-This component performs a logical AND operation on the Boolean data presented to the input ports and presents the result of the logical operation to the output data port.
-</p>
-<p class=component>
-A logical AND will present a value of "TRUE" to the data output if and only if, all the data inputs are "TRUE".
-</p>
-<p class=component>
-The logical operation is performed when the input event is triggered and the result of the Boolean operation is presented to the Boolean data output. The output event is triggered to signal the completion of the logical operation.
-</p>
-<!--Ports - form - short desc: long desc-->
-<h3 class=ports>Ports</h3>
-<ul class=noBullet><li>
-<h6 class=portsBool>
-[In]
-:
-<a name="[In]">
-</h6>
-<p class=ports>Data input, one of the Boolean values to be AND'd together.</p>
-  </li><li>
-<h6 class=portsBool>
-[In]
-:
-<a name="[In]">
-</h6>
-<p class=ports>Data input, one of the Boolean values to be AND'd together.</p>
-  </li><li>
-<h6 class=portsBool>
-[Out]
-:
-<a name="[Out]">
-</h6>
-<p class=ports>Data output, the result of the AND operation.</p>
-  </li><li>
-<h6 class=ports>
-[In]
-:
-<a name="[In]">
-</h6>
-<p class=ports>Event input, triggers the AND operation.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-:
-<a name="[Out]">
-</h6>
-<p class=ports>Event output, triggered when the AND operation is completed.</p>
-</li></ul>
-<p>
-<!--
-EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]">[In]</a>, <a href="#[In]">[In]</a>, <a href="#[Out]">[Out]</a>, <a href="#[In]">[In]</a>, <a href="#[Out]">[Out]</a>,
-</p>
--->
-<!--Parameters - form - short desc: long desc-->
-<h3 class=parameters>Parameters</h3>
-<p class=parameters>None.</p>
-<!--State Machine - form - image - example-->
-<h3 class=stateMachine>State Machine</h3>
-<p class=stateMachine>Stateless.</p>
-<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
-<!--profiles - form - list-->
-<h3 class=profiles>Profiles</h3>
-<p class=profiles>All.</p>
-<!--Toolbox-->
-<h3 class=toolbox>Toolbox</h3>
-<p class=toolbox>Core.</p>
-<!--Version-->
-<h3 class=version>Version</h3>
-<p class=version>v2.1.</p>
-<!--Dependencies - form - list-->
-<h3 class=dependencies>Native Dependencies</h3>
-<ul class=dependencies><li class=dependencies>
-<h6 class=dependencies>TDK1.1: </h6>
-<p class=dependencies></p>
-</li></ul>
-<!--Licence Type-->
-<h3 class=licenceType>Licence Type</h3>
-<p class=licenceType>LGPL.</p>
-<!--Component Supplier-->
-<h3 class=supplier>Component Supplier</h3>
-<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
-</body></html>
+    <!--General Description-->
+    <p class=component>
+      This component performs a logical AND operation on the Boolean data presented to the input ports and presents the result of the logical operation to the output data port.
+    </p>
+    <p class=component>
+      A logical AND will present a value of "TRUE" to the data output if and only if, all the data inputs are "TRUE".
+    </p>
+    <p class=component>
+      The logical operation is performed when the input event is triggered and the result of the Boolean operation is presented to the Boolean data output. The output event is triggered to signal the completion of the logical operation.
+    </p>
+  
+    <!--Parameters - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="parameters" class="toc_span">Parameters</span>
+      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
+      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
+      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
+    </div>
+    <table class="table_params">
+      <tr>
+        <th  style="width:60px;">name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>min.</th>
+        <th>max.</th>
+        <th>description</th>
+      </tr>
+    </table>
+
+    <!--Ports - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="ports" class="toc_span">Ports</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+    <table class="table">
+      <tr>
+        <th>In Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]"></a></td>
+        <td> Event input, triggers the AND operation.</td>
+      </tr>
+      <tr>
+        <th >Data In</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]"></a></td>
+        <td>Data input, one of the Boolean values to be AND'd together.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]"></a></td>
+        <td>Data input, one of the Boolean values to be AND'd together.</td>
+      </tr>
+      <tr>
+        <th >Data Out</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]"></a></td>
+        <td>Data output, the result of the AND operation.</td>
+      </tr>
+      <tr>
+        <th >Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]"></a></td>
+        <td>Event output, triggered when the AND operation is completed.</td>
+      </tr>
+      <tr>
+        <td>inc</td>
+        <td>Asserted if and only if an increment event is received and the count is less than
+          the maximum threshold.</td>
+      </tr>
+    </table>
+
+
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+     <table>
+      <tr class="fsm_row">
+        <td style="width:90px;">
+          <b>State Machine</b>
+        </td>
+        <td  colspan=5>
+        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
+          <span class="fsm_blob">state2</span>
+          &otimes;&nbsp;
+          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+          <span class="fsm_blob">state3</span> [doh]&rarr;
+          <span class="fsm_blob">state5</span> -->
+          None
+        </td>
+        <td>
+          <b></b>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Toolbox</b>
+        </td>
+        <td>
+          Core
+        </td>
+        <td class=heading-cell>
+          <b>Version</b>
+        </td>
+        <td>
+          v1.0.
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          MPL2.0
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Minumum DCC</b>
+        </td><td>A0000</td> 
+        <td class=heading-cell>
+          <b>Profiles</b>
+        </td>
+        <td>
+          All.
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+
+</html>

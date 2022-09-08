@@ -6,6 +6,13 @@
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/android_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/android_ALL/
 
+ifndef EHS_COMMS_API_SUPPORT
+	export  EHS_COMMS_API_SUPPORT=bsdsockets
+	DEFS += EHS_COMMS_API_SUPPORT_BSDSOCKETS
+    DEFS += EHS_COMMS_API_SUPPORT
+endif
+
+
 #OpenGl2.0
 LIB += log 
 

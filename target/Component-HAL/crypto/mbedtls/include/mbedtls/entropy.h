@@ -101,7 +101,7 @@ extern "C" {
  *                  MBEDTLS_ERR_ENTROPY_SOURCE_FAILED otherwise
  */
 typedef int (*mbedtls_entropy_f_source_ptr)(void *data, unsigned char *output, size_t len,
-                            size_t *olen);
+        size_t *olen);
 
 /**
  * \brief           Entropy source state
@@ -172,8 +172,8 @@ void mbedtls_entropy_free( mbedtls_entropy_context *ctx );
  * \return          0 if successful or MBEDTLS_ERR_ENTROPY_MAX_SOURCES
  */
 int mbedtls_entropy_add_source( mbedtls_entropy_context *ctx,
-                        mbedtls_entropy_f_source_ptr f_source, void *p_source,
-                        size_t threshold, int strong );
+                                mbedtls_entropy_f_source_ptr f_source, void *p_source,
+                                size_t threshold, int strong );
 
 /**
  * \brief           Trigger an extra gather poll for the accumulator
@@ -209,7 +209,7 @@ int mbedtls_entropy_func( void *data, unsigned char *output, size_t len );
  * \return          0 if successful
  */
 int mbedtls_entropy_update_manual( mbedtls_entropy_context *ctx,
-                           const unsigned char *data, size_t len );
+                                   const unsigned char *data, size_t len );
 
 #if defined(MBEDTLS_ENTROPY_NV_SEED)
 /**

@@ -81,13 +81,13 @@ int mbedtls_ssl_cache_get( void *data, mbedtls_ssl_session *session )
 
 #if defined(MBEDTLS_HAVE_TIME)
         if( cache->timeout != 0 &&
-            (int) ( t - entry->timestamp ) > cache->timeout )
+                (int) ( t - entry->timestamp ) > cache->timeout )
             continue;
 #endif
 
         if( session->ciphersuite != entry->session.ciphersuite ||
-            session->compression != entry->session.compression ||
-            session->id_len != entry->session.id_len )
+                session->compression != entry->session.compression ||
+                session->id_len != entry->session.id_len )
             continue;
 
         if( memcmp( session->id, entry->session.id,
@@ -105,7 +105,7 @@ int mbedtls_ssl_cache_get( void *data, mbedtls_ssl_session *session )
         if( entry->peer_cert.p != NULL )
         {
             if( ( session->peer_cert = mbedtls_calloc( 1,
-                                 sizeof(mbedtls_x509_crt) ) ) == NULL )
+                                       sizeof(mbedtls_x509_crt) ) ) == NULL )
             {
                 ret = 1;
                 goto exit;
@@ -113,7 +113,7 @@ int mbedtls_ssl_cache_get( void *data, mbedtls_ssl_session *session )
 
             mbedtls_x509_crt_init( session->peer_cert );
             if( mbedtls_x509_crt_parse( session->peer_cert, entry->peer_cert.p,
-                                entry->peer_cert.len ) != 0 )
+                                        entry->peer_cert.len ) != 0 )
             {
                 mbedtls_free( session->peer_cert );
                 session->peer_cert = NULL;
@@ -161,7 +161,7 @@ int mbedtls_ssl_cache_set( void *data, const mbedtls_ssl_session *session )
 
 #if defined(MBEDTLS_HAVE_TIME)
         if( cache->timeout != 0 &&
-            (int) ( t - cur->timestamp ) > cache->timeout )
+                (int) ( t - cur->timestamp ) > cache->timeout )
         {
             cur->timestamp = t;
             break; /* expired, reuse this slot, update timestamp */

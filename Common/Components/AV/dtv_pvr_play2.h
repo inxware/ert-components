@@ -1,12 +1,17 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file dtv_pvr_play.h
  * This declares the PVR playback functions for the DTV toolkit.
  *
  * @author: inx limited
- * @version: $Revision: 3991 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 #ifndef _EHS_DTV_PVR_PLAY_H
@@ -17,24 +22,19 @@
 
 #define EHS_AV_URI_PREFIX_FILE "file:///"
 
-#define EHS_FB_DTV_PVR_PLAY_NAME "DtvPvrPlay2"
+#define EHS_FB_NAME_DtvPvrPlay2 "DtvPvrPlay2"
+#define EHS_FB_ID_DtvPvrPlay2 0x837B
 
-#define EHS_FB_DTV_PVR_PLAY_GET_NAME "get"
-#define EHS_FB_DTV_PVR_PLAY_SET_INPUT_NAME "setinput"
-#define EHS_FB_DTV_PVR_PLAY_SET_POS_NAME "setpos"
-#define EHS_FB_DTV_PVR_PLAY_SET_TIME_NAME "settime"
-#define EHS_FB_DTV_PVR_PLAY_PLAY_NAME "play"
-#define EHS_FB_DTV_PVR_PLAY_PAUSE_NAME "pause"
-#define EHS_FB_DTV_PVR_PLAY_REV_NAME "reverse"
-#define EHS_FB_DTV_PVR_PLAY_FASTER_NAME "faster"
-#define EHS_FB_DTV_PVR_PLAY_SLOWER_NAME "slower"
-#define EHS_FB_DTV_PVR_PLAY_STOP_NAME "stop"
-#define EHS_FB_DTV_PVR_PLAY_END_NAME "end"
-#define EHS_FB_DTV_PVR_PLAY_ERR_NAME "error"
-#define EHS_FB_DTV_PVR_PLAY_SET_WINDOW_NAME "setWindow"
-#define EHS_FB_DTV_PVR_PLAY_SET_INDEX_NAME "playIndex"
-#define EHS_FB_DTV_PVR_PLAY_TO_FRONT "toFront"
-#define EHS_FB_DTV_PVR_PLAY_TO_BACK "toBack"
+
+
+
+#define EHS_FB_NAME_DTV_PVR_PLAY_ERR_NAME "error"
+#define EHS_FB_ID_DTV_PVR_PLAY_ERR_NAME 0xBE5A
+
+
+#define EHS_FB_NAME_DTV_PVR_PLAY_SET_INDEX_NAME "playIndex"
+#define EHS_FB_ID_DTV_PVR_PLAY_SET_INDEX_NAME 0x5BB3
+
 
 /* declare functions provided by this function block */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DtvPvrPlay2);

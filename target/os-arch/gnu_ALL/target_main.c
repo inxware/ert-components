@@ -1,13 +1,18 @@
-/** @file 
- * target_main.c
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
+/** @file target_main.c
  * This file represents the main entry point for the target. Typically
  * it also incldes an event handler, should the target require one.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 1272 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 /**
@@ -64,43 +69,47 @@ EHS_LOCAL void EhsTargetHandleTerm(int);
  *
 
 void* EhsL_server(void* pDummy) {
-	printf("server started up\n");
 	EhsSvcTcp_server(NULL);
 }
 */
 
 /* linux (and gnu) is always ready as soon as main is run */
-ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob) {
-	return EHS_TRUE;
+ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob)
+{
+    return EHS_TRUE;
 }
 
-/** 
+/**
  * Main entry point to the application.
  * @return Integer representing exit code of application.
  *
  */
 EhsTargetIntType main(int argc, ehs_char ** argv )
 {
-	pid_t pID;
+    pid_t pID;
 //#define EHS_DONT_BUF_STDOUT
 #ifdef EHS_DONT_BUF_STDOUT
-	setbuf(stdout, NULL);
+    setbuf(stdout, NULL);
 #endif
-	ehs_char buf[EHS_MAXPATHLENGTH];
-	getcwd(buf,EHS_MAXPATHLENGTH); // Note this must be implemented for mingw
-	EhsHStoreArgInfo(argc,argv,buf);
-	EHSH_LOG_INFO("EHS starting up\n");
-	signal(SIGTERM,EhsTargetHandleTerm);
-	signal(SIGINT, EhsTargetHandleTerm);
+    ehs_char buf[EHS_MAXPATHLENGTH];
+    getcwd(buf,EHS_MAXPATHLENGTH); // Note this must be implemented for mingw
+    EhsHStoreArgInfo(argc,argv,buf);
+    EHSH_LOG_INFO("EHS starting up\n");
+    signal(SIGTERM,EhsTargetHandleTerm);
+    signal(SIGINT, EhsTargetHandleTerm);
 #ifdef EHS_CATCH_SIG_IGN_TO_NULL
-	/* BAcking out - this is handled in libcurl (possibly) -
-	 * It doesn't seem to help when the devman server is busy as things go off line. Perhaps they would be killed otherwise?
-	 *  -- a kill would probably be better than the current behaviour of going off line permenantly */
-	sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
+    /* BAcking out - this is handled in libcurl (possibly) -
+     * It doesn't seem to help when the devman server is busy as things go off line. Perhaps they would be killed otherwise?
+     *  -- a kill would probably be better than the current behaviour of going off line permenantly */
+    sigaction(SIGPIPE, &(struct sigaction)
+    {
+        SIG_IGN
+    }, NULL);
 #endif
-	EhsMain(NULL,NULL); /* doesn't return in this version */
-	EhsExit(0);
-	return 0;
+
+    EhsMain(NULL,NULL); /* doesn't return in this version */
+    EhsExit(0);
+    return 0;
 }
 
 /**
@@ -108,6 +117,6 @@ EhsTargetIntType main(int argc, ehs_char ** argv )
  */
 void EhsTargetHandleTerm(int sig)
 {
-	/* Tod we should call some HAL tear down functions here libxml , libcurl etc.*/
-	EhsExit(0);
+    /* Tod we should call some HAL tear down functions here libxml , libcurl etc.*/
+    EhsExit(0);
 }

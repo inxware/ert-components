@@ -54,7 +54,8 @@ mkdir -p "${DEBIAN_WORKING_BASE}/debian/DEBIAN"
 #make a copy of our cosey runtime 
 pwd
 ls "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/"
-#echo "XXXX1"
+echo "XXXX1"
+echo "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/ -> ${DEBIAN_WORKING_BASE}/debian/opt/ehs/"
 cp -Rf "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/" "${DEBIAN_WORKING_BASE}/debian/opt/ehs/"
 
 # Some belt and braces clean up if not done properly already 
@@ -119,7 +120,7 @@ if [ "${SYSTEM_VARIANT}" == "ambifier2" -o "${SYSTEM_VARIANT}" == "ambifier-deb1
   echo "Architecture: amd64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 else
 echo "SYSTEM_VARIANT=$SYSTEM_VARIANT"
-  echo "Architecture: i386" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+ echo "Architecture: i386" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 #echo "Depends: " >> ./debian/DEBIAN/control
   if [ "${SYSTEM_VARIANT}" == "ambifier" -o "${SYSTEM_VARIANT}" == "ambifier-debug" ]; then
     echo "Depends: xorg,ambifier" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
@@ -395,7 +396,6 @@ popd
 
 # Check to see if this needs to be installed in a Debian package server
 test -z "${UPLOADPORT}" && export  UPLOADPORT=8822
-
 fi
 
 if [ -n "${UPLOAD}" ];then

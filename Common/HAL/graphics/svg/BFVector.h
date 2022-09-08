@@ -3,15 +3,15 @@
  *
  *  Version : 6.4.0_2271s
  *     Date : 20080508-20.49.08
- *                
+ *
  *
  * (c) COPYRIGHT 2002- 2008 Open Text Corp. - BitFlash Division. ALL RIGHTS RESERVED
  *
  *
  * This software is the property and confidential information of Open Text and is furnished under
- * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.  
+ * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.
  *
- * This software may not be copied, transmitted, provided to or otherwise made available to any other person, 
+ * This software may not be copied, transmitted, provided to or otherwise made available to any other person,
  * company, corporation or other entity except as specified in the terms of said license.
  *
  * This copyright notice may not be removed or altered without the prior written permission of Open Text.
@@ -22,7 +22,7 @@
  * \file BFVector.h
  *
  * This file defines a Vector class.
- * 
+ *
  * Copyright ©2000-2002 BitFlash Graphics Inc. All rights reserved.
  */
 
@@ -36,7 +36,7 @@
 #ifdef __cplusplus
 BF_BEGIN_EXTERN_C
 #endif
-    
+
 /* Define the type for a vector index.
    Also define an invalid index which, if used, has a better chance of being detected
    as a memory violation than if -1 was used.  Using -1 as an array index is more
@@ -119,14 +119,14 @@ BF_PLAYER_IMPORT void BFVectorRemoveItem( BFVector *pVector, BFVectorIndex Index
         (vector)->m_uNumberOfItems--;   \
     else \
         BFVectorRemoveItem( (vector), (Index) )
-        
+
 /* Ensure the vector can hold the specified number of elements.
    Return BF_TRUE if vector has been resized to hold at least the specified
    number of elements.  Return BF_FALSE if not enough capacity. */
 BF_PLAYER_IMPORT BF_BOOL BFVectorEnsureCapacity( BFVector *pVector, BFVectorIndex Size );
 #define BF_VECTOR_CAPACITY( vector, size ) \
     BFVectorEnsureCapacity( (vector), (size) )
-    
+
 /* Add an object to the end of the vector and return the index of the new object */
 BF_PLAYER_IMPORT BFVectorIndex BFVectorAppendItem( BFVector *pVector, void const *pObject );
 #define BF_VECTOR_APPEND( vector, object ) \
@@ -138,9 +138,9 @@ BF_PLAYER_IMPORT BFVectorIndex BFVectorAppendItems( BFVector *pVector, void cons
     BFVectorAppendItems( (vector), (object), (count) )
 
 
-/* Inserts the object at the given index. If the index is equal to zero, 
+/* Inserts the object at the given index. If the index is equal to zero,
    the point will be prepended to the list. If the index is greater
-   than the length of the list, the point will be appended to the list. 
+   than the length of the list, the point will be appended to the list.
    Returns the index of the point. */
 BF_PLAYER_IMPORT BFVectorIndex BFVectorInsertItemBefore( BFVector *pVector, BFVectorIndex Index, void const *pObject );
 #define BF_VECTOR_INSERT( vector, Index, object ) \

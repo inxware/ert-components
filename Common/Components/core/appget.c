@@ -1,9 +1,17 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /* appget.c
  *
  * functions for use in the EHS system providing POSIX compliant file access.
  *
  *
- * Lucid project stage one - inx ltd 2011
 */
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
@@ -48,11 +56,11 @@
 
 /******************************************************************************/
 /* Define app info get function block */
-        /* Retrieves the app and runs it - but does not permanently install*/
- 		/* Retrieves the app and runs it - but does not permanently install*/
- 	 	/* Retries app and installs it. Optionally runs it.*/
- 		/* Gets a list of remote apps with version, dependency and user meta data filter.*/
-		/* Lists the installed apps with user meta data filter.*/
+/* Retrieves the app and runs it - but does not permanently install*/
+/* Retrieves the app and runs it - but does not permanently install*/
+/* Retries app and installs it. Optionally runs it.*/
+/* Gets a list of remote apps with version, dependency and user meta data filter.*/
+/* Lists the installed apps with user meta data filter.*/
 
 /* define some DEVMAN fail-over constants */
 
@@ -75,10 +83,10 @@
 
 
 EHS_FB_FUNCTIONS_START(appget)
-	EHS_FB_FUNCTION_ENTRY("listremote", appget_list_remote)
-	EHS_FB_FUNCTION_ENTRY("getinstall", appget_getapp)
-	EHS_FB_FUNCTION_ENTRY("getinfo", appget_getinfo)
-	EHS_FB_FUNCTIONS_END
+EHS_FB_FUNCTION_ENTRY("listremote", 0x00, appget_list_remote)
+EHS_FB_FUNCTION_ENTRY("getinstall", 0x01, appget_getapp)
+EHS_FB_FUNCTION_ENTRY("getinfo", 0x02, appget_getinfo)
+EHS_FB_FUNCTIONS_END
 
 //define the port mappings
 #define EHS_GETAPP_GETSTAT_PORT_FINISH 1
@@ -116,7 +124,8 @@ EHS_FB_FUNCTIONS_START(appget)
 #define EHS_GETAPP_GETLIST_LIST_DO  0
 #define EHS_GETAPP_GETLIST_ERROR_DO  1
 
-void nout() {
+void nout()
+{
 //just to stop the syntax checker carrying forward grunge.
 }
 
@@ -127,29 +136,33 @@ void nout() {
 
 
 /* This thread reads data from the URL using libcurl */
-EHS_FB_THREAD_FUNCTION(appget_read_data) {
+EHS_FB_THREAD_FUNCTION(appget_read_data)
+{
 
-	appgetObj *ObjData = (appgetObj*) EHS_FB_RUN_CONTEXT;
-	Ehs_FB_ThreadStarted();
-	if (HAL_AppGetRead_data(ObjData)) {
-		EHS_FB_FINISH(EHS_GETAPP_GETAPP_FINISH_EO);
-	}
-	else {
-		EHS_FB_FINISH(EHS_GETAPP_GETAPP_ERROR_EO);
-	}
-	Ehs_FB_ThreadComplete();
-	EhsHThread_exit();
+    appgetObj *ObjData = (appgetObj*) EHS_FB_RUN_CONTEXT;
+    Ehs_FB_ThreadStarted();
+    if (HAL_AppGetRead_data(ObjData))
+    {
+        EHS_FB_FINISH(EHS_GETAPP_GETAPP_FINISH_EO);
+    }
+    else
+    {
+        EHS_FB_FINISH(EHS_GETAPP_GETAPP_ERROR_EO);
+    }
+    Ehs_FB_ThreadComplete();
+    EhsHThread_exit();
 }
 
 /* Kick off our thread to retrieve an app, setting the busy flag and tidying up */
-EHS_FB_THREAD_FUNCTION(appget_getapp_thread) {
-	appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
-	ObjData->bBusy = EHS_FALSE;
-	Ehs_FB_ThreadStarted(); //@todo all these should be moved to the caller
-	HAL_appGetWaitForURLDataAndWrite(ObjData);
+EHS_FB_THREAD_FUNCTION(appget_getapp_thread)
+{
+    appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
+    ObjData->bBusy = EHS_FALSE;
+    Ehs_FB_ThreadStarted(); //@todo all these should be moved to the caller
+    HAL_appGetWaitForURLDataAndWrite(ObjData);
     /* and tidy up - we are function block thread */
-	Ehs_FB_ThreadComplete();
-	EhsHThread_exit();
+    Ehs_FB_ThreadComplete();
+    EhsHThread_exit();
 }
 
 
@@ -159,50 +172,63 @@ EHS_FB_THREAD_FUNCTION(appget_getapp_thread) {
 
 
 /* get app - install using api */
-EHS_FB_RUN_FUNCTION(appget_getapp){
-	appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
-	if (ObjData->bBusy==EHS_FALSE) {
-		ObjData->bBusy=EHS_TRUE;
-		if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETAPP_NAME_DI)) {
-			EhsStrcpy(ObjData->szAppCanonicalName, EHS_FB_IN_S(EHS_GETAPP_GETAPP_NAME_DI));
-		}
-		if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETAPP_RUN_DI)) {
-			ObjData->bRunWhenDone = EHS_FB_IN_B(EHS_GETAPP_GETAPP_RUN_DI);
-		}
-		if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETAPP_DEFAULT_DI)) {
-			ObjData->bSetAsDefaultApp = EHS_FB_IN_B(EHS_GETAPP_GETAPP_DEFAULT_DI);
-		}
-		if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETAPP_MODE_DI)) {
-			ObjData->nInstallMode = EHS_FB_IN_I(EHS_GETAPP_GETAPP_MODE_DI);
-		}
-		/*
-		 * Install Modes:
-		 * 0. Install as standard app - install in canonical dir
-		 * 1. Install as home app - install in default dir
-		 * 2. Install as temp app - install in temp dir
-		 */
-		if (ObjData->nInstallMode == 1) {
-			//@todo Install as Home App - This should could some credentials service - or be removed from 3rd -party component profiles
-			EhsAppMakeDownloadString(ObjData->szpDownloadDir, EHS_SYS_APP_DEFAULT_NAME);
-			EhsStrcpy(ObjData->szAppLocalName,EHS_SYS_APP_DEFAULT_NAME);
-		} else if (ObjData->nInstallMode == 2) {
-			// install as temp app
-			EhsAppMakeDownloadString(ObjData->szpDownloadDir,EHS_SYS_APP_TEMP_NAME);
-			EhsStrcpy(ObjData->szAppLocalName,EHS_SYS_APP_TEMP_NAME);
-		} else {
-			// install as standard app
-			EhsAppMakeDownloadString(ObjData->szpDownloadDir,ObjData->szAppCanonicalName);
-			EhsStrcpy(ObjData->szAppLocalName,ObjData->szAppCanonicalName);
-		}
+EHS_FB_RUN_FUNCTION(appget_getapp)
+{
+    appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
+    if (ObjData->bBusy==EHS_FALSE)
+    {
+        ObjData->bBusy=EHS_TRUE;
+        if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETAPP_NAME_DI))
+        {
+            EhsStrcpy(ObjData->szAppCanonicalName, EHS_FB_IN_S(EHS_GETAPP_GETAPP_NAME_DI));
+        }
+        if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETAPP_RUN_DI))
+        {
+            ObjData->bRunWhenDone = EHS_FB_IN_B(EHS_GETAPP_GETAPP_RUN_DI);
+        }
+        if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETAPP_DEFAULT_DI))
+        {
+            ObjData->bSetAsDefaultApp = EHS_FB_IN_B(EHS_GETAPP_GETAPP_DEFAULT_DI);
+        }
+        if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETAPP_MODE_DI))
+        {
+            ObjData->nInstallMode = EHS_FB_IN_I(EHS_GETAPP_GETAPP_MODE_DI);
+        }
+        /*
+         * Install Modes:
+         * 0. Install as standard app - install in canonical dir
+         * 1. Install as home app - install in default dir
+         * 2. Install as temp app - install in temp dir
+         */
+        if (ObjData->nInstallMode == 1)
+        {
+            //@todo Install as Home App - This should could some credentials service - or be removed from 3rd -party component profiles
+            EhsAppMakeDownloadString(ObjData->szpDownloadDir, EHS_SYS_APP_DEFAULT_NAME);
+            EhsStrcpy(ObjData->szAppLocalName,EHS_SYS_APP_DEFAULT_NAME);
+        }
+        else if (ObjData->nInstallMode == 2)
+        {
+            // install as temp app
+            EhsAppMakeDownloadString(ObjData->szpDownloadDir,EHS_SYS_APP_TEMP_NAME);
+            EhsStrcpy(ObjData->szAppLocalName,EHS_SYS_APP_TEMP_NAME);
+        }
+        else
+        {
+            // install as standard app
+            EhsAppMakeDownloadString(ObjData->szpDownloadDir,ObjData->szAppCanonicalName);
+            EhsStrcpy(ObjData->szAppLocalName,ObjData->szAppCanonicalName);
+        }
 
-		/* Start URL get thread to pump data into a buffer */
-		EHS_FB_START_THREAD(appget_read_data, -90);
-		/* Start Incremental archive decoder/writer */
-		EHS_FB_START_THREAD(appget_getapp_thread, -90);
-	}else {
-		EHS_FB_FINISH(EHS_GETAPP_GETAPP_ERROR_EO);
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETAPP_ERROR_DO),"busy");
-	}
+        /* Start URL get thread to pump data into a buffer */
+        EHS_FB_START_THREAD(appget_read_data, -90);
+        /* Start Incremental archive decoder/writer */
+        EHS_FB_START_THREAD(appget_getapp_thread, -90);
+    }
+    else
+    {
+        EHS_FB_FINISH(EHS_GETAPP_GETAPP_ERROR_EO);
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETAPP_ERROR_DO),"busy");
+    }
 }
 
 
@@ -220,7 +246,7 @@ EHS_FB_RUN_FUNCTION(appget_getapp){
 
 EHS_FB_IDENTIFY_FUNCTION(appget)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(appgetObj);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(appgetObj);
 }
 
 /**
@@ -234,26 +260,27 @@ EHS_FB_IDENTIFY_FUNCTION(appget)
 
 EHS_FB_INIT_FUNCTION(appget)
 {
-	appgetObj *ObjData = (appgetObj*)EHS_FB_INIT_CONTEXT;
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s%hhd%hhd%d",ObjData->szUrl,&ObjData->bRunWhenDone,&ObjData->bSetAsDefaultApp,&ObjData->nInstallMode);
-	if (EhsStrlen(ObjData->szUrl) == 0) EhsStrcpy(ObjData->szUrl,EHS_DEVMAN_DEFAULTBASEURL); /* set a default base devman URL if one isn't supplied */
+    appgetObj *ObjData = (appgetObj*)EHS_FB_INIT_CONTEXT;
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s%hhd%hhd%d",ObjData->szUrl,&ObjData->bRunWhenDone,&ObjData->bSetAsDefaultApp,&ObjData->nInstallMode);
+    if (EhsStrlen(ObjData->szUrl) == 0) EhsStrcpy(ObjData->szUrl,EHS_DEVMAN_DEFAULTBASEURL); /* set a default base devman URL if one isn't supplied */
 
-	ObjData->bBusy=EHS_FALSE;
-	ObjData->curl = curl_easy_init(); /* We can call this multiple times apparently, but not threaded *///@todo check that curl_global_init() is called before threads start
+    ObjData->bBusy=EHS_FALSE;
+    ObjData->curl = curl_easy_init(); /* We can call this multiple times apparently, but not threaded *///@todo check that curl_global_init() is called before threads start
 #warning memory leek - need to have curl close functions in tear down.
-	if (!ObjData->curl) {
-		EHSH_LOG_ERROR("Could not initialise CURL");
-	}
-	ObjData->server_info.http_username[0]='\0';
-	ObjData->server_info.http_password[0]='\0';
-	ObjData->server_info.authentication=0;
-	ObjData->URL_write_data_buffer_struct=NULL;
-	ObjData->bFreeWhenDone=EHS_FALSE; /* we keep this lying about for function blocks! */
-	EhsStrcpy(ObjData->szID,EhsHMetaGetHWID());
-	EhsStrcpy(ObjData->szpDownloadDir,""); // this is always set properly when needed.
-	EhsStrcpy(ObjData->szAppLocalName,"");
-	EhsStrcpy(ObjData->szUrlAppGetExtPath,EHS_DEVMAN_APPGETAPPURLPATH); /* Default appget URL appendic this is the normal path for the app downloader */
-	return EHS_TRUE; /* initialisation always succeeds */
+    if (!ObjData->curl)
+    {
+        EHSH_LOG_ERROR("Could not initialise CURL");
+    }
+    ObjData->server_info.http_username[0]='\0';
+    ObjData->server_info.http_password[0]='\0';
+    ObjData->server_info.authentication=0;
+    ObjData->URL_write_data_buffer_struct=NULL;
+    ObjData->bFreeWhenDone=EHS_FALSE; /* we keep this lying about for function blocks! */
+    EhsStrcpy(ObjData->szID,EhsHMetaGetHWID());
+    EhsStrcpy(ObjData->szpDownloadDir,""); // this is always set properly when needed.
+    EhsStrcpy(ObjData->szAppLocalName,"");
+    EhsStrcpy(ObjData->szUrlAppGetExtPath,EHS_DEVMAN_APPGETAPPURLPATH); /* Default appget URL appendic this is the normal path for the app downloader */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 
@@ -261,110 +288,124 @@ EHS_FB_INIT_FUNCTION(appget)
  * This needs a write buffer
  *
  * */
-EHS_FB_THREAD_FUNCTION(appget_getinfo_thread) {
-	appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
-	ehs_char * szXml;
-	ehs_uint32 http_no;
-	ehs_char szFullURL[EHS_MAXDEVMANNAMELEN];
-	ehs_char* PostString;
-	ehs_char * element_start;
-	ehs_char element_cropped[EHS_STRING_LENGTH_MAX];
-	ehs_char cName[EHS_STRING_LENGTH_MAX];
-	ehs_char cCommercialName[EHS_STRING_LENGTH_MAX];
-	ehs_char cVersion[EHS_STRING_LENGTH_MAX];
-	ehs_char cDescription[EHS_STRING_LENGTH_MAX];
-	//EhsHwrite_data_bufferType * write_data_buffer_struct;
-	Ehs_FB_ThreadStarted();
-	PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?ehs_char * PostString;
-	if (!PostString) {
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Insufficient memory");
-		EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
-		goto error;
-	}
-	PostString[0]='\0';
-	/* Allocate a buffer */
-	ObjData->URL_write_data_buffer_struct=EhsHDoAllGenericConfig(ObjData->curl,&ObjData->server_info, 64*1024, 50000,120);/* 2 minute timeouts and 50ms chunk gap */
+EHS_FB_THREAD_FUNCTION(appget_getinfo_thread)
+{
+    appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
+    ehs_char * szXml;
+    ehs_uint32 http_no;
+    ehs_char szFullURL[EHS_MAXDEVMANNAMELEN];
+    ehs_char* PostString;
+    ehs_char * element_start;
+    ehs_char element_cropped[EHS_STRING_LENGTH_MAX];
+    ehs_char cName[EHS_STRING_LENGTH_MAX];
+    ehs_char cCommercialName[EHS_STRING_LENGTH_MAX];
+    ehs_char cVersion[EHS_STRING_LENGTH_MAX];
+    ehs_char cDescription[EHS_STRING_LENGTH_MAX];
+    //EhsHwrite_data_bufferType * write_data_buffer_struct;
+    Ehs_FB_ThreadStarted();
+    PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?ehs_char * PostString;
+    if (!PostString)
+    {
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Insufficient memory");
+        EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
+        goto error;
+    }
+    PostString[0]='\0';
+    /* Allocate a buffer */
+    ObjData->URL_write_data_buffer_struct=EhsHDoAllGenericConfig(ObjData->curl,&ObjData->server_info, 64*1024, 50000,120);/* 2 minute timeouts and 50ms chunk gap */
 
-	/* Add any ssl certificates */
+    /* Add any ssl certificates */
 //#ifdef EHS_HACK
-	EhsHSetUpClientTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, NULL /* combined in PEM */, NULL);
+    EhsHSetUpClientTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, NULL /* combined in PEM */, NULL);
 //#endif
-	EhsHSetUpCaTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CA_CERTIFICATE);
+    EhsHSetUpCaTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CA_CERTIFICATE);
 
-	EhsHSetUpLocalProxy(ObjData->curl);
-	if (!ObjData->URL_write_data_buffer_struct) {
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"Could not configure URL get");
-		EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
-		goto error;
-	}
-	if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETINFO_SERVER_DI)) {
-		EhsStrcpy(ObjData->szUrl, EHS_FB_IN_S(EHS_GETAPP_GETINFO_SERVER_DI));
-	}
-	EhsStrcpy(szFullURL, ObjData->szUrl);
-	EhsStrcat(szFullURL, EHS_DEVMAN_APPGETINFOURLPATH);
-	if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETINFO_APP_DI)) {
-		EhsStrcpy(ObjData->szAppCanonicalName, EHS_FB_IN_S(EHS_GETAPP_GETINFO_APP_DI));
-	}
-	EhsHCreateQueryString(ObjData->curl,PostString, "AppCanonicalName", ObjData->szAppCanonicalName,EHS_POST_STRING_LENGTH_MAX);
-	EhsHCreateQueryString(ObjData->curl,PostString, "ID", ObjData->szID,EHS_POST_STRING_LENGTH_MAX);
-	//printf("-----> CURL = %x, szFullURL=%s: PostString=%s\n",ObjData->curl,szFullURL,PostString);
-	if (EhsHURLConfigPostGet(ObjData->curl,ObjData->URL_write_data_buffer_struct,szFullURL, PostString,EHS_TRUE)) {
-		http_no=EhsHURLdoRequest(ObjData->curl);
-	}
-	else http_no=0;
+    EhsHSetUpLocalProxy(ObjData->curl);
+    if (!ObjData->URL_write_data_buffer_struct)
+    {
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"Could not configure URL get");
+        EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
+        goto error;
+    }
+    if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETINFO_SERVER_DI))
+    {
+        EhsStrcpy(ObjData->szUrl, EHS_FB_IN_S(EHS_GETAPP_GETINFO_SERVER_DI));
+    }
+    EhsStrcpy(szFullURL, ObjData->szUrl);
+    EhsStrcat(szFullURL, EHS_DEVMAN_APPGETINFOURLPATH);
+    if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETINFO_APP_DI))
+    {
+        EhsStrcpy(ObjData->szAppCanonicalName, EHS_FB_IN_S(EHS_GETAPP_GETINFO_APP_DI));
+    }
+    EhsHCreateQueryString(ObjData->curl,PostString, "AppCanonicalName", ObjData->szAppCanonicalName,EHS_POST_STRING_LENGTH_MAX);
+    EhsHCreateQueryString(ObjData->curl,PostString, "ID", ObjData->szID,EHS_POST_STRING_LENGTH_MAX);
+    if (EhsHURLConfigPostGet(ObjData->curl,ObjData->URL_write_data_buffer_struct,szFullURL, PostString,EHS_TRUE))
+    {
+        http_no=EhsHURLdoRequest(ObjData->curl);
+    }
+    else http_no=0;
 
-	if (http_no == 200) {
-		szXml=EhsHURLget_write_data_buffer(ObjData->URL_write_data_buffer_struct);
-		if (szXml != NULL) {
-		EhsStrncpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO), szXml,EHS_STRING_LENGTH_MAX);
+    if (http_no == 200)
+    {
+        szXml=EhsHURLget_write_data_buffer(ObjData->URL_write_data_buffer_struct);
+        if (szXml != NULL)
+        {
+            EhsStrncpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO), szXml,EHS_STRING_LENGTH_MAX);
 
-		// very dirty bit of xml parsing - assuming tags always arrive in this order
-		EhsStrcpy(cName,"No Name Found");
-		EhsStrcpy(cCommercialName,"No Commercial Name Found");
-		EhsStrcpy(cVersion,"No Version Found");
-		EhsStrcpy(cDescription,"No Description Found");
+            // very dirty bit of xml parsing - assuming tags always arrive in this order
+            EhsStrcpy(cName,"No Name Found");
+            EhsStrcpy(cCommercialName,"No Commercial Name Found");
+            EhsStrcpy(cVersion,"No Version Found");
+            EhsStrcpy(cDescription,"No Description Found");
 
-		if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_NAME)) {
-			Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-			EhsStrcpy(cName,element_cropped);
-		}
-		if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_COMM_NAME)) {
-			Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-			EhsStrcpy(cCommercialName,element_cropped);
-		}
-		if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_VERSION)) {
-			Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-			EhsStrcpy(cVersion,element_cropped);
-		}
-		if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_DESCRIPTION)) {
-			Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
-			EhsStrcpy(cDescription,element_cropped);
-		}
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_NAME_DO), cName);
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_COMM_NAME_DO), cCommercialName);
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_VERSION_DO), cVersion);
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_DESCRIPTION_DO), cDescription);
+            if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_NAME))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                EhsStrcpy(cName,element_cropped);
+            }
+            if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_COMM_NAME))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                EhsStrcpy(cCommercialName,element_cropped);
+            }
+            if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_VERSION))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                EhsStrcpy(cVersion,element_cropped);
+            }
+            if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_DESCRIPTION))
+            {
+                Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+                EhsStrcpy(cDescription,element_cropped);
+            }
+            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_NAME_DO), cName);
+            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_COMM_NAME_DO), cCommercialName);
+            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_VERSION_DO), cVersion);
+            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_DESCRIPTION_DO), cDescription);
 
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "OK");
-		EHS_FB_FINISH(EHS_GETAPP_GETINFO_OK_EO);}
-		else {
-			EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Can not read internal data buffer");
-			EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
-		}
-	}
-	else {
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Can not access info URL");
-		EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
-	}
-	EhsHURLfree_write_data_buffer(ObjData->URL_write_data_buffer_struct);
-	ObjData->URL_write_data_buffer_struct = NULL;
+            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "OK");
+            EHS_FB_FINISH(EHS_GETAPP_GETINFO_OK_EO);
+        }
+        else
+        {
+            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Can not read internal data buffer");
+            EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
+        }
+    }
+    else
+    {
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Can not access info URL");
+        EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
+    }
+    EhsHURLfree_write_data_buffer(ObjData->URL_write_data_buffer_struct);
+    ObjData->URL_write_data_buffer_struct = NULL;
 
-	EhsHMem_tempFree(PostString);
-	PostString = NULL;
+    EhsHMem_tempFree(PostString);
+    PostString = NULL;
 
-	error:
-	Ehs_FB_ThreadComplete();
-	EhsHThread_exit();
+error:
+    Ehs_FB_ThreadComplete();
+    EhsHThread_exit();
 }
 
 #warning curl_easy_cleanup(curl) needs to be called somwhere - need a tear down function;
@@ -374,25 +415,30 @@ EHS_FB_THREAD_FUNCTION(appget_getinfo_thread) {
  *
  * Retrieve application meta data from a server
  */
-EHS_FB_RUN_FUNCTION(appget_getinfo) {
-	appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
-	if (!ObjData->curl) {
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO),"");
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"initialisation failed");
-		EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
-		return;
-	}
+EHS_FB_RUN_FUNCTION(appget_getinfo)
+{
+    appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
+    if (!ObjData->curl)
+    {
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO),"");
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"initialisation failed");
+        EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
+        return;
+    }
 
-	//@todo should have mutexing here for the busy flag
-	if (ObjData->bBusy==EHS_FALSE) {
-			EHS_FB_START_THREAD(appget_getinfo_thread,-90);
+    //@todo should have mutexing here for the busy flag
+    if (ObjData->bBusy==EHS_FALSE)
+    {
+        EHS_FB_START_THREAD(appget_getinfo_thread,-90);
 
-	}else {
-		ObjData->bBusy=EHS_TRUE;
-		EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO),"");
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"busy");
-	}
+    }
+    else
+    {
+        ObjData->bBusy=EHS_TRUE;
+        EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO),"");
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"busy");
+    }
 }
 
 
@@ -405,79 +451,91 @@ EHS_FB_RUN_FUNCTION(appget_getinfo) {
 #define 	EHS_GETAPP_GETLIST_KEYWORD_DI  0
 #define 	EHS_GETAPP_GETLIST_LIST_DO  0
 */
-EHS_FB_THREAD_FUNCTION(appget_list_remote) {
-	appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
-/* do post here */
-	ObjData->bBusy = EHS_FALSE;
-	ehs_char * szXml;
-	ehs_uint32 http_no;
-	ehs_char szFullURL[EHS_MAXDEVMANNAMELEN];
-	ehs_char* PostString;
-	//EhsHwrite_data_bufferType * write_data_buffer_struct;
-	Ehs_FB_ThreadStarted();
-	PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?ehs_char * PostString;
-	if (!PostString) {
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Insufficient memory");
-		EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
-		goto memory_error;
-	}
-	PostString[0]='\0';
-	/* Allocate a buffer */
-	ObjData->URL_write_data_buffer_struct=EhsHDoAllGenericConfig(ObjData->curl,&ObjData->server_info, 64*1024, 50000,480);/* 2 minute timeouts and 50ms chunk gap */
-	EhsHSetUpLocalProxy(ObjData->curl);
-	if (!ObjData->URL_write_data_buffer_struct) {
-			EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Could not configure URL get");
-			EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
-			goto memory_error;
-		}
-	if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETLIST_SERVER_DI)) {
-			EhsStrcpy(ObjData->szUrl, EHS_FB_IN_S(EHS_GETAPP_GETLIST_SERVER_DI));
-	}
-	EhsStrcpy(szFullURL,ObjData->szUrl);
-	EhsStrcat(szFullURL,EHS_DEVMAN_APPGETLISTURLPATH);
-	EhsHCreateQueryString(ObjData->curl,PostString, "KeyWords", EHS_FB_IN_S(EHS_GETAPP_GETLIST_KEYWORDS_DI),EHS_POST_STRING_LENGTH_MAX);
-	EhsHCreateQueryString(ObjData->curl,PostString, "ID", ObjData->szID,EHS_POST_STRING_LENGTH_MAX);
-	//printf("-----> CURL = %x, szFullURL=%s: PostString=%s\n",ObjData->curl,szFullURL,PostString);
-	if (EhsHURLConfigPostGet(ObjData->curl,ObjData->URL_write_data_buffer_struct,szFullURL, PostString,EHS_TRUE)) {
-		http_no=EhsHURLdoRequest(ObjData->curl);
-	}else http_no=0;
-	if (http_no == 200) {
-		szXml=EhsHURLget_write_data_buffer(ObjData->URL_write_data_buffer_struct);
-		//printf("Output XML=[[%s]]\n",szXml);
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO), szXml);
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "OK");
-		EHS_FB_FINISH(EHS_GETAPP_GETLIST_FINISH_EO);
-	}
-	else {
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Can not access URL");
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO), "");
-		EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
-	}
+EHS_FB_THREAD_FUNCTION(appget_list_remote)
+{
+    appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
+    /* do post here */
+    ObjData->bBusy = EHS_FALSE;
+    ehs_char * szXml;
+    ehs_uint32 http_no;
+    ehs_char szFullURL[EHS_MAXDEVMANNAMELEN];
+    ehs_char* PostString;
+    //EhsHwrite_data_bufferType * write_data_buffer_struct;
+    Ehs_FB_ThreadStarted();
+    PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?ehs_char * PostString;
+    if (!PostString)
+    {
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Insufficient memory");
+        EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
+        goto memory_error;
+    }
+    PostString[0]='\0';
+    /* Allocate a buffer */
+    ObjData->URL_write_data_buffer_struct=EhsHDoAllGenericConfig(ObjData->curl,&ObjData->server_info, 64*1024, 50000,480);/* 2 minute timeouts and 50ms chunk gap */
+    EhsHSetUpLocalProxy(ObjData->curl);
+    if (!ObjData->URL_write_data_buffer_struct)
+    {
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Could not configure URL get");
+        EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
+        goto memory_error;
+    }
+    if (EHS_FB_IN_CONNECTED(EHS_GETAPP_GETLIST_SERVER_DI))
+    {
+        EhsStrcpy(ObjData->szUrl, EHS_FB_IN_S(EHS_GETAPP_GETLIST_SERVER_DI));
+    }
+    EhsStrcpy(szFullURL,ObjData->szUrl);
+    EhsStrcat(szFullURL,EHS_DEVMAN_APPGETLISTURLPATH);
+    EhsHCreateQueryString(ObjData->curl,PostString, "KeyWords", EHS_FB_IN_S(EHS_GETAPP_GETLIST_KEYWORDS_DI),EHS_POST_STRING_LENGTH_MAX);
+    EhsHCreateQueryString(ObjData->curl,PostString, "ID", ObjData->szID,EHS_POST_STRING_LENGTH_MAX);
+    if (EhsHURLConfigPostGet(ObjData->curl,ObjData->URL_write_data_buffer_struct,szFullURL, PostString,EHS_TRUE))
+    {
+        http_no=EhsHURLdoRequest(ObjData->curl);
+    }
+    else http_no=0;
+    if (http_no == 200)
+    {
+        szXml=EhsHURLget_write_data_buffer(ObjData->URL_write_data_buffer_struct);
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO), szXml);
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "OK");
+        EHS_FB_FINISH(EHS_GETAPP_GETLIST_FINISH_EO);
+    }
+    else
+    {
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Can not access URL");
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO), "");
+        EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
+    }
 
-	memory_error:
-	if (ObjData->URL_write_data_buffer_struct) {
-		EhsHURLfree_write_data_buffer(ObjData->URL_write_data_buffer_struct);
-		ObjData->URL_write_data_buffer_struct = NULL;
-	}
-	if (PostString) EhsHMem_tempFree(PostString);
-	Ehs_FB_ThreadComplete();
-	EhsHThread_exit();
+memory_error:
+    if (ObjData->URL_write_data_buffer_struct)
+    {
+        EhsHURLfree_write_data_buffer(ObjData->URL_write_data_buffer_struct);
+        ObjData->URL_write_data_buffer_struct = NULL;
+    }
+    if (PostString) EhsHMem_tempFree(PostString);
+    Ehs_FB_ThreadComplete();
+    EhsHThread_exit();
 }
 
-EHS_FB_RUN_FUNCTION(appget_list_remote){
-	appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
-	if (!ObjData->curl) {
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO),"");
-		EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO),"initialisation failed");
-		EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
-		return;
-	}
-		if (ObjData->bBusy==EHS_FALSE) {
-			EHS_FB_START_THREAD(appget_list_remote,-90);
-		}else {
-			ObjData->bBusy=EHS_TRUE;
-			EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
-			EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO),"");
-			EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO),"busy");
-		}
+EHS_FB_RUN_FUNCTION(appget_list_remote)
+{
+    appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
+    if (!ObjData->curl)
+    {
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO),"");
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO),"initialisation failed");
+        EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
+        return;
+    }
+    if (ObjData->bBusy==EHS_FALSE)
+    {
+        EHS_FB_START_THREAD(appget_list_remote,-90);
+    }
+    else
+    {
+        ObjData->bBusy=EHS_TRUE;
+        EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO),"");
+        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO),"busy");
+    }
 }

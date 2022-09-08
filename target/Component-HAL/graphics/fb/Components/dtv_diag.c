@@ -1,11 +1,15 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
 /** @file dtv_diag.c
  * Contains the definition of the DTV diagnostic function
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 1238 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006), $
- * 
- * Copyright (c), inx limited, 2007. All rights reserved.
  */
 
 #include "target.h"
@@ -15,11 +19,11 @@
 #include "fid.h"
 
 EHS_FB_FUNCTIONS_START(DtvDiagStr)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_DIAGS_RUN_NAME, DtvDiagStr)
+EHS_FB_FUNCTION_ENTRY(EHS_FB_NAME_DTV_DIAGS_RUN_NAME, DtvDiagStr)
 EHS_FB_FUNCTIONS_END
 
 /**
- * Define the identify function. 
+ * Define the identify function.
  */
 EHS_FB_IDENTIFY_FUNCTION(DtvDiagStr)
 {
@@ -39,6 +43,5 @@ EHS_FB_INIT_FUNCTION(DtvDiagStr)
  */
 EHS_FB_RUN_FUNCTION(DtvDiagStr)
 {
-	printf("%s\n",EHS_FB_OUT_S(1));
 }
 

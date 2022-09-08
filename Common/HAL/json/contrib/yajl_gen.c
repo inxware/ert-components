@@ -24,7 +24,8 @@
 #include <math.h>
 #include <stdarg.h>
 
-typedef enum {
+typedef enum
+{
     yajl_gen_start,
     yajl_gen_map_start,
     yajl_gen_map_key,
@@ -54,36 +55,39 @@ yajl_gen_config(yajl_gen g, yajl_gen_option opt, ...)
     va_list ap;
     va_start(ap, opt);
 
-    switch(opt) {
-        case yajl_gen_beautify:
-        case yajl_gen_validate_utf8:
-            if (va_arg(ap, int)) g->flags |= opt;
-            else g->flags &= ~opt;
-            break;
-        case yajl_gen_indent_string: {
-            const char *indent = va_arg(ap, const char *);
-            g->indentString = indent;
-            for (; *indent; indent++) {
-                if (*indent != '\n'
+    switch(opt)
+    {
+    case yajl_gen_beautify:
+    case yajl_gen_validate_utf8:
+        if (va_arg(ap, int)) g->flags |= opt;
+        else g->flags &= ~opt;
+        break;
+    case yajl_gen_indent_string:
+    {
+        const char *indent = va_arg(ap, const char *);
+        g->indentString = indent;
+        for (; *indent; indent++)
+        {
+            if (*indent != '\n'
                     && *indent != '\v'
                     && *indent != '\f'
                     && *indent != '\t'
                     && *indent != '\r'
                     && *indent != ' ')
-                {
-                    g->indentString = NULL;
-                    rv = 0;
-                }
+            {
+                g->indentString = NULL;
+                rv = 0;
             }
-            break;
         }
-        case yajl_gen_print_callback:
-            yajl_buf_free(g->ctx);
-            g->print = va_arg(ap, const yajl_print_t);
-            g->ctx = va_arg(ap, void *);
-            break;
-        default:
-            rv = 0;
+        break;
+    }
+    case yajl_gen_print_callback:
+        yajl_buf_free(g->ctx);
+        g->print = va_arg(ap, const yajl_print_t);
+        g->ctx = va_arg(ap, void *);
+        break;
+    default:
+        rv = 0;
     }
 
     va_end(ap);
@@ -100,12 +104,15 @@ yajl_gen_alloc(const yajl_alloc_funcs * afs)
     yajl_alloc_funcs afsBuffer;
 
     /* first order of business is to set up memory allocation routines */
-    if (afs != NULL) {
+    if (afs != NULL)
+    {
         if (afs->malloc == NULL || afs->realloc == NULL || afs->free == NULL)
         {
             return NULL;
         }
-    } else {
+    }
+    else
+    {
         yajl_set_default_alloc_funcs(&afsBuffer);
         afs = &afsBuffer;
     }
@@ -139,7 +146,7 @@ yajl_gen_free(yajl_gen g)
     } else if (g->state[g->depth] == yajl_gen_map_val) {        \
         g->print(g->ctx, ":", 1);                               \
         if ((g->flags & yajl_gen_beautify)) g->print(g->ctx, " ", 1);                \
-   } 
+   }
 
 #define INSERT_WHITESPACE                                               \
     if ((g->flags & yajl_gen_beautify)) {                                                    \
@@ -200,7 +207,10 @@ yajl_gen_status
 yajl_gen_integer(yajl_gen g, long long int number)
 {
     char i[32];
-    ENSURE_VALID_STATE; ENSURE_NOT_KEY; INSERT_SEP; INSERT_WHITESPACE;
+    ENSURE_VALID_STATE;
+    ENSURE_NOT_KEY;
+    INSERT_SEP;
+    INSERT_WHITESPACE;
     sprintf(i, "%lld", number);
     g->print(g->ctx, i, (unsigned int)strlen(i));
     APPENDED_ATOM;
@@ -218,9 +228,11 @@ yajl_gen_status
 yajl_gen_double(yajl_gen g, double number)
 {
     char i[32];
-    ENSURE_VALID_STATE; ENSURE_NOT_KEY; 
+    ENSURE_VALID_STATE;
+    ENSURE_NOT_KEY;
     if (isnan(number) || isinf(number)) return yajl_gen_invalid_number;
-    INSERT_SEP; INSERT_WHITESPACE;
+    INSERT_SEP;
+    INSERT_WHITESPACE;
     sprintf(i, "%.20g", number);
     g->print(g->ctx, i, (unsigned int)strlen(i));
     APPENDED_ATOM;
@@ -231,7 +243,10 @@ yajl_gen_double(yajl_gen g, double number)
 yajl_gen_status
 yajl_gen_number(yajl_gen g, const char * s, size_t l)
 {
-    ENSURE_VALID_STATE; ENSURE_NOT_KEY; INSERT_SEP; INSERT_WHITESPACE;
+    ENSURE_VALID_STATE;
+    ENSURE_NOT_KEY;
+    INSERT_SEP;
+    INSERT_WHITESPACE;
     g->print(g->ctx, s, l);
     APPENDED_ATOM;
     FINAL_NEWLINE;
@@ -245,12 +260,16 @@ yajl_gen_string(yajl_gen g, const unsigned char * str,
     // if validation is enabled, check that the string is valid utf8
     // XXX: This checking could be done a little faster, in the same pass as
     // the string encoding
-    if (g->flags & yajl_gen_validate_utf8) {
-        if (!yajl_string_validate_utf8(str, len)) {
+    if (g->flags & yajl_gen_validate_utf8)
+    {
+        if (!yajl_string_validate_utf8(str, len))
+        {
             return yajl_gen_invalid_string;
         }
     }
-    ENSURE_VALID_STATE; INSERT_SEP; INSERT_WHITESPACE;
+    ENSURE_VALID_STATE;
+    INSERT_SEP;
+    INSERT_WHITESPACE;
     g->print(g->ctx, "\"", 1);
     yajl_string_encode(g->print, g->ctx, str, len, g->flags & yajl_gen_escape_solidus);
     g->print(g->ctx, "\"", 1);
@@ -262,7 +281,10 @@ yajl_gen_string(yajl_gen g, const unsigned char * str,
 yajl_gen_status
 yajl_gen_null(yajl_gen g)
 {
-    ENSURE_VALID_STATE; ENSURE_NOT_KEY; INSERT_SEP; INSERT_WHITESPACE;
+    ENSURE_VALID_STATE;
+    ENSURE_NOT_KEY;
+    INSERT_SEP;
+    INSERT_WHITESPACE;
     g->print(g->ctx, "null", strlen("null"));
     APPENDED_ATOM;
     FINAL_NEWLINE;
@@ -274,7 +296,10 @@ yajl_gen_bool(yajl_gen g, int boolean)
 {
     const char * val = boolean ? "true" : "false";
 
-	ENSURE_VALID_STATE; ENSURE_NOT_KEY; INSERT_SEP; INSERT_WHITESPACE;
+    ENSURE_VALID_STATE;
+    ENSURE_NOT_KEY;
+    INSERT_SEP;
+    INSERT_WHITESPACE;
     g->print(g->ctx, val, (unsigned int)strlen(val));
     APPENDED_ATOM;
     FINAL_NEWLINE;
@@ -284,9 +309,12 @@ yajl_gen_bool(yajl_gen g, int boolean)
 yajl_gen_status
 yajl_gen_map_open(yajl_gen g)
 {
-    ENSURE_VALID_STATE; ENSURE_NOT_KEY; INSERT_SEP; INSERT_WHITESPACE;
-    INCREMENT_DEPTH; 
-    
+    ENSURE_VALID_STATE;
+    ENSURE_NOT_KEY;
+    INSERT_SEP;
+    INSERT_WHITESPACE;
+    INCREMENT_DEPTH;
+
     g->state[g->depth] = yajl_gen_map_start;
     g->print(g->ctx, "{", 1);
     if ((g->flags & yajl_gen_beautify)) g->print(g->ctx, "\n", 1);
@@ -297,9 +325,9 @@ yajl_gen_map_open(yajl_gen g)
 yajl_gen_status
 yajl_gen_map_close(yajl_gen g)
 {
-    ENSURE_VALID_STATE; 
+    ENSURE_VALID_STATE;
     DECREMENT_DEPTH;
-    
+
     if ((g->flags & yajl_gen_beautify)) g->print(g->ctx, "\n", 1);
     APPENDED_ATOM;
     INSERT_WHITESPACE;
@@ -311,8 +339,11 @@ yajl_gen_map_close(yajl_gen g)
 yajl_gen_status
 yajl_gen_array_open(yajl_gen g)
 {
-    ENSURE_VALID_STATE; ENSURE_NOT_KEY; INSERT_SEP; INSERT_WHITESPACE;
-    INCREMENT_DEPTH; 
+    ENSURE_VALID_STATE;
+    ENSURE_NOT_KEY;
+    INSERT_SEP;
+    INSERT_WHITESPACE;
+    INCREMENT_DEPTH;
     g->state[g->depth] = yajl_gen_array_start;
     g->print(g->ctx, "[", 1);
     if ((g->flags & yajl_gen_beautify)) g->print(g->ctx, "\n", 1);

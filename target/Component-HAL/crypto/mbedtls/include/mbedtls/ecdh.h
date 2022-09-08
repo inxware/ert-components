@@ -69,8 +69,8 @@ mbedtls_ecdh_context;
  *                  or a MBEDTLS_ERR_ECP_XXX or MBEDTLS_MPI_XXX error code
  */
 int mbedtls_ecdh_gen_public( mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp_point *Q,
-                     int (*f_rng)(void *, unsigned char *, size_t),
-                     void *p_rng );
+                             int (*f_rng)(void *, unsigned char *, size_t),
+                             void *p_rng );
 
 /**
  * \brief           Compute shared secret
@@ -91,9 +91,9 @@ int mbedtls_ecdh_gen_public( mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp
  *                  attacks, see \c mbedtls_ecp_mul() for details.
  */
 int mbedtls_ecdh_compute_shared( mbedtls_ecp_group *grp, mbedtls_mpi *z,
-                         const mbedtls_ecp_point *Q, const mbedtls_mpi *d,
-                         int (*f_rng)(void *, unsigned char *, size_t),
-                         void *p_rng );
+                                 const mbedtls_ecp_point *Q, const mbedtls_mpi *d,
+                                 int (*f_rng)(void *, unsigned char *, size_t),
+                                 void *p_rng );
 
 /**
  * \brief           Initialize context
@@ -126,9 +126,9 @@ void mbedtls_ecdh_free( mbedtls_ecdh_context *ctx );
  * \return          0 if successful, or an MBEDTLS_ERR_ECP_XXX error code
  */
 int mbedtls_ecdh_make_params( mbedtls_ecdh_context *ctx, size_t *olen,
-                      unsigned char *buf, size_t blen,
-                      int (*f_rng)(void *, unsigned char *, size_t),
-                      void *p_rng );
+                              unsigned char *buf, size_t blen,
+                              int (*f_rng)(void *, unsigned char *, size_t),
+                              void *p_rng );
 
 /**
  * \brief           Parse and procress a TLS ServerKeyExhange payload.
@@ -141,7 +141,7 @@ int mbedtls_ecdh_make_params( mbedtls_ecdh_context *ctx, size_t *olen,
  * \return          0 if successful, or an MBEDTLS_ERR_ECP_XXX error code
  */
 int mbedtls_ecdh_read_params( mbedtls_ecdh_context *ctx,
-                      const unsigned char **buf, const unsigned char *end );
+                              const unsigned char **buf, const unsigned char *end );
 
 /**
  * \brief           Setup an ECDH context from an EC key.
@@ -156,7 +156,7 @@ int mbedtls_ecdh_read_params( mbedtls_ecdh_context *ctx,
  * \return          0 if successful, or an MBEDTLS_ERR_ECP_XXX error code
  */
 int mbedtls_ecdh_get_params( mbedtls_ecdh_context *ctx, const mbedtls_ecp_keypair *key,
-                     mbedtls_ecdh_side side );
+                             mbedtls_ecdh_side side );
 
 /**
  * \brief           Generate a public key and a TLS ClientKeyExchange payload.
@@ -172,9 +172,9 @@ int mbedtls_ecdh_get_params( mbedtls_ecdh_context *ctx, const mbedtls_ecp_keypai
  * \return          0 if successful, or an MBEDTLS_ERR_ECP_XXX error code
  */
 int mbedtls_ecdh_make_public( mbedtls_ecdh_context *ctx, size_t *olen,
-                      unsigned char *buf, size_t blen,
-                      int (*f_rng)(void *, unsigned char *, size_t),
-                      void *p_rng );
+                              unsigned char *buf, size_t blen,
+                              int (*f_rng)(void *, unsigned char *, size_t),
+                              void *p_rng );
 
 /**
  * \brief           Parse and process a TLS ClientKeyExchange payload.
@@ -187,7 +187,7 @@ int mbedtls_ecdh_make_public( mbedtls_ecdh_context *ctx, size_t *olen,
  * \return          0 if successful, or an MBEDTLS_ERR_ECP_XXX error code
  */
 int mbedtls_ecdh_read_public( mbedtls_ecdh_context *ctx,
-                      const unsigned char *buf, size_t blen );
+                              const unsigned char *buf, size_t blen );
 
 /**
  * \brief           Derive and export the shared secret.
@@ -203,9 +203,9 @@ int mbedtls_ecdh_read_public( mbedtls_ecdh_context *ctx,
  * \return          0 if successful, or an MBEDTLS_ERR_ECP_XXX error code
  */
 int mbedtls_ecdh_calc_secret( mbedtls_ecdh_context *ctx, size_t *olen,
-                      unsigned char *buf, size_t blen,
-                      int (*f_rng)(void *, unsigned char *, size_t),
-                      void *p_rng );
+                              unsigned char *buf, size_t blen,
+                              int (*f_rng)(void *, unsigned char *, size_t),
+                              void *p_rng );
 
 #ifdef __cplusplus
 }

@@ -230,7 +230,7 @@ unsigned long mbedtls_timing_hardclock( void )
 
     gettimeofday( &tv_cur, NULL );
     return( ( tv_cur.tv_sec  - tv_init.tv_sec  ) * 1000000
-          + ( tv_cur.tv_usec - tv_init.tv_usec ) );
+            + ( tv_cur.tv_usec - tv_init.tv_usec ) );
 }
 #endif /* !HAVE_HARDCLOCK */
 
@@ -248,8 +248,8 @@ unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int 
     QueryPerformanceFrequency( &hfreq );
 
     delta = (unsigned long)( ( 1000 *
-        ( offset.QuadPart - t->start.QuadPart ) ) /
-           hfreq.QuadPart );
+                               ( offset.QuadPart - t->start.QuadPart ) ) /
+                             hfreq.QuadPart );
 
     if( reset )
         QueryPerformanceCounter( &t->start );
@@ -295,7 +295,7 @@ unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int 
     }
 
     delta = ( offset.tv_sec  - t->start.tv_sec  ) * 1000
-          + ( offset.tv_usec - t->start.tv_usec ) / 1000;
+            + ( offset.tv_usec - t->start.tv_usec ) / 1000;
 
     return( delta );
 }
@@ -498,7 +498,7 @@ hard_test:
 
         /* Allow variation up to 20% */
         if( cycles / millisecs < ratio - ratio / 5 ||
-            cycles / millisecs > ratio + ratio / 5 )
+                cycles / millisecs > ratio + ratio / 5 )
         {
             hardfail++;
             goto hard_test;

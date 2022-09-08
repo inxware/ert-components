@@ -3,15 +3,15 @@
  *
  *  Version : 6.4.0_2271s
  *     Date : 20080508-20.49.08
- *                
+ *
  *
  * (c) COPYRIGHT 2002- 2008 Open Text Corp. - BitFlash Division. ALL RIGHTS RESERVED
  *
  *
  * This software is the property and confidential information of Open Text and is furnished under
- * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.  
+ * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.
  *
- * This software may not be copied, transmitted, provided to or otherwise made available to any other person, 
+ * This software may not be copied, transmitted, provided to or otherwise made available to any other person,
  * company, corporation or other entity except as specified in the terms of said license.
  *
  * This copyright notice may not be removed or altered without the prior written permission of Open Text.
@@ -19,10 +19,10 @@
  *
  */
 /** \file BFSVGDOM.h
- * 
- * This file defines the uDOM implementation of SVG features.  
+ *
+ * This file defines the uDOM implementation of SVG features.
  * Initial Author: Andrew Emmons
- *   
+ *
 */
 
 
@@ -38,12 +38,12 @@ BF_BEGIN_EXTERN_C
 #define BFDOM_HAS_ASCII_TRAITS
 
 
-/** 
+/**
  * \addtogroup BitFlash Module:BitFlash
  * @{
  */
 
-/** 
+/**
  * \defgroup DOMFloat DOMFloat
  *
  * @{
@@ -51,7 +51,7 @@ BF_BEGIN_EXTERN_C
  *    fixed point to float, if <b>BF_FLOAT</b> is defined.
  */
 
-/** BFDOM_Float is a 16.16 fixed point value 
+/** BFDOM_Float is a 16.16 fixed point value
  */
 typedef BFFixedPoint BFDOM_Float;
 
@@ -65,13 +65,13 @@ typedef struct
 } BFDOM_FloatEx;
 
 
-/** <b>binding-specific</b> - get the integer portion of the fixed point float value 
+/** <b>binding-specific</b> - get the integer portion of the fixed point float value
  * \param f a fixed-point number
  * \return the integer value of the fixed-point number
  */
 BF_PLAYER_IMPORT BF_INT16             BFDOM_Float_getInt( BFDOM_Float f );
 
-/** <b>binding-specific</b> - get the fraction portion of the fixed point float value. 
+/** <b>binding-specific</b> - get the fraction portion of the fixed point float value.
  * \param f a fixed-point number
  * \return the fraction value of the fixed-point number. The fraction is the returned value/65535
  */
@@ -83,13 +83,13 @@ BF_PLAYER_IMPORT BF_UINT16            BFDOM_Float_getFraction( BFDOM_Float f );
  */
 BF_PLAYER_IMPORT BFDOM_Float          BFDOM_Float_CreateFromFloat( float uNumber );
 
-/** <b>binding-specific</b> - only available when BF_FLOAT is defined. 
+/** <b>binding-specific</b> - only available when BF_FLOAT is defined.
  * \param uNumber a double floating-point number
  * \return uNumber converted into a fixed-point value
  */
 BF_PLAYER_IMPORT BFDOM_Float          BFDOM_Float_CreateFromDouble( double uNumber );
 
-/** <b>binding-specific</b> - only available when BF_FLOAT is defined. 
+/** <b>binding-specific</b> - only available when BF_FLOAT is defined.
  * \param uNumber a fixed-point number
  * \return uNumber converted into a floating-point value
  */
@@ -99,20 +99,20 @@ BF_PLAYER_IMPORT float                BFDOM_Float_GetFloat( BFDOM_Float uNumber 
  * \param f a fixed-point number representing seconds
  * \return f converted into an integer value represneting ms
  */
-BF_PLAYER_IMPORT BF_UINT32            BFDOM_Float_getMs( BFDOM_Float f ); 
+BF_PLAYER_IMPORT BF_UINT32            BFDOM_Float_getMs( BFDOM_Float f );
 /** @} */
 /** @} Module:BitFlash */
 
-/** 
+/**
  * \defgroup smil Module:smil
  * @{
  */
 
- /** 
- * \defgroup ElementTimeControl ElementTimeControl
- * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#smil__ElementTimeControl"><b>See</b> <i>W3C SVGT uDOM</i></A>
- * @{
- */
+/**
+* \defgroup ElementTimeControl ElementTimeControl
+* <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#smil__ElementTimeControl"><b>See</b> <i>W3C SVGT uDOM</i></A>
+* @{
+*/
 typedef BFDOM_Element       BFDOM_ElementTimeControl;
 
 BF_PLAYER_IMPORT BF_BOOL              BFDOM_ElementTimeControl_beginElement( BFDOM_ElementTimeControl *pElement );
@@ -121,7 +121,7 @@ BF_PLAYER_IMPORT BF_BOOL              BFDOM_ElementTimeControl_endElement( BFDOM
 BF_PLAYER_IMPORT BF_BOOL              BFDOM_ElementTimeControl_endElementAt( BFDOM_ElementTimeControl *pElement, BFDOM_Float offset );
 /** @} */
 
-/** 
+/**
  * \defgroup TimeEvent TimeEvent
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__TimeEvent"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -134,12 +134,12 @@ BF_PLAYER_IMPORT BF_UINT32                  BFDOM_TimeEvent_GetDetail( BFDOM_Tim
 /** @} Module:smil */
 
 
-/** 
+/**
  * \defgroup global Module:global
  * @{
  */
 
-/** 
+/**
  * \addtogroup GlobalException
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#global__GlobalException"><b>See</b> <i>W3C SVGT uDOM<i></A>
  * There is a special exception value GLOBAL_NO_EXCEPTION which is part of the W3C exception enumeration. This
@@ -160,35 +160,35 @@ typedef BF_UINT8 BFDOM_GlobalException;
 
 
 
-/** 
+/**
  * \defgroup svg Module:SVG
  * @{
  */
 
 
-/** 
- * \addtogroup AsyncURLStatus 
+/**
+ * \addtogroup AsyncURLStatus
  * @{
  */
 typedef struct
 {
-	BF_BOOL         success;
-	BFDOM_String    contentType;
-	BFDOM_String    content;
+    BF_BOOL         success;
+    BFDOM_String    contentType;
+    BFDOM_String    content;
 
 }  BFDOM_AsyncURLStatus;
 /** @} */
 
 
-/** 
- * \addtogroup AsyncStatusCallback 
+/**
+ * \addtogroup AsyncStatusCallback
  * @{
  */
 typedef void (*BFDOM_AsyncStatusCallback)( void *pCallbackData, BFDOM_AsyncURLStatus *pStatus );
 /** @} */
 
 
-/** 
+/**
  * \addtogroup SVGGlobal
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGGlobal"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -197,8 +197,8 @@ typedef BFSVG_Global        BFDOM_SVGGlobal;
 /** @} */
 
 
-/** 
- * \addtogroup SVGRGBColor 
+/**
+ * \addtogroup SVGRGBColor
  * @{
  */
 typedef struct
@@ -219,7 +219,7 @@ typedef struct
 /** @} */
 
 
-/** 
+/**
  * \addtogroup SVGRect SVGRect
  * @{
  */
@@ -242,8 +242,8 @@ typedef struct
 /** @} */
 
 
-/** 
- * \addtogroup SVGPoint 
+/**
+ * \addtogroup SVGPoint
  * @{
  */
 typedef struct
@@ -263,8 +263,8 @@ typedef struct
 /** @} */
 
 
-/** 
- * \addtogroup SVGPath SVGPath 
+/**
+ * \addtogroup SVGPath SVGPath
  * @{
  */
 typedef enum
@@ -298,10 +298,10 @@ typedef struct
 /** @} */
 
 
-/** 
+/**
  * \addtogroup SVGMatrix
  * @{
- * Memory management: Any method returning #BFDOM_SVGMatrix must free the returned 
+ * Memory management: Any method returning #BFDOM_SVGMatrix must free the returned
  *    values when not needed.
  */
 typedef BFMatrix2D*         BFDOM_SVGMatrix;
@@ -336,12 +336,12 @@ typedef struct
     BFDOM_Float d;
     BFDOM_Float e;
     BFDOM_Float f;
-    
+
 } BFDOM_SVGMatrixCreate;
 /** @} */
 
 
-/** 
+/**
  * \addtogroup SVGElement SVGElement
  * @{
  */
@@ -350,7 +350,7 @@ typedef BFDOM_Element       BFDOM_SVGElement;
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGException SVGException
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGException"><b>See</b> <i>W3C SVGT uDOM<i></A>
  * There is a special exception value SVG_NO_EXCEPTION which is part of the W3C exception enumeration. This
@@ -366,15 +366,15 @@ typedef BF_UINT8 BFDOM_SVGException;
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGDocument SVGDocument
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGDocument"><b>See</b><i>W3C SVGT uDOM</i></A>
  * @{
  */
-typedef BFDOM_Document      BFDOM_SVGDocument; 
+typedef BFDOM_Document      BFDOM_SVGDocument;
 
 
-/** 
+/**
  * <b>binding-specific</b> - get SVGGlobal object
  * \param pDocument a document pointer
  * \return the SVGGlobal interface
@@ -383,7 +383,7 @@ BF_PLAYER_IMPORT BFDOM_SVGGlobal *BFDOM_SVGDocument_getSVGGlobal( BFDOM_SVGDocum
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGElementInstance SVGElementInstance
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGElementInstance"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -392,7 +392,7 @@ typedef struct
 {
     BFDOM_SVGElement    *correspondingElement;
     BFDOM_SVGElement    *correspondingUseElement;
-    
+
 } BFDOM_SVGElementInstance;
 
 
@@ -414,7 +414,7 @@ BF_PLAYER_IMPORT BFDOM_SVGElementInstanceEx  BFDOM_SVGElementInstance_getInterfa
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGSVGElement SVGSVGElement
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGSVGElement"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -453,7 +453,7 @@ BF_PLAYER_IMPORT BFDOM_Node          *BFDOM_SVGSVGElement_getCurrentFocusedObjec
 */
 BF_PLAYER_IMPORT BFDOM_DOMException   BFDOM_SVGSVGElement_focusOn( BFDOM_SVGSVGElement *pElement, BFDOM_Node *pObject );
 
-/** 
+/**
  * <b>binding-specific</b> - BFDOM_SVGMatrixCreate was added to facilitate less arguments to BFDOM_SVGSVGElement_createSVGMatrixComponents.
  * This is not conformant to the w3c spec but reduces stack usage.
  * \param pElement an SVGSVGelement pointer
@@ -481,7 +481,7 @@ BF_PLAYER_IMPORT void                 BFDOM_SVGSVGElement_deleteSVGPath( BFHeapC
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGRGBColor SVGRGBcolor
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGRGBColor"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -489,14 +489,14 @@ BF_PLAYER_IMPORT void                 BFDOM_SVGSVGElement_deleteSVGPath( BFHeapC
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGRect SVGRect
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGRect"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
  */
 /** @} */
- 
-/** 
+
+/**
  * \defgroup SVGPoint SVGPoint
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGPoint"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -506,11 +506,11 @@ BF_PLAYER_IMPORT void                 BFDOM_SVGSVGElement_deleteSVGPath( BFHeapC
 BF_PLAYER_IMPORT BFDOM_SVGPointEx     BFDOM_SVGPoint_matrixTransform( BFDOM_SVGPoint *pPoint, BFDOM_SVGMatrix matrix );
 /** @} */
 
-/** 
+/**
  * \defgroup SVGPath SVGPath
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGPath"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
- * Memory management: Any method returning #BFDOM_SVGPath must free the returned 
+ * Memory management: Any method returning #BFDOM_SVGPath must free the returned
  *    values when not needed.
  */
 BF_PLAYER_IMPORT BF_UINT32            BFDOM_SVGPath_getNumberOfSegments( BFDOM_SVGPath path );
@@ -526,7 +526,7 @@ BF_PLAYER_IMPORT BFDOM_DOMException   BFDOM_SVGPath_close( BFHeapContext *pMemCt
 
 
 
-/** 
+/**
  * \defgroup SVGMatrix SVGMatrix
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGMatrix"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -544,7 +544,7 @@ BF_PLAYER_IMPORT BFDOM_SVGMatrixEx    BFDOM_SVGMatrix_copy( BFHeapContext *pMemC
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGLocatable SVGLocatable
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGLocatable"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -555,7 +555,7 @@ BF_PLAYER_IMPORT BFDOM_SVGRectEx      BFDOM_SVGLocatable_getScreenBBox( BFDOM_SV
 /** @} */
 
 
-/** 
+/**
  * \defgroup TraitAccess TraitAccess
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__TraitAccess"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -583,7 +583,7 @@ BF_PLAYER_IMPORT BFDOM_DOMException   BFDOM_TraitAccess_setMatrixTrait( BFDOM_SV
 BF_PLAYER_IMPORT BFDOM_DOMException   BFDOM_TraitAccess_setRectTrait( BFDOM_SVGElement *pElement,  BFDOM_String name, BFDOM_SVGRect *pValue );
 BF_PLAYER_IMPORT BFDOM_DOMException   BFDOM_TraitAccess_setPathTrait( BFDOM_SVGElement *pElement,  BFDOM_String name, BFDOM_SVGPath value );
 BF_PLAYER_IMPORT BFDOM_DOMException   BFDOM_TraitAccess_setRGBColorTrait( BFDOM_SVGElement *pElement,  BFDOM_String name, BFDOM_SVGRGBColor *pValue );
-/** 
+/**
  * \defgroup TraitAccessB binding-specific
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__TraitAccess"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -621,7 +621,7 @@ BF_PLAYER_IMPORT BFDOM_DOMException   BFDOM_TraitAccess_setRGBColorTraitA( BFDOM
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGElement SVGElement
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGElement"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -643,7 +643,7 @@ BF_PLAYER_IMPORT BF_BOOL              BFDOM_SVGElement_hasId( BFDOM_SVGElement *
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGTimedElement SVGTimedElement
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGTimedElement"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -656,7 +656,7 @@ BF_PLAYER_IMPORT BF_BOOL        BFDOM_SVGTimedElement_getIsPaused( BFDOM_SVGTime
 /** @} */
 
 
-/** 
+/**
  * \defgroup SVGGlobal SVGGlobal
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__SVGGlobal"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -671,15 +671,15 @@ BF_PLAYER_IMPORT BFDOM_Node *BFDOM_SVGGlobal_parseXML( BFDOM_SVGGlobal *pGlobal,
 /** @} */
 
 
-/** 
- * \defgroup AsyncStatusCallback AsyncStatusCallback 
+/**
+ * \defgroup AsyncStatusCallback AsyncStatusCallback
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__AsyncStatusCallback"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
  */
 /** @} */
 
 
-/** 
+/**
  * \defgroup AsyncURLStatus AsyncURLStatus
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__AsyncURLStatus"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{

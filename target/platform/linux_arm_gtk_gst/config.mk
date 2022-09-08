@@ -1,38 +1,16 @@
-#
-# config.mk - Configuration properties of the current platform
-# 
-# Called by ../../../Makefile
-#
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
 
-# @author: inx limited, Pierre Drezet
-# @version: $Revision: 43 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
-# 
-# Copyright (c) inx limited, 2007. All rights reserved.
-#
-#
+# @file config.mk 
+# inxware ERT configuration file for linux_arm_gtk_gst
+# @author: inx limited
 
-#DEBUG OPTIONS
-#EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
-export EHS_DEBUG=yes
-endif
-
-################################################################################################################
-# Define the specific variant of the architecture and OS - this selects different component support library sets
-################################################################################################################
-
-# SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
-#export SYSTEM_VARIANT=
-
-#COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-#Note - windows targets in component library use hyphens between components (randomly)
-export COMPONENT_VARIANT=gtk_gst
-
-# COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
 
 #################################################################################################################
 # Set general architecture and OS version 
@@ -40,55 +18,71 @@ export COMPONENT_VARIANT=gtk_gst
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
 export EHS_GNU_ARCH=arm
 #this must map onto the component library
-
 export EHS_GNU_OS=linux-gnu
 export EHS_GNU_OS_VERSION=glibc-2.12.2
-#Optional if different clib build is required - dangerous!
-#export EHS_CLIB_OVERRIDE_PATH=arm-linux-gnu-glibc-2.12.1-ti-blaze-ubuntu-10_10
 export KERNEL_VERSION=linux/2.6.35.9
-
 # ehs is more generic
 export EHS_ARCH=arm
 export EHS_OS=linux
-
 export CC_OVERRIDE=arm-none-linux-gnueabi-gcc
+# TOOLCHAIN_NAME is an optional alternative location to find the toolchain. 
+# Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
 export TOOLCHAIN_NAME=arm-none-linux-gnueabi-4.4.6
-#gcc-4.2.4-i686-pc-linux-gnu
 
+################################################################################################################
+# Configure debug/production levels
+################################################################################################################
+#DEBUG OPTIONS
+ifdef EHS_DEBUGALL
+# Or use one of the more fine-grained debug congurations
+# Or enable only stdout & serial console logging
+DEFS += EHS_RUNTIME_LOGGER_ENABLED
+DEFS += EHS_DEBUG_AV
+# Set ALL debug use this:
+export EHS_DEBUG=yes
+endif
 
-# uncomment this variable if the platform requires graphics/video support
-#
-# Set this to match one of the graphics types in EHS/target/graphics
-#EHS_GUI=none
-export EHS_GUI_SUPPORT=gtk
-#IS_RGBA=yes - delete this it is not used ..
-
-#
-# uncomment this variable if the platform requires audio / video support
-export EHS_AV_SUPPORT=gst
-
-#
-# uncomment this variable if the platform requires media manager support (e.g. SMIL, DLNA).
-export EHS_VIDEO_SUPPORT=yes
-export EHS_MEDIA_SUPPORT=all
-
-#
-# uncomment this variable if the platform requires NETWORKING e.g. devman plugins 
+################################################################################################################
+# Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
+################################################################################################################
 
 export EHS_NETWORKING_SUPPORT=all
-export EHS_COMPONENT_NETWORKING_SUPPORT=all
-
-#
-# uncomment this variable if the platform requires devman monitor support
+#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
 export EHS_DEVMAN_SUPPORT=all
+#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 export EHS_DEVMAN_MON_SUPPORT=yes#@todo this should be the same as above?
 #todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
 
-#
-# uncomment this variable if the platform needs to support deprecated toolkit
-##export EHS_TOOLKIT_DEPRECATED=yes
+################################################################################################################
+# Select which source of contributed library dependencies are used to build the target
+################################################################################################################
+#COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
+#Note - windows targets in component library use hyphens between components (randomly)
+# COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory 
+# libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
+# $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
+export COMPONENT_VARIANT=gtk_gst
 
+################################################################################################################
+# Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
+################################################################################################################
 
+# To enable  IO features "netx" DCC=1)  (e.g. GPIO, ADC.DAC, serial, user inputs etc. set  EHS_PERIPHERAL_DEVICE_SUPPORT )                                          #
 #This include RCUs, text displays, etc.
 export EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
+# To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
+# Set this to match one of the graphics types in EHS/target/graphics
+export EHS_GUI_SUPPORT=gtk
+
+# To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
+export EHS_AV_SUPPORT=gst
+
+# Set EHS_VIDEO_SUPPORT to "no" to disable video rndering support in the media payer (e.g. for audio only devies) 
+export EHS_VIDEO_SUPPORT=yes
+# This  is set to include the rendering features in eRT. It is  nearly always set, so should be removed (default on) and specific platforme xceptionsset instead
+export EHS_MEDIA_SUPPORT=all
+# To enable full TCPIP networking toolbox ("netx" DCC=3)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                   #
+export EHS_COMPONENT_NETWORKING_SUPPORT=all
+
+################################### END OF TOOLBOX CONFIGURATION ###################################################

@@ -3,7 +3,6 @@
 # 
 # Automatically Generated. DO NOT EDIT
 # 
-# Created by makedeps.sh on Thu Feb  9 15:32:00 GMT 2012
 
 
 target_types.h : ../base_full/base_types.h

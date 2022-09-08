@@ -50,8 +50,10 @@
 #endif /* MBEDTLS_SELF_TEST */
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -71,12 +73,12 @@ void mbedtls_ctr_drbg_init( mbedtls_ctr_drbg_context *ctx )
  * NIST tests to succeed (which require known length fixed entropy)
  */
 int mbedtls_ctr_drbg_seed_entropy_len(
-                   mbedtls_ctr_drbg_context *ctx,
-                   int (*f_entropy)(void *, unsigned char *, size_t),
-                   void *p_entropy,
-                   const unsigned char *custom,
-                   size_t len,
-                   size_t entropy_len )
+    mbedtls_ctr_drbg_context *ctx,
+    int (*f_entropy)(void *, unsigned char *, size_t),
+    void *p_entropy,
+    const unsigned char *custom,
+    size_t len,
+    size_t entropy_len )
 {
     int ret;
     unsigned char key[MBEDTLS_CTR_DRBG_KEYSIZE];
@@ -103,13 +105,13 @@ int mbedtls_ctr_drbg_seed_entropy_len(
 }
 
 int mbedtls_ctr_drbg_seed( mbedtls_ctr_drbg_context *ctx,
-                   int (*f_entropy)(void *, unsigned char *, size_t),
-                   void *p_entropy,
-                   const unsigned char *custom,
-                   size_t len )
+                           int (*f_entropy)(void *, unsigned char *, size_t),
+                           void *p_entropy,
+                           const unsigned char *custom,
+                           size_t len )
 {
     return( mbedtls_ctr_drbg_seed_entropy_len( ctx, f_entropy, p_entropy, custom, len,
-                                       MBEDTLS_CTR_DRBG_ENTROPY_LEN ) );
+            MBEDTLS_CTR_DRBG_ENTROPY_LEN ) );
 }
 
 void mbedtls_ctr_drbg_free( mbedtls_ctr_drbg_context *ctx )
@@ -230,7 +232,7 @@ static int block_cipher_df( unsigned char *output,
 }
 
 static int ctr_drbg_update_internal( mbedtls_ctr_drbg_context *ctx,
-                              const unsigned char data[MBEDTLS_CTR_DRBG_SEEDLEN] )
+                                     const unsigned char data[MBEDTLS_CTR_DRBG_SEEDLEN] )
 {
     unsigned char tmp[MBEDTLS_CTR_DRBG_SEEDLEN];
     unsigned char *p = tmp;
@@ -268,7 +270,7 @@ static int ctr_drbg_update_internal( mbedtls_ctr_drbg_context *ctx,
 }
 
 void mbedtls_ctr_drbg_update( mbedtls_ctr_drbg_context *ctx,
-                      const unsigned char *additional, size_t add_len )
+                              const unsigned char *additional, size_t add_len )
 {
     unsigned char add_input[MBEDTLS_CTR_DRBG_SEEDLEN];
 
@@ -285,7 +287,7 @@ void mbedtls_ctr_drbg_update( mbedtls_ctr_drbg_context *ctx,
 }
 
 int mbedtls_ctr_drbg_reseed( mbedtls_ctr_drbg_context *ctx,
-                     const unsigned char *additional, size_t len )
+                             const unsigned char *additional, size_t len )
 {
     unsigned char seed[MBEDTLS_CTR_DRBG_MAX_SEED_INPUT];
     size_t seedlen = 0;
@@ -330,8 +332,8 @@ int mbedtls_ctr_drbg_reseed( mbedtls_ctr_drbg_context *ctx,
 }
 
 int mbedtls_ctr_drbg_random_with_add( void *p_rng,
-                              unsigned char *output, size_t output_len,
-                              const unsigned char *additional, size_t add_len )
+                                      unsigned char *output, size_t output_len,
+                                      const unsigned char *additional, size_t add_len )
 {
     int ret = 0;
     mbedtls_ctr_drbg_context *ctx = (mbedtls_ctr_drbg_context *) p_rng;
@@ -350,7 +352,7 @@ int mbedtls_ctr_drbg_random_with_add( void *p_rng,
     memset( add_input, 0, MBEDTLS_CTR_DRBG_SEEDLEN );
 
     if( ctx->reseed_counter > ctx->reseed_interval ||
-        ctx->prediction_resistance )
+            ctx->prediction_resistance )
     {
         if( ( ret = mbedtls_ctr_drbg_reseed( ctx, additional, add_len ) ) != 0 )
             return( ret );
@@ -379,7 +381,7 @@ int mbedtls_ctr_drbg_random_with_add( void *p_rng,
         mbedtls_aes_crypt_ecb( &ctx->aes_ctx, MBEDTLS_AES_ENCRYPT, ctx->counter, tmp );
 
         use_len = ( output_len > MBEDTLS_CTR_DRBG_BLOCKSIZE ) ? MBEDTLS_CTR_DRBG_BLOCKSIZE :
-                                                       output_len;
+                  output_len;
         /*
          * Copy random block to destination
          */
@@ -477,44 +479,56 @@ int mbedtls_ctr_drbg_update_seed_file( mbedtls_ctr_drbg_context *ctx, const char
 #if defined(MBEDTLS_SELF_TEST)
 
 static const unsigned char entropy_source_pr[96] =
-    { 0xc1, 0x80, 0x81, 0xa6, 0x5d, 0x44, 0x02, 0x16,
-      0x19, 0xb3, 0xf1, 0x80, 0xb1, 0xc9, 0x20, 0x02,
-      0x6a, 0x54, 0x6f, 0x0c, 0x70, 0x81, 0x49, 0x8b,
-      0x6e, 0xa6, 0x62, 0x52, 0x6d, 0x51, 0xb1, 0xcb,
-      0x58, 0x3b, 0xfa, 0xd5, 0x37, 0x5f, 0xfb, 0xc9,
-      0xff, 0x46, 0xd2, 0x19, 0xc7, 0x22, 0x3e, 0x95,
-      0x45, 0x9d, 0x82, 0xe1, 0xe7, 0x22, 0x9f, 0x63,
-      0x31, 0x69, 0xd2, 0x6b, 0x57, 0x47, 0x4f, 0xa3,
-      0x37, 0xc9, 0x98, 0x1c, 0x0b, 0xfb, 0x91, 0x31,
-      0x4d, 0x55, 0xb9, 0xe9, 0x1c, 0x5a, 0x5e, 0xe4,
-      0x93, 0x92, 0xcf, 0xc5, 0x23, 0x12, 0xd5, 0x56,
-      0x2c, 0x4a, 0x6e, 0xff, 0xdc, 0x10, 0xd0, 0x68 };
+{
+    0xc1, 0x80, 0x81, 0xa6, 0x5d, 0x44, 0x02, 0x16,
+    0x19, 0xb3, 0xf1, 0x80, 0xb1, 0xc9, 0x20, 0x02,
+    0x6a, 0x54, 0x6f, 0x0c, 0x70, 0x81, 0x49, 0x8b,
+    0x6e, 0xa6, 0x62, 0x52, 0x6d, 0x51, 0xb1, 0xcb,
+    0x58, 0x3b, 0xfa, 0xd5, 0x37, 0x5f, 0xfb, 0xc9,
+    0xff, 0x46, 0xd2, 0x19, 0xc7, 0x22, 0x3e, 0x95,
+    0x45, 0x9d, 0x82, 0xe1, 0xe7, 0x22, 0x9f, 0x63,
+    0x31, 0x69, 0xd2, 0x6b, 0x57, 0x47, 0x4f, 0xa3,
+    0x37, 0xc9, 0x98, 0x1c, 0x0b, 0xfb, 0x91, 0x31,
+    0x4d, 0x55, 0xb9, 0xe9, 0x1c, 0x5a, 0x5e, 0xe4,
+    0x93, 0x92, 0xcf, 0xc5, 0x23, 0x12, 0xd5, 0x56,
+    0x2c, 0x4a, 0x6e, 0xff, 0xdc, 0x10, 0xd0, 0x68
+};
 
 static const unsigned char entropy_source_nopr[64] =
-    { 0x5a, 0x19, 0x4d, 0x5e, 0x2b, 0x31, 0x58, 0x14,
-      0x54, 0xde, 0xf6, 0x75, 0xfb, 0x79, 0x58, 0xfe,
-      0xc7, 0xdb, 0x87, 0x3e, 0x56, 0x89, 0xfc, 0x9d,
-      0x03, 0x21, 0x7c, 0x68, 0xd8, 0x03, 0x38, 0x20,
-      0xf9, 0xe6, 0x5e, 0x04, 0xd8, 0x56, 0xf3, 0xa9,
-      0xc4, 0x4a, 0x4c, 0xbd, 0xc1, 0xd0, 0x08, 0x46,
-      0xf5, 0x98, 0x3d, 0x77, 0x1c, 0x1b, 0x13, 0x7e,
-      0x4e, 0x0f, 0x9d, 0x8e, 0xf4, 0x09, 0xf9, 0x2e };
+{
+    0x5a, 0x19, 0x4d, 0x5e, 0x2b, 0x31, 0x58, 0x14,
+    0x54, 0xde, 0xf6, 0x75, 0xfb, 0x79, 0x58, 0xfe,
+    0xc7, 0xdb, 0x87, 0x3e, 0x56, 0x89, 0xfc, 0x9d,
+    0x03, 0x21, 0x7c, 0x68, 0xd8, 0x03, 0x38, 0x20,
+    0xf9, 0xe6, 0x5e, 0x04, 0xd8, 0x56, 0xf3, 0xa9,
+    0xc4, 0x4a, 0x4c, 0xbd, 0xc1, 0xd0, 0x08, 0x46,
+    0xf5, 0x98, 0x3d, 0x77, 0x1c, 0x1b, 0x13, 0x7e,
+    0x4e, 0x0f, 0x9d, 0x8e, 0xf4, 0x09, 0xf9, 0x2e
+};
 
 static const unsigned char nonce_pers_pr[16] =
-    { 0xd2, 0x54, 0xfc, 0xff, 0x02, 0x1e, 0x69, 0xd2,
-      0x29, 0xc9, 0xcf, 0xad, 0x85, 0xfa, 0x48, 0x6c };
+{
+    0xd2, 0x54, 0xfc, 0xff, 0x02, 0x1e, 0x69, 0xd2,
+    0x29, 0xc9, 0xcf, 0xad, 0x85, 0xfa, 0x48, 0x6c
+};
 
 static const unsigned char nonce_pers_nopr[16] =
-    { 0x1b, 0x54, 0xb8, 0xff, 0x06, 0x42, 0xbf, 0xf5,
-      0x21, 0xf1, 0x5c, 0x1c, 0x0b, 0x66, 0x5f, 0x3f };
+{
+    0x1b, 0x54, 0xb8, 0xff, 0x06, 0x42, 0xbf, 0xf5,
+    0x21, 0xf1, 0x5c, 0x1c, 0x0b, 0x66, 0x5f, 0x3f
+};
 
 static const unsigned char result_pr[16] =
-    { 0x34, 0x01, 0x16, 0x56, 0xb4, 0x29, 0x00, 0x8f,
-      0x35, 0x63, 0xec, 0xb5, 0xf2, 0x59, 0x07, 0x23 };
+{
+    0x34, 0x01, 0x16, 0x56, 0xb4, 0x29, 0x00, 0x8f,
+    0x35, 0x63, 0xec, 0xb5, 0xf2, 0x59, 0x07, 0x23
+};
 
 static const unsigned char result_nopr[16] =
-    { 0xa0, 0x54, 0x30, 0x3d, 0x8a, 0x7e, 0xa9, 0x88,
-      0x9d, 0x90, 0x3e, 0x07, 0x7c, 0x6f, 0x21, 0x8f };
+{
+    0xa0, 0x54, 0x30, 0x3d, 0x8a, 0x7e, 0xa9, 0x88,
+    0x9d, 0x90, 0x3e, 0x07, 0x7c, 0x6f, 0x21, 0x8f
+};
 
 static size_t test_offset;
 static int ctr_drbg_self_test_entropy( void *data, unsigned char *buf,
@@ -551,7 +565,7 @@ int mbedtls_ctr_drbg_self_test( int verbose )
 
     test_offset = 0;
     CHK( mbedtls_ctr_drbg_seed_entropy_len( &ctx, ctr_drbg_self_test_entropy,
-                                (void *) entropy_source_pr, nonce_pers_pr, 16, 32 ) );
+                                            (void *) entropy_source_pr, nonce_pers_pr, 16, 32 ) );
     mbedtls_ctr_drbg_set_prediction_resistance( &ctx, MBEDTLS_CTR_DRBG_PR_ON );
     CHK( mbedtls_ctr_drbg_random( &ctx, buf, MBEDTLS_CTR_DRBG_BLOCKSIZE ) );
     CHK( mbedtls_ctr_drbg_random( &ctx, buf, MBEDTLS_CTR_DRBG_BLOCKSIZE ) );
@@ -572,7 +586,7 @@ int mbedtls_ctr_drbg_self_test( int verbose )
 
     test_offset = 0;
     CHK( mbedtls_ctr_drbg_seed_entropy_len( &ctx, ctr_drbg_self_test_entropy,
-                            (void *) entropy_source_nopr, nonce_pers_nopr, 16, 32 ) );
+                                            (void *) entropy_source_nopr, nonce_pers_nopr, 16, 32 ) );
     CHK( mbedtls_ctr_drbg_random( &ctx, buf, 16 ) );
     CHK( mbedtls_ctr_drbg_reseed( &ctx, NULL, 0 ) );
     CHK( mbedtls_ctr_drbg_random( &ctx, buf, 16 ) );
@@ -584,7 +598,7 @@ int mbedtls_ctr_drbg_self_test( int verbose )
         mbedtls_printf( "passed\r\n" );
 
     if( verbose != 0 )
-            mbedtls_printf( "\r\n" );
+        mbedtls_printf( "\r\n" );
 
     return( 0 );
 }

@@ -1,4 +1,13 @@
-/** @file target_timer.c
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
+/** @file target_time.c
  * Definitions for target-specific time-related functions. The timer code contained
  * in here implements a very simple timer model. The functions provided by the timer
  * are:
@@ -11,10 +20,7 @@
  * - EhsTgtTimer_init(). Sets up the timer.
  *
  * @author: inx limited
- * @version: $Revision: 3108 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 
@@ -53,11 +59,11 @@
 #include <time.h>
 
 #ifdef EHS_USE_ORDINARY_NANOSLEEP
-	
+
 #else //#ifdef EHS_USE_ORDINARY_NANOSLEEP
-	int clock_nanosleep(clockid_t clockid, int flags,
-                           const struct timespec *request,
-                           struct timespec *remain);
+int clock_nanosleep(clockid_t clockid, int flags,
+                    const struct timespec *request,
+                    struct timespec *remain);
 #endif //#else #ifdef EHS_USE_ORDINARY_NANOSLEEP
 
 
@@ -92,29 +98,26 @@ EHS_LOCAL EhsTickType EhsTgtTimerExpiryTime;
  */
 EhsTickType EhsTgtTimer_now()
 {
-	//struct ntptimeval xtime;
-	struct timespec xtime;
-	EhsTickType ret;
+    //struct ntptimeval xtime;
+    struct timespec xtime;
+    EhsTickType ret;
 
-	if (clock_gettime(CLOCK_MONOTONIC, &xtime) == -1)
-	{
-		//printf ("\nPROBEM IN ntp_gettime\n");
-		EhsError(EHS_TGT_ERROR_TIME_FAILURE(errno));
-		ret = EHS_TICKTYPE_INVALID;
-	}
-	else
-	{
-		//ehs_uint32 s = (ehs_uint32)(xtime.time.tv_sec); // this will br truncated
-		//ehs_uint32 us = (ehs_uint32)(xtime.time.tv_usec); // this shouldn't be
-		ehs_uint32 s = (ehs_uint32)(xtime.tv_sec); // this will br truncated
-		ehs_uint32 us = (ehs_uint32)(xtime.tv_nsec)/1000; // this shouldn't be
-		//printf ("\nxtime.time.tv_sec = %u,  xtime.time.tv_usec = %u",s,us);
-		/*@TODO: Replace tick timing system with something more robust. Utter shite here - masks in one place integer sizes elsewhere..*/
-		ret = ( (((ehs_uint32) EHS_TIME_s(s) & EHS_TICKTYPE_MAX) + (((ehs_uint32) EHS_TIME_us(us))) &  EHS_TICKTYPE_MAX) ); // why truncate?
-		//ret = ( ((EHS_TIME_s(s)) + (( EHS_TIME_us(us)))) );
-		//printf ("\nret = %u\n", ret);
-	}
-	return ret;
+    if (clock_gettime(CLOCK_MONOTONIC, &xtime) == -1)
+    {
+        EhsError(EHS_TGT_ERROR_TIME_FAILURE(errno));
+        ret = EHS_TICKTYPE_INVALID;
+    }
+    else
+    {
+        //ehs_uint32 s = (ehs_uint32)(xtime.time.tv_sec); // this will br truncated
+        //ehs_uint32 us = (ehs_uint32)(xtime.time.tv_usec); // this shouldn't be
+        ehs_uint32 s = (ehs_uint32)(xtime.tv_sec); // this will br truncated
+        ehs_uint32 us = (ehs_uint32)(xtime.tv_nsec)/1000; // this shouldn't be
+        /*@TODO: Replace tick timing system with something more robust. Utter shite here - masks in one place integer sizes elsewhere..*/
+        ret = ( (((ehs_uint32) EHS_TIME_s(s) & EHS_TICKTYPE_MAX) + (((ehs_uint32) EHS_TIME_us(us))) &  EHS_TICKTYPE_MAX) ); // why truncate?
+        //ret = ( ((EHS_TIME_s(s)) + (( EHS_TIME_us(us)))) );
+    }
+    return ret;
 }
 
 /**
@@ -124,42 +127,42 @@ EhsTickType EhsTgtTimer_now()
  */
 void EhsSleep(EhsTickType tSleepTime)
 {
-	struct timespec tSleep;
-	ehs_uint32 t; /* intermediate variable to simplify the conversion process - required by MISRA */
-	/* convert sleep time to seconds */
-	t = EhsTgtTimer_tickTous(tSleepTime) / EHS_uS_PER_S;
-	tSleep.tv_sec = (ehs_sint32)(t);
-	/* convert sleep time to microseconds */
-	t = EhsTgtTimer_tickTous(tSleepTime) % EHS_uS_PER_S;
-	tSleep.tv_nsec = (ehs_sint32)(t)*1000;
+    struct timespec tSleep;
+    ehs_uint32 t; /* intermediate variable to simplify the conversion process - required by MISRA */
+    /* convert sleep time to seconds */
+    t = EhsTgtTimer_tickTous(tSleepTime) / EHS_uS_PER_S;
+    tSleep.tv_sec = (ehs_sint32)(t);
+    /* convert sleep time to microseconds */
+    t = EhsTgtTimer_tickTous(tSleepTime) % EHS_uS_PER_S;
+    tSleep.tv_nsec = (ehs_sint32)(t)*1000;
 #ifdef EHS_USE_ORDINARY_NANOSLEEP
-	nanosleep(&tSleep,NULL);
+    nanosleep(&tSleep,NULL);
 #else
-	clock_nanosleep(CLOCK_MONOTONIC,0,&tSleep,NULL); /*  This may not use hrtimer?*/
+    clock_nanosleep(CLOCK_MONOTONIC,0,&tSleep,NULL); /*  This may not use hrtimer?*/
 #endif
-	/* alternative implementation using select:
-	 * select(0,NULL,NULL,NULL,&tSleep); //lint !e534 Return value not of interest here
-	 */
+    /* alternative implementation using select:
+     * select(0,NULL,NULL,NULL,&tSleep); //lint !e534 Return value not of interest here
+     */
 }
 
 void EhsSleepUs(ehs_uint32 tSleepTime)
 {
-	struct timespec tSleep;
-	ehs_uint32 t; /* intermediate variable to simplify the conversion process - required by MISRA */
-	/* convert sleep time to seconds */
-	t = tSleepTime / EHS_uS_PER_S;
-	tSleep.tv_sec = (ehs_sint32)(t);
-	/* convert sleep time to microseconds */
-	t = tSleepTime % EHS_uS_PER_S;
-	tSleep.tv_nsec = (ehs_sint32)(t)*1000;
+    struct timespec tSleep;
+    ehs_uint32 t; /* intermediate variable to simplify the conversion process - required by MISRA */
+    /* convert sleep time to seconds */
+    t = tSleepTime / EHS_uS_PER_S;
+    tSleep.tv_sec = (ehs_sint32)(t);
+    /* convert sleep time to microseconds */
+    t = tSleepTime % EHS_uS_PER_S;
+    tSleep.tv_nsec = (ehs_sint32)(t)*1000;
 #ifdef EHS_USE_ORDINARY_NANOSLEEP
-	nanosleep(&tSleep,NULL);
+    nanosleep(&tSleep,NULL);
 #else
-	clock_nanosleep(CLOCK_MONOTONIC,0,&tSleep,NULL); /*  This may not use hrtimer?*/
+    clock_nanosleep(CLOCK_MONOTONIC,0,&tSleep,NULL); /*  This may not use hrtimer?*/
 #endif
-	/* alternative implementation using select:
-	 * select(0,NULL,NULL,NULL,&tSleep); //lint !e534 Return value not of interest here
-	 */
+    /* alternative implementation using select:
+     * select(0,NULL,NULL,NULL,&tSleep); //lint !e534 Return value not of interest here
+     */
 }
 
 /**
@@ -167,7 +170,7 @@ void EhsSleepUs(ehs_uint32 tSleepTime)
  */
 void EhsTgtTimer_reset()
 {
-	EhsTgtTimer_clear();
+    EhsTgtTimer_clear();
 }
 
 /*
@@ -177,7 +180,7 @@ void EhsTgtTimer_reset()
  */
 void EhsTgtTimer_set(EhsTickType tExpiryTime)
 {
-	EhsTgtTimerExpiryTime = tExpiryTime;
+    EhsTgtTimerExpiryTime = tExpiryTime;
 }
 
 /**
@@ -186,7 +189,7 @@ void EhsTgtTimer_set(EhsTickType tExpiryTime)
  */
 void EhsTgtTimer_clear()
 {
-	EhsTgtTimerExpiryTime = EHS_TICKTYPE_INVALID;
+    EhsTgtTimerExpiryTime = EHS_TICKTYPE_INVALID;
 }
 
 /**
@@ -197,7 +200,7 @@ void EhsTgtTimer_clear()
  */
 EhsTickType EhsTgtTimer_expiry()
 {
-	return EhsTgtTimerExpiryTime;
+    return EhsTgtTimerExpiryTime;
 }
 
 /**
@@ -206,14 +209,13 @@ EhsTickType EhsTgtTimer_expiry()
  */
 ehs_bool EhsTgtTimer_tick()
 {
-	//printf("EhsTgtTimer_tick:\n target=%d\t time=%d\n",EhsTgtTimerExpiryTime,EHS_CURRENT_TIME);
-	if (EhsTgtTimerExpiryTime != EHS_TICKTYPE_INVALID)
-	{
-		if (EHS_TARGET_TIME_IS_EARLIER(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
-		//if (EhsTimer_earlier(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
-		{
-			EhsTimer_tick();
-		}
-	}
-	return EHS_TRUE;
+    if (EhsTgtTimerExpiryTime != EHS_TICKTYPE_INVALID)
+    {
+        if (EHS_TARGET_TIME_IS_EARLIER(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
+            //if (EhsTimer_earlier(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
+        {
+            EhsTimer_tick();
+        }
+    }
+    return EHS_TRUE;
 }

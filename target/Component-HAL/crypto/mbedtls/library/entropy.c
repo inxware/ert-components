@@ -56,8 +56,10 @@
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 #define ENTROPY_MAX_LOOP    256     /**< Maximum amount to loop before error */
@@ -125,8 +127,8 @@ void mbedtls_entropy_free( mbedtls_entropy_context *ctx )
 }
 
 int mbedtls_entropy_add_source( mbedtls_entropy_context *ctx,
-                        mbedtls_entropy_f_source_ptr f_source, void *p_source,
-                        size_t threshold, int strong )
+                                mbedtls_entropy_f_source_ptr f_source, void *p_source,
+                                size_t threshold, int strong )
 {
     int index, ret = 0;
 
@@ -195,7 +197,7 @@ static int entropy_update( mbedtls_entropy_context *ctx, unsigned char source_id
 }
 
 int mbedtls_entropy_update_manual( mbedtls_entropy_context *ctx,
-                           const unsigned char *data, size_t len )
+                                   const unsigned char *data, size_t len )
 {
     int ret;
 
@@ -236,7 +238,7 @@ static int entropy_gather_internal( mbedtls_entropy_context *ctx )
 
         olen = 0;
         if( ( ret = ctx->source[i].f_source( ctx->source[i].p_source,
-                        buf, MBEDTLS_ENTROPY_MAX_GATHER, &olen ) ) != 0 )
+                                             buf, MBEDTLS_ENTROPY_MAX_GATHER, &olen ) ) != 0 )
         {
             return( ret );
         }

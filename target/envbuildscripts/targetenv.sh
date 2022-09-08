@@ -3,7 +3,6 @@
 
 set -e
 export SPECIFIC_TARGET=$1
-
 echo "################  Building target environment staging tree ##############################"
 echo "  Build parameters: "
 echo "--> GNU OS     : $EHS_GNU_OS"

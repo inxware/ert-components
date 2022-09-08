@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file target_file.c
  * Functions supporting file usage on the SH4 platform.
  *
  * @author: inx limited
- * @version: $Revision: 1994 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 
@@ -56,19 +62,23 @@
  * @return true if the file exists
  */
 
-ehs_bool EhsTF_exists(const ehs_char* fname) {
-	struct stat xFileInfo;
-	ehs_bool bRet = EHS_TRUE;
-	if ((stat(fname,&xFileInfo) == -1) && (errno == ENOENT)) {
-		bRet = EHS_FALSE;
-	}
-	return bRet;
+ehs_bool EhsTF_exists(const ehs_char* fname)
+{
+    struct stat xFileInfo;
+    ehs_bool bRet = EHS_TRUE;
+    if ((stat(fname,&xFileInfo) == -1) && (errno == ENOENT))
+    {
+        bRet = EHS_FALSE;
+    }
+    return bRet;
 }
 
-ehs_bool EhsTF_cd(const ehs_char * dir) {
-	return (chdir(dir)==0);
+ehs_bool EhsTF_cd(const ehs_char * dir)
+{
+    return (chdir(dir)==0);
 }
 
-ehs_bool EhsTF_mkdir(char * szParameterFilePath) {
-	return (mkdir(szParameterFilePath)!= 0);
+ehs_bool EhsTF_mkdir(char * szParameterFilePath)
+{
+    return (mkdir(szParameterFilePath)!= 0);
 }

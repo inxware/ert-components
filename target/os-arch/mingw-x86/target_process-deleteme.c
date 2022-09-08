@@ -1,15 +1,18 @@
-//Try reverting this to the previous windows version
-
-/** @file target_process.c
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+ 
+/** @file target_process-deleteme.c
  * description
  *
  * @author: inx limited
- * @version: $Revision: 1692 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
-
 
 /**
  * @page Verification Verification report
@@ -21,6 +24,10 @@
  *
  * This file contained no derogations to the MISRA standard.
  */
+ 
+ 
+
+//Try reverting this to the previous windows version
 
 /*****************************************************************************/
 /* Included files */
@@ -114,75 +121,79 @@ EhsTPMutexClass EhsTPMutex_widgetTable;
  */
 void EhsExit_WithClearedemory(ehs_uint16 exitCode)  // @todo what the hell is this for??
 {
-	/*
-	 *
-	 static ehs_bool bExited = EHS_FALSE;
+    /*
+     *
+     static ehs_bool bExited = EHS_FALSE;
 
-	if (!bExited)
-	{
-		bExited = EHS_TRUE;
-		EhsHSys_term();
-	}
-	exit((EhsTargetIntType)exitCode); / *lint !e586 Target specific derogation - exit can be permitted; * /
-	*/
+    if (!bExited)
+    {
+    	bExited = EHS_TRUE;
+    	EhsHSys_term();
+    }
+    exit((EhsTargetIntType)exitCode); / *lint !e586 Target specific derogation - exit can be permitted; * /
+    */
 }
 
 /**
  * Initialise the mutexes
  *
  */
-EHS_GLOBAL void EhsTPMutex_init(void) {
-	pthread_mutexattr_t attr;
-	//pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-	pthread_mutex_init(&EhsL_fbIO,NULL);
-	pthread_mutex_init(&EhsL_viewport,&attr);
-	pthread_mutex_init(&EhsL_mem,NULL);
-	pthread_mutex_init(&EhsL_consoleQueue,NULL);
-	pthread_mutex_init(&EhsL_eventQueue,NULL);
-	pthread_mutex_init(&EhsLMutex_fb_thread_counter,NULL);
-	pthread_mutex_init(&EhsL_widgetTable,NULL);
-	EhsTPMutex_fbIO = (EhsTPMutexStruct)&EhsL_fbIO;
-	EhsTPMutex_viewport = (EhsTPMutexStruct)&EhsL_viewport;
-	EhsTPMutex_mem = (EhsTPMutexStruct)&EhsL_mem;
-	EhsTPMutex_consoleQueue = (EhsTPMutexStruct)&EhsL_consoleQueue;
-	EhsTPMutex_eventQueue = (EhsTPMutexStruct)&EhsL_eventQueue;
-	EhsTPMutex_fb_thread_counter = (EhsTPMutexStruct)&EhsLMutex_fb_thread_counter;
-	EhsTPMutex_widgetTable = (EhsTPMutexStruct)&EhsL_widgetTable;
+EHS_GLOBAL void EhsTPMutex_init(void)
+{
+    pthread_mutexattr_t attr;
+    //pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&EhsL_fbIO,NULL);
+    pthread_mutex_init(&EhsL_viewport,&attr);
+    pthread_mutex_init(&EhsL_mem,NULL);
+    pthread_mutex_init(&EhsL_consoleQueue,NULL);
+    pthread_mutex_init(&EhsL_eventQueue,NULL);
+    pthread_mutex_init(&EhsLMutex_fb_thread_counter,NULL);
+    pthread_mutex_init(&EhsL_widgetTable,NULL);
+    EhsTPMutex_fbIO = (EhsTPMutexStruct)&EhsL_fbIO;
+    EhsTPMutex_viewport = (EhsTPMutexStruct)&EhsL_viewport;
+    EhsTPMutex_mem = (EhsTPMutexStruct)&EhsL_mem;
+    EhsTPMutex_consoleQueue = (EhsTPMutexStruct)&EhsL_consoleQueue;
+    EhsTPMutex_eventQueue = (EhsTPMutexStruct)&EhsL_eventQueue;
+    EhsTPMutex_fb_thread_counter = (EhsTPMutexStruct)&EhsLMutex_fb_thread_counter;
+    EhsTPMutex_widgetTable = (EhsTPMutexStruct)&EhsL_widgetTable;
 }
 
 /**
  * Shutdown the mutexes
  */
-void EhsTPMutex_term(void) {
-	pthread_mutex_destroy(&EhsL_fbIO);
-	pthread_mutex_destroy(&EhsL_viewport);
-	pthread_mutex_destroy(&EhsL_mem);
-	pthread_mutex_destroy(&EhsL_consoleQueue);
-	pthread_mutex_destroy(&EhsL_eventQueue);
-	pthread_mutex_destroy(&EhsL_widgetTable);
-	EhsTPMutex_fbIO = NULL;
-	EhsTPMutex_viewport = NULL;
-	EhsTPMutex_mem = NULL;
-	EhsTPMutex_consoleQueue = NULL;
-	EhsTPMutex_eventQueue = NULL;
-	EhsTPMutex_fb_thread_counter = NULL;
-	EhsTPMutex_widgetTable = NULL;
+void EhsTPMutex_term(void)
+{
+    pthread_mutex_destroy(&EhsL_fbIO);
+    pthread_mutex_destroy(&EhsL_viewport);
+    pthread_mutex_destroy(&EhsL_mem);
+    pthread_mutex_destroy(&EhsL_consoleQueue);
+    pthread_mutex_destroy(&EhsL_eventQueue);
+    pthread_mutex_destroy(&EhsL_widgetTable);
+    EhsTPMutex_fbIO = NULL;
+    EhsTPMutex_viewport = NULL;
+    EhsTPMutex_mem = NULL;
+    EhsTPMutex_consoleQueue = NULL;
+    EhsTPMutex_eventQueue = NULL;
+    EhsTPMutex_fb_thread_counter = NULL;
+    EhsTPMutex_widgetTable = NULL;
 }
 
 /**
  * Execute a function from a function block in a separate thread
  */
 
-EHS_GLOBAL EhsTPThread EhsTPThread_execute(EhsThreadFuncType* pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority) {
-	EhsTPThread thread;
-	/* cast pfRun to return void* with one arg of void* */
-	pthread_create(&thread,NULL,(void*(*)(void*))pfRun,context);
-	return thread;
+EHS_GLOBAL EhsTPThread EhsTPThread_execute(EhsThreadFuncType* pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority)
+{
+    EhsTPThread thread;
+    /* cast pfRun to return void* with one arg of void* */
+    pthread_create(&thread,NULL,(void*(*)(void*))pfRun,context);
+    return thread;
 }
 
 /* Kill a thread !!! don't use if you can avoid !!! */
-int EhsTPThread_terminate(EhsTPThread  thread) {
-	return pthread_cancel(thread);
+int EhsTPThread_terminate(EhsTPThread  thread)
+{
+    return pthread_cancel(thread);
 }
 

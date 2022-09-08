@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file globals.h
  * Declarations of EHS-wide globals.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 5462 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 /**
@@ -13,7 +19,7 @@
  * @section hal_process_h
  * @anchor hal_process_h
  * @subsection misra MISRA compliance:
- * Demonstrated MISRA compliant on 
+ * Demonstrated MISRA compliant on
  * Last modified on $Date$
  *
  * This file contained the following derogations to the MISRA standard:
@@ -34,14 +40,14 @@
 
 /* Defines system-wide, target-independent limits */
 #ifdef EHS_UNITY3D_CONFIG
-	#define EHS_STRING_LENGTH_MAX 2*2047
+#define EHS_STRING_LENGTH_MAX 2*2047
 #endif //EHS_UNITY3D_CONFIG
 
 #ifndef EHS_STRING_LENGTH_MAX
-	#define EHS_STRING_LENGTH_MAX 2047 /*@todo This needs to be killed off and proper dynamic allocation used - at least for edges */
+#define EHS_STRING_LENGTH_MAX 2047 /*@todo This needs to be killed off and proper dynamic allocation used - at least for edges */
 #endif //EHS_STRING_LENGTH_MAX
 
-#define EHS_SINT32_MAX 2147483647 
+#define EHS_SINT32_MAX 2147483647
 #define EHS_SINT32_MIN -2147483648
 #define EHS_UINT32_MAX 4294967295u
 #define EHS_UINT32_MIN 0u
@@ -83,14 +89,19 @@
 #define EHS_FILEEXT_SIZE 3 /**< Used only for console Defines the size of the part of the filename after the '.' */
 #define EHS_FILESTRING_SIZE (EHS_FILENAME_SIZE + EHS_FILEEXT_SIZE + 2) /**< 2 comes from 1 character separator + 1 null character */
 #define EHS_DEFAULT_FILENAME "default.txt" /**< Used when an invalid filename is given */
+
+#ifndef EHS_MAXPATHLENGTH
 #define EHS_MAXPATHLENGTH 2048
+#endif
+#ifndef EHS_MAX_URL_LENGTH
 #define EHS_MAX_URL_LENGTH 4096
+#endif
 /* General timing constants */
 
 /**
  * How long to wait before polling console input (when no application is executing)
  */
-#define EHS_IDLE_PERIOD EHS_TIME_ms(200u) 
+#define EHS_IDLE_PERIOD EHS_TIME_ms(200u)
 
 /**
  * How long to wait between reading chunks of input file before concluding that
@@ -130,11 +141,12 @@
 /**
  * Defines the states that the debugger can be in
  */
-typedef enum {
-	EHS_DEBUG_OFF, /**< No debug messages are generated */
-	EHS_DEBUG_ON, /**< Debug messages are generated for every trigger and every data flow */
-	EHS_DEBUG_MONITOR
-/**< Debug messages are generated only for monitored triggers and events */
+typedef enum
+{
+    EHS_DEBUG_OFF, /**< No debug messages are generated */
+    EHS_DEBUG_ON, /**< Debug messages are generated for every trigger and every data flow */
+    EHS_DEBUG_MONITOR
+    /**< Debug messages are generated only for monitored triggers and events */
 } EhsDebugModeType;
 
 /*****************************************************************************/

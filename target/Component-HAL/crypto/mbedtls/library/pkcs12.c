@@ -48,8 +48,10 @@
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 static int pkcs12_parse_pbe_params( mbedtls_asn1_buf *params,
@@ -112,8 +114,8 @@ static int pkcs12_pbe_derive_key_iv( mbedtls_asn1_buf *pbe_params, mbedtls_md_ty
         unipwd[i * 2 + 1] = pwd[i];
 
     if( ( ret = mbedtls_pkcs12_derivation( key, keylen, unipwd, pwdlen * 2 + 2,
-                                   salt.p, salt.len, md_type,
-                                   MBEDTLS_PKCS12_DERIVE_KEY, iterations ) ) != 0 )
+                                           salt.p, salt.len, md_type,
+                                           MBEDTLS_PKCS12_DERIVE_KEY, iterations ) ) != 0 )
     {
         return( ret );
     }
@@ -122,8 +124,8 @@ static int pkcs12_pbe_derive_key_iv( mbedtls_asn1_buf *pbe_params, mbedtls_md_ty
         return( 0 );
 
     if( ( ret = mbedtls_pkcs12_derivation( iv, ivlen, unipwd, pwdlen * 2 + 2,
-                                   salt.p, salt.len, md_type,
-                                   MBEDTLS_PKCS12_DERIVE_IV, iterations ) ) != 0 )
+                                           salt.p, salt.len, md_type,
+                                           MBEDTLS_PKCS12_DERIVE_IV, iterations ) ) != 0 )
     {
         return( ret );
     }
@@ -133,9 +135,9 @@ static int pkcs12_pbe_derive_key_iv( mbedtls_asn1_buf *pbe_params, mbedtls_md_ty
 #undef PKCS12_MAX_PWDLEN
 
 int mbedtls_pkcs12_pbe_sha1_rc4_128( mbedtls_asn1_buf *pbe_params, int mode,
-                             const unsigned char *pwd,  size_t pwdlen,
-                             const unsigned char *data, size_t len,
-                             unsigned char *output )
+                                     const unsigned char *pwd,  size_t pwdlen,
+                                     const unsigned char *data, size_t len,
+                                     unsigned char *output )
 {
 #if !defined(MBEDTLS_ARC4_C)
     ((void) pbe_params);
@@ -174,10 +176,10 @@ exit:
 }
 
 int mbedtls_pkcs12_pbe( mbedtls_asn1_buf *pbe_params, int mode,
-                mbedtls_cipher_type_t cipher_type, mbedtls_md_type_t md_type,
-                const unsigned char *pwd,  size_t pwdlen,
-                const unsigned char *data, size_t len,
-                unsigned char *output )
+                        mbedtls_cipher_type_t cipher_type, mbedtls_md_type_t md_type,
+                        const unsigned char *pwd,  size_t pwdlen,
+                        const unsigned char *data, size_t len,
+                        unsigned char *output )
 {
     int ret, keylen = 0;
     unsigned char key[32];
@@ -214,7 +216,7 @@ int mbedtls_pkcs12_pbe( mbedtls_asn1_buf *pbe_params, int mode,
         goto exit;
 
     if( ( ret = mbedtls_cipher_update( &cipher_ctx, data, len,
-                                output, &olen ) ) != 0 )
+                                       output, &olen ) ) != 0 )
     {
         goto exit;
     }
@@ -246,9 +248,9 @@ static void pkcs12_fill_buffer( unsigned char *data, size_t data_len,
 }
 
 int mbedtls_pkcs12_derivation( unsigned char *data, size_t datalen,
-                       const unsigned char *pwd, size_t pwdlen,
-                       const unsigned char *salt, size_t saltlen,
-                       mbedtls_md_type_t md_type, int id, int iterations )
+                               const unsigned char *pwd, size_t pwdlen,
+                               const unsigned char *salt, size_t saltlen,
+                               mbedtls_md_type_t md_type, int id, int iterations )
 {
     int ret;
     unsigned int j;

@@ -1,12 +1,18 @@
-/** 
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
+/**
  * @file guitextbox.h
  * This declares the guitextbox function blocks
  *
  * @author: inx limited
- * @version: $Revision: 959 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ *
  */
 
 #ifndef _EHS_GUITEXTBOX_H
@@ -17,7 +23,9 @@
 /*****************************************************************************/
 /* String textbox */
 
-#define EHS_FB_GUITEXTBOX_STRING_NAME "GUI_OutputTextBoxString"
+#define EHS_FB_NAME_GUI_OutputTextBoxString "GUI_OutputTextBoxString"
+#define EHS_FB_ID_GUI_OutputTextBoxString 0xF01B
+
 
 /* declare functions provided by this function block */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(GUI_Textbox);
@@ -33,7 +41,8 @@ EHS_FB_FUNCTIONS(GUI_TextboxString)
 /* "Real" textbox */
 
 #ifdef EHS_TARGET_FP_SUPPORT
-#define EHS_FB_GUITEXTBOX_FLOAT_NAME "GUI_OutputTextBoxReal"
+#define EHS_FB_NAME_GUI_OutputTextBoxReal "GUI_OutputTextBoxReal"
+#define EHS_FB_ID_GUI_OutputTextBoxReal 0xADD5
 
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
@@ -47,7 +56,9 @@ EHS_FB_FUNCTIONS(GUI_TextboxFloat)
 /*****************************************************************************/
 /* Integer textbox */
 
-#define EHS_FB_GUITEXTBOX_INT_NAME "GUI_OutputTextBoxInt"
+#define EHS_FB_NAME_GUI_OutputTextBoxInt "GUI_OutputTextBoxInt"
+#define EHS_FB_ID_GUI_OutputTextBoxInt 0xAC48
+
 
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
@@ -60,7 +71,8 @@ EHS_FB_FUNCTIONS(GUI_TextboxInt)
 /*****************************************************************************/
 /* Boolean textbox */
 
-#define EHS_FB_GUITEXTBOX_BOOL_NAME "GUI_OutputTextBoxBool"
+#define EHS_FB_NAME_GUI_OutputTextBoxBool "GUI_OutputTextBoxBool"
+#define EHS_FB_ID_GUI_OutputTextBoxBool 0x0FF5
 
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common

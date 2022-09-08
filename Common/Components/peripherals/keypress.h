@@ -1,12 +1,18 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file keypress.h
  * This declares the keypress function block
  *
  * @author: inx limited
- * @version: $Revision: 1250 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 #ifndef _EHS_KEYPRESS_H
@@ -15,7 +21,8 @@
 #include "ehs_fb_types.h"
 #include "callback_queue.h"
 
-#define EHS_FB_KEYPRESS_NAME "GUI_keypress"
+#define EHS_FB_NAME_GUI_keypress "GUI_keypress"
+#define EHS_FB_ID_GUI_keypress 0x7CDC
 
 /*
  * Provides a callback chain to call whenever a key gets pressed.

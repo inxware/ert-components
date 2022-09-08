@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file hal_string.h
  * In this file, all of the hardware abstraction layer declarations relating to string handling are given.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 1248 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 /**
@@ -53,7 +59,7 @@
  * Trim the whitespace from the left hand end of a string. The
  * argument and return value can safely be const because trimming can be
  * done by changing the pointer.
- * 
+ *
  * @param[in] pSrc Pointer to the string to trim
  * @return pointer to the trimmed string or NULL if error.
  */
@@ -63,7 +69,7 @@ EHS_GLOBAL const ehs_char* EhsStrTrimL(const ehs_char* pSrc);
 #ifndef EhsStrTrimR
 /**
  * Trim the whitespace from the right hand end of a string
- * 
+ *
  * @param[in] pSrc Pointer to the string to trim
  * @return pointer to the trimmed string (or NULL if error)
  */
@@ -73,7 +79,7 @@ EHS_GLOBAL ehs_char* EhsStrTrimR(ehs_char* pSrc);
 #ifndef EhsStrTrimLR
 /**
  * Trim the whitespace from both ends of a string
- * 
+ *
  * @param[in] pSrc Pointer to the string to trim
  * @return pointer to the trimmed string (or NULL if error)
  */
@@ -90,12 +96,14 @@ EHS_GLOBAL ehs_bool EhsStrIsSpace(ehs_char c);
 #endif
 
 #if 0
-ehs_char * EhsStrcpyUpTo( ehs_char * destination, const ehs_char * source, ehs_uint32 maxchars ) {
-	for (ehs_int32 i = 0;i< maxchars;i++) {
-		destination[i]=source[i];
-		if (destination[i] == '\0') break;
-	}
-	if (destination[i] != '\0') destination[i+1] = '\0';
+ehs_char * EhsStrcpyUpTo( ehs_char * destination, const ehs_char * source, ehs_uint32 maxchars )
+{
+    for (ehs_int32 i = 0; i< maxchars; i++)
+    {
+        destination[i]=source[i];
+        if (destination[i] == '\0') break;
+    }
+    if (destination[i] != '\0') destination[i+1] = '\0';
 #error check the above and client trust of buffer size ...
 }
 #endif
@@ -156,7 +164,7 @@ const char* EhsGetDoubleFromString(ehs_float * output, const char* input) ;
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer), or null if parse fails
  */
-EHS_GLOBAL const ehs_char* EhsGetUint16FromString(ehs_uint16* output, const ehs_char* input);
+EHS_GLOBAL const ehs_char* EhsGetUint16FromString(ehs_uint16* output,const ehs_char* input);
 
 /**
  * Read a signed 16-bit integer from a line of the SODL file.
@@ -190,7 +198,7 @@ EHS_GLOBAL const ehs_char* EhsGetUint8FromString(ehs_uint8* output, const ehs_ch
  * @param[in] input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer)
  */
-EHS_GLOBAL const ehs_char* EhsGetWordFromString(ehs_char * output, const ehs_char* input); 
+EHS_GLOBAL const ehs_char* EhsGetWordFromString(ehs_char * output, const ehs_char* input);
 
 /**
  * Return a pointer to the character after the end of line character,
@@ -225,7 +233,7 @@ EHS_GLOBAL const ehs_char* EhsGetQuoteDelimFromString(ehs_char * output, const e
  * and the below function is used. The declarations below also provide a secondary
  * purpose - they show the prototype of the function in question.
  */
- 
+
 #ifndef EhsSprintf
 EHS_GLOBAL ehs_uint16 EhsSprintf(ehs_char *pOutput, const ehs_char* pFmt, ...); /*lint !e960 Variable arguments required to support sprintf */
 #endif
@@ -262,7 +270,7 @@ EHS_GLOBAL ehs_char* EhsStrchr(const ehs_char*, ehs_char);
 EHS_GLOBAL void* EhsMemset(void*, ehs_sint32, ehs_uint32);
 #endif
 
-#ifndef EhsMemcpy 
+#ifndef EhsMemcpy
 EHS_GLOBAL void* EhsMemcpy(void*, void*, ehs_uint32);
 #endif
 

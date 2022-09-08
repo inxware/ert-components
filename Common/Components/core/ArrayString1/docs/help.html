@@ -1,184 +1,213 @@
 <html>
+
 <head>
-<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
 </head>
 
 <body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">ArrayString1</span>
+      <!--these display in reverse order because they use float:right-->
+      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+    </div>
 
-<!--Name of Component-->
-<h1 class=component>
-ArrayString1
-</h1>
-<!--General Description-->
-<p class=component>
-This component acts as an array for string data. When the input event <a href="#[In]write">[In]write</a> is asserted, the input data <a href="#[In]data">[In]data</a> is added to the array at the index specified by <a href="#[In]indexW">[In]index</a> and the output event <a href="#[Out]write">[Out]write</a> is triggered. When the input event <a href="#[In]read">[In]read</a> is asserted, the data in the array at the index specified by <a href="#[In]indexR">[In]index</a> is presented to the output <a href="#[Out]data">[Out]data</a> and the output event <a href="#[Out]read">[Out]read</a> is triggered.
-</p>
-<p class=component>
-Please note that the array is zero indexed and the maxmum index is therefore the value of the parameter specifying the maximum size of the array - 1. If an index of less than 0 or greater than or equal to the maximum array size is used when writing to or reading from the array then the corresponding output event <a href="#[Out]err">[Out]err</a> will be triggered. Also note that data is persistent at the output <a href="#[Out]data">[Out]data</a>.
-</p>
-<p class=component>
-The default value parameter specifies the default value for uninitialised values in the array.
-</p>
-<!--Ports - form - short desc: long desc-->
-<h3 class=ports>Ports</h3>
-<ul class=noBullet><li>
+    <!--General Description-->
+    <p class=component>
+      This component acts as an array for string data. When the input event <a href="#[In]write">[In]write</a> is asserted, the input data <a href="#[In]data">[In]data</a> is added to the array at the index specified by <a href="#[In]indexW">[In]index</a> and the output event <a href="#[Out]write">[Out]write</a> is triggered. When the input event <a href="#[In]read">[In]read</a> is asserted, the data in the array at the index specified by <a href="#[In]indexR">[In]index</a> is presented to the output <a href="#[Out]data">[Out]data</a> and the output event <a href="#[Out]read">[Out]read</a> is triggered.
+    </p>
+    <p class=component>
+      Please note that the array is zero indexed and the maxmum index is therefore the value of the parameter specifying the maximum size of the array - 1. If an index of less than 0 or greater than or equal to the maximum array size is used when writing to or reading from the array then the corresponding output event <a href="#[Out]err">[Out]err</a> will be triggered. Also note that data is persistent at the output <a href="#[Out]data">[Out]data</a>.
+    </p>
+    <p class=component>
+      The default value parameter specifies the default value for uninitialised values in the array.
+    </p>
+  
+    <!--Parameters - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="parameters" class="toc_span">Parameters</span>
+      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
+      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
+      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
+    </div>
+    <table class="table_params">
+      <tr>
+        <th  style="width:60px;">name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>min.</th>
+        <th>max.</th>
+        <th>description</th>
+      </tr>
+      <tr>
+        <td>size</td>
+        <td>I</td>
+        <td>1024</td>
+        <td>2</td>
+        <td>1024</td>
+        <td>Maximum number of items allocated memory for in the array.</td>
+      </tr>
+      <tr>
+        <td>default value</td>
+        <td>S</td>
+        <td>None</td>
+        <td>NONE</td>
+        <td>NONE</td>
+        <td>default value for uninitialised values</td>
+      </tr>
+    </table>
+
+    <!--Ports - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="ports" class="toc_span">Ports</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+    <table class="table">
+      <tr>
+        <th>In Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td><a name=[In]write>write</a></td>
+        <td>Input event, writes the input <a href="#[In]data">[In]data</a> to the array at index <a href="#[In]indexW">[In]index</a>.</td>
+      </tr>
+      <tr>
+        <td><a name=[In]read>read</a></td>
+        <td>Input event, reads data from the array at index <a href="#[In]indexW">[In]index</a> and presents it to the output <a href="#[Out]data">[Out]data.</td>
+      </tr>
+      <tr>
+        <td><a name=[In]clear>clear</a></td>
+        <td> Input event, clears the array and triggers the output event  <a href="#[Out]clear">[Out]clear</td>
+      </tr>
+      <tr>
+        <th >Data In</th><th></th>
+      </tr>
+      <tr>
+        <td><a name=[In]data>data</a></td>
+        <td>Data input.</td>
+      </tr>
+      <tr>
+        <td><a name=[In]indexW>index</a></td>
+        <td>Data input, specified the index in the array to write the input <a href="#[In]data">[In]data</a> to.</td>
+      </tr>
+      <tr>
+        <td><a name=[In]indexR>index</a></td>
+        <td>Data input, specified the index in the array to read the data in the array.</td>
+      </tr>
+      <tr>
+        <th >Data Out</th><th></th>
+      </tr>
+      <tr>
+        <td><a name=[Out]data>data</a></td>
+        <td>Data output</td>
+      </tr>
+      <tr>
+        <th >Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td><a name=[Out]write>write</a></td>
+        <td>Output event, triggered if the array has been successfully written to.</td>
+      </tr>
+      <tr>
+        <td><a name=[Out]err>err</a></td>
+        <td>Output event, triggered if there has been an error when writing to the array.</td>
+      </tr>
+      <tr>
+        <td><a name=[Out]read>read</a></td>
+        <td>Output event, triggered if the array has been successfully read.</td>
+      </tr>
+      <tr>
+        <td><a name=[Out]err>err</a></td>
+        <td>Output event, triggered if there has been an error when reading the array.</td>
+      </tr>
+      <tr>
+        <td><a name=[Out]clear>clear</a></td>
+        <td>Output event.</td>
+      </tr>
+      <tr>
+        <td>inc</td>
+        <td>Asserted if and only if an increment event is received and the count is less than
+          the maximum threshold.</td>
+      </tr>
+    </table>
 
 
-<h6 class=portsStr>
-[In]
-data:
-<a name="[In]data">
-</h6>
-<p class=ports>Data input.</p>
-  </li><li>
-<h6 class=portsStr>
-[Out]
-data:
-<a name="[Out]data">
-</h6>
-<p class=ports>Data output.</p>
-  </li><li>
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+     <table>
+      <tr class="fsm_row">
+        <td style="width:90px;">
+          <b>State Machine</b>
+        </td>
+       <td  colspan=5>
+        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
+          <span class="fsm_blob">state2</span>
+          &otimes;&nbsp;
+          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+          <span class="fsm_blob">state3</span> [doh]&rarr;
+          <span class="fsm_blob">state5</span> -->
+          NONE
+        </td>
+        <td>
+          <b></b>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Toolbox</b>
+        </td>
+        <td>
+          Core.
+        </td>
+        <td class=heading-cell>
+          <b>Version</b>
+        </td>
+        <td>
+          v1.0.
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          MPL2.0
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Minumum DCC</b>
+        </td><td>A0000</td> 
+        <td class=heading-cell>
+          <b>Profiles</b>
+        </td>
+        <td>
+          All.
+        </td>
+      </tr>
+    </table>
 
+  </div>
+</body>
 
-<h6 class=ports>
-[In]
-write:
-<a name="[In]write">
-</h6>
-<p class=ports>Input event, writes the input <a href="#[In]data">[In]data</a> to the array at index <a href="#[In]indexW">[In]index</a>.</p>
-  </li><li>
-<h6 class=portsInt>
-[In]
-index:
-<a name="[In]indexW">
-</h6>
-<p class=ports>Data input, specified the index in the array to write the input <a href="#[In]data">[In]data</a> to.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-write:
-<a name="[Out]write">
-</h6>
-<p class=ports>Output event, triggered if the array has been successfully written to.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-err:
-<a name="[Out]err">
-</h6>
-<p class=ports>Output event, triggered if there has been an error when writing to the array.</p>
-  </li><li>
-
-
-<h6 class=ports>
-[In]
-read:
-<a name="[In]read">
-</h6>
-<p class=ports>Input event, reads data from the array at index <a href="#[In]indexW">[In]index</a> and presents it to the output <a href="#[Out]data">[Out]data</a>.</p>
-  </li><li>
-<h6 class=portsInt>
-[In]
-index:
-<a name="[In]indexR">
-</h6>
-<p class=ports>Data input, specified the index in the array to read the data in the array.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-read:
-<a name="[Out]read">
-</h6>
-<p class=ports>Output event, triggered if the array has been successfully read.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-err:
-<a name="[Out]err">
-</h6>
-<p class=ports>Output event, triggered if there has been an error when reading the array.</p>
-  </li><li>
-
-
-<h6 class=ports>
-[In]
-clear:
-<a name="[In]clear">
-</h6>
-<p class=ports>Input event, clears the array and triggers the output event <a href="#[Out]clear">[Out]clear</a>.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-clear:
-<a name="[Out]clear">
-</h6>
-<p class=ports>Output event.</p>
-</li></ul>
-<p>
-<!--
-EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]clear">[In]clear</a>, <a href="#[In]write">[In]write</a>, <a href="#[In]read">[In]read</a>, <a href="#[In]indexW">[In]index</a>, <a href="#[In]indexR">[In]index</a>, <a href="#[In]data">[In]data</a>, <a href="#[Out]data">[Out]data</a>, <a href="#[Out]clear">[Out]clear</a>, <a href="#[Out]write">[Out]write</a>, <a href="#[Out]read">[Out]read</a>,
--->
-</p>
-<!--Parameters - form - short desc: long desc-->
-<h3 class=parameters>Parameters</h3>
-<ul class=noBullet><li>
-<h6 class=parameters>
-size:
-</h6>
-<p class=parameters>
-Maximum number of items allocated memory for in the array
-<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
-I,
-</p><h6 class=parameters>Min Value: </h6><p class=parameters>
-2,
-</p><h6 class=parameters>Max Value: </h6><p class=parameters>
-1024,
-</p><h6 class=parameters>Default Value: </h6><p class=parameters>
-1024
-</p>
-  </li><li>
-<h6 class=parameters>
-default value:
-</h6>
-<p class=parameters>
-default value for uninitialised values
-<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
-S,
-</p><h6 class=parameters>Min Value: </h6><p class=parameters>
-None,
-</p><h6 class=parameters>Max Value: </h6><p class=parameters>
-None,
-</p><h6 class=parameters>Default Value: </h6><p class=parameters>
-None
-</p>
-</li></ul>
-<!--State Machine - form - image - example-->
-<h3 class=stateMachine>State Machine</h3>
-<p class=stateMachine>Stateless.</p>
-<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
-<!--profiles - form - list-->
-<h3 class=profiles>Profiles</h3>
-<p class=profiles>All.</p>
-<!--Toolbox-->
-<h3 class=toolbox>Toolbox</h3>
-<p class=toolbox>Core.</p>
-<!--Version-->
-<h3 class=version>Version</h3>
-<p class=version>v2.1.</p>
-<!--Dependencies - form - list-->
-<h3 class=dependencies>Native Dependencies</h3>
-<ul class=dependencies><li class=dependencies>
-<h6 class=dependencies>TDK1.1: </h6>
-<p class=dependencies></p>
-</li></ul>
-<!--Licence Type-->
-<h3 class=licenceType>Licence Type</h3>
-<p class=licenceType>LGPL.</p>
-<!--Component Supplier-->
-<h3 class=supplier>Component Supplier</h3>
-<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
-</body></html>
+</html>

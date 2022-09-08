@@ -1,12 +1,19 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
+
 /** @file target_tcp.c
  * Definitions for target-specific tcp-related functions
  *
  *
  * @author: inx limited
- * @version: $Revision: 3741 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 /**
@@ -34,9 +41,11 @@
 #include <string.h> /* required for memset */
 #include "target_tcp.h"
 #include "hal_string.h"
-#ifdef EHS_DEBUG_TCPIP_CONSOLE 
+#ifdef EHS_DEBUG_TCPIP_CONSOLE
 #include "console_server.h"
 #endif
+
+
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -66,19 +75,20 @@
 const ehs_char * EhsTgtTcp_getErrorText(ehs_char *buff, EhsTgtTcpErrType nErrCode)
 {
 #if 0
-	int szError;
-	if (buff != NULL) {
-		/* Warning there is a GNU specific version of the following that returns a pointer instead of an error code
-		 * This may only result in a compiler warning so has been disabled.
-		 */
-		szError = strerror_r(nErrCode,buff,EHS_STRING_LENGTH_MAX);
-		return szError;
-	}
-	else return -1;
+    int szError;
+    if (buff != NULL)
+    {
+        /* Warning there is a GNU specific version of the following that returns a pointer instead of an error code
+         * This may only result in a compiler warning so has been disabled.
+         */
+        szError = strerror_r(nErrCode,buff,EHS_STRING_LENGTH_MAX);
+        return szError;
+    }
+    else return -1;
 #else
-	EhsStrcpy(buff,"DISABLED ERROR CODE TRANSLATION");
+    EhsStrcpy(buff,"DISABLED ERROR CODE TRANSLATION");
 #endif
-	return buff;
+    return buff;
 }
 
 /**
@@ -89,8 +99,8 @@ const ehs_char * EhsTgtTcp_getErrorText(ehs_char *buff, EhsTgtTcpErrType nErrCod
  */
 ehs_bool EhsTgtTcp_init(void)
 {
-	/* no special initialisation action is required */
-	return EHS_TRUE;
+    /* no special initialisation action is required */
+    return EHS_TRUE;
 }
 
 /**
@@ -98,7 +108,7 @@ ehs_bool EhsTgtTcp_init(void)
  */
 void EhsTgtTcp_term(void)
 {
-	/* no specific action required here */
+    /* no specific action required here */
 }
 
 /**
@@ -111,27 +121,34 @@ void EhsTgtTcp_term(void)
  */
 ehs_sint32 EhsTgtTcp_recvNonblock(EhsTgtTcpSocketType xRxSocket, ehs_uint8* pData, ehs_uint32 nData)
 {
-	ehs_sint32 nDataReceived;
-	int optval;
-	socklen_t optlen = sizeof(optval);
-	memset(pData, 0, (size_t)nData); /*lint !e534 Safe to ignore return value here */
-	nDataReceived=lwip_recv(xRxSocket, pData, nData,MSG_DONTWAIT);
-	if(errno==ENOTCONN){
-		nDataReceived = EHS_TGT_TCP_SOCKET_ERROR;
-	}else{
-		//check socket is not dead, this is LWIP specific
-		if(nDataReceived<0){
-			nDataReceived=lwip_getsockopt(xRxSocket, SOL_SOCKET, SO_ERROR, &optval, &optlen);
-			if(errno == EWOULDBLOCK){
-				nDataReceived = 0;
-			}else{
-				nDataReceived = EHS_TGT_TCP_SOCKET_ERROR;
-			}
-			//so people don't call us in a loop forever
-			vTaskDelay(10);
-		}
-	}
-	return nDataReceived;
+    ehs_sint32 nDataReceived;
+    int optval;
+    socklen_t optlen = sizeof(optval);
+    memset(pData, 0, (size_t)nData); /*lint !e534 Safe to ignore return value here */
+    nDataReceived=lwip_recv(xRxSocket, pData, nData,MSG_DONTWAIT);
+    if(errno==ENOTCONN)
+    {
+        nDataReceived = EHS_TGT_TCP_SOCKET_ERROR;
+    }
+    else
+    {
+        //check socket is not dead, this is LWIP specific
+        if(nDataReceived<0)
+        {
+            nDataReceived=lwip_getsockopt(xRxSocket, SOL_SOCKET, SO_ERROR, &optval, &optlen);
+            if(errno == EWOULDBLOCK)
+            {
+                nDataReceived = 0;
+            }
+            else
+            {
+                nDataReceived = EHS_TGT_TCP_SOCKET_ERROR;
+            }
+            //so people don't call us in a loop forever
+            vTaskDelay(10);
+        }
+    }
+    return nDataReceived;
 }
 
 int EhsTgtTcp_select(EhsTgtTcpSocketType xRxSocket)
@@ -157,32 +174,34 @@ int EhsTgtTcp_select(EhsTgtTcpSocketType xRxSocket)
 
 ehs_bool EhsSvcTgtTcp_closeConnection(EhsTgtTcpSocketType EhsSvcTcpSocketConnection)
 {
-	ehs_bool bSuccess = EHS_FALSE; /* assume operation failed */
-	int retVal;
+    ehs_bool bSuccess = EHS_FALSE; /* assume operation failed */
+    int retVal;
 
-	//	retVal = shutdown(EhsSvcTcpSocketConnection,EHS_TGT_TCP_SD_BOTH);
-	//	printf("shutdown:retVal=[%i]\n",retVal);
+    //	retVal = shutdown(EhsSvcTcpSocketConnection,EHS_TGT_TCP_SD_BOTH);
 
-	//	EhsSleep(EHS_TIME_us(EHS_TGT_TCP_SUSPENDTIME_us));
-	if ( EhsSvcTcpSocketConnection != EHS_TGT_TCP_INVALID_SOCKET) {
-		retVal = EHS_TGT_TCP_CLOSE_SOCKET(EhsSvcTcpSocketConnection);
+    //	EhsSleep(EHS_TIME_us(EHS_TGT_TCP_SUSPENDTIME_us));
+    if ( EhsSvcTcpSocketConnection != EHS_TGT_TCP_INVALID_SOCKET)
+    {
+        retVal = EHS_TGT_TCP_CLOSE_SOCKET(EhsSvcTcpSocketConnection);
 
-		if (retVal != 0) {
-			if (EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_NOTCONN)
-			{
-				EhsSvcTcp_logSocketError("EhsSvcTcp_closeConnection.shutdown", EhsTgtTcp_getErrorCode(EHS_FALSE));
-			}
-			else
-			{
-				/* Ignore this warning, as we're already shutdown */
-				bSuccess = EHS_TRUE;
-			}
-		} else {
-			bSuccess = EHS_TRUE;
-		}
+        if (retVal != 0)
+        {
+            if (EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_NOTCONN)
+            {
+                EhsSvcTcp_logSocketError("EhsSvcTcp_closeConnection.shutdown", EhsTgtTcp_getErrorCode(EHS_FALSE));
+            }
+            else
+            {
+                /* Ignore this warning, as we're already shutdown */
+                bSuccess = EHS_TRUE;
+            }
+        }
+        else
+        {
+            bSuccess = EHS_TRUE;
+        }
 
-	}
-	//else printf("Trying to close invalid socket\n");
+    }
 
-	return bSuccess; // return success if already closed too
+    return bSuccess; // return success if already closed too
 }

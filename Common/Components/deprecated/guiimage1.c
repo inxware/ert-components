@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file guiimage1.c
  *
@@ -13,10 +22,7 @@
  * threadsafe, as it might be called by an OS operation.
  *
  * @author: inx limited
- * @version: $Revision: 2780 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 /**
@@ -28,7 +34,7 @@
  * @subsection properties Properties:
  * <b>tag.</b> This is the name of the image. Lucid GUI Builder uses this name to refer to the image
  * when it is building the display including this image.
- * 
+ *
  * <b>Widget-group</b>. This refers to the type of screen layout that will contain this image.
  *
  * @subsection description Description:
@@ -36,7 +42,7 @@
  * that appear in the same widget group to be "turned on" (or off) all at the same time. At this time
  * it is necessary to manually connect together the create and destroy events for all widgets in the same widget group.
  *
- * The <em>show</em> and <em>hide</em> events are intended to allow individual images to be displayed or 
+ * The <em>show</em> and <em>hide</em> events are intended to allow individual images to be displayed or
  * removed from the display.
  *
  * The <em>update</em> allows the image to be modified via the <em>x</em>, <em>y</em> and <em>alpha</em> inputs.
@@ -44,7 +50,7 @@
  * The alpha input changes the opacity of the image. It ranges between 0 (totally transparent) and 255 (maximum
  * opacity). If Lucid GUI Builder defines a widget as partially transparent, the alpha value of the image block
  * will not increase its opacity beyond that point.
- * 
+ *
  */
 
 #include "target.h"
@@ -60,11 +66,16 @@
 #include "hal-api.h" /* Needed for logging */
 
 EHS_FB_FUNCTIONS_START(GUI_Image1)
-EHS_FB_FUNCTION_ENTRY("create", GUI_Image1_create)
-EHS_FB_FUNCTION_ENTRY("destroy", GUI_Image1_destroy)
-EHS_FB_FUNCTION_ENTRY("show", GUI_Image1_show)
-EHS_FB_FUNCTION_ENTRY("hide", GUI_Image1_hide)
-EHS_FB_FUNCTION_ENTRY("update", GUI_Image1_update)
+
+EHS_FB_FUNCTION_ENTRY("create", 0x00, GUI_Image1_create)
+
+EHS_FB_FUNCTION_ENTRY("destroy", 0x01, GUI_Image1_destroy)
+
+EHS_FB_FUNCTION_ENTRY("show", 0x02, GUI_Image1_show)
+
+EHS_FB_FUNCTION_ENTRY("hide", 0x03, GUI_Image1_hide)
+
+EHS_FB_FUNCTION_ENTRY("update", 0x04, GUI_Image1_update)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_GUIIMAGE_IN_X 0		/**< Function block input for X offset */
@@ -76,8 +87,8 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(GUI_Image1)
 {
-	EHS_TRACE_FUNCTION(EHS_FB_IDENTIFY_NAME(GUI_Image1));
-	EHS_FB_IDENTIFY_MEMORY = sizeof(EhsWidgetClass**);
+    EHS_TRACE_FUNCTION(EHS_FB_IDENTIFY_NAME(GUI_Image1));
+    EHS_FB_IDENTIFY_MEMORY = sizeof(EhsWidgetClass**);
 }
 
 /**
@@ -86,19 +97,19 @@ EHS_FB_IDENTIFY_FUNCTION(GUI_Image1)
  */
 EHS_FB_INIT_FUNCTION(GUI_Image1)
 {
-	EhsGuiParamsType xParams;
-	ehs_bool bRet;
+    EhsGuiParamsType xParams;
+    ehs_bool bRet;
 
-	EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_Image1));
-	EhsParseGuiParameters(EHS_FB_INIT_PARAMETERS,&xParams);
-	*(EhsWidgetClass**)EHS_FB_INIT_CONTEXT = EhsWidgetImage_init(&(xParams.xRect), xParams.nZorder, xParams.uClass.xBitmap.nImageAlpha, xParams.uClass.xBitmap.szBitmapName);
-	if ((*(EhsWidgetClass**)EHS_FB_INIT_CONTEXT == NULL) ||
-		((*(EhsWidgetClass**)(EHS_FB_INIT_CONTEXT))->nState == EHS_WIDGET_STATE_EMPTY))
-		bRet = EHS_FALSE;
-	else
-		bRet = EHS_TRUE;
+    EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_Image1));
+    EhsParseGuiParameters(EHS_FB_INIT_PARAMETERS,&xParams);
+    *(EhsWidgetClass**)EHS_FB_INIT_CONTEXT = EhsWidgetImage_init(&(xParams.xRect), xParams.nZorder, xParams.uClass.xBitmap.nImageAlpha, xParams.uClass.xBitmap.szBitmapName);
+    if ((*(EhsWidgetClass**)EHS_FB_INIT_CONTEXT == NULL) ||
+            ((*(EhsWidgetClass**)(EHS_FB_INIT_CONTEXT))->nState == EHS_WIDGET_STATE_EMPTY))
+        bRet = EHS_FALSE;
+    else
+        bRet = EHS_TRUE;
 
-	return bRet;
+    return bRet;
 }
 
 
@@ -109,11 +120,11 @@ EHS_FB_INIT_FUNCTION(GUI_Image1)
  */
 EHS_FB_RUN_FUNCTION(GUI_Image1_create)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
 
-	EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_create));
-	EhsWidget_create(pWidget);
-	EHS_FB_FINISH(1);
+    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_create));
+    EhsWidget_create(pWidget);
+    EHS_FB_FINISH(1);
 }
 
 /**
@@ -122,11 +133,11 @@ EHS_FB_RUN_FUNCTION(GUI_Image1_create)
  */
 EHS_FB_RUN_FUNCTION(GUI_Image1_destroy)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
 
-	EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_destroy));
-	EhsWidget_destroy(pWidget);
-	EHS_FB_FINISH(1);
+    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_destroy));
+    EhsWidget_destroy(pWidget);
+    EHS_FB_FINISH(1);
 }
 
 /**
@@ -134,11 +145,11 @@ EHS_FB_RUN_FUNCTION(GUI_Image1_destroy)
  */
 EHS_FB_RUN_FUNCTION(GUI_Image1_show)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_show));
-	
-	EhsWidget_show(pWidget);
-	EHS_FB_FINISH(1);
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_show));
+
+    EhsWidget_show(pWidget);
+    EHS_FB_FINISH(1);
 }
 
 /**
@@ -146,11 +157,11 @@ EHS_FB_RUN_FUNCTION(GUI_Image1_show)
  */
 EHS_FB_RUN_FUNCTION(GUI_Image1_hide)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_hide));
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_hide));
 
-	EhsWidget_hide(pWidget);
-	EHS_FB_FINISH(1);
+    EhsWidget_hide(pWidget);
+    EHS_FB_FINISH(1);
 }
 
 /**
@@ -159,36 +170,36 @@ EHS_FB_RUN_FUNCTION(GUI_Image1_hide)
  */
 EHS_FB_RUN_FUNCTION(GUI_Image1_update)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	EhsDataflowIntType nXoffset = 0;
-	EhsDataflowIntType nYoffset = 0;
-	ehs_bool bMoveRequired = EHS_FALSE; /* assume that we never need to move, unless inputs are connected */
-	EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_update));
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EhsDataflowIntType nXoffset = 0;
+    EhsDataflowIntType nYoffset = 0;
+    ehs_bool bMoveRequired = EHS_FALSE; /* assume that we never need to move, unless inputs are connected */
+    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(GUI_Image1_update));
 
-	if (EHS_FB_IN_CONNECTED(EHS_FB_GUIIMAGE_IN_ALPHA))
-	{
-		EhsDataflowIntType nAlpha = EHS_FB_IN_I(EHS_FB_GUIIMAGE_IN_ALPHA);
-		if (nAlpha < 0) nAlpha = 0;
-		else if (nAlpha > 255) nAlpha = 255;
+    if (EHS_FB_IN_CONNECTED(EHS_FB_GUIIMAGE_IN_ALPHA))
+    {
+        EhsDataflowIntType nAlpha = EHS_FB_IN_I(EHS_FB_GUIIMAGE_IN_ALPHA);
+        if (nAlpha < 0) nAlpha = 0;
+        else if (nAlpha > 255) nAlpha = 255;
 
-		EhsWidget_fade(pWidget, (ehs_uint8)nAlpha);
-	}
+        EhsWidget_fade(pWidget, (ehs_uint8)nAlpha);
+    }
 
-	if (EHS_FB_IN_CONNECTED(EHS_FB_GUIIMAGE_IN_X))
-	{
-		nXoffset = NCAPSA_nIn(EHS_FB_GUIIMAGE_IN_X);
-		bMoveRequired = EHS_TRUE;
-	}
-	if (EHS_FB_IN_CONNECTED(EHS_FB_GUIIMAGE_IN_Y))
-	{
-		nYoffset = NCAPSA_nIn(EHS_FB_GUIIMAGE_IN_Y);
-		bMoveRequired = EHS_TRUE;
-	}
-	if (bMoveRequired)
-	{
-		EhsWidget_move(pWidget, nXoffset, nYoffset, 0, 0);
-	}
+    if (EHS_FB_IN_CONNECTED(EHS_FB_GUIIMAGE_IN_X))
+    {
+        nXoffset = NCAPSA_nIn(EHS_FB_GUIIMAGE_IN_X);
+        bMoveRequired = EHS_TRUE;
+    }
+    if (EHS_FB_IN_CONNECTED(EHS_FB_GUIIMAGE_IN_Y))
+    {
+        nYoffset = NCAPSA_nIn(EHS_FB_GUIIMAGE_IN_Y);
+        bMoveRequired = EHS_TRUE;
+    }
+    if (bMoveRequired)
+    {
+        EhsWidget_move(pWidget, nXoffset, nYoffset, 0, 0);
+    }
 
-	EHS_FB_FINISH(1);
+    EHS_FB_FINISH(1);
 }
 #endif /* EHS_GUI_SUPPORT */

@@ -1,57 +1,56 @@
 #!/bin/bash
+set -e
+BUILD_MODE="$1"
 
+export BUILD_WITHOUT_SUPERVISOR="1"
+
+export REPOSITORY_ANDROID_STUDIO_ROOT="$EHS_ROOT/target/os-arch/android_ALL/android_studio_ehs"
+export ANDROID_STUDIO_JNILIBS_PATH="$ANDROID_STUDIO_ROOT/app/src/main/jniLibs/armeabi-v7a"
+export ANDROID_STUDIO_USERDATA_PATH="$ANDROID_STUDIO_ROOT/app/src/main/assets/userdata"
+export ANDROID_STUDIO_DEVMAN_PATH="$ANDROID_STUDIO_USERDATA_PATH/devman/core"
+export ANDROID_STUDIO_TOOLS_PATH="$ANDROID_STUDIO_USERDATA_PATH/appdata/default"
+
+#The following is required only if publishing APKs to private servers.
+export SSHPORT=8822
+export DEVMAN_SERVER_NAME="inx"
+export DEVMAN_SERVER_DOMAIN="devman-inx-systems.net"
+export DEVMAN_SERVER_URL="https://$DEVMAN_SERVER_DOMAIN"
+export DEVMAN_UNAME="inx"
+export EHS_PRODUCT_NAME="ehs" # todo - change product to eRT (needs to be done accross all scripts/templates)
+
+source ${EHS_ROOT}"/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_make_apk_utils.sh"
 source ${EHS_ROOT}"/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_make_apk_setup.sh"
 
-#TOD The following paths shouldbe changed tothe staging directory  (../TARGET_TREES/...) and 
-# the template android projects copied there to avoid manipulating code in the repo. 
+SetupTargetEnv_CopyEHSTools(){
+    TOOLS_DIR=${EHS_ROOT}/../apps/
+    GetApplicationRepo $TOOLS_DIR
 
-export ANDROID_STUDIO_ROOT="$EHS_ROOT/target/os-arch/android_ALL/android_studio_ehs"
-export ANDROID_STUDIO_JNILIBS_PATH="$ANDROID_STUDIO_ROOT/app/src/main/jniLibs/armeabi-v7a"
-export ANDROID_STUDIO_SYSDATA_PATH="$ANDROID_STUDIO_ROOT/app/src/main/assets/userdata/sysdata"
-export ANDROID_STUDIO_DEVMAN_PATH="$ANDROID_STUDIO_ROOT/app/src/main/assets/userdata/devman/core"
-
-
-DEVMAN_URL="devman-inx-systems.net"
-DEVMAN_URL_TYPE="https://"
-DOWNLOAD_URL="$DEVMAN_URL"
-DOWNLOAD_URL_TYPE="$DEVMAN_URL_TYPE"
-DEVMAN_UNAME="devman"
-DOWNLOAD_UNAME="$DEVMAN_UNAME"
-
-AndroidStudioPath(){
-    echo $ANDROID_STUDIO_ROOT
-}
-
-ApkDownloadDevmanUrl(){
-    echo "$DOWNLOAD_URL"
-}
-
-# returns domain without UTL type e.g. for certification generation
-ApkDevmanUrl(){
-    echo "$DEVMAN_URL"
-}
-
-ApkDevmanUsername(){
-    echo "$DEVMAN_UNAME"
-}
-
-ApkDownloadUsername(){
-    echo "$DOWNLOAD_UNAME"
-}
-
-ApkBuildSetup(){
-    echo "${DEVMAN_URL_TYPE}${DEVMAN_URL}" | tr -d \\n > "$ANDROID_STUDIO_DEVMAN_PATH/config/DEVMANURL.000"
-}
-
-ApkBuildCleanUp(){
-    echo "Clean up android build env."
-    # clean git changes
-    git checkout -- "$ANDROID_STUDIO_DEVMAN_PATH/config/DEVMANURL.000"
-    if [ -d "$ANDROID_STUDIO_USERDATA_PATH/sysdata/" ]; then
-        rm -r $ANDROID_STUDIO_USERDATA_PATH/sysdata/
+    if [ -d "$TOOLS_DIR" ] && [ -d "$ANDROID_STUDIO_TOOLS_PATH" ]; then
+        echo "Copying the Default eRT home app to the project."
+        cp -Rf ${EHS_ROOT}/../apps/systemapps/Home/export/* ${ANDROID_STUDIO_TOOLS_PATH} || CancelFailed
+    else
+        echo "Failed to copy the default eRT App app!"
+        CancelFailed   
     fi
 }
 
-ApkUpload2Server(){
-    echo "@TODO - ApkUpload2Server function needs implementation!"
+SetupTargetEnv_Certs(){
+    # override with certificates
+    echo "Setup ambifier server certificates"
+    CERTS_DIR=${EHS_ROOT}/../DevmanSecurity/devman.inx-systems.com
+    cp -f ${CERTS_DIR}/devman-ca.crt ${ANDROID_STUDIO_DEVMAN_PATH}/certs/devman-ca.crt || CancelFailed
+    cp -f ${CERTS_DIR}/devman-client-crt-key.pem ${ANDROID_STUDIO_DEVMAN_PATH}/certs/devman-client-crt-key.pem || CancelFailed
+}
+
+SetupTargetEnv_BinFolder(){
+    # nothing to do here
+    :
+}
+
+#todo - change the targe apk name to ert.apk
+TargetEnvMakeApk_Build(){
+    echo "Building APK for ambifier"
+    $EHS_ROOT/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_make_apk_gradlew_build.sh "$SPECIFIC_TARGET" "$ANDROID_STUDIO_ROOT"
+    EHS_APK=${TARGET_PATH}/release/app-release.apk
+    cp ${EHS_APK} ${TARGET_PATH}/bin/ehs.apk || CancelFailed
 }

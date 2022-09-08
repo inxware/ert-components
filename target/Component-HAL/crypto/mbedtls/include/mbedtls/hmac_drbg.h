@@ -131,11 +131,11 @@ void mbedtls_hmac_drbg_init( mbedtls_hmac_drbg_context *ctx );
  *                      MBEDTLS_ERR_HMAC_DRBG_ENTROPY_SOURCE_FAILED.
  */
 int mbedtls_hmac_drbg_seed( mbedtls_hmac_drbg_context *ctx,
-                    const mbedtls_md_info_t * md_info,
-                    int (*f_entropy)(void *, unsigned char *, size_t),
-                    void *p_entropy,
-                    const unsigned char *custom,
-                    size_t len );
+                            const mbedtls_md_info_t * md_info,
+                            int (*f_entropy)(void *, unsigned char *, size_t),
+                            void *p_entropy,
+                            const unsigned char *custom,
+                            size_t len );
 
 /**
  * \brief               Initilisation of simpified HMAC_DRBG (never reseeds).
@@ -151,8 +151,8 @@ int mbedtls_hmac_drbg_seed( mbedtls_hmac_drbg_context *ctx,
  *                      MBEDTLS_ERR_MD_ALLOC_FAILED.
  */
 int mbedtls_hmac_drbg_seed_buf( mbedtls_hmac_drbg_context *ctx,
-                        const mbedtls_md_info_t * md_info,
-                        const unsigned char *data, size_t data_len );
+                                const mbedtls_md_info_t * md_info,
+                                const unsigned char *data, size_t data_len );
 
 /**
  * \brief               Enable / disable prediction resistance (Default: Off)
@@ -164,7 +164,7 @@ int mbedtls_hmac_drbg_seed_buf( mbedtls_hmac_drbg_context *ctx,
  * \param resistance    MBEDTLS_HMAC_DRBG_PR_ON or MBEDTLS_HMAC_DRBG_PR_OFF
  */
 void mbedtls_hmac_drbg_set_prediction_resistance( mbedtls_hmac_drbg_context *ctx,
-                                          int resistance );
+        int resistance );
 
 /**
  * \brief               Set the amount of entropy grabbed on each reseed
@@ -175,7 +175,7 @@ void mbedtls_hmac_drbg_set_prediction_resistance( mbedtls_hmac_drbg_context *ctx
  * \param len           Amount of entropy to grab, in bytes
  */
 void mbedtls_hmac_drbg_set_entropy_len( mbedtls_hmac_drbg_context *ctx,
-                                size_t len );
+                                        size_t len );
 
 /**
  * \brief               Set the reseed interval
@@ -185,7 +185,7 @@ void mbedtls_hmac_drbg_set_entropy_len( mbedtls_hmac_drbg_context *ctx,
  * \param interval      Reseed interval
  */
 void mbedtls_hmac_drbg_set_reseed_interval( mbedtls_hmac_drbg_context *ctx,
-                                    int interval );
+        int interval );
 
 /**
  * \brief               HMAC_DRBG update state
@@ -198,7 +198,7 @@ void mbedtls_hmac_drbg_set_reseed_interval( mbedtls_hmac_drbg_context *ctx,
  *                      third argument if no additional data is being used.
  */
 void mbedtls_hmac_drbg_update( mbedtls_hmac_drbg_context *ctx,
-                       const unsigned char *additional, size_t add_len );
+                               const unsigned char *additional, size_t add_len );
 
 /**
  * \brief               HMAC_DRBG reseeding (extracts data from entropy source)
@@ -211,7 +211,7 @@ void mbedtls_hmac_drbg_update( mbedtls_hmac_drbg_context *ctx,
  *                      MBEDTLS_ERR_HMAC_DRBG_ENTROPY_SOURCE_FAILED
  */
 int mbedtls_hmac_drbg_reseed( mbedtls_hmac_drbg_context *ctx,
-                      const unsigned char *additional, size_t len );
+                              const unsigned char *additional, size_t len );
 
 /**
  * \brief               HMAC_DRBG generate random with additional update input
@@ -230,9 +230,9 @@ int mbedtls_hmac_drbg_reseed( mbedtls_hmac_drbg_context *ctx,
  *                      MBEDTLS_ERR_HMAC_DRBG_INPUT_TOO_BIG.
  */
 int mbedtls_hmac_drbg_random_with_add( void *p_rng,
-                               unsigned char *output, size_t output_len,
-                               const unsigned char *additional,
-                               size_t add_len );
+                                       unsigned char *output, size_t output_len,
+                                       const unsigned char *additional,
+                                       size_t add_len );
 
 /**
  * \brief               HMAC_DRBG generate random

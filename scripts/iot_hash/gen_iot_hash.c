@@ -1,4 +1,12 @@
 
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,25 +20,28 @@
 
 static uint64_t string_hash(const char* s, const uint64_t length, uint64_t seed)
 {
-	uint64_t hash = seed;
-	while (*s) {
-		hash = (hash * PRIME_1) ^ (s[0] * PRIME_2);
-		s++;
-	}
-	return hash % length;
+    uint64_t hash = seed;
+    while (*s)
+    {
+        hash = (hash * PRIME_1) ^ (s[0] * PRIME_2);
+        s++;
+    }
+    return hash % length;
 }
 
-int main(int argc, char* argv[]){
-  if(argc != 4){
-    printf("Invalid number of arguments. This pogram must have three argumnets passed.\n");
-    return -1;
-  }
-  const char* str = argv[1];
-	const uint64_t length = atol(argv[2]);
-	const uint64_t seed = atol(argv[3]);
-  uint64_t hash = string_hash(str, length, seed);
+int main(int argc, char* argv[])
+{
+    if(argc != 4)
+    {
+        printf("Invalid number of arguments. This pogram must have three argumnets passed.\n");
+        return -1;
+    }
+    const char* str = argv[1];
+    const uint64_t length = atol(argv[2]);
+    const uint64_t seed = atol(argv[3]);
+    uint64_t hash = string_hash(str, length, seed);
 
-  printf("%ld\n", hash);
+    printf("%ld\n", hash);
 
-  return 0;
+    return 0;
 }

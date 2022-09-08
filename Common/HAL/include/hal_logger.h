@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file logger.h
  * Declares the interface for the logger module.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 4785 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef EHS_HAL_LOGGER_H
@@ -60,12 +66,13 @@
 /**
  * Specifies the level at which to log information
  */
-typedef enum {
-	EHSH_LOG_LEVEL_ERROR	= 0x01,
-	EHSH_LOG_LEVEL_WARNING	= 0x02,
-	EHSH_LOG_LEVEL_INFO		= 0x04,
-	EHSH_LOG_LEVEL_ENTER	= 0x08,
-	EHSH_LOG_LEVEL_EXIT		= 0x10
+typedef enum
+{
+    EHSH_LOG_LEVEL_ERROR	= 0x01,
+    EHSH_LOG_LEVEL_WARNING	= 0x02,
+    EHSH_LOG_LEVEL_INFO		= 0x04,
+    EHSH_LOG_LEVEL_ENTER	= 0x08,
+    EHSH_LOG_LEVEL_EXIT		= 0x10
 } EhsHLoggerLogLevel;
 
 
@@ -76,19 +83,20 @@ typedef enum {
  * module text name in EhsLModuleNames in logger.c
  * **************************************************
  */
-typedef enum {
-	EHSH_LOG_MODULE_UNDEFINED,
-	EHSH_LOG_MODULE_KERNEL,
-	EHSH_LOG_MODULE_GRAPHICS,
-	EHSH_LOG_MODULE_LOGGER,
-	EHSH_LOG_MODULE_HAL_MEMORY,
-	EHSH_LOG_MODULE_HAL_PROCESS,
-	EHSH_LOG_MODULE_HAL_STRING,
-	EHSH_LOG_MODULE_TGT_VIEWPORT,
-	EHSH_LOG_MODULE_HAL_NETWORK,
-	EHSH_LOG_MODULE_HAL_DEVMANMON,
-	EHSH_LOG_MODULE_HAL_FILE,
-	EHS_LOG_MODULE_QUANTITY /* final entry - used to determine size of EhsLModuleNames */
+typedef enum
+{
+    EHSH_LOG_MODULE_UNDEFINED,
+    EHSH_LOG_MODULE_KERNEL,
+    EHSH_LOG_MODULE_GRAPHICS,
+    EHSH_LOG_MODULE_LOGGER,
+    EHSH_LOG_MODULE_HAL_MEMORY,
+    EHSH_LOG_MODULE_HAL_PROCESS,
+    EHSH_LOG_MODULE_HAL_STRING,
+    EHSH_LOG_MODULE_TGT_VIEWPORT,
+    EHSH_LOG_MODULE_HAL_NETWORK,
+    EHSH_LOG_MODULE_HAL_DEVMANMON,
+    EHSH_LOG_MODULE_HAL_FILE,
+    EHS_LOG_MODULE_QUANTITY /* final entry - used to determine size of EhsLModuleNames */
 } EhsHLoggerModuleId;
 
 
@@ -116,7 +124,6 @@ typedef enum {
 #endif
 
 //#define EHSH_LOG_MESSAGEX(nLevel,...) {}
-
 /**
  * Writes debug standard out and any debug console that's listening.
  * Generate a specific log message (if we're logging at that level)
@@ -125,14 +132,14 @@ typedef enum {
  */
 #if defined(EHS_RUNTIME_LOGGER_ENABLED) && defined(EHSL_MODULE_ID)
 #ifdef EHS_ANDROID
-	
-	#define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){LOGE(EhsHLogger_Msg,__VA_ARGS__);}
+
+#define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){LOGE(__VA_ARGS__);}
 #else
-	#define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){EhsSprintf(EhsHLogger_Msg,__VA_ARGS__);EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
+#define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){EhsSprintf(EhsHLogger_Msg,__VA_ARGS__);EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
 #endif
 //else{EhsSprintf(EhsHLogger_Msg,__VA_ARGS__); EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
 #else
-	#define EHSH_LOG_MESSAGE(nLevel,...); {}
+#define EHSH_LOG_MESSAGE(nLevel,...); {}
 #endif
 
 /**
@@ -140,7 +147,6 @@ typedef enum {
  */
 
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
-
 #define EHSH_LOG_ERROR(...) 		EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_ERROR,__VA_ARGS__)
 #define EHSH_LOG_WARNING(...) 	EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_WARNING,__VA_ARGS__)
 #define EHSH_LOG_INFO(...) 		EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_INFO,__VA_ARGS__)
@@ -261,10 +267,10 @@ EHS_GLOBAL ehs_char EhsHLogger_Msg[];
 EHS_GLOBAL void EhsHLogger_init();
 
 /**
- * Record a log entry 
- */ 
-EHS_GLOBAL void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, 
-		const ehs_char* szFilename, ehs_uint32 nLine, const ehs_char* szMsg);
+ * Record a log entry
+ */
+EHS_GLOBAL void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel,
+                               const ehs_char* szFilename, ehs_uint32 nLine, const ehs_char* szMsg);
 
 /**
  * Indicate what we want to log

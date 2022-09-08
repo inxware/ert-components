@@ -279,41 +279,41 @@ int mbedtls_x509_self_test( int verbose );
  * know you do.
  */
 int mbedtls_x509_get_name( unsigned char **p, const unsigned char *end,
-                   mbedtls_x509_name *cur );
+                           mbedtls_x509_name *cur );
 int mbedtls_x509_get_alg_null( unsigned char **p, const unsigned char *end,
-                       mbedtls_x509_buf *alg );
+                               mbedtls_x509_buf *alg );
 int mbedtls_x509_get_alg( unsigned char **p, const unsigned char *end,
-                  mbedtls_x509_buf *alg, mbedtls_x509_buf *params );
+                          mbedtls_x509_buf *alg, mbedtls_x509_buf *params );
 #if defined(MBEDTLS_X509_RSASSA_PSS_SUPPORT)
 int mbedtls_x509_get_rsassa_pss_params( const mbedtls_x509_buf *params,
-                                mbedtls_md_type_t *md_alg, mbedtls_md_type_t *mgf_md,
-                                int *salt_len );
+                                        mbedtls_md_type_t *md_alg, mbedtls_md_type_t *mgf_md,
+                                        int *salt_len );
 #endif
 int mbedtls_x509_get_sig( unsigned char **p, const unsigned char *end, mbedtls_x509_buf *sig );
 int mbedtls_x509_get_sig_alg( const mbedtls_x509_buf *sig_oid, const mbedtls_x509_buf *sig_params,
-                      mbedtls_md_type_t *md_alg, mbedtls_pk_type_t *pk_alg,
-                      void **sig_opts );
+                              mbedtls_md_type_t *md_alg, mbedtls_pk_type_t *pk_alg,
+                              void **sig_opts );
 int mbedtls_x509_get_time( unsigned char **p, const unsigned char *end,
-                   mbedtls_x509_time *time );
+                           mbedtls_x509_time *time );
 int mbedtls_x509_get_serial( unsigned char **p, const unsigned char *end,
-                     mbedtls_x509_buf *serial );
+                             mbedtls_x509_buf *serial );
 int mbedtls_x509_get_ext( unsigned char **p, const unsigned char *end,
-                  mbedtls_x509_buf *ext, int tag );
+                          mbedtls_x509_buf *ext, int tag );
 int mbedtls_x509_sig_alg_gets( char *buf, size_t size, const mbedtls_x509_buf *sig_oid,
-                       mbedtls_pk_type_t pk_alg, mbedtls_md_type_t md_alg,
-                       const void *sig_opts );
+                               mbedtls_pk_type_t pk_alg, mbedtls_md_type_t md_alg,
+                               const void *sig_opts );
 int mbedtls_x509_key_size_helper( char *buf, size_t buf_size, const char *name );
 int mbedtls_x509_string_to_names( mbedtls_asn1_named_data **head, const char *name );
 int mbedtls_x509_set_extension( mbedtls_asn1_named_data **head, const char *oid, size_t oid_len,
-                        int critical, const unsigned char *val,
-                        size_t val_len );
+                                int critical, const unsigned char *val,
+                                size_t val_len );
 int mbedtls_x509_write_extensions( unsigned char **p, unsigned char *start,
-                           mbedtls_asn1_named_data *first );
+                                   mbedtls_asn1_named_data *first );
 int mbedtls_x509_write_names( unsigned char **p, unsigned char *start,
-                      mbedtls_asn1_named_data *first );
+                              mbedtls_asn1_named_data *first );
 int mbedtls_x509_write_sig( unsigned char **p, unsigned char *start,
-                    const char *oid, size_t oid_len,
-                    unsigned char *sig, size_t size );
+                            const char *oid, size_t oid_len,
+                            unsigned char *sig, size_t size );
 
 #define MBEDTLS_X509_SAFE_SNPRINTF                          \
     do {                                                    \

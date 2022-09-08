@@ -1,12 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file target_time.c
  * Definitions for target-specific time-related functions
- * 
+ *
  *
  * @author: inx limited
- * @version: $Revision: 2780 $
- * @date: $Date$
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ *
  */
 
 #define EHS_TGT_CODE /* Ensure header files include target-internal values */
@@ -20,46 +26,49 @@
  */
 EHS_LOCAL LARGE_INTEGER EhsL_clockFrequency;
 #endif
-	
+
 /**
  * Convert a long long integer into a double because
  * MinGW can't do this using built in support
  */
-double EhsL_int64ToDouble(LARGE_INTEGER a) {
-	union {
-		LARGE_INTEGER sint64;
-		struct {
-			ehs_uint32 nLo;
-			ehs_sint32 nHi;
-		} sint32;
-	} conv;
-	double ret;
-	
-	conv.sint64 = a;
-	ret = (double)(conv.sint32.nLo) + (double)(conv.sint32.nHi) * 4294967296.0;
-	
-	return ret;
+double EhsL_int64ToDouble(LARGE_INTEGER a)
+{
+    union
+    {
+        LARGE_INTEGER sint64;
+        struct
+        {
+            ehs_uint32 nLo;
+            ehs_sint32 nHi;
+        } sint32;
+    } conv;
+    double ret;
+
+    conv.sint64 = a;
+    ret = (double)(conv.sint32.nLo) + (double)(conv.sint32.nHi) * 4294967296.0;
+
+    return ret;
 }
 /**
  * Set up the target timer
  */
 ehs_uint32 EhsTgtTimer_init(void)
 {
-	ehs_uint32 dwError = 0;
-	#ifndef EHS_TARGET_FIXED_TIMER_RESOLUTION
-	LARGE_INTEGER clockFreq;
-	if (!QueryPerformanceFrequency(&clockFreq))
-	{
-		dwError = GetLastError();
-		/** @todo Provide error handling if performance clock isn't supported */
-	}
-	else
-	{
-		EhsL_clockFrequency = clockFreq;
-	}
+    ehs_uint32 dwError = 0;
+#ifndef EHS_TARGET_FIXED_TIMER_RESOLUTION
+    LARGE_INTEGER clockFreq;
+    if (!QueryPerformanceFrequency(&clockFreq))
+    {
+        dwError = GetLastError();
+        /** @todo Provide error handling if performance clock isn't supported */
+    }
+    else
+    {
+        EhsL_clockFrequency = clockFreq;
+    }
 
 #endif
-	return dwError;	
+    return dwError;
 }
 
 /**
@@ -68,15 +77,15 @@ ehs_uint32 EhsTgtTimer_init(void)
 EhsTickType EhsTgtTimer_now(void)
 {
 #ifdef EHS_TARGET_FIXED_TIMER_RESOLUTION
-	return (GetTickCount() & EHS_TICKTYPE_MAX);
+    return (GetTickCount() & EHS_TICKTYPE_MAX);
 #else
-	EhsTickType ret;
+    EhsTickType ret;
 
-	QueryPerformanceCounter(&ret);
+    QueryPerformanceCounter(&ret);
 
-	ret = (EhsTickType)(ret & EHS_TICKTYPE_MAX);
+    ret = (EhsTickType)(ret & EHS_TICKTYPE_MAX);
 
-	return ret;
+    return ret;
 #endif
 }
 
@@ -87,25 +96,25 @@ EhsTickType EhsTgtTimer_now(void)
  */
 void EhsSleep(EhsTickType tSleepTime)
 {
-	Sleep(EhsTgtTimer_tickTous(tSleepTime)/1000);
+    Sleep(EhsTgtTimer_tickTous(tSleepTime)/1000);
 }
 
 void EhsSleepUs(ehs_uint32 tSleepTime)
 {
-	/*
-	struct timespec tSleep;
-	ehs_uint32 t; / * intermediate variable to simplify the conversion process - required by MISRA * /
-	/ * convert sleep time to seconds * /
-	t = tSleepTime / EHS_uS_PER_S;
-	tSleep.tv_sec = (ehs_sint32)(t);
-	/ * convert sleep time to microseconds * /
-	t = tSleepTime % EHS_uS_PER_S;
-	tSleep.tv_nsec = (ehs_sint32)(t)*1000;
-	*/
-	usleep(tSleepTime); /* @todo This can crash ?? */
-	/* alternative implementation using select:
-	 * select(0,NULL,NULL,NULL,&tSleep); /*lint !e534 Return value not of interest here * /
-	 */
+    /*
+    struct timespec tSleep;
+    ehs_uint32 t; / * intermediate variable to simplify the conversion process - required by MISRA * /
+    / * convert sleep time to seconds * /
+    t = tSleepTime / EHS_uS_PER_S;
+    tSleep.tv_sec = (ehs_sint32)(t);
+    / * convert sleep time to microseconds * /
+    t = tSleepTime % EHS_uS_PER_S;
+    tSleep.tv_nsec = (ehs_sint32)(t)*1000;
+    */
+    usleep(tSleepTime); /* @todo This can crash ?? */
+    /* alternative implementation using select:
+     * select(0,NULL,NULL,NULL,&tSleep); /*lint !e534 Return value not of interest here * /
+     */
 }
 
 #ifndef EHS_TARGET_FIXED_TIMER_RESOLUTION
@@ -118,27 +127,26 @@ void EhsSleepUs(ehs_uint32 tSleepTime)
  */
 EhsTickType EhsTgtTimer_usToTick(ehs_uint32 us)
 {
-	double dClockFreq = EhsL_int64ToDouble(EhsL_clockFrequency);
-	double dTicksInUs = (double)us;
-	double dTicks = (dClockFreq * dTicksInUs) / 1e6;
-	//printf ("EhsTgtTimer_usToTick : dTicks = (dClockFreq[%d] * dTicksInUs[%d]) / 1e6 ",dClockFreq,dTicksInUs);
-	//double ret = ((double)(EhsL_clockFrequency)/1e6)*((double)us);
-	EhsTickType ret = (EhsTickType)dTicks; //(EhsL_clockFrequency * (EhsTickType)us) / 1000000LL;
+    double dClockFreq = EhsL_int64ToDouble(EhsL_clockFrequency);
+    double dTicksInUs = (double)us;
+    double dTicks = (dClockFreq * dTicksInUs) / 1e6;
+    //double ret = ((double)(EhsL_clockFrequency)/1e6)*((double)us);
+    EhsTickType ret = (EhsTickType)dTicks; //(EhsL_clockFrequency * (EhsTickType)us) / 1000000LL;
 
-	return (EhsTickType)ret;
+    return (EhsTickType)ret;
 }
 
 /**
- * convert target-specific ticks to microseconds 
+ * convert target-specific ticks to microseconds
  *
  * @param tick Time in microseconds
  * @return equivalent time in target-specific ticks
  */
 ehs_uint32 EhsTgtTimer_tickTous(EhsTickType tick)
 {
-	double ret = (1e6/EhsL_int64ToDouble(EhsL_clockFrequency))*((double)tick);
+    double ret = (1e6/EhsL_int64ToDouble(EhsL_clockFrequency))*((double)tick);
 
-	return (ehs_uint32)ret;
+    return (ehs_uint32)ret;
 }
 
 #endif
@@ -150,7 +158,7 @@ EhsTickType EhsTgtTimerExpiryTime;
  */
 void EhsTgtTimer_reset(void)
 {
-	EhsTgtTimer_clear();
+    EhsTgtTimer_clear();
 }
 
 /*
@@ -160,7 +168,7 @@ void EhsTgtTimer_reset(void)
  */
 void EhsTgtTimer_set(EhsTickType tExpiryTime)
 {
-	EhsTgtTimerExpiryTime = tExpiryTime;
+    EhsTgtTimerExpiryTime = tExpiryTime;
 }
 
 /**
@@ -169,7 +177,7 @@ void EhsTgtTimer_set(EhsTickType tExpiryTime)
  */
 void EhsTgtTimer_clear()
 {
-	EhsTgtTimerExpiryTime = EHS_TICKTYPE_INVALID;
+    EhsTgtTimerExpiryTime = EHS_TICKTYPE_INVALID;
 }
 
 /**
@@ -180,7 +188,7 @@ void EhsTgtTimer_clear()
  */
 EhsTickType EhsTgtTimer_expiry()
 {
-	return EhsTgtTimerExpiryTime;
+    return EhsTgtTimerExpiryTime;
 }
 
 /**
@@ -189,11 +197,11 @@ EhsTickType EhsTgtTimer_expiry()
  */
 ehs_bool EhsTgtTimer_tick()
 {
-	if ((EhsTgtTimerExpiryTime != EHS_TICKTYPE_INVALID) &&
-		EHS_TARGET_TIME_IS_EARLIER(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
-	{
-		EhsTimer_tick();
-	}
+    if ((EhsTgtTimerExpiryTime != EHS_TICKTYPE_INVALID) &&
+            EHS_TARGET_TIME_IS_EARLIER(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
+    {
+        EhsTimer_tick();
+    }
 
-	return EHS_TRUE;
+    return EHS_TRUE;
 }

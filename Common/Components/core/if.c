@@ -1,10 +1,17 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
 /*if.c
 *
 * if.c
 *
 * source file for if functions.
 *
-* Lucid project stage one - NcapsaLtd - March 2005 - MDD 
 */
 
 
@@ -17,7 +24,8 @@
 /* Define xyzzy function block */
 
 EHS_FB_FUNCTIONS_START(If)
-EHS_FB_FUNCTION_ENTRY("Run_If", If)
+
+EHS_FB_FUNCTION_ENTRY("Run_If", 0x00, If)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -42,7 +50,7 @@ EHS_FB_IDENTIFY_FUNCTION(If)
  */
 EHS_FB_INIT_FUNCTION(If)
 {
-	return EHS_TRUE; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
@@ -54,24 +62,25 @@ EHS_FB_INIT_FUNCTION(If)
  */
 EHS_FB_RUN_FUNCTION(If)
 {
-	// Input Declarations
-	ehs_bool bIn0;  // Condition
+    // Input Declarations
+    ehs_bool bIn0;  // Condition
 
-	// Output Declarations
+    // Output Declarations
 
-	// Input Assignment
-	bIn0 = NCAPSA_bIn(0);  // 
+    // Input Assignment
+    bIn0 = NCAPSA_bIn(0);  //
 
 //TO DO: Complete with own code
 
-	if(bIn0==EHS_TRUE)
-	{	SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);  //  True
-	}
-	else
-	{
-		SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);  //  False
-	}
-	return;
+    if(bIn0==EHS_TRUE)
+    {
+        SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);  //  True
+    }
+    else
+    {
+        SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);  //  False
+    }
+    return;
 
 }
 

@@ -23,7 +23,8 @@
 #include "yajl_lex.h"
 
 
-typedef enum {
+typedef enum
+{
     yajl_state_start = 0,
     yajl_state_parse_complete,
     yajl_state_parse_error,
@@ -39,7 +40,8 @@ typedef enum {
     yajl_state_got_value,
 } yajl_state;
 
-struct yajl_handle_t {
+struct yajl_handle_t
+{
     const yajl_callbacks * callbacks;
     void * ctx;
     yajl_lexer lexer;

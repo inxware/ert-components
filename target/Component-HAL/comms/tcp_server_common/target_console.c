@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file target_console.c
  * In this file, the target-specific console interface functions provided for EHS are defined.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 1491 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 /*todo - this file could be moved to the common code area???*/
@@ -34,6 +40,7 @@
 #include <stdarg.h>
 #include "messages.h"
 #include "hal_string.h"
+#include "console_queue.h"
 #include "console.h" // needed for buffer status flag
 
 /*****************************************************************************/
@@ -49,13 +56,13 @@
  * Contains input from the console.
  * Pointer initialised by EhsTargetInitSharedMemory, queue initialised by EhsTargetInit
  */
-EhsConsoleQueueType* EhsTgtConsoleInputQueueRef; 
+EhsConsoleQueueType* EhsTgtConsoleInputQueueRef = NULL;
 
 /**
  * Contains output to the console
  * Pointer initialised by EhsTargetInitSharedMemory, queue initialised by EhsTargetInit
  */
-EhsConsoleQueueType* EhsTgtConsoleOutputQueueRef; 
+EhsConsoleQueueType* EhsTgtConsoleOutputQueueRef = NULL;
 
 /**
  * Contains input from the console
@@ -84,29 +91,30 @@ EhsConsoleQueueType EhsTgtConsoleOutputQueue;
  */
 ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size)
 {
-	ehs_uint32 nLineSize;
-	ehs_uint32 nRead = 0u;
+    ehs_uint32 nLineSize;
+    ehs_uint32 nRead = 0u;
 
-	EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
-	if (size > 0 ) { // don't bother of we only have small chunk of data it wont be a full reading.
-		//EHSH_LOG_ERROR("EhsConsoleGetLine %d - max size",size );
-		nLineSize = EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef,EHS_CHAR_LF);
-		if (0u == nLineSize)
-		{
-			nLineSize = EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef,EHS_CHAR_CR); /* We'll accept either type of CR */
-		}
+    EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
+    if (EhsTgtConsoleInputQueueRef && size > 0 )   // don't bother of we only have small chunk of data it wont be a full reading.
+    {
+        //EHSH_LOG_ERROR("EhsConsoleGetLine %d - max size",size );
+        nLineSize = EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef,EHS_CHAR_LF);
+        if (0u == nLineSize)
+        {
+            nLineSize = EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef,EHS_CHAR_CR); /* We'll accept either type of CR */
+        }
 
-		if (nLineSize > 0) // also wait for smallest chunk..
-		{
-			if (nLineSize > size)
-			{
-				nLineSize = size;
-			}
-			nRead = EhsConsoleQueue_pop(EhsTgtConsoleInputQueueRef,(ehs_uint8*)buff,nLineSize);
-		}
-	}
-	EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
-	return nRead;
+        if (nLineSize > 0) // also wait for smallest chunk..
+        {
+            if (nLineSize > size)
+            {
+                nLineSize = size;
+            }
+            nRead = EhsConsoleQueue_pop(EhsTgtConsoleInputQueueRef,(ehs_uint8*)buff,nLineSize);
+        }
+    }
+    EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
+    return nRead;
 }
 
 /**EHSH_LOG_ERROR("Writing to file %s",appPath );
@@ -117,43 +125,41 @@ ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size)
  */
 ehs_uint16 EhsConsolePrintf(const ehs_char* fmt, ...) /*lint !e960 Allowable derrogation to MISRA 16.1. Variable args permitted */
 {
-	
-#if 1
-	ehs_char szBuffer[EHS_STRING_LENGTH_MAX];
-	ehs_uint16 nLen = EHS_STRING_LENGTH_MAX;
-	ehs_char *pBuff;
-	ehs_uint32 nBuff;
-	ehs_uint32 nPushed;
 
-	/* format the message into a chunk of memory allocated especially */
-	va_list args;
-	va_start(args,fmt);
-	vsnprintf(szBuffer,(size_t)EHS_STRING_LENGTH_MAX,fmt,args); /*lint !e534 Not interested in the return value */
-	va_end(args);
-	/* keep pushing the message until it's all gone */
-	nBuff = EhsStrlen(szBuffer);
-	pBuff = szBuffer;
-	do
-	{
-		/* always print error messages on stdout */
-		if (1 || pBuff[0] == '*')
-		{
-			printf(szBuffer); /*lint !e534 Safe to ignore return value here */
-			printf("\n");
-			fflush(stdout); /*lint !e534 Safe to ignore return value here */
-		}
-		nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef,(ehs_uint8*)pBuff,nBuff);
-		if (nPushed == 0u)
-		{
-			/* can't push any more - we'll reset the contents of the queue */
-			EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
-		}
-		pBuff += nPushed;
-		nBuff -= nPushed;
-	}
-	while (nBuff > 0u);
-	EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef,(ehs_uint8*)"\n",1);
-	return nLen;
+#if 1
+    ehs_char szBuffer[EHS_STRING_LENGTH_MAX];
+    ehs_uint16 nLen = EHS_STRING_LENGTH_MAX;
+    ehs_char *pBuff;
+    ehs_uint32 nBuff;
+    ehs_uint32 nPushed;
+
+    /* format the message into a chunk of memory allocated especially */
+    va_list args;
+    va_start(args,fmt);
+    vsnprintf(szBuffer,(size_t)EHS_STRING_LENGTH_MAX,fmt,args); /*lint !e534 Not interested in the return value */
+    va_end(args);
+    /* keep pushing the message until it's all gone */
+    nBuff = EhsStrlen(szBuffer);
+    pBuff = szBuffer;
+    do
+    {
+        /* always print error messages on stdout */
+        if (1 || pBuff[0] == '*')
+        {
+            fflush(stdout); /*lint !e534 Safe to ignore return value here */
+        }
+        nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef,(ehs_uint8*)pBuff,nBuff);
+        if (nPushed == 0u)
+        {
+            /* can't push any more - we'll reset the contents of the queue */
+            EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
+        }
+        pBuff += nPushed;
+        nBuff -= nPushed;
+    }
+    while (nBuff > 0u);
+    EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef,(ehs_uint8*)"\n",1);
+    return nLen;
 #endif
 }
 
@@ -164,8 +170,9 @@ ehs_uint16 EhsConsolePrintf(const ehs_char* fmt, ...) /*lint !e960 Allowable der
  */
 ehs_bool EhsConsoleInputHit()
 {
-	ehs_bool bRet = !EhsConsoleQueue_isEmpty(EhsTgtConsoleInputQueueRef);
-	return bRet;
+    ehs_bool bRet = EHS_FALSE;
+    if (EhsTgtConsoleInputQueueRef != NULL) bRet=!EhsConsoleQueue_isEmpty(EhsTgtConsoleInputQueueRef);
+    return bRet;
 }
 
 /**
@@ -176,11 +183,11 @@ ehs_bool EhsConsoleInputHit()
  */
 ehs_bool EhsConsoleLineReady()
 {
-	EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
-	ehs_bool bRet = (0u < (EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef,EHS_CHAR_CR) + 
-						   EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef,EHS_CHAR_LF)));
-	EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
-	return bRet;
+    EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
+    ehs_bool bRet = (0u < (EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef,EHS_CHAR_CR) +
+                           EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef,EHS_CHAR_LF)));
+    EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
+    return bRet;
 }
 
 /**
@@ -196,103 +203,92 @@ ehs_bool EhsConsoleLineReady()
  */
 ehs_bool EhsConsoleToFile(ehs_uint32 nSize, const ehs_char* name)
 {
-	ehs_uint8 pInBuff[EHS_FILE_BUFF_SIZE];
-	ehs_char appPath[EHS_MAXPATHLENGTH];
-	ehs_FILE* pOut;
-	ehs_sint32 nSizeRemaining = nSize; /* size of the file remaining to write */
-	EhsTickType tTimeOfLastRead = EhsCurrentTime();
-	//EhsTickType debugFirstTime = EhsCurrentTime();
-	ehs_uint32 nRead = 0; /* bytes to read or bytes that have been read */
-	ehs_bool bRet = EHS_TRUE; /* assume success */
-	
-	/* open the output file */
-	Ehs_AppMkdir("temp");
-	EhsStrcpy(appPath,"temp/"); /* We always write to this directory */
-	EhsStrcat(appPath,name);
-	//printf("Writing to file %s (length = %d)\n",name,EhsStrlen(name));
-	//pOut = Ehs_AppFopen(appPath,"wb");
-	pOut = Ehs_AppBaseFopen(appPath,"wb"); /* open the file temp - should create entire path...*/
+    ehs_uint8 pInBuff[EHS_FILE_BUFF_SIZE];
+    ehs_char appPath[EHS_MAXPATHLENGTH];
+    ehs_FILE* pOut;
+    ehs_sint32 nSizeRemaining = nSize; /* size of the file remaining to write */
+    EhsTickType tTimeOfLastRead = EhsCurrentTime();
+    //EhsTickType debugFirstTime = EhsCurrentTime();
+    ehs_uint32 nRead = 0; /* bytes to read or bytes that have been read */
+    ehs_bool bRet = EHS_TRUE; /* assume success */
 
-	//printf("XXXXXXXXX Opend %s as %d\n",appPath,pOut);
-	/* read data until:
-	   1. there is nothing left to read OR
-	   2. no data has happened for a while
-	   */
-	while (((EhsCurrentTime() - tTimeOfLastRead) < EHS_TIMEOUT_READ_FILE) && (nSizeRemaining > 0u))
-	{
-		#ifdef EHS_LWIP
-			EhsSleep(50);
-		#else
-			EhsSleep(5); //rate limiting is to allow other threads to run.
-		#endif //#ifdef EHS_LWIP 
+    /* open the output file */
+    Ehs_AppMkdir("temp");
+    EhsStrcpy(appPath,"temp/"); /* We always write to this directory */
+    EhsStrcat(appPath,name);
+    //pOut = Ehs_AppFopen(appPath,"wb");
+    pOut = Ehs_AppBaseFopen(appPath,"wb"); /* open the file temp - should create entire path...*/
 
-		nRead = (EHS_FILE_BUFF_SIZE < nSizeRemaining)?EHS_FILE_BUFF_SIZE:nSizeRemaining;
-		//printf("T1 =%d :",EhsCurrentTime()-debugFirstTime);
-		//printf("Trying to pop nRead = %d\n",nRead);
-		EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
-		nRead = EhsConsoleQueue_pop(EhsTgtConsoleInputQueueRef,pInBuff,nRead);
-		EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
-		//printf("       popped nRead = %d\n",nRead);
-		//if (nRead >0) {
-		//	printf("Popped off buffer (size %d) to write [%c%c%c%c%c%c%c%c]...\n",nRead,pInBuff[0],pInBuff[1],pInBuff[2],pInBuff[3],pInBuff[4],pInBuff[5],pInBuff[6],pInBuff[7]);
-		//	char printit[1025];
-		//	strncpy(printit,pInBuff,nRead);
-		//	printit[nRead]='\0';
-		//	printf("POPPING OFF (%d)\n%s\n",nRead,printit);
-		//}
-		//else printf(".");
-		//printf("pop nRead = %d sizeremaining=%d\n",nRead,nSizeRemaining);
-		//printf("T2 =%d\n",EhsCurrentTime()-debugFirstTime);
-		if (nRead > 0)
-		{
-			tTimeOfLastRead = EhsCurrentTime();
-			//printf("nSizeremaining - B4=%d\n",nSizeRemaining);
-			nSizeRemaining -= nRead;
-			//printf("nSizeremaining After=%d\n",nSizeRemaining);
+    /* read data until:
+       1. there is nothing left to read OR
+       2. no data has happened for a while
+       */
+    while (((EhsCurrentTime() - tTimeOfLastRead) < EHS_TIMEOUT_READ_FILE) && (nSizeRemaining > 0u))
+    {
+#ifdef EHS_LWIP
+        EhsSleep(50);
+#else
+        EhsSleep(5); //rate limiting is to allow other threads to run.
+#endif //#ifdef EHS_LWIP 
 
-			/* we must read in all of the data whether or not the file was
-			 * opened successfully - hence we check here whether the pointer
-			 * is valid
-			 */
-			if (bRet && pOut)
-			{
-				if (EhsFwrite(pInBuff,sizeof(unsigned char),nRead,pOut) != nRead)
-				{
-					/* write failed. Tell the world, but keep listening for input data */
-					EhsError(EHS_MSG_ERROR_FILE_NOT_WRITE(name));
-					bRet = EHS_FALSE;
-				}
-			}
-		}
-	}
+        nRead = (EHS_FILE_BUFF_SIZE < nSizeRemaining)?EHS_FILE_BUFF_SIZE:nSizeRemaining;
+        EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
+        nRead = EhsConsoleQueue_pop(EhsTgtConsoleInputQueueRef,pInBuff,nRead);
+        EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
+        //if (nRead >0) {
+        //	char printit[1025];
+        //	strncpy(printit,pInBuff,nRead);
+        //	printit[nRead]='\0';
+        //}
+        if (nRead > 0)
+        {
+            tTimeOfLastRead = EhsCurrentTime();
+            nSizeRemaining -= nRead;
 
-	if (pOut)
-	{
-		if (nSizeRemaining > 0) {
-			/* If we have a fragement of the last file we need to push this back on the queue so it can be joined with it's relevent data to parse */
-			//EhsConsoleQueue_push(EhsTgtConsoleInputQueueRef,(ehs_uint8*)buff,nLineSize);
-		}
-		if (EhsFclose(pOut) == 0 )
-		{
-			if ((nSizeRemaining > 0u) && (nSize > 0u))
-			{
-				/* timeout must have occured */
-				EhsError(EHS_MSG_ERROR_FILE_TIMEOUT(name, nSizeRemaining, nSize)); 
-				bRet = EHS_FALSE;
-			}
-			//else printf("Saved file of size %d\n",nSize);
-		} else {
-			/* file failed to close */
-			EhsError(EHS_MSG_ERROR_FILE_NOT_CLOSE(name));
-			bRet = EHS_FALSE;
-		}
-	}
-	else
-	{
-		//printf("*** Could not Open %s\n",appPath);
-		EhsError(EHS_MSG_ERROR_FILE_NOT_OPEN(name)); 
-		bRet = EHS_FALSE;
-	}
+            /* we must read in all of the data whether or not the file was
+             * opened successfully - hence we check here whether the pointer
+             * is valid
+             */
+            if (bRet && pOut)
+            {
+                if (EhsFwrite(pInBuff,sizeof(unsigned char),nRead,pOut) != nRead)
+                {
+                    /* write failed. Tell the world, but keep listening for input data */
+                    EhsError(EHS_MSG_ERROR_FILE_NOT_WRITE(name));
+                    bRet = EHS_FALSE;
+                }
+            }
+        }
+    }
 
-	return bRet;
+    if (pOut)
+    {
+        if (nSizeRemaining > 0)
+        {
+            /* If we have a fragement of the last file we need to push this back on the queue so it can be joined with it's relevent data to parse */
+            //EhsConsoleQueue_push(EhsTgtConsoleInputQueueRef,(ehs_uint8*)buff,nLineSize);
+        }
+        if (EhsFclose(pOut) == 0 )
+        {
+            if ((nSizeRemaining > 0u) && (nSize > 0u))
+            {
+                /* timeout must have occured */
+                EhsError(EHS_MSG_ERROR_FILE_TIMEOUT(name, nSizeRemaining, nSize));
+                bRet = EHS_FALSE;
+            }
+        }
+        else
+        {
+            /* file failed to close */
+            EhsError(EHS_MSG_ERROR_FILE_NOT_CLOSE(name));
+            bRet = EHS_FALSE;
+        }
+    }
+    else
+    {
+        EhsError(EHS_MSG_ERROR_FILE_NOT_OPEN(name));
+        bRet = EHS_FALSE;
+    }
+
+    return bRet;
 }

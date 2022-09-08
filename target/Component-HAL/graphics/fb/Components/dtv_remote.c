@@ -1,3 +1,11 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
 /**
  * @file dtv_remote.c
  *
@@ -6,10 +14,6 @@
  *
  *
  * @author: inx limited
- * @version: $Revision: 1238 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #include "target.h"
@@ -20,7 +24,7 @@
 //#include "keypress.h"
 
 EHS_FB_FUNCTIONS_START(DtvRemote)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_REMOTE_RUN_NAME, DtvRemote)
+EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote)
 EHS_FB_FUNCTIONS_END
 
 /*
@@ -41,9 +45,9 @@ extern EhsDataflowIntType EhsWindowsKbHitChar;
  */
 EHS_FB_IDENTIFY_FUNCTION(DtvRemote)
 {
-	/*
-	EHS_FB_IDENTIFY_MEMORY = sizeof(EhsCallbackQueueEntryType);
-	*/
+    /*
+    EHS_FB_IDENTIFY_MEMORY = sizeof(EhsCallbackQueueEntryType);
+    */
 }
 
 /**
@@ -52,16 +56,16 @@ EHS_FB_IDENTIFY_FUNCTION(DtvRemote)
  */
 EHS_FB_INIT_FUNCTION(DtvRemote)
 {
-	/*
-	EhsCallbackQueueEntryType *pParams = (EhsCallbackQueueEntryType*)EHS_FB_INIT_CONTEXT;
-	*/
-	/* put this item into the keypress callback queue */
-	/*
-	EhsCallbackQueue_register(&EhsWindowsKeypressCallback,
-		EHS_FB_RUN_NAME(DtvRemote),
-		EHS_FB_INIT_FUNCTION_INSTANCE,
-		pParams);
-	*/
+    /*
+    EhsCallbackQueueEntryType *pParams = (EhsCallbackQueueEntryType*)EHS_FB_INIT_CONTEXT;
+    */
+    /* put this item into the keypress callback queue */
+    /*
+    EhsCallbackQueue_register(&EhsWindowsKeypressCallback,
+    	EHS_FB_RUN_NAME(DtvRemote),
+    	EHS_FB_INIT_FUNCTION_INSTANCE,
+    	pParams);
+    */
 }
 
 
@@ -75,28 +79,28 @@ EHS_FB_INIT_FUNCTION(DtvRemote)
  */
 EHS_FB_RUN_FUNCTION(DtvRemote)
 {
-	/*
-	switch (EhsWindowsKbHitChar)
-	{
-	case ' ': // menu
-		SetCompletes1((structFuncArg*)&EHS_FB_RUN_CONTEXT);
-		break;
-	case 0x0d: // ok
-		SetCompletes2((structFuncArg*)&EHS_FB_RUN_CONTEXT);
-		break;
-	case 0x1b: // exit
-		SetCompletes3((structFuncArg*)&EHS_FB_RUN_CONTEXT);
-		break;
-	case 38: // up
-		SetCompletes4((structFuncArg*)&EHS_FB_RUN_CONTEXT);
-		break;
-	case 40: // down
-		SetCompletes5((structFuncArg*)&EHS_FB_RUN_CONTEXT);
-		break;
-	default:
-		break;
-	}
-	return;
-	*/
+    /*
+    switch (EhsWindowsKbHitChar)
+    {
+    case ' ': // menu
+    	SetCompletes1((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+    	break;
+    case 0x0d: // ok
+    	SetCompletes2((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+    	break;
+    case 0x1b: // exit
+    	SetCompletes3((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+    	break;
+    case 38: // up
+    	SetCompletes4((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+    	break;
+    case 40: // down
+    	SetCompletes5((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+    	break;
+    default:
+    	break;
+    }
+    return;
+    */
 }
 

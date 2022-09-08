@@ -1,13 +1,19 @@
-/** 
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
+/**
  * @file dtv_pvr_list.h
  * This declares the PVR functions for the DTV toolkit. See
- * target-specific components directory for the implementation of this. 
+ * target-specific components directory for the implementation of this.
  *
  * @author: inx limited
- * @version: $Revision: 1087 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ *
  */
 
 #ifndef _EHS_FILESYSTEMDIR_LIST_H
@@ -15,11 +21,9 @@
 
 #include "ehs_fb_types.h"
 
-#define EHS_FB_FILESYSTEM_DIRLIST_NAME "FileSystemDirList1"
-#define EHS_FB_FILESYS_LIST_SET_NAME "set"
-#define EHS_FB_FILESYS_LIST_GET_NAME "get"
-#define EHS_FB_FILESYS_LIST_REL_NAME "rel"
-//#define EHS_FB_FILESYS_LIST_RESET_NAME "reset"
+
+#define EHS_FB_NAME_FileSystemDirList1 "FileSystemDirList1"
+#define EHS_FB_ID_FileSystemDirList1 0x4186
 
 
 /* declare functions provided by this function block */

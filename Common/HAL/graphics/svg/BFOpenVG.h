@@ -3,15 +3,15 @@
  *
  *  Version : 6.4.0_2271s
  *     Date : 20080508-20.49.08
- *                
+ *
  *
  * (c) COPYRIGHT 2002- 2008 Open Text Corp. - BitFlash Division. ALL RIGHTS RESERVED
  *
  *
  * This software is the property and confidential information of Open Text and is furnished under
- * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.  
+ * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.
  *
- * This software may not be copied, transmitted, provided to or otherwise made available to any other person, 
+ * This software may not be copied, transmitted, provided to or otherwise made available to any other person,
  * company, corporation or other entity except as specified in the terms of said license.
  *
  * This copyright notice may not be removed or altered without the prior written permission of Open Text.
@@ -132,9 +132,10 @@ typedef BF_INT32        VGint;
 typedef BF_UINT32       VGuint;
 typedef BF_UINT32       VGbitfield;
 
-typedef enum {
-  VG_FALSE = 0,
-  VG_TRUE  = 1
+typedef enum
+{
+    VG_FALSE = 0,
+    VG_TRUE  = 1
 } VGboolean;
 
 
@@ -145,360 +146,389 @@ typedef VGuint VGHandle;
 
 #define VG_INVALID_HANDLE ((VGHandle)0)
 
-typedef enum {
-  VG_NO_ERROR                                 = 0,
-  VG_BAD_HANDLE_ERROR                         = 0x1000,
-  VG_ILLEGAL_ARGUMENT_ERROR                   = 0x1001,
-  VG_OUT_OF_MEMORY_ERROR                      = 0x1002,
-  VG_PATH_CAPABILITY_ERROR                    = 0x1003,
-  VG_UNSUPPORTED_IMAGE_FORMAT_ERROR           = 0x1004,
-  VG_UNSUPPORTED_PATH_FORMAT_ERROR            = 0x1005,
-  VG_IMAGE_IN_USE_ERROR                       = 0x1006,
-  VG_NO_CONTEXT_ERROR                         = 0x1007, /* JE NOTE: this is taken from openvg.h from version 1.0.1 */
+typedef enum
+{
+    VG_NO_ERROR                                 = 0,
+    VG_BAD_HANDLE_ERROR                         = 0x1000,
+    VG_ILLEGAL_ARGUMENT_ERROR                   = 0x1001,
+    VG_OUT_OF_MEMORY_ERROR                      = 0x1002,
+    VG_PATH_CAPABILITY_ERROR                    = 0x1003,
+    VG_UNSUPPORTED_IMAGE_FORMAT_ERROR           = 0x1004,
+    VG_UNSUPPORTED_PATH_FORMAT_ERROR            = 0x1005,
+    VG_IMAGE_IN_USE_ERROR                       = 0x1006,
+    VG_NO_CONTEXT_ERROR                         = 0x1007, /* JE NOTE: this is taken from openvg.h from version 1.0.1 */
 
-  /* font extensions */
-  VG_OUT_OF_GLYPHS_ERROR                      = 0x1008,
+    /* font extensions */
+    VG_OUT_OF_GLYPHS_ERROR                      = 0x1008,
 
-  /* Khronos extensions */
-  VG_UNSUPPORTED_DRAWABLE_FORMAT_ERROR_KHR    = 0x1009
+    /* Khronos extensions */
+    VG_UNSUPPORTED_DRAWABLE_FORMAT_ERROR_KHR    = 0x1009
 
 } VGErrorCode;
 
-typedef enum {
-  /* Mode settings */
-  VG_MATRIX_MODE                              = 0x1100,
-  VG_FILL_RULE                                = 0x1101,
-  VG_IMAGE_QUALITY                            = 0x1102,
-  VG_RENDERING_QUALITY                        = 0x1103,
-  VG_BLEND_MODE                               = 0x1104,
-  VG_IMAGE_MODE                               = 0x1105,
+typedef enum
+{
+    /* Mode settings */
+    VG_MATRIX_MODE                              = 0x1100,
+    VG_FILL_RULE                                = 0x1101,
+    VG_IMAGE_QUALITY                            = 0x1102,
+    VG_RENDERING_QUALITY                        = 0x1103,
+    VG_BLEND_MODE                               = 0x1104,
+    VG_IMAGE_MODE                               = 0x1105,
 
-  /* Scissoring rectangles */
-  VG_SCISSOR_RECTS                            = 0x1106,
+    /* Scissoring rectangles */
+    VG_SCISSOR_RECTS                            = 0x1106,
 
-  /* Stroke parameters */
-  VG_STROKE_LINE_WIDTH                        = 0x1110,
-  VG_STROKE_CAP_STYLE                         = 0x1111,
-  VG_STROKE_JOIN_STYLE                        = 0x1112,
-  VG_STROKE_MITER_LIMIT                       = 0x1113,
-  VG_STROKE_DASH_PATTERN                      = 0x1114,
-  VG_STROKE_DASH_PHASE                        = 0x1115,
+    /* Stroke parameters */
+    VG_STROKE_LINE_WIDTH                        = 0x1110,
+    VG_STROKE_CAP_STYLE                         = 0x1111,
+    VG_STROKE_JOIN_STYLE                        = 0x1112,
+    VG_STROKE_MITER_LIMIT                       = 0x1113,
+    VG_STROKE_DASH_PATTERN                      = 0x1114,
+    VG_STROKE_DASH_PHASE                        = 0x1115,
 
-  /* Edge fill color for VG_TILE_FILL tiling mode */
-  VG_TILE_FILL_COLOR                          = 0x1120,
+    /* Edge fill color for VG_TILE_FILL tiling mode */
+    VG_TILE_FILL_COLOR                          = 0x1120,
 
-  /* Color for vgClear */
-  VG_CLEAR_COLOR                              = 0x1121,
+    /* Color for vgClear */
+    VG_CLEAR_COLOR                              = 0x1121,
 
-  /* Enable/disable alpha masking and scissoring */
-  VG_MASKING                                  = 0x1130,
-  VG_SCISSORING                               = 0x1131,
+    /* Enable/disable alpha masking and scissoring */
+    VG_MASKING                                  = 0x1130,
+    VG_SCISSORING                               = 0x1131,
 
-  /* Pixel layout hint information */
-  VG_PIXEL_LAYOUT                             = 0x1140,
+    /* Pixel layout hint information */
+    VG_PIXEL_LAYOUT                             = 0x1140,
 
-  /* Source format selection for image filters */
-  VG_FILTER_FORMAT_LINEAR                     = 0x1150,
-  VG_FILTER_FORMAT_PREMULTIPLIED              = 0x1151,
+    /* Source format selection for image filters */
+    VG_FILTER_FORMAT_LINEAR                     = 0x1150,
+    VG_FILTER_FORMAT_PREMULTIPLIED              = 0x1151,
 
-  /* Destination write enable mask for image filters */
-  VG_FILTER_CHANNEL_MASK                      = 0x1152,
+    /* Destination write enable mask for image filters */
+    VG_FILTER_CHANNEL_MASK                      = 0x1152,
 
-  /* Implementation limits (read-only) */
-  VG_MAX_SCISSOR_RECTS                        = 0x1160,
-  VG_MAX_DASH_COUNT                           = 0x1161,
-  VG_MAX_KERNEL_SIZE                          = 0x1162,
-  VG_MAX_SEPARABLE_KERNEL_SIZE                = 0x1163,
-  VG_MAX_COLOR_RAMP_STOPS                     = 0x1164,
-  VG_MAX_IMAGE_WIDTH                          = 0x1165,
-  VG_MAX_IMAGE_HEIGHT                         = 0x1166,
-  VG_MAX_IMAGE_PIXELS                         = 0x1167,
-  VG_MAX_IMAGE_BYTES                          = 0x1168,
-  VG_MAX_FLOAT                                = 0x1169
+    /* Implementation limits (read-only) */
+    VG_MAX_SCISSOR_RECTS                        = 0x1160,
+    VG_MAX_DASH_COUNT                           = 0x1161,
+    VG_MAX_KERNEL_SIZE                          = 0x1162,
+    VG_MAX_SEPARABLE_KERNEL_SIZE                = 0x1163,
+    VG_MAX_COLOR_RAMP_STOPS                     = 0x1164,
+    VG_MAX_IMAGE_WIDTH                          = 0x1165,
+    VG_MAX_IMAGE_HEIGHT                         = 0x1166,
+    VG_MAX_IMAGE_PIXELS                         = 0x1167,
+    VG_MAX_IMAGE_BYTES                          = 0x1168,
+    VG_MAX_FLOAT                                = 0x1169
 } VGParamType;
 
-typedef enum {
-  VG_RENDERING_QUALITY_NONANTIALIASED         = 0x1200,
-  VG_RENDERING_QUALITY_FASTER                 = 0x1201,
-  VG_RENDERING_QUALITY_BETTER                 = 0x1202 /* Default */
+typedef enum
+{
+    VG_RENDERING_QUALITY_NONANTIALIASED         = 0x1200,
+    VG_RENDERING_QUALITY_FASTER                 = 0x1201,
+    VG_RENDERING_QUALITY_BETTER                 = 0x1202 /* Default */
 } VGRenderingQuality;
 
-typedef enum {
-  VG_PIXEL_LAYOUT_UNKNOWN                     = 0x1300,
-  VG_PIXEL_LAYOUT_RGB_VERTICAL                = 0x1301,
-  VG_PIXEL_LAYOUT_BGR_VERTICAL                = 0x1302,
-  VG_PIXEL_LAYOUT_RGB_HORIZONTAL              = 0x1303,
-  VG_PIXEL_LAYOUT_BGR_HORIZONTAL              = 0x1304
+typedef enum
+{
+    VG_PIXEL_LAYOUT_UNKNOWN                     = 0x1300,
+    VG_PIXEL_LAYOUT_RGB_VERTICAL                = 0x1301,
+    VG_PIXEL_LAYOUT_BGR_VERTICAL                = 0x1302,
+    VG_PIXEL_LAYOUT_RGB_HORIZONTAL              = 0x1303,
+    VG_PIXEL_LAYOUT_BGR_HORIZONTAL              = 0x1304
 } VGPixelLayout;
 
-typedef enum {
-  VG_MATRIX_PATH_USER_TO_SURFACE              = 0x1400,
-  VG_MATRIX_IMAGE_USER_TO_SURFACE             = 0x1401,
-  VG_MATRIX_FILL_PAINT_TO_USER                = 0x1402,
-  VG_MATRIX_STROKE_PAINT_TO_USER              = 0x1403
+typedef enum
+{
+    VG_MATRIX_PATH_USER_TO_SURFACE              = 0x1400,
+    VG_MATRIX_IMAGE_USER_TO_SURFACE             = 0x1401,
+    VG_MATRIX_FILL_PAINT_TO_USER                = 0x1402,
+    VG_MATRIX_STROKE_PAINT_TO_USER              = 0x1403
 } VGMatrixMode;
 
-typedef enum {
-  VG_CLEAR_MASK                               = 0x1500,
-  VG_FILL_MASK                                = 0x1501,
-  VG_SET_MASK                                 = 0x1502,
-  VG_UNION_MASK                               = 0x1503,
-  VG_INTERSECT_MASK                           = 0x1504,
-  VG_SUBTRACT_MASK                            = 0x1505
+typedef enum
+{
+    VG_CLEAR_MASK                               = 0x1500,
+    VG_FILL_MASK                                = 0x1501,
+    VG_SET_MASK                                 = 0x1502,
+    VG_UNION_MASK                               = 0x1503,
+    VG_INTERSECT_MASK                           = 0x1504,
+    VG_SUBTRACT_MASK                            = 0x1505
 } VGMaskOperation;
 
 #define VG_PATH_FORMAT_STANDARD 0
 
-typedef enum {
-  VG_PATH_DATATYPE_INVALID                    = -1,
-  VG_PATH_DATATYPE_S_8                        =  0,
-  VG_PATH_DATATYPE_S_16                       =  1,
-  VG_PATH_DATATYPE_S_32                       =  2,
-  VG_PATH_DATATYPE_F                          =  3
+typedef enum
+{
+    VG_PATH_DATATYPE_INVALID                    = -1,
+    VG_PATH_DATATYPE_S_8                        =  0,
+    VG_PATH_DATATYPE_S_16                       =  1,
+    VG_PATH_DATATYPE_S_32                       =  2,
+    VG_PATH_DATATYPE_F                          =  3
 } VGPathDatatype;
 
-typedef enum {
-  VG_ABSOLUTE                                 = 0,
-  VG_RELATIVE                                 = 1
+typedef enum
+{
+    VG_ABSOLUTE                                 = 0,
+    VG_RELATIVE                                 = 1
 } VGPathAbsRel;
 
-typedef enum {
-  VG_CLOSE_PATH                               = ( 0 << 1),
-  VG_MOVE_TO                                  = ( 1 << 1),
-  VG_LINE_TO                                  = ( 2 << 1),
-  VG_HLINE_TO                                 = ( 3 << 1),
-  VG_VLINE_TO                                 = ( 4 << 1),
-  VG_QUAD_TO                                  = ( 5 << 1),
-  VG_CUBIC_TO                                 = ( 6 << 1),
-  VG_SQUAD_TO                                 = ( 7 << 1),
-  VG_SCUBIC_TO                                = ( 8 << 1),
-  VG_SCCWARC_TO                               = ( 9 << 1),
-  VG_SCWARC_TO                                = (10 << 1),
-  VG_LCCWARC_TO                               = (11 << 1),
-  VG_LCWARC_TO                                = (12 << 1)
+typedef enum
+{
+    VG_CLOSE_PATH                               = ( 0 << 1),
+    VG_MOVE_TO                                  = ( 1 << 1),
+    VG_LINE_TO                                  = ( 2 << 1),
+    VG_HLINE_TO                                 = ( 3 << 1),
+    VG_VLINE_TO                                 = ( 4 << 1),
+    VG_QUAD_TO                                  = ( 5 << 1),
+    VG_CUBIC_TO                                 = ( 6 << 1),
+    VG_SQUAD_TO                                 = ( 7 << 1),
+    VG_SCUBIC_TO                                = ( 8 << 1),
+    VG_SCCWARC_TO                               = ( 9 << 1),
+    VG_SCWARC_TO                                = (10 << 1),
+    VG_LCCWARC_TO                               = (11 << 1),
+    VG_LCWARC_TO                                = (12 << 1)
 } VGPathSegment;
 
-typedef enum {
-  VG_MOVE_TO_ABS                              = VG_MOVE_TO    | VG_ABSOLUTE,
-  VG_MOVE_TO_REL                              = VG_MOVE_TO    | VG_RELATIVE,
-  VG_LINE_TO_ABS                              = VG_LINE_TO    | VG_ABSOLUTE,
-  VG_LINE_TO_REL                              = VG_LINE_TO    | VG_RELATIVE,
-  VG_HLINE_TO_ABS                             = VG_HLINE_TO   | VG_ABSOLUTE,
-  VG_HLINE_TO_REL                             = VG_HLINE_TO   | VG_RELATIVE,
-  VG_VLINE_TO_ABS                             = VG_VLINE_TO   | VG_ABSOLUTE,
-  VG_VLINE_TO_REL                             = VG_VLINE_TO   | VG_RELATIVE,
-  VG_QUAD_TO_ABS                              = VG_QUAD_TO    | VG_ABSOLUTE,
-  VG_QUAD_TO_REL                              = VG_QUAD_TO    | VG_RELATIVE,
-  VG_CUBIC_TO_ABS                             = VG_CUBIC_TO   | VG_ABSOLUTE,
-  VG_CUBIC_TO_REL                             = VG_CUBIC_TO   | VG_RELATIVE,
-  VG_SQUAD_TO_ABS                             = VG_SQUAD_TO   | VG_ABSOLUTE,
-  VG_SQUAD_TO_REL                             = VG_SQUAD_TO   | VG_RELATIVE,
-  VG_SCUBIC_TO_ABS                            = VG_SCUBIC_TO  | VG_ABSOLUTE,
-  VG_SCUBIC_TO_REL                            = VG_SCUBIC_TO  | VG_RELATIVE,
-  VG_SCCWARC_TO_ABS                           = VG_SCCWARC_TO | VG_ABSOLUTE,
-  VG_SCCWARC_TO_REL                           = VG_SCCWARC_TO | VG_RELATIVE,
-  VG_SCWARC_TO_ABS                            = VG_SCWARC_TO  | VG_ABSOLUTE,
-  VG_SCWARC_TO_REL                            = VG_SCWARC_TO  | VG_RELATIVE,
-  VG_LCCWARC_TO_ABS                           = VG_LCCWARC_TO | VG_ABSOLUTE,
-  VG_LCCWARC_TO_REL                           = VG_LCCWARC_TO | VG_RELATIVE,
-  VG_LCWARC_TO_ABS                            = VG_LCWARC_TO  | VG_ABSOLUTE,
-  VG_LCWARC_TO_REL                            = VG_LCWARC_TO  | VG_RELATIVE
+typedef enum
+{
+    VG_MOVE_TO_ABS                              = VG_MOVE_TO    | VG_ABSOLUTE,
+    VG_MOVE_TO_REL                              = VG_MOVE_TO    | VG_RELATIVE,
+    VG_LINE_TO_ABS                              = VG_LINE_TO    | VG_ABSOLUTE,
+    VG_LINE_TO_REL                              = VG_LINE_TO    | VG_RELATIVE,
+    VG_HLINE_TO_ABS                             = VG_HLINE_TO   | VG_ABSOLUTE,
+    VG_HLINE_TO_REL                             = VG_HLINE_TO   | VG_RELATIVE,
+    VG_VLINE_TO_ABS                             = VG_VLINE_TO   | VG_ABSOLUTE,
+    VG_VLINE_TO_REL                             = VG_VLINE_TO   | VG_RELATIVE,
+    VG_QUAD_TO_ABS                              = VG_QUAD_TO    | VG_ABSOLUTE,
+    VG_QUAD_TO_REL                              = VG_QUAD_TO    | VG_RELATIVE,
+    VG_CUBIC_TO_ABS                             = VG_CUBIC_TO   | VG_ABSOLUTE,
+    VG_CUBIC_TO_REL                             = VG_CUBIC_TO   | VG_RELATIVE,
+    VG_SQUAD_TO_ABS                             = VG_SQUAD_TO   | VG_ABSOLUTE,
+    VG_SQUAD_TO_REL                             = VG_SQUAD_TO   | VG_RELATIVE,
+    VG_SCUBIC_TO_ABS                            = VG_SCUBIC_TO  | VG_ABSOLUTE,
+    VG_SCUBIC_TO_REL                            = VG_SCUBIC_TO  | VG_RELATIVE,
+    VG_SCCWARC_TO_ABS                           = VG_SCCWARC_TO | VG_ABSOLUTE,
+    VG_SCCWARC_TO_REL                           = VG_SCCWARC_TO | VG_RELATIVE,
+    VG_SCWARC_TO_ABS                            = VG_SCWARC_TO  | VG_ABSOLUTE,
+    VG_SCWARC_TO_REL                            = VG_SCWARC_TO  | VG_RELATIVE,
+    VG_LCCWARC_TO_ABS                           = VG_LCCWARC_TO | VG_ABSOLUTE,
+    VG_LCCWARC_TO_REL                           = VG_LCCWARC_TO | VG_RELATIVE,
+    VG_LCWARC_TO_ABS                            = VG_LCWARC_TO  | VG_ABSOLUTE,
+    VG_LCWARC_TO_REL                            = VG_LCWARC_TO  | VG_RELATIVE
 } VGPathCommand;
 
 typedef VGHandle VGPath;
 
-typedef enum {
-  VG_PATH_CAPABILITY_APPEND_FROM              = (1 <<  0),
-  VG_PATH_CAPABILITY_APPEND_TO                = (1 <<  1),
-  VG_PATH_CAPABILITY_MODIFY                   = (1 <<  2),
-  VG_PATH_CAPABILITY_TRANSFORM_FROM           = (1 <<  3),
-  VG_PATH_CAPABILITY_TRANSFORM_TO             = (1 <<  4),
-  VG_PATH_CAPABILITY_INTERPOLATE_FROM         = (1 <<  5),
-  VG_PATH_CAPABILITY_INTERPOLATE_TO           = (1 <<  6),
-  VG_PATH_CAPABILITY_PATH_LENGTH              = (1 <<  7),
-  VG_PATH_CAPABILITY_POINT_ALONG_PATH         = (1 <<  8),
-  VG_PATH_CAPABILITY_TANGENT_ALONG_PATH       = (1 <<  9),
-  VG_PATH_CAPABILITY_PATH_BOUNDS              = (1 << 10),
-  VG_PATH_CAPABILITY_PATH_TRANSFORMED_BOUNDS  = (1 << 11),
-  VG_PATH_CAPABILITY_READ                     = (1 << 12),
-  VG_PATH_CAPABILITY_PICK                     = (1 << 13),
-  VG_PATH_CAPABILITY_ALL                      = (1 << 14) - 1
+typedef enum
+{
+    VG_PATH_CAPABILITY_APPEND_FROM              = (1 <<  0),
+    VG_PATH_CAPABILITY_APPEND_TO                = (1 <<  1),
+    VG_PATH_CAPABILITY_MODIFY                   = (1 <<  2),
+    VG_PATH_CAPABILITY_TRANSFORM_FROM           = (1 <<  3),
+    VG_PATH_CAPABILITY_TRANSFORM_TO             = (1 <<  4),
+    VG_PATH_CAPABILITY_INTERPOLATE_FROM         = (1 <<  5),
+    VG_PATH_CAPABILITY_INTERPOLATE_TO           = (1 <<  6),
+    VG_PATH_CAPABILITY_PATH_LENGTH              = (1 <<  7),
+    VG_PATH_CAPABILITY_POINT_ALONG_PATH         = (1 <<  8),
+    VG_PATH_CAPABILITY_TANGENT_ALONG_PATH       = (1 <<  9),
+    VG_PATH_CAPABILITY_PATH_BOUNDS              = (1 << 10),
+    VG_PATH_CAPABILITY_PATH_TRANSFORMED_BOUNDS  = (1 << 11),
+    VG_PATH_CAPABILITY_READ                     = (1 << 12),
+    VG_PATH_CAPABILITY_PICK                     = (1 << 13),
+    VG_PATH_CAPABILITY_ALL                      = (1 << 14) - 1
 } VGPathCapabilities;
 
-typedef enum {
-  VG_PATH_FORMAT                              = 0x1600,
-  VG_PATH_DATATYPE                            = 0x1601,
-  VG_PATH_SCALE                               = 0x1602,
-  VG_PATH_BIAS                                = 0x1603,
-  VG_PATH_NUM_SEGMENTS                        = 0x1604,
-  VG_PATH_NUM_COORDS                          = 0x1605
+typedef enum
+{
+    VG_PATH_FORMAT                              = 0x1600,
+    VG_PATH_DATATYPE                            = 0x1601,
+    VG_PATH_SCALE                               = 0x1602,
+    VG_PATH_BIAS                                = 0x1603,
+    VG_PATH_NUM_SEGMENTS                        = 0x1604,
+    VG_PATH_NUM_COORDS                          = 0x1605
 } VGPathParamType;
 
-typedef enum {
-  VG_CAP_BUTT                                 = 0x1700,
-  VG_CAP_ROUND                                = 0x1701,
-  VG_CAP_SQUARE                               = 0x1702
+typedef enum
+{
+    VG_CAP_BUTT                                 = 0x1700,
+    VG_CAP_ROUND                                = 0x1701,
+    VG_CAP_SQUARE                               = 0x1702
 } VGCapStyle;
 
-typedef enum {
-  VG_JOIN_MITER                               = 0x1800,
-  VG_JOIN_ROUND                               = 0x1801,
-  VG_JOIN_BEVEL                               = 0x1802
+typedef enum
+{
+    VG_JOIN_MITER                               = 0x1800,
+    VG_JOIN_ROUND                               = 0x1801,
+    VG_JOIN_BEVEL                               = 0x1802
 } VGJoinStyle;
 
-typedef enum {
-  VG_EVEN_ODD                                 = 0x1900,
-  VG_NON_ZERO                                 = 0x1901
+typedef enum
+{
+    VG_EVEN_ODD                                 = 0x1900,
+    VG_NON_ZERO                                 = 0x1901
 } VGFillRule;
 
-typedef enum {
-  VG_STROKE_PATH                              = (1 << 0),
-  VG_FILL_PATH                                = (1 << 1)
+typedef enum
+{
+    VG_STROKE_PATH                              = (1 << 0),
+    VG_FILL_PATH                                = (1 << 1)
 } VGPaintMode;
 
 typedef VGHandle VGPaint;
 
-typedef enum {
-  /* Color paint parameters */
-  VG_PAINT_TYPE                               = 0x1A00,
-  VG_PAINT_COLOR                              = 0x1A01,
-  VG_PAINT_COLOR_RAMP_SPREAD_MODE             = 0x1A02,
-  VG_PAINT_COLOR_RAMP_STOPS                   = 0x1A03,
+typedef enum
+{
+    /* Color paint parameters */
+    VG_PAINT_TYPE                               = 0x1A00,
+    VG_PAINT_COLOR                              = 0x1A01,
+    VG_PAINT_COLOR_RAMP_SPREAD_MODE             = 0x1A02,
+    VG_PAINT_COLOR_RAMP_STOPS                   = 0x1A03,
 
-  /* Linear gradient paint parameters */
-  VG_PAINT_LINEAR_GRADIENT                    = 0x1A04,
+    /* Linear gradient paint parameters */
+    VG_PAINT_LINEAR_GRADIENT                    = 0x1A04,
 
-  /* Radial gradient paint parameters */
-  VG_PAINT_RADIAL_GRADIENT                    = 0x1A05,
+    /* Radial gradient paint parameters */
+    VG_PAINT_RADIAL_GRADIENT                    = 0x1A05,
 
-  /* Pattern paint parameters */
-  VG_PAINT_PATTERN_TILING_MODE                = 0x1A06
+    /* Pattern paint parameters */
+    VG_PAINT_PATTERN_TILING_MODE                = 0x1A06
 } VGPaintParamType;
 
-typedef enum {
-  VG_PAINT_TYPE_COLOR                         = 0x1B00,
-  VG_PAINT_TYPE_LINEAR_GRADIENT               = 0x1B01,
-  VG_PAINT_TYPE_RADIAL_GRADIENT               = 0x1B02,
-  VG_PAINT_TYPE_PATTERN                       = 0x1B03
+typedef enum
+{
+    VG_PAINT_TYPE_COLOR                         = 0x1B00,
+    VG_PAINT_TYPE_LINEAR_GRADIENT               = 0x1B01,
+    VG_PAINT_TYPE_RADIAL_GRADIENT               = 0x1B02,
+    VG_PAINT_TYPE_PATTERN                       = 0x1B03
 } VGPaintType;
 
-typedef enum {
-  VG_COLOR_RAMP_SPREAD_PAD                    = 0x1C00,
-  VG_COLOR_RAMP_SPREAD_REPEAT                 = 0x1C01,
-  VG_COLOR_RAMP_SPREAD_REFLECT                = 0x1C02
+typedef enum
+{
+    VG_COLOR_RAMP_SPREAD_PAD                    = 0x1C00,
+    VG_COLOR_RAMP_SPREAD_REPEAT                 = 0x1C01,
+    VG_COLOR_RAMP_SPREAD_REFLECT                = 0x1C02
 } VGColorRampSpreadMode;
 
-typedef enum {
-  VG_TILE_FILL                                = 0x1D00,
-  VG_TILE_PAD                                 = 0x1D01,
-  VG_TILE_REPEAT                              = 0x1D02,
-  VG_TILE_REFLECT                             = 0x1D03
+typedef enum
+{
+    VG_TILE_FILL                                = 0x1D00,
+    VG_TILE_PAD                                 = 0x1D01,
+    VG_TILE_REPEAT                              = 0x1D02,
+    VG_TILE_REFLECT                             = 0x1D03
 } VGTilingMode;
 
 /* JE NOTE: this is taken from openvg.h from version 1.0.1 */
-typedef enum {
-  /* RGB{A,X} channel ordering */
-  VG_sRGBX_8888                               =  0,
-  VG_sRGBA_8888                               =  1,
-  VG_sRGBA_8888_PRE                           =  2,
-  VG_sRGB_565                                 =  3,
-  VG_sRGBA_5551                               =  4,
-  VG_sRGBA_4444                               =  5,
-  VG_sL_8                                     =  6,
-  VG_lRGBX_8888                               =  7,
-  VG_lRGBA_8888                               =  8,
-  VG_lRGBA_8888_PRE                           =  9,
-  VG_lL_8                                     = 10,
-  VG_A_8                                      = 11,
-  VG_BW_1                                     = 12,
+typedef enum
+{
+    /* RGB{A,X} channel ordering */
+    VG_sRGBX_8888                               =  0,
+    VG_sRGBA_8888                               =  1,
+    VG_sRGBA_8888_PRE                           =  2,
+    VG_sRGB_565                                 =  3,
+    VG_sRGBA_5551                               =  4,
+    VG_sRGBA_4444                               =  5,
+    VG_sL_8                                     =  6,
+    VG_lRGBX_8888                               =  7,
+    VG_lRGBA_8888                               =  8,
+    VG_lRGBA_8888_PRE                           =  9,
+    VG_lL_8                                     = 10,
+    VG_A_8                                      = 11,
+    VG_BW_1                                     = 12,
 
-  /* {A,X}RGB channel ordering */
-  VG_sXRGB_8888                               =  0 | (1 << 6),
-  VG_sARGB_8888                               =  1 | (1 << 6),
-  VG_sARGB_8888_PRE                           =  2 | (1 << 6),
-  VG_sARGB_1555                               =  4 | (1 << 6),
-  VG_sARGB_4444                               =  5 | (1 << 6),
-  VG_lXRGB_8888                               =  7 | (1 << 6),
-  VG_lARGB_8888                               =  8 | (1 << 6),
-  VG_lARGB_8888_PRE                           =  9 | (1 << 6),
+    /* {A,X}RGB channel ordering */
+    VG_sXRGB_8888                               =  0 | (1 << 6),
+    VG_sARGB_8888                               =  1 | (1 << 6),
+    VG_sARGB_8888_PRE                           =  2 | (1 << 6),
+    VG_sARGB_1555                               =  4 | (1 << 6),
+    VG_sARGB_4444                               =  5 | (1 << 6),
+    VG_lXRGB_8888                               =  7 | (1 << 6),
+    VG_lARGB_8888                               =  8 | (1 << 6),
+    VG_lARGB_8888_PRE                           =  9 | (1 << 6),
 
-  /* BGR{A,X} channel ordering */
-  VG_sBGRX_8888                               =  0 | (1 << 7),
-  VG_sBGRA_8888                               =  1 | (1 << 7),
-  VG_sBGRA_8888_PRE                           =  2 | (1 << 7),
-  VG_sBGR_565                                 =  3 | (1 << 7),
-  VG_sBGRA_5551                               =  4 | (1 << 7),
-  VG_sBGRA_4444                               =  5 | (1 << 7),
-  VG_lBGRX_8888                               =  7 | (1 << 7),
-  VG_lBGRA_8888                               =  8 | (1 << 7),
-  VG_lBGRA_8888_PRE                           =  9 | (1 << 7),
+    /* BGR{A,X} channel ordering */
+    VG_sBGRX_8888                               =  0 | (1 << 7),
+    VG_sBGRA_8888                               =  1 | (1 << 7),
+    VG_sBGRA_8888_PRE                           =  2 | (1 << 7),
+    VG_sBGR_565                                 =  3 | (1 << 7),
+    VG_sBGRA_5551                               =  4 | (1 << 7),
+    VG_sBGRA_4444                               =  5 | (1 << 7),
+    VG_lBGRX_8888                               =  7 | (1 << 7),
+    VG_lBGRA_8888                               =  8 | (1 << 7),
+    VG_lBGRA_8888_PRE                           =  9 | (1 << 7),
 
-  /* {A,X}BGR channel ordering */
-  VG_sXBGR_8888                               =  0 | (1 << 6) | (1 << 7),
-  VG_sABGR_8888                               =  1 | (1 << 6) | (1 << 7),
-  VG_sABGR_8888_PRE                           =  2 | (1 << 6) | (1 << 7),
-  VG_sABGR_1555                               =  4 | (1 << 6) | (1 << 7),
-  VG_sABGR_4444                               =  5 | (1 << 6) | (1 << 7),
-  VG_lXBGR_8888                               =  7 | (1 << 6) | (1 << 7),
-  VG_lABGR_8888                               =  8 | (1 << 6) | (1 << 7),
-  VG_lABGR_8888_PRE                           =  9 | (1 << 6) | (1 << 7)
+    /* {A,X}BGR channel ordering */
+    VG_sXBGR_8888                               =  0 | (1 << 6) | (1 << 7),
+    VG_sABGR_8888                               =  1 | (1 << 6) | (1 << 7),
+    VG_sABGR_8888_PRE                           =  2 | (1 << 6) | (1 << 7),
+    VG_sABGR_1555                               =  4 | (1 << 6) | (1 << 7),
+    VG_sABGR_4444                               =  5 | (1 << 6) | (1 << 7),
+    VG_lXBGR_8888                               =  7 | (1 << 6) | (1 << 7),
+    VG_lABGR_8888                               =  8 | (1 << 6) | (1 << 7),
+    VG_lABGR_8888_PRE                           =  9 | (1 << 6) | (1 << 7)
 } VGImageFormat;
 
 typedef VGHandle VGImage;
 
-typedef enum {
-  VG_IMAGE_QUALITY_NONANTIALIASED             = (1 << 0),
-  VG_IMAGE_QUALITY_FASTER                     = (1 << 1),
-  VG_IMAGE_QUALITY_BETTER                     = (1 << 2)
+typedef enum
+{
+    VG_IMAGE_QUALITY_NONANTIALIASED             = (1 << 0),
+    VG_IMAGE_QUALITY_FASTER                     = (1 << 1),
+    VG_IMAGE_QUALITY_BETTER                     = (1 << 2)
 } VGImageQuality;
 
-typedef enum {
-  VG_IMAGE_FORMAT                             = 0x1E00,
-  VG_IMAGE_WIDTH                              = 0x1E01,
-  VG_IMAGE_HEIGHT                             = 0x1E02
+typedef enum
+{
+    VG_IMAGE_FORMAT                             = 0x1E00,
+    VG_IMAGE_WIDTH                              = 0x1E01,
+    VG_IMAGE_HEIGHT                             = 0x1E02
 } VGImageParamType;
 
-typedef enum {
-  VG_DRAW_IMAGE_NORMAL                        = 0x1F00,
-  VG_DRAW_IMAGE_MULTIPLY                      = 0x1F01,
-  VG_DRAW_IMAGE_STENCIL                       = 0x1F02
+typedef enum
+{
+    VG_DRAW_IMAGE_NORMAL                        = 0x1F00,
+    VG_DRAW_IMAGE_MULTIPLY                      = 0x1F01,
+    VG_DRAW_IMAGE_STENCIL                       = 0x1F02
 } VGImageMode;
 
-typedef enum {
-  VG_RED                                      = (1 << 3),
-  VG_GREEN                                    = (1 << 2),
-  VG_BLUE                                     = (1 << 1),
-  VG_ALPHA                                    = (1 << 0)
+typedef enum
+{
+    VG_RED                                      = (1 << 3),
+    VG_GREEN                                    = (1 << 2),
+    VG_BLUE                                     = (1 << 1),
+    VG_ALPHA                                    = (1 << 0)
 } VGImageChannel;
 
-typedef enum {
-  VG_BLEND_SRC                                = 0x2000,
-  VG_BLEND_SRC_OVER                           = 0x2001,
-  VG_BLEND_DST_OVER                           = 0x2002,
-  VG_BLEND_SRC_IN                             = 0x2003,
-  VG_BLEND_DST_IN                             = 0x2004,
-  VG_BLEND_MULTIPLY                           = 0x2005,
-  VG_BLEND_SCREEN                             = 0x2006,
-  VG_BLEND_DARKEN                             = 0x2007,
-  VG_BLEND_LIGHTEN                            = 0x2008,
-  VG_BLEND_ADDITIVE                           = 0x2009
+typedef enum
+{
+    VG_BLEND_SRC                                = 0x2000,
+    VG_BLEND_SRC_OVER                           = 0x2001,
+    VG_BLEND_DST_OVER                           = 0x2002,
+    VG_BLEND_SRC_IN                             = 0x2003,
+    VG_BLEND_DST_IN                             = 0x2004,
+    VG_BLEND_MULTIPLY                           = 0x2005,
+    VG_BLEND_SCREEN                             = 0x2006,
+    VG_BLEND_DARKEN                             = 0x2007,
+    VG_BLEND_LIGHTEN                            = 0x2008,
+    VG_BLEND_ADDITIVE                           = 0x2009
 } VGBlendMode;
 
-typedef enum {
-  VG_IMAGE_FORMAT_QUERY                       = 0x2100,
-  VG_PATH_DATATYPE_QUERY                      = 0x2101
+typedef enum
+{
+    VG_IMAGE_FORMAT_QUERY                       = 0x2100,
+    VG_PATH_DATATYPE_QUERY                      = 0x2101
 } VGHardwareQueryType;
 
-typedef enum {
-  VG_HARDWARE_ACCELERATED                     = 0x2200,
-  VG_HARDWARE_UNACCELERATED                   = 0x2201
+typedef enum
+{
+    VG_HARDWARE_ACCELERATED                     = 0x2200,
+    VG_HARDWARE_UNACCELERATED                   = 0x2201
 } VGHardwareQueryResult;
 
-typedef enum {
-  VG_VENDOR                                   = 0x2300,
-  VG_RENDERER                                 = 0x2301,
-  VG_VERSION                                  = 0x2302,
-  VG_EXTENSIONS                               = 0x2303
+typedef enum
+{
+    VG_VENDOR                                   = 0x2300,
+    VG_RENDERER                                 = 0x2301,
+    VG_VERSION                                  = 0x2302,
+    VG_EXTENSIONS                               = 0x2303
 } VGStringID;
 
 #else
@@ -507,16 +537,18 @@ typedef enum {
 
 typedef VGHandle VGFont;
 
-typedef enum {
-  VG_FONT_GLYPH_MAPPING                       = 0x2F00,
-  VG_FONT_ID                                  = 0x2F01,
-  VG_FONT_NUM_GLYPHS                          = 0x2F02
+typedef enum
+{
+    VG_FONT_GLYPH_MAPPING                       = 0x2F00,
+    VG_FONT_ID                                  = 0x2F01,
+    VG_FONT_NUM_GLYPHS                          = 0x2F02
 } VGFontParamType;
 
-typedef enum {
-  VG_GLYPH_MAPPING_UNICODE                    = 1,
-  VG_GLYPH_MAPPING_FONT_NATIVE                = 2,
-  VG_GLYPH_MAPPING_CUSTOM                     = 3
+typedef enum
+{
+    VG_GLYPH_MAPPING_UNICODE                    = 1,
+    VG_GLYPH_MAPPING_FONT_NATIVE                = 2,
+    VG_GLYPH_MAPPING_CUSTOM                     = 3
 } VGFontGlyphMapping;
 
 
@@ -531,9 +563,9 @@ BF_API_CALL void BFvgFinish( BFOpenVG pCX);
 BF_API_CALL void BFvgSetf (BFOpenVG pCX, VGParamType type, VGfloat value);
 BF_API_CALL void BFvgSeti (BFOpenVG pCX, VGParamType type, VGint value);
 BF_API_CALL void BFvgSetfv(BFOpenVG pCX, VGParamType type, VGint count,
-                         const VGfloat * values);
+                           const VGfloat * values);
 BF_API_CALL void BFvgSetiv(BFOpenVG pCX, VGParamType type, VGint count,
-                         const VGint * values);
+                           const VGint * values);
 
 BF_API_CALL VGfloat BFvgGetf(BFOpenVG pCX, VGParamType type);
 BF_API_CALL VGint   BFvgGeti(BFOpenVG pCX, VGParamType type);
@@ -542,30 +574,30 @@ BF_API_CALL void    BFvgGetfv(BFOpenVG pCX, VGParamType type, VGint count, VGflo
 BF_API_CALL void    BFvgGetiv(BFOpenVG pCX, VGParamType type, VGint count, VGint * values);
 
 BF_API_CALL void BFvgSetParameterf(BFOpenVG pCX, VGHandle object,
-                                 VGint paramType,
-                                 VGfloat value);
+                                   VGint paramType,
+                                   VGfloat value);
 BF_API_CALL void BFvgSetParameteri(BFOpenVG pCX, VGHandle object,
-                                 VGint paramType,
-                                 VGint value);
+                                   VGint paramType,
+                                   VGint value);
 BF_API_CALL void BFvgSetParameterfv(BFOpenVG pCX, VGHandle object,
-                                  VGint paramType,
-                                  VGint count, const VGfloat * values);
+                                    VGint paramType,
+                                    VGint count, const VGfloat * values);
 BF_API_CALL void BFvgSetParameteriv(BFOpenVG pCX, VGHandle object,
-                                  VGint paramType,
-                                  VGint count, const VGint * values);
+                                    VGint paramType,
+                                    VGint count, const VGint * values);
 
 BF_API_CALL VGfloat BFvgGetParameterf(BFOpenVG pCX, VGHandle object,
-                                    VGint paramType);
+                                      VGint paramType);
 BF_API_CALL VGint BFvgGetParameteri(BFOpenVG pCX, VGHandle object,
-                                  VGint paramType);
+                                    VGint paramType);
 BF_API_CALL VGint BFvgGetParameterVectorSize(BFOpenVG pCX, VGHandle object,
-                                           VGint paramType);
+        VGint paramType);
 BF_API_CALL void BFvgGetParameterfv(BFOpenVG pCX, VGHandle object,
-                                  VGint paramType,
-                                  VGint count, VGfloat * values);
+                                    VGint paramType,
+                                    VGint count, VGfloat * values);
 BF_API_CALL void BFvgGetParameteriv(BFOpenVG pCX, VGHandle object,
-                                  VGint paramType,
-                                  VGint count, VGint * values);
+                                    VGint paramType,
+                                    VGint count, VGint * values);
 
 /* Matrix Manipulation */
 BF_API_CALL void BFvgLoadIdentity(BFOpenVG pCX );
@@ -579,52 +611,52 @@ BF_API_CALL void BFvgRotate(BFOpenVG pCX, VGfloat angle);
 
 /* Masking and Clearing */
 BF_API_CALL void BFvgMask(BFOpenVG pCX, VGImage mask, VGMaskOperation operation,
-                        VGint x, VGint y, VGint width, VGint height);
+                          VGint x, VGint y, VGint width, VGint height);
 BF_API_CALL void BFvgClear(BFOpenVG pCX, VGint x, VGint y, VGint width, VGint height);
 
 
 /* Paths */
 BF_API_CALL VGPath BFvgCreatePath(BFOpenVG pCX, VGint pathFormat,
-                                VGPathDatatype datatype,
-                                VGfloat scale, VGfloat bias,
-                                VGint segmentCapacityHint,
-                                VGint coordCapacityHint,
-                                VGbitfield capabilities);
+                                  VGPathDatatype datatype,
+                                  VGfloat scale, VGfloat bias,
+                                  VGint segmentCapacityHint,
+                                  VGint coordCapacityHint,
+                                  VGbitfield capabilities);
 BF_API_CALL void BFvgClearPath(BFOpenVG pCX, VGPath path, VGbitfield capabilities);
 BF_API_CALL void BFvgDestroyPath(BFOpenVG pCX, VGPath path);
 BF_API_CALL void BFvgRemovePathCapabilities(BFOpenVG pCX, VGPath path,
-                                          VGbitfield capabilities);
+        VGbitfield capabilities);
 BF_API_CALL VGbitfield BFvgGetPathCapabilities(BFOpenVG pCX, VGPath path);
 BF_API_CALL void BFvgAppendPath(BFOpenVG pCX, VGPath dstPath, VGPath srcPath);
 BF_API_CALL void BFvgAppendPathData(BFOpenVG pCX, VGPath dstPath,
-                                  VGint numSegments,
-                                  const VGubyte * pathSegments,
-                                  const void * pathData);
-BF_API_CALL void BFvgReadPathData(BFOpenVG pCX, VGPath dstPath, 
-                                VGint segmentIndex, 
-                                VGubyte * pathSegment, 
-                                void * pathData);
-BF_API_CALL void BFvgModifyPathCoords(BFOpenVG pCX, VGPath dstPath, VGint startIndex,
                                     VGint numSegments,
+                                    const VGubyte * pathSegments,
                                     const void * pathData);
+BF_API_CALL void BFvgReadPathData(BFOpenVG pCX, VGPath dstPath,
+                                  VGint segmentIndex,
+                                  VGubyte * pathSegment,
+                                  void * pathData);
+BF_API_CALL void BFvgModifyPathCoords(BFOpenVG pCX, VGPath dstPath, VGint startIndex,
+                                      VGint numSegments,
+                                      const void * pathData);
 BF_API_CALL void BFvgTransformPath(BFOpenVG pCX, VGPath dstPath, VGPath srcPath);
 BF_API_CALL VGboolean BFvgInterpolatePath(BFOpenVG pCX, VGPath dstPath,
-                                        VGPath startPath,
-                                        VGPath endPath,
-                                        VGfloat amount);
+        VGPath startPath,
+        VGPath endPath,
+        VGfloat amount);
 BF_API_CALL VGfloat BFvgPathLength(BFOpenVG pCX, VGPath path,
-                                 VGint startSegment, VGint numSegments);
+                                   VGint startSegment, VGint numSegments);
 BF_API_CALL void BFvgPointAlongPath(BFOpenVG pCX, VGPath path,
-                                  VGint startSegment, VGint numSegments,
-                                  VGfloat distance,
-                                  VGfloat * x, VGfloat * y,
-                                  VGfloat * tangentX, VGfloat * tangentY);
+                                    VGint startSegment, VGint numSegments,
+                                    VGfloat distance,
+                                    VGfloat * x, VGfloat * y,
+                                    VGfloat * tangentX, VGfloat * tangentY);
 BF_API_CALL void BFvgPathBounds(BFOpenVG pCX, VGPath path,
-                              VGfloat * minX, VGfloat * minY,
-                              VGfloat * width, VGfloat * height);
+                                VGfloat * minX, VGfloat * minY,
+                                VGfloat * width, VGfloat * height);
 BF_API_CALL void BFvgPathTransformedBounds(BFOpenVG pCX, VGPath path,
-                                         VGfloat * minX, VGfloat * minY,
-                                         VGfloat * width, VGfloat * height);
+        VGfloat * minX, VGfloat * minY,
+        VGfloat * width, VGfloat * height);
 BF_API_CALL void BFvgDrawPath(BFOpenVG pCX, VGPath path, VGbitfield paintModes);
 BF_API_CALL VGboolean BFvgPickPath(BFOpenVG pCX, VGPath path, VGbitfield paintModes, VGint x, VGint y); /** BF extension */
 
@@ -639,91 +671,91 @@ BF_API_CALL void BFvgPaintPattern(BFOpenVG pCX, VGPaint paint, VGImage pattern);
 
 /* Images */
 BF_API_CALL VGImage BFvgCreateImage(BFOpenVG pCX, VGImageFormat format,
-                                  VGint width, VGint height,
-                                  VGbitfield allowedQuality);
+                                    VGint width, VGint height,
+                                    VGbitfield allowedQuality);
 BF_API_CALL VGImage BFvgCreateImageWithBuffer(BFOpenVG pCX, VGImageFormat format,
-                                  VGint width, VGint height,
-                                  VGbitfield allowedQuality, VGint dataStride, void *pBuffer);   /** BF extension */
+        VGint width, VGint height,
+        VGbitfield allowedQuality, VGint dataStride, void *pBuffer);   /** BF extension */
 BF_API_CALL void BFvgDestroyImage(BFOpenVG pCX, VGImage image);
 BF_API_CALL void BFvgClearImage(BFOpenVG pCX, VGImage image,
-                              VGint x, VGint y, VGint width, VGint height);
-BF_API_CALL void BFvgImageSubData(BFOpenVG pCX, VGImage image,
-                                const void * data, VGint dataStride,
-                                VGImageFormat dataFormat,
                                 VGint x, VGint y, VGint width, VGint height);
+BF_API_CALL void BFvgImageSubData(BFOpenVG pCX, VGImage image,
+                                  const void * data, VGint dataStride,
+                                  VGImageFormat dataFormat,
+                                  VGint x, VGint y, VGint width, VGint height);
 BF_API_CALL void BFvgGetImageSubData(BFOpenVG pCX, VGImage image,
-                                   void * data, VGint dataStride,
-                                   VGImageFormat dataFormat,
-                                   VGint x, VGint y,
-                                   VGint width, VGint height);
+                                     void * data, VGint dataStride,
+                                     VGImageFormat dataFormat,
+                                     VGint x, VGint y,
+                                     VGint width, VGint height);
 BF_API_CALL VGImage BFvgChildImage(BFOpenVG pCX, VGImage parent,
-                                 VGint x, VGint y, VGint width, VGint height);
-BF_API_CALL VGImage BFvgGetParent(BFOpenVG pCX, VGImage image); 
+                                   VGint x, VGint y, VGint width, VGint height);
+BF_API_CALL VGImage BFvgGetParent(BFOpenVG pCX, VGImage image);
 BF_API_CALL void BFvgCopyImage(BFOpenVG pCX, VGImage dst, VGint dx, VGint dy,
-                             VGImage src, VGint sx, VGint sy,
-                             VGint width, VGint height,
-                             VGboolean dither);
+                               VGImage src, VGint sx, VGint sy,
+                               VGint width, VGint height,
+                               VGboolean dither);
 BF_API_CALL void BFvgDrawImage(BFOpenVG pCX, VGImage image);
 
 BF_API_CALL VGboolean BFvgPickImage(BFOpenVG pCX, VGImage image, VGint x, VGint y); /** BF extension */
 
 BF_API_CALL void BFvgSetPixels(BFOpenVG pCX, VGint dx, VGint dy,
-                             VGImage src, VGint sx, VGint sy,
-                             VGint width, VGint height);
-BF_API_CALL void BFvgWritePixels(BFOpenVG pCX, const void * data, VGint dataStride,
-                               VGImageFormat dataFormat,
-                               VGint dx, VGint dy,
+                               VGImage src, VGint sx, VGint sy,
                                VGint width, VGint height);
+BF_API_CALL void BFvgWritePixels(BFOpenVG pCX, const void * data, VGint dataStride,
+                                 VGImageFormat dataFormat,
+                                 VGint dx, VGint dy,
+                                 VGint width, VGint height);
 BF_API_CALL void BFvgGetPixels(BFOpenVG pCX, VGImage dst, VGint dx, VGint dy,
-                             VGint sx, VGint sy,
-                             VGint width, VGint height);
+                               VGint sx, VGint sy,
+                               VGint width, VGint height);
 BF_API_CALL void BFvgReadPixels(BFOpenVG pCX, void * data, VGint dataStride,
-                              VGImageFormat dataFormat,
-                              VGint sx, VGint sy,
-                              VGint width, VGint height);
+                                VGImageFormat dataFormat,
+                                VGint sx, VGint sy,
+                                VGint width, VGint height);
 BF_API_CALL void BFvgCopyPixels(BFOpenVG pCX, VGint dx, VGint dy,
-                              VGint sx, VGint sy,
-                              VGint width, VGint height);
+                                VGint sx, VGint sy,
+                                VGint width, VGint height);
 
 /* Image Filters */
 BF_API_CALL void BFvgColorMatrix(BFOpenVG pCX, VGImage dst, VGImage src,
-                               const VGfloat * matrix);
+                                 const VGfloat * matrix);
 BF_API_CALL void BFvgConvolve(BFOpenVG pCX, VGImage dst, VGImage src,
-                            VGint kernelWidth, VGint kernelHeight,
-                            VGint shiftX, VGint shiftY,
-                            const VGshort * kernel,
-                            VGfloat scale,
-                            VGfloat bias,
-                            VGTilingMode tilingMode);
+                              VGint kernelWidth, VGint kernelHeight,
+                              VGint shiftX, VGint shiftY,
+                              const VGshort * kernel,
+                              VGfloat scale,
+                              VGfloat bias,
+                              VGTilingMode tilingMode);
 BF_API_CALL void BFvgSeparableConvolve(BFOpenVG pCX, VGImage dst, VGImage src,
-                                     VGint kernelWidth,
-                                     VGint kernelHeight,
-                                     VGint shiftX, VGint shiftY,
-                                     const VGshort * kernelX,
-                                     const VGshort * kernelY,
-                                     VGfloat scale,
-                                     VGfloat bias,
-                                     VGTilingMode tilingMode);
+                                       VGint kernelWidth,
+                                       VGint kernelHeight,
+                                       VGint shiftX, VGint shiftY,
+                                       const VGshort * kernelX,
+                                       const VGshort * kernelY,
+                                       VGfloat scale,
+                                       VGfloat bias,
+                                       VGTilingMode tilingMode);
 BF_API_CALL void BFvgGaussianBlur(BFOpenVG pCX, VGImage dst, VGImage src,
-                                VGfloat stdDeviationX,
-                                VGfloat stdDeviationY,
-                                VGTilingMode tilingMode);
+                                  VGfloat stdDeviationX,
+                                  VGfloat stdDeviationY,
+                                  VGTilingMode tilingMode);
 BF_API_CALL void BFvgLookup(BFOpenVG pCX, VGImage dst, VGImage src,
-                          const VGubyte * redLUT,
-                          const VGubyte * greenLUT,
-                          const VGubyte * blueLUT,
-                          const VGubyte * alphaLUT,
-                          VGboolean outputLinear,
-                          VGboolean outputPremultiplied);
+                            const VGubyte * redLUT,
+                            const VGubyte * greenLUT,
+                            const VGubyte * blueLUT,
+                            const VGubyte * alphaLUT,
+                            VGboolean outputLinear,
+                            VGboolean outputPremultiplied);
 BF_API_CALL void BFvgLookupSingle(BFOpenVG pCX, VGImage dst, VGImage src,
-                                const VGuint * lookupTable,
-                                VGImageChannel sourceChannel,
-                                VGboolean outputLinear,
-                                VGboolean outputPremultiplied);
+                                  const VGuint * lookupTable,
+                                  VGImageChannel sourceChannel,
+                                  VGboolean outputLinear,
+                                  VGboolean outputPremultiplied);
 
 /* Hardware Queries */
 BF_API_CALL VGHardwareQueryResult BFvgHardwareQuery(BFOpenVG pCX, VGHardwareQueryType key,
-                                                  VGint setting);
+        VGint setting);
 
 /* Renderer and Extension Information */
 BF_API_CALL const VGubyte * BFvgGetString(BFOpenVG pCX, VGStringID name);
@@ -745,9 +777,9 @@ BF_API_CALL void BFvgSetGlyphToPath (BFOpenVG pCX, VGFont font, VGuint glyphInde
 #ifdef BF_CFG_USE_BFOPENVG
 
 
-#define vgGetError()                    BFvgGetError( BFVG_CONTEXT ) 
-#define vgFlush()                       BFvgFlush( BFVG_CONTEXT ) 
-#define vgFinish()                      BFvgFinish( BFVG_CONTEXT ) 
+#define vgGetError()                    BFvgGetError( BFVG_CONTEXT )
+#define vgFlush()                       BFvgFlush( BFVG_CONTEXT )
+#define vgFinish()                      BFvgFinish( BFVG_CONTEXT )
 #define vgSetf(a,b)                     BFvgSetf( BFVG_CONTEXT, a, b )
 #define vgSeti(a,b)                     BFvgSeti( BFVG_CONTEXT, a, b )
 #define vgSetfv(a,b,c)                  BFvgSetfv( BFVG_CONTEXT, a, b, c )
@@ -1118,7 +1150,7 @@ VGint BFvgGetImageHeight( BFOpenVG pCX, VGImage image );
 /** \file BFOpenVG.h
  *
  * Functionality to handle OpenVG contexts. This functionality is not part of the OpenVG spec, and is specific to
- * the BitFlash internal OpenVG implementation. When configured to use the internal OpenVG implementation the SVG 
+ * the BitFlash internal OpenVG implementation. When configured to use the internal OpenVG implementation the SVG
  * Player invokes these functions to create an OpenVG context, as well as to support extensions required by the
  * internal OpenVG implementation. These functions are not built or used as part of the SVG Player if an external
  * OpenVG implementation is used.
@@ -1132,22 +1164,22 @@ typedef enum
     BFOPENVG_BUFFER_FAIL    /**< (memory allocation) failure */
 } BFOPENVGattachStatus;
 
-/** Creates and returns a pointer to an OpenVG context. This function must be called before making any OpenVG calls. 
- * \param pMemCtx       pointer to an existing memory context that will be used for all normal memory allocations within the 
+/** Creates and returns a pointer to an OpenVG context. This function must be called before making any OpenVG calls.
+ * \param pMemCtx       pointer to an existing memory context that will be used for all normal memory allocations within the
  *                      BF internal OpenVG implementation.
- * \param pFastMemCtx   pointer to an existing memory context that will be used for all fast memory allocations within the 
+ * \param pFastMemCtx   pointer to an existing memory context that will be used for all fast memory allocations within the
  *                      BF internal OpenVG implementation.
  */
 BF_API_CALL BFOpenVG BFOPENVG_Create( BFHeapContext *pMemCtx, BFHeapContext *pFastMemCtx );
 
-/** Creates or modifies a VGImage that is used as the default render target of the BF internal OpenVG implementation. 
- *  If one is specified, a memory buffer is attached to this VGImage render target. This function must be called to 
+/** Creates or modifies a VGImage that is used as the default render target of the BF internal OpenVG implementation.
+ *  If one is specified, a memory buffer is attached to this VGImage render target. This function must be called to
  *  at least define the dimensions of the render target for the specified OpenVG context.
  * \param pVG           the OpenVG context to set the render target for
  * \param uWidth        the width in pixels of the render target
  * \param uHeight       the height in pixels of the render target
  * \param iLinePadding  the number of (filler) bytes between the last pixel in one row and the first in the next. This allows
- *                      subimages to be supported as render targets. For example the render target could be directly in the 
+ *                      subimages to be supported as render targets. For example the render target could be directly in the
  *                      screen memory but restricted to a subregion of it by proper offset to pBuffer (see below) and line padding.
  * \param pBuffer       pointer to the buffer to be attached to the VGImage render target associated with the pVG OpenVG context.
  *                      This buffer is assumed to have dimensions given by uWidth and uHeight and line padding given by
@@ -1160,8 +1192,8 @@ BF_API_CALL BFOpenVG BFOPENVG_Create( BFHeapContext *pMemCtx, BFHeapContext *pFa
  * \param pClearUserData    a pointer that is passed to pfnClearCB whenever it is invoked by the Player.
  * \return              a BFOPENVGattachStatus value indicating the success status.
  */
-BF_API_CALL BFOPENVGattachStatus BFOPENVG_AttachRenderingBuffer( BFOpenVG pVG, BF_UINT32 uWidth, BF_UINT32 uHeight, 
-                                                                 BF_INT16 iLinePadding, void *pBuffer, BFClearCallback pfnClearCB, BF_INT_VOID pClearUserData );
+BF_API_CALL BFOPENVGattachStatus BFOPENVG_AttachRenderingBuffer( BFOpenVG pVG, BF_UINT32 uWidth, BF_UINT32 uHeight,
+        BF_INT16 iLinePadding, void *pBuffer, BFClearCallback pfnClearCB, BF_INT_VOID pClearUserData );
 /** ensures that no pixels in the render target are written to under any circumstances
  * \param vg            the OpenVG context to disable/enable rendering to
  * \param bDisable      disables rendering if VG_TRUE, enables rendering if VG_FALSE
@@ -1181,7 +1213,7 @@ BF_API_CALL void BFOPENVG_Destroy( BFOpenVG vg );
 BF_API_CALL void BFOPENVG_SetGammaTable( BFOpenVG pCX, BF_INT32 aTable );
 
 /** sets the internal status flag of the OpenVG context. The only flag supported is BFVG_RENDER_OVERFLOW
- *  which indicates that a fixed-point numeric overflow occured. This function is primarily used to 
+ *  which indicates that a fixed-point numeric overflow occured. This function is primarily used to
  *  simply clear the flag.
  *  \param pCX          the current OpenVG context
  *  \param aFlag        value of the flag to set
@@ -1189,7 +1221,7 @@ BF_API_CALL void BFOPENVG_SetGammaTable( BFOpenVG pCX, BF_INT32 aTable );
 BF_API_CALL void BFOPENVG_SetStatusFlag( BFOpenVG pCX, BF_UINT8 aFlag );
 
 /** gets the internal status flag of the OpenVG context. The only flag supported is BFVG_RENDER_OVERFLOW
- *  which indicates that a fixed-point numeric overflow occured. This function is primarily used to 
+ *  which indicates that a fixed-point numeric overflow occured. This function is primarily used to
  *  determine if an overflow occured.
  *  \param pCX          the current OpenVG context
  *  \return             current value of the status flag in the OpenVG context
@@ -1197,7 +1229,7 @@ BF_API_CALL void BFOPENVG_SetStatusFlag( BFOpenVG pCX, BF_UINT8 aFlag );
 BF_API_CALL BF_UINT8 BFOPENVG_GetStatusFlag( BFOpenVG pCX );
 #endif
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 BF_END_EXTERN_C
 #endif
 

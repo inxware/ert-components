@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file guiimage.c
  *
@@ -6,10 +15,7 @@
  *
  *
  * @author: inx limited
- * @version: $Revision: 4263 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 
@@ -83,18 +89,18 @@ EHS_LOCAL ehs_uint16 EhsLParse_colourARGB(const char** pParam, EhsGraphicsColour
  */
 EHS_LOCAL ehs_uint16 EhsLParse_rectangle(const char** pParam, EhsGraphicsRectangleClass* pRect, ehs_uint16 nParamsRead)
 {
-	ehs_uint16 nParsed = 0u; /* assume function fails */
+    ehs_uint16 nParsed = 0u; /* assume function fails */
 
-	if (nParamsRead >= 4u)
-	{
-		/* get common parameters from input */
-		EhsGetSint32FromString(&(pRect->nLeft),pParam[nParsed++]);
-		EhsGetUint32FromString(&(pRect->nTop),pParam[nParsed++]);
-		EhsGetUint32FromString(&(pRect->nWidth),pParam[nParsed++]);
-		EhsGetUint32FromString(&(pRect->nHeight),pParam[nParsed++]);
-	}
+    if (nParamsRead >= 4u)
+    {
+        /* get common parameters from input */
+        EhsGetSint32FromString(&(pRect->nLeft),pParam[nParsed++]);
+        EhsGetSint32FromString(&(pRect->nTop),pParam[nParsed++]);
+        EhsGetSint32FromString(&(pRect->nWidth),pParam[nParsed++]);
+        EhsGetSint32FromString(&(pRect->nHeight),pParam[nParsed++]);
+    }
 
-	return nParsed;
+    return nParsed;
 }
 
 /**
@@ -106,17 +112,17 @@ EHS_LOCAL ehs_uint16 EhsLParse_rectangle(const char** pParam, EhsGraphicsRectang
  */
 EHS_LOCAL ehs_uint16 EhsLParse_colourARGB(const char** pParam, EhsGraphicsColourClass* pColour, ehs_uint16 nParamsRead)
 {
-	ehs_uint16 nParsed = 0u; /* assume function fails */
+    ehs_uint16 nParsed = 0u; /* assume function fails */
 
-	if (nParamsRead >= 4u) /* common params successfully extracted */
-	{
-		EhsGetUint8FromString(&(pColour->sComp.nAlpha),pParam[nParsed++]);
-		EhsGetUint8FromString(&(pColour->sComp.nRed),pParam[nParsed++]);
-		EhsGetUint8FromString(&(pColour->sComp.nGreen),pParam[nParsed++]);
-		EhsGetUint8FromString(&(pColour->sComp.nBlue),pParam[nParsed++]);
-	}
+    if (nParamsRead >= 4u) /* common params successfully extracted */
+    {
+        EhsGetUint8FromString(&(pColour->sComp.nAlpha),pParam[nParsed++]);
+        EhsGetUint8FromString(&(pColour->sComp.nRed),pParam[nParsed++]);
+        EhsGetUint8FromString(&(pColour->sComp.nGreen),pParam[nParsed++]);
+        EhsGetUint8FromString(&(pColour->sComp.nBlue),pParam[nParsed++]);
+    }
 
-	return nParsed;
+    return nParsed;
 }
 
 /**
@@ -129,38 +135,39 @@ EHS_LOCAL ehs_uint16 EhsLParse_colourARGB(const char** pParam, EhsGraphicsColour
  */
 ehs_uint16 EhsParseGuiParameters_common(const char** pParam, EhsGuiParamsType* pGuiParams, ehs_uint16 nVersion, ehs_uint16 nParamsRead)
 {
-	ehs_uint16 nParsed = 0; /* assume function fails */
+    ehs_uint16 nParsed = 0; /* assume function fails */
 
-	nParsed += EhsLParse_rectangle(pParam, &(pGuiParams->xRect), nParamsRead);
+    nParsed += EhsLParse_rectangle(pParam, &(pGuiParams->xRect), nParamsRead);
 
-	if (nParsed != 0) {
+    if (nParsed != 0)
+    {
 
-		if (nVersion == 0)
-		{
-			if (nParamsRead > 6)
-			{
-				nParsed += 2; /* skip two dummy parameters */
-			}
-			else
-			{
-				nParsed = 0; /* invalid input format */
-			}
-		}
-		else
-		{
-			if (nParamsRead > 5)
-			{
-				/* get z-order into pParams->nZorder without conversion - we can address
-				 * the conversion issue later */
-				EhsGetSint32FromString((ehs_sint32*)&(pGuiParams->nZorder),pParam[nParsed++]);
-			}
-			else
-			{
-				nParsed = 0; /* invalid input format */
-			}
-		}
-	}
-	return nParsed;
+        if (nVersion == 0)
+        {
+            if (nParamsRead > 6)
+            {
+                nParsed += 2; /* skip two dummy parameters */
+            }
+            else
+            {
+                nParsed = 0; /* invalid input format */
+            }
+        }
+        else
+        {
+            if (nParamsRead > 5)
+            {
+                /* get z-order into pParams->nZorder without conversion - we can address
+                 * the conversion issue later */
+                EhsGetSint32FromString((ehs_sint32*)&(pGuiParams->nZorder),pParam[nParsed++]);
+            }
+            else
+            {
+                nParsed = 0; /* invalid input format */
+            }
+        }
+    }
+    return nParsed;
 
 }
 
@@ -174,50 +181,50 @@ ehs_uint16 EhsParseGuiParameters_common(const char** pParam, EhsGuiParamsType* p
  */
 ehs_bool EhsParseGuiParameters_bitmap(const char** pParam, EhsGuiParamsType* pGuiParams, ehs_uint16 nVersion, ehs_uint16 nParamsRead)
 {
-	ehs_bool bRet = EHS_FALSE; /* assume failure */
-	char* pTmp; /* Used to find the end of the params string */
-	ehs_uint16 nParsed = 0; /* how many parameters have been read so far */
+    ehs_bool bRet = EHS_FALSE; /* assume failure */
+    char* pTmp; /* Used to find the end of the params string */
+    ehs_uint16 nParsed = 0; /* how many parameters have been read so far */
 
-	nParsed += EhsParseGuiParameters_common(pParam, pGuiParams, nVersion, nParamsRead);
+    nParsed += EhsParseGuiParameters_common(pParam, pGuiParams, nVersion, nParamsRead);
 
-	if (nParsed > 0) /* common params successfully extracted */
-	{
-		if (nVersion == 0)
-		{
-			if (nParamsRead >= (2+nParsed))
-			{
-				EhsGetWordFromString(pGuiParams->uClass.xBitmap.szBitmapName, pParam[nParsed++]);
-				pTmp = strchr(pGuiParams->uClass.xBitmap.szBitmapName,EHS_PARAM_SEPARATOR);
-				*pTmp = '\0';
-				/* get z-order into pParams->nZorder without conversion - we can address
-				 * the conversion issue later */
-				EhsGetSint32FromString((ehs_sint32*)&(pGuiParams->nZorder),pParam[nParsed++]);
-				bRet = EHS_TRUE;
-			}
-		}
-		else
-		{
-			if (nParamsRead >= (2+nParsed))
-			{
-				/**
-				 * DK
-				 * note - an extra parameter has been added to the gui parameter file, lockAspectRatio, after the bitmap name parameter.
-				 * At this time it is only used by IGB and ignored by EHS.
-				 * The version number of the gui file has been left as 1.3 to reflect this
-				 */
-				EhsGetUint8FromString(&(pGuiParams->uClass.xBitmap.nImageAlpha),pParam[nParsed++]);
-				EhsGetWordFromString(pGuiParams->uClass.xBitmap.szBitmapName, pParam[nParsed++]);
-				pTmp = strchr(pGuiParams->uClass.xBitmap.szBitmapName,EHS_PARAM_SEPARATOR);
-				if (pTmp)
-				{
-					*pTmp = '\0';
-				}
-				bRet = EHS_TRUE;
-			}
-		}
-	}
+    if (nParsed > 0) /* common params successfully extracted */
+    {
+        if (nVersion == 0)
+        {
+            if (nParamsRead >= (2+nParsed))
+            {
+                EhsGetWordFromString(pGuiParams->uClass.xBitmap.szBitmapName, pParam[nParsed++]);
+                pTmp = strchr(pGuiParams->uClass.xBitmap.szBitmapName,EHS_PARAM_SEPARATOR);
+                *pTmp = '\0';
+                /* get z-order into pParams->nZorder without conversion - we can address
+                 * the conversion issue later */
+                EhsGetSint32FromString((ehs_sint32*)&(pGuiParams->nZorder),pParam[nParsed++]);
+                bRet = EHS_TRUE;
+            }
+        }
+        else
+        {
+            if (nParamsRead >= (2+nParsed))
+            {
+                /**
+                 * DK
+                 * note - an extra parameter has been added to the gui parameter file, lockAspectRatio, after the bitmap name parameter.
+                 * At this time it is only used by IGB and ignored by EHS.
+                 * The version number of the gui file has been left as 1.3 to reflect this
+                 */
+                EhsGetUint8FromString(&(pGuiParams->uClass.xBitmap.nImageAlpha),pParam[nParsed++]);
+                EhsGetWordFromString(pGuiParams->uClass.xBitmap.szBitmapName, pParam[nParsed++]);
+                pTmp = strchr(pGuiParams->uClass.xBitmap.szBitmapName,EHS_PARAM_SEPARATOR);
+                if (pTmp)
+                {
+                    *pTmp = '\0';
+                }
+                bRet = EHS_TRUE;
+            }
+        }
+    }
 
-	return bRet;
+    return bRet;
 }
 
 /**
@@ -230,58 +237,62 @@ ehs_bool EhsParseGuiParameters_bitmap(const char** pParam, EhsGuiParamsType* pGu
  */
 ehs_bool EhsParseGuiParameters_textbox(const char** pParam, EhsGuiParamsType* pGuiParams, ehs_uint16 nVersion, ehs_uint16 nParamsRead)
 {
-	ehs_bool bRet = EHS_FALSE; /* assume failure */
-	char szObjectName[EHS_STRING_LENGTH_MAX]; /* object name - discarded once it's been read */
+    ehs_bool bRet = EHS_FALSE; /* assume failure */
+    char szObjectName[EHS_STRING_LENGTH_MAX]; /* object name - discarded once it's been read */
 
-	ehs_uint16 nParsed = EhsParseGuiParameters_common(pParam, pGuiParams, nVersion, nParamsRead);
-	EhsStrcpy((pGuiParams->uClass.xTextbox.szFontName),EHSHG_FONT_DEFAULT);
+    ehs_uint16 nParsed = EhsParseGuiParameters_common(pParam, pGuiParams, nVersion, nParamsRead);
+    EhsStrcpy((pGuiParams->uClass.xTextbox.szFontName),EHSHG_FONT_DEFAULT);
 
-	if (nParsed > 0) /* common params successfully extracted */
-	{
-		if (nVersion == 0)
-		{
-			if (nParamsRead >= (8+nParsed))
-			{
-				EhsGetWordFromString(szObjectName,pParam[nParsed++]);
-				EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xBgColour.sComp.nRed),pParam[nParsed++]);
-				EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xBgColour.sComp.nGreen),pParam[nParsed++]);
-				EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xBgColour.sComp.nBlue),pParam[nParsed++]);
-				EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xFgColour.sComp.nRed),pParam[nParsed++]);
-				EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xFgColour.sComp.nGreen),pParam[nParsed++]);
-				EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xFgColour.sComp.nBlue),pParam[nParsed++]);
-				EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xBgColour.sComp.nAlpha),"0");
-				EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xFgColour.sComp.nAlpha),"255");
-				/* get z-order into pParams->nZorder without conversion - we can address
-				 * the conversion issue later */
-				EhsGetSint32FromString((ehs_sint32*)&(pGuiParams->nZorder),pParam[nParsed++]);
-				bRet = EHS_TRUE;
-			}
-		}
-		else
-		{
-			if (nParamsRead >= (8+nParsed))
-			{
-				nParsed += EhsLParse_colourARGB(&(pParam[nParsed]),&(pGuiParams->uClass.xTextbox.xFgColour),nParamsRead-nParsed);
-				nParsed += EhsLParse_colourARGB(&(pParam[nParsed]),&(pGuiParams->uClass.xTextbox.xBgColour),nParamsRead-nParsed);
+    if (nParsed > 0) /* common params successfully extracted */
+    {
+        if (nVersion == 0)
+        {
+            if (nParamsRead >= (8+nParsed))
+            {
+                EhsGetWordFromString(szObjectName,pParam[nParsed++]);
+                EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xBgColour.sComp.nRed),pParam[nParsed++]);
+                EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xBgColour.sComp.nGreen),pParam[nParsed++]);
+                EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xBgColour.sComp.nBlue),pParam[nParsed++]);
+                EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xFgColour.sComp.nRed),pParam[nParsed++]);
+                EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xFgColour.sComp.nGreen),pParam[nParsed++]);
+                EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xFgColour.sComp.nBlue),pParam[nParsed++]);
+                EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xBgColour.sComp.nAlpha),"0");
+                EhsGetUint8FromString(&(pGuiParams->uClass.xTextbox.xFgColour.sComp.nAlpha),"255");
+                /* get z-order into pParams->nZorder without conversion - we can address
+                 * the conversion issue later */
+                EhsGetSint32FromString((ehs_sint32*)&(pGuiParams->nZorder),pParam[nParsed++]);
+                bRet = EHS_TRUE;
+            }
+        }
+        else
+        {
+            if (nParamsRead >= (8+nParsed))
+            {
+                nParsed += EhsLParse_colourARGB(&(pParam[nParsed]),&(pGuiParams->uClass.xTextbox.xFgColour),nParamsRead-nParsed);
+                nParsed += EhsLParse_colourARGB(&(pParam[nParsed]),&(pGuiParams->uClass.xTextbox.xBgColour),nParamsRead-nParsed);
 
-				if (nVersion >= 130) {
-					if (nParamsRead >= (6+nParsed)) {
-						EhsGetWordFromString((pGuiParams->uClass.xTextbox.szFontName),pParam[nParsed++]);
-						EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentL),pParam[nParsed++]);
-						EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentR),pParam[nParsed++]);
-						EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentT),pParam[nParsed++]);
-						EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentB),pParam[nParsed++]);
-						EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nLineSep),pParam[nParsed++]);
-						bRet = EHS_TRUE;
-					}
-				} else {
-					bRet = EHS_TRUE;
-				}
-			}
-		}
-	}
+                if (nVersion >= 130)
+                {
+                    if (nParamsRead >= (6+nParsed))
+                    {
+                        EhsGetWordFromString((pGuiParams->uClass.xTextbox.szFontName),pParam[nParsed++]);
+                        EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentL),pParam[nParsed++]);
+                        EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentR),pParam[nParsed++]);
+                        EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentT),pParam[nParsed++]);
+                        EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentB),pParam[nParsed++]);
+                        EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nLineSep),pParam[nParsed++]);
+                        bRet = EHS_TRUE;
+                    }
+                }
+                else
+                {
+                    bRet = EHS_TRUE;
+                }
+            }
+        }
+    }
 
-	return bRet;
+    return bRet;
 }
 
 /**
@@ -294,20 +305,20 @@ ehs_bool EhsParseGuiParameters_textbox(const char** pParam, EhsGuiParamsType* pG
  */
 ehs_bool EhsParseGuiParameters_patch(const char** pParam, EhsGuiParamsType* pGuiParams, ehs_uint16 nVersion, ehs_uint16 nParamsRead)
 {
-	ehs_bool bRet = EHS_FALSE; /* assume failure */
+    ehs_bool bRet = EHS_FALSE; /* assume failure */
 
-	ehs_uint16 nParsed = EhsParseGuiParameters_common(pParam, pGuiParams, nVersion, nParamsRead);
+    ehs_uint16 nParsed = EhsParseGuiParameters_common(pParam, pGuiParams, nVersion, nParamsRead);
 
-	if (nParsed > 0) /* common params successfully extracted */
-	{
-		if (nParamsRead >= (4+nParsed))
-		{
-			nParsed += EhsLParse_colourARGB(&(pParam[nParsed]),&(pGuiParams->uClass.xTextbox.xFgColour),nParamsRead-nParsed);
-			bRet = EHS_TRUE;
-		}
-	}
+    if (nParsed > 0) /* common params successfully extracted */
+    {
+        if (nParamsRead >= (4+nParsed))
+        {
+            nParsed += EhsLParse_colourARGB(&(pParam[nParsed]),&(pGuiParams->uClass.xTextbox.xFgColour),nParamsRead-nParsed);
+            bRet = EHS_TRUE;
+        }
+    }
 
-	return bRet;
+    return bRet;
 }
 
 
@@ -323,92 +334,94 @@ ehs_bool EhsParseGuiParameters_patch(const char** pParam, EhsGuiParamsType* pGui
  */
 void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
 {
-	const char* pParam[EHS_PARAM_COUNT_MAX]; /* points to the start of each parameter */
-	char szObjectType[EHS_STRING_LENGTH_MAX]; /* object type - used to determine eClass */
-	ehs_uint16 nParam;
-	ehs_uint16 nParamsRead; /* number of parameters that we've read so far */
-	ehs_uint16 nVersion = 0; /* format of the parameters */
-	ehs_bool bRet = EHS_FALSE; /* Assume the function fails */
-	char *pTmp; /* used to terminate strings */
+    const char* pParam[EHS_PARAM_COUNT_MAX]; /* points to the start of each parameter */
+    char szObjectType[EHS_STRING_LENGTH_MAX]; /* object type - used to determine eClass */
+    ehs_uint16 nParam;
+    ehs_uint16 nParamsRead; /* number of parameters that we've read so far */
+    ehs_uint16 nVersion = 0; /* format of the parameters */
+    ehs_bool bRet = EHS_FALSE; /* Assume the function fails */
+    char *pTmp; /* used to terminate strings */
 
-	/* split the params text into the params structure */
-	nParamsRead = 0;
-	pParam[nParamsRead++] = szParamsText;
-	while (*szParamsText && nParamsRead < EHS_PARAM_COUNT_MAX)
-	{
-		if (*szParamsText == EHS_PARAM_SEPARATOR)
-		{
-			pParam[nParamsRead++] = ++szParamsText;
-		}
-		else
-		{
-			szParamsText++;
-		}
-	}
+    /* split the params text into the params structure */
+    nParamsRead = 0;
+    pParam[nParamsRead++] = szParamsText;
+    while (*szParamsText && nParamsRead < EHS_PARAM_COUNT_MAX)
+    {
+        if (*szParamsText == EHS_PARAM_SEPARATOR)
+        {
+            pParam[nParamsRead++] = ++szParamsText;
+        }
+        else
+        {
+            szParamsText++;
+        }
+    }
 
-	if (nParamsRead > 1)
-	{
-		/* determine version number */
-		nParam = 0;
-		if (EhsStrnicmp("1.0.0",pParam[nParam],5) == 0)
-		{
-			nVersion = 100;
-		} else if (EhsStrnicmp("1.3",pParam[nParam],3) == 0) {
-			nVersion = 130;
-		}
-		nParam++;
+    if (nParamsRead > 1)
+    {
+        /* determine version number */
+        nParam = 0;
+        if (EhsStrnicmp("1.0.0",pParam[nParam],5) == 0)
+        {
+            nVersion = 100;
+        }
+        else if (EhsStrnicmp("1.3",pParam[nParam],3) == 0)
+        {
+            nVersion = 130;
+        }
+        nParam++;
 
-		/* identify widget type & load params */
-		EhsGetWordFromString(szObjectType,pParam[nParam++]);
-		pTmp = strchr(szObjectType,EHS_PARAM_SEPARATOR);
-		if (pTmp) {
-			*pTmp = '\0';
-		}
+        /* identify widget type & load params */
+        EhsGetWordFromString(szObjectType,pParam[nParam++]);
+        pTmp = strchr(szObjectType,EHS_PARAM_SEPARATOR);
+        if (pTmp)
+        {
+            *pTmp = '\0';
+        }
 
-		pParams->eClass = EHS_WIDGET_CLASS_INVALID;
-		if ((0 == EhsStricmp(szObjectType,"gui_bitmap")) ||
-			(0 == EhsStricmp(szObjectType,"gui_image1")))
-		{
-			if (EhsParseGuiParameters_bitmap(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam))
-			{
-				pParams->eClass = EHS_WIDGET_CLASS_BITMAP;
-			} /* else class is invalid */
-		}
-		else if ((0 == EhsStricmp(szObjectType,"gui_textbox")) ||
-			(0 == EhsStricmp(szObjectType,"gui_textbox2")))
-		{ //printf("----- Parameters = %s\n, some are = %s,%s,%s",blob,pParam[0],pParam[1],pParam[2],pParam[3]);
-			if (EhsParseGuiParameters_textbox(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam))
-			{
-				pParams->eClass = EHS_WIDGET_CLASS_TEXTBOX;
-				//printf("----DONE AS TEXTBOX - sometihng=%d\n",pParams->uClass.xTextbox.xBgColour.sComp.nRed);
-			} /* else class is invalid */
-		}
-		else if (0 == EhsStricmp(szObjectType,"gui_patch")) //We use this for the viewport types also
-		{
-			if (EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
-			{
-				pParams->eClass = EHS_WIDGET_CLASS_PATCH;
-			} /* else class is invalid */
-		}
-		else if (0 == EhsStricmp(szObjectType,"gui_viewport"))
-		{
-			if (EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
-			{
-				pParams->eClass = EHS_WIDGET_CLASS_VIEWPORT;
-			} /* else class is invalid */
-		}
-		else if (0 == EhsStricmp(szObjectType,"gui_video_port"))
-		{
-			if(EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
-			{
-				pParams->eClass = EHS_WIDGET_CLASS_VIDEO_PORT;
-			}
-		}/* else class is invalid */
+        pParams->eClass = EHS_WIDGET_CLASS_INVALID;
+        if ((0 == EhsStricmp(szObjectType,"gui_bitmap")) ||
+                (0 == EhsStricmp(szObjectType,"gui_image1")))
+        {
+            if (EhsParseGuiParameters_bitmap(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam))
+            {
+                pParams->eClass = EHS_WIDGET_CLASS_BITMAP;
+            } /* else class is invalid */
+        }
+        else if ((0 == EhsStricmp(szObjectType,"gui_textbox")) ||
+                 (0 == EhsStricmp(szObjectType,"gui_textbox2")))
+        {
+            if (EhsParseGuiParameters_textbox(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam))
+            {
+                pParams->eClass = EHS_WIDGET_CLASS_TEXTBOX;
+            } /* else class is invalid */
+        }
+        else if (0 == EhsStricmp(szObjectType,"gui_patch")) //We use this for the viewport types also
+        {
+            if (EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
+            {
+                pParams->eClass = EHS_WIDGET_CLASS_PATCH;
+            } /* else class is invalid */
+        }
+        else if (0 == EhsStricmp(szObjectType,"gui_viewport"))
+        {
+            if (EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
+            {
+                pParams->eClass = EHS_WIDGET_CLASS_VIEWPORT;
+            } /* else class is invalid */
+        }
+        else if (0 == EhsStricmp(szObjectType,"gui_video_port"))
+        {
+            if(EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
+            {
+                pParams->eClass = EHS_WIDGET_CLASS_VIDEO_PORT;
+            }
+        }/* else class is invalid */
 
-		/* convert sint32 to uint32 by adding 2^31 - means min(sint32) => 0, max(sint32) > max(uint32)
-		 * preserves monotonicity of zOrdering */
-		pParams->nZorder = (0x80000000 ^ pParams->nZorder);
-	}
+        /* convert sint32 to uint32 by adding 2^31 - means min(sint32) => 0, max(sint32) > max(uint32)
+         * preserves monotonicity of zOrdering */
+        pParams->nZorder = (0x80000000 ^ pParams->nZorder);
+    }
 }
 
 #endif /* EHS_GUI_SUPPORT */

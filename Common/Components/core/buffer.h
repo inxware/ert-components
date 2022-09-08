@@ -1,13 +1,18 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
 /**
  * buffer.h
  *
  * function prototypes for the bufferFunctions.c - FIFO and LIFO buffers
  *
- * @author: SDG
- * @version: $Revision: 3561 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ * @author: inx limited
+ *
  */
 #ifndef _BUFFER_FUNCTIONS_H
 #define _BUFFER_FUNCTIONS_H
@@ -25,7 +30,10 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(FlushAnyLIFOBuffer);
 #ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
 /* declare FIFOReal Function block */
-#define EHS_FB_FIFOREAL_NAME "FIFO_Real"
+
+#define EHS_FB_NAME_FIFO_Real "FIFO_Real"
+#define EHS_FB_ID_FIFO_Real 0xD54A
+
 #define RUN_PUSH_FIFO_REAL "Run_PushFIFOReal"
 #define RUN_POP_FIFO_REAL "Run_PopFIFOReal"
 
@@ -39,7 +47,9 @@ EHS_FB_FUNCTIONS(FIFOReal)
 
 /******************************************************************************/
 /* declare LIFOReal Function block */
-#define EHS_FB_LIFOREAL_NAME "LIFO_Real"
+#define EHS_FB_NAME_LIFO_Real "LIFO_Real"
+#define EHS_FB_ID_LIFO_Real 0x7534
+
 #define RUN_PUSH_LIFO_REAL "Run_PushLIFOReal"
 #define RUN_POP_LIFO_REAL "Run_PopLIFOReal"
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(LIFOReal);
@@ -54,7 +64,10 @@ EHS_FB_FUNCTIONS(LIFOReal)
 
 /******************************************************************************/
 /* declare FIFO Integer function block */
-#define EHS_FB_FIFOINT_NAME "FIFO_Int"
+
+#define EHS_FB_NAME_FIFO_Int "FIFO_Int"
+#define EHS_FB_ID_FIFO_Int 0x33E8
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FIFOInt);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FIFOInt);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(PushFIFOInt);
@@ -65,7 +78,10 @@ EHS_FB_FUNCTIONS(FIFOInt)
 
 /******************************************************************************/
 /* declare LIFO Integer function block */
-#define EHS_FB_LIFOINT_NAME "LIFO_Int"
+
+#define EHS_FB_NAME_LIFO_Int "LIFO_Int"
+#define EHS_FB_ID_LIFO_Int 0x4C68
+
 #define RUN_PUSH_LIFO_INT "Run_PushLIFOInt"
 #define RUN_POP_LIFO_INT "Run_PopLIFOInt"
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(LIFOInt);
@@ -78,7 +94,10 @@ EHS_FB_FUNCTIONS(LIFOInt)
 
 /******************************************************************************/
 /* declare FIFO Boolean function block */
-#define EHS_FB_FIFOBOOL_NAME "FIFO_Bool"
+
+#define EHS_FB_NAME_FIFO_Bool "FIFO_Bool"
+#define EHS_FB_ID_FIFO_Bool 0x776A
+
 #define RUN_PUSH_FIFO_BOOL "Run_PushFIFOBool"
 #define RUN_POP_FIFO_BOOL "Run_PopFIFOBool"
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FIFOBool);
@@ -91,7 +110,10 @@ EHS_FB_FUNCTIONS(FIFOBool)
 
 /******************************************************************************/
 /* declare LIFO Boolean function block */
-#define EHS_FB_LIFOBOOL_NAME "LIFO_Bool"
+
+#define EHS_FB_NAME_LIFO_Bool "LIFO_Bool"
+#define EHS_FB_ID_LIFO_Bool 0xD714
+
 #define RUN_PUSH_LIFO_BOOL "Run_PushLIFOBool"
 #define RUN_POP_LIFO_BOOL "Run_PopLIFOBool"
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(LIFOBool);
@@ -104,7 +126,10 @@ EHS_FB_FUNCTIONS(LIFOBool)
 
 /******************************************************************************/
 /* declare FIFO String function block */
-#define EHS_FB_FIFOSTRING_NAME "FIFO_String"
+
+#define EHS_FB_NAME_FIFO_String "FIFO_String"
+#define EHS_FB_ID_FIFO_String 0x2272
+
 #define RUN_PUSH_FIFO_STRING "Run_PushFIFOString"
 #define RUN_POP_FIFO_STRING "Run_PopFIFOString"
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FIFOString);
@@ -118,7 +143,10 @@ EHS_FB_FUNCTIONS(FIFOString)
 /******************************************************************************/
 /* declare FIFO String function block */
 
-#define EHS_FB_LIFOSTRING_NAME "LIFO_String"
+
+#define EHS_FB_NAME_LIFO_String "LIFO_String"
+#define EHS_FB_ID_LIFO_String 0xFA53
+
 #define RUN_PUSH_LIFO_STRING "Run_PushLIFOString"
 #define RUN_POP_LIFO_STRING "Run_PopLIFOString"
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(LIFOString);

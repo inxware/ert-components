@@ -1,12 +1,18 @@
-/** 
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
+/**
  * @file dtv_pvr_play.h
- * This declares the PVR playback functions for the DTV toolkit. 
+ * This declares the PVR playback functions for the DTV toolkit.
  *
  * @author: inx limited
- * @version: $Revision: 1650 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ *
  */
 
 #ifndef _EHS_DTV_PVR_PLAY_H
@@ -15,16 +21,9 @@
 #include "ehs_fb_types.h"
 
 
-#define EHS_FB_DTV_PVR_PLAY_NAME "DtvPvrPlay1"
-#define EHS_FB_DTV_PVR_PLAY_GET_NAME "get"
-#define EHS_FB_DTV_PVR_PLAY_SET_NAME "set"
-#define EHS_FB_DTV_PVR_PLAY_PLAY_NAME "play"
-#define EHS_FB_DTV_PVR_PLAY_PAUSE_NAME "pause"
-#define EHS_FB_DTV_PVR_PLAY_REV_NAME "reverse"
-#define EHS_FB_DTV_PVR_PLAY_FASTER_NAME "faster"
-#define EHS_FB_DTV_PVR_PLAY_SLOWER_NAME "slower"
-#define EHS_FB_DTV_PVR_PLAY_STOP_NAME "stop"
-#define EHS_FB_DTV_PVR_PLAY_END_NAME "end"
+#define EHS_FB_NAME_DtvPvrPlay1 "DtvPvrPlay1"
+#define EHS_FB_ID_DtvPvrPlay1 0x823B
+
 
 /* declare functions provided by this function block */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DtvPvrPlay1);

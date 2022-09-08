@@ -1,3 +1,12 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 #ifndef HAVE_CONFIGFILE_H
 #define HAVE_CONFIGFILE_H
 
@@ -11,6 +20,6 @@ extern unsigned int debug_level;
 #define NOTICE(s, a...) if (debug_level & HID_DEBUG_NOTICES) { DEBUGPRINTF(" NOTICE", s, ##a) }
 #define WARNING(s, a...) if (debug_level & HID_DEBUG_WARNINGS) { DEBUGPRINTF("WARNING", s, ##a) }
 #define ERROR(s, a...) if (debug_level & HID_DEBUG_ERRORS) { DEBUGPRINTF("  ERROR", s, ##a) }
-#define MESSAGE(s, a...) DEBUGPRINTF("  MESSAGE", s, ##a) 
+#define MESSAGE(s, a...) DEBUGPRINTF("  MESSAGE", s, ##a)
 
 #endif

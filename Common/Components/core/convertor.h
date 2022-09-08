@@ -1,13 +1,19 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * convertor.h
  *
  * function prototypes for convertorFunctions.c - Convertor blocks of all types
  *
- * @author: Dr A Coombes
- * @version: $Revision: 333 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ * @author: inx limited
+ *
  */
 
 #ifndef EHS_CONVERTOR_FUNCTIONS_H
@@ -16,7 +22,9 @@
 
 /******************************************************************************/
 /* Declare Bool->Trigger convertor */
-#define EHS_FB_CONVERTOR_BOOL_TO_TRIGGER_NAME "ConvertorBoolToTrigger"
+#define EHS_FB_NAME_ConvertorBoolToTrigger "ConvertorBoolToTrigger"
+#define EHS_FB_ID_ConvertorBoolToTrigger 0x44CD
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToTrigger);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorBoolToTrigger);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorBoolToTrigger);
@@ -26,7 +34,9 @@ EHS_FB_FUNCTIONS(ConvertorBoolToTrigger)
 
 /******************************************************************************/
 /* Declare Int->Bool convertor */
-#define EHS_FB_CONVERTOR_INT_TO_BOOL_NAME "ConvertorIntToBool"
+#define EHS_FB_NAME_ConvertorIntToBool "ConvertorIntToBool"
+#define EHS_FB_ID_ConvertorIntToBool 0x119A
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToBool);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorIntToBool);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorIntToBool);
@@ -36,7 +46,9 @@ EHS_FB_FUNCTIONS(ConvertorIntToBool)
 
 /******************************************************************************/
 /* Declare String->Bool convertor */
-#define EHS_FB_CONVERTOR_STRING_TO_BOOL_NAME "ConvertorStringToBool"
+#define EHS_FB_NAME_ConvertorStringToBool "ConvertorStringToBool"
+#define EHS_FB_ID_ConvertorStringToBool 0x63C9
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToBool);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorStringToBool);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorStringToBool);
@@ -46,7 +58,9 @@ EHS_FB_FUNCTIONS(ConvertorStringToBool)
 
 /******************************************************************************/
 /* Declare String->Int convertor */
-#define EHS_FB_CONVERTOR_STRING_TO_INT_NAME "ConvertorStringToInt"
+#define EHS_FB_NAME_ConvertorStringToInt "ConvertorStringToInt"
+#define EHS_FB_ID_ConvertorStringToInt 0x90D8
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToInt);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorStringToInt);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorStringToInt);
@@ -56,7 +70,10 @@ EHS_FB_FUNCTIONS(ConvertorStringToInt)
 
 /******************************************************************************/
 /* Declare Bool->Int convertor */
-#define EHS_FB_CONVERTOR_BOOL_TO_INT_NAME "ConvertorBoolToInt"
+
+#define EHS_FB_NAME_ConvertorBoolToInt "ConvertorBoolToInt"
+#define EHS_FB_ID_ConvertorBoolToInt 0xAC8B
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToInt);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorBoolToInt);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorBoolToInt);
@@ -66,7 +83,9 @@ EHS_FB_FUNCTIONS(ConvertorBoolToInt)
 
 /******************************************************************************/
 /* Declare Bool->String convertor */
-#define EHS_FB_CONVERTOR_BOOL_TO_STRING_NAME "ConvertorBoolToString"
+#define EHS_FB_NAME_ConvertorBoolToString "ConvertorBoolToString"
+#define EHS_FB_ID_ConvertorBoolToString 0xCCEB
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToString);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorBoolToString);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorBoolToString);
@@ -76,7 +95,9 @@ EHS_FB_FUNCTIONS(ConvertorBoolToString)
 
 /******************************************************************************/
 /* Declare Int->String convertor */
-#define EHS_FB_CONVERTOR_INT_TO_STRING_NAME "ConvertorIntToString"
+#define EHS_FB_NAME_ConvertorIntToString "ConvertorIntToString"
+#define EHS_FB_ID_ConvertorIntToString 0x08B6
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToString);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorIntToString);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorIntToString);
@@ -87,7 +108,9 @@ EHS_FB_FUNCTIONS(ConvertorIntToString)
 #ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
 /* Declare Float->Bool convertor */
-#define EHS_FB_CONVERTOR_FLOAT_TO_BOOL_NAME "ConvertorRealToBool"
+#define EHS_FB_NAME_ConvertorRealToBool "ConvertorRealToBool"
+#define EHS_FB_ID_ConvertorRealToBool 0xE74B
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToBool);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorRealToBool);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorRealToBool);
@@ -97,7 +120,8 @@ EHS_FB_FUNCTIONS(ConvertorRealToBool)
 
 /******************************************************************************/
 /* Declare Float->Int convertor */
-#define EHS_FB_CONVERTOR_FLOAT_TO_INT_NAME "ConvertorRealToInt"
+#define EHS_FB_NAME_ConvertorRealToInt "ConvertorRealToInt"
+#define EHS_FB_ID_ConvertorRealToInt 0xD329
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToInt);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorRealToInt);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorRealToInt);
@@ -107,7 +131,8 @@ EHS_FB_FUNCTIONS(ConvertorRealToInt)
 
 /******************************************************************************/
 /* Declare Bool->Float convertor */
-#define EHS_FB_CONVERTOR_BOOL_TO_FLOAT_NAME "ConvertorBoolToReal"
+#define EHS_FB_NAME_ConvertorBoolToReal "ConvertorBoolToReal"
+#define EHS_FB_ID_ConvertorBoolToReal 0xFC95
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToReal);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorBoolToReal);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorBoolToReal);
@@ -117,7 +142,8 @@ EHS_FB_FUNCTIONS(ConvertorBoolToReal)
 
 /******************************************************************************/
 /* Declare Bool->Float convertor */
-#define EHS_FB_CONVERTOR_INT_TO_FLOAT_NAME "ConvertorIntToReal"
+#define EHS_FB_NAME_ConvertorIntToReal "ConvertorIntToReal"
+#define EHS_FB_ID_ConvertorIntToReal 0xB3BA
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToReal);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorIntToReal);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorIntToReal);
@@ -127,7 +153,9 @@ EHS_FB_FUNCTIONS(ConvertorIntToReal)
 
 /******************************************************************************/
 /* Declare Bool->Float convertor */
-#define EHS_FB_CONVERTOR_STRING_TO_FLOAT_NAME "ConvertorStringToReal"
+#define EHS_FB_NAME_ConvertorStringToReal "ConvertorStringToReal"
+#define EHS_FB_ID_ConvertorStringToReal 0xC1E9
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToReal);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorStringToReal);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorStringToReal);
@@ -137,7 +165,9 @@ EHS_FB_FUNCTIONS(ConvertorStringToReal)
 
 /******************************************************************************/
 /* Declare Bool->Float convertor */
-#define EHS_FB_CONVERTOR_FLOAT_TO_STRING_NAME "ConvertorRealToString"
+#define EHS_FB_NAME_ConvertorRealToString "ConvertorRealToString"
+#define EHS_FB_ID_ConvertorRealToString 0x1E6A
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToString);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorRealToString);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorRealToString);

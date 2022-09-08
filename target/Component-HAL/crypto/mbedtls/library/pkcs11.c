@@ -59,7 +59,7 @@ int mbedtls_pkcs11_x509_cert_bind( mbedtls_x509_crt *cert, pkcs11h_certificate_t
     }
 
     if( pkcs11h_certificate_getCertificateBlob( pkcs11_cert, NULL,
-                                                &cert_blob_size ) != CKR_OK )
+            &cert_blob_size ) != CKR_OK )
     {
         ret = 3;
         goto cleanup;
@@ -73,7 +73,7 @@ int mbedtls_pkcs11_x509_cert_bind( mbedtls_x509_crt *cert, pkcs11h_certificate_t
     }
 
     if( pkcs11h_certificate_getCertificateBlob( pkcs11_cert, cert_blob,
-                                                &cert_blob_size ) != CKR_OK )
+            &cert_blob_size ) != CKR_OK )
     {
         ret = 5;
         goto cleanup;
@@ -96,7 +96,7 @@ cleanup:
 
 
 int mbedtls_pkcs11_priv_key_bind( mbedtls_pkcs11_context *priv_key,
-        pkcs11h_certificate_t pkcs11_cert )
+                                  pkcs11h_certificate_t pkcs11_cert )
 {
     int ret = 1;
     mbedtls_x509_crt cert;
@@ -127,10 +127,10 @@ void mbedtls_pkcs11_priv_key_free( mbedtls_pkcs11_context *priv_key )
 }
 
 int mbedtls_pkcs11_decrypt( mbedtls_pkcs11_context *ctx,
-                       int mode, size_t *olen,
-                       const unsigned char *input,
-                       unsigned char *output,
-                       size_t output_max_len )
+                            int mode, size_t *olen,
+                            const unsigned char *input,
+                            unsigned char *output,
+                            size_t output_max_len )
 {
     size_t input_len, output_len;
 
@@ -147,7 +147,7 @@ int mbedtls_pkcs11_decrypt( mbedtls_pkcs11_context *ctx,
 
     /* Determine size of output buffer */
     if( pkcs11h_certificate_decryptAny( ctx->pkcs11h_cert, CKM_RSA_PKCS, input,
-            input_len, NULL, &output_len ) != CKR_OK )
+                                        input_len, NULL, &output_len ) != CKR_OK )
     {
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
     }
@@ -156,7 +156,7 @@ int mbedtls_pkcs11_decrypt( mbedtls_pkcs11_context *ctx,
         return( MBEDTLS_ERR_RSA_OUTPUT_TOO_LARGE );
 
     if( pkcs11h_certificate_decryptAny( ctx->pkcs11h_cert, CKM_RSA_PKCS, input,
-            input_len, output, &output_len ) != CKR_OK )
+                                        input_len, output, &output_len ) != CKR_OK )
     {
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
     }
@@ -165,11 +165,11 @@ int mbedtls_pkcs11_decrypt( mbedtls_pkcs11_context *ctx,
 }
 
 int mbedtls_pkcs11_sign( mbedtls_pkcs11_context *ctx,
-                    int mode,
-                    mbedtls_md_type_t md_alg,
-                    unsigned int hashlen,
-                    const unsigned char *hash,
-                    unsigned char *sig )
+                         int mode,
+                         mbedtls_md_type_t md_alg,
+                         unsigned int hashlen,
+                         const unsigned char *hash,
+                         unsigned char *sig )
 {
     size_t sig_len = 0, asn_len = 0, oid_size = 0;
     unsigned char *p = sig;
@@ -196,7 +196,7 @@ int mbedtls_pkcs11_sign( mbedtls_pkcs11_context *ctx,
 
     sig_len = ctx->len;
     if( hashlen > sig_len || asn_len > sig_len ||
-        hashlen + asn_len > sig_len )
+            hashlen + asn_len > sig_len )
     {
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
     }
@@ -229,7 +229,7 @@ int mbedtls_pkcs11_sign( mbedtls_pkcs11_context *ctx,
     memcpy( p, hash, hashlen );
 
     if( pkcs11h_certificate_signAny( ctx->pkcs11h_cert, CKM_RSA_PKCS, sig,
-            asn_len + hashlen, sig, &sig_len ) != CKR_OK )
+                                     asn_len + hashlen, sig, &sig_len ) != CKR_OK )
     {
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
     }

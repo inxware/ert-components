@@ -1,13 +1,19 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file ehs_fb_types.h
  * In this file, all of the type definitions required by EHS function blocks are given.
  * Any target-specific type definitions are given in target_types.h, which comes from
  * the target folder.
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 4930 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 /* @todo refactor needs renaming to fb_api.h
@@ -67,7 +73,7 @@ typedef void (*EhsRunFuncType)(struct EhsFunctionInstanceDataStruct* context);
 
 /**
  * Defines a pointer to a generic function to be used within a separate thread
- * 
+ *
  * @param[in,out] context Points to an area of memory used to store the context for the current instance of the function block.
  * It's a point to a point to allow the context area to be reallocated if necessary.
  * @return The return type is target-specific. Where a return value is required, the EHS_THREAD_END macro will supply
@@ -76,9 +82,8 @@ typedef void (*EhsRunFuncType)(struct EhsFunctionInstanceDataStruct* context);
 
 typedef EhsThreadFuncReturnType (*EhsThreadFuncType)(struct EhsFunctionInstanceDataStruct* context);
 
-
 /**
- * Macro for defining a function block identity function. Use of macros ensures ease of ability to change parameter lists for all 
+ * Macro for defining a function block identity function. Use of macros ensures ease of ability to change parameter lists for all
  * function blocks should the need arise
  */
 #define EHS_FB_IDENTIFY_FUNCTION(x) void EHS_FB_IDENTIFY_NAME(x) (const ehs_char* params, ehs_uint32* bytesRequired, ehs_uint16* priority)
@@ -91,7 +96,7 @@ typedef EhsThreadFuncReturnType (*EhsThreadFuncType)(struct EhsFunctionInstanceD
 /*lint +e961 */
 
 /**
- * Macro for defining a function block initialise function. Use of macros ensures ease of ability to change parameter lists for all 
+ * Macro for defining a function block initialise function. Use of macros ensures ease of ability to change parameter lists for all
  * function blocks should the need arise
  *
  */
@@ -132,7 +137,7 @@ typedef EhsThreadFuncReturnType (*EhsThreadFuncType)(struct EhsFunctionInstanceD
 /*line +e961 */
 
 /**
- * Macro for defining a function block general-purpose run function. Use of macros ensures ease of ability to change parameter lists for all 
+ * Macro for defining a function block general-purpose run function. Use of macros ensures ease of ability to change parameter lists for all
  * function blocks should the need arise
  */
 /* Called from EHS */
@@ -157,7 +162,7 @@ typedef EhsThreadFuncReturnType (*EhsThreadFuncType)(struct EhsFunctionInstanceD
 #define EHS_FB_START_RUN_FUNCTION_ARGS(x,...) EHS_FB_RUN_NAME(x) ((EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,__VA_ARGS__)
 
 /* Required functions that must be called at the start and finish of thread functions
- * This is to ensure threads are completed before an EHS application environment is torn down 	
+ * This is to ensure threads are completed before an EHS application environment is torn down
  */
 void Ehs_FB_ThreadStarted();
 void Ehs_FB_ThreadComplete();
@@ -165,13 +170,14 @@ void Ehs_FB_ThreadComplete();
 
 /* non-public stuff */
 
-typedef struct {
+typedef struct
+{
 #ifndef EHRT1
-	const ehs_char szName[EHS_FUNCTION_SIZE]; /**< Function name */
+    const ehs_char szName[EHS_FUNCTION_SIZE]; /**< Function name */
 #else
-	const ehs_uint16 szName; /**< Function name */
+    const ehs_uint16 szName; /**< Function name */
 #endif
-	EhsRunFuncType fpRunFunc; /**< Pointer to the function corresponding to the name */
+    EhsRunFuncType fpRunFunc; /**< Pointer to the function corresponding to the name */
 } EhsFuncRefType;
 
 /**
@@ -181,7 +187,11 @@ typedef struct {
 #define EHS_FB_FUNCTABLE_NAME(fb) (EhsFuncTable ## fb) /**< Creates the name for the table of functions */
 /*lint +e961 */
 #define EHS_FB_FUNCTIONS_START(fb) EhsFuncRefType EHS_FB_FUNCTABLE_NAME(fb)[] = {
-#define EHS_FB_FUNCTION_ENTRY(n,f) {n,EHS_FB_RUN_NAME(f)},
+#ifdef EHRT1
+#define EHS_FB_FUNCTION_ENTRY(n,i,f) {i,EHS_FB_RUN_NAME(f)},
+#else
+#define EHS_FB_FUNCTION_ENTRY(n,i,f) {n,EHS_FB_RUN_NAME(f)},
+#endif
 #define EHS_FB_FUNCTIONS_END {{0}}};
 
 #define EHS_FB_FUNCTIONS(fb) EHS_GLOBAL EhsFuncRefType EHS_FB_FUNCTABLE_NAME(fb)[];
@@ -192,7 +202,11 @@ typedef struct {
 #define EHS_FB_FUNCTABLE_NAME_API2(fb,vers) (EhsFuncTable ## fb ## vers) /**< Creates the name for the table of functions */
 /*lint +e961 */
 #define EHS_FB_FUNCTIONS_START_API2(fb,vers) EhsFuncRefType EHS_FB_FUNCTABLE_NAME_API2(fb,vers)[] = {
-#define EHS_FB_FUNCTION_ENTRY_API2(n,f,vers) {n,EHS_FB_RUN_NAME_API2(f,vers)},
+#ifdef EHRT1
+#define EHS_FB_FUNCTION_ENTRY_API2(n,i,f,vers) {i,EHS_FB_RUN_NAME_API2(f,vers)},
+#else
+#define EHS_FB_FUNCTION_ENTRY_API2(n,i,f,vers) {n,EHS_FB_RUN_NAME_API2(f,vers)},
+#endif
 #define EHS_FB_FUNCTIONS_END_API2 {0}};
 
 #define EHS_FB_FUNCTIONS_API2(fb,vers) EHS_GLOBAL EhsFuncRefType EHS_FB_FUNCTABLE_NAME_API2(fb,vers)[];
@@ -208,11 +222,12 @@ typedef unsigned char debug_type_byte;
  * This type holds the array of start ports that are activated when a single finish port is notified.
  * Each instance of this type corresponds to a specific trigger id.
  */
-typedef struct {
-	EhsTriggerIdType nTriggerId; /**< Identifies the Id of this trigger */
-	ehs_uint16 nStartPorts; /**< Number of start ports connected to the finish port */
-	debug_type_byte tMonitorType; /* bitmask for monitor type for this function - see DEBUG_SET_MASK_ */
-	EhsFunctionInstanceIndexType *piComp; /**< Index of each start port */
+typedef struct
+{
+    EhsTriggerIdType nTriggerId; /**< Identifies the Id of this trigger */
+    ehs_uint16 nStartPorts; /**< Number of start ports connected to the finish port */
+    debug_type_byte tMonitorType; /* bitmask for monitor type for this function - see DEBUG_SET_MASK_ */
+    EhsFunctionInstanceIndexType *piComp; /**< Index of each start port */
 } EhsTriggerType;
 /**
  *

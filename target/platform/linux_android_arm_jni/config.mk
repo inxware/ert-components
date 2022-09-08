@@ -1,20 +1,16 @@
-#
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
+
+# @file config.mk 
+# inxware ERT configuration file for linux_android_arm_jni
+# @author: inx limited
 # This Target is a proper Android app honouring the activiy model of android.
-# 
-#
-# config.mk - Configuration properties of the current platform
-# 
-# Called by ../../../Makefile
-#
-
-# @author: Dr Pierre Drezet
-# @version: $Revision: 43 $
-# @date: $Date: 2011-10-30 05:05:44 +0000 (Mon, 30 Oct 2011) $
-# 
-# Copyright (c) inx limited, 2007. All rights reserved.
-#
-#
-
 
 
 #DEBUG OPTIONS
@@ -25,73 +21,77 @@ DEFS += EHS_DEBUG_AV
 export EHS_DEBUG=yes
 endif
 
+#################################################################################################################
+# Set general architecture and OS version 
+#################################################################################################################
 export EHS_ANDROID=yes
 export EHS_ANDROID_JNI=yes
 # @todo remove the EHS_ANDROID_JNI as an additional flag
 DEFS += EHS_BSD EHS_ANDROID
 
-
 # MUST SET the following for any component config.
 # These determin the location withint the component-lib-support & optionally the core clib entry in ert-build-support/support_libs
 export EHS_GNU_ARCH=arm
-export EHS_GNU_OS=linux
+export EHS_GNU_OS=linux-android
 export EHS_GNU_OS_VERSION=androideabi-9
 
-export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm-linux_arm-none-linux-androideabi-9_arm-none-linux-androideabi-9_android-native
-
 export CC_OVERRIDE=arm-linux-androideabi-gcc
+# TOOLCHAIN_NAME is an optional alternative location to find the toolchain. 
+# Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
 export TOOLCHAIN_NAME=arm-none-linux-androideabi-9
 
 # ehs is more generic for libraries more specific for structure (e.g. different main etc.)
 export EHS_ARCH=arm
 export EHS_OS=linux-android
 
-################################################################################################################
-# Define the specific variant of the architecture and OS - this selects different component support library sets
-################################################################################################################
-
+# SYSTEM_VARIANT optionally indicates specific target environment confgurations.
+# See target/envbuildscripts/targetenv_hacks_*.sh scripts). 
 # SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
 export SYSTEM_VARIANT=android_jni
 
-#COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-#Note - windows targets in component library use hyphens between components (randomly)
-export COMPONENT_VARIANT=android_native
+################################################################################################################
+# Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
+################################################################################################################
 
-# COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
-
-
-#
-# uncomment this variable if the platform requires graphics/video support
-#export EHS_GUI_SUPPORT=OpenGLE2
-export EHS_GUI_SUPPORT=OpenGLE1_1
-
-
-#
-# uncomment this variable if the platform requires media manager support (e.g. SMIL, DLNA).
-#export EHS_VIDEO_SUPPORT=yes
-#export EHS_VIDEO=none
-export EHS_MEDIA_SUPPORT=all
-#
-# uncomment this variable if the platform requires audio / video support
-#export EHS_AV_SUPPORT=
-
-#
 # uncomment this variable if the platform requires URL NETWORKING e.g. devman plugins 
 #tcpip debug is still enabled
 export EHS_NETWORKING_SUPPORT=all
-export EHS_COMPONENT_NETWORKING_SUPPORT=all 
 
-#
-# uncomment this variable if the platform requires devman monitor support
+#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
 export EHS_DEVMAN_SUPPORT=all
+#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 export EHS_DEVMAN_MON_SUPPORT=yes
 #todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
 
-#
-# uncomment this variable if the platform needs to support deprecated toolkit
-##export EHS_TOOLKIT_DEPRECATED=yes
+################################################################################################################
+# Select which source of contributed library dependencies are used to build the target
+################################################################################################################
 
+#COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
+#Note - windows targets in component library use hyphens between components (randomly)
+# COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory 
+# libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
+# $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
+export COMPONENT_VARIANT=android_native
 
+# For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms  rather than built in ert-ccontriib-middleware).:
+export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm-linux_arm-none-linux-androideabi-9_arm-none-linux-androideabi-9_android-native
+
+################################################################################################################
+# Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
+################################################################################################################
+
+# To enable  IO features "netx" DCC=1)  (e.g. GPIO, ADC.DAC, serial, user inputs etc. set  EHS_PERIPHERAL_DEVICE_SUPPORT )                                          #
 #This include RCUs, text displays, etc.
 ##export EHS_PERIPHERAL_DEVICE_SUPPORT=all
+
+# To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
+export EHS_GUI_SUPPORT=OpenGLE1_1
+
+# This  is set to include the rendering features in eRT. It is  nearly always set, so should be removed (default on) and specific platforme xceptionsset instead
+export EHS_MEDIA_SUPPORT=all
+
+# To enable full TCPIP networking toolbox ("netx" DCC=3)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                   #
+export EHS_COMPONENT_NETWORKING_SUPPORT=all
+
+################################### END OF TOOLBOX CONFIGURATION ###################################################

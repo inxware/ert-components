@@ -1,12 +1,18 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file dtv_pvr_list.c
  *
  * Implementation of the PVR file list functions for the DTV toolkit
  *
  * @author: inx limited
- * @version: $Revision: 1248 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006), $
  *
- * Copyright (c), inx limited, 2007. All rights reserved.
  */
 
 /**
@@ -38,16 +44,17 @@
 
 
 EHS_FB_FUNCTIONS_START(FileSystemDirCreateRemove)
-EHS_FB_FUNCTION_ENTRY("create", FileSystemDirCreateRemoveCreate)
-EHS_FB_FUNCTION_ENTRY("remove", FileSystemDirCreateRemoveRemove)
+EHS_FB_FUNCTION_ENTRY("create", 0x00, FileSystemDirCreateRemoveCreate)
+EHS_FB_FUNCTION_ENTRY("remove", 0x01, FileSystemDirCreateRemoveRemove)
 EHS_FB_FUNCTIONS_END
 
 /**
  * Structure for maintaining information about the DTV PVR List
  */
-struct FSDirCreateRemoveStruct {
-	ehs_char szPath[EHS_TD_FILES_MAX_FILENAME];	/**< The name of the last file read */
-	ehs_bool bOnlyContents;	 						/**< True if szLastFile contains a filename */
+struct FSDirCreateRemoveStruct
+{
+    ehs_char szPath[EHS_TD_FILES_MAX_FILENAME];	/**< The name of the last file read */
+    ehs_bool bOnlyContents;	 						/**< True if szLastFile contains a filename */
 };
 
 /**
@@ -55,7 +62,7 @@ struct FSDirCreateRemoveStruct {
  */
 EHS_FB_IDENTIFY_FUNCTION(FileSystemDirCreateRemove)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(struct FSDirCreateRemoveStruct);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(struct FSDirCreateRemoveStruct);
 }
 
 /**
@@ -63,59 +70,67 @@ EHS_FB_IDENTIFY_FUNCTION(FileSystemDirCreateRemove)
  */
 EHS_FB_INIT_FUNCTION(FileSystemDirCreateRemove)
 {
-	struct FSDirCreateRemoveStruct* pInfo = (struct FSDirCreateRemoveStruct*)EHS_FB_INIT_CONTEXT;
-	//@todo we should include the width modifers in the string reader but it's a macro EHS_TD_FILES_MAX_FILENAME forgotten how to do this!
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s%hhd",pInfo->szPath, &(pInfo->bOnlyContents));
-	//EhsTDFiles_setDir(pListInfo->EhsTDFiles, pInfo->szPath);//only have one paramter so being lazy!
-	return EHS_TRUE; /* initialisation succeeded */
+    struct FSDirCreateRemoveStruct* pInfo = (struct FSDirCreateRemoveStruct*)EHS_FB_INIT_CONTEXT;
+    //@todo we should include the width modifers in the string reader but it's a macro EHS_TD_FILES_MAX_FILENAME forgotten how to do this!
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s%hhd",pInfo->szPath, &(pInfo->bOnlyContents));
+    //EhsTDFiles_setDir(pListInfo->EhsTDFiles, pInfo->szPath);//only have one paramter so being lazy!
+    return EHS_TRUE; /* initialisation succeeded */
 }
 
 EHS_FB_RUN_FUNCTION(FileSystemDirCreateRemoveCreate)
 {
-	ehs_bool ret;
-	struct FSDirCreateRemoveStruct* pInfo =
-			(struct FSDirCreateRemoveStruct*) EHS_FB_INIT_CONTEXT;
+    ehs_bool ret;
+    struct FSDirCreateRemoveStruct* pInfo =
+        (struct FSDirCreateRemoveStruct*) EHS_FB_INIT_CONTEXT;
 
-	if (EHS_FB_IN_CONNECTED(0)) {
-		EhsStrcpy(pInfo->szPath,EHS_FB_IN_S(0));
-	}
-/* don't allow creation of anything lower than /???/ */
-	if (EhsStrlen(pInfo->szPath) > 15 && EhsStrncmp(pInfo->szPath, EHS_FILE_LOCALHOST_PREFIX, EhsStrlen(EHS_FILE_LOCALHOST_PREFIX)) == 0) { // allow abolute path to local host
-		ret = EhsTF_mkdir(&pInfo->szPath[10]);
-	} else {
-		ret = Ehs_UserMkdir(pInfo->szPath);
-	}
-	if (ret)
-		EHS_FB_FINISH(1);
-	else {
-		EHS_FB_FINISH(2); //doesn't exist
-		EHSH_LOG_WARNING("Couldn't create directory");
-		//printf("Could not create dir %s\n",pInfo->szPath);
-	}
+    if (EHS_FB_IN_CONNECTED(0))
+    {
+        EhsStrcpy(pInfo->szPath,EHS_FB_IN_S(0));
+    }
+    /* don't allow creation of anything lower than /???/ */
+    if (EhsStrlen(pInfo->szPath) > 15 && EhsStrncmp(pInfo->szPath, EHS_FILE_LOCALHOST_PREFIX, EhsStrlen(EHS_FILE_LOCALHOST_PREFIX)) == 0)   // allow abolute path to local host
+    {
+        ret = EhsTF_mkdir(&pInfo->szPath[10]);
+    }
+    else
+    {
+        ret = Ehs_UserMkdir(pInfo->szPath);
+    }
+    if (ret)
+        EHS_FB_FINISH(1);
+    else
+    {
+        EHS_FB_FINISH(2); //doesn't exist
+        EHSH_LOG_WARNING("Couldn't create directory");
+    }
 }
 
 EHS_FB_RUN_FUNCTION(FileSystemDirCreateRemoveRemove)
 {
-	ehs_bool ret;
-	struct FSDirCreateRemoveStruct* pInfo = (struct FSDirCreateRemoveStruct*)EHS_FB_INIT_CONTEXT;
-	if (EHS_FB_IN_CONNECTED(0)) {
-			EhsStrcpy(pInfo->szPath,EHS_FB_IN_S(0));
-	}
-	//@tod need to check bOnlyContents and send a flag to UserRmdir
-	/* don't allow creation of anything lower than /???/ */
-		if (EhsStrlen(pInfo->szPath) > 15 && EhsStrncmp(pInfo->szPath, EHS_FILE_LOCALHOST_PREFIX, EhsStrlen(EHS_FILE_LOCALHOST_PREFIX)) == 0) { // allow abolute path to local host
-			ret = EhsTF_rmdir(&pInfo->szPath[10]);
-		} else {
-			ret = Ehs_UserRmdir(pInfo->szPath);
-		}
-	if (ret) {
-		EHS_FB_FINISH(1);
-		//printf("========Exiting remove 1\n");
-	}
-	else {
-		EHS_FB_FINISH(2); // perhaps doesn't exist or some permission problem possibly - it's not gone
-		//printf("========Exiting remove 2\n");
-	}
+    ehs_bool ret;
+    struct FSDirCreateRemoveStruct* pInfo = (struct FSDirCreateRemoveStruct*)EHS_FB_INIT_CONTEXT;
+    if (EHS_FB_IN_CONNECTED(0))
+    {
+        EhsStrcpy(pInfo->szPath,EHS_FB_IN_S(0));
+    }
+    //@tod need to check bOnlyContents and send a flag to UserRmdir
+    /* don't allow creation of anything lower than /???/ */
+    if (EhsStrlen(pInfo->szPath) > 15 && EhsStrncmp(pInfo->szPath, EHS_FILE_LOCALHOST_PREFIX, EhsStrlen(EHS_FILE_LOCALHOST_PREFIX)) == 0)   // allow abolute path to local host
+    {
+        ret = EhsTF_rmdir(&pInfo->szPath[10]);
+    }
+    else
+    {
+        ret = Ehs_UserRmdir(pInfo->szPath);
+    }
+    if (ret)
+    {
+        EHS_FB_FINISH(1);
+    }
+    else
+    {
+        EHS_FB_FINISH(2); // perhaps doesn't exist or some permission problem possibly - it's not gone
+    }
 }
 
 

@@ -1,11 +1,17 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file CBUtils.c
  * This file provides utilities for setting up the call back function table.
- * 
- * @author: Lucid V0.9 team
- * @version: $Revision: 20 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
+ * @author: inx limited
+ *
  */
 
 #include "CBUtils.h"
@@ -29,19 +35,19 @@ extern structFuncArg* sCallBackMain ; /**<stores the call back function's data. 
  */
 ptrfRunFunc  GetCallbackPointers(callbackObjData* objectData,int nCallBackNumber, structFuncArg** functionArgData)
 {
-	ptrfRunFunc functionPointer;
-	//if (nCallBackNumber<0) return FALSE; // feeble error checking necessary?
-	//get the index (from the object data) for the call back function for the global call back function table.
-	int nCallBackTableNumber;
-	
-	nCallBackTableNumber = objectData->callBackNumber[nCallBackNumber-1];
+    ptrfRunFunc functionPointer;
+    //if (nCallBackNumber<0) return FALSE; // feeble error checking necessary?
+    //get the index (from the object data) for the call back function for the global call back function table.
+    int nCallBackTableNumber;
+
+    nCallBackTableNumber = objectData->callBackNumber[nCallBackNumber-1];
 
 //	EHS_DebugInfo("callbacktablenumber = %d\n");
-	functionPointer = sCallBackFunc[nCallBackTableNumber];
-	*functionArgData = &sCallBackMain[nCallBackTableNumber];
+    functionPointer = sCallBackFunc[nCallBackTableNumber];
+    *functionArgData = &sCallBackMain[nCallBackTableNumber];
 //	EHS_DebugInfo("sCallBackFunc[0] = %x\nsCallBackFunc[1] = %x\nsCallBackFunc[2] = %x\nsCallBackFunc[3] = %x\n",
 //		sCallBackFunc[0],sCallBackFunc[1],sCallBackFunc[2],sCallBackFunc[3]);
-	return functionPointer;
+    return functionPointer;
 }
 
 /**
@@ -54,12 +60,12 @@ ptrfRunFunc  GetCallbackPointers(callbackObjData* objectData,int nCallBackNumber
  */
 BOOL SetObjectCallbackIndex(void * objectData,int nCallBackObjNumber,int nCallBackTableIndex )
 {
-	//if (nCallBackNumber<0) return FALSE; // feeble error checking necessary?
-	//get the index (from the object data) for the call back function for the global call back function table.
-	((callbackObjData*)objectData)->callBackNumber[nCallBackObjNumber-1]=nCallBackTableIndex;
-	//((callbackObjData*)objectData)->callBackNumber[nCallBackObjNumber]=nCallBackTableIndex;
+    //if (nCallBackNumber<0) return FALSE; // feeble error checking necessary?
+    //get the index (from the object data) for the call back function for the global call back function table.
+    ((callbackObjData*)objectData)->callBackNumber[nCallBackObjNumber-1]=nCallBackTableIndex;
+    //((callbackObjData*)objectData)->callBackNumber[nCallBackObjNumber]=nCallBackTableIndex;
 
-	//functionPointer = (void*)sCallBackFunc[nCallBackTableNumber];
-	//functionArgData = &sCallBackMain[nCallBackTableNumber];
-	return TRUE;
+    //functionPointer = (void*)sCallBackFunc[nCallBackTableNumber];
+    //functionArgData = &sCallBackMain[nCallBackTableNumber];
+    return TRUE;
 }

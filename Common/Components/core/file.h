@@ -1,13 +1,19 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * fileFunctions.h
  *
  * function prototypes for fileFunctions.c - deals with all types
  *
- * @author: MDD
- * @version: $Revision: 4495 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ * @author: inx limited
+ *
  */
 
 #ifndef EHS_FILE_FUNCTIONS_H
@@ -57,7 +63,9 @@ int GetFilenameSplit_allowSpaces(const char *FullFilename, char *szFileName, cha
 
 /******************************************************************************/
 /* Declare integer file, readonly */
-#define EHS_FB_FILE_READONLY_INT_NAME "FILE_ReadOnly_Int"
+#define EHS_FB_NAME_FILE_ReadOnly_Int "FILE_ReadOnly_Int"
+#define EHS_FB_ID_FILE_ReadOnly_Int 0xDA57
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FILE_ReadOnly_Int);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FILE_ReadOnly_Int);
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(FILE_ReadOnly_Int);
@@ -70,7 +78,10 @@ EHS_FB_FUNCTIONS(FILE_ReadOnly_Int)
 
 /******************************************************************************/
 /* Declare integer file, writeonly */
-#define EHS_FB_FILE_WRITEONLY_INT_NAME "FILE_WriteOnly_Int"
+
+#define EHS_FB_NAME_FILE_WriteOnly_Int "FILE_WriteOnly_Int"
+#define EHS_FB_ID_FILE_WriteOnly_Int 0x493B
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FILE_WriteOnly_Int);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FILE_WriteOnly_Int);
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(FILE_WriteOnly_Int);
@@ -84,7 +95,10 @@ EHS_FB_FUNCTIONS(FILE_WriteOnly_Int)
 
 /******************************************************************************/
 /* Declare boolean file, readonly */
-#define EHS_FB_FILE_READONLY_BOOL_NAME "FILE_ReadOnly_Bool"
+
+#define EHS_FB_NAME_FILE_ReadOnly_Bool "FILE_ReadOnly_Bool"
+#define EHS_FB_ID_FILE_ReadOnly_Bool 0xC7C2
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FILE_ReadOnly_Bool);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FILE_ReadOnly_Bool);
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(FILE_ReadOnly_Bool);
@@ -97,7 +111,10 @@ EHS_FB_FUNCTIONS(FILE_ReadOnly_Bool)
 
 /******************************************************************************/
 /* Declare boolean file, writeonly */
-#define EHS_FB_FILE_WRITEONLY_BOOL_NAME "FILE_WriteOnly_Bool"
+
+#define EHS_FB_NAME_FILE_WriteOnly_Bool "FILE_WriteOnly_Bool"
+#define EHS_FB_ID_FILE_WriteOnly_Bool 0xEA51
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FILE_WriteOnly_Bool);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FILE_WriteOnly_Bool);
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(FILE_WriteOnly_Bool);
@@ -111,7 +128,10 @@ EHS_FB_FUNCTIONS(FILE_WriteOnly_Bool)
 
 /******************************************************************************/
 /* Declare string file, readonly */
-#define EHS_FB_FILE_READONLY_STRING_NAME "FILE_ReadOnly_String"
+
+#define EHS_FB_NAME_FILE_ReadOnly_String "FILE_ReadOnly_String"
+#define EHS_FB_ID_FILE_ReadOnly_String 0x560C
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FILE_ReadOnly_String);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FILE_ReadOnly_String);
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(FILE_ReadOnly_String);
@@ -124,7 +144,10 @@ EHS_FB_FUNCTIONS(FILE_ReadOnly_String)
 
 /******************************************************************************/
 /* Declare string file, writeonly */
-#define EHS_FB_FILE_WRITEONLY_STRING_NAME "FILE_WriteOnly_String"
+
+#define EHS_FB_NAME_FILE_WriteOnly_String "FILE_WriteOnly_String"
+#define EHS_FB_ID_FILE_WriteOnly_String 0xBBA0
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FILE_WriteOnly_String);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FILE_WriteOnly_String);
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(FILE_WriteOnly_String);
@@ -139,7 +162,10 @@ EHS_FB_FUNCTIONS(FILE_WriteOnly_String)
 #ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
 /* Declare float file, readonly */
-#define EHS_FB_FILE_READONLY_FLOAT_NAME "FILE_ReadOnly_Real"
+
+#define EHS_FB_NAME_FILE_ReadOnly_Real "FILE_ReadOnly_Real"
+#define EHS_FB_ID_FILE_ReadOnly_Real 0x65E2
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FILE_ReadOnly_Float);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FILE_ReadOnly_Float);
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(FILE_ReadOnly_Float);
@@ -152,7 +178,9 @@ EHS_FB_FUNCTIONS(FILE_ReadOnly_Float)
 
 /******************************************************************************/
 /* Declare float file, writeonly */
-#define EHS_FB_FILE_WRITEONLY_FLOAT_NAME "FILE_WriteOnly_Real"
+#define EHS_FB_NAME_FILE_WriteOnly_Real "FILE_WriteOnly_Real"
+#define EHS_FB_ID_FILE_WriteOnly_Real 0x4871
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FILE_WriteOnly_Float);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(FILE_WriteOnly_Float);
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(FILE_WriteOnly_Float);

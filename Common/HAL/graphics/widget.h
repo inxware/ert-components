@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file widget.h
  * Declarations for the widget functions.
  *
  * @author: inx limited
- * @version: $Revision: 3998 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 /**
@@ -95,49 +101,51 @@ typedef ehs_bool (*fadeFunc_t) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity)  ;
  * As we will see in the definition of EhsWidget_Image_ and EhsWidget_Textbox_ functions,
  * they take EhsWidgetClass pointers as parameters, not EhsWidget_ImageType or EhsWidget_TextboxType
  */
-struct EhsWidgetStruct {
-	EhsGraphicsRectangleClass xDesignRect;	/**< widget size as specified at design time (i.e. by LGB-based on original image size*/
-	EhsGraphicsRectangleClass xOrigRect;	/**< Initial bounding rectangle (as defined in LAB's properties file - Used to distinguish relative sizes and viewport - Otherwise the same as DesignRectangle*/
-	EhsGraphicsRectangleClass xCurRect;	/**< current bounding rectangle for the widget */
-	EhsGraphicsRectangleClass MediaRect;	/**< pixel dimensions of the original media */
-	EhsGraphicsRectangleClass UpdatedOffsettRect;	/**< This is the last updated offset in case we need to re-apply it to new media. */
-	ehs_uint8 nAlpha; 						/* Stored value of alpha - if changed */
+struct EhsWidgetStruct
+{
+    EhsGraphicsRectangleClass xDesignRect;	/**< widget size as specified at design time (i.e. by LGB-based on original image size*/
+    EhsGraphicsRectangleClass xOrigRect;	/**< Initial bounding rectangle (as defined in LAB's properties file - Used to distinguish relative sizes and viewport - Otherwise the same as DesignRectangle*/
+    EhsGraphicsRectangleClass xCurRect;	/**< current bounding rectangle for the widget */
+    EhsGraphicsRectangleClass MediaRect;	/**< pixel dimensions of the original media */
+    EhsGraphicsRectangleClass UpdatedOffsettRect;	/**< This is the last updated offset in case we need to re-apply it to new media. */
+    ehs_uint8 nAlpha; 						/* Stored value of alpha - if changed */
 
-	ehs_bool bMaintainAspectRatio;		/** Maintain the aspect ratio by only processing changes in width and setting height accordingly */
-	ehs_bool bRelativeCoordinates;		/** The widget's parameters and input coordinates are in % screen width and these are converted to absolute pixels when updated (but not the screen width)*/
-	ehs_uint16 nZ;  /**< Z order */
-	ehs_bool bOptimiseForSpeed;		/**< Do we want this widget to be time-, or memory-efficient? */
-	ehs_bool bContentChanged;	/* this flag is set if the content (text box only) is changed so that renderers such as text don't need to reblit such as in the case for OpenGL textures */
-	EhsWidgetKindEnum eWidgetKind; /**< Type of graphic object contained within this widget */
+    ehs_bool bMaintainAspectRatio;		/** Maintain the aspect ratio by only processing changes in width and setting height accordingly */
+    ehs_bool bRelativeCoordinates;		/** The widget's parameters and input coordinates are in % screen width and these are converted to absolute pixels when updated (but not the screen width)*/
+    ehs_uint16 nZ;  /**< Z order */
+    ehs_bool bOptimiseForSpeed;		/**< Do we want this widget to be time-, or memory-efficient? */
+    ehs_bool bContentChanged;	/* this flag is set if the content (text box only) is changed so that renderers such as text don't need to reblit such as in the case for OpenGL textures */
+    EhsWidgetKindEnum eWidgetKind; /**< Type of graphic object contained within this widget */
 //	EhsBlitMethodEnum eBlitMethod; /**< Blit method used to draw widget */
-	/*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eWidgetKind shows which union member to use */
-	union {
-		EhsWidgetImageSubclass image;		/**< Image specific attributes */
-		EhsWidgetTextboxSubclass textbox; 	/**< textbox specific attributes */
-		EhsWidgetPatchSubclass patch; 		/**< Patch specific attributes */
-		//EhsWidgetVideoPortSubclass video_port; /*Video port specific attributes */
-	} specificWidgetType;
-	/*line +e960 */
-	ehs_uint8 nState; /**< Widget state defined by EHS_WIDGET_STATE_ macros */
-	void (*pfDrawFunc)(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass *pClipRect); /**< Implementation of method "draw" */
-	ehs_bool (*pfCreateFunc)(EhsWidgetClass* pWidget); /**< Implementation of method "create" */
-	void (*pfDestroyFunc)(EhsWidgetClass* pWidget); /**< Implementation of method "destroy" */
-	ehs_bool (*pfFadeFunc) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity);	/**< Implementation of method "fade" */
+    /*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eWidgetKind shows which union member to use */
+    union
+    {
+        EhsWidgetImageSubclass image;		/**< Image specific attributes */
+        EhsWidgetTextboxSubclass textbox; 	/**< textbox specific attributes */
+        EhsWidgetPatchSubclass patch; 		/**< Patch specific attributes */
+        //EhsWidgetVideoPortSubclass video_port; /*Video port specific attributes */
+    } specificWidgetType;
+    /*line +e960 */
+    ehs_uint8 nState; /**< Widget state defined by EHS_WIDGET_STATE_ macros */
+    void (*pfDrawFunc)(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass *pClipRect); /**< Implementation of method "draw" */
+    ehs_bool (*pfCreateFunc)(EhsWidgetClass* pWidget); /**< Implementation of method "create" */
+    void (*pfDestroyFunc)(EhsWidgetClass* pWidget); /**< Implementation of method "destroy" */
+    ehs_bool (*pfFadeFunc) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity);	/**< Implementation of method "fade" */
 
-	EhsFunctionInstanceDataType* pFIData; /*Needed so gtk thread can fire mouse click events @todo this could be a call back structure*/
-	//@todo the following should be removed when a call back function (with a known port number) is used to fire the port
-	ehs_sint8 mouseClickPortNumber; /*Needed so gtk knows which finish port to fire*/
-	ehs_sint8 mouseDownPortNumber; /*Needed so gtk knows which finish port to fire*/
-	ehs_sint8 mouseUpPortNumber; /*Needed so gtk knows which finish port to fire*/
-	ehs_sint8 mouseDragPortNumber; /*Needed so gtk knows which finish port to fire*/
-	ehs_sint8 mouseUpDownAbsXPortNumber; /*Needed so gtk knows which finish port to fire*/
-	ehs_sint8 mouseUpDownAbsYPortNumber; /*Needed so gtk knows which finish port to fire*/
-	ehs_sint8 mouseDragOffsetXPortNumber; /*Needed so gtk knows which finish port to fire*/
-	ehs_sint8 mouseDragOffsetYPortNumber; /*Needed so gtk knows which finish port to fire*/
-	ehs_bool bCaptureClicksIgnoringZOrder;		/** capture clicks on this widget regardless of its zorder */
-	ehs_bool bRegisteredMouseDown;		/** records a mouse down event in this widget */
-	ehs_uint32 nMouseDownX;
-	ehs_uint32 nMouseDownY;
+    EhsFunctionInstanceDataType* pFIData; /*Needed so gtk thread can fire mouse click events @todo this could be a call back structure*/
+    //@todo the following should be removed when a call back function (with a known port number) is used to fire the port
+    ehs_sint8 mouseClickPortNumber; /*Needed so gtk knows which finish port to fire*/
+    ehs_sint8 mouseDownPortNumber; /*Needed so gtk knows which finish port to fire*/
+    ehs_sint8 mouseUpPortNumber; /*Needed so gtk knows which finish port to fire*/
+    ehs_sint8 mouseDragPortNumber; /*Needed so gtk knows which finish port to fire*/
+    ehs_sint8 mouseUpDownAbsXPortNumber; /*Needed so gtk knows which finish port to fire*/
+    ehs_sint8 mouseUpDownAbsYPortNumber; /*Needed so gtk knows which finish port to fire*/
+    ehs_sint8 mouseDragOffsetXPortNumber; /*Needed so gtk knows which finish port to fire*/
+    ehs_sint8 mouseDragOffsetYPortNumber; /*Needed so gtk knows which finish port to fire*/
+    ehs_bool bCaptureClicksIgnoringZOrder;		/** capture clicks on this widget regardless of its zorder */
+    ehs_bool bRegisteredMouseDown;		/** records a mouse down event in this widget */
+    ehs_uint32 nMouseDownX;
+    ehs_uint32 nMouseDownY;
 };
 
 /**
@@ -145,10 +153,10 @@ struct EhsWidgetStruct {
  */
 typedef struct
 {
-	ehs_uint16 nSize; /**< Number of widgets currently defined */
-	ehs_uint16 initialised;
-	EhsWidgetClass xWidget[EHS_MAX_WIDGET_INSTANCES]; /**< Array of widgets put in creation order */
-	EhsWidgetClass* pZOrderedWidget[EHS_MAX_WIDGET_INSTANCES]; /**< Array of pointers to widgets in Z-order */
+    ehs_uint16 nSize; /**< Number of widgets currently defined */
+    ehs_uint16 initialised;
+    EhsWidgetClass xWidget[EHS_MAX_WIDGET_INSTANCES]; /**< Array of widgets put in creation order */
+    EhsWidgetClass* pZOrderedWidget[EHS_MAX_WIDGET_INSTANCES]; /**< Array of pointers to widgets in Z-order */
 } EhsWidgetTableClass;
 
 /*****************************************************************************/
@@ -327,10 +335,10 @@ EHS_GLOBAL void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bR
  *
  */
 void Ehs_widget_position_update(EhsWidgetClass* pWidget, ehs_bool bAlphaConnected, EhsDataflowIntType nAlpha,
-		ehs_bool bXConnected, EhsDataflowIntType nXoffset,
-		ehs_bool bYConnected, EhsDataflowIntType nYoffset,
-		ehs_bool bWConnected, EhsDataflowIntType nWoffset,
-		ehs_bool bHConnected, EhsDataflowIntType nHoffset);
+                                ehs_bool bXConnected, EhsDataflowIntType nXoffset,
+                                ehs_bool bYConnected, EhsDataflowIntType nYoffset,
+                                ehs_bool bWConnected, EhsDataflowIntType nWoffset,
+                                ehs_bool bHConnected, EhsDataflowIntType nHoffset);
 
 
 #endif /* #ifdef EHS_GUI_SUPPORT */

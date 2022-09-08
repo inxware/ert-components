@@ -1,3 +1,11 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
 
 /** @file target_viewport.c
  * This file provides the definitions for EhsTargetViewportClass, which
@@ -9,10 +17,7 @@
  * values directly into the Data1_p area. Otherwise alpha and blue (and red/green) values are transposed.
  *
  * @author: inx limited
- * @version: $Revision: 2904 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 /**
@@ -74,7 +79,7 @@ static char* currentFunc;
 #define INDENT(x) ((x==0)?"":((x==1)?">":((x==2)?">>":((x==3)?">>>":(">..>")))))
 #define ENTER(x) printf("%sEnter %s\n",INDENT(level),#x);level++;currentFunc = #x;
 #define LEAVE(x) --level;printf("%sLeave %s\n",INDENT(level),#x)
-#define EHSL_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EhsError(EHS_MSG_TGT_STAPI(#func,GetErrorText(err))); } else {printf("%s*%s::%s ok\n",INDENT(level),currentFunc,#func);}
+#define EHSL_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EhsError(EHS_MSG_TGT_STAPI(#func,GetErrorText(err))); }
 #else
 #define EHSL_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EhsError(EHS_MSG_TGT_STAPI(#func,GetErrorText(err))); }
 #define ENTER(x)
@@ -96,13 +101,13 @@ static char* currentFunc;
  */
 struct EhsTVStruct
 {
-	STGXOBJ_Bitmap_t xOsdRegion;		/**< Bitmap that represents the OSD region */
-	EhsTVSurfaceClass* pDblBuff;			/**< Surface that represents the double buffer */
-	STBLIT_Handle_t xBlitHandle;		/**< Handle to the blitter */
-	EhsGraphicsRectangleClass clipRect;	/**< Rectangle currently used to clip what is being displayed */
-	EhsGraphicsRectangleClass viewRect; /**< Specifies the size of the viewport */
-	EhsTVSurfaceClass* pAllocSurface; /**< List of allocated surfaces - used for deallocation purposes */
-	STBLIT_BlitContext_t pBlitContext;	/**< Required by blitting operation - must be declared global */
+    STGXOBJ_Bitmap_t xOsdRegion;		/**< Bitmap that represents the OSD region */
+    EhsTVSurfaceClass* pDblBuff;			/**< Surface that represents the double buffer */
+    STBLIT_Handle_t xBlitHandle;		/**< Handle to the blitter */
+    EhsGraphicsRectangleClass clipRect;	/**< Rectangle currently used to clip what is being displayed */
+    EhsGraphicsRectangleClass viewRect; /**< Specifies the size of the viewport */
+    EhsTVSurfaceClass* pAllocSurface; /**< List of allocated surfaces - used for deallocation purposes */
+    STBLIT_BlitContext_t pBlitContext;	/**< Required by blitting operation - must be declared global */
 };
 
 typedef enum
@@ -114,24 +119,25 @@ typedef enum
     LAYER_CURSOR,
     LAYER_VIDEO2,
     NUM_LAYERS
- }LAYER_Used_t;
+} LAYER_Used_t;
 
- enum {
-       VPORT_MENU,
-       VPORT_STILL,
-       VPORT_OSD,
-       VPORT_CURSOR,
-       VPORT_IMAGE,
-       VPORT_ALPHA,
-       NUM_VPORTS
- }Layer_ViewPort_t;
+enum
+{
+    VPORT_MENU,
+    VPORT_STILL,
+    VPORT_OSD,
+    VPORT_CURSOR,
+    VPORT_IMAGE,
+    VPORT_ALPHA,
+    NUM_VPORTS
+} Layer_ViewPort_t;
 
- typedef enum
- {
-     MAIN_VTG,
-     AUX_VTG,
-     VTG_USED
- }VTG_Used_t;
+typedef enum
+{
+    MAIN_VTG,
+    AUX_VTG,
+    VTG_USED
+} VTG_Used_t;
 
 /*****************************************************************************/
 /* Declare prototypes of local functions */
@@ -208,13 +214,14 @@ EhsTVClass EhsTV;
  * @param[in] pEhsColour Pointer to the EHS colour to convertfrom
  * @param[out] pStapiColour Pointer to the STAPI colour to convert to
  */
- void EhsL_convertEhsColor(const EhsGraphicsColourClass* pEhsColour, STGXOBJ_Color_t* pStapiColour) {
-	 pStapiColour->Type = STGXOBJ_COLOR_TYPE_ARGB8888;
-	 pStapiColour->Value.ARGB8888.Alpha = EHS_TV_ALPHA8_SCALE(pEhsColour->sComp.nAlpha);
-	 pStapiColour->Value.ARGB8888.R = pEhsColour->sComp.nRed;
-	 pStapiColour->Value.ARGB8888.G = pEhsColour->sComp.nGreen;
-	 pStapiColour->Value.ARGB8888.B = pEhsColour->sComp.nBlue;
- }
+void EhsL_convertEhsColor(const EhsGraphicsColourClass* pEhsColour, STGXOBJ_Color_t* pStapiColour)
+{
+    pStapiColour->Type = STGXOBJ_COLOR_TYPE_ARGB8888;
+    pStapiColour->Value.ARGB8888.Alpha = EHS_TV_ALPHA8_SCALE(pEhsColour->sComp.nAlpha);
+    pStapiColour->Value.ARGB8888.R = pEhsColour->sComp.nRed;
+    pStapiColour->Value.ARGB8888.G = pEhsColour->sComp.nGreen;
+    pStapiColour->Value.ARGB8888.B = pEhsColour->sComp.nBlue;
+}
 
 /**
  * Initialise the target viewport. This function is called
@@ -225,289 +232,289 @@ EhsTVClass EhsTV;
  */
 ehs_bool EhsTV_init(EhsTVClass* pViewport)
 {
-	ehs_bool bInitialised = EHS_FALSE; /* has initialisation been successful? assume not */
-	STGXOBJ_BitmapAllocParams_t BitmapAllocParams1, BitmapAllocParams2; /* hold information needed to allocate bitmaps */
-	STLAYER_LayerParams_t xLayerParams;	/* Contains screen parameters */
-	ST_ErrorCode_t ErrCode;
-	STVTG_ModeParams_t xVTGModeParams;
-ENTER(EhsTV_init);
+    ehs_bool bInitialised = EHS_FALSE; /* has initialisation been successful? assume not */
+    STGXOBJ_BitmapAllocParams_t BitmapAllocParams1, BitmapAllocParams2; /* hold information needed to allocate bitmaps */
+    STLAYER_LayerParams_t xLayerParams;	/* Contains screen parameters */
+    ST_ErrorCode_t ErrCode;
+    STVTG_ModeParams_t xVTGModeParams;
+    ENTER(EhsTV_init);
 
-	/* Get command line arguments */
- 	ErrCode = main_shared_args(0,NULL);
- 	EHSL_REPORT_ERRORS(ErrCode,main_shared_args);
+    /* Get command line arguments */
+    ErrCode = main_shared_args(0,NULL);
+    EHSL_REPORT_ERRORS(ErrCode,main_shared_args);
 
- 	/* Load device drivers */
-	if (ErrCode == ST_NO_ERROR)
-    {
-		main_shared_load();
-	 	EHSL_REPORT_ERRORS(ErrCode,main_shared_load);
-    }
-
-	/* driver initialisation */
-	if (ErrCode == ST_NO_ERROR)
-	{
-	 	ErrCode = main_shared_init();
-	 	/* don't worry if we're already initialised */
-	 	if (ST_ERROR_ALREADY_INITIALIZED == ErrCode)
-	 		ErrCode = ST_NO_ERROR;
-	 	EHSL_REPORT_ERRORS(ErrCode,main_shared_init);
-	}
-
-	/* set up display sizes */
-	if (ErrCode == ST_NO_ERROR)
-	{
-	 	ErrCode = main_shared_exec("vos_setup \"720p_50\" \"pal\"");
-	 	EHSL_REPORT_ERRORS(ErrCode,main_shared_exec__vos_setup);
-	}
-
-	/* set up main display type */
-	if (ErrCode == ST_NO_ERROR)
-	{
-		ErrCode = main_shared_exec("set_avpath \"main\"");
-		EHSL_REPORT_ERRORS(ErrCode, main_shared_exec__set_avpath_main);
-	}
-
-	/* set playback type */
-	if (ErrCode == ST_NO_ERROR)
-	{
-		ErrCode = main_shared_exec("vid_setup \"mpeg\"");
-		EHSL_REPORT_ERRORS(ErrCode, main_shared_exec__vid_setup_mpeg);
-	}
-
-	/* get up the parameters for the OSD layer */
+    /* Load device drivers */
     if (ErrCode == ST_NO_ERROR)
     {
-		ErrCode=STLAYER_GetLayerParams(LAYER_Handle[LAYER_GDP1],&xLayerParams);
-	 	EHSL_REPORT_ERRORS(ErrCode,STLAYER_GetLayerParams);
+        main_shared_load();
+        EHSL_REPORT_ERRORS(ErrCode,main_shared_load);
+    }
+
+    /* driver initialisation */
+    if (ErrCode == ST_NO_ERROR)
+    {
+        ErrCode = main_shared_init();
+        /* don't worry if we're already initialised */
+        if (ST_ERROR_ALREADY_INITIALIZED == ErrCode)
+            ErrCode = ST_NO_ERROR;
+        EHSL_REPORT_ERRORS(ErrCode,main_shared_init);
+    }
+
+    /* set up display sizes */
+    if (ErrCode == ST_NO_ERROR)
+    {
+        ErrCode = main_shared_exec("vos_setup \"720p_50\" \"pal\"");
+        EHSL_REPORT_ERRORS(ErrCode,main_shared_exec__vos_setup);
+    }
+
+    /* set up main display type */
+    if (ErrCode == ST_NO_ERROR)
+    {
+        ErrCode = main_shared_exec("set_avpath \"main\"");
+        EHSL_REPORT_ERRORS(ErrCode, main_shared_exec__set_avpath_main);
+    }
+
+    /* set playback type */
+    if (ErrCode == ST_NO_ERROR)
+    {
+        ErrCode = main_shared_exec("vid_setup \"mpeg\"");
+        EHSL_REPORT_ERRORS(ErrCode, main_shared_exec__vid_setup_mpeg);
+    }
+
+    /* get up the parameters for the OSD layer */
+    if (ErrCode == ST_NO_ERROR)
+    {
+        ErrCode=STLAYER_GetLayerParams(LAYER_Handle[LAYER_GDP1],&xLayerParams);
+        EHSL_REPORT_ERRORS(ErrCode,STLAYER_GetLayerParams);
     }
 #ifdef REMOVE_THIS_TO_USE_VTG_TO_DETERMINE_VIDEO_RESOLUTION
     if (ErrCode == ST_NO_ERROR)
     {
-    	X
-		STVTG_TimingMode_t STVTG_TimingMode;
-    	ST_ErrorCode = STVTG_GetMode(VTG_Handle[MAIN_VTG], &STVTG_TimingMode, &xVTGModeParams);
-	 	EHSL_REPORT_ERRORS(ErrCode,STVTG_GetMode);
-   }
+        X
+        STVTG_TimingMode_t STVTG_TimingMode;
+        ST_ErrorCode = STVTG_GetMode(VTG_Handle[MAIN_VTG], &STVTG_TimingMode, &xVTGModeParams);
+        EHSL_REPORT_ERRORS(ErrCode,STVTG_GetMode);
+    }
 
     if (ErrCode == ST_NO_ERROR)
     {
-    	xLayerParams.Width = xVTGModeParams.ActiveAreaWidth;
-    	xLayerParams.Height = xVTGModeParams.ActiveAreaHeight;
-    	/* also use DigitalActiveAreaXStart and DigitalActiveAreaYStart to establish top corner */
+        xLayerParams.Width = xVTGModeParams.ActiveAreaWidth;
+        xLayerParams.Height = xVTGModeParams.ActiveAreaHeight;
+        /* also use DigitalActiveAreaXStart and DigitalActiveAreaYStart to establish top corner */
 #else
     if (ErrCode == ST_NO_ERROR)
     {
-    	/* allocation of full screen viewport fails - thus we use fixed width/height */
-    	xLayerParams.Width = EHS_TV_WIDTH;
-    	xLayerParams.Height = EHS_TV_HEIGHT;
+        /* allocation of full screen viewport fails - thus we use fixed width/height */
+        xLayerParams.Width = EHS_TV_WIDTH;
+        xLayerParams.Height = EHS_TV_HEIGHT;
 #endif
-    	pViewport->xBlitHandle = BLIT_Handle;
-    	/* Determine requirements for bitmap size */
+        pViewport->xBlitHandle = BLIT_Handle;
+        /* Determine requirements for bitmap size */
 
-	    /* Image Info */
-	    pViewport->xOsdRegion.ColorType            = STGXOBJ_COLOR_TYPE_ARGB8888;
-	    pViewport->xOsdRegion.BitmapType           = STGXOBJ_BITMAP_TYPE_RASTER_PROGRESSIVE;
-	    pViewport->xOsdRegion.ColorSpaceConversion = STGXOBJ_ITU_R_BT601;
-	    pViewport->xOsdRegion.AspectRatio          = xLayerParams.AspectRatio;
-	    pViewport->xOsdRegion.Width                = xLayerParams.Width;
-	    pViewport->xOsdRegion.Height               = xLayerParams.Height;
-	    /* Unused */
-	    pViewport->xOsdRegion.PreMultipliedColor   = FALSE;
-	    pViewport->xOsdRegion.SubByteFormat        = STGXOBJ_SUBBYTE_FORMAT_RPIX_MSB;
-	    pViewport->xOsdRegion.BigNotLittle         = FALSE;
+        /* Image Info */
+        pViewport->xOsdRegion.ColorType            = STGXOBJ_COLOR_TYPE_ARGB8888;
+        pViewport->xOsdRegion.BitmapType           = STGXOBJ_BITMAP_TYPE_RASTER_PROGRESSIVE;
+        pViewport->xOsdRegion.ColorSpaceConversion = STGXOBJ_ITU_R_BT601;
+        pViewport->xOsdRegion.AspectRatio          = xLayerParams.AspectRatio;
+        pViewport->xOsdRegion.Width                = xLayerParams.Width;
+        pViewport->xOsdRegion.Height               = xLayerParams.Height;
+        /* Unused */
+        pViewport->xOsdRegion.PreMultipliedColor   = FALSE;
+        pViewport->xOsdRegion.SubByteFormat        = STGXOBJ_SUBBYTE_FORMAT_RPIX_MSB;
+        pViewport->xOsdRegion.BigNotLittle         = FALSE;
 
-	    /* Get Alloc Parameters */
-	    ErrCode = STLAYER_GetBitmapAllocParams(LAYER_Handle[LAYER_GDP1], &(pViewport->xOsdRegion), &BitmapAllocParams1, &BitmapAllocParams2);
-	 	EHSL_REPORT_ERRORS(ErrCode,STLAYER_GetBitmapAllocParams);
+        /* Get Alloc Parameters */
+        ErrCode = STLAYER_GetBitmapAllocParams(LAYER_Handle[LAYER_GDP1], &(pViewport->xOsdRegion), &BitmapAllocParams1, &BitmapAllocParams2);
+        EHSL_REPORT_ERRORS(ErrCode,STLAYER_GetBitmapAllocParams);
     }
 
     /* allocate memory for the OSD region */
     if (ErrCode == ST_NO_ERROR)
     {
-    	/* allocate display buffer */
-	    pViewport->xOsdRegion.Pitch   = BitmapAllocParams1.Pitch;
-	    pViewport->xOsdRegion.Offset  = BitmapAllocParams1.Offset;
-	    pViewport->xOsdRegion.Data1_p = NULL;
-	    pViewport->xOsdRegion.Size1   = BitmapAllocParams1.AllocBlockParams.Size;
-	    pViewport->xOsdRegion.Data2_p = NULL;
-	    pViewport->xOsdRegion.Size2   = 0;
-	    /* Allocate Display buffer */
-	    ErrCode = GFXUTILS_Allocate((U8)LAYER_GDP1, BitmapAllocParams1.AllocBlockParams.Size,BitmapAllocParams1.AllocBlockParams.Alignment, (void **)&(pViewport->xOsdRegion.Data1_p));
-	 	EHSL_REPORT_ERRORS(ErrCode,GFXUTILS_Allocate);
+        /* allocate display buffer */
+        pViewport->xOsdRegion.Pitch   = BitmapAllocParams1.Pitch;
+        pViewport->xOsdRegion.Offset  = BitmapAllocParams1.Offset;
+        pViewport->xOsdRegion.Data1_p = NULL;
+        pViewport->xOsdRegion.Size1   = BitmapAllocParams1.AllocBlockParams.Size;
+        pViewport->xOsdRegion.Data2_p = NULL;
+        pViewport->xOsdRegion.Size2   = 0;
+        /* Allocate Display buffer */
+        ErrCode = GFXUTILS_Allocate((U8)LAYER_GDP1, BitmapAllocParams1.AllocBlockParams.Size,BitmapAllocParams1.AllocBlockParams.Alignment, (void **)&(pViewport->xOsdRegion.Data1_p));
+        EHSL_REPORT_ERRORS(ErrCode,GFXUTILS_Allocate);
     }
 
     /* Map the OSD layer to the display memory */
     if (ErrCode == ST_NO_ERROR)
     {
-    	STGXOBJ_Rectangle_t OutputRectangle;
-    	/* Create the OSD Viewport */
-       OutputRectangle.PositionX = 280;
-       OutputRectangle.PositionY = 72;
-       OutputRectangle.Height 	 = pViewport->xOsdRegion.Height;
-       OutputRectangle.Width 	 = pViewport->xOsdRegion.Width;
+        STGXOBJ_Rectangle_t OutputRectangle;
+        /* Create the OSD Viewport */
+        OutputRectangle.PositionX = 280;
+        OutputRectangle.PositionY = 72;
+        OutputRectangle.Height 	 = pViewport->xOsdRegion.Height;
+        OutputRectangle.Width 	 = pViewport->xOsdRegion.Width;
 
-       ErrCode= LAYER_OpenVP( LAYER_GDP1,VPORT_OSD,&(pViewport->xOsdRegion),NULL,OutputRectangle );
-       EHSL_REPORT_ERRORS(ErrCode,LAYER_OpenVP);
+        ErrCode= LAYER_OpenVP( LAYER_GDP1,VPORT_OSD,&(pViewport->xOsdRegion),NULL,OutputRectangle );
+        EHSL_REPORT_ERRORS(ErrCode,LAYER_OpenVP);
     }
 
     /* Set the global alpha value for the OSD layer */
     if (ErrCode == ST_NO_ERROR)
     {
-    	/* Set the alpha value for this layer */
+        /* Set the alpha value for this layer */
         STLAYER_GlobalAlpha_t Alpha;
 
         Alpha.A0 = EHSL_VIEWPORT_LAYER_ALPHA;
         Alpha.A1 = EHSL_VIEWPORT_LAYER_ALPHA; /* not actually used for ARGB888 */
         ErrCode = STLAYER_SetViewPortAlpha(LAYER_ViewPortHandle[VPORT_OSD], &Alpha);
-     	EHSL_REPORT_ERRORS(ErrCode,STLAYER_SetViewPortAlpha);
+        EHSL_REPORT_ERRORS(ErrCode,STLAYER_SetViewPortAlpha);
     }
 
     /* set up clipping rectangle, blit context and create a double buffer surface */
     if (ErrCode == ST_NO_ERROR)
     {
-	   	/* Initialise clipping & view rectangle */
-		pViewport->clipRect.nLeft = 0u;
-		pViewport->clipRect.nTop = 0u;
-		pViewport->clipRect.nWidth = (ehs_uint16)xLayerParams.Width;
-		pViewport->clipRect.nHeight = (ehs_uint16)xLayerParams.Height;
-		EhsMemcpy(&(pViewport->viewRect),&(pViewport->clipRect),sizeof(EhsGraphicsRectangleClass));
+        /* Initialise clipping & view rectangle */
+        pViewport->clipRect.nLeft = 0u;
+        pViewport->clipRect.nTop = 0u;
+        pViewport->clipRect.nWidth = (ehs_uint16)xLayerParams.Width;
+        pViewport->clipRect.nHeight = (ehs_uint16)xLayerParams.Height;
+        EhsMemcpy(&(pViewport->viewRect),&(pViewport->clipRect),sizeof(EhsGraphicsRectangleClass));
 
-		pViewport->pBlitContext.ColorKeyCopyMode          = STBLIT_COLOR_KEY_MODE_NONE;
-		pViewport->pBlitContext.AluMode                   = STBLIT_ALU_ALPHA_BLEND;
-		pViewport->pBlitContext.EnableMaskWord            = FALSE;
-		pViewport->pBlitContext.EnableMaskBitmap          = FALSE;
-		pViewport->pBlitContext.EnableColorCorrection     = FALSE;
-		pViewport->pBlitContext.Trigger.EnableTrigger     = FALSE;
-		pViewport->pBlitContext.GlobalAlpha               = 128; // to change
-		pViewport->pBlitContext.EnableClipRectangle       = TRUE;
+        pViewport->pBlitContext.ColorKeyCopyMode          = STBLIT_COLOR_KEY_MODE_NONE;
+        pViewport->pBlitContext.AluMode                   = STBLIT_ALU_ALPHA_BLEND;
+        pViewport->pBlitContext.EnableMaskWord            = FALSE;
+        pViewport->pBlitContext.EnableMaskBitmap          = FALSE;
+        pViewport->pBlitContext.EnableColorCorrection     = FALSE;
+        pViewport->pBlitContext.Trigger.EnableTrigger     = FALSE;
+        pViewport->pBlitContext.GlobalAlpha               = 128; // to change
+        pViewport->pBlitContext.EnableClipRectangle       = TRUE;
 
-		/* clipping still needs to be turned on to avoid problems if we try
-	       to raster outside the bitmap (e.g. end of Robustness test) */
+        /* clipping still needs to be turned on to avoid problems if we try
+           to raster outside the bitmap (e.g. end of Robustness test) */
 
-		pViewport->pBlitContext.ClipRectangle.PositionX   = pViewport->viewRect.nLeft;
-		pViewport->pBlitContext.ClipRectangle.PositionY   = pViewport->viewRect.nTop;
-		pViewport->pBlitContext.ClipRectangle.Width       = pViewport->viewRect.nWidth;
-		pViewport->pBlitContext.ClipRectangle.Height      = pViewport->viewRect.nHeight;
-		pViewport->pBlitContext.WriteInsideClipRectangle  = TRUE;
-		pViewport->pBlitContext.EnableFlickerFilter       = FALSE;
-		pViewport->pBlitContext.JobHandle                 = STBLIT_NO_JOB_HANDLE;
-		pViewport->pBlitContext.UserTag_p                 = NULL; /* set later to mark avmem to free */
-		pViewport->pBlitContext.NotifyBlitCompletion      = FALSE;
-		pViewport->pBlitContext.EventSubscriberID         = 0;
+        pViewport->pBlitContext.ClipRectangle.PositionX   = pViewport->viewRect.nLeft;
+        pViewport->pBlitContext.ClipRectangle.PositionY   = pViewport->viewRect.nTop;
+        pViewport->pBlitContext.ClipRectangle.Width       = pViewport->viewRect.nWidth;
+        pViewport->pBlitContext.ClipRectangle.Height      = pViewport->viewRect.nHeight;
+        pViewport->pBlitContext.WriteInsideClipRectangle  = TRUE;
+        pViewport->pBlitContext.EnableFlickerFilter       = FALSE;
+        pViewport->pBlitContext.JobHandle                 = STBLIT_NO_JOB_HANDLE;
+        pViewport->pBlitContext.UserTag_p                 = NULL; /* set later to mark avmem to free */
+        pViewport->pBlitContext.NotifyBlitCompletion      = FALSE;
+        pViewport->pBlitContext.EventSubscriberID         = 0;
 
-		/* create a double buffer surface */
-		pViewport->pAllocSurface = NULL; /* set chain of allocated memory to null - this doesn't include the double buffer */
-		pViewport->pDblBuff = EhsTVSurface_create(pViewport, pViewport->xOsdRegion.Width, pViewport->xOsdRegion.Height, EHS_GRAPHICS_COLOUR_ARGB8888, NULL, 0, EHS_FALSE);
-		if (pViewport->pDblBuff)
-		{
-			bInitialised = EHS_TRUE;
-			pViewport->pAllocSurface = NULL; /* set chain of allocated memory to null - this doesn't include the double buffer */
-		}
-		else printf("Couldn't alloc surface");
+        /* create a double buffer surface */
+        pViewport->pAllocSurface = NULL; /* set chain of allocated memory to null - this doesn't include the double buffer */
+        pViewport->pDblBuff = EhsTVSurface_create(pViewport, pViewport->xOsdRegion.Width, pViewport->xOsdRegion.Height, EHS_GRAPHICS_COLOUR_ARGB8888, NULL, 0, EHS_FALSE);
+        if (pViewport->pDblBuff)
+        {
+            bInitialised = EHS_TRUE;
+            pViewport->pAllocSurface = NULL; /* set chain of allocated memory to null - this doesn't include the double buffer */
+        }
     }
 
-	if (ErrCode == ST_NO_ERROR) {
-		s_FlickerFilterMode = STBLIT_FLICKER_FILTER_MODE_ADAPTIVE;
-		ErrCode = STBLIT_SetFlickerFilterMode(pViewport->xBlitHandle, s_FlickerFilterMode);
-    	//EHS_TGT_VIEWPORT_REPORT_ERRORS(ErrCode,GFX_LoadFont);
-	}
-LEAVE(EhsTV_init);
+    if (ErrCode == ST_NO_ERROR)
+    {
+        s_FlickerFilterMode = STBLIT_FLICKER_FILTER_MODE_ADAPTIVE;
+        ErrCode = STBLIT_SetFlickerFilterMode(pViewport->xBlitHandle, s_FlickerFilterMode);
+        //EHS_TGT_VIEWPORT_REPORT_ERRORS(ErrCode,GFX_LoadFont);
+    }
+    LEAVE(EhsTV_init);
 
-	return bInitialised;
+    return bInitialised;
 }
 
 void EhsTV_hideViewport()
-    {
- //   	hideViewport = 1;
-    }
+{
+//   	hideViewport = 1;
+}
 
 /*Change size and position of viewport*/
 //@todo this is untsted
 void EhsTV_move(EhsTVClass* pViewport, EhsDataflowIntType nX, EhsDataflowIntType nY, EhsDataflowIntType nDeltaWid, EhsDataflowIntType nDeltaHt)
 {
-	/*
-	 *
-	 ENTER(EhsTV_move);
-	if((newX != nX) || (newY != nY))
-	{
-		newX = nX;
-		newY = nY;
-		windowMoved = 1;
-	}
+    /*
+     *
+     ENTER(EhsTV_move);
+    if((newX != nX) || (newY != nY))
+    {
+    	newX = nX;
+    	newY = nY;
+    	windowMoved = 1;
+    }
 
-	newWidth = nDeltaWid;
-	newHeight = nDeltaHt;
+    newWidth = nDeltaWid;
+    newHeight = nDeltaHt;
 
-	LEAVE(EhsTV_move);
-	*/
+    LEAVE(EhsTV_move);
+    */
 }
 
 void EhsTV_fade(EhsTVClass* pViewport, EhsGraphicsColourClass nColour)
 {
-/*	ENTER(EhsTV_fade);
-	viewColour = nColour;
-	EhsTV_update(pViewport);
-	LEAVE(EhsTV_fade); */
+    /*	ENTER(EhsTV_fade);
+    	viewColour = nColour;
+    	EhsTV_update(pViewport);
+    	LEAVE(EhsTV_fade); */
 }
 void EhsTV_showViewport(ehs_uint16)
-    {
+{
 //    	showViewport = 1;
-    }
+}
 
 
 /**
  *  Reset the use of the target viewport. This function
  * releases resources occupied by the viewport.
  */
- void EhsTV_reset(EhsTVClass* pViewport)
- {
+void EhsTV_reset(EhsTVClass* pViewport)
+{
 
-	ENTER(EhsTV_reset);
+    ENTER(EhsTV_reset);
 
-	/* destroy all of the allocated surfaces */
- 	while (pViewport->pAllocSurface)
- 	{
- 		EhsTVSurface_destroy(pViewport, pViewport->pAllocSurface);
- 	}
- 	EhsTV_clear(pViewport);
+    /* destroy all of the allocated surfaces */
+    while (pViewport->pAllocSurface)
+    {
+        EhsTVSurface_destroy(pViewport, pViewport->pAllocSurface);
+    }
+    EhsTV_clear(pViewport);
 
- 	LEAVE(EhsTV_reset);
- }
+    LEAVE(EhsTV_reset);
+}
 
- /**
-  *  Shutdown the target viewport. This function
-  * releases resources occupied by the viewport.
-  */
-  void EhsTV_term(EhsTVClass* pViewport)
-  {
- 	ST_ErrorCode_t ErrCode = ST_NO_ERROR;
+/**
+ *  Shutdown the target viewport. This function
+ * releases resources occupied by the viewport.
+ */
+void EhsTV_term(EhsTVClass* pViewport)
+{
+    ST_ErrorCode_t ErrCode = ST_NO_ERROR;
 
- 	ENTER(EhsTV_term);
+    ENTER(EhsTV_term);
 
- 	//EhsTV_reset(pViewport); We do this from common code
+    //EhsTV_reset(pViewport); We do this from common code
 
- 	/* I did try to terminate video and other output stage drivers
- 	 * using main_shared_exec("vid_term") at this point, but this
- 	 * caused an exception.
- 	 */
+    /* I did try to terminate video and other output stage drivers
+     * using main_shared_exec("vid_term") at this point, but this
+     * caused an exception.
+     */
 
- 	/* terminate general video drivers */
- 	if (ErrCode == ST_NO_ERROR)
- 	{
-	 	ErrCode = main_shared_exec("vos_term");
- 	 	EHSL_REPORT_ERRORS(ErrCode,main_shared_exec__vos_term);
- 	}
-  	LEAVE(EhsTV_term);
-  }
+    /* terminate general video drivers */
+    if (ErrCode == ST_NO_ERROR)
+    {
+        ErrCode = main_shared_exec("vos_term");
+        EHSL_REPORT_ERRORS(ErrCode,main_shared_exec__vos_term);
+    }
+    LEAVE(EhsTV_term);
+}
 
 /**
  * Indicate to the target that the entire viewport needs updating.
  */
 void EhsTV_update(EhsTVClass* pViewport)
 {
-ENTER(EhsTV_update);
-	EhsTV_updateRect(pViewport, pViewport->viewRect.nLeft, pViewport->viewRect.nTop, pViewport->viewRect.nWidth, pViewport->viewRect.nHeight);
-LEAVE(EhsTV_update);
+    ENTER(EhsTV_update);
+    EhsTV_updateRect(pViewport, pViewport->viewRect.nLeft, pViewport->viewRect.nTop, pViewport->viewRect.nWidth, pViewport->viewRect.nHeight);
+    LEAVE(EhsTV_update);
 }
 
 /**
@@ -519,59 +526,59 @@ void EhsTV_updateRect(EhsTVClass* pViewport, ehs_sint32 nX, ehs_sint32 nY, ehs_s
 
 //void EhsTV_updateRect(EhsTVClass* pViewport, ehs_uint16 nX, ehs_uint16 nY, ehs_uint16 nWidth, ehs_uint16 nHeight)
 {
-	EhsGraphicsRectangleClass clip;	/* contains the rectangle that we're drawing into */
-	STGXOBJ_Rectangle_t xStapiClip;	/* clipping rectangle according to STAPI format */
-	ST_ErrorCode_t ErrCode;
-	ENTER(EhsTV_updateRect);
-	clip.nLeft = nX;
-	clip.nTop = nY;
-	clip.nWidth = nWidth;
-	clip.nHeight = nHeight;
-	/* Make sure we're not out of bounds */
-	if (EhsGraphicsRectangle_intersect(&clip,&clip,&(pViewport->viewRect)))
-	{
-		/* draw the widgets falling within the rectangle directly to the OSD buffer */
+    EhsGraphicsRectangleClass clip;	/* contains the rectangle that we're drawing into */
+    STGXOBJ_Rectangle_t xStapiClip;	/* clipping rectangle according to STAPI format */
+    ST_ErrorCode_t ErrCode;
+    ENTER(EhsTV_updateRect);
+    clip.nLeft = nX;
+    clip.nTop = nY;
+    clip.nWidth = nWidth;
+    clip.nHeight = nHeight;
+    /* Make sure we're not out of bounds */
+    if (EhsGraphicsRectangle_intersect(&clip,&clip,&(pViewport->viewRect)))
+    {
+        /* draw the widgets falling within the rectangle directly to the OSD buffer */
 
-		/* clear the redraw area */
-		EhsL_drawColour.Value.ARGB8888.Alpha=0;
-		EhsL_drawColour.Value.ARGB8888.R=0;
-		EhsL_drawColour.Value.ARGB8888.G=0;
-		EhsL_drawColour.Value.ARGB8888.B=0;
-		xStapiClip.Height = clip.nHeight;
-		xStapiClip.Width  = clip.nWidth;
-		xStapiClip.PositionX = clip.nLeft;
-		xStapiClip.PositionY = clip.nTop;
-		pViewport->clipRect = clip;
-		pViewport->pBlitContext.AluMode = STBLIT_ALU_COPY ;
-		pViewport->pBlitContext.ColorKeyCopyMode = STBLIT_COLOR_KEY_MODE_NONE;
-		EhsL_blitSource.Type = STBLIT_SOURCE_TYPE_COLOR;
-		EhsL_blitSource.Data.Color_p = &EhsL_drawColour;
-		EhsL_blitDestination.Bitmap_p = &(pViewport->pDblBuff->xBitmap);
-		EhsL_blitDestination.Rectangle.Height = xStapiClip.Height;
-		EhsL_blitDestination.Rectangle.Width = xStapiClip.Width;
-		EhsL_blitDestination.Rectangle.PositionX = xStapiClip.PositionX;
-		EhsL_blitDestination.Rectangle.PositionY = xStapiClip.PositionY;
-		STBLIT_Blit(pViewport->xBlitHandle,&EhsL_blitSource,NULL,&EhsL_blitDestination,&pViewport->pBlitContext);
-	//	EHSL_REPORT_ERRORS(ErrCode,STBLIT_Blit);
-		// seems to generate ST_UNKNOWN_ERROR - why is that?
+        /* clear the redraw area */
+        EhsL_drawColour.Value.ARGB8888.Alpha=0;
+        EhsL_drawColour.Value.ARGB8888.R=0;
+        EhsL_drawColour.Value.ARGB8888.G=0;
+        EhsL_drawColour.Value.ARGB8888.B=0;
+        xStapiClip.Height = clip.nHeight;
+        xStapiClip.Width  = clip.nWidth;
+        xStapiClip.PositionX = clip.nLeft;
+        xStapiClip.PositionY = clip.nTop;
+        pViewport->clipRect = clip;
+        pViewport->pBlitContext.AluMode = STBLIT_ALU_COPY ;
+        pViewport->pBlitContext.ColorKeyCopyMode = STBLIT_COLOR_KEY_MODE_NONE;
+        EhsL_blitSource.Type = STBLIT_SOURCE_TYPE_COLOR;
+        EhsL_blitSource.Data.Color_p = &EhsL_drawColour;
+        EhsL_blitDestination.Bitmap_p = &(pViewport->pDblBuff->xBitmap);
+        EhsL_blitDestination.Rectangle.Height = xStapiClip.Height;
+        EhsL_blitDestination.Rectangle.Width = xStapiClip.Width;
+        EhsL_blitDestination.Rectangle.PositionX = xStapiClip.PositionX;
+        EhsL_blitDestination.Rectangle.PositionY = xStapiClip.PositionY;
+        STBLIT_Blit(pViewport->xBlitHandle,&EhsL_blitSource,NULL,&EhsL_blitDestination,&pViewport->pBlitContext);
+        //	EHSL_REPORT_ERRORS(ErrCode,STBLIT_Blit);
+        // seems to generate ST_UNKNOWN_ERROR - why is that?
 
-		pViewport->pBlitContext.AluMode = STBLIT_ALU_ALPHA_BLEND; // make sure this writes values directly
-		EhsWidgetTable_draw(&EhsWidgetTable,pViewport,&clip);
+        pViewport->pBlitContext.AluMode = STBLIT_ALU_ALPHA_BLEND; // make sure this writes values directly
+        EhsWidgetTable_draw(&EhsWidgetTable,pViewport,&clip);
 
-		/* set up blit context */
-		pViewport->pBlitContext.AluMode = STBLIT_ALU_COPY ;
-		pViewport->pBlitContext.GlobalAlpha = EHSL_VIEWPORT_LAYER_ALPHA;
-		/* copy the double buffer to the main screen */
-		ErrCode = STBLIT_CopyRectangle(pViewport->xBlitHandle,
-				&(pViewport->pDblBuff->xBitmap),	/* source bitmap */
-				&xStapiClip, 						/* source rectangle */
-				&(pViewport->xOsdRegion),			/* destination bitmap */
-				xStapiClip.PositionX,				/* Destination position */
-				xStapiClip.PositionY,
-				&pViewport->pBlitContext);
-		EHSL_REPORT_ERRORS(ErrCode,STBLIT_CopyRectangle);
-	}
-LEAVE(EhsTV_updateRect);
+        /* set up blit context */
+        pViewport->pBlitContext.AluMode = STBLIT_ALU_COPY ;
+        pViewport->pBlitContext.GlobalAlpha = EHSL_VIEWPORT_LAYER_ALPHA;
+        /* copy the double buffer to the main screen */
+        ErrCode = STBLIT_CopyRectangle(pViewport->xBlitHandle,
+                                       &(pViewport->pDblBuff->xBitmap),	/* source bitmap */
+                                       &xStapiClip, 						/* source rectangle */
+                                       &(pViewport->xOsdRegion),			/* destination bitmap */
+                                       xStapiClip.PositionX,				/* Destination position */
+                                       xStapiClip.PositionY,
+                                       &pViewport->pBlitContext);
+        EHSL_REPORT_ERRORS(ErrCode,STBLIT_CopyRectangle);
+    }
+    LEAVE(EhsTV_updateRect);
 }
 
 /**
@@ -579,18 +586,18 @@ LEAVE(EhsTV_updateRect);
  */
 void EhsTV_clear(EhsTVClass* pViewport)
 {
-ENTER(EhsTV_clear);
-	ehs_uint32 x, y;
-	ehs_uint32 *pPixels = (ehs_uint32 *)(pViewport->xOsdRegion.Data1_p);
+    ENTER(EhsTV_clear);
+    ehs_uint32 x, y;
+    ehs_uint32 *pPixels = (ehs_uint32 *)(pViewport->xOsdRegion.Data1_p);
 
-	for (x = 0; x < pViewport->xOsdRegion.Width; x++)
-	{
-		for (y = 0u; y < pViewport->xOsdRegion.Height; y++)
-		{
-			pPixels[x+y*pViewport->xOsdRegion.Width] = 0u;
-		}
-	}
-LEAVE(EhsTV_clear);
+    for (x = 0; x < pViewport->xOsdRegion.Width; x++)
+    {
+        for (y = 0u; y < pViewport->xOsdRegion.Height; y++)
+        {
+            pPixels[x+y*pViewport->xOsdRegion.Width] = 0u;
+        }
+    }
+    LEAVE(EhsTV_clear);
 }
 
 /**
@@ -604,66 +611,66 @@ LEAVE(EhsTV_clear);
  * @param[in] bSprite Are some image pixels completely transparent?
  *
  */
- void EhsTV_blit(EhsTVClass* pViewport, const EhsTVSurfaceClass* pImgData,
- 		const EhsGraphicsRectangleClass* pDst, const EhsGraphicsRectangleClass* pSrc, ehs_uint8 nAlpha)
- {
- 	int i,ii;
-	char * inpix, *outpix;
-	EhsGraphicsRectangleClass blitBounds;		/* This is the area that we are blitting this image into */
-	ehs_uint16 nRow, nCol;						/* index into image */
-	STGXOBJ_ColorARGB_t DrawColor; /* @todo replace with EhsL_drawColour ? */
+void EhsTV_blit(EhsTVClass* pViewport, const EhsTVSurfaceClass* pImgData,
+                const EhsGraphicsRectangleClass* pDst, const EhsGraphicsRectangleClass* pSrc, ehs_uint8 nAlpha)
+{
+    int i,ii;
+    char * inpix, *outpix;
+    EhsGraphicsRectangleClass blitBounds;		/* This is the area that we are blitting this image into */
+    ehs_uint16 nRow, nCol;						/* index into image */
+    STGXOBJ_ColorARGB_t DrawColor; /* @todo replace with EhsL_drawColour ? */
 
 
-ENTER(EhsTV_blit);
-	//pTextSurface->xBitmap.BigNotLittle = EHS_TRUE;
-	/* draw background rectangle colour */
-	DrawColor.Alpha=150; //@todo is this rubbish to get rid of ...
-	DrawColor.R=100;
-	DrawColor.G=200;
-	DrawColor.B=70;
+    ENTER(EhsTV_blit);
+    //pTextSurface->xBitmap.BigNotLittle = EHS_TRUE;
+    /* draw background rectangle colour */
+    DrawColor.Alpha=150; //@todo is this rubbish to get rid of ...
+    DrawColor.R=100;
+    DrawColor.G=200;
+    DrawColor.B=70;
 
- 	/* calculate the parts of the image that we need to update */
-if (EhsGraphicsRectangle_intersect(&blitBounds,pDst,&(pViewport->clipRect)))
-	{
-		STGXOBJ_Rectangle_t Rectangle;
-		ST_ErrorCode_t		  ErrCode;
-		/* where to blit to*/
-		EhsL_blitDestination.Bitmap_p = &(pViewport->pDblBuff->xBitmap);
-		EhsL_blitDestination.Rectangle.PositionX = blitBounds.nLeft;
-		EhsL_blitDestination.Rectangle.PositionY = blitBounds.nTop;
-		EhsL_blitDestination.Rectangle.Width = blitBounds.nWidth;
-		EhsL_blitDestination.Rectangle.Height = blitBounds.nHeight;
-		/* where to blit from */
-		/* TODO: Possible source of problems here. If blitBounds is smaller than pDst,
-		 * pSrc is not correctly sized - it needs to be rescaled in line with the
-		 * changes of blitBounds */
-		EhsL_blitSource.Rectangle.PositionX = pSrc->nLeft;
-		EhsL_blitSource.Rectangle.PositionY = pSrc->nTop;
-		EhsL_blitSource.Rectangle.Width = pSrc->nWidth;
-		EhsL_blitSource.Rectangle.Height = pSrc->nHeight;
-		/* data to blit */
-		EhsL_blitSource.Type=STBLIT_SOURCE_TYPE_BITMAP;
-		EhsL_blitSource.Data.Bitmap_p = (STGXOBJ_Bitmap_t *)&(pImgData->xBitmap);
-		EhsL_blitSource.Palette_p = (STGXOBJ_Palette_t *)&(pImgData->xPalette);
+    /* calculate the parts of the image that we need to update */
+    if (EhsGraphicsRectangle_intersect(&blitBounds,pDst,&(pViewport->clipRect)))
+    {
+        STGXOBJ_Rectangle_t Rectangle;
+        ST_ErrorCode_t		  ErrCode;
+        /* where to blit to*/
+        EhsL_blitDestination.Bitmap_p = &(pViewport->pDblBuff->xBitmap);
+        EhsL_blitDestination.Rectangle.PositionX = blitBounds.nLeft;
+        EhsL_blitDestination.Rectangle.PositionY = blitBounds.nTop;
+        EhsL_blitDestination.Rectangle.Width = blitBounds.nWidth;
+        EhsL_blitDestination.Rectangle.Height = blitBounds.nHeight;
+        /* where to blit from */
+        /* TODO: Possible source of problems here. If blitBounds is smaller than pDst,
+         * pSrc is not correctly sized - it needs to be rescaled in line with the
+         * changes of blitBounds */
+        EhsL_blitSource.Rectangle.PositionX = pSrc->nLeft;
+        EhsL_blitSource.Rectangle.PositionY = pSrc->nTop;
+        EhsL_blitSource.Rectangle.Width = pSrc->nWidth;
+        EhsL_blitSource.Rectangle.Height = pSrc->nHeight;
+        /* data to blit */
+        EhsL_blitSource.Type=STBLIT_SOURCE_TYPE_BITMAP;
+        EhsL_blitSource.Data.Bitmap_p = (STGXOBJ_Bitmap_t *)&(pImgData->xBitmap);
+        EhsL_blitSource.Palette_p = (STGXOBJ_Palette_t *)&(pImgData->xPalette);
 
-		pViewport->pBlitContext.GlobalAlpha=nAlpha>>1; /* OSD range is 128 */
-		pViewport->pBlitContext.AluMode = STBLIT_ALU_ALPHA_BLEND;
-		EhsL_blitSource.Data.Bitmap_p->ColorType = pImgData->xBitmap.ColorType;//STGXOBJ_COLOR_TYPE_ARGB8888;
-		EhsL_blitSource.Data.Bitmap_p->ColorSpaceConversion = STGXOBJ_ITU_R_BT601; // Has this got corrupted? investigate why?
-		EhsL_blitSource.Data.Bitmap_p->BitmapType = STGXOBJ_BITMAP_TYPE_RASTER_PROGRESSIVE;
-		EhsL_blitDestination.Bitmap_p->ColorSpaceConversion = STGXOBJ_ITU_R_BT601;
-		EhsL_blitDestination.Bitmap_p->BitmapType = STGXOBJ_BITMAP_TYPE_RASTER_PROGRESSIVE;
-		//		xBlitContext.GlobalAlpha               = nAlpha /* ACC: I assume that the range of the global alpha
-		//														 * follows the colour type we're using. In this case,
-		//														 * we use ARGB8888, so we should have the full 8 bits
-		//														 */
-		ErrCode = STBLIT_Blit(pViewport->xBlitHandle,&EhsL_blitSource,NULL,&EhsL_blitDestination, &pViewport->pBlitContext);
-		/* filter out complaints about blitting outside the allowable range */
-		if (ErrCode == ST_ERROR_FEATURE_NOT_SUPPORTED)
-			ErrCode = ST_NO_ERROR;
-	    EHSL_REPORT_ERRORS(ErrCode,STBLIT_Blit);
-	}
-LEAVE(EhsTV_blit);//getchar();
+        pViewport->pBlitContext.GlobalAlpha=nAlpha>>1; /* OSD range is 128 */
+        pViewport->pBlitContext.AluMode = STBLIT_ALU_ALPHA_BLEND;
+        EhsL_blitSource.Data.Bitmap_p->ColorType = pImgData->xBitmap.ColorType;//STGXOBJ_COLOR_TYPE_ARGB8888;
+        EhsL_blitSource.Data.Bitmap_p->ColorSpaceConversion = STGXOBJ_ITU_R_BT601; // Has this got corrupted? investigate why?
+        EhsL_blitSource.Data.Bitmap_p->BitmapType = STGXOBJ_BITMAP_TYPE_RASTER_PROGRESSIVE;
+        EhsL_blitDestination.Bitmap_p->ColorSpaceConversion = STGXOBJ_ITU_R_BT601;
+        EhsL_blitDestination.Bitmap_p->BitmapType = STGXOBJ_BITMAP_TYPE_RASTER_PROGRESSIVE;
+        //		xBlitContext.GlobalAlpha               = nAlpha /* ACC: I assume that the range of the global alpha
+        //														 * follows the colour type we're using. In this case,
+        //														 * we use ARGB8888, so we should have the full 8 bits
+        //														 */
+        ErrCode = STBLIT_Blit(pViewport->xBlitHandle,&EhsL_blitSource,NULL,&EhsL_blitDestination, &pViewport->pBlitContext);
+        /* filter out complaints about blitting outside the allowable range */
+        if (ErrCode == ST_ERROR_FEATURE_NOT_SUPPORTED)
+            ErrCode = ST_NO_ERROR;
+        EHSL_REPORT_ERRORS(ErrCode,STBLIT_Blit);
+    }
+    LEAVE(EhsTV_blit);//getchar();
 }
 
 /**
@@ -675,37 +682,37 @@ LEAVE(EhsTV_blit);//getchar();
  * @todo Update this to use _A1 format surfaces
  */
 void EhsTV_fillRect(EhsTVClass* pViewport,
-				const EhsGraphicsRectangleClass* pRect, const EhsGraphicsColourClass* pColour)
+                    const EhsGraphicsRectangleClass* pRect, const EhsGraphicsColourClass* pColour)
 {
- 	EhsGraphicsRectangleClass blitBounds;		/* This is the area that we are blitting this image into */
+    EhsGraphicsRectangleClass blitBounds;		/* This is the area that we are blitting this image into */
 
-	ENTER(EhsTV_fillRect);
+    ENTER(EhsTV_fillRect);
 
-	/* calculate the parts of the image that we need to update */
-	if (EhsGraphicsRectangle_intersect(&blitBounds, pRect, &(pViewport->clipRect)))
-	{
+    /* calculate the parts of the image that we need to update */
+    if (EhsGraphicsRectangle_intersect(&blitBounds, pRect, &(pViewport->clipRect)))
+    {
 
-		STGXOBJ_Rectangle_t xStapiClip;	/* clipping rectangle according to STAPI format */
-		ST_ErrorCode_t ErrCode;
+        STGXOBJ_Rectangle_t xStapiClip;	/* clipping rectangle according to STAPI format */
+        ST_ErrorCode_t ErrCode;
 
-		EhsL_convertEhsColor(pColour,&EhsL_drawColour);
-		xStapiClip.Height = blitBounds.nHeight;
-		xStapiClip.Width  = blitBounds.nWidth;
-		xStapiClip.PositionX = blitBounds.nLeft;
-		xStapiClip.PositionY = blitBounds.nTop;
-		pViewport->pBlitContext.AluMode = STBLIT_ALU_ALPHA_BLEND ;
-		pViewport->pBlitContext.ColorKeyCopyMode = STBLIT_COLOR_KEY_MODE_NONE;
-		EhsL_blitSource.Type = STBLIT_SOURCE_TYPE_COLOR;
-		EhsL_blitSource.Data.Color_p = &EhsL_drawColour;
-		EhsL_blitDestination.Bitmap_p = &(pViewport->pDblBuff->xBitmap);
-		EhsL_blitDestination.Rectangle.Height = xStapiClip.Height;
-		EhsL_blitDestination.Rectangle.Width = xStapiClip.Width;
-		EhsL_blitDestination.Rectangle.PositionX = xStapiClip.PositionX;
-		EhsL_blitDestination.Rectangle.PositionY = xStapiClip.PositionY;
-		STBLIT_Blit(pViewport->xBlitHandle,&EhsL_blitSource,NULL,&EhsL_blitDestination,&pViewport->pBlitContext);
+        EhsL_convertEhsColor(pColour,&EhsL_drawColour);
+        xStapiClip.Height = blitBounds.nHeight;
+        xStapiClip.Width  = blitBounds.nWidth;
+        xStapiClip.PositionX = blitBounds.nLeft;
+        xStapiClip.PositionY = blitBounds.nTop;
+        pViewport->pBlitContext.AluMode = STBLIT_ALU_ALPHA_BLEND ;
+        pViewport->pBlitContext.ColorKeyCopyMode = STBLIT_COLOR_KEY_MODE_NONE;
+        EhsL_blitSource.Type = STBLIT_SOURCE_TYPE_COLOR;
+        EhsL_blitSource.Data.Color_p = &EhsL_drawColour;
+        EhsL_blitDestination.Bitmap_p = &(pViewport->pDblBuff->xBitmap);
+        EhsL_blitDestination.Rectangle.Height = xStapiClip.Height;
+        EhsL_blitDestination.Rectangle.Width = xStapiClip.Width;
+        EhsL_blitDestination.Rectangle.PositionX = xStapiClip.PositionX;
+        EhsL_blitDestination.Rectangle.PositionY = xStapiClip.PositionY;
+        STBLIT_Blit(pViewport->xBlitHandle,&EhsL_blitSource,NULL,&EhsL_blitDestination,&pViewport->pBlitContext);
 
-	}
-	LEAVE(EhsTV_fillRect);
+    }
+    LEAVE(EhsTV_fillRect);
 }
 
 /**
@@ -714,32 +721,37 @@ void EhsTV_fillRect(EhsTVClass* pViewport,
  */
 void EhsTVSurface_destroy(EhsTVClass* pViewport, EhsTVSurfaceClass* pSurface)
 {
-	ENTER(EhsTVSurface_destroy);
-	if (pSurface) {
-		EhsTVSurfaceClass* pPrev; /* points to the surface that points to this one */
-		/* delete the blit area memory */
-		if (pSurface->xBitmap.Data1_p) {
-			GFXUTILS_Deallocate(pSurface->xBitmap.Data1_p);
-			pSurface->xBitmap.Data1_p = NULL;
-		}
-		/* delete palette area memory */
-		if (pSurface->xPalette.Data_p) {
-			GFXUTILS_Deallocate(pSurface->xPalette.Data_p);
-		}
-		/* remove this item from the list of surfaces */
-		if (pViewport->pAllocSurface == pSurface) {
-			pViewport->pAllocSurface = pSurface->pNext;
-		}
-		else {
-			for (pPrev = pViewport->pAllocSurface; pPrev && (pPrev->pNext != pSurface); pPrev = pPrev->pNext)
-				;
-			if (pPrev)
-				pPrev->pNext = pSurface->pNext;
-		}
-		/* delete the structure */
-		EhsHMem_tempFree(pSurface);
-	}
-	LEAVE(EhsTVSurface_destroy);
+    ENTER(EhsTVSurface_destroy);
+    if (pSurface)
+    {
+        EhsTVSurfaceClass* pPrev; /* points to the surface that points to this one */
+        /* delete the blit area memory */
+        if (pSurface->xBitmap.Data1_p)
+        {
+            GFXUTILS_Deallocate(pSurface->xBitmap.Data1_p);
+            pSurface->xBitmap.Data1_p = NULL;
+        }
+        /* delete palette area memory */
+        if (pSurface->xPalette.Data_p)
+        {
+            GFXUTILS_Deallocate(pSurface->xPalette.Data_p);
+        }
+        /* remove this item from the list of surfaces */
+        if (pViewport->pAllocSurface == pSurface)
+        {
+            pViewport->pAllocSurface = pSurface->pNext;
+        }
+        else
+        {
+            for (pPrev = pViewport->pAllocSurface; pPrev && (pPrev->pNext != pSurface); pPrev = pPrev->pNext)
+                ;
+            if (pPrev)
+                pPrev->pNext = pSurface->pNext;
+        }
+        /* delete the structure */
+        EhsHMem_tempFree(pSurface);
+    }
+    LEAVE(EhsTVSurface_destroy);
 }
 
 
@@ -756,129 +768,142 @@ void EhsTVSurface_destroy(EhsTVClass* pViewport, EhsTVSurfaceClass* pSurface)
  * @return pointer to the surface, or null if an error occured.
  */
 EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
-		ehs_uint16 nWidth, ehs_uint16 nHeight, EhsGraphicsColourFormatEnum eFormat,
-		EhsGraphicsColourClass* pPalette, ehs_uint16 nPaletteSize, ehs_bool bTemporary)
+                                       ehs_uint16 nWidth, ehs_uint16 nHeight, EhsGraphicsColourFormatEnum eFormat,
+                                       EhsGraphicsColourClass* pPalette, ehs_uint16 nPaletteSize, ehs_bool bTemporary)
 {
-	EhsTVSurfaceClass* pSurface = NULL;
-	ENTER(EhsTVSurface_create);
+    EhsTVSurfaceClass* pSurface = NULL;
+    ENTER(EhsTVSurface_create);
 
-	ST_ErrorCode_t ErrCode = ST_NO_ERROR;
+    ST_ErrorCode_t ErrCode = ST_NO_ERROR;
 
-	if (eFormat == EHS_GRAPHICS_COLOUR_ARGB8888 || eFormat == EHS_GRAPHICS_COLOUR_A1)
-	{
-		if (bTemporary) {
-			pSurface = EhsHMem_tempAlloc(sizeof(EhsTVSurfaceClass));
-		} else {
-			pSurface = EhsHMem_writeableAlloc(sizeof(EhsTVSurfaceClass));
-		}
+    if (eFormat == EHS_GRAPHICS_COLOUR_ARGB8888 || eFormat == EHS_GRAPHICS_COLOUR_A1)
+    {
+        if (bTemporary)
+        {
+            pSurface = EhsHMem_tempAlloc(sizeof(EhsTVSurfaceClass));
+        }
+        else
+        {
+            pSurface = EhsHMem_writeableAlloc(sizeof(EhsTVSurfaceClass));
+        }
 
-		if (pSurface)
-		{
-			STGXOBJ_ColorType_t ColorType = (eFormat == EHS_GRAPHICS_COLOUR_ARGB8888)?STGXOBJ_COLOR_TYPE_ARGB8888:STGXOBJ_COLOR_TYPE_CLUT1;
-		    STGXOBJ_BitmapAllocParams_t BitmapAllocParams1, BitmapAllocParams2;
-		    STGXOBJ_PaletteAllocParams_t PaletteAllocParams;
+        if (pSurface)
+        {
+            STGXOBJ_ColorType_t ColorType = (eFormat == EHS_GRAPHICS_COLOUR_ARGB8888)?STGXOBJ_COLOR_TYPE_ARGB8888:STGXOBJ_COLOR_TYPE_CLUT1;
+            STGXOBJ_BitmapAllocParams_t BitmapAllocParams1, BitmapAllocParams2;
+            STGXOBJ_PaletteAllocParams_t PaletteAllocParams;
 
-		    /* set up palette */
-		    if (eFormat == EHS_GRAPHICS_COLOUR_A1) {
-		    	if (nPaletteSize < 1) {
-		    		ErrCode = ST_ERROR_BAD_PARAMETER;
-		    		EhsError(EHS_MSG_TGT_NO_PALETTE);
-		    	} else {
-			    	pSurface->xPalette.ColorType = STGXOBJ_COLOR_TYPE_ARGB8888; /* was ColorType; */
-			    	pSurface->xPalette.PaletteType = STGXOBJ_PALETTE_TYPE_DEVICE_INDEPENDENT;
-			    	pSurface->xPalette.ColorDepth = 1; /* was 1 */
-				    ErrCode = STGXOBJ_GetPaletteAllocParams(&(pSurface->xPalette), STGXOBJ_NO_HARD, &PaletteAllocParams);
-				    EHSL_REPORT_ERRORS(ErrCode,STGXOBJ_GetPaletteAllocParams);
-		    	}
-			    if (ErrCode == ST_NO_ERROR) {
-			    	ErrCode = GFXUTILS_Allocate((U8)LAYER_GDP1,PaletteAllocParams.AllocBlockParams.Size,PaletteAllocParams.AllocBlockParams.Alignment, (void **)&(EhsL_palette.Data_p));
-			    	pSurface->xPalette.Data_p = EhsL_palette.Data_p;
-				    EHSL_REPORT_ERRORS(ErrCode,GFXUTILS_Allocate__palette);
-			    }
-			    if (ErrCode == ST_NO_ERROR) {
-			    	EhsL_convertEhsColor(&(pPalette[0]),&EhsL_drawColour);
-			    	ErrCode = STGXOBJ_SetPaletteColor(&(pSurface->xPalette),1,&EhsL_drawColour);
-			    	EhsL_drawColour.Value.ARGB8888.Alpha = 0;
-			    	EhsL_drawColour.Value.ARGB8888.R = 0;
-			    	EhsL_drawColour.Value.ARGB8888.G = 0;
-			    	EhsL_drawColour.Value.ARGB8888.B = 0;
-			    	ErrCode = STGXOBJ_SetPaletteColor(&(pSurface->xPalette),0,&EhsL_drawColour);
+            /* set up palette */
+            if (eFormat == EHS_GRAPHICS_COLOUR_A1)
+            {
+                if (nPaletteSize < 1)
+                {
+                    ErrCode = ST_ERROR_BAD_PARAMETER;
+                    EhsError(EHS_MSG_TGT_NO_PALETTE);
+                }
+                else
+                {
+                    pSurface->xPalette.ColorType = STGXOBJ_COLOR_TYPE_ARGB8888; /* was ColorType; */
+                    pSurface->xPalette.PaletteType = STGXOBJ_PALETTE_TYPE_DEVICE_INDEPENDENT;
+                    pSurface->xPalette.ColorDepth = 1; /* was 1 */
+                    ErrCode = STGXOBJ_GetPaletteAllocParams(&(pSurface->xPalette), STGXOBJ_NO_HARD, &PaletteAllocParams);
+                    EHSL_REPORT_ERRORS(ErrCode,STGXOBJ_GetPaletteAllocParams);
+                }
+                if (ErrCode == ST_NO_ERROR)
+                {
+                    ErrCode = GFXUTILS_Allocate((U8)LAYER_GDP1,PaletteAllocParams.AllocBlockParams.Size,PaletteAllocParams.AllocBlockParams.Alignment, (void **)&(EhsL_palette.Data_p));
+                    pSurface->xPalette.Data_p = EhsL_palette.Data_p;
+                    EHSL_REPORT_ERRORS(ErrCode,GFXUTILS_Allocate__palette);
+                }
+                if (ErrCode == ST_NO_ERROR)
+                {
+                    EhsL_convertEhsColor(&(pPalette[0]),&EhsL_drawColour);
+                    ErrCode = STGXOBJ_SetPaletteColor(&(pSurface->xPalette),1,&EhsL_drawColour);
+                    EhsL_drawColour.Value.ARGB8888.Alpha = 0;
+                    EhsL_drawColour.Value.ARGB8888.R = 0;
+                    EhsL_drawColour.Value.ARGB8888.G = 0;
+                    EhsL_drawColour.Value.ARGB8888.B = 0;
+                    ErrCode = STGXOBJ_SetPaletteColor(&(pSurface->xPalette),0,&EhsL_drawColour);
 
-				    EHSL_REPORT_ERRORS(ErrCode,STGXOBJ_SetPaletteColor);
-			    }
-		    } else {
-		    	pSurface->xPalette.Data_p = NULL;
-		    }
-		    if (ErrCode == ST_NO_ERROR) {
-		    /* Image Info */
-			    pSurface->xBitmap.ColorType            = ColorType;
-			    pSurface->xBitmap.BitmapType           = STGXOBJ_BITMAP_TYPE_RASTER_PROGRESSIVE;
-			    pSurface->xBitmap.ColorSpaceConversion = STGXOBJ_ITU_R_BT601;
-			    pSurface->xBitmap.AspectRatio          = STGXOBJ_ASPECT_RATIO_16TO9;//pViewport->xOsdRegion.AspectRatio;//STGXOBJ_ASPECT_RATIO_4TO3;
-			    pSurface->xBitmap.Width                = nWidth;
-			    pSurface->xBitmap.Height               = nHeight;
-			    /* Unused */
-			    pSurface->xBitmap.PreMultipliedColor   = FALSE;
-			    pSurface->xBitmap.SubByteFormat        = STGXOBJ_SUBBYTE_FORMAT_RPIX_LSB;
-			    pSurface->xBitmap.BigNotLittle         = FALSE;
-			    pSurface->xBitmap.YUVScaling.ScalingFactorUV = YUV_NO_RESCALE;
-			    pSurface->xBitmap.YUVScaling.ScalingFactorY  = YUV_NO_RESCALE;
-			    /* Get Alloc Parameters */
-			    ErrCode = STGXOBJ_GetBitmapAllocParams(&(pSurface->xBitmap), STGXOBJ_NO_HARD, &BitmapAllocParams1, &BitmapAllocParams2);
-			    EHSL_REPORT_ERRORS(ErrCode,STGXOBJ_GetBitmapAllocParams);
-		    }
-		    if ( ErrCode != ST_NO_ERROR )
-		    {
-				EhsTVSurface_destroy(pViewport, pSurface);
-				pSurface = NULL;
-		    }
-		    else
-		    {
-			    pSurface->xBitmap.Pitch   = (eFormat == EHS_GRAPHICS_COLOUR_ARGB8888)?(nWidth*4):((nWidth+7)/8);		/* The allocated bitmap is exactly the same width as requested */
-			    pSurface->xBitmap.Offset  = 0;			/* The allocated bitmap has no offset */
-			    pSurface->xBitmap.Data1_p = NULL;
-			    pSurface->xBitmap.Size1   = BitmapAllocParams1.AllocBlockParams.Size;
-			    pSurface->xBitmap.Data2_p = NULL;
-			    pSurface->xBitmap.Size2   = 0;
+                    EHSL_REPORT_ERRORS(ErrCode,STGXOBJ_SetPaletteColor);
+                }
+            }
+            else
+            {
+                pSurface->xPalette.Data_p = NULL;
+            }
+            if (ErrCode == ST_NO_ERROR)
+            {
+                /* Image Info */
+                pSurface->xBitmap.ColorType            = ColorType;
+                pSurface->xBitmap.BitmapType           = STGXOBJ_BITMAP_TYPE_RASTER_PROGRESSIVE;
+                pSurface->xBitmap.ColorSpaceConversion = STGXOBJ_ITU_R_BT601;
+                pSurface->xBitmap.AspectRatio          = STGXOBJ_ASPECT_RATIO_16TO9;//pViewport->xOsdRegion.AspectRatio;//STGXOBJ_ASPECT_RATIO_4TO3;
+                pSurface->xBitmap.Width                = nWidth;
+                pSurface->xBitmap.Height               = nHeight;
+                /* Unused */
+                pSurface->xBitmap.PreMultipliedColor   = FALSE;
+                pSurface->xBitmap.SubByteFormat        = STGXOBJ_SUBBYTE_FORMAT_RPIX_LSB;
+                pSurface->xBitmap.BigNotLittle         = FALSE;
+                pSurface->xBitmap.YUVScaling.ScalingFactorUV = YUV_NO_RESCALE;
+                pSurface->xBitmap.YUVScaling.ScalingFactorY  = YUV_NO_RESCALE;
+                /* Get Alloc Parameters */
+                ErrCode = STGXOBJ_GetBitmapAllocParams(&(pSurface->xBitmap), STGXOBJ_NO_HARD, &BitmapAllocParams1, &BitmapAllocParams2);
+                EHSL_REPORT_ERRORS(ErrCode,STGXOBJ_GetBitmapAllocParams);
+            }
+            if ( ErrCode != ST_NO_ERROR )
+            {
+                EhsTVSurface_destroy(pViewport, pSurface);
+                pSurface = NULL;
+            }
+            else
+            {
+                pSurface->xBitmap.Pitch   = (eFormat == EHS_GRAPHICS_COLOUR_ARGB8888)?(nWidth*4):((nWidth+7)/8);		/* The allocated bitmap is exactly the same width as requested */
+                pSurface->xBitmap.Offset  = 0;			/* The allocated bitmap has no offset */
+                pSurface->xBitmap.Data1_p = NULL;
+                pSurface->xBitmap.Size1   = BitmapAllocParams1.AllocBlockParams.Size;
+                pSurface->xBitmap.Data2_p = NULL;
+                pSurface->xBitmap.Size2   = 0;
 
-			    /* Allocate Display buffer */
+                /* Allocate Display buffer */
 
-				ErrCode = GFXUTILS_Allocate((U8)LAYER_GDP1,BitmapAllocParams1.AllocBlockParams.Size,BitmapAllocParams1.AllocBlockParams.Alignment, (void **)&(pSurface->xBitmap.Data1_p));
-			    EHSL_REPORT_ERRORS(ErrCode,GFXUTILS_Allocate);
+                ErrCode = GFXUTILS_Allocate((U8)LAYER_GDP1,BitmapAllocParams1.AllocBlockParams.Size,BitmapAllocParams1.AllocBlockParams.Alignment, (void **)&(pSurface->xBitmap.Data1_p));
+                EHSL_REPORT_ERRORS(ErrCode,GFXUTILS_Allocate);
 
-				if (ErrCode != ST_NO_ERROR)
-				{
-					EhsTVSurface_destroy(pViewport, pSurface);
-					pSurface = NULL;
-			    }
-				else
-				{
-					/* Add surface to end of linked list - testing Pierre's hypothesis
-					 * that GFXUTILS_Alloc/Dealloc needs to be done first-in, last-out
-					 */
-					pSurface->pNext = NULL;
-					if (pViewport->pAllocSurface)
-					{
-						EhsTVSurfaceClass* pSearch;
-						for (pSearch = pViewport->pAllocSurface; pSearch->pNext; pSearch = pSearch->pNext)
-							;
-						pSearch->pNext = pSurface;
-					}
-					else
-					{
-						pViewport->pAllocSurface = pSurface;
-					}
-				}
-		    }
+                if (ErrCode != ST_NO_ERROR)
+                {
+                    EhsTVSurface_destroy(pViewport, pSurface);
+                    pSurface = NULL;
+                }
+                else
+                {
+                    /* Add surface to end of linked list - testing Pierre's hypothesis
+                     * that GFXUTILS_Alloc/Dealloc needs to be done first-in, last-out
+                     */
+                    pSurface->pNext = NULL;
+                    if (pViewport->pAllocSurface)
+                    {
+                        EhsTVSurfaceClass* pSearch;
+                        for (pSearch = pViewport->pAllocSurface; pSearch->pNext; pSearch = pSearch->pNext)
+                            ;
+                        pSearch->pNext = pSurface;
+                    }
+                    else
+                    {
+                        pViewport->pAllocSurface = pSurface;
+                    }
+                }
+            }
 
-		}
-	}
-	else
-	{
-		EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("unrecognised bitmap format"));
-		EhsTVSurface_destroy(pViewport, pSurface);
-		pSurface = NULL;
-	}
-LEAVE(EhsTVSurface_create);
-	return pSurface;
+        }
+    }
+    else
+    {
+        EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("unrecognised bitmap format"));
+        if(pSurface)
+            EhsTVSurface_destroy(pViewport, pSurface);
+        pSurface = NULL;
+    }
+    LEAVE(EhsTVSurface_create);
+    return pSurface;
 }

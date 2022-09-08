@@ -1,3 +1,12 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 #ifndef __DRIVER_H__
 #define __DRIVER_H__
 
@@ -16,8 +25,8 @@
 #define _USBLCD_MAX_LEDS		7
 
 /* IR related define */
-#define PULSE_BIT  0x01000000 
-#define PULSE_MASK 0x00FFFFFF 
+#define PULSE_BIT  0x01000000
+#define PULSE_MASK 0x00FFFFFF
 
 /* USB LCD bootup splash related parameters */
 #define _USBLCD_MAX_SPLASHES		5
@@ -40,7 +49,7 @@
 #define OUT_REPORT_LCD_TEXT		0x98
 #define OUT_REPORT_LCD_FONT		0x9C
 
-#define HID_REPORT_GET_VERSION          0xF1 
+#define HID_REPORT_GET_VERSION          0xF1
 
 #define IN_REPORT_POWER_STATE		0x01
 #define IN_REPORT_KEY_STATE		0x11

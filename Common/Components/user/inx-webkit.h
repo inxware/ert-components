@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 #ifndef INXWARE_html_java
 #define INXWARE_html_java
 #include "inx-component.h"
@@ -5,7 +14,9 @@
 /*****************************************************
  * load plain JavaScript or HTML with Javascript and run Java functions
  *****************************************************/
-#define INXWARE_FB_html_java "html_java"
+#define INXWARE_FB_NAME_html_java "html_java"
+#define INXWARE_FB_ID_html_java 0x3C43
+
 /* Declaring the functions used here as public interface for static linking into EHS builds */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(html_java); // this relates to C file identify function
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(html_java); // this relates to C-file init function

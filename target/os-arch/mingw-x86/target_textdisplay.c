@@ -1,8 +1,17 @@
-/*
- * target_textdisplay.c
+
+ /***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
+/* @file target_textdisplay.c
  *
- *  Created on: 08-Sep-2008
- *      Author: pbeaumont
+ * @author: inx limited
+ *
  */
 #include "target_textdisplay.h"
 //#include "usblcd.h"
@@ -14,17 +23,17 @@
 
 EHS_GLOBAL void EhsInitTextdisplay()
 {
-	/*Initialise usb panel*/
+    /*Initialise usb panel*/
 //	mylcd = new_usblcd_operations();
 //	mylcd->hid->debug(1);
 
-	/* set usblcd debug level */
+    /* set usblcd debug level */
 //	mylcd->debug(1);
 
-	/* init the USB LCD */
+    /* init the USB LCD */
 //	mylcd->init(mylcd);
 
-	/* clear the LCD screen */
+    /* clear the LCD screen */
 //	mylcd->clear(mylcd);
 }
 
@@ -40,22 +49,22 @@ EHS_GLOBAL void EhsClearTextdisplay()
 
 EHS_GLOBAL unsigned char EhsReadKeysTextdisplay()
 {
-/*	usblcd_event *event;
-	if ((event = mylcd->read_events(mylcd)) != NULL)
-	{
-		if (event->type == 0)
-		{
-		    return(event->data[0]);
-		}
-	}
-	*/
-	return 0xff;
+    /*	usblcd_event *event;
+    	if ((event = mylcd->read_events(mylcd)) != NULL)
+    	{
+    		if (event->type == 0)
+    		{
+    		    return(event->data[0]);
+    		}
+    	}
+    	*/
+    return 0xff;
 
 }
 
 EHS_GLOBAL void* getPanel()
 {
-	return NULL;
+    return NULL;
 }
 /*
 EHS_GLOBAL usblcd_operations* getPanel()
@@ -67,16 +76,16 @@ EHS_GLOBAL usblcd_operations* getPanel()
 EHS_GLOBAL EhsTPThread pLcdThread;
 void lcdThreadCancel() //@todo this is targe specific but should go eith the create code really
 {
-	if(pLcdThread != NULL) //@todo ??
-	{
-		if( pLcdThread != NULL)
-		{
-			/*The polling thread has been started so kill it*/
-			/* Kill a thread !!! don't use if you can avoid !!! */
-			EhsTPThread_terminate(pLcdThread);
+    if(pLcdThread != NULL) //@todo ??
+    {
+        if( pLcdThread != NULL)
+        {
+            /*The polling thread has been started so kill it*/
+            /* Kill a thread !!! don't use if you can avoid !!! */
+            EhsTPThread_terminate(pLcdThread);
 
 
-		}
-	}
+        }
+    }
 }
 

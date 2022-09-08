@@ -10,6 +10,7 @@ class Configurations(object):
         self.reportfile=None
         self.keepold=True # always keep old
         self.hash="32CRC"
+        self.genHash=None
 
     def getRoot(self):
         return self.root
@@ -35,3 +36,6 @@ class Configurations(object):
 
     def getHash(self):
         return self.hash
+
+    def getGenHashStr(self):
+        return self.genHash

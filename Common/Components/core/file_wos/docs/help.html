@@ -1,211 +1,238 @@
 <html>
+
 <head>
-<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
 </head>
 
 <body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">FILE_WriteOnly_String</span>
+      <!--these display in reverse order because they use float:right-->
+      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+    </div>
 
-<!--Name of Component-->
-<h1 class=component>
-FILE_WriteOnly_String
-</h1>
-<!--General Description-->
-<p class=component>
-This components allows string data presented to the data input <a href="#[In]data">[In]data</a> to be written to a file. The data presented to the input port <a href="#[In]path">[In]path</a> specifies the path of the file to open. The path is relative to the User Data directory, "userdata", in the EHS installation directory. If no data is presented to <a href="#[In]path">[In]path</a> then the file path is specified using the File name parameter.
-</p>
-<p class=component>
-It is also possible to specify an absolute path for the file by prefixing "localhost:" to the file path. <b>Users are advised not to use this method as the absolute file path is device dependent.</b>
-</p>
-<p class=component>
-The data can be structured in the file through the use of a fixed width format where the width of the data to be written is specified by the Field Width parameter or delimitered using a delimiter specified by the Delimiter parameter. The use of the Field Width parameter means that each data item written to the file is truncated or padded with spaces to the specified width and similarly the use of the Delimiter parameter will use the specified delimiter to separate data each time it is written to the file.
-</p>
-<p class=component>
-Please note that the delimiter must be enclosed in brackets so that "( )" indicates the use of a single space as a delimiter and "(\n)" denotes the use of a line break as a delimiter. A Field Width of "0" indicates that no fixed width is used to structure the data and a Delimiter of "()" or "" indicates that no delimiter is used. A combination of fixed width and delimeters can be used.
-</p>
-<p class=component>
-The file must be opened before it can be written to using the input event <a href="#[In]open">[In]open</a>. If the file does not exist it is created. If the file does exist then the Append parameter specifies if the file is truncated to an empty file when the file is opened or whether new data is appended to the existing data. If there is an error when opening, closing or writing to the file then an error code is presented to the data output <a href="#[Out]err code">[Out]err code</a> and the corresponding error event is asserted.
-</p>
-<p class=component>
-The file is closed when the input event <a href="#[In]close">[In]close</a> is triggered and is released ready to be opened by another process. Please note that the input event <a href="#[In]open">[In]open</a> closes a previously opened file before opening another. Therefore if multiple files are being written to, it is not necessary to trigger the input event <a href="#[In]close">[In]close</a> inbetween the opening, and writing to, each file.
-</p>
-<!--Ports - form - short desc: long desc-->
-<h3 class=ports>Ports</h3>
-<ul class=noBullet><li>
-<h6 class=ports>
-[In]
-open:
-<a name="[In]open">
-</h6>
-<p class=ports>Input event, opens the file in preparation for writing.</p>
-  </li><li>
-<h6 class=portsStr>
-[In]
-path:
-<a name="[In]path">
-</h6>
-<p class=ports>Data input, the file path, relative to the User Data directory, of the file to open.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-..:
-<a name="[Out]..">
-</h6>
-<p class=ports>Output event, triggered if the file is opened succesfully.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-err:
-<a name="[Out]err">
-</h6>
-<p class=ports>Output event, triggered if there is an error opening the file.</p>
-  </li><li>
-<h6 class=ports>
-[In]
-close:
-<a name="[In]close">
-</h6>
-<p class=ports>Input event, closes the file and release it ready for another process to use.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-..:
-<a name="[Out]..">
-</h6>
-<p class=ports>Output event, triggered if the file is closed succesfully.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-err:
-<a name="[Out]err">
-</h6>
-<p class=ports>Output event, triggered if there is an error closing the file.</p>
-  </li><li>
-<h6 class=ports>
-[In]
-write:
-<a name="[In]write">
-</h6>
-<p class=ports>Input event, writes the data to the file.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-..:
-<a name="[Out]..">
-</h6>
-<p class=ports>Output event, triggered if the file is written to succesfully.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-err:
-<a name="[Out]err">
-</h6>
-<p class=ports>Output event, triggered if there is an error writing to the file.</p>
-  </li><li>
-<h6 class=portsStr>
-[In]
-data:
-<a name="[In]data">
-</h6>
-<p class=ports>Data input, the data to be written the file.</p>
-  </li><li>
-<h6 class=portsInt>
-[Out]
-err code:
-<a name="[Out]err code">
-</h6>
-<p class=ports>Data output, an error code produced if the input events open, close or write fail.</p>
-</li></ul>
-</p>
-<!--Parameters - form - short desc: long desc-->
-<h3 class=parameters>Parameters</h3>
-<ul class=noBullet><li>
-<h6 class=parameters>
-File name:
-</h6>
-<p class=parameters>
-The output file path. Escap spaces in filenames with a \. If the includes a ? in the name it will use the preseeding string as the final filename but will replace the ? with a . while the file is open so that long file writes can overlap Other files accessing the orginal file. 
-<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
-S,
-</p><h6 class=parameters>Min Value: </h6><p class=parameters>
-None,
-</p><h6 class=parameters>Max Value: </h6><p class=parameters>
-None,
-</p><h6 class=parameters>Default Value: </h6><p class=parameters>
-out.txt
-</p>
-  </li><li>
-<h6 class=parameters>
-Field Width:
-</h6>
-<p class=parameters>
-Fixed Width data structure.
-<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
-I,
-</p><h6 class=parameters>Min Value: </h6><p class=parameters>
-0,
-</p><h6 class=parameters>Max Value: </h6><p class=parameters>
-100,
-</p><h6 class=parameters>Default Value: </h6><p class=parameters>
-0
-</p>
-  </li><li>
-<h6 class=parameters>
-Delimiter:
-</h6>
-<p class=parameters>
-Character used to delimit data, in the form "(x)" where "x" is the delimiter.
-<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
-S,
-</p><h6 class=parameters>Min Value: </h6><p class=parameters>
-None,
-</p><h6 class=parameters>Max Value: </h6><p class=parameters>
-None,
-</p><h6 class=parameters>Default Value: </h6><p class=parameters>
-( )
-</p>
-  </li><li>
-<h6 class=parameters>
-Append:
-</h6>
-<p class=parameters>
-Boolean value to indicate if the file is appended to or overwritten when opened.
-<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
-B,
-</p><h6 class=parameters>Min Value: </h6><p class=parameters>
-0,
-</p><h6 class=parameters>Max Value: </h6><p class=parameters>
-1,
-</p><h6 class=parameters>Default Value: </h6><p class=parameters>
-0
-</p>
-</li></ul>
-<!--State Machine - form - image - example-->
-<h3 class=stateMachine>State Machine</h3>
-<p class=stateMachine>Stateless.</p>
-<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
-<!--profiles - form - list-->
-<h3 class=profiles>Profiles</h3>
-<p class=profiles>All.</p>
-<!--Toolbox-->
-<h3 class=toolbox>Toolbox</h3>
-<p class=toolbox>Core.</p>
-<!--Version-->
-<h3 class=version>Version</h3>
-<p class=version>v2.1.</p>
-<!--Dependencies - form - list-->
-<h3 class=dependencies>Native Dependencies</h3>
-<ul class=dependencies><li class=dependencies>
-<h6 class=dependencies>TDK1.1: </h6>
-<p class=dependencies></p>
-</li></ul>
-<!--Licence Type-->
-<h3 class=licenceType>Licence Type</h3>
-<p class=licenceType>LGPL.</p>
-<!--Component Supplier-->
-<h3 class=supplier>Component Supplier</h3>
-<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
-</body></html>
+    <!--General Description-->
+    <p class=component>
+      This components allows string data presented to the data input <a href="#[In]data">[In]data</a> to be written to a file. The data presented to the input port <a href="#[In]path">[In]path</a> specifies the path of the file to open. The path is relative to the User Data directory, "userdata", in the EHS installation directory. If no data is presented to <a href="#[In]path">[In]path</a> then the file path is specified using the File name parameter.
+    </p>
+    <p class=component>
+      It is also possible to specify an absolute path for the file by prefixing "localhost:" to the file path. <b>Users are advised not to use this method as the absolute file path is device dependent.</b>
+    </p>
+    <p class=component>
+      The data can be structured in the file through the use of a fixed width format where the width of the data to be written is specified by the Field Width parameter or delimitered using a delimiter specified by the Delimiter parameter. The use of the Field Width parameter means that each data item written to the file is truncated or padded with spaces to the specified width and similarly the use of the Delimiter parameter will use the specified delimiter to separate data each time it is written to the file.
+    </p>
+    <p class=component>
+      Please note that the delimiter must be enclosed in brackets so that "( )" indicates the use of a single space as a delimiter and "(\n)" denotes the use of a line break as a delimiter. A Field Width of "0" indicates that no fixed width is used to structure the data and a Delimiter of "()" or "" indicates that no delimiter is used. A combination of fixed width and delimeters can be used.
+    </p>
+    <p class=component>
+      The file must be opened before it can be written to using the input event <a href="#[In]open">[In]open</a>. If the file does not exist it is created. If the file does exist then the Append parameter specifies if the file is truncated to an empty file when the file is opened or whether new data is appended to the existing data. If there is an error when opening, closing or writing to the file then an error code is presented to the data output <a href="#[Out]err code">[Out]err code</a> and the corresponding error event is asserted.
+    </p>
+    <p class=component>
+      The file is closed when the input event <a href="#[In]close">[In]close</a> is triggered and is released ready to be opened by another process. Please note that the input event <a href="#[In]open">[In]open</a> closes a previously opened file before opening another. Therefore if multiple files are being written to, it is not necessary to trigger the input event <a href="#[In]close">[In]close</a> inbetween the opening, and writing to, each file.
+    </p>
+  
+    <!--Parameters - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="parameters" class="toc_span">Parameters</span>
+      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
+      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
+      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
+    </div>
+    <table class="table_params">
+      <tr>
+        <th  style="width:60px;">name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>min.</th>
+        <th>max.</th>
+        <th>description</th>
+      </tr>
+      <tr>
+        <td>File name</td>
+        <td>String</td>
+        <td>out.txt</td>
+        <td>None</td>
+        <td>None</td>
+        <td>The output file path. Escap spaces in filenames with a \. If the includes a ? in the name it will use the preseeding string as the final filename but will replace the ? with a . while the file is open so that long file writes can overlap Other files accessing the orginal file.</td>
+      </tr>
+      <tr>
+        <td>Field Width</td>
+        <td>Integer</td>
+        <td>0</td>
+        <td>0</td>
+        <td>100</td>
+        <td>Fixed Width data structure</td>
+      </tr>
+      <tr>
+        <td>Delimiter</td>
+        <td>String</td>
+        <td>()</td>
+        <td>None</td>
+        <td>None</td>
+        <td>Character used to delimit data, in the form "(x)" where "x" is the delimiter</td>
+      </tr>
+      <tr>
+        <td>Append</td>
+        <td>Boolean</td>
+        <td>0</td>
+        <td>0</td>
+        <td>1</td>
+        <td>Boolean value to indicate if the file is appended to or overwritten when opened</td>
+      </tr>
+    </table>
+
+    <!--Ports - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="ports" class="toc_span">Ports</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+    <table class="table">
+      <tr>
+        <th>In Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=portsInt><a name="[In]open">open</a></td>
+        <td>Input event, opens the file in preparation for writing.</td>
+      </tr>
+      <tr>
+        <td class=portsInt><a name="[In]close">close</a></td>
+        <td>Input event, closes the file and release it ready for another process to use</td>
+      </tr>
+      <tr>
+        <td class=portsInt><a name="[In]write">write</a></td>
+        <td>Input event, writes the data to the file</td>
+      </tr>
+      <tr>
+        <th >Data In</th><th></th>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[In]path">path</a></td>
+        <td>Data input, the file path, relative to the User Data directory, of the file to open</td>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[In]data">data</a></td>
+        <td>Data input, the data to be written the file</td>
+      </tr>
+      <tr>
+        <th >Data Out</th><th></th>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[Out]err code">err code</a></td>
+        <td>Data output, an error code produced if the input events open, close or write fail</td>
+      </tr>
+      <tr>
+        <th >Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[In].."">..</a></td>
+        <td>Output event, triggered if the file is opened succesfully.</td>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[In]err">err</a></td>
+        <td>Output event, triggered if there is an error opening the file</td>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[In].."">..</a></td>
+        <td>Output event, triggered if the file is closed succesfully.</td>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[In]err">err</a></td>
+        <td>Output event, triggered if there is an error closing the file</td>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[In].."">..</a></td>
+        <td>Output event, triggered if the file is written to succesfully.</td>
+      </tr>
+      <tr>
+        <td><class=portsInt><a name="[In]err">err</a></td>
+        <td>Output event, triggered if there is an error writing to the file</td>
+      </tr>
+      <tr>
+        <td>inc</td>
+        <td>Asserted if and only if an increment event is received and the count is less than
+          the maximum threshold.</td>
+      </tr>
+    </table>
+
+
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+     <table>
+      <tr class="fsm_row">
+        <td style="width:90px;">
+          <b>State Machine</b>
+        </td>
+        <td  colspan=5>
+         <!-- <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
+          <span class="fsm_blob">state2</span>
+          &otimes;&nbsp;
+          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+          <span class="fsm_blob">state3</span> [doh]&rarr;
+          <span class="fsm_blob">state5</span> -->
+          NONE
+        </td>
+        <td>
+          <b></b>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Toolbox</b>
+        </td>
+        <td>
+          Core
+        </td>
+        <td class=heading-cell>
+          <b>Version</b>
+        </td>
+        <td>
+          v1.0.
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          MPL2.0
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Minumum DCC</b>
+        </td><td>A0000</td> 
+        <td class=heading-cell>
+          <b>Profiles</b>
+        </td>
+        <td>
+          All.
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+
+</html>

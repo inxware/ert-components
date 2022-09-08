@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file fidt.h
  * Declarations of EhsFunctionInstanceDataTableType
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 5519 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ *
  */
 
 #ifndef EHS_FIDT_H
@@ -16,10 +22,11 @@
 #include "globals.h"
 #include "fid.h"
 
-typedef struct {
-	EhsFunctionInstanceDataType* pFunctions; /**< Contains the actual function instances */
-	ehs_uint32 nSize; /**< Defines the size of the function instance data table for the specific application - populated at SODL parse time*/
-	ehs_uint32 nMemorySize; //Size of memory allocated at init time of this structure.
+typedef struct
+{
+    EhsFunctionInstanceDataType* pFunctions; /**< Contains the actual function instances */
+    ehs_uint32 nSize; /**< Defines the size of the function instance data table for the specific application - populated at SODL parse time*/
+    ehs_uint32 nMemorySize; //Size of memory allocated at init time of this structure.
 } EhsFunctionInstanceDataTableType;
 
 /**
@@ -58,7 +65,7 @@ EHS_GLOBAL void EhsFunctionInstanceDataTable_resetMonitorFlags(void);
 
 /**
  * Set the monitor flag for a specific data line of a specific data type
- * 
+ *
  * @param nLine Line number to set
  * @param eType data type of the line
  * @param bSet set or not
@@ -68,7 +75,7 @@ EHS_GLOBAL ehs_bool EhsFunctionInstanceDataTable_monitorDataLine(ehs_uint32 nLin
 
 /**
  * Set the monitor flag for a specific event trigger
- * 
+ *
  * @param nLine Line number to set
  * @param monitorType type of debug monitoring for this function
  * @param bClearBreakpoint clear the breakpoint

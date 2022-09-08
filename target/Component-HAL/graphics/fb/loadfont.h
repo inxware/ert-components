@@ -10,11 +10,11 @@ Description: Utility functions to load STGFX fonts from host files
 #ifndef  LOAD_FONT_H
 #define  LOAD_FONT_H
 
-    /* Includes ------------------------------------------------------------ */
+/* Includes ------------------------------------------------------------ */
 
-    /* Exported Types ------------------------------------------------------ */
+/* Exported Types ------------------------------------------------------ */
 
-    /* Exported Constants -------------------------------------------------- */
+/* Exported Constants -------------------------------------------------- */
 
 /* To simplify porting from STGFX_Load/FreeFont, an ST_ErrorCode_t is still
   used, with the following extending the STGFX error space: */
@@ -24,11 +24,11 @@ enum
     GFX_ERROR_INVALID_RECNUM
 };
 
-    /* Exported Variables -------------------------------------------------- */
+/* Exported Variables -------------------------------------------------- */
 
-    /* Exported Macros ----------------------------------------------------- */
+/* Exported Macros ----------------------------------------------------- */
 
-    /* Exported Function Prototypes ---------------------------------------- */
+/* Exported Function Prototypes ---------------------------------------- */
 
 ST_ErrorCode_t GFX_LoadFont(ST_Partition_t*     Partition_p,
                             const ST_String_t   FileName,

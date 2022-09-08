@@ -1,12 +1,18 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file playManager.h
  * This declares the xml functions.
  *
- * @author: Patrick Beaumont
- * @version: $Revision: 1650 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
+ * @author: inx limited
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 #ifndef _EHS_MEDIA_PLAYMANAGER_H
@@ -15,14 +21,30 @@
 #include "ehs_fb_types.h"
 
 
-#define EHS_FB_MEDIA_PLAYMANAGER_NAME "PlayManager"
-#define EHS_FB_MEDIA_PLAYMANAGER_NEXT_PLAYLIST_NAME "Next_Playlist"
-#define EHS_FB_MEDIA_PLAYMANAGER_TICK_NAME "Tick"
-#define EHS_FB_MEDIA_PLAYMANAGER_PLAYED_NAME "Played"
-#define EHS_FB_MEDIA_PLAYMANAGER_STARTED_NAME "Started"
-#define EHS_FB_MEDIA_PLAYMANAGER_NEXT_URL_NAME "Next_URL"
-#define EHS_FB_MEDIA_PLAYMANAGER_GOT_NAME "Got"
-#define EHS_FB_MEDIA_PLAYMANAGER_SET_PATHS_NAME "Set_Paths"
+#define EHS_FB_NAME_PlayManager "PlayManager"
+#define EHS_FB_ID_PlayManager 0xB6D9
+
+#define EHS_FB_NAME_Next_Playlist "Next_Playlist"
+#define EHS_FB_ID_Next_Playlist 0xB4CE
+
+#define EHS_FB_NAME_Tick "Tick"
+#define EHS_FB_ID_Tick 0x33A9
+
+#define EHS_FB_NAME_Played "Played"
+#define EHS_FB_ID_Played 0xC778
+
+#define EHS_FB_NAME_Started "Started"
+#define EHS_FB_ID_Started 0xA0A5
+
+#define EHS_FB_NAME_Next_URL "Next_URL"
+#define EHS_FB_ID_Next_URL 0x5834
+
+#define EHS_FB_NAME_Got "Got"
+#define EHS_FB_ID_Got 0xC29D
+
+#define EHS_FB_NAME_Set_Paths "Set_Paths"
+#define EHS_FB_ID_Set_Paths 0x83E7
+
 #define EHS_FB_MEDIA_PLAYMANAGER_DAY_SECONDS 86400
 /* declare functions provided by this function block */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(PlayManager);

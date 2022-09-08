@@ -53,14 +53,14 @@
 #include <wincrypt.h>
 
 int mbedtls_platform_entropy_poll( void *data, unsigned char *output, size_t len,
-                           size_t *olen )
+                                   size_t *olen )
 {
     HCRYPTPROV provider;
     ((void) data);
     *olen = 0;
 
     if( CryptAcquireContext( &provider, NULL, NULL,
-                              PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) == FALSE )
+                             PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) == FALSE )
     {
         return( MBEDTLS_ERR_ENTROPY_SOURCE_FAILED );
     }
@@ -144,7 +144,7 @@ static int has_getrandom = -1;
 #include <stdio.h>
 
 int mbedtls_platform_entropy_poll( void *data,
-                           unsigned char *output, size_t len, size_t *olen )
+                                   unsigned char *output, size_t len, size_t *olen )
 {
     FILE *file;
     size_t read_len;
@@ -189,7 +189,7 @@ int mbedtls_platform_entropy_poll( void *data,
 
 #if defined(MBEDTLS_TEST_NULL_ENTROPY)
 int mbedtls_null_entropy_poll( void *data,
-                    unsigned char *output, size_t len, size_t *olen )
+                               unsigned char *output, size_t len, size_t *olen )
 {
     ((void) data);
     ((void) output);
@@ -206,7 +206,7 @@ int mbedtls_null_entropy_poll( void *data,
 
 #if defined(MBEDTLS_TIMING_C)
 int mbedtls_hardclock_poll( void *data,
-                    unsigned char *output, size_t len, size_t *olen )
+                            unsigned char *output, size_t len, size_t *olen )
 {
     unsigned long timer = mbedtls_timing_hardclock();
     ((void) data);
@@ -224,7 +224,7 @@ int mbedtls_hardclock_poll( void *data,
 
 #if defined(MBEDTLS_HAVEGE_C)
 int mbedtls_havege_poll( void *data,
-                 unsigned char *output, size_t len, size_t *olen )
+                         unsigned char *output, size_t len, size_t *olen )
 {
     mbedtls_havege_state *hs = (mbedtls_havege_state *) data;
     *olen = 0;
@@ -249,10 +249,10 @@ int mbedtls_nv_seed_poll( void *data,
     memset( buf, 0, MBEDTLS_ENTROPY_BLOCK_SIZE );
 
     if( mbedtls_nv_seed_read( buf, MBEDTLS_ENTROPY_BLOCK_SIZE ) < 0 )
-      return( MBEDTLS_ERR_ENTROPY_SOURCE_FAILED );
+        return( MBEDTLS_ERR_ENTROPY_SOURCE_FAILED );
 
     if( len < use_len )
-      use_len = len;
+        use_len = len;
 
     memcpy( output, buf, use_len );
     *olen = use_len;

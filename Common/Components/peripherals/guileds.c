@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file guitextbox.c
  *
@@ -13,10 +22,7 @@
  * threadsafe, as it might be called by an OS operation.
  *
  * @author: inx limited
- * @version: $Revision: 1248 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 /**
@@ -72,7 +78,8 @@ struct EhsFbTextdisplayStruct
 */
 
 EHS_FB_FUNCTIONS_START(gui_leds)
-EHS_FB_FUNCTION_ENTRY("update", gui_leds_update)
+
+EHS_FB_FUNCTION_ENTRY("update", 0x00, gui_leds_update)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -80,7 +87,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(gui_leds)
 {
-	//EHS_FB_IDENTIFY_MEMORY = sizeof(struct EhsTextdisplayStruct);
+    //EHS_FB_IDENTIFY_MEMORY = sizeof(struct EhsTextdisplayStruct);
 }
 
 /**
@@ -88,9 +95,9 @@ EHS_FB_IDENTIFY_FUNCTION(gui_leds)
  */
 EHS_FB_INIT_FUNCTION(gui_leds)
 {
-	ehs_bool bRet = EHS_TRUE;
-	EhsInitLeds();
-	return bRet;
+    ehs_bool bRet = EHS_TRUE;
+    EhsInitLeds();
+    return bRet;
 }
 
 /**
@@ -98,32 +105,32 @@ EHS_FB_INIT_FUNCTION(gui_leds)
  */
 EHS_FB_RUN_FUNCTION(gui_leds_update)
 {
-	if(EHS_FB_IN_CONNECTED(0))
-	{
-		EhsSetLed(0, EHS_FB_IN_B(0));
-	}
-	if(EHS_FB_IN_CONNECTED(1))
-	{
-		EhsSetLed(1, EHS_FB_IN_B(1));
-	}
-	if(EHS_FB_IN_CONNECTED(2))
-	{
-		EhsSetLed(2, EHS_FB_IN_B(2));
-	}
-	if(EHS_FB_IN_CONNECTED(3))
-	{
-		EhsSetLed(3, EHS_FB_IN_B(3));
-	}
-	if(EHS_FB_IN_CONNECTED(4))
-	{
-		EhsSetLed(4, EHS_FB_IN_B(4));
-	}
-	if(EHS_FB_IN_CONNECTED(5))
-	{
-		EhsSetLed(5, EHS_FB_IN_B(5));
-	}
-	if(EHS_FB_IN_CONNECTED(6))
-	{
-		EhsSetLed(6, EHS_FB_IN_B(6));
-	}
+    if(EHS_FB_IN_CONNECTED(0))
+    {
+        EhsSetLed(0, EHS_FB_IN_B(0));
+    }
+    if(EHS_FB_IN_CONNECTED(1))
+    {
+        EhsSetLed(1, EHS_FB_IN_B(1));
+    }
+    if(EHS_FB_IN_CONNECTED(2))
+    {
+        EhsSetLed(2, EHS_FB_IN_B(2));
+    }
+    if(EHS_FB_IN_CONNECTED(3))
+    {
+        EhsSetLed(3, EHS_FB_IN_B(3));
+    }
+    if(EHS_FB_IN_CONNECTED(4))
+    {
+        EhsSetLed(4, EHS_FB_IN_B(4));
+    }
+    if(EHS_FB_IN_CONNECTED(5))
+    {
+        EhsSetLed(5, EHS_FB_IN_B(5));
+    }
+    if(EHS_FB_IN_CONNECTED(6))
+    {
+        EhsSetLed(6, EHS_FB_IN_B(6));
+    }
 }

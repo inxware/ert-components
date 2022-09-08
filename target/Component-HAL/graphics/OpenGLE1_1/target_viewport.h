@@ -1,12 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file target_viewport.h
  * The target-specific declarations required to support the HAL for viewport services
  * are defined here. This file should only be included by hal_viewport.h
  *
  * @author: inx limited
- * @version: $Revision: 3622 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #ifndef EHS_TARGET_VIEWPORT_H
@@ -30,14 +36,14 @@ struct EhsTVStruct
 
     /* Probable need some OpenGLhandle to put in this struct */
 
-	EhsGraphicsRectangleClass xClipRect;	/**< Clipping rectangle - used when drawing all images */
-	EhsTVSurfaceClass* pAllocSurface; /**< List of allocated surfaces - used for deallocation purposes */
-	//ehs_bool bViewportChanged;			/**< The pixbuf has changed, we need to copy it into pPixmap */
-	ehs_uint8 transparency; // transparency of window
+    EhsGraphicsRectangleClass xClipRect;	/**< Clipping rectangle - used when drawing all images */
+    EhsTVSurfaceClass* pAllocSurface; /**< List of allocated surfaces - used for deallocation purposes */
+    //ehs_bool bViewportChanged;			/**< The pixbuf has changed, we need to copy it into pPixmap */
+    ehs_uint8 transparency; // transparency of window
 
-	struct engine* engine;
-	//int32_t width;
-	//int32_t height;
+    struct engine* engine;
+    //int32_t width;
+    //int32_t height;
 
 };
 
@@ -68,20 +74,22 @@ void engine_draw_frame(struct engine* engine);
 
 struct EhsTVSurfaceStruct
 {
-	EhsGraphicsColourFormatEnum eFormat;	/**< Type of graphics held in this structure */
-	union {
-		EhsGraphicsColourClass* pRGBAPixels; /* this will be set to null when unbound */
-		struct {
-			ehs_uint8* pBitmap; /**< bitmap representing individual pixels, one-per-bit, points to pixels of surBitmap*/
-			EhsGraphicsColourClass pColour[2];	/**< palette containing both colours */
-		} pA1Surface;
-	} fmt;
-	ehs_uint16 nWidth;				/**< bitmap width */
-	ehs_uint16 nHeight;				/**< bitmap height *//**< Used for A1 images */
-	ehs_uint16 nBufferWidth;				/**< This will be next pow2 values of image width */
-	ehs_uint16 nBufferHeight;				/**< This will be next pow2 values of image height */
-	GLuint textureName;			/* named texture to bind for eaxh render */
-	struct EhsTVSurfaceStruct* pNext;	/**< Used to support a linked list of allocated surfaces - needed for global destroy */
+    EhsGraphicsColourFormatEnum eFormat;	/**< Type of graphics held in this structure */
+    union
+    {
+        EhsGraphicsColourClass* pRGBAPixels; /* this will be set to null when unbound */
+        struct
+        {
+            ehs_uint8* pBitmap; /**< bitmap representing individual pixels, one-per-bit, points to pixels of surBitmap*/
+            EhsGraphicsColourClass pColour[2];	/**< palette containing both colours */
+        } pA1Surface;
+    } fmt;
+    ehs_uint16 nWidth;				/**< bitmap width */
+    ehs_uint16 nHeight;				/**< bitmap height *//**< Used for A1 images */
+    ehs_uint16 nBufferWidth;				/**< This will be next pow2 values of image width */
+    ehs_uint16 nBufferHeight;				/**< This will be next pow2 values of image height */
+    GLuint textureName;			/* named texture to bind for eaxh render */
+    struct EhsTVSurfaceStruct* pNext;	/**< Used to support a linked list of allocated surfaces - needed for global destroy */
 };
 
 

@@ -73,8 +73,8 @@ extern "C" {
  *                  or a MBEDTLS_ERR_ECP_XXX or MBEDTLS_MPI_XXX error code
  */
 int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
-                const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
-                int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
+                        const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
+                        int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
 
 #if defined(MBEDTLS_ECDSA_DETERMINISTIC)
 /**
@@ -93,8 +93,8 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
  *                  or a MBEDTLS_ERR_ECP_XXX or MBEDTLS_MPI_XXX error code
  */
 int mbedtls_ecdsa_sign_det( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
-                    const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
-                    mbedtls_md_type_t md_alg );
+                            const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
+                            mbedtls_md_type_t md_alg );
 #endif /* MBEDTLS_ECDSA_DETERMINISTIC */
 
 /**
@@ -112,8 +112,8 @@ int mbedtls_ecdsa_sign_det( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi 
  *                  or a MBEDTLS_ERR_ECP_XXX or MBEDTLS_MPI_XXX error code
  */
 int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
-                  const unsigned char *buf, size_t blen,
-                  const mbedtls_ecp_point *Q, const mbedtls_mpi *r, const mbedtls_mpi *s);
+                          const unsigned char *buf, size_t blen,
+                          const mbedtls_ecp_point *Q, const mbedtls_mpi *r, const mbedtls_mpi *s);
 
 /**
  * \brief           Compute ECDSA signature and write it to buffer,
@@ -141,10 +141,10 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
  *                  MBEDTLS_ERR_ASN1_XXX error code
  */
 int mbedtls_ecdsa_write_signature( mbedtls_ecdsa_context *ctx, mbedtls_md_type_t md_alg,
-                           const unsigned char *hash, size_t hlen,
-                           unsigned char *sig, size_t *slen,
-                           int (*f_rng)(void *, unsigned char *, size_t),
-                           void *p_rng );
+                                   const unsigned char *hash, size_t hlen,
+                                   unsigned char *sig, size_t *slen,
+                                   int (*f_rng)(void *, unsigned char *, size_t),
+                                   void *p_rng );
 
 #if defined(MBEDTLS_ECDSA_DETERMINISTIC)
 #if ! defined(MBEDTLS_DEPRECATED_REMOVED)
@@ -177,9 +177,9 @@ int mbedtls_ecdsa_write_signature( mbedtls_ecdsa_context *ctx, mbedtls_md_type_t
  *                  MBEDTLS_ERR_ASN1_XXX error code
  */
 int mbedtls_ecdsa_write_signature_det( mbedtls_ecdsa_context *ctx,
-                               const unsigned char *hash, size_t hlen,
-                               unsigned char *sig, size_t *slen,
-                               mbedtls_md_type_t md_alg ) MBEDTLS_DEPRECATED;
+                                       const unsigned char *hash, size_t hlen,
+                                       unsigned char *sig, size_t *slen,
+                                       mbedtls_md_type_t md_alg ) MBEDTLS_DEPRECATED;
 #undef MBEDTLS_DEPRECATED
 #endif /* MBEDTLS_DEPRECATED_REMOVED */
 #endif /* MBEDTLS_ECDSA_DETERMINISTIC */
@@ -200,8 +200,8 @@ int mbedtls_ecdsa_write_signature_det( mbedtls_ecdsa_context *ctx,
  *                  or a MBEDTLS_ERR_ECP_XXX or MBEDTLS_ERR_MPI_XXX error code
  */
 int mbedtls_ecdsa_read_signature( mbedtls_ecdsa_context *ctx,
-                          const unsigned char *hash, size_t hlen,
-                          const unsigned char *sig, size_t slen );
+                                  const unsigned char *hash, size_t hlen,
+                                  const unsigned char *sig, size_t slen );
 
 /**
  * \brief           Generate an ECDSA keypair on the given curve
@@ -215,7 +215,7 @@ int mbedtls_ecdsa_read_signature( mbedtls_ecdsa_context *ctx,
  * \return          0 on success, or a MBEDTLS_ERR_ECP_XXX code.
  */
 int mbedtls_ecdsa_genkey( mbedtls_ecdsa_context *ctx, mbedtls_ecp_group_id gid,
-                  int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
+                          int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
 
 /**
  * \brief           Set an ECDSA context from an EC key pair

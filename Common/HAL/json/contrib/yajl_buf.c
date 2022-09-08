@@ -22,7 +22,8 @@
 
 #define YAJL_BUF_INIT_SIZE 2048
 
-struct yajl_buf_t {
+struct yajl_buf_t
+{
     size_t len;
     size_t used;
     unsigned char * data;
@@ -33,11 +34,12 @@ static
 void yajl_buf_ensure_available(yajl_buf buf, size_t want)
 {
     size_t need;
-    
+
     assert(buf != NULL);
 
     /* first call */
-    if (buf->data == NULL) {
+    if (buf->data == NULL)
+    {
         buf->len = YAJL_BUF_INIT_SIZE;
         buf->data = (unsigned char *) YA_MALLOC(buf->alloc, buf->len);
         buf->data[0] = 0;
@@ -47,7 +49,8 @@ void yajl_buf_ensure_available(yajl_buf buf, size_t want)
 
     while (want >= (need - buf->used)) need <<= 1;
 
-    if (need != buf->len) {
+    if (need != buf->len)
+    {
         buf->data = (unsigned char *) YA_REALLOC(buf->alloc, buf->data, need);
         buf->len = need;
     }
@@ -71,7 +74,8 @@ void yajl_buf_free(yajl_buf buf)
 void yajl_buf_append(yajl_buf buf, const void * data, size_t len)
 {
     yajl_buf_ensure_available(buf, len);
-    if (len > 0) {
+    if (len > 0)
+    {
         assert(data != NULL);
         memcpy(buf->data + buf->used, data, len);
         buf->used += len;

@@ -1,14 +1,20 @@
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
+
 #
 # Makefile to include built in Component support 
 
 # Called by ../../Makefile
 #
 
-# @author: Pierre Drezet
-# @version: $Revision: 43 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
+# @author: inx limited
 # 
-# Copyright (c) inx Ltd, 2010. All rights reserved.
 #
 #
 # Predefined variables
@@ -49,7 +55,7 @@ endif
 
 ifdef EHS_AV_SUPPORT
 ifneq ($(EHS_AV_SUPPORT), none)
-EHS_COMMON_TOOLKIT_DTV_PATH=$(EHS_COMMON_COMPONENTS_PATH)/AV 
+EHS_COMMON_TOOLKIT_DTV_PATH=$(EHS_COMMON_COMPONENTS_PATH)/AV
 include $(EHS_COMMON_COMPONENTS_PATH)/AV/components.mk
 DEFS+=EHS_AV_SUPPORT
 endif
@@ -89,9 +95,6 @@ endif
 endif 
 
 
-
-
-
 ################################################################################
 # Optional toolkits
 #
@@ -101,6 +104,7 @@ endif
 #ifeq "$(TK_DEPRECATE)" "yes"
 ifeq "$(EHS_TOOLKIT_DEPRECATED)" "yes" 
 EHS_COMMON_TOOLKIT_DEPRECATE_PATH=$(EHS_COMMON_COMPONENTS_PATH)/deprecated
+#VPATH+=$(EHS_COMMON_TOOLKIT_DEPRECATE_PATH)
 INC_DIRS+=$(EHS_COMMON_TOOLKIT_DEPRECATE_PATH)
 include $(EHS_COMMON_TOOLKIT_DEPRECATE_PATH)/components.mk
 DEFS+=EHS_TOOLKIT_DEPRECATED

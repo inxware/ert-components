@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file hal_console.h
  * In this file, all of the hardware abstraction layer declarations provided for EHS console I/O are given.
  *
- * @author: Dr Pierre Drezet
- * @version: $Revision: 2780 $
- * @date: $Date: 20011-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
+ * @author: inx limited
  *
- * Copyright (c) inx Ltd, 2006. All rights reserved.
  */
 
 #ifndef EHS_HAL_DEVAPPS_H
@@ -13,7 +19,7 @@
 
 #include "globals.h" // this includes the macros, and ehs types
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
-	#include "hal_url.h" // need thearchive and libcurl structs
+#include "hal_url.h" // need thearchive and libcurl structs
 #endif //EHS_COMPONENT_NETWORKING_SUPPORT
 #include "hal_devman.h"
 
@@ -26,12 +32,13 @@
 
 /* Internal structure used to store archive data that is being retrieved */
 
-typedef struct AppGet_URL_data_buffer {
-	ehs_char * buffer;
-	ehs_uint32 size_read;
-	ehs_uint32 buffer_size;
-	ehs_bool data_ready;
-	struct archive *ar; // this is the write archive handle that is passed to the writer.
+typedef struct AppGet_URL_data_buffer
+{
+    ehs_char * buffer;
+    ehs_uint32 size_read;
+    ehs_uint32 buffer_size;
+    ehs_bool data_ready;
+    struct archive *ar; // this is the write archive handle that is passed to the writer.
 } AppGet_URL_data_buffer_Type;
 
 //*todo share this between the component and HAL version...
@@ -39,27 +46,27 @@ typedef struct AppGet_URL_data_buffer {
 
 typedef struct
 {
-	ehs_bool bBusy; 				/* flag not to use multiple functions simultaneously */
-	ehs_bool bRunWhenDone; /* Flag to run the app when it has been downloaded */
-	ehs_bool bSetAsDefaultApp; /* Flag to set this as the default app */
-	ehs_sint32 nInstallMode; /* 0 install standard app, 1 install as home app, 2 as temp app */
-	#ifdef EHS_COMPONENT_NETWORKING_SUPPORT
-		AppGet_URL_data_buffer_Type AppGet_write_data_buffer_struct; // this is for the standard URL get/post e.g. for info gets
-		EhsH_URLwrite_data_bufferType * URL_write_data_buffer_struct; // this is the special buffer struct for the un archiver into which data is pumped from URL read to libarchive
-		EhsNetworkServerInfo_t server_info; //@todo this should be updated from a central repository for the interface. Need a new function block to populate it.
-	#endif //EHS_COMPONENT_NETWORKING_SUPPORT
-	ehs_bool bFreeWhenDone; //Set this to True if you want the downloader thread to remove this struct when it's finished (not used for function blocks
-	#ifdef EHS_COMPONENT_NETWORKING_SUPPORT
-	CURL * curl; //use a global handle
-	#endif //EHS_COMPONENT_NETWORKING_SUPPORT
-	ehs_char szID[EHS_STRING_LENGTH_MAX];  /* Key the server may require to make the download*/
-	ehs_char szAppCanonicalName[EHS_MAXDEVMANNAMELEN]; /* App name to retrieve */
-	ehs_char szAppLocalName[EHS_MAXDEVMANNAMELEN]; /* App name to retrieve */
-	ehs_char szUrl[EHS_MAXDEVMANNAMELEN];	  /* url from where to retrieve the app - must be a devman server */
-	ehs_char szUrlAppGetExtPath[EHS_MAXPATHLENGTH]; /* This can be populated with the path so that szURL acts as a base for other stuff */
-	ehs_char szKeywords[EHS_STRING_LENGTH_MAX];     /* This is used to query the devman server for matching apps - this is XML format */
-													/* <feature> [string] <version> [major.minor.vminor.vvminor]> <\version><\feature> */
-	ehs_char szpDownloadDir[EHS_MAXPATHLENGTH];
+    ehs_bool bBusy; 				/* flag not to use multiple functions simultaneously */
+    ehs_bool bRunWhenDone; /* Flag to run the app when it has been downloaded */
+    ehs_bool bSetAsDefaultApp; /* Flag to set this as the default app */
+    ehs_sint32 nInstallMode; /* 0 install standard app, 1 install as home app, 2 as temp app */
+#ifdef EHS_COMPONENT_NETWORKING_SUPPORT
+    AppGet_URL_data_buffer_Type AppGet_write_data_buffer_struct; // this is for the standard URL get/post e.g. for info gets
+    EhsH_URLwrite_data_bufferType * URL_write_data_buffer_struct; // this is the special buffer struct for the un archiver into which data is pumped from URL read to libarchive
+    EhsNetworkServerInfo_t server_info; //@todo this should be updated from a central repository for the interface. Need a new function block to populate it.
+#endif //EHS_COMPONENT_NETWORKING_SUPPORT
+    ehs_bool bFreeWhenDone; //Set this to True if you want the downloader thread to remove this struct when it's finished (not used for function blocks
+#ifdef EHS_COMPONENT_NETWORKING_SUPPORT
+    CURL * curl; //use a global handle
+#endif //EHS_COMPONENT_NETWORKING_SUPPORT
+    ehs_char szID[EHS_STRING_LENGTH_MAX];  /* Key the server may require to make the download*/
+    ehs_char szAppCanonicalName[EHS_MAXDEVMANNAMELEN]; /* App name to retrieve */
+    ehs_char szAppLocalName[EHS_MAXDEVMANNAMELEN]; /* App name to retrieve */
+    ehs_char szUrl[EHS_MAXDEVMANNAMELEN];	  /* url from where to retrieve the app - must be a devman server */
+    ehs_char szUrlAppGetExtPath[EHS_MAXPATHLENGTH]; /* This can be populated with the path so that szURL acts as a base for other stuff */
+    ehs_char szKeywords[EHS_STRING_LENGTH_MAX];     /* This is used to query the devman server for matching apps - this is XML format */
+    /* <feature> [string] <version> [major.minor.vminor.vvminor]> <\version><\feature> */
+    ehs_char szpDownloadDir[EHS_MAXPATHLENGTH];
 } appgetObj;
 
 

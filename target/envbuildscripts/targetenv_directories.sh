@@ -46,7 +46,7 @@ test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-
 if [ -e "${STAGING_DIRECTORY}/sysdata/version.nfo" ];then 
    read -r -d '*'  VERSION_NAME TIME_STAMP REST < ${STAGING_DIRECTORY}/sysdata/version.nfo ||:
 else
-
+   
    echo "Warning !!!!!! No version information file is present for this build. Setting to UNKNOWN. !!!!!!!!"
    echo "Run make targetenv_version to generate version string for this release"
    VERSION_NAME="UNKOWN"
@@ -57,4 +57,4 @@ echo "### Done Build:$VERSION_NAME - $TIME_STAMP"
 echo "### Cleaned only Devman state and runtime logs, all applications and user data remains"
 echo "### To completely clean the target tree delete the TARGETENV directory and re-run this make"
 echo "###################################################################################"
- 
+

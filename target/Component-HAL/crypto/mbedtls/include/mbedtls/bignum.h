@@ -108,30 +108,30 @@
  */
 #if ( ! defined(MBEDTLS_HAVE_INT32) && \
         defined(_MSC_VER) && defined(_M_AMD64) )
-  #define MBEDTLS_HAVE_INT64
-  typedef  int64_t mbedtls_mpi_sint;
-  typedef uint64_t mbedtls_mpi_uint;
+#define MBEDTLS_HAVE_INT64
+typedef  int64_t mbedtls_mpi_sint;
+typedef uint64_t mbedtls_mpi_uint;
 #else
-  #if ( ! defined(MBEDTLS_HAVE_INT32) &&               \
+#if ( ! defined(MBEDTLS_HAVE_INT32) &&               \
         defined(__GNUC__) && (                          \
         defined(__amd64__) || defined(__x86_64__)    || \
         defined(__ppc64__) || defined(__powerpc64__) || \
         defined(__ia64__)  || defined(__alpha__)     || \
         (defined(__sparc__) && defined(__arch64__))  || \
         defined(__s390x__) || defined(__mips64) ) )
-     #define MBEDTLS_HAVE_INT64
-     typedef  int64_t mbedtls_mpi_sint;
-     typedef uint64_t mbedtls_mpi_uint;
-     /* mbedtls_t_udbl defined as 128-bit unsigned int */
-     typedef unsigned int mbedtls_t_udbl __attribute__((mode(TI)));
-     #define MBEDTLS_HAVE_UDBL
-  #else
-     #define MBEDTLS_HAVE_INT32
-     typedef  int32_t mbedtls_mpi_sint;
-     typedef uint32_t mbedtls_mpi_uint;
-     typedef uint64_t mbedtls_t_udbl;
-     #define MBEDTLS_HAVE_UDBL
-  #endif /* !MBEDTLS_HAVE_INT32 && __GNUC__ && 64-bit platform */
+#define MBEDTLS_HAVE_INT64
+typedef  int64_t mbedtls_mpi_sint;
+typedef uint64_t mbedtls_mpi_uint;
+/* mbedtls_t_udbl defined as 128-bit unsigned int */
+typedef unsigned int mbedtls_t_udbl __attribute__((mode(TI)));
+#define MBEDTLS_HAVE_UDBL
+#else
+#define MBEDTLS_HAVE_INT32
+typedef  int32_t mbedtls_mpi_sint;
+typedef uint32_t mbedtls_mpi_uint;
+typedef uint64_t mbedtls_t_udbl;
+#define MBEDTLS_HAVE_UDBL
+#endif /* !MBEDTLS_HAVE_INT32 && __GNUC__ && 64-bit platform */
 #endif /* !MBEDTLS_HAVE_INT32 && _MSC_VER && _M_AMD64 */
 
 #ifdef __cplusplus
@@ -641,8 +641,8 @@ int mbedtls_mpi_exp_mod( mbedtls_mpi *X, const mbedtls_mpi *A, const mbedtls_mpi
  *                 MBEDTLS_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
 int mbedtls_mpi_fill_random( mbedtls_mpi *X, size_t size,
-                     int (*f_rng)(void *, unsigned char *, size_t),
-                     void *p_rng );
+                             int (*f_rng)(void *, unsigned char *, size_t),
+                             void *p_rng );
 
 /**
  * \brief          Greatest common divisor: G = gcd(A, B)
@@ -682,8 +682,8 @@ int mbedtls_mpi_inv_mod( mbedtls_mpi *X, const mbedtls_mpi *A, const mbedtls_mpi
  *                 MBEDTLS_ERR_MPI_NOT_ACCEPTABLE if X is not prime
  */
 int mbedtls_mpi_is_prime( const mbedtls_mpi *X,
-                  int (*f_rng)(void *, unsigned char *, size_t),
-                  void *p_rng );
+                          int (*f_rng)(void *, unsigned char *, size_t),
+                          void *p_rng );
 
 /**
  * \brief          Prime number generation
@@ -700,8 +700,8 @@ int mbedtls_mpi_is_prime( const mbedtls_mpi *X,
  *                 MBEDTLS_ERR_MPI_BAD_INPUT_DATA if nbits is < 3
  */
 int mbedtls_mpi_gen_prime( mbedtls_mpi *X, size_t nbits, int dh_flag,
-                   int (*f_rng)(void *, unsigned char *, size_t),
-                   void *p_rng );
+                           int (*f_rng)(void *, unsigned char *, size_t),
+                           void *p_rng );
 
 /**
  * \brief          Checkup routine

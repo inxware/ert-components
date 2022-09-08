@@ -101,7 +101,7 @@ static int netlink_recv(int p_socket, void *p_buffer, size_t p_len)
         l_msg.msg_controllen = 0;
         l_msg.msg_flags = 0;
         int l_result = recvmsg(p_socket, &l_msg, MSG_DONTWAIT);
-       // #warning "recvmsg seems to hang on android - added MSG_DONTWAIT, which may not be good for all?"
+        // #warning "recvmsg seems to hang on android - added MSG_DONTWAIT, which may not be good for all?"
 
         if(l_result < 0)
         {
@@ -113,7 +113,8 @@ static int netlink_recv(int p_socket, void *p_buffer, size_t p_len)
         }
 
         if(l_msg.msg_flags & MSG_TRUNC)
-        { // buffer was too small
+        {
+            // buffer was too small
             return -1;
         }
         return l_result;
@@ -211,13 +212,15 @@ static NetlinkList *getResultList(int p_socket, int p_request)
     int l_done = 0;
     while(!l_done)
     {
-        if (countout++ > 50 ) {
-             freeResultList(l_list); // presume this frees the result
-             return NULL;
+        if (countout++ > 50 )
+        {
+            freeResultList(l_list); // presume this frees the result
+            return NULL;
         }
         struct nlmsghdr *l_hdr = getNetlinkResponse(p_socket, &l_size, &l_done);
         if(!l_hdr)
-        { // error
+        {
+            // error
             freeResultList(l_list);
             return NULL;
         }
@@ -234,7 +237,10 @@ static NetlinkList *getResultList(int p_socket, int p_request)
         }
         else
         {
-            l_end->m_next = l_item;
+            if(l_end!=NULL)
+            {
+                l_end->m_next = l_item;
+            }
         }
         l_end = l_item;
     }
@@ -250,14 +256,14 @@ static size_t calcAddrLen(sa_family_t p_family, int p_dataSize)
 {
     switch(p_family)
     {
-        case AF_INET:
-            return sizeof(struct sockaddr_in);
-        case AF_INET6:
-            return sizeof(struct sockaddr_in6);
-        case AF_PACKET:
-            return maxSize(sizeof(struct sockaddr_ll), offsetof(struct sockaddr_ll, sll_addr) + p_dataSize);
-        default:
-            return maxSize(sizeof(struct sockaddr), offsetof(struct sockaddr, sa_data) + p_dataSize);
+    case AF_INET:
+        return sizeof(struct sockaddr_in);
+    case AF_INET6:
+        return sizeof(struct sockaddr_in6);
+    case AF_PACKET:
+        return maxSize(sizeof(struct sockaddr_ll), offsetof(struct sockaddr_ll, sll_addr) + p_dataSize);
+    default:
+        return maxSize(sizeof(struct sockaddr), offsetof(struct sockaddr, sa_data) + p_dataSize);
     }
 }
 
@@ -265,19 +271,19 @@ static void makeSockaddr(sa_family_t p_family, struct sockaddr *p_dest, void *p_
 {
     switch(p_family)
     {
-        case AF_INET:
-            memcpy(&((struct sockaddr_in*)p_dest)->sin_addr, p_data, p_size);
-            break;
-        case AF_INET6:
-            memcpy(&((struct sockaddr_in6*)p_dest)->sin6_addr, p_data, p_size);
-            break;
-        case AF_PACKET:
-            memcpy(((struct sockaddr_ll*)p_dest)->sll_addr, p_data, p_size);
-            ((struct sockaddr_ll*)p_dest)->sll_halen = p_size;
-            break;
-        default:
-            memcpy(p_dest->sa_data, p_data, p_size);
-            break;
+    case AF_INET:
+        memcpy(&((struct sockaddr_in*)p_dest)->sin_addr, p_data, p_size);
+        break;
+    case AF_INET6:
+        memcpy(&((struct sockaddr_in6*)p_dest)->sin6_addr, p_data, p_size);
+        break;
+    case AF_PACKET:
+        memcpy(((struct sockaddr_ll*)p_dest)->sll_addr, p_data, p_size);
+        ((struct sockaddr_ll*)p_dest)->sll_halen = p_size;
+        break;
+    default:
+        memcpy(p_dest->sa_data, p_data, p_size);
+        break;
     }
     p_dest->sa_family = p_family;
 }
@@ -315,18 +321,18 @@ static int interpretLink(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList)
         size_t l_rtaDataSize = RTA_PAYLOAD(l_rta);
         switch(l_rta->rta_type)
         {
-            case IFLA_ADDRESS:
-            case IFLA_BROADCAST:
-                l_addrSize += NLMSG_ALIGN(calcAddrLen(AF_PACKET, l_rtaDataSize));
-                break;
-            case IFLA_IFNAME:
-                l_nameSize += NLMSG_ALIGN(l_rtaSize + 1);
-                break;
-            case IFLA_STATS:
-                l_dataSize += NLMSG_ALIGN(l_rtaSize);
-                break;
-            default:
-                break;
+        case IFLA_ADDRESS:
+        case IFLA_BROADCAST:
+            l_addrSize += NLMSG_ALIGN(calcAddrLen(AF_PACKET, l_rtaDataSize));
+            break;
+        case IFLA_IFNAME:
+            l_nameSize += NLMSG_ALIGN(l_rtaSize + 1);
+            break;
+        case IFLA_STATS:
+            l_dataSize += NLMSG_ALIGN(l_rtaSize);
+            break;
+        default:
+            break;
         }
     }
 
@@ -355,35 +361,35 @@ static int interpretLink(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList)
         size_t l_rtaDataSize = RTA_PAYLOAD(l_rta);
         switch(l_rta->rta_type)
         {
-            case IFLA_ADDRESS:
-            case IFLA_BROADCAST:
+        case IFLA_ADDRESS:
+        case IFLA_BROADCAST:
+        {
+            size_t l_addrLen = calcAddrLen(AF_PACKET, l_rtaDataSize);
+            makeSockaddr(AF_PACKET, (struct sockaddr *)l_addr, l_rtaData, l_rtaDataSize);
+            ((struct sockaddr_ll *)l_addr)->sll_ifindex = l_info->ifi_index;
+            ((struct sockaddr_ll *)l_addr)->sll_hatype = l_info->ifi_type;
+            if(l_rta->rta_type == IFLA_ADDRESS)
             {
-                size_t l_addrLen = calcAddrLen(AF_PACKET, l_rtaDataSize);
-                makeSockaddr(AF_PACKET, (struct sockaddr *)l_addr, l_rtaData, l_rtaDataSize);
-                ((struct sockaddr_ll *)l_addr)->sll_ifindex = l_info->ifi_index;
-                ((struct sockaddr_ll *)l_addr)->sll_hatype = l_info->ifi_type;
-                if(l_rta->rta_type == IFLA_ADDRESS)
-                {
-                    l_entry->ifa_addr = (struct sockaddr *)l_addr;
-                }
-                else
-                {
-                    l_entry->ifa_broadaddr = (struct sockaddr *)l_addr;
-                }
-                l_addr += NLMSG_ALIGN(l_addrLen);
-                break;
+                l_entry->ifa_addr = (struct sockaddr *)l_addr;
             }
-            case IFLA_IFNAME:
-                strncpy(l_name, l_rtaData, l_rtaDataSize);
-                l_name[l_rtaDataSize] = '\0';
-                l_entry->ifa_name = l_name;
-                break;
-            case IFLA_STATS:
-                memcpy(l_data, l_rtaData, l_rtaDataSize);
-                l_entry->ifa_data = l_data;
-                break;
-            default:
-                break;
+            else
+            {
+                l_entry->ifa_broadaddr = (struct sockaddr *)l_addr;
+            }
+            l_addr += NLMSG_ALIGN(l_addrLen);
+            break;
+        }
+        case IFLA_IFNAME:
+            strncpy(l_name, l_rtaData, l_rtaDataSize);
+            l_name[l_rtaDataSize] = '\0';
+            l_entry->ifa_name = l_name;
+            break;
+        case IFLA_STATS:
+            memcpy(l_data, l_rtaData, l_rtaDataSize);
+            l_entry->ifa_data = l_data;
+            break;
+        default:
+            break;
         }
     }
 
@@ -435,21 +441,22 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
 
         switch(l_rta->rta_type)
         {
-            case IFA_ADDRESS:
-            case IFA_LOCAL:
-                if((l_info->ifa_family == AF_INET || l_info->ifa_family == AF_INET6) && !l_addedNetmask)
-                { // make room for netmask
-                    l_addrSize += NLMSG_ALIGN(calcAddrLen(l_info->ifa_family, l_rtaDataSize));
-                    l_addedNetmask = 1;
-                }
-            case IFA_BROADCAST:
+        case IFA_ADDRESS:
+        case IFA_LOCAL:
+            if((l_info->ifa_family == AF_INET || l_info->ifa_family == AF_INET6) && !l_addedNetmask)
+            {
+                // make room for netmask
                 l_addrSize += NLMSG_ALIGN(calcAddrLen(l_info->ifa_family, l_rtaDataSize));
-                break;
-            case IFA_LABEL:
-                l_nameSize += NLMSG_ALIGN(l_rtaSize + 1);
-                break;
-            default:
-                break;
+                l_addedNetmask = 1;
+            }
+        case IFA_BROADCAST:
+            l_addrSize += NLMSG_ALIGN(calcAddrLen(l_info->ifa_family, l_rtaDataSize));
+            break;
+        case IFA_LABEL:
+            l_nameSize += NLMSG_ALIGN(l_rtaSize + 1);
+            break;
+        default:
+            break;
         }
     }
 
@@ -477,53 +484,54 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
         size_t l_rtaDataSize = RTA_PAYLOAD(l_rta);
         switch(l_rta->rta_type)
         {
-            case IFA_ADDRESS:
-            case IFA_BROADCAST:
-            case IFA_LOCAL:
+        case IFA_ADDRESS:
+        case IFA_BROADCAST:
+        case IFA_LOCAL:
+        {
+            size_t l_addrLen = calcAddrLen(l_info->ifa_family, l_rtaDataSize);
+            makeSockaddr(l_info->ifa_family, (struct sockaddr *)l_addr, l_rtaData, l_rtaDataSize);
+            if(l_info->ifa_family == AF_INET6)
             {
-                size_t l_addrLen = calcAddrLen(l_info->ifa_family, l_rtaDataSize);
-                makeSockaddr(l_info->ifa_family, (struct sockaddr *)l_addr, l_rtaData, l_rtaDataSize);
-                if(l_info->ifa_family == AF_INET6)
+                if(IN6_IS_ADDR_LINKLOCAL((struct in6_addr *)l_rtaData) || IN6_IS_ADDR_MC_LINKLOCAL((struct in6_addr *)l_rtaData))
                 {
-                    if(IN6_IS_ADDR_LINKLOCAL((struct in6_addr *)l_rtaData) || IN6_IS_ADDR_MC_LINKLOCAL((struct in6_addr *)l_rtaData))
-                    {
-                        ((struct sockaddr_in6 *)l_addr)->sin6_scope_id = l_info->ifa_index;
-                    }
+                    ((struct sockaddr_in6 *)l_addr)->sin6_scope_id = l_info->ifa_index;
                 }
+            }
 
-                if(l_rta->rta_type == IFA_ADDRESS)
-                { // apparently in a point-to-point network IFA_ADDRESS contains the dest address and IFA_LOCAL contains the local address
-                    if(l_entry->ifa_addr)
-                    {
-                        l_entry->ifa_dstaddr = (struct sockaddr *)l_addr;
-                    }
-                    else
-                    {
-                        l_entry->ifa_addr = (struct sockaddr *)l_addr;
-                    }
-                }
-                else if(l_rta->rta_type == IFA_LOCAL)
+            if(l_rta->rta_type == IFA_ADDRESS)
+            {
+                // apparently in a point-to-point network IFA_ADDRESS contains the dest address and IFA_LOCAL contains the local address
+                if(l_entry->ifa_addr)
                 {
-                    if(l_entry->ifa_addr)
-                    {
-                        l_entry->ifa_dstaddr = l_entry->ifa_addr;
-                    }
-                    l_entry->ifa_addr = (struct sockaddr *)l_addr;
+                    l_entry->ifa_dstaddr = (struct sockaddr *)l_addr;
                 }
                 else
                 {
-                    l_entry->ifa_broadaddr = (struct sockaddr *)l_addr;
+                    l_entry->ifa_addr = (struct sockaddr *)l_addr;
                 }
-                l_addr += NLMSG_ALIGN(l_addrLen);
-                break;
             }
-            case IFA_LABEL:
-                strncpy(l_name, l_rtaData, l_rtaDataSize);
-                l_name[l_rtaDataSize] = '\0';
-                l_entry->ifa_name = l_name;
-                break;
-            default:
-                break;
+            else if(l_rta->rta_type == IFA_LOCAL)
+            {
+                if(l_entry->ifa_addr)
+                {
+                    l_entry->ifa_dstaddr = l_entry->ifa_addr;
+                }
+                l_entry->ifa_addr = (struct sockaddr *)l_addr;
+            }
+            else
+            {
+                l_entry->ifa_broadaddr = (struct sockaddr *)l_addr;
+            }
+            l_addr += NLMSG_ALIGN(l_addrLen);
+            break;
+        }
+        case IFA_LABEL:
+            strncpy(l_name, l_rtaData, l_rtaDataSize);
+            l_name[l_rtaDataSize] = '\0';
+            l_entry->ifa_name = l_name;
+            break;
+        default:
+            break;
         }
     }
 

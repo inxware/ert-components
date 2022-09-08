@@ -43,9 +43,9 @@ JNIEXPORT void JNICALL Java_com_android_gl2jni_SysInfo_setIpAddress(JNIEnv *env,
 */
 JNIEXPORT void JNICALL Java_com_inx_ehs_utils_EhsJNI_jniSetId(JNIEnv *env, jobject obj, jstring value, jstring path)
 {
-	jboolean iscopy;
-	EhsHMetaSetHWID((*env)->GetStringUTFChars(env, value, &iscopy));
-	EhsHMetaSetInstPath((*env)->GetStringUTFChars(env, path, &iscopy));
-	EhsHOsSys_UpdateEnvironment();
-	//EhsTInitFileSystem(env->envapp??? can't ge the app so this is done in java instead);
+    jboolean iscopy;
+    EhsHMetaSetHWID((*env)->GetStringUTFChars(env, value, &iscopy));
+    EhsHMetaSetInstPath((*env)->GetStringUTFChars(env, path, &iscopy));
+    EhsHOsSys_UpdateEnvironment();
+    //EhsTInitFileSystem(env->envapp??? can't ge the app so this is done in java instead);
 }

@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -18,7 +27,8 @@ typedef struct
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(application_run)
-EHS_FB_FUNCTION_ENTRY("runApp", application_run_runApp)
+
+EHS_FB_FUNCTION_ENTRY("runApp", 0x00, application_run_runApp)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -40,10 +50,10 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(application_run)
 {
-/* Uncomment the following if you need to parse the parameters to calculate memory required */
-/*
-	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
-	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_application_run_state_type);
+    /* Uncomment the following if you need to parse the parameters to calculate memory required */
+    /*
+    	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
+    EHS_FB_IDENTIFY_MEMORY = sizeof(inx_application_run_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
@@ -56,14 +66,14 @@ EHS_FB_IDENTIFY_FUNCTION(application_run)
 
 EHS_FB_INIT_FUNCTION(application_run)
 {
-	ehs_bool bRet = EHS_TRUE; /* assume success */
-	//this is the reference to the object data for this instance of the function block
-	inx_application_run_state_type* inx_application_run_state = (inx_application_run_state_type*)EHS_FB_INIT_CONTEXT;
-	/* read the initialisation parameters */
-	//EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+    ehs_bool bRet = EHS_TRUE; /* assume success */
+    //this is the reference to the object data for this instance of the function block
+    inx_application_run_state_type* inx_application_run_state = (inx_application_run_state_type*)EHS_FB_INIT_CONTEXT;
+    /* read the initialisation parameters */
+    //EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
 
-	/* Add any further intialisation code here */
-	return bRet; /* initialisation always succeeds */
+    /* Add any further intialisation code here */
+    return bRet; /* initialisation always succeeds */
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
 //ICB FUNCTION runApp MACRO START -- DO NOT ALTER
@@ -76,31 +86,35 @@ EHS_FB_INIT_FUNCTION(application_run)
  */
 EHS_FB_RUN_FUNCTION(application_run_runApp)
 {
-	ehs_bool bSucc = EHS_FALSE;
-	ehs_char cAppCanonicalName[EHS_MAXPATHLENGTH];
-	inx_application_run_state_type* inx_application_run_state = (inx_application_run_state_type*)EHS_FB_RUN_CONTEXT;
+    ehs_bool bSucc = EHS_FALSE;
+    ehs_char cAppCanonicalName[EHS_MAXPATHLENGTH];
+    inx_application_run_state_type* inx_application_run_state = (inx_application_run_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	if (EHS_FB_IN_CONNECTED_API2(INX_application_run_ARG_runApp_Name)) {
-		EhsStrcpy(cAppCanonicalName,EHS_FB_IN_S_API2(INX_application_run_ARG_runApp_Name));
+    // Your code here
+    if (EHS_FB_IN_CONNECTED_API2(INX_application_run_ARG_runApp_Name))
+    {
+        EhsStrcpy(cAppCanonicalName,EHS_FB_IN_S_API2(INX_application_run_ARG_runApp_Name));
 
-		EhsStrTrimLR(cAppCanonicalName);
-//		printf("cAppCanonicalName[%s][%d]\n",cAppCanonicalName,strlen(cAppCanonicalName));
+        EhsStrTrimLR(cAppCanonicalName);
 
-		//@todo - test for path in appdata before try to load app
-		if (EhsStrcmp(cAppCanonicalName,"") != 0) {
-			EhsHMetaSetNextAppToRun(cAppCanonicalName);
-			EhsHFSMForceInternallyRequestedCommand(EHS_RELOAD_EHS_FROM_FILE); //@todo - any way to check for success?
-			//		EHSH_LOG_ERROR("Failed to start app, canonical name[%s]\n",cAppCanonicalName);
-			bSucc = EHS_TRUE;
-		}
-	}
+        //@todo - test for path in appdata before try to load app
+        if (EhsStrcmp(cAppCanonicalName,"") != 0)
+        {
+            EhsHMetaSetNextAppToRun(cAppCanonicalName);
+            EhsHFSMForceInternallyRequestedCommand(EHS_RELOAD_EHS_FROM_FILE); //@todo - any way to check for success?
+            //		EHSH_LOG_ERROR("Failed to start app, canonical name[%s]\n",cAppCanonicalName);
+            bSucc = EHS_TRUE;
+        }
+    }
 
-	if (bSucc == EHS_TRUE) {
-		EHS_FB_FINISH(INX_application_run_ARG_runApp_xxxrun);
-	} else {
-		EHS_FB_FINISH(INX_application_run_ARG_runApp_errorrun);
-	}
-	return;
+    if (bSucc == EHS_TRUE)
+    {
+        EHS_FB_FINISH(INX_application_run_ARG_runApp_xxxrun);
+    }
+    else
+    {
+        EHS_FB_FINISH(INX_application_run_ARG_runApp_errorrun);
+    }
+    return;
 }
 //ICB FUNCTION runApp MACRO END -- DO NOT ALTER

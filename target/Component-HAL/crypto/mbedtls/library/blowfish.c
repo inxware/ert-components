@@ -40,8 +40,10 @@
 #if !defined(MBEDTLS_BLOWFISH_ALT)
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = (unsigned char*)v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -67,12 +69,13 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 }
 #endif
 
-static const uint32_t P[MBEDTLS_BLOWFISH_ROUNDS + 2] = {
-        0x243F6A88L, 0x85A308D3L, 0x13198A2EL, 0x03707344L,
-        0xA4093822L, 0x299F31D0L, 0x082EFA98L, 0xEC4E6C89L,
-        0x452821E6L, 0x38D01377L, 0xBE5466CFL, 0x34E90C6CL,
-        0xC0AC29B7L, 0xC97C50DDL, 0x3F84D5B5L, 0xB5470917L,
-        0x9216D5D9L, 0x8979FB1BL
+static const uint32_t P[MBEDTLS_BLOWFISH_ROUNDS + 2] =
+{
+    0x243F6A88L, 0x85A308D3L, 0x13198A2EL, 0x03707344L,
+    0xA4093822L, 0x299F31D0L, 0x082EFA98L, 0xEC4E6C89L,
+    0x452821E6L, 0x38D01377L, 0xBE5466CFL, 0x34E90C6CL,
+    0xC0AC29B7L, 0xC97C50DDL, 0x3F84D5B5L, 0xB5470917L,
+    0x9216D5D9L, 0x8979FB1BL
 };
 
 /* declarations of data at the end of this file */
@@ -80,21 +83,21 @@ static const uint32_t S[4][256];
 
 static uint32_t F( mbedtls_blowfish_context *ctx, uint32_t x )
 {
-   unsigned short a, b, c, d;
-   uint32_t  y;
+    unsigned short a, b, c, d;
+    uint32_t  y;
 
-   d = (unsigned short)(x & 0xFF);
-   x >>= 8;
-   c = (unsigned short)(x & 0xFF);
-   x >>= 8;
-   b = (unsigned short)(x & 0xFF);
-   x >>= 8;
-   a = (unsigned short)(x & 0xFF);
-   y = ctx->S[0][a] + ctx->S[1][b];
-   y = y ^ ctx->S[2][c];
-   y = y + ctx->S[3][d];
+    d = (unsigned short)(x & 0xFF);
+    x >>= 8;
+    c = (unsigned short)(x & 0xFF);
+    x >>= 8;
+    b = (unsigned short)(x & 0xFF);
+    x >>= 8;
+    a = (unsigned short)(x & 0xFF);
+    y = ctx->S[0][a] + ctx->S[1][b];
+    y = y ^ ctx->S[2][c];
+    y = y + ctx->S[3][d];
 
-   return( y );
+    return( y );
 }
 
 static void blowfish_enc( mbedtls_blowfish_context *ctx, uint32_t *xl, uint32_t *xr )
@@ -172,13 +175,13 @@ void mbedtls_blowfish_free( mbedtls_blowfish_context *ctx )
  * Blowfish key schedule
  */
 int mbedtls_blowfish_setkey( mbedtls_blowfish_context *ctx, const unsigned char *key,
-                     unsigned int keybits )
+                             unsigned int keybits )
 {
     unsigned int i, j, k;
     uint32_t data, datal, datar;
 
     if( keybits < MBEDTLS_BLOWFISH_MIN_KEY_BITS || keybits > MBEDTLS_BLOWFISH_MAX_KEY_BITS ||
-        ( keybits % 8 ) )
+            ( keybits % 8 ) )
     {
         return( MBEDTLS_ERR_BLOWFISH_INVALID_KEY_LENGTH );
     }
@@ -216,8 +219,8 @@ int mbedtls_blowfish_setkey( mbedtls_blowfish_context *ctx, const unsigned char 
 
     for( i = 0; i < 4; i++ )
     {
-       for( j = 0; j < 256; j += 2 )
-       {
+        for( j = 0; j < 256; j += 2 )
+        {
             blowfish_enc( ctx, &datal, &datar );
             ctx->S[i][j] = datal;
             ctx->S[i][j + 1] = datar;
@@ -230,9 +233,9 @@ int mbedtls_blowfish_setkey( mbedtls_blowfish_context *ctx, const unsigned char 
  * Blowfish-ECB block encryption/decryption
  */
 int mbedtls_blowfish_crypt_ecb( mbedtls_blowfish_context *ctx,
-                    int mode,
-                    const unsigned char input[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                    unsigned char output[MBEDTLS_BLOWFISH_BLOCKSIZE] )
+                                int mode,
+                                const unsigned char input[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                                unsigned char output[MBEDTLS_BLOWFISH_BLOCKSIZE] )
 {
     uint32_t X0, X1;
 
@@ -259,11 +262,11 @@ int mbedtls_blowfish_crypt_ecb( mbedtls_blowfish_context *ctx,
  * Blowfish-CBC buffer encryption/decryption
  */
 int mbedtls_blowfish_crypt_cbc( mbedtls_blowfish_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                    const unsigned char *input,
-                    unsigned char *output )
+                                int mode,
+                                size_t length,
+                                unsigned char iv[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                                const unsigned char *input,
+                                unsigned char *output )
 {
     int i;
     unsigned char temp[MBEDTLS_BLOWFISH_BLOCKSIZE];
@@ -278,7 +281,7 @@ int mbedtls_blowfish_crypt_cbc( mbedtls_blowfish_context *ctx,
             memcpy( temp, input, MBEDTLS_BLOWFISH_BLOCKSIZE );
             mbedtls_blowfish_crypt_ecb( ctx, mode, input, output );
 
-            for( i = 0; i < MBEDTLS_BLOWFISH_BLOCKSIZE;i++ )
+            for( i = 0; i < MBEDTLS_BLOWFISH_BLOCKSIZE; i++ )
                 output[i] = (unsigned char)( output[i] ^ iv[i] );
 
             memcpy( iv, temp, MBEDTLS_BLOWFISH_BLOCKSIZE );
@@ -313,12 +316,12 @@ int mbedtls_blowfish_crypt_cbc( mbedtls_blowfish_context *ctx,
  * Blowfish CFB buffer encryption/decryption
  */
 int mbedtls_blowfish_crypt_cfb64( mbedtls_blowfish_context *ctx,
-                       int mode,
-                       size_t length,
-                       size_t *iv_off,
-                       unsigned char iv[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                       const unsigned char *input,
-                       unsigned char *output )
+                                  int mode,
+                                  size_t length,
+                                  size_t *iv_off,
+                                  unsigned char iv[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                                  const unsigned char *input,
+                                  unsigned char *output )
 {
     int c;
     size_t n = *iv_off;
@@ -361,21 +364,22 @@ int mbedtls_blowfish_crypt_cfb64( mbedtls_blowfish_context *ctx,
  * Blowfish CTR buffer encryption/decryption
  */
 int mbedtls_blowfish_crypt_ctr( mbedtls_blowfish_context *ctx,
-                       size_t length,
-                       size_t *nc_off,
-                       unsigned char nonce_counter[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                       unsigned char stream_block[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                       const unsigned char *input,
-                       unsigned char *output )
+                                size_t length,
+                                size_t *nc_off,
+                                unsigned char nonce_counter[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                                unsigned char stream_block[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                                const unsigned char *input,
+                                unsigned char *output )
 {
     int c, i;
     size_t n = *nc_off;
 
     while( length-- )
     {
-        if( n == 0 ) {
+        if( n == 0 )
+        {
             mbedtls_blowfish_crypt_ecb( ctx, MBEDTLS_BLOWFISH_ENCRYPT, nonce_counter,
-                                stream_block );
+                                        stream_block );
 
             for( i = MBEDTLS_BLOWFISH_BLOCKSIZE; i > 0; i-- )
                 if( ++nonce_counter[i - 1] != 0 )
@@ -393,8 +397,10 @@ int mbedtls_blowfish_crypt_ctr( mbedtls_blowfish_context *ctx,
 }
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 
-static const uint32_t S[4][256] = {
-    {   0xD1310BA6L, 0x98DFB5ACL, 0x2FFD72DBL, 0xD01ADFB7L,
+static const uint32_t S[4][256] =
+{
+    {
+        0xD1310BA6L, 0x98DFB5ACL, 0x2FFD72DBL, 0xD01ADFB7L,
         0xB8E1AFEDL, 0x6A267E96L, 0xBA7C9045L, 0xF12C7F99L,
         0x24A19947L, 0xB3916CF7L, 0x0801F2E2L, 0x858EFC16L,
         0x636920D8L, 0x71574E69L, 0xA458FEA3L, 0xF4933D7EL,
@@ -457,8 +463,10 @@ static const uint32_t S[4][256] = {
         0xD60F573FL, 0xBC9BC6E4L, 0x2B60A476L, 0x81E67400L,
         0x08BA6FB5L, 0x571BE91FL, 0xF296EC6BL, 0x2A0DD915L,
         0xB6636521L, 0xE7B9F9B6L, 0xFF34052EL, 0xC5855664L,
-        0x53B02D5DL, 0xA99F8FA1L, 0x08BA4799L, 0x6E85076AL   },
-    {   0x4B7A70E9L, 0xB5B32944L, 0xDB75092EL, 0xC4192623L,
+        0x53B02D5DL, 0xA99F8FA1L, 0x08BA4799L, 0x6E85076AL
+    },
+    {
+        0x4B7A70E9L, 0xB5B32944L, 0xDB75092EL, 0xC4192623L,
         0xAD6EA6B0L, 0x49A7DF7DL, 0x9CEE60B8L, 0x8FEDB266L,
         0xECAA8C71L, 0x699A17FFL, 0x5664526CL, 0xC2B19EE1L,
         0x193602A5L, 0x75094C29L, 0xA0591340L, 0xE4183A3EL,
@@ -521,8 +529,10 @@ static const uint32_t S[4][256] = {
         0x9E447A2EL, 0xC3453484L, 0xFDD56705L, 0x0E1E9EC9L,
         0xDB73DBD3L, 0x105588CDL, 0x675FDA79L, 0xE3674340L,
         0xC5C43465L, 0x713E38D8L, 0x3D28F89EL, 0xF16DFF20L,
-        0x153E21E7L, 0x8FB03D4AL, 0xE6E39F2BL, 0xDB83ADF7L   },
-    {   0xE93D5A68L, 0x948140F7L, 0xF64C261CL, 0x94692934L,
+        0x153E21E7L, 0x8FB03D4AL, 0xE6E39F2BL, 0xDB83ADF7L
+    },
+    {
+        0xE93D5A68L, 0x948140F7L, 0xF64C261CL, 0x94692934L,
         0x411520F7L, 0x7602D4F7L, 0xBCF46B2EL, 0xD4A20068L,
         0xD4082471L, 0x3320F46AL, 0x43B7D4B7L, 0x500061AFL,
         0x1E39F62EL, 0x97244546L, 0x14214F74L, 0xBF8B8840L,
@@ -585,8 +595,10 @@ static const uint32_t S[4][256] = {
         0xED545578L, 0x08FCA5B5L, 0xD83D7CD3L, 0x4DAD0FC4L,
         0x1E50EF5EL, 0xB161E6F8L, 0xA28514D9L, 0x6C51133CL,
         0x6FD5C7E7L, 0x56E14EC4L, 0x362ABFCEL, 0xDDC6C837L,
-        0xD79A3234L, 0x92638212L, 0x670EFA8EL, 0x406000E0L  },
-    {   0x3A39CE37L, 0xD3FAF5CFL, 0xABC27737L, 0x5AC52D1BL,
+        0xD79A3234L, 0x92638212L, 0x670EFA8EL, 0x406000E0L
+    },
+    {
+        0x3A39CE37L, 0xD3FAF5CFL, 0xABC27737L, 0x5AC52D1BL,
         0x5CB0679EL, 0x4FA33742L, 0xD3822740L, 0x99BC9BBEL,
         0xD5118E9DL, 0xBF0F7315L, 0xD62D1C7EL, 0xC700C47BL,
         0xB78C1B6BL, 0x21A19045L, 0xB26EB1BEL, 0x6A366EB4L,
@@ -649,7 +661,8 @@ static const uint32_t S[4][256] = {
         0x85CBFE4EL, 0x8AE88DD8L, 0x7AAAF9B0L, 0x4CF9AA7EL,
         0x1948C25CL, 0x02FB8A8CL, 0x01C36AE4L, 0xD6EBE1F9L,
         0x90D4F869L, 0xA65CDEA0L, 0x3F09252DL, 0xC208E69FL,
-        0xB74E6132L, 0xCE77E25BL, 0x578FDFE3L, 0x3AC372E6L  }
+        0xB74E6132L, 0xCE77E25BL, 0x578FDFE3L, 0x3AC372E6L
+    }
 };
 
 #endif /* !MBEDTLS_BLOWFISH_ALT */

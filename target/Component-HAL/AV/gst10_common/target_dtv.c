@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /*
  * Definitions for target-specific dtv-related functions.
  *
- * @author: Patrick Beaumont
- * @version: $Revision: 1242 $
- * @date: $Date$
+ * @author: inx limited
  *
- * Copyright (c) inx limited 2012.
  */
 
 /**
@@ -40,69 +46,81 @@
 #endif /* EHS_GUI_SUPPORT */
 
 //handle bus messages from the playbin
-GstBusSyncReply EhsTDPlayback_bus_sync_handler (GstBus * bus, GstMessage * message, gpointer user_data){
-	EhsFbPvrPlayClass *pPvrPlay=(EhsFbPvrPlayClass*)user_data;
-	EhsTDPlaybackClass* pPlayback=(EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
-	int percent = 0;
-	switch(GST_MESSAGE_TYPE(message)){
-		case GST_MESSAGE_ELEMENT:
-			#ifdef EHS_GUI_SUPPORT
+GstBusSyncReply EhsTDPlayback_bus_sync_handler (GstBus * bus, GstMessage * message, gpointer user_data)
+{
+    EhsFbPvrPlayClass *pPvrPlay=(EhsFbPvrPlayClass*)user_data;
+    EhsTDPlaybackClass* pPlayback=(EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
+    int percent = 0;
+    switch(GST_MESSAGE_TYPE(message))
+    {
+    case GST_MESSAGE_ELEMENT:
+#ifdef EHS_GUI_SUPPORT
 #ifdef EHS_DONE_GST10_UPGRADE
-/* The GstStructure is removed from the public API, use the getters to get a handle to a GstStructure.
-gst_query_new_application() -> gst_query_new_custom()
-gst_query_parse_formats_length() -> gst_query_parse_n_formats() gst_query_parse_formats_nth() -> gst_query_parse_nth_format()
-*/
- 				if (gst_structure_has_name (message->structure, "prepare-xwindow-id")){
-					if(pPlayback->window==0){
-						pPlayback->window=EhsTDPlayback_createWindow(pPvrPlay);
-					}
- 					if (pPlayback->window != 0) {
-   						GstXOverlay *xoverlay;
-   						// GST_MESSAGE_SRC (message) will be the video sink element
-   						xoverlay = GST_X_OVERLAY (GST_MESSAGE_SRC (message));
-						if(xoverlay==NULL){
-							EHSH_LOG_WARNING("No xoverlay");
-							return GST_BUS_PASS;
-						}
-   						//gst_x_overlay_set_window_handle (xoverlay, video_window_xid);
-						gst_x_overlay_set_xwindow_id(xoverlay,(gulong)pPlayback->window);
- 					} else {
-   						g_warning ("Should have obtained video_window_xid by now!");
-	 				}
-	 				gst_message_unref (message);
- 					return GST_BUS_DROP;
-				}
+        /* The GstStructure is removed from the public API, use the getters to get a handle to a GstStructure.
+        gst_query_new_application() -> gst_query_new_custom()
+        gst_query_parse_formats_length() -> gst_query_parse_n_formats() gst_query_parse_formats_nth() -> gst_query_parse_nth_format()
+        */
+        if (gst_structure_has_name (message->structure, "prepare-xwindow-id"))
+        {
+            if(pPlayback->window==0)
+            {
+                pPlayback->window=EhsTDPlayback_createWindow(pPvrPlay);
+            }
+            if (pPlayback->window != 0)
+            {
+                GstXOverlay *xoverlay;
+                // GST_MESSAGE_SRC (message) will be the video sink element
+                xoverlay = GST_X_OVERLAY (GST_MESSAGE_SRC (message));
+                if(xoverlay==NULL)
+                {
+                    EHSH_LOG_WARNING("No xoverlay");
+                    return GST_BUS_PASS;
+                }
+                //gst_x_overlay_set_window_handle (xoverlay, video_window_xid);
+                gst_x_overlay_set_xwindow_id(xoverlay,(gulong)pPlayback->window);
+            }
+            else
+            {
+                g_warning ("Should have obtained video_window_xid by now!");
+            }
+            gst_message_unref (message);
+            return GST_BUS_DROP;
+        }
 #endif
-			#endif
-			break;
-		case GST_MESSAGE_EOS:
-			if(pPlayback->pFIdata!=NULL){
-				//printf("QQQ\n");
-				// THIS DEFINATELY MAKES IT CRASH!: gst_element_set_state(GST_ELEMENT(pPlayback->playbin), GST_STATE_NULL); // just to be sure - we sometimes get no replay
-				EHS_FB_RUN_NAME(DtvPvrPlay2_end)(pPlayback->pFIdata); /* Sets state EHS_FB_STATE_PLAY_ENDED */
-				/* todo these should actually be run in a thread :: */
-				//EhsTDPlayback_stop(pPvrPlay);// -don't call this is it is from a gst hread and changes gst stte.
-				//EhsTDPlayback_closeWindow(pPvrPlay); // this makes it crash @todo - what gst tisy up can we do? Can't do it in this call back probably, but could handle in play/stop calls that crash
-			}else{
-				EHSH_LOG_ERROR("function instance data is null, can't fire end of play event\n");
-			}
-			break;
-		case GST_MESSAGE_BUFFERING:
-			gst_message_parse_buffering(message,&percent);
-			//printf("XXX= %d\n",percent);
-			if (pPlayback->xPlaybackState == EHS_FB_STATE_PLAYING) {
-				if (percent == 100) {
-					gst_element_set_state(GST_ELEMENT(pPlayback->playbin), GST_STATE_PLAYING);
-				}
-				else {
-					gst_element_set_state(GST_ELEMENT(pPlayback->playbin), GST_STATE_PAUSED);
-				}
-			}
-			break;
-		default:
-			break;
-	}
-  	return GST_BUS_PASS;
+#endif
+        break;
+    case GST_MESSAGE_EOS:
+        if(pPlayback->pFIdata!=NULL)
+        {
+            // THIS DEFINATELY MAKES IT CRASH!: gst_element_set_state(GST_ELEMENT(pPlayback->playbin), GST_STATE_NULL); // just to be sure - we sometimes get no replay
+            EHS_FB_RUN_NAME(DtvPvrPlay2_end)(pPlayback->pFIdata); /* Sets state EHS_FB_STATE_PLAY_ENDED */
+            /* todo these should actually be run in a thread :: */
+            //EhsTDPlayback_stop(pPvrPlay);// -don't call this is it is from a gst hread and changes gst stte.
+            //EhsTDPlayback_closeWindow(pPvrPlay); // this makes it crash @todo - what gst tisy up can we do? Can't do it in this call back probably, but could handle in play/stop calls that crash
+        }
+        else
+        {
+            EHSH_LOG_ERROR("function instance data is null, can't fire end of play event\n");
+        }
+        break;
+    case GST_MESSAGE_BUFFERING:
+        gst_message_parse_buffering(message,&percent);
+        if (pPlayback->xPlaybackState == EHS_FB_STATE_PLAYING)
+        {
+            if (percent == 100)
+            {
+                gst_element_set_state(GST_ELEMENT(pPlayback->playbin), GST_STATE_PLAYING);
+            }
+            else
+            {
+                gst_element_set_state(GST_ELEMENT(pPlayback->playbin), GST_STATE_PAUSED);
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    return GST_BUS_PASS;
 }
 
 /**
@@ -110,13 +128,15 @@ gst_query_parse_formats_length() -> gst_query_parse_n_formats() gst_query_parse_
  * @param[in] pPlayback Playback structure
  * @return true if successful
  */
-ehs_bool EhsTDPlayback_reset(EhsTDPlaybackClass* pPlayback) { //@todo not implemented - this should stop the media player if it is running
-	return EHS_TRUE;
+ehs_bool EhsTDPlayback_reset(EhsTDPlaybackClass* pPlayback)   //@todo not implemented - this should stop the media player if it is running
+{
+    return EHS_TRUE;
 }
 
 
-ehs_bool Ehs_TVInstallstopCallBack(EhsFunctionInstanceDataType* pFIdata,ehs_bool Install_Remove) {
-	return EHS_TRUE;
+ehs_bool Ehs_TVInstallstopCallBack(EhsFunctionInstanceDataType* pFIdata,ehs_bool Install_Remove)
+{
+    return EHS_TRUE;
 }
 
 #define EHS_MEDIAPLAYERPOLEINTERVAL_MS 10
@@ -125,18 +145,22 @@ ehs_bool Ehs_TVInstallstopCallBack(EhsFunctionInstanceDataType* pFIdata,ehs_bool
  *  @todoimplement flag to actually release the playbin object (This is currently permenant throughout an application session).
  *
  * */
-ehs_bool EhsTDPlayback_UnLoadMedia(EhsTDPlaybackClass* pPlayback,ehs_bool remove_player_too) {
-	GstElement *playbin=pPlayback->playbin;
-	GstStateChangeReturn state;
-		ehs_uint32 i;
-		//EHSH_LOG_INFO("Unloading Media");
-	if (playbin) {
-		state = gst_element_set_state(GST_ELEMENT(playbin), GST_STATE_NULL); /*  always returns synch */
-		//EHSH_LOG_INFO("Done Unloading Media");
-	} else {
-		EHSH_LOG_WARNING("Could not Unloading Media");
-		return EHS_FALSE; /* No playbin */
-	}
+ehs_bool EhsTDPlayback_UnLoadMedia(EhsTDPlaybackClass* pPlayback,ehs_bool remove_player_too)
+{
+    GstElement *playbin=pPlayback->playbin;
+    GstStateChangeReturn state;
+    ehs_uint32 i;
+    //EHSH_LOG_INFO("Unloading Media");
+    if (playbin)
+    {
+        state = gst_element_set_state(GST_ELEMENT(playbin), GST_STATE_NULL); /*  always returns synch */
+        //EHSH_LOG_INFO("Done Unloading Media");
+    }
+    else
+    {
+        EHSH_LOG_WARNING("Could not Unloading Media");
+        return EHS_FALSE; /* No playbin */
+    }
 }
 
 /**
@@ -149,37 +173,39 @@ ehs_bool EhsTDPlayback_UnLoadMedia(EhsTDPlaybackClass* pPlayback,ehs_bool remove
  * @todo we need to avoid memory leeks here..
  */
 
-ehs_bool EhsTDPlayback_loadFile(EhsFunctionInstanceDataType* pFIdata, const ehs_char* szFilename) { //@'todo remove the pFiles referene here.
-	EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*) EHS_FB_RUN_CONTEXT;
-	EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*) pPVR->pTDPlayback;
+ehs_bool EhsTDPlayback_loadFile(EhsFunctionInstanceDataType* pFIdata, const ehs_char* szFilename)   //@'todo remove the pFiles referene here.
+{
+    EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*) EHS_FB_RUN_CONTEXT;
+    EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*) pPVR->pTDPlayback;
 
-	float fv = (float) pPlayback->nVolume;
-	float fp = (float) 100;
-	float fnv = fv / fp;
-	//gchar * gfileName;
-	//set the pointer to the function instance data, needed so that we can fire end of stream call backs
-	pPlayback->pFIdata=pFIdata;
-	ehs_bool success=EHS_TRUE;
-	GstElement *playbin=pPlayback->playbin;
-	if (playbin) {
-		/* we have something so stop it and load new media */
-		//EHSH_LOG_INFO("Loading new media %s",szFilename);
-		EhsTDPlayback_UnLoadMedia(pPlayback,EHS_FALSE);
-		EhsStrcpy(pPlayback->LoadedFilename, szFilename);
-		//gfileName= gst_filename_to_uri(szFilename,NULL);
-		//if (gfileName) {
-		g_object_set(G_OBJECT(playbin), "uri", szFilename, NULL);
-		/* Set the playback volume */
-		g_object_set(G_OBJECT(pPlayback->playbin), "volume", (gdouble)(fnv), NULL);
-		/*}
-		else {
-			printf("Gstreamer didn't like th filename [%s]\n",szFilename);
-		}
-		//g_free(gfileName);
-		*/
-		return EHS_TRUE;
-	}
-	else EHS_FALSE;
+    float fv = (float) pPlayback->nVolume;
+    float fp = (float) 100;
+    float fnv = fv / fp;
+    //gchar * gfileName;
+    //set the pointer to the function instance data, needed so that we can fire end of stream call backs
+    pPlayback->pFIdata=pFIdata;
+    ehs_bool success=EHS_TRUE;
+    GstElement *playbin=pPlayback->playbin;
+    if (playbin)
+    {
+        /* we have something so stop it and load new media */
+        //EHSH_LOG_INFO("Loading new media %s",szFilename);
+        EhsTDPlayback_UnLoadMedia(pPlayback,EHS_FALSE);
+        EhsStrcpy(pPlayback->LoadedFilename, szFilename);
+        //gfileName= gst_filename_to_uri(szFilename,NULL);
+        //if (gfileName) {
+        g_object_set(G_OBJECT(playbin), "uri", szFilename, NULL);
+        /* Set the playback volume */
+        g_object_set(G_OBJECT(pPlayback->playbin), "volume", (gdouble)(fnv), NULL);
+        /*}
+        else {
+        	printf("Gstreamer didn't like th filename [%s]\n",szFilename);
+        }
+        //g_free(gfileName);
+        */
+        return EHS_TRUE;
+    }
+    else EHS_FALSE;
 }
 
 /* The following set of functions look after the interface state machine and basically just connect to the same functions below.
@@ -193,36 +219,41 @@ ehs_bool EhsTDPlayback_loadFile(EhsFunctionInstanceDataType* pFIdata, const ehs_
  * @param[in] nPos index into the file
  * @return true if the index has been set successfully
  */
-ehs_bool EhsTDPlayback_setPos(EhsTDPlaybackClass* pPlayback, ehs_sint32 nPos) {
-	//use the duration to calculate a seek time in seconds then send that through
-	ehs_sint32 length;
-	ehs_bool ret=EhsTDPlayback_getLength(pPlayback,&length);
-	if(ret==EHS_FALSE){
-		return EHS_FALSE;
-	}
-	//turn everything in to floats to force the correct arithmetic
-	float fl=(float)length;
-	float fp=(float)100;
-	float fpp=(float)nPos;
-	float ft=(fl/fp)*fpp;
-	ehs_sint32 time=(ehs_sint32)ft;
-	ret=EhsTDPlayback_setTime(pPlayback,time);
-	if(ret==EHS_FALSE){
-		return EHS_FALSE;
-	}
-	return EHS_TRUE;
+ehs_bool EhsTDPlayback_setPos(EhsTDPlaybackClass* pPlayback, ehs_sint32 nPos)
+{
+    //use the duration to calculate a seek time in seconds then send that through
+    ehs_sint32 length;
+    ehs_bool ret=EhsTDPlayback_getLength(pPlayback,&length);
+    if(ret==EHS_FALSE)
+    {
+        return EHS_FALSE;
+    }
+    //turn everything in to floats to force the correct arithmetic
+    float fl=(float)length;
+    float fp=(float)100;
+    float fpp=(float)nPos;
+    float ft=(fl/fp)*fpp;
+    ehs_sint32 time=(ehs_sint32)ft;
+    ret=EhsTDPlayback_setTime(pPlayback,time);
+    if(ret==EHS_FALSE)
+    {
+        return EHS_FALSE;
+    }
+    return EHS_TRUE;
 }
 
-ehs_bool EhsTDPlayback_setTime(EhsTDPlaybackClass* pPlayback, ehs_sint32 nTime) {
-	ehs_bool ret;
-	GstFormat format = GST_FORMAT_TIME;
-	GstSeekFlags flags=GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT;
-	ret=gst_element_seek_simple(pPlayback->playbin,format,flags,GST_SECOND*nTime);
-	if(ret==EHS_FALSE){
-		EHSH_LOG_WARNING("Failed to seek");
-		return EHS_FALSE;
-	}
-	return EHS_TRUE;
+ehs_bool EhsTDPlayback_setTime(EhsTDPlaybackClass* pPlayback, ehs_sint32 nTime)
+{
+    ehs_bool ret;
+    GstFormat format = GST_FORMAT_TIME;
+    GstSeekFlags flags=GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT;
+    ret=gst_element_seek_simple(pPlayback->playbin,format,flags,GST_SECOND*nTime);
+    if(ret==EHS_FALSE)
+    {
+        EHSH_LOG_WARNING("Failed to seek");
+        return EHS_FALSE;
+    }
+    return EHS_TRUE;
 }
 
 /**
@@ -231,67 +262,75 @@ ehs_bool EhsTDPlayback_setTime(EhsTDPlaybackClass* pPlayback, ehs_sint32 nTime) 
  * @param[out] pnPos The current position of playback. 0 if no file is loaded, or playback hasn't started
  * @return true if the index has been read successfully
  */
-ehs_bool EhsTDPlayback_getPos(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnPos) {
-	ehs_sint32 length=0;
-	ehs_sint32 time=0;
-	ehs_bool ret;
-	*pnPos = -1; // default value if we can't calculate it.
-	//get the length
-	ret=EhsTDPlayback_getLength(pPlayback,&length);
-	if(ret==EHS_FALSE){
-		//don't carry on since we can't get the length of the media
-		return EHS_FALSE;
-	}
-	//get elapsed time
-	ret=EhsTDPlayback_getTime(pPlayback,&time);
-	if(ret==EHS_FALSE){
-		//don't carry on
-		return EHS_FALSE;
-	}
-	//cast everything to floats otherwise the arithmetic doesn't work
-	float tf=(float)time;
-	float tl=(float)length;
-	float tp=(float)100;
-	if (length > 0)
-		*pnPos=(ehs_sint32)((tf/tl)*tp);
-	else
-		*pnPos = -1.0f;
-	return EHS_TRUE;
+ehs_bool EhsTDPlayback_getPos(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnPos)
+{
+    ehs_sint32 length=0;
+    ehs_sint32 time=0;
+    ehs_bool ret;
+    *pnPos = -1; // default value if we can't calculate it.
+    //get the length
+    ret=EhsTDPlayback_getLength(pPlayback,&length);
+    if(ret==EHS_FALSE)
+    {
+        //don't carry on since we can't get the length of the media
+        return EHS_FALSE;
+    }
+    //get elapsed time
+    ret=EhsTDPlayback_getTime(pPlayback,&time);
+    if(ret==EHS_FALSE)
+    {
+        //don't carry on
+        return EHS_FALSE;
+    }
+    //cast everything to floats otherwise the arithmetic doesn't work
+    float tf=(float)time;
+    float tl=(float)length;
+    float tp=(float)100;
+    if (length > 0)
+        *pnPos=(ehs_sint32)((tf/tl)*tp);
+    else
+        *pnPos = -1.0f;
+    return EHS_TRUE;
 }
 
-ehs_bool EhsTDPlayback_getTime(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnTime) {
-	//use *pnTime=1 to set the length (help for pointers because I hate them too)
-        ehs_bool ret=EHS_FALSE;
-        GstFormat fmt = GST_FORMAT_TIME;
-	gint64 time;
-	/* extra check! */
-	if (pPlayback->playbin) {
-		ret = (ehs_bool) gst_element_query_position(
-				GST_ELEMENT(pPlayback->playbin), fmt, &time);//note mt changed t lvalue in 1.0
-		if (ret == EHS_FALSE) {
-			EHSH_LOG_WARNING("Could not get time from gstreamer playbin.\n");
-			return EHS_FALSE;
-		}
-		//if we are here then getting the position worked
-		*pnTime = (ehs_sint32) (time / 1000000000);
-	}
-        else *pnTime=0;
-        return EHS_TRUE;
+ehs_bool EhsTDPlayback_getTime(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnTime)
+{
+    //use *pnTime=1 to set the length (help for pointers because I hate them too)
+    ehs_bool ret=EHS_FALSE;
+    GstFormat fmt = GST_FORMAT_TIME;
+    gint64 time;
+    /* extra check! */
+    if (pPlayback->playbin)
+    {
+        ret = (ehs_bool) gst_element_query_position(
+                  GST_ELEMENT(pPlayback->playbin), fmt, &time);//note mt changed t lvalue in 1.0
+        if (ret == EHS_FALSE)
+        {
+            EHSH_LOG_WARNING("Could not get time from gstreamer playbin.\n");
+            return EHS_FALSE;
+        }
+        //if we are here then getting the position worked
+        *pnTime = (ehs_sint32) (time / 1000000000);
+    }
+    else *pnTime=0;
+    return EHS_TRUE;
 }
 
-ehs_bool EhsTDPlayback_getLength(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnLength) {
-	//use *pnLength=1 to set the length (help for pointers because I hate them too)
-	ehs_bool ret=EHS_FALSE;
-	GstFormat fmt = GST_FORMAT_TIME;
-	gint64 len;
-	ret=(ehs_bool)gst_element_query_duration(GST_ELEMENT(pPlayback->playbin),fmt,&len);
-	if(ret==EHS_FALSE){
-		EHSH_LOG_WARNING("Could not get duration from gstreamer playbin.\n");
-		return ret;
-	}
-	//if we are here then getting the duration worked
-	*pnLength=(ehs_sint32)(len/1000000000);
-	return ret;
+ehs_bool EhsTDPlayback_getLength(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnLength)
+{
+    //use *pnLength=1 to set the length (help for pointers because I hate them too)
+    ehs_bool ret=EHS_FALSE;
+    GstFormat fmt = GST_FORMAT_TIME;
+    gint64 len;
+    ret=(ehs_bool)gst_element_query_duration(GST_ELEMENT(pPlayback->playbin),fmt,&len);
+    if(ret==EHS_FALSE)
+    {
+        EHSH_LOG_WARNING("Could not get duration from gstreamer playbin.\n");
+        return ret;
+    }
+    //if we are here then getting the duration worked
+    *pnLength=(ehs_sint32)(len/1000000000);
+    return ret;
 }
 
 
@@ -300,20 +339,24 @@ ehs_bool EhsTDPlayback_getLength(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnLen
  * @todo needs to be implemented for gstreamer
  */
 #undef EHS_USE_REAL_MEDIA_DATA
-ehs_bool EhsTDPlayback_getInput(EhsTDPlaybackClass* pPlayback,EhsDataflowStringType pnInput) {
-	if ((pPlayback->xPlaybackState != EHS_FB_STATE_NOT_LOADED) && pnInput) {
+ehs_bool EhsTDPlayback_getInput(EhsTDPlaybackClass* pPlayback,EhsDataflowStringType pnInput)
+{
+    if ((pPlayback->xPlaybackState != EHS_FB_STATE_NOT_LOADED) && pnInput)
+    {
 #ifdef EHS_USE_REAL_MEDIA_DATA
 //		EhsTV_getInput(pPlayback->nMediaPlayer,pPlayback->nMedia, (char*)pnInput); //@todo checkout this pnInout data type
 #else
-		if (pPlayback->LoadedFilename){
-			EhsStrcpy(pnInput, pPlayback->LoadedFilename);
-		}
+        if (pPlayback->LoadedFilename)
+        {
+            EhsStrcpy(pnInput, pPlayback->LoadedFilename);
+        }
 #endif
-		//printf("X=%s -length=%d pnInputAddr=%X\n",pnInput,EhsStrlen(pnInput),pnInput );
-	} else {
-		pnInput[0] = '\0';
-	}
-	return EHS_TRUE;
+    }
+    else
+    {
+        pnInput[0] = '\0';
+    }
+    return EHS_TRUE;
 }
 
 /**
@@ -325,16 +368,17 @@ ehs_bool EhsTDPlayback_getInput(EhsTDPlaybackClass* pPlayback,EhsDataflowStringT
  *
  * @todo needs to be completed
  */
-ehs_bool EhsTDPlayback_getSpeed(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnSpeed) {
-/*
-	if (pPlayback->xPlaybackState != EHS_FB_STATE_NOT_LOADED) {
-		*pnSpeed = (ehs_sint32) (EhsTV_getSpeed(pPlayback->nMediaPlayer)
-				* 100.0);
-	} else {
-		*pnSpeed = 0;
-	}
-*/
-	return EHS_TRUE;
+ehs_bool EhsTDPlayback_getSpeed(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnSpeed)
+{
+    /*
+    	if (pPlayback->xPlaybackState != EHS_FB_STATE_NOT_LOADED) {
+    		*pnSpeed = (ehs_sint32) (EhsTV_getSpeed(pPlayback->nMediaPlayer)
+    				* 100.0);
+    	} else {
+    		*pnSpeed = 0;
+    	}
+    */
+    return EHS_TRUE;
 }
 
 /**
@@ -347,18 +391,22 @@ ehs_bool EhsTDPlayback_getSpeed(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnSpee
  * @todo needs to be completed
  */
 ehs_bool EhsTDPlayback_setSpeed(EhsTDPlaybackClass* pPlayback,
-		ehs_sint32 nSpeed) {
+                                ehs_sint32 nSpeed)
+{
 
-	if (pPlayback->xPlaybackState != EHS_FB_STATE_NOT_LOADED) {
+    if (pPlayback->xPlaybackState != EHS_FB_STATE_NOT_LOADED)
+    {
 //		EhsTV_setSpeed(pPlayback->nMediaPlayer, ((float) nSpeed) / 100.0);
-		return EHS_TRUE;
-	} else
-		return EHS_FALSE;
+        return EHS_TRUE;
+    }
+    else
+        return EHS_FALSE;
 }/* Some appropriate error stuff for trying to play when already playing*/
 
-ehs_bool EhsTDPlayback_pause(EhsTDPlaybackClass* pPlayback) {
-	gst_element_set_state(GST_ELEMENT(pPlayback->playbin),GST_STATE_PAUSED);
-	return EHS_TRUE;//@todo what are we supposed to return?
+ehs_bool EhsTDPlayback_pause(EhsTDPlaybackClass* pPlayback)
+{
+    gst_element_set_state(GST_ELEMENT(pPlayback->playbin),GST_STATE_PAUSED);
+    return EHS_TRUE;//@todo what are we supposed to return?
 }
 
 /**
@@ -371,13 +419,14 @@ ehs_bool EhsTDPlayback_pause(EhsTDPlaybackClass* pPlayback) {
  */
 ehs_bool EhsTDPlayback_play(EhsFunctionInstanceDataType* pFIdata,ehs_sint32 nSpeed) /* @TODO: These arguments do nothing and need to be removed at a later date. 20081231*/
 {
-	EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*) EHS_FB_RUN_CONTEXT;
-	if (pPVR->pTDPlayback) {
-		EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*) pPVR->pTDPlayback; /* @todo Do want this not to play if we have already loaded? Do we always want another load? */
-		pPlayback->xPlaybackState = EHS_FB_STATE_PLAYING; // set gsteamer call back to listen for buffering complete before playing.
-		gst_element_set_state(GST_ELEMENT(pPlayback->playbin), GST_STATE_PLAYING); // start it playing - but w may pause if bufferring messages are received
-	}
-	return EHS_TRUE; //@todo what are we actually supposed to return here?
+    EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*) EHS_FB_RUN_CONTEXT;
+    if (pPVR->pTDPlayback)
+    {
+        EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*) pPVR->pTDPlayback; /* @todo Do want this not to play if we have already loaded? Do we always want another load? */
+        pPlayback->xPlaybackState = EHS_FB_STATE_PLAYING; // set gsteamer call back to listen for buffering complete before playing.
+        gst_element_set_state(GST_ELEMENT(pPlayback->playbin), GST_STATE_PLAYING); // start it playing - but w may pause if bufferring messages are received
+    }
+    return EHS_TRUE; //@todo what are we actually supposed to return here?
 }
 
 /**
@@ -385,36 +434,42 @@ ehs_bool EhsTDPlayback_play(EhsFunctionInstanceDataType* pFIdata,ehs_sint32 nSpe
  * @param[in] pPlayback The item to stop
  * @return true if playback structure was valid, and video was stopped
  */
-ehs_bool EhsTDPlayback_stop(EhsFbPvrPlayClass* pPVR) {
-	EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*) pPVR->pTDPlayback; /* @todo This crashes on restarts */
+ehs_bool EhsTDPlayback_stop(EhsFbPvrPlayClass* pPVR)
+{
+    EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*) pPVR->pTDPlayback; /* @todo This crashes on restarts */
 
-	//printf("STOPPING!!!!!!\n");
-	/* can call this as mush as we like if it still exists/lingers - just in case!*/
-	if (pPlayback->playbin) gst_element_set_state(GST_ELEMENT(pPlayback->playbin),GST_STATE_NULL);
-	if (pPVR->MediaPlayerState !=  EHS_FB_STATE_NOT_LOADED/*EHS_FB_STATE_PLAY_ENDED*/) {
-		/* This may not be nedded bnut is doesn't trust the client so we will try it */
-		EhsTDPlayback_closeWindow(pPVR);
-	}
-	return EHS_TRUE; //@todo what are we actually supposed to return?
+    /* can call this as mush as we like if it still exists/lingers - just in case!*/
+    if (pPlayback->playbin) gst_element_set_state(GST_ELEMENT(pPlayback->playbin),GST_STATE_NULL);
+    if (pPVR->MediaPlayerState !=  EHS_FB_STATE_NOT_LOADED/*EHS_FB_STATE_PLAY_ENDED*/)
+    {
+        /* This may not be nedded bnut is doesn't trust the client so we will try it */
+        EhsTDPlayback_closeWindow(pPVR);
+    }
+    return EHS_TRUE; //@todo what are we actually supposed to return?
 }
 
 /* Set the devices volume using specific gubbins
  * */
-void EhsTDSetVol(EhsTDPlaybackClass* pPlayback, ehs_sint32 nVol) {
-	float fv = (float) nVol;
-	float fp = (float) 100;
-	float fnv = fv / fp;
-	if (nVol > 100) {
-		nVol = 100; /*The most vlc will take without breaking something.*/
-	} else if (nVol < 0) {
-		nVol = 0;
-	}
-	pPlayback->nVolume = nVol; /* media player will set this each time new media is loaded */
-	if (pPlayback->playbin) {
-		g_object_set(G_OBJECT(pPlayback->playbin), "volume", (gdouble)(fnv), NULL);
-	}
-	/* Only set the following when we have a gstreamer pipeline */
-	return;
+void EhsTDSetVol(EhsTDPlaybackClass* pPlayback, ehs_sint32 nVol)
+{
+    float fv = (float) nVol;
+    float fp = (float) 100;
+    float fnv = fv / fp;
+    if (nVol > 100)
+    {
+        nVol = 100; /*The most vlc will take without breaking something.*/
+    }
+    else if (nVol < 0)
+    {
+        nVol = 0;
+    }
+    pPlayback->nVolume = nVol; /* media player will set this each time new media is loaded */
+    if (pPlayback->playbin)
+    {
+        g_object_set(G_OBJECT(pPlayback->playbin), "volume", (gdouble)(fnv), NULL);
+    }
+    /* Only set the following when we have a gstreamer pipeline */
+    return;
 }
 
 /********************************************************************************
@@ -428,14 +483,17 @@ void EhsTDSetVol(EhsTDPlaybackClass* pPlayback, ehs_sint32 nVol) {
  *
  */
 
-void EhsTV_hideVideoPort(EhsTDPlaybackClass* pPlayback) {
-	//gdk_window_hide(pPlayback->pVLCWindow);
+void EhsTV_hideVideoPort(EhsTDPlaybackClass* pPlayback)
+{
+    //gdk_window_hide(pPlayback->pVLCWindow);
 }
 
-void EhsTV_showVideoPort(EhsTDPlaybackClass* pPlayback) {
-	//gdk_window_show(pPlayback->pVLCWindow);
+void EhsTV_showVideoPort(EhsTDPlaybackClass* pPlayback)
+{
+    //gdk_window_show(pPlayback->pVLCWindow);
 }
 
 //@todo rename all the other functions in here with the TD Prefix
-void EhsTDDrawVideoPort(EhsTDPlaybackClass* pPlayback, EhsWidgetClass* pWidget){
+void EhsTDDrawVideoPort(EhsTDPlaybackClass* pPlayback, EhsWidgetClass* pWidget)
+{
 }

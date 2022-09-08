@@ -194,7 +194,7 @@ static int array_add_value (context_t *ctx,
 
     /* "context_add_value" will only call us with array values. */
     assert(YAJL_IS_ARRAY(array));
-    
+
     tmp = realloc(array->u.array.values,
                   sizeof(*(array->u.array.values)) * (array->u.array.len + 1));
     if (tmp == NULL)
@@ -405,26 +405,26 @@ yajl_val yajl_tree_parse (const char *input,
                           char *error_buffer, size_t error_buffer_size)
 {
     static const yajl_callbacks callbacks =
-        {
-            /* null        = */ handle_null,
-            /* boolean     = */ handle_boolean,
-            /* integer     = */ NULL,
-            /* double      = */ NULL,
-            /* number      = */ handle_number,
-            /* string      = */ handle_string,
-            /* start map   = */ handle_start_map,
-            /* map key     = */ handle_string,
-            /* end map     = */ handle_end_map,
-            /* start array = */ handle_start_array,
-            /* end array   = */ handle_end_array
-        };
+    {
+        /* null        = */ handle_null,
+        /* boolean     = */ handle_boolean,
+        /* integer     = */ NULL,
+        /* double      = */ NULL,
+        /* number      = */ handle_number,
+        /* string      = */ handle_string,
+        /* start map   = */ handle_start_map,
+        /* map key     = */ handle_string,
+        /* end map     = */ handle_end_map,
+        /* start array = */ handle_start_array,
+        /* end array   = */ handle_end_array
+    };
 
     yajl_handle handle;
     yajl_status status;
-	context_t ctx = { NULL, NULL, NULL, 0 };
+    context_t ctx = { NULL, NULL, NULL, 0 };
 
-	ctx.errbuf = error_buffer;
-	ctx.errbuf_size = error_buffer_size;
+    ctx.errbuf = error_buffer;
+    ctx.errbuf_size = error_buffer_size;
 
     if (error_buffer != NULL)
         memset (error_buffer, 0, error_buffer_size);
@@ -436,8 +436,10 @@ yajl_val yajl_tree_parse (const char *input,
                         (unsigned char *) input,
                         strlen (input));
     status = yajl_complete_parse (handle);
-    if (status != yajl_status_ok) {
-        if (error_buffer != NULL && error_buffer_size > 0) {
+    if (status != yajl_status_ok)
+    {
+        if (error_buffer != NULL && error_buffer_size > 0)
+        {
             snprintf(
                 error_buffer, error_buffer_size, "%s",
                 (char *) yajl_get_error(handle, 1,
@@ -455,12 +457,15 @@ yajl_val yajl_tree_parse (const char *input,
 yajl_val yajl_tree_get(yajl_val n, const char ** path, yajl_type type)
 {
     if (!path) return NULL;
-    while (n && *path) {
+    while (n && *path)
+    {
         unsigned int i;
 
         if (n->type != yajl_t_object) return NULL;
-        for (i = 0; i < n->u.object.len; i++) {
-            if (!strcmp(*path, n->u.object.keys[i])) {
+        for (i = 0; i < n->u.object.len; i++)
+        {
+            if (!strcmp(*path, n->u.object.keys[i]))
+            {
                 n = n->u.object.values[i];
                 break;
             }

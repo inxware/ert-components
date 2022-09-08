@@ -1,13 +1,19 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * sfc.h
  *
  * function prototypes for sfc.c - for state flow control? Not really sure.
  *
- * @author: ??
- * @version: $Revision: 278 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ * @author: inx limited
+ *
  */
 
 #ifndef EHS_SFC_H
@@ -17,7 +23,10 @@
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_NAME "SFCBar"
+
+#define EHS_FB_NAME_SFCBar "SFCBar"
+#define EHS_FB_ID_SFCBar 0x8999
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBar);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBar);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarPreviousStateComplete);
@@ -29,7 +38,10 @@ EHS_FB_FUNCTIONS(SFCBar)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP1_NAME "SFCBarGroup1"
+
+#define EHS_FB_NAME_SFCBarGroup1 "SFCBarGroup1"
+#define EHS_FB_ID_SFCBarGroup1 0xB01F
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup1);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup1);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup1);
@@ -39,7 +51,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup1)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP2_NAME "SFCBarGroup2"
+
+#define EHS_FB_NAME_SFCBarGroup2 "SFCBarGroup2"
+#define EHS_FB_ID_SFCBarGroup2 0xB15F
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup2);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup2);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup2);
@@ -49,7 +64,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup2)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP3_NAME "SFCBarGroup3"
+
+#define EHS_FB_NAME_SFCBarGroup3 "SFCBarGroup3"
+#define EHS_FB_ID_SFCBarGroup3 0x719E
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup3);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup3);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup3);
@@ -59,7 +77,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup3)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP4_NAME "SFCBarGroup4"
+
+#define EHS_FB_NAME_SFCBarGroup4 "SFCBarGroup4"
+#define EHS_FB_ID_SFCBarGroup4 0xB3DF
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup4);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup4);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup4);
@@ -69,7 +90,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup4)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP8_NAME "SFCBarGroup8"
+
+#define EHS_FB_NAME_SFCBarGroup8 "SFCBarGroup8"
+#define EHS_FB_ID_SFCBarGroup8 0xB6DF
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup8);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup8);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup8);
@@ -79,7 +103,9 @@ EHS_FB_FUNCTIONS(SFCBarGroup8)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP12_NAME "SFCBarGroup12"
+#define EHS_FB_NAME_SFCBarGroup12 "SFCBarGroup12"
+#define EHS_FB_ID_SFCBarGroup12 0x1D70
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup12);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup12);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup12);
@@ -92,7 +118,10 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(Run_CL);
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP1EVENT_NAME "SFCBarGroup1Event"
+
+#define EHS_FB_NAME_SFCBarGroup1Event "SFCBarGroup1Event"
+#define EHS_FB_ID_SFCBarGroup1Event 0xDD58
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup1Event);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup1Event);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup1Event);
@@ -102,7 +131,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup1Event)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP2EVENT_NAME "SFCBarGroup2Event"
+
+#define EHS_FB_NAME_SFCBarGroup2Event "SFCBarGroup2Event"
+#define EHS_FB_ID_SFCBarGroup2Event 0xEE58
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup2Event);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup2Event);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup2Event);
@@ -112,7 +144,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup2Event)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP3EVENT_NAME "SFCBarGroup3Event"
+
+#define EHS_FB_NAME_SFCBarGroup3Event "SFCBarGroup3Event"
+#define EHS_FB_ID_SFCBarGroup3Event 0x3F59
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup3Event);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup3Event);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup3Event);
@@ -122,7 +157,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup3Event)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP4EVENT_NAME "SFCBarGroup4Event"
+
+#define EHS_FB_NAME_SFCBarGroup4Event "SFCBarGroup4Event"
+#define EHS_FB_ID_SFCBarGroup4Event 0x8858
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup4Event);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup4Event);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup4Event);
@@ -132,7 +170,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup4Event)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP8EVENT_NAME "SFCBarGroup8Event"
+
+#define EHS_FB_NAME_SFCBarGroup8Event "SFCBarGroup8Event"
+#define EHS_FB_ID_SFCBarGroup8Event 0x4458
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup8Event);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup8Event);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup8Event);
@@ -142,7 +183,10 @@ EHS_FB_FUNCTIONS(SFCBarGroup8Event)
 
 /******************************************************************************/
 /* Declare SFC */
-#define EHS_SFC_BAR_GROUP12EVENT_NAME "SFCBarGroup12Event"
+
+#define EHS_FB_NAME_SFCBarGroup12Event "SFCBarGroup12Event"
+#define EHS_FB_ID_SFCBarGroup12Event 0x78AC
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(SFCBarGroup12Event);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(SFCBarGroup12Event);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(SFCBarGroup12Event);

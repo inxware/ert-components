@@ -1,12 +1,18 @@
-/** 
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
+/**
  * @file guitextbox.h
  * This declares the guitextbox function blocks
  *
  * @author: inx limited
- * @version: $Revision: 1248 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2007. All rights reserved.
+ *
  */
 
 #ifndef _EHS_GUITEXTBOX1_H
@@ -17,7 +23,9 @@
 /*****************************************************************************/
 /* String textbox */
 
-#define EHS_FB_GUI_TEXT1_STRING_NAME "gui_text_string1"
+#define EHS_FB_NAME_gui_text_string1 "gui_text_string1"
+#define EHS_FB_ID_gui_text_string1 0x144B
+
 
 /* declare functions provided by this function block */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(gui_text1);
@@ -35,7 +43,8 @@ EHS_FB_FUNCTIONS(gui_text_string1)
 /* "Real" textbox */
 
 #ifdef EHS_TARGET_FP_SUPPORT
-#define EHS_FB_GUI_TEXT1_FLOAT_NAME "gui_text_real1"
+#define EHS_FB_NAME_gui_text_real1 "gui_text_real1"
+#define EHS_FB_ID_gui_text_real1E 0x5009
 
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
@@ -49,7 +58,8 @@ EHS_FB_FUNCTIONS(gui_text_float1)
 /*****************************************************************************/
 /* Integer textbox */
 
-#define EHS_FB_GUI_TEXT1_INT_NAME "gui_text_int1"
+#define EHS_FB_NAME_gui_text_int1 "gui_text_int1"
+#define EHS_FB_ID_gui_text_int1 0x4649
 
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
@@ -62,7 +72,8 @@ EHS_FB_FUNCTIONS(gui_text_int1)
 /*****************************************************************************/
 /* Boolean textbox */
 
-#define EHS_FB_GUI_TEXT1_BOOL_NAME "gui_text_bool1"
+#define EHS_FB_NAME_gui_text_bool1 "gui_text_bool1"
+#define EHS_FB_ID_gui_text_bool1 0x88AA
 
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common

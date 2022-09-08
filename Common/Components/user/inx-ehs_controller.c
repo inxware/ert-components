@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -12,9 +21,12 @@ typedef struct
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(ehs_controller)
-EHS_FB_FUNCTION_ENTRY("exit_ehs", ehs_controller_exit_ehs)
-EHS_FB_FUNCTION_ENTRY("move_to_foreground", ehs_controller_move_to_foreground)
-EHS_FB_FUNCTION_ENTRY("move_to_background", ehs_controller_move_to_background)
+
+EHS_FB_FUNCTION_ENTRY("exit_ehs", 0x00, ehs_controller_exit_ehs)
+
+EHS_FB_FUNCTION_ENTRY("move_to_foreground", 0x01, ehs_controller_move_to_foreground)
+
+EHS_FB_FUNCTION_ENTRY("move_to_background", 0x02, ehs_controller_move_to_background)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -38,10 +50,10 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(ehs_controller)
 {
-/* Uncomment the following if you need to parse the parameters to calculate memory required */
-/*
-	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
-	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_ehs_controller_state_type);
+    /* Uncomment the following if you need to parse the parameters to calculate memory required */
+    /*
+    	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
+    EHS_FB_IDENTIFY_MEMORY = sizeof(inx_ehs_controller_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
@@ -54,14 +66,14 @@ EHS_FB_IDENTIFY_FUNCTION(ehs_controller)
 
 EHS_FB_INIT_FUNCTION(ehs_controller)
 {
-	ehs_bool bRet = EHS_TRUE; /* assume success */
-	//this is the reference to the object data for this instance of the function block
-	//inx_ehs_controller_state_type* inx_ehs_controller_state = (inx_ehs_controller_state_type*)EHS_FB_INIT_CONTEXT;
-	/* read the initialisation parameters */
-	//EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+    ehs_bool bRet = EHS_TRUE; /* assume success */
+    //this is the reference to the object data for this instance of the function block
+    //inx_ehs_controller_state_type* inx_ehs_controller_state = (inx_ehs_controller_state_type*)EHS_FB_INIT_CONTEXT;
+    /* read the initialisation parameters */
+    //EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
 
-	/* Add any further intialisation code here */
-	return bRet; /* initialisation always succeeds */
+    /* Add any further intialisation code here */
+    return bRet; /* initialisation always succeeds */
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
 //ICB FUNCTION exit_ehs MACRO START -- DO NOT ALTER
@@ -74,12 +86,12 @@ EHS_FB_INIT_FUNCTION(ehs_controller)
  */
 EHS_FB_RUN_FUNCTION(ehs_controller_exit_ehs)
 {
-	//inx_ehs_controller_state_type* inx_ehs_controller_state = (inx_ehs_controller_state_type*)EHS_FB_RUN_CONTEXT;
+    //inx_ehs_controller_state_type* inx_ehs_controller_state = (inx_ehs_controller_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	EhsExit(0);
-	EHS_FB_FINISH(INX_ehs_controller_ARG_exit_ehs_errorexit);
-	return;
+    // Your code here
+    EhsExit(0);
+    EHS_FB_FINISH(INX_ehs_controller_ARG_exit_ehs_errorexit);
+    return;
 }
 //ICB FUNCTION exit_ehs MACRO END -- DO NOT ALTER
 //ICB FUNCTION move_to_foreground MACRO START -- DO NOT ALTER
@@ -92,12 +104,12 @@ EHS_FB_RUN_FUNCTION(ehs_controller_exit_ehs)
  */
 EHS_FB_RUN_FUNCTION(ehs_controller_move_to_foreground)
 {
-	//inx_ehs_controller_state_type* inx_ehs_controller_state = (inx_ehs_controller_state_type*)EHS_FB_RUN_CONTEXT;
+    //inx_ehs_controller_state_type* inx_ehs_controller_state = (inx_ehs_controller_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	EHS_FB_FINISH(INX_ehs_controller_ARG_move_to_foreground_errorfore);
-	EHS_FB_FINISH(INX_ehs_controller_ARG_move_to_foreground_xxxxxxfore);
-	return;
+    // Your code here
+    EHS_FB_FINISH(INX_ehs_controller_ARG_move_to_foreground_errorfore);
+    EHS_FB_FINISH(INX_ehs_controller_ARG_move_to_foreground_xxxxxxfore);
+    return;
 }
 //ICB FUNCTION move_to_foreground MACRO END -- DO NOT ALTER
 //ICB FUNCTION move_to_background MACRO START -- DO NOT ALTER
@@ -110,11 +122,11 @@ EHS_FB_RUN_FUNCTION(ehs_controller_move_to_foreground)
  */
 EHS_FB_RUN_FUNCTION(ehs_controller_move_to_background)
 {
-	//inx_ehs_controller_state_type* inx_ehs_controller_state = (inx_ehs_controller_state_type*)EHS_FB_RUN_CONTEXT;
+    //inx_ehs_controller_state_type* inx_ehs_controller_state = (inx_ehs_controller_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	EHS_FB_FINISH(INX_ehs_controller_ARG_move_to_background_xxxxxxback);
-	EHS_FB_FINISH(INX_ehs_controller_ARG_move_to_background_errorback);
-	return;
+    // Your code here
+    EHS_FB_FINISH(INX_ehs_controller_ARG_move_to_background_xxxxxxback);
+    EHS_FB_FINISH(INX_ehs_controller_ARG_move_to_background_errorback);
+    return;
 }
 //ICB FUNCTION move_to_background MACRO END -- DO NOT ALTER

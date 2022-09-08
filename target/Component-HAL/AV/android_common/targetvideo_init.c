@@ -1,17 +1,23 @@
-/** @file targetos_init.c
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
+/** @file targetvideo_init.c
  * Initialization/reset/termination code for the OS
  *
  * @author: inx limited
- * @version: $Revision: 1242 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2008. All rights reserved.
  */
 
 /**
  * @page Verification Verification report
- * @section hal_graphics_font
- * @anchor hal_graphics_font
+ * @section targetvideo_init
+ * @anchor targetvideo_init
  * @subsection misra MISRA compliance:
  * test.c demonstrated MISRA compliant on
  * Last modified on $Date:$
@@ -47,24 +53,28 @@
 /**
  * Perform necessary Operating system setup upon system initialisation
  */
-void EhsTVideoSys_init(void){
+void EhsTVideoSys_init(void)
+{
 }
 
 
-void EhsTV_ReInitVideo(const EhsGraphicsRectangleClass*  pBounds) {
+void EhsTV_ReInitVideo(const EhsGraphicsRectangleClass*  pBounds)
+{
 }
 
 
 /**
  * Called to shutdown the target prior to shutting down EHS
  */
-void EhsTVideoSys_term(void){
+void EhsTVideoSys_term(void)
+{
 }
 
 /**
  * Perform setup before loading in a new application
  */
-void EhsTVideoApp_init(void){
+void EhsTVideoApp_init(void)
+{
 }
 
 /**
@@ -79,5 +89,6 @@ void EhsTVideoApp_term(void)
 /**
  * Perform necessary target setup per application execution
  */
-void EhsTVideoApp_reset(void){
+void EhsTVideoApp_reset(void)
+{
 }

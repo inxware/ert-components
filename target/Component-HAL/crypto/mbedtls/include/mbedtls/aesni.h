@@ -61,9 +61,9 @@ int mbedtls_aesni_has_support( unsigned int what );
  * \return         0 on success (cannot fail)
  */
 int mbedtls_aesni_crypt_ecb( mbedtls_aes_context *ctx,
-                     int mode,
-                     const unsigned char input[16],
-                     unsigned char output[16] );
+                             int mode,
+                             const unsigned char input[16],
+                             unsigned char output[16] );
 
 /**
  * \brief          GCM multiplication: c = a * b in GF(2^128)
@@ -76,8 +76,8 @@ int mbedtls_aesni_crypt_ecb( mbedtls_aes_context *ctx,
  *                 elements of GF(2^128) as per the GCM spec.
  */
 void mbedtls_aesni_gcm_mult( unsigned char c[16],
-                     const unsigned char a[16],
-                     const unsigned char b[16] );
+                             const unsigned char a[16],
+                             const unsigned char b[16] );
 
 /**
  * \brief           Compute decryption round keys from encryption round keys
@@ -87,7 +87,7 @@ void mbedtls_aesni_gcm_mult( unsigned char c[16],
  * \param nr        Number of rounds (that is, number of round keys minus one)
  */
 void mbedtls_aesni_inverse_key( unsigned char *invkey,
-                        const unsigned char *fwdkey, int nr );
+                                const unsigned char *fwdkey, int nr );
 
 /**
  * \brief           Perform key expansion (for encryption)
@@ -99,8 +99,8 @@ void mbedtls_aesni_inverse_key( unsigned char *invkey,
  * \return          0 if successful, or MBEDTLS_ERR_AES_INVALID_KEY_LENGTH
  */
 int mbedtls_aesni_setkey_enc( unsigned char *rk,
-                      const unsigned char *key,
-                      size_t bits );
+                              const unsigned char *key,
+                              size_t bits );
 
 #ifdef __cplusplus
 }

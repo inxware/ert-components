@@ -3,15 +3,15 @@
  *
  *  Version : 6.4.0_2271s
  *     Date : 20080508-20.49.08
- *                
+ *
  *
  * (c) COPYRIGHT 2002- 2008 Open Text Corp. - BitFlash Division. ALL RIGHTS RESERVED
  *
  *
  * This software is the property and confidential information of Open Text and is furnished under
- * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.  
+ * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.
  *
- * This software may not be copied, transmitted, provided to or otherwise made available to any other person, 
+ * This software may not be copied, transmitted, provided to or otherwise made available to any other person,
  * company, corporation or other entity except as specified in the terms of said license.
  *
  * This copyright notice may not be removed or altered without the prior written permission of Open Text.
@@ -20,39 +20,39 @@
  */
 /** \file BFXMLDOM.h
  *
- * This file defines the uDOM implementation of XML Core features.   
+ * This file defines the uDOM implementation of XML Core features.
  * Initial Author: Andrew Emmons
- *   
+ *
 */
 
-/** 
+/**
  *
  * \defgroup Notes SVGT uDOM C Binding Implementation Notes
  * @{
- *   Notes on C binding of uDOM 
+ *   Notes on C binding of uDOM
  *
- * - Organization: Refer to the <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html"><i>W3C SVGT 1.2 uDOM specification</i></A> for details on API behaviour. 
- *   Both this documentation and binding follow the module organization of the uDOM. Each interface is implemented via structures and functions. 
+ * - Organization: Refer to the <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html"><i>W3C SVGT 1.2 uDOM specification</i></A> for details on API behaviour.
+ *   Both this documentation and binding follow the module organization of the uDOM. Each interface is implemented via structures and functions.
  *   The naming convention of each function identifies the interface it belongs to. Interface methods are named BFDOM_InterfaceName_methodName(), where
  *   <b>interfaceName</b> is the uDOM interface and <b>methodName</b> is the interface method. Attributes are accessed through get and set methods. Interface attributes
- *   are named BFDOM_InterfaceName_getAttributeName() or BFDOM_InterfaceName_setAttributeName(), where <b>interfaceName</b> is the uDOM interface and <b>attributeName</b> 
- *   is the interface attribute. 
- *   
+ *   are named BFDOM_InterfaceName_getAttributeName() or BFDOM_InterfaceName_setAttributeName(), where <b>interfaceName</b> is the uDOM interface and <b>attributeName</b>
+ *   is the interface attribute.
+ *
  * - Binding Differences: The words <b>binding-specific</b> are used to indicate a difference between the W3C standard and the C uDOM binding. Most cases this represents a
- *   parameter which is required by the C binding which is not part of the uDOM. The biggest example of this is the need for a memory manager to be 
- *   passed. In some cases binding specific indicates that the method does not exist at all in the SVG uDOM. 
+ *   parameter which is required by the C binding which is not part of the uDOM. The biggest example of this is the need for a memory manager to be
+ *   passed. In some cases binding specific indicates that the method does not exist at all in the SVG uDOM.
  *
- * - Documentation: If the method or attribute is not <b>binding-specific</b>, refer to the W3C link provided at the top of the interface for the meaning of 
- *   behavior, parameters and return values. 
+ * - Documentation: If the method or attribute is not <b>binding-specific</b>, refer to the W3C link provided at the top of the interface for the meaning of
+ *   behavior, parameters and return values.
  *
- * - Exceptions: Exception throwing is not portable code and, as such, traditional exceptions are not supported. Any method that 
+ * - Exceptions: Exception throwing is not portable code and, as such, traditional exceptions are not supported. Any method that
  *   can throw an exception returns a special return value, which is a structure containing the DOM spec return type and exception information.
  *   These special return value structures have the letters 'Ex' appended to the data type name (for example, see #BFDOM_StringEx).
  *   Where normally void would return, just an exception value is returned.
  *   It is up to the user to query the return values for an exception before using the actual return value.
  *
  * - Object lifetime: When a node is part of the DOM tree, it is deleted when the document is destroyed. Any
- *   node that is removed from the tree needs to be destroyed by the user. The function #BFDOM_Document_DeleteElement 
+ *   node that is removed from the tree needs to be destroyed by the user. The function #BFDOM_Document_DeleteElement
  *   should be used, which frees the element and its children. A helper function #BF_DOM_IsInsertedInTree is available
  *   to help determine if the element is inserted in the tree.
  *
@@ -67,8 +67,8 @@
  * @} */
 
 /* History
- * 
- *                 
+ *
+ *
  */
 
 
@@ -79,40 +79,40 @@
 BF_BEGIN_EXTERN_C
 #endif
 
-/** 
+/**
  * \defgroup BitFlash Module:BitFlash
  * @{
  */
 /** @} Module:BitFlash */
 
 
-/** 
+/**
  * \defgroup DOM Module:DOM
  * @{
  */
 
- /** 
- * \defgroup DOMString DOMString
- * <A HREF="http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#ID-C74D1578"><b>See</b> <i>W3C DOM Core</i></A>
- * @{
- *
- * All #BFDOM_String parameters and return values must be created and/or freed with the same memory context which created the Player.
- *
- */
+/**
+* \defgroup DOMString DOMString
+* <A HREF="http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#ID-C74D1578"><b>See</b> <i>W3C DOM Core</i></A>
+* @{
+*
+* All #BFDOM_String parameters and return values must be created and/or freed with the same memory context which created the Player.
+*
+*/
 typedef BF_WCHAR* BFDOM_String;
 
 typedef BF_WCHAR const* BFDOM_StringConst;
 /** @} */
 
 
-/** 
+/**
  * \defgroup DOMException DOMException
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#dom__DOMException"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
  * There is a special exception value #BFDOM_NO_EXCEPTION which is part of the W3C exception enumeration. This
  *   is used to indicate that no exception has occurred.
  *
- * Due to low memory resources, an additional exception #BFDOM_OUT_OF_MEMORY_ERR has been added to facilitate errors 
+ * Due to low memory resources, an additional exception #BFDOM_OUT_OF_MEMORY_ERR has been added to facilitate errors
  *   from failed memory allocations. Any method which returns an exception should be checked for this condition by the caller.
  */
 /** <b>binding-specific</b> case - no exception */
@@ -135,17 +135,17 @@ typedef BF_WCHAR const* BFDOM_StringConst;
 #define BFDOM_VALIDATION_ERR			      16
 #define BFDOM_TYPE_MISMATCH_ERR               17
 /** <b>binding-specific</b> exception - out of memory */
-#define BFDOM_OUT_OF_MEMORY_ERR               27      
+#define BFDOM_OUT_OF_MEMORY_ERR               27
 
 
 typedef BF_UINT8 BFDOM_DOMException;
 /** @} */
 
 
- /** 
- * \addtogroup DOMString DOMString
- * @{
- */
+/**
+* \addtogroup DOMString DOMString
+* @{
+*/
 /**
  * <b>binding-specific</b> - Helper function to create a 16-bit string for an 8-bit string
  * \param pMemCtx a BitFlash memory context
@@ -179,7 +179,7 @@ typedef struct
 /** @} */
 
 
-/** 
+/**
  * \defgroup Node Node
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#dom__Node"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -206,15 +206,15 @@ typedef enum
 BFDOM_NodeType;
 
 
-/** <b>binding-specific</b> - NodeSubType 
- *  More detailed information on BFDOM_Node subclasses. 
- *  To replace object-oriented subclassing requirement 
+/** <b>binding-specific</b> - NodeSubType
+ *  More detailed information on BFDOM_Node subclasses.
+ *  To replace object-oriented subclassing requirement
 */
-typedef enum 
+typedef enum
 {
-    BFDOM_SUBTYPE_SVG_DOCUMENT                = 1,   /**< node is a #BFDOM_SVGDocument */  
+    BFDOM_SUBTYPE_SVG_DOCUMENT                = 1,   /**< node is a #BFDOM_SVGDocument */
     BFDOM_SUBTYPE_SVG_ELEMENT                 = 2,   /**< node is a #BFDOM_SVGElement*/
-    BFDOM_SUBTYPE_SVG_SVG_ELEMENT             = 3,   /**< node is a #BFDOM_SVGSVGElement*/ 
+    BFDOM_SUBTYPE_SVG_SVG_ELEMENT             = 3,   /**< node is a #BFDOM_SVGSVGElement*/
     BFDOM_SUBTYPE_SVG_TIMECONTROL_ELEMENT     = 4    /**< node is a #BFDOM_SVGTimedElement */
 }
 BFDOM_NodeSubType;
@@ -232,7 +232,7 @@ typedef struct
 
 
 
-/** 
+/**
  * \defgroup Element Element
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#dom__Element"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -243,7 +243,7 @@ typedef BFDOM_Node BFDOM_Element;
 
 /** @} */
 
-/** 
+/**
  * \defgroup Document Document
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#dom__Document"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -265,7 +265,7 @@ typedef struct
 
 
 
-/** 
+/**
  * \defgroup ElementTraversal ElementTraversal
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__ElementTraversal"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -278,7 +278,7 @@ BF_PLAYER_IMPORT BFDOM_Element*             BFDOM_ElementTraversal_GetNextElemen
 
 
 
-/** 
+/**
  * \defgroup DOMImplementation DOMImplementation
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#dom__DOMImplementation"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -290,12 +290,12 @@ BF_PLAYER_IMPORT BFDOM_BoolEx               BFDOM_Implementation_HasFeature(  BF
 
 
 
-/** 
+/**
  * \defgroup Events Module:Events
  * @{
  */
 
-/** 
+/**
  * \defgroup EventException EventException
  * <A HREF="http://www.w3.org/TR/2006/WD-DOM-Level-3-Events-20060413/events.html#Events-EventException"><b>See</b> <i>W3C DOM Core</i></A>
  * @{
@@ -317,7 +317,7 @@ typedef struct
 /** @} */
 
 
-/** 
+/**
  * \addtogroup Event
  * @{
  */
@@ -326,7 +326,7 @@ typedef BFSVG_Event BFDOM_Event;
 /** @} */
 
 
-/** 
+/**
  * \defgroup EventTarget EventTarget
  * @{
  */
@@ -335,7 +335,7 @@ typedef BFDOM_Node BFDOM_EventTarget;
 /** @} */
 
 
-/** 
+/**
  * \defgroup EventListener EventListener
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#events__EventListener"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -349,23 +349,23 @@ typedef struct
 /** @} */
 
 
-/** 
+/**
  * \defgroup Event Event
- * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#events__Event"><b>See</b> <i>W3C SVGT uDOM</i></A> 
+ * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#events__Event"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
  */
 
-/** <b>binding-specific</b> - BFDOM_EventInterfaceType 
- *  More detailed information on event types. 
- *  To replace object-oriented subclassing requirement 
+/** <b>binding-specific</b> - BFDOM_EventInterfaceType
+ *  More detailed information on event types.
+ *  To replace object-oriented subclassing requirement
 */
-typedef enum 
+typedef enum
 {
-    BFDOM_EVENT_INTERFACE          = 1,    /**< event is of type Event */ 
-    BFDOM_MOUSEEVENT_INTERFACE     = 2,    /**< event is of type MouseEvent */ 
-    BFDOM_TEXTEVENT_INTERFACE      = 3,    /**< event is of type TextEvent */ 
-    BFDOM_KEYBOARDEVENT_INTERFACE  = 4,    /**< event is of type KeyboardEvent */ 
-    BFDOM_TIMEEVENT_INTERFACE      = 5     /**< event is of type TimeEvent */ 
+    BFDOM_EVENT_INTERFACE          = 1,    /**< event is of type Event */
+    BFDOM_MOUSEEVENT_INTERFACE     = 2,    /**< event is of type MouseEvent */
+    BFDOM_TEXTEVENT_INTERFACE      = 3,    /**< event is of type TextEvent */
+    BFDOM_KEYBOARDEVENT_INTERFACE  = 4,    /**< event is of type KeyboardEvent */
+    BFDOM_TIMEEVENT_INTERFACE      = 5     /**< event is of type TimeEvent */
 } BFDOM_EventInterfaceType;
 
 /** <b>binding-specific</b> - returns a BFDOM_Event along with a possible exception */
@@ -394,9 +394,9 @@ BF_PLAYER_IMPORT void                       BFDOM_Event_InitEvent( BFDOM_Event *
  */
 BF_PLAYER_IMPORT BFDOM_EventInterfaceType   BFDOM_Event_GetTypeID( BFDOM_Event *pEvent );
 /** @} */
- 
 
-/** 
+
+/**
  * \defgroup MouseEvent MouseEvent
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#events__MouseEvent"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -414,7 +414,7 @@ BF_PLAYER_IMPORT BF_UINT8                   BFDOM_MouseEvent_GetButton( BFDOM_Mo
 
 
 
-/** 
+/**
  * \defgroup TextEvent TextEvent
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#events__TextEvent"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -425,7 +425,7 @@ BF_PLAYER_IMPORT BFDOM_StringEx             BFDOM_TextEvent_GetData( BFDOM_TextE
 /** @} */
 
 
-/** 
+/**
  * \defgroup KeyboardEvent KeyboardEvent
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#events__KeyboardEvent"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -443,7 +443,7 @@ BF_PLAYER_IMPORT BFDOM_StringEx             BFDOM_KeyboardEvent_GetKeyIdentifier
 
 
 
-/** 
+/**
  * \addtogroup Node Node
  * @{
  */
@@ -469,13 +469,13 @@ BF_PLAYER_IMPORT BFDOM_DocumentEx           BFDOM_Node_GetOwnerDocument( BFDOM_N
 BF_PLAYER_IMPORT BFDOM_StringEx             BFDOM_Node_GetTextContent( BFDOM_Node *pNode );
 BF_PLAYER_IMPORT BFDOM_DOMException         BFDOM_Node_SetTextContent( BFDOM_Node *pNode, BFDOM_String value );
 
-/** <b>binding-specific</b> - return the memory context which was used to create the Player 
+/** <b>binding-specific</b> - return the memory context which was used to create the Player
  * \param pNode a node pointer
  * \return the BFHeapContext used to allocate pNode
  */
 BF_PLAYER_IMPORT BFHeapContext*             BFDOM_Node_GetMemoryContext( BFDOM_Node *pNode );
 
-/** <b>binding-specific</b> - used to serialize a DOM fragment 
+/** <b>binding-specific</b> - used to serialize a DOM fragment
  * \param pNode a node pointer indicating the start of serialization. All children and sibling of pNode will be serialized
  * \param pSerializeData serialization callback user data
  * \param pfnSerialize pointer to a callback - called to serialize nodes and attributes
@@ -483,41 +483,41 @@ BF_PLAYER_IMPORT BFHeapContext*             BFDOM_Node_GetMemoryContext( BFDOM_N
  */
 BF_PLAYER_IMPORT BFDOM_DOMException         BFDOM_Node_Serialize( BFDOM_Node *pNode, BF_INT_VOID pSerializeData, BFSerializeCallback pfnSerialize );
 
-/** <b>binding-specific</b> - toggles the node read-only 
- * \param pNode a node pointer 
+/** <b>binding-specific</b> - toggles the node read-only
+ * \param pNode a node pointer
  * \param bReadOnly if set to BF_TRUE, the node will be readonly
  * \return none
  */
 BF_PLAYER_IMPORT void                       BFDOM_Node_SetReadOnly( BFDOM_Node *pNode, BF_BOOL bReadOnly );
 
 /** <b>binding-specific</b> - returns the sub-type of the Node
- * \param pNode a node pointer 
- * \return the node subtype - used to implement inheritance 
+ * \param pNode a node pointer
+ * \return the node subtype - used to implement inheritance
  */
 BF_PLAYER_IMPORT BFDOM_NodeSubType          BFDOM_Node_GetNodeSubType( BFDOM_Node *pNode );
 
 /** <b>binding-specific</b> - sets a private data pointer to a node
- * \param pNode a node pointer 
+ * \param pNode a node pointer
  * \param pData private data pointer
- * \return none 
+ * \return none
  */
 BF_PLAYER_IMPORT void                       BFDOM_Node_setPrivateData(BFDOM_Node *pNode, void* pData);
 
 /** <b>binding-specific</b> - gets a private data pointer to a node
- * \param pNode a node pointer 
- * \return private data pointer 
+ * \param pNode a node pointer
+ * \return private data pointer
  */
 BF_PLAYER_IMPORT void*                      BFDOM_Node_getPrivateData(BFDOM_Node *pNode);
 
 /** <b>binding-specific</b> - gets the pointer to the private data pointer
- * \param pNode a node pointer 
- * \return pointer to private data pointer 
+ * \param pNode a node pointer
+ * \return pointer to private data pointer
  */
 BF_PLAYER_IMPORT void**                     BFDOM_Node_getPrivateDataPointer(BFDOM_Node *pNode);
 /** @} */
 
 
-/** 
+/**
  * \addtogroup Element Element
  * @{
  */
@@ -528,7 +528,7 @@ BF_PLAYER_IMPORT BFDOM_DOMException         BFDOM_Element_SetAttribute( BFDOM_El
 /** @} */
 
 
-/** 
+/**
  * \addtogroup Element Element
  * @{
  */
@@ -545,7 +545,7 @@ typedef struct
 /** @} */
 
 
-/** 
+/**
  * \addtogroup Document Document
  * @{
  */
@@ -557,8 +557,8 @@ BF_PLAYER_IMPORT BFDOM_ElementEx            BFDOM_Document_GetElementById( BFDOM
 
 /** <b>binding-specific</b> - completely deletes the element and it's children. Also removes the element from the
  *  tree if not done so already
- * \param pNode a node pointer 
- * \return none 
+ * \param pNode a node pointer
+ * \return none
  */
 BF_PLAYER_IMPORT void                       BFDOM_Document_DeleteElement( BFDOM_Node *pNode );
 /** <b>binding-specific</b> - ASCII version */
@@ -566,8 +566,8 @@ BF_PLAYER_IMPORT BFDOM_ElementEx            BFDOM_Document_GetElementByIdA( BFDO
 /** <b>binding-specific</b> - ASCII version */
 BF_PLAYER_IMPORT BFDOM_ElementEx            BFDOM_Document_CreateElementNSA( BFDOM_Document *pDocument, BF_CHAR *namespaceURI, BF_CHAR *localName );
 /** <b>binding-specific</b> - retrieve BFDOM_Node from BFDOM_Document
- * \param pDocument a document pointer 
- * \return the BFDOM_Node representing this document node. A simple cast is not possible 
+ * \param pDocument a document pointer
+ * \return the BFDOM_Node representing this document node. A simple cast is not possible
  */
 BF_PLAYER_IMPORT BFDOM_Node*                BFDOM_Document_GetDocumentNode( BFDOM_Document *pDocument );
 /** SVG 1.1 */
@@ -578,7 +578,7 @@ BF_PLAYER_IMPORT void                       BFDOM_Document_DestroyEvent( BFDOM_E
 /** @} */
 
 
-/** 
+/**
  * \addtogroup EventTarget EventTarget
  * <A HREF="http://www.w3.org/TR/SVGMobile12/svgudom.html#events__EventTarget"><b>See</b> <i>W3C SVGT uDOM</i></A>
  * @{
@@ -589,24 +589,24 @@ BF_PLAYER_IMPORT BFDOM_DOMException         BFDOM_EventTarget_AddEventListener( 
 BF_PLAYER_IMPORT BFDOM_DOMException         BFDOM_EventTarget_RemoveEventListener( BFDOM_Node *pNode, BFDOM_String type, BFDOM_EventListener *pListener, BF_BOOL useCapture );
 
 /** SVG 1.1 */
-BF_PLAYER_IMPORT BFDOM_BoolEventEx          BFDOM_EventTarget_DispatchEvent( BFDOM_Node *pNode, BFDOM_Event *evt ); 
+BF_PLAYER_IMPORT BFDOM_BoolEventEx          BFDOM_EventTarget_DispatchEvent( BFDOM_Node *pNode, BFDOM_Event *evt );
 
 /** @} */
 
 
-/** 
+/**
  * \addtogroup BitFlash Module:BitFlash
  * @{
  */
 
-/** <b>binding-specific</b> - checks if the element is part of the tree 
+/** <b>binding-specific</b> - checks if the element is part of the tree
  * \param pNode a node pinter
  * \return BF_TRUE if the node is currently inside the document
  */
 BF_PLAYER_IMPORT BF_BOOL                  BF_DOM_IsInsertedInTree( BFDOM_Node *pNode );
 
 
-/** <b>binding-specific</b> - call when a binding has ownership of a node so that the 
+/** <b>binding-specific</b> - call when a binding has ownership of a node so that the
     SVG player does not remove the memory associated with it - for example when a discard element deletes a tree but
     the uDOM binding currently is using a node within that tree
  * \param pNode a node pinter

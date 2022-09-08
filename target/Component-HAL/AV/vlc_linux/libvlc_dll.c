@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file libvlc_dll.c
  * Imports all of the libvlc functions from the libvlc DLL
  *
  * @author: inx limited
- * @version: $Revision: 1238 $
- * @date: $Date$
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 /**
@@ -71,7 +77,7 @@
 
 /* @todo This function also moves the video window if it has laready been initialised - this is more confusing than just having a new function just for moving */
 void EhsTV_initVlc(const EhsGraphicsRectangleClass* pBounds)
-{	
+{
 
 
 }

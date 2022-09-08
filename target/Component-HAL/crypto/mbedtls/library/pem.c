@@ -45,8 +45,10 @@
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 #if defined(MBEDTLS_PEM_PARSE_C)
@@ -69,9 +71,10 @@ static int pem_get_iv( const unsigned char *s, unsigned char *iv,
 
     for( i = 0; i < iv_len * 2; i++, s++ )
     {
-        if( *s >= '0' && *s <= '9' ) j = *s - '0'; else
-        if( *s >= 'A' && *s <= 'F' ) j = *s - '7'; else
-        if( *s >= 'a' && *s <= 'f' ) j = *s - 'W'; else
+        if( *s >= '0' && *s <= '9' ) j = *s - '0';
+        else if( *s >= 'A' && *s <= 'F' ) j = *s - '7';
+        else if( *s >= 'a' && *s <= 'f' ) j = *s - 'W';
+        else
             return( MBEDTLS_ERR_PEM_INVALID_ENC_IV );
 
         k = ( ( i & 1 ) != 0 ) ? j : j << 4;
@@ -135,8 +138,8 @@ static void pem_pbkdf1( unsigned char *key, size_t keylen,
  * Decrypt with DES-CBC, using PBKDF1 for key derivation
  */
 static void pem_des_decrypt( unsigned char des_iv[8],
-                               unsigned char *buf, size_t buflen,
-                               const unsigned char *pwd, size_t pwdlen )
+                             unsigned char *buf, size_t buflen,
+                             const unsigned char *pwd, size_t pwdlen )
 {
     mbedtls_des_context des_ctx;
     unsigned char des_key[8];
@@ -147,7 +150,7 @@ static void pem_des_decrypt( unsigned char des_iv[8],
 
     mbedtls_des_setkey_dec( &des_ctx, des_key );
     mbedtls_des_crypt_cbc( &des_ctx, MBEDTLS_DES_DECRYPT, buflen,
-                     des_iv, buf, buf );
+                           des_iv, buf, buf );
 
     mbedtls_des_free( &des_ctx );
     mbedtls_zeroize( des_key, 8 );
@@ -157,8 +160,8 @@ static void pem_des_decrypt( unsigned char des_iv[8],
  * Decrypt with 3DES-CBC, using PBKDF1 for key derivation
  */
 static void pem_des3_decrypt( unsigned char des3_iv[8],
-                               unsigned char *buf, size_t buflen,
-                               const unsigned char *pwd, size_t pwdlen )
+                              unsigned char *buf, size_t buflen,
+                              const unsigned char *pwd, size_t pwdlen )
 {
     mbedtls_des3_context des3_ctx;
     unsigned char des3_key[24];
@@ -169,7 +172,7 @@ static void pem_des3_decrypt( unsigned char des3_iv[8],
 
     mbedtls_des3_set3key_dec( &des3_ctx, des3_key );
     mbedtls_des3_crypt_cbc( &des3_ctx, MBEDTLS_DES_DECRYPT, buflen,
-                     des3_iv, buf, buf );
+                            des3_iv, buf, buf );
 
     mbedtls_des3_free( &des3_ctx );
     mbedtls_zeroize( des3_key, 24 );
@@ -181,8 +184,8 @@ static void pem_des3_decrypt( unsigned char des3_iv[8],
  * Decrypt with AES-XXX-CBC, using PBKDF1 for key derivation
  */
 static void pem_aes_decrypt( unsigned char aes_iv[16], unsigned int keylen,
-                               unsigned char *buf, size_t buflen,
-                               const unsigned char *pwd, size_t pwdlen )
+                             unsigned char *buf, size_t buflen,
+                             const unsigned char *pwd, size_t pwdlen )
 {
     mbedtls_aes_context aes_ctx;
     unsigned char aes_key[32];
@@ -193,7 +196,7 @@ static void pem_aes_decrypt( unsigned char aes_iv[16], unsigned int keylen,
 
     mbedtls_aes_setkey_dec( &aes_ctx, aes_key, keylen * 8 );
     mbedtls_aes_crypt_cbc( &aes_ctx, MBEDTLS_AES_DECRYPT, buflen,
-                     aes_iv, buf, buf );
+                           aes_iv, buf, buf );
 
     mbedtls_aes_free( &aes_ctx );
     mbedtls_zeroize( aes_key, keylen );
@@ -204,8 +207,8 @@ static void pem_aes_decrypt( unsigned char aes_iv[16], unsigned int keylen,
           ( MBEDTLS_AES_C || MBEDTLS_DES_C ) */
 
 int mbedtls_pem_read_buffer( mbedtls_pem_context *ctx, const char *header, const char *footer,
-                     const unsigned char *data, const unsigned char *pwd,
-                     size_t pwdlen, size_t *use_len )
+                             const unsigned char *data, const unsigned char *pwd,
+                             size_t pwdlen, size_t *use_len )
 {
     int ret, enc;
     size_t len;
@@ -394,8 +397,8 @@ void mbedtls_pem_free( mbedtls_pem_context *ctx )
 
 #if defined(MBEDTLS_PEM_WRITE_C)
 int mbedtls_pem_write_buffer( const char *header, const char *footer,
-                      const unsigned char *der_data, size_t der_len,
-                      unsigned char *buf, size_t buf_len, size_t *olen )
+                              const unsigned char *der_data, size_t der_len,
+                              unsigned char *buf, size_t buf_len, size_t *olen )
 {
     int ret;
     unsigned char *encode_buf, *c, *p = buf;
@@ -414,7 +417,7 @@ int mbedtls_pem_write_buffer( const char *header, const char *footer,
         return( MBEDTLS_ERR_PEM_ALLOC_FAILED );
 
     if( ( ret = mbedtls_base64_encode( encode_buf, use_len, &use_len, der_data,
-                               der_len ) ) != 0 )
+                                       der_len ) ) != 0 )
     {
         mbedtls_free( encode_buf );
         return( ret );

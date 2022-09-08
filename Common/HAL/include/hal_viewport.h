@@ -1,12 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file hal_viewport.h
  * In this file, all of the hardware abstraction layer functions relating to graphics are given.
  *
  *
  * @author: inx limited
- * @version: $Revision: 5525 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #ifndef EHS_HAL_VIEWPORT_H
@@ -20,7 +25,7 @@
 /* Included files */
 #include "graphics_types.h"
 #include "target_viewport.h"
-
+#include "ehs_fb_types.h"
 
 /*****************************************************************************/
 /* Define macros  */
@@ -86,12 +91,12 @@ EHS_GLOBAL void EhsTV_updateRect(EhsTVClass* pViewport, ehs_sint32 nX, ehs_sint3
  * @param[in] prSrc Rectangle on the surface to blit from
  * @param[in] nAlpha The global alpha level
  */
- #define EhsTV_blit_withlock EhsTV_blit //@todo make a with lock version
+#define EhsTV_blit_withlock EhsTV_blit //@todo make a with lock version
 EHS_GLOBAL void EhsTV_blit(EhsTVClass* pViewport,
-					const EhsTVSurfaceClass* pSurface,
-					const EhsGraphicsRectangleClass* prDst,
-					const EhsGraphicsRectangleClass* prSrc,
-					ehs_uint8 nImageAlpha);
+                           const EhsTVSurfaceClass* pSurface,
+                           const EhsGraphicsRectangleClass* prDst,
+                           const EhsGraphicsRectangleClass* prSrc,
+                           ehs_uint8 nImageAlpha);
 #endif
 
 #ifndef EhsTV_fillRect
@@ -103,7 +108,7 @@ EHS_GLOBAL void EhsTV_blit(EhsTVClass* pViewport,
  * @param[in] pColour Colour to use for filling rectangle (includes global alpha value)
  */
 EHS_GLOBAL void EhsTV_fillRect(EhsTVClass* pViewport,
-				const EhsGraphicsRectangleClass* pRect, const EhsGraphicsColourClass* pColour);
+                               const EhsGraphicsRectangleClass* pRect, const EhsGraphicsColourClass* pColour);
 #endif
 
 /*Change alpha value of viewport*/
@@ -263,8 +268,8 @@ void EhsPrimaryViewportInfo_setZOrder(ehs_uint16 nZOrder);
  * @return pointer to the surface, or null if an error occured.
  */
 EHS_GLOBAL EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
-		ehs_uint16 nWidth, ehs_uint16 nHeight, EhsGraphicsColourFormatEnum eFormat,
-		EhsGraphicsColourClass* pPalette, ehs_uint16 nPaletteSize);//, ehs_bool bTemporary);
+        ehs_uint16 nWidth, ehs_uint16 nHeight, EhsGraphicsColourFormatEnum eFormat,
+        EhsGraphicsColourClass* pPalette, ehs_uint16 nPaletteSize);//, ehs_bool bTemporary);
 
 #ifndef EhsTVSurface_destroy
 /**

@@ -1,12 +1,17 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file dtv_pvr_play.c
  *
  * Implementation of the PVR playback functions for the DTV toolkit
  *
  * @author: inx limited
- * @version: $Revision: 4772 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006), $
- *
- * Copyright (c), inx limited, 2007. All rights reserved.
  */
 
 /**
@@ -53,9 +58,9 @@
  * If any operation causes an error, the "err" event is asserted and an error number is passed to the errNo port.
  * The meaning of this value can be found with the "play error" block.
  */
- 
+
 #include "ehs_fb_types.h" /* for some elements referred to in fid.h */
- 
+
 #include "target.h"
 #include "target_os_dtv.h"
 #include "dtv_pvr_play2.h" //@todo what is this for?
@@ -69,21 +74,22 @@
 #include "hal_dtv.h" //This is not in the hal.h it needs to be included specifically
 
 EHS_FB_FUNCTIONS_START(DtvPvrPlay2)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_SET_INPUT_NAME, DtvPvrPlay2_set_input)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_SET_POS_NAME, DtvPvrPlay2_set_pos)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_SET_TIME_NAME, DtvPvrPlay2_set_time)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_GET_NAME, DtvPvrPlay2_get)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_PLAY_NAME, DtvPvrPlay2_play)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_PAUSE_NAME, DtvPvrPlay2_pause)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_REV_NAME, DtvPvrPlay2_rev)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_FASTER_NAME, DtvPvrPlay2_faster)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_SLOWER_NAME, DtvPvrPlay2_slower)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_STOP_NAME, DtvPvrPlay2_stop)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_END_NAME, DtvPvrPlay2_end)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_SET_WINDOW_NAME, DtvPvrPlay2_set_window)
-EHS_FB_FUNCTION_ENTRY("vol", DtvPvrPlay2_set_volume)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_TO_FRONT,DtvPvrPlay2_to_front)
-EHS_FB_FUNCTION_ENTRY(EHS_FB_DTV_PVR_PLAY_TO_BACK,DtvPvrPlay2_to_back)
+EHS_FB_FUNCTION_ENTRY("setinput", 0x00, DtvPvrPlay2_set_input)
+EHS_FB_FUNCTION_ENTRY("setpos", 0x01, DtvPvrPlay2_set_pos)
+EHS_FB_FUNCTION_ENTRY("settime", 0x02, DtvPvrPlay2_set_time)
+EHS_FB_FUNCTION_ENTRY("get", 0x03, DtvPvrPlay2_get)
+EHS_FB_FUNCTION_ENTRY("play", 0x04, DtvPvrPlay2_play)
+EHS_FB_FUNCTION_ENTRY("pause", 0x05, DtvPvrPlay2_pause)
+EHS_FB_FUNCTION_ENTRY("reverse", 0x06, DtvPvrPlay2_rev)
+EHS_FB_FUNCTION_ENTRY("faster", 0x07, DtvPvrPlay2_faster)
+EHS_FB_FUNCTION_ENTRY("slower", 0x08, DtvPvrPlay2_slower)
+EHS_FB_FUNCTION_ENTRY("stop", 0x09, DtvPvrPlay2_stop)
+EHS_FB_FUNCTION_ENTRY("end", 0x0A, DtvPvrPlay2_end)
+EHS_FB_FUNCTION_ENTRY("setWindow", 0x0B, DtvPvrPlay2_set_window)
+
+EHS_FB_FUNCTION_ENTRY("vol", 0x0C, DtvPvrPlay2_set_volume)
+EHS_FB_FUNCTION_ENTRY("toFront", 0x0D,DtvPvrPlay2_to_front)
+EHS_FB_FUNCTION_ENTRY("toBack", 0x0E,DtvPvrPlay2_to_back)
 EHS_FB_FUNCTIONS_END
 
 /* port identifiers - @todo These are badly named*/
@@ -122,7 +128,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(DtvPvrPlay2)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(EhsFbPvrPlayClass);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(EhsFbPvrPlayClass);
 }
 
 /**
@@ -130,40 +136,41 @@ EHS_FB_IDENTIFY_FUNCTION(DtvPvrPlay2)
  *
  */
 EHS_FB_INIT_FUNCTION(DtvPvrPlay2)
-{	
-	EhsGuiParamsType xParams;
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_INIT_CONTEXT;
-	// EhsMemset(pPvrPlay->szFilename,0,EHS_TD_FILES_MAX_PATH);
-	//@todo something like the following may need to go into the destructor :if (pPvrPlay->pTDPlayback) EhsHMem_tempFree(pPvrPlay->pTDPlayback)
-	char guiParams[MAX_PARAM_STR_LEN];
-	const char* pParams;
-	pPvrPlay->MediaPlayerState=EHS_FB_STATE_NOT_LOADED;
-	EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
-	pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-	EhsParseGuiParameters(guiParams,&xParams);  // We will be reading data is if we are a patch type (LGB Does this - it should be a generic render type rather than for a specific widget type)
-	//copy the frame data into struct and ignore the rest
-	pPvrPlay->nXpos_adjusted=pPvrPlay->nXpos=xParams.xRect.nLeft;
-	pPvrPlay->nYpos_adjusted=pPvrPlay->nYpos=xParams.xRect.nTop;
-	pPvrPlay->nWidth_adjusted=pPvrPlay->nWidth=xParams.xRect.nWidth;
-	pPvrPlay->nHeight_adjusted=pPvrPlay->nHeight=xParams.xRect.nHeight;
-	pPvrPlay->video_on_top=(xParams.nZorder!=0x80000000);// 0 in LAB is converted to 0x80000000 just to be anoying.
-    //printf("\n***************STUFF = %d, %d, %d, %d \n",pPvrPlay->nXpos_adjusted,pPvrPlay->nYpos_adjusted,pPvrPlay->nWidth_adjusted,pPvrPlay->nHeight_adjusted);
-	pPvrPlay->pTDPlayback = EhsTDPlayback_init(pPvrPlay);
-	if (! pPvrPlay->pTDPlayback) {
-		EHSH_LOG_ERROR("Could not initialise Media Player");
-		return EHS_FALSE;
-	}
-	return EhsTDPlayback_reset((EhsTDPlaybackClass*)pPvrPlay->pTDPlayback); /* initialisation was successful */
+{
+    EhsGuiParamsType xParams;
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_INIT_CONTEXT;
+    // EhsMemset(pPvrPlay->szFilename,0,EHS_TD_FILES_MAX_PATH);
+    //@todo something like the following may need to go into the destructor :if (pPvrPlay->pTDPlayback) EhsHMem_tempFree(pPvrPlay->pTDPlayback)
+    char guiParams[MAX_PARAM_STR_LEN];
+    const char* pParams;
+    pPvrPlay->MediaPlayerState=EHS_FB_STATE_NOT_LOADED;
+    EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
+    pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
+    EhsParseGuiParameters(guiParams,&xParams);  // We will be reading data is if we are a patch type (LGB Does this - it should be a generic render type rather than for a specific widget type)
+    //copy the frame data into struct and ignore the rest
+    pPvrPlay->nXpos_adjusted=pPvrPlay->nXpos=xParams.xRect.nLeft;
+    pPvrPlay->nYpos_adjusted=pPvrPlay->nYpos=xParams.xRect.nTop;
+    pPvrPlay->nWidth_adjusted=pPvrPlay->nWidth=xParams.xRect.nWidth;
+    pPvrPlay->nHeight_adjusted=pPvrPlay->nHeight=xParams.xRect.nHeight;
+    pPvrPlay->video_on_top=(xParams.nZorder!=0x80000000);// 0 in LAB is converted to 0x80000000 just to be anoying.
+    pPvrPlay->pTDPlayback = EhsTDPlayback_init(pPvrPlay);
+    if (! pPvrPlay->pTDPlayback)
+    {
+        EHSH_LOG_ERROR("Could not initialise Media Player");
+        return EHS_FALSE;
+    }
+    return EhsTDPlayback_reset((EhsTDPlaybackClass*)pPvrPlay->pTDPlayback); /* initialisation was successful */
 }
 
 EHS_FB_DESTROY_FUNCTION(DtvPvrPlay2)
 {
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_DESTROY_CONTEXT;
-	if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-		EhsTDPlayback_stop(pPvrPlay);
-	}
-	// not needed -> else {EhsTDPlayback_closeWindow(pPvrPlay);
-	pPvrPlay->MediaPlayerState=EHS_FB_STATE_NOT_LOADED; /* Not needed realy as we are about to be destroyed */
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_DESTROY_CONTEXT;
+    if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
+    {
+        EhsTDPlayback_stop(pPvrPlay);
+    }
+    // not needed -> else {EhsTDPlayback_closeWindow(pPvrPlay);
+    pPvrPlay->MediaPlayerState=EHS_FB_STATE_NOT_LOADED; /* Not needed realy as we are about to be destroyed */
 }
 
 /**
@@ -171,139 +178,160 @@ EHS_FB_DESTROY_FUNCTION(DtvPvrPlay2)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_input)
 {
-	EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	ehs_bool URIOK = EHS_FALSE;
-	ehs_bool UriIsUrl = EHS_FALSE;
-	ehs_char filename[EHS_STRING_LENGTH_MAX];
-	ehs_sint32 pos,i,filenamelength;
-	ehs_char *pIn, *pOut;
-	ehs_char *postfix = NULL;
-	const ehs_char* fileprefix=EHS_AV_URI_PREFIX_FILE; //"file:///";
-	int prefixlen = 0;
-	int pathoffset = 0;
+    EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    ehs_bool URIOK = EHS_FALSE;
+    ehs_bool UriIsUrl = EHS_FALSE;
+    ehs_char filename[EHS_STRING_LENGTH_MAX];
+    ehs_sint32 pos,i,filenamelength;
+    ehs_char *pIn, *pOut;
+    ehs_char *postfix = NULL;
+    const ehs_char* fileprefix=EHS_AV_URI_PREFIX_FILE; //"file:///";
+    int prefixlen = 0;
+    int pathoffset = 0;
 
-	EhsTPMutex_lock(EhsTPMutex_fbIO);  // todo this fbio mutexing hoould be much finer grained in this function - may need to copy some strings locally though
-	EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPVR->pTDPlayback;
-	ehs_char *inFileName = EHS_FB_IN_S(PORT_IN_INPUT);
-//printf("XXXX    Filename=[%s]\n",inFileName);
-	filenamelength = EhsStrlen(inFileName);
-	EhsStrcpy(filename,"");
-	if (filenamelength < EHS_STRING_LENGTH_MAX) {
-		/* find the prefix (last dot) */
+    EhsTPMutex_lock(EhsTPMutex_fbIO);  // todo this fbio mutexing hoould be much finer grained in this function - may need to copy some strings locally though
+    EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPVR->pTDPlayback;
+    ehs_char *inFileName = EHS_FB_IN_S(PORT_IN_INPUT);
+    filenamelength = EhsStrlen(inFileName);
+    EhsStrcpy(filename,"");
+    if (filenamelength < EHS_STRING_LENGTH_MAX)
+    {
+        /* find the prefix (last dot) */
 
-		for (i=filenamelength-1;i >= 0;i--) {
-			if (inFileName[i] == '.') {
-				postfix = &inFileName[i+1];
-				break;
-			}
-		}
-	}
-	else {
-		EHSH_LOG_ERROR("Filename is too long. Not playing");
-	}
-	/* sort out the URI, adding any prefixes and check it a valid file type */
-	/* THis function does not support playing media paths otside of the user data directory */
-	if (    (postfix &&
-			EhsStrcmp(postfix,"jpg")!=0 &&
-			EhsStrcmp(postfix,"png")!=0 &&
-			EhsStrcmp(postfix,"gif")!=0 &&
-			EhsStrcmp(postfix,"txt")!=0) ||
-			EhsStrncmp(inFileName,"http:",EhsStrlen("http:"))==0
-		) {
-		if (EhsStrlen(inFileName) > 6 ) { // max length of any uri prefix like file://
-			if (EhsStrncmp(inFileName,"http",EhsStrlen("http"))==0) { /* Check if we are a URL */
-				EhsStrcpy(filename,inFileName);
-				URIOK=EHS_TRUE;// Pass the URL in unckecked
-				UriIsUrl = EHS_TRUE;
-			}
-			else {
-				if (EhsStrncmp(inFileName,EHS_AV_URI_PREFIX_FILE,EhsStrlen(EHS_AV_URI_PREFIX_FILE))==0) { /* Check if we are a file URI */
-					pathoffset = EhsStrlen(EHS_AV_URI_PREFIX_FILE); // todo why do we have offset and length for the same prefix
-				}
-				else  {
-					// leave path offset at 0
-					pathoffset = 0;
-				}
-			}
-		}
-		else { // short file name - hope for the best! ...
-			// URIOK = EHS_FALSE; //default left
-		}
-		/* Create th actual file path in user area and check the file exists in the user area */
-		if (URIOK == EHS_FALSE /*only checked for http so far, check file URIs only*/) {
-			prefixlen = EhsStrlen(EHS_AV_URI_PREFIX_FILE);
-			if ( EhsTF_tryCanonicPath(&filename[prefixlen], EHS_RUNTIME_USERDATA_DIR ,&inFileName[pathoffset],EHS_FALSE ) == EHS_TRUE) {
-				for (i=0;i<EhsStrlen(EHS_AV_URI_PREFIX_FILE);i++) filename[i]=fileprefix[i];/* add prefix in-place don't use strcpy here to avoid terminating null*/
-				URIOK=EHS_TRUE;
-			//printf("XXXX  Found local version of  Filename=[%s]\n",inFileName);
-			}
-			else {
-				//EhsStrcpy(filename,"");
-				URIOK=EHS_FALSE;
-				EHSH_LOG_ERROR("Could not open path %s",inFileName);
-			}
-		}
-	}else {
-		EHSH_LOG_ERROR("Canot open files wihout a file type extension: %s",filename);
-		URIOK=EHS_FALSE;
-	}
+        for (i=filenamelength-1; i >= 0; i--)
+        {
+            if (inFileName[i] == '.')
+            {
+                postfix = &inFileName[i+1];
+                break;
+            }
+        }
+    }
+    else
+    {
+        EHSH_LOG_ERROR("Filename is too long. Not playing");
+    }
+    /* sort out the URI, adding any prefixes and check it a valid file type */
+    /* THis function does not support playing media paths otside of the user data directory */
+    if (    (postfix &&
+             EhsStrcmp(postfix,"jpg")!=0 &&
+             EhsStrcmp(postfix,"png")!=0 &&
+             EhsStrcmp(postfix,"gif")!=0 &&
+             EhsStrcmp(postfix,"txt")!=0) ||
+            EhsStrncmp(inFileName,"http:",EhsStrlen("http:"))==0
+       )
+    {
+        if (EhsStrlen(inFileName) > 6 )   // max length of any uri prefix like file://
+        {
+            if (EhsStrncmp(inFileName,"http",EhsStrlen("http"))==0)   /* Check if we are a URL */
+            {
+                EhsStrcpy(filename,inFileName);
+                URIOK=EHS_TRUE;// Pass the URL in unckecked
+                UriIsUrl = EHS_TRUE;
+            }
+            else
+            {
+                if (EhsStrncmp(inFileName,EHS_AV_URI_PREFIX_FILE,EhsStrlen(EHS_AV_URI_PREFIX_FILE))==0)   /* Check if we are a file URI */
+                {
+                    pathoffset = EhsStrlen(EHS_AV_URI_PREFIX_FILE); // todo why do we have offset and length for the same prefix
+                }
+                else
+                {
+                    // leave path offset at 0
+                    pathoffset = 0;
+                }
+            }
+        }
+        else   // short file name - hope for the best! ...
+        {
+            // URIOK = EHS_FALSE; //default left
+        }
+        /* Create th actual file path in user area and check the file exists in the user area */
+        if (URIOK == EHS_FALSE /*only checked for http so far, check file URIs only*/)
+        {
+            prefixlen = EhsStrlen(EHS_AV_URI_PREFIX_FILE);
+            if ( EhsTF_tryCanonicPath(&filename[prefixlen], EHS_RUNTIME_USERDATA_DIR,&inFileName[pathoffset],EHS_FALSE ) == EHS_TRUE)
+            {
+                for (i=0; i<EhsStrlen(EHS_AV_URI_PREFIX_FILE); i++) filename[i]=fileprefix[i]; /* add prefix in-place don't use strcpy here to avoid terminating null*/
+                URIOK=EHS_TRUE;
+            }
+            else
+            {
+                //EhsStrcpy(filename,"");
+                URIOK=EHS_FALSE;
+                EHSH_LOG_ERROR("Could not open path %s",inFileName);
+            }
+        }
+    }
+    else
+    {
+        EHSH_LOG_ERROR("Canot open files wihout a file type extension: %s",filename);
+        URIOK=EHS_FALSE;
+    }
 
-	if (URIOK == EHS_TRUE && !UriIsUrl) {
-		if (EhsTF_exists(&filename[prefixlen]) != 1 ) {
-			URIOK = EHS_FALSE;
-		//printf("Media file [%s] not found\n",&filename[prefixlen]);
-			EHSH_LOG_ERROR("Media file [%s] not found\n",&filename[prefixlen]);
-		}
-	}
-	//printf("XXXX  Are we OK?\n");
-	if (URIOK) {
-		//printf("XXXX  Trying to load= filename=[%s]\n",filename);
+    if (URIOK == EHS_TRUE && !UriIsUrl)
+    {
+        if (EhsTF_exists(&filename[prefixlen]) != 1 )
+        {
+            URIOK = EHS_FALSE;
+            EHSH_LOG_ERROR("Media file [%s] not found\n",&filename[prefixlen]);
+        }
+    }
+    if (URIOK)
+    {
 
-		if ( !EhsTDPlayback_loadFile(EHS_FB_RUN_FUNCTION_INSTANCE, filename)) {
-			//printf("XXXX  Loading filename=[%s]\n",filename);
-			EHS_FB_FINISH(PORT_FINISH_SETINPUT);
-			pPVR->MediaPlayerState = EHS_FB_STATE_NOT_LOADED;
-			EHSH_LOG_WARNING("Could not Load the media file %s",filename);
-		} else {
-			/* it's valid - update the name in the PvrPlay structure */
-			//****EhsStrcpy((ehs_char*) pPVR->szFilename, filename);
-			//printf("XXXX  Yes we OK?\n");
-			pPVR->MediaPlayerState = EHS_FB_STATE_LOADED;
-		}
+        if ( !EhsTDPlayback_loadFile(EHS_FB_RUN_FUNCTION_INSTANCE, filename))
+        {
+            EHS_FB_FINISH(PORT_FINISH_SETINPUT);
+            pPVR->MediaPlayerState = EHS_FB_STATE_NOT_LOADED;
+            EHSH_LOG_WARNING("Could not Load the media file %s",filename);
+        }
+        else
+        {
+            /* it's valid - update the name in the PvrPlay structure */
+            //****EhsStrcpy((ehs_char*) pPVR->szFilename, filename);
+            pPVR->MediaPlayerState = EHS_FB_STATE_LOADED;
+        }
 
-	} else {
-		EHSH_LOG_ERROR("Will not set media player input [%s] to [%s]",inFileName,filename);
-		EHS_FB_FINISH(PORT_FINISH_SETINPUT); // todo this is an error port that is floating way below the icon and doesn't get used.
-		pPVR->MediaPlayerState = EHS_FB_STATE_NOT_LOADED;
-	}
-	EHS_FB_FINISH(PORT_FINISH_INPUT);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    }
+    else
+    {
+        EHSH_LOG_ERROR("Will not set media player input [%s] to [%s]",inFileName,filename);
+        EHS_FB_FINISH(PORT_FINISH_SETINPUT); // todo this is an error port that is floating way below the icon and doesn't get used.
+        pPVR->MediaPlayerState = EHS_FB_STATE_NOT_LOADED;
+    }
+    EHS_FB_FINISH(PORT_FINISH_INPUT);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 
 }
 
 
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_pos)
 {
-	EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*) EHS_FB_RUN_CONTEXT;
-	if (pPVR->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-		if (EHS_FB_IN_CONNECTED(PORT_IN_POS)) {
-			EhsTDPlayback_setPos((EhsTDPlaybackClass*) pPVR->pTDPlayback,
-					EHS_FB_IN_I(PORT_IN_POS));
-		}
-	}//@todo need an error out here
-	EHS_FB_FINISH(PORT_FINISH_POS);
+    EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*) EHS_FB_RUN_CONTEXT;
+    if (pPVR->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
+    {
+        if (EHS_FB_IN_CONNECTED(PORT_IN_POS))
+        {
+            EhsTDPlayback_setPos((EhsTDPlaybackClass*) pPVR->pTDPlayback,
+                                 EHS_FB_IN_I(PORT_IN_POS));
+        }
+    }//@todo need an error out here
+    EHS_FB_FINISH(PORT_FINISH_POS);
 }
 
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_time)
 {
-	EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	if (pPVR->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-		if (EHS_FB_IN_CONNECTED(PORT_IN_TIME)) {
-			EhsTDPlayback_setTime((EhsTDPlaybackClass*) pPVR->pTDPlayback,
-					EHS_FB_IN_I(PORT_IN_TIME));
-		}
-	} //@todo need an error out here
-	EHS_FB_FINISH(PORT_FINISH_TIME);
+    EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    if (pPVR->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
+    {
+        if (EHS_FB_IN_CONNECTED(PORT_IN_TIME))
+        {
+            EhsTDPlayback_setTime((EhsTDPlaybackClass*) pPVR->pTDPlayback,
+                                  EHS_FB_IN_I(PORT_IN_TIME));
+        }
+    } //@todo need an error out here
+    EHS_FB_FINISH(PORT_FINISH_TIME);
 }
 
 
@@ -312,61 +340,78 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_time)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_get)
 {
-	EhsDataflowIntType nTime = 0;
-	EhsDataflowIntType nSpeed = 0;
-	EhsDataflowIntType nPos = 0;
-	EhsDataflowIntType nLength = 0;
-	EhsDataflowIntType nIndex = 0;
-	EhsDataflowStringType nInput[EHS_STRING_LENGTH_MAX];
-	EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPVR->pTDPlayback;
-	/*Get position information*/
-	if (pPVR->MediaPlayerState != EHS_FB_STATE_NOT_LOADED && pPVR->MediaPlayerState != EHS_FB_STATE_PLAY_ENDED) {
-		if (!EhsTDPlayback_getPos(pPlayback, &nPos)) {
-			//EHS_FB_FINISH(PORT_FINISH_GET_ERR);
-		} else {
-			EHS_FB_OUT_I(PORT_OUT_POS) = nPos;
-		}
+    EhsDataflowIntType nTime = 0;
+    EhsDataflowIntType nSpeed = 0;
+    EhsDataflowIntType nPos = 0;
+    EhsDataflowIntType nLength = 0;
+    EhsDataflowIntType nIndex = 0;
+    EhsDataflowStringType nInput[EHS_STRING_LENGTH_MAX];
+    EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPVR->pTDPlayback;
+    /*Get position information*/
+    if (pPVR->MediaPlayerState != EHS_FB_STATE_NOT_LOADED && pPVR->MediaPlayerState != EHS_FB_STATE_PLAY_ENDED)
+    {
+        if (!EhsTDPlayback_getPos(pPlayback, &nPos))
+        {
+            //EHS_FB_FINISH(PORT_FINISH_GET_ERR);
+        }
+        else
+        {
+            EHS_FB_OUT_I(PORT_OUT_POS) = nPos;
+        }
 
-		/*Get speed information*/
-		if (!EhsTDPlayback_getSpeed(pPlayback, &nSpeed)) {
-			//EHS_FB_FINISH(PORT_FINISH_GET_ERR);
-		} else {
-			EHS_FB_OUT_I(PORT_OUT_SPEED) = nSpeed;
-		}
+        /*Get speed information*/
+        if (!EhsTDPlayback_getSpeed(pPlayback, &nSpeed))
+        {
+            //EHS_FB_FINISH(PORT_FINISH_GET_ERR);
+        }
+        else
+        {
+            EHS_FB_OUT_I(PORT_OUT_SPEED) = nSpeed;
+        }
 
-		/*Get time information*/
-		if (!EhsTDPlayback_getTime(pPlayback, &nTime)) {
-			//EHS_FB_FINISH(PORT_FINISH_GET_ERR);
-		} else {
-			EHS_FB_OUT_I(PORT_OUT_TIME) = nTime;
-		}
-		/*Get length information*/
-		if (!EhsTDPlayback_getLength(pPlayback, &nLength)) {
-			/*Some error thingy we haven't decided upon yet*/
-		} else {
-			EHS_FB_OUT_I(PORT_OUT_LENGTH) = nLength;
-		}
-		/*Get input string*/
-		if (!EhsTDPlayback_getInput(pPlayback, (ehs_char*) nInput)) //@todo typo here was a ref to ref
-		{
-			/*Some error thingy we haven't decided upon yet*/
-		} else {
-			EhsStrcpy(EHS_FB_OUT_S(PORT_OUT_INPUT), (ehs_char*) nInput);
-		}
-	} //@todo should post error here
-	else {
-		if (pPVR->MediaPlayerState != EHS_FB_STATE_PLAY_ENDED) {
-		EHS_FB_OUT_I(PORT_OUT_SPEED) = 0;
-		EHS_FB_OUT_I(PORT_OUT_POS) = 0;
-		EHS_FB_OUT_I(PORT_OUT_TIME) = 0;
-		EHS_FB_OUT_I(PORT_OUT_LENGTH) = 0;
-		EhsStrcpy(EHS_FB_OUT_S(PORT_OUT_INPUT), "");
-		}//else leave all as is
-	}
-	EHS_FB_FINISH(PORT_FINISH_GET);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+        /*Get time information*/
+        if (!EhsTDPlayback_getTime(pPlayback, &nTime))
+        {
+            //EHS_FB_FINISH(PORT_FINISH_GET_ERR);
+        }
+        else
+        {
+            EHS_FB_OUT_I(PORT_OUT_TIME) = nTime;
+        }
+        /*Get length information*/
+        if (!EhsTDPlayback_getLength(pPlayback, &nLength))
+        {
+            /*Some error thingy we haven't decided upon yet*/
+        }
+        else
+        {
+            EHS_FB_OUT_I(PORT_OUT_LENGTH) = nLength;
+        }
+        /*Get input string*/
+        if (!EhsTDPlayback_getInput(pPlayback, (ehs_char*) nInput)) //@todo typo here was a ref to ref
+        {
+            /*Some error thingy we haven't decided upon yet*/
+        }
+        else
+        {
+            EhsStrcpy(EHS_FB_OUT_S(PORT_OUT_INPUT), (ehs_char*) nInput);
+        }
+    } //@todo should post error here
+    else
+    {
+        if (pPVR->MediaPlayerState != EHS_FB_STATE_PLAY_ENDED)
+        {
+            EHS_FB_OUT_I(PORT_OUT_SPEED) = 0;
+            EHS_FB_OUT_I(PORT_OUT_POS) = 0;
+            EHS_FB_OUT_I(PORT_OUT_TIME) = 0;
+            EHS_FB_OUT_I(PORT_OUT_LENGTH) = 0;
+            EhsStrcpy(EHS_FB_OUT_S(PORT_OUT_INPUT), "");
+        }//else leave all as is
+    }
+    EHS_FB_FINISH(PORT_FINISH_GET);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 /**
@@ -374,25 +419,28 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_get)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_play)
 {
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback; //This interface is very crudy! the setweindow should not need this should be done lower down
-	if (pPvrPlay->MediaPlayerState == EHS_FB_STATE_NOT_LOADED) goto error;
-	if (pPvrPlay->MediaPlayerState == EHS_FB_STATE_PLAY_ENDED) {
-		EhsTDPlayback_stop(pPvrPlay); // run this to reset any ended GST player states that wont play otherwise
-	}
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback; //This interface is very crudy! the setweindow should not need this should be done lower down
+    if (pPvrPlay->MediaPlayerState == EHS_FB_STATE_NOT_LOADED) goto error;
+    if (pPvrPlay->MediaPlayerState == EHS_FB_STATE_PLAY_ENDED)
+    {
+        EhsTDPlayback_stop(pPvrPlay); // run this to reset any ended GST player states that wont play otherwise
+    }
 
-	if ( EhsTDPlayback_play(EHS_FB_RUN_CONTEXT_REF,100))
-	{
-		pPvrPlay->MediaPlayerState = EHS_FB_STATE_PLAYING;
-	//	EHS_FB_FINISH(PORT_FINISH_ERR);
-	} else {
-		pPvrPlay->bPaused = EHS_FALSE;//@todo - do we need this? - should use MediaPlayerState
-		pPvrPlay->MediaPlayerState = EHS_FB_STATE_PAUSED;
-	}
-	error://@todo we should assert an error event here really
-	EHS_FB_FINISH(PORT_FINISH_PLAY); //This is just the ack that a play request has been made!
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    if ( EhsTDPlayback_play(EHS_FB_RUN_CONTEXT_REF,100))
+    {
+        pPvrPlay->MediaPlayerState = EHS_FB_STATE_PLAYING;
+        //	EHS_FB_FINISH(PORT_FINISH_ERR);
+    }
+    else
+    {
+        pPvrPlay->bPaused = EHS_FALSE;//@todo - do we need this? - should use MediaPlayerState
+        pPvrPlay->MediaPlayerState = EHS_FB_STATE_PAUSED;
+    }
+error://@todo we should assert an error event here really
+    EHS_FB_FINISH(PORT_FINISH_PLAY); //This is just the ack that a play request has been made!
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 
 }
 
@@ -401,24 +449,24 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_play)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_pause)
 {
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	ehs_sint32 nSpeed;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	//printf("--------------------> PAUSING %s\n",pPvrPlay->szFilename);
-	if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-	if (!EhsTDPlayback_pause((EhsTDPlaybackClass*)pPvrPlay->pTDPlayback))
-	{
-		//EHS_FB_FINISH(PORT_FINISH_ERR);
-	}
-	else
-	{
-		pPvrPlay->bPaused = !pPvrPlay->bPaused;
-		if (pPvrPlay->bPaused) pPvrPlay->MediaPlayerState = EHS_FB_STATE_PAUSED;
-		else pPvrPlay->MediaPlayerState = EHS_FB_STATE_PLAYING;
-	}
-	} //@todo error handler?
-	EHS_FB_FINISH(PORT_FINISH_PAUSE);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    ehs_sint32 nSpeed;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
+    {
+        if (!EhsTDPlayback_pause((EhsTDPlaybackClass*)pPvrPlay->pTDPlayback))
+        {
+            //EHS_FB_FINISH(PORT_FINISH_ERR);
+        }
+        else
+        {
+            pPvrPlay->bPaused = !pPvrPlay->bPaused;
+            if (pPvrPlay->bPaused) pPvrPlay->MediaPlayerState = EHS_FB_STATE_PAUSED;
+            else pPvrPlay->MediaPlayerState = EHS_FB_STATE_PLAYING;
+        }
+    } //@todo error handler?
+    EHS_FB_FINISH(PORT_FINISH_PAUSE);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 /**
@@ -426,32 +474,33 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_pause)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_rev)
 {
-	/*@TODO: this function has been commented out due to causing problems and not really being needed 20081231*/
-	EhsDataflowIntType nSpeed;
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
+    /*@TODO: this function has been commented out due to causing problems and not really being needed 20081231*/
+    EhsDataflowIntType nSpeed;
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
 
-	if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-	if (EhsTDPlayback_getSpeed(pPlayback,&nSpeed))
-	{
-		if (nSpeed > 0)
-		{
-			/* only if we're going forward */
-			nSpeed *= -1;
-			if (!EhsTDPlayback_setSpeed(pPlayback,nSpeed))
-			{
-				EHS_FB_FINISH(PORT_FINISH_ERR);
-			}
-		}
-	}
-	else
-	{
-		EHS_FB_FINISH(PORT_FINISH_ERR);
-	}
-	} //@todo error handler
-	EHS_FB_FINISH(PORT_FINISH_REV);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
+    {
+        if (EhsTDPlayback_getSpeed(pPlayback,&nSpeed))
+        {
+            if (nSpeed > 0)
+            {
+                /* only if we're going forward */
+                nSpeed *= -1;
+                if (!EhsTDPlayback_setSpeed(pPlayback,nSpeed))
+                {
+                    EHS_FB_FINISH(PORT_FINISH_ERR);
+                }
+            }
+        }
+        else
+        {
+            EHS_FB_FINISH(PORT_FINISH_ERR);
+        }
+    } //@todo error handler
+    EHS_FB_FINISH(PORT_FINISH_REV);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 /**
@@ -459,30 +508,31 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_rev)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_faster)
 {
-	EhsDataflowIntType nSpeed;
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-		EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
-		if (EhsTDPlayback_getSpeed(pPlayback,&nSpeed))
-		{
-			if ((nSpeed != 0) && (nSpeed < 10000))
-			{
-				/* only if we're playing */
-				nSpeed *= 2;
-				if (!EhsTDPlayback_setSpeed(pPlayback,nSpeed))
-				{
-					EHS_FB_FINISH(PORT_FINISH_ERR);
-				}
-			}
-		}
-		else
-		{
-			//EHS_FB_FINISH(PORT_FINISH_ERR); // todo we hould use this if is actualy a real port
-		}
-	}
-	EHS_FB_FINISH(PORT_FINISH_FASTER);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    EhsDataflowIntType nSpeed;
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
+    {
+        EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
+        if (EhsTDPlayback_getSpeed(pPlayback,&nSpeed))
+        {
+            if ((nSpeed != 0) && (nSpeed < 10000))
+            {
+                /* only if we're playing */
+                nSpeed *= 2;
+                if (!EhsTDPlayback_setSpeed(pPlayback,nSpeed))
+                {
+                    EHS_FB_FINISH(PORT_FINISH_ERR);
+                }
+            }
+        }
+        else
+        {
+            //EHS_FB_FINISH(PORT_FINISH_ERR); // todo we hould use this if is actualy a real port
+        }
+    }
+    EHS_FB_FINISH(PORT_FINISH_FASTER);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 /**
@@ -490,30 +540,31 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_faster)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_slower)
 {
-	EhsDataflowIntType nSpeed;
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-		EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
-		if (EhsTDPlayback_getSpeed(pPlayback,&nSpeed))
-		{
-			if ((nSpeed > 25) || (nSpeed < -25))
-			{
-				/* only if we're playing and we can halve without rounding errors */
-				nSpeed /= 2;
-				if (!EhsTDPlayback_setSpeed(pPlayback,nSpeed))
-				{
-					EHS_FB_FINISH(PORT_FINISH_ERR);
-				}
-			}
-		}
-		else
-		{
-			//EHS_FB_FINISH(PORT_FINISH_ERR);
-		}
-	}
-	EHS_FB_FINISH(PORT_FINISH_SLOWER);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    EhsDataflowIntType nSpeed;
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
+    {
+        EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
+        if (EhsTDPlayback_getSpeed(pPlayback,&nSpeed))
+        {
+            if ((nSpeed > 25) || (nSpeed < -25))
+            {
+                /* only if we're playing and we can halve without rounding errors */
+                nSpeed /= 2;
+                if (!EhsTDPlayback_setSpeed(pPlayback,nSpeed))
+                {
+                    EHS_FB_FINISH(PORT_FINISH_ERR);
+                }
+            }
+        }
+        else
+        {
+            //EHS_FB_FINISH(PORT_FINISH_ERR);
+        }
+    }
+    EHS_FB_FINISH(PORT_FINISH_SLOWER);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 /**
@@ -522,20 +573,19 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_slower)
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_stop)
 {
 
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	//printf("--------------------> STOPPING %s\n",pPvrPlay->szFilename);
-	//EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	//printf("FROM GEN: ");
-	if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-		if (!EhsTDPlayback_stop(pPvrPlay))
-		{
-			//EHS_FB_FINISH(PORT_FINISH_ERR);
-		}
-		pPvrPlay->MediaPlayerState = EHS_FB_STATE_STOPPED; /* This would need to be re loaded */
-	}
-	EHS_FB_FINISH(PORT_FINISH_STOP);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    //EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
+    {
+        if (!EhsTDPlayback_stop(pPvrPlay))
+        {
+            //EHS_FB_FINISH(PORT_FINISH_ERR);
+        }
+        pPvrPlay->MediaPlayerState = EHS_FB_STATE_STOPPED; /* This would need to be re loaded */
+    }
+    EHS_FB_FINISH(PORT_FINISH_STOP);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 /**
@@ -543,28 +593,30 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_stop)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_end)
 {
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	/* Only assert an end from the taret player if we haven't requested a stop */
-	if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_STOPPED) {
-		pPvrPlay->MediaPlayerState = EHS_FB_STATE_PLAY_ENDED;
-		EHS_FB_FINISH(2);
-	}
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    /* Only assert an end from the taret player if we haven't requested a stop */
+    if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_STOPPED)
+    {
+        pPvrPlay->MediaPlayerState = EHS_FB_STATE_PLAY_ENDED;
+        EHS_FB_FINISH(2);
+    }
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_volume)
 {
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	// We don't need to check state as the target code checks for existance and also remembers state that can be set at any time */
-	// if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
-		EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
-		if(EHS_FB_IN_CONNECTED(0)) {
-			EhsTDSetVol(pPlayback,EHS_FB_IN_I(0));
-		}
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    // We don't need to check state as the target code checks for existance and also remembers state that can be set at any time */
+    // if (pPvrPlay->MediaPlayerState != EHS_FB_STATE_NOT_LOADED) {
+    EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
+    if(EHS_FB_IN_CONNECTED(0))
+    {
+        EhsTDSetVol(pPlayback,EHS_FB_IN_I(0));
+    }
 //	}
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 /**
@@ -572,79 +624,84 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_volume)
  */
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_window)
 {
-	EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
 
-	EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
-	/*
-	EhsDataflowIntType windowX = 0;
-	EhsDataflowIntType windowY = 0;
-	EhsDataflowIntType windowW = 0;
-	EhsDataflowIntType windowH = 0;
+    EhsTDPlaybackClass* pPlayback = (EhsTDPlaybackClass*)pPvrPlay->pTDPlayback;
+    /*
+    EhsDataflowIntType windowX = 0;
+    EhsDataflowIntType windowY = 0;
+    EhsDataflowIntType windowW = 0;
+    EhsDataflowIntType windowH = 0;
 
-*/
-	ehs_uint32 x,y,w,h;
-	x=pPvrPlay->nXpos;
-	y=pPvrPlay->nYpos;
-	w=pPvrPlay->nWidth;
-	h=pPvrPlay->nHeight;
+    */
+    ehs_uint32 x,y,w,h;
+    x=pPvrPlay->nXpos;
+    y=pPvrPlay->nYpos;
+    w=pPvrPlay->nWidth;
+    h=pPvrPlay->nHeight;
 
-	//read in the dimensions of the window
-	if(EHS_FB_IN_CONNECTED(0))
-	{
-		x+= EHS_FB_IN_I(0);
-	}
-	if(EHS_FB_IN_CONNECTED(1))
-	{
-		y+= EHS_FB_IN_I(1);
-	}
-	if(EHS_FB_IN_CONNECTED(2))
-	{
-		w+= EHS_FB_IN_I(2);
-	}
-	if(EHS_FB_IN_CONNECTED(3))
-	{
-		h += EHS_FB_IN_I(3);
-	}
+    //read in the dimensions of the window
+    if(EHS_FB_IN_CONNECTED(0))
+    {
+        x+= EHS_FB_IN_I(0);
+    }
+    if(EHS_FB_IN_CONNECTED(1))
+    {
+        y+= EHS_FB_IN_I(1);
+    }
+    if(EHS_FB_IN_CONNECTED(2))
+    {
+        w+= EHS_FB_IN_I(2);
+    }
+    if(EHS_FB_IN_CONNECTED(3))
+    {
+        h += EHS_FB_IN_I(3);
+    }
 
-	//use this information in our target specific code to set the window
-	// We should only call this if the window is in play
+    //use this information in our target specific code to set the window
+    // We should only call this if the window is in play
 
-	pPvrPlay->nXpos_adjusted = x;
-	pPvrPlay->nYpos_adjusted = y;
-	pPvrPlay->nWidth_adjusted = w;
-	pPvrPlay->nHeight_adjusted = h;
-	if (pPlayback) {
-		EhsTDPlayback_setWindow(pPvrPlay);
-	//set the output ports
-	EHS_FB_OUT_I(0) = pPvrPlay->nXpos_adjusted;
-	EHS_FB_OUT_I(1) = pPvrPlay->nYpos_adjusted;
-	EHS_FB_OUT_I(2) = pPvrPlay->nWidth_adjusted;
-	EHS_FB_OUT_I(3) = pPvrPlay->nHeight_adjusted;
-	} else {
-EHSH_LOG_ERROR("Coldn't set window with uninitialised pPlayback");
-	}
-	//fire the finish port
-	EHS_FB_FINISH(1);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    pPvrPlay->nXpos_adjusted = x;
+    pPvrPlay->nYpos_adjusted = y;
+    pPvrPlay->nWidth_adjusted = w;
+    pPvrPlay->nHeight_adjusted = h;
+    if (pPlayback)
+    {
+        EhsTDPlayback_setWindow(pPvrPlay);
+        //set the output ports
+        EHS_FB_OUT_I(0) = pPvrPlay->nXpos_adjusted;
+        EHS_FB_OUT_I(1) = pPvrPlay->nYpos_adjusted;
+        EHS_FB_OUT_I(2) = pPvrPlay->nWidth_adjusted;
+        EHS_FB_OUT_I(3) = pPvrPlay->nHeight_adjusted;
+    }
+    else
+    {
+        EHSH_LOG_ERROR("Coldn't set window with uninitialised pPlayback");
+    }
+    //fire the finish port
+    EHS_FB_FINISH(1);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_back){
-	EhsFbPvrPlayClass *pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-	EhsTPMutex_lock(EhsTPMutex_fbIO);
-	EhsTDPlaybackClass *pPlayback = (EhsTDPlaybackClass*)pPVR->pTDPlayback;
-	pPVR->video_on_top=EHS_FALSE;
-	EhsTDPlayback_updateZorder(pPVR);
-	EHS_FB_FINISH(1);
-	EhsTPMutex_unlock(EhsTPMutex_fbIO);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_back)
+{
+    EhsFbPvrPlayClass *pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EhsTDPlaybackClass *pPlayback = (EhsTDPlaybackClass*)pPVR->pTDPlayback;
+    pPVR->video_on_top=EHS_FALSE;
+    EhsTDPlayback_updateZorder(pPVR);
+    EHS_FB_FINISH(1);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_front){
-        EhsFbPvrPlayClass *pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
-    	EhsTPMutex_lock(EhsTPMutex_fbIO);
-        EhsTDPlaybackClass *pPlayback = (EhsTDPlaybackClass*)pPVR->pTDPlayback;
-        pPVR->video_on_top=EHS_TRUE;
-        EhsTDPlayback_updateZorder(pPVR);
-        EHS_FB_FINISH(1);
-    	EhsTPMutex_unlock(EhsTPMutex_fbIO);
-} 
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_front)
+{
+    EhsFbPvrPlayClass *pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EhsTDPlaybackClass *pPlayback = (EhsTDPlaybackClass*)pPVR->pTDPlayback;
+    pPVR->video_on_top=EHS_TRUE;
+    EhsTDPlayback_updateZorder(pPVR);
+    EHS_FB_FINISH(1);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+}

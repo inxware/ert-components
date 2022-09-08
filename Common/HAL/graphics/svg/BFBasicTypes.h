@@ -3,15 +3,15 @@
  *
  *  Version : 6.4.0_2271s
  *     Date : 20080508-20.49.08
- *                
+ *
  *
  * (c) COPYRIGHT 2002- 2008 Open Text Corp. - BitFlash Division. ALL RIGHTS RESERVED
  *
  *
  * This software is the property and confidential information of Open Text and is furnished under
- * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.  
+ * license by BitFlash Inc.  This software may be used only in accordance with the terms of said license.
  *
- * This software may not be copied, transmitted, provided to or otherwise made available to any other person, 
+ * This software may not be copied, transmitted, provided to or otherwise made available to any other person,
  * company, corporation or other entity except as specified in the terms of said license.
  *
  * This copyright notice may not be removed or altered without the prior written permission of Open Text.
@@ -25,7 +25,7 @@
  *
  * January 20, 2002
  */
-    
+
 #ifndef BF_BASICTYPES_H_
 #define BF_BASICTYPES_H_
 
@@ -54,14 +54,14 @@ typedef unsigned short          BF_WCHAR;
 
 typedef signed char             BF_INT8;
 typedef signed short            BF_INT16;
-typedef signed long             BF_INT32; 
+typedef signed long             BF_INT32;
 
 typedef unsigned char           BF_UINT8;
 typedef unsigned short          BF_UINT16;
-typedef unsigned long           BF_UINT32; 
+typedef unsigned long           BF_UINT32;
 
-typedef signed long             BFInteger; 
-typedef unsigned long           BFUInteger; 
+typedef signed long             BFInteger;
+typedef unsigned long           BFUInteger;
 
 typedef BF_INT32                BFFixedPoint;
 
@@ -114,7 +114,7 @@ typedef enum
 } BFInterruptAction;
 
 
-/** <BR>See <A HREF="http://www.w3.org/TR/DOM-Level-3-Events/keyset.html#KeySet-Set">W3C DOM 3 Events</A> 
+/** <BR>See <A HREF="http://www.w3.org/TR/DOM-Level-3-Events/keyset.html#KeySet-Set">W3C DOM 3 Events</A>
   * Used in keyBoard events dispatched with the #BF_COMMAND_KEY_DOWN/UP commands.
   * These enumerations coorespond to keyIdentifier strings defined by the W3C DOM 3 Events specification.
   * The User Agent must map key down and up events from the operating system to a specific BFKeyIdentifier value.
@@ -131,8 +131,8 @@ typedef enum
     BF_KEY_SOFT1, BF_KEY_SOFT2,
 
     BF_KEY_SHIFT, BF_KEY_ALT, BF_KEY_CONTROL, BF_KEY_ENTER, BF_KEY_BACKSPACE,
-    
-    BF_KEY_SPACE, BF_KEY_EXCLAMATION, BF_KEY_DOUBLEQUOTE, BF_KEY_POUND, BF_KEY_DOLLAR, BF_KEY_PERCENT, BF_KEY_AMPERSAND, BF_KEY_APOSTROPHE, BF_KEY_LEFTPAREN, BF_KEY_RIGHTPAREN, BF_KEY_ASTERISK, BF_KEY_PLUS, BF_KEY_COMMA, BF_KEY_MINUS, BF_KEY_DOT, BF_KEY_SLASH, 
+
+    BF_KEY_SPACE, BF_KEY_EXCLAMATION, BF_KEY_DOUBLEQUOTE, BF_KEY_POUND, BF_KEY_DOLLAR, BF_KEY_PERCENT, BF_KEY_AMPERSAND, BF_KEY_APOSTROPHE, BF_KEY_LEFTPAREN, BF_KEY_RIGHTPAREN, BF_KEY_ASTERISK, BF_KEY_PLUS, BF_KEY_COMMA, BF_KEY_MINUS, BF_KEY_DOT, BF_KEY_SLASH,
 
     BF_KEY_ZERO, BF_KEY_ONE, BF_KEY_TWO, BF_KEY_THREE, BF_KEY_FOUR, BF_KEY_FIVE, BF_KEY_SIX, BF_KEY_SEVEN, BF_KEY_EIGHT, BF_KEY_NINE,
 
@@ -141,7 +141,7 @@ typedef enum
     BF_KEY_A, BF_KEY_B, BF_KEY_C, BF_KEY_D, BF_KEY_E, BF_KEY_F, BF_KEY_G, BF_KEY_H, BF_KEY_I, BF_KEY_J, BF_KEY_K, BF_KEY_L, BF_KEY_M, BF_KEY_N, BF_KEY_O, BF_KEY_P, BF_KEY_Q, BF_KEY_R, BF_KEY_S, BF_KEY_T, BF_KEY_U, BF_KEY_V, BF_KEY_W, BF_KEY_X, BF_KEY_Y, BF_KEY_Z,
 
     BF_KEY_LEFTSQUARE, BF_KEY_BACKSLASH, BF_KEY_RIGHTSQUARE, BF_KEY_CIRCUMFLEX, BF_KEY_UNDERSCORE, BF_KEY_GRAVE, BF_KEY_LEFTCURLY, BF_KEY_VERTICALLINE, BF_KEY_RIGHTCURLY,
-    
+
     BF_KEY_TILDE
 }
 BFKeyIdentifier;
@@ -199,9 +199,9 @@ typedef enum
     BF_ID_Script,
     BF_ID_MAX
 
-}BFServiceID;
+} BFServiceID;
 
-/** <BR>See <A HREF="http://www.w3.org/TR/SVGMobile12/painting.html#systemPaint">W3C SVGT 1.2</A> 
+/** <BR>See <A HREF="http://www.w3.org/TR/SVGMobile12/painting.html#systemPaint">W3C SVGT 1.2</A>
 	The text after BF_SYSTEM_COLOR_ maps directly to the SVG 1.2 specification names for system paints
 	which are allowed in content. Refer to the system paint section for names and meaning of each
 	system color. This enumeration is used to map system colors to ARGB colors ( see BF_COMMAND_DOCUMENT_SET_SYSTEM_COLOR ).*/
@@ -221,7 +221,7 @@ typedef enum
     BF_SYSTEM_COLOR_HighlightText,
     BF_SYSTEM_COLOR_InactiveBorder,
     BF_SYSTEM_COLOR_InactiveCaption,
-    BF_SYSTEM_COLOR_InactiveCaptionText,  
+    BF_SYSTEM_COLOR_InactiveCaptionText,
     BF_SYSTEM_COLOR_InfoBackground,
     BF_SYSTEM_COLOR_InfoText,
     BF_SYSTEM_COLOR_Menu,
@@ -235,76 +235,76 @@ typedef enum
     BF_SYSTEM_COLOR_Window,
     BF_SYSTEM_COLOR_WindowFrame,
     BF_SYSTEM_COLOR_WindowText,
-    BF_SYSTEM_COLOR_MAX   
-}BFSystemColor;
+    BF_SYSTEM_COLOR_MAX
+} BFSystemColor;
 
 /** The maximum string size of a textInput character and keyIdentifier string */
 #define BF_MAX_KEY_CHARACTER_LEN      10
 
-/** An array of UNICODE characters identifying the character which was pressed. See textInput event from 
+/** An array of UNICODE characters identifying the character which was pressed. See textInput event from
   * DOM Level 3 events and the #BF_COMMAND_TEXT_INPUT command. */
 typedef BF_WCHAR   BFKeyCharacters[BF_MAX_KEY_CHARACTER_LEN];
- 
-/** Called during serialization 
- * \param pUserData contains what the user data specified in pUserData of this struct 
+
+/** Called during serialization
+ * \param pUserData contains what the user data specified in pUserData of this struct
  * \param pString string representation of DOM element or attribute */
 typedef void (*BFSerializeCallback)( BF_INT_VOID pUserData, BF_CHAR const *pString );
 
-/** Called during frame buffer clearing 
- * \param pUserData contains what the user data specified in pUserData of this struct 
- * \param x1 left start of cleared rectangle  
- * \param y1 top  start of cleared rectangle  
- * \param x2 right end of cleared rectangle  
- * \param y2 left end of cleared rectangle  
+/** Called during frame buffer clearing
+ * \param pUserData contains what the user data specified in pUserData of this struct
+ * \param x1 left start of cleared rectangle
+ * \param y1 top  start of cleared rectangle
+ * \param x2 right end of cleared rectangle
+ * \param y2 left end of cleared rectangle
  */
 typedef void (*BFClearCallback)( BF_INT_VOID pUserData, BFUInteger x1, BFUInteger y1, BFUInteger x2, BFUInteger y2 );
 
 
-/** Called when the document is complete and ready to be rendered 
- * \param pUserData contains what the user data specified in pUserData of this struct 
+/** Called when the document is complete and ready to be rendered
+ * \param pUserData contains what the user data specified in pUserData of this struct
  * \param uAsyncDecodeStatus status code ( see BF_COMMAND_DOCUMENT_SET_COMPLETENESS_CB)
  * \param uNbAsyncImages the total number of asynchronous images
-   that have been decoded (successfully or not)  
+   that have been decoded (successfully or not)
  */
 typedef void (*BFCompletenessCallback)( BF_INT_VOID pUserData, BFStatus uAsyncDecodeStatus, BF_UINT32 uNbAsyncImages  );
 
-/** Used to indicate to the User Agent that a new request is pending 
+/** Used to indicate to the User Agent that a new request is pending
  * \param pUserData contains what the user data specified in pUserData of this struct */
 typedef void (*BFNewRequestCallback)( BF_INT_VOID pUserData );
 
-/** Used to indicate to the User Agent that an image has been parsed and ready for Asynchronous decoding by the UA 
+/** Used to indicate to the User Agent that an image has been parsed and ready for Asynchronous decoding by the UA
  * \param pUserData contains what the user data specified in pUserData of this struct */
 typedef void (*BFNewImageCallback)( BF_INT_VOID pUserData );
 
 
-/** Used to notify if a parsed document contains animation 
- * \param pUserData contains what the user data specified in pUserData of this struct 
+/** Used to notify if a parsed document contains animation
+ * \param pUserData contains what the user data specified in pUserData of this struct
  * \param bBackwardSeekingAllowed indicates whether the SVG document supports seeking backwards in the timeline */
 typedef void (*BFAnimationNotifyCallback)( BF_INT_VOID pUserData, BF_BOOL bBackwardSeekingAllowed );
 
 /** Called when the SVGGlobal.gotoLocation() method is used.
- * \param pUserData contains what the user data specified in pUserData of this struct 
+ * \param pUserData contains what the user data specified in pUserData of this struct
  * \param pURI the URI to navigate to */
 typedef void (*BFGotoLocationCallback)( BF_INT_VOID pUserData, BF_CHAR* pURI );
 
 /** Called when the SVGGloval.getURL() method is used.
- * \param pUserData contains what the user data specified in pUserData of this struct 
- * \param requestHandle internal handle idenfitying the outstanding HTTP request 
+ * \param pUserData contains what the user data specified in pUserData of this struct
+ * \param requestHandle internal handle idenfitying the outstanding HTTP request
  * \param pURI the URI to retreive */
 typedef void (*BFGetURLCallback)( BF_INT_VOID pUserData, BF_UINT32 requestHandle, BF_CHAR* pURI );
 
 /** Called when the SVGGloval.postURL() method is used.
- * \param pUserData contains what the user data specified in pUserData of this struct 
- * \param requestHandle internal handle idenfitying the outstanding HTTP request 
- * \param pURI the URI to post to 
- * \param pData 0-terminated 16-bit string containing data to post 
+ * \param pUserData contains what the user data specified in pUserData of this struct
+ * \param requestHandle internal handle idenfitying the outstanding HTTP request
+ * \param pURI the URI to post to
+ * \param pData 0-terminated 16-bit string containing data to post
  * \param pType string for the content type of the POST request
  * \param pEncoding string for the encoding of the POST request */
 typedef void (*BFPostURLCallback)( BF_INT_VOID pUserData, BF_UINT32 requestHandle, BF_CHAR* pURI, BF_WCHAR *pData, BF_WCHAR *pType, BF_WCHAR *pEncoding );
 
 
 /** Get script resource, usually external file. Must return UTF-8 encoded text.
- * \param pUserData contains what the user data specified in pUserData of this struct 
+ * \param pUserData contains what the user data specified in pUserData of this struct
  * \param pURI the URI to get
  * \param puLength the size of the returned buffer
  * \return UTF-8 encoded text. Must be allocated with player memory context, after callbacl player will free the memory */
@@ -312,27 +312,29 @@ typedef BF_UINT8* (*BFGetScriptResource)( BF_INT_VOID pUserData, BF_CHAR *pURI, 
 
 
 /** Called when a log message requires output.
- * \param pUserData contains what the user data specified in pUserData of this struct 
+ * \param pUserData contains what the user data specified in pUserData of this struct
  * \param pMsg log message string */
 typedef void (*BFLoggingCallback)( BF_INT_VOID pUserData, const BF_CHAR* pMsg);
 
 /** Called when a service needs to be initialized.
- * \param pUserData contains what the user data specified in pUserData of this struct 
+ * \param pUserData contains what the user data specified in pUserData of this struct
  * \param serviceID the service to initialze */
 typedef void (*BFServiceSetupCallback)( BF_INT_VOID pUserData, const BFServiceID serviceID);
 
 
 /** Mapping between a system color define and real RGB color */
-typedef struct {
+typedef struct
+{
     BFSystemColor   systemColor;	/** the system color type */
     BF_UINT32       value;			/** the color value description of the color. The value is an ARGB 32-bit color */
-}BFColorMapping;
+} BFColorMapping;
 
 /** List of color mappings */
-typedef struct{
+typedef struct
+{
     BFColorMapping  *pColorMapping;		/** a pointer to an array of BFColorMapping structures */
     BF_UINT32       uLength;			/** the length of the BFColorMapping array */
-}BFColorMappings;
+} BFColorMappings;
 
 /** BFAudioProperties is used to pass information about the audio media between the SVG
  * core library and the application’s native audio playback mechanism. */
@@ -348,7 +350,7 @@ typedef struct
 
 
 /** Sound object callbacks */
-typedef struct 
+typedef struct
 {
     /** Plays the sound object from the beginning.
      * The callback function should read the audio media file, and begin playback.
@@ -409,7 +411,7 @@ typedef struct
 typedef struct
 {
     /** In: A flag indicates whether disable rendering the current video.
-    If the transform behavior of the video is geometric, a value of zero 
+    If the transform behavior of the video is geometric, a value of zero
     of width or Height shall disable rendering of the video element. **/
     BF_BOOL disableRendering;
 
@@ -470,10 +472,10 @@ typedef struct
  * <br><br>
  * If this flag is set, the SVG library will request for video frames from the
  * native interface, by calling pfnGetFrame().
- * If this flag is not set, the native playback interface is expected to draw the 
- * video frames directly to the render buffer; the SVG library will not call 
+ * If this flag is not set, the native playback interface is expected to draw the
+ * video frames directly to the render buffer; the SVG library will not call
  * pfnGetFrame().  If the native playback interface does not support compose,
- * the SVG library will pass down any tranform parameters by calling the 
+ * the SVG library will pass down any tranform parameters by calling the
  * pfnSetTransform() callback function.
  * On fast machines, such as desktops, where it is feasible to embed the video
  * into the SVG canvas, this flag can be set.
@@ -484,7 +486,7 @@ typedef struct
 #define BFVIDEO_HAS_COMPOSE_VIDEO       0x02
 
 /** Video object callbacks */
-typedef struct 
+typedef struct
 {
     /** Plays the video object.
      * The callback function should read the video media file, and begin playback.
@@ -555,27 +557,27 @@ typedef struct
     /** A bitmask, representing the native video decoder’s capabilities.
      * Valid flags: BFVIDEO_HAS_TRANSFORM_VIDEO, BFVIDEO_HAS_COMPOSE_VIDEO
      */
-    BF_UINT8          fCapabilities;   
+    BF_UINT8          fCapabilities;
 
 } BFVideoObject;
 
 
 
 /** Foreign object callbacks */
-typedef struct 
+typedef struct
 {
     /** Called when the foreignObject element finishes parsing.
        pUserData contains what the user data specified in pUserData of this struct
        pXlinkHref is the resolved URI from the xlink:href attribute of foreignObject
        pForeigObject is a pointer to the actual foreignObject (use uDOM to access its children)
        This callback should return a pointer that will be used to reference later this object later. */
-    void * (*pfnCreate) ( void *pUserData, const BF_CHAR *pXlinkHref, void *pForeigObject ); 
+    void * (*pfnCreate) ( void *pUserData, const BF_CHAR *pXlinkHref, void *pForeigObject );
 
     /** Called when the foreignObject needs to be rendered
        pUserData contains what the user specified in pUserData of this struct
        id is the pointer returned by pfnCreate
        fpX, fpY, fpWidth, fpHeight : x/y/width/height of the foreignObject as specified in the file. 16.16 fixed point format
-       fpA, fpB, fpC, fpD, fpE, fpF, fpG : current transformation matrix to be applied to the object. 16.16 fixed point format */    
+       fpA, fpB, fpC, fpD, fpE, fpF, fpG : current transformation matrix to be applied to the object. 16.16 fixed point format */
     void (*pfnExecute)  ( void *pUserData, void *id,
                           BF_INT32 fpX, BF_INT32 fpY, BF_INT32 fpWidth, BF_INT32 fpHeight,
                           BF_INT32 fpA, BF_INT32 fpB, BF_INT32 fpC, BF_INT32 fpD, BF_INT32 fpE, BF_INT32 fpF );
@@ -592,14 +594,14 @@ typedef struct
 
 
 /** Initializes and external scripting engine */
-typedef struct 
+typedef struct
 {
     /** Initializes the script object. Called once per player initialization */
-    void (*pfnInitialize) ( void *pUserData ); 
+    void (*pfnInitialize) ( void *pUserData );
 
     /** Starts new document */
     /** when uDOM in included, cast to BFDOM_Document* */
-    /** ppDocumentUserData is the pointer to the script object reprosenting the document, and 
+    /** ppDocumentUserData is the pointer to the script object reprosenting the document, and
        is required to be non-null if this function return success */
     /** returns success or failure */
     BF_BOOL (*pfnNewDocument) ( void *pUserData, void *pDocumnent, void **ppDocumentUserData );
@@ -627,7 +629,7 @@ typedef struct
 
 
 /** bounding box values are scaled to font size, and express distances from the glyph's origin */
-typedef struct 
+typedef struct
 {
     BF_INT32   iMinX;		/**Upper-left abscissae, in 16.16FP */
     BF_INT32   iMaxX;		/**Lower-right abscissae, in 16.16FP */
@@ -638,18 +640,18 @@ typedef struct
 
 
 /** all metrics are scaled to font size, and express distances from the glyph's origin */
-typedef struct 
+typedef struct
 {
     BFFixedPoint   fpWidth;          /** width of the glyph (scaled bounding box's width) */
     BFFixedPoint   fpHeight;         /** height of the glyph (scaled bounding box's width) */
 
     BFFixedPoint   fpHoriAdvance;    /** horizontal advance of the glyph */
     BFFixedPoint   fpHoriBearingX;   /** left bearing of the glyph in horizontal layout */
-    BFFixedPoint   fpHoriBearingY;   /** top bearing of the glyph in horizontal layout */ 
-                                        
+    BFFixedPoint   fpHoriBearingY;   /** top bearing of the glyph in horizontal layout */
+
     BFFixedPoint   fpVertAdvance;    /** vertical advance of the glyph */
     BFFixedPoint   fpVertBearingX;   /** left bearing of the glyph in vertical layout */
-    BFFixedPoint   fpVertBearingY;   /** top bearing of the glyph in vertical layout */ 
+    BFFixedPoint   fpVertBearingY;   /** top bearing of the glyph in vertical layout */
 
 } BFGlyphMetrics;
 
@@ -662,28 +664,28 @@ typedef enum
 } BFGlyphBitmapPixelMode;
 
 
-typedef struct 
+typedef struct
 {
     BF_UINT8       *pBitmapData;     /** glyph data, a grayscale 8bit bitmap */
     BF_UINT32       uBitmapWidth;    /** bitmap width, in pixels */
     BF_UINT32       uBitmapHeight;   /** bitmap height, in pixels */
-    BF_INT32        iBitmapPitch;    /** number of bytes per bitmap row */ 
+    BF_INT32        iBitmapPitch;    /** number of bytes per bitmap row */
     BF_INT32        iBitmapLeft;     /** bitmap's left bearing */
     BF_INT32        iBitmapTop;      /** bitmap's top bearing (positive means upwards) */
-    BF_INT32        fpGlyphOffsetX;  /** glyph X position in the bitmap, in 16.16FP */ 
-    BF_INT32        fpGlyphOffsetY;  /** glyph Y position in the bitmap, in 16.16FP */ 
+    BF_INT32        fpGlyphOffsetX;  /** glyph X position in the bitmap, in 16.16FP */
+    BF_INT32        fpGlyphOffsetY;  /** glyph Y position in the bitmap, in 16.16FP */
     BFGlyphBitmapPixelMode pixelMode;
 } BFGlyphBitmap;
 
 
-typedef struct 
+typedef struct
 {
     BFFixedPoint fpX;		/** X coordinate, in 16.16FP */
     BFFixedPoint fpY;		/** Y coordinate, in 16.16FP */
 } BFGlyphOutlinePoint;
 
 
-typedef struct 
+typedef struct
 {
     BF_UINT16            uNbContours;  /** number of contours (sub-paths) */
     BF_UINT16           *pContours;    /** index of the last point of each contour */
@@ -701,17 +703,17 @@ typedef struct
 */
 typedef enum
 {
-    BF_BASELINE_ALPHABETIC = 0,			/** Index into a baseline table to provide the alignment coordinate for 
+    BF_BASELINE_ALPHABETIC = 0,			/** Index into a baseline table to provide the alignment coordinate for
 										the font to achieve alphabetic baseline alignment */
-    BF_BASELINE_IDEOGRAPHIC,	        /** Index into a baseline table to provide the alignment coordinate for 
+    BF_BASELINE_IDEOGRAPHIC,	        /** Index into a baseline table to provide the alignment coordinate for
 										the font to achieve ideographic baseline alignment */
-    BF_BASELINE_HANGING,				/** Index into a baseline table to provide the alignment coordinate for 
-										the font to achieve hanging baseline alignment */	
+    BF_BASELINE_HANGING,				/** Index into a baseline table to provide the alignment coordinate for
+										the font to achieve hanging baseline alignment */
     BF_BASELINE_COUNT					/** the total baseline table count */
 } BFFontBaseline;
 
 
-/** <BR>See <A HREF="http://www.w3.org/Graphics/SVG/Group/repository/spec/mobile/1.2/1.2NG/publish/fonts.html#FontFaceElement">W3C SVGT 1.2</A>. 
+/** <BR>See <A HREF="http://www.w3.org/Graphics/SVG/Group/repository/spec/mobile/1.2/1.2NG/publish/fonts.html#FontFaceElement">W3C SVGT 1.2</A>.
  * 	The style of the font
 */
 typedef enum
@@ -719,11 +721,11 @@ typedef enum
     BF_FONT_STYLE_ALL,			/** Specifies a font classified as normal, italic and oblique */
     BF_FONT_STYLE_NORMAL,		/** Specifies a font that is classified as 'normal' in the UA's font database */
     BF_FONT_STYLE_ITALIC,		/** Specifies a font that is classified as 'italic' in the UA's font database */
-    BF_FONT_STYLE_OBLIQUE		/** Specifies a font that is classified as 'oblique' in the UA's font database */ 
+    BF_FONT_STYLE_OBLIQUE		/** Specifies a font that is classified as 'oblique' in the UA's font database */
 } BFFontStyle;
 
 
-/** <BR>See <A HREF="http://www.w3.org/Graphics/SVG/Group/repository/spec/mobile/1.2/1.2NG/publish/fonts.html#FontFaceElement">W3C SVGT 1.2</A>. 
+/** <BR>See <A HREF="http://www.w3.org/Graphics/SVG/Group/repository/spec/mobile/1.2/1.2NG/publish/fonts.html#FontFaceElement">W3C SVGT 1.2</A>.
  * 	This is an indication of whether this font is the small-caps variant of a font
 */
 typedef enum
@@ -736,12 +738,12 @@ typedef enum
 /** A font face description used to identify font faces in the BFFontEngineObject API */
 typedef struct BF__FontFaceDesc
 {
-    BF_UINT32     uFontEngineID;    /** the font engine that this face has to be used with */ 
+    BF_UINT32     uFontEngineID;    /** the font engine that this face has to be used with */
     void         *pPrivateFaceData; /** private font engine specific data associated with the face */
     BF_CHAR      *pFamilyName;      /** name of the font family */
     BF_CHAR      *pFileName;        /** file containing the font face */
     BF_UINT32     uFaceIndex;       /** index of this face in the file it comes from */
-    
+
     BF_BOOL       bScalable;        /** is this a scalable font (as opposed to a bitmap font */
     BF_UINT8      uWeight;          /** ranging from 1 (lightest) to 9 (boldest) with 4 being "normal". 0 means "all" */
     BFFontStyle   style;            /** face's style */
@@ -753,7 +755,7 @@ typedef struct BF__FontFaceDesc
 
 
 /** External Font engine registration */
-typedef struct 
+typedef struct
 {
     /** called when the SVG player is about to use a given font.
        pFontFaceDesc is one of the face handles returned by the font manager
@@ -767,7 +769,7 @@ typedef struct
        some private data for use with pfnReleaseFont() */
     BF_BOOL (*pfnCommitFont) ( void *pUserData, BFFontFaceDesc *pFontFaceDesc );
 
-    /** called when the SVG player does not actively need a font 
+    /** called when the SVG player does not actively need a font
        face anymore. This gives a chance to the font engine to free up some resource
        for that face handle, though it might be used again later on (after another
        call to pfnCommitFont(). */
@@ -783,28 +785,28 @@ typedef struct
        selected.
        This function shall return a boolean indicating success. In case of failure,
        further rendering of text using the current fonr at the requested size will be
-       disabled. */      
+       disabled. */
     BF_BOOL (*pfnSetFontSize) ( void *pUserData, BFFixedPoint fpSize, BFFixedPoint *pFPActualSize, BFFixedPoint *pBaselines );
 
     /** called when the SVG player needs the baseline table from the current font.
-       pBaselines is an array of BF_BASELINE_COUNT entries, which shall be filled 
+       pBaselines is an array of BF_BASELINE_COUNT entries, which shall be filled
        with baseline offsets, scaled to the font size specified with pfnSetFontSize().
        The function shall calculate baselines using heuristics if actual values are not
        available from the font.
        This function shall return a boolean indicating success. In case of failure,
-       All baseline offsets are assumed to be zero. */      
+       All baseline offsets are assumed to be zero. */
     BF_BOOL (*pfnGetFontBaselines) ( void *pUserData, BFFixedPoint *pBaselines );
 
     /** called when the SVG player needs to find out whether the current
        face contains a glyph for the specified unicode character. If the current
        face has a generic missing glyph but does not specifically support the
-       requested character, it shall return BF_FALSE. */       
+       requested character, it shall return BF_FALSE. */
     BF_BOOL (*pfnHasGlyphForChar) ( void *pUserData, BFUInteger uChar );
 
     /** called after pfnCommitFont() when the SVG player needs to access
        a glyph corresponding to a specific unicode code (uGlyph) from the current
        face.
-       This function shall return a boolean indicating success. If successful, 
+       This function shall return a boolean indicating success. If successful,
        the glyph becomes the "current glyph" which will referred to by subsequent
        calls to pfnGetGlyphMetrics(), pfnGetGlyphBBox(), pfnRenderGlyph() etc.
        When the SVG player is done with this glyph, it will call pfnDoneGlyph().
@@ -827,7 +829,7 @@ typedef struct
     /** called when the SVG player needs to retrieve the bounding box of
        the current glyph. The function shall fill the
        provided BFGlyphBBox structure.
-       The returned bounding box values shall be scaled according to the font size 
+       The returned bounding box values shall be scaled according to the font size
        returned by pfnSetFontSize() and are relative to the glyph's origin.
        It has to fully contain the glyph but doesn't have to be the the snugmost
        bounding box to fullfill this criteria (though the snugger, the better).
@@ -837,16 +839,16 @@ typedef struct
 
     /** called when the SVG player needs to specify a transformation to be applied
        to the current glyph. This callback will only be called if the current
-       face is scalable. 
+       face is scalable.
        Parameters are expressed in 16.16 fixed point format and represent the
-       following matrix : 
+       following matrix :
          | fpXX  fpXY |
-         | fpYX  fpYY |         
+         | fpYX  fpYY |
        This function shall return a boolean indicating success.
        In case of failure, rendering of this glyph will be bypassed. */
     BF_BOOL (*pfnTransformGlyph) ( void *pUserData, BFFixedPoint fpXX, BFFixedPoint fpXY, BFFixedPoint fpYX, BFFixedPoint fpYY );
 
-    /** called when the SVG player needs the font engine to render the current 
+    /** called when the SVG player needs the font engine to render the current
        glyph into an offscreen bitmap. This function shall fill the provided
        BFGlyphBitmap structure; it will only be called if the current face is
        *not* scalable (i.e. a bitmap face)
@@ -857,7 +859,7 @@ typedef struct
     /** called when the SVG player needs the font engine to return the vector
        outline of the current glyph. This function shall fill the provided
        BFGlyphOutline structure. The returned coordinates shall be scaled
-       according to the font size returned by pfnSetFontSize() and are relative 
+       according to the font size returned by pfnSetFontSize() and are relative
        to the glyph's origin. The callback will only be called if the current face is
        *scalable*.
        This function shall return a boolean indicating success.
@@ -873,7 +875,7 @@ typedef struct
     BFFontFaceDesc *(*pfnListExternalFonts)  ( void *pUserData );
 
     /** called by the SVG player after a successful call to pfnListExternalFonts()
-       to release recources allocated during that function. A successful call 
+       to release recources allocated during that function. A successful call
        to pfnListExternalFonts() is always followed by a call to
        pfnDoneListExternalFonts().
        pFirstFontFaceDesc is the (unaltered) pointer that was returned from
@@ -917,7 +919,8 @@ typedef enum
 
 
 /** Image decoder data struct */
-typedef struct {
+typedef struct
+{
 
     /** Opaque data passed back to SVG library when callback functions are invoked */
     void  *m_pDocument;
@@ -933,21 +936,21 @@ typedef struct {
 
     /**
      * Callback invoked when an asynchronous image decoding starts.
-     * pDocument must be the original pointer provided by the SVG 
+     * pDocument must be the original pointer provided by the SVG
      * library when it invoked m_pfnDecodeImage().
      */
-    BF_BOOL (*m_pfnAsyncStart) ( void *pDocument, BFImageDecoderType const uDecoderID, void *pDecodeInstanceData ); 
+    BF_BOOL (*m_pfnAsyncStart) ( void *pDocument, BFImageDecoderType const uDecoderID, void *pDecodeInstanceData );
 
-    /** 
+    /**
      * Callback invoked when an asynchronous image decoding ends.
-     * pDocument must be the original pointer provided by the SVG 
+     * pDocument must be the original pointer provided by the SVG
      * library when it invoked m_pfnDecodeImage().
      */
     void (*m_pfnAsyncEnd) ( void *pDocument, BFImageDecoderStatus uDecodeStatus, void *pDecodeInstanceData );
 
-    /** 
+    /**
      * Callback invoked when the image has been decoded.
-     * The image decoder is responsible for deleting the input buffer used for the decoding. 
+     * The image decoder is responsible for deleting the input buffer used for the decoding.
      * pDocument and pExtData must be the original pointers provided by the SVG library when it
      * invoked m_pfnDecodeImage().
      * Note that decoders must callback m_pfnDone() at some point after m_pfnDecodeImage()
@@ -959,7 +962,7 @@ typedef struct {
 
 
 /** Image decoder registration struct */
-typedef struct 
+typedef struct
 {
 
     /**
@@ -984,8 +987,8 @@ typedef struct
      * It must be passed back to the SVG library when the decoder invokes callbacks.
      */
     BFImageDecoderStatus (*m_pfnDecodeImage) ( BFImageDecoderData *pData,
-                                               BF_UINT8 const     *pBuffer,
-                                               BF_UINT32           uBufferSize );
+            BF_UINT8 const     *pBuffer,
+            BF_UINT32           uBufferSize );
 
     /**
      * Pointer to the asynchronous abort callback function.
@@ -1009,7 +1012,7 @@ typedef struct
 #ifdef BF_DLL_EXPORTS_SYMBIAN
 #include <e32Def.h>                 /* for IMPORT_C, etc. */
 #define BF_PLAYER_EXPORT EXPORT_C
-#define BF_PLAYER_IMPORT IMPORT_C  
+#define BF_PLAYER_IMPORT IMPORT_C
 #else
 
 #ifdef BF_WINCE

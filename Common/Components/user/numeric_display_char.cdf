@@ -47,7 +47,7 @@
         <CName>finishset</CName>
         <Description>--</Description>
         <PortType>FinishPort</PortType>
-        <XCoordinate>95</XCoordinate>
+        <XCoordinate>75</XCoordinate>
         <YCoordinate>10</YCoordinate>
         <Wcet>0</Wcet>
         <FunctionName argument="1">set</FunctionName>

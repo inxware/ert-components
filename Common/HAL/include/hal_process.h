@@ -1,12 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file hal_process.h
  * In this file, all of the hardware abstraction layer declarations relating to process control
  * and related OS interactions are given.
  *
  * @author: inx limited
- * @version: $Revision: 3946 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 /**
@@ -38,7 +44,6 @@
 
 /** Defines the mutex class */
 typedef struct EhsTPMutexStruct* EhsTPMutexClass;
-//typedef EhsTPThread;
 
 /*****************************************************************************/
 /* Declare global variables */
@@ -94,12 +99,12 @@ EHS_GLOBAL EhsTPMutexClass EhsTPMutex_eventQueue;
 /*The table of widgets*/
 EHS_GLOBAL EhsTPMutexClass EhsTPMutex_widgetTable;
 #ifdef EHS_DEVMAN_SUPPORT
-    EhsTPMutexClass EhsTPMutex_devmanPlayerData;
-    EhsTPMutexClass EhsTPMutex_devmanInterface;
-    EhsTPMutexClass EhsTPMutex_devmanMiscBuffers;
+EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_devmanPlayerData;
+EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_devmanInterface;
+EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_devmanMiscBuffers;
 #endif //EHS_DEVMAN_SUPPORT
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
-    EhsTPMutexClass EhsTPMutex_UrlGet;
+EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_UrlGet;
 #endif //EHS_COMPONENT_NETWORKING_SUPPORT
 
 /**
@@ -142,6 +147,8 @@ typedef EhsThreadFuncReturnType (*EhsGeneralThreadFuncType)(void* context);
  * It simply calls the target specific function EhsHThread_execute()
  * */
 
+#ifndef EHS_SKIP_COMPONENT_ONLY_HAL
+
 EHS_GLOBAL EhsTPThread EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority) ;
 
 /**
@@ -163,30 +170,13 @@ int EhsTPThread_terminate(EhsTPThread thread);
  */
 
 ehs_bool EhsTPThread_ChangeThisPriority(ehs_sint16 priority);
-
+//#endif
 
 /* within target_process.h, process functions are normally #def'd to their stddef equivalents.
  * If the target cannot use the standard version, the #define is removed from target_process,
  * and the below function is used. The declarations below also provide a secondary
  * purpose - they show the prototype of the function in question.
  */
-
-#ifndef EhsTP_shellExecute
-/**
- * Execute a command using the system's shell. This function will block until the command has
- * completed.
- * @param[in] szCmd Command to execute
- */
-EHS_GLOBAL void EhsTP_shellExecute(const ehs_char* szCmd);
-#endif
-
-#ifndef EhsExit
-/**
- * Exit from EHS. Exact behaviour of this function is target defined.
- */
-EHS_GLOBAL void EhsExit(ehs_uint16 exitCode);
-#endif
-
 
 #ifndef EhsTPMutex_lock
 /**
@@ -230,4 +220,26 @@ void EhsTPMutex_term(void);
  */
 EHS_GLOBAL ehs_bool EhsTgtProcess_isOrphan(void);
 #endif
+
+#endif //
+
+#ifndef EhsTP_shellExecute
+/**
+ * Execute a command using the system's shell. This function will block until the command has
+ * completed.
+ * @param[in] szCmd Command to execute
+ */
+EHS_GLOBAL void EhsTP_shellExecute(const ehs_char* szCmd);
+#endif
+
+#ifndef EhsExit
+/**
+ * Exit from EHS. Exact behaviour of this function is target defined.
+ */
+EHS_GLOBAL void EhsExit(ehs_uint16 exitCode);
+#endif //ifndef EHS_SKIP_COMPONENT_ONLY_HAL
+
+
 #endif /* EHS_HAL_PROCESS_H */
+
+

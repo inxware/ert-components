@@ -74,7 +74,7 @@ CreateDevmanSupervisorUpdatesData(){
 }
 
 CreateDevmanAppUpdatesData(){
-    echo  "Creating syspatch data for ($SPECIFIC_TARGET)"
+    echo  "Creating Devman syspatch package for ($SPECIFIC_TARGET)"
     EHS_UPDATES_SCRIPT=${EHS_ROOT}/target/envtree/android-ehs-tree/devman/updates/product/${EHS_PRODUCT_NAME}/dldata.sh
     if ! [ -f "$EHS_UPDATES_SCRIPT" ]; then
         echo "Failed to upload syspatch, the updates script doesn't exists ($EHS_UPDATES_SCRIPT)"

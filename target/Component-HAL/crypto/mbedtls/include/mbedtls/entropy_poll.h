@@ -47,8 +47,8 @@ extern "C" {
  * \brief           Entropy poll callback that provides 0 entropy.
  */
 #if defined(MBEDTLS_TEST_NULL_ENTROPY)
-    int mbedtls_null_entropy_poll( void *data,
-                                unsigned char *output, size_t len, size_t *olen );
+int mbedtls_null_entropy_poll( void *data,
+                               unsigned char *output, size_t len, size_t *olen );
 #endif
 
 #if !defined(MBEDTLS_NO_PLATFORM_ENTROPY)
@@ -56,7 +56,7 @@ extern "C" {
  * \brief           Platform-specific entropy poll callback
  */
 int mbedtls_platform_entropy_poll( void *data,
-                           unsigned char *output, size_t len, size_t *olen );
+                                   unsigned char *output, size_t len, size_t *olen );
 #endif
 
 #if defined(MBEDTLS_HAVEGE_C)
@@ -66,7 +66,7 @@ int mbedtls_platform_entropy_poll( void *data,
  * Requires an HAVEGE state as its data pointer.
  */
 int mbedtls_havege_poll( void *data,
-                 unsigned char *output, size_t len, size_t *olen );
+                         unsigned char *output, size_t len, size_t *olen );
 #endif
 
 #if defined(MBEDTLS_TIMING_C)
@@ -74,7 +74,7 @@ int mbedtls_havege_poll( void *data,
  * \brief           mbedtls_timing_hardclock-based entropy poll callback
  */
 int mbedtls_hardclock_poll( void *data,
-                    unsigned char *output, size_t len, size_t *olen );
+                            unsigned char *output, size_t len, size_t *olen );
 #endif
 
 #if defined(MBEDTLS_ENTROPY_HARDWARE_ALT)

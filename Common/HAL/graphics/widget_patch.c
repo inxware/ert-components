@@ -1,11 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
+
 /** @file widget_patch.c
  * Definitions for the patch widget handling functions
  *
  * @author: inx limited
- * @version: $Revision: 5659 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2007. All rights reserved.
  */
 
 //#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
@@ -69,24 +76,24 @@ EHS_LOCAL void EhsWidgetPatch_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* 
  */
 EhsWidgetClass* EhsWidgetPatch_init(const EhsGraphicsRectangleClass* pBounds, ehs_uint16 nZ, EhsGraphicsColourClass xColour)
 {
-	EhsWidgetClass* pWidget = EhsWidgetTable_new(&EhsWidgetTable);
+    EhsWidgetClass* pWidget = EhsWidgetTable_new(&EhsWidgetTable);
 
 
-	if (pWidget)
-	{
-		EhsWidget_init(pWidget,pBounds, nZ, xColour.sComp.nAlpha);
-		/* DO the specific stuff now */
-		pWidget->eWidgetKind = EHS_WIDGET_KIND_PATCH;
-		pWidget->nState = EHS_WIDGET_STATE_INIT;
-		pWidget->pfCreateFunc = EhsWidgetPatch_create;
-		pWidget->pfDestroyFunc = EhsWidgetPatch_destroy;
-		pWidget->pfFadeFunc = EhsWidgetPatch_fade;
-		pWidget->pfDrawFunc = EhsWidgetPatch_draw;
-		EHS_WIDGET_PATCH(pWidget).xColour = xColour;
-		EHS_WIDGET_PATCH(pWidget).nBaseAlpha = xColour.sComp.nAlpha;
-		EhsWidgetTable_updateZOrder(&EhsWidgetTable, pWidget);
-	}
-	return pWidget;
+    if (pWidget)
+    {
+        EhsWidget_init(pWidget,pBounds, nZ, xColour.sComp.nAlpha);
+        /* DO the specific stuff now */
+        pWidget->eWidgetKind = EHS_WIDGET_KIND_PATCH;
+        pWidget->nState = EHS_WIDGET_STATE_INIT;
+        pWidget->pfCreateFunc = EhsWidgetPatch_create;
+        pWidget->pfDestroyFunc = EhsWidgetPatch_destroy;
+        pWidget->pfFadeFunc = EhsWidgetPatch_fade;
+        pWidget->pfDrawFunc = EhsWidgetPatch_draw;
+        EHS_WIDGET_PATCH(pWidget).xColour = xColour;
+        EHS_WIDGET_PATCH(pWidget).nBaseAlpha = xColour.sComp.nAlpha;
+        EhsWidgetTable_updateZOrder(&EhsWidgetTable, pWidget);
+    }
+    return pWidget;
 }
 
 /**
@@ -96,10 +103,10 @@ EhsWidgetClass* EhsWidgetPatch_init(const EhsGraphicsRectangleClass* pBounds, eh
  */
 ehs_bool EhsWidgetPatch_create(EhsWidgetClass* pWidget)
 {
- //	LOGI("EHS:Patch_create-----------");
+//	LOGI("EHS:Patch_create-----------");
 
-	/* No specific widget creation activities are required */
-	return EHS_TRUE;
+    /* No specific widget creation activities are required */
+    return EHS_TRUE;
 }
 
 /**
@@ -109,7 +116,7 @@ ehs_bool EhsWidgetPatch_create(EhsWidgetClass* pWidget)
  */
 void EhsWidgetPatch_destroy(EhsWidgetClass* pWidget)
 {
-	/* no specific widget destruction activities are required */
+    /* no specific widget destruction activities are required */
 }
 
 /**
@@ -124,8 +131,8 @@ void EhsWidgetPatch_destroy(EhsWidgetClass* pWidget)
  */
 void EhsWidgetPatch_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
- //	LOGI("EHS:Patch_draw-----------");
-	EhsTV_fillRect(pViewport, &(pWidget->xCurRect), &(EHS_WIDGET_PATCH(pWidget).xColour));
+//	LOGI("EHS:Patch_draw-----------");
+    EhsTV_fillRect(pViewport, &(pWidget->xCurRect), &(EHS_WIDGET_PATCH(pWidget).xColour));
 }
 
 /**
@@ -135,18 +142,18 @@ void EhsWidgetPatch_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport,
  */
 ehs_bool EhsWidgetPatch_fade(struct EhsWidgetStruct* pWidget, ehs_uint8 nOpacity)
 {
-	ehs_bool bChanged = EHS_FALSE;
-	/* determine the new foreground and background opacity required by this widget */
-	ehs_uint16 nCalcOpacity = (EHS_WIDGET_PATCH(pWidget).nBaseAlpha * nOpacity) / 255;
-	/* scale down to 8-bit */
-	ehs_uint8 nOpacityByte = (ehs_uint8)nCalcOpacity;
+    ehs_bool bChanged = EHS_FALSE;
+    /* determine the new foreground and background opacity required by this widget */
+    ehs_uint16 nCalcOpacity = (EHS_WIDGET_PATCH(pWidget).nBaseAlpha * nOpacity) / 255;
+    /* scale down to 8-bit */
+    ehs_uint8 nOpacityByte = (ehs_uint8)nCalcOpacity;
 
-	/* is it any different to the opacity we have already? */
-	if (nOpacityByte != EHS_WIDGET_PATCH(pWidget).xColour.sComp.nAlpha)
-	{
-		EHS_WIDGET_PATCH(pWidget).xColour.sComp.nAlpha = nOpacityByte;
-		bChanged = EHS_TRUE;
-	}
+    /* is it any different to the opacity we have already? */
+    if (nOpacityByte != EHS_WIDGET_PATCH(pWidget).xColour.sComp.nAlpha)
+    {
+        EHS_WIDGET_PATCH(pWidget).xColour.sComp.nAlpha = nOpacityByte;
+        bChanged = EHS_TRUE;
+    }
 
-	return bChanged;
+    return bChanged;
 }

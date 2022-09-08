@@ -1,16 +1,27 @@
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
+
 #
 # deps.mk - dependencies for the current makefile
 # 
 # Automatically Generated. DO NOT EDIT
 # 
-# Created by makedeps.sh on Sun 17 Apr 23:35:18 BST 2022
 
 
 ehs_types.h :  target_types.h  
 
 globals.h : target_config.h ehs_types.h
-
+ifdef EHS_NETWORKING_SUPPORT
 hal-api.h : globals.h ehs_types.h hal.h hal_mem.h hal_logger.h hal_time.h hal_process.h hal_xml_minimal.h hal_file.h hal_string.h hal_appstorage.h callback_queue.h  hal_media.h messages.h inx-parameters.h hal_console.h hal_webkit.h hal_lua.h hal_network.h hal_url.h hal_devapps.h hal_devman.h hal_viewport.h
+else
+hal-api.h : globals.h ehs_types.h hal.h hal_mem.h hal_logger.h hal_time.h hal_process.h hal_xml_minimal.h hal_file.h hal_string.h hal_appstorage.h callback_queue.h  hal_media.h messages.h inx-parameters.h hal_console.h hal_webkit.h hal_lua.h hal_devapps.h hal_viewport.h
+endif
 
 ifdef  EHS_DEBUG_TCPIP_CONSOLE
 hal_console.h :  target_types.h target_console.h
@@ -39,8 +50,9 @@ hal_media.h : ehs_types.h
 
 hal_mem.h : ehs_types.h target_mem.h
 
+ifdef EHS_NETWORKING_SUPPORT
 hal_network.h : target_tcp.h
-
+endif
 hal-peripherals.h : target_textdisplay.h
 
 hal_process.h : ehs_types.h ehs_fb_types.h target_process.h

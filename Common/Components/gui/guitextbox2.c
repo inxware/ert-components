@@ -1,3 +1,12 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file guitextbox.c
  *
@@ -13,10 +22,7 @@
  * threadsafe, as it might be called by an OS operation.
  *
  * @author: inx limited
- * @version: $Revision: 3974 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 /**
@@ -72,44 +78,64 @@
 #include "hal-api.h"
 
 EHS_FB_FUNCTIONS_START(gui_text_string2)
-EHS_FB_FUNCTION_ENTRY("create", gui_text2_create)
-EHS_FB_FUNCTION_ENTRY("destroy", gui_text2_destroy)
-EHS_FB_FUNCTION_ENTRY("show", gui_text2_show)
-EHS_FB_FUNCTION_ENTRY("hide", gui_text2_hide)
-EHS_FB_FUNCTION_ENTRY("update", gui_text_string2_update)
+
+EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_text2_create)
+
+EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_text2_destroy)
+
+EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_text2_show)
+
+EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_text2_hide)
+
+EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_text_string2_update)
 EHS_FB_FUNCTIONS_END
 
 #ifdef EHS_TARGET_FP_SUPPORT
 EHS_FB_FUNCTIONS_START(gui_text_float2)
-EHS_FB_FUNCTION_ENTRY("create", gui_text2_create)
-EHS_FB_FUNCTION_ENTRY("destroy", gui_text2_destroy)
-EHS_FB_FUNCTION_ENTRY("show", gui_text2_show)
-EHS_FB_FUNCTION_ENTRY("hide", gui_text2_hide)
-EHS_FB_FUNCTION_ENTRY("update", gui_text_float2_update)
+
+EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_text2_create)
+
+EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_text2_destroy)
+
+EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_text2_show)
+
+EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_text2_hide)
+
+EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_text_float2_update)
 EHS_FB_FUNCTIONS_END
 #endif
 
 EHS_FB_FUNCTIONS_START(gui_text_int2)
-EHS_FB_FUNCTION_ENTRY("create", gui_text2_create)
-EHS_FB_FUNCTION_ENTRY("destroy", gui_text2_destroy)
-EHS_FB_FUNCTION_ENTRY("show", gui_text2_show)
-EHS_FB_FUNCTION_ENTRY("hide", gui_text2_hide)
-EHS_FB_FUNCTION_ENTRY("update", gui_text_int2_update)
+
+EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_text2_create)
+
+EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_text2_destroy)
+
+EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_text2_show)
+
+EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_text2_hide)
+
+EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_text_int2_update)
 EHS_FB_FUNCTIONS_END
 
 EHS_FB_FUNCTIONS_START(gui_text_bool2)
-EHS_FB_FUNCTION_ENTRY("create", gui_text2_create)
-EHS_FB_FUNCTION_ENTRY("destroy", gui_text2_destroy)
-EHS_FB_FUNCTION_ENTRY("show", gui_text2_show)
-EHS_FB_FUNCTION_ENTRY("hide", gui_text2_hide)
-EHS_FB_FUNCTION_ENTRY("update", gui_text_bool2_update)
+
+EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_text2_create)
+
+EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_text2_destroy)
+
+EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_text2_show)
+
+EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_text2_hide)
+
+EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_text_bool2_update)
 EHS_FB_FUNCTIONS_END
 
 EHS_LOCAL void Ehs_gui_text2_update(EhsWidgetClass* pWidget, const ehs_char* szString, ehs_bool bAlphaConnected, EhsDataflowIntType nAlpha,
-		ehs_bool bXConnected, EhsDataflowIntType nXoffset,
-		ehs_bool bYConnected, EhsDataflowIntType nYoffset,
-		ehs_bool bWConnected, EhsDataflowIntType nWoffset,
-		ehs_bool bHConnected, EhsDataflowIntType nHoffset);
+                                    ehs_bool bXConnected, EhsDataflowIntType nXoffset,
+                                    ehs_bool bYConnected, EhsDataflowIntType nYoffset,
+                                    ehs_bool bWConnected, EhsDataflowIntType nWoffset,
+                                    ehs_bool bHConnected, EhsDataflowIntType nHoffset);
 
 #define EHS_FB_GUI_TEXT_IN_X 0		/**< Function block input for X offset */
 #define EHS_FB_GUI_TEXT_IN_Y 1		/**< Function block input for Y offset */
@@ -127,7 +153,7 @@ EHS_LOCAL void Ehs_gui_text2_update(EhsWidgetClass* pWidget, const ehs_char* szS
  */
 EHS_FB_IDENTIFY_FUNCTION(gui_text2)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(EhsWidgetClass**);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(EhsWidgetClass**);
 }
 
 /**
@@ -135,50 +161,54 @@ EHS_FB_IDENTIFY_FUNCTION(gui_text2)
  */
 EHS_FB_INIT_FUNCTION(gui_text2)
 {
-	EhsGuiParamsType xParams;
-	EhsGraphicsFontClass* pFont;
-	ehs_bool bRet = EHS_FALSE; /* assume initialisation fails */
-	char guiParams[MAX_PARAM_STR_LEN];
-	const char* pParams;
-	ehs_uint8 nByte;
+    EhsGuiParamsType xParams;
+    EhsGraphicsFontClass* pFont;
+    ehs_bool bRet = EHS_FALSE; /* assume initialisation fails */
+    char guiParams[MAX_PARAM_STR_LEN];
+    const char* pParams;
+    ehs_uint8 nByte;
 
-	EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
-	pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-	EhsParseGuiParameters(guiParams,&xParams);
+    EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
+    pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
+    EhsParseGuiParameters(guiParams,&xParams);
 
-	if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
-	{
-		pFont = EhsGraphicsFont_load(xParams.uClass.xTextbox.szFontName);
-		*(EhsWidgetClass**)EHS_FB_INIT_CONTEXT =
-			EhsWidgetTextbox_init(&(xParams.xRect),xParams.nZorder,
-					xParams.uClass.xTextbox.nIndentL,
-					xParams.uClass.xTextbox.nIndentT,
-					xParams.uClass.xTextbox.nIndentR,
-					xParams.uClass.xTextbox.nIndentB,
-					xParams.uClass.xTextbox.nLineSep,
-					xParams.uClass.xTextbox.xFgColour,
-					xParams.uClass.xTextbox.xBgColour,
-					pFont);
+    if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
+    {
+        pFont = EhsGraphicsFont_load(xParams.uClass.xTextbox.szFontName);
+        *(EhsWidgetClass**)EHS_FB_INIT_CONTEXT =
+            EhsWidgetTextbox_init(&(xParams.xRect),xParams.nZorder,
+                                  xParams.uClass.xTextbox.nIndentL,
+                                  xParams.uClass.xTextbox.nIndentT,
+                                  xParams.uClass.xTextbox.nIndentR,
+                                  xParams.uClass.xTextbox.nIndentB,
+                                  xParams.uClass.xTextbox.nLineSep,
+                                  xParams.uClass.xTextbox.xFgColour,
+                                  xParams.uClass.xTextbox.xBgColour,
+                                  pFont);
 
-		if ((*(EhsWidgetClass**)EHS_FB_INIT_CONTEXT == NULL) ||
-			((*(EhsWidgetClass**)(EHS_FB_INIT_CONTEXT))->nState == EHS_WIDGET_STATE_EMPTY)) {
-			bRet = EHS_FALSE;
-		} else {
+        if ((*(EhsWidgetClass**)EHS_FB_INIT_CONTEXT == NULL) ||
+                ((*(EhsWidgetClass**)(EHS_FB_INIT_CONTEXT))->nState == EHS_WIDGET_STATE_EMPTY))
+        {
+            bRet = EHS_FALSE;
+        }
+        else
+        {
 
-			/* parse parameters */
-			pParams = EhsGetUint8FromString(&nByte, pParams);
-			(*(EhsWidgetClass**)EHS_FB_RUN_CONTEXT)->bMaintainAspectRatio = (ehs_bool)nByte;
-			pParams = EhsGetUint8FromString(&nByte, pParams);
-			(*(EhsWidgetClass**)EHS_FB_RUN_CONTEXT)->bCaptureClicksIgnoringZOrder = (ehs_bool)nByte;
+            /* parse parameters */
+            pParams = EhsGetUint8FromString(&nByte, pParams);
+            (*(EhsWidgetClass**)EHS_FB_RUN_CONTEXT)->bMaintainAspectRatio = (ehs_bool)nByte;
+            pParams = EhsGetUint8FromString(&nByte, pParams);
+            (*(EhsWidgetClass**)EHS_FB_RUN_CONTEXT)->bCaptureClicksIgnoringZOrder = (ehs_bool)nByte;
 
-			bRet = EHS_TRUE;
-		}
-		(*(EhsWidgetClass**)EHS_FB_RUN_CONTEXT)->bContentChanged = EHS_TRUE; /* This should be done in the common code */
-			}
-	else {
-		EHSH_LOG_WARNING("xParams.eClass != EHS_WIDGET_CLASS_TEXTBOX");
-	}
-	return bRet;
+            bRet = EHS_TRUE;
+        }
+        (*(EhsWidgetClass**)EHS_FB_RUN_CONTEXT)->bContentChanged = EHS_TRUE; /* This should be done in the common code */
+    }
+    else
+    {
+        EHSH_LOG_WARNING("xParams.eClass != EHS_WIDGET_CLASS_TEXTBOX");
+    }
+    return bRet;
 }
 
 /**
@@ -187,24 +217,24 @@ EHS_FB_INIT_FUNCTION(gui_text2)
  */
 EHS_FB_RUN_FUNCTION(gui_text2_create)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	EhsWidget_create(pWidget);
-	/*Set pointer in widget structure to point at instance data. Used for mouse click.*/
-	pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EhsWidget_create(pWidget);
+    /*Set pointer in widget structure to point at instance data. Used for mouse click.*/
+    pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
 
-	/* set the output values for this widget */
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
+    /* set the output values for this widget */
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
 
-	/*Set number of mouseClick port*/
-	pWidget->mouseClickPortNumber = 2;
-	pWidget->mouseDownPortNumber = 3;
-	pWidget->bContentChanged = EHS_TRUE; /* This should be done in the common code */
+    /*Set number of mouseClick port*/
+    pWidget->mouseClickPortNumber = 2;
+    pWidget->mouseDownPortNumber = 3;
+    pWidget->bContentChanged = EHS_TRUE; /* This should be done in the common code */
 
-	EHS_FB_FINISH(1);
-	return;
+    EHS_FB_FINISH(1);
+    return;
 }
 
 /**
@@ -213,10 +243,10 @@ EHS_FB_RUN_FUNCTION(gui_text2_create)
  */
 EHS_FB_RUN_FUNCTION(gui_text2_destroy)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	EhsWidget_destroy(pWidget);
-	EHS_FB_FINISH(1);
-	return;
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EhsWidget_destroy(pWidget);
+    EHS_FB_FINISH(1);
+    return;
 }
 
 /**
@@ -224,10 +254,10 @@ EHS_FB_RUN_FUNCTION(gui_text2_destroy)
  */
 EHS_FB_RUN_FUNCTION(gui_text2_show)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(gui_text_show));
-	EhsWidget_show(pWidget);
-	EHS_FB_FINISH(1);
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(gui_text_show));
+    EhsWidget_show(pWidget);
+    EHS_FB_FINISH(1);
 }
 
 
@@ -240,10 +270,10 @@ EHS_FB_RUN_FUNCTION(gui_text2_show)
  */
 EHS_FB_RUN_FUNCTION(gui_text2_hide)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(gui_text_hide));
-	EhsWidget_hide(pWidget);
-	EHS_FB_FINISH(1);
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(gui_text_hide));
+    EhsWidget_hide(pWidget);
+    EHS_FB_FINISH(1);
 }
 
 /**
@@ -264,15 +294,15 @@ EHS_FB_RUN_FUNCTION(gui_text2_hide)
  *
  */
 void Ehs_gui_text2_update(EhsWidgetClass* pWidget, const ehs_char* szString, ehs_bool bAlphaConnected, EhsDataflowIntType nAlpha,
-		ehs_bool bXConnected, EhsDataflowIntType nXoffset,
-		ehs_bool bYConnected, EhsDataflowIntType nYoffset,
-		ehs_bool bWConnected, EhsDataflowIntType nWoffset,
-		ehs_bool bHConnected, EhsDataflowIntType nHoffset)
+                          ehs_bool bXConnected, EhsDataflowIntType nXoffset,
+                          ehs_bool bYConnected, EhsDataflowIntType nYoffset,
+                          ehs_bool bWConnected, EhsDataflowIntType nWoffset,
+                          ehs_bool bHConnected, EhsDataflowIntType nHoffset)
 {
 
-	Ehs_widget_position_update(pWidget, bAlphaConnected, nAlpha, bXConnected, nXoffset, bYConnected, nYoffset, bWConnected, nWoffset, bHConnected, nHoffset);
+    Ehs_widget_position_update(pWidget, bAlphaConnected, nAlpha, bXConnected, nXoffset, bYConnected, nYoffset, bWConnected, nWoffset, bHConnected, nHoffset);
 
-	EhsWidgetTextbox_write(pWidget,szString);
+    EhsWidgetTextbox_write(pWidget,szString);
 }
 
 /**
@@ -280,23 +310,23 @@ void Ehs_gui_text2_update(EhsWidgetClass* pWidget, const ehs_char* szString, ehs
  */
 EHS_FB_RUN_FUNCTION(gui_text_string2_update)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	char *str = EHS_FB_IN_S(EHS_FB_GUI_TEXT_IN_VALUE);
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    char *str = EHS_FB_IN_S(EHS_FB_GUI_TEXT_IN_VALUE);
 
-	Ehs_gui_text2_update(pWidget,str,
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_ALPHA),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_ALPHA),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_X),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_X),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_Y),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_Y),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_WID),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_WID),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_HT),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_HT));
+    Ehs_gui_text2_update(pWidget,str,
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_ALPHA),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_ALPHA),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_X),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_X),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_Y),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_Y),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_WID),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_WID),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_HT),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_HT));
 
-	/* set the output values for this widget */
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
+    /* set the output values for this widget */
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
 
-	EHS_FB_FINISH(1);
+    EHS_FB_FINISH(1);
 }
 
 //#ifdef EHS_TARGET_FP_SUPPORT
@@ -305,25 +335,25 @@ EHS_FB_RUN_FUNCTION(gui_text_string2_update)
  */
 EHS_FB_RUN_FUNCTION(gui_text_float2_update)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	char str[EHS_STRING_LENGTH_MAX];
-	EhsSprintf(str,"%f",EHS_FB_IN_F(EHS_FB_GUI_TEXT_IN_VALUE));
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    char str[EHS_STRING_LENGTH_MAX];
+    EhsSprintf(str,"%f",EHS_FB_IN_F(EHS_FB_GUI_TEXT_IN_VALUE));
 
 
-	Ehs_gui_text2_update(pWidget,str,
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_ALPHA),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_ALPHA),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_X),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_X),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_Y),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_Y),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_WID),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_WID),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_HT),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_HT));
+    Ehs_gui_text2_update(pWidget,str,
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_ALPHA),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_ALPHA),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_X),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_X),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_Y),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_Y),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_WID),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_WID),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_HT),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_HT));
 
-	/* set the output values for this widget */
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
+    /* set the output values for this widget */
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
 
-	EHS_FB_FINISH(1);
+    EHS_FB_FINISH(1);
 }
 //#endif
 
@@ -332,50 +362,50 @@ EHS_FB_RUN_FUNCTION(gui_text_float2_update)
  */
 EHS_FB_RUN_FUNCTION(gui_text_int2_update)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	char str[EHS_STRING_LENGTH_MAX];
-	EhsSprintf(str,"%d",EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_VALUE));
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    char str[EHS_STRING_LENGTH_MAX];
+    EhsSprintf(str,"%d",EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_VALUE));
 
-	Ehs_gui_text2_update(pWidget,str,
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_ALPHA),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_ALPHA),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_X),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_X),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_Y),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_Y),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_WID),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_WID),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_HT),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_HT));
+    Ehs_gui_text2_update(pWidget,str,
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_ALPHA),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_ALPHA),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_X),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_X),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_Y),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_Y),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_WID),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_WID),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_HT),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_HT));
 
-	/* set the output values for this widget */
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
+    /* set the output values for this widget */
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
 
-	EHS_FB_FINISH(1);
+    EHS_FB_FINISH(1);
 }
 /**
  * Update the textbox bool using bool input, alpha level, x-offset and y-offset (where these are connected)
  */
 EHS_FB_RUN_FUNCTION(gui_text_bool2_update)
 {
-	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-	char str[EHS_STRING_LENGTH_MAX];
+    EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    char str[EHS_STRING_LENGTH_MAX];
 
-	str[0] = (EHS_FB_IN_B(EHS_FB_GUI_TEXT_IN_VALUE))?'T':'F';
-	str[1] = '\0';
+    str[0] = (EHS_FB_IN_B(EHS_FB_GUI_TEXT_IN_VALUE))?'T':'F';
+    str[1] = '\0';
 
-	Ehs_gui_text2_update(pWidget,str,
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_ALPHA),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_ALPHA),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_X),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_X),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_Y),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_Y),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_WID),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_WID),
-		EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_HT),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_HT));
+    Ehs_gui_text2_update(pWidget,str,
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_ALPHA),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_ALPHA),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_X),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_X),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_Y),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_Y),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_WID),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_WID),
+                         EHS_FB_IN_CONNECTED(EHS_FB_GUI_TEXT_IN_HT),EHS_FB_IN_I(EHS_FB_GUI_TEXT_IN_HT));
 
-	/* set the output values for this widget */
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
-	EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
+    /* set the output values for this widget */
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
+    EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
 
-	EHS_FB_FINISH(1);
+    EHS_FB_FINISH(1);
 }
 
 //#endif /* EHS_GUI_SUPPORT */

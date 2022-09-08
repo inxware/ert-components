@@ -1,13 +1,19 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /**
  * @file system_exec.h
  *
  * function prototypes for system_exec.c (general purpose executable block)
  *
- * @author: Sam Gardner
- * @version: $Revision: 1248 $
- * @date: $Date: $
- * 
- * Copyright (c) inx limited, 2008. All rights reserved.
+ * @author: inx limited
+ *
  */
 
 #ifndef _EHS_SYSTEM_EXEC_H
@@ -15,7 +21,10 @@
 
 /******************************************************************************/
 /* Declare State */
-#define EHS_FB_EXEC_NAME "Exec"
+
+#define EHS_FB_NAME_Exec "Exec"
+#define EHS_FB_ID_Exec 0x6CFE
+
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(Exec);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(Exec);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(Exec);

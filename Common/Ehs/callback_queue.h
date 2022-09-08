@@ -1,12 +1,18 @@
+/***************************************************************
+* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the MPL2.0 license. You should have received a copy of the
+* MPL2.0 (Mozilla Public License2.0) license with this file. If
+* not, please visit
+*	<https://www.mozilla.org/en-US/MPL/2.0/>
+****************************************************************/
+
 /** @file callback_queue.h
  * In this file, the callback queue type is defined and the associated functions to
- * operate upon it are declared. 
+ * operate upon it are declared.
  *
  * @author: inx limited
- * @version: $Revision: 3622 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef EHS_CALLBACK_QUEUE_H
@@ -23,14 +29,15 @@
  * Otherwise an interrupt between one instruction and the other could cause havoc
  * if the interrupt results in another queue operation.
  */
-typedef struct EhsCallbackQueueEntryStruct {
-	EhsRunFuncType fpRunFunc;				/**< Pointer to function to run when callback is called */
-	EhsFunctionInstanceDataType* pFuncInst;	/**< Pointer to function context to use when callback is called */
-	struct EhsCallbackQueueEntryStruct* pNext;		/**< Pointer to next callback to process when callback is called */
+typedef struct EhsCallbackQueueEntryStruct
+{
+    EhsRunFuncType fpRunFunc;				/**< Pointer to function to run when callback is called */
+    EhsFunctionInstanceDataType* pFuncInst;	/**< Pointer to function context to use when callback is called */
+    struct EhsCallbackQueueEntryStruct* pNext;		/**< Pointer to next callback to process when callback is called */
 } EhsCallbackQueueEntryType;
 
 /**
- * Callback queue type. This contains a pointer to the first callback queue 
+ * Callback queue type. This contains a pointer to the first callback queue
  * entry element.
  */
 typedef EhsCallbackQueueEntryType *EhsCallbackQueueType;
@@ -43,10 +50,10 @@ typedef EhsCallbackQueueEntryType *EhsCallbackQueueType;
  * @param pEntry Pointer to the struct to hold this instances data (presumably
  * held in the function instance data type)
  */
-EHS_GLOBAL void EhsCallbackQueue_register(EhsCallbackQueueType* pQueue, 
-										  EhsRunFuncType fpRunFunc, 
-										  EhsFunctionInstanceDataType* pFuncInst,
-										  EhsCallbackQueueEntryType *pEntry);
+EHS_GLOBAL void EhsCallbackQueue_register(EhsCallbackQueueType* pQueue,
+        EhsRunFuncType fpRunFunc,
+        EhsFunctionInstanceDataType* pFuncInst,
+        EhsCallbackQueueEntryType *pEntry);
 
 /**
  * Execute the contents of the callback queue.

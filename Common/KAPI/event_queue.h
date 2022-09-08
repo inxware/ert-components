@@ -1,14 +1,20 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file event_queue.h
  * In this file, the event queue type and the associated functions to
  * operate upon it are defined.
  *
  * @sa console_queue.h
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 780 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef EHS_EVENT_QUEUE_H
@@ -26,10 +32,11 @@
  * couldn't guarantee that writing to a 32 bit value takes place within a single
  * instruction.
  */
-typedef struct {
-	ehs_uint16 uInIdx; /**< Pointer to the next place to write the input. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
-	ehs_uint16 uOutIdx; /**< Pointer to the next place to read the output. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
-	EhsFunctionInstanceIndexType xQueue[EHS_MAX_EVENT_QUEUE_SIZE]; /**< Contents of the event queue */
+typedef struct
+{
+    ehs_uint16 uInIdx; /**< Pointer to the next place to write the input. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
+    ehs_uint16 uOutIdx; /**< Pointer to the next place to read the output. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
+    EhsFunctionInstanceIndexType xQueue[EHS_MAX_EVENT_QUEUE_SIZE]; /**< Contents of the event queue */
 } EhsEventQueueType;
 
 /**

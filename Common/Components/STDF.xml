@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdf>
+	<profile>
+		<version>1.0.0</version>
+		<featureClassName>Generic</featureClassName>
+		<featureClass>5</featureClass>
+	</profile>
+	<toolboxes>
+		<toolbox hash="0x1ab0">core</toolbox>
+		<toolbox hash="0x1ab1">io</toolbox>
+        <toolbox hash="0x1ab2">net</toolbox>
+		<toolbox hash="0x1ab3">netx</toolbox>
+        <toolbox hash="0x1ab4">ui</toolbox>
+        <toolbox hash="0x1ab5">media</toolbox>
+	</toolboxes>
+</tdf>

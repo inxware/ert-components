@@ -1,3 +1,11 @@
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
 #
 # Makefile fragment to build the graphics/video-specific code for EHS.
 
@@ -5,12 +13,6 @@
 #
 
 # @author: inx limited
-# @version: $Revision: 43 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
-# 
-# Copyright (c) inx limited, 2007. All rights reserved.
-#
-#
 # Predefined variables
 
 #  OBJ - File extension for object files
@@ -40,7 +42,7 @@ INC_DIRS += $(EHS_TARGET_GRAPHICS_PATH)/Components
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/glib-2.0
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)/glib-2.0/include # target specific data is in here
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/gio-unix-2.0
-ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
+ifeq ($(EHS_DEBIAN_10),yes)
 INC_DIRS += /usr/include/gtk-2.0
 INC_DIRS += /usr/lib/x86_64-linux-gnu/gtk-2.0/include/
 INC_DIRS += /usr/include/glib-2.0
@@ -165,12 +167,13 @@ LIB+= Xcursor
 LIB+= png12
 else
 ## TODO2022 This needs to be conditional on the OS version  not whether a host builld or not
-	ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
+	ifeq ($(EHS_DEBIAN_10),yes)
 		EHS_PNG_LIB := png16
-	endif
-	ifeq ($(EHS_PNG_LIB),)
-		EHS_PNG_LIB := png14
-	endif
+    else
+	    ifeq ($(EHS_PNG_LIB),)
+		    EHS_PNG_LIB := png14
+	    endif
+    endif
 	LIB+= $(EHS_PNG_LIB)
 endif
 endif

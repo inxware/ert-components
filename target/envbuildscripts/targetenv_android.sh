@@ -79,16 +79,23 @@ SetupTargetEnv_Url
 SetupTargetEnv_Certs
 # setup bin folder
 SetupTargetEnv_BinFolder
-# create supervisor
-export SUPERVISOR_PACKAGE_PATH=${TARGET_PATH}/supervisor
-if [ -d "$SUPERVISOR_PACKAGE_PATH" ]; then
-    rm -rf ${SUPERVISOR_PACKAGE_PATH} || exit 1
-fi
-mkdir ${SUPERVISOR_PACKAGE_PATH} || exit 1
 
-# use script to pack supervisor
-${EHS_ROOT}/target/envbuildscripts/upload_ehs_via_adb.sh ${SPECIFIC_TARGET}
-# create syspatch data
-CreateDevmanSupervisorUpdatesData
+if [ -z "$BUILD_WITHOUT_SUPERVISOR" ]; then
+    # create supervisor
+    export SUPERVISOR_PACKAGE_PATH=${TARGET_PATH}/supervisor
+    if [ -d "$SUPERVISOR_PACKAGE_PATH" ]; then
+        rm -rf ${SUPERVISOR_PACKAGE_PATH} || exit 1
+    fi
+    mkdir ${SUPERVISOR_PACKAGE_PATH} || exit 1
+
+#todo2022 - see coment for deconflating the instal and the prperation of target platforms. This is very messy!
+# we just want targetenv to do what it usually does  - stage the apps etc . in the  ../TARGET_TREE/ staging areas rady for the  package builder
+    # use script to pack supervisor
+    ${EHS_ROOT}/target/envbuildscripts/upload_ehs_via_adb.sh ${SPECIFIC_TARGET}
+    # create syspatch data
+    CreateDevmanSupervisorUpdatesData
+else
+    echo "Building for an unmanaged target without supervisor."
+fi
 
 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"

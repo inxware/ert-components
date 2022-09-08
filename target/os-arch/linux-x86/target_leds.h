@@ -1,10 +1,17 @@
-/*
- * target_textdisplay.h
- *
- *  Created on: 08-Sep-2008
- *      Author: pbeaumont
- */
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
 
+/* @file target_leds.h
+ *
+ * @author: inx limited
+ *
+ */
 #ifndef TARGET_LEDS_H_
 #define TARGET_LEDS_H_
 #include "target_types.h"

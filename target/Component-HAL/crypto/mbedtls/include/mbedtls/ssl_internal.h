@@ -225,8 +225,8 @@ struct mbedtls_ssl_handshake_params
      */
 #if defined(MBEDTLS_SSL_PROTO_SSL3) || defined(MBEDTLS_SSL_PROTO_TLS1) || \
     defined(MBEDTLS_SSL_PROTO_TLS1_1)
-       mbedtls_md5_context fin_md5;
-      mbedtls_sha1_context fin_sha1;
+    mbedtls_md5_context fin_md5;
+    mbedtls_sha1_context fin_sha1;
 #endif
 #if defined(MBEDTLS_SSL_PROTO_TLS1_2)
 #if defined(MBEDTLS_SHA256_C)
@@ -248,7 +248,7 @@ struct mbedtls_ssl_handshake_params
 
     unsigned char randbytes[64];        /*!<  random bytes            */
     unsigned char premaster[MBEDTLS_PREMASTER_SIZE];
-                                        /*!<  premaster secret        */
+    /*!<  premaster secret        */
 
     int resume;                         /*!<  session resume indicator*/
     int max_major_ver;                  /*!< max. major version client*/
@@ -273,7 +273,7 @@ struct mbedtls_ssl_transform
      * Session specific crypto layer
      */
     const mbedtls_ssl_ciphersuite_t *ciphersuite_info;
-                                        /*!<  Chosen cipersuite_info  */
+    /*!<  Chosen cipersuite_info  */
     unsigned int keylen;                /*!<  symmetric key length (bytes)  */
     size_t minlen;                      /*!<  min. ciphertext length  */
     size_t ivlen;                       /*!<  IV length               */
@@ -371,7 +371,7 @@ int mbedtls_ssl_parse_finished( mbedtls_ssl_context *ssl );
 int mbedtls_ssl_write_finished( mbedtls_ssl_context *ssl );
 
 void mbedtls_ssl_optimize_checksum( mbedtls_ssl_context *ssl,
-                            const mbedtls_ssl_ciphersuite_t *ciphersuite_info );
+                                    const mbedtls_ssl_ciphersuite_t *ciphersuite_info );
 
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
 int mbedtls_ssl_psk_derive_premaster( mbedtls_ssl_context *ssl, mbedtls_key_exchange_type_t key_ex );
@@ -429,15 +429,15 @@ static inline mbedtls_x509_crt *mbedtls_ssl_own_cert( mbedtls_ssl_context *ssl )
  * Return 0 if everything is OK, -1 if not.
  */
 int mbedtls_ssl_check_cert_usage( const mbedtls_x509_crt *cert,
-                          const mbedtls_ssl_ciphersuite_t *ciphersuite,
-                          int cert_endpoint,
-                          uint32_t *flags );
+                                  const mbedtls_ssl_ciphersuite_t *ciphersuite,
+                                  int cert_endpoint,
+                                  uint32_t *flags );
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
 
 void mbedtls_ssl_write_version( int major, int minor, int transport,
-                        unsigned char ver[2] );
+                                unsigned char ver[2] );
 void mbedtls_ssl_read_version( int *major, int *minor, int transport,
-                       const unsigned char ver[2] );
+                               const unsigned char ver[2] );
 
 static inline size_t mbedtls_ssl_hdr_len( const mbedtls_ssl_context *ssl )
 {

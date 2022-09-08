@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file fid.h
  * Declarations for the EhsFunctionInstanceDataType and related functions
- * 
+ *
  * @author: inx limited
- * @version: $Revision: 4930 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
- * 
- * Copyright (c) inx limited, 2006. All rights reserved.
+ *
  */
 
 #ifndef _FUNCTION_INSTANCE_DATA_H
@@ -26,17 +32,18 @@
 #define DEBUG_SET_MASK_BREAKPOINT		(DEBUG_MASK_MONITOR | DEBUG_MASK_BREAKPOINT)	// 0000 0011
 
 
-typedef struct EhsFunctionInstanceDataStruct {
-	void* pObjData;
-	EhsRunFuncType fpRunFunc; /**< Pointer to the function to run when this function is invoked */
-	ehs_uint8 nNumInputs; /**< Number of data inputs to this function block */
-	ehs_uint8 nNumOutputs; /**< Number of data outputs to this function block */
-	ehs_uint8 nFinishPorts; /**< The number of finish ports that can be accessed by this function */
-	EhsTriggerType** pFinishPort; /**< Provides access to the set of start ports that are connected to each finish port */
-	void** pIn;
-	void** pOut;
-	ehs_char* cDataOutType; /**< The type of each output data port */
-	debug_type_byte dMonitorType; /* bitmask for monitor type for this function - see DEBUG_SET_MASK_ above */
+typedef struct EhsFunctionInstanceDataStruct
+{
+    void* pObjData;
+    EhsRunFuncType fpRunFunc; /**< Pointer to the function to run when this function is invoked */
+    ehs_uint8 nNumInputs; /**< Number of data inputs to this function block */
+    ehs_uint8 nNumOutputs; /**< Number of data outputs to this function block */
+    ehs_uint8 nFinishPorts; /**< The number of finish ports that can be accessed by this function */
+    EhsTriggerType** pFinishPort; /**< Provides access to the set of start ports that are connected to each finish port */
+    void** pIn;
+    void** pOut;
+    ehs_char* cDataOutType; /**< The type of each output data port */
+    debug_type_byte dMonitorType; /* bitmask for monitor type for this function - see DEBUG_SET_MASK_ above */
 } EhsFunctionInstanceDataType;
 
 /**

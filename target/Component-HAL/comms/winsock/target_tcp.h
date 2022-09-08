@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file target_tcp.h
  * This file contains all of the target-specific definitions for using TCP/IP
  *
  * @author: inx limited
- * @version: $Revision: 3760 $
- * @date: $Date: 2006-11-06 16:22:28 +0000 (Mon, 06 Nov 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #ifndef EHS_TARGET_TCP_H
@@ -53,11 +59,14 @@ _WIN32_WINNT should be define in target_config.h, but just in case
 /**
  * Size of buffer to use when sending to TCP/IP. For portability we make this less than or equal to MAXINT(ehs_sint16)
  */
-#define EHS_TGT_TCP_OUT_BUFF_SIZE  32767u
+#define EHS_TGT_TCP_OUT_BUFF_SIZE  65536u	/**< Size of buffer to use when sending to TCP/IP */
 /**
  * Size of buffer to use when receiving from TCP/IP. For portability we make this less than or equal to MAXINT(ehs_sint16)
  */
-#define EHS_TGT_TCP_IN_BUFF_SIZE  65534u /* 32767u */
+#define EHS_TGT_TCP_IN_BUFF_SIZE  61440	/**< Size of buffer to use when receiving from TCP/IP - must be smaller than the max remainder of destination queue buffer  */
+ 
+/* Set the ort  number used for the debugger */
+// todo2022 - this shouldn't be in here it should be in the target_consoe header o r c file
 #define EHS_TGT_TCP_PORTNUM  11425u			/**< Port number to use for receiving TCP/IP connections */
 
 #define EHS_TGT_TCP_LISTENTIME_us 20000 /**< Time to listen (uS) for incoming TCP/IP data */

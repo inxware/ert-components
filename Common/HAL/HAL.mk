@@ -1,3 +1,12 @@
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
+
 #
 # Makefile fragment to build the common hardware abstraction layer files for EHS.
 
@@ -5,11 +14,6 @@
 #
 
 # @author: inx limited
-# @version: $Revision: 43 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
-# 
-# Copyright (c) inx limited, 2007. All rights reserved.
-#
 #
 # Predefined variables
 
@@ -68,13 +72,12 @@ endif
 #Requires Library support
 
 #Minimal XML - no library needed 
-#ifdef EHS_DEVMAN_SUPPORT #@todo we need the ORs for other dependencies here
-include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
-#else 
-#ifdef EHS_MEDIA_SUPPORT#Horrible Logic @todo create a ifnot already inclusion construct
-#include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
-#endif
-#endif
+ifdef EHS_DEVMAN_SUPPORT 
+#  || defined (EHS_MEDIA_SUPPORT)  && !defined(EHS_SKIP_GNULIBRARIES)
+    include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
+else ifdef EHS_INCLUDE_XML_SUPPORT
+    include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
+endif
 
 #########################################
 #Networking dependent components support

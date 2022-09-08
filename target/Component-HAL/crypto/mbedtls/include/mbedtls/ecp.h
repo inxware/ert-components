@@ -372,7 +372,7 @@ int mbedtls_ecp_point_cmp( const mbedtls_ecp_point *P,
  * \return          0 if successful, or a MBEDTLS_ERR_MPI_XXX error code
  */
 int mbedtls_ecp_point_read_string( mbedtls_ecp_point *P, int radix,
-                           const char *x, const char *y );
+                                   const char *x, const char *y );
 
 /**
  * \brief           Export a point into unsigned binary data
@@ -389,8 +389,8 @@ int mbedtls_ecp_point_read_string( mbedtls_ecp_point *P, int radix,
  *                  or MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL
  */
 int mbedtls_ecp_point_write_binary( const mbedtls_ecp_group *grp, const mbedtls_ecp_point *P,
-                            int format, size_t *olen,
-                            unsigned char *buf, size_t buflen );
+                                    int format, size_t *olen,
+                                    unsigned char *buf, size_t buflen );
 
 /**
  * \brief           Import a point from unsigned binary data
@@ -411,7 +411,7 @@ int mbedtls_ecp_point_write_binary( const mbedtls_ecp_group *grp, const mbedtls_
  *                  that.
  */
 int mbedtls_ecp_point_read_binary( const mbedtls_ecp_group *grp, mbedtls_ecp_point *P,
-                           const unsigned char *buf, size_t ilen );
+                                   const unsigned char *buf, size_t ilen );
 
 /**
  * \brief           Import a point from a TLS ECPoint record
@@ -428,7 +428,7 @@ int mbedtls_ecp_point_read_binary( const mbedtls_ecp_group *grp, mbedtls_ecp_poi
  *                  MBEDTLS_ERR_ECP_BAD_INPUT_DATA if input is invalid
  */
 int mbedtls_ecp_tls_read_point( const mbedtls_ecp_group *grp, mbedtls_ecp_point *pt,
-                        const unsigned char **buf, size_t len );
+                                const unsigned char **buf, size_t len );
 
 /**
  * \brief           Export a point as a TLS ECPoint record
@@ -445,8 +445,8 @@ int mbedtls_ecp_tls_read_point( const mbedtls_ecp_group *grp, mbedtls_ecp_point 
  *                  or MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL
  */
 int mbedtls_ecp_tls_write_point( const mbedtls_ecp_group *grp, const mbedtls_ecp_point *pt,
-                         int format, size_t *olen,
-                         unsigned char *buf, size_t blen );
+                                 int format, size_t *olen,
+                                 unsigned char *buf, size_t blen );
 
 /**
  * \brief           Set a group using well-known domain parameters
@@ -490,7 +490,7 @@ int mbedtls_ecp_tls_read_group( mbedtls_ecp_group *grp, const unsigned char **bu
  *                  or MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL
  */
 int mbedtls_ecp_tls_write_group( const mbedtls_ecp_group *grp, size_t *olen,
-                         unsigned char *buf, size_t blen );
+                                 unsigned char *buf, size_t blen );
 
 /**
  * \brief           Multiplication by an integer: R = m * P
@@ -519,8 +519,8 @@ int mbedtls_ecp_tls_write_group( const mbedtls_ecp_group *grp, size_t *olen,
  *                  MBEDTLS_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
 int mbedtls_ecp_mul( mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
-             const mbedtls_mpi *m, const mbedtls_ecp_point *P,
-             int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
+                     const mbedtls_mpi *m, const mbedtls_ecp_point *P,
+                     int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
 
 /**
  * \brief           Multiplication and addition of two points by integers:
@@ -543,8 +543,8 @@ int mbedtls_ecp_mul( mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
  *                  MBEDTLS_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
 int mbedtls_ecp_muladd( mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
-             const mbedtls_mpi *m, const mbedtls_ecp_point *P,
-             const mbedtls_mpi *n, const mbedtls_ecp_point *Q );
+                        const mbedtls_mpi *m, const mbedtls_ecp_point *P,
+                        const mbedtls_mpi *n, const mbedtls_ecp_point *Q );
 
 /**
  * \brief           Check that a point is a valid public key on this curve
@@ -602,10 +602,10 @@ int mbedtls_ecp_check_privkey( const mbedtls_ecp_group *grp, const mbedtls_mpi *
  *                  mbedtls_ecdh_context of mbedtls_ecdsa_context.
  */
 int mbedtls_ecp_gen_keypair_base( mbedtls_ecp_group *grp,
-                     const mbedtls_ecp_point *G,
-                     mbedtls_mpi *d, mbedtls_ecp_point *Q,
-                     int (*f_rng)(void *, unsigned char *, size_t),
-                     void *p_rng );
+                                  const mbedtls_ecp_point *G,
+                                  mbedtls_mpi *d, mbedtls_ecp_point *Q,
+                                  int (*f_rng)(void *, unsigned char *, size_t),
+                                  void *p_rng );
 
 /**
  * \brief           Generate a keypair
@@ -624,8 +624,8 @@ int mbedtls_ecp_gen_keypair_base( mbedtls_ecp_group *grp,
  *                  mbedtls_ecdh_context of mbedtls_ecdsa_context.
  */
 int mbedtls_ecp_gen_keypair( mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp_point *Q,
-                     int (*f_rng)(void *, unsigned char *, size_t),
-                     void *p_rng );
+                             int (*f_rng)(void *, unsigned char *, size_t),
+                             void *p_rng );
 
 /**
  * \brief           Generate a keypair
@@ -639,7 +639,7 @@ int mbedtls_ecp_gen_keypair( mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp
  *                  or a MBEDTLS_ERR_ECP_XXX or MBEDTLS_MPI_XXX error code
  */
 int mbedtls_ecp_gen_key( mbedtls_ecp_group_id grp_id, mbedtls_ecp_keypair *key,
-                int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
+                         int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
 
 /**
  * \brief           Check a public-private key pair

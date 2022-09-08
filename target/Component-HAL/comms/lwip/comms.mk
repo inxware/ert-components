@@ -1,3 +1,11 @@
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
 #
 # Makefile fragment to build the comms-specific code for EHS.
 
@@ -5,12 +13,6 @@
 #
 
 # @author: inx limited
-# @version: $Revision: 43 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
-# 
-# Copyright (c) inx limited, 2007. All rights reserved.
-#
-#
 # Predefined variables
 
 #  OBJ - File extension for object files
@@ -28,7 +30,7 @@ include $(EHS_TARGET_COMMS_API_PATH)/Components/components.mk
 #include the common funtions
 ifdef  EHS_COMMS_API_SUPPORT
 include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/tcp.mk
-emdif
+endif
 
 VPATH+=: $(EHS_TARGET_COMMS_API_PATH)
 INC_DIRS += $(EHS_TARGET_COMMS_API_PATH)

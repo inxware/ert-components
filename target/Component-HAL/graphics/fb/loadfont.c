@@ -17,7 +17,7 @@
 #include "typedefs.h"
 //#include "gfx.h"
 #ifndef  LOAD_FONT_FROM_FILE
- #include "courb18.h"
+#include "courb18.h"
 #endif
 
 #if !defined(MODULE)
@@ -27,25 +27,25 @@
  */
 long int debugfilesize (long int FileDescriptor)
 {
-	struct stat StatBuf;
+    struct stat StatBuf;
 
-	fstat (FileDescriptor, &StatBuf);
+    fstat (FileDescriptor, &StatBuf);
 
-	return (StatBuf.st_size);
+    return (StatBuf.st_size);
 
 }
 #endif
 
 #ifdef DEBUG
-    #define AlePrint(x)         //STTBX_Print(x)
+#define AlePrint(x)         //STTBX_Print(x)
 #else
-    #define AlePrint(x)
+#define AlePrint(x)
 #endif
 
 #ifdef LOADFONT_PRINT
-    #define LOADFONT_Print(x)   STTBX_Print(x)
+#define LOADFONT_Print(x)   STTBX_Print(x)
 #else
-    #define LOADFONT_Print(x)
+#define LOADFONT_Print(x)
 #endif
 
 /* Private Types ----------------------------------------------------------- */
@@ -122,7 +122,7 @@ ST_ErrorCode_t GFX_LoadFont(ST_Partition_t*     Partition_p,
     *Font_p_p = NULL;
 
     Font_p = (STGFX_Font_t*) memory_allocate(Partition_p,
-                                             sizeof(STGFX_Font_t));
+             sizeof(STGFX_Font_t));
     if(Font_p == NULL)
     {
         return(ST_ERROR_NO_MEMORY);
@@ -157,21 +157,21 @@ ST_ErrorCode_t GFX_LoadFont(ST_Partition_t*     Partition_p,
             if (strstr(FileName,BDF_EXT))
             {
 #else
-                Mem_p = FontData;
-                FSize = sizeof(FontData);
+    Mem_p = FontData;
+    FSize = sizeof(FontData);
 #endif
                 Font_p->FontData.BitmappedFontData_p = (STGFX_BitmappedFont_t*)
-                    memory_allocate(Partition_p,sizeof(STGFX_BitmappedFont_t));
+                                                       memory_allocate(Partition_p,sizeof(STGFX_BitmappedFont_t));
                 if (Font_p->FontData.BitmappedFontData_p == NULL)
                 {
                     Err = ST_ERROR_NO_MEMORY;
                 }
                 else
                 {
-                   memset(Font_p->FontData.BitmappedFontData_p,0,
+                    memset(Font_p->FontData.BitmappedFontData_p,0,
                            sizeof(STGFX_BitmappedFont_t));
                     Err = LoadBitmappedFont(Partition_p,Mem_p,FSize,
-                                Font_p->FontData.BitmappedFontData_p);
+                                            Font_p->FontData.BitmappedFontData_p);
                     if (Err == ST_NO_ERROR)
                     {
                         Font_p->FontType = STGFX_BITMAPPED_FONT;
@@ -236,21 +236,21 @@ ST_ErrorCode_t GFX_FreeFont(ST_Partition_t*     Partition_p,
     switch (Font_p->FontType)
     {
 
-        case STGFX_BITMAPPED_FONT:
-            if (Font_p->FontData.BitmappedFontData_p)
-            {
-                Err=FreeBitmappedFont(Partition_p,Font_p->FontData.BitmappedFontData_p);
-                memory_deallocate(Partition_p,Font_p->FontData.BitmappedFontData_p);
-            }
-            else
-            {
-                Err=STGFX_ERROR_INVALID_FONT;
-            }
-            break;
-
-        default:
+    case STGFX_BITMAPPED_FONT:
+        if (Font_p->FontData.BitmappedFontData_p)
+        {
+            Err=FreeBitmappedFont(Partition_p,Font_p->FontData.BitmappedFontData_p);
+            memory_deallocate(Partition_p,Font_p->FontData.BitmappedFontData_p);
+        }
+        else
+        {
             Err=STGFX_ERROR_INVALID_FONT;
-            break;
+        }
+        break;
+
+    default:
+        Err=STGFX_ERROR_INVALID_FONT;
+        break;
     }
 
     if(Font_p->CharMapping.Entries_p)
@@ -298,14 +298,14 @@ ST_ErrorCode_t LoadBitmappedFont(ST_Partition_t* Partition_p,
 
     AlePrint(("\nLoadBitmappedFont(): Allocate memory..."));
     Font_p->Glyph_p = (STGFX_BitmappedGlyph_t*)
-    memory_allocate(Partition_p,
-          NUM_OF_SUPPORTED_CHARS*sizeof(STGFX_BitmappedGlyph_t));
+                      memory_allocate(Partition_p,
+                                      NUM_OF_SUPPORTED_CHARS*sizeof(STGFX_BitmappedGlyph_t));
     if(!Font_p->Glyph_p)
         return ST_ERROR_NO_MEMORY;
     AlePrint(("\nLoadBitmappedFont(): Memory Allocated."));
 
     memset(Font_p->Glyph_p,0,(NUM_OF_SUPPORTED_CHARS*
-                            sizeof(STGFX_BitmappedGlyph_t)));
+                              sizeof(STGFX_BitmappedGlyph_t)));
     Font_p->NumOfGlyphs = NUM_OF_SUPPORTED_CHARS;
 
     TmpPtr = FileBuf_p;
@@ -348,7 +348,7 @@ ST_ErrorCode_t LoadBitmappedFont(ST_Partition_t* Partition_p,
 
             /* note this code will overrun the source buffer if the file has
             fewer valid character entries than it claims */
-            for(i = 0; i<NumOfChars ;i++)
+            for(i = 0; i<NumOfChars ; i++)
             {
                 AlePrint(("\nLoadBitmappedFont(): CHAR number %u.", i));
                 for(;;)
@@ -378,7 +378,7 @@ ST_ErrorCode_t LoadBitmappedFont(ST_Partition_t* Partition_p,
                 {
                     GetString(&TmpPtr,String);
                     if(!strcmp(String,"DWIDTH"))
-                    break;
+                        break;
                 }
                 GetString(&TmpPtr,String);
                 Font_p->Glyph_p[Position].Width = (S32)atoi(String);
@@ -388,7 +388,7 @@ ST_ErrorCode_t LoadBitmappedFont(ST_Partition_t* Partition_p,
                 {
                     GetString(&TmpPtr,String);
                     if(!strcmp(String,"BBX"))
-                    break;
+                        break;
                 }
                 GetString(&TmpPtr,String);
                 Font_p->Glyph_p[Position].BoundingBoxW = (S32)atoi(String);
@@ -399,11 +399,11 @@ ST_ErrorCode_t LoadBitmappedFont(ST_Partition_t* Partition_p,
                 GetString(&TmpPtr,String);
                 Font_p->Glyph_p[Position].BoundingBoxY = (S32)atoi(String);
                 BitmapSize = (S32)(((7+Font_p->Glyph_p[Position].BoundingBoxW)>>3)*
-                             Font_p->Glyph_p[Position].BoundingBoxH);
+                                   Font_p->Glyph_p[Position].BoundingBoxH);
                 if(BitmapSize)
                 {
                     Font_p->Glyph_p[Position].GlyphData_p = (U8*)
-                    memory_allocate(Partition_p, (BitmapSize > 16)?BitmapSize:16);
+                                                            memory_allocate(Partition_p, (BitmapSize > 16)?BitmapSize:16);
                     AlePrint(("\nLoadBitmappedFont(): Memory for Glyph allocated."));
                     if (Font_p->Glyph_p[Position].GlyphData_p)
                     {
@@ -413,11 +413,11 @@ ST_ErrorCode_t LoadBitmappedFont(ST_Partition_t* Partition_p,
                             if(!strcmp(String,"BITMAP")) break;
                             AlePrint(("\nLoadBitmappedFont(): Looking for BITMAP ..."));
                         }
-                        for (j=0;j<Font_p->Glyph_p[Position].BoundingBoxH;j++)
+                        for (j=0; j<Font_p->Glyph_p[Position].BoundingBoxH; j++)
                         {
                             GetString(&TmpPtr,String);
                             StringPos = ((7+Font_p->Glyph_p[Position].BoundingBoxW)>>3);
-                            for(k=0;k<StringPos;k++)
+                            for(k=0; k<StringPos; k++)
                                 Font_p->Glyph_p[Position].GlyphData_p[k + StringPos*j]
                                     = CharToHex(String+k*2);
                         }
@@ -468,7 +468,7 @@ ST_ErrorCode_t FreeBitmappedFont(ST_Partition_t* Partition_p,
 {
     S32 i;
 
-    for (i=0;i<Font_p->NumOfGlyphs;i++)
+    for (i=0; i<Font_p->NumOfGlyphs; i++)
     {
         if(Font_p->Glyph_p[i].GlyphData_p != NULL)
             memory_deallocate(Partition_p, Font_p->Glyph_p[i].GlyphData_p);

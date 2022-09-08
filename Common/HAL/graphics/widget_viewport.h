@@ -1,11 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file widget_viewport.h
  * Declarations for the viewport widget functions. Intended to be included from widget.h. Don't include
  * this file directly.
  *
- * @author: Patrick Beaumont
- * @date: $Date: 2008-07-28 05:05:44$
+ * @author: inx limited
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #ifndef EHS_WIDGETVIEWPORT_H
@@ -56,14 +63,14 @@ EHS_GLOBAL ehs_bool EhsWidgetsetToScreenSize(ehs_sint32 *nScreenWidth, ehs_sint3
  */
 typedef struct
 {
-	ehs_bool bDefaultsChanged;
-	ehs_uint16 nX;
-	ehs_uint16 nY;
-	ehs_uint16 nWidth;
-	ehs_uint16 nHeight;
-	EhsGraphicsColourClass nColour;
-	ehs_bool bHasFrame;
-	ehs_uint16 nZOrder;
+    ehs_bool bDefaultsChanged;
+    ehs_uint16 nX;
+    ehs_uint16 nY;
+    ehs_uint16 nWidth;
+    ehs_uint16 nHeight;
+    EhsGraphicsColourClass nColour;
+    ehs_bool bHasFrame;
+    ehs_uint16 nZOrder;
 } EhsViewportInformation;
 
 /**

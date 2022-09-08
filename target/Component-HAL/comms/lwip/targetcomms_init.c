@@ -1,19 +1,25 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file targetcomms_init.c
  * Initialization/reset/termination code for comms
  *
  * @author: inx limited
- * @version: $Revision: 1238 $
- * @date: $Date$
- * 
- * Copyright (c) inx limited, 2008. All rights reserved.
+ *
  */
 
 /**
  * @page Verification Verification report
- * @section hal_graphics_font
- * @anchor hal_graphics_font
+ * @section targetcomms_init
+ * @anchor targetcomms_init
  * @subsection misra MISRA compliance:
- * test.c demonstrated MISRA compliant on 
+ * test.c demonstrated MISRA compliant on
  * Last modified on $Date:$
  *
  * This file contained no derogations to the MISRA standard.
@@ -42,15 +48,17 @@ EHS_GLOBAL EhsConsoleQueueType EhsTgtConsoleOutputQueue;
 /*****************************************************************************/
 /* Function definitions */
 
-/** 
+/**
  * Perform necessary Operating system setup upon system initialisation
  */
 void EhsTCommsSys_init(void)
 {
-	EhsTgtConsoleInputQueueRef = &EhsTgtConsoleInputQueue;
-	EhsTgtConsoleOutputQueueRef = &EhsTgtConsoleOutputQueue;
-	EhsConsoleQueue_reset(EhsTgtConsoleInputQueueRef);
-	EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
+#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    EhsTgtConsoleInputQueueRef = &EhsTgtConsoleInputQueue;
+    EhsTgtConsoleOutputQueueRef = &EhsTgtConsoleOutputQueue;
+    EhsConsoleQueue_reset(EhsTgtConsoleInputQueueRef);
+    EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
+#endif
 }
 
 /**

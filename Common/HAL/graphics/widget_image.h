@@ -1,12 +1,18 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file widget_image.h
  * Declarations for the textbox widget functions. Intended to be included from widget.h
  * Don't include this file directly.
  *
  * @author: inx limited
- * @version: $Revision: 4412 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 /**
@@ -57,22 +63,24 @@ typedef enum { EHS_WIDGET_IMAGE_FORMAT_UNKNOWN, EHS_WIDGET_IMAGE_FORMAT_GIF, EHS
  * class using the EHS_WIDGET_IMAGE(pWidget)
  * macro
  */
-typedef struct {
-	ehs_uint8 nOrigImageAlpha; /**< Original opacity value for the image */
-	ehs_uint8 nCurrentImageAlpha; /**< Current opacity value for the image */
-	EhsWidgetImageFormatEnum eImageFormat; /**< Determines the image format held within this structure */
-	ehs_char* szFilename;		/**< Filename for this image */
-	ehs_char* szBackupFilename;		/**< Filename for backup image if this image fails to load */
-	ehs_bool bDynamicFilename; /* flag indicating that filename is to be loaded at runtime */
-	ehs_bool bLoadImageFromAppDir;		/** load file at runtime from app dir instead of user dir */
-	/*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eImageFormat shows which union member to use */
-	union {
-		EhsWidgetImageGifSubclass gif;
-		EhsWidgetImagePngSubclass png;
-		EhsWidgetImageJpgSubclass jpg;
-		EhsWidgetImageSvgSubclass svg;
-	} specificImageSrcType;
-	/*lint +e960 */
+typedef struct
+{
+    ehs_uint8 nOrigImageAlpha; /**< Original opacity value for the image */
+    ehs_uint8 nCurrentImageAlpha; /**< Current opacity value for the image */
+    EhsWidgetImageFormatEnum eImageFormat; /**< Determines the image format held within this structure */
+    ehs_char* szFilename;		/**< Filename for this image */
+    ehs_char* szBackupFilename;		/**< Filename for backup image if this image fails to load */
+    ehs_bool bDynamicFilename; /* flag indicating that filename is to be loaded at runtime */
+    ehs_bool bLoadImageFromAppDir;		/** load file at runtime from app dir instead of user dir */
+    /*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eImageFormat shows which union member to use */
+    union
+    {
+        EhsWidgetImageGifSubclass gif;
+        EhsWidgetImagePngSubclass png;
+        EhsWidgetImageJpgSubclass jpg;
+        EhsWidgetImageSvgSubclass svg;
+    } specificImageSrcType;
+    /*lint +e960 */
 } EhsWidgetImageSubclass;
 
 /*****************************************************************************/

@@ -1,63 +1,57 @@
-#
-# config.mk - Configuration properties of the current platform
-#
-# Called by ../../../Makefile
-#
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
 
+
+# @file config.mk 
+# inxware ERT configuration file for nxp_arm_inx_hri_ehs_debug
 # @author: inx limited
-# @version: $Revision: 43 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
-#
-# Copyright (c) inx limited, 2007. All rights reserved.
-#
-#
-#
 
-################################################################################################################
-# Define the specific variant of the architecture and OS - this selects different component support library sets
-################################################################################################################
-
-# SYSTEM_VARIANT is primarilly for conditional compilation for very specific features
-export SYSTEM_VARIANT=nxp-arm
-
-#COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-export COMPONENT_VARIANT=
-
-# COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
 
 #################################################################################################################
 # Set general architecture and OS version
 #################################################################################################################
 
-
-#export EXCLUDE_EHS_COMMON=1
-export HEATROD_CONTROLLER_PROJECT=1
-
 export EHS_ARCH=arm
-export EHS_OS=nxp
-export EHS_SKIP_GNULIBRARIES=1
-export EHS_COMMS_TASK=tcp_server_common
-export EHS_COMMS_API_SUPPORT=lwip
+export EHS_OS=nxp-redlib-freertos
+#export EHS_SKIP_GNULIBRARIES=1
 
-#export TOOLCHAIN_NAME=nxp-arm
+export TOOLCHAIN_NAME=arm-nxp
+
 export CC_OVERRIDE=arm-none-eabi-gcc
-#export EHS_CLIB_OVERRIDE_PATH=nxp-arm
+
+
+################################################################################################################
+# Configure debug/production levels
+################################################################################################################
+# Set ALL debug use this:
+#todo2022 the following should be in the os_arch? 
+export EHS_DEBUG_TCPIP_CONSOLE ## this and the next need to be tied together
+DEFS += EHS_DEBUG_TCPIP_CONSOLE
+
+################################################################################################################
+# Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
+################################################################################################################
+
+# To enable  IO features "netx" DCC=1)  (e.g. GPIO, ADC.DAC, serial, user inputs etc. set  EHS_PERIPHERAL_DEVICE_SUPPORT )                                          #
+#Select toptional toolboxes
 export EHS_PERIPHERAL_DEVICE_SUPPORT=all
 export EHS_PERIPHERALS_GPIO=yes
-#DEFS += EHS_COMMS_API_SUPPORT=lwip
-#todo2022 - none of theb following should be necessary: 
-DEFS += EHS_LWIP
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
-DEFS += EHS_COMMS_TASK=tcp_server_common
-DEFS += EHS_TARGET_EVENT_MODEL=1
-DEFS += EHS_SKIP_GNULIBRARIES=1
+
+export EHS_MQTT_SUPPORT=lwip
+
+################################### END OF TOOLBOX CONFIGURATION ###################################################
+
 DEFS += INX_HEATROD_IOT_BOARD_VARIANT=INX_HR_HRi
 DEFS += CONFIG_MQTT_LOCATION=CONFIG_MQTT_LOCATION_INX
 DEFS += CONFIG_LIFESTYLE=INX_LIFESTYLE_EHS
-INCLUDE_DIRECTORIES += $(EHS_COMMON_HAL_PATH)/include
-INCLUDE_DIRECTORIES += $(EHS_COMMON_KERNEL_PATH)
-INCLUDE_DIRECTORIES += $(EHS_COMMON_COMPONENTS_PATH)/core
-INCLUDE_DIRECTORIES += $(EHS_TARGETS_ROOT_PATH)/platform/nxp_arm_inx_hri_ehs_debug
-INCLUDE_DIRECTORIES += $(EHS_TARGETS_ROOT_PATH)/Component-HAL/comms/lwip
-INCLUDE_DIRECTORIES += $(EHS_TARGETS_ROOT_PATH)/Component-HAL/comms/tcp_server_common
+
+#todo2022 rmov th folloing should b don in os-arch
+#export EHS_COMMS_TASK=tcp_server_common
+#export EHS_COMMS_API_SUPPORT=lwip
+

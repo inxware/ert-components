@@ -28,16 +28,17 @@ const char *
 yajl_status_to_string(yajl_status stat)
 {
     const char * statStr = "unknown";
-    switch (stat) {
-        case yajl_status_ok:
-            statStr = "ok, no error";
-            break;
-        case yajl_status_client_canceled:
-            statStr = "client canceled parse";
-            break;
-        case yajl_status_error:
-            statStr = "parse error";
-            break;
+    switch (stat)
+    {
+    case yajl_status_ok:
+        statStr = "ok, no error";
+        break;
+    case yajl_status_client_canceled:
+        statStr = "client canceled parse";
+        break;
+    case yajl_status_error:
+        statStr = "parse error";
+        break;
     }
     return statStr;
 }
@@ -51,12 +52,15 @@ yajl_alloc(const yajl_callbacks * callbacks,
     yajl_alloc_funcs afsBuffer;
 
     /* first order of business is to set up memory allocation routines */
-    if (afs != NULL) {
+    if (afs != NULL)
+    {
         if (afs->malloc == NULL || afs->realloc == NULL || afs->free == NULL)
         {
             return NULL;
         }
-    } else {
+    }
+    else
+    {
         yajl_set_default_alloc_funcs(&afsBuffer);
         afs = &afsBuffer;
     }
@@ -68,7 +72,7 @@ yajl_alloc(const yajl_callbacks * callbacks,
 
     hand->callbacks = callbacks;
     hand->ctx = ctx;
-    hand->lexer = NULL; 
+    hand->lexer = NULL;
     hand->bytesConsumed = 0;
     hand->decodeBuf = yajl_buf_alloc(&(hand->alloc));
     hand->flags	    = 0;
@@ -85,17 +89,18 @@ yajl_config(yajl_handle h, yajl_option opt, ...)
     va_list ap;
     va_start(ap, opt);
 
-    switch(opt) {
-        case yajl_allow_comments:
-        case yajl_dont_validate_strings:
-        case yajl_allow_trailing_garbage:
-        case yajl_allow_multiple_values:
-        case yajl_allow_partial_values:
-            if (va_arg(ap, int)) h->flags |= opt;
-            else h->flags &= ~opt;
-            break;
-        default:
-            rv = 0;
+    switch(opt)
+    {
+    case yajl_allow_comments:
+    case yajl_dont_validate_strings:
+    case yajl_allow_trailing_garbage:
+    case yajl_allow_multiple_values:
+    case yajl_allow_partial_values:
+        if (va_arg(ap, int)) h->flags |= opt;
+        else h->flags &= ~opt;
+        break;
+    default:
+        rv = 0;
     }
     va_end(ap);
 
@@ -107,7 +112,8 @@ yajl_free(yajl_handle handle)
 {
     yajl_bs_free(handle->stateStack);
     yajl_buf_free(handle->decodeBuf);
-    if (handle->lexer) {
+    if (handle->lexer)
+    {
         yajl_lex_free(handle->lexer);
         handle->lexer = NULL;
     }
@@ -121,7 +127,8 @@ yajl_parse(yajl_handle hand, const unsigned char * jsonText,
     yajl_status status;
 
     /* lazy allocation of the lexer */
-    if (hand->lexer == NULL) {
+    if (hand->lexer == NULL)
+    {
         hand->lexer = yajl_lex_alloc(&(hand->alloc),
                                      hand->flags & yajl_allow_comments,
                                      !(hand->flags & yajl_dont_validate_strings));
@@ -141,7 +148,8 @@ yajl_complete_parse(yajl_handle hand)
      * allocating the lexer now is the simplest possible way to handle this
      * case while preserving all the other semantics of the parser
      * (multiple values, partial values, etc). */
-    if (hand->lexer == NULL) {
+    if (hand->lexer == NULL)
+    {
         hand->lexer = yajl_lex_alloc(&(hand->alloc),
                                      hand->flags & yajl_allow_comments,
                                      !(hand->flags & yajl_dont_validate_strings));

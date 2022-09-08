@@ -179,8 +179,8 @@ void mbedtls_dhm_init( mbedtls_dhm_context *ctx );
  * \return         0 if successful, or an MBEDTLS_ERR_DHM_XXX error code
  */
 int mbedtls_dhm_read_params( mbedtls_dhm_context *ctx,
-                     unsigned char **p,
-                     const unsigned char *end );
+                             unsigned char **p,
+                             const unsigned char *end );
 
 /**
  * \brief          Setup and write the ServerKeyExchange parameters
@@ -199,9 +199,9 @@ int mbedtls_dhm_read_params( mbedtls_dhm_context *ctx,
  * \return         0 if successful, or an MBEDTLS_ERR_DHM_XXX error code
  */
 int mbedtls_dhm_make_params( mbedtls_dhm_context *ctx, int x_size,
-                     unsigned char *output, size_t *olen,
-                     int (*f_rng)(void *, unsigned char *, size_t),
-                     void *p_rng );
+                             unsigned char *output, size_t *olen,
+                             int (*f_rng)(void *, unsigned char *, size_t),
+                             void *p_rng );
 
 /**
  * \brief          Import the peer's public value G^Y
@@ -213,7 +213,7 @@ int mbedtls_dhm_make_params( mbedtls_dhm_context *ctx, int x_size,
  * \return         0 if successful, or an MBEDTLS_ERR_DHM_XXX error code
  */
 int mbedtls_dhm_read_public( mbedtls_dhm_context *ctx,
-                     const unsigned char *input, size_t ilen );
+                             const unsigned char *input, size_t ilen );
 
 /**
  * \brief          Create own private value X and export G^X
@@ -228,9 +228,9 @@ int mbedtls_dhm_read_public( mbedtls_dhm_context *ctx,
  * \return         0 if successful, or an MBEDTLS_ERR_DHM_XXX error code
  */
 int mbedtls_dhm_make_public( mbedtls_dhm_context *ctx, int x_size,
-                     unsigned char *output, size_t olen,
-                     int (*f_rng)(void *, unsigned char *, size_t),
-                     void *p_rng );
+                             unsigned char *output, size_t olen,
+                             int (*f_rng)(void *, unsigned char *, size_t),
+                             void *p_rng );
 
 /**
  * \brief          Derive and export the shared secret (G^Y)^X mod P
@@ -251,9 +251,9 @@ int mbedtls_dhm_make_public( mbedtls_dhm_context *ctx, int x_size,
  *                 to always pass a non-NULL f_rng argument.
  */
 int mbedtls_dhm_calc_secret( mbedtls_dhm_context *ctx,
-                     unsigned char *output, size_t output_size, size_t *olen,
-                     int (*f_rng)(void *, unsigned char *, size_t),
-                     void *p_rng );
+                             unsigned char *output, size_t output_size, size_t *olen,
+                             int (*f_rng)(void *, unsigned char *, size_t),
+                             void *p_rng );
 
 /**
  * \brief          Free and clear the components of a DHM key
@@ -275,7 +275,7 @@ void mbedtls_dhm_free( mbedtls_dhm_context *ctx );
  * \return         0 if successful, or a specific DHM or PEM error code
  */
 int mbedtls_dhm_parse_dhm( mbedtls_dhm_context *dhm, const unsigned char *dhmin,
-                   size_t dhminlen );
+                           size_t dhminlen );
 
 #if defined(MBEDTLS_FS_IO)
 /** \ingroup x509_module */

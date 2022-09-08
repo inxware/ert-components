@@ -48,8 +48,10 @@
 #if !defined(MBEDTLS_ARC4_ALT)
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = (unsigned char*)v;
+    while( n-- ) *p++ = 0;
 }
 
 void mbedtls_arc4_init( mbedtls_arc4_context *ctx )
@@ -69,7 +71,7 @@ void mbedtls_arc4_free( mbedtls_arc4_context *ctx )
  * ARC4 key schedule
  */
 void mbedtls_arc4_setup( mbedtls_arc4_context *ctx, const unsigned char *key,
-                 unsigned int keylen )
+                         unsigned int keylen )
 {
     int i, j, a;
     unsigned int k;
@@ -99,7 +101,7 @@ void mbedtls_arc4_setup( mbedtls_arc4_context *ctx, const unsigned char *key,
  * ARC4 cipher function
  */
 int mbedtls_arc4_crypt( mbedtls_arc4_context *ctx, size_t length, const unsigned char *input,
-                unsigned char *output )
+                        unsigned char *output )
 {
     int x, y, a, b;
     size_t i;
@@ -111,14 +113,16 @@ int mbedtls_arc4_crypt( mbedtls_arc4_context *ctx, size_t length, const unsigned
 
     for( i = 0; i < length; i++ )
     {
-        x = ( x + 1 ) & 0xFF; a = m[x];
-        y = ( y + a ) & 0xFF; b = m[y];
+        x = ( x + 1 ) & 0xFF;
+        a = m[x];
+        y = ( y + a ) & 0xFF;
+        b = m[y];
 
         m[x] = (unsigned char) b;
         m[y] = (unsigned char) a;
 
         output[i] = (unsigned char)
-            ( input[i] ^ m[(unsigned char)( a + b )] );
+                    ( input[i] ^ m[(unsigned char)( a + b )] );
     }
 
     ctx->x = x;

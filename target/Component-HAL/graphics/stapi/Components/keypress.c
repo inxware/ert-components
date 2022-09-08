@@ -1,9 +1,11 @@
-/*
- * keypress.c
- *
- *  Created on: 25-Jul-2008
- *      Author: pbeaumont
- */
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
 
 /**
  * @file keypress.c
@@ -13,10 +15,6 @@
  *
  *
  * @author: inx limited
- * @version: $Revision: 1250 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
- *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 
 #include "target.h"
@@ -28,12 +26,7 @@
 
 
 EHS_FB_FUNCTIONS_START(gtk_keypress)
-#ifndef EHRT1
-#define FUNCTION_NAME_ID_HIT "hit"
-#else
-#define FUNCTION_NAME_ID_HIT 0xBD6B
-#endif
-EHS_FB_FUNCTION_ENTRY(FUNCTION_NAME_ID_HIT, gtk_keypress_hit)
+EHS_FB_FUNCTION_ENTRY("hit", 0x00, gtk_keypress_hit)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_GTKX86_KEYPRESS -1 /**< Callback id for keypress event */
@@ -56,7 +49,7 @@ EhsDataflowIntType EhsGtkKbHitChar;
  */
 EHS_FB_IDENTIFY_FUNCTION(gtk_keypress)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(EhsCallbackQueueEntryType);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(EhsCallbackQueueEntryType);
 }
 
 /**
@@ -65,14 +58,14 @@ EHS_FB_IDENTIFY_FUNCTION(gtk_keypress)
  */
 EHS_FB_INIT_FUNCTION(gtk_keypress)
 {
-	EhsCallbackQueueEntryType *pParams = (EhsCallbackQueueEntryType*)EHS_FB_INIT_CONTEXT;
+    EhsCallbackQueueEntryType *pParams = (EhsCallbackQueueEntryType*)EHS_FB_INIT_CONTEXT;
 
-	/* put this item into the keypress callback queue */
-	EhsCallbackQueue_register(&EhsGtkKeypressCallback,
-		EHS_FB_RUN_NAME(gtk_keypress_hit),
-		EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(EHS_FB_GTKX86_KEYPRESS),
-		pParams);
-	return EHS_TRUE; /* initialise always succeeds */
+    /* put this item into the keypress callback queue */
+    EhsCallbackQueue_register(&EhsGtkKeypressCallback,
+                              EHS_FB_RUN_NAME(gtk_keypress_hit),
+                              EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(EHS_FB_GTKX86_KEYPRESS),
+                              pParams);
+    return EHS_TRUE; /* initialise always succeeds */
 }
 
 /**
@@ -84,13 +77,13 @@ EHS_FB_INIT_FUNCTION(gtk_keypress)
  */
 EHS_FB_RUN_FUNCTION(gtk_keypress_hit)
 {
-	if (NCAPSA_nNumOuts > 0)
-	{
-		NCAPSA_nOut(0) = EhsGtkKbHitChar;
-	}
+    if (NCAPSA_nNumOuts > 0)
+    {
+        NCAPSA_nOut(0) = EhsGtkKbHitChar;
+    }
 
-	SetCompletes1((structFuncArg*)&EHS_FB_RUN_CONTEXT);
-	return;
+    SetCompletes1((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+    return;
 }
 
 /**
@@ -100,6 +93,6 @@ EHS_FB_RUN_FUNCTION(gtk_keypress_hit)
  */
 void EhsGtkKbHit(ehs_uint32 nCharacter)
 {
-	EhsGtkKbHitChar = nCharacter;
-	EhsCallbackQueue_execute(&EhsGtkKeypressCallback);
+    EhsGtkKbHitChar = nCharacter;
+    EhsCallbackQueue_execute(&EhsGtkKeypressCallback);
 }

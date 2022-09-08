@@ -1,141 +1,190 @@
 <html>
+
 <head>
-<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
 </head>
 
 <body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">FileSystemDirList1</span>
+      <!--these display in reverse order because they use float:right-->
+      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+    </div>
 
-<!--Name of Component-->
-<h1 class=component>
-FileSystemDirList1
-</h1>
-<!--General Description-->
-<p class=component>
-This component is used to create and remove directories on the host device. A directory is created with the path specified by the parameter Directory when the input event <a href="#[In]create">[In]create</a> is asserted. The path specified by the parameter Directory is overridden by the data input <a href="#[In]path">[In]path</a>. If the directory was successfully created then the input event <a href="#[Out]created">[Out]created</a> is triggered else <a href="#[Out]error">[Out]error</a> is triggered.
-</p>
-<p class=component>
-A directory is removed at the path specified the by parameter Directory when the input event <a href="#[In]remove">[In]remove</a> is asserted. The path specified by the parameter Directory is overridden by the data input <a href="#[In]path">[In]path</a>. If the directory was successfully removed then the input event <a href="#[Out]removed">[Out]removed</a> is triggered else <a href="#[Out]error">[Out]error</a> is triggered. An error is produced if there is no directory at the path specified or if the directory could not be removed. The EmptyOnly parameter is a Boolean value that specifies if the directory must be empty before it can be successfully removed.
-</p>
-<!--Ports - form - short desc: long desc-->
-<h3 class=ports>Ports</h3>
-<ul class=noBullet><li>
-<h6 class=ports>
-[In]
-create:
-<a name="[In]create">
-</h6>
-<p class=ports>Input event, creates the directory.</p>
-  </li><li>
-<h6 class=portsStr>
-[In]
-path:
-<a name="[In]path">
-</h6>
-<p class=ports>Data input, the path of the directory to create or remove.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-created:
-<a name="[Out]created">
-</h6>
-<p class=ports>Output event, triggered when the directory is successfully created.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-error:
-<a name="[Out]error">
-</h6>
-<p class=ports>Output event, triggered when the directory fails to be created.</p>
-  </li><li>
-<h6 class=ports>
-[In]
-remove:
-<a name="[In]remove">
-</h6>
-<p class=ports>Input event, removes the directory.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-removed:
-<a name="[Out]removed">
-</h6>
-<p class=ports>Output event, triggered when the directory is successfully removed.</p>
-  </li><li>
-<h6 class=ports>
-[Out]
-error:
-<a name="[Out]error">
-</h6>
-<p class=ports>Output event, triggered when the directory fails to be removed.</p>
-</li></ul>
-<p>
-<!--
-EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]">[In]</a>, <a href="#[In]dir">[In]dir</a>, <a href="#[Out]">[Out]</a>, <a href="#[Out]name">[Out]name</a>, <a href="#[Out]Valid">[Out]Valid</a>,
--->
-</p>
-<!--Parameters - form - short desc: long desc-->
-<h3 class=parameters>Parameters</h3>
-<ul class=noBullet><li>
-<h6 class=parameters>
-Directory:
-</h6>
-<p class=parameters>
-The path of the directory to create or remove.
-<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
-S,
-</p><h6 class=parameters>Min Value: </h6><p class=parameters>
-Media Directory,
-</p><h6 class=parameters>Max Value: </h6><p class=parameters>
-None,
-</p><h6 class=parameters>Default Value: </h6><p class=parameters>
-None
-</p>
+    <!--General Description-->
+    <p class=component>
+      This component is used to create and remove directories on the host device. A directory is created with the path specified by the parameter Directory when the input event <a href="#[In]create">[In]create</a> is asserted. The path specified by the parameter Directory is overridden by the data input <a href="#[In]path">[In]path</a>. If the directory was successfully created then the input event <a href="#[Out]created">[Out]created</a> is triggered else <a href="#[Out]error">[Out]error</a> is triggered.
+    </p>
+    <p class=component>
+      A directory is removed at the path specified the by parameter Directory when the input event <a href="#[In]remove">[In]remove</a> is asserted. The path specified by the parameter Directory is overridden by the data input <a href="#[In]path">[In]path</a>. If the directory was successfully removed then the input event <a href="#[Out]removed">[Out]removed</a> is triggered else <a href="#[Out]error">[Out]error</a> is triggered. An error is produced if there is no directory at the path specified or if the directory could not be removed. The EmptyOnly parameter is a Boolean value that specifies if the directory must be empty before it can be successfully removed.
+    </p>
+  
+    <!--Parameters - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="parameters" class="toc_span">Parameters</span>
+      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
+      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
+      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
+    </div>
+    <table class="table_params">
+      <tr>
+        <th  style="width:60px;">name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>min.</th>
+        <th>max.</th>
+        <th>description</th>
+      </tr>
+      <tr>
+        <td>Directory</td>
+        <td>S</td>
+        <td>None</td>
+        <td>Media Directory</td>
+        <td>None</td>
+        <td>The path of the directory to create or remove.</td>
+      </tr>
+      <tr>
+        <td>EmptyOnly</td>
+        <td>B</td>
+        <td>1</td>
+        <td>0</td>
+        <td>1</td>
+        <td>Boolean value to indicate whether the directory must be empty before it is removed.</td>
+      </tr>
+    </table>
 
-</li><li>
-<h6 class=parameters>
-EmptyOnly:
-</h6>
-<p class=parameters>
-Boolean value to indicate whether the directory must be empty before it is removed.
-<br /><h6 class=parameters>Data Type: </h6><p class=parameters>
-B,
-</p><h6 class=parameters>Min Value: </h6><p class=parameters>
-0,
-</p><h6 class=parameters>Max Value: </h6><p class=parameters>
-1,
-</p><h6 class=parameters>Default Value: </h6><p class=parameters>
-1
-</p>
+    <!--Ports - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="ports" class="toc_span">Ports</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+    <table class="table">
+      <tr>
+        <th>In Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]create">create</a></td>
+        <td>Input event, creates the directory.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]remove">remove</a></td>
+        <td>Input event, removes the directory.</td>
+      </tr>
+      <tr>
+        <th >Data In</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]path">path</a></td>
+        <td>Data input, the path of the directory to create or remove.</td>
+      </tr>
+      <tr>
+        <th >Data Out</th><th></th>
+      </tr>
+      <tr>
+        <th >Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]created">created</a></td>
+        <td>Output event, triggered when the directory is successfully created.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]error">error</a></td>
+        <td>Output event, triggered when the directory fails to be created.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]removed">removed</a></td>
+        <td>Output event, triggered when the directory is successfully removed.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]error">error</a></td>
+        <td>OOutput event, triggered when the directory fails to be removed.</td>
+      </tr>
+      <tr>
+        <td>inc</td>
+        <td>Asserted if and only if an increment event is received and the count is less than
+          the maximum threshold.</td>
+      </tr>
+    </table>
 
 
-</li></ul>
-<!--State Machine - form - image - example-->
-<h3 class=stateMachine>State Machine</h3>
-<p class=stateMachine>Stateless.</p>
-<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
-<!--profiles - form - list-->
-<h3 class=profiles>Profiles</h3>
-<p class=profiles>All.</p>
-<!--Toolbox-->
-<h3 class=toolbox>Toolbox</h3>
-<p class=toolbox>Core.</p>
-<!--Version-->
-<h3 class=version>Version</h3>
-<p class=version>v2.1.</p>
-<!--Dependencies - form - list-->
-<h3 class=dependencies>Native Dependencies</h3>
-<ul class=dependencies><li class=dependencies>
-<h6 class=dependencies>TDK1.1: </h6>
-<p class=dependencies></p>
-</li></ul>
-<!--Licence Type-->
-<h3 class=licenceType>Licence Type</h3>
-<p class=licenceType>LGPL.</p>
-<!--Component Supplier-->
-<h3 class=supplier>Component Supplier</h3>
-<p class=supplier><a href=http://www.inx-systems.net target=_blank>inx ltd.</a></p>
-</body></html>
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+     <table>
+      <tr class="fsm_row">
+        <td style="width:90px;">
+          <b>State Machine</b>
+        </td>
+        <td  colspan=5>
+         <!-- <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
+          <span class="fsm_blob">state2</span>
+          &otimes;&nbsp;
+          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+          <span class="fsm_blob">state3</span> [doh]&rarr;
+          <span class="fsm_blob">state5</span> -->
+          None
+        </td>
+        <td>
+          <b></b>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Toolbox</b>
+        </td>
+        <td>
+          Core
+        </td>
+        <td class=heading-cell>
+          <b>Version</b>
+        </td>
+        <td>
+          v1.0.
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          MPL2.0
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Minumum DCC</b>
+        </td><td>A0000</td> 
+        <td class=heading-cell>
+          <b>Profiles</b>
+        </td>
+        <td>
+          All.
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+
+</html>

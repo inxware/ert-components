@@ -1,11 +1,17 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /** @file graphics.h
  * Declarations for the general-purpose graphics functions and types.
  *
  * @author: inx limited
- * @version: $Revision: 3626 $
- * @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
  *
- * Copyright (c) inx limited, 2006. All rights reserved.
  */
 #ifndef EHS_GRAPHICS_H
 #define EHS_GRAPHICS_H
@@ -81,23 +87,25 @@ EHS_GLOBAL void EhsTGfxApp_init(void);
 
 
 /* File format handlers */
-typedef enum {
-	EHS_GFXFILETYPE_UNKNOWN = 0,
-	EHS_GFXFILETYPE_PNG     = 1,
-	EHS_GFXFILETYPE_JPG	    = 2,
-	EHS_GFXFILETYPE_GIF		= 3
+typedef enum
+{
+    EHS_GFXFILETYPE_UNKNOWN = 0,
+    EHS_GFXFILETYPE_PNG     = 1,
+    EHS_GFXFILETYPE_JPG	    = 2,
+    EHS_GFXFILETYPE_GIF		= 3
 } EhsGfxFileType ;
 
-typedef enum {
-	EHS_GFXFILEORIENTATION_UNKNOWN     = 0,
-	EHS_GFXFILEORIENTATION_TOPLEFT    = 1,
-	EHS_GFXFILEORIENTATION_TOPRIGHT   = 2,
-	EHS_GFXFILEORIENTATION_BOTLEFT_   = 3,
-	EHS_GFXFILEORIENTATION_BOTRIGHT   = 4,
-	EHS_GFXFILEORIENTATION_LEFTTOP    = 5,
-	EHS_GFXFILEORIENTATION_RIGHTTOP    =6 ,
-	EHS_GFXFILEORIENTATION_LEFTBOT    = 7,
-	EHS_GFXFILEORIENTATION_TIGHTBOT    = 8
+typedef enum
+{
+    EHS_GFXFILEORIENTATION_UNKNOWN     = 0,
+    EHS_GFXFILEORIENTATION_TOPLEFT    = 1,
+    EHS_GFXFILEORIENTATION_TOPRIGHT   = 2,
+    EHS_GFXFILEORIENTATION_BOTLEFT_   = 3,
+    EHS_GFXFILEORIENTATION_BOTRIGHT   = 4,
+    EHS_GFXFILEORIENTATION_LEFTTOP    = 5,
+    EHS_GFXFILEORIENTATION_RIGHTTOP    =6,
+    EHS_GFXFILEORIENTATION_LEFTBOT    = 7,
+    EHS_GFXFILEORIENTATION_TIGHTBOT    = 8
 } EhsGfxFileOrientation;
 
 

@@ -1,7 +1,14 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
 /*
 *  Function prototypes for parseSODL.c
-*
-*
 */
 
 #ifndef _PARSESODL_H
@@ -29,20 +36,20 @@
 
 typedef struct
 {
-	/* struct to hold complete description of SODL text input object...*/
-	/* this may be subject to some change at present...*/
-	
-	/* name and priority */
-	EhsBlockRefType * pBlockRef; /* replaces szObjectName[MAX_OBJ_NAME_LEN]; */
-	//int  nPriority;
-	
-	/* internal state data that may be held by the object...*/
-	
-	unsigned char  nNumFuncs;
-	/* for each runnable function...*/
-	EhsFuncRefType* pFuncRef[MAX_NUM_FUNCS_PER_OBJECT]; /* replaces char szNameFunc */
-	EhsTriggerIdType  nFuncTrigID[MAX_NUM_FUNCS_PER_OBJECT];
-	EhsFunctionInstanceIndexType  nFuncUniqueID[MAX_NUM_FUNCS_PER_OBJECT];	
+    /* struct to hold complete description of SODL text input object...*/
+    /* this may be subject to some change at present...*/
+
+    /* name and priority */
+    EhsBlockRefType * pBlockRef; /* replaces szObjectName[MAX_OBJ_NAME_LEN]; */
+    //int  nPriority;
+
+    /* internal state data that may be held by the object...*/
+
+    unsigned char  nNumFuncs;
+    /* for each runnable function...*/
+    EhsFuncRefType* pFuncRef[MAX_NUM_FUNCS_PER_OBJECT]; /* replaces char szNameFunc */
+    EhsTriggerIdType  nFuncTrigID[MAX_NUM_FUNCS_PER_OBJECT];
+    EhsFunctionInstanceIndexType  nFuncUniqueID[MAX_NUM_FUNCS_PER_OBJECT];
 } EhsKPFuncBlockStruct;
 
 

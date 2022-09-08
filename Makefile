@@ -1,4 +1,13 @@
-#
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
+
+
 # Makefile for ert-components
 #
 #
@@ -114,9 +123,13 @@ $(TARGET_NAME).$(EXE) : $(OBJECTS)
 #	@mkdir -p ./objects_$(TARGET) 
 ifdef EHS_ANDROID
 ifdef EHS_ANDROID_JNI
+#todo remove this if we no longer support JNI meandroid builds or change it to use the staging directory if we do
 	@cp -f $(TARGET_NAME).$(EXE) ./target/os-arch/android_ALL/android-java-project/libs/armeabi/lib$(TARGET_NAME).$(EXE)
 	@echo copied to ./target/os-arch/android_ALL/android-java-project/libs/armeabi/lib$(TARGET_NAME).$(EXE)
 endif
+#	@mkdir -p ../TARGET_TREES/ehs_env-$(TARGET)/ todo - look for paths used in esoteric android targetenv scripts.
+#	@cp -f $(TARGET_NAME).$(EXE) ../TARGET_TREES/ehs_env-$(TARGET)/
+#	@echo copied to ../TARGET_TREES/ehs_env-$(TARGET)/
 else
 	@mkdir -p ../TARGET_TREES/ehs_env-$(TARGET)/bin
 	@cp -f $(TARGET_NAME).$(EXE) ../TARGET_TREES/ehs_env-$(TARGET)/bin/ehs.exe
@@ -149,6 +162,9 @@ help:
 	@echo "*                      - use make targetenv HOST_OS_CONFIG_SCRIPTS_EXTRA=\"XXX-ABCD YYY-EFGH\"  to include additional OS config"
 	@echo "* depend    - Starts a bash script to identify the dependencies."
 	@echo "* "
+	@echo "* all_docker	       - makes ehs_$(TARGET).exe for host or docker enviorment and copied TARGETENV bin as ehs.exe "
+	@echo "* publish_docker_image - Build new docker image and publish it to inxware dockerhub organization"
+	@echo "* target_buildenv      - Start the platform's docker environment shell"
 	@echo "* targetenv_version    - Create a new version number for the target."
 	@echo "* targetenv_cleanall   - Removes ALL data and directories from TARGETENV/."
 	@echo "* targetenv_cleancfg   - Removes all user data from the TARGETENV tree for deployment."
@@ -188,6 +204,8 @@ depend:
 	./makedep.sh $(INC_DIRS)
 prepdeps: chkconfig
 	@./target/envbuildscripts/prepdeps.sh $(TARGET)
+all_docker: chkconfig
+	@./target/envbuildscripts/all_docker.sh $(TARGET)
 targetenv: chkconfig
 	@./target/envbuildscripts/targetenv.sh $(TARGET) 
 targetenv_version: chkconfig
@@ -212,6 +230,12 @@ upload_ehs_via_adb: chkconfig #
 #	@./target/envbuildscripts/devmanserver_syspatch_devman.sh $(DEVMANSERVER)
 toolsenv_update: 
 	@./target/envbuildscripts/toolsenv_update_cdf.sh
+static_analysis: 
+	@./target/envbuildscripts/static_analysis.sh
+publish_docker_image: 
+	@./target/envbuildscripts/publish_docker_image.sh
+target_buildenv: 
+	@./target/envbuildscripts/target_buildenv.sh
 clean:
 	rm $(TARGET_NAME).$(EXE) $(OBJECTS) $(CLEAN_FILES)
 	
