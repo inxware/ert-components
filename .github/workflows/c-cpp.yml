@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        path: ert-components
+        path: testing_ert-components
     - name: Checkout tools repo
       uses: actions/checkout@v3
       with:
@@ -31,22 +31,22 @@ jobs:
         lfs: true
     - name: configure 
       run: | 
-         cd ert-components
+         cd testing_ert-components
          tree -L 4 ../../
          pwd
          ./configure linux_x86_gtk_gst
     - name: make
       run: |
-         cd ert-components
+         cd testing_ert-components
          pwd
          make -j 8
     - name: make targetenv
       run: |
-         cd ert-components
+         cd testing_ert-components
          pwd
          make targetenv
     - name: make distcheck
       run: |
-         cd ert-components
+         cd testing_ert-components
          pwd
          make targetenv_deb
