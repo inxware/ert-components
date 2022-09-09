@@ -39,7 +39,7 @@
 /**
  * Flag to indicate loading of new sodl so that threads MUST be terminated (Owned by app_data.c in the kernel)
  */
-//EHS_GLOBAL ehs_bool* bNewSodlFlagRef;
+EHS_GLOBAL ehs_bool* bNewSodlFlagRef;
 
 /* Component support specific */
 #include "hal_media.h"

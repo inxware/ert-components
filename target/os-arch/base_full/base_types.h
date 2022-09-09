@@ -29,7 +29,7 @@ typedef double			ehs_float; /**< Standard EHS floating point type */
 typedef int			EhsThreadFuncReturnType; /**< Type to return from a thread function */
 
 
-#ifdef EHS_TARGET_CODE
+//#ifdef EHS_TARGET_CODE
 /*
  * Provide a redeclaration of int type to allow casting to target-specific int type
  * without breaking MISRA 2004 rule 6.3: Use of type 'int' outside a typedef
@@ -38,7 +38,7 @@ typedef int			EhsThreadFuncReturnType; /**< Type to return from a thread functio
 typedef int EhsTargetIntType;
 #endif
 
-#endif /* EHS_TARGET_CODE */
+//#endif /* EHS_TARGET_CODE */
 
 
 #define EHS_TRUE	1	/**< allows target-specific boolean types to be used */

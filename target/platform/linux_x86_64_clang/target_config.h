@@ -17,5 +17,4 @@
 #define EHS_TARGET_DEFAULT_ID "(x86/Linux)"
 #include "../base_full/base_config.h"
 
-
 #endif /* TARGET_CONFIG_H */

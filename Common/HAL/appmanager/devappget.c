@@ -461,11 +461,11 @@ ehs_bool start_appget_getapp(const ehs_char * appname, const ehs_char * localnam
             else ObjData->bFreeWhenDone = EHS_TRUE;
             /* Set up download location */
             EhsAppMakeDownloadString(ObjData->szpDownloadDir,ObjData->szAppLocalName);
-
-            //EHSH_LOG_ERROR("ObjData->szAppCanonicalName=[%s]\n",ObjData->szAppCanonicalName);
-            //EHSH_LOG_ERROR("ObjData->szAppLocalName=[%s]\n",ObjData->szAppLocalName);
-            //EHSH_LOG_ERROR("ObjData->szpDownloadDir=[%s]\n",ObjData->szpDownloadDir);
-
+#if 1
+            EHSH_LOG_ERROR("ObjData->szAppCanonicalName=[%s]\n",ObjData->szAppCanonicalName);
+            EHSH_LOG_ERROR("ObjData->szAppLocalName=[%s]\n",ObjData->szAppLocalName);
+            EHSH_LOG_ERROR("ObjData->szpDownloadDir=[%s]\n",ObjData->szpDownloadDir);
+#endif
             /* Start URL get thread to pump data into a buffer */
             EhsHThread_execute( HAL_AppGetRead_data, (void*) ObjData,-95) ;
             /* Start Incremental archive decoder/writer */

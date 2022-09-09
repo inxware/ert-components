@@ -211,8 +211,10 @@ EHS_FB_THREAD_FUNCTION(DevmanInterface_listen4New_thread)
 EHS_FB_RUN_FUNCTION(DevmanInterface_listen4New)
 {
     inx_DevmanInterface_state_type* inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_RUN_CONTEXT;
-    if (inx_DevmanInterface_state->instance_running == EHS_FALSE)
+    if (inx_DevmanInterface_state->instance_running == EHS_FALSE) {
         EHS_FB_START_THREAD(DevmanInterface_listen4New_thread, -90);
+        //EHSH_LOG_INFO("Devman FB Listening socket");
+    }
     else EHSH_LOG_WARNING("Already running listening thread not restarting");
     // Your code here
 }//ICB FUNCTION listen4New MACRO END -- DO NOT ALTER THIS LINE

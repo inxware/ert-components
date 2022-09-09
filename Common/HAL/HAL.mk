@@ -45,15 +45,13 @@ include $(EHS_COMMON_HAL_PATH)/appmanager/appmanager.mk
 #============================================================
 
 ifdef EHS_GUI_SUPPORT
-ifneq ($(EHS_GUI_SUPPORT), none)
-DEFS+=EHS_GUI_SUPPORT 
+ifneq ($(EHS_GUI_SUPPORT), none) 
 include $(EHS_COMMON_HAL_PATH)/graphics/graphics.mk
 endif
 endif
 
 ifdef EHS_WEBKIT_SUPPORT
 ifneq ($(EHS_WEBKIT_SUPPORT), none)
-DEFS+=EHS_WEBKIT_SUPPORT 
 include $(EHS_COMMON_HAL_PATH)/webkit/webkit.mk
 endif
 endif
@@ -83,7 +81,6 @@ endif
 #Networking dependent components support
 #########################################
 ifdef EHS_NETWORKING_SUPPORT
-DEFS+=EHS_NETWORKING_SUPPORT 
 include $(EHS_COMMON_HAL_PATH)/url/url.mk
 endif
 

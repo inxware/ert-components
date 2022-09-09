@@ -27,11 +27,10 @@
 
 include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/deps.mk
 
-#todo2022 - shouldn't these be done in the console.mk file
-#ifdef EHS_DEBUG_TCPIP_CONSOLE
+ifdef EHS_DEBUG_TCPIP_CONSOLE
 OBJECTS+= console_server.$(OBJ)
 OBJECTS += target_console.$(OBJ)
-#endif
+endif
 
 VPATH+=: $(EHS_TARGET_SERVER_PATH)
 

@@ -49,7 +49,7 @@ EHS_FB_FUNCTIONS(string_format8)
 /******************************************************************************/
 /* Declare FormatString8 */
 
-#define EHS_FB_NAME_stringfn_scan8"stringfn_scan8"
+#define EHS_FB_NAME_stringfn_scan8 "stringfn_scan8"
 #define EHS_FB_ID_stringfn_scan8 0xD325
 
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(stringfn_scanf8);

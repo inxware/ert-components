@@ -171,8 +171,9 @@ EHS_FB_RUN_FUNCTION(gui_textdisplay_clear)
     EHS_FB_FINISH(1);
 }
 
-
+#ifdef EHS_RE_INTRODUCE_THREAD_HANDLES 
 EHS_GLOBAL EhsTPThread pLcdThread = NULL;
+#endif
 
 EHS_FB_RUN_FUNCTION(gui_textdisplay_poll)
 {

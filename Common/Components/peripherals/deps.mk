@@ -28,9 +28,10 @@ keypress.h : ehs_fb_types.h callback_queue.h
 
 dtv_remote.$(OBJ) : target.h ehs_fb_types.h dtv_remote2.h globals.h fid.h callback_queue.h keypress.h
 
-gpio_in.$(OBJ) : target.h inx-parameters.h gpio_in.h target_gpio.h
+#note target_gpio.h depndency was dropped because we sometimes use a stubbed version.
+gpio_in.$(OBJ) : target.h inx-parameters.h gpio_in.h 
 
-gpio_out.$(OBJ) : target.h inx-parameters.h gpio_out.h target_gpio.h
+gpio_out.$(OBJ) : target.h inx-parameters.h gpio_out.h 
 
 guileds.$(OBJ) : target.h guileds.h guiparams.h globals.h setCompletes.h app_data.h hal_string.h messages.h
 

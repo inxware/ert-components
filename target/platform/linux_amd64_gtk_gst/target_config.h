@@ -14,10 +14,8 @@
 #define EHS_CONFIG_DISPLAY_HEIGHT 768	/**< Height for the OSD part of the display */
 #define EHS_CONFIG_DISPLAY_WIDTH 1024	/**< Width for the OSD part of the display */
 #define EHS_TARGET_DEFAULT_ID "(x86/Linux/gtk)"
-//#define EHS_DEBUG_TCPIP_CONSOLE
 
 #include "../base_full/base_config.h"
-
 
 
 #endif /* TARGET_CONFIG_H */

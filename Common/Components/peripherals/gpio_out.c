@@ -9,7 +9,11 @@
 #include "target.h"
 #include "inx-parameters.h"
 #include "gpio_out.h"
+#if EHS_PERIPHERALS_GPIO == 0
+#warning "Using Stuubed GPIO"
+#else
 #include "target_gpio.h"
+#endif
 
 EHS_FB_FUNCTIONS_START(gpio_out)
 
@@ -22,6 +26,7 @@ typedef struct
 {
     ehs_sint32 pin_id;
     ehs_bool pin_value;
+    ehs_bool error_state;
 } gpio_out_state_type;
 
 EHS_FB_IDENTIFY_FUNCTION(gpio_out)
@@ -35,8 +40,8 @@ EHS_FB_INIT_FUNCTION(gpio_out)
     gpio_out_state_type* gpio_out_state = (gpio_out_state_type*)EHS_FB_INIT_CONTEXT;
     EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d",&gpio_out_state->pin_id);
     gpio_out_state->pin_value = EHS_FALSE;
-    ehs_bool ret = EhsInitOutputGPIO(gpio_out_state->pin_id);
-    return ret;
+    gpio_out_state->error_state = EhsInitOutputGPIO(gpio_out_state->pin_id);
+    return EHS_TRUE; /* Note we don't want to return an error here as this crashes out the whole of the SODL and we ant to handle errros in the app */
 }
 
 EHS_FB_RUN_FUNCTION(gpio_out_write)

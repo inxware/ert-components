@@ -167,6 +167,10 @@ else
 	fi
 fi
 
+#Check dos2unis is installed first if you want to sleep at night.
+command -v dos2unix || echo "Not got dos2unix please install with sudo apt-get install dos2unix"
+command -v dos2unix || exit
+
 # make sure all files are of unix type
 find $INSTALL_DIR -path $INSTALL_DIR/utils -prune -false -o -type f -print0 | xargs -0 dos2unix --
 

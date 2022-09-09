@@ -229,6 +229,8 @@ typedef struct
     debug_type_byte tMonitorType; /* bitmask for monitor type for this function - see DEBUG_SET_MASK_ */
     EhsFunctionInstanceIndexType *piComp; /**< Index of each start port */
 } EhsTriggerType;
+
+
 /**
  *
  */

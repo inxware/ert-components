@@ -87,9 +87,10 @@ void lcdThreadCancel() //@todo this is targe specific but should go eith the cre
         {
             /*The polling thread has been started so kill it*/
             /* Kill a thread !!! don't use if you can avoid !!! */
+            #ifdef EHS_RE_INTRODUCE_THREAD_HANDLES 
             EhsTPThread_terminate(pLcdThread);
-
-
+            #endif
+            #warning ("LSC thread killing not implemented")
         }
     }
 }

@@ -103,7 +103,7 @@ EHS_FB_FUNCTIONS_END
 
 /* Set up some defaults if a URL file is not found */
 #ifndef EHS_DEVMAN_PLAYERDEFAULTURL_PATH
-#define EHS_DEVMAN_PLAYERDEFAULTURL_PATH	"/cgi-bin/devman_player.cgi"
+// this ss the old version to be killed off: #define EHS_DEVMAN_PLAYERDEFAULTURL_PATH	"/cgi-bin/devman_player.cgi"
 #define EHS_DEVMAN_PLAYERDEFAULTURL_PATH	"/devmanPlayerCGI.php"
 // TODO - change this to /devmanPlayerCGI.php (no cgi-bin/)
 #endif

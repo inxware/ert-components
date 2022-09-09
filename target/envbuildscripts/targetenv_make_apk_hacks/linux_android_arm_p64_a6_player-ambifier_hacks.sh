@@ -6,7 +6,7 @@ export EHS_PRODUCT_NAME="player"
 
 SetupTargetEnv_BinFolder(){
     # do nothing
-    echo "setting up - bin folder for player"
+    echo "setting up - bin folder for player.. nothing to do"
 }
 
 TargetEnvMakeApk_Build(){

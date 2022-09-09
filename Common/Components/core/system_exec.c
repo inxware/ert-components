@@ -137,5 +137,6 @@ EHS_FB_THREAD_FUNCTION(Exec)
  */
 EHS_FB_RUN_FUNCTION(Exec)
 {
+    EHSH_LOG_ERROR(" DELETEME: RUNNING_EXEC");
     EHS_FB_START_THREAD(Exec,-100); // as a default for legacy calls we will execute at -100
 }

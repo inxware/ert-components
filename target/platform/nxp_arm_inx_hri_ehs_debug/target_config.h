@@ -17,7 +17,6 @@
 #define EHS_MAX_WIDGET_INSTANCES 0
 #define EHS_FILE_BUFF_SIZE 256u
 #define EHSL_BUFFSIZE 4092
-#define xEHS_GUI_SUPPORT 1
 #include "../base_full/base_config.h"
 #undef EHS_GUI_SUPPORT
 #endif /* TARGET_CONFIG_H */

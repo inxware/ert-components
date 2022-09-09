@@ -19,47 +19,48 @@
 #ifndef EHS_TARGET_PROCESS_H
 #define EHS_TARGET_PROCESS_H
 
+/* Check we are being included in a way we like! */
 #ifndef EHS_HAL_PROCESS_H
 #error "This file should only be included by hal_process.h"
 #endif
 
-/*****************************************************************************/
-/* Included files */
-//#ifndef EHS_MINGW
+/* OK we do ned to include this here anyway (because we use macros...) into it */
+
 #define _GNU_SOURCE /* Needed for pthread_mutexattr_settype */
 /* check out the GPL situtation of _GNU_SOURCE */
 #ifndef __USE_UNIX98
-#define  __USE_UNIX98
+    #define  __USE_UNIX98
 #endif
 #ifndef _GNU_SOURCE
-#define _GNU_SOURCE
+    #define _GNU_SOURCE
 #endif
 
-//@todo pthread_yield seems t be lost onpthread.h  with the above macros. UNIX98 problem?
 #include <pthread.h>
 
 
-/* define types */
-//#endif
-
-
-/********************************storage class specified for parameter ‘bcmp’*********************************************/
+/******************************** storage class specified for parameter     *********************************************/
 /* Define macros  */
 
 #ifndef EHS_MINGW
-#define EhsTPThread_yield() pthread_yield();	/* Yield thread */
+    #define EhsTPThread_yield() pthread_yield();	/* Yield thread */
 #else
-//#define EhsTPThread_yield() Sleep(0);	/* Yield thread */
-#define EhsTPThread_yield() //don't need this for windows?
+//#define EhsTPThread_yield() Sleep(0);	/* Yield thread? */
+    #define EhsTPThread_yield() //don't need this for windows?
 #endif
 
 /**
- * Lock a mutex to indicate the start of a region where we perform exclusive handling by a thread/process
+ * @brief Lock a mutex to indicate the start of a region where we perform exclusive handling by a thread/process
  *
  * @param[in] pMutexRef Indicates the identity of the mutex we are locking
  */
 //#define EhsTPMutex_lock(pMutexRef) {fprintf(stderr,"lock %x\n",pMutexRef);pthread_mutex_lock((pthread_mutex_t *)pMutexRef);}
 #define EhsTPMutex_lock(pMutexRef) pthread_mutex_lock((pthread_mutex_t *)pMutexRef)
+
+/**
+ * @brief Conditional semaphore broadcase
+ * 
+ */
+#define EhsTPCondition_broadcast(ConditionRef) pthread_cond_broadcast((pthread_cond_t*)ConditionRef)
 
 /**
  * Try Lock a mutex to indicate the start of a region where we perform exclusive handling by a thread/process
@@ -101,16 +102,19 @@ ehs_bool EhsTP_shellExecuteStdout(char* sZstdout,const char * szCmd, int max_buf
 #define EhsTgtProcess_isOrphan(x) (EHS_FALSE)
 
 
-
 /*****************************************************************************/
 /* Define types */
 
-typedef pthread_t EhsTPThread;
+// no we don't need to do this here  typedef pthread_t EhsTPThread;
 
 /**
  * Definition of mutex type
  */
-typedef pthread_mutex_t* EhsTPMutexStruct;
+//pthread_mutex_t* EhsTPMutexStruct;
+/*
+  Defintion of the condition semaphore
+*/
+//pthread_cond_t* EhsTPConditionStruct;
 
 /*****************************************************************************/
 /* Declare global variables */

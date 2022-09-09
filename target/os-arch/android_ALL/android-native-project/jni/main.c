@@ -34,9 +34,10 @@
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
 GLfloat vertices[] = {0,0,0, 0,1,0, 1,0,0, 0,1,0, 1,1,0, 1,0,0,
--1,0,0, 0,0,0, -1,-1,0, -1,-1,0, 0,-1,0, 0,0,0,
-0,0,0, -1,0,0, -1,1,0, 0,0,0, -1,1,0, 0,1,0,
-0,0,0, 1,0,0, 1,-1,0, 0,0,0, 0,-1,0, 1,-1,0};
+                      -1,0,0, 0,0,0, -1,-1,0, -1,-1,0, 0,-1,0, 0,0,0,
+                      0,0,0, -1,0,0, -1,1,0, 0,0,0, -1,1,0, 0,1,0,
+                      0,0,0, 1,0,0, 1,-1,0, 0,0,0, 0,-1,0, 1,-1,0
+                      };
 
 GLfloat texCoord[] = {0,0, 0,1, 1,1, 1,0};
 
@@ -46,7 +47,8 @@ unsigned char blueChar[4];
 
 int textures[4];
 
-struct engine {
+struct engine
+{
     struct android_app* app;
     EGLDisplay display;
     EGLSurface surface;
@@ -56,55 +58,59 @@ struct engine {
 };
 
 
-void generateTextures(int n, int *tex){
+void generateTextures(int n, int *tex)
+{
 
-	redChar[0]=255;
-	greenChar[0]=0;
-	blueChar[0]=0;
-	redChar[1]=0;
-	greenChar[1]=255;
-	blueChar[1]=0;
-	redChar[2]=0;
-	greenChar[2]=0;
-	blueChar[2]=255;
-	redChar[3]=255;
-	greenChar[3]=255;
-	blueChar[3]=0;
+    redChar[0]=255;
+    greenChar[0]=0;
+    blueChar[0]=0;
+    redChar[1]=0;
+    greenChar[1]=255;
+    blueChar[1]=0;
+    redChar[2]=0;
+    greenChar[2]=0;
+    blueChar[2]=255;
+    redChar[3]=255;
+    greenChar[3]=255;
+    blueChar[3]=0;
 
-	char bitmap[64][64][4];
-	char *array = &bitmap[0][0][0];
+    char bitmap[64][64][4];
+    char *array = &bitmap[0][0][0];
 
-	////generate IDs
-	glGenTextures(n, tex);
+    ////generate IDs
+    glGenTextures(n, tex);
 
-	int i = 0;
-	for(i=0; i<n; i++){
+    int i = 0;
+    for(i=0; i<n; i++)
+    {
 
-		///load bitmap into memory
-		int j=0;
-		int k=0;
-		for(j=0; j<64; j++){
-			for(k=0; k<64; k++){
-				  bitmap[j][k][0] = redChar[i];
-				  bitmap[j][k][1] = greenChar[i];
-				  bitmap[j][k][2] = blueChar[i];
-				  bitmap[j][k][3] = 255;
-			}
-		}
+        ///load bitmap into memory
+        int j=0;
+        int k=0;
+        for(j=0; j<64; j++)
+        {
+            for(k=0; k<64; k++)
+            {
+                bitmap[j][k][0] = redChar[i];
+                bitmap[j][k][1] = greenChar[i];
+                bitmap[j][k][2] = blueChar[i];
+                bitmap[j][k][3] = 255;
+            }
+        }
 
-	///bind bitmap
-    glBindTexture(GL_TEXTURE_2D, tex[i]);
+        ///bind bitmap
+        glBindTexture(GL_TEXTURE_2D, tex[i]);
 
-    ///set up texture parameters
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        ///set up texture parameters
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    ///create textures
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64, 64, 0, GL_RGBA, GL_UNSIGNED_BYTE, array);
+        ///create textures
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64, 64, 0, GL_RGBA, GL_UNSIGNED_BYTE, array);
 
-	}
+    }
 }
 /*
 void render(int n, int *tex, GLfloat *texCoordinates, GLfloat *vertexCoordinates){
@@ -126,15 +132,17 @@ void render(int n, int *tex, GLfloat *texCoordinates, GLfloat *vertexCoordinates
 }
 */
 
-static int engine_init_display(struct engine* engine) {
+static int engine_init_display(struct engine* engine)
+{
 
 
-	const EGLint attribs[] = {
-           EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-           EGL_BLUE_SIZE, 8,
-           EGL_GREEN_SIZE, 8,
-           EGL_RED_SIZE, 8,
-           EGL_NONE
+    const EGLint attribs[] =
+    {
+        EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+        EGL_BLUE_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_RED_SIZE, 8,
+        EGL_NONE
     };
 
     EGLint w, h, dummy, format;
@@ -151,7 +159,8 @@ static int engine_init_display(struct engine* engine) {
     surface = eglCreateWindowSurface(display, config, engine->app->window, NULL);
     context = eglCreateContext(display, config, NULL, NULL);
 
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
+    {
         LOGW("Unable to eglMakeCurrent");
         return -1;
     }
@@ -172,38 +181,44 @@ static int engine_init_display(struct engine* engine) {
 
     generateTextures(4, textures);
 
-   return 0;
+    return 0;
 }
 
 
 
-static void engine_draw_frame(struct engine* engine) {
-    if (engine->display == NULL) {
+static void engine_draw_frame(struct engine* engine)
+{
+    if (engine->display == NULL)
+    {
         return;
     }
 
     //render(3, textures, texCoord, vertices);
-	eglSwapBuffers(engine->display, engine->surface);
+    eglSwapBuffers(engine->display, engine->surface);
 }
 
 
 /**
  * Process the next main command.
  */
-static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
+static void engine_handle_cmd(struct android_app* app, int32_t cmd)
+{
     struct engine* engine = (struct engine*)app->userData;
-    switch (cmd) {
-        case APP_CMD_INIT_WINDOW:
-            // The window is being shown, get it ready.
-            if (engine->app->window != NULL) {
-                engine_init_display(engine);
-                engine_draw_frame(engine);
-            }
-            break;
+    switch (cmd)
+    {
+    case APP_CMD_INIT_WINDOW:
+        // The window is being shown, get it ready.
+        if (engine->app->window != NULL)
+        {
+            engine_init_display(engine);
+            engine_draw_frame(engine);
+        }
+        break;
     }
 }
 
-void android_main(struct android_app* state) {
+void android_main(struct android_app* state)
+{
     struct engine engine;
 
     // Make sure glue isn't stripped.
@@ -211,14 +226,15 @@ void android_main(struct android_app* state) {
     EhsTInitFileSystem(state);
 
     memset(&engine, 0, sizeof(engine));
-    state->userData = &engine;
+    (struct engine)state->userData = &engine;
     state->onAppCmd = engine_handle_cmd;
     //state->onInputEvent = engine_handle_input;
     engine.app = state;
 
 
 
-    while (1) {
+    while (1)
+    {
         // Read all pending events.
         int ident;
         int events;
@@ -228,11 +244,13 @@ void android_main(struct android_app* state) {
         // If animating, we loop until all events are read, then continue
         // to draw the next frame of animation.
         while ((ident=ALooper_pollAll(-1, NULL, &events,
-                (void**)&source)) >= 0) {
+                                      (void**)&source)) >= 0)
+        {
             // Process this event.
-            if (source != NULL) {
+            if (source != NULL)
+            {
                 source->process(state, source);
             }
-    	}
+        }
     }
 }

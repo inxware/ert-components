@@ -22,8 +22,7 @@ export EHS_GNU_OS=linux-gnu
 export EHS_GNU_OS_VERSION=-4.4.6
 export CC_OVERRIDE=i686-pc-linux-gnu-gcc
 export KERNEL_VERSION=linux/2.6.35.9
-# EHS Section 
-# ehs is more generic
+# EHS_ARCH and EHS_OS are used more generally in conditional compilation
 export EHS_ARCH=x86
 export EHS_OS=linux
 
@@ -40,7 +39,7 @@ ifdef EHS_DEBUGALL
 # Or enable only stdout & serial console logging
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
 DEFS += EHS_DEBUG_AV
-export EHS_DEBUG=yes
+export EHS_DEBUGALL=yes
 endif
 
 ################################################################################################################

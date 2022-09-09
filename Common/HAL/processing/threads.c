@@ -16,7 +16,7 @@
  * It simply calls the target specific function EhsHThread_execute()
  * */
 
-EHS_GLOBAL EhsTPThread EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority)
+EHS_GLOBAL ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority)
 {
     return EhsHThread_execute((EhsGeneralThreadFuncType)pfRun, (void *) context,priority) ;
 }

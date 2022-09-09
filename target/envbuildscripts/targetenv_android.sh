@@ -1,13 +1,21 @@
 #!/bin/bash
 
+# This script does the following:
+# 1. Creates the TARGET_TREES staging directory
+# 2. Deletes anything that was in it if was there before.
+# 3. Checks if a plugin only build - if it is -> exits nicely and do no more
+# 4. Creates an android studio project in the staging directory just created.
+# 5. Creates a Devman syspatch directory with the Devman syspatch style installer scripts copied in.
+# 6. 
+
 export SPECIFIC_TARGET=$1
 export EHS_ROOT=`pwd` # assuming we're in the ehs project root
 pushd ${EHS_ROOT}/..
 export REPOSITORY_ROOT=`pwd`
 popd
-echo ""
-echo "***** targetenv for ANDROID ($SPECIFIC_TARGET) *****"
-echo ""
+echo "*************************************************************"
+echo "***** BUild target environment for ANDROID ($SPECIFIC_TARGET)"
+echo "*************************************************************"
 if [ -z "$SPECIFIC_TARGET" ]; then
     echo "SPECIFIC_TARGET is not specified."
     exit 1
@@ -16,7 +24,7 @@ pushd ../TARGET_TREES || exit 1
 TARGET_TREES=$(pwd)
 popd
 if ! [ -d "$TARGET_TREES" ]; then
-    echo "TARGET_TREES directory is not available!"
+    echo "TARGET_TREES directory could not be created"
     exit 1
 fi
 TARGET_PATH=${TARGET_TREES}/ehs_env-${SPECIFIC_TARGET}
@@ -43,11 +51,13 @@ if [ "$EHS_PLUGIN_LIBRARY_BUILD" == "yes" ]; then
         exit 1
     fi
 fi
+
 export ANDROID_STUDIO_ROOT=${TARGET_PATH}/android_studio_project
 if ! [ -d $ANDROID_STUDIO_ROOT ]; then
     echo "Create Android Studio project folder ($ANDROID_STUDIO_ROOT)"
     mkdir ${ANDROID_STUDIO_ROOT}
 fi
+
 if ! [ -d $ANDROID_STUDIO_ROOT ]; then
     echo "Failed to create Android Studio project folder ($ANDROID_STUDIO_ROOT)"
     exit 1
@@ -67,15 +77,20 @@ if ! [ -f "$TARGET_ENV_APK_HACKS" ]; then
 	exit 1
 fi
 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+echo "XXX Running target specific hack file : ${TARGET_ENV_APK_HACKS}"
 source $TARGET_ENV_APK_HACKS
 # run setup targetenv function sourced from the hack file
 SetupTargetEnv
 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-# copy ehs app sourced from the hack file
+# copy ehs app sourced from the hack file 
+# todo2022!! -There should only be one of these but there are lots just to change the path of the app that gets copied. 
+#  - Lets just have one script and set the app path as a config.mk paramters and a default of the brox style home app.
 SetupTargetEnv_CopyEHSTools
 # setup devman url
+# todo2022!! - remove this function too and replace with a config.mk variable for URLs (default to devman.inx-systems.com)
 SetupTargetEnv_Url
 # setup devman certs
+# todo2022!! - remove this function too and replace with a config.mk variable for URLs (default to devman.inx-systems.com)- this should be keyed off the above URL -t will always be correct.
 SetupTargetEnv_Certs
 # setup bin folder
 SetupTargetEnv_BinFolder

@@ -37,7 +37,7 @@ export SYSTEM_VARIANT=windesktop
 ifdef EHS_DEBUGALL
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
 DEFS += EHS_DEBUG_AV
-export EHS_DEBUG=yes
+export EHS_DEBUGALL=yes
 
 endif
 

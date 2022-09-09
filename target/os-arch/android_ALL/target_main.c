@@ -89,7 +89,7 @@ x#endif
 /* Declare macros and local typedefs used by this file */
 
 
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_FILE
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_FILE
 /*****************************************************************************/
 /* Declare prototypes of local functions */
 /*****************************************************************************/
@@ -447,11 +447,11 @@ Ehs_ConsoleCommand_Type process_android_events(struct android_app* state)
             Start of user-defined ALooper identifiers.
              */
         }
-      //  LOGE("EVENTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+     #ifdef EHS_DEBUG_EXTRA
         EHSH_LOG_INFO("state->redrawNeeded  = %d",state->redrawNeeded);
         EHSH_LOG_INFO("state->activityState = %d",state->activityState);
         EHSH_LOG_INFO("state->destroyed     = %d",state->destroyed);
-
+     #endif
         if (state->destroyRequested != 0)
         {
             EHSH_LOG_ERROR("Destroy Requested!!!!!!!!!!!");
@@ -482,7 +482,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
      * (or NULL).
      */
 
-
+//todo2022 - shoule we be falling through here?
     case APP_CMD_INIT_WINDOW:
         EHSH_LOG_INFO("Handling ANDROID COMMAND - APP_CMD_INIT_WINDOW");
         //LOGE("INIT_WINDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");

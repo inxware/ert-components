@@ -37,8 +37,7 @@ revision.h : .PHONY
 timer.h : target.h callback_queue.h
 
 #OBJECTS+= CBUtils.$(OBJ)
-OBJECTS+=   callback_queue.$(OBJ)
-
+OBJECTS+= callback_queue.$(OBJ)
 
 VPATH+=$(EHS_COMMON_EHS_PATH)
 VPATH+=$(EHS_COMMON_KAPI_PATH)
@@ -52,7 +51,9 @@ EHS_DEBUG_TCPIP_CONSOLE=yes
 endif
 
 ifdef  EHS_DEBUG_TCPIP_CONSOLE 
+#This is the only place this DEF should be set so that the conditional build includes all work too.
 DEFS += EHS_DEBUG_TCPIP_CONSOLE
+OBJECTS+= console_queue.$(OBJ)
 endif
 
 #todo2022 - this should go in the comms.mk file

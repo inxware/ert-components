@@ -24,14 +24,14 @@
 #  OBJECTS - list of object files added by this makefile
 #  VPATH - where to look for source code
 
-
+# Set this for any intra-code conditional builds
 DEFS+=EHS_GUI_SUPPORT
+
 INC_DIRS+=: $(EHS_COMMON_TOOLKIT_GUI_PATH)
 #INC_DIRS+=$(EHS_COMMON_TOOLKIT_PNG_PATH)
 VPATH+=: $(EHS_COMMON_TOOLKIT_GUI_PATH)
 
 include $(EHS_COMMON_TOOLKIT_GUI_PATH)/deps.mk
-
 
 OBJECTS += gui_components.$(OBJ) guiparams.$(OBJ) guitextbox2.$(OBJ) guipatch.$(OBJ)
 OBJECTS += gui_image_file.$(OBJ)

@@ -9,7 +9,11 @@
 #include "target.h"
 #include "inx-parameters.h"
 #include "gpio_in.h"
+#if EHS_PERIPHERALS_GPIO == 0
+#warning "Using Stubbed GPIO"
+#else
 #include "target_gpio.h"
+#endif
 
 EHS_FB_FUNCTIONS_START(gpio_in)
 

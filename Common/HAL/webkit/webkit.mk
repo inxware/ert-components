@@ -27,6 +27,8 @@
 
 include $(EHS_COMMON_HAL_PATH)/webkit/deps.mk
 
+# Tell the code we are in business 
+DEFS+=EHS_WEBKIT_SUPPORT 
 
 VPATH+= $(EHS_COMMON_HAL_PATH)/webkit
 

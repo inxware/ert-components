@@ -79,10 +79,12 @@ startdownloader(){
 	$ADB shell 'am start-foreground-service com.utils.downloader/.DownloadService' || exit 1
 }
 
+# What does this do? 
 downloader_cert(){
 	ADDRESS=$1
 	CERT_TYPE=$2
 	CERT_PATH=$3
+	echo "Running adb shell broadcase for address=$ADDRESS (cert type = $CERT_TYPE) to device path $CERT_PATH"
 	$ADB shell "am broadcast -a com.utils.downloader.broadcastreceiver.CERTIFICATE --es 'ip_address' '$ADDRESS' --es '$CERT_TYPE' '$CERT_PATH'" || exit 1
 }
 

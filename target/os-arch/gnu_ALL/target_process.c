@@ -14,7 +14,6 @@
  *
  */
 
-
 /**
  * @page Verification Verification report
  * @section hal_graphics_font
@@ -28,9 +27,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#define EHS_TARGET_CODE /* Ensure header files include target-internal values */
 
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_PROCESS
 
 #include "target.h"
 #include "hal-api.h"
@@ -41,15 +38,25 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #ifndef EHS_MINGW
+    // do we need to undef these?
+    //#define _GNU_SOURCE
+    //#define  __USE_UNIX98
+    #include <sys/resource.h>
+    #ifndef EHS_ANDROID
+        #include <bits/pthreadtypes.h>
+    #endif
+#endif
 
-//#define _GNU_SOURCE
-//#define  __USE_UNIX98
-//#include <pthread.h> //done in this header
-#include <sys/resource.h>
-#ifndef EHS_ANDROID
-#include <bits/pthreadtypes.h>
-#endif
-#endif
+/********************************   Private Types                           *********************************************/
+/* Define types  */
+typedef pthread_t EhsTPThread;
+
+
+/* Ensure header files include target-internal values */
+#define EHS_TARGET_CODE 
+/* Set the Debug level for this module */
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_PROCESS
+
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 
@@ -59,6 +66,10 @@
 
 /*****************************************************************************/
 /* Variables defined with file-scope */
+/* 
+The following are the private scoped allocations of each mutex we are going to use.
+   The public references to these are published in the target_process.h header        
+   */
 
 /**
  * Mutex resource used to control access to the function block inputs and outputs
@@ -72,11 +83,6 @@ EHS_LOCAL pthread_mutex_t EhsL_socketClient;
  * Mutex devman requests
  */
 EHS_LOCAL pthread_mutex_t EhsL_devman_request;
-
-/**
- * Mutex resource used to control access to viewport
- */
-EHS_LOCAL pthread_mutex_t EhsL_viewport;
 
 /**
  * Mutex resource used to control access to memory allocation
@@ -97,49 +103,68 @@ EHS_LOCAL pthread_mutex_t EhsL_consoleInputQueue;
  * Mutex resource used to control access to the event queue
  */
 EHS_LOCAL pthread_mutex_t EhsL_eventQueue;
+/**
+ * Mutex for counting how many application spawned threads are running.
+ */
 EHS_LOCAL pthread_mutex_t EhsLMutex_fb_thread_counter;
+
+/*
+  INtended to be used for various threads??
+  NOT USED!
+*/
+//EHS_LOCAL pthread_mutex_t EhsL_globalTimer;
+
+#ifdef EHS_NETWORKING_SUPPORT
+/**
+ * Mutex resource used to control access to the UrlGet Function Block
+ */
+EHS_LOCAL pthread_mutex_t EhsL_UrlGet;
+#endif
+
+
+#ifdef EHS_GUI_SUPPORT
+/**
+ * Mutex resource used to control access to the GUI Widget table
+ */
 EHS_LOCAL pthread_mutex_t EhsL_widgetTable;
 
-EHS_LOCAL pthread_mutex_t EhsL_globalTimer;
+/**
+ * Mutex resource used to control access to viewport
+ */
+EHS_LOCAL pthread_mutex_t EhsL_viewport;
+#endif
 
-
+#ifdef EHS_DEVMAN_SUPPORT
 /**
  * Mutex resource used to control access to the devman player data
  */
 EHS_LOCAL pthread_mutex_t EhsL_devmanPlayerData;
 
 /**
- * Mutex resource used to control access to the UrlGet Function Block
- */
-EHS_LOCAL pthread_mutex_t EhsL_UrlGet;
-
-
-/**
  * Mutex resource used to control access to shared information in playManager
  */
 EHS_LOCAL pthread_mutex_t EhsL_playManager;
-
 
 /**
  * Mutex resource used to control access to shared information in playManager
  */
 EHS_LOCAL pthread_mutex_t EhsL_devmanMiscBuffers;
+#endif
+
 
 /*****************************************************************************/
 /* Variables defined with global-scope */
 
-/** reference to PID of parent process */
-EHS_GLOBAL pid_t* EhsT_pidParent;
-
-/** reference to PID of TCP/IP process */
-EHS_GLOBAL pid_t* EhsT_pidTcpIp;
-
+/* The following are  pointers to the above mutex variables which are published via the header file */
+/* These are more convenient labels that are used publicly outside of this file                     */
 /**
  * Mutex resource used to control access to the function block inputs and outputs
  */
-EhsTPMutexClass EhsTPMutex_fbIO=NULL;
+EhsTPMutexClass EhsTPMutex_fbIO;
 
-
+/* 
+    Mutes to avoid Socket client double close prevention - Used in function blocks only
+*/
 EhsTPMutexClass EhsTPMutex_socketClient;
 
 /**
@@ -168,19 +193,36 @@ EhsTPMutexClass EhsTPMutex_consoleQueue;
 EhsTPMutexClass EhsTPMutex_consoleInputQueue;
 
 /**
- * Mutex resource used to control access to the event queue
+ * Mutex resource used to control access to the event queue(s)
  */
 EhsTPMutexClass EhsTPMutex_eventQueue;
+
+
+ /**
+ * Mutex for counting how many application spawned threads are running.
+ */
 EhsTPMutexClass EhsTPMutex_fb_thread_counter;
+
+
 EhsTPMutexClass EhsTPMutex_widgetTable;
 
 /*
  * Mutexes for timers
  * Timers might be added in threads
+ * 
+ * NOT USED!
  */
 
-EhsTPMutexClass EhsTPMutex_globalTimer;
+//EhsTPMutexClass EhsTPMutex_globalTimer;
 
+#ifdef EHS_NETWORKING_SUPPORT
+/**
+ * Mutex resource used to control access to the devman player data
+ */
+EhsTPMutexClass EhsTPMutex_UrlGet;
+#endif
+
+#ifdef EHS_DEVMAN_SUPPORT
 /**
  * Mutex resource used to control access to the devman player data
  */
@@ -189,7 +231,7 @@ EhsTPMutexClass EhsTPMutex_devmanPlayerData;
 /**
  * Used for the devman core App interface block
  */
-EhsTPMutexClass  EhsTPMutex_devmanInterface;
+// delete me: EhsTPMutexClass  EhsTPMutex_devmanInterface;
 
 /**
   * Used for the mutexing the DL and UP biffers for devman comms
@@ -197,20 +239,18 @@ EhsTPMutexClass  EhsTPMutex_devmanInterface;
 EhsTPMutexClass  EhsTPMutex_devmanMiscBuffers;
 
 /**
- * Mutex resource used to control access to the devman player data
- */
-EhsTPMutexClass EhsTPMutex_UrlGet;
-
-
-/**
  * Mutex resource used to control access to the playManager shared resources
  */
 EhsTPMutexClass EhsTPMutex_playManager;
 
-/**
- * Mutex system execution
- */
-EhsTPMutexClass EhsTPMutex_devmanPlayerData;
+#endif
+
+/** Reference to PID of parent process */
+EHS_GLOBAL pid_t* EhsT_pidParent;
+
+/** reference to PID of TCP/IP process */
+EHS_GLOBAL pid_t* EhsT_pidTcpIp;
+
 
 /*****************************************************************************/
 /* Function definitions */
@@ -226,113 +266,140 @@ void EhsTargetExit(ehs_uint16 exitCode)
 }
 
 /**
- * Initialise the mutexes
+ * Initialise the mutexes (Call this only once!)
  * @todo move all of the function block threads to their init functions and tear down function when implemented
  */
 EHS_GLOBAL void EhsTPMutex_init(void)
 {
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
-    //pthread_mutexattr_t * attr_address=&attr;
+    /* set up the posix(ish) ,utex type depending in the flavour of the platform toolchain */
 #ifndef EHS_MINGW
     /* Set some fairly safe (minimal deadlock) mutex parameters */
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
-//#ifdef PTHREAD_PRIO_INHERIT
-#ifndef EHS_ANDROID
-    pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-#else
-
-#endif
-//#endif
-
-#else //MINGW
+    #ifndef EHS_ANDROID
+        pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+    #else
+        // Not including priority inheritence for Android
+    #endif
+#else //MINGW supports recursive without the non-portable posic extension NP
     /* Set some fairly safe (minimal deadlock) mutex parameters */
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    //pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-    //attr_address=NULL;
 #endif
-    memset(&EhsL_fbIO,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_fbIO,&attr);
+    /* Note no idea why we used the memsets here - possibly an old platform that needed it, but lets remove for now. */
+    //memset(&EhsL_globalTimer,0,sizeof(pthread_mutex_t));
+    // not used pthread_mutex_init(&EhsL_globalTimer,&attr);
 
-    memset(&EhsL_devman_request,0,sizeof(pthread_mutex_t));
+    EhsTPMutex_fbIO = (EhsTPMutexClass)&EhsL_fbIO; 
+    //memset(&EhsL_fbIO,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_fbIO,&attr);
+    
+    EhsTPMutex_devman_request = (EhsTPMutexClass)&EhsL_devman_request;
+    //memset(&EhsL_devman_request,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_devman_request,&attr);
 
-    memset(&EhsL_viewport,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_viewport,&attr);
-    memset(&EhsL_mem,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_mem,&attr);
-    memset(&EhsL_consoleQueue,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_consoleQueue,&attr);
-    memset(&EhsL_consoleInputQueue,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_consoleInputQueue,&attr);
-    memset(&EhsL_eventQueue,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_eventQueue,&attr);
-    memset(&EhsLMutex_fb_thread_counter,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsLMutex_fb_thread_counter,&attr);
-    memset(&EhsL_widgetTable,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_widgetTable,&attr);
-    memset(&EhsL_devmanMiscBuffers,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_devmanMiscBuffers,&attr);
-    memset(&EhsL_devmanPlayerData,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_devmanPlayerData,&attr);
 
-    memset(&EhsL_playManager,0,sizeof(pthread_mutex_t));
+    EhsTPMutex_mem = (EhsTPMutexClass)&EhsL_mem;
+    //memset(&EhsL_mem,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_mem,&attr);
+    
+    EhsTPMutex_consoleQueue = (EhsTPMutexClass)&EhsL_consoleQueue;
+    //memset(&EhsL_consoleQueue,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_consoleQueue,&attr);
+    
+    EhsTPMutex_consoleInputQueue = (EhsTPMutexClass)&EhsL_consoleInputQueue;
+    //memset(&EhsL_consoleInputQueue,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_consoleInputQueue,&attr);
+    
+    EhsTPMutex_eventQueue = (EhsTPMutexClass)&EhsL_eventQueue;
+    //memset(&EhsL_eventQueue,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_eventQueue,&attr);
+    
+    EhsTPMutex_fb_thread_counter = (EhsTPMutexClass)&EhsLMutex_fb_thread_counter;
+    //memset(&EhsLMutex_fb_thread_counter,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsLMutex_fb_thread_counter,&attr);
+    
+#ifdef EHS_NETWORKING_SUPPORT
+    EhsTPMutex_UrlGet = (EhsTPMutexClass)&EhsL_UrlGet;
+    pthread_mutex_init(&EhsL_UrlGet,&attr);
+#endif
+
+#define EHS_NETWORKING_X_SUPPORT //todo we need to separate the basic and advanced networking at some point - but for now assume all targets have basic
+#ifdef EHS_NETWORKING_X_SUPPORT
+    EhsTPMutex_socketClient = (EhsTPMutexClass)&EhsL_socketClient;
+    pthread_mutex_init(&EhsL_socketClient,&attr);
+#endif
+
+#ifdef EHS_GUI_SUPPORT
+    EhsTPMutex_widgetTable = (EhsTPMutexClass)&EhsL_widgetTable;
+    //memset(&EhsL_widgetTable,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_widgetTable,&attr);
+
+    EhsTPMutex_viewport = (EhsTPMutexClass)&EhsL_viewport;
+    //memset(&EhsL_viewport,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_viewport,&attr);
+#endif
+#ifdef EHS_DEVMAN_SUPPORT
+    EhsTPMutex_devmanPlayerData = (EhsTPMutexClass)&EhsL_devmanPlayerData;
+    //memset(&EhsL_devmanPlayerData,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_devmanPlayerData,&attr);
+    
+    EhsTPMutex_playManager = (EhsTPMutexClass)&EhsL_playManager;
+    //memset(&EhsL_playManager,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_playManager,&attr);
 
-    memset(&EhsL_globalTimer,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_globalTimer,&attr);
-
-    EhsTPMutex_fbIO = (EhsTPMutexClass)&EhsL_fbIO; // @todo all these need to be moved into the function block code
-    EhsTPMutex_devman_request = (EhsTPMutexClass)&EhsL_devman_request;
-    EhsTPMutex_socketClient= (EhsTPMutexClass)&EhsL_socketClient;
-    EhsTPMutex_viewport = (EhsTPMutexClass)&EhsL_viewport;
-    EhsTPMutex_mem = (EhsTPMutexClass)&EhsL_mem;
-    EhsTPMutex_consoleQueue = (EhsTPMutexClass)&EhsL_consoleQueue;
-    EhsTPMutex_consoleInputQueue = (EhsTPMutexClass)&EhsL_consoleInputQueue;
-    EhsTPMutex_eventQueue = (EhsTPMutexClass)&EhsL_eventQueue;
-    EhsTPMutex_fb_thread_counter = (EhsTPMutexClass)&EhsLMutex_fb_thread_counter;
-    EhsTPMutex_widgetTable = (EhsTPMutexClass)&EhsL_widgetTable;
-    EhsTPMutex_devmanPlayerData = (EhsTPMutexClass)&EhsL_devmanPlayerData;
-    EhsTPMutex_devmanMiscBuffers = (EhsTPMutexClass)&EhsL_devmanMiscBuffers;
-    EhsTPMutex_UrlGet = (EhsTPMutexClass)&EhsL_UrlGet;
-    EhsTPMutex_playManager = (EhsTPMutexClass)&EhsL_playManager;
-    EhsTPMutex_globalTimer =(EhsTPMutexClass)&EhsL_globalTimer;
+    EhsTPMutex_devmanMiscBuffers = (EhsTPMutexClass)&EhsL_devmanMiscBuffers; 
+    //memset(&EhsL_devmanMiscBuffers,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_devmanMiscBuffers,&attr);
+#endif
+    // not used: EhsTPMutex_globalTimer =(EhsTPMutexClass)&EhsL_globalTimer;
 
     pthread_mutexattr_destroy(&attr);
 }
 
 /**
- * Shutdown the mutexes/.
+ * Shutdown the mutexes - not actually used/.
  *
  * Trust: Called after mutexes are not being polled
- * @todo most of these should not be here - should move to the component handlers
+ * @todo We should actually check if it's a good idea to do this. We never call this function ....
  */
 void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the teardown compliment to instorage class specified for parameter ‘bcmp’it is implemented.
 {
     if (EhsTPMutex_fbIO) pthread_mutex_destroy((pthread_mutex_t *) EhsTPMutex_fbIO);
-    if (EhsTPMutex_socketClient) pthread_mutex_destroy((pthread_mutex_t *) EhsTPMutex_socketClient);
-    if (EhsTPMutex_viewport) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_viewport);
-    if (EhsTPMutex_mem) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_mem);
-    if (EhsTPMutex_consoleQueue) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_consoleQueue);
-    if (EhsTPMutex_consoleInputQueue) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_consoleInputQueue);
-    if (EhsTPMutex_eventQueue) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_eventQueue);
-    if (EhsTPMutex_fb_thread_counter) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_fb_thread_counter);
-    if (EhsTPMutex_widgetTable) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_widgetTable);
-    if (EhsTPMutex_devmanPlayerData) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_devmanPlayerData);
-    if (EhsTPMutex_UrlGet) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_UrlGet);
-    if (EhsTPMutex_playManager) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_playManager);
     EhsTPMutex_fbIO = NULL;
+
+    if (EhsTPMutex_socketClient) pthread_mutex_destroy((pthread_mutex_t *) EhsTPMutex_socketClient);
     EhsTPMutex_socketClient = NULL;
+
+    if (EhsTPMutex_viewport) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_viewport);
     EhsTPMutex_viewport = NULL;
+    if (EhsTPMutex_mem) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_mem);
     EhsTPMutex_mem = NULL;
+    if (EhsTPMutex_consoleQueue) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_consoleQueue);
     EhsTPMutex_consoleQueue = NULL;
+    if (EhsTPMutex_consoleInputQueue) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_consoleInputQueue);
     EhsTPMutex_consoleInputQueue = NULL;
+    if (EhsTPMutex_eventQueue) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_eventQueue);
     EhsTPMutex_eventQueue = NULL;
+    if (EhsTPMutex_fb_thread_counter) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_fb_thread_counter);
     EhsTPMutex_fb_thread_counter = NULL;
+    if (EhsTPMutex_widgetTable) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_widgetTable);
     EhsTPMutex_widgetTable = NULL;
+
+
+
+#ifdef EHS_DEVMAN_SUPPORT
+    if (EhsTPMutex_devmanPlayerData) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_devmanPlayerData);
     EhsTPMutex_devmanPlayerData = NULL;
-    EhsTPMutex_UrlGet = NULL;
+    if (EhsTPMutex_playManager) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_playManager);
     EhsTPMutex_playManager = NULL;
+    /* Not destroying the core devman monitor */
+#endif
+
+#ifdef EHS_NETWORKING_SUPPORT
+    if (EhsTPMutex_UrlGet) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_UrlGet);
+    EhsTPMutex_UrlGet = NULL; 
+#endif    
 }
 
 
@@ -342,7 +409,7 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
  */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-EHS_GLOBAL EhsTPThread EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_sint16 priority)
+EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_sint16 priority)
 {
     EhsTPThread thread;
     pthread_attr_t tattr_param;
@@ -386,7 +453,8 @@ EHS_GLOBAL EhsTPThread EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* 
     pthread_attr_destroy(&tattr_param);
     switch ( ret )
     {
-    case	0 :
+    case	0 : // this is good
+        break;
     case 	EAGAIN :
         EHSH_LOG_ERROR("ERROR Could not create thread: no resources\n");
         break;
@@ -409,6 +477,32 @@ EHS_GLOBAL void EhsTPThread_exit()
 {
     pthread_exit((void*)&exit_blob);
 }
+
+/* These are for the Devman process that gets some pass throughOS data in a fussy way  */ 
+EHS_LOCAL pthread_mutex_t EhsProcess_mutexDevmanNewMiscDLData = PTHREAD_MUTEX_INITIALIZER ;
+/* Returns a pointer to struct member it is called with */
+ ehs_bool EhsProcessInitMutex(EhsTPMutexClass *reftoMutex) 
+ {
+    if (*reftoMutex == NULL ) {
+        *reftoMutex = (EhsTPMutexClass*)&EhsProcess_mutexDevmanNewMiscDLData;
+    }
+    else {
+        EHSH_LOG_ERROR("Refused to Assig mutexDevmanNewMiscDLData Twice!");
+    }
+ } // note this will provide the same mutex to all callers - only expecting one call at initi time...
+
+
+EHS_LOCAL pthread_cond_t condDevmanNewMiscDLData = PTHREAD_COND_INITIALIZER;
+ ehs_bool EhsProcessInitCond(EhsTPConditionClass * refToCond)
+ { 
+    if (*refToCond == NULL ) {
+        *refToCond = (EhsTPConditionClass*)&EhsProcess_mutexDevmanNewMiscDLData;
+    }
+    else {
+        EHSH_LOG_ERROR("Refised to assigning mutexDevmanNewMiscDLData Twice!");
+    }
+
+ } 
 
 
 /**
@@ -443,7 +537,7 @@ ehs_bool EhsTPThread_ChangeThisPriority(ehs_sint16 priority)
 //#endif
 }
 
-
+#ifdef EHS_RE_INTRODUCE_THREAD_HANDLES
 /* Kill a thread !!! don't use if you can avoid !!! */
 int EhsTPThread_terminate(EhsTPThread  thread)
 {
@@ -453,6 +547,7 @@ int EhsTPThread_terminate(EhsTPThread  thread)
     return 0;/* @todo this needs sorting out for Android - but is not generally used..*/
 #endif
 }
+#endif
 
 /* Does a shell execute, returning stdout ( only up to available size ).
  * @todo - make a version that pumps out more data

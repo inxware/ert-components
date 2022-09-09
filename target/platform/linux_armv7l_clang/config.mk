@@ -18,13 +18,18 @@
 # MUST SET the following for any component config: 
 export EHS_GNU_ARCH=armv7l
 export EHS_GNU_OS=linux-gnu
+#todo2022 Shouldn't the following just be one? 
 export EHS_GNU_OS_VERSION=-clang10ubuntu18
+export EHS_DEBIAN_VERSION=10
 # EHS Section 
 # ehs is more generic
 export EHS_ARCH=arm
 export EHS_OS=linux_clang
 #This is for the idn library version
-export EHS_DEBIAN_VERSION=8
+
+#export TOOLCHAIN_NAME=HOST
+#export CC_OVERRIDE=clang
+#export LINK_OVERRIDE=llvm-ar
 
 ################################################################################################################
 # Configure debug/production levels

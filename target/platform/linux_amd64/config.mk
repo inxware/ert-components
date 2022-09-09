@@ -17,12 +17,19 @@
 
 # MUST SET the following for any component config: 
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
-export EHS_ARCH=amd64
-export EHS_OS=linux
+EHS_ARCH=amd64
+EHS_OS=linux
+
+EHS_GNU_OS_VERSION=-debian-9.4
 
 # TOOLCHAIN_NAME is an optional alternative location to find the toolchain. 
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
-export TOOLCHAIN_NAME=HOST
+TOOLCHAIN_NAME=HOST
+# SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies 
+EHS_HOST_DEBIAN_BUILD=yes
+
+# Note: This is a host build so we don't ned it but will add it in case we fdo have any bits we may build for the target.
+COMPONENT_VARIANT=gtk_gst
 
 ################################################################################################################
 # Configure debug/production levels
@@ -30,27 +37,22 @@ export TOOLCHAIN_NAME=HOST
 #DEBUG OPTIONS
 # Set ALL debug use this:
 EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-# Or use one of the more fine-grained debug congurations
-# Or enable only stdout & serial console logging
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-#enable TCPIP debugger connections (Do not enable for secure production builds)
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
-export EHS_DEBUG=yes
-endif
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
 ################################################################################################################
 
-# Set this to reflect the type of communication task (e.g. tcp_server_common, ...)
-#todo2022 - check disabling Network Support builds (with the EHS_COMMS_TASK enabled -as we gett link errors from mismatched builds here)
-export EHS_NETWORKING_SUPPORT=all
+EHS_NETWORKING_SUPPORT=all
 # To enable full TCPIP networking toolbox ("netx" DCC=3)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                   #
-export EHS_COMPONENT_NETWORKING_SUPPORT=all
+EHS_COMPONENT_NETWORKING_SUPPORT=all
 
 #set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-export EHS_DEVMAN_SUPPORT=all
+EHS_DEVMAN_SUPPORT=all
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-export EHS_DEVMAN_MON_SUPPORT=yes 
+EHS_DEVMAN_MON_SUPPORT=yes 
+
+# Assume these generic devices don't have GPIO (#ifndef in case we use this as a base for other builds)
+ifndef EHS_PERIPHERALS_GPIO
+EHS_PERIPHERALS_GPIO=stubbed
+endif
 ################################### END OF TOOLBOX CONFIGURATION ###################################################

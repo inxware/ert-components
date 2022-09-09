@@ -22,31 +22,11 @@
 
 #include "ehs_types.h"
 #include "globals.h"
-#include "group_table.h"
+//#include "group_table.h"
 #include "trigger_table.h"
 #include "fidt.h"
 
 
-/**
- * Contains the set of groups defined for the current application
- */
-EHS_GLOBAL EhsKEGroupTableClass EhsKEGroupTable;
-
-/*********************************************************************************************/
-/**
- * Defines the set of triggers used throughout the application
- */
-EHS_GLOBAL EhsTriggerTableType EhsTriggerTable;
-
-/**
- * Flag to indicate loading of new sodl so that threads MUST be terminated
- */
-EHS_GLOBAL ehs_bool* bNewSodlFlagRef;
-
-/**
- * Flag to indicate the runtime tables are ready - no port activity untill this is true
- */
-EHS_GLOBAL ehs_bool* bRuntablesReadyRef;
 
 /*********************************************************************************************/
 /* Data transfer table table */
@@ -76,7 +56,15 @@ typedef struct
 #endif /* EHS_TARGET_FP_SUPPORT */
 } EhsDataConnectionTableType;
 
+/**
+ * Flag to indicate loading of new sodl so that threads MUST be terminated
+ */
+EHS_GLOBAL ehs_bool* bNewSodlFlagRef;
 
+/**
+ * Flag to indicate the runtime tables are ready - no port activity untill this is true
+ */
+EHS_GLOBAL ehs_bool* bRuntablesReadyRef;
 
 /* Lower level function for application environment */
 

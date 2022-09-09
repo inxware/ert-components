@@ -90,6 +90,7 @@ CFLAGS+= -g -D_POSIX_C_SOURCE=199309
 # provide support for long long constants
 #CFLAGS+=-std=c99
 CFLAGS+=-std=gnu99
+#CFLAGS+=-std=gnu11
 # show include paths CFLAGS+= -v -x c -E
  
 #Reorganise graphics structure to work with GDK better

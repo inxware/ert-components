@@ -29,7 +29,7 @@
 /* Included files */
 #define EHS_TARGET_CODE /* Ensure header files include target-internal values */
 
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
 
 /* Stuff that should be moved to the a more specific OS specific targetos_init header file*/
 #ifndef EHS_ANDROID

@@ -183,17 +183,17 @@ void EhsTPMutex_term(void)
  * Execute a function from a function block in a separate thread
  */
 
-EHS_GLOBAL EhsTPThread EhsTPThread_execute(EhsThreadFuncType* pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority)
+EHS_GLOBAL ehs_bool EhsTPThread_execute(EhsThreadFuncType* pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority)
 {
     EhsTPThread thread;
     /* cast pfRun to return void* with one arg of void* */
-    pthread_create(&thread,NULL,(void*(*)(void*))pfRun,context);
-    return thread;
+    return (pthread_create(&thread,NULL,(void*(*)(void*))pfRun,context) == 0);
 }
 
+#ifdef EHS_RE_INTRODUCE_THREAD_HANDLES
 /* Kill a thread !!! don't use if you can avoid !!! */
 int EhsTPThread_terminate(EhsTPThread  thread)
 {
     return pthread_cancel(thread);
 }
-
+#endif

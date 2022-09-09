@@ -19,7 +19,7 @@
 
 #define EHS_TARGET_CODE
 
-#define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_NETWORK) /* define before hal_logger.h */
+//#define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_NETWORK) /* define before hal_logger.h */
 #include "hal_logger.h"
 
 #include "target_types.h"
@@ -381,6 +381,7 @@ ehs_uint32 EhsSvcTcp_expandEscapes(ehs_uint8 *pData, ehs_uint32 nSize, ehs_bool 
     return nSize;
 
 }
+
 /**
  * Receive data from the target, then pass it on to EHS
  *

@@ -31,8 +31,12 @@ OBJECTS += target_main.$(OBJ)
 OBJECTS += target_math.$(OBJ) 
 OBJECTS += target_net.$(OBJ) 
 OBJECTS += JNISysInfoInterface.$(OBJ) 
+#todo2023 - do we really want to use the A6 GPIO as a default for all android?
+# we proably want to make this GPIO file A6 specific and have a few options depending on the value of EHS_PERIPHERALS_GPIO
 ifdef EHS_PERIPHERALS_GPIO
+ifneq (EHS_PERIPHERALS_GPIO,stubbed)
 OBJECTS += target_gpio.$(OBJ)
+endif
 endif
 ifndef EHS_ANDROID_JNI
 OBJECTS += android_native_app_glue.$(OBJ)

@@ -44,7 +44,6 @@ export EHS_COMPONENT_NETWORKING_SUPPORT=all
 export EHS_DEVMAN_SUPPORT=all
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 export EHS_DEVMAN_MON_SUPPORT=yes 
-#DEFS += EHS_DEBUG_TCPIP_CONSOLE
 export EHS_MQTT_SUPPORT=greengrass
 
 ################################################################################################################

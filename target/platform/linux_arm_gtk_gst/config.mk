@@ -39,7 +39,7 @@ ifdef EHS_DEBUGALL
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
 DEFS += EHS_DEBUG_AV
 # Set ALL debug use this:
-export EHS_DEBUG=yes
+export EHS_DEBUGALL=yes
 endif
 
 ################################################################################################################

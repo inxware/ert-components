@@ -26,6 +26,7 @@ if ! [ -d "$ANDROID_ROOT" ]; then
     mkdir $ANDROID_ROOT
 fi
 
+#todo2022 - this isn't needed with the docker (or does it detect Java OK in docker and skip it?)
 if ! [ -d "$JDK_PATH" ]; then
     # Download JDK using debian package
     echo "Installing JDK ..."

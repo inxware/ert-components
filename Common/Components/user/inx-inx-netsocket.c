@@ -636,6 +636,7 @@ EHS_FB_RUN_FUNCTION(netSocket_open)
         EhsTPMutex_unlock(EhsTPMutex_fbIO);
         inx_netSocket_state->bIsOpening = EHS_TRUE;
         /* connect to server and start listening for data and start function to send data*/
+        EHSH_LOG_INFO("Opening Socket...");
         EHS_FB_START_THREAD(netSocket_receive,-90);
     }
     /* send nothing here, leave the thread to do so */

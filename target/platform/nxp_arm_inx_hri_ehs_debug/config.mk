@@ -32,7 +32,6 @@ export CC_OVERRIDE=arm-none-eabi-gcc
 # Set ALL debug use this:
 #todo2022 the following should be in the os_arch? 
 export EHS_DEBUG_TCPIP_CONSOLE ## this and the next need to be tied together
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
 
 ################################################################################################################
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)

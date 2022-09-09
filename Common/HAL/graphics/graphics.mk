@@ -35,8 +35,10 @@ ifdef EHS_GRAPHICS_SVG
 include $(EHS_COMMON_HAL_PATH)/graphics/svg/svg.mk
 endif
 
+#tell the code we are in business
+DEFS+=EHS_GUI_SUPPORT
 
-
+#GUI code objects to build and link
 
 OBJECTS+= font.$(OBJ)
 OBJECTS+= graphics.$(OBJ)

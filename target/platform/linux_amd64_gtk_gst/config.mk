@@ -20,24 +20,20 @@
 export EHS_ARCH=amd64
 export EHS_OS=linux
 
+export EHS_GNU_OS_VERSION=-debian-9.4
+
 # TOOLCHAIN_NAME is an optional alternative location to find the toolchain. 
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
 export TOOLCHAIN_NAME=HOST
+# SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies 
+export EHS_HOST_DEBIAN_BUILD=yes
 
 ################################################################################################################
 # Configure debug/production levels
 ################################################################################################################
-# Set ALL debug use this:
 #DEBUG OPTIONS
+# Set ALL debug use this:
 EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-# Or use one of the more fine-grained debug congurations
-# Or enable only stdout & serial console logging
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-#enable TCPIP debugger connections (Do not enable for secure production builds)
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
-export EHS_DEBUG=yes
-endif
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
@@ -62,6 +58,7 @@ export EHS_DEVMAN_MON_SUPPORT=yes
 # libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
 # $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
 export COMPONENT_VARIANT=gtk_gst
+# Note: This is a host build so we don't ned it but will add it in case we fdo have any bits we may build for the target.
 
 # For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms  rather than built in ert-ccontriib-middleware).:
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).

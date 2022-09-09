@@ -140,7 +140,7 @@ SetupTargetEnv(){
 SetupTargetEnv_CopyEHSTools(){
     TOOLS_DIR=${EHS_ROOT}/../apps/
     GetApplicationRepo $TOOLS_DIR
-
+    echo "INFO: copying app from /customer-apps/SimpleSignOn/sso-unity-v1.0.0/export/"
     if [ -d "$TOOLS_DIR" ] && [ -d "$ANDROID_STUDIO_TOOLS_PATH" ]; then
         echo "Coping the Unity signage tools app to the project."
         cp -Rf ${EHS_ROOT}/../apps/customer-apps/SimpleSignOn/sso-unity-v1.0.0/export/* ${ANDROID_STUDIO_TOOLS_PATH} || CancelFailed
@@ -164,6 +164,8 @@ SetupTargetEnv_BinFolder(){
     echo "setting up - bin folder for unity signage"
 }
 
+#todo2022 - we want to untangle the apk signing and the unity build at some point. 
+# - we can have a paramter on config.mk that identifies an signing keys in the DevmanSecurity repo that should be used.
 TargetEnvMakeApk_Build(){
     echo "Building APK for Unity Tellisign"
 

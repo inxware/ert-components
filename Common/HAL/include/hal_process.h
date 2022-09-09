@@ -42,13 +42,22 @@
 /*****************************************************************************/
 /* Define types */
 
-/** Defines the mutex class */
-typedef struct EhsTPMutexStruct* EhsTPMutexClass;
+/** Define a target independent mutexclass prototype: 
+/* EhsTPMutexClass is an opaque pointer to pthread_mutex_t* EhsTPMutexStruct
+*/
+
+typedef struct EhsTPMutexStruct *EhsTPMutexClass;
+
+/* This is a conditional sempahpore - usally posix thread type. also defined as an opaque pointer */
+
+typedef struct EhsTPConditionStruct *EhsTPConditionClass;
 
 /*****************************************************************************/
 /* Declare global variables */
+/* Publish the mutex pointers anaonymously as class variables.
+   only code in the target_process.c file needs to know what is in them.
+*/
 
-/* @todo Move all the mutex handles out of here and add a tear down counterpat for module inits. */
 /**
  * Flag to indicate that EhsTgtInit has completed. This is required so that other threads
  * can see that EHS is now ready to work with them. This must be set to false by the main function.
@@ -149,22 +158,23 @@ typedef EhsThreadFuncReturnType (*EhsGeneralThreadFuncType)(void* context);
 
 #ifndef EHS_SKIP_COMPONENT_ONLY_HAL
 
-EHS_GLOBAL EhsTPThread EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority) ;
+EHS_GLOBAL ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority) ;
 
 /**
  * Execute a function from a function block in a separate thread - generic
  */
-EHS_GLOBAL EhsTPThread EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void * context,ehs_sint16 priority) ;
+EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void * context,ehs_sint16 priority) ;
 EHS_GLOBAL void EhsTPThread_exit();
 #define EhsHThread_yield() EhsTPThread_yield();	// Yield thread
 #define EhsHThread_exit() EhsTPThread_exit();return 0l	//< Value that can be safely used for returning from thread functions
 
+#ifdef EHS_RE_INTRODUCE_THREAD_HANDLES
 /*
  *
  *Shutdown a thread  with what ever terms the thread is configured for - use at your peril!
  */
 int EhsTPThread_terminate(EhsTPThread thread);
-
+#endif
 /*
  * Calling this function chnges the priority of the calling thread (0-100).
  */
@@ -210,6 +220,10 @@ EHS_GLOBAL void EhsTPMutex_init(void);
  */
 void EhsTPMutex_term(void);
 #endif
+
+ ehs_bool EhsProcessInitMutex(EhsTPMutexClass *reftoMutex); // note this will only work once!
+ ehs_bool EhsProcessInitCond(EhsTPConditionClass * refToCond); // note this will only work once!
+
 
 #ifndef EhsTgtProcess_isOrphan
 /**

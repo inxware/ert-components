@@ -24,28 +24,20 @@ export KERNEL_VERSION=#None
 # ehs is more generic and doesn't use special libc magic.
 export EHS_ARCH=x86#
 export EHS_OS=mingw
-#todo2022 - we should have an mingw64 bit version too
 export TOOLCHAIN_NAME=HOST
+export EHS_GNU_ARCH=i586
+export EHS_GNU_OS=mingw32msvc
 
-# SYSTEM_VARIANT optionally indicates specific target environment confgurations.
-# See target/envbuildscripts/targetenv_hacks_*.sh scripts). 
-# SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
-export SYSTEM_VARIANT=windesktop
-
+export TOOLCHAIN_NAME=HOST
 
 ################################################################################################################
 # Configure debug/production levels
 ################################################################################################################
 # Set ALL debug use this:
 # Some debug options
-#EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-# Or use one of the more fine-grained debug congurations
-# Or enable only stdout & serial console logging
+EHS_DEBUGALL=true
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
 DEFS += EHS_DEBUG_AV
-export EHS_DEBUG=yes
-endif
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)

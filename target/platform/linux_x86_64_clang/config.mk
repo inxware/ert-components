@@ -17,37 +17,28 @@
 
 # MUST SET the following for any component config: 
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
+# EHS Section 
+# ehs is more generic
+export EHS_ARCH=x86
+export EHS_OS=linux_clang
+export CC_OVERRIDE=clang
 export EHS_GNU_ARCH=x86_64
 export EHS_GNU_OS=linux-gnu
 export EHS_GNU_OS_VERSION=-clang10ubuntu18#use toolchain clib environment
 export COMPONENT_VARIANT=_aws-iot
 
-# EHS Section 
-# ehs is more generic
-export EHS_ARCH=x86
-export EHS_OS=linux_clang
-
-export CC_OVERRIDE=clang
 export LINK_OVERRIDE=clang
-# - for creating archives.
+export TOOLCHAIN_NAME=HOST
 
 ################################################################################################################
 # Configure debug/production levels
 ################################################################################################################
 # Set ALL debug use this:
 #DEBUG OPTIONS
-#EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-# Or use one of the more fine-grained debug congurations
-# Or enable only stdout & serial console logging
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
-export EHS_DEBUG=yes
-endif
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
+EHS_DEBUGALL=true
 
 ################################################################################################################
-# Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
+# Enable or disable non-component networking support (e.g. socket debugging or Devman or none)
 ################################################################################################################ 
 
 export EHS_NETWORKING_SUPPORT=all

@@ -21,6 +21,7 @@ source ${EHS_ROOT}"/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_ma
 # todo rename CopyEHSTools() to what it actualy does e.g. CopyDefautApp
 #todo2022 can't these function be remved from a config file? we just want paramters not code that will likely get broken in stranger ways...
 SetupTargetEnv_CopyEHSTools(){
+    echo "INFO: copying app from customer-apps/TSA/ambifier-v0.6.0-integrated/export/"
     TOOLS_DIR=${EHS_ROOT}/../apps/
     GetApplicationRepo $TOOLS_DIR
     
@@ -41,6 +42,7 @@ SetupTargetEnv_Certs(){
     cp -f ${CERTS_DIR}/devman-client-crt-key.pem ${ANDROID_STUDIO_DEVMAN_PATH}/certs/devman-client-crt-key.pem || CancelFailed
 }
 
+#todo2022 this can be replaced with a config.mk parameter for a bunch of paths that are copied from one path to another. We can do the clone/pull in prepdeps like we should for apps too.
 SetupTargetEnv_BinFolder(){
     echo "Setting up bin folder for APKs."
     echo "Enter password for 'Ambifier.git' repository."

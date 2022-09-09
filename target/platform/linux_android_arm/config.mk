@@ -38,13 +38,10 @@ export EHS_OS=linux-android
 # Configure debug/production levels
 ################################################################################################################
 
+export EHS_DEBUGALL=yes
 # Or use one of the more fine-grained debug congurations
 # Or enable only stdout & serial console logging
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
-
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
-# Set ALL debug use this:
-export EHS_DEBUG=yes
 
 # There are some #ifdeferies in some general code specific to Android rather than duplicating code 
 export EHS_ANDROID=yes

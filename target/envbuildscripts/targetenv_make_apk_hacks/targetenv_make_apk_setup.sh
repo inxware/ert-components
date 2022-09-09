@@ -15,6 +15,7 @@ SetupTargetEnv(){
     fi    
     if ! [ -d "$REPOSITORY_ANDROID_STUDIO_ROOT" ] ; then
         echo "Android Studio project path must be specified in the hack file."
+        echo "Please set REPOSITORY_ANDROID_STUDIO_ROOT "
         exit 1
     fi
     echo "Copying Android Studio project ($REPOSITORY_ANDROID_STUDIO_ROOT) to $ANDROID_STUDIO_ROOT"

@@ -51,11 +51,15 @@ ifdef EHS_PERIPHERALS_LEDS
 DEFS+= EHS_PERIPHERALS_LEDS
 OBJECTS += guileds.$(OBJ)
 endif
+
 ifdef EHS_PERIPHERALS_GPIO
-	DEFS+= EHS_PERIPHERALS_GPIO
+#$(info  $$EHS_PERIPHERALS_GPIO=[$(EHS_PERIPHERALS_GPIO)])
 #if the hardware doesn't have real GPIO then stubb it if the peripheral toolbox is still needed
 	ifeq ($(EHS_PERIPHERALS_GPIO),stubbed)
 		OBJECTS += gpio_hal_stubb.$(OBJ)
+		DEFS+= EHS_PERIPHERALS_GPIO=0
+	else
+	    DEFS+= EHS_PERIPHERALS_GPIO=1
 	endif
 	OBJECTS += gpio_out.$(OBJ)
 	OBJECTS += gpio_in.$(OBJ)

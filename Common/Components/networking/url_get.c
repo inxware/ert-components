@@ -8,7 +8,7 @@
 ****************************************************************/
 
 
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
 
 
 #include "ehs_fb_types.h"

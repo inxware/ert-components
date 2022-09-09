@@ -72,7 +72,7 @@ ifdef EHS_MQTT_SUPPORT
 	OBJECTS += inx-mqtt_subscribe.$(OBJ)
 endif
 
-#The following should be keyed off the os-arch paramter and exiting "EHS_SPECIFIC_TARGET" (or what vr it is callded.
+#The following should be keyed off the os-arch paramter and exiting "SPECIFIC_TARGET" 
 ifdef EHS_NXP_SUPPORT
 OBJECTS += inx-adc_read.$(OBJ)
 OBJECTS += inx-rtc.$(OBJ)

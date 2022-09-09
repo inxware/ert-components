@@ -1,0 +1,123 @@
+socket = require("socket");
+http = require("socket.http");
+ltn12 = require("ltn12");
+--require("lfs");
+
+DEVMANURL="http://devman.inx-systems.com"
+
+function getPlatform()
+	platformStr = "";
+	platformFile = io.open("../sysdata/platform", "r");
+	if platformFile then
+		platformStr = platformFile:read("*line");
+		platformStr = string.gsub(platformStr, "[ \t\n]*$", "");
+		platformFile:close();
+	else
+		print("Unable to obtain platform");
+	end
+	return platformStr;
+end
+
+function player_main(url, useDevmanCoreUrl, playlistName, track, trackStartTime, playlistIndex, trackDuration,iPingPeriod,nVolume,nMute,nPlayerState,nUserSpaceUsed_MB,nUserSpaceAvailable_MB) 
+	retStr = "";
+	tempUrl = DEVMANURL;
+
+	-- get platform
+	platform = getPlatform();
+	--print("URL=|"..url.."|");
+	-- get url
+	--print("useDevmanCoreUrl="..useDevmanCoreUrl);
+	if (useDevmanCoreUrl>0) then
+		-- print ("Remove URL OK");
+		-- check if server url is set in devman.url otherwise use default
+		devmanUrlFile = io.open("../devman/core/DEVMANURL", "r");
+		if devmanUrlFile then
+			tempUrl = devmanUrlFile:read("*line");
+			devmanUrlFile:close();
+		end
+		--print("Devman core url is "..tempUrl);
+	else
+		tempUrl = url;
+	end
+	--print("tempUrl=|"..tempUrl.."|");
+	-- todo: check it is valid url. For now check for http
+	for validUrl in string.gmatch(tempUrl, "http.*") do
+		DEVMANURL = validUrl;
+	end
+	-- override anythings that's gone wrong with default URL
+	if string.len(DEVMANURL) < 8 then
+		DEVMANURL = "http://devman.inx-systems.com";
+	end
+--print ("DevmanURL="..DEVMANURL);
+	-- get INX device Id
+	INXDEVICEID=""
+	--print ("HWID gimmee");
+	macAddrFile = io.open("../devman/core/HWID_NETIP", "r");
+	if macAddrFile then
+		
+		INXDEVICEID = macAddrFile:read("*line");
+		--print ("HWID="..INXDEVICEID);
+		macAddrFile:close();
+	end
+
+	-- want at least two chars for a valid ID
+	if string.len(INXDEVICEID) < 2 then
+		--print ("Getting New DEVICEID\n");
+		if platform == "linux" then
+			f = io.popen("export LD_LIBRARY_PATH=;ifconfig eth0 | grep HWaddr | awk '{print $5}'");
+			INXDEVICEID = f:read();
+		elseif platform == "win32" then
+			f = io.popen("ipconfig /all");
+			ipf = f:read("*all");
+			for macaddr in string.gmatch(ipf, "Physical Address.*: (.*)%s*Dhcp") do
+				INXDEVICEID = macaddr;
+			end
+		else
+			print("Unknown platform - Cannot obtain INX deviceId");
+		end
+	end
+	
+	date_temp = os.time();
+	sLocalTime = os.date("%Y-%m-%dT%H:%M:%S", date_temp);
+
+	INXDEVICEID = string.gsub(INXDEVICEID, "[ \t\n\r]*$", "");
+	-- print("DEVMANURL="..DEVMANURL.."   INXDEVICEID="..INXDEVICEID);
+	-- send to devman
+	response, code = http.request(DEVMANURL.."/cgi-bin/devman_player.cgi","DeviceID="..INXDEVICEID..
+	"&Group=DEFAULT&DeviceType=DEFAULT"..
+	"&current_track="..track..
+	"&track_start_time="..trackStartTime..
+	"&playlist_name="..playlistName..
+	"&playlist_index="..playlistIndex..
+	"&current_track_duration="..trackDuration..
+	"&ping_period="..iPingPeriod..
+	"&audio_level="..nVolume..
+	"&mute_state="..nMute..
+	"&player_state="..nPlayerState..
+	"&device_space_available="..nUserSpaceAvailable_MB..
+	"&device_space_used="..nUserSpaceUsed_MB..
+	"&local_time="..sLocalTime);
+
+	if ( response ) then
+		--print ("DEVMANPLAYER:"..response.."\n");
+			-- restart ehs
+		if string.find(response, "<Restart/>") then
+			--retStr = "Restart";
+			-- ToDo posix only: This is a cludge and will only restart ehs if running run_ehs.sh
+			-- Need to restart from within ehs using the shutdow flag so things can be shut down in an orderly way (and with WDT if fails)
+			os.execute("../bin/restart.sh");
+		end
+		-- reboot
+		if string.find(response, "<Reboot/>") then
+			os.execute("../bin/reboot.sh");
+		end
+		return response;
+	else
+	   return "";
+	end
+end
+--(url, useDevmanCoreUrl, playlistName, track, trackStartTime, 
+-- playlistIndex, trackDuration,iPingPeriod,nVolume,nMute,nPlayerState,
+-- nUserSpaceUsed_MB,nUserSpaceAvailable_MB)
+player_main("", 0, "", "", -1, -1,-1,-1,-1,0,0,0,0);
+

@@ -18,6 +18,7 @@ SetupTargetEnv_Certs(){
 }
 
 SetupTargetEnv_CopyEHSTools(){
+    echo "INFO: copying app from RetailMusic/RetailAudio-v0.1.0/export/"
     TOOLS_DIR=${EHS_ROOT}/../apps/
     GetApplicationRepo $TOOLS_DIR
     

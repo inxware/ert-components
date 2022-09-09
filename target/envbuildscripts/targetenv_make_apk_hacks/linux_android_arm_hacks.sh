@@ -2,6 +2,9 @@
 set -e
 BUILD_MODE="$1"
 
+echo "DEBUG_BUILD: In linux_android_arm_hacks.sh"
+
+#todo2022 - do we want this here?
 export BUILD_WITHOUT_SUPERVISOR="1"
 
 export REPOSITORY_ANDROID_STUDIO_ROOT="$EHS_ROOT/target/os-arch/android_ALL/android_studio_ehs"
@@ -21,10 +24,16 @@ export EHS_PRODUCT_NAME="ehs" # todo - change product to eRT (needs to be done a
 source ${EHS_ROOT}"/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_make_apk_utils.sh"
 source ${EHS_ROOT}"/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_make_apk_setup.sh"
 
+#This seem to only install the default brix-style home appplication not the target specific apps.
+#todo2022 we should have a single script that downloads the app that is specified in the config.mk rather than hiding config in code in this exotic spot.
+# OK seems to have worked ot this function might not be the function that actually gets calles as there are lots of other hack files with this name..
+#todo 2022 - let 
 SetupTargetEnv_CopyEHSTools(){
+    echo "INFO: copying app from systemapps/Home/export/"
     TOOLS_DIR=${EHS_ROOT}/../apps/
+    #todo2022: I suppose this is yet another way of downloading the app repo, but we should have one way that does it for all target types:
     GetApplicationRepo $TOOLS_DIR
-
+    echo "INFO: Copying from $ANDROID_STUDIO_TOOLS_PATH to "
     if [ -d "$TOOLS_DIR" ] && [ -d "$ANDROID_STUDIO_TOOLS_PATH" ]; then
         echo "Copying the Default eRT home app to the project."
         cp -Rf ${EHS_ROOT}/../apps/systemapps/Home/export/* ${ANDROID_STUDIO_TOOLS_PATH} || CancelFailed
@@ -36,7 +45,7 @@ SetupTargetEnv_CopyEHSTools(){
 
 SetupTargetEnv_Certs(){
     # override with certificates
-    echo "Setup ambifier server certificates"
+    echo "INFO: Setting up ambifier server certificates"
     CERTS_DIR=${EHS_ROOT}/../DevmanSecurity/devman.inx-systems.com
     cp -f ${CERTS_DIR}/devman-ca.crt ${ANDROID_STUDIO_DEVMAN_PATH}/certs/devman-ca.crt || CancelFailed
     cp -f ${CERTS_DIR}/devman-client-crt-key.pem ${ANDROID_STUDIO_DEVMAN_PATH}/certs/devman-client-crt-key.pem || CancelFailed
@@ -49,7 +58,7 @@ SetupTargetEnv_BinFolder(){
 
 #todo - change the targe apk name to ert.apk
 TargetEnvMakeApk_Build(){
-    echo "Building APK for ambifier"
+    echo "Building eRT APK for ambifier"
     $EHS_ROOT/target/envbuildscripts/targetenv_make_apk_hacks/targetenv_make_apk_gradlew_build.sh "$SPECIFIC_TARGET" "$ANDROID_STUDIO_ROOT"
     EHS_APK=${TARGET_PATH}/release/app-release.apk
     cp ${EHS_APK} ${TARGET_PATH}/bin/ehs.apk || CancelFailed

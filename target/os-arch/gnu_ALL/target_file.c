@@ -54,7 +54,7 @@
 #include <unistd.h>
 
 
-#define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_FILE)
+//#define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_FILE)
 
 #include "messages.h"
 #include "hal-api.h"

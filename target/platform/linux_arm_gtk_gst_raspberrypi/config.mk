@@ -49,7 +49,7 @@ ifdef EHS_DEBUGALL
 # Or enable only stdout & serial console logging
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
 DEFS += EHS_DEBUG_AV
-export EHS_DEBUG=yes
+export EHS_DEBUGALL=yes
 endif
 
 ################################################################################################################

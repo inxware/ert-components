@@ -21,6 +21,7 @@
 /* \todo we need to overcome what we should iunclude for globals. ehs_types.h - we are getting recursion */
 
 #include "hal_process.h"
+#include "hal_time.h"
 // We don't include this because it has a dependency on hal.h 
 // #include "hal_file.h"
 /*****************************************************************************/
@@ -85,10 +86,8 @@ typedef struct
     //ehs_char xxxx[20];
     ehs_bool devmanPingFail ;
     time_t devmanLastGoodPing;
-
-    pthread_cond_t condDevmanNewMiscDLData;
-    pthread_mutex_t mutexDevmanNewMiscDLData;
-
+    EhsTPConditionClass condDevmanNewMiscDLData; // some utexes we've decided to store here rather than with the global ones. No idea why... It is a PITA!
+    EhsTPMutexClass mutexDevmanNewMiscDLData; // same for this !!
     Ehs_ConsoleCommand_Type InternallyRequestedCommand;
     ehs_char zDevmanMiscDLDataType[EHS_STRING_LENGTH_MAX];
     ehs_char zDevmanMiscDLData[EHS_STRING_LENGTH_MAX];
@@ -253,8 +252,8 @@ void EhsHMetaSetNewDevmanMiscDLDataNew(ehs_bool val);
 ehs_char* EhsHMetaGetPtrToDevmanMiscDLData();
 ehs_char* EhsHMetaGetPtrToDevmanMiscDLDataType();
 void      EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo);
-pthread_mutex_t * EhsHMetaGetDevmanMiscDLDataMutex();
-pthread_cond_t * EhsHMetaGetDevmanMiscDLDataSemaphor();
+EhsTPMutexClass EhsHMetaGetDevmanMiscDLDataMutex();
+EhsTPConditionClass EhsHMetaGetDevmanMiscDLDataSemaphor();
 void EhsHMetaGetCpyDevmanNewMiscDLData(ehs_char * );
 ehs_char*  EhsHMetaGetDevmanNewMiscDLDataPtr() ;
 /* upload Data */

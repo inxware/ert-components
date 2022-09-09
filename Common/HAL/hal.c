@@ -30,7 +30,7 @@
 /*****************************************************************************/
 /* Included files */
 
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_KERNEL /**< @todo define a special logger id here */
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_KERNEL /**< @todo define a special logger id here */
 #include "hal-api.h"
 
 #include "app_data.h" // Needed for the app meta data structure.
@@ -126,8 +126,8 @@ EhsMetaDataType EhsMetaData=
     .PairedOrganisationIDRequested=0, // was 2 for some reason
     .NewDevmanMiscDLData=EHS_FALSE,
     .NewDevmanMiscULData=EHS_FALSE,
-    .condDevmanNewMiscDLData = PTHREAD_COND_INITIALIZER,
-    .mutexDevmanNewMiscDLData = PTHREAD_MUTEX_INITIALIZER,
+    .condDevmanNewMiscDLData = NULL,// Notes these need to be set 
+    .mutexDevmanNewMiscDLData = NULL,
     .devmanPingFail = EHS_FALSE,
     .devmanLastGoodPing = 0LL
 }; //flag to identify static elements are valid;
@@ -156,6 +156,10 @@ void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir)
     {
         EhsMetaData.DebugOnStart=EHSMETADATA_NODEBUGONSTARTS;
     }
+
+    /* Because we are using Opaque processing handles we need to initialise the handles using the target specific process.. */
+    EhsProcessInitMutex(&EhsMetaData.mutexDevmanNewMiscDLData); // note this will only work once!
+    EhsProcessInitCond(&EhsMetaData.condDevmanNewMiscDLData); // note this will only work once!
 
     /* ToDo this code should be moved to a taret specific cade area */
 #ifdef EHS_MINGW // This method for windows
@@ -560,21 +564,25 @@ EHS_GLOBAL void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     EhsStrcpy(EhsMetaData.zDevmanMiscDLData, zMiscInfo); // * todo - this needs to merge JSON - Ideally not using  JSON library for portability
     EhsStrcpy(EhsMetaData.zDevmanNewMiscDLData, zMiscInfo);
-    pthread_mutex_lock(&EhsMetaData.mutexDevmanNewMiscDLData);
-    pthread_cond_broadcast(&EhsMetaData.condDevmanNewMiscDLData);
-    pthread_mutex_unlock(&EhsMetaData.mutexDevmanNewMiscDLData);
+    if (EhsMetaData.mutexDevmanNewMiscDLData != NULL) {
+        EhsTPMutex_lock(EhsMetaData.mutexDevmanNewMiscDLData);
+        EhsTPCondition_broadcast(EhsMetaData.condDevmanNewMiscDLData);
+        EhsTPMutex_unlock(EhsMetaData.mutexDevmanNewMiscDLData);
+    }
     EhsTPMutex_unlock(EhsTPMutex_devmanMiscBuffers);
 #endif //EHS_DEVMAN_SUPPORT
 }
 
-EHS_GLOBAL pthread_cond_t * EhsHMetaGetDevmanMiscDLDataSemaphor()
+
+
+EHS_GLOBAL EhsTPConditionClass EhsHMetaGetDevmanMiscDLDataSemaphor()
 {
-    return &EhsMetaData.condDevmanNewMiscDLData;
+    return EhsMetaData.condDevmanNewMiscDLData;
 
 }
-EHS_GLOBAL pthread_mutex_t * EhsHMetaGetDevmanMiscDLDataMutex()
+EHS_GLOBAL EhsTPMutexClass EhsHMetaGetDevmanMiscDLDataMutex()
 {
-    return &EhsMetaData.mutexDevmanNewMiscDLData;
+    return EhsMetaData.mutexDevmanNewMiscDLData;
 }
 
 EHS_GLOBAL void EhsHMetaGetCpyDevmanMiscDLData(ehs_char* zMiscInfo)
@@ -645,7 +653,7 @@ EHS_GLOBAL void EhsHMetaGetCpyDevmanMiscULData(ehs_char* zMiscInfo)
 void EhsHGetEHSVersionInfo(EhsMetaDataType * EhsMetaData)
 {
     ehs_FILE* EhsVersionFile;
-    ehs_char temp[256];
+    ehs_char temp[64]; //*todo2022 remove this?
 
     EhsVersionFile = Ehs_SysFopen(EHSVERSIONINFOFILE,"r"); /* if sysdata doesn't exist create in default directory */
     if (!EhsVersionFile)

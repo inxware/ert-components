@@ -10,12 +10,12 @@
 #include "hal_file.h"
 #include "target_file.h"
 
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_FILE
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_FILE
 
 void EhsTInitFileSystem(struct android_app* app)
 {
     // copy over assets
-    LOGE("Init FSOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+   // LOGE("Init FSOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
     //EHSH_LOG_ERROR("XXXXXXXXXXXXXXX EhsTInitFileSystem");
     AAssetManager * mgr = app->activity->assetManager;
     AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
