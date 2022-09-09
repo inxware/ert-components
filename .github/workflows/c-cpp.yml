@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu18.04
+    runs-on: ubuntu-18.04
     container:
       image: inxware/ubuntu18-build-essential
       options: --user root
