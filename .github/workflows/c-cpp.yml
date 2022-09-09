@@ -10,7 +10,6 @@ jobs:
   build:
 
     runs-on: inxware/ubuntu18-build-essential
-
     steps:
     - uses: actions/checkout@v3
       with:
