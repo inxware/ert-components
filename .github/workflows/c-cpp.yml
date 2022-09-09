@@ -9,7 +9,13 @@ on:
 jobs:
   build:
 
-    runs-on: inxware/ubuntu18-build-essential
+    runs-on: ubuntu18.04
+    container:
+      image: inxware/ubuntu18-build-essential
+      options: --user root
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
     steps:
     - uses: actions/checkout@v3
       with:
