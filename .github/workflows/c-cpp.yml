@@ -35,7 +35,6 @@ jobs:
     - name: configure 
       run: | 
          cd ert-components
-         tree -L 4 ../../
          pwd
          ./configure linux_x86_gtk_gst
     - name: make
