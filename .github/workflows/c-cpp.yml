@@ -37,7 +37,7 @@ jobs:
          cd ert-components
          tree -L 4 ../../
          pwd
-         ./configure linux_android_arm
+         ./configure linux_x86_gtk_gst
     - name: make
       run: |
          cd ert-components
