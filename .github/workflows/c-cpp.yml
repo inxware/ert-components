@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-18.04
     container:
-      image: inxware/ubuntu18-build-essential
+      image: inxware/ubuntu22.04-build-essential
       options: --user root
       credentials:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -39,7 +39,7 @@ jobs:
          cd ert-components
          tree -L 4 ../../
          pwd
-         ./configure linux_x86_gtk_gst
+         ./configure linux_android_arm
     - name: make
       run: |
          cd ert-components
