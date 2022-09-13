@@ -32,26 +32,18 @@ jobs:
     - name: configure 
       run: | 
            cd ert-components
-           tree -L 4 ../../
-           pwd
            ./configure linux_amd64
-           ps -eaf
-    - name: make prepsdeps
-      run: |
-           cd ert-components
-           pwd
-           make prepdeps
     - name: make
       run: |
            cd ert-components
            pwd
-           make prepdeps     
+           make -j 8     
     - name: make targetenv
       run: |
            cd ert-components
            pwd
            make targetenv
-    - name: make distcheck
+    - name: make package
       run: |
            cd ert-components
            pwd

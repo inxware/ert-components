@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container:
       image: inxware/ubuntu22.04-build-essential
       options: --user root
@@ -26,12 +26,15 @@ jobs:
         repository: inxware/ert-build-support
         path: ert-build-support
         ref: refs/heads/main
+        lfs: true
     - name: Checkout contrib middleware repo
       uses: actions/checkout@v3
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
         ref: refs/heads/main
+        lfs: true
+
     - name: configure 
       run: | 
          cd ert-components
@@ -47,7 +50,7 @@ jobs:
          cd ert-components
          pwd
          make targetenv
-    - name: make distcheck
+    - name: make package
       run: |
          cd ert-components
          pwd
