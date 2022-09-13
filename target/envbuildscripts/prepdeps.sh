@@ -55,12 +55,12 @@ git lfs env &>/dev/null || sudo apt-get install git-lfs
 
 # Set up some hardwired paramters for the inxware dependency repos
 LOCAL_BASE="../"
-REPOSITORY_BASE="ssh://git@dgithub.com:/inxware/"
+REPOSITORY_BASE="ssh://git@github.com:/inxware"
 #
 # CORE PLATFORM SUPPORT FOR ERT-COMPONENTS & KERNEL BUILD
 #
 EHS_CORE_SUPPORT_DIR="ert-build-support"
-EHS_CORE_SUPPORT_REPO="EHS-build-support.git"
+EHS_CORE_SUPPORT_REPO="ert-build-support.git"
 
 if [ ! -n ${EHS_CLIB_OVERRIDE_PATH} ];then 
 	EHS_CORE_SUPPORT_PATH_FROM_BASE="${EHS_CORE_SUPPORT_DIR}/target_libs/$(EHS_GNU_OS_ARCH)${EHS_SPECIAL_CLIB_EXT}"
@@ -82,7 +82,7 @@ EHS_TOOLCHAIN_LOCAL_PATH="${LOCAL_BASE}/${EHS_TOOLCHAIN_PATH_FROM_BASE}"
 # COMPONENT SUPPORT LIBRARIES FOR PLATFORM
 #
 EHS_COMPONENT_LIB_SUPPORT_DIR="ert-contrib-middleware"
-EHS_COMPOENT_SUPPORT_REPO="comp-lib-support.git"
+EHS_COMPOENT_SUPPORT_REPO="ert-contrib-middleware.git"
 EHS_COMPONENT_SUPPORT_LOCAL_PATH="${LOCAL_BASE}/${EHS_COMPONENT_LIB_SUPPORT_DIR}/"
 EHS_COMPONENT_SUPPORT_SERVER_PATH="${REPOSITORY_BASE}/${EHS_COMPOENT_SUPPORT_REPO}"
 
