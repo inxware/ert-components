@@ -36,7 +36,7 @@ jobs:
       run: | 
          cd ert-components
          pwd
-         ./configure linux_x86_gtk_gst
+         ./configure linux_android_arm
     - name: make
       run: |
          cd ert-components
