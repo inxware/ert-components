@@ -55,7 +55,7 @@ git lfs env &>/dev/null || sudo apt-get install git-lfs
 
 # Set up some hardwired paramters for the inxware dependency repos
 LOCAL_BASE="../"
-REPOSITORY_BASE="ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/"
+REPOSITORY_BASE="ssh://git@dgithub.com:/inxware/"
 #
 # CORE PLATFORM SUPPORT FOR ERT-COMPONENTS & KERNEL BUILD
 #
