@@ -2,14 +2,20 @@ name: build-test-linux_x86_64_clang_gtk
 
 on:
   push:
-    branches: [ main-disable ]
+    branches: [ main ]
   pull_request:
-    branches: [ main-disable ]
+    branches: [ main ]
 
 jobs:
   Using_Pulled_container:
 
     runs-on: ubuntu-22.04
+     container:
+      image: inxware/inx-debian10-clang10
+ #     options: --user root
+ #     credentials:
+ #       username: ${{ secrets.DOCKERHUB_USERNAME }}
+ #       password: ${{ secrets.DOCKERHUB_PASSWORD }}
     steps:
     - uses: actions/checkout@v3
       with:
