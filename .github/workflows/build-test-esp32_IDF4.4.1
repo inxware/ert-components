@@ -1,0 +1,54 @@
+name: build-test-esp32-IDF4.4.1
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Using_Pulled_container:
+
+    runs-on: ubuntu-22.04
+    container:
+      image: inxware/esp32_ubuntu22.04-build-essential
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: ert-components
+
+    - name: Checkout ert-build support repo
+      uses: actions/checkout@v3
+      with:
+        repository: inxware/ert-build-support
+        path: ert-build-support
+        ref: refs/heads/main
+        lfs: true
+
+    - name: Checkout ert-contrib-middleware
+      uses: actions/checkout@v3
+      with:
+        repository: inxware/ert-contrib-middleware
+        path: ert-build-support
+        ref: refs/heads/main
+        lfs: true
+
+    - name: configure
+      run: |
+           cd ert-components
+           ./configure linux_x86_64_clang
+    - name: make
+      run: |
+           cd ert-components
+           pwd
+           make -j 8
+    - name: make targetenv
+      run: |
+           cd ert-components
+           pwd
+           make targetenv
+    - name: make package
+      run: |
+           cd ert-components
+           pwd
+           make targetenv_esp32
