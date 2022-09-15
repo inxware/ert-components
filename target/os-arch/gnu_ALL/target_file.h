@@ -38,6 +38,7 @@
 #include <utime.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <ehs_types.h>
 
 
 /*****************************************************************************/
@@ -145,7 +146,7 @@ struct EhsTDFilesStruct ;
 /*****************************************************************************/
 /* Declare function prototypes  */
 
-
+ehs_bool EhsTgtFilesystem_Init(void);
 
 
 #endif /* EHS_TARGET_FILE_H */

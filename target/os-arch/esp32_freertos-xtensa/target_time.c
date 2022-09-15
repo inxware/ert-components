@@ -1,0 +1,186 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the MPL2.0 license. You should have received a copy of the
+ * MPL2.0 (Mozilla Public License2.0) license with this file. If
+ * not, please visit
+ *	<https://www.mozilla.org/en-US/MPL/2.0/>
+ ***************************************************************/
+
+#include "driver/timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "target_types.h"
+#include "timer.h"
+#include <errno.h>
+
+#define TAG "target_time"
+
+/**
+ * This represents the soonest time that any timer will expire
+ */
+EHS_LOCAL EhsTickType EhsTgtTimerExpiryTime;
+
+#define EHS_ESP32_MAIN_TIMER_GROUP TIMER_GROUP_0
+#define EHS_ESP32_MAIN_TIMER_NUMBER TIMER_0
+
+
+
+
+/* This hould return the counter value in "tick time" */
+EhsTickType EhsTgtTimer_now() 
+{
+    EhsTickType __time; 
+    int ret;
+
+    // ESP_LOGI(TAG, "EhsTgtTimer_now");
+    ret = timer_get_counter_value(EHS_ESP32_MAIN_TIMER_GROUP,
+                               EHS_ESP32_MAIN_TIMER_NUMBER, &__time);
+    
+    if (ret != ESP_OK) {
+        EHSH_LOG_ERROR("timer_get_counter_time_sec failed");
+        ESP_LOGE(TAG, "timer_get_counter_time_sec failed");
+    }
+    
+    return (EhsTickType)(__time);
+}
+
+/**
+ * Initialise the target-specific timer (to be not running)
+ * /todo 2022 - rename this to init it is only called once by the kernel on
+ * init.)
+ */
+static bool IRAM_ATTR EhsEsp32TgtTimer_tick(void *args);
+
+/* Initialise the hardware timer */
+void EhsTgtTimer_reset()
+{
+    ESP_LOGI(TAG, "EhsTgtTimer_reset");
+    // todo2022 we should set this to work at a specific frequency using  APB_CLK
+    // instead of 80 to get to 1uS (or whatever we want the accuracy to be)
+    timer_config_t config =
+    {
+        // Alarm Enable
+        .alarm_en = TIMER_ALARM_EN,
+        // If the counter is enabled it will start incrementing decrementing immediately after calling timer_init()
+        .counter_en = TIMER_PAUSE,
+        // Is interrupt is triggered on timer’s alarm (timer_intr_mode_t)
+        .intr_type = TIMER_INTR_LEVEL,
+        // Does counter increment or decrement (timer_count_dir_t)
+        .counter_dir = TIMER_COUNT_UP,
+        //If counter should auto_reload a specific initial value on the timer’s alarm, or continue incrementing or decrementing.
+        .auto_reload = TIMER_AUTORELOAD_DIS,
+        // Divisor of the incoming 80 MHz (12.5nS) APB_CLK clock. E.g. 80 = 1uS per timer tick
+        .divider = 80
+    };
+
+    ESP_ERROR_CHECK_WITHOUT_ABORT(timer_init(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, &config));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(timer_set_counter_value(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, 0));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(timer_enable_intr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(timer_isr_callback_add(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,EhsEsp32TgtTimer_tick, NULL, 0)); // EhsTgtTimer_tick() - don't sent it any data it already has it
+    ESP_ERROR_CHECK_WITHOUT_ABORT(timer_start(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER));
+    // timer_isr_register(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,
+    // &timer_tg0_isr, NULL, 0, &s_timer_handle);
+    // don't need this if we set initial state to disabled : EhsTgtTimer_clear(); // clear any logical timer values. necessary?
+}
+
+/*
+ * Set the target-specific timer to expire at a specific time.
+ * Upon expiry (or periodically if the target's timing facility
+ * is unsophisticated), call EhsTimer_tick()
+ * This function does not handle the logic of accounting for all the timers in
+ * the queue, it simply sets a ime out to call the next tick, where the expiered
+ * timer objects will be found triggered
+ */
+void EhsTgtTimer_set(EhsTickType tExpiryTime)
+{
+    // todo2022 - this should also set the timeout of the hardware to timer to
+    // give us a call back at the right time.
+    EhsTgtTimerExpiryTime = tExpiryTime;
+    timer_group_set_alarm_value_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,tExpiryTime);
+    // lets not do any of the software versions for this target -
+    // EhsTgtTimerExpiryTime = tExpiryTime;
+}
+
+/**
+ * Stop the target-specific timer from calling EhsTimer_tick(), cancel
+ * any pending events
+ */
+void EhsTgtTimer_clear()
+{
+    EhsTgtTimerExpiryTime = EHS_TICKTYPE_INVALID;
+}
+
+/**
+ * Report expiry time for current timer
+ *
+ * @return the time when the timer will call EhsTimer_tick, or
+ * EHS_TICKTYPE_INVALID if no timer is running
+ */
+EhsTickType EhsTgtTimer_expiry()
+{
+    return EhsTgtTimerExpiryTime;
+}
+
+/**
+ * This must be called by the hardware/OS regularly or when the earliest event
+ * expires by the target hardware/or software emulation.
+ * @returns it *must* return true.
+ */
+static bool IRAM_ATTR EhsEsp32TgtTimer_tick(void *args)
+{
+    // BaseType_t high_task_awoken = pdFALSE;
+    // printf("DEBUG-V: EhsTgtTimer_tick:\n target=%d\t
+    // time=%d\n",EhsTgtTimerExpiryTime,EHS_CURRENT_TIME);
+    // ESP_LOGI(TAG, "DEBUG-V: EhsTgtTimer_tick:\n target=%d\ttime=%d\n",EhsTgtTimerExpiryTime,EHS_CURRENT_TIME);
+    if (EhsTgtTimerExpiryTime != EHS_TICKTYPE_INVALID)
+    {
+        /* we'll (optionall) check it has actually expired before calling for the
+         * event queue to be parsed */
+        // if (EHS_TARGET_TIME_IS_EARLIER(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
+        //{
+        // todo - warning the following will be called from an ISR context? Probably
+        // be OK!
+        EhsTimer_tick();
+        //}
+    }
+    return 0;//(high_task_awoken == pdTRUE);
+}
+
+/**
+ * Sleep the current thread for a specified duration
+ *
+ * @param tSleepTime Time to sleep for in target-specific ticks
+ */
+
+//todo2023 we need to review the efficiency of doing all these divides!
+
+ #define EHS_ESP32_TARGET_vTaskDelay (EHS_TICKS_PER_S/1000) // this works works in milliseconds, so is 1000 system wide "tick" values
+void EhsSleep(EhsTickType tSleepTime)
+{
+   
+    vTaskDelay(tSleepTime/EHS_ESP32_TARGET_vTaskDelay); 
+}
+
+void EhsSleepUs(ehs_uint32 tSleepTime)
+{
+    EhsSleep(EhsTgtTimer_usToTick(tSleepTime));
+}
+
+/**
+ * This is only needed if we've gone for the application polling method.
+ * @returns it *must* return true.
+ */
+ehs_bool EhsTgtTimer_tick()
+{
+        if ((EhsTgtTimerExpiryTime != EHS_TICKTYPE_INVALID) &&
+                EHS_TARGET_TIME_IS_EARLIER(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
+        {
+                EhsTimer_tick();
+        }
+        
+
+        return EHS_TRUE;
+}
+

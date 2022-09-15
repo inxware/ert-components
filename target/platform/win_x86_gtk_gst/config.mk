@@ -15,20 +15,20 @@
 # Set general architecture and OS version 
 #################################################################################################################
 
-#export CLIB_USEHOST
-export EHS_GNU_ARCH=i586## this will pick up the glibc2.9 library
-export EHS_GNU_OS=mingw32msvc## make sure we have no spaces after !!
+#CLIB_USEHOST
+EHS_GNU_ARCH=i586## this will pick up the glibc2.9 library
+EHS_GNU_OS=mingw32msvc## make sure we have no spaces after !!
 #by not defining a toolchain, we leave the toolchain path blank and the mingw_x86 toolchain.mk file selectsthe system installed version of mingw
-export KERNEL_VERSION=#None
+KERNEL_VERSION=#None
 
 # ehs is more generic and doesn't use special libc magic.
-export EHS_ARCH=x86#
-export EHS_OS=mingw
-export TOOLCHAIN_NAME=HOST
-export EHS_GNU_ARCH=i586
-export EHS_GNU_OS=mingw32msvc
+EHS_ARCH=x86#
+EHS_OS=mingw
+TOOLCHAIN_NAME=HOST
+EHS_GNU_ARCH=i586
+EHS_GNU_OS=mingw32msvc
 
-export TOOLCHAIN_NAME=HOST
+TOOLCHAIN_NAME=HOST
 
 ################################################################################################################
 # Configure debug/production levels
@@ -43,13 +43,13 @@ DEFS += EHS_DEBUG_AV
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
 ################################################################################################################
 
-export EHS_NETWORKING_SUPPORT=all# This needs to be enabled for the core EHS - there is a HAL dependency
+EHS_NETWORKING_SUPPORT=all# This needs to be enabled for the core EHS - there is a HAL dependency
 #@todo we need an entry here for the URL components etc.
-export EHS_COMPONENT_NETWORKING_SUPPORT=all
+EHS_COMPONENT_NETWORKING_SUPPORT=all
 #set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-export EHS_DEVMAN_SUPPORT=all#@todo these conditions need to be used for module inclusion instead of just EHS_COMPONENT_NETWORKING_SUPPORT 
+EHS_DEVMAN_SUPPORT=all#@todo these conditions need to be used for module inclusion instead of just EHS_COMPONENT_NETWORKING_SUPPORT 
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-export EHS_DEVMAN_MON_SUPPORT=yes
+EHS_DEVMAN_MON_SUPPORT=yes
 
 ################################################################################################################
 # Select which source of contributed library dependencies are used to build the target
@@ -59,22 +59,22 @@ export EHS_DEVMAN_MON_SUPPORT=yes
 # $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
 #Note - windows targets in componentlibrary use hyphens between components (randomly)
-export COMPONENT_VARIANT=gtk-gst
+COMPONENT_VARIANT=gtk-gst
 
 ################################################################################################################
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
 ################################################################################################################
 # To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
-export EHS_GUI_SUPPORT=gtk
+EHS_GUI_SUPPORT=gtk
 # To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
-export  EHS_AV_SUPPORT=gst
+ EHS_AV_SUPPORT=gst
 
 #
 # uncomment this variable if the platform requires media manager support (e.g. SMIL, DLNA).
 EHS_VIDEO_SUPPORT=yes
 # Set EHS_VIDEO_SUPPORT to "no" to disable video rndering support in the media payer (e.g. for audio only devies) 
-export  EHS_MEDIA_SUPPORT=all
+ EHS_MEDIA_SUPPORT=all
 # To enable  IO features "netx" DCC=1)  (e.g. GPIO, ADC.DAC, serial, user inputs etc. set  EHS_PERIPHERAL_DEVICE_SUPPORT )                                          #
 # Keyboard and stuff..
-export EHS_PERIPHERAL_DEVICE_SUPPORT=all
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
 ################################### END OF TOOLBOX CONFIGURATION ###################################################

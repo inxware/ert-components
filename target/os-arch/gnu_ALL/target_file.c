@@ -58,7 +58,6 @@
 
 #include "messages.h"
 #include "hal-api.h"
-#include "ehs_types.h"
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -645,3 +644,8 @@ ehs_bool EhsTF_rmdir(ehs_char* szPath)
     EHSH_LOG_ERROR("Not implemented directory removal in mingw for windows")
 }
 #endif
+
+ehs_bool EhsTgtFilesystem_Init(void)
+{
+    return EHS_TRUE;
+}

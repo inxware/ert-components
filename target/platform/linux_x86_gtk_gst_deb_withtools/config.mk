@@ -16,8 +16,8 @@ include ./target/platform/linux_x86_gtk_gst/config.mk
 # Set general architecture and OS version 
 #################################################################################################################
 #overrides the deb only variant var
-export SYSTEM_VARIANT=debian_tools
-export EHS_DEBIAN_VERSION=8
+SYSTEM_VARIANT=debian_tools
+EHS_DEBIAN_VERSION=8
 
 ################################################################################################################
 # Configure debug/production levels
@@ -30,7 +30,7 @@ ifdef EHS_DEBUGALL
 # Or enable only stdout & serial console logging
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
 DEFS += EHS_DEBUG_AV
-export EHS_DEBUGALL=yes
+EHS_DEBUGALL=yes
 endif
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################

@@ -1,3 +1,12 @@
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
+
 #
 #  eRT components platform build configuration
 #
@@ -6,8 +15,6 @@
 #
 # This file builds paths to target specific support libraries and toolchains:#
 #
-# @author: inx limited
-# (C) 2008
 # Predefined variables
 
 #  OBJ - File extension for object files
@@ -20,11 +27,14 @@
 #  EHS_PLATFORM_PATH - path to the current directory (set by platform makefile)
 
 ################## Get the platform parameters from the platform config.mk file #######
+
 include $(EHS_PLATFORM_PATH)/config.mk
 
-############# Set up paths to toolchains, libc and middleware dependenciws    ##########
-# Set up bthe toolchain paths, depending on platform target paramters. 
-# We still set the tool chain OS & ARCH even for host builds as the kernel is placed there
+# TOOLCHAIN_NAME is an override, should only be set by config.mk and not constructed
+#set the build host's machine's architecture (it is always linux so far...)
+export EHS_BUILD_MAC_ARCH=$(shell uname -m)
+
+
 ifdef EHS_GNU_OS
 	TOOLCHAIN_OS=$(EHS_GNU_OS)
 else
@@ -36,6 +46,9 @@ else
 	TOOLCHAIN_ARCH=$(EHS_ARCH)
 endif
 
+export EHS_OS
+
+
 #Note we have some toolchains in the oposite order e.g. linux-android-armv7a 
 #- in which case we can either fix it in the support repo or use the TOOLCHAIN_NAME override
 
@@ -43,7 +56,7 @@ endif
 
 #if the platform doesn't specify a specific libc/middleware version with EHS_GNU_OS_VERSION then set it to the same as the toolchain
 ifdef EHS_GNU_OS_VERSION
-	EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)#$(EHS_GNU_OS_VERSION)
+	EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)$(EHS_GNU_OS_VERSION)
 else 
     EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)
 endif
@@ -58,28 +71,90 @@ export INC_DIRS += ${KERNEL_HEADERS_BASE_DIR}/$(KERNEL_HEADERS_RELPATH)
 ############## Define the OS_HW PATH for dependencies within the eRT-componnents source tree ######
 export EHS_TARGET_OS_HW_PATH=$(EHS_TARGETS_ROOT_PATH)/os-arch/$(EHS_OS)-$(EHS_ARCH)
 
-####################   Configure the toolchain parameters ############################## 
-include $(EHS_TARGET_OS_HW_PATH)/toolchain.mk
+#Paramters that need exportng to targetenv and other bas scripts
+export SYSTEM_VARIANT
+
+####################   Configure the os-arch independent toolchain paths  ############################## 
+
+ifdef TOOLCHAIN_NAME
+    ifeq ($(TOOLCHAIN_NAME),HOST)
+        export TOOLCHAIN_PATH=HOST
+    else
+        export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_NAME)
+    endif
+else
+        ifneq ($(TOOLCHAIN_PATH),HOST)
+        # check for an arch and OS specific one first. Other wise try an arch only (which is rarely/never used so far):
+                ifneq ($wildcard $($(EHS_CORE_SUPPORT_BASE)/toolchains/$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)),)
+                        export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)
+                else
+                        export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_ARCH)
+                endif
+        endif
+endif
+
+ifdef CC_OVERRIDE
+CC:=$(CC_OVERRIDE)
+CPP:=$(CC_OVERRIDE)
+LINK:=$(CC_OVERRIDE)
+endif
+
+ifdef AS_OVERRIDE
+    AS:=$(AS_OVERRIDE)
+endif
+
+ifdef LINK_OVERRIDE
+    LINK:=$(LINK_OVERRIDE)
+endif
+
+export CC
+export CPP
+export LINK
+export AS
+
 
 ################# Set up the Component Library Support Paths ####################################
+# Note : gnu sysroot might use this so do it before including toolchain.mk
 
 ifdef COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH
 #if you want component support from a path defined by the toolchain name or something else specific then use this override method 
-export COMPONENT_BASE_TECHNOLOGIES:=$(COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH)
+	export COMPONENT_BASE_TECHNOLOGIES:=$(COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH)
 else
 	ifdef COMPONENT_VARIANT
-        export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)
-else 
-        export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)
+	    ifdef TOOLCHAIN_NAME
+            ifeq ($(TOOLCHAIN_NAME),HOST)
+                export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)
+            else
+                export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME)
+            endif
+	    else
+	    	export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)
+	    endif
+        else
+	    #If no overrdies to the component base technology we use the toolchain path that the libs are built wtih
+	        ifdef TOOLCHAIN_NAME
+	     	    export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)-$(TOOLCHAIN_NAME)
+	        else
+	    	    export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)
+	        endif
+        endif
 endif
-endif
+
+####################   Configure the arch-os-specific toolchain parameters ############################## 
+include $(EHS_TARGET_OS_HW_PATH)/toolchain.mk
 
 export EHS_TARGET_COMPONENT_HAL_PATH=$(EHS_TARGETS_ROOT_PATH)/Component-HAL
 
 ifndef COMPONENT_BASE_TECHNOLOGIES
 $(error COMPONENT_BASE_TECHNOLOGIES  is not defined)
+else
+$(info Your Build target is using the following ert-contrib_middleware: $(COMPONENT_BASE_TECHNOLOGIES) )
 endif
 
+# and apply to the compiler paths 
+export EHS_COMPONENT_SUPPORT_BUILD:=$(EHS_COMPONENT_SUPPORT_BASE)/target_libs/$(COMPONENT_BASE_TECHNOLOGIES)/build/
+export EHS_COMPONENT_SUPPORT_INCLUDE:=$(EHS_COMPONENT_SUPPORT_BUILD)/include/
+export EHS_COMPONENT_SUPPORT_LIBS:=$(EHS_COMPONENT_SUPPORT_BUILD)/lib/
 
 ################## Build the core target specific support code #########################
 # include files to build the core EHS target specific for this platform + any special OS Compoents.
@@ -112,30 +187,35 @@ DEFS += $(SYSTEM_VARIANT)#todo as above!
 # IF WE HAVE A NATIVE BUILD (e.g. docker) THEN MUCH OF THE ABOVE SHOULD PROBABLY BE REMOVED? 
 # Though it probably doesn't do any harm having linkes to resources in ert-* support repos if there's nothing in them.
 # TODO2022 we want this to be set more generically for platform.mk that wnt to build under a specific docker or vagrant environment.
+# todo EHS_SPECIAL_CLIB_EXT seems to not be used any more and can probably be removed....
 
 ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
 #todo2022 not sure if either of the following are actually required, as they sohuld be set up by docker or vagrant for the speicific target
-export INC_DIRS+=/usr/include
+    export INC_DIRS+=/usr/include
     #todo2022 the following line needs to be done better (i.e. to pick  up the required target) if it is needed.
-export LIB_DIRS+=/usr/lib/x86_64-linux-gnu/
+    export LIB_DIRS+=/usr/lib/x86_64-linux-gnu/
     export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
+    # We might still hav some middleware dependecies for a host build 
+    export INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)
+    export LIB_DIRS+=$(EHS_COMPONENT_SUPPORT_LIBS)
 else
-# Add paths the ert-build-support's LIBC
-	ifdef EHS_CLIB_OVERRIDE_PATH
-		export INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/include/
-		export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
-        	export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/kernel/
-		# done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/lib/
-	else
-#Note the following is usally handled with the gcc --sysroot, but we'll add INC and LIB paths explicitly too.
-		export INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/include/
-		export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/lib/
-        	export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
-		# done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/lib/
-	endif
-#Add the component lib paths as distilled above
-export INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)
-export LIB_DIRS+=$(EHS_COMPONENT_SUPPORT_LIBS)
+  # Add paths the ert-build-support's LIBC
+   ifdef EHS_CLIB_OVERRIDE_PATH
+       export INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/include/
+       export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
+       export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/kernel/
+      # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/lib/
+   else
+  #Note the following is usally handled with the gcc --sysroot, but we'll add INC and LIB paths explicitly too.
+       export INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/include/
+       export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/lib/
+       export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
+      # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/lib/
+   endif
+    # Add the component paths (Names distilled above) 
+    export INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)
+    export LIB_DIRS+=$(EHS_COMPONENT_SUPPORT_LIBS)
+
 endif
 
 
@@ -151,16 +231,11 @@ include $(EHS_TARGET_OS_HW_PATH)/deps.mk
 INC_DIRS += $(EHS_TARGET_OS_HW_PATH)
 VPATH+= $(EHS_TARGET_OS_HW_PATH)
 
-# and apply to the compiler paths 
-export EHS_COMPONENT_SUPPORT_INCLUDE:=$(EHS_COMPONENT_SUPPORT_BASE)/target_libs/$(COMPONENT_BASE_TECHNOLOGIES)/build/include/
-export EHS_COMPONENT_SUPPORT_LIBS:=$(EHS_COMPONENT_SUPPORT_BASE)/target_libs/$(COMPONENT_BASE_TECHNOLOGIES)/build/lib/
-
 #include sourcecode from components dir in build
 include $(EHS_TARGET_OS_HW_PATH)/Components/deps.mk
 INC_DIRS += $(EHS_TARGET_OS_HW_PATH)/Components
 VPATH+= $(EHS_TARGET_OS_HW_PATH)/Components
 
-##include $(EHS_TARGET_OS_HW_PATH)/ehs-core-hal.mk @todo to delete
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/component-hal.mk
 
 #

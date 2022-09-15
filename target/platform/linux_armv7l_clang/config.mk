@@ -16,20 +16,20 @@
 #################################################################################################################
 
 # MUST SET the following for any component config: 
-export EHS_GNU_ARCH=armv7l
-export EHS_GNU_OS=linux-gnu
+EHS_GNU_ARCH=armv7l
+EHS_GNU_OS=linux-gnu
 #todo2022 Shouldn't the following just be one? 
-export EHS_GNU_OS_VERSION=-clang10ubuntu18
-export EHS_DEBIAN_VERSION=10
+EHS_GNU_OS_VERSION=-clang10ubuntu18
+EHS_DEBIAN_VERSION=10
 # EHS Section 
 # ehs is more generic
-export EHS_ARCH=arm
-export EHS_OS=linux_clang
+EHS_ARCH=arm
+EHS_OS=linux_clang
 #This is for the idn library version
 
-#export TOOLCHAIN_NAME=HOST
-#export CC_OVERRIDE=clang
-#export LINK_OVERRIDE=llvm-ar
+#TOOLCHAIN_NAME=HOST
+#CC_OVERRIDE=clang
+#LINK_OVERRIDE=llvm-ar
 
 ################################################################################################################
 # Configure debug/production levels
@@ -43,36 +43,36 @@ EHS_DEBUGALL=true
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
 ################################################################################################################
 
-export EHS_NETWORKING_SUPPORT=all
+EHS_NETWORKING_SUPPORT=all
 # To enable full TCPIP networking toolbox ("netx" DCC=3)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                   #
-export EHS_COMPONENT_NETWORKING_SUPPORT=all
+EHS_COMPONENT_NETWORKING_SUPPORT=all
 #set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-export EHS_DEVMAN_SUPPORT=all
-export EHS_DEVMAN_MON_SUPPORT=yes 
+EHS_DEVMAN_SUPPORT=all
+EHS_DEVMAN_MON_SUPPORT=yes 
 #todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
-export  EHS_MQTT_SUPPORT=greengrass
+ EHS_MQTT_SUPPORT=greengrass
 
 ################################################################################################################
 # Select which source of contributed library dependencies are used to build the target
 ################################################################################################################
 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-export COMPONENT_VARIANT=aws-iot
+COMPONENT_VARIANT=aws-iot
 
 ################################################################################################################
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
 ################################################################################################################
 
 # To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
-export  EHS_AV_SUPPORT=devmanonly
+ EHS_AV_SUPPORT=devmanonly
 # This  is set to include the rendering features in eRT. It is  nearly always set, so should be removed (default on) and specific platforme xceptionsset instead
-export  EHS_MEDIA_SUPPORT=all
+ EHS_MEDIA_SUPPORT=all
 
 ################################################################################################################
 
 ifdef NOT_DEFD
 
-export INX_SYS_ROOT=../ert-contrib-middleware/target_libs/armv7l-pc-linux-gnueabihf_x86_64-linux-gnu_clang10ubuntu18_x86_64-linux-gnu_clang10ubuntu18_base/build
+INX_SYS_ROOT=../ert-contrib-middleware/target_libs/armv7l-pc-linux-gnueabihf_x86_64-linux-gnu_clang10ubuntu18_x86_64-linux-gnu_clang10ubuntu18_base/build
 CFLAGS+=-I${INX_SYS_ROOT}/usr/include/atk-1.0 -I${INX_SYS_ROOT}/usr/include/gdk-pixbuf-2.0 -I${INX_SYS_ROOT}/usr/lib/arm-linux-gnueabihf/gtk-2.0/include -I${INX_SYS_ROOT}/usr/include/pango-1.0 -I${INX_SYS_ROOT}/usr/include/cairo -I${INX_SYS_ROOT}/usr/lib/arm-linux-gnueabihf/glib-2.0/include -I${INX_SYS_ROOT}/usr/include/glib-2.0 -I${INX_SYS_ROOT}/usr/include/gtk-2.0 -Wl,-m,armelf_linux_eabi -v -B ${INX_SYS_ROOT}/usr/lib/gcc/arm-linux-gnueabihf/8 -B ${INX_SYS_ROOT}/usr/lib/ --sysroot=${INX_SYS_ROOT} --target=armv7l-pc-linux-gnueabihf -mfloat-abi=hard -B..ertS-build-support/toolchains/x86_64/x86_64-linux-gnu_clang10ubuntu18/bin
 LNKFLAGS+=--target=armv7l-pc-linux-gnueabihf -v -L${INX_SYS_ROOT}/usr/lib/gcc/arm-linux-gnueabihf/8 --sysroot=${INX_SYS_ROOT} -L${INX_SYS_ROOT}/lib
 

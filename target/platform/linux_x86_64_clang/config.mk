@@ -19,16 +19,18 @@
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
 # EHS Section 
 # ehs is more generic
-export EHS_ARCH=x86
-export EHS_OS=linux_clang
-export CC_OVERRIDE=clang
-export EHS_GNU_ARCH=x86_64
-export EHS_GNU_OS=linux-gnu
-export EHS_GNU_OS_VERSION=-clang10ubuntu18#use toolchain clib environment
-export COMPONENT_VARIANT=_aws-iot
+EHS_ARCH=x86
+EHS_OS=linux_clang
+CC_OVERRIDE=clang
+EHS_GNU_ARCH=x86_64
+EHS_GNU_OS=linux-gnu
+#use toolchain clib environment
+EHS_GNU_OS_VERSION=-clang10_clang10
 
-export LINK_OVERRIDE=clang
-export TOOLCHAIN_NAME=HOST
+LINK_OVERRIDE=clang
+TOOLCHAIN_NAME=HOST
+#Use the host /usr/include for standard gnu libs (like xml)
+EHS_HOST_DEBIAN_BUILD=yes
 
 ################################################################################################################
 # Configure debug/production levels
@@ -41,13 +43,13 @@ EHS_DEBUGALL=true
 # Enable or disable non-component networking support (e.g. socket debugging or Devman or none)
 ################################################################################################################ 
 
-export EHS_NETWORKING_SUPPORT=all
+EHS_NETWORKING_SUPPORT=all
 
-export EHS_COMPONENT_NETWORKING_SUPPORT=all
+EHS_COMPONENT_NETWORKING_SUPPORT=all
 #set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-export EHS_DEVMAN_SUPPORT=all
+EHS_DEVMAN_SUPPORT=all
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-export EHS_DEVMAN_MON_SUPPORT=yes 
+EHS_DEVMAN_MON_SUPPORT=yes 
 
 ################################################################################################################
 # Select which source of contributed library dependencies are used to build the target
@@ -56,11 +58,12 @@ export EHS_DEVMAN_MON_SUPPORT=yes
 # libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
 # $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-export COMPONENT_VARIANT=aws-iot
 
+COMPONENT_VARIANT=base
 
+#EHS_MQTT_SUPPORT=greengrass
 
-export EHS_MQTT_SUPPORT=greengrass
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
 DEFS += EHS_SKIP_APPMANAGER
 ################################### END OF TOOLBOX CONFIGURATION ###################################################

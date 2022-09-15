@@ -18,9 +18,9 @@ include ./target/platform/linux_x86_gtk_gst/config.mk
 # Set general architecture and OS version 
 #################################################################################################################
 
-export EHS_DEBIAN_VERSION=8
+EHS_DEBIAN_VERSION=8
 
-export SYSTEM_VARIANT=debian
+SYSTEM_VARIANT=debian
 
 # MUST SET the following for any component config: 
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
@@ -36,7 +36,7 @@ ifdef EHS_DEBUGALL
 # Or enable only stdout & serial console logging
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
 DEFS += EHS_DEBUG_AV
-export EHS_DEBUGALL=yes
+EHS_DEBUGALL=yes
 endif
 
 #use gst 0.10 fpr this build

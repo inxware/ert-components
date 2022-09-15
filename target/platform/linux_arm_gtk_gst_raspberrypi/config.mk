@@ -17,27 +17,27 @@
 #################################################################################################################
 
 #EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
-export EHS_GNU_ARCH=arm#this must map onto the component library
-export EHS_GNU_OS=linux-gnu
-export EHS_GNU_OS_VERSION=""#arm-none-linux-gnueabi-4.6.1
+EHS_GNU_ARCH=arm#this must map onto the component library
+EHS_GNU_OS=linux-gnu
+EHS_GNU_OS_VERSION=""#arm-none-linux-gnueabi-4.6.1
 #Optional if different clib build is required - dangerous!
-export KERNEL_VERSION=linux/2.6.35.9
+KERNEL_VERSION=linux/2.6.35.9
 
 # ehs is more generic
-export EHS_ARCH=arm
-export EHS_OS=linux
+EHS_ARCH=arm
+EHS_OS=linux
 
 #Toolchain information
 # TOOLCHAIN_NAME is an optional alternative location to find the toolchain. 
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
-export TOOLCHAIN_NAME=gcc-linaro-arm-linux-gnueabihf-raspbian
-export CC_OVERRIDE=arm-linux-gnueabihf-gcc 
-export LD_SWITCHES+=-fno-use-linker-plugin
+TOOLCHAIN_NAME=gcc-linaro-arm-linux-gnueabihf-raspbian
+CC_OVERRIDE=arm-linux-gnueabihf-gcc 
+LD_SWITCHES+=-fno-use-linker-plugin
 
 # SYSTEM_VARIANT optionally indicates specific target environment confgurations.
 # See target/envbuildscripts/targetenv_hacks_*.sh scripts). 
 # SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
-export SYSTEM_VARIANT=RASPBERRYPI
+SYSTEM_VARIANT=RASPBERRYPI
 
 ################################################################################################################
 # Configure debug/production levels
@@ -49,20 +49,20 @@ ifdef EHS_DEBUGALL
 # Or enable only stdout & serial console logging
 DEFS += EHS_RUNTIME_LOGGER_ENABLED
 DEFS += EHS_DEBUG_AV
-export EHS_DEBUGALL=yes
+EHS_DEBUGALL=yes
 endif
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
 ################################################################################################################
 
-export EHS_NETWORKING_SUPPORT=all
-export EHS_COMPONENT_NETWORKING_SUPPORT=all
+EHS_NETWORKING_SUPPORT=all
+EHS_COMPONENT_NETWORKING_SUPPORT=all
 
 #set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-export EHS_DEVMAN_SUPPORT=all
+EHS_DEVMAN_SUPPORT=all
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-export EHS_DEVMAN_MON_SUPPORT=yes#@todo this should be the same as above?
+EHS_DEVMAN_MON_SUPPORT=yes#@todo this should be the same as above?
 #todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
 
 
@@ -72,13 +72,13 @@ export EHS_DEVMAN_MON_SUPPORT=yes#@todo this should be the same as above?
 
 # To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
 # Set this to match one of the graphics types in EHS/target/graphics
-export EHS_GUI_SUPPORT=gtk
+EHS_GUI_SUPPORT=gtk
 # To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
-export EHS_AV_SUPPORT=gst
+EHS_AV_SUPPORT=gst
 # Set EHS_VIDEO_SUPPORT to "no" to disable video rndering support in the media payer (e.g. for audio only devies) 
-export EHS_VIDEO_SUPPORT=yes
+EHS_VIDEO_SUPPORT=yes
 # This  is set to include the rendering features in eRT. It is  nearly always set, so should be removed (default on) and specific platforme xceptionsset instead
-export EHS_MEDIA_SUPPORT=all
+EHS_MEDIA_SUPPORT=all
 
 
 ################################################################################################################
@@ -88,10 +88,10 @@ export EHS_MEDIA_SUPPORT=all
 # libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
 # $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-export COMPONENT_VARIANT=
+COMPONENT_VARIANT=
 
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-export COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm-linux-gnu-arm-none-linux-gnueabi-4.6.1-gtk_gst_raspberrypi
+COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm-linux-gnu-arm-none-linux-gnueabi-4.6.1-gtk_gst_raspberrypi
 
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
