@@ -10,8 +10,8 @@ jobs:
   Using_Pulled_container:
 
     runs-on: ubuntu-22.04
-     container:
-    image: inxware/inx-debian10-clang10
+      container:
+      image: inxware/inx-debian10-clang10
     steps:
     - uses: actions/checkout@v3
       with:
