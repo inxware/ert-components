@@ -1,3 +1,8 @@
+.idea
+.vscode
+.settings
+.project
+
 # Compiled Source #
 ###################
 *.o
@@ -5,12 +10,18 @@
 *.class
 *.exe
 *.a
+*.d
+*.elf
 
 # Linker output
 *.ilk
 *.map
 *.exp
+*.d
 
+#Makefile temporries
+target/os-arch/nxp_arm/heatrod_controller/Debug/
+*.orig
 # Make sure we don't accidently checking certs into the repo
 *.crt
 *.pem
@@ -46,6 +57,7 @@ TARGET.cfg
 .cproject
 .cdtproject
 .externalToolBuilders
+.swp
 
 # Debug files
 *.dSYM/
@@ -71,7 +83,9 @@ dkms.conf
 ####################
 .vs
 
+*.tmp
 Common/Components/user/deleteme2
+SystemTests/CI/results
 facebook_auth.php
 fb.json
 target/Component-HAL/graphics/gtk/target_viewport.c.save
@@ -79,7 +93,6 @@ target/Component-HAL/webkit/android.zip
 target/os-arch/android_ALL/android-native-project/lint.xml
 target/platform/linux_arm_gtk_gst_raspberrypi/config.mk.orig
 /docs/doxygen/
-/Releases/
 target/os-arch/android_ALL/Unity_EHS/.idea/codeStyles/Project.xml
 target/os-arch/android_ALL/Unity_EHS/.idea/vcs.xml
 target/os-arch/android_ALL/Unity_EHS/.idea/Unity_EHS.iml

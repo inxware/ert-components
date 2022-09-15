@@ -1,52 +1,37 @@
 #!/bin/bash
+#---------------------------------------------------------------
+# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+# You may use, distribute and modify this code under the terms 
+# of the MPL2.0 license. You should have received a copy of the 
+# MPL2.0 (Mozilla Public License2.0) license with this file. If 
+# not, please visit 
+#	<https://www.mozilla.org/en-US/MPL/2.0/>
+#---------------------------------------------------------------#
+
 
 if [ ! -n "${1}" ] ;then
-
-echo Usage 
-echo ./configure [TARGET]
-echo where target is one of the following target configurations:
-ls --hide "*.mk"  ./target/platform/
-exit
+    echo Usage 
+    echo ./configure [TARGET]
+    echo where target is one of the following target configurations:
+    ls --hide "*.mk"  ./target/platform/
+    exit
 fi
 
 if [ ! -d ./target/platform/$1 ]; then
-echo ERROR TARGET Does not exist. Please use of the following or create a new profile
-ls --hide "*.mk"  ./target/platform/
-exit
+    echo ERROR TARGET Does not exist. Please use of the following or create a new profile
+    ls --hide "*.mk"  ./target/platform/
+    exit
 fi
+# The tree is configured entirely by this reference to config files in target/platform/*
+echo "TARGET=$1" > ./TARGET.cfg
 
-echo configured for target $1.
-echo to make use:
-echo "$make prepdeps 				#to access inx dependency repository."
-echo "$make all 					#to make the ehs binary."
-echo "$make targetenv				#to make a target runtime file system environment in ../TARGET_TREES/ehs-env-$1
-echo "$make upload_ehs_sys_patch" 	#is optional to upload the runtime package to a devman server.
-echo "Subsequent run of make all will update the local file system for testing purposes.
-echo "HINT: use make -j 8 for fast compilation on 8 processor build machines"
-
-
-if  echo "${1}" | grep "vagrant$" ; then 
-    echo "!!! Ths platform build requires a vm to be started by vagrant!!!"
-    echo " If you continue this shell will be restarted in a VM, where the build will take place"
-    echo "You will still work from this current directory from inside the VM and will be able to use the make targets as usual:"
-    echo "Press ctr-C to exit or any other key to continue"
-    read -n 1 
-
-    echo "TARGET=$1" > ./TARGET.cfg
-
-    #todo - we should set VM to a specific vagrant config for different VMs
-    VM=""
-
-    pushd ./target/envbuildscripts/vm-build-environments/${VM}
-    if [ "${INX_SKIP_VAGRANT}" == "true" ]; then
-        echo "skipping vagrant due to INX_SKIP_VAGRANT"
-    else
-        vagrant up
-        vagrant ssh -- -t 'cd /vagrant_data/EHS && pwd ; /bin/bash'
-        vagrant halt
-    fi
-    popd
-else
-    # This script doesnt do much for a cross-build toolchain
-    echo "TARGET=$1" > ./TARGET.cfg
-fi
+echo "**************************************************************************************************************************************************"
+echo "The build tree is configured for target $1."
+echo "Next Steps & Options:"
+echo "$make all_docker 			# Make the eRT runtime binary in configured docker ------->  START HERE IF YOU HAVE ALREADY CHECKED OUT THE DEPENDENCIES!"
+echo "$make prepdeps            # Clone or update dependency repositories ---------------->  START HERE IF this is your first non-githib CI build"
+echo "$make -j 6 all 			# Build eRT directly on your host environment ------------>  Configurerd your host to build or interactive docker shell?"
+echo "$make targetenv		    # Assemble all rutime dependencies in the staging directory: ../TARGET_TREES/ehs-env-$1"
+echo "... Ready to build ${TARGET}"
+echo "type $make help for more packaging and maintenace options." 	
+echo "***************************************************************************************************************************************************"

@@ -9,12 +9,8 @@
 
 
 # Makefile for ert-components
-#
-#
 
 # @author: inx limited
-# @version: $Revision: 5639 $
-# @date: $Date: 2006-10-30 05:05:44 +0000 (Mon, 30 Oct 2006) $
 # 
 # Copyright (c) inx Ltd, 2022. All rights reserved.
 #
@@ -156,7 +152,7 @@ help:
 	@echo "*                                 MAKE HELP FOR inxware runtime software" 
 	@echo "* Make Targets in order of usual execution:"
 	@echo "* "
-	@echo "* prepdeps  - Checksout library dependencies (including C-lib) from svn"
+	@echo "* prepdeps  - Checksout dependencies git (unless SKIP_REPOS=yes)"
 	@echo "* all       - makes ehs_$(TARGET).exe and copied TARGETENV bin as ehs.exe "
 	@echo "* targetenv - Creates the target runtime file structure in TAREGETENV"
 	@echo "*                      - use make targetenv HOST_OS_CONFIG_SCRIPTS_EXTRA=\"XXX-ABCD YYY-EFGH\"  to include additional OS config"
@@ -164,8 +160,8 @@ help:
 	@echo "* "
 	@echo "* all_docker	       - makes ehs_$(TARGET).exe for host or docker enviorment and copied TARGETENV bin as ehs.exe "
 	@echo "* publish_docker_image - Build new docker image and publish it to inxware dockerhub organization"
-	@echo "* target_buildenv      - Start the platform's docker environment shell"
-	@echo "* targetenv_version    - Create a new version number for the target."
+	@echo "* target_buildenv      - Start the platform's DOCKER environment shell.  Useful during build system tuning."
+	@echo "* targetenv_version    - Create a new version number for the target. Note this will check in all changes and create a tagged commit"
 	@echo "* targetenv_cleanall   - Removes ALL data and directories from TARGETENV/."
 	@echo "* targetenv_cleancfg   - Removes all user data from the TARGETENV tree for deployment."
 	@echo "*                      - Set env variable KEEP_USERCONFIG=yes to keep the userdata/configuration data in tact."
@@ -174,6 +170,9 @@ help:
 	@echo "* targetenv_makeprod   - Configures the runtime with standard INX apps and devman configuration. Cleans existing config first! "
 	@echo "* targetenv_deb        - Creates a debian installer for current tree (targetted at /opt/ehs). optional: UPLOAD=<deb repo URL>"
 	@echo "* targetenv_apk        - Builds android APK and stores it in TARGETENV"
+	@echo "* targetenv_esp32      - Builds an esp32 image for subsequent deployment via usb or OTA deployment"
+	@echo "* targetenv_esp32_docker    - runs make targetenv_esp32 in an esp32 configured docker image."
+	@echo "* targetenv_apk_docker      - Builds android APK and stores it in TARGETENV in an android arm configured docker image."
 	@echo "* upload_ehs_via_adb   - Uploads TARGETENV tree package to a specific android device via adb. optional: ADB_IP=<device ip>"
 	@echo "* upload_ehs_sys_patch - Uploads TARGETENV tree package to the default devman server or to the specificed server using:"
 	@echo "*                      - Use VERSION_NAME=[your version name] to give the build a special name."
@@ -186,13 +185,14 @@ help:
 	@echo "*                             - (e.g. fire-walled) devman instance. One deployed from the host server the packages will become the OS "
 	@echo "*                             - update patches on the final distation. You may also set DEVMAN_INTERMEDIATE_UNAME & DEVMAN_INTERMEDIATE_SSHPORT"
 	@echo "* toolsenv_update      - Updates the dist directory's IDF and CDF directories with this EHS's version component description files"
+	@echo "* static_analysis      - runs rhe static analyser suite on the full source code tree for all configurations."
 	@echo "*"
 	@echo "*"
 	@echo "* The usual sequence to build a packge is:"
 	@echo "* ./configure [a target]  # targets can be identified with ./configure help"
 	@echo "* make prepdeps 	         # checkout the platform dependencies and toolchain for the target"
 	@echo "* make all                # makes ehs and will update a runtime tree if one exists (see next)"
-	@echo "* make targetenv          # makes a runtime tree with all excutables in ../TARGET_TREES/"
+	@echo "* make targetenv          # makes a runtime tree with all excutables and assets for the specific target in ../TARGET_TREES/*"
 	@echo "* make targetenv_version  # makes a new formal version number and checks all into the EHS repo."
 	@echo "* make targetenv_deb      # is an optional step to create a debian package for linux systems."
 	@echo "* or"
@@ -208,6 +208,12 @@ all_docker: chkconfig
 	@./target/envbuildscripts/all_docker.sh $(TARGET)
 targetenv: chkconfig
 	@./target/envbuildscripts/targetenv.sh $(TARGET) 
+targetenv_esp32: chkconfig
+	@./target/envbuildscripts/targetenv_esp32.sh $(TARGET) 
+targetenv_esp32_docker: chkconfig
+	@./target/envbuildscripts/targetenv_esp32_docker.sh $(TARGET) 
+targetenv_apk_docker: chkconfig
+	@./target/envbuildscripts/targetenv_apk_docker.sh $(TARGET) 
 targetenv_version: chkconfig
 	@./target/envbuildscripts/targetenv_create_version_info.sh $(TARGET) INC_VERSION
 targetenv_makeprod: chkconfig
