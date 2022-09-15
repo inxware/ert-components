@@ -127,3 +127,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+.vscode/targets.log
+.vscode/dryrun.log
+.vscode/configurationCache.log
+/.metadata/

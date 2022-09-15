@@ -1029,7 +1029,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
             /* else Don't change EhsStrncpy(EHS_FB_OUT_S(1),"\0",1); */
         }
 
-        if (zTempStr2 = strstr(pDevmanPlayer->szXml, "NewDevmanPlayerURL"))
+        if ((zTempStr2 = strstr(pDevmanPlayer->szXml, "NewDevmanPlayerURL")))
         {
             if (0 == getAttributeValue("url=", zTempStr2, pTempStr))
             {
@@ -1052,7 +1052,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                 EHS_FB_FINISH(9); // Set the Set Url Complete
             }
         }
-        if (zTempStr2 = strstr(pDevmanPlayer->szXml, "RemovePlaylist"))
+        if ((zTempStr2 = strstr(pDevmanPlayer->szXml, "RemovePlaylist")))
         {
             if (0 == getAttributeValue("playlist=", zTempStr2, pTempStr))
             {
@@ -1060,7 +1060,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                 EHS_FB_FINISH(2);
             }
         }
-        if (zTempStr2 = strstr(pDevmanPlayer->szXml, "RemoveOldContent"))
+        if ((zTempStr2 = strstr(pDevmanPlayer->szXml, "RemoveOldContent")))
         {
             if (0 == getAttributeValue("playlist=", zTempStr2, pTempStr))
             {
@@ -1073,10 +1073,10 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
         {
             EHS_FB_FINISH(4);
         }
-        if (zTempStr2 = strstr(pDevmanPlayer->szXml,"Override_Content_Directory"))
+        if ((zTempStr2 = strstr(pDevmanPlayer->szXml,"Override_Content_Directory")))
         {
             EHSH_LOG_INFO("Received Override Signal %s\n",zTempStr2);
-            if (0 == getAttributeValue("path=", zTempStr2, pTempStr))
+            if ((0 == getAttributeValue("path=", zTempStr2, pTempStr)))
             {
                 /* Override is not persistent - If needed the logic of undoing override needs to be defined (e.g. stop overriding on any  next new Playlist).
                  }
@@ -1085,7 +1085,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                 EHS_FB_FINISH(5);
             }
         }
-        if (zTempStr2 = strstr(pDevmanPlayer->szXml, "Set_Playmode"))
+        if ((zTempStr2 = strstr(pDevmanPlayer->szXml, "Set_Playmode")))
         {
 
             if (0 == getAttributeValue("mode=", zTempStr2, pTempStr))
@@ -1154,7 +1154,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
 
 #endif
         /* Receiving and buffering JSON data from Devman */
-        if (zTempStr2 = Ehs_ReadXMLTag(pDevmanPlayer->szXml, "jsonAppPassThruData"))
+        if ((zTempStr2 = Ehs_ReadXMLTag(pDevmanPlayer->szXml, "jsonAppPassThruData")))
         {
             ehs_uint32 jsonBufferSize = EhsStrlen(zTempStr2) + 1;
             ehs_char* jsonBuffer = (ehs_char*)malloc(jsonBufferSize);
@@ -1183,7 +1183,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
             free(jsonBuffer);
         }
 
-        if (zTempStr2 = strstr(pDevmanPlayer->szXml, "Mute"))
+        if ((zTempStr2 = strstr(pDevmanPlayer->szXml, "Mute")))
         {
             if (0 == getAttributeValue("state=", zTempStr2, pTempStr))
             {

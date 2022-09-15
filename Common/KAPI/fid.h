@@ -32,13 +32,17 @@
 #define DEBUG_SET_MASK_BREAKPOINT		(DEBUG_MASK_MONITOR | DEBUG_MASK_BREAKPOINT)	// 0000 0011
 
 
+/* This structure defines the function block's paramters and is defined 
+    There is one of these for each function block.
+*/ 
+
 typedef struct EhsFunctionInstanceDataStruct
 {
     void* pObjData;
     EhsRunFuncType fpRunFunc; /**< Pointer to the function to run when this function is invoked */
-    ehs_uint8 nNumInputs; /**< Number of data inputs to this function block */
-    ehs_uint8 nNumOutputs; /**< Number of data outputs to this function block */
-    ehs_uint8 nFinishPorts; /**< The number of finish ports that can be accessed by this function */
+    ehs_uint8 nNumInputs; /**< Number of data inputs to this function block, it is populated when parsing SODL as the number if inout connections supported by the FB.  */
+    ehs_uint8 nNumOutputs; /**< Number of data outputs to this function block (also populated when parsing SODL).*/
+    ehs_uint8 nFinishPorts; /**< The number of finish ports that can be accessed by this function (also populated when parsing SODL) */
     EhsTriggerType** pFinishPort; /**< Provides access to the set of start ports that are connected to each finish port */
     void** pIn;
     void** pOut;

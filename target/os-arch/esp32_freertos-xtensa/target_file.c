@@ -7,7 +7,9 @@
  *	<https://www.mozilla.org/en-US/MPL/2.0/>
  ***************************************************************/
 
-#define ERASE
+#define __DEBUG__
+// #define __USE_FATFS__
+#define __USE_LITTLEFS__
 
 #include "target_types.h"
 #include "target_file.h"
@@ -18,6 +20,13 @@
 #include <errno.h>
 #endif
 
+#ifndef __USE_FATFS__
+#define __USE_FATFS__
+#endif
+#ifdef __USE_LITTLEFS__
+#undef __USE_FATFS__
+#endif
+#ifdef __USE_FATFS__
 #include <sys/types.h>
 #include <sys/select.h>
 #include <stdlib.h>
@@ -29,11 +38,40 @@
 #include "esp_vfs.h"
 #include "esp_vfs_fat.h"
 #include "esp_system.h"
+#endif
 
+#ifdef __USE_LITTLEFS__
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_system.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "sdkconfig.h"
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include "esp_idf_version.h"
+#include "esp_flash.h"
+#include "esp_littlefs.h"
+#endif
+
+#ifdef __USE_FATFS__
 // Handle of the wear levelling library instance
 static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
+#endif
 // Mount path for the partition
 const char *base_path = "/ehs";
+#ifdef __DEBUG__
+#include "esp_log.h"
+#else
+#define ESP_LOGI(...)
+#define ESP_LOGW(...)
+#define ESP_LOGE(...)
+#define ESP_LOGD(...)
+#endif
+#define TAG "target_file"
+
 #define INX_EHS_NXP_TSDL_POINT 1
 #define INX_EHS_NXP_TSDL_NULL 2
 /*
@@ -778,13 +816,12 @@ void EhsTDFiles_init(struct EhsTDFilesStruct **pFiles)
     
 }
 
+#ifdef __USE_FATFS__
+static void esp_get_fatfs_usage(size_t* out_total_bytes, size_t* out_free_bytes);
 ehs_bool EhsTgtFilesystem_Init(void)
 {
     EHSH_LOG_INFO("Mounting FAT filesystem");
-    #ifdef ERASE
-    const esp_partition_t *partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, "storage");
-    ESP_ERROR_CHECK(esp_partition_erase_range(partition, 0, partition->size));
-    #endif
+    ESP_LOGI(TAG, "Mounting FAT filesystem");
     // To mount device we need name of device partition, define base_path
     // and allow format partition in case if it is new one and was not formated before
     const esp_vfs_fat_mount_config_t mount_config = {
@@ -795,9 +832,52 @@ ehs_bool EhsTgtFilesystem_Init(void)
     esp_err_t err = esp_vfs_fat_spiflash_mount(base_path, "storage", &mount_config, &s_wl_handle);
     if (err != ESP_OK) {
         EHSH_LOG_ERROR("Failed to mount FATFS (%s)", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to mount FATFS (%s)", esp_err_to_name(err));
         return EHS_FALSE;
     }
 
     EhsHMetaSetInstPath(base_path);
+    ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
+    EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_SYSDATA_DIR,"fcheck.txt", EHS_TRUE);
+    Ehs_MakePath(szCanonicalFilePath, EHS_TRUE);
+    FILE *fp = fopen(szCanonicalFilePath, "wb");
+    if (fp == NULL)
+    {
+        EHSH_LOG_ERROR("Failed to open file for writing, file is %s", szCanonicalFilePath);
+        ESP_LOGE(TAG, "Failed to open file for writing, file is %s", szCanonicalFilePath);
+        return EHS_FALSE;
+    }
+    fprintf(fp, "Written using ESP-IDF %s\n", esp_get_idf_version());
+    fclose(fp);
+    if (EhsTF_exists(szCanonicalFilePath) == 0)
+    {
+        err = esp_vfs_fat_spiflash_unmount(base_path, s_wl_handle);
+        if (err != ESP_OK) {
+            EHSH_LOG_ERROR("Failed to unmount FATFS (%s)", esp_err_to_name(err));
+            ESP_LOGE(TAG, "Failed to unmount FATFS (%s)", esp_err_to_name(err));
+        }
+        const esp_partition_t *partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, "storage");
+        ESP_ERROR_CHECK(esp_partition_erase_range(partition, 0, partition->size));
+        s_wl_handle = WL_INVALID_HANDLE;
+        err = esp_vfs_fat_spiflash_mount(base_path, "storage", &mount_config, &s_wl_handle);
+        if (err != ESP_OK) {
+            EHSH_LOG_ERROR("Failed to mount FATFS (%s)", esp_err_to_name(err));
+            ESP_LOGE(TAG, "Failed to mount FATFS (%s)", esp_err_to_name(err));
+            return EHS_FALSE;
+        }
+    }
+    else
+    {
+        if (remove(szCanonicalFilePath) != 0)
+        {
+            EHSH_LOG_ERROR("Failed to delete the file");
+            ESP_LOGE(TAG, "Failed to delete the file");
+            return EHS_FALSE;
+        }
+    }
+    size_t bytes_total, bytes_free;
+    esp_get_fatfs_usage(&bytes_total, &bytes_free);
+    printf("\nFAT FS: %d kB total, %d kB free\n", bytes_total / 1024, bytes_free / 1024);
+    ESP_LOGI(TAG, "FAT FS: %d kB total, %d kB free", bytes_total / 1024, bytes_free / 1024);
     return EHS_TRUE;
 }

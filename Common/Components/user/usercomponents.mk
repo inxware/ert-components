@@ -62,17 +62,17 @@ ifdef EHS_MQTT_SUPPORT
 #e.g this one should be EHS_MQTT_SUPPORT=<some technology e.g. lwip,...
 		DEFS += EHS_MQTT_SUPPORT_LWIP
     else
-		LIB+=dl
-		LIB+=:libaws-c-common.a :libssl.a :libcrypto.a :libaws-c-compression.a :libaws-c-mqtt.a :libaws-c-io.a :libs2n.a :libaws-c-http.a :libaws-c-cal.a
-		#aws-c-compression crypto s2n ssl aws-c-io aws-c-http
-		#LIB+=aws-c-mqtt 
+		LIB+=dl 
+		LIB+=:libaws-c-common.a :libssl.a :libcrypto.a :libaws-c-compression.a :libaws-c-mqtt.a :libaws-c-io.a :libs2n.a :libaws-c-http.a :libaws-c-cal.a :libaws-c-http.a :libaws-c-io.a :libdecrepit.a
+		LIB += crypto ## add the gnu crypto for curl
+
 	endif
 	OBJECTS += inx-mqtt_client.$(OBJ)
 	OBJECTS += inx-mqtt_publish.$(OBJ)
 	OBJECTS += inx-mqtt_subscribe.$(OBJ)
 endif
 
-#The following should be keyed off the os-arch paramter and exiting "SPECIFIC_TARGET" 
+#todo2022: The following should be keyed off the os-arch paramter and existing "SPECIFIC_TARGET" 
 ifdef EHS_NXP_SUPPORT
 OBJECTS += inx-adc_read.$(OBJ)
 OBJECTS += inx-rtc.$(OBJ)

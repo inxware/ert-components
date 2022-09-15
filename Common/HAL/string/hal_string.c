@@ -164,8 +164,7 @@ const char* EhsGetUint32FromString(ehs_uint32 * output, const char* input)
             digit = (*input - '0');
             if (*output >= (EHS_UINT32_MAX/10u))
             {
-                if ((*output != (EHS_UINT32_MAX/10u)) ||
-                        ((EHS_UINT32_MAX % 10u) < digit))
+                if ((*output != (EHS_UINT32_MAX/10u)) || ((EHS_UINT32_MAX % 10u) < digit))
                 {
                     EHSH_LOG_ERROR(EHS_MSG_PARSER_UINT32_RANGE(*output,digit));
                 }

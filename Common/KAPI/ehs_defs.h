@@ -22,7 +22,7 @@
 /* Dummy data types -- dispose of these as we can */
 
 #define structFuncArg EhsFunctionInstanceDataType /* eventually we need to rename this to EhsFunctionInstanceDataType */
-#define structData EhsDataConnectionTableType
+//#define structData EhsDataConnectionTableType
 
 
 

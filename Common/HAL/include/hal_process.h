@@ -43,8 +43,8 @@
 /* Define types */
 
 /** Define a target independent mutexclass prototype: 
-/* EhsTPMutexClass is an opaque pointer to pthread_mutex_t* EhsTPMutexStruct
-*/
+ * EhsTPMutexClass is an opaque pointer to pthread_mutex_t* EhsTPMutexStruct
+ */
 
 typedef struct EhsTPMutexStruct *EhsTPMutexClass;
 

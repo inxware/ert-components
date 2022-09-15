@@ -51,7 +51,7 @@ LNKFLAGS+= -lcoexist -lespnow -lmesh -lnet80211 -lphy -lpp -lrtc -lsmartconfig -
 LNKFLAGS+= -lesp_eth -lesp_event -lesp_gdbstub -lesp_hid -lesp_http_client -lesp_http_server -lesp_https_ota -lesp_hw_support -lesp_ipc -lesp_lcd -lesp_local_ctrl -lesp_netif -lesp_phy -lesp_pm -lesp_ringbuf -lesp_rom 
 LNKFLAGS+= -lesp_serial_slave_link -lesp_system -lesp_timer -lesp-tls -lesp_wifi -lexpat -lfatfs -lfreemodbus -lfreertos -lhal -lheap -lidf_test -ljsmn -ljson -llibsodium 
 LNKFLAGS+= -lnvs_flash -lopenssl -lopenthread -lperfmon -lprotobuf-c -lprotocomm -lpthread -lsdmmc -lsoc -lspiffs -lspi_flash -ltcpip_adapter -ltcp_transport -llog -llwip -lmbedtls -lmdns -lmqtt -lnewlib -lnghttp 
-LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa -lhal -Wl,--end-group -Wl,-EL -fno-rtti
+LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa -lhal -lesp_littlefs -Wl,--end-group -Wl,-EL -fno-rtti
 LIB+=c
 LIB+=cxx
 

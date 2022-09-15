@@ -27,7 +27,6 @@
 #include "fidt.h"
 
 
-
 /*********************************************************************************************/
 /* Data transfer table table */
 
@@ -36,10 +35,10 @@
  */
 typedef struct
 {
-    ehs_char xDummy[EHS_STRING_LENGTH_MAX]; /**< Just points to a chunk of memory
+    volatile ehs_char xDummy[EHS_STRING_LENGTH_MAX]; /**< Just points to a chunk of memory (optional if e have trusted clients)
 										containing the largest of the possible
-										data types. */
-    ehs_char xDummyIn[1]; /* Seperate dummy for inouts to avoid random data read into FBs*/
+										data types. this is for OUTPUTS*/
+    volatile ehs_sint64 xDummyIn[1]; /* Seperate dummy for inputs to avoid random data read into FBs - this is 64 bit to allow for ou worst case lvalue size of a float (todo may need to support larget in the future (wasa char...)*/
     EhsDataflowIntType* pnData;
     ehs_bool* pbMonitorInt;
     ehs_uint32 nNumInts; /* This is strictly speaking the highest index -1 */

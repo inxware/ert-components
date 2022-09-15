@@ -219,7 +219,7 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const
     }
 #ifdef EHS_RUNTIME_FILELOGGER_ENABLED
     if (EhsLLogFile) { /* Don't want all that crashing do we!! */ //@todo need to put this in sysinfo/var
-        time=EhsTgtTimer_now();
+        time=EhsTgtTimer_now(); /* Note this is in ticks not real time....*/
         EhsFprintf(EhsLLogFile, "%u,",time);
         EhsFprintf(EhsLLogFile, "%s,",szLevel);
         EhsFprintf(EhsLLogFile, "%s,",EhsLModuleNames[nModule]);

@@ -43,7 +43,7 @@ ehs_bool EhsHSetDateTime(ehs_char * date_string);
  * Add a time onto the current time. Handles timer wrap-around in the event that
  * current time+offset causes the timer to wrap.
  */
-#define EHS_CURRENT_TIME_OFFSET(x) (((x) + EHS_CURRENT_TIME) & EHS_TICKTYPE_MAX)
+#define EHS_CURRENT_TIME_OFFSET(x) (((EhsTickType)(x) + (EhsTickType)EHS_CURRENT_TIME) & (EhsTickType)EHS_TICKTYPE_MAX)
 
 /**
  * Determine whether one time (x) is earlier than another (y).
@@ -68,7 +68,7 @@ ehs_bool EhsHSetDateTime(ehs_char * date_string);
 
 /**
  * Provides old definition of Current time function.
- * @todo delete this
+ * @todo2022 delete this
  */
 #define EhsCurrentTime EhsTgtTimer_now
 
@@ -145,6 +145,9 @@ EHS_GLOBAL ehs_bool EhsTgtTimer_tick(void);
  * Set the target-specific timer to expire at a specific time.
  * Upon expiry (or periodically if the target's timing facility
  * is unsophisticated), call EhsTimer_tick()
+ * 
+ * NOTE: This function SHOULD NOT reset the hardware timer value.
+ * It only needs to make sure the target will call the 
  */
 EHS_GLOBAL void EhsTgtTimer_set(EhsTickType tExpiryTime);
 
