@@ -25,7 +25,6 @@ jobs:
         ref: refs/heads/main
         lfs: true
 
-
     - name: configure
       run: |
            cd ert-components
