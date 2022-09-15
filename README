@@ -22,7 +22,7 @@ brix               (OpenGL development version of tools  )
 All the above repos are available at ssh://inx-data@server/home/inx-data/data/Repos/*.git
 
 *****************
-** BUILDING EHS
+** BUILDING eRT Locally
 *****************
 
 The command steps needed to build EHS for a specific target:
@@ -35,9 +35,8 @@ to get a list of supported targets type
 ************************
 ** Specific Pltform Notes
 *************************
-
-Ambifier minis/mcros on Jessie:
-./configure linux_x86_gtk_gst_ambifier
+e.g.
+./configure linux_x86_gtk_gst
 make prepdeps
 make all
 make targetenv HOST_OS_CONFIG_SCRIPTS_EXTRA="0140-update-kernel-4-8-16-debian"
