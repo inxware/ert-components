@@ -178,6 +178,7 @@ LIB += wifi_provisioning
 LIB += wpa_supplicant
 LIB += xtensa
 LIB += cxx
+LIB += esp_littlefs
 endif
 
 #LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa

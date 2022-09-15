@@ -881,3 +881,78 @@ ehs_bool EhsTgtFilesystem_Init(void)
     ESP_LOGI(TAG, "FAT FS: %d kB total, %d kB free", bytes_total / 1024, bytes_free / 1024);
     return EHS_TRUE;
 }
+
+
+static void esp_get_fatfs_usage(size_t* out_total_bytes, size_t* out_free_bytes)
+{
+    FATFS *fs;
+    size_t free_clusters;
+    int res = f_getfree("0:", &free_clusters, &fs);
+    assert(res == FR_OK);
+    size_t total_sectors = (fs->n_fatent - 2) * fs->csize;
+    size_t free_sectors = free_clusters * fs->csize;
+
+    // assuming the total size is < 4GiB, should be true for SPI Flash
+    if (out_total_bytes != NULL) {
+        *out_total_bytes = total_sectors * fs->ssize;
+    }
+    if (out_free_bytes != NULL) {
+        *out_free_bytes = free_sectors * fs->ssize;
+    }
+}
+#endif
+
+#ifdef __USE_LITTLEFS__
+ehs_bool EhsTgtFilesystem_Init(void)
+{
+    EHSH_LOG_INFO("Initializing LittleFS");
+    ESP_LOGI(TAG, "Initializing LittleFS");
+
+    esp_vfs_littlefs_conf_t conf = {
+        .base_path = base_path,
+        .partition_label = "storage",
+        .format_if_mount_failed = true,
+        .dont_mount = false,
+    };
+
+    // Use settings defined above to initialize and mount LittleFS filesystem.
+    // Note: esp_vfs_littlefs_register is an all-in-one convenience function.
+    esp_err_t ret = esp_vfs_littlefs_register(&conf);
+
+    if (ret != ESP_OK)
+    {
+            if (ret == ESP_FAIL)
+            {
+                    EHSH_LOG_ERROR("Failed to mount or format filesystem");
+                    ESP_LOGE(TAG, "Failed to mount or format filesystem");
+            }
+            else if (ret == ESP_ERR_NOT_FOUND)
+            {
+                    EHSH_LOG_ERROR("Failed to find LittleFS partition");
+                    ESP_LOGE(TAG, "Failed to find LittleFS partition");
+            }
+            else
+            {
+                    EHSH_LOG_ERROR("Failed to initialize LittleFS (%s)", esp_err_to_name(ret));
+                    ESP_LOGE(TAG, "Failed to initialize LittleFS (%s)", esp_err_to_name(ret));
+            }
+            return EHS_FALSE;
+    }
+
+    size_t total = 0, used = 0;
+    ret = esp_littlefs_info(conf.partition_label, &total, &used);
+    if (ret != ESP_OK)
+    {
+            EHSH_LOG_ERROR("Failed to get LittleFS partition information (%s)", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Failed to get LittleFS partition information (%s)", esp_err_to_name(ret));
+    }
+    else
+    {
+            EHSH_LOG_INFO(TAG, "Partition size: total: %d, used: %d", total, used);
+            ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+    }
+    EhsHMetaSetInstPath(base_path);
+
+    return EHS_TRUE;
+}
+#endif

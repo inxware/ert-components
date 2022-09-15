@@ -87,6 +87,8 @@ ehs_bool EhsFconsumeLine(ehs_FILE* pFile)
 /* Initialise the fil system. some target installers won#t dothese */
 ehs_bool EhsFInitFileSystem()
 {
+    ehs_bool ret = EHS_FALSE;
+    ret = EhsTgtFilesystem_Init();
     ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
     EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_SYSDATA_DIR,"init.nfo", EHS_TRUE);
     Ehs_MakePath(szCanonicalFilePath,EHS_TRUE);
