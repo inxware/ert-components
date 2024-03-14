@@ -64,7 +64,7 @@ EHS_GLOBAL ehs_bool EhsWidgetImageJpg_load(EhsWidgetClass* pImage, const ehs_cha
         }
         if (setjmp(EhsWidgetImageJpg_err))
         {
-            EhsError(EHS_MSG_ERROR_WIDGET_LOADFAILED(szFilename));
+            EHSH_LOG_ERROR(EHS_MSG_ERROR_WIDGET_LOADFAILED(szFilename));
             bReturn = EHS_FALSE;
         }
         else
@@ -85,7 +85,7 @@ EHS_GLOBAL ehs_bool EhsWidgetImageJpg_load(EhsWidgetClass* pImage, const ehs_cha
 
             if (!pFile)
             {
-                EhsError(EHS_MSG_ERROR_WIDGET_FILEOPEN(szFilename));
+                EHSH_LOG_ERROR(EHS_MSG_ERROR_WIDGET_FILEOPEN(szFilename));
                 bReturn = EHS_FALSE;
             }
             else

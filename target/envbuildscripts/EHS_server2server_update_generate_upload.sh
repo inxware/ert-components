@@ -46,6 +46,7 @@ if [[ "$SPECIFIC_TARGET" == *"android"* ]]; then
 	   echo "Staging Directory $TARGET_PATH  NOT found - Please run make targetenv. EXITING!"
 	   exit 1
 	fi
+	
 	#absolute  path to relevant TRAGETTREE directory
 	export TARGET_SYSPATCH=${TARGET_PATH}/syspatch
 	

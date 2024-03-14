@@ -8,6 +8,22 @@ ErrorUtilsOverride(){
 	exit 1
 }
 
+WriteRebootFlag(){
+	ErrorUtilsOverride
+}
+
+ClearRebootFlag(){
+	ErrorUtilsOverride
+}
+
+IsRebootFlag(){
+	ErrorUtilsOverride
+}
+
+WaitLockFile(){
+	ErrorUtilsOverride
+}
+
 WaitDir(){
 	ErrorUtilsOverride
 }
@@ -29,10 +45,6 @@ Untar(){
 }
 
 InitDownloader(){
-	ErrorUtilsOverride
-}
-
-Downloader(){
 	ErrorUtilsOverride
 }
 

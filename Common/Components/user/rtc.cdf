@@ -1,137 +1,209 @@
 <?xml version="1.0" encoding="UTF-8"?><Component>
-    <Class>rtc</Class>
-    <Hash>0x32c7</Hash>
     <Module>usercomponents</Module>
-    <Menu>
-        Peripherals
-        <Menu>RTC</Menu>
-    </Menu>
-    <ShortDescription>rtc</ShortDescription>
-    <LongDescription>rtc</LongDescription>
-    <Port>
-        <CName>set</CName>
-        <Description>set</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>0</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0" hash="0xacda">set</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>time</CName>
-        <Description>seconds</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>20</YCoordinate>
-        <FunctionName argument="1" hash="0xacda">set</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishset</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>0</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1" hash="0xacda">set</FunctionName>
-    </Port>
-    <Port>
-        <CName>read</CName>
-        <Description>read</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>40</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>tz</CName>
-        <Description>tz</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>60</YCoordinate>
-        <FunctionName argument="1" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishread</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>40</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>time</CName>
-        <Description>utc seconds</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>60</YCoordinate>
-        <FunctionName argument="1" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>year</CName>
-        <Description>year</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>50</YCoordinate>
-        <FunctionName argument="2" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>month</CName>
-        <Description>month</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>80</YCoordinate>
-        <FunctionName argument="3" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>dom</CName>
-        <Description>dom</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>100</YCoordinate>
-        <FunctionName argument="4" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>dow</CName>
-        <Description>dow</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>120</YCoordinate>
-        <FunctionName argument="5" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>hour</CName>
-        <Description>hour</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>140</YCoordinate>
-        <FunctionName argument="6" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>minute</CName>
-        <Description>minute</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>160</YCoordinate>
-        <FunctionName argument="7" hash="0x1c23">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>second</CName>
-        <Description>second</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>180</YCoordinate>
-        <FunctionName argument="8" hash="0x1c23">read</FunctionName>
-    </Port>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>rtc</ShortDescription>
+        <LongDescription>rtc</LongDescription>
+        <UserName/>
+        <Menu>
+            Peripherals
+            <Menu>RTC</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>105</Width>
+        <Height>150</Height>
+        <Text>RTC</Text>
+        <TextX>15</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.5</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>rtc</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x32C7</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>d72d1894</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>set</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>read</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>set</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>set</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>seconds</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>time</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>0</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishset</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>read</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>read</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>tz</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <CName>tz</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishread</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>utc seconds</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>time</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>year</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <CName>year</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>month</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>month</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>dom</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>dom</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>dow</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>dow</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>hour</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>hour</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>minute</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>100</YCoordinate>
+            <CName>minute</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>second</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>110</YCoordinate>
+            <CName>second</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

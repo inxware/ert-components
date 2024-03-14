@@ -351,9 +351,9 @@ EHS_GLOBAL ehs_bool EhsWidgetImageGif_load(EhsWidgetClass* pImage, const ehs_cha
     if (!bReturn)
     {
         /* failed - reset gif structure */
-        memset(gif, sizeof(EhsWidgetImageGifSubclass), 0);
+        memset(gif, 0, sizeof(EhsWidgetImageGifSubclass));
 
-        EhsError(EHS_MSG_ERROR_LOAD_GIF_FAILED(szFilename));
+        EHSH_LOG_ERROR(EHS_MSG_ERROR_LOAD_GIF_FAILED(szFilename));
     }
     else     /* Read file OK */
     {
@@ -362,7 +362,7 @@ EHS_GLOBAL ehs_bool EhsWidgetImageGif_load(EhsWidgetClass* pImage, const ehs_cha
         pImage->MediaRect.nWidth =  EhsTVSurface_width(pImage->specificWidgetType.image.specificImageSrcType.gif XXX  .pSurface);
         pImage->MediaRect.nWidth =  EhsTVSurface_height(pImage->specificWidgetType.image.specificImageSrcType.gif XXX .pSurface);
 #endif
-#warning "to do gif apect ratio maintain"
+//#warning "to do gif apect ratio maintain"
         //@todo - this is done for all image types, needs to be done for GIFs as well
 //		if (pImage->bMaintainAspectRatio) {
 //			EhsWidget_resizeWidgetToMaintainAspectRatio(pImage, &xSrcRect);

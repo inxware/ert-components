@@ -11,7 +11,8 @@
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-mqtt_publish.h"
-#include "ehs_main.h" // we run th main from here!
+#include "hal_network.h"
+#include "ehs_main.h" // we run the main from here!
 //ICB HEADER MACRO END -- DO NOT ALTER
 
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -37,8 +38,9 @@ static inx_mqtt_publish_state_type* inxMQTTPublishGetLastWidget()
         widget=widget->pNext;
         if(widget==widget->pNext)
         {
-            EHSH_LOG_ERROR("inxMQTTSubscribeGetLastWidget infinite loop found");
+            EHSH_LOG_ERROR("inxMQTTpublishGetLastWidget infinite loop found");
             widget->pNext=NULL;
+            break;
         }
     }
     return widget;
@@ -54,6 +56,7 @@ static inx_mqtt_publish_state_type* inxMQTTPublishGetFirstWidgetNeedProcessing()
         {
             EHSH_LOG_ERROR("inxMQTTPublishGetLastWidget infinite loop found");
             widget->pNext=NULL;
+            break;
         }
     }
     if(widget==NULL)
@@ -103,17 +106,18 @@ static void inxMQTTPublishRegisterWidget(inx_mqtt_publish_state_type* pState)
 	}
 }*/
 
+/* implemented in inx-mqtt_client.c */
+void handle_mqtt_param_string(ehs_char* str, ehs_uint32 size);
+
 
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(mqtt_publish)
-
-EHS_FB_FUNCTION_ENTRY("publish", 0x00, mqtt_publish_publish)
+EHS_FB_FUNCTION_ENTRY("publish", 0x01, mqtt_publish_publish)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
 /* Friendly labels for the run function data and event function argument enumerations */
-#define INX_mqtt_publish_ARG_publish_finishpublish 1
 #define INX_mqtt_publish_ARG_publish_topic 1
 #define INX_mqtt_publish_ARG_publish_payload 2
 #define INX_mqtt_publish_ARG_publish_qos 3
@@ -162,6 +166,12 @@ EHS_FB_INIT_FUNCTION(mqtt_publish)
     inx_mqtt_publish_state->topic[0]='\0';
     inx_mqtt_publish_state->message[0]='\0';
 
+    const char* pParams = EHS_FB_INIT_PARAMETERS;
+    if (pParams) {
+        pParams = EhsGetWordFromString(inx_mqtt_publish_state->topic, pParams);
+        pParams = EhsGetUint8FromString(&inx_mqtt_publish_state->qos, pParams);
+        handle_mqtt_param_string(inx_mqtt_publish_state->topic, EHS_STRING_LENGTH_MAX);
+    }
     /* Add any further intialisation code here */
     EhsTPMutex_lock(EhsTPMutex_fbIO);
     inxMQTTPublishRegisterWidget(inx_mqtt_publish_state);
@@ -218,13 +228,9 @@ EHS_FB_RUN_FUNCTION(mqtt_publish_publish)
     */
 }//ICB FUNCTION publish MACRO END -- DO NOT ALTER THIS LINE
 
-#ifdef EHS_MINGW
-#define EHS_MQTT_PUBLISH_EXPORT __declspec(dllexport)
-#else
-#define EHS_MQTT_PUBLISH_EXPORT // nothing
-#endif
 
-EHS_MQTT_PUBLISH_EXPORT ehs_bool EhsMQTTPublishWritePoll(char* topic, char* payload,uint8_t* qos)
+
+EHS_MQTT_PUBLISH_EXPORT ehs_bool EhsMQTTPublishWritePoll(ehs_char * topic, ehs_char* payload, ehs_uint8* qos)
 {
     ehs_bool success=EHS_FALSE;
     EhsTPMutex_lock(EhsTPMutex_fbIO);

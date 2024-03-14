@@ -33,7 +33,7 @@
 
 EHS_FB_FUNCTIONS_START(ConvertorBoolToTrigger)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorBoolToTrigger", 0x00, ConvertorBoolToTrigger)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorBoolToTrigger", 0x01, ConvertorBoolToTrigger)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -85,7 +85,7 @@ EHS_FB_RUN_FUNCTION(ConvertorBoolToTrigger)
 
 EHS_FB_FUNCTIONS_START(ConvertorIntToBool)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorIntToBool", 0x00, ConvertorIntToBool)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorIntToBool", 0x01, ConvertorIntToBool)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -132,7 +132,7 @@ EHS_FB_RUN_FUNCTION(ConvertorIntToBool)
 
 EHS_FB_FUNCTIONS_START(ConvertorStringToBool)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorStringToBool", 0x00, ConvertorStringToBool)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorStringToBool", 0x01, ConvertorStringToBool)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -188,7 +188,7 @@ EHS_FB_RUN_FUNCTION(ConvertorStringToBool)
 
 EHS_FB_FUNCTIONS_START(ConvertorStringToInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorStringToInt", 0x00, ConvertorStringToInt)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorStringToInt", 0x01, ConvertorStringToInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -242,7 +242,7 @@ EHS_FB_RUN_FUNCTION(ConvertorStringToInt)
 
 EHS_FB_FUNCTIONS_START(ConvertorBoolToInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorBoolToInt", 0x00, ConvertorBoolToInt)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorBoolToInt", 0x01, ConvertorBoolToInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -289,7 +289,7 @@ EHS_FB_RUN_FUNCTION(ConvertorBoolToInt)
 
 EHS_FB_FUNCTIONS_START(ConvertorBoolToString)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorBoolToString", 0x00, ConvertorBoolToString)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorBoolToString", 0x01, ConvertorBoolToString)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -343,7 +343,7 @@ EHS_FB_RUN_FUNCTION(ConvertorBoolToString)
 
 EHS_FB_FUNCTIONS_START(ConvertorIntToString)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorIntToString", 0x00, ConvertorIntToString)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorIntToString", 0x01, ConvertorIntToString)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -391,7 +391,7 @@ EHS_FB_RUN_FUNCTION(ConvertorIntToString)
 /* Define Identify_ConvertorRealToBool function block */
 
 EHS_FB_FUNCTIONS_START(ConvertorRealToBool)
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorRealToBool", 0x00, ConvertorRealToBool)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorRealToBool", 0x01, ConvertorRealToBool)
 EHS_FB_FUNCTIONS_END 
 
 /**
@@ -437,7 +437,7 @@ EHS_FB_RUN_FUNCTION(ConvertorRealToBool)
 
 EHS_FB_FUNCTIONS_START(ConvertorRealToInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorRealToInt", 0x00, ConvertorRealToInt)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorRealToInt", 0x01, ConvertorRealToInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -484,7 +484,7 @@ EHS_FB_RUN_FUNCTION(ConvertorRealToInt)
 
 EHS_FB_FUNCTIONS_START(ConvertorBoolToReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorBoolToReal", 0x00, ConvertorBoolToReal)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorBoolToReal", 0x01, ConvertorBoolToReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -538,7 +538,7 @@ EHS_FB_RUN_FUNCTION(ConvertorBoolToReal)
 /* Define ConvertorIntToReal function block */
 
 EHS_FB_FUNCTIONS_START(ConvertorIntToReal)
-EHS_FB_FUNCTION_ENTRY("Run", 0x00, ConvertorIntToReal)
+EHS_FB_FUNCTION_ENTRY("Run", 0x01, ConvertorIntToReal)
 EHS_FB_FUNCTIONS_END 
 
 
@@ -586,7 +586,7 @@ EHS_FB_RUN_FUNCTION(ConvertorIntToReal)
 
 EHS_FB_FUNCTIONS_START(ConvertorStringToReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorStringToReal", 0x00, ConvertorStringToReal)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorStringToReal", 0x01, ConvertorStringToReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -638,7 +638,7 @@ EHS_FB_RUN_FUNCTION(ConvertorStringToReal)
 
 EHS_FB_FUNCTIONS_START(ConvertorRealToString)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConvertorRealToString", 0x00, ConvertorRealToString)
+EHS_FB_FUNCTION_ENTRY("Run_ConvertorRealToString", 0x01, ConvertorRealToString)
 EHS_FB_FUNCTIONS_END
 
 /**

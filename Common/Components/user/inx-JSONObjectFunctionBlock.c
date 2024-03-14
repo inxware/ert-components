@@ -87,11 +87,11 @@ static ehs_bool testArray(inx_JSONObject_state_type *state);
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(JSONObject)
 
-EHS_FB_FUNCTION_ENTRY("reset", 0x00, JSONObject_reset)
+EHS_FB_FUNCTION_ENTRY("reset", 0x01, JSONObject_reset)
 
-EHS_FB_FUNCTION_ENTRY("read", 0x01, JSONObject_read)
+EHS_FB_FUNCTION_ENTRY("read", 0x02, JSONObject_read)
 
-EHS_FB_FUNCTION_ENTRY("query", 0x02, JSONObject_query)
+EHS_FB_FUNCTION_ENTRY("query", 0x03, JSONObject_query)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER

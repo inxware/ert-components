@@ -37,6 +37,7 @@ typedef struct
     EhsGraphicsRectangleClass xRect; /**< Bounding box of widget */
     ehs_uint32 nZorder; /**< Z-order. Lower values go behind higher ones  */
     EhsWidgetClassType eClass; /**< Indicates what kind of widget are we dealing */
+    ehs_sint16 nTextBoxType;
     union
     {
         struct
@@ -55,6 +56,10 @@ typedef struct
             ehs_uint16 nLineSep;	/**< Separation between lines */
             ehs_bool bRelativeCoords; /**< used to identify of coords. should be interpreted as percentage of screen */
             ehs_char szFontName[EHS_FILESTRING_SIZE];	/**< Font name (if any) */
+            ehs_uint16 nType;  /**< Extended text box type */
+            ehs_uint16 nProp;  /**< Extended text box properties */
+            ehs_uint16 nCurve; /**< Extended text box curveture property, used for  */
+            ehs_uint16 nParent;/**< Extended text box parent id */
         } xTextbox;
         EhsGraphicsColourClass xPatch; /**< Colour of patch */
     } uClass;

@@ -32,15 +32,15 @@
 
 EHS_FB_FUNCTIONS_START(UrlGet)
 
-EHS_FB_FUNCTION_ENTRY("getpost", 0x00, UrlGet_get)
+EHS_FB_FUNCTION_ENTRY("getpost", 0x01, UrlGet_get)
 
-EHS_FB_FUNCTION_ENTRY("abort", 0x01, UrlGet_abort)
+EHS_FB_FUNCTION_ENTRY("abort", 0x02, UrlGet_abort)
 
-EHS_FB_FUNCTION_ENTRY("savecookies", 0x02, UrlGet_savecookies)
+EHS_FB_FUNCTION_ENTRY("savecookies", 0x03, UrlGet_savecookies)
 
-EHS_FB_FUNCTION_ENTRY("clearcookies", 0x03, UrlGet_clearcookies)
+EHS_FB_FUNCTION_ENTRY("clearcookies", 0x04, UrlGet_clearcookies)
 
-EHS_FB_FUNCTION_ENTRY("getmoredata", 0x04, UrlGet_getmore)
+EHS_FB_FUNCTION_ENTRY("getmoredata", 0x05, UrlGet_getmore)
 EHS_FB_FUNCTIONS_END
 
 /* port identifiers for getpost */
@@ -100,8 +100,6 @@ static CURL * _global_curl=NULL;
 
 #endif
 
-/* @todo
-
 /* Some internal limits */
 #define EHS_STRING_LENGTH_MAX_LARGE (EHS_STRING_LENGTH_MAX*4) //@todo formalise this
 
@@ -126,7 +124,7 @@ struct EhsFbUrlGetStruct   //Note make all ints and bools ehs_uint32 to avoid sc
     ehs_uint32 nPriority; /* This is actually the duty gap that  can be inserted to avoid network flooding */
     EhsH_URLwrite_data_bufferType *write_data_buffer_struct; /* this contains the buffer information so that other functions can prod it for more data */
     CURL *curl; /* THis allows session cookies to be used for this one block*/
-    /*	EhsCallbackQueueEntryType xCallbackOut;		/* [ internal system variable!! */
+    /*	EhsCallbackQueueEntryType xCallbackOut; [ internal system variable!! */
 
     ehs_char szHeaderToSend[EHS_STRING_LENGTH_MAX]; // comma separated list of header lines (libcurl format)
     ehs_char szHeadersReceived[EHS_STRING_LENGTH_MAX]; // comma separated list of header lines (libcurl format)
@@ -189,7 +187,7 @@ EHS_FB_INIT_FUNCTION(UrlGet)
     EhsStrcpy(pUrlGet->szPpasswd, "");
     EhsStrcpy(pUrlGet->szHeaderToSend, "");
     EhsStrcpy(pUrlGet->szHeadersReceived, "");
-    EhsSscanf(EHS_FB_INIT_PARAMETERS, "%s%s%s%hhd%hhd%d%d%d%hhd%s%s%s%s%s%d%hhd%hhd",
+    EhsSscanf(EHS_FB_INIT_PARAMETERS, "%s%s%s%hhd%hhd%d%d%d%hhd%s%s%s%s%s%hd%hhd%hhd",
               pUrlGet->szURL, pUrlGet->szPostData, pUrlGet->szSavePath,
               &pUrlGet->bPost, &pUrlGet->bKeepPath,
               &pUrlGet->nPathLevelsToIgnore, &pUrlGet->nPriority,
@@ -197,7 +195,6 @@ EHS_FB_INIT_FUNCTION(UrlGet)
               pUrlGet->szUname, pUrlGet->szPasswd,
               pUrlGet->szSslCertificatePath, pUrlGet->szSslCertificatePassword, pUrlGet->szCaSslCertificate,&pUrlGet->nCertificateLocation,
               &pUrlGet->bUseproxy, &pUrlGet->bOverwriteAll); //@todo may need to make temp vars of int * type and convert as scanf wont do this properly.
-
     /* remove any NULL strings*/
     if (EhsStrcmp(pUrlGet->szPostData, "NULL") == 0)
         pUrlGet->szPostData[0] = '\0';
@@ -293,7 +290,7 @@ ehs_bool EhsURL_EncodeURLtoCookieJarFSName(ehs_char* out,ehs_char * szURL)
     if (!szURL)
         return EHS_FALSE; /* don't event try */
 
-    if (temp = EhsStrstr(szURL, "http")) // move temp up to the first http if we have one @todo what if utl has no http buta apramters does?
+    if ( (temp = EhsStrstr(szURL, "http")) ) // move temp up to the first http if we have one @todo what if utl has no http buta apramters does?
         temp = temp + EhsStrlen("http");
     else temp =szURL;
 
@@ -342,6 +339,40 @@ ehs_bool EhsURL_EncodeURLtoCookieJarFSName(ehs_char* out,ehs_char * szURL)
     return EHS_TRUE;
 }
 
+#ifdef EHS_ENABLE_CURL_VERBOSE
+int ehs_curl_debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
+    (void)handle; // unused
+    (void)userptr; // unused
+
+    switch (type) {
+        case CURLINFO_TEXT:
+            //printf("[INFO] %.*s", (int)size, data);
+            EHSH_LOG_ERROR("CURL [INFO] %.*s", (int)size, data);
+            break;
+        case CURLINFO_HEADER_IN:
+            //printf("[HEADER_IN] %.*s", (int)size, data);
+            EHSH_LOG_ERROR("CURL [HEADER_IN] %.*s", (int)size, data);
+            break;
+        case CURLINFO_HEADER_OUT:
+            //printf("[HEADER_OUT] %.*s", (int)size, data);
+            EHSH_LOG_ERROR("CURL [HEADER_OUT] %.*s", (int)size, data);
+            break;
+        case CURLINFO_DATA_IN:
+            //printf("[DATA_IN] %.*s", (int)size, data);
+           // EHSH_LOG_ERROR("CURL [DATA_IN] %.*s", (int)size, data);
+            break;
+        case CURLINFO_DATA_OUT:
+            //printf("[DATA_OUT] %.*s", (int)size, data);
+          //  EHSH_LOG_ERROR("CURL [DATA_OUT] %.*s", (int)size, data);
+
+            break;
+        default: /* Do nothing */ ;
+    }
+
+    return 0;
+}
+#endif
+
 EHS_FB_THREAD_FUNCTION(GetUrl_thread)
 {
     ehs_char szTempString[EHS_STRING_LENGTH_MAX]="";
@@ -379,6 +410,10 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     if (!PURLLGET_CURL)
     {
         PURLLGET_CURL = curl_easy_init();
+#ifdef EHS_ENABLE_CURL_VERBOSE
+        curl_easy_setopt(PURLLGET_CURL, CURLOPT_DEBUGFUNCTION, ehs_curl_debug_callback);
+        curl_easy_setopt(PURLLGET_CURL, CURLOPT_VERBOSE, 1L);
+#endif
     }
     /* Setup the cookie files */
     if (PURLLGET_CURL && EhsStrlen(pUrlGet->szURL))   /* and do some extra config. for cookies */
@@ -521,7 +556,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     } // ed of init sub scope
     /* Choose if we add post data - note this might be get data URI also - bad nameing! */
     /* set up the URL and http header */
-    if (pUrlGet->szPostData && (EhsStrlen(pUrlGet->szPostData) > 0))   /* Require we have a string to pass if it a post */
+    if ( (pUrlGet->szPostData != NULL)  && (EhsStrlen(pUrlGet->szPostData) > 0))   /* Require we have a string to pass if it a post */
     {
         EhsHURLConfigPostGet(PURLLGET_CURL,NULL,pUrlGet->szURL, pUrlGet->szPostData,pUrlGet->bPost==EHS_TRUE); /* this implies a post in libcurl */
     }
@@ -688,11 +723,14 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                 //make a ctmep copy name
 
 #ifdef EHS_MINGW
+                ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
+                EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_USERDATA_DIR, szTempFilePath2, EHS_TRUE);
+                Ehs_MakePath(szCanonicalFilePath, EHS_TRUE);
                 pUrlGet->write_data_buffer_struct->filehandle = Ehs_UserFopen(szTempFilePath2, "wb");
 #else
                 pUrlGet->write_data_buffer_struct->filehandle = Ehs_UserFopen(szTempFilePath2, "w");
-                if (pUrlGet->write_data_buffer_struct->filehandle &&
-                        fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF )
+                if ( pUrlGet->write_data_buffer_struct->filehandle &&
+                        ( fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF ) )
                 {
 
                     EHSH_LOG_ERROR(" Download file descriptor error. trying again : fd= %d\n",fileno(pUrlGet->write_data_buffer_struct->filehandle));
@@ -700,7 +738,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                     pUrlGet->write_data_buffer_struct->filehandle = Ehs_UserFopen(szTempFilePath2, "w");
                     EhsFclose(f);
                     if (pUrlGet->write_data_buffer_struct->filehandle &&
-                            fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF )
+                           ( fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF ) )
                     {
                         EHSH_LOG_ERROR(" Download file descriptor error - retry unseccessful:  fd = %d\n",fileno(pUrlGet->write_data_buffer_struct->filehandle));
                         request_config_error = EHS_TRUE; //- todo we could still try to revocer this?

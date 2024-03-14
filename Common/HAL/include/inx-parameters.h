@@ -8,7 +8,7 @@
  ***************************************************************/
 
 #include "globals.h"
-#include "parse_sodl.h"
+#include "hal_utils.h"
 //@todo this maybe reviewed.
 
 

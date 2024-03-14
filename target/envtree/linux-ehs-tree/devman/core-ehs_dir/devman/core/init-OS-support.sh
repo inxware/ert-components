@@ -43,7 +43,6 @@ test /usr/sbin/cron  &&  /usr/sbin/cron > /dev/null
 test /bin/cron  &&  /bin/cron > /dev/null
 fi
 
-
 # Create Cron file to point at the EHS install tree
 mkdir -p "${SYSDATA}${VARIABLE_CACHE}"
 echo "* * * * * ${INXWAREROOT}/devman/core/sys-timer.sh > /dev/null" > "${SYSDATA}${VARIABLE_CACHE}"all.crons

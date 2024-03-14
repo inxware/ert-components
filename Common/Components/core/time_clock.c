@@ -71,11 +71,12 @@
 
 EHS_FB_FUNCTIONS_START(time_clock)
 
-EHS_FB_FUNCTION_ENTRY("start", 0x00, time_clock_start)
-
-EHS_FB_FUNCTION_ENTRY("stop", 0x01, time_clock_stop)
+EHS_FB_FUNCTION_ENTRY("start", 0x01, time_clock_start)
 
 EHS_FB_FUNCTION_ENTRY("tick", 0x02, time_clock_tick)
+
+EHS_FB_FUNCTION_ENTRY("stop", 0x03, time_clock_stop)
+
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -183,7 +184,6 @@ EHS_FB_RUN_FUNCTION(time_clock_start)
         pTimeClock->bStarted=EHS_TRUE;
         /* start the timer */
         EhsTimer_set(&(pTimeClock->xTimer), EHS_CURRENT_TIME_OFFSET(pTimeClock->tPeriod));
-
     }
 
     EhsFunctionInstanceData_triggerEvent(EHS_FB_RUN_CONTEXT_REF,1);

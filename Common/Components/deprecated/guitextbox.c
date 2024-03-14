@@ -76,56 +76,56 @@
 
 EHS_FB_FUNCTIONS_START(gui_text_string)
 
-EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_text_create)
+EHS_FB_FUNCTION_ENTRY("create", 0x01, gui_text_create)
 
-EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_text_destroy)
+EHS_FB_FUNCTION_ENTRY("destroy", 0x02, gui_text_destroy)
 
-EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_text_show)
+EHS_FB_FUNCTION_ENTRY("show", 0x03, gui_text_show)
 
-EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_text_hide)
+EHS_FB_FUNCTION_ENTRY("hide", 0x04, gui_text_hide)
 
-EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_text_string_update)
+EHS_FB_FUNCTION_ENTRY("update", 0x05, gui_text_string_update)
 EHS_FB_FUNCTIONS_END
 
 #ifdef EHS_TARGET_FP_SUPPORT
 EHS_FB_FUNCTIONS_START(gui_text_float)
 
-EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_text_create)
+EHS_FB_FUNCTION_ENTRY("create", 0x01, gui_text_create)
 
-EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_text_destroy)
+EHS_FB_FUNCTION_ENTRY("destroy", 0x02, gui_text_destroy)
 
-EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_text_show)
+EHS_FB_FUNCTION_ENTRY("show", 0x03, gui_text_show)
 
-EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_text_hide)
+EHS_FB_FUNCTION_ENTRY("hide", 0x04, gui_text_hide)
 
-EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_text_float_update)
+EHS_FB_FUNCTION_ENTRY("update", 0x05, gui_text_float_update)
 EHS_FB_FUNCTIONS_END
 #endif
 
 EHS_FB_FUNCTIONS_START(gui_text_int)
 
-EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_text_create)
+EHS_FB_FUNCTION_ENTRY("create", 0x01, gui_text_create)
 
-EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_text_destroy)
+EHS_FB_FUNCTION_ENTRY("destroy", 0x02, gui_text_destroy)
 
-EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_text_show)
+EHS_FB_FUNCTION_ENTRY("show", 0x03, gui_text_show)
 
-EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_text_hide)
+EHS_FB_FUNCTION_ENTRY("hide", 0x04, gui_text_hide)
 
-EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_text_int_update)
+EHS_FB_FUNCTION_ENTRY("update", 0x05, gui_text_int_update)
 EHS_FB_FUNCTIONS_END
 
 EHS_FB_FUNCTIONS_START(gui_text_bool)
 
-EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_text_create)
+EHS_FB_FUNCTION_ENTRY("create", 0x01, gui_text_create)
 
-EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_text_destroy)
+EHS_FB_FUNCTION_ENTRY("destroy", 0x02, gui_text_destroy)
 
-EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_text_show)
+EHS_FB_FUNCTION_ENTRY("show", 0x03, gui_text_show)
 
-EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_text_hide)
+EHS_FB_FUNCTION_ENTRY("hide", 0x04, gui_text_hide)
 
-EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_text_bool_update)
+EHS_FB_FUNCTION_ENTRY("update", 0x05, gui_text_bool_update)
 EHS_FB_FUNCTIONS_END
 
 EHS_LOCAL void Ehs_gui_text_update(EhsWidgetClass* pWidget, const ehs_char* szString, ehs_bool bAlphaConnected, EhsDataflowIntType nAlpha, ehs_bool bXConnected,
@@ -149,12 +149,14 @@ EHS_FB_IDENTIFY_FUNCTION(gui_text)
 EHS_FB_INIT_FUNCTION(gui_text)
 {
     EhsGuiParamsType xParams;
-    EhsGraphicsFontClass* pFont;
+    EhsGraphicsFontClass* pFont = NULL;
     ehs_bool bRet = EHS_FALSE; /* assume initialisation fails */
     EhsParseGuiParameters(EHS_FB_INIT_PARAMETERS,&xParams);
     if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
     {
+#ifndef EHS_DONT_USE_BASIC_FONTS
         pFont = EhsGraphicsFont_load(EHSHG_FONT_DEFAULT);
+#endif
         *(EhsWidgetClass**)EHS_FB_INIT_CONTEXT =
             EhsWidgetTextbox_init(&(xParams.xRect), xParams.nZorder,
                                   EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT,

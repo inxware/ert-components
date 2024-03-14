@@ -26,7 +26,7 @@
 
 
 EHS_FB_FUNCTIONS_START(gtk_keypress)
-EHS_FB_FUNCTION_ENTRY("hit", 0x00, gtk_keypress_hit)
+EHS_FB_FUNCTION_ENTRY("hit", 0x01, gtk_keypress_hit)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_GTKX86_KEYPRESS -1 /**< Callback id for keypress event */

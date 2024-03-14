@@ -34,6 +34,9 @@
 
 #include "hal_string.h"
 #include "hal_process.h"
+#ifdef EHS_GUI_SUPPORT_MODE_B
+#include "target_viewport_modeB.h"
+#endif
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -67,6 +70,8 @@ EhsWidgetTableClass EhsWidgetTable= {0};
 
 /**
  * Create the widget. This is a necessary step prior to showing the widget
+ * 
+ * Works in both render MODE_A anad MODE_B
  */
 void EhsWidget_create(EhsWidgetClass* pWidget)
 {
@@ -119,7 +124,9 @@ void EhsWidget_create(EhsWidgetClass* pWidget)
     }
 }
 
-/* Call this before setting any widt type specific initialisation to set common parameters */
+/* Call this before setting any widt type specific initialisation to set common parameters 
+    Works in both render MODE_A anad MODE_B
+*/
 
 void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pRect, ehs_uint16 nZ, ehs_uint8 nAlpha)
 {
@@ -140,12 +147,17 @@ void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pR
     pWidget->pfDestroyFunc = NULL;
     pWidget->pfDrawFunc = NULL;
     pWidget->pfFadeFunc = NULL;
+    pWidget->pfMouseDownEventFunc = NULL;
+    pWidget->pMouseDownEventData = NULL;
 }
 
 
 /**
  * Destroy the widget. Required after the widget has been finished with.
  * Destroy does not hide the widget.
+ * 
+ * Works in both render MODE_A anad MODE_B
+ * In Render Mode B we need to call the target specfici widget deleete function - this is done in target code.
  */
 void EhsWidget_destroy(EhsWidgetClass* pWidget)
 {
@@ -175,6 +187,8 @@ void EhsWidget_destroy(EhsWidgetClass* pWidget)
 
 /** @brief This function changes the original coordinates size of a widget depending on the relative value and if the new values are valid.
  *  Used by Target Viewport, but could be used in any widget though (untested!)
+ * 
+ *  Should work in Works in both render MODE_A anad MODE_B - TBC!!
  * */
 void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bRelative, ehs_sint32 nLeft, ehs_sint32 nWidth, ehs_sint32 nTop, ehs_sint32 nHeight )
 {
@@ -233,7 +247,6 @@ void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bRelative, eh
         //	pWidget->xOrigRect.nHeight = (nHeight*nScreenHeight)/100;
     }
 
-
     /* Need to copy this to the other working rectangles also. Leave the xOriginalRect as is!!!! */
     //EhsMemcpy(,pBounds,sizeof(EhsGraphicsRectangleClass));
     EhsMemcpy(&(pWidget->xCurRect),&(pWidget->xOrigRect),sizeof(EhsGraphicsRectangleClass));
@@ -259,7 +272,7 @@ void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bRelative, eh
  * @param[in] nWoffset current width offset to use (value is offset to default image position)
  * @param[in] bHConnected true if the height offset should be used
  * @param[in] nHoffset current height offset to use (value is offset to default image position)
- *
+ * Works in both render MODE_A anad MODE_B
  */
 void Ehs_widget_position_update(EhsWidgetClass* pWidget, ehs_bool bAlphaConnected, EhsDataflowIntType nAlpha,
                                 ehs_bool bXConnected, EhsDataflowIntType nXoffset,
@@ -269,6 +282,7 @@ void Ehs_widget_position_update(EhsWidgetClass* pWidget, ehs_bool bAlphaConnecte
 {
 
     pWidget->bContentChanged = EHS_TRUE; /* Used only by text bpxes */
+    pWidget->bPositionUpdated = EHS_TRUE;
 
     if (bAlphaConnected)
     {
@@ -297,6 +311,18 @@ void Ehs_widget_position_update(EhsWidgetClass* pWidget, ehs_bool bAlphaConnecte
 
 }
 
+/**
+ * Applies changes to the widget
+ *
+ * @param[in] pWidget Widget to update
+ * */
+void Ehs_widget_commit(EhsWidgetClass* pWidget)
+{
+// this only applies EHS_GUI_SUPPORT_MODE_B
+#ifdef EHS_GUI_SUPPORT_MODE_B
+    pWidget->pfDrawFunc(pWidget, NULL, NULL);
+#endif
+}
 
 
 /**
@@ -305,10 +331,11 @@ void Ehs_widget_position_update(EhsWidgetClass* pWidget, ehs_bool bAlphaConnecte
  */
 void EhsWidget_show(EhsWidgetClass* pWidget)
 {
-    EhsTPMutex_lock(EhsTPMutex_viewport);
-    EhsWidget_setState(pWidget, pWidget->nState | EHS_WIDGET_STATE_SHOW);
-
-    EhsTPMutex_unlock(EhsTPMutex_viewport);
+    if (pWidget) {
+        EhsTPMutex_lock(EhsTPMutex_viewport);
+        EhsWidget_setState(pWidget, pWidget->nState | EHS_WIDGET_STATE_SHOW);
+        EhsTPMutex_unlock(EhsTPMutex_viewport);
+    }
 }
 
 /**
@@ -317,13 +344,12 @@ void EhsWidget_show(EhsWidgetClass* pWidget)
  */
 void EhsWidget_hide(EhsWidgetClass* pWidget)
 {
-    EhsTPMutex_lock(EhsTPMutex_viewport);
-    EhsWidget_setState(pWidget, pWidget->nState & (~EHS_WIDGET_STATE_SHOW));
-    EhsTPMutex_unlock(EhsTPMutex_viewport);
+    if (pWidget) {
+        EhsTPMutex_lock(EhsTPMutex_viewport);
+        EhsWidget_setState(pWidget, pWidget->nState & (~EHS_WIDGET_STATE_SHOW));
+        EhsTPMutex_unlock(EhsTPMutex_viewport);
+    }
 }
-
-
-
 
 /**
  * Change the widget's state, and test whether it needs to be redrawn:
@@ -335,16 +361,21 @@ void EhsWidget_hide(EhsWidgetClass* pWidget)
  */
 EHS_LOCAL void EhsWidget_setState(EhsWidgetClass* pWidget, ehs_uint8 nNewState)
 {
-    /* Check for state change, and that previous state was showing widget
-     * Update viewport if both have occurred */
-    if (EHS_WIDGET_STATE_SHOWN(nNewState) != EHS_WIDGET_STATE_SHOWN(pWidget->nState))
-    {
-        pWidget->nState = nNewState; /* update the state before calling _updateRect */
-        EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
-    }
-    else
-    {
-        pWidget->nState = nNewState; /* update state but redraw is not necessary as visibility has not changed */
+    if (pWidget) {
+        /* Check for state change, and that previous state was showing widget
+        * Update viewport if both have occurred */
+        if (EHS_WIDGET_STATE_SHOWN(nNewState) != EHS_WIDGET_STATE_SHOWN(pWidget->nState))
+        {
+            pWidget->nState = nNewState; /* update the state before calling _updateRect */
+    #ifdef EHS_GUI_SUPPORT_MODE_B
+            EhsTargetWidget_show(pWidget, pWidget->nState);
+    #endif
+            EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
+        }
+        else
+        {
+            pWidget->nState = nNewState; /* update state but redraw is not necessary as visibility has not changed */
+        }
     }
 }
 
@@ -360,91 +391,111 @@ EHS_LOCAL void EhsWidget_setState(EhsWidgetClass* pWidget, ehs_uint8 nNewState)
  * @param[in] nY new relative Y position to move widget to
  * @param[in] nWid Change in width for the widget
  * @param[in] nHt change in height for the widget
+ * 
+ * todo2023 - the OpenGL/Android version of this function seems to call rendering functions directly, byt better models like GTK don't - ut sjust updates coords etc.?
  */
+
 void EhsWidget_move(EhsWidgetClass* pWidget, EhsDataflowIntType nX, EhsDataflowIntType nY, EhsDataflowIntType nDeltaWid, EhsDataflowIntType nDeltaHt)
 {
-    EhsGraphicsRectangleClass xOldPos; /* contains the previous position of the widget */
-    ehs_float dWHsrc; /* ratio of wid:ht for the two input rectangles */
+    if (pWidget) {
+        EhsGraphicsRectangleClass xOldPos; /* contains the previous position of the widget */
+        ehs_float dWHsrc; /* ratio of wid:ht for the two input rectangles */
 
-    EhsTPMutex_lock(EhsTPMutex_viewport);
+        EhsTPMutex_lock(EhsTPMutex_viewport);
 
-    /* get the current rectangle position */
-    EhsMemcpy(&xOldPos,&(pWidget->xCurRect),sizeof(EhsGraphicsRectangleClass));
-    /* calculate the new position of the widget */
-    //pWidget->xCurRect.nLeft = EHS_CONVERT_UINT16_SATURATE(pWidget->xOrigRect.nLeft + nX);
-    pWidget->xCurRect.nLeft = pWidget->xOrigRect.nLeft + nX;
-    //pWidget->xCurRect.nTop = EHS_CONVERT_UINT16_SATURATE(pWidget->xOrigRect.nTop + nY);
-    pWidget->xCurRect.nTop = pWidget->xOrigRect.nTop + nY;
-    pWidget->xCurRect.nWidth = EHS_CONVERT_UINT16_SATURATE(pWidget->xOrigRect.nWidth + nDeltaWid);
-    pWidget->xCurRect.nHeight = EHS_CONVERT_UINT16_SATURATE(pWidget->xOrigRect.nHeight + nDeltaHt);
-    /* dk: why did we add this - don't want to prevent widgets from being off the viewport
-    	if (pWidget->xCurRect.nLeft < 0) pWidget->xCurRect.nLeft=0;
-    	if (pWidget->xCurRect.nTop < 0) pWidget->xCurRect.nTop =0;
-    */
-    if (pWidget->xCurRect.nWidth < 0) pWidget->xCurRect.nWidth=0;
-    if (pWidget->xCurRect.nHeight  < 0) pWidget->xCurRect.nHeight =0;
-    // if flag set to maintain aspect ratio, only delta w parameter is considered and new height is calc'd from this - delta h parameter is ignored
-#ifdef XXXXDONETHISELSWHERE
-    if (pWidget->bMaintainAspectRatio)
-    {
-        dWHsrc = (ehs_float)pWidget->xOrigRect.nWidth/(ehs_float)pWidget->xOrigRect.nHeight;
-        pWidget->xCurRect.nHeight = (ehs_uint32) pWidget->xCurRect.nWidth / dWHsrc;
-    }
-#endif
-    /* check if we have moved or resized - if we haven't we don't need to repaint
-     * this avoids unnecessary updates to the viewport.
-     *
-     * NOTE: We must NOT test "is the widget within the current viewport?" here.
-     * Initially this seemed to be an optimization to avoid unnecessary repainting
-     * when the widget is no longer visible. However a move
-     * function might change a widget from being positioned within the viewport to
-     * outside the viewport - this must result in a call to EhsTV_update */
-    if ((pWidget->xCurRect.nLeft != xOldPos.nLeft) ||
-            (pWidget->xCurRect.nTop != xOldPos.nTop) ||
-            (pWidget->xCurRect.nHeight != xOldPos.nHeight) ||
-            (pWidget->xCurRect.nWidth != xOldPos.nWidth))
-    {
-        /* if pWidget is visible, update viewport */
-        if (EHS_WIDGET_STATE_SHOWN(pWidget->nState))
+        /* get the current rectangle position */
+        EhsMemcpy(&xOldPos,&(pWidget->xCurRect),sizeof(EhsGraphicsRectangleClass));
+        /* calculate the new position of the widget */
+        //pWidget->xCurRect.nLeft = EHS_CONVERT_UINT16_SATURATE(pWidget->xOrigRect.nLeft + nX);
+        pWidget->xCurRect.nLeft = pWidget->xOrigRect.nLeft + nX;
+        //pWidget->xCurRect.nTop = EHS_CONVERT_UINT16_SATURATE(pWidget->xOrigRect.nTop + nY);
+        pWidget->xCurRect.nTop = pWidget->xOrigRect.nTop + nY;
+        pWidget->xCurRect.nWidth = EHS_CONVERT_UINT16_SATURATE(pWidget->xOrigRect.nWidth + nDeltaWid);
+        pWidget->xCurRect.nHeight = EHS_CONVERT_UINT16_SATURATE(pWidget->xOrigRect.nHeight + nDeltaHt);
+        /* dk: why did we add this - don't want to prevent widgets from being off the viewport
+            if (pWidget->xCurRect.nLeft < 0) pWidget->xCurRect.nLeft=0;
+            if (pWidget->xCurRect.nTop < 0) pWidget->xCurRect.nTop =0;
+        */
+        if (pWidget->xCurRect.nWidth < 0) pWidget->xCurRect.nWidth=0;
+        if (pWidget->xCurRect.nHeight  < 0) pWidget->xCurRect.nHeight =0;
+        // if flag set to maintain aspect ratio, only delta w parameter is considered and new height is calc'd from this - delta h parameter is ignored
+    #ifdef XXXXDONETHISELSWHERE
+        if (pWidget->bMaintainAspectRatio)
         {
-            /* do we do two updates (clear previous position of widget, set new position of widget)
-             * or one update (single rectangle containing new and old position)?
-             * That depends if we have an overlap
-             */
-            /*This should use the proper if statement but it leaves artifacts for some reason so just force two updates*/
-            if (EhsGraphicsRectangle_overlap(&(pWidget->xCurRect),&xOldPos)) /* this function needs to be made more choosy*/
+            dWHsrc = (ehs_float)pWidget->xOrigRect.nWidth/(ehs_float)pWidget->xOrigRect.nHeight;
+            pWidget->xCurRect.nHeight = (ehs_uint32) pWidget->xCurRect.nWidth / dWHsrc;
+        }
+    #endif
+        /* check if we have moved or resized - if we haven't we don't need to repaint
+        * this avoids unnecessary updates to the viewport.
+        *
+        * NOTE: We must NOT test "is the widget within the current viewport?" here.
+        * Initially this seemed to be an optimization to avoid unnecessary repainting
+        * when the widget is no longer visible. However a move
+        * function might change a widget from being positioned within the viewport to
+        * outside the viewport - this must result in a call to EhsTV_update */
+        if ((pWidget->xCurRect.nLeft != xOldPos.nLeft) ||
+                (pWidget->xCurRect.nTop != xOldPos.nTop) ||
+                (pWidget->xCurRect.nHeight != xOldPos.nHeight) ||
+                (pWidget->xCurRect.nWidth != xOldPos.nWidth))
+        {
+            /* if pWidget is visible, update viewport */
+            if (EHS_WIDGET_STATE_SHOWN(pWidget->nState))
             {
-                EhsGraphicsRectangle_union(&xOldPos,&(pWidget->xCurRect),&xOldPos);
-                EhsTV_updateRect(&EhsTV, xOldPos.nLeft, xOldPos.nTop, xOldPos.nWidth, xOldPos.nHeight); /* this might be faster if we passed in a rect reference */
-            }
-            else
-            {
-                EhsTV_updateRect(&EhsTV, xOldPos.nLeft, xOldPos.nTop, xOldPos.nWidth, xOldPos.nHeight);
-                EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
+            /*  todo XA - Mode B rndering doesn't need any of the EhsTV_updateRect() function #if def this out.
+                e.g. #ifndef MODE_B
+            */
+            
+            
+                /* do we do two updates (clear previous position of widget, set new position of widget)
+                * or one update (single rectangle containing new and old position)?
+                * That depends if we have an overlap
+                */
+                /*This should use the proper if statement but it leaves artifacts for some reason so just force two updates*/
+                if (EhsGraphicsRectangle_overlap(&(pWidget->xCurRect),&xOldPos)) /* this function needs to be made more choosy*/
+                {
+                    EhsGraphicsRectangle_union(&xOldPos,&(pWidget->xCurRect),&xOldPos);
+                    EhsTV_updateRect(&EhsTV, xOldPos.nLeft, xOldPos.nTop, xOldPos.nWidth, xOldPos.nHeight); /* this might be faster if we passed in a rect reference */
+                }
+                else
+                {
+                    EhsTV_updateRect(&EhsTV, xOldPos.nLeft, xOldPos.nTop, xOldPos.nWidth, xOldPos.nHeight);
+                    EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
+                }
+
+                // todo XA
+                // #else //MODE_B
+                //     pWidget->pfDrawFunc(pWidget);
+
+                // # endif
             }
         }
+        EhsTPMutex_unlock(EhsTPMutex_viewport);
     }
-    EhsTPMutex_unlock(EhsTPMutex_viewport);
-
 }
 
 /**
  * Fade the image in or out by scaling its global alpha level by the specified amount
  *
  * @param nOpacity amount of opacity for image. 0 = minimum opacity, 255 maximum opacity.
+ * 
+ * todo XA - Mode B rndering doesn't need any of the EhsTV_updateRect() function #if def this out.
  */
 void EhsWidget_fade(EhsWidgetClass* pWidget, ehs_uint8 nOpacity)
 {
-    ehs_bool bUpdate;
-    EhsTPMutex_lock(EhsTPMutex_viewport);
+    if (pWidget) {
+        ehs_bool bUpdate;
+        EhsTPMutex_lock(EhsTPMutex_viewport);
 
-    bUpdate = pWidget->pfFadeFunc(pWidget, nOpacity);
+        bUpdate = pWidget->pfFadeFunc(pWidget, nOpacity);
 
-    if (EHS_WIDGET_STATE_SHOWN(pWidget->nState) && bUpdate)
-    {
-        EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
+        if (EHS_WIDGET_STATE_SHOWN(pWidget->nState) && bUpdate)
+        {
+            EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
+            pWidget->bColourUpdated = EHS_TRUE;
+        }
+        EhsTPMutex_unlock(EhsTPMutex_viewport);
     }
-    EhsTPMutex_unlock(EhsTPMutex_viewport);
 }
 
 /**
@@ -456,17 +507,19 @@ void EhsWidget_fade(EhsWidgetClass* pWidget, ehs_uint8 nOpacity)
  */
 void EhsWidget_draw(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
-    EhsTPMutex_lock(EhsTPMutex_viewport);
+    if (pWidget) {
+        EhsTPMutex_lock(EhsTPMutex_viewport);
 
-    if (EHS_WIDGET_STATE_SHOWN(pWidget->nState))
-    {
-        if (EhsGraphicsRectangle_overlap(&(pWidget->xCurRect), pClipRect))
+        if (EHS_WIDGET_STATE_SHOWN(pWidget->nState))
         {
-            /* only display widgets if there is an overlap between the clip rectangle and the bounding rectangle for the widget */
-            pWidget->pfDrawFunc(pWidget, pViewport, pClipRect);
+            if (EhsGraphicsRectangle_overlap(&(pWidget->xCurRect), pClipRect))
+            {
+                /* only display widgets if there is an overlap between the clip rectangle and the bounding rectangle for the widget */
+                pWidget->pfDrawFunc(pWidget, pViewport, pClipRect);
+            }
         }
+        EhsTPMutex_unlock(EhsTPMutex_viewport);
     }
-    EhsTPMutex_unlock(EhsTPMutex_viewport);
 }
 
 /* Reset the widget table and clear the viewport */
@@ -742,6 +795,17 @@ void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableCla
                             if (pWidget->mouseDownPortNumber > -1)
                                 EhsFunctionInstanceData_triggerEvent(pWidget->pFIData,(pWidget->mouseDownPortNumber));;
                             bClickProcessed = EHS_TRUE;
+                        }
+                    } 
+                    else 
+                    {
+                        /* this is used for widgets created without pFIData e.g. GPIO widget */
+                        if (pWidget->pfMouseDownEventFunc != NULL) {
+                            /*Check if click coordinates fall inside widgets boundaries*/
+                            if (((pWidget->xCurRect.nLeft <= x) && (x <= pWidget->xCurRect.nLeft + pWidget->xCurRect.nWidth)) && ((pWidget->xCurRect.nTop <= y) && (y <= pWidget->xCurRect.nTop + pWidget->xCurRect.nHeight)))
+                            {
+                                pWidget->pfMouseDownEventFunc(pWidget);
+                            }
                         }
                     }
                 }

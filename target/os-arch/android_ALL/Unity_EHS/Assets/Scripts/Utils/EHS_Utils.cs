@@ -11,6 +11,7 @@ public class EHS_Utils
         string newjson = json.Replace("\"params\"", "\"parameters\"");
         newjson = newjson.Replace("\"smilText\"", "\"text\"");
         newjson = newjson.Replace("\n", "<p>");
+        newjson = newjson.Replace("\\", "/"); // fix any windowsy paths which cause issues with json parser
         return newjson;    
     }
 
@@ -165,4 +166,10 @@ public class EHS_Utils
         } while(attemptsCounter > 0);
         return false;
     }
+
+    public static void WriteLog(string fileName, string text){ 
+        string log = DateTime.Now.ToString("HH:mm:ss.fff") + "  " + text;
+        System.IO.File.AppendAllText(fileName, log + "\n");
+    }
+
 }

@@ -58,7 +58,7 @@
 /**
  * Check for any errors and report them if appropriate
  */
-#define EHS_TD_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EhsError(EHS_MSG_TGT_STAPI(func,GetErrorText(err))); }
+#define EHS_TD_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EHSH_LOG_ERROR(EHS_MSG_TGT_STAPI(func,GetErrorText(err))); }
 
 /**
  * Indicates the state that the playback is currently in
@@ -167,7 +167,7 @@ ehs_bool EhsTDPlayback_loadFile(EhsTDPlaybackClass* pPlayback, EhsTDFilesClass* 
  */
 ehs_bool EhsTDPlayback_setPos(EhsTDPlaybackClass* pPlayback, ehs_uint32 nPos)
 {
-    EhsError(EHS_MSG_ERROR_NOT_YET_IMPLEMENTED("EhsTDPlayback_setPos"));
+    EHSH_LOG_ERROR(EHS_MSG_ERROR_NOT_YET_IMPLEMENTED("EhsTDPlayback_setPos"));
     return EHS_FALSE;
 }
 
@@ -179,7 +179,7 @@ ehs_bool EhsTDPlayback_setPos(EhsTDPlaybackClass* pPlayback, ehs_uint32 nPos)
  */
 ehs_bool EhsTDPlayback_getPos(EhsTDPlaybackClass* pPlayback, ehs_uint32* pnPos)
 {
-    EhsError(EHS_MSG_ERROR_NOT_YET_IMPLEMENTED("EhsTDPlayback_setPos"));
+    EHSH_LOG_ERROR(EHS_MSG_ERROR_NOT_YET_IMPLEMENTED("EhsTDPlayback_setPos"));
     return EHS_FALSE;
 }
 
@@ -227,7 +227,7 @@ ehs_bool EhsTDPlayback_play(EhsTDPlaybackClass* pPlayback, ehs_sint32 nSpeed)
         ErrCode = main_shared_exec("vid_inj -1");
         if (ErrCode != ST_NO_ERROR)
         {
-            EhsError(EHS_MSG_TGT_STAPI("main_shared_exec(vid_inj -1)",GetErrorText(ErrCode)));
+            EHSH_LOG_ERROR(EHS_MSG_TGT_STAPI("main_shared_exec(vid_inj -1)",GetErrorText(ErrCode)));
             pPlayback->xPlaybackState = EHS_FB_STATE_NOT_LOADED;
             pPlayback->nPlaySpeed = 0;
             bRet = EHS_FALSE;
@@ -238,7 +238,7 @@ ehs_bool EhsTDPlayback_play(EhsTDPlaybackClass* pPlayback, ehs_sint32 nSpeed)
             ErrCode = main_shared_exec("vid_start");
             if (ErrCode != ST_NO_ERROR)
             {
-                EhsError(EHS_MSG_TGT_STAPI("main_shared_exec(vid_start)",GetErrorText(ErrCode)));
+                EHSH_LOG_ERROR(EHS_MSG_TGT_STAPI("main_shared_exec(vid_start)",GetErrorText(ErrCode)));
                 /* couldn't start the video decode, kill the injection */
                 ErrCodeRecover = main_shared_exec("vid_kill");
                 EHS_TD_REPORT_ERRORS(ErrCodeRecover,"recovery - main_shared_exec(\"vid_kill\")")
@@ -360,7 +360,7 @@ ehs_bool EhsTDFiles_setDir(EhsTDFilesClass* pFiles, const ehs_char* szDir)
     else
     {
         /* path is relative to current directory */
-        EhsError(EHS_MSG_ERROR_NOT_YET_IMPLEMENTED("EhsTDFiles_setDir"));
+        EHSH_LOG_ERROR(EHS_MSG_ERROR_NOT_YET_IMPLEMENTED("EhsTDFiles_setDir"));
         EhsStrcpy(szNewPath,EHS_TD_FILES_ROOT);
     }
 

@@ -44,8 +44,8 @@
 
 
 EHS_FB_FUNCTIONS_START(FileSystemDirCreateRemove)
-EHS_FB_FUNCTION_ENTRY("create", 0x00, FileSystemDirCreateRemoveCreate)
-EHS_FB_FUNCTION_ENTRY("remove", 0x01, FileSystemDirCreateRemoveRemove)
+EHS_FB_FUNCTION_ENTRY("create", 0x01, FileSystemDirCreateRemoveCreate)
+EHS_FB_FUNCTION_ENTRY("remove", 0x02, FileSystemDirCreateRemoveRemove)
 EHS_FB_FUNCTIONS_END
 
 /**

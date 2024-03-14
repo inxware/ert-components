@@ -27,12 +27,10 @@
 
 # include sourcecode from this dir in build
 
-
 include $(EHS_TARGET_AV_PATH)/../gst10_common/video.mk
 
-
-LIB+=gstreamer-0.10
-LIB+=gstinterfaces-0.10
-LIB+=gdi32 #This maybe duplicated in graphics also
+LIB+=gstreamer-1.0
+#LIB+=gstinterfaces-0.10
+#LIB+=gdi32 #This maybe duplicated in graphics also
 
 OBJECTS += target_os_dtv.$(OBJ)

@@ -1,55 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?><Component>
-    <Class>ndc</Class>
     <Module>usercomponents</Module>
-    <Menu>
-        Peripherals
-        <Menu>Numeric Display Char</Menu>
-    </Menu>
-    <ShortDescription>numeric_display_char</ShortDescription>
-    <LongDescription>numeric_display_char</LongDescription>
-    <Port>
-        <CName>set</CName>
-        <Description>set</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>10</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0">set</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>char</CName>
-        <Description>number</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>30</YCoordinate>
-        <FunctionName argument="1">set</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>displayno</CName>
-        <Description>Display No</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>50</YCoordinate>
-        <FunctionName argument="2">set</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>index</CName>
-        <Description>Pos</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>70</YCoordinate>
-        <FunctionName argument="3">set</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishset</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>75</XCoordinate>
-        <YCoordinate>10</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1">set</FunctionName>
-    </Port>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>numeric_display_char</ShortDescription>
+        <LongDescription>numeric_display_char</LongDescription>
+        <UserName/>
+        <Menu>
+            Peripherals
+            <Menu>Digit Display</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Height>70</Height>
+        <Text>Digit Disp.</Text>
+        <TextX>10</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>ndc</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x340B</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>544bd5a5</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>set</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>set</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>set</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>number</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>char</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>Display ID</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>displayno</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>Digit Position</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>index</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishset</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

@@ -1,0 +1,355 @@
+<html>
+
+<head>
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">wifi station</span>
+      <!--these display in reverse order because they use float:right-->
+      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+    </div>
+
+    <!--General Description-->
+    <p class=component>
+    Connect to a Wi-Fi access point
+    </p>
+    <p class=component>
+    The device works as a Wi-Fi station to connect to an access point.
+    This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.
+    </p>
+
+    <!--Parameters - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="parameters" class="toc_span">Parameters</span>
+      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
+      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
+      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
+    </div>
+    <table class="table_params">
+      <tr>
+        <th  style="width:60px;">name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>min.</th>
+        <th>max.</th>
+        <th>description</th>
+      </tr>
+      <tr>
+        <td>SSID</td>
+        <td>S</td>
+        <td>None</td>
+        <td>None</td>
+        <td>None</td>
+        <td>The SSID of the Wi-Fi Access Point to connect to.</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>I</td>
+        <td>0</td>
+        <td>0</td>
+        <td>2</td>
+        <td>Wi-Fi authentication type. 0 for Password authentication, 1 for open network, 2 for WPA2/3-Enterprise network.</td>
+      </tr>
+      <tr>
+        <td>tryReconnect</td>
+        <td>B</td>
+        <td>0</td>
+        <td>None</td>
+        <td>None</td>
+        <td>It will try to reconnect to the AP when it is disconnected after connected. It will retry maximum time defined by retry parameter. If failed connection after maximum number of retries, it will issue Disconnected output event and clear Wi-Fi interface. The Connect event input should be used again for connection.</td>
+      </tr>
+      <tr>
+        <td>retry</td>
+        <td>I</td>
+        <td>1</td>
+        <td>1</td>
+        <td>None</td>
+        <td>The maximum number of retries to re-connect to the AP. Minimum 1.</td>
+      </tr>
+      <tr>
+        <td>EntType</td>
+        <td>I</td>
+        <td>0</td>
+        <td>0</td>
+        <td>2</td>
+        <td>Enterprise Network authentication type.0 for WPA2-Enterprise, 1 for WPA3-Enterprise, 2 for WPA3-192bit-Enterprise.</td>
+      </tr>
+      <tr>
+        <td>EAP</td>
+        <td>I</td>
+        <td>0</td>
+        <td>0</td>
+        <td>2</td>
+        <td>The Extensible Authentication Protocol to be used to pass the authentication information. Only valid if type=2. 0 for TLS, 1 for PEAP, 2 for TTLS.</td>
+      </tr>
+      <tr>
+        <td>TTLS2</td>
+        <td>I</td>
+        <td>1</td>
+        <td>1</td>
+        <td>4</td>
+        <td>EAP's TTLS second stage connection method. Only valid if type=2 and EAP=2. 1 for MSCHAPV2, 2 fo MSCHAP, 3 for PAP and 4 for CHAP.</td>
+      </tr>
+      <tr>
+        <td>needServerCert</td>
+        <td>B</td>
+        <td>0</td>
+        <td>None</td>
+        <td>None</td>
+        <td>Whether to validate the servers' certificate using CA cert. Only Valid if type=2.</td>
+      </tr>
+      <tr>
+        <td>serverCert</td>
+        <td>S</td>
+        <td>None</td>
+        <td>None</td>
+        <td>None</td>
+        <td>The CA cert to validate the servers' certificate. Only valid if type=2 and needServerCert=1.</td>
+      </tr>
+      <tr>
+        <td>tlsCert</td>
+        <td>S</td>
+        <td>None</td>
+        <td>None</td>
+        <td>None</td>
+        <td>TLS client certificate. Only valid if type=2 and EAP=0.</td>
+      </tr>
+      <tr>
+        <td>tlsKey</td>
+        <td>S</td>
+        <td>None</td>
+        <td>None</td>
+        <td>None</td>
+        <td>TLS client key if EAP method is TLS. Only valid if type=2 and EAP=0.</td>
+      </tr>
+      <tr>
+        <td>eapID</td>
+        <td>S</td>
+        <td>None</td>
+        <td>None</td>
+        <td>None</td>
+        <td>ID for EAP authentication. Most of time, it is email address. Only valid if type=2.</td>
+      </tr>
+      <tr>
+        <td>eapUser</td>
+        <td>S</td>
+        <td>None</td>
+        <td>None</td>
+        <td>None</td>
+        <td>Username for EAP authentication. Only valid if type=2.</td>
+      </tr>
+      <tr>
+        <td>eapPass</td>
+        <td>S</td>
+        <td>None</td>
+        <td>None</td>
+        <td>None</td>
+        <td>Password for EAP authentication. Only valid if type=2.</td>
+      </tr>
+    </table>
+
+    <!--Ports - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="ports" class="toc_span">Ports</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+    <table class="table">
+      <tr>
+        <th>In Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]Connect">Connect</a></td>
+        <td>Connect to Wi-Fi Access Point.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]Disconnect"></a>Disconnect</td>
+        <td>Disconnect to the Wi-Fi Access Point.</td>
+      </tr>
+      <tr>
+        <th >Data In</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]type">type</a></td>
+        <td>Wi-Fi authentication type. 0 for Password authentication, 1 for open network, 2 for WPA2/3-Enterprise network.</td>
+
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]SSID"></a>SSID</td>
+        <td>The SSID of the Wi-Fi Access Point to connect to.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]PSKPass"></a>PSKPass</td>
+        <td>The password of the Wi-Fi Access Point when type is WPA-PSK (type=0).</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]EntType"></a>EntType</td>
+        <td>Enterprise Network authentication type.0 for WPA2-Enterprise, 1 for WPA3-Enterprise, 2 for WPA3-192bit-Enterprise.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]EAP"></a>EAP</td>
+        <td>The Extensible Authentication Protocol to be used to pass the authentication information. Only valid if type=2. 0 for TLS, 1 for PEAP, 2 for TTLS.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]TTLS2"></a>TTLS2</td>
+        <td>EAP's TTLS second stage connection method. Only valid if type=2 and EAP=2. 1 for MSCHAPV2, 2 fo MSCHAP, 3 for PAP and 4 for CHAP.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]needCert"></a>needCert</td>
+        <td>Whether to validate the servers' certificate using CA cert. Only valid if type=2.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]serverCert"></a>serverCert</td>
+        <td>The CA cert to validate the servers' certificate. Only valid if type=2 and needServerCert=1.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]tlsCert"></a>tlsCert</td>
+        <td>TLS client certificate. Only valid if type=2 and EAP=0.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]tlsKey"></a>tlsKey</td>
+        <td>TLS client key if EAP method is TLS. Only valid if type=2 and EAP=0.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]eapID"></a>eapID</td>
+        <td>ID for EAP authentication. Most of time, it is email address. Only valid if type=2.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]eapUser"></a>eapUser</td>
+        <td>Username for EAP authentication. Only valid if type=2.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]eapPass"></a>eapPass</td>
+        <td>Password for EAP authentication. Only valid if type=2.</td>
+      </tr>
+      <tr>
+        <th >Data Out</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]ipAddr"></a>ipAddr</td>
+        <td>Assigned IP Address after connection</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]RSSI"></a>RSSI</td>
+        <td>The RSSI of the Access Point.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]AP_MAC"></a>AP_MAC</td>
+        <td>The MAC Address of the Access Point that this device is connected to.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]errCode"></a>errCode</td>
+        <td>The error code when connection failed. Returns 0 if OK.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]disconnect_reason"></a>Reason</td>
+        <td>The code to represent the disconnect reason. Returns 0 for manual disconnection.</td>
+      </tr>
+      <tr>
+        <th >Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]do_connect_OK"></a>CDone</td>
+        <td>The connection parameters are successfully passed into connection thread.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]connect_OK"></a>OK</td>
+        <td>The device is connected to the Access Point.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]connectFail"></a>Fail</td>
+        <td>The device fails to connect to the Access Point.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]do_disconnect_OK"></a>DDone</td>
+        <td>The disconnection request is sent to the internal thread.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]disconnected"></a>Disconnected</td>
+        <td>The device disconnects from the Access Point.</td>
+      </tr>
+    </table>
+
+
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+     <table>
+      <tr class="fsm_row">
+        <td style="width:90px;">
+          <b>State Machine</b>
+        </td>
+        <td  colspan=5>
+        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
+          <span class="fsm_blob">state2</span>
+          &otimes;&nbsp;
+          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+          <span class="fsm_blob">state3</span> [doh]&rarr;
+          <span class="fsm_blob">state5</span> -->
+          None
+        </td>
+        <td>
+          <b></b>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Toolbox</b>
+        </td>
+        <td>
+          Core
+        </td>
+        <td class=heading-cell>
+          <b>Version</b>
+        </td>
+        <td>
+          v1.0.
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          MPL2.0
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Minumum DCC</b>
+        </td><td>A0000</td>
+        <td class=heading-cell>
+          <b>Profiles</b>
+        </td>
+        <td>
+          All.
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+
+</html>

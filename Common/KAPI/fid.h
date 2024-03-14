@@ -50,6 +50,13 @@ typedef struct EhsFunctionInstanceDataStruct
     debug_type_byte dMonitorType; /* bitmask for monitor type for this function - see DEBUG_SET_MASK_ above */
 } EhsFunctionInstanceDataType;
 
+typedef struct EhsFunctionInstanceClearEventsStruct
+{
+    EhsFunctionInstanceDataType* pFuncInstCaller; /* function instance which calls EhsFunctionInstanceData_clearEvents */
+    EhsFunctionInstanceDataType* pFuncInst; /* function instance of which event will be cleared if onClearEventCondition returns EHS_TRUE */
+    ehs_bool (*onClearEventCondition)(void* self);  /* callback used for deciding if event queue elemnet should be removed. Return EHS_TRUE to clear event. */
+} EhsFunctionInstanceClearEventsType;
+
 /**
  * Set the monitor flag of the specified function instance
  */
@@ -72,6 +79,7 @@ typedef struct EhsFunctionInstanceDataStruct
 
 EHS_GLOBAL void EhsFunctionInstanceData_triggerEvent(EhsFunctionInstanceDataType* pByte, ehs_uint32 x);
 
+EHS_GLOBAL void EhsFunctionInstanceData_clearEvents(EhsFunctionInstanceClearEventsType* pClearEvents);
 
 #endif /* _FUNCTION_INSTANCE_DATA_H */
 

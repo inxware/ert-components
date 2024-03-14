@@ -1,124 +1,222 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>ArrayInt1</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-  </Block>
-  <Menu>Data Utilities
-    <Menu>Buffers
-      <Menu>Array
-        <Menu>Integer</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>Arrays of integer variables can be stored in the component
-The index must fall between 0 and the maximum size -1. No Error is generated for out of range indexes.</LongDescription>
-  <Parameter>
-    <Name>size</Name>
-    <DataType>I</DataType>
-    <DefaultValue>1024</DefaultValue>
-    <MinValue>2</MinValue>
-    <MaxValue>1024</MaxValue>
-    <Description>Memory allocated for array</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>default value</Name>
-    <DataType>I</DataType>
-    <DefaultValue>0</DefaultValue>
-    <Description>default value for uninitialised values</Description>
-    <ListPlacement>2</ListPlacement>
-  </Parameter>
-  <Port>
-    <Description>clear</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>80</YCoordinate>
-    <AtomicFlag>1</AtomicFlag>
-    <FunctionName argument="0">Run_ArrayIntClear</FunctionName>
-  </Port>
-  <Port>
-    <Description>write</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <AtomicFlag>1</AtomicFlag>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="0">Run_ArrayIntWrite</FunctionName>
-  </Port>
-  <Port>
-    <Description>read</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <AtomicFlag>1</AtomicFlag>
-    <FunctionName argument="0">Run_ArrayIntRead</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>index</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="2">Run_ArrayIntWrite</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>index</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>55</YCoordinate>
-    <FunctionName argument="1">Run_ArrayIntRead</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>data</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">Run_ArrayIntWrite</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>data</Description>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>65</YCoordinate>
-    <FunctionName argument="2">Run_ArrayIntRead</FunctionName>
-  </Port>
-  <Port>
-    <Description>clear</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>80</YCoordinate>
-    <FunctionName argument="1">Run_ArrayIntClear</FunctionName>
-  </Port>
-  <Port>
-    <Description>write</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="3">Run_ArrayIntWrite</FunctionName>
-  </Port>
-  <Port>
-    <Description>read</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <FunctionName argument="3">Run_ArrayIntRead</FunctionName>
-  </Port>
-  <Port>
-    <Description>err</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="4">Run_ArrayIntWrite</FunctionName>
-  </Port>
-  <Port>
-    <Description>err</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>55</YCoordinate>
-    <FunctionName argument="4">Run_ArrayIntRead</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>Arrays of integer variables can be stored in the component
+  The index must fall between 0 and the maximum size -1. No Error is generated for out of range indices.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                Buffers
+                <Menu>
+                    Array
+                    <Menu>Integer</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>65</Width>
+        <Height>105</Height>
+        <Text>Array</Text>
+        <TextX>17</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>ArrayInt1</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x47EC</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>b117ffd2</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>size</Name>
+            <DataType>I</DataType>
+            <DefaultValue>1024</DefaultValue>
+            <MinValue>2</MinValue>
+            <MaxValue>1024</MaxValue>
+            <Description>Memory allocated for array</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>default value</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>default value for uninitialised values</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_ArrayIntClear</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Run_ArrayIntWrite</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Run_ArrayIntRead</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>clear</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>clear</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>write</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName>write</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>read</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <CName>read</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>index</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>index</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>index</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <CName>index</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>data</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>data</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>data</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>65</YCoordinate>
+            <CName>data</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>clear</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>clear</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

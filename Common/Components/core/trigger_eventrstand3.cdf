@@ -1,45 +1,113 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>EventSelfResetThreeInputLatchingAnd</Class>
-  <Block>
-    <Type>And_Event</Type>
-    <TypeVariant>stdn_3</TypeVariant>
-  </Block>
-  <Menu>Event
-    <Menu>Combiners/Flow
-      <Menu>Resetting AND
-        <Menu>AND3</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is a 3-input event latching AND with an internal reset.</LongDescription>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="0">And1</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>25</YCoordinate>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="0">And2</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="0">And3</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>15</XCoordinate>
-    <YCoordinate>25</YCoordinate>
-    <FunctionName argument="1">And1</FunctionName>
-    <FunctionName argument="1">And2</FunctionName>
-    <FunctionName argument="1">And3</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a 3-input event latching AND with an internal reset.</LongDescription>
+        <UserName/>
+        <Menu>
+            Event
+            <Menu>
+                Combiners/Flow
+                <Menu>
+                    Resetting AND
+                    <Menu>AND3</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>And_Event</Type>
+        <TypeVariant>stdn_3</TypeVariant>
+        <Width>20</Width>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>EventSelfResetThreeInputLatchingAnd</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x11D7</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>abc57410</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>And1</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>And2</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>And3</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>1</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

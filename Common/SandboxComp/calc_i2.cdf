@@ -6,7 +6,7 @@
   </Block>
   <Menu>Math
     <Menu>calculation
-      <Menu>int (2 input)</Menu>
+      <Menu>DELME int (2 input)</Menu>
     </Menu>
   </Menu>
   <LongDescription>Integer Operations on 'a' and 'b'. +,-,*,/,%,^,abs(x),square(y),min(x,y),max(x,y),sin(output mult, angle),cos(output mult, angle)</LongDescription>

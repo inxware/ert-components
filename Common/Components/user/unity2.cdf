@@ -1,167 +1,254 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-    <Icon>unity2.bmp</Icon>
-    <Class>unity2</Class>
+<?xml version="1.0" encoding="UTF-8"?><Component>
     <Module>usercomponents</Module>
-    <Menu>System
-        <Menu>Unity</Menu>
-    </Menu>
-    <ShortDescription>unity</ShortDescription>
-    <LongDescription>unity</LongDescription>
-    <Port>
-        <CName>create</CName>
-        <Description>create</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>10</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0">create</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishcreate</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>10</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1">create</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishevent</CName>
-        <Description>Event</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>20</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="2">create</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>event</CName>
-        <Description>event</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>30</YCoordinate>
-        <FunctionName argument="1">create</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>id</CName>
-        <Description>zone id</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>30</YCoordinate>
-        <FunctionName argument="1">create</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>type</CName>
-        <Description>Type</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>40</YCoordinate>
-        <FunctionName argument="2">create</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>params</CName>
-        <Description>Params</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>50</YCoordinate>
-        <FunctionName argument="3">create</FunctionName>
-    </Port>
-
-    <Port>
-        <CName>destroy</CName>
-        <Description>Destroy</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>60</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0">destroy</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishdestroy</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>60</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1">destroy</FunctionName>
-    </Port>
-
-    <Port>
-        <CName>setmedia</CName>
-        <Description>Set Media</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>70</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0">setmedia</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishsetmedia</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>70</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1">setmedia</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>mediatype</CName>
-        <Description>Media Type</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>80</YCoordinate>
-        <FunctionName argument="1">setmedia</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>path</CName>
-        <Description>Path</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>90</YCoordinate>
-        <FunctionName argument="2">setmedia</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>text</CName>
-        <Description>Text</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>100</YCoordinate>
-        <FunctionName argument="3">setmedia</FunctionName>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>params</CName>
-        <Description>Params</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>110</YCoordinate>
-        <FunctionName argument="4">setmedia</FunctionName>
-    </Port>
-
-    <Port>
-        <CName>stop</CName>
-        <Description>Stop</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>120</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0">stop</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishstop</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>120</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1">stop</FunctionName>
-    </Port>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>unity</ShortDescription>
+        <LongDescription>unity</LongDescription>
+        <UserName/>
+        <Menu>
+            System
+            <Menu>Unity</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>110</Width>
+        <Height>150</Height>
+        <Text>Unity</Text>
+        <TextX>35</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.5</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>unity2</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x6F1D</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>d0ba2e7a</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>create</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>destroy</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>setmedia</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>stop</name>
+            <ID>
+                <ERT1_ID>4</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>create</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>create</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishcreate</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Event</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishevent</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>event</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>event</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>zone id</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>id</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>Type</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>type</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>Params</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <CName>params</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Destroy</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>destroy</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishdestroy</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Set Media</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>setmedia</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishsetmedia</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>Media Type</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>mediatype</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>Path</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>path</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>Text</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>100</YCoordinate>
+            <CName>text</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>Params</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>110</YCoordinate>
+            <CName>params</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Stop</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>120</YCoordinate>
+            <CName>stop</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>120</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishstop</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

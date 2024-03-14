@@ -219,7 +219,7 @@ EHS_GLOBAL void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate, const char* fileName,
     }
     else
     {
-        EhsError(EHS_MSG_ERROR_MEMORY);
+        EHSH_LOG_ERROR(EHS_MSG_ERROR_MEMORY);
     }
     EhsTPMutex_unlock(EhsTPMutex_mem);
     //EHSH_LOG_EXIT("EhsHMem_tempAlloc() -> %x",pRet);
@@ -272,7 +272,7 @@ void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 line
     }
     else
     {
-        EhsError(EHS_MSG_ERROR_MEMORY);
+        EHSH_LOG_ERROR(EHS_MSG_ERROR_MEMORY);
     }
     EhsTPMutex_unlock(EhsTPMutex_mem);
     //EHSH_LOG_EXIT("EhsHMem_tempAlloc() -> %x",pRet);
@@ -331,7 +331,7 @@ void EhsHMem_tempFree(void* pData)
  */
 EHS_LOCAL void EhsL_freeAllSmall(EhsLMemSmallItemType** pSmall)
 {
-    EHSH_LOG_ENTER("EhsL_freeAllSmall(%x)",pSmall);
+    EHSH_LOG_ENTER("EhsL_freeAllSmall(%x)",(unsigned int)pSmall);
     if (*pSmall)
     {
         EhsLMemSmallItemType* pNext; /* next item to free */
@@ -361,7 +361,7 @@ EHS_LOCAL void EhsL_freeAllSmall(EhsLMemSmallItemType** pSmall)
  */
 EHS_LOCAL void EhsL_freeAllQuick(EhsLMemQuickItemType** ppQuick)
 {
-    EHSH_LOG_ENTER("EhsL_freeAllQuick(%x)",ppQuick);
+    EHSH_LOG_ENTER("EhsL_freeAllQuick(%x)",(unsigned int)ppQuick);
     if (*ppQuick)
     {
         EhsLMemQuickItemType* pNext; /* next item to free */
@@ -394,11 +394,11 @@ EHS_LOCAL void EhsL_freeAllQuick(EhsLMemQuickItemType** ppQuick)
 EHS_LOCAL void EhsL_checkSmall(const EhsLMemSmallItemType* pSmall)
 {
     const ehs_uint8* pData = (const ehs_uint8*)&(pSmall->nMem);
-    EHSH_LOG_ENTER("EhsL_checkSmall(%x)",pSmall);
+    EHSH_LOG_ENTER("EhsL_checkSmall(%x)", (unsigned int)pSmall);
     pData += pSmall->nLen;
     if (pSmall->nPreBlock != EHSL_PRE_PATTERN)
     {
-        EhsError(EHS_MSG_ERR_HMPRE_CORRUPT(pSmall));
+        EHSH_LOG_ERROR(EHS_MSG_ERR_HMPRE_CORRUPT(pSmall));
     }
     if (*(pData++) != EHSL_POST_PATTERN0)
     {
@@ -418,7 +418,7 @@ EHS_LOCAL void EhsL_checkSmall(const EhsLMemSmallItemType* pSmall)
     }
     if (!pData)
     {
-        EhsError(EHS_MSG_ERR_HMPOST_CORRUPT(pSmall));
+        EHSH_LOG_ERROR(EHS_MSG_ERR_HMPOST_CORRUPT(pSmall));
     }
     EHSH_LOG_EXIT("EhsL_checkSmall()");
 }
@@ -431,11 +431,11 @@ EHS_LOCAL void EhsL_checkSmall(const EhsLMemSmallItemType* pSmall)
 EHS_LOCAL void EhsL_checkQuick(const EhsLMemQuickItemType* pQuick)
 {
     const ehs_uint8* pData = (const ehs_uint8*)&(pQuick->nMem);
-    EHSH_LOG_ENTER("EhsL_checkQuick(%x)",pQuick);
+    EHSH_LOG_ENTER("EhsL_checkQuick(%x)",(unsigned int)pQuick);
     pData += pQuick->nLen;
     if (pQuick->nPreBlock != EHSL_PRE_PATTERN)
     {
-        EhsError(EHS_MSG_ERR_HMPRE_CORRUPT(pQuick));
+        EHSH_LOG_ERROR(EHS_MSG_ERR_HMPRE_CORRUPT(pQuick));
     }
     if (*(pData++) != EHSL_POST_PATTERN0)
     {
@@ -455,7 +455,7 @@ EHS_LOCAL void EhsL_checkQuick(const EhsLMemQuickItemType* pQuick)
     }
     if (!pData)
     {
-        EhsError(EHS_MSG_ERR_HMPOST_CORRUPT(pQuick));
+        EHSH_LOG_ERROR(EHS_MSG_ERR_HMPOST_CORRUPT(pQuick));
     }
     EHSH_LOG_EXIT("EhsL_checkQuick()");
 }
@@ -512,7 +512,7 @@ void EhsHMem_switchPool(EhsHMPoolType xPool)
     EhsTPMutex_lock(EhsTPMutex_mem);
     if (EHSHM_POOL_SYSTEM == xPool)
     {
-        EhsError(EHS_MSG_ERR_HMPOOL);
+        EHSH_LOG_ERROR(EHS_MSG_ERR_HMPOOL);
     }
     else
     {

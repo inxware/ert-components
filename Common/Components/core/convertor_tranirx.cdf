@@ -1,41 +1,99 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>ConvertorIntToReal</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-  </Block>
-  <Menu>Data Utilities
-    <Menu>Conversion
-      <Menu>integer-&gt;
-        <Menu>real</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is an integer to real converter.</LongDescription>
-  <Port>
-    <DataType>I</DataType>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">Run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>F</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="2">Run</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">Run</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="3">Run</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is an integer to real converter.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                Conversion
+                <Menu>
+                    integer-&gt;
+                    <Menu>real</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>30</Width>
+        <Height>30</Height>
+        <Text>~</Text>
+        <TextX>10</TextX>
+        <TextY>10</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>0</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>ConvertorIntToReal</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xB3BA</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>10e27dea</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>Run</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <DataType>I</DataType>
+            <Description/>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>25</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>25</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

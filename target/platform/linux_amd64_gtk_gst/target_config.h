@@ -17,5 +17,4 @@
 
 #include "../base_full/base_config.h"
 
-
 #endif /* TARGET_CONFIG_H */

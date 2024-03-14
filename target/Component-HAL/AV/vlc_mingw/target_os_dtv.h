@@ -6,6 +6,10 @@
  * not, please visit
  *	<https://www.mozilla.org/en-US/MPL/2.0/>
  ***************************************************************/
+#ifndef __target_os_dtv_h
+#define __target_os_dtv_h
+
+
 #include "hal_dtv.h"
 
 struct EhsTDPlaybackStruct
@@ -31,3 +35,5 @@ EHS_GLOBAL void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay);
 EHS_GLOBAL void EhsTDPlayback_setWindow(EhsFbPvrPlayClass* pPvrPlay);
 
 EHS_GLOBAL void EhsTDPlayback_updateZorder(EhsFbPvrPlayClass* pPvr);
+
+#endif

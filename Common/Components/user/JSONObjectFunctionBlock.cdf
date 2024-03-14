@@ -1,1 +1,327 @@
-<?xml version="1.0" encoding="UTF-8"?><Component><Icon>JSONObjectFunctionBlock.bmp</Icon><Class>JSONObject</Class><Module>usercomponents</Module><Menu>Data Utilities<Menu>JSON<Menu>JSON Object</Menu></Menu></Menu><ShortDescription>JSON Object</ShortDescription><LongDescription>Holds a memory representation of a JSON object for querying and building.</LongDescription><Port><CName/><Description>reset</Description><PortType>StartPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>10</YCoordinate><AtomicFlag>1</AtomicFlag><FunctionName argument="0">reset</FunctionName></Port><Port><CName/><Description>read</Description><PortType>StartPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>30</YCoordinate><AtomicFlag>1</AtomicFlag><FunctionName argument="0">read</FunctionName></Port><Port><CName/><Description>query</Description><PortType>StartPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>60</YCoordinate><AtomicFlag>1</AtomicFlag><FunctionName argument="0">query</FunctionName></Port><Port><CName/><Description>error</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>70</YCoordinate><Wcet>0</Wcet><FunctionName argument="1">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>data[read]</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>40</YCoordinate><FunctionName argument="1">read</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>result2</Description><PortType>OutputPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>90</YCoordinate><FunctionName argument="1">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>result3</Description><PortType>OutputPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>100</YCoordinate><FunctionName argument="2">query</FunctionName></Port><Port><CName>read_finished</CName><Description>--[read]</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>30</YCoordinate><Wcet>0</Wcet><FunctionName argument="1">read</FunctionName></Port><Port><CName>rest_finished</CName><Description>--[reset]</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>10</YCoordinate><Wcet>0</Wcet><FunctionName argument="1">reset</FunctionName></Port><Port><CName>queryOK</CName><Description>--[query]</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>60</YCoordinate><Wcet>0</Wcet><FunctionName argument="2">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>path1</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>80</YCoordinate><FunctionName argument="1">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>path2</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>90</YCoordinate><FunctionName argument="2">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>path3</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>100</YCoordinate><FunctionName argument="3">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>path4</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>110</YCoordinate><FunctionName argument="4">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>result1</Description><PortType>OutputPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>80</YCoordinate><FunctionName argument="3">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>path5</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>120</YCoordinate><FunctionName argument="5">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>path6</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>130</YCoordinate><FunctionName argument="6">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>path7</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>140</YCoordinate><FunctionName argument="7">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>path8</Description><PortType>InputPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>150</YCoordinate><FunctionName argument="8">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>result5</Description><PortType>OutputPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>120</YCoordinate><FunctionName argument="4">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>result6</Description><PortType>OutputPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>130</YCoordinate><FunctionName argument="5">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>result7</Description><PortType>OutputPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>140</YCoordinate><FunctionName argument="6">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>result8</Description><PortType>OutputPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>150</YCoordinate><FunctionName argument="7">query</FunctionName></Port><Port><DataType>S</DataType><CName/><Description>result4</Description><PortType>OutputPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>110</YCoordinate><FunctionName argument="8">query</FunctionName></Port></Component>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>JSON Object</ShortDescription>
+        <LongDescription>Holds a memory representation of a JSON object for querying and building.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                JSON
+                <Menu>JSON Object</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+	<Block>
+        <Type>Data</Type>
+        <Height>180</Height>
+        <Text>JSON Object</Text>
+        <TextX>5</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.5</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>JSONObject</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x94F2</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>9de28bb2</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>reset</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>read</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>query</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>reset</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>reset</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>read</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>read</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>query</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>query</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>data[read]</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>data_read_</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>result2</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>result2</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>result3</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>100</YCoordinate>
+            <CName>result3</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--[read]</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>read_finished</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--[reset]</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>rest_finished</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--[query]</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>queryOK</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path1</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>path1</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path2</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>path2</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path3</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>100</YCoordinate>
+            <CName>path3</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path4</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>110</YCoordinate>
+            <CName>path4</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>result1</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>result1</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path5</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>120</YCoordinate>
+            <CName>path5</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path6</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>130</YCoordinate>
+            <CName>path6</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path7</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>140</YCoordinate>
+            <CName>path7</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path8</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>150</YCoordinate>
+            <CName>path8</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>result5</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>120</YCoordinate>
+            <CName>result5</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>result6</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>130</YCoordinate>
+            <CName>result6</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>result7</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>140</YCoordinate>
+            <CName>result7</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>result8</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>150</YCoordinate>
+            <CName>result8</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>result4</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>110</YCoordinate>
+            <CName>result4</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

@@ -67,13 +67,13 @@ typedef struct
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(xml_stream_parser)
 
-EHS_FB_FUNCTION_ENTRY("eos", 0x00, xml_stream_parser_eos)
+EHS_FB_FUNCTION_ENTRY("eos", 0x01, xml_stream_parser_eos)
 
-EHS_FB_FUNCTION_ENTRY("read", 0x01, xml_stream_parser_read)
+EHS_FB_FUNCTION_ENTRY("read", 0x02, xml_stream_parser_read)
 
-EHS_FB_FUNCTION_ENTRY("parse", 0x02, xml_stream_parser_parse)
+EHS_FB_FUNCTION_ENTRY("parse", 0x03, xml_stream_parser_parse)
 
-EHS_FB_FUNCTION_ENTRY("streamFinished", 0x03, xml_stream_parser_streamFinished)
+EHS_FB_FUNCTION_ENTRY("streamFinished", 0x04, xml_stream_parser_streamFinished)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -232,6 +232,9 @@ EHS_FB_DESTROY_FUNCTION(xml_stream_parser)
     return EHS_FALSE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
+
+/* normal data handler */
+
 static void XMLCALL
 inx_xml_stream_parser_character_data(void *data,const XML_Char *s,int len)
 {
@@ -256,6 +259,7 @@ inx_xml_stream_parser_character_data(void *data,const XML_Char *s,int len)
         if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_cdata))
         {
             //clean the string before copying
+            //todo 2023 - check the length is not larger than the ERT max string legnth
             strncpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_cdata),state->cdataString,state->cdataLength);
             inx_xml_stream_parser_replace_ampersands(state->ampersandReplace,EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_cdata),state->cdataLength);
         }

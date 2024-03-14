@@ -50,6 +50,7 @@ typedef struct EhsWidgetStruct EhsWidgetClass; /*lint !e961 Only preprocessor st
 #include "widget_image.h"
 #include "widget_patch.h"
 #include "widget_viewport.h"
+#include "widget_ui.h"
 //#include "widget_video_port.h"
 #include "ehs_fb_types.h"
 
@@ -79,10 +80,17 @@ typedef struct EhsWidgetStruct EhsWidgetClass; /*lint !e961 Only preprocessor st
 /**
  * Type of widget defined in the widget structure
  */
-typedef enum { EHS_WIDGET_KIND_IMAGE, EHS_WIDGET_KIND_TEXTBOX, EHS_WIDGET_KIND_PATCH, EHS_WIDGET_KIND_VIEWPORT, EHS_WIDGET_KIND_VIDEO_PORT } EhsWidgetKindEnum;
+typedef enum { EHS_WIDGET_KIND_IMAGE,
+               EHS_WIDGET_KIND_TEXTBOX, 
+               EHS_WIDGET_KIND_PATCH, 
+               EHS_WIDGET_KIND_VIEWPORT, 
+               EHS_WIDGET_KIND_VIDEO_PORT,
+               EHS_WIDGET_KIND_UI 
+             } EhsWidgetKindEnum;
 
 /**
  * Type of widget defined in the widget structure
+ * todo 2023 - this doesn't seem to be used anywhere
  */
 typedef enum { ARGB8888, ARGB1888, RGB888 } EhsBlitMethodEnum;
 
@@ -105,16 +113,23 @@ struct EhsWidgetStruct
 {
     EhsGraphicsRectangleClass xDesignRect;	/**< widget size as specified at design time (i.e. by LGB-based on original image size*/
     EhsGraphicsRectangleClass xOrigRect;	/**< Initial bounding rectangle (as defined in LAB's properties file - Used to distinguish relative sizes and viewport - Otherwise the same as DesignRectangle*/
-    EhsGraphicsRectangleClass xCurRect;	/**< current bounding rectangle for the widget */
+    EhsGraphicsRectangleClass xCurRect;	    /**< current bounding rectangle for the widget */
     EhsGraphicsRectangleClass MediaRect;	/**< pixel dimensions of the original media */
     EhsGraphicsRectangleClass UpdatedOffsettRect;	/**< This is the last updated offset in case we need to re-apply it to new media. */
     ehs_uint8 nAlpha; 						/* Stored value of alpha - if changed */
-
-    ehs_bool bMaintainAspectRatio;		/** Maintain the aspect ratio by only processing changes in width and setting height accordingly */
-    ehs_bool bRelativeCoordinates;		/** The widget's parameters and input coordinates are in % screen width and these are converted to absolute pixels when updated (but not the screen width)*/
-    ehs_uint16 nZ;  /**< Z order */
+    ehs_bool bMaintainAspectRatio;		    /** Maintain the aspect ratio by only processing changes in width and setting height accordingly */
+    ehs_bool bRelativeCoordinates;		    /** The widget's parameters and input coordinates are in % screen width and these are converted to absolute pixels when updated (but not the screen width)*/
+    ehs_uint16 nZ;                          /**< Z order */
     ehs_bool bOptimiseForSpeed;		/**< Do we want this widget to be time-, or memory-efficient? */
     ehs_bool bContentChanged;	/* this flag is set if the content (text box only) is changed so that renderers such as text don't need to reblit such as in the case for OpenGL textures */
+    /*************************************************************************************************************************************/
+    /* MODE B widget rendering changed flags - thesea re used to pass new position, maeta data and colour info to the widget library 
+    * These are tested by pfDrawFunc (as implemented in the target) and checks the following flags to minimise unnecessary updated of its own widget list.
+    * These are set (typically) by a function block's update port and therefore will probably have to set all 3 values depending in the FB! */
+    ehs_bool bContentUpdated ;    // e.g. text
+    ehs_bool bPositionUpdated;   // including size
+    ehs_bool bColourUpdated;     // including alpha
+    /************************************************************************************************************************************/
     EhsWidgetKindEnum eWidgetKind; /**< Type of graphic object contained within this widget */
 //	EhsBlitMethodEnum eBlitMethod; /**< Blit method used to draw widget */
     /*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eWidgetKind shows which union member to use */
@@ -123,6 +138,7 @@ struct EhsWidgetStruct
         EhsWidgetImageSubclass image;		/**< Image specific attributes */
         EhsWidgetTextboxSubclass textbox; 	/**< textbox specific attributes */
         EhsWidgetPatchSubclass patch; 		/**< Patch specific attributes */
+        EhsWidgetUiSubclass ui;             /**< UI specific attributes */
         //EhsWidgetVideoPortSubclass video_port; /*Video port specific attributes */
     } specificWidgetType;
     /*line +e960 */
@@ -146,6 +162,9 @@ struct EhsWidgetStruct
     ehs_bool bRegisteredMouseDown;		/** records a mouse down event in this widget */
     ehs_uint32 nMouseDownX;
     ehs_uint32 nMouseDownY;
+
+    void (*pfMouseDownEventFunc)(EhsWidgetClass* pWidget); /* Callback for the mouse down event, only applies to widgets with pFIData=NULL e.g. GPIO widget */
+    void* pMouseDownEventData;
 };
 
 /**
@@ -340,6 +359,12 @@ void Ehs_widget_position_update(EhsWidgetClass* pWidget, ehs_bool bAlphaConnecte
                                 ehs_bool bWConnected, EhsDataflowIntType nWoffset,
                                 ehs_bool bHConnected, EhsDataflowIntType nHoffset);
 
+/**
+ * Applies changes to the widget
+ *
+ * @param[in] pWidget Widget to update
+ * */
+void Ehs_widget_commit(EhsWidgetClass* pWidget);
 
 #endif /* #ifdef EHS_GUI_SUPPORT */
 

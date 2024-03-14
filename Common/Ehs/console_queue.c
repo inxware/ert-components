@@ -30,10 +30,13 @@
  * @param nSize amount of data to add to the queue.
  * @return Amount of data that was added to the queue (0 = unsuccessful)
  */
-ehs_uint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize)
+ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize)
 {
-    
-    ehs_uint32 nCopy = 0; /* amount of data to copy */
+	if(xQueue==NULL || xQueue->xQueue==NULL){
+		return 0;
+	}
+    const ehs_uint32 consoleQueueMaxSize = EhsConsoleQueue_maxSize();
+    ehs_sint32 nCopy = 0; /* amount of data to copy */
     ehs_uint32* pnIdx = &(xQueue->uInIdx); /* pointer to the queue input index */
 	ehs_uint32 nBytesTillWrap; /* number of bytes that can be written before the wrap-around takes place */
 	void* pIn = NULL;
@@ -42,21 +45,21 @@ ehs_uint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, e
 	//if (nSize>0) xQueue->EhsConsole_buffer_empty = EHS_FALSE;
 	pIn = &(xQueue->xQueue[EHS_CONSOLE_QUEUE_INDEX(*pnIdx)]); /* point to start writing data */
 	/* determine how much data we can write */
-	nCopy = EHS_MAX_CONSOLE_QUEUE_SIZE - EhsConsoleQueue_length(xQueue);
+	nCopy = consoleQueueMaxSize - EhsConsoleQueue_length(xQueue);
 	if (nCopy > nSize)
 	{
 		nCopy = nSize;
 	}
 	else {
-		EHSH_LOG_ERROR("QUEUE PUSH - Couldn't right all data!!! %d > %d\n",nCopy , nSize);
-
+		EHSH_LOG_ERROR("QUEUE PUSH - Couldn't write all data!!! %d > %d\n",nCopy , nSize);
+		//nCopy = -1;
 	}
    /* write the data */
-	if (pnIdx && ((EHS_CONSOLE_QUEUE_INDEX(*pnIdx) + nCopy) > EHS_MAX_CONSOLE_QUEUE_SIZE))
+	if (pnIdx && ((EHS_CONSOLE_QUEUE_INDEX(*pnIdx) + nCopy) > consoleQueueMaxSize))
 	{
 		/* writing data wraps around the input buffer */
         
-		nBytesTillWrap = EHS_MAX_CONSOLE_QUEUE_SIZE - EHS_CONSOLE_QUEUE_INDEX(*pnIdx);
+		nBytesTillWrap = consoleQueueMaxSize - EHS_CONSOLE_QUEUE_INDEX(*pnIdx);
 			EhsMemcpy(pIn,pData,nBytesTillWrap);
 			pIn = &(xQueue->xQueue[0]);
 			EhsMemcpy(pIn,pData+nBytesTillWrap,nCopy-nBytesTillWrap);
@@ -68,7 +71,7 @@ ehs_uint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, e
 
 	/* update the in pointer */
 	/* reader can't start reading this new data until the in pointer has been updated */
-	*pnIdx = (*pnIdx + nCopy) & ((EHS_MAX_CONSOLE_QUEUE_SIZE*2)-1);
+	*pnIdx = (*pnIdx + nCopy) & ((consoleQueueMaxSize*2)-1);
 	EhsTPMutex_unlock(EhsTPMutex_consoleQueue);
     return nCopy;
 }
@@ -84,6 +87,10 @@ ehs_uint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, e
  */
 ehs_uint32 EhsConsoleQueue_pop(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize)
 {
+	if(xQueue==NULL || xQueue->xQueue==NULL){
+		return 0;
+	}
+	const ehs_uint32 consoleQueueMaxSize=EhsConsoleQueue_maxSize();
 	ehs_uint32 nBytesTillWrap; /* number of bytes that can be read before the wrap-around takes place */
 	ehs_uint32* pnIdx = &(xQueue->uOutIdx); /* pointer to the queue output index */
 	ehs_uint32 nCopy; /* amount of data to copy from the queue */
@@ -99,10 +106,10 @@ ehs_uint32 EhsConsoleQueue_pop(EhsConsoleQueueType* xQueue, ehs_uint8* pData, eh
 		//printf("QPOP-Reducing the size to required %d\n",nSize);
 	}
 
-	if ((EHS_CONSOLE_QUEUE_INDEX(*pnIdx) + nCopy) > EHS_MAX_CONSOLE_QUEUE_SIZE)
+	if ((EHS_CONSOLE_QUEUE_INDEX(*pnIdx) + nCopy) > consoleQueueMaxSize)
 	{
 		/* reading data wraps around the input buffer */
-		nBytesTillWrap = EHS_MAX_CONSOLE_QUEUE_SIZE - EHS_CONSOLE_QUEUE_INDEX(*pnIdx);
+		nBytesTillWrap = consoleQueueMaxSize - EHS_CONSOLE_QUEUE_INDEX(*pnIdx);
 		EhsMemcpy(pData,pOut,nBytesTillWrap);
 		pOut = &(xQueue->xQueue[0]);
 		EhsMemcpy(pData+nBytesTillWrap,pOut,nCopy-nBytesTillWrap);
@@ -116,7 +123,7 @@ ehs_uint32 EhsConsoleQueue_pop(EhsConsoleQueueType* xQueue, ehs_uint8* pData, eh
 	 * occurs around this point queue->uOutIdx is either value before pop
 	 * or value after pop, but not some intermediate broken value
 	 */
-	*pnIdx = (*pnIdx + nCopy) & ((EHS_MAX_CONSOLE_QUEUE_SIZE*2)-1);
+	*pnIdx = (*pnIdx + nCopy) & ((consoleQueueMaxSize*2)-1);
 	//printf("Q->\n");
 	EhsTPMutex_unlock(EhsTPMutex_consoleQueue);
 
@@ -139,16 +146,18 @@ ehs_bool EhsConsoleQueue_isEmpty(const EhsConsoleQueueType* queue)
 	else return EHS_TRUE;
 }
 
-/**
- * Test whether the queue is full. This occurs if in-pointer ==
- * (out-pointer + EHS_MAX_CONSOLE_QUEUE_SIZE) % EHS_MAX_CONSOLE_QUEUE_SIZE*2
+/** 
+ * NOTE: EHS_DEBUG_CONSOLE_BUFFER_SIZE is not used in the kernel- it is only set in ert-components
  * 
- * A neat optimization here is to use out-pointer XOR EHS_MAX_CONSOLE_QUEUE_SIZE
+ * Test whether the queue is full. This occurs if in-pointer ==
+ * (out-pointer + EHS_DEBUG_CONSOLE_BUFFER_SIZE) % EHS_DEBUG_CONSOLE_BUFFER_SIZE*2
+ * 
+ * A neat optimization here is to use out-pointer XOR EHS_DEBUG_CONSOLE_BUFFER_SIZE
  * Examples to prove this works:
- * outpointer(o) = 18 (0x12), EHS_MAX_CONSOLE_QUEUE_SIZE(M) = 64 (0x40)
+ * outpointer(o) = 18 (0x12), EHS_DEBUG_CONSOLE_BUFFER_SIZE(M) = 64 (0x40)
  * (o + M) % M*2 = (18 + 64) % 128 = 82
  * (o ^ M*2) = 0x12 ^ 0x40 = 0x52 = 82
- * outpointer(o) = 77 (0x4d), EHS_MAX_CONSOLE_QUEUE_SIZE(M) = 64 (0x40)
+ * outpointer(o) = 77 (0x4d), EHS_DEBUG_CONSOLE_BUFFER_SIZE(M) = 64 (0x40)
  * (o + M) % M*2 = (77 + 64) % 128 = 141%128 = 13
  * (o ^ M*2) = 0x4d ^ 0x40 = 0x0d = 13
  *
@@ -159,33 +168,31 @@ ehs_bool EhsConsoleQueue_isEmpty(const EhsConsoleQueueType* queue)
 ehs_bool EhsConsoleQueue_isFull(const EhsConsoleQueueType* queue)
 {
 	/* we assume queue points to a valid queue for speed */
-	return (queue->uInIdx == (queue->uOutIdx ^ EHS_MAX_CONSOLE_QUEUE_SIZE));
+	return (queue->uInIdx == (queue->uOutIdx ^ EhsConsoleQueue_maxSize()));
 }
 
 /**
  * Determine how many elements are in the event queue.
  * Obviously in-out works where out < in.
  * Where in < out, unsigned integer arithmetic works fine
- * provided that we mask result with EHS_MAX_CONSOLE_QUEUE_SIZE*2 -1
- * Assertion: this will always result in a value 0..EHS_MAX_CONSOLE_QUEUE_SIZE
+ * provided that we mask result with EHS_DEBUG_CONSOLE_BUFFER_SIZE*2 -1
+ * Assertion: this will always result in a value 0..EHS_DEBUG_CONSOLE_BUFFER_SIZE
  * If in < out and no overflow has occured, the following facts obtain:
- * -# in <= EHS_MAX_CONSOLE_QUEUE_SIZE
- * -# out >= EHS_MAX_CONSOLE_QUEUE_SIZE
- * -# out-in >= EHS_MAX_CONSOLE_QUEUE_SIZE
+ * -# in <= EHS_DEBUG_CONSOLE_BUFFER_SIZE
+ * -# out >= EHS_DEBUG_CONSOLE_BUFFER_SIZE
+ * -# out-in >= EHS_DEBUG_CONSOLE_BUFFER_SIZE
  * @param queue Queue to test
  * @return number of elements currently in the queue
  */
 ehs_uint32 EhsConsoleQueue_length(const EhsConsoleQueueType* queue)
 {
-	return ((queue->uInIdx - queue->uOutIdx)&((EHS_MAX_CONSOLE_QUEUE_SIZE*2)-1));
+	return ((queue->uInIdx - queue->uOutIdx)&((EhsConsoleQueue_maxSize()*2)-1));
 }
 
 /* Check how much space is left */
 ehs_uint32 EhsConsoleQueue_space(const EhsConsoleQueueType* queue) {
-	return EHS_MAX_CONSOLE_QUEUE_SIZE - EhsConsoleQueue_length(queue);
-
+	return EhsConsoleQueue_maxSize() - EhsConsoleQueue_length(queue);
 }
-
 
 /**
  * Non-destructively lookahead into the queue to see if a specified character
@@ -198,6 +205,9 @@ ehs_uint32 EhsConsoleQueue_space(const EhsConsoleQueueType* queue) {
  */
 ehs_uint32 EhsConsoleQueue_peek(const EhsConsoleQueueType* xQueue, ehs_uint8 nChar)
 {
+	if(xQueue==NULL || xQueue->xQueue==NULL){
+		return 0;
+	}
 	ehs_uint32 nLookahead = 0;
 	ehs_uint32 nRet = 0;
 	EhsTPMutex_lock(EhsTPMutex_consoleQueue);

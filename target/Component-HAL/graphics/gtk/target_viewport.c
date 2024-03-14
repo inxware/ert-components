@@ -37,7 +37,6 @@
 /*****************************************************************************/
 /* Included files */
 
-
 //#include "target_viewport.h"
 #include "globals.h"
 #include "hal_string.h"
@@ -53,24 +52,24 @@
 #include "keypress.h" /* we take some direct keyboard functions in here */
 
 #ifndef EHS_MINGW
-#include <X11/Xlib.h>
-#include <gdk/gdkx.h>
+    #include <X11/Xlib.h>
+    #include <gdk/gdkx.h>
 #else
-/*
-_WIN32_WINNT should be define in target_config.h, but just in case
-*/
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
-#endif
-//#include <windows.h>
-#include <gdk/gdkwin32.h>
-#include <gdk/gdk.h>
-//#define _WIN32_WINNT
-#ifndef WINVER
-#define WINVER 0x0500
-#endif
-#include <windows.h>
-WINUSERAPI BOOL WINAPI SetLayeredWindowAttributes(HWND,COLORREF,BYTE,DWORD);
+    /*
+    _WIN32_WINNT should be define in target_config.h, but just in case
+    */
+    #ifndef _WIN32_WINNT
+        #define _WIN32_WINNT 0x0501
+    #endif
+    //#include <windows.h>
+    #include <gdk/gdkwin32.h>
+    #include <gdk/gdk.h>
+    //#define _WIN32_WINNT
+    #ifndef WINVER
+        #define WINVER 0x0500
+    #endif
+    #include <windows.h>
+    WINUSERAPI BOOL WINAPI SetLayeredWindowAttributes(HWND,COLORREF,BYTE,DWORD);
 #endif
 #include <gtk/gtk.h>
 
@@ -87,7 +86,7 @@ WINUSERAPI BOOL WINAPI SetLayeredWindowAttributes(HWND,COLORREF,BYTE,DWORD);
  * Check for any errors and report them if appropriate
  */
 //#define TRACE_VIEWPORT
-//#undef TRACE_VIEWPORT
+#undef TRACE_VIEWPORT
 #ifdef TRACE_VIEWPORT
 int EhsTraceLevel = 0;
 static char* currentFunc;
@@ -113,8 +112,10 @@ struct EhsTVStruct
     EhsGraphicsRectangleClass xClipRect;	/**< Clipping rectangle - used when drawing all images */
     EhsTVSurfaceClass* pAllocSurface; /**< List of allocated surfaces - used for deallocation purposes */
     ehs_bool bViewportChanged;			/**< The pixbuf has changed, we need to copy it into pPixmap */
-    ehs_uint8 transparency; // transparency of window
+    //ehs_uint8 transparency; // transparency of window - not used apparently todo2022 - deletme!
 };
+
+EhsTVClass EhsTV; // Global handle of viewport strcuture
 
 /*****************************************************************************/
 /* Declare prototypes of local functions */
@@ -139,14 +140,26 @@ EHS_LOCAL gboolean EhsL_event_destroyWindow(GtkWidget* pWidget, GdkEventExpose* 
  */
 EHS_LOCAL gboolean EhsL_size_allocate(GtkWidget* pWidget, GtkAllocation* pAllocation);
 
+#if GTK_MAJOR_VERSION == 3
+/**
+ * Update the main drawing area. This function is called as an event
+ * @param[in] pWidget The Widget that this event applies to
+ * @param[in] pCairo Pointer to cairo struct.
+ * @param[in] data Extra data passed to the callback
+ */
+EHS_LOCAL gboolean EhsL_event_expose(GtkWidget *pWidget, cairo_t *pCairo, gpointer data);
+#else
 /**
  * Update the main drawing area. This function is called as an event
  * @param[in] pWidget The Widget that this event applies to
  * @param[in] pEvent The event that triggered this function
  */
 EHS_LOCAL gboolean EhsL_event_expose(GtkWidget* pWidget, GdkEventExpose* pEvent);
+#endif
 
 #ifdef EHS_MINGW
+EHS_LOCAL gboolean EhsL_event_show(GtkWidget* pWidget, GdkEventExpose* pEvent); //for the first showing - calls some win32 config stuff that GDK cant do
+#else
 EHS_LOCAL gboolean EhsL_event_show(GtkWidget* pWidget, GdkEventExpose* pEvent); //for the first showing - calls some win32 config stuff that GDK cant do
 #endif
 /**
@@ -185,7 +198,6 @@ EHS_LOCAL void EhsTV_MinimiseViewport (GtkWidget* pWidget) ;
 /*****************************************************************************/
 /* Variables defined with global-scope */
 
-
 /**
  * Define the target viewport. Only one viewport is defined at this
  * time.
@@ -196,18 +208,6 @@ EHS_LOCAL void EhsTV_MinimiseViewport (GtkWidget* pWidget) ;
  * If this is malloced this global variable could remove this.
  */
 
-
-/**
- * Define the target viewport. Only one viewport is defined at this
- * time.
- * ASSUMPTIONS:
- * This variable should not be accessed directly in functions.
- * A pointer reference to it (passed in the arguement) shouild be used in stead
- * The init function could dymanicall create this to make this code module re-rentrant - i.e. for devices with more than one view port, or display.
- * If this is malloced this global variable could remove this.
- */
-
-EhsTVClass EhsTV; // Global handle of viewport strcuture
 
 static volatile char go=0;
 
@@ -331,13 +331,19 @@ ehs_uint32 stride_value(ehs_uint32 width, ehs_uint32 bpp)
 
 /* non use paramter initialisation - this is called before any SODL is read*/
 /* We keep the GTK thread going between app function calls - we may want graphics in-between..*/
+ehs_bool horrible_flag_to_prompt_lateconfig_on_new_windows=0;
 
 ehs_bool EhsTV_init(EhsTVClass* pViewport)
 {
     ehs_bool bInitialised = EHS_TRUE; /* has initialisation been successful? assume it has */
+    /* Some flags that get set by callbacks (and todo2022 need to be combined I expect )*/
+    horrible_flag_to_prompt_lateconfig_on_new_windows = 0;
+    go = 0;
+    
     /* All GTK initialisation is done in the gtk main (loop) thread */
-
     //@todo need to review this code for all targets, viewRectangle controls the area of the viewport that widgets can be painted in and is only set here - it is not updated if a viewport widget exists
+#define EHS_OVERRIDE_DEFAULT_WINDOWSIZE
+#ifdef EHS_OVERRIDE_DEFAULT_WINDOWSIZE
     viewRectangle.nTop = 0;
     viewRectangle.nLeft = 0;
     viewRectangle.nHeight = EHS_CONFIG_DISPLAY_HEIGHT;//Use the default values in case the viewport block is not used.
@@ -347,6 +353,8 @@ ehs_bool EhsTV_init(EhsTVClass* pViewport)
     viewColour.sComp.nRed = 0;
     viewColour.sComp.nGreen = 0;
     viewColour.sComp.nBlue = 0;
+#endif
+
     g_thread_init(NULL); // PPP: Needs glib for linking
 
     g_thread_create((GThreadFunc)EhsL_graphicsThreadFunc, (gpointer)pViewport,FALSE,NULL); //@todo this does not have the EHS thread policy??
@@ -398,21 +406,20 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
 #endif
 
     EHS_TRACE_MESSAGE("GTK Viewport: Created Window\n");
-#ifdef EHS_DEBUG
+//#ifdef EHS_RUNTIME_LOGGER_ENABLED
+#ifdef EHS_NOTDEFED
     if (pViewport->pMainWindow->window) gdk_keyboard_grab(pViewport->pMainWindow->window, FALSE, GDK_CURRENT_TIME);
 #endif
     /* get RGBA colormap */
     //gdk_keyboard_grab(pViewport->pMainWindow->window, TRUE, GDK_CURRENT_TIME);
+#if GTK_MAJOR_VERSION == 2
     screen = gdk_screen_get_default();
     EHSH_LOG_INFO("GTK Viewport: Got Screen = %d\n",screen);
-#if GTK_MAJOR_VERSION == 2
     colormap = gdk_screen_get_rgba_colormap(screen);
     if (colormap == NULL)
     {
         //gdk_window_set_opacity ((GdkScreen)screen,1.0); // 12-01-13 R set a default value - for screen really? would this work?
-#endif
-        gtk_widget_set_default_colormap(gdk_colormap_get_system ());
-#if GTK_MAJOR_VERSION == 2
+    gtk_widget_set_default_colormap(gdk_colormap_get_system ());
 
     }
     else
@@ -420,6 +427,17 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
         //gdk_window_set_composited(screen,1);
         gtk_widget_set_default_colormap(colormap);
     }
+#else
+#if GTK_MAJOR_VERSION == 3
+        //This is the GTK 3 method
+          screen = gtk_widget_get_screen (GTK_WIDGET (pViewport->pMainWindow));
+          GdkVisual *visual = gdk_screen_get_rgba_visual (screen);
+
+          if (visual == NULL)
+                visual = gdk_screen_get_system_visual (screen);
+
+          gtk_widget_set_visual (pViewport->pMainWindow, visual);
+#endif
 #endif
 
     EHS_TRACE_MESSAGE("GTK Viewport: Carrying on\n",screen);
@@ -432,7 +450,11 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
     EHS_TRACE_MESSAGE("GTK Viewport: Set window to paintable\n");
 
     gtk_container_set_border_width(GTK_CONTAINER(pViewport->pMainWindow),0);
+#ifdef EHS_MINGW
+    gtk_window_set_decorated(GTK_WINDOW(pViewport->pMainWindow),TRUE);
+#else
     gtk_window_set_decorated(GTK_WINDOW(pViewport->pMainWindow),FALSE);
+#endif
     /*
      * - removed as paints grey rectangle before app is ready
      * gtk_window_set_default_size(GTK_WINDOW(pViewport->pMainWindow),viewRectangle.nWidth,viewRectangle.nHeight );//pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
@@ -443,11 +465,11 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
 
 
     // We should have access to the z-order information in here to select the following..
-#ifdef EHS_MINGW // It doesn't seem to make much difference with mingw...
+#ifdef EHS_MINGW 
+// It doesn't seem to make much difference with mingw...
     gtk_window_set_keep_above(GTK_WINDOW(pViewport->pMainWindow),FALSE); // We may want this to be true for embedded - dispate the app?
     gtk_window_set_keep_below(GTK_WINDOW(pViewport->pMainWindow),TRUE); //ideallly this should be below the video plane for windows//
 #else
-
     if (nZOrder == 2)
     {
         gtk_window_set_keep_above(GTK_WINDOW(pViewport->pMainWindow),TRUE); // We may want this to be true for embedded - dispate the app?
@@ -467,7 +489,12 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
 #endif
 
     //gtk_widget_modify_bg(pViewport->pMainWindow, GTK_STATE_NORMAL, &black );
+#ifdef EHS_ENABLE_GTK_BUTTON_MOTION
     gtk_widget_set_events(pViewport->pMainWindow, GDK_BUTTON_MOTION_MASK|GDK_BUTTON_RELEASE_MASK|GDK_BUTTON_PRESS_MASK|GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);//|GDK_FOCUS_CHANGE_MASK|GDK_EXPOSURE_MASK);
+#else
+    gtk_widget_set_events(pViewport->pMainWindow, GDK_BUTTON_RELEASE_MASK|GDK_BUTTON_PRESS_MASK|GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);//|GDK_FOCUS_CHANGE_MASK|GDK_EXPOSURE_MASK);
+#endif
+    
     //gtk_widget_set_events(pViewport->pMainWindow, GDK_BUTTON_PRESS_MASK);
     EHS_TRACE_MESSAGE("GTK Viewport: Set events\n");
     /*Connect GTK events to our functions*/
@@ -484,16 +511,34 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
      * or if we return FALSE in the "delete_event" callback. */
     g_signal_connect(G_OBJECT(pViewport->pMainWindow), "destroy", G_CALLBACK(EhsL_event_destroyWindow), NULL);
 
-    g_signal_connect(G_OBJECT(pViewport->pMainWindow), "expose_event", G_CALLBACK(EhsL_event_expose), NULL);
-#ifdef EHS_MINGW
+#if GTK_MAJOR_VERSION == 3
+    GtkWidget *drawingarea;
+    drawingarea = gtk_drawing_area_new();
+    //gtk_widget_set_size_request (drawingarea, WINDOW_WIDTH, WINDOW_HEIGHT);
+    g_signal_connect (drawingarea, "draw", G_CALLBACK(EhsL_event_expose),  NULL);
     g_signal_connect(G_OBJECT(pViewport->pMainWindow), "show", G_CALLBACK(EhsL_event_show), NULL);
+    gtk_container_add (GTK_CONTAINER (pViewport->pMainWindow), drawingarea);
+    gtk_widget_show(drawingarea);
+#else
+
+#ifdef EHS_MINGW
+/* this is needed for GTK2.0 only? */
+    g_signal_connect(G_OBJECT(pViewport->pMainWindow), "show", G_CALLBACK(EhsL_event_show), NULL);
+    g_signal_connect(G_OBJECT(pViewport->pMainWindow), "draw", G_CALLBACK(EhsL_event_expose), NULL);
+#else
+    g_signal_connect(G_OBJECT(pViewport->pMainWindow), "expose_event", G_CALLBACK(EhsL_event_expose), NULL);
+
+    g_signal_connect(G_OBJECT(pViewport->pMainWindow), "show", G_CALLBACK(EhsL_event_show), NULL);
+    //g_signal_connect(G_OBJECT(pViewport->pMainWindow), "draw", G_CALLBACK(EhsL_event_expose), NULL);
+#endif
+
 #endif
     // This stops top level windows working.. g_signal_connect(G_OBJECT(pViewport->pMainWindow), "configure_event", G_CALLBACK(EhsL_event_configure), NULL);
     g_signal_connect(G_OBJECT(pViewport->pMainWindow), "size_allocate", G_CALLBACK(EhsL_size_allocate), NULL);
 
 
-#ifdef EHS_MINGW // doesnt work propoerly for win32 (can't get focs back adter showin video)
-
+#ifdef EHS_MINGW
+// doesnt work propoerly for win32 (can't get focs back adter showin video)
     g_signal_connect(G_OBJECT(pViewport->pMainWindow), "key_release_event", G_CALLBACK(EhsL_event_key_release), NULL );
     g_signal_connect(G_OBJECT(pViewport->pMainWindow), "key_press_event", G_CALLBACK(EhsL_event_key_press), NULL );
 #else
@@ -503,8 +548,10 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
     /*Catch mouse button events*/
     g_signal_connect(G_OBJECT(pViewport->pMainWindow), "button_press_event", G_CALLBACK(EhsL_event_button_press), NULL); //use with GDK_BUTTON_PRESS_MASK
     g_signal_connect(G_OBJECT(pViewport->pMainWindow), "button_release_event", G_CALLBACK(EhsL_event_button_release), NULL); //use with GDK_BUTTON_RELEASE_MASK
+#ifdef EHS_ENABLE_GTK_BUTTON_MOTION
     /*Catch mouse move events*/
     g_signal_connect(G_OBJECT(pViewport->pMainWindow), "motion_notify_event", G_CALLBACK(EhsL_event_motion_notify), NULL); //use with GDK_BUTTON_MOTION_MASK
+#endif
 
     /*Set the window to resizeable, move it to the top left and then show it*/
     gtk_window_set_resizable(GTK_WINDOW(pViewport->pMainWindow), TRUE);
@@ -513,6 +560,10 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
 #if GTK_MAJOR_VERSION == 2
     GTK_WIDGET_SET_FLAGS (pViewport->pMainWindow, GTK_CAN_FOCUS);
     GTK_WIDGET_SET_FLAGS (pViewport->pMainWindow, GTK_CAN_DEFAULT);
+#endif
+#if GTK_MAJOR_VERSION == 3
+    gtk_widget_set_can_focus(pViewport->pMainWindow,1);
+    gtk_widget_set_can_default(pViewport->pMainWindow,1);
 #endif
 #ifndef EHS_MINGW
     gdk_keyboard_grab(gtk_widget_get_window(GTK_WIDGET(pViewport->pMainWindow)), EHS_FALSE, GDK_CURRENT_TIME); // 'f' grabs the keybaord for this window
@@ -532,6 +583,8 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
      */
 #ifdef EHS_MINGW
     gtk_widget_show(EhsTV.pMainWindow);
+#else
+    gtk_widget_show(EhsTV.pMainWindow);
 #endif
     ///////GUIViewPortWidget=&(EhsTV.pMainWindow); // we do this for other Screen users that don't understand the EheTv.pMainWinow struct type.
     /* This isn't ready yet, but we'll do it here for legacy reasons @todo should remove this next test cycle */
@@ -544,13 +597,12 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
     (void)g_timeout_add(EHS_TIME_BETWEEN_FRAMES, (GSourceFunc)timer_exe, EhsTV.pMainWindow);
 #endif
     //gdk_threads_leave();
-    EHSH_LOG_INFO(" Starting GTK");
+    EHSH_LOG_INFO("Starting GTK...");
     gtk_main_iteration(); //don't start till some thing has been done to avoid the X-server Errors.
-    go=1;
     while (1)
     {
         gtk_main_iteration_do(0);    //this seems less crashy than the gtk_main() blocker!
-        g_usleep(50000);
+        g_usleep(20000); /* This is up 50 frames/second ??? */
     }
     EHSH_LOG_WARNING("gtk_main - exited!");
     EhsHThread_exit();
@@ -585,29 +637,39 @@ void EhsL_graphics_late_config(GtkWidget* pWidget, ehs_bool doall)
 #ifdef EHS_MINGW
     if (doall)   //EHSTV_configured) { // for some reason this doesn't work if a viewport widget has not reconfigured it (probably the alpha value is not valid).
     {
-        SetWindowLong(GDK_WINDOW_HWND(pWidget->window), GWL_EXSTYLE,GetWindowLong(GDK_WINDOW_HWND(pWidget->window), GWL_EXSTYLE) | WS_EX_LAYERED|WS_EX_TOPMOST);
-        SetLayeredWindowAttributes(GDK_WINDOW_HWND(pWidget->window), 0, viewColour.sComp.nAlpha, LWA_ALPHA);
-
+        SetWindowLong(GDK_WINDOW_HWND(gtk_widget_get_root_window(pWidget)), GWL_EXSTYLE,GetWindowLong(GDK_WINDOW_HWND(gtk_widget_get_root_window(pWidget)), GWL_EXSTYLE) | WS_EX_LAYERED|WS_EX_TOPMOST);	 
+        //Old GTK2.0 method: SetWindowLong(GDK_WINDOW_HWND(pWidget->window), GWL_EXSTYLE,GetWindowLong(GDK_WINDOW_HWND(pWidget->window), GWL_EXSTYLE) | WS_EX_LAYERED|WS_EX_TOPMOST);
+        SetLayeredWindowAttributes(GDK_WINDOW_HWND(gtk_widget_get_root_window(pWidget)), 255, viewColour.sComp.nAlpha, LWA_ALPHA);
     }
+  #if GTK_MAJOR_VERSION != 3
+    //The following causes some log spam and doesn't seem to change anything. Might not be needed for any GTK versions?
     gtk_window_set_focus (GTK_WINDOW(pWidget),pWidget);
-    SetFocus(GDK_WINDOW_HWND(pWidget->window)); // this is to allow keyboard grabbing in windows as GDK doesn't  work here ..
+    SetFocus(GDK_WINDOW_HWND(gtk_widget_get_root_window(pWidget))); // this is to allow keyboard grabbing in windows as GDK doesn't  work here ..
+  #endif
 #endif
 }
 
 #ifdef EHS_MINGW
-ehs_bool horrible_flag_to_prompt_lateconfig_on_new_windows=0;
 gboolean EhsL_event_show(GtkWidget* pWidget, GdkEventExpose* pEvent)
 {
-    ENTER(EhsL_event_expose);
+    ENTER(EhsL_event_show);
     horrible_flag_to_prompt_lateconfig_on_new_windows=1;
-    LEAVE(EhsL_event_expose);
+    go=1;
+    LEAVE(EhsL_event_show);
     return TRUE;
 
 }
+#else
+
+gboolean EhsL_event_show(GtkWidget* pWidget, GdkEventExpose* pEvent)
+{
+    ENTER(EhsL_event_show);
+    go=1;
+    horrible_flag_to_prompt_lateconfig_on_new_windows=1;
+    LEAVE(EhsL_event_show);
+    return TRUE;
+}
 #endif
-
-
-
 
 /* When the window is given the "delete_event" signal (this is given
  * by the window manager, usually by the "close" option, or on the
@@ -655,12 +717,22 @@ gboolean EhsL_size_allocate(GtkWidget* pWidget, GtkAllocation* pAllocation)
     return TRUE;
 }
 
+#if GTK_MAJOR_VERSION == 3
+/**
+ * Update the main drawing area. This function is called as an event
+ * @param[in] pWidget The Widget that this event applies to
+ * @param[in] pCairo Pointer to cairo struct.
+ * @param[in] data Extra data passed to the callback
+ */
+gboolean EhsL_event_expose(GtkWidget *pWidget, cairo_t *pCairo, gpointer data)
+#else
 /**
  * Update the main drawing area. This function is called as an event
  * @param[in] pWidget The Widget that this event applies to
  * @param[in] pEvent The event that triggered this function
  */
 gboolean EhsL_event_expose(GtkWidget* pWidget, GdkEventExpose* pEvent)
+#endif
 {
     static ehs_uint32 expose_count;
     ENTER(EhsL_event_expose);
@@ -673,16 +745,28 @@ gboolean EhsL_event_expose(GtkWidget* pWidget, GdkEventExpose* pEvent)
     EhsTPMutex_lock(EhsTPMutex_widgetTable);
     /* set up clipping rectangle */
     EhsGraphicsRectangleClass exposeRect;
+#if GTK_MAJOR_VERSION == 3
+    GdkRectangle rect;
+    gdk_cairo_get_clip_rectangle(pCairo, &rect);
+    exposeRect.nLeft = rect.x;
+    exposeRect.nTop = rect.y;
+    exposeRect.nHeight = rect.height;
+    exposeRect.nWidth = rect.width;
+#else
     exposeRect.nLeft = pEvent->area.x;
     exposeRect.nTop = pEvent->area.y;
     exposeRect.nHeight = pEvent->area.height;
     exposeRect.nWidth = pEvent->area.width;
-
-
-
-
-    if ( (pEvent->area.height == 0 ) || (pEvent->area.width == 0) ) goto skip;
+#endif
+    if ( (exposeRect.nHeight == 0 ) || (exposeRect.nWidth == 0) ) goto skip;
 #ifdef EHS_MINGW
+    if (horrible_flag_to_prompt_lateconfig_on_new_windows)
+    {
+        EhsL_graphics_late_config(pWidget,1);
+        horrible_flag_to_prompt_lateconfig_on_new_windows=0;
+
+    }
+#else
     if (horrible_flag_to_prompt_lateconfig_on_new_windows)
     {
         EhsL_graphics_late_config(pWidget,1);
@@ -708,36 +792,23 @@ gboolean EhsL_event_expose(GtkWidget* pWidget, GdkEventExpose* pEvent)
          * Note: Note that due to double-buffering, Cairo contexts created in a GTK+ expose event handler cannot be cached and reused between different expose events.
          * Se we have to create new each expose in GTK
          */
+#if GTK_MAJOR_VERSION == 3
+        EhsTV.cr = pCairo;
+#else // non-gtk3
 #ifdef EHS_USE_CAIRO_LESS_THAN_322
         EhsTV.cr = gdk_cairo_create(gtk_widget_get_window(pWidget));
 #else
         EhsTV.cr = gdk_cairo_create(gtk_widget_get_window(pWidget));
 #endif
 
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have gdk_cairo_create\n");
-#ifndef NOOOOOO
         //cairo_set_operator(EhsTV.cr, CAIRO_OPERATOR_SOURCE);
         cairo_set_operator(EhsTV.cr, CAIRO_OPERATOR_OVER);
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have cairo_set_operator\n");
-        // cairo_move_to (cr, 30, 30);
         gdk_cairo_region(EhsTV.cr, pEvent->region);
-
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have gdk_cairo_region\n");
         cairo_clip(EhsTV.cr);
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have cairo_clip\n");
-
-
+#endif
         cairo_set_source_rgba (EhsTV.cr, ((double)viewColour.sComp.nRed / 255), ((double)viewColour.sComp.nGreen / 255), ((double)viewColour.sComp.nBlue / 255), ((double)viewColour.sComp.nAlpha / 255));
-
-        //cairo_show_text (EhsTV.cr, "HELLOOOO  WHAT IS GOING ON!");
-        // rendering ends up with double alpha for the background for windows, but we don't mind so much about windows
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have a cairo_set_source_rgba\n");
-        //Paint the background
+        // rendering ends up with double alpha for the background for windows, (but we don't mind so much about windows?)
         cairo_paint(EhsTV.cr);
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have a cairo_paint\n");
-
-        //cairo_set_operator(EhsTV.cr, CAIRO_OPERATOR_OVER);
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have cairo_set_operator\n");
         if (EhsWidgetTable.initialised != EHS_MAGIC_NUMBER)
         {
             EhsTPMutex_unlock(EhsTPMutex_widgetTable);
@@ -745,10 +816,9 @@ gboolean EhsL_event_expose(GtkWidget* pWidget, GdkEventExpose* pEvent)
         }
         /*Draw all widgets in the exposed region*/
         EhsWidgetTable_draw(&EhsWidgetTable,&EhsTV,&exposeRect);
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have EhsWidgetTable_draw\n");
-#endif
+#if GTK_MAJOR_VERSION != 3
         cairo_destroy(EhsTV.cr);
-        //EHS_TRACE_MESSAGE("GTK Viewport:Have Ecairo_destroy\n");
+#endif
     }
     else
     {
@@ -877,7 +947,9 @@ gboolean EhsL_event_button_press(GtkWidget* pWidget, GdkEventButton* pButton)
     EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(&EhsWidgetTable,x,y);
     EhsTPMutex_unlock(EhsTPMutex_widgetTable);
 
+//    g_print("PRESSED x=%d, y=%d \n", x,y);
 
+    return TRUE;
 }
 
 /**
@@ -894,7 +966,9 @@ gboolean EhsL_event_button_release(GtkWidget* pWidget, GdkEventButton* pButton)
     EhsWidgetTable_registerMouseUpOnWidgetMatchCoords(&EhsWidgetTable,x,y);
     EhsTPMutex_unlock(EhsTPMutex_widgetTable);
 
+//    g_print("RELEASED x=%d, y=%d \n", x,y);
 
+    return TRUE;
 }
 
 /**
@@ -908,8 +982,9 @@ gboolean EhsL_event_motion_notify(GtkWidget* pWidget, GdkEventMotion* pMotion)
     EhsWidgetTable_triggerViewportMouseDrag(&EhsWidgetTable,x,y);
     EhsTPMutex_unlock(EhsTPMutex_widgetTable);
 
+//    g_print("MOTION x=%d, y=%d \n", x,y);
 //	update = 1; //not necessary as update is done on timer
-
+    return TRUE;
 }
 
 
@@ -1038,6 +1113,8 @@ void EhsTV_fade(EhsTVClass* pViewport, EhsGraphicsColourClass nColour)
     ENTER(EhsTV_fade);
     viewColour = nColour;
 #ifdef EHS_MINGW
+    horrible_flag_to_prompt_lateconfig_on_new_windows=1; // need to trigger expose to reconfig the window with new fade value
+#else
     horrible_flag_to_prompt_lateconfig_on_new_windows=1; // need to trigger expose to reconfig the window with new fade value
 #endif
     EhsTV_update(pViewport);
@@ -1404,21 +1481,18 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
                      * but no sign of surBitmap being used anywhere other than just to get his handle back...
                     /* CAIRO_FORMAT_A1 is bitpacked */
                     pSurface->fmt.A1.pBitmap = cairo_image_surface_get_data(pSurface->fmt.A1.surBitmap);
-                    for (i=0; i <(cairo_stride*nHeight); i++)
-                    {
-                        pSurface->fmt.A1.pBitmap[i] = 0x0;
-                    }
                     if (pSurface->fmt.A1.pBitmap)
                     {
+                        EhsMemset(pSurface->fmt.A1.pBitmap,0x0,cairo_stride*nHeight);
+                        EhsMemcpy(pSurface->fmt.A1.pColour, pPalette, 2 * sizeof(EhsGraphicsColourClass));
                         pSurface->fmt.A1.nWidth = nWidth;
                         pSurface->fmt.A1.nHeight = nHeight;
-                        EhsMemcpy(pSurface->fmt.A1.pColour, pPalette, 2 * sizeof(EhsGraphicsColourClass));
                     }
                     else
                     {
                         /* alloc failed, reset pSurface */
                         bFailed = EHS_TRUE;
-                    }
+                    }  
                 }
                 else
                 {
@@ -1457,7 +1531,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
     }
     else
     {
-        EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("unrecognised bitmap format"));
+        EHSH_LOG_ERROR(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("unrecognised bitmap format"));
     }
 
     LEAVE(EhsTVSurface_create);

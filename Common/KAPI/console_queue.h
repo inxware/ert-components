@@ -34,17 +34,18 @@
  */
 typedef struct
 {
-    ehs_uint32 uInIdx; /**< Pointer to the next place to write the input. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
-    ehs_uint32 uOutIdx; /**< Pointer to the next place to read the output. Ranges from 0..2*EHS_MAX_EVENT_QUEUE_SIZE */
+    ehs_uint32 uInIdx; /**< Pointer to the next place to write the input. Ranges from 0..2*EHS_EVENT_QUEUE_SIZE */
+    ehs_uint32 uOutIdx; /**< Pointer to the next place to read the output. Ranges from 0..2*EHS_EVENT_QUEUE_SIZE */
     //ehs_bool EhsConsole_buffer_empty; // default is true.Note we could optiimise this for memory by checking for uInIdx == uOutIdx instead.
-    ehs_uint8 xQueue[EHS_MAX_CONSOLE_QUEUE_SIZE]; /**< Contents of the event queue */
+    ehs_uint8* xQueue; /**< Contents of the event queue */
 } EhsConsoleQueueType;
 
 /**
  * Map uInIdx and uOutIdx to xQueue entries
  */
-#define EHS_CONSOLE_QUEUE_INDEX(x) ((x) & (EHS_MAX_CONSOLE_QUEUE_SIZE-1))
+#define EHS_CONSOLE_QUEUE_INDEX(x) ((x) & (EhsConsoleQueue_maxSize()-1))
 
+EHS_GLOBAL ehs_uint32 EhsConsoleQueue_maxSize();
 
 /**
  * Add new data to the console queue.
@@ -53,7 +54,7 @@ typedef struct
  * @param nSize amount of data to add to the queue.
  * @return Amount of data that was added to the queue (0 = unsuccessful)
  */
-EHS_GLOBAL ehs_uint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize);
+EHS_GLOBAL ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize);
 
 /**
  * Remove data from the console queue

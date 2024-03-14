@@ -18,6 +18,8 @@
  *
  */
 
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_PROCESS
+
 #include "ehs_fb_types.h"
 #include "utils.h"
 #include "target.h"
@@ -68,27 +70,27 @@
 
 EHS_FB_FUNCTIONS_START(ICalc)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x00, ICalc)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, ICalc)
 EHS_FB_FUNCTIONS_END
 EHS_FB_FUNCTIONS_START(ICalc_1)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x00, ICalc_1)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, ICalc_1)
 EHS_FB_FUNCTIONS_END
 EHS_FB_FUNCTIONS_START(ICalc_2)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x00, ICalc_2)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, ICalc_2)
 EHS_FB_FUNCTIONS_END
 EHS_FB_FUNCTIONS_START(ICalc_4)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x00, ICalc_4)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, ICalc_4)
 EHS_FB_FUNCTIONS_END
 EHS_FB_FUNCTIONS_START(ICalc_6)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x00, ICalc_6)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, ICalc_6)
 EHS_FB_FUNCTIONS_END
 EHS_FB_FUNCTIONS_START(ICalc_8)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x00, ICalc_8)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, ICalc_8)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_ICALC_RESULT 1
@@ -311,8 +313,8 @@ EHS_FB_INIT_FUNCTION(ICalc)
         else
             bRet = EHS_FALSE;
     }
-
-    return bRet;
+    pCtx->bValid = bRet;
+    return EHS_TRUE;
 }
 
 /**
@@ -330,6 +332,11 @@ EHS_FB_RUN_FUNCTION(ICalc)
     EhsInternalCalcData *pStack = pCtx->pDataStack;
     ehs_uint32 i;
     EhsInternalCalcData nTemp;
+
+    if(pCtx->bValid == EHS_FALSE){
+        EHSH_LOG_ERROR("Calc function is invalid.");
+        return;
+    }
 
     for (i = 0; i < pCtx->nInstrSize; i++)
     {
@@ -379,7 +386,7 @@ EHS_FB_RUN_FUNCTION(ICalc)
             else
             {
                 *(pStack-1) = EHS_DATAFLOW_INT_MAX;
-                EhsError(EHS_MSG_ERROR_DIV0);
+                EHSH_LOG_ERROR(EHS_MSG_ERROR_DIV0);
             }
             break;
         case EhsICalcEngInstr_Mod:
@@ -511,8 +518,8 @@ EHS_FB_INIT_FUNCTION(ICalc_1)
         else
             bRet = EHS_FALSE;
     }
-
-    return bRet;
+    pCtx->bValid = bRet;
+    return EHS_TRUE;
 }
 
 /**
@@ -529,6 +536,11 @@ EHS_FB_RUN_FUNCTION(ICalc_1)
     EhsInternalCalcData *pStack = pCtx->pDataStack;
     ehs_uint32 i;
     EhsInternalCalcData nTemp;
+
+    if(pCtx->bValid == EHS_FALSE){
+        EHSH_LOG_ERROR("Calc function is invalid.");
+        return;
+    }
 
     for (i = 0; i < pCtx->nInstrSize; i++)
     {
@@ -578,7 +590,7 @@ EHS_FB_RUN_FUNCTION(ICalc_1)
             else
             {
                 *(pStack-1) = EHS_DATAFLOW_INT_MAX;
-                EhsError(EHS_MSG_ERROR_DIV0);
+                EHSH_LOG_ERROR(EHS_MSG_ERROR_DIV0);
             }
             break;
         case EhsICalcEngInstr_Mod:
@@ -711,8 +723,8 @@ EHS_FB_INIT_FUNCTION(ICalc_2)
         else
             bRet = EHS_FALSE;
     }
-
-    return bRet;
+    pCtx->bValid = bRet;
+    return EHS_TRUE;
 }
 
 /**
@@ -729,6 +741,11 @@ EHS_FB_RUN_FUNCTION(ICalc_2)
     EhsInternalCalcData *pStack = pCtx->pDataStack;
     ehs_uint32 i;
     EhsInternalCalcData nTemp;
+
+    if(pCtx->bValid == EHS_FALSE){
+        EHSH_LOG_ERROR("Calc function is invalid.");
+        return;
+    }
 
     for (i = 0; i < pCtx->nInstrSize; i++)
     {
@@ -778,7 +795,7 @@ EHS_FB_RUN_FUNCTION(ICalc_2)
             else
             {
                 *(pStack-1) = EHS_DATAFLOW_INT_MAX;
-                EhsError(EHS_MSG_ERROR_DIV0);
+                EHSH_LOG_ERROR(EHS_MSG_ERROR_DIV0);
             }
             break;
         case EhsICalcEngInstr_Mod:
@@ -911,8 +928,8 @@ EHS_FB_INIT_FUNCTION(ICalc_4)
         else
             bRet = EHS_FALSE;
     }
-
-    return bRet;
+    pCtx->bValid = bRet;
+    return EHS_TRUE;
 }
 
 /**
@@ -929,6 +946,11 @@ EHS_FB_RUN_FUNCTION(ICalc_4)
     EhsInternalCalcData *pStack = pCtx->pDataStack;
     ehs_uint32 i;
     EhsInternalCalcData nTemp;
+
+    if(pCtx->bValid == EHS_FALSE){
+        EHSH_LOG_ERROR("Calc function is invalid.");
+        return;
+    }
 
     for (i = 0; i < pCtx->nInstrSize; i++)
     {
@@ -978,7 +1000,7 @@ EHS_FB_RUN_FUNCTION(ICalc_4)
             else
             {
                 *(pStack-1) = EHS_DATAFLOW_INT_MAX;
-                EhsError(EHS_MSG_ERROR_DIV0);
+                EHSH_LOG_ERROR(EHS_MSG_ERROR_DIV0);
             }
             break;
         case EhsICalcEngInstr_Mod:
@@ -1111,8 +1133,8 @@ EHS_FB_INIT_FUNCTION(ICalc_6)
         else
             bRet = EHS_FALSE;
     }
-
-    return bRet;
+    pCtx->bValid = bRet;
+    return EHS_TRUE;
 }
 
 /**
@@ -1129,6 +1151,11 @@ EHS_FB_RUN_FUNCTION(ICalc_6)
     EhsInternalCalcData *pStack = pCtx->pDataStack;
     ehs_uint32 i;
     EhsInternalCalcData nTemp;
+
+    if(pCtx->bValid == EHS_FALSE){
+        EHSH_LOG_ERROR("Calc function is invalid.");
+        return;
+    }
 
     for (i = 0; i < pCtx->nInstrSize; i++)
     {
@@ -1178,7 +1205,7 @@ EHS_FB_RUN_FUNCTION(ICalc_6)
             else
             {
                 *(pStack-1) = EHS_DATAFLOW_INT_MAX;
-                EhsError(EHS_MSG_ERROR_DIV0);
+                EHSH_LOG_ERROR(EHS_MSG_ERROR_DIV0);
             }
             break;
         case EhsICalcEngInstr_Mod:
@@ -1311,8 +1338,8 @@ EHS_FB_INIT_FUNCTION(ICalc_8)
         else
             bRet = EHS_FALSE;
     }
-
-    return bRet;
+    pCtx->bValid = bRet;
+    return EHS_TRUE;
 }
 
 /**
@@ -1329,6 +1356,11 @@ EHS_FB_RUN_FUNCTION(ICalc_8)
     EhsInternalCalcData *pStack = pCtx->pDataStack;
     ehs_uint32 i;
     EhsInternalCalcData nTemp;
+
+    if(pCtx->bValid == EHS_FALSE){
+        EHSH_LOG_ERROR("Calc function is invalid.");
+        return;
+    }
 
     for (i = 0; i < pCtx->nInstrSize; i++)
     {
@@ -1378,7 +1410,7 @@ EHS_FB_RUN_FUNCTION(ICalc_8)
             else
             {
                 *(pStack-1) = EHS_DATAFLOW_INT_MAX;
-                EhsError(EHS_MSG_ERROR_DIV0);
+                EHSH_LOG_ERROR(EHS_MSG_ERROR_DIV0);
             }
             break;
         case EhsICalcEngInstr_Mod:
@@ -1484,7 +1516,7 @@ const char* EhsICalcGetToken(const char* szInput, EhsICalcTokenInfoType **peToke
         else
         {
             szInput--; /* rollback to show problem input during error message */
-            EhsError(EHS_MSG_ICALC_INVALID_TOKEN(szInput));
+            EHSH_LOG_ERROR(EHS_MSG_ICALC_INVALID_TOKEN(szInput));
         }
     }
     return szInput;
@@ -1517,7 +1549,7 @@ EhsICalcInputStateEnum EhsICalcValidateValueNext(EhsICalcTokenInfoType* eToken, 
         if (eState == EhsICalcInputState_negate)
         {
             ret = EhsICalcInputState_error;
-            EhsError(EHS_MSG_CALC_MINUSMINUS(szContext));
+            EHSH_LOG_ERROR(EHS_MSG_CALC_MINUSMINUS(szContext));
         }
         else
         {
@@ -1532,7 +1564,7 @@ EhsICalcInputStateEnum EhsICalcValidateValueNext(EhsICalcTokenInfoType* eToken, 
     else
     {
         ret = EhsICalcInputState_error;
-        EhsError(EHS_MSG_CALC_INPUT(szContext));
+        EHSH_LOG_ERROR(EHS_MSG_CALC_INPUT(szContext));
     }
     return ret;
 }
@@ -1569,7 +1601,7 @@ EhsICalcInputStateEnum EhsICalcValueCurrent(EhsICalcTokenInfoType* eToken, EhsIC
     else
     {
         eState = EhsICalcInputState_error;
-        EhsError(EHS_MSG_CALC_OPERATOR(szContext));
+        EHSH_LOG_ERROR(EHS_MSG_CALC_OPERATOR(szContext));
     }
     return eState;
 
@@ -1638,7 +1670,7 @@ EhsICalcInputStateEnum EhsICalcValidateToken(EhsICalcTokenInfoType* eToken, EhsI
         }
         else
         {
-            EhsError(EHS_MSG_CALC_COMMA(szContext));
+            EHSH_LOG_ERROR(EHS_MSG_CALC_COMMA(szContext));
             eState = EhsICalcInputState_error;
         }
         break;
@@ -1650,7 +1682,7 @@ EhsICalcInputStateEnum EhsICalcValidateToken(EhsICalcTokenInfoType* eToken, EhsI
         }
         else
         {
-            EhsError(EHS_MSG_CALC_PAREN_NEST(szContext));
+            EHSH_LOG_ERROR(EHS_MSG_CALC_PAREN_NEST(szContext));
             eState = EhsICalcInputState_error;
         }
         break;
@@ -1664,14 +1696,14 @@ EhsICalcInputStateEnum EhsICalcValidateToken(EhsICalcTokenInfoType* eToken, EhsI
             }
             else
             {
-                EhsError(EHS_MSG_CALC_CLOSE(szContext));
+                EHSH_LOG_ERROR(EHS_MSG_CALC_CLOSE(szContext));
                 eState = EhsICalcInputState_error;
             }
         }
         else
         {
             eState = EhsICalcInputState_error;
-            EhsError(EHS_MSG_CALC_ARGS(szContext));
+            EHSH_LOG_ERROR(EHS_MSG_CALC_ARGS(szContext));
         }
         break;
     case EhsICalcInputState_value:
@@ -1685,16 +1717,16 @@ EhsICalcInputStateEnum EhsICalcValidateToken(EhsICalcTokenInfoType* eToken, EhsI
         else
         {
             eState = EhsICalcInputState_error;
-            EhsError(EHS_MSG_CALC_OPEN_EXPECTED(szContext));
+            EHSH_LOG_ERROR(EHS_MSG_CALC_OPEN_EXPECTED(szContext));
         }
         break;
     case EhsICalcInputState_end:
-        EhsError(EHS_MSG_CALC_INTERNAL_END);
+        EHSH_LOG_ERROR(EHS_MSG_CALC_INTERNAL_END);
         eState = EhsICalcInputState_error;
         break;
     default:
         eState = EhsICalcInputState_error;
-        EhsError(EHS_MSG_CALC_UNRECOGNISED(szContext));
+        EHSH_LOG_ERROR(EHS_MSG_CALC_UNRECOGNISED(szContext));
         break;
     }
 
@@ -1712,12 +1744,12 @@ EhsICalcInputStateEnum EhsICalcValidateToken(EhsICalcTokenInfoType* eToken, EhsI
         {
             if (nArgCount[nArgLevel] > 1)
             {
-                EhsError(EHS_MSG_CALC_ARGS(szContext));
+                EHSH_LOG_ERROR(EHS_MSG_CALC_ARGS(szContext));
                 eState = EhsICalcInputState_error;
             }
             else
             {
-                EhsError(EHS_MSG_CALC_PAREN_MISMATCH);
+                EHSH_LOG_ERROR(EHS_MSG_CALC_PAREN_MISMATCH);
                 eState = EhsICalcInputState_error;
             }
         }
@@ -1811,7 +1843,7 @@ ehs_bool EhsICalc_executeLaterOpFirst(EhsICalcTokenInfoType* eTokenFirst, EhsICa
     else
     {
         /* error */
-        EhsError(EHS_MSG_WARNING_ICALC_ASSOCIATIVITY(eTokenSecond->szName));
+        EHSH_LOG_ERROR(EHS_MSG_WARNING_ICALC_ASSOCIATIVITY(eTokenSecond->szName));
     }
     return ret;
 }

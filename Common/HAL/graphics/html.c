@@ -362,7 +362,7 @@ void* EhsHGHtmlString_getWord(EhsHGHtmlStringClass* pHtml, const ehs_char** pszW
             else
             {
                 *pszWord = NULL;
-                EhsWarning(EHS_MSG_WARNING_HGHTML_NO_MEM);
+                EHSH_LOG_WARNING(EHS_MSG_WARNING_HGHTML_NO_MEM);
             }
         }
         else if (!(*pRet))
@@ -414,7 +414,7 @@ const ehs_char* EhsL_getSpecialEntity(const ehs_char* szRawString, const ehs_cha
 
     if (!(*szSpecial))
     {
-        EhsWarning(EHS_MSG_WARNING_HGHTML_NO_SPECIAL(szEntityName));
+        EHSH_LOG_WARNING(EHS_MSG_WARNING_HGHTML_NO_SPECIAL(szEntityName));
     }
 
     return szRawString;
@@ -508,12 +508,12 @@ const ehs_char* EhsL_getTag(const ehs_char* szRawString, const ehs_char** pszTag
             else
             {
                 szTagString[EHSL_MAX_TAG_PARAM_LEN-3];
-                EhsWarning(EHS_MSG_WARNING_HGHTML_TRUNC_PARAM(szTagString));
+                EHSH_LOG_WARNING(EHS_MSG_WARNING_HGHTML_TRUNC_PARAM(szTagString));
             }
         }
         else
         {
-            EhsWarning(EHS_MSG_WARNING_HGHTML_MISSING_PARAM);
+            EHSH_LOG_WARNING(EHS_MSG_WARNING_HGHTML_MISSING_PARAM);
         }
         break;
     case EHSHG_HTML_WORD_BREAK:
@@ -522,11 +522,10 @@ const ehs_char* EhsL_getTag(const ehs_char* szRawString, const ehs_char** pszTag
     case EHSHG_HTML_WORD_PARAM_END:
         if (szParams)
         {
-            //EhsWarning(EHS_MSG_WARNING_HGHTML_IGNORED_PARAMS(szParams));
+            //EHSH_LOG_WARNING(EHS_MSG_WARNING_HGHTML_IGNORED_PARAMS(szParams));
         }
         break;
     }
 
     return szRawString;
 }
-

@@ -2,10 +2,27 @@
 
 set -e
 
-HOME_PATH=`eval echo "~"`
+SKIP_DOCS=FALSE
 
-INXWARE_APP_BUILDER_PATH=${HOME_PATH}/inxwareAppBuilder
-INXWARE_APP_BUILDER_DIST_PATH=${INXWARE_APP_BUILDER_PATH}/dist
+if [ "$1" = "" ]; then
+    # If we haven't been given an install directory then install to 
+    # the ../dist directory where the development tools repo would look when running
+    TOOLBOX_INSTALL_PATH=DIST_ONLY
+else
+   if [ $1 = "--skip-docs" ]; then
+	SKIP_DOCS=TRUE
+   else
+     TOOLBOX_INSTALL_PATH=$1
+   fi
+fi
+
+#To Delete:
+#HOME_PATH=`eval echo "~"`
+#INXWARE_APP_BUILDER_PATH=${HOME_PATH}/inxwareAppBuilder
+#INXWARE_APP_BUILDER_DIST_PATH=${INXWARE_APP_BUILDER_PATH}/dist
+
+INXWARE_APP_BUILDER_DIST_PATH=${TOOLBOX_INSTALL_PATH}
+
 
 if [ -z "$INXWARE_TOOLBOXES_VERSION" ]; then
     # default version
@@ -13,9 +30,12 @@ if [ -z "$INXWARE_TOOLBOXES_VERSION" ]; then
 fi
 
 # TODO - this should be defined else where
+# This is is the directory name  used in the tools toolboxes/ directory - it shouldn't need to be specific, 
+# but should be consistent for a standard level install.
 INXWARE_FEATURE_CLASS=5
 
 # TODO - this path be defined else where for a specific feature class
+# We should have a STDF.xml for each standard capability class identified in the a known location (possibly just ./Common/Componwnts/*.STDF 
 INXWARE_STDF_PATH=./Common/Components/STDF.xml
 
 function updateAllDocs(){
@@ -39,53 +59,53 @@ function updateAllDocs(){
 function copyToolboxes(){
     if [ -d "$1" ]; then
         DST_PATH=$1/toolboxes/${INXWARE_FEATURE_CLASS}/${INXWARE_TOOLBOXES_VERSION}
+        # make sure that old CDFs are removed
+        if [ -d "$DST_PATH" ]; then
+            rm -rf ${DST_PATH}
+        fi
         mkdir -p ${DST_PATH}/CDF
         echo "copying to ${DST_PATH}"
         cp ${INXWARE_STDF_PATH} ${DST_PATH}
         find ./Common/Components/ -iname '*.cdf' -exec cp {} "${DST_PATH}/CDF/"  \;
-        # update all docs
-        if [ -z "$DO_NOT_UPDATE_DOCS" ]; then
+        if [ "$SKIP_DOCS" = "FALSE" ] ; then
+	 # update all docs
+         if [ -z "$DO_NOT_UPDATE_DOCS" ]; then
             updateAllDocs $1
+         fi
         fi
     fi
 }
 
-# copy toolboxes to installed iAB
-copyToolboxes ${INXWARE_APP_BUILDER_DIST_PATH}
+function checkDuplicatedContent(){
+    find . ! -empty -iname '*.cdf' -exec md5sum {} + | sort | uniq -w32 -dD
+}
+
+function checkDuplicatedName(){
+    find . -iname '*.cdf' | sed 's_.*/__' | sort|  uniq -d|
+    while read fileName
+    do
+        find . -iname '*.cdf' | grep -iF "$fileName"
+    done
+}
+
+
+if [ "$INXWARE_APP_BUILDER_DIST_PATH" != "DIST_ONLY" ]; then
+  # copy toolboxes to installed iAB
+  copyToolboxes ${INXWARE_APP_BUILDER_DIST_PATH}
+fi
 
 # copy toolboxes to dist directory placed next to the repo
 copyToolboxes ../dist
 
-exit 0
-
-########################################################################################
-# TODO - remove legacy stuff
-
-homePath=`eval echo "~"`
-winePath="${homePath}/.wine/drive_c/users/patrick/Application Data/inx/brix"
-if ! [ -d "${winePath}" ]; then
-	winePath="${homePath}/.wine/drive_c/users/pdrezet/Application Data/inx/brix"
-fi
-if [ -d "${winePath}" ]; then
-    echo "copying to ${winePath}"
-    find ./Common/Components/ -iname '*.idf.*' -exec cp {} "${winePath}/IDF/"  \;
-    find ./Common/Components/ -iname '*.cdf' -exec cp {} "${winePath}/CDF/"  \;
-    find ./Common/Components/ -iname '*.bmp' -exec cp {} "${winePath}/BMP/"  \;
+# check if there are any duplicated CDFs present in the repo and report this to the user
+DUPLICATED=$( checkDuplicatedContent )
+if [ -n "$DUPLICATED" ]; then
+    echo "Warning !!! There are CDF files with duplicated content. Make sure only relevant files are added to the toolboxes."
+    checkDuplicatedContent
 fi
 
-newToolsPath="${homePath}/work/inx/tools/V2-OpenGL-Wx/brix-tools/iab/dist"
-if [ -d "${newToolsPath}" ]; then
-    echo "copying to ${newToolsPath}"
-    find ./Common/Components/ -iname '*.idf.*' -exec cp {} "${newToolsPath}/IDF/"  \;
-    find ./Common/Components/ -iname '*.cdf' -exec cp {} "${newToolsPath}/CDF/"  \;
-    find ./Common/Components/ -iname '*.bmp' -exec cp {} "${newToolsPath}/BMP/"  \;
-fi
-
-if [ -d "../dist/CDF" ]; then
-    echo "copying to ../dist/"
-    find ./Common/Components/ -iname '*.idf.*' -exec cp {} "../dist/IDF/"  \;
-    find ./Common/Components/ -iname '*.cdf' -exec cp {} "../dist/CDF/"  \;
-    find ./Common/Components/ -iname '*.bmp' -exec cp {} "../dist/BMP/"  \;
-else
-    echo "Please check out the dist path"
+DUPLICATED=$( checkDuplicatedName )
+if [ -n "$DUPLICATED" ]; then
+    echo "Warning !!! There are CDF files with the same name. Make sure only relevant files are added to the toolboxes."
+    checkDuplicatedName
 fi

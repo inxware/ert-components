@@ -91,5 +91,5 @@ echo "**************************************" >> /run/ehs/platformstatus.log
 # Run the commands we're sent in the dldata.tgz - which is in plain text not gsipped
 test -e  ${DEVMANCOREDLDATA}/dldata.tgz &&  source ${DEVMANCOREDLDATA}/dldata.tgz &>> /run/ehs/platformstatus.log
 
-/usr/bin/wget $SSLCERTS -q -O - --post-data 'Group=DEFAULT&DeviceType=DEFAULT&DeviceID='$INXDEVICEID'&rawreport='"`tr -d ';&' < /run/ehs/platformstatus.log`" ${DEVMANURL}/cgi-bin/rawreport.cgi
-#TODO check there is a .phph not vgi version  of this instead.
+#Todo2023 - remove this old CGI version: /usr/bin/wget $SSLCERTS -q -O - --post-data 'Group=DEFAULT&DeviceType=DEFAULT&DeviceID='$INXDEVICEID'&rawreport='"`tr -d ';&' < /run/ehs/platformstatus.log`" ${DEVMANURL}/cgi-bin/rawreport.cgi
+/usr/bin/wget $SSLCERTS -q -O - --post-data 'Group=DEFAULT&DeviceType=DEFAULT&DeviceID='$INXDEVICEID'&rawreport='"`tr -d ';&' < /run/ehs/platformstatus.log`" ${DEVMANURL}/rawreport.php

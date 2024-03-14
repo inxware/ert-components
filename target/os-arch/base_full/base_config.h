@@ -22,6 +22,11 @@
 #ifndef BASE_CONFIG_H
 #define BASE_CONFIG_H
 
+#define EHS_STRING_LENGTH_MAX 2048
+#define EHS_MAXPATHLENGTH 2048
+#define EHS_MAX_URL_LENGTH 2048
+#define EHS_TD_FILES_MAX_PATH 2048
+#define EHS_TD_FILES_MAX_FILENAME 2048
 
 /**
  * Defines the default target identifier for this instance of EHS
@@ -29,7 +34,7 @@
 
 //@todo all macros should be assigned values so that the override works
 #ifndef EHS_TARGET_FP_SUPPORT
-#define EHS_TARGET_FP_SUPPORT /**< defined if the target has floating point support */
+#define EHS_TARGET_FP_SUPPORT 1 /**< defined if the target has floating point support */
 #endif
 /* #define EHS_TARGET_TRACE_SUPPORT */ /**< Defined if the target supports RTA-TRACE (experimental) */
 /* #define EHS_CALLBACKS_CONFIGURED */ /**< Defined if the target uses callbacks */
@@ -79,13 +84,13 @@
  * this *must* be a power of 2, and less than 2<<15. See EhsEventQueueType
 */
 #ifndef EHS_MAX_EVENT_QUEUE_SIZE
-#define EHS_MAX_EVENT_QUEUE_SIZE (1u<<13) /* 8k */
+#define EHS_MAX_EVENT_QUEUE_SIZE (1u<<16) /* 64k */
 #endif
 /**
  * Maximum console queue size. This *must* be a power of 2 and less than 2<<31.
  */
-#ifndef EHS_MAX_CONSOLE_QUEUE_SIZE
-#define EHS_MAX_CONSOLE_QUEUE_SIZE 65536 // - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
+#ifndef EHS_DEBUG_CONSOLE_BUFFER_SIZE
+#define EHS_DEBUG_CONSOLE_BUFFER_SIZE (1u<<18) //262144 - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
 #endif
 
 #ifndef EHS_CONFIG_DISPLAY_HEIGHT

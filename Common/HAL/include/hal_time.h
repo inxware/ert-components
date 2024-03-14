@@ -21,6 +21,7 @@
 /* Included files */
 #include "target_types.h"
 #include "target_time.h"
+#include <time.h>
 
 /*****************************************************************************/
 /* Define macros  */
@@ -31,9 +32,10 @@
 
 /* Wall clock date and time functions */
 //Returns seconds since 1970 and the W3C formatted string
-ehs_uint64 EhsHGetdateTime(ehs_char* sZtemp, ehs_bool local);
+ehs_uint64 EhsHGetdateTime(ehs_char* sZtemp, ehs_bool local, ehs_uint32 format);
+void EhsHDateTimeBreakdown(time_t t, ehs_uint32 *year, ehs_uint32 *month, ehs_uint32 *mday, ehs_uint32 *wday, ehs_uint32 *hour, ehs_uint32 *minute, ehs_uint32 *second);
 
-ehs_bool EhsHSetDateTime(ehs_char * date_string);
+ehs_bool EhsHSetDateTime(ehs_char * date_string, ehs_uint32 unix_time, ehs_char * time_zone);
 
 #define EHS_uS_PER_S 1000000u
 
@@ -75,7 +77,7 @@ ehs_bool EhsHSetDateTime(ehs_char * date_string);
 
 /* time conversion macros - optimised for the specific timer resolution of this device */
 #ifdef EHS_TARGET_FIXED_TIMER_RESOLUTION
-x#define EHS_TIME_us(x) ((EhsTickType)((x)/EHS_uS_PER_TICK))		/**< Convert a time in microseconds to system ticks */
+#define EHS_TIME_us(x) ((EhsTickType)((x)/EHS_uS_PER_TICK))		/**< Convert a time in microseconds to system ticks */
 #define EHS_TIME_ms(x) ((EhsTickType)(x)/(EHS_uS_PER_TICK * 1000u))	/**< Convert a time in ms to system ticks */
 #define EHS_TIME_s(x) ((EhsTickType)((x) * EHS_TICKS_PER_S))	/**< Convert a time in seconds to system ticks */
 #else

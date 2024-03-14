@@ -22,7 +22,7 @@
  */
 #define PNG_NO_WRITE_SUPPORTED
 #define PNG_NO_FLOATING_POINT_SUPPORTED
-/* #define PNG_NO_STDIO /* -- no use of FILE*, printf,... */
+/* #define PNG_NO_STDIO  -- no use of FILE*, printf,... */
 #define PNG_NO_CONSOLE_IO /* -- no stdin, stdout, stderr */
 
 //#define PNG_READ_TRANSFORMS_NOT_SUPPORTED

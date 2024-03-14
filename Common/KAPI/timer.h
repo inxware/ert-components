@@ -17,8 +17,9 @@
 #ifndef EHS_TIMER_H
 #define EHS_TIMER_H
 
-#include "target.h"
+#include "globals.h"
 #include "callback_queue.h"
+#include "hal_time.h"
 
 /**
  * Handles the configuration of a timer. Operates in a linked list ordered by "tNext".

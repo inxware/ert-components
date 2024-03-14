@@ -6,9 +6,14 @@ export EHS_STORAGE_LOCATION="$DEVICE_STORAGE_LOCATION/.EHS"
 export EHS_APP_STORAGE_LOCATION="$DEVICE_STORAGE_LOCATION/Android/data/com.inx.ehs/files/"
 export EHS_UPDATES_LOCATION="$EHS_STORAGE_LOCATION/Updates"
 
-EHS_SUPERVISOR_SLEEP=5 # [sec]
-EHS_SUPERVISOR_UPDATES_TIMER=30 # [sec]
-EHS_SUPERVISOR_MANAGER_TIMER=15 # [sec]
+# Polling rate of supervisor (seconds)
+EHS_SUPERVISOR_SLEEP=5
+# Delay before applying supervisor updates (seconds)
+EHS_SUPERVISOR_UPDATES_TIMER=30
+# Interval for doing supervisor checks (seconds)
+EHS_SUPERVISOR_MANAGER_TIMER=15
+# Time out (seconds)
+EHS_SUPERVISOR_LOCK_TIMEOUT=600
 
 source "$EHS_SUPERVISOR_LOCATION/ehs_logger.sh"
 source "$EHS_SUPERVISOR_LOCATION/ehs_configure.sh"
@@ -18,6 +23,22 @@ source "$EHS_SUPERVISOR_LOCATION/ehs_app_manager.sh"
 source "$EHS_SUPERVISOR_LOCATION/ehs_gpio_setup.sh"
 source "$EHS_SUPERVISOR_LOCATION/ehs_devman_operations.sh"
 source "$EHS_SUPERVISOR_LOCATION/ehs_id_gen.sh"
+
+EHS_SUPERVISOR_LOCK="$EHS_STORAGE_LOCATION/.ehs_supervisor.lock"
+
+LockSupervisor(){
+	SupervisorLog "Supervisor Lock ON"
+	echo "ON" > $EHS_SUPERVISOR_LOCK
+}
+
+UnlockSupervisor(){
+	SupervisorLog "Supervisor Lock OFF"
+	test -f "$EHS_SUPERVISOR_LOCK" && rm "$EHS_SUPERVISOR_LOCK"
+}
+
+IsSupervisorLocked(){
+	test -f "$EHS_SUPERVISOR_LOCK" && cat "$EHS_SUPERVISOR_LOCK"
+}
 
 ReadDeviceId(){
 	FILE="$EHS_STORAGE_LOCATION/.ehs"
@@ -69,6 +90,7 @@ HandleDeviceId(){
 	fi
 }
 
+#Runs at boot and cleans up the file system and creates some start logs
 EhsSetup(){
 	SUPERVISOR_VERSION=$( cat "$EHS_SUPERVISOR_LOCATION/version" )
 	SupervisorLog "Setting-up the supervisor (v$SUPERVISOR_VERSION)."
@@ -97,8 +119,12 @@ EhsSetup(){
 	ClearUpdatesDir
 	
 	SetupDeviceGpio
+
+	ClearRebootFlag
 	
 	InitAppManger
+
+	UnlockSupervisor
 
 	SupervisorLog "Devman address is $SERVER_ADDRESS"
 
@@ -118,6 +144,7 @@ DevmanDownloader(){
 		if ! [ -z "$OUTPUT_PATH" ]; then
 			# run downloader
 			MSG=$( InitDownloader )
+			SupervisorLog "InitDownloader status=${MSG}"
 			$EHS_SUPERVISOR_LOCATION/ehs_downloader.sh "$ADDRESS" "$ID" "$OUTPUT_PATH"
 		else
 			echo "Output path was not specified."
@@ -142,47 +169,52 @@ UpdatesReady(){
 	fi
 }
 
+# obtains dldata scripts and tarballs from Devman (e.g. updates) then runs them 
 EhsUpdater(){
 	ADDRESS=$1
 	UPDATE_TYPE=""
 	READY=$( UpdatesReady $EHS_DEVICE_ID $ADDRESS )
 	if [ "$READY" = "YES" ]; then
+		LockSupervisor
 		UPDATE_TYPE=$( HandleDevmanOperationUpdates )
+		UnlockSupervisor
 	fi
 	if [ "$UPDATE_TYPE" = "patch" ]; then
+		LockSupervisor
 		REBOOT="No"
-		SupervisorLog "========== START UPDATE =========="
+		SupervisorLog "========== START EHS UPDATE =========="
+		# launch Downloader GUI page to display pending updates
 		LaunchDownloaderUpdatePage
 		DownloaderStatus "Software update in progress. Please wait ..."
 		UPDATE_SCRIPT="$EHS_UPDATES_LOCATION/dldata.sh"
 		if [ -f "$UPDATE_SCRIPT" ]; then
 			SupervisorLog "Updates script ready."
+			#Note the following doesn't usually work on sdcard
 			chmod 0755 $UPDATE_SCRIPT
 			chown "shell:root" $UPDATE_SCRIPT
-			# run update
+			# run update (use the sh command to avoid previously mentioned executable limitation)
+			SupervisorLog "DEVMAN UPDATE LOGS (BEGIN)"
 			SCRIPT_LOGS=$( /system/bin/sh $UPDATE_SCRIPT $EHS_UPDATES_LOCATION )
-			SupervisorLog "$SCRIPT_LOGS"
-			REBOOT="Yes"
+			SupervisorLog "DEVMAN UPDATE LOGS:$SCRIPT_LOGS"
+			SupervisorLog "DEVMAN UPDATE LOGS (END)"
 		else
 			SupervisorLog "FAILED to download the update script."
 		fi
 		ClearUpdatesDir
-		SupervisorLog "========== END UPDATE =========="
-		if [ "$REBOOT" = "Yes" ]; then
-	        	RebootDevice
-		else
-			CloseDownloaderUpdatePage	
-	    fi
+		SupervisorLog "========== END EHS UPDATE =========="
+		CloseDownloaderUpdatePage
+		UnlockSupervisor
 	fi
 }
 
-EhSuperCommands(){
+# this reads and runs scripts which were downloaded by the eRT app
+EhsSuperCommands(){
 	EHS_SUPSCRIPTS_LOCATION="${EHS_APP_STORAGE_LOCATION}/userdata/platform/"
 	if [ -f "$EHS_SUPSCRIPTS_LOCATION/dldata.sh" ]; then
-		REBOOT="No"
+		LockSupervisor
 		UPDATE_TYPE=$( HandleDevmanOperationUpdates "$EHS_SUPSCRIPTS_LOCATION" )
 		if [ "$UPDATE_TYPE" = "patch" ]; then
-			SupervisorLog "========== START UPDATE =========="
+			SupervisorLog "========== START EHS COMMAND =========="
 			UPDATE_SCRIPT="$EHS_SUPSCRIPTS_LOCATION/dldata.sh"
 			if [ -f "$UPDATE_SCRIPT" ]; then
 				SupervisorLog "EHS superscript ready."
@@ -191,49 +223,101 @@ EhSuperCommands(){
 				# run update
 				SCRIPT_LOGS=$( /system/bin/sh $UPDATE_SCRIPT $EHS_SUPSCRIPTS_LOCATION )
 				SupervisorLog "$SCRIPT_LOGS"
-				REBOOT="Yes"
 			else
 				SupervisorLog "FAILED to download the update script."
 			fi
-			SupervisorLog "========== END UPDATE =========="
+			SupervisorLog "========== END EHS COMMAND =========="
 			
 		fi
 		test -f "$EHS_SUPSCRIPTS_LOCATION/dldata.sh" && rm "$EHS_SUPSCRIPTS_LOCATION/dldata.sh"
 		test -f "$EHS_SUPSCRIPTS_LOCATION/dldata.tgz" && rm "$EHS_SUPSCRIPTS_LOCATION/dldata.tgz"
-		if [ "$REBOOT" = "Yes" ]; then
-			RebootDevice
-		fi
+		UnlockSupervisor
 	fi
 }
+
+CheckEhsRebootFlag(){
+	REBOOT=$( IsRebootFlag )
+	if [ "$REBOOT" = "yes" ]; then
+		SupervisorLog "Reboot flag identified. Shutdown Supervisor."
+		ClearRebootFlag
+		UPDATE_PROCESS=$1
+		if ! [ "$OTHER_PROCESS" = "" ]; then
+			SupervisorLog "About to kill the update process ($UPDATE_PROCESS)"
+			kill $UPDATE_PROCESS
+		fi
+		am start -a android.intent.action.REBOOT
+		exit 0
+	fi
+}
+
+#################################################################
+########################### SETUP ###############################
+#################################################################
+
+EhsSetup
 
 #################################################################
 ############################ RUN ################################
 #################################################################
 
-EhsSetup
+# create and run devman update process
+{
+	SupervisorLog "Run devman update process"
 
-UPDATE_COUNTER_MAX=$((EHS_SUPERVISOR_UPDATES_TIMER/EHS_SUPERVISOR_SLEEP))
-UPDATE_COUNTER=0
+	UPDATE_COUNTER_MAX=$((EHS_SUPERVISOR_UPDATES_TIMER/EHS_SUPERVISOR_SLEEP))
+	UPDATE_COUNTER=0
+
+	while true
+	do
+
+	sleep $EHS_SUPERVISOR_SLEEP
+
+	# manage the updates
+	if [ "$UPDATE_COUNTER" -ge "$UPDATE_COUNTER_MAX" ]; then
+		EhsUpdater $SERVER_ADDRESS
+		EhsSuperCommands
+		UPDATE_COUNTER=0
+	fi
+
+	UPDATE_COUNTER=$((UPDATE_COUNTER+1))
+	done
+
+}&
+
+EHS_DEVMAN_UPDATE_PROCESS=$!
+
 MANAGE_COUNTER_MAX=$((EHS_SUPERVISOR_MANAGER_TIMER/EHS_SUPERVISOR_SLEEP))
 MANAGE_COUNTER=0
+EHS_SUPERVISOR_LOCK_COUNTER_TIMEOUT=$((EHS_SUPERVISOR_LOCK_TIMEOUT/EHS_SUPERVISOR_SLEEP))
+EHS_SUPERVISOR_LOCK_COUNTER=0
+
+
+# run application manager loop
+SupervisorLog "Run application manager loop"
 
 while true
 do
 	sleep $EHS_SUPERVISOR_SLEEP
 	
-	# manage the updates
-	if [ "$UPDATE_COUNTER" = "$UPDATE_COUNTER_MAX" ]; then
-		EhsUpdater $SERVER_ADDRESS
-		EhSuperCommands
-		UPDATE_COUNTER=0
+	EHS_SUPERVISOR_LOCKED=$( IsSupervisorLocked )
+	if [ "$EHS_SUPERVISOR_LOCKED" = "" ]; then # check if the supervisor lock is OFF
+		# manage the apps after the boot management period is done
+		if [ "$MANAGE_COUNTER" -ge "$MANAGE_COUNTER_MAX" ]; then
+			EhsAppManager
+			MANAGE_COUNTER=0
+		fi
+		CheckEhsRebootFlag "$EHS_DEVMAN_UPDATE_PROCESS"
+		EHS_SUPERVISOR_LOCK_COUNTER=0
+	else
+		SupervisorLog "Supervisor LOCK is ON."
+        if [ "$EHS_SUPERVISOR_LOCK_COUNTER" -ge "$EHS_SUPERVISOR_LOCK_COUNTER_TIMEOUT" ]; then
+			SupervisorLog "Supervisor lock timed out!!!!"
+			UnlockSupervisor
+			EHS_SUPERVISOR_LOCK_COUNTER=0
+		else 
+			EHS_SUPERVISOR_LOCK_COUNTER=$((EHS_SUPERVISOR_LOCK_COUNTER+1))
+			SupervisorLog "Supervisor lock counter $EHS_SUPERVISOR_LOCK_COUNTER"
+		fi
 	fi
-
-	# manage the apps
-	if [ "$MANAGE_COUNTER" = "$MANAGE_COUNTER_MAX" ]; then
-		EhsAppManager
-		MANAGE_COUNTER=0
-	fi
-
 	MANAGE_COUNTER=$((MANAGE_COUNTER+1))
-	UPDATE_COUNTER=$((UPDATE_COUNTER+1))
 done

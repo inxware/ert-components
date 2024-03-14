@@ -17,7 +17,7 @@
 
 #define PNG_INTERNAL
 #include "png.h"
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal_file.h"
 
 /* Read the data from whatever input you are using.  The default routine

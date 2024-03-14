@@ -6,6 +6,7 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 
 import com.utils.downloader.utils.EHSS_Logger;
+import com.utils.downloader.utils.EHSS_Utils;
 import com.utils.downloader.utils.cert.CertificateManager;
 import com.utils.downloader.utils.cert.ICertificate;
 import com.utils.downloader.utils.comms.HttpServerRequest;
@@ -25,10 +26,11 @@ public class Downloader {
     private static final String OUTPUT_PATH = "output_path";
     private static final String POST_DATA = "post_data";
     private static final String POST_PATH = "post_path";
+    private static final String POST_FILE = "post_file";
     private static final String IGNORE_FAILED = "ignore_failed";
 
     private static final String [] EXTRAS_LIST = { IP_ADDRESS, CHECK_AVAILABLE, AVAILABLE_RESPONSE, AVAILABLE_POST, PRE_DOWNLOAD_POST,
-                                                   DOWNLOAD_PATH, DOWNLOAD_POST, OUTPUT_PATH, POST_DATA, POST_PATH, IGNORE_FAILED };
+                                                   DOWNLOAD_PATH, DOWNLOAD_POST, OUTPUT_PATH, POST_DATA, POST_PATH, POST_FILE, IGNORE_FAILED };
 
     public static boolean Exec(@NonNull Context context, @NonNull HashMap<String, String> extras){
         return new Downloader(context, extras).Exec();
@@ -94,7 +96,12 @@ public class Downloader {
             String post_data = GetExtra(POST_DATA);
             if(!IsNull(post_data)){
                 String post_path = GetExtra(POST_PATH);
-                return PostData(ip_address, post_path, post_data);
+                String post_file = GetExtra(POST_FILE);
+                if(!IsNull(post_file)){
+                    return PostFile(ip_address, post_path, post_data, post_file);
+                }else {
+                    return PostData(ip_address, post_path, post_data);
+                }
             }
             String check_available = GetExtra(CHECK_AVAILABLE);
             if (IsNull(check_available) || IsCheckAvailable(ip_address, check_available)) {
@@ -133,6 +140,29 @@ public class Downloader {
             if (message != null && message.isValid()) {
                 EHSS_Logger.debug("Post response: "+message.getString());
                 return true;
+            }
+        }catch (Exception e){
+            EHSS_Logger.error(e.toString());
+        }
+        return false;
+    }
+
+    private boolean PostFile(String ip_address, String post_path, String post_data, String post_file){
+        try {
+            String full_address = JoinPath(ip_address, post_path);
+            String file_data = EHSS_Utils.read(post_file);
+            if(!IsNull(file_data)) {
+                String full_data = post_data + file_data;
+                IMessage post = new MessageFactory.DefaultMessage(full_data);
+                HttpServerRequest request = HttpServerRequest.create(full_address, post);
+                request.setExpected(MessageFactory.DEFAULT_MESSAGE_TYPE);
+                ICertificate certificate = CertificateManager.getInstance().getClientCert(context, ip_address);
+                request.setCertificate(certificate);
+                IMessage message = request.requestPost();
+                if (message != null && message.isValid()) {
+                    EHSS_Logger.debug("Post response: " + message.getString());
+                    return true;
+                }
             }
         }catch (Exception e){
             EHSS_Logger.error(e.toString());

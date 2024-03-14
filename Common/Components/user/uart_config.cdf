@@ -1,74 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?><Component>
-    <Class>uart_config</Class>
-    <Hash>0xd172</Hash>
     <Module>usercomponents</Module>
-    <Menu>
-        System
-        <Menu>UART Config</Menu>
-    </Menu>
-    <ShortDescription>uart_config</ShortDescription>
-    <LongDescription>uart_config</LongDescription>
-    <Port>
-        <CName>enable</CName>
-        <Description>Enable</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>0</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0" hash="0x35b3">enable</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>baudrate</CName>
-        <Description>Baudrate</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>20</YCoordinate>
-        <FunctionName argument="1" hash="0x35b3">enable</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>stopbits</CName>
-        <Description>Stop Bits</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>40</YCoordinate>
-        <FunctionName argument="2" hash="0x35b3">enable</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>parity</CName>
-        <Description>Parity</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>60</YCoordinate>
-        <FunctionName argument="3" hash="0x35b3">enable</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishenable</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>0</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1" hash="0x35b3">enable</FunctionName>
-    </Port>
-    <Port>
-        <CName>disable</CName>
-        <Description>Disable</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>80</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0" hash="0x3d7a">disable</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishdisable</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>80</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1" hash="0x3d7a">disable</FunctionName>
-    </Port>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>uart_config</ShortDescription>
+        <LongDescription>uart_config</LongDescription>
+        <UserName/>
+        <Menu>
+            System
+            <Menu>UART Config</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>85</Width>
+        <Height>90</Height>
+        <Text>UART conf</Text>
+        <TextX>5</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.5</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>uart_config</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xD172</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>a740c9e9</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>enable</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>disable</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>Enable</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>enable</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>Baudrate</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>baudrate</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>Stop Bits</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>stopbits</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>Parity</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>parity</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishenable</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Disable</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <CName>disable</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishdisable</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

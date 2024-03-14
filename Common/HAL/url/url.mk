@@ -42,19 +42,21 @@ OBJECTS+= hal_url.$(OBJ)
 # Reference target XML support library.
 
 
-
+#todo2022 we shoiuld use this instead of the more speicic i686-migw32... OS type?
 ifdef EHS_MINGW
 CFLAGS += -DUSE_WINDOWS_SSPI
 CFLAGS += -DUSE_SSLEAY -DHAVE_OPENSSL_ENGINE_H
 CFLAGS += -DUSE_LIBSSH2 -DHAVE_LIBSSH2_H
-LIB += ssh2
-LIB += curldll
-LIB += rtmp
+#LIB += ssh2
+LIB += curl
+#LIB += curldll
+#LIB += rtmp
 LIB += z
-LIB += ssh2dll
-LIB += idn.dll
+#LIB += ssh2dll
+#LIB += idn.dll
+##LIB += idn2
 #LIB += zdll
-LIB += crypto
+##LIB += crypto
 else
 ifdef EHS_ANDROID
 LIB +=:libcurl.a
@@ -67,7 +69,7 @@ LIB +=:libidn.a
 #LIB+=ssl
 
 else
-LIB += curl
+	LIB += curl
 endif
 endif
 

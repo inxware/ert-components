@@ -20,13 +20,16 @@
 EHS_ARCH=amd64
 EHS_OS=linux
 
-EHS_GNU_OS_VERSION=-debian-9.4
+EHS_GNU_ARCH=amd64
+
+#EHS_GNU_OS_VERSION=-debian-9.4
+EHS_GNU_OS_VERSION=-clang10_debian10
 
 # TOOLCHAIN_NAME is an optional alternative location to find the toolchain. 
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
 TOOLCHAIN_NAME=HOST
 # SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies 
-EHS_HOST_DEBIAN_BUILD=yes
+EHS_HOST_DEBIAN_BUILD=x86
 
 # Note: This is a host build so we don't ned it but will add it in case we fdo have any bits we may build for the target.
 COMPONENT_VARIANT=gtk_gst
@@ -51,8 +54,17 @@ EHS_DEVMAN_SUPPORT=all
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 EHS_DEVMAN_MON_SUPPORT=yes 
 
+#We don't have GPIO on any amd64 devices I don't think?
+#If we want GPIO then we need the peripherals toolbox
+#EHS_PERIPHERAL_DEVICE_SUPPORT=all
 # Assume these generic devices don't have GPIO (#ifndef in case we use this as a base for other builds)
-ifndef EHS_PERIPHERALS_GPIO
-EHS_PERIPHERALS_GPIO=stubbed
-endif
+#ifndef EHS_PERIPHERALS_GPIO_SUPPORT
+#EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+#endif
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
+#DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
+#DEVMAN_SERVER_PROTOCOL=https
+
+include ./target/devman-configs/inx-systems.com.mk
+
+EHS_DEFAULT_APP=NONE

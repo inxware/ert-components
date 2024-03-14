@@ -1,224 +1,460 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>gui_text_bool2</Class>
-  <Block>
-    <Type>IO</Type>
-  </Block>
-  <Menu>User Interface
-    <Menu>Graphics
-      <Menu>Widgets
-        <Menu>bool display</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This widget displays an boolean to the GUI output - currently as o or 1! (to save you converting to a string!).</LongDescription>
-  <Parameter>
-    <Name>Widget Tag</Name>
-    <DataType>WT</DataType>
-    <DefaultValue>widget</DefaultValue>
-    <Description>widget tag</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>Widget-Group</Name>
-    <DataType>ST</DataType>
-    <DefaultValue>default</DefaultValue>
-    <Description>widget group</Description>
-    <ListPlacement>2</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>Maintain Aspect Ratio</Name>
-    <DataType>B</DataType>
-    <DefaultValue>0</DefaultValue>
-    <Description>maintains aspect ratio of widget when width is changed and ignores changes in height if TRUE, allows width and height to be altered independently if FALSE.</Description>
-    <ListPlacement>3</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>Register Click Disregarding Z-Order</Name>
-    <DataType>B</DataType>
-    <DefaultValue>0</DefaultValue>
-    <Description>allows a widget to register a mouse click event when it is hidden behind another widget if TRUE, the widget only registers mouse clicks if the widget is visible at the coords that the mouse click occurs at if FALSE.</Description>
-    <ListPlacement>4</ListPlacement>
-  </Parameter>
-  <Port>
-    <Description>create</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="0">create</FunctionName>
-  </Port>
-  <Port>
-    <Description>destroy</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">destroy</FunctionName>
-  </Port>
-  <Port>
-    <Description>show</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>35</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">show</FunctionName>
-  </Port>
-  <Port>
-    <Description>hide</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">hide</FunctionName>
-  </Port>
-  <Port>
-    <Description>update</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>90</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>off.x</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>105</YCoordinate>
-    <FunctionName argument="1">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>off.y</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>115</YCoordinate>
-    <FunctionName argument="2">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>off.wid</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>125</YCoordinate>
-    <FunctionName argument="3">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>off.ht</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>135</YCoordinate>
-    <FunctionName argument="4">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>alpha</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>150</YCoordinate>
-    <FunctionName argument="5">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>B</DataType>
-    <Description>data</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>165</YCoordinate>
-    <FunctionName argument="6">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>abs x</Description>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>105</YCoordinate>
-    <FunctionName argument="1">create</FunctionName>
-    <FunctionName argument="7">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>abs y</Description>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>115</YCoordinate>
-    <FunctionName argument="2">create</FunctionName>
-    <FunctionName argument="8">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>wid</Description>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>125</YCoordinate>
-    <FunctionName argument="3">create</FunctionName>
-    <FunctionName argument="9">update</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>ht</Description>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>135</YCoordinate>
-    <FunctionName argument="4">create</FunctionName>
-    <FunctionName argument="10">update</FunctionName>
-  </Port>
-  <Port>
-    <Description>--</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="5">create</FunctionName>
-  </Port>
-  <Port>
-    <Description>--</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="1">destroy</FunctionName>
-  </Port>
-  <Port>
-    <Description>--</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>35</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="1">show</FunctionName>
-  </Port>
-  <Port>
-    <Description>--</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="1">hide</FunctionName>
-  </Port>
-  <Port>
-    <Description>--</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>90</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="11">update</FunctionName>
-  </Port>
-  <Port>
-    <Description>click</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>60</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="6">create</FunctionName>
-  </Port>
-  <Port>
-    <Description>mouse down</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>70</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="7">create</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-09-22T11:58:03Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This widget displays an boolean to the GUI output. It can also be configured as Button, Toggle or Check Box via iGB.</LongDescription>
+        <UserName/>
+        <Menu>
+            User Interface
+            <Menu>
+                Graphics
+                <Menu>Boolean</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+		<Width>115</Width>
+        <Height>215</Height>
+        <Text>Boolean UI</Text>
+        <TextX>22</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>gui_text_bool2</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x89EA</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>86e20f2</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Widget Tag</Name>
+            <DataType>WT</DataType>
+            <DefaultValue>widget</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>widget tag</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+            <DisplayOnWidget>
+                <x>40</x>
+                <y>200</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>Widget-Group</Name>
+            <DataType>ST</DataType>
+            <DefaultValue>default</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>widget group</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Maintain Aspect Ratio</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>maintains aspect ratio of widget when width is changed and ignores changes in height if TRUE, allows width and height to be altered independently if FALSE.</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Register Click Disregarding Z-Order</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>allows a widget to register a mouse click event when it is hidden behind another widget if TRUE, the widget only registers mouse clicks if the widget is visible at the coords that the mouse click occurs at if FALSE.</Description>
+            <ListPlacement>4</ListPlacement>
+            <ArgPlacement>4</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>create</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>destroy</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>show</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>hide</name>
+            <ID>
+                <ERT1_ID>4</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>update</name>
+            <ID>
+                <ERT1_ID>5</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>data</name>
+            <ID>
+                <ERT1_ID>6</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>create</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName>create</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>destroy</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>destroy</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>show</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <CName>show</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>hide</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <CName>hide</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>update</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>130</YCoordinate>
+            <CName>update</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>x offset</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>142</YCoordinate>
+            <CName>off_x</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>y offset</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>152</YCoordinate>
+            <CName>off_y</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>width</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>162</YCoordinate>
+            <CName>off_wid</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>height</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>172</YCoordinate>
+            <CName>off_ht</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>alpha</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>182</YCoordinate>
+            <CName>alpha</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>abs x</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>142</YCoordinate>
+            <CName>abs_x</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>abs y</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>152</YCoordinate>
+            <CName>abs_y</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="2">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>wid</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>162</YCoordinate>
+            <CName>wid</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="3">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>ht</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>172</YCoordinate>
+            <CName>ht</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="4">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>__</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>__</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>__</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>__</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>130</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>__</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>click</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>click</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>mouse down</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>mouse_down</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>update</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>update_data</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>___</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>data</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>102</YCoordinate>
+            <CName>data</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>label</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>112</YCoordinate>
+            <CName>label</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>data</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>102</YCoordinate>
+            <CName>data_out</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>label</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>112</YCoordinate>
+            <CName>label_out</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="2">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>data change</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>change</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="2">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

@@ -42,7 +42,7 @@ struct String_SingleParameter
 
 EHS_FB_FUNCTIONS_START(string_cat)
 
-EHS_FB_FUNCTION_ENTRY("Run_CatString", 0x00, string_cat)
+EHS_FB_FUNCTION_ENTRY("Run_CatString", 0x01, string_cat)
 EHS_FB_FUNCTIONS_END
 
 EHS_FB_IDENTIFY_FUNCTION(string_cat)
@@ -196,7 +196,7 @@ EHS_FB_RUN_FUNCTION(string_cmp)
 
 EHS_FB_FUNCTIONS_START(string_format)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x02, string_format)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, string_format)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -281,7 +281,7 @@ EHS_FB_RUN_FUNCTION(string_format)
 
 EHS_FB_FUNCTIONS_START(string_format8)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x02, string_format8)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, string_format8)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -413,32 +413,257 @@ EHS_FB_RUN_FUNCTION(string_format8)
     EHS_FB_FINISH(1);
 }
 
+/* Define FormatString function block 8 input integer with dynamic formatting */
 
+EHS_FB_FUNCTIONS_START(string_format8_int)
 
+EHS_FB_FUNCTION_ENTRY("run", 0x01, string_format8_int)
+EHS_FB_FUNCTIONS_END
 
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(string_format8_int)
+{
+    EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1; /* only the formatting string is stored */
+}
 
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(string_format8_int)
+{
+    EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
+    return EHS_TRUE; /* initialisation always succeeds */
+}
 
+/**
+ * Run the function. Use the inputs to format a string using our context
+ * as the format parameter.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_format8_int)
+{
+    ehs_uint8 i,connectioncount=0;
+    ehs_uint8 fmt_count=0;
+    ehs_char * fmt;
+    ehs_sint32 in_ptrs[8];
+    ehs_char escaped[EHS_STRING_LENGTH_MAX];
 
+    for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
+    {
+        if (EHS_FB_IN_CONNECTED(i))
+        {
+            in_ptrs[i]=EHS_FB_IN_I(i); /* point at the connections */
+            connectioncount++;
+        }
+        else in_ptrs[i]=0;
+    }
+    if (EHS_FB_IN_CONNECTED(8)) fmt=EHS_FB_IN_S(8);
+    else fmt=EHS_FB_RUN_CONTEXT;
+    for (i=0; i<EhsStrlen(fmt)-1; i++)
+    {
+        int d = i+1;
+        if (fmt[i]=='%' && (fmt[d]=='d' || fmt[d]=='u' || fmt[d]=='i' || fmt[d]=='o' || fmt[d]=='x' || fmt[d]=='X')) fmt_count++;
+    }
 
+    EhsParseEscapeChars(escaped, fmt);
 
+    for (i=0; i<EhsStrlen(escaped)-1; i++) // remove non-integer formatters that would need a different sink pointer type.
+    {
+        if (i == 0 || escaped[i-1] != '*')    // we can parse discarded numbers
+        {
+            int d = i+1;
+            if (escaped[i] == '%' && !(
+                        escaped[d] == 'i' || // integer (base 10)
+                        escaped[d] == 'd' || // decimal (integer) number (base 10)
+                        escaped[d] == 'u' || // unsigned decimal (integer) number
+                        escaped[d] == 'o' || // octal number (base 8)
+                        escaped[d] == 'x' || // number in hexadecimal (base 16)
+                        escaped[d] == 'X'
+                    ))
+            {
+                EHSH_LOG_ERROR(" Formatter contains non integer specifiers, which are not supported");
+                EHS_FB_FINISH(1);
+                return;
+            }
 
+        }
+    }
 
+    switch (fmt_count)
+    {
+    case 0 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped); /* no string insertions */
+        break;
+    case 1 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);
+        break;
+    case 2 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1]);
+        break;
+    case 3 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2]);
+        break;
+    case 4 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3]);
+        break;
+    case 5 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4]);
+        break;
+    case 6 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5]);
+        break;
+    case 7 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6]);
+        break;
+    case 8 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6],in_ptrs[7]);
+        break;
+    default :
+        EHSH_LOG_ERROR("Format Specifier in string_format8_int contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
+    }
+    EHS_FB_FINISH(1);
+}
 
+#ifdef EHS_TARGET_FP_SUPPORT
+/* Define FormatString function block 8 input with dynamic formatting */
 
+EHS_FB_FUNCTIONS_START(string_format8_real)
 
+EHS_FB_FUNCTION_ENTRY("run", 0x01, string_format8_real)
+EHS_FB_FUNCTIONS_END
 
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(string_format8_real)
+{
+    EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1; /* only the formatting string is stored */
+}
 
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(string_format8_real)
+{
+    EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
+    return EHS_TRUE; /* initialisation always succeeds */
+}
 
+/**
+ * Run the function. Use the inputs to format a string using our context
+ * as the format parameter.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(string_format8_real)
+{
+    ehs_uint8 i,connectioncount=0;
+    ehs_uint8 fmt_count=0;
+    ehs_char * fmt;
+    float in_ptrs[8];
+    ehs_char escaped[EHS_STRING_LENGTH_MAX];
 
+    for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
+    {
+        if (EHS_FB_IN_CONNECTED(i))
+        {
+            in_ptrs[i]=EHS_FB_IN_F(i); /* point at the connections */
+            connectioncount++;
+        }
+        else in_ptrs[i]=0.0f;
+    }
+    if (EHS_FB_IN_CONNECTED(8)) fmt=EHS_FB_IN_S(8);
+    else fmt=EHS_FB_RUN_CONTEXT;
+    for (i=0; i<EhsStrlen(fmt)-1; i++)
+    {
+        if (fmt[i]=='%' && (fmt[i+1]=='.' /*&& fmt[i+2]=='2'*/ && fmt[i+3]== 'f')) fmt_count++;
+    }
 
+    EhsParseEscapeChars(escaped, fmt);
 
+    for (i=0; i<EhsStrlen(escaped)-1; i++) // remove non-real formatters that would need a different sink pointer type.
+    {
+        if (i == 0 || escaped[i-1] != '*')    // we can parse discarded numbers
+        {
+            if (escaped[i] == '%' && !(
+                        (escaped[i+1]=='.' /*&& escaped[i+2]=='2'*/ && escaped[i+3]== 'f')
+                    ))
+            {
+                EHSH_LOG_ERROR(" Formatter contains non real specifiers, which are not supported");
+                EHS_FB_FINISH(1);
+                return;
+            }
+        }
+    }
 
+    switch (fmt_count)
+    {
+    case 0 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped); /* no string insertions */
+        break;
+    case 1 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);
+        break;
+    case 2 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1]);
+        break;
+    case 3 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2]);
+        break;
+    case 4 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3]);
+        break;
+    case 5 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4]);
+        break;
+    case 6 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5]);
+        break;
+    case 7 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6]);
+        break;
+    case 8 :
+        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6],in_ptrs[7]);
+        break;
+    default :
+        EHSH_LOG_ERROR("Format Specifier in string_format8_real contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
+    }
+    EHS_FB_FINISH(1);
+}
+#endif
 
-/* Define string scan function block with up to 8 outputs and dynamic formatting */
+/* Define string scan function block with up to 8 outputs real and dynamic formatting */
 
 EHS_FB_FUNCTIONS_START(stringfn_scanf8)
 
-EHS_FB_FUNCTION_ENTRY("run", 0x02, stringfn_scanf8)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, stringfn_scanf8)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -481,6 +706,8 @@ EHS_FB_INIT_FUNCTION(stringfn_scanf8)
  */
 EHS_FB_RUN_FUNCTION(stringfn_scanf8)
 {
+    static const ehs_uint8 SCANF_INPUT_FMT_PORT = 0;
+    static const ehs_uint8 SCANF_INPUT_STR_PORT = 1;
     ehs_uint8 i,connectioncount=0; /* not really used - we need to know sequence */
     ehs_uint8 fmt_count=0;
     //ehs_char * empty="";
@@ -490,8 +717,11 @@ EHS_FB_RUN_FUNCTION(stringfn_scanf8)
     ehs_bool allgood = EHS_TRUE;
 
 
-    if (EHS_FB_IN_CONNECTED(1)) fmt=EHS_FB_IN_S(1);
-    else fmt=EHS_FB_RUN_CONTEXT;
+    if (EHS_FB_IN_CONNECTED(SCANF_INPUT_FMT_PORT)) {
+        fmt=EHS_FB_IN_S(SCANF_INPUT_FMT_PORT);
+    }else{ 
+        fmt=EHS_FB_RUN_CONTEXT;
+    }
     if (EhsStrlen(fmt) > 0)
     {
         for (i=0; i<EhsStrlen(fmt)-1; i++)
@@ -504,7 +734,9 @@ EHS_FB_RUN_FUNCTION(stringfn_scanf8)
             {
                 fmt_count++;
 
-                if (fmt_count < 8 && EHS_FB_OUT_CONNECTED(fmt_count)) EhsMemset(EHS_FB_OUT_S(fmt_count),'\0',EHS_STRING_LENGTH_MAX-1); // null everywhere as scanf doesn't for characters
+                if (fmt_count < 8 && EHS_FB_OUT_CONNECTED(fmt_count)) {
+                    EhsMemset(EHS_FB_OUT_S(fmt_count),'\0',EHS_STRING_LENGTH_MAX-1); // null everywhere as scanf doesn't for characters
+                }
             }
 
         }
@@ -514,18 +746,11 @@ EHS_FB_RUN_FUNCTION(stringfn_scanf8)
         {
             if (EHS_FB_OUT_CONNECTED(i))
             {
-                out_ptrs[i]=EHS_FB_OUT_S(i); /* point at the connections */
+                
                 connectioncount++;
             }
-            else
-            {
-                out_ptrs[i] = NULL; /* doesn't really help scanf */
-                if (i < fmt_count)
-                {
-                    //EHSH_LOG_INFO("Not all outputs are connected ");
-                    allgood = EHS_FALSE;
-                }
-            }
+            out_ptrs[i]=EHS_FB_OUT_S(i); /* point at the connections */
+            out_ptrs[i][0]='\0';
         }
 
         EhsParseEscapeChars(escaped, fmt);
@@ -558,36 +783,37 @@ EHS_FB_RUN_FUNCTION(stringfn_scanf8)
                 }
             }
         }
-        if (allgood)
+
+        if (allgood && EHS_FB_IN_CONNECTED(SCANF_INPUT_STR_PORT))
         {
             switch (fmt_count)
             {
             case 0 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped); /* no string insertions */
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped); /* no string insertions */
                 break;
             case 1 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0]);
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0]);
                 break;
             case 2 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1]);
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1]);
                 break;
             case 3 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2]);
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2]);
                 break;
             case 4 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3]);
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3]);
                 break;
             case 5 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4]);
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4]);
                 break;
             case 6 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5]);
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5]);
                 break;
             case 7 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5],out_ptrs[6]);
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5],out_ptrs[6]);
                 break;
             case 8 :
-                EhsSscanf(EHS_FB_IN_S(0),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5],out_ptrs[6],out_ptrs[7]);
+                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5],out_ptrs[6],out_ptrs[7]);
                 break;
             default :
                 EHSH_LOG_ERROR("Format Specifier in string_format8 contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
@@ -619,7 +845,7 @@ EHS_FB_RUN_FUNCTION(stringfn_scanf8)
 
 EHS_FB_FUNCTIONS_START(string_len)
 
-EHS_FB_FUNCTION_ENTRY("Run_LenString", 0x03, string_len)
+EHS_FB_FUNCTION_ENTRY("Run_LenString", 0x01, string_len)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -648,7 +874,7 @@ EHS_FB_RUN_FUNCTION(string_len)
 
 EHS_FB_FUNCTIONS_START(string_find)
 
-EHS_FB_FUNCTION_ENTRY("Run_FindString", 0x04, string_find)
+EHS_FB_FUNCTION_ENTRY("Run_FindString", 0x01, string_find)
 EHS_FB_FUNCTIONS_END
 
 struct String_find_struct
@@ -753,7 +979,7 @@ EHS_FB_RUN_FUNCTION(string_find)
 
 EHS_FB_FUNCTIONS_START(string_toUpper)
 
-EHS_FB_FUNCTION_ENTRY("Run_ToUpperString", 0x05, string_toUpper)
+EHS_FB_FUNCTION_ENTRY("Run_ToUpperString", 0x01, string_toUpper)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -793,7 +1019,7 @@ EHS_FB_RUN_FUNCTION(string_toUpper)
 
 EHS_FB_FUNCTIONS_START(string_toLower)
 
-EHS_FB_FUNCTION_ENTRY("Run_ToLowerString", 0x06, string_toLower)
+EHS_FB_FUNCTION_ENTRY("Run_ToLowerString", 0x01, string_toLower)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -832,7 +1058,7 @@ EHS_FB_RUN_FUNCTION(string_toLower)
 
 EHS_FB_FUNCTIONS_START(string_charAt)
 
-EHS_FB_FUNCTION_ENTRY("Run_CharAtString", 0x07, string_charAt)
+EHS_FB_FUNCTION_ENTRY("Run_CharAtString", 0x01, string_charAt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -884,7 +1110,7 @@ EHS_FB_RUN_FUNCTION(string_charAt)
 
 EHS_FB_FUNCTIONS_START(string_strAt)
 
-EHS_FB_FUNCTION_ENTRY("Run_StrAtString", 0x08, string_strAt)
+EHS_FB_FUNCTION_ENTRY("Run_StrAtString", 0x01, string_strAt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -926,7 +1152,7 @@ EHS_FB_RUN_FUNCTION(string_strAt)
 
 EHS_FB_FUNCTIONS_START(string_insert)
 
-EHS_FB_FUNCTION_ENTRY("Run_InsertString", 0x09, string_insert)
+EHS_FB_FUNCTION_ENTRY("Run_InsertString", 0x01, string_insert)
 EHS_FB_FUNCTIONS_END
 
 
@@ -1009,7 +1235,7 @@ struct EhsT_Substringparms
 /* Define string_sub function block */
 
 EHS_FB_FUNCTIONS_START(string_sub)
-EHS_FB_FUNCTION_ENTRY("Run_SubString", 0x0A, string_sub)
+EHS_FB_FUNCTION_ENTRY("Run_SubString", 0x01, string_sub)
 EHS_FB_FUNCTIONS_END
 
 EHS_FB_IDENTIFY_FUNCTION(string_sub)
@@ -1058,10 +1284,10 @@ EHS_FB_RUN_FUNCTION(string_sub)
     {
         finish = EhsStrlen(szData1);
     }
-    szData2[0] = '\0';
     if (EHS_FB_IN_CONNECTED(0) && start >= 0 && start
             < EhsStrlen(szData1))
     {
+        szData2[0] = '\0'; /*todo we don't really need this if start=i after this loop? */
         for (i = start; i < finish; i++)
         {
             szData2[i - start] = szData1[i];

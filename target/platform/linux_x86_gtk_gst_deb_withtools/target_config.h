@@ -10,7 +10,7 @@
 #ifndef TARGET_CONFIG_WITHTOOLSH
 #define TARGET_CONFIG_WITHTOOLSH
 
-#include "../linux_x86_gtk_gst/target_config.h"
+#include "../linux_x86_gtk_gst_debian8/target_config.h"
 
 /* Overrides go here */
 //#define EHS_CONFIG_DISPLAY_HEIGHT 768	/**< Height for the OSD part of the display */

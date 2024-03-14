@@ -453,7 +453,7 @@ void EhsTV_blit(EhsTVClass* pViewport,
                 case EHS_GRAPHICS_COLOUR_A8:
                 /* @todo support blitting for this kind of image */
                 default:
-                    EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_FORMAT("EhsTV_blit",pSurface->eFormat));
+                    EHSH_LOG_ERROR(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_FORMAT("EhsTV_blit",pSurface->eFormat));
                     break;
                 }
 
@@ -463,7 +463,7 @@ void EhsTV_blit(EhsTVClass* pViewport,
                                 hdcBm, prSrc->nLeft, prSrc->nTop,
                                 prSrc->nWidth, prSrc->nHeight, pViewport->bf))
                 {
-                    /*EhsError(EHS_MSG_TGT_WIN32("EhsTV_blit", "AlphaBlend() failed"));*/
+                    /*EHSH_LOG_ERROR(EHS_MSG_TGT_WIN32("EhsTV_blit", "AlphaBlend() failed"));*/
                 }
 
                 /* Now, clean up. A memory DC always has a drawing
@@ -731,7 +731,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
             pSurface->pPalette = NULL;
             break;
         default:
-            EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_FORMAT("EhsTVSurface_create", eFormat));
+            EHSH_LOG_ERROR(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_FORMAT("EhsTVSurface_create", eFormat));
             //if (bTemporary) {
             EhsHMem_tempFree(pSurface);
             //}

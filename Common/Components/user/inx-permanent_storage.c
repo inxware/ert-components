@@ -12,7 +12,7 @@
 #include "inx-component.h"
 #include "inx-permanent_storage.h"
 #include "ehs_main.h" // we run th main from here!
-#include "heatrod_config.h"
+#include "inxware_hrx_config.h"
 //ICB HEADER MACRO END -- DO NOT ALTER
 
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -151,9 +151,9 @@ static void inxPermanentStorageCopyToBuffer(ehs_uint8* pBuffer,const ehs_uint32 
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(permanent_storage_int)
 
-EHS_FB_FUNCTION_ENTRY("write", 0x00, permanent_storage_int_write)
+EHS_FB_FUNCTION_ENTRY("write", 0x01, permanent_storage_int_write)
 
-EHS_FB_FUNCTION_ENTRY("read", 0x01, permanent_storage_int_read)
+EHS_FB_FUNCTION_ENTRY("read", 0x02, permanent_storage_int_read)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -289,9 +289,9 @@ EHS_permanent_storage_EXPORT ehs_bool EhsPermanentStorageCopyToBuffer(uint8_t* p
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(permanent_storage_bool)
 
-EHS_FB_FUNCTION_ENTRY("write", 0x00, permanent_storage_bool_write)
+EHS_FB_FUNCTION_ENTRY("write", 0x01, permanent_storage_bool_write)
 
-EHS_FB_FUNCTION_ENTRY("read", 0x01, permanent_storage_bool_read)
+EHS_FB_FUNCTION_ENTRY("read", 0x02, permanent_storage_bool_read)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -407,9 +407,9 @@ EHS_FB_RUN_FUNCTION(permanent_storage_bool_read)
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(permanent_storage_real)
 
-EHS_FB_FUNCTION_ENTRY("write", 0x00, permanent_storage_real_write)
+EHS_FB_FUNCTION_ENTRY("write", 0x01, permanent_storage_real_write)
 
-EHS_FB_FUNCTION_ENTRY("read", 0x01, permanent_storage_real_read)
+EHS_FB_FUNCTION_ENTRY("read", 0x02, permanent_storage_real_read)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -524,9 +524,9 @@ EHS_FB_RUN_FUNCTION(permanent_storage_real_read)
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(permanent_storage_string)
 
-EHS_FB_FUNCTION_ENTRY("write", 0x00, permanent_storage_string_write)
+EHS_FB_FUNCTION_ENTRY("write", 0x01, permanent_storage_string_write)
 
-EHS_FB_FUNCTION_ENTRY("read", 0x01, permanent_storage_string_read)
+EHS_FB_FUNCTION_ENTRY("read", 0x02, permanent_storage_string_read)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER

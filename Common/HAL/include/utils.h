@@ -31,6 +31,11 @@
 EHS_GLOBAL const ehs_char * EhsGetType(EhsDataTypeEnum * output, const ehs_char* input);
 
 /**
+ * Get memory size of the string if defined in the input in a hex form
+ */
+EHS_GLOBAL const ehs_char * EhsGetMemSize(ehs_uint32 * size, const char* input);
+
+/**
  * Determine if character is a-z or A-Z
  */
 EHS_GLOBAL ehs_bool EhsIsAlpha(ehs_char ch);
@@ -39,6 +44,25 @@ EHS_GLOBAL ehs_bool EhsIsAlpha(ehs_char ch);
  * Determine if character is a-z or A-Z or 0-9
  */
 EHS_GLOBAL ehs_bool EhsIsAlNum(ehs_char ch);
+
+/**
+ * Determine if character is a-f or A-F or 0-9
+ */
+EHS_GLOBAL ehs_bool EhsIsHexNum(ehs_char ch);
+
+// todo2022 the following seem to be duplICATES OF THINGS IN THE hal STRING.G
+/**
+ * Read an unsigned 32-bit integer from a line of the SODL file.
+ * Generates an error message and sets EhsParseFailed if the value
+ * exceeds EHS_UINT32_MAX
+ *
+ * @todo make this into a general-purpose function (not parse-only). It's already used that way.
+ * @todo Move console printf into parser
+ *
+ * @param output Integer read from input (0 if integer can't be found).
+ * @param input String containing SODL input.
+ * @return Pointer to updated input string (i.e. after reading the integer)
+ */
 
 
 /**

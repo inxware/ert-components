@@ -1,72 +1,139 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>InsertString</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-  </Block>
-  <Menu>Data Utilities
-    <Menu>String Functions
-      <Menu>insert</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This function inserts a string s2 into string s1 at the specified position.</LongDescription>
-  <Parameter>
-    <Name>index</Name>
-    <DataType>I</DataType>
-    <DefaultValue>0</DefaultValue>
-    <MinValue>0</MinValue>
-    <MaxValue>1024</MaxValue>
-    <Description>0-based index where to insert string</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>string to insert</Name>
-    <DataType>S</DataType>
-    <MinValue>0</MinValue>
-    <MaxValue>1024</MaxValue>
-    <Description>String to inser</Description>
-    <ListPlacement>2</ListPlacement>
-  </Parameter>
-  <Port>
-    <DataType>S</DataType>
-    <Description>s1</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">Run_InsertString</FunctionName>
-  </Port>
-  <Port>
-    <DataType>S</DataType>
-    <Description>s2</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <FunctionName argument="2">Run_InsertString</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>60</YCoordinate>
-    <FunctionName argument="3">Run_InsertString</FunctionName>
-  </Port>
-  <Port>
-    <DataType>S</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>50</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="4">Run_InsertString</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">Run_InsertString</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>50</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="5">Run_InsertString</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This function inserts a string s2 into string s1 at the specified position.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                String Functions
+                <Menu>insert</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>30</Width>
+        <Height>50</Height>
+        <Text>Insert</Text>
+        <TextX>21</TextX>
+        <TextY>37</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>1</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>0</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>InsertString</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xC01A</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>7337a480</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>index</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1024</MaxValue>
+            <Description>0-based index where to insert string</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>string to insert</Name>
+            <DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue>0</MinValue>
+            <MaxValue>1024</MaxValue>
+            <Description>String to inser</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_InsertString</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <DataType>S</DataType>
+            <Description>s1</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>s1</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>s2</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>s2</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description/>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName/>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>25</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>25</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

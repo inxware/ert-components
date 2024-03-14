@@ -16,9 +16,15 @@
  */
 
 #define EHS_TGT_CODE /* Ensure header files include target-internal values */
+
+#include <windows.h>
+
+
 #include "hal_time.h"
 #include "timer.h"
-#include <windows.h>
+#include "hal_logger.h"
+
+
 
 #ifndef EHS_TARGET_FIXED_TIMER_RESOLUTION
 /**
@@ -94,8 +100,10 @@ EhsTickType EhsTgtTimer_now(void)
  *
  * @param tSleepTime Time to sleep for in target-specific ticks
  */
+//todo 2023 - we should rename this function for all targets to be EhsSleepTicks(x) to diffeerntiate it from random c versions of sleep().
 void EhsSleep(EhsTickType tSleepTime)
 {
+    //It seems Windows Sleep is in ms 
     Sleep(EhsTgtTimer_tickTous(tSleepTime)/1000);
 }
 
@@ -111,7 +119,8 @@ void EhsSleepUs(ehs_uint32 tSleepTime)
     t = tSleepTime % EHS_uS_PER_S;
     tSleep.tv_nsec = (ehs_sint32)(t)*1000;
     */
-      #error We need to identify what the tick to vTaskDelay time value is and factor this in
+    //  #error We need to identify what the tick to vTaskDelay time value is and factor this in
+    //todo 2023 - do we need to replace this?
     usleep(tSleepTime); /* @todo This can crash ?? */ /* todo this needs to factor in whatthe tick tie of windows is explicitly.
     /* alternative implementation using select:
      * select(0,NULL,NULL,NULL,&tSleep); /*lint !e534 Return value not of interest here * /

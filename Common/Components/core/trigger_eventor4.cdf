@@ -1,49 +1,130 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>EventFourInputOr</Class>
-  <Block>
-    <Type>Or_Event</Type>
-    <TypeVariant>norm_4</TypeVariant>
-  </Block>
-  <Menu>Event
-    <Menu>Combiners/Flow
-      <Menu>Event OR
-        <Menu>OR4</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is a 4-input event OR.</LongDescription>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">Or1</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>25</YCoordinate>
-    <FunctionName argument="0">Or2</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <FunctionName argument="0">Or3</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>55</YCoordinate>
-    <FunctionName argument="0">Or4</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>20</XCoordinate>
-    <YCoordinate>34</YCoordinate>
-    <FunctionName argument="1">Or1</FunctionName>
-    <FunctionName argument="1">Or2</FunctionName>
-    <FunctionName argument="1">Or3</FunctionName>
-    <FunctionName argument="1">Or4</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a 4-input event OR.</LongDescription>
+        <UserName/>
+        <Menu>
+            Event
+            <Menu>
+                Combiners/Flow
+                <Menu>
+                    Event OR
+                    <Menu>OR4</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Or_Event</Type>
+        <TypeVariant>norm_4</TypeVariant>
+        <Width>20</Width>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>EventFourInputOr</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x549D</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>e653396f</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>Or1</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Or2</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Or3</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Or4</name>
+            <ID>
+                <ERT1_ID>4</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>7</XCoordinate>
+            <YCoordinate>34</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

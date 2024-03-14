@@ -26,9 +26,9 @@
 
 EHS_FB_FUNCTIONS_START(SFCBar)
 
-EHS_FB_FUNCTION_ENTRY("Run_SFCBarPreviousStateComplete", 0x00, SFCBarPreviousStateComplete)
+EHS_FB_FUNCTION_ENTRY("Run_SFCBarPreviousStateComplete", 0x01, SFCBarPreviousStateComplete)
 
-EHS_FB_FUNCTION_ENTRY("Run_SFCBarConditionUpdate", 0x01, SFCBarConditionUpdate)
+EHS_FB_FUNCTION_ENTRY("Run_SFCBarConditionUpdate", 0x02, SFCBarConditionUpdate)
 EHS_FB_FUNCTIONS_END
 
 /**

@@ -44,6 +44,8 @@
     #include <sys/resource.h>
     #ifndef EHS_ANDROID
         #include <bits/pthreadtypes.h>
+    #else 
+        // #include <bits/pthreadtypes.h>
     #endif
 #endif
 
@@ -238,11 +240,13 @@ EhsTPMutexClass EhsTPMutex_devmanPlayerData;
   */
 EhsTPMutexClass  EhsTPMutex_devmanMiscBuffers;
 
+#endif
+
+#ifdef EHS_MEDIA_SUPPORT
 /**
  * Mutex resource used to control access to the playManager shared resources
  */
 EhsTPMutexClass EhsTPMutex_playManager;
-
 #endif
 
 /** Reference to PID of parent process */
@@ -277,11 +281,12 @@ EHS_GLOBAL void EhsTPMutex_init(void)
 #ifndef EHS_MINGW
     /* Set some fairly safe (minimal deadlock) mutex parameters */
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
-    #ifndef EHS_ANDROID
-        pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-    #else
-        // Not including priority inheritence for Android
-    #endif
+    // Not including priority inheritence for Android using ABI >= 28
+#if EHS_ANDROID_INSTALL_VERSION==7
+    #warning "Not setting PTHREAD_PRIO_INHERIT for anddroid v7 as this is not supported)
+#else
+    pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+#endif
 #else //MINGW supports recursive without the non-portable posic extension NP
     /* Set some fairly safe (minimal deadlock) mutex parameters */
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
@@ -297,7 +302,6 @@ EHS_GLOBAL void EhsTPMutex_init(void)
     EhsTPMutex_devman_request = (EhsTPMutexClass)&EhsL_devman_request;
     //memset(&EhsL_devman_request,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_devman_request,&attr);
-
 
     EhsTPMutex_mem = (EhsTPMutexClass)&EhsL_mem;
     //memset(&EhsL_mem,0,sizeof(pthread_mutex_t));
@@ -343,15 +347,17 @@ EHS_GLOBAL void EhsTPMutex_init(void)
     EhsTPMutex_devmanPlayerData = (EhsTPMutexClass)&EhsL_devmanPlayerData;
     //memset(&EhsL_devmanPlayerData,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_devmanPlayerData,&attr);
-    
-    EhsTPMutex_playManager = (EhsTPMutexClass)&EhsL_playManager;
-    //memset(&EhsL_playManager,0,sizeof(pthread_mutex_t));
-    pthread_mutex_init(&EhsL_playManager,&attr);
 
     EhsTPMutex_devmanMiscBuffers = (EhsTPMutexClass)&EhsL_devmanMiscBuffers; 
     //memset(&EhsL_devmanMiscBuffers,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_devmanMiscBuffers,&attr);
+ #endif
+ #ifdef EHS_MEDIA_SUPPORT   
+    EhsTPMutex_playManager = (EhsTPMutexClass)&EhsL_playManager;
+    //memset(&EhsL_playManager,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_playManager,&attr);
 #endif
+
     // not used: EhsTPMutex_globalTimer =(EhsTPMutexClass)&EhsL_globalTimer;
 
     pthread_mutexattr_destroy(&attr);
@@ -391,9 +397,12 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
 #ifdef EHS_DEVMAN_SUPPORT
     if (EhsTPMutex_devmanPlayerData) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_devmanPlayerData);
     EhsTPMutex_devmanPlayerData = NULL;
-    if (EhsTPMutex_playManager) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_playManager);
-    EhsTPMutex_playManager = NULL;
     /* Not destroying the core devman monitor */
+#endif
+
+#ifdef EHS_MEDIA_SUPPORT
+if (EhsTPMutex_playManager) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_playManager);
+    EhsTPMutex_playManager = NULL;
 #endif
 
 #ifdef EHS_NETWORKING_SUPPORT
@@ -409,7 +418,7 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
  */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_sint16 priority)
+EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
 {
     EhsTPThread thread;
     pthread_attr_t tattr_param;
@@ -447,7 +456,9 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
     //   int getpriority(int which, int who);
     /* @todo we through the above away and use null for now. This needs sorting when EHS SCHED_RR is re-instated */
     /* cast pfRun to return void* with one arg of void* */
-
+    if (stackSize != EHS_THREAD_USE_DEFAULT_STACK_SIZE) {
+        pthread_attr_setstacksize(&tattr_param, (size_t)stackSize);
+    }
     /* @todo : We need to clone the instance data here, this required the size of the object to be known outside of the component, and housekeeping (garbage collection) is required for terminated threads that do not use a terminate or proper completion exit path..*/
     ret=pthread_create(&thread,&tattr_param,(void*(*)(void*))pfRun,context);
     pthread_attr_destroy(&tattr_param);
@@ -484,24 +495,25 @@ EHS_LOCAL pthread_mutex_t EhsProcess_mutexDevmanNewMiscDLData = PTHREAD_MUTEX_IN
  ehs_bool EhsProcessInitMutex(EhsTPMutexClass *reftoMutex) 
  {
     if (*reftoMutex == NULL ) {
-        *reftoMutex = (EhsTPMutexClass*)&EhsProcess_mutexDevmanNewMiscDLData;
+        *reftoMutex = (EhsTPMutexClass)&EhsProcess_mutexDevmanNewMiscDLData;
     }
     else {
         EHSH_LOG_ERROR("Refused to Assig mutexDevmanNewMiscDLData Twice!");
     }
+    return EHS_TRUE;
  } // note this will provide the same mutex to all callers - only expecting one call at initi time...
 
 
 EHS_LOCAL pthread_cond_t condDevmanNewMiscDLData = PTHREAD_COND_INITIALIZER;
- ehs_bool EhsProcessInitCond(EhsTPConditionClass * refToCond)
+ehs_bool EhsProcessInitCond(EhsTPConditionClass * refToCond)
  { 
     if (*refToCond == NULL ) {
-        *refToCond = (EhsTPConditionClass*)&EhsProcess_mutexDevmanNewMiscDLData;
+        *refToCond = (EhsTPConditionClass)&condDevmanNewMiscDLData;
     }
     else {
         EHSH_LOG_ERROR("Refised to assigning mutexDevmanNewMiscDLData Twice!");
     }
-
+    return EHS_TRUE;
  } 
 
 
@@ -573,3 +585,9 @@ ehs_bool EhsTP_shellExecuteStdout(char* sZstdout,const char * szCmd, int max_buf
 
 }
 
+
+void EhsTargetReboot( void )
+{
+    while (0);
+    EHSH_LOG_ERROR("Reboot Not Implemented on this target!");
+}

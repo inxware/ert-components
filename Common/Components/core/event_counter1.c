@@ -34,7 +34,6 @@
  */
 #include "globals.h"
 #include "fid.h"
-#include "target.h"
 #include "app_data.h"
 #include "hal-api.h" /* Required for logging */
 #include "event_counter1.h"
@@ -59,15 +58,15 @@ typedef struct
 
 EHS_FB_FUNCTIONS_START(EventCounterVersatile1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ResetEventCounter", 0x00, EventCounterVersatile1_Reset)
+EHS_FB_FUNCTION_ENTRY("Run_StartEventCounter", 0x01, EventCounterVersatile1_Enable)
 
-EHS_FB_FUNCTION_ENTRY("Run_CountEventCounter", 0x01, EventCounterVersatile1_Count)
+EHS_FB_FUNCTION_ENTRY("Run_CountEventCounter", 0x02, EventCounterVersatile1_Count)
 
-EHS_FB_FUNCTION_ENTRY("Run_DecrementEventCounter", 0x02, EventCounterVersatile1_Decrement)
+EHS_FB_FUNCTION_ENTRY("Run_DecrementEventCounter", 0x03, EventCounterVersatile1_Decrement)
 
-EHS_FB_FUNCTION_ENTRY("Run_StartEventCounter", 0x03, EventCounterVersatile1_Enable)
+EHS_FB_FUNCTION_ENTRY("Run_ResetEventCounter", 0x04, EventCounterVersatile1_Reset)
 
-EHS_FB_FUNCTION_ENTRY("Run_StopEventCounter", 0x04, EventCounterVersatile1_Disable)
+EHS_FB_FUNCTION_ENTRY("Run_StopEventCounter", 0x05, EventCounterVersatile1_Disable)
 
 EHS_FB_FUNCTIONS_END
 

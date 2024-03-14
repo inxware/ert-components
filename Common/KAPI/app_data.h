@@ -26,6 +26,7 @@
 #include "trigger_table.h"
 #include "fidt.h"
 
+#define EHS_STRING_ENDBUFFER 1
 
 /*********************************************************************************************/
 /* Data transfer table table */
@@ -53,6 +54,10 @@ typedef struct
     ehs_bool* pbMonitorFloat;
     ehs_uint32 nNumFloats; /* This is strictly speaking the highest index -1 */
 #endif /* EHS_TARGET_FP_SUPPORT */
+    EhsDataflowUserType* pusrData; /**< rows each containing a user data pointer */
+    ehs_bool* pbMonitorUser;
+    ehs_uint32 nNumUsers; /* This is strictly speaking the highest index -1 */
+    ehs_uint32* pszDataSizes; /* List data buffer size for each entry of pszData */
 } EhsDataConnectionTableType;
 
 /**
@@ -74,6 +79,7 @@ EHS_GLOBAL ehs_bool* bRuntablesReadyRef;
 /* structure fr currently running  app meta data */
 typedef struct
 {
+    ehs_uint32 uSODLPayloadHash;
     ehs_uint32 nSODLBuildNumber;
     ehs_char zVersion[EHS_STRING_LENGTH_MAX];
     ehs_char zSODLdate[EHS_STRING_LENGTH_MAX];
@@ -128,9 +134,12 @@ EHS_GLOBAL ehs_bool EhsAppSetDownloadOKToken(ehs_char * canonicalName);
  * @param[in] nBool Number of boolean connections that are required
  * @param[in] nString Number of string connections that are required
  * @param[in] nFloat Number of float connections taht are required (ignored if EHS_TARGET_FP_SUPPORT isn't defined)
+ * @param[in] nUser Number of user data connections that are required
+ * @param[in] pStrMemSizeList Linked-List containing string connections buffers sizes
+ * @param[in] nStrMemSizeListLength Size of pStrMemSizeList
  * @return true if memory is successfully allocated for these connections.
  */
-EHS_GLOBAL ehs_bool EhsDataConnectionTable_init(ehs_uint32 nInt, ehs_uint32 nBool, ehs_uint32 nString, ehs_uint32 nFloat);
+EHS_GLOBAL ehs_bool EhsDataConnectionTable_init(ehs_uint32 nInt, ehs_uint32 nBool, ehs_uint32 nString, ehs_uint32 nFloat, ehs_uint32 nUser, ehs_uint32* pStrMemSizeList, ehs_uint32 nStrMemSizeListLength);
 
 /*
  * Set the flag for any (Legacy) Functions blocks to close down their threads.

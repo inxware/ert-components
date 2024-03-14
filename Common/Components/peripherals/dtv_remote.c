@@ -35,21 +35,21 @@
 
 #ifdef EHS_TOOLKIT_DEPRECATED
 EHS_FB_FUNCTIONS_START(DtvRemote)
-EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvRemote)
 EHS_FB_FUNCTIONS_END
 
 EHS_FB_FUNCTIONS_START(DtvRemote1)
-EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvRemote)
 EHS_FB_FUNCTIONS_END
 #endif
 
 
 EHS_FB_FUNCTIONS_START(DtvRemote2)
-EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote) /* shares the same run function as DtvRemote - SO MOVE IT HERE!*/
+EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvRemote) /* shares the same run function as DtvRemote - SO MOVE IT HERE!*/
 
-EHS_FB_FUNCTION_ENTRY("enable", 0x01, DtvRemote_Enable)
+EHS_FB_FUNCTION_ENTRY("enable", 0x02, DtvRemote_Enable)
 
-EHS_FB_FUNCTION_ENTRY("disable", 0x02, DtvRemote_Disable)
+EHS_FB_FUNCTION_ENTRY("disable", 0x03, DtvRemote_Disable)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_DTV_REMOTE_RUN -1

@@ -1,79 +1,159 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>FileSystemDirCreateRemove</Class>
-  <Block>
-    <Type>IO</Type>
-  </Block>
-  <Menu>File System
-    <Menu>Directories
-      <Menu>Create Remove</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>Allows a directory to be created or removed. Parametes available to allow complete removal of internal data too.</LongDescription>
-  <Parameter>
-    <Name>Directory</Name>
-    <DataType>S</DataType>
-    <Description>Media Directory</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>EmptyOnly</Name>
-    <DataType>B</DataType>
-    <DefaultValue>1</DefaultValue>
-    <Description>Remove contents only</Description>
-    <ListPlacement>2</ListPlacement>
-  </Parameter>
-  <Port>
-    <Description>create</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <AtomicFlag>1</AtomicFlag>
-    <FunctionName argument="0">create</FunctionName>
-  </Port>
-  <Port>
-    <DataType>S</DataType>
-    <Description>path</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="1">create</FunctionName>
-    <FunctionName argument="1">remove</FunctionName>
-  </Port>
-  <Port>
-    <Description>created</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="2">create</FunctionName>
-  </Port>
-  <Port>
-    <Description>error</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="3">create</FunctionName>
-  </Port>
-  <Port>
-    <Description>remove</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>37</YCoordinate>
-    <AtomicFlag>1</AtomicFlag>
-    <FunctionName argument="0">remove</FunctionName>
-  </Port>
-  <Port>
-    <Description>removed</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>37</YCoordinate>
-    <FunctionName argument="2">remove</FunctionName>
-  </Port>
-  <Port>
-    <Description>error</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>47</YCoordinate>
-    <FunctionName argument="3">remove</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>Allows a directory to be created or removed. Parametes available to allow complete removal of internal data too.</LongDescription>
+        <UserName/>
+        <Menu>
+            File System
+            <Menu>
+                Directories
+                <Menu>Create Remove</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>65</Width>
+        <Height>72</Height>
+        <Text>FS Cr/Rm</Text>
+        <TextX>5</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>FileSystemDirCreateRemove</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x7AE4</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>8a752639</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Directory</Name>
+            <DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>Media Directory</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>EmptyOnly</Name>
+            <DataType>B</DataType>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>Remove contents only</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>create</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>remove</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>create</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>create</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>path</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>path</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>remove</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>37</YCoordinate>
+            <CName>remove</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>37</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>47</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

@@ -5,10 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.os.Process;
 
 import com.inx.ehs.media.av.EhsMediaHandler;
@@ -75,10 +78,40 @@ public class UnityPlayerActivity extends Activity implements IUnityPlayerLifecyc
         super.onDestroy();
     }
 
+    // If the activity is in multi window mode or resizing the activity is allowed we will use
+    // onStart/onStop (the visibility callbacks) to determine when to pause/resume.
+    // Otherwise it will be done in onPause/onResume as Unity has done historically to preserve
+    // existing behavior.
+    @Override protected void onStop()
+    {
+        super.onStop();
+
+        if (!MultiWindowSupport.getAllowResizableWindow(this))
+            return;
+
+        mUnityPlayer.pause();
+    }
+
+    @Override protected void onStart()
+    {
+        super.onStart();
+
+        if (!MultiWindowSupport.getAllowResizableWindow(this))
+            return;
+
+        mUnityPlayer.resume();
+    }
+
     // Pause Unity
     @Override protected void onPause()
     {
         super.onPause();
+
+        MultiWindowSupport.saveMultiWindowMode(this);
+
+        if (MultiWindowSupport.getAllowResizableWindow(this))
+            return;
+
         mUnityPlayer.pause();
     }
 
@@ -86,6 +119,10 @@ public class UnityPlayerActivity extends Activity implements IUnityPlayerLifecyc
     @Override protected void onResume()
     {
         super.onResume();
+
+        if (MultiWindowSupport.getAllowResizableWindow(this) && !MultiWindowSupport.isMultiWindowModeChangedToTrue(this))
+            return;
+
         mUnityPlayer.resume();
     }
 

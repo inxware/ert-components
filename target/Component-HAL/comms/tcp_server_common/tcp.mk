@@ -27,9 +27,10 @@
 
 include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/deps.mk
 
+OBJECTS += target_console.$(OBJ)
+
 ifdef EHS_DEBUG_TCPIP_CONSOLE
 OBJECTS+= console_server.$(OBJ)
-OBJECTS += target_console.$(OBJ)
 endif
 
 VPATH+=: $(EHS_TARGET_SERVER_PATH)

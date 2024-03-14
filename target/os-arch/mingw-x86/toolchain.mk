@@ -21,10 +21,13 @@
 #We have floating Point
 
 CFLAGS += -mms-bitfields
-LNKFLAGS+= -Wl,-lm
-LNKFLAGS+= -Wl,-lmingw32
+LIB += m mingw32
+CFLAGS += -static-libgcc 
+LNKFLAGS += -static-libgcc 
+#-static
+
 ifeq ($(SYSTEM_VARIANT),unity)
-CFLAGS += -D ADD_EXPORTS
+    CFLAGS += -D ADD_EXPORTS
 endif
 
 ##
@@ -40,20 +43,20 @@ ifeq ($(SYSTEM_VARIANT),unity)
     # these wer needed for the android so, but might not be needed for the mingw version
     # LD_SWITCHES+=-lgcc -no-canonical-prefixes  -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now
     # changing to the latest apt-get mingw compiler
-    # CFLAGS  += -I/usr/i686-w64-mingw32/include
-    export CC_OVERRIDE=i686-w64-mingw32-gcc
-    export LINK_OVERRIDE=i686-w64-mingw32-gcc
 else
-    ifeq ($(EHS_DEBUG),yes)
-        LNKFLAGS+=-mconsole#Adds the console support
-    else 
-       LNKFLAGS+=--mwindows
-        # Removes console output for debug versions
+    ifeq ($(EHS_RUNTIME_LOGGER_ENABLED),yes)
+        LNKFLAGS+=-mconsole # Adds console output for debug 
+    else
+        LNKFLAGS+=-mwindows # Removes console output for debug versions
     endif
-    #export CC_OVERRIDE=i586
-    export CC_OVERRIDE=i586-mingw32msvc-gcc
-    export LINK_OVERRIDE=i586-mingw32msvc-gcc
-    #CFLAGS += -I/usr/i686-w64-mingw32/include
-endif 
+endif
+
+#Use i686-migw toolchain as a default
+ifndef CC_OVERRIDE
+    export CC_OVERRIDE=i686-w64-mingw32-gcc-10-posix
+endif
+ifndef LINK_OVERRIDE
+     export LINK_OVERRIDE=i686-w64-mingw32-gcc
+endif
 
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/toolchain.mk

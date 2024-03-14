@@ -288,7 +288,7 @@ ehs_uint16 EhsGraphicsFontGlyph_load(ehs_FILE* pFile, EhsGraphicsFontGlyphClass*
     ehs_uint16 i;
     ehs_uint16 nRet = LOAD_GLYPH_CONTINUE; /* assume we keep reading */
     ehs_uint32 nIdx;
-    EHSH_LOG_ENTER("EhsGraphicsFontGlyph_load(%x,%x)",(ehs_sint32)pFile, (ehs_sint32)pGlyph);
+    //EHSH_LOG_ENTER("EhsGraphicsFontGlyph_load(%x,%x)",(ehs_sint32)pFile, (ehs_sint32)pGlyph);
 
     /* reset the glyph */
     pGlyph->nId = EHS_UINT32_MAX;
@@ -334,11 +334,9 @@ ehs_uint16 EhsGraphicsFontGlyph_load(ehs_FILE* pFile, EhsGraphicsFontGlyphClass*
 
         case BDF_ENCODING: /*  1 (poss 2) integers representing Adobe standard encoding */
             szTemp = (ehs_char*)EhsGetUint32FromString(&pGlyph->nId, szTemp);
-//			if (EHSH_LOG_CHECK(EHSH_LOG_LEVEL_ERROR)) {EhsSprintf(EhsHLogger_Msg,"big probs"); EhsHLogger_log(EHSL_MODULE_ID,EHSH_LOG_LEVEL_ERROR,__FILE__,__LINE__,EhsHLogger_Msg);}
-//			if (EHSH_LOG_CHECK(nLevel)) {EhsSprintf(EhsHLogger_Msg,szMsg,__VA_ARGS__); EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
             if (!szTemp)
             {
-                EhsError(EHS_MSG_FONT_MISSING_CODE);
+                EHSH_LOG_ERROR(EHS_MSG_FONT_MISSING_CODE);
                 nRet = LOAD_GLYPH_MINOR_ERROR;
             }
             break;
@@ -364,7 +362,7 @@ ehs_uint16 EhsGraphicsFontGlyph_load(ehs_FILE* pFile, EhsGraphicsFontGlyphClass*
 
             if (!szTemp)
             {
-                EhsError(EHS_MSG_FONT_MISSING_BBX_PARAM(pGlyph->nId));
+                EHSH_LOG_ERROR(EHS_MSG_FONT_MISSING_BBX_PARAM(pGlyph->nId));
                 nRet = LOAD_GLYPH_MINOR_ERROR; /* set a failed flag */
             }
             else
@@ -401,13 +399,13 @@ ehs_uint16 EhsGraphicsFontGlyph_load(ehs_FILE* pFile, EhsGraphicsFontGlyphClass*
                         }
                         else
                         {
-                            EhsError(EHS_MSG_FONT_BITMAP(pGlyph->nId));
+                            EHSH_LOG_ERROR(EHS_MSG_FONT_BITMAP(pGlyph->nId));
                             nRet = LOAD_GLYPH_MINOR_ERROR;
                         }
                     }
                     else
                     {
-                        EhsError(EHS_MSG_FONT_BITMAP(pGlyph->nId));
+                        EHSH_LOG_ERROR(EHS_MSG_FONT_BITMAP(pGlyph->nId));
                         nRet = LOAD_GLYPH_MINOR_ERROR;
                     }
                 }
@@ -435,7 +433,7 @@ ehs_uint16 EhsGraphicsFontGlyph_load(ehs_FILE* pFile, EhsGraphicsFontGlyphClass*
 
             if (!szTemp)
             {
-                EhsError(EHS_MSG_FONT_MISSING_DWIDTH_PARAM(pGlyph->nId));
+                EHSH_LOG_ERROR(EHS_MSG_FONT_MISSING_DWIDTH_PARAM(pGlyph->nId));
                 nRet = LOAD_GLYPH_MINOR_ERROR; /* set a failed flag */
             }
             break;
@@ -451,7 +449,7 @@ ehs_uint16 EhsGraphicsFontGlyph_load(ehs_FILE* pFile, EhsGraphicsFontGlyphClass*
         }
     }
     while ((nRet == LOAD_GLYPH_CONTINUE) || (nRet == LOAD_GLYPH_MINOR_ERROR));
-    EHSH_LOG_EXIT("EhsGraphicsFontGlyph_load() -> %d", nRet);
+//    EHSH_LOG_EXIT("EhsGraphicsFontGlyph_load() -> %d", nRet);
     return nRet;
 }
 
@@ -469,7 +467,7 @@ ehs_bool EhsGraphicsFont_newLine(const EhsGraphicsFontClass* pFont,
                                  ehs_uint32* pnX, ehs_uint32* pnY, ehs_uint16 nIndentLeft)
 {
     ehs_bool bRet = EHS_TRUE; /* assume newLine is successful */
-    EHSH_LOG_ENTER("EhsGraphicsFont_newLine(%x,%x,%d,%d)",(ehs_uint32)pFont, (ehs_uint32)pTextBoxRect, *pnX, *pnY);
+//    EHSH_LOG_ENTER("EhsGraphicsFont_newLine(%x,%x,%d,%d)",(ehs_uint32)pFont, (ehs_uint32)pTextBoxRect, *pnX, *pnY);
     *pnX = nIndentLeft;
     *pnY += nLineSep; /* previously, we used pFont->nMaxHt; */
     /* does the current y position leave us enough space to draw text
@@ -481,7 +479,7 @@ ehs_bool EhsGraphicsFont_newLine(const EhsGraphicsFontClass* pFont,
         bRet = EHS_FALSE;
     }
 
-    EHSH_LOG_EXIT("EhsGraphicsFont_newLine() -> %c",(bRet?'T':'F'));
+//    EHSH_LOG_EXIT("EhsGraphicsFont_newLine() -> %c",(bRet?'T':'F'));
     return bRet;
 }
 
@@ -592,7 +590,7 @@ EhsGraphicsFontClass* EhsGraphicsFont_load(ehs_char* szFilename)
 {
     ehs_uint16 nIdx;
     EhsGraphicsFontClass* pFont = NULL;
-    EHSH_LOG_ENTER("EhsGraphicsFont_load(%s)",szFilename);
+//    EHSH_LOG_ENTER("EhsGraphicsFont_load(%s)",szFilename);
     /* check to see if the font has already been loaded into the font table */
     for (nIdx = 0; nIdx < EhsGraphicsFontTable.nNumFonts; nIdx++)
     {
@@ -647,14 +645,14 @@ EhsGraphicsFontClass* EhsGraphicsFont_load(ehs_char* szFilename)
             }
             else
             {
-                EhsError(EHS_MSG_FONT_CANT_OPEN(szFilename));
+                EHSH_LOG_ERROR(EHS_MSG_FONT_CANT_OPEN(szFilename));
                 EhsGraphicsFontTable.nNumFonts--; /* release the font we were going to use */
                 pFont = NULL;
             }
         }
         else
         {
-            EhsError(EHS_MSG_FONT_TOO_MANY(szFilename));
+            EHSH_LOG_ERROR(EHS_MSG_FONT_TOO_MANY(szFilename));
         }
     }
 
@@ -670,11 +668,11 @@ EhsGraphicsFontClass* EhsGraphicsFont_load(ehs_char* szFilename)
         if (!pFont->pDefaultGlyph)
         {
             pFont->pDefaultGlyph = &(pFont->pGlyphs[0]);
-            EhsError("OUCH No glyph");
+            EHSH_LOG_ERROR("OUCH No glyph");
         }
     }
 
-    EHSH_LOG_EXIT("EhsGraphicsFont_Load() -> %x",(ehs_uint32)pFont);
+//    EHSH_LOG_EXIT("EhsGraphicsFont_Load() -> %x",(ehs_uint32)pFont);
 error:
     return pFont;
 }
@@ -689,7 +687,7 @@ error:
 ehs_bool EhsGraphicsFont_loadGlyphs(ehs_FILE* pFile, EhsGraphicsFontClass* pFont)
 {
     ehs_bool bRet = EHS_TRUE; /* assume success */
-    EHSH_LOG_ENTER("EhsGraphicsFont_loadGlyphs(%x,%x)",(ehs_uint32)pFile, (ehs_uint32)pFont);
+//    EHSH_LOG_ENTER("EhsGraphicsFont_loadGlyphs(%x,%x)",(ehs_uint32)pFile, (ehs_uint32)pFont);
 
     pFont->pGlyphs = (EhsGraphicsFontGlyphClass*)EhsHMem_readonlyAlloc(sizeof(EhsGraphicsFontGlyphClass)*pFont->nNumGlyphs);
     if (pFont->pGlyphs)
@@ -710,7 +708,7 @@ ehs_bool EhsGraphicsFont_loadGlyphs(ehs_FILE* pFile, EhsGraphicsFontClass* pFont
             }
             else if (pFont->pGlyphs[nIdx].nId!=0 && nLastGlyphId >= pFont->pGlyphs[nIdx].nId)
             {
-                EhsError(EHS_MSG_FONT_NON_MONOTONIC(nLastGlyphId, pFont->pGlyphs[nIdx].nId));
+                EHSH_LOG_ERROR(EHS_MSG_FONT_NON_MONOTONIC(nLastGlyphId, pFont->pGlyphs[nIdx].nId));
                 bRet = EHS_FALSE;
             }
             else
@@ -732,7 +730,7 @@ ehs_bool EhsGraphicsFont_loadGlyphs(ehs_FILE* pFile, EhsGraphicsFontClass* pFont
         /* failed to allocate memory */
         bRet = EHS_FALSE;
     }
-    EHSH_LOG_EXIT("EhsGraphicsFont_loadGlyphs() -> %c",bRet?'T':'F');
+//    EHSH_LOG_EXIT("EhsGraphicsFont_loadGlyphs() -> %c",bRet?'T':'F');
     return bRet;
 }
 
@@ -797,7 +795,7 @@ ehs_uint16 EhsGraphicsFont_loadGlobalLine(ehs_FILE* pFile, EhsGraphicsFontClass*
         }
         else
         {
-            EhsError(EHS_MSG_FONT_NAME_MISSING(pFont->szFilename));
+            EHSH_LOG_ERROR(EHS_MSG_FONT_NAME_MISSING(pFont->szFilename));
             nRet = LOAD_GLOBAL_ERROR;
         }
 
@@ -805,7 +803,7 @@ ehs_uint16 EhsGraphicsFont_loadGlobalLine(ehs_FILE* pFile, EhsGraphicsFontClass*
     case BDF_CHARS: /* get the number of glyphs in the font and start reading glyphs */
         if (!EhsGetUint32FromString(&pFont->nNumGlyphs, szTemp))
         {
-            EhsError(EHS_MSG_FONT_NUMGLYPHS_MISSING(pFont->szFilename));
+            EHSH_LOG_ERROR(EHS_MSG_FONT_NUMGLYPHS_MISSING(pFont->szFilename));
             nRet = LOAD_GLOBAL_ERROR;
         }
         else
@@ -825,7 +823,7 @@ ehs_uint16 EhsGraphicsFont_loadGlobalLine(ehs_FILE* pFile, EhsGraphicsFontClass*
         break;
     }
 
-    EHSH_LOG_EXIT("EhsGraphicsFont_loadGlobalLine() -> %d",nRet);
+    //EHSH_LOG_EXIT("EhsGraphicsFont_loadGlobalLine() -> %d",nRet);
     return nRet;
 }
 
@@ -885,7 +883,7 @@ void EhsGraphicsFontTable_init()
     ehs_uint16 nIdx;
     EhsGraphicsFontClass* pFont = NULL;
 
-    EHSH_LOG_ENTER("EhsGraphicsFontTable_init()");
+    //EHSH_LOG_ENTER("EhsGraphicsFontTable_init()");
     for (nIdx = 0; nIdx < EhsGraphicsFontTable.nNumFonts; nIdx++)
     {
         pFont = &(EhsGraphicsFontTable.xFont[nIdx]);
@@ -893,5 +891,5 @@ void EhsGraphicsFontTable_init()
         pFont->nMaxHt = 0;
     }
     EhsGraphicsFontTable.nNumFonts = 0u;
-    EHSH_LOG_EXIT("EhsGraphicsFont_init()");
+    //EHSH_LOG_EXIT("EhsGraphicsFont_init()");
 }

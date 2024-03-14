@@ -157,6 +157,8 @@ ehs_bool EhsHDevmanGetURL(ehs_char * URL, ehs_char * list_file,
     return retval;
 }
 
+/* Changes the Devman URL config file and checks for new Certificate files if they exist */
+
 ehs_bool EhsHDevmanAddURLtoHeadList(ehs_char * ehs_path, ehs_char * URL)
 {
     //@todo
@@ -371,7 +373,6 @@ ehs_bool EhsHDevmanRemoveSpecificURLFromList(ehs_char * ehs_path, ehs_char * URL
 
 ehs_bool GetDevmanBASEURL(ehs_char * szUrl)
 {
-
     /* This might be useful for the app get version ... */
 #ifdef EHS_ALLOW_DEVMAN_URL_VARIATIONS_NOT
     if (!EhsHDevmanGetURL(szUrl, "plugins/0/DEVMANAPPURL", EHS_MAXDEVMANNAMELEN,0))   /* We don't have any fail over system for apps so index is 0 */
@@ -771,7 +772,7 @@ void *DevmanMonThread(void *arg)
                                   EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryString(curl, PostString, "DeviceID",
                                   EhsHMetaGetHWID(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHGetdateTime(sZtemp, EHS_TRUE); //get adate string
+            EhsHGetdateTime(sZtemp, EHS_TRUE, 0); //get adate string
             EhsHCreateQueryString(curl, PostString, "device_date", sZtemp,EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryStringNum(PostString, "device_system_space_total_KB",
                                      EhsHMetaGetStorTotal(), EHS_POST_STRING_LENGTH_MAX);
@@ -797,13 +798,18 @@ void *DevmanMonThread(void *arg)
                                   EhsHAppMetaGetAppDate(), EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryStringNum(PostString, "percproc_ehs",
                                      EhsHMetaGetCPUUsage(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "percproc_miscapp",
+                                     EhsHMetaGetMiscAppCPUUsage(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "ramuse_miscapp",
+                                     EhsHMetaGetMiscAppRAMUsed_kB, EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryString(curl, PostString, "misc_sys_info",
                                   EhsHMetaGetSysInfo(), EHS_POST_STRING_LENGTH_MAX);
-
+            EhsHCreateQueryStringNum(PostString, "ramuse_ehs",
+                                  EhsHMetaGetRAMUsedEHS_kB(), EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryString(curl, PostString, "misc_app_info",tempBUff, EHS_POST_STRING_LENGTH_MAX);
             if (EhsHMetaGetRAMTotal())
             {
-                tempint = (EhsHMetaGetRAMUsedEHS() * 100) / EhsHMetaGetRAMTotal();
+                tempint = (EhsHMetaGetRAMUsedEHS_kB() * 100) / EhsHMetaGetRAMTotal();
             }
             else
             {
@@ -873,7 +879,7 @@ void *DevmanMonThread(void *arg)
             }
             else     /* http request failed...*/
             {
-                EHSH_LOG_ERROR("FAILED TO DO DEMVNANMON POST errocode=%ld:",http_no);
+                EHSH_LOG_ERROR("FAILED TO DO DEMVNANMON POST [%s] errocode=%d:",szUrl,(ehs_sint32) http_no);
                 //LOGE("2FAILED TO DO DEMVNANMON POST errocode=%ld:",http_no);
                 EhsHMetaSetMissedPing();
                 status = EHS_FALSE;

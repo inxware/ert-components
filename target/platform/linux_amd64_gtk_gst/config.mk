@@ -16,35 +16,51 @@
 #################################################################################################################
 
 # MUST SET the following for any component config: 
-#EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
+# EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
+# EHS Section 
+# ehs is more generic, selects the ./target/os-arch/<type>
 EHS_ARCH=amd64
 EHS_OS=linux
 
+# Optionally set the following if contrib build uses GNU-specific OS and ARCH naming conventions 
+# - Select the os-arch directory with these
+#EHS_GNU_ARCH=amd64
+#EHS_GNU_OS=linux
+EHS_DEBIAN_VERSION=9
+
+#Select a specific version of contrib libraries and build support
 EHS_GNU_OS_VERSION=-debian-9.4
 
-# TOOLCHAIN_NAME is an optional alternative location to find the toolchain. 
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
 TOOLCHAIN_NAME=HOST
+#OR target a specific toolchain: This target is using the same compiler as for the 32bit vlang build:
+#TOOLCHAIN_PATH=./x86_64/XXXX
+
 # SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies 
-EHS_HOST_DEBIAN_BUILD=yes
+EHS_HOST_DEBIAN_BUILD=x86
+
+# SYSTEM_VARIANT optionally indicates specific target environment confgurations.
+# See target/envbuildscripts/targetenv_hacks_*.sh scripts).  
+# SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
+# SYSTEM_VARIANT=
 
 ################################################################################################################
 # Configure debug/production levels
 ################################################################################################################
-#DEBUG OPTIONS
 # Set ALL debug use this:
-EHS_DEBUGALL=true
+#EHS_DEBUGALL=true
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
 ################################################################################################################
-
 EHS_NETWORKING_SUPPORT=all
+
 # To enable full TCPIP networking toolbox ("netx" DCC=3)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                   #
 EHS_COMPONENT_NETWORKING_SUPPORT=all
 
 #set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
 EHS_DEVMAN_SUPPORT=all
+
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 EHS_DEVMAN_MON_SUPPORT=yes
 
@@ -53,13 +69,14 @@ EHS_DEVMAN_MON_SUPPORT=yes
 ################################################################################################################
 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-#Note - windows targets in componentlibrary use hyphens between components (randomly)
+#Note - windows targets in component library use hyphens between components (randomly)
 # COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory 
 # libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
-# $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
+# $(EHS_GNU_OS_ARCH)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
+#COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
 COMPONENT_VARIANT=gtk_gst
-# Note: This is a host build so we don't ned it but will add it in case we fdo have any bits we may build for the target.
 
+# Note: This is a host build so we don't ned it but will add it in case we fdo have any bits we may build for the target.
 # For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms  rather than built in ert-ccontriib-middleware).:
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
 #COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
@@ -67,10 +84,6 @@ COMPONENT_VARIANT=gtk_gst
 ################################################################################################################
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
 ################################################################################################################
-#@todo this should just go to the bdcsockets and winsockets .mk files
-#This include RCUs, text displays, etc.
-# To enable  IO features "netx" DCC=1)  (e.g. GPIO, ADC.DAC, serial, user inputs etc. set  EHS_PERIPHERAL_DEVICE_SUPPORT )                                          #
-EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
 # To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
 # Set this to match one of the graphics types in EHS/target/graphics
@@ -88,4 +101,19 @@ EHS_MEDIA_SUPPORT=all
 # backward compatability with previous apps  is required. Note this requires the toolbox hash checks to be  disabled                                                        #
 EHS_TOOLKIT_DEPRECATED=yes
 
+# To enable  IO features "netx" DCC=1)  (e.g. GPIO, ADC.DAC, serial, user inputs etc. set  EHS_PERIPHERAL_DEVICE_SUPPORT ) 
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
+
+EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
+################################################################################################################
+# Define any OS install scripts that should be run on first install
+################################################################################################################
+#HOST_OS_CONFIG_SCRIPTS+= \
+
+#Leaving the following defaults
+#DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
+#DEVMAN_SERVER_PROTOCOL=https
+
+include ./target/devman-configs/inx-systems.com.mk

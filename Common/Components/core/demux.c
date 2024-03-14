@@ -35,9 +35,9 @@
 
 EHS_FB_FUNCTIONS_START(DemultiplexTwoOutputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexTwoOutputInt1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexTwoOutputInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexTwoOutputInt2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexTwoOutputInt2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -99,11 +99,11 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputInt2)
 
 EHS_FB_FUNCTIONS_START(DemultiplexThreeOutputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexThreeOutputInt1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexThreeOutputInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexThreeOutputInt2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexThreeOutputInt2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexThreeOutputInt3)
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexThreeOutputInt3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -178,13 +178,13 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputInt3)
 
 EHS_FB_FUNCTIONS_START(DemultiplexFourOutputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexFourOutputInt1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexFourOutputInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexFourOutputInt2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexFourOutputInt2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexFourOutputInt3)
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexFourOutputInt3)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x03, DemultiplexFourOutputInt4)
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x04, DemultiplexFourOutputInt4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -274,9 +274,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt4)
 
 EHS_FB_FUNCTIONS_START(DemultiplexTwoOutputBool)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexTwoOutputBool1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexTwoOutputBool1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexTwoOutputBool2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexTwoOutputBool2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -337,11 +337,11 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputBool2)
 
 EHS_FB_FUNCTIONS_START(DemultiplexThreeOutputBool)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexThreeOutputBool1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexThreeOutputBool1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexThreeOutputBool2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexThreeOutputBool2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexThreeOutputBool3)
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexThreeOutputBool3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -416,13 +416,13 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputBool3)
 
 EHS_FB_FUNCTIONS_START(DemultiplexFourOutputBool)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexFourOutputBool1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexFourOutputBool1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexFourOutputBool2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexFourOutputBool2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexFourOutputBool3)
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexFourOutputBool3)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x03, DemultiplexFourOutputBool4)
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x04, DemultiplexFourOutputBool4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -511,9 +511,9 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool4)
 
 EHS_FB_FUNCTIONS_START(DemultiplexTwoOutputString)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexTwoOutputString1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexTwoOutputString1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexTwoOutputString2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexTwoOutputString2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -574,11 +574,11 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputString2)
 
 EHS_FB_FUNCTIONS_START(DemultiplexThreeOutputString)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexThreeOutputString1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexThreeOutputString1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexThreeOutputString2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexThreeOutputString2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexThreeOutputString3)
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexThreeOutputString3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -653,13 +653,13 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString3)
 
 EHS_FB_FUNCTIONS_START(DemultiplexFourOutputString)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexFourOutputString1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexFourOutputString1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexFourOutputString2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexFourOutputString2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexFourOutputString3)
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexFourOutputString3)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x03, DemultiplexFourOutputString4)
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x04, DemultiplexFourOutputString4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -785,7 +785,7 @@ EHS_FB_INIT_FUNCTION(IndexedDemultiplexer)
 //@todo - this code refers to function in Components sandbox, move/remove?
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_String)
 
-EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_String)
+EHS_FB_FUNCTION_ENTRY("Run", 0x01, IndexedDemultiplexer_String)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -826,7 +826,7 @@ EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_String)
 //@todo - this code refers to function in Components sandbox, move/remove?
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_Int)
 
-EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_Int)
+EHS_FB_FUNCTION_ENTRY("Run", 0x01, IndexedDemultiplexer_Int)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -869,7 +869,7 @@ EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Int)
 //@todo - this code refers to function in Components sandbox, move/remove?
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_Bool)
 
-EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_Bool)
+EHS_FB_FUNCTION_ENTRY("Run", 0x01, IndexedDemultiplexer_Bool)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -913,7 +913,7 @@ EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Bool)
 //@todo - move code to events
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_Event)
 
-EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_Event)
+EHS_FB_FUNCTION_ENTRY("Run", 0x01, IndexedDemultiplexer_Event)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1028,7 +1028,7 @@ EHS_FB_INIT_FUNCTION(TextCaseDemultiplexer_Event)
 //@todo - move code to events
 EHS_FB_FUNCTIONS_START(TextCaseDemultiplexer_Event)
 
-EHS_FB_FUNCTION_ENTRY("Run", 0x00, TextCaseDemultiplexer_Event)
+EHS_FB_FUNCTION_ENTRY("Run", 0x01, TextCaseDemultiplexer_Event)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1092,9 +1092,9 @@ EHS_FB_RUN_FUNCTION(TextCaseDemultiplexer_Event)
 
 EHS_FB_FUNCTIONS_START(DemultiplexTwoOutputFloat)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexTwoOutputFloat1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexTwoOutputFloat1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexTwoOutputFloat2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexTwoOutputFloat2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1155,11 +1155,11 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputFloat2)
 
 EHS_FB_FUNCTIONS_START(DemultiplexThreeOutputFloat)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexThreeOutputFloat1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexThreeOutputFloat1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexThreeOutputFloat2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexThreeOutputFloat2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexThreeOutputFloat3)
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexThreeOutputFloat3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1234,13 +1234,13 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputFloat3)
 
 EHS_FB_FUNCTIONS_START(DemultiplexFourOutputFloat)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x00, DemultiplexFourOutputFloat1)
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexFourOutputFloat1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x01, DemultiplexFourOutputFloat2)
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexFourOutputFloat2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x02, DemultiplexFourOutputFloat3)
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexFourOutputFloat3)
 
-EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x03, DemultiplexFourOutputFloat4)
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x04, DemultiplexFourOutputFloat4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1329,7 +1329,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat4)
 //@todo - this code refers to function in Components sandbox, move/remove?
 EHS_FB_FUNCTIONS_START(IndexedDemultiplexer_Float)
 
-EHS_FB_FUNCTION_ENTRY("Run", 0x00, IndexedDemultiplexer_Float)
+EHS_FB_FUNCTION_ENTRY("Run", 0x01, IndexedDemultiplexer_Float)
 EHS_FB_FUNCTIONS_END
 
 /**

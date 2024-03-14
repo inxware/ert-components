@@ -1,0 +1,230 @@
+//ICB HEADER MACRO START -- DO NOT ALTER
+#include "inx-parameters.h"
+#include "inx-component.h"
+#include "inx-wifi_station.h"
+//ICB HEADER MACRO END -- DO NOT ALTER
+//ICB STATE VAR MACRO START -- DO NOT ALTER
+/* My Component state data structure. - Use this in your code! */
+typedef struct inx_wifi_station_state
+{
+	ehs_char* SSID;
+	ehs_sint32 type;
+	ehs_bool tryReconnect;
+	ehs_sint32 retry;
+	ehs_sint32 EntType;
+	ehs_sint32 EAP;
+	ehs_sint32 TTLS2;
+	ehs_bool needServerCert;
+	ehs_char* serverCert;
+	ehs_char* tlsCert;
+	ehs_char* tlsKey;
+	ehs_char* eapID;
+	ehs_char* eapUser;
+	ehs_char* eapPass;
+} inx_wifi_station_state_type; //Reference this, maybe store your config parameters in here too.
+//ICB STATE VAR MACRO END -- DO NOT ALTER
+//ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
+/* Populate the data structure used by EHS and map the function names to strings identified in CDF */
+EHS_FB_FUNCTIONS_START(wifi_station)
+EHS_FB_FUNCTION_ENTRY("do_connect",1,wifi_station_do_connect)
+EHS_FB_FUNCTION_ENTRY("do_disconnect",2,wifi_station_do_disconnect)
+EHS_FB_FUNCTION_ENTRY("internal_thread",3,wifi_station_internal_thread)
+EHS_FB_FUNCTIONS_END
+//ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
+//ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
+/* Friendly labels for the run function data and event function argument enumerations */
+#define INX_wifi_station_ARG_do_connect_auth_type 1
+#define INX_wifi_station_ARG_do_connect_ssid 2
+#define INX_wifi_station_ARG_do_connect_PSKPass 3
+#define INX_wifi_station_ARG_do_connect_EAP 4
+#define INX_wifi_station_ARG_do_connect_Enterprise_type 5
+#define INX_wifi_station_ARG_do_connect_ttls_phase2 6
+#define INX_wifi_station_ARG_do_connect_needCert 7
+#define INX_wifi_station_ARG_do_connect_serverCert 8
+#define INX_wifi_station_ARG_do_connect_tlsCert 9
+#define INX_wifi_station_ARG_do_connect_tlsKey 10
+#define INX_wifi_station_ARG_do_connect_eapID 11
+#define INX_wifi_station_ARG_do_connect_eapUser 12
+#define INX_wifi_station_ARG_do_connect_eapPass 13
+#define INX_wifi_station_ARG_do_connect_do_connect_OK 1
+#define INX_wifi_station_ARG_do_disconnect_do_disconnect_OK 1
+#define INX_wifi_station_ARG_internal_thread_errCode 1
+#define INX_wifi_station_ARG_internal_thread_disconnect_reason 2
+#define INX_wifi_station_ARG_internal_thread_ip_address 3
+#define INX_wifi_station_ARG_internal_thread_rssi 4
+#define INX_wifi_station_ARG_internal_thread_ap_mac_address 5
+#define INX_wifi_station_ARG_internal_thread_connectFail 1
+#define INX_wifi_station_ARG_internal_thread_connect_OK 2
+#define INX_wifi_station_ARG_internal_thread_disconnected 3
+//ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
+//ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
+/* Parameters */
+/* Create some macros for the default parameters */
+#define INX_FB_wifi_station_SSID 
+#define INX_FB_wifi_station_type 0
+#define INX_FB_wifi_station_tryReconnect 0
+#define INX_FB_wifi_station_retry 1
+#define INX_FB_wifi_station_EntType 0
+#define INX_FB_wifi_station_EAP 1
+#define INX_FB_wifi_station_TTLS2 1
+#define INX_FB_wifi_station_needServerCert 0
+#define INX_FB_wifi_station_serverCert 
+#define INX_FB_wifi_station_tlsCert 
+#define INX_FB_wifi_station_tlsKey 
+#define INX_FB_wifi_station_eapID 
+#define INX_FB_wifi_station_eapUser 
+#define INX_FB_wifi_station_eapPass 
+//ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
+//ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Identify the function block to EHS.
+ * This function provides access to:
+ *  - string containing parameter text
+ * EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this function block's context
+ */
+EHS_FB_IDENTIFY_FUNCTION(wifi_station)
+{
+/* Uncomment the following if you need to parse the parameters to calculate memory required */
+/*
+	ehs_char* SSID;
+	ehs_sint32 type;
+	ehs_bool tryReconnect;
+	ehs_sint32 retry;
+	ehs_sint32 EntType;
+	ehs_sint32 EAP;
+	ehs_sint32 TTLS2;
+	ehs_bool needServerCert;
+	ehs_char* serverCert;
+	ehs_char* tlsCert;
+	ehs_char* tlsKey;
+	ehs_char* eapID;
+	ehs_char* eapUser;
+	ehs_char* eapPass;
+	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%s %d %d %d %d %d %d %d %s %s %s %s %s %s",&SSID,&type,&tryReconnect,&retry,&EntType,&EAP,&TTLS2,&needServerCert,&serverCert,&tlsCert,&tlsKey,&eapID,&eapUser,&eapPass); */
+	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_wifi_station_state_type);
+}
+//ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+//ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area provided by EHS for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+
+EHS_FB_INIT_FUNCTION(wifi_station)
+{
+	ehs_char* SSID;
+	ehs_sint32 type;
+	ehs_bool tryReconnect;
+	ehs_sint32 retry;
+	ehs_sint32 EntType;
+	ehs_sint32 EAP;
+	ehs_sint32 TTLS2;
+	ehs_bool needServerCert;
+	ehs_char* serverCert;
+	ehs_char* tlsCert;
+	ehs_char* tlsKey;
+	ehs_char* eapID;
+	ehs_char* eapUser;
+	ehs_char* eapPass;
+	ehs_bool bRet = EHS_TRUE; /* assume success */
+	//this is the reference to the object data for this instance of the function block
+	inx_wifi_station_state_type* inx_wifi_station_state = (inx_wifi_station_state_type*)EHS_FB_INIT_CONTEXT;
+	/* read the initialisation parameters */
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s %d %d %d %d %d %d %d %s %s %s %s %s %s",&SSID,&type,&tryReconnect,&retry,&EntType,&EAP,&TTLS2,&needServerCert,&serverCert,&tlsCert,&tlsKey,&eapID,&eapUser,&eapPass);
+
+	/* Add any further intialisation code here */
+	return bRet; /* initialisation always succeeds */
+}
+//ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
+//ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
+EHS_FB_DESTROY_FUNCTION(wifi_station)
+{
+	inx_wifi_station_state_type *inx_wifi_station_state = (inx_wifi_station_state_type*)EHS_FB_DESTROY_CONTEXT;
+	//Your code below here
+}
+//ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION do_connect MACRO START -- DO NOT ALTER
+/**
+ * Definition of wifi_station_do_connect.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(wifi_station_do_connect)
+{
+	inx_wifi_station_state_type* inx_wifi_station_state = (inx_wifi_station_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_auth_type))
+		EHS_FB_IN_I_API2(INX_wifi_station_ARG_do_connect_auth_type) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_ssid))
+		EHS_FB_IN_S_API2(INX_wifi_station_ARG_do_connect_ssid) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_PSKPass))
+		EHS_FB_IN_S_API2(INX_wifi_station_ARG_do_connect_PSKPass) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_EAP))
+		EHS_FB_IN_I_API2(INX_wifi_station_ARG_do_connect_EAP) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_Enterprise_type))
+		EHS_FB_IN_I_API2(INX_wifi_station_ARG_do_connect_Enterprise_type) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_ttls_phase2))
+		EHS_FB_IN_I_API2(INX_wifi_station_ARG_do_connect_ttls_phase2) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_needCert))
+		EHS_FB_IN_B_API2(INX_wifi_station_ARG_do_connect_needCert) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_serverCert))
+		EHS_FB_IN_S_API2(INX_wifi_station_ARG_do_connect_serverCert) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_tlsCert))
+		EHS_FB_IN_S_API2(INX_wifi_station_ARG_do_connect_tlsCert) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_tlsKey))
+		EHS_FB_IN_S_API2(INX_wifi_station_ARG_do_connect_tlsKey) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_eapID))
+		EHS_FB_IN_S_API2(INX_wifi_station_ARG_do_connect_eapID) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_eapUser))
+		EHS_FB_IN_S_API2(INX_wifi_station_ARG_do_connect_eapUser) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_wifi_station_ARG_do_connect_eapPass))
+		EHS_FB_IN_S_API2(INX_wifi_station_ARG_do_connect_eapPass) ;
+	EHS_FB_FINISH(INX_wifi_station_ARG_do_connect_do_connect_OK);
+}//ICB FUNCTION do_connect MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION do_disconnect MACRO START -- DO NOT ALTER
+/**
+ * Definition of wifi_station_do_disconnect.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(wifi_station_do_disconnect)
+{
+	inx_wifi_station_state_type* inx_wifi_station_state = (inx_wifi_station_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	EHS_FB_FINISH(INX_wifi_station_ARG_do_disconnect_do_disconnect_OK);
+}//ICB FUNCTION do_disconnect MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION internal_thread MACRO START -- DO NOT ALTER
+/**
+ * Definition of wifi_station_internal_thread.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(wifi_station_internal_thread)
+{
+	inx_wifi_station_state_type* inx_wifi_station_state = (inx_wifi_station_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_wifi_station_ARG_internal_thread_errCode))
+		EHS_FB_OUT_I_API2(INX_wifi_station_ARG_internal_thread_errCode) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_wifi_station_ARG_internal_thread_disconnect_reason))
+		EHS_FB_OUT_I_API2(INX_wifi_station_ARG_internal_thread_disconnect_reason) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_wifi_station_ARG_internal_thread_ip_address))
+		EHS_FB_OUT_S_API2(INX_wifi_station_ARG_internal_thread_ip_address) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_wifi_station_ARG_internal_thread_rssi))
+		EHS_FB_OUT_I_API2(INX_wifi_station_ARG_internal_thread_rssi) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_wifi_station_ARG_internal_thread_ap_mac_address))
+		EHS_FB_OUT_S_API2(INX_wifi_station_ARG_internal_thread_ap_mac_address) ;
+	EHS_FB_FINISH(INX_wifi_station_ARG_internal_thread_connectFail);
+	EHS_FB_FINISH(INX_wifi_station_ARG_internal_thread_connect_OK);
+	EHS_FB_FINISH(INX_wifi_station_ARG_internal_thread_disconnected);
+}//ICB FUNCTION internal_thread MACRO END -- DO NOT ALTER THIS LINE

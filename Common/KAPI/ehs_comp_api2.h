@@ -22,7 +22,8 @@
 /*********************************************************************************************/
 /* Function block definitions */
 
-
+/* todo2023 - we need merge _API2 references from ehs_fb_types.h into this header*/
+/* We can (probably) move the proviate bits of this into the above types e.g. EHS_FB_IN_API2(x) probably wont be used publicly in FBs */
 
 
 /*********************************************************************************************/

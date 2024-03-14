@@ -60,7 +60,7 @@ const ehs_char* EhsStrTrimL(const ehs_char* pSrc)
 {
     if (pSrc)
     {
-        while (EhsStrIsSpace(*pSrc)  || *pSrc == 10 || *pSrc == 12 )
+        while (EhsStrIsSpace(*pSrc)  || *pSrc == 10 || *pSrc == 12 || *pSrc == '\t' )
             pSrc++;
     }
 
@@ -129,6 +129,16 @@ EHS_GLOBAL ehs_bool EhsIsAlNum(char c)
     return ((EHS_TO_LOWER(c) >= 'a' && EHS_TO_LOWER(c) <= 'z')||
             (c >= '0' && c <= '9'));
 
+}
+
+/**
+ * Determine if character is a-f or A-F or 0-9
+ */
+EHS_GLOBAL ehs_bool EhsIsHexNum(char ch)
+{
+    return (ch >= '0' && ch <= '9') ||
+           (ch >= 'A' && ch <= 'F') ||
+           (ch >= 'a' && ch <= 'f');
 }
 
 
@@ -244,6 +254,7 @@ const char* EhsGetSint32FromString(ehs_sint32 * output, const char* input)
         /* check for end-of-file */
         if(input!=NULL)
         {
+            // if ((*input == 25) || (*input == 0))
             if (*input == 25)
             {
                 input = NULL;
@@ -342,7 +353,9 @@ const char* EhsGetUint8FromString(ehs_uint8* output, const char* input)
         }
         else
         {
-            *output = (ehs_uint8)nValue;
+            if(output!=NULL){
+                *output = (ehs_uint8)nValue;
+            }
         }
     }
 
@@ -410,7 +423,7 @@ const ehs_char* EhsHSUtil_getUtf32(ehs_uint32* pnUtf32, const ehs_char* szSource
         if (*pSource >= 0xf5u)
         {
             *pnUtf32 = EHS_UINT32_MAX;
-            EhsError(EHS_MSG_ERROR_HS_UTF32_RANGE(szSource));
+            EHSH_LOG_ERROR(EHS_MSG_ERROR_HS_UTF32_RANGE(szSource));
         }
         else
         {

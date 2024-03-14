@@ -8,8 +8,7 @@
 #---------------------------------------------------------------#
 
 # Makefile fragment to build the OS/compiler-specific code for EHS.
-# Called by ../../platform/<platform-type>
-# @author: inx limited
+# For mingw compiler builds
 
 # Predefined variables
 
@@ -29,15 +28,10 @@ export EHS_COMMS_API_SUPPORT=winsock
 endif
 
 EHS_MINGW=yes
-
-DEFS += EHS_GST_010
 DEFS += EHS_MINGW
 DEFS += EHS_WIN32_RUNENV
 
-
 LIB += iphlpapi
-LIB += archive-2
-
 OBJECTS += target_gapfiller.$(OBJ)
 OBJECTS += target_time.$(OBJ)
 OBJECTS += targetos_init.$(OBJ)

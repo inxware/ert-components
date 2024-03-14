@@ -33,7 +33,9 @@
 #include "mux.h"
 #include "operator1.h"
 #include "sfc.h"
-#include "state.h"
+#include "state_condition.h"
+#include "state_debug.h"
+#include "state_manager.h"
 #include "stringfn.h"
 #include "time_clock.h"
 #include "wall_clock.h"
@@ -45,6 +47,7 @@
 #include "rtinfo.h"
 #include "appinfo.h"
 #include "appget.h"
+#include "inx-rng.h"
 
 
 
@@ -72,7 +75,10 @@ const EhsBlockRefType EhsBlockRefTable_core[] =
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_FILE_ReadOnly_Real,EHS_FB_ID_FILE_ReadOnly_Real, FILE_ReadOnly_Float),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_FILE_WriteOnly_Real,EHS_FB_ID_FILE_WriteOnly_Real, FILE_WriteOnly_Float),
 	/* multiplexerFunctions.h */
-	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_IndexedDemultiplexer_Bool,EHS_FB_ID_IndexedDemultiplexer_Bool, MultiplexTwoInputFloat),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_IndexedDemultiplexer_Float,EHS_FB_ID_IndexedDemultiplexer_Float, MultiplexTwoInputFloat),
+	/* Fixed width - todo2024 we only really need to implement one of these and use different CDFs */
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexOneInputReal,EHS_FB_ID_MultiplexOneInputReal, MultiplexOneInputFloat),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexTwoInputReal,EHS_FB_ID_MultiplexTwoInputReal, MultiplexTwoInputFloat),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexThreeInputReal,EHS_FB_ID_MultiplexThreeInputReal, MultiplexThreeInputFloat),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexFourInputReal,EHS_FB_ID_MultiplexFourInputReal, MultiplexFourInputFloat),
 	/* operator1.h */
@@ -183,12 +189,15 @@ const EhsBlockRefType EhsBlockRefTable_core[] =
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_LogicFourInputNand,EHS_FB_ID_LogicFourInputNand, LogicFourInputNand),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_LogicXor,EHS_FB_ID_LogicXor, LogicXor),
 	/* mux.h */
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexOneInputInt,EHS_FB_ID_MultiplexOneInputInt, MultiplexOneInputInt),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexTwoInputInt,EHS_FB_ID_MultiplexTwoInputInt, MultiplexTwoInputInt),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexThreeInputInt,EHS_FB_ID_MultiplexThreeInputInt, MultiplexThreeInputInt),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexFourInputInt,EHS_FB_ID_MultiplexFourInputInt, MultiplexFourInputInt),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexOneInputBool,EHS_FB_ID_MultiplexOneInputBool, MultiplexOneInputBool),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexTwoInputBool,EHS_FB_ID_MultiplexTwoInputBool, MultiplexTwoInputBool),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexThreeInputBool,EHS_FB_ID_MultiplexThreeInputBool, MultiplexThreeInputBool),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexFourInputBool,EHS_FB_ID_MultiplexFourInputBool, MultiplexFourInputBool),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexOneInputString,EHS_FB_ID_MultiplexOneInputString, MultiplexOneInputString),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexTwoInputString,EHS_FB_ID_MultiplexTwoInputString, MultiplexTwoInputString),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexThreeInputString,EHS_FB_ID_MultiplexThreeInputString, MultiplexThreeInputString),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_MultiplexFourInputString,EHS_FB_ID_MultiplexFourInputString, MultiplexFourInputString),
@@ -214,6 +223,9 @@ const EhsBlockRefType EhsBlockRefTable_core[] =
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_Integrator_Int,EHS_FB_ID_Integrator_Int, IntegratorInt),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_Max_Int,EHS_FB_ID_Max_Int, MaxInt),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_Min_Int,EHS_FB_ID_Min_Int, MinInt),
+	/* inx-rng.h */
+	EHS_BLOCKREF_ENTRY(INXWARE_FB_NAME_rng, INXWARE_FB_ID_rng, rng),
+#ifdef EHS_LEGACY_STATEMACHINE
 	/* sfc.h */
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_SFCBar,EHS_FB_ID_SFCBar, SFCBar),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_SFCBarGroup1,EHS_FB_ID_SFCBarGroup1, SFCBarGroup1),
@@ -228,14 +240,22 @@ const EhsBlockRefType EhsBlockRefTable_core[] =
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_SFCBarGroup4Event,EHS_FB_ID_SFCBarGroup4Event, SFCBarGroup4Event),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_SFCBarGroup8Event,EHS_FB_ID_SFCBarGroup8Event, SFCBarGroup8Event),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_SFCBarGroup12Event,EHS_FB_ID_SFCBarGroup12Event, SFCBarGroup12Event),
-	/* state.h */
-	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_state,EHS_FB_ID_state, state),
+#endif
+	/* state_condition.h state_debug.h  state_manager.h */
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_state_condition,EHS_FB_ID_state_condition, state_condition),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_state_debug,EHS_FB_ID_state_debug, state_debug),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_state_manager,EHS_FB_ID_state_manager, state_manager),
+	//EHS_BLOCKREF_ENTRY(EHS_FB_NAME_state,EHS_FB_ID_state, state),
 	/* stringfn.h */
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_CatString,EHS_FB_ID_CatString, string_cat),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_CmpString,EHS_FB_ID_CmpString, string_cmp),
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_LenString,EHS_FB_ID_LenString, string_len,NULL,NULL),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_string_format,EHS_FB_ID_string_format, string_format),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_string_format8,EHS_FB_ID_string_format8, string_format8),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_string_format8_int,EHS_FB_ID_string_format8_int, string_format8_int),
+#ifdef EHS_TARGET_FP_SUPPORT
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_string_format8_real,EHS_FB_ID_string_format8_real, string_format8_real),
+#endif
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_stringfn_scan8,EHS_FB_ID_stringfn_scan8, stringfn_scanf8),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_FindString,EHS_FB_ID_FindString, string_find),
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_ToUpperString,EHS_FB_ID_ToUpperString, string_toUpper,NULL,NULL),

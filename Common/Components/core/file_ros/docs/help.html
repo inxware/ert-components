@@ -1,229 +1,233 @@
 <html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container"> <span class="toc_span">FILE_ReadOnly_String</span>
+        <!--these display in reverse order because they use float:right--> <span
 
-<head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
-</head>
+          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
 
-<body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">FILE_ReadOnly_String</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
+
+            href="#ports">Ports &#8595;</a></span> </div>
+      <!--General Description-->
+      <p class="component"> This components is used to read string data from a
+        file. The data presented to the input port <a href="#[In]path">[In]path</a>
+        specifies the path of the file to open. The path is relative to the User
+        Data directory, "userdata", in the eRT installation directory. If no
+        data is presented to <a href="#[In]path">[In]path</a> then the file
+        path is specified using the File name parameter. </p>
+      <p class="component"> It is also possible to specify an absolute path for
+        the file by prefixing "localhost:" to the file path. <b>Users are
+          advised not to use this method as the absolute file path is device
+          dependent.</b> </p>
+      <p class="component"> The data in the file can be structured in a number
+        of ways. The Field Width parameter is used to indicate that the data is
+        of a fixed width format with each data item consisting of <i>n</i>
+        characters where <i>n</i> is the Field Width. A Field Width of "0"
+        indicates that the data is not of a fixed width format. The Delimiter
+        parameter specifies the delimiting character for separating data items
+        in the file. Please note that the delimiter must be enclosed in brackets
+        so that "( )" indicates the use of a single space as a delimiter and
+        "(\n)" denotes the use of a line break as a delimiter. A Delimiter
+        parameter of "()" or "" indicates that no delimiter is used in the file.
+      </p>
+      <p class="component"> The data must be either delimited or of a fixed
+        width format or a combination of the two. A combination of Field Width
+        and Delimiter parameters can be used to indicate that the data is
+        delimited by a special character but to only read in the first <i>n</i>
+        characters of each data item and discard any additional characters where
+        <i>n</i> is the Field Width. </p>
+      <p class="component"> Each data item is read in one item at a time when
+        the input event <a href="#[In]read">[In]read</a> is asserted and the
+        data item is presented to the data output <a href="#[Out]data">[Out]data</a>.
+        The file must be opened before it can be read using the input event <a
+
+          href="#[In]open">[In]open</a>. If there is an error when opening,
+        closing or reading the file then an error code is presented to the data
+        output <a href="#[Out]err%20code">[Out]err code</a> and the
+        corresponding error event is asserted. </p>
+      <p class="component"> The file is closed when the input event <a href="#[In]close">[In]close</a>
+        is asserted and is released by this process. Please note that the input
+        event <a href="#[In]open">[In]open</a> closes a previously opened file
+        before opening another. Therefore if multiple files are being read
+        sequentially, it is not necessary to trigger the input event <a href="#[In]close">[In]close</a>
+        inbetween the opening, and reading of, each file. </p>
+      <!--Parameters - form - short desc: long desc-->
+      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+      <table class="table_params">
+        <tbody>
+          <tr>
+            <th style="width:60px;">name</th>
+            <th>type</th>
+            <th>default</th>
+            <th>min.</th>
+            <th>max.</th>
+            <th>description</th>
+          </tr>
+          <tr>
+            <td>File name</td>
+            <td>S</td>
+            <td>out.txt</td>
+            <td>None</td>
+            <td>None</td>
+            <td>The input file path.</td>
+          </tr>
+          <tr>
+            <td>Field Width</td>
+            <td>I</td>
+            <td>0</td>
+            <td>0</td>
+            <td>100</td>
+            <td>Fixed Width data structure.</td>
+          </tr>
+          <tr>
+            <td>Delimiter</td>
+            <td>S</td>
+            <td>()</td>
+            <td>None</td>
+            <td>None</td>
+            <td>Character used to delimit data, in the form "(x)" where "x" is
+              the delimiter.</td>
+          </tr>
+        </tbody>
+      </table>
+      <!--Ports - form - short desc: long desc-->
+      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
+
+          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
+
+            href="#parameters">Params &#8593; </a></span> </div>
+      <table class="table">
+        <tbody>
+          <tr>
+            <th>In Ev.</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[In]open">open</a></td>
+            <td>Input event, opens the file in preparation for reading.</td>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[In]close">close</a></td>
+            <td>Input event, closes the file and releases it.</td>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[In]read">read</a></td>
+            <td>Input event, reads a data item from the file.</td>
+          </tr>
+          <tr>
+            <th>Data In</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[In]path">path</a></td>
+            <td>Data input, the file path, relative to the User Data directory,
+              of the file to open.</td>
+          </tr>
+          <tr>
+            <th>Data Out</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[Out]data">data</a></td>
+            <td>Data output, the data item read from the file.</td>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[Out]err code">err code</a></td>
+            <td>Data output, an error code produced if the input events open,
+              close or read fail.</td>
+          </tr>
+          <tr>
+            <th>Out Ev.</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[Out]..">..</a></td>
+            <td>Output event, triggered if the file is opened succesfully.</td>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[Out]err">err</a></td>
+            <td>Output event, triggered if there is an error opening the file.</td>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[Out]..">..</a></td>
+            <td>Output event, triggered if the file is closed succesfully.</td>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[Out]err">err</a></td>
+            <td>Output event, triggered if there is an error closing the file.</td>
+          </tr>
+          <tr>
+            <td class="ports"><a name="[Out]..">..</a></td>
+>Output event, triggered if there is an error reading the file.</td>
+          </tr>
+          <tr>
+            <td>inc</td>
+            <td>Asserted if and only if an increment event is received and the
+              count is less than the maximum threshold.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
+
+          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
+
+            href="#parameters">Params &#8593; </a></span> </div>
+      <table>
+        <tbody>
+          <tr class="fsm_row">
+            <td style="width:90px;"> <b>State Machine</b> </td>
+            <td colspan="5">
+              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>
+          &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+          <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
+              <br>
+            </td>
+            <td> <br>
+            </td>
+            <td> <br>
+            </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Toolbox</b> </td>
+            <td> Core </td>
+            <td class="heading-cell"> <b>Version</b> </td>
+            <td> v1.0. </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Licence Type</b> </td>
+            <td> MPL2.0 </td>
+            <td class="heading-cell"> <b>Component Supplier</b> </td>
+            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+            </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Minumum DCC</b> </td>
+            <td>A0000</td>
+            <td class="heading-cell"> <b>Profiles</b> </td>
+            <td> All. </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <!--General Description-->
-    <p class=component>
-      This components is used to read string data from a file. The data presented to the input port <a href="#[In]path">[In]path</a> specifies the path of the file to open. The path is relative to the User Data directory, "userdata", in the EHS installation directory. If no data is presented to <a href="#[In]path">[In]path</a> then the file path is specified using the File name parameter.
-    </p>
-    <p class=component>
-      It is also possible to specify an absolute path for the file by prefixing "localhost:" to the file path. <b>Users are advised not to use this method as the absolute file path is device dependent.</b>
-    </p>
-    <p class=component>
-      The data in the file can be structured in a number of ways. The Field Width parameter is used to indicate that the data is of a fixed width format with each data item consisting of <i>n</i> characters where <i>n</i> is the Field Width. A Field Width of "0" indicates that the data is not of a fixed width format. The Delimiter parameter specifies the delimiting character for separating data items in the file. Please note that the delimiter must be enclosed in brackets so that "( )" indicates the use of a single space as a delimiter and "(\n)" denotes the use of a line break as a delimiter. A Delimiter parameter of "()" or "" indicates that no delimiter is used in the file.
-    </p>
-    <p class=component>
-      The data must be either delimited or of a fixed width format or a combination of the two. A combination of Field Width and Delimiter parameters can be used to indicate that the data is delimited by a special character but to only read in the first <i>n</i> characters of each data item and discard any additional characters where <i>n</i> is the Field Width.
-    </p>
-    <p class=component>
-      Each data item is read in one item at a time when the input event <a href="#[In]read">[In]read</a> is asserted and the data item is presented to the data output <a href="#[Out]data">[Out]data</a>. The file must be opened before it can be read using the input event <a href="#[In]open">[In]open</a>. If there is an error when opening, closing or reading the file then an error code is presented to the data output <a href="#[Out]err code">[Out]err code</a> and the corresponding error event is asserted.
-    </p>
-    <p class=component>
-      The file is closed when the input event <a href="#[In]close">[In]close</a> is asserted and is released by this process. Please note that the input event <a href="#[In]open">[In]open</a> closes a previously opened file before opening another. Therefore if multiple files are being read sequentially, it is not necessary to trigger the input event <a href="#[In]close">[In]close</a> inbetween the opening, and reading of, each file.
-    </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-      <tr>
-        <td>File name</td>
-        <td>S</td>
-        <td>out.txt</td>
-        <td>None</td>
-        <td>None</td>
-        <td>The input file path.</td>
-      </tr>
-      <tr>
-        <td>Field Width</td>
-        <td>I</td>
-        <td>0</td>
-        <td>0</td>
-        <td>100</td>
-        <td>Fixed Width data structure.</td>
-      </tr>
-      <tr>
-        <td>Delimiter</td>
-        <td>S</td>
-        <td>()</td>
-        <td>None</td>
-        <td>None</td>
-        <td>Character used to delimit data, in the form "(x)" where "x" is the delimiter.</td>
-      </tr>
-    </table>
-
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]open">open</a></td>
-        <td>Input event, opens the file in preparation for reading.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]close">close</a></td>
-        <td>Input event, closes the file and releases it.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]read">read</a></td>
-        <td>Input event, reads a data item from the file.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]path">path</a></td>
-        <td>Data input, the file path, relative to the User Data directory, of the file to open.</td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]data">data</a></td>
-        <td>Data output, the data item read from the file.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]err code">err code</a></td>
-        <td>Data output, an error code produced if the input events open, close or read fail.</td>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]..">..</a></td>
-        <td>Output event, triggered if the file is opened succesfully.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]err">err</a></td>
-        <td>Output event, triggered if there is an error opening the file.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]..">..</a></td>
-        <td>Output event, triggered if the file is closed succesfully.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]err">err</a></td>
-        <td>Output event, triggered if there is an error closing the file.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]..">..</a></td>
-        <td>Output event, triggered if the file is read succesfully.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]err">err</a></td>
-        <td>Output event, triggered if there is an error reading the file.</td>
-      </tr>
-      <tr>
-        <td>inc</td>
-        <td>Asserted if and only if an increment event is received and the count is less than
-          the maximum threshold.</td>
-      </tr>
-    </table>
-
-
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
-          <span class="fsm_blob">state2</span>
-          &otimes;&nbsp;
-          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;
-          <span class="fsm_blob">state5</span> -->
-        </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
-          Core
-        </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
-          v1.0.
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
-          MPL2.0
-        </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
-          All.
-        </td>
-      </tr>
-    </table>
-
-  </div>
-</body>
-
+  </body>
 </html>

@@ -14,15 +14,11 @@
 #
 # Toolset specific 
 
-
-
-
-#We have floating Point
-LNKFLAGS+= -Wl,-lm
-
 ##
 ## Linker Options
 ##
+
+#LIBS+=m // this would be LIB+=m if actually needed here
 
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/toolchain.mk # toolchain is gnu
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/toolchain.mk # in case we have any linux extras..

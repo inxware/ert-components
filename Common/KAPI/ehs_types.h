@@ -47,7 +47,7 @@ typedef enum
 
 /*********************************************************************************************/
 /* Connection type definitions */
-typedef enum {EHS_TYPE_ID_INT = 'I', EHS_TYPE_ID_BOL = 'B', EHS_TYPE_ID_DBL = 'F', EHS_TYPE_ID_STR = 'S', EHS_TYPE_ID_UNDEF = 0xff} EhsDataTypeEnum;
+typedef enum {EHS_TYPE_ID_INT = 'I', EHS_TYPE_ID_BOL = 'B', EHS_TYPE_ID_DBL = 'F', EHS_TYPE_ID_STR = 'S', EHS_TYPE_ID_USR = 'U', EHS_TYPE_ID_UNDEF = 0xff} EhsDataTypeEnum;
 
 
 

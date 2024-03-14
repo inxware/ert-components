@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-26T13:20:06Z</CreationDate>
+        <UpdatedDate>2023-04-26T13:24:50Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription/>
+        <UserName/>
+        <Menu>
+            Software Structure
+            <Menu>
+                State Machine
+                <Menu>State Manager</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>State_Manager</Type>
+        <Width>65</Width>
+        <Height>55</Height>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>state_manager</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x4639</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>4222b77b</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>__nextStateId</Name>
+            <DataType>I</DataType>
+            <DefaultValue>-1</DefaultValue>
+            <MinValue>-2147483648</MinValue>
+            <MaxValue>2147483647</MaxValue>
+            <Description/>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>enabled</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>enable</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>enable</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>U</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>0</YCoordinate>
+            <CName/>
+            <UserPort>
+                <Type>StateMachine</Type>
+            </UserPort>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>state</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>state</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

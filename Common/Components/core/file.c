@@ -35,11 +35,11 @@
 
 EHS_FB_FUNCTIONS_START(FILE_ReadOnly_Bool)
 
-EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_ReadOnly_Bool", 0x00, FILE_ReadOnly_Bool_Open)
+EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_ReadOnly_Bool", 0x01, FILE_ReadOnly_Bool_Open)
 
-EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_ReadOnly_Bool", 0x01, FILE_ReadOnly_Bool_Close)
+EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_ReadOnly_Bool", 0x02, FILE_ReadOnly_Bool_Close)
 
-EHS_FB_FUNCTION_ENTRY("Run_ReadFILE_ReadOnly_Bool", 0x02, FILE_ReadOnly_Bool_Read)
+EHS_FB_FUNCTION_ENTRY("Run_ReadFILE_ReadOnly_Bool", 0x03, FILE_ReadOnly_Bool_Read)
 EHS_FB_FUNCTIONS_END
 
 
@@ -254,11 +254,11 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_Bool_Read)
 
 EHS_FB_FUNCTIONS_START(FILE_WriteOnly_Bool)
 
-EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_WriteOnly_Bool", 0x00, FILE_WriteOnly_Bool_Open)
+EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_WriteOnly_Bool", 0x01, FILE_WriteOnly_Bool_Open)
 
-EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_WriteOnly_Bool", 0x01, FILE_WriteOnly_Bool_Close)
+EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_WriteOnly_Bool", 0x02, FILE_WriteOnly_Bool_Close)
 
-EHS_FB_FUNCTION_ENTRY("Run_WriteFILE_WriteOnly_Bool", 0x02, FILE_WriteOnly_Bool_Write)
+EHS_FB_FUNCTION_ENTRY("Run_WriteFILE_WriteOnly_Bool", 0x03, FILE_WriteOnly_Bool_Write)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -487,11 +487,11 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_Bool_SetName)
 
 EHS_FB_FUNCTIONS_START(FILE_ReadOnly_Float)
 
-EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_ReadOnly_Real", 0x00, FILE_ReadOnly_Float_Open)
+EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_ReadOnly_Real", 0x01, FILE_ReadOnly_Float_Open)
 
-EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_ReadOnly_Real", 0x01, FILE_ReadOnly_Float_Close)
+EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_ReadOnly_Real", 0x02, FILE_ReadOnly_Float_Close)
 
-EHS_FB_FUNCTION_ENTRY("Run_ReadFILE_ReadOnly_Real", 0x02, FILE_ReadOnly_Float_Read)
+EHS_FB_FUNCTION_ENTRY("Run_ReadFILE_ReadOnly_Real", 0x03, FILE_ReadOnly_Float_Read)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -725,11 +725,11 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_Float_Read)
 
 EHS_FB_FUNCTIONS_START(FILE_WriteOnly_Float)
 
-EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_WriteOnly_Real", 0x00, FILE_WriteOnly_Float_Open)
+EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_WriteOnly_Real", 0x01, FILE_WriteOnly_Float_Open)
 
-EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_WriteOnly_Real", 0x01, FILE_WriteOnly_Float_Close)
+EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_WriteOnly_Real", 0x02, FILE_WriteOnly_Float_Close)
 
-EHS_FB_FUNCTION_ENTRY("Run_WriteFILE_WriteOnly_Real", 0x02, FILE_WriteOnly_Float_Write)
+EHS_FB_FUNCTION_ENTRY("Run_WriteFILE_WriteOnly_Real", 0x03, FILE_WriteOnly_Float_Write)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -999,11 +999,11 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_Float_SetName)
 
 EHS_FB_FUNCTIONS_START(FILE_ReadOnly_Int)
 
-EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_ReadOnly_Int", 0x00, FILE_ReadOnly_Int_Open)
+EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_ReadOnly_Int", 0x01, FILE_ReadOnly_Int_Open)
 
-EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_ReadOnly_Int", 0x01, FILE_ReadOnly_Int_Close)
+EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_ReadOnly_Int", 0x02, FILE_ReadOnly_Int_Close)
 
-EHS_FB_FUNCTION_ENTRY("Run_ReadFILE_ReadOnly_Int", 0x02, FILE_ReadOnly_Int_Read)
+EHS_FB_FUNCTION_ENTRY("Run_ReadFILE_ReadOnly_Int", 0x03, FILE_ReadOnly_Int_Read)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1225,11 +1225,11 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_Int_Read)
 
 EHS_FB_FUNCTIONS_START(FILE_WriteOnly_Int)
 
-EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_WriteOnly_Int", 0x00, FILE_WriteOnly_Int_Open)
+EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_WriteOnly_Int", 0x01, FILE_WriteOnly_Int_Open)
 
-EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_WriteOnly_Int", 0x01, FILE_WriteOnly_Int_Close)
+EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_WriteOnly_Int", 0x02, FILE_WriteOnly_Int_Close)
 
-EHS_FB_FUNCTION_ENTRY("Run_WriteFILE_WriteOnly_Int", 0x02, FILE_WriteOnly_Int_Write)
+EHS_FB_FUNCTION_ENTRY("Run_WriteFILE_WriteOnly_Int", 0x03, FILE_WriteOnly_Int_Write)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1489,11 +1489,11 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_Int_SetName)
 
 EHS_FB_FUNCTIONS_START(FILE_ReadOnly_String)
 
-EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_ReadOnly_String", 0x00, FILE_ReadOnly_String_Open)
+EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_ReadOnly_String", 0x01, FILE_ReadOnly_String_Open)
 
-EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_ReadOnly_String", 0x01, FILE_ReadOnly_String_Close)
+EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_ReadOnly_String", 0x02, FILE_ReadOnly_String_Close)
 
-EHS_FB_FUNCTION_ENTRY("Run_ReadFILE_ReadOnly_String", 0x02, FILE_ReadOnly_String_Read)
+EHS_FB_FUNCTION_ENTRY("Run_ReadFILE_ReadOnly_String", 0x03, FILE_ReadOnly_String_Read)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1748,11 +1748,11 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_String_Read)
 
 EHS_FB_FUNCTIONS_START(FILE_WriteOnly_String)
 
-EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_WriteOnly_String", 0x00, FILE_WriteOnly_String_Open)
+EHS_FB_FUNCTION_ENTRY("Run_OpenFILE_WriteOnly_String", 0x01, FILE_WriteOnly_String_Open)
 
-EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_WriteOnly_String", 0x01, FILE_WriteOnly_String_Close)
+EHS_FB_FUNCTION_ENTRY("Run_CloseFILE_WriteOnly_String", 0x02, FILE_WriteOnly_String_Close)
 
-EHS_FB_FUNCTION_ENTRY("Run_WriteFILE_WriteOnly_String", 0x02, FILE_WriteOnly_String_Write)
+EHS_FB_FUNCTION_ENTRY("Run_WriteFILE_WriteOnly_String", 0x03, FILE_WriteOnly_String_Write)
 EHS_FB_FUNCTIONS_END
 
 /**

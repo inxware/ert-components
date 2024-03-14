@@ -1,99 +1,184 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>ICalc_8</Class>
-  <Menu>Math
-    <Menu>calculation
-      <Menu>int (8 input)</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>Integer Operations on a,b,c,d,e,f,g,h. supports +,-,*,/,%,^,abs(x),square(y),min(x,y),max(x,y),sin(output mult, angle),cos(output mult, angle)</LongDescription>
-  <Parameter>
-    <Name>Expression</Name>
-    <DataType>S</DataType>
-    <Description>The expression to calculate</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Port>
-    <DataType>I</DataType>
-    <Description>A</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>B</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <FunctionName argument="2">run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>C</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>60</YCoordinate>
-    <FunctionName argument="3">run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>D</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>75</YCoordinate>
-    <FunctionName argument="4">run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>E</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>90</YCoordinate>
-    <FunctionName argument="5">run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>F</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>105</YCoordinate>
-    <FunctionName argument="6">run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>G</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>120</YCoordinate>
-    <FunctionName argument="7">run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>H</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>135</YCoordinate>
-    <FunctionName argument="8">run</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>50</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="9">run</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">run</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>50</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="10">run</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>Integer Operations on a,b,c,d,e,f,g,h. supports +,-,*,/,%,^,abs(x),square(y),min(x,y),max(x,y),sin(output mult, angle),cos(output mult, angle)</LongDescription>
+        <UserName/>
+        <Menu>
+            Math
+            <Menu>
+                Calculation
+                <Menu>int (8 input)</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>40</Width>
+        <Height>115</Height>
+        <Text>Calc</Text>
+        <TextX>5</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>ICalc_8</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x93BE</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>9591337f</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Expression</Name>
+            <DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>The expression to calculate</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>run</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <DataType>I</DataType>
+            <Description>A</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>A</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>B</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>B</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>C</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>C</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>D</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <CName>D</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>E</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>E</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>F</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>F</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>G</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>G</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>H</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>H</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

@@ -14,28 +14,28 @@
 # 
 
 
-gui_image_file.h : 
+inx-gui_image_file.h : 
 
 guileds.h : 
 
 guiparams.h :  graphics.h 
 
-guipatch.h : 
+inx-gui_patch.h : 
 
-guitextbox2.h : 
+inx-gui_widget.h : 
 
 guiviewport.h : 
 
-gui_components.$(OBJ) :  gui_image_file.h guitextbox2.h guipatch.h gui_image_file.h guiviewport.h guileds.h
+gui_components.$(OBJ) :  inx-gui_image_file.h inx-gui_widget.h inx-gui_patch.h guiviewport.h guileds.h
 
-gui_image_file.$(OBJ) : target.h gui_image_file.h guiparams.h   widget.h hal-api.h
+inx-gui_image_file.$(OBJ) : target.h inx-gui_image_file.h guiparams.h widget.h hal-api.h
 
-guileds.$(OBJ) : target.h guileds.h    hal_string.h 
+guileds.$(OBJ) : target.h guileds.h  hal_string.h 
 
-guiparams.$(OBJ) : target.h guiparams.h   hal_string.h font.h
+guiparams.$(OBJ) : target.h guiparams.h hal_string.h font.h
 
-guipatch.$(OBJ) : target.h guipatch.h guiparams.h   widget.h   hal-api.h
+inx-gui_patch.$(OBJ) : target.h inx-gui_patch.h guiparams.h   widget.h   hal-api.h
 
-guitextbox2.$(OBJ) : target.h guitextbox2.h guiparams.h  widget.h font.h   hal-api.h
+inx-gui_widget.$(OBJ) : target.h inx-gui_widget.h guiparams.h  widget.h font.h   hal-api.h
 
 guiviewport.$(OBJ) : target.h guiviewport.h guiparams.h   widget.h widget_viewport.h   hal-api.h

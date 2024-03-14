@@ -155,8 +155,8 @@ typedef EhsThreadFuncReturnType (*EhsThreadFuncType)(struct EhsFunctionInstanceD
 #define EHS_FB_RUN_CONTEXT_REF (pFIdata) // @todo This should be called something else - it is used instead of EHS_FB_RUN_FUNCTION_INSTANCE - it only happens to be the same address as the object data pointer
 #define EHS_FB_RUN_FUNCTION_INSTANCE (pFIdata) //PUBLIC
 /* Executing threaded functions conforming to EHS_FB_RUN contexts (i.e. to access object data and ports for the calling RUN context)*/
-#define EHS_FB_START_THREAD(x,pri) EhsTPThread_execute(EHS_FB_THREAD_NAME(x), (EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,pri)
-#define EHS_FB_START_THREAD_ARGS(x,pri,...) EhsTPThread_execute(EHS_FB_THREAD_NAME(x), (EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,pri,__VA_ARGS__)
+#define EHS_FB_START_THREAD(x,pri) EhsTPThread_execute(EHS_FB_THREAD_NAME(x), (EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,pri,EHS_THREAD_USE_DEFAULT_STACK_SIZE)
+#define EHS_FB_START_THREAD_ARGS(x,pri,...) EhsTPThread_execute(EHS_FB_THREAD_NAME(x), (EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,pri,EHS_THREAD_USE_DEFAULT_STACK_SIZE,__VA_ARGS__)
 /* Executing non threaded functions conforming to EHS_FB_RUN contexts (i.e. to access object data and ports for the calling RUN context)*/
 #define EHS_FB_START_RUN_FUNCTION(x) EHS_FB_RUN_NAME(x) ((EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF)
 #define EHS_FB_START_RUN_FUNCTION_ARGS(x,...) EHS_FB_RUN_NAME(x) ((EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,__VA_ARGS__)
@@ -175,7 +175,7 @@ typedef struct
 #ifndef EHRT1
     const ehs_char szName[EHS_FUNCTION_SIZE]; /**< Function name */
 #else
-    const ehs_uint16 szName; /**< Function name */
+    const ehs_uint8 szName; /**< Function name */
 #endif
     EhsRunFuncType fpRunFunc; /**< Pointer to the function corresponding to the name */
 } EhsFuncRefType;
@@ -189,10 +189,11 @@ typedef struct
 #define EHS_FB_FUNCTIONS_START(fb) EhsFuncRefType EHS_FB_FUNCTABLE_NAME(fb)[] = {
 #ifdef EHRT1
 #define EHS_FB_FUNCTION_ENTRY(n,i,f) {i,EHS_FB_RUN_NAME(f)},
+#define EHS_FB_FUNCTIONS_END {0} };
 #else
 #define EHS_FB_FUNCTION_ENTRY(n,i,f) {n,EHS_FB_RUN_NAME(f)},
+#define EHS_FB_FUNCTIONS_END {{0}} };
 #endif
-#define EHS_FB_FUNCTIONS_END {{0}}};
 
 #define EHS_FB_FUNCTIONS(fb) EHS_GLOBAL EhsFuncRefType EHS_FB_FUNCTABLE_NAME(fb)[];
 
@@ -241,6 +242,7 @@ typedef ehs_sint32 EhsDataflowIntType;
 typedef ehs_bool EhsDataflowBoolType;
 typedef ehs_char* EhsDataflowStringType;
 typedef double EhsDataflowFloatType;
+typedef void* EhsDataflowUserType;
 
 /*********************************************************************************************/
 /* Connection macros used by components */
@@ -276,6 +278,11 @@ typedef double EhsDataflowFloatType;
 #define EHS_FB_IN_S(x) (char*)EHS_FB_IN(x)
 
 /**
+ * Get input x as a user data
+ */
+#define EHS_FB_IN_U(x) *(EhsDataflowUserType*)EHS_FB_IN(x)
+
+/**
  * Check whether output x is connected or not
  */
 #define EHS_FB_OUT_CONNECTED(x) ((EHS_FB_RUN_FUNCTION_INSTANCE->pOut) && (EHS_FB_OUT(x) != EhsDataConnectionTable.xDummy))
@@ -304,6 +311,11 @@ typedef double EhsDataflowFloatType;
  * Get output x as a string
  */
 #define EHS_FB_OUT_S(x) (char*)EHS_FB_OUT(x)
+
+/**
+ * Get output x as a user
+ */
+#define EHS_FB_OUT_U(x) *(EhsDataflowUserType*)EHS_FB_OUT(x)
 
 /**
  * Assert event x

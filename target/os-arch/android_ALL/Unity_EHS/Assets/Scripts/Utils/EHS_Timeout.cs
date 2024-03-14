@@ -8,8 +8,10 @@ public class EHS_Timeout : EHS_Timer
         Start();
     }
 
-    public void SetTimeout(float timeout){ 
-        this.timeout = timeout;
+    public void SetTimeout(float timeout){
+        lock(this){
+            this.timeout = timeout;
+        }
     }
 
     public bool Timeout(){

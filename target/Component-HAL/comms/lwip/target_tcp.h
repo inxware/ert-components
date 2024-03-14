@@ -17,7 +17,7 @@
 #ifndef EHS_TARGET_TCP_H
 #define EHS_TARGET_TCP_H
 
-#include "target.h"
+#include "globals.h"
 
 #ifdef EHS_DEBUG_TCPIP_CONSOLE
 #include "console_queue.h"
@@ -34,9 +34,15 @@
 //#define EHS_TGT_TCP_LOG_ENABLED //default off
 @todo this should go into the main debug condfig header file
 */
-#define EHS_TGT_TCP_OUT_BUFF_SIZE  64u	/**< Size of buffer to use when sending to TCP/IP */
-#define EHS_TGT_TCP_IN_BUFF_SIZE  32u	/**< Size of buffer to use when receiving from TCP/IP */
-#define EHS_TGT_TCP_PORTNUM  11425u			/**< Port number to use for receiving TCP/IP connections */
+#ifndef EHS_TGT_TCP_OUT_BUFF_SIZE
+#define EHS_TGT_TCP_OUT_BUFF_SIZE 128u /**< Size of buffer to use when sending to TCP/IP */
+#endif
+
+#ifndef EHS_TGT_TCP_IN_BUFF_SIZE
+#define EHS_TGT_TCP_IN_BUFF_SIZE 128u	/**< Size of buffer to use when receiving from TCP/IP */
+#endif
+
+#define EHS_TGT_TCP_PORTNUM 11425u			/**< Port number to use for receiving TCP/IP connections */
 
 #define EHS_TGT_TCP_LISTENTIME_us 20000u /**< Time to listen (uS) for incoming TCP/IP data */
 #define EHS_TGT_TCP_SUSPENDTIME_us 20000u /**< Time to sleep (uS) to allow main EHS thread to do processing */

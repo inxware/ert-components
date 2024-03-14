@@ -39,12 +39,16 @@
 /* Included files */
 
 #include <sys/types.h> /* required for recv */
-#include <string.h> /* required for memset */
+//#include <string.h> /* required for memset */
+#include <string.h> // todo2024 - needed for memset, but we should abstract this in the hal.
+
 #include "target_tcp.h"
 #include "hal.h"
 #include "target.h"
+#include "hal_string.h"
+#include "hal_logger.h"
 
-
+// need to include these after ert hal for some reason?? e.g. setting gnu options?
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #include <arpa/inet.h>

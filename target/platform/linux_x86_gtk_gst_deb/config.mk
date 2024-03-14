@@ -30,14 +30,7 @@ SYSTEM_VARIANT=debian
 ################################################################################################################
 # Set ALL debug use this:
 #DEBUG OPTIONS
-#EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-# Or use one of the more fine-grained debug congurations
-# Or enable only stdout & serial console logging
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
 EHS_DEBUGALL=yes
-endif
 
 #use gst 0.10 fpr this build
 DEFS += EHS_GST_010

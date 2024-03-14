@@ -224,13 +224,13 @@ static void inxUnityRemoveWidget(inx_unity2_state_type* pState)
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(unity2)
 
-EHS_FB_FUNCTION_ENTRY("create", 0x00, unity2_create)
+EHS_FB_FUNCTION_ENTRY("create", 0x01, unity2_create)
 
-EHS_FB_FUNCTION_ENTRY("destroy", 0x01, unity2_destroy)
+EHS_FB_FUNCTION_ENTRY("destroy", 0x02, unity2_destroy)
 
-EHS_FB_FUNCTION_ENTRY("setmedia", 0x02, unity2_setmedia)
+EHS_FB_FUNCTION_ENTRY("setmedia", 0x03, unity2_setmedia)
 
-EHS_FB_FUNCTION_ENTRY("stop", 0x03, unity2_stop)
+EHS_FB_FUNCTION_ENTRY("stop", 0x04, unity2_stop)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -502,7 +502,7 @@ EHS_FB_RUN_FUNCTION(unity2_stop)
 EhsThreadFuncReturnType EhsUnityStartBlocking()
 {
 #ifdef EHS_MINGW
-    ehs_char* argv[] = { "ehs_data\\dummy\\dummy","" }; /* @todo this make the user app data in the root of the sdcard -might want something else here... */
+    ehs_char* argv[] = { "..\\dummy\\dummy","" }; /* @todo this make the user app data in the root of the sdcard -might want something else here... */
 #else
     ehs_char* argv[] = { "/sdcard/bin/ehs.exe","" }; /* @todo this make the user app data in the root of the sdcard -might want something else here... */
 #endif
@@ -550,10 +550,5 @@ EHS_UNITY_EXPORT ehs_bool EhsUnityEvent(char* id,char* event)
 
 EHS_UNITY_EXPORT void EhsUnityStartAsync()
 {
-#ifdef EHS_MINGW
-
-    freopen("debug.txt", "a", stdout);
-    freopen("debug_err.txt", "a", stderr);
-#endif
-    EhsHThread_execute(EhsUnityStartBlocking, NULL, 0);
+    EhsHThread_execute(EhsUnityStartBlocking, NULL, 0, EHS_THREAD_USE_DEFAULT_STACK_SIZE);
 }

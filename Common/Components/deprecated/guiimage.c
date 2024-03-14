@@ -40,15 +40,15 @@
 
 EHS_FB_FUNCTIONS_START(GUI_Image)
 
-EHS_FB_FUNCTION_ENTRY("RunGUI_LoadImage", 0x00, GUI_Image_create)
+EHS_FB_FUNCTION_ENTRY("RunGUI_LoadImage", 0x01, GUI_Image_create)
 
-EHS_FB_FUNCTION_ENTRY("DestroyGUI_Image", 0x01, GUI_Image_destroy)
+EHS_FB_FUNCTION_ENTRY("DestroyGUI_Image", 0x02, GUI_Image_destroy)
 
-EHS_FB_FUNCTION_ENTRY("RealizeGUI_Image", 0x02, GUI_Image_show)
+EHS_FB_FUNCTION_ENTRY("RealizeGUI_Image", 0x03, GUI_Image_show)
 
-EHS_FB_FUNCTION_ENTRY("UnrealizeGUI_Image", 0x03, GUI_Image_hide)
+EHS_FB_FUNCTION_ENTRY("UnrealizeGUI_Image", 0x04, GUI_Image_hide)
 
-EHS_FB_FUNCTION_ENTRY("RunGUI_MoveImage", 0x04, GUI_Image_update)
+EHS_FB_FUNCTION_ENTRY("RunGUI_MoveImage", 0x05, GUI_Image_update)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_GUIIMAGE_IN_X 0		/**< Function block input for X offset */

@@ -1,0 +1,274 @@
+<html>
+
+<head>
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+</head>
+
+<body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">lorawan</span>
+      <!--these display in reverse order because they use float:right-->
+      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+    </div>
+
+    <!--General Description-->
+    <p class=component>
+    OTAA LoRaWAN module
+    </p>
+    <p class=component>
+    This function block describes the LoRaWAN communication with external LoRaWAN module. The communication between the platform and this module is UART. The UART port on the platform is hardware to the first instance (e.g. UART0). The authentication mode is OTAA mode only. This is Class C (continuous) LoRaWAN communication only.
+    </p>
+
+    <!--Parameters - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="parameters" class="toc_span">Parameters</span>
+      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
+      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
+      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
+    </div>
+    <table class="table_params">
+      <tr>
+        <th  style="width:60px;">name</th>
+        <th>type</th>
+        <th>default</th>
+        <th>min.</th>
+        <th>max.</th>
+        <th>description</th>
+      </tr>
+      <tr>
+        <td>Target</td>
+        <td>I</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>The LoRaWAN target module. Default to 0 (WIO-E5). 0 for Wio-E5.</td>
+      </tr>
+      <tr>
+        <td>Mode</td>
+        <td>B</td>
+        <td>False</td>
+        <td>None</td>
+        <td>None</td>
+        <td>The connection mode of LoRaWAN. 0 for OTAA, 1 for ABP. Default to 0 (OTAA).</td>
+      </tr>
+      <tr>
+        <td>Region</td>
+        <td>S</td>
+        <td>EU868</td>
+        <td>None</td>
+        <td>None</td>
+        <td>Region Parameters of LoRaWAN communications. Default to "EU868". The options are: "EU868", "US915", "CN779", "EU433", "AU915", "CN470", "AS923", "KR920", "IN865", "RU864", "STE920".</td>
+      </tr>
+      <tr>
+        <td>REPT</td>
+        <td>I</td>
+        <td>1</td>
+        <td>1</td>
+        <td>15</td>
+        <td>Unconfirmed message repeat time. From 1 to 15.</td>
+      </tr>
+      <tr>
+        <td>RETRY</td>
+        <td>I</td>
+        <td>3</td>
+        <td>0</td>
+        <td>254</td>
+        <td>Confirmed message retry times. From 0 to 254.</td>
+      </tr>
+    </table>
+
+    <!--Ports - form - short desc: long desc-->
+    <div class="section_heading">
+      <span id="ports" class="toc_span">Ports</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+    <table class="table">
+      <tr>
+        <th>In Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]connect">connect</a></td>
+        <td>Connect to LoRaWAN server</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]send_msg"></a>send_msg</td>
+        <td>Send message to a connected LoRaWAN server</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]reset">reset</a></td>
+        <td>Reset the LoRaWAN module</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]get_data">get_data</a></td>
+        <td>Get the module specific data in JSON string and DevEui</td>
+      </tr>
+      <tr>
+        <th >Data In</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]AppKey">AppKey</a></td>
+        <td>OTAA AppKey for connection. Used only when Mode=False.</td>
+
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]AppEui">AppEui</a></td>
+        <td>OTAA AppEui for connection. Used only when Mode=False.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]DevAddr_ABP">DevAddr_ABP</a></td>
+        <td>ABP DevAddr_ABP for connection. Used only when Mode=True.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]AppSKey">AppSKey</a></td>
+        <td>ABP AppSKey (App Session Key) for connection. Used only when Mode=True.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]NwkSKey">NwkSKey</a></td>
+        <td>ABP NwkSKey (Network Session Key) for connection. Used only when Mode=True.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]msg_confirmed">msg_confirmed</a></td>
+        <td>Whether to send the unconfirmed or the confirmed message to the LoRaWAN server.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[In]payload">payload</a></td>
+        <td>The payload to be sent.</td>
+      </tr>
+      <tr>
+        <th >Data Out</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]DevAddr">DevAddr</a></td>
+        <td>The DevAddr after the connection</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]recv_msg">recv_msg</a></td>
+        <td>The received message</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]send_errCode">send_errCode</a></td>
+        <td>When message send fails, an error code returns to indicate the error type.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]status">status</a></td>
+        <td>The status data (e.g. temperature, voltage) ina JSON format.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]DevEui">DevEui</a></td>
+        <td>The DevEui of this LoRaWAN device</td>
+      </tr>
+      <tr>
+        <th >Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]connectionDone">ok</a></td>
+        <td>Connection complete without any error.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]connectionFail">fail</a></td>
+        <td>Connection Failed.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]received">received</a></td>
+        <td>Message is received from the LoRaWAN server.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]send_done">ok</a></td>
+        <td>Message sending completes without any error.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]send_fail">fail</a></td>
+        <td>Message sending encounters an error. An error code is returned.</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]resetDone">resetDone</a></td>
+        <td>LoRaWAN module reset completes</td>
+      </tr>
+      <tr>
+        <td class=ports><a name="[Out]data_got">ok</a></td>
+        <td>All the system status data is got.</td>
+      </tr>
+    </table>
+
+
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+     <table>
+      <tr class="fsm_row">
+        <td style="width:90px;">
+          <b>State Machine</b>
+        </td>
+        <td  colspan=5>
+        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
+          <span class="fsm_blob">state2</span>
+          &otimes;&nbsp;
+          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+          <span class="fsm_blob">state3</span> [doh]&rarr;
+          <span class="fsm_blob">state5</span> -->
+          None
+        </td>
+        <td>
+          <b></b>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Toolbox</b>
+        </td>
+        <td>
+          Core
+        </td>
+        <td class=heading-cell>
+          <b>Version</b>
+        </td>
+        <td>
+          v1.0.
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          MPL2.0
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Minumum DCC</b>
+        </td><td>A0000</td> 
+        <td class=heading-cell>
+          <b>Profiles</b>
+        </td>
+        <td>
+          All.
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+
+</html>

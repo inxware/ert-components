@@ -9,7 +9,7 @@
 
 ########################################################################
 ## add version information to the tree
-
+echo "XXXXXXXXXXXXXXXXXXXXX STARTING TARGETENV_CREATE_VERSION_INFO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 if [ -n "${1}" ]; then
    TARGET_BASE_DIR=../TARGET_TREES/ehs_env-$1
 else
@@ -95,9 +95,6 @@ git log -n 1| grep commit | sed 's/commit\s*\([0..9,a..f,A..F]*\)/\1/' >> $TARGE
 echo  "$SPECIFIC_TARGET" >> $TARGET_BASE_DIR/sysdata/version.nfo
 #write line 5
 echo  "EHS" >> $TARGET_BASE_DIR/sysdata/version.nfo
-########################################################################
-
-########################################################################
 if [ "${INC_VERSION}" == "yes" ];then
 VERSION_NAME="${MAJORMAJOR_V}.${MAJOR_V}.${MINOR_VV}-${TARGET}"
 # Create in repo SVN tag and give this a proper name
@@ -114,5 +111,5 @@ git tag -a ${VERSION_NAME} -m "Build ${VERSION_NAME} - ${TIME_STAMP}"
 #write the version info into the target tree
 echo Created Tag in svn repository
 fi
+echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-########################################################################

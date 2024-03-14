@@ -32,8 +32,8 @@ done
 
 touch 0000-done
 rm 0000-doing
-#Only reboot on updates - not suring an initial install as this upsets the OS installer, which will reboot afterwards anyway
 
+#Always reboot in first boot after applying the abive patches
 if [ -f /opt/ehs/userdata/0000-not-first-boot ]; then
 	reboot
 else

@@ -8,11 +8,12 @@
 ****************************************************************/
 
 /*
- * target_gpio.c will be selected for platforms with EHS_PERIPHERALS_GPIO=stubb
+ * target_gpio.c will be selected for platforms with EHS_PERIPHERALS_GPIO_SUPPORT=EHS_PERIPHERALS_GPIO_TYPE_STUBBED
  * GPIO operations are physically NOPs in tis mode to allow for application compatability 
  * where GPIO functions are optional or for target specific purposes. 
  */
 #include "ehs_types.h"
+#include "hal_gpio.h"
 
 /* todo2022-Intag-> Delete this block
 ehs_char gpio_path_buffer[GPIO_PATH_BUFFER_SIZE];
@@ -24,20 +25,6 @@ const ehs_char* get_path_GPIO(ehs_sint32 gpio, const ehs_char* type)
 }
 */
 
-ehs_bool set_output_GPIO(ehs_sint32 gpio)
-{
-    return EHS_TRUE;
-}
-
-ehs_bool set_input_GPIO(ehs_sint32 gpio)
-{
-    return EHS_TRUE;
-}
-
-ehs_bool set_value_GPIO(ehs_sint32 gpio, ehs_bool value)
-{
-    return EHS_TRUE;
-}
 
 ehs_bool get_value_GPIO(ehs_sint32 gpio, ehs_bool* value)
 {
@@ -45,33 +32,33 @@ ehs_bool get_value_GPIO(ehs_sint32 gpio, ehs_bool* value)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_sint32 pin_id)
+EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsWriteOutputGPIO(ehs_sint32 pin_id, ehs_bool value)
+EHS_GLOBAL ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsDestroyOutputGPIO(ehs_sint32 pin_id)
+EHS_GLOBAL ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsInitInputGPIO(ehs_sint32 pin_id)
+EHS_GLOBAL ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsReadInputGPIO(ehs_sint32 pin_id, ehs_bool* value)
+EHS_GLOBAL ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
-    *value = EHS_FALSE;
+    pGPIO->pin_value = EHS_FALSE;
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsDestroyInputGPIO(ehs_sint32 pin_id)
+EHS_GLOBAL ehs_bool EhsDestroyInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     return EHS_TRUE;
 }

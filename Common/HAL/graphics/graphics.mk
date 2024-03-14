@@ -25,34 +25,48 @@
 ##EHS_COMMON_KERNEL_GRAPHICS_PATH=$(EHS_COMMON_KERNEL_PATH)/graphics # this is common support code in the HAL.
 ##INC_DIRS+=$(EHS_COMMON_KERNEL_GRAPHICS_PATH)
 
+include $(EHS_COMMON_HAL_PATH)/graphics/deps.mk
+
+ifneq ($(EHS_RENDER_MODE),B)
+
 include $(EHS_COMMON_HAL_PATH)/graphics/png/png.mk
 
 include $(EHS_COMMON_HAL_PATH)/graphics/jpeg/jpg.mk
-
-include $(EHS_COMMON_HAL_PATH)/graphics/deps.mk
 
 ifdef EHS_GRAPHICS_SVG
 include $(EHS_COMMON_HAL_PATH)/graphics/svg/svg.mk
 endif
 
+endif #($(EHS_RENDER_MODE),B)
+
 #tell the code we are in business
 DEFS+=EHS_GUI_SUPPORT
 
 #GUI code objects to build and link
+ifndef EHS_DONT_USE_BASIC_FONTS
+	OBJECTS+= font.$(OBJ)
+else
+	DEFS+=EHS_DONT_USE_BASIC_FONTS
+endif
 
-OBJECTS+= font.$(OBJ)
 OBJECTS+= graphics.$(OBJ)
 OBJECTS+= html.$(OBJ)
 OBJECTS+= widget.$(OBJ)
+
+ifneq ($(EHS_RENDER_MODE),B)
+OBJECTS+= widget_textbox.$(OBJ)
 OBJECTS+= widget_image.$(OBJ)
 OBJECTS+= widget_image_png.$(OBJ)
-OBJECTS+= widget_textbox.$(OBJ)
-OBJECTS+= widget_patch.$(OBJ)
 OBJECTS+= widget_image_jpg.$(OBJ) 
-OBJECTS+=widget_image_gif.$(OBJ)
-OBJECTS+=widget_viewport.$(OBJ)
+OBJECTS+= widget_image_gif.$(OBJ)
+OBJECTS+= widget_patch.$(OBJ)
+endif
+OBJECTS+= widget_viewport.$(OBJ)
 #OBJECTS+=widget_video_port.$(OBJ)
 #OBJECTS+=widget_image_svg.$(OBJ)  //@tod will this work??
+
+# add extended ui widgets
+OBJECTS+= widget_ui.$(OBJ)
 
 VPATH+= $(EHS_COMMON_HAL_PATH)/graphics $(EHS_COMMON_HAL_PATH)/graphics/png
 

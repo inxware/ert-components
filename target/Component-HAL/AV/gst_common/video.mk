@@ -22,21 +22,16 @@
 #  INC_DIRS  - target-specific include paths
 #  VPATH - where to look for source code
 #  EHS_TARGET_AV_PATH - path to the current directory (set by platform makefile)
-#INC_DIRS += $(EHS_TARGET_AV_PATH)/../../../../vlc_source/include
-#INC_DIRS += $(EHS_TARGET_AV_PATH)/../../../../vlc_source/include/src
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/gstreamer-0.10
 # include sourcecode from this dir in build
 
 VPATH+=: $(EHS_TARGET_AV_PATH)/../gst_common
-#INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)# don't need this we'll reference in the .h
 INC_DIRS += $(EHS_TARGET_AV_PATH)/../gst_common
 
 include $(EHS_TARGET_AV_PATH)/../gst_common/deps.mk
 
-ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
-ifeq ($(EHS_DEBIAN_10),yes)
-INC_DIRS += /usr/include/gstreamer-1.0
-endif
+ifneq ($(EHS_HOST_DEBIAN_BUILD),)
+    INC_DIRS += /usr/include/gstreamer-1.0
 endif
 
 OBJECTS += target_dtv.$(OBJ) targetvideo_init.$(OBJ)

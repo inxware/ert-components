@@ -32,7 +32,7 @@
  * Longest possible path name (excluding filename, but including separators and
  * terminating zero).
  */
-#define EHS_TD_FILES_MAX_PATH 1024
+//#define EHS_TD_FILES_MAX_PATH 1024
 
 
 

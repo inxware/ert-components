@@ -19,7 +19,7 @@
 
 #include "arraystring.h"
 #include "globals.h"
-#include "target.h"
+//#include "target.h"
 /** @todo check which includes are required here */
 //#include "types.h"
 #include "setCompletes.h"
@@ -28,9 +28,10 @@
 
 EHS_FB_FUNCTIONS_START(ArrayString)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayStringRead", 0x00, ArrayStringRead)
-
 EHS_FB_FUNCTION_ENTRY("Run_ArrayStringWrite", 0x01, ArrayStringWrite)
+
+EHS_FB_FUNCTION_ENTRY("Run_ArrayStringRead", 0x02, ArrayStringRead)
+
 EHS_FB_FUNCTIONS_END
 
 /**

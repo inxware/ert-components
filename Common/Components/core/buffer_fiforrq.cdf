@@ -1,101 +1,188 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>FIFO_Real</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-    <Text>FIFO</Text>
-    <TextX>55</TextX>
-    <TextY>40</TextY>
-    <TextScale>1.3</TextScale>
-    <TextVertical>1</TextVertical>
-  </Block>
-  <Menu>Data Utilities
-    <Menu>Buffers
-      <Menu>FIFO
-        <Menu>real</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is a real fifo buffer.</LongDescription>
-  <Parameter>
-    <Name>Max. length</Name>
-    <DataType>I</DataType>
-    <DefaultValue>5</DefaultValue>
-    <MinValue>0</MinValue>
-    <MaxValue>1000000</MaxValue>
-    <Description>maximum buffer length</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Port>
-    <DataType>F</DataType>
-    <Description>data</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>75</YCoordinate>
-    <FunctionName argument="1">Run_PushFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <DataType>F</DataType>
-    <Description>data</Description>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>75</YCoordinate>
-    <FunctionName argument="1">Run_PopFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>pop</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">Run_PopFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>push</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>35</YCoordinate>
-    <FunctionName argument="0">Run_PushFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>flush</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>60</YCoordinate>
-    <FunctionName argument="0">Run_FlushFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>pop</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="2">Run_PopFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>err</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="3">Run_PopFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>push</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>35</YCoordinate>
-    <FunctionName argument="2">Run_PushFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>err</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <FunctionName argument="3">Run_PushFIFOReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>flush</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>60</YCoordinate>
-    <FunctionName argument="1">Run_FlushFIFOReal</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a real fifo buffer.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                Buffers
+                <Menu>
+                    FIFO
+                    <Menu>real</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>65</Width>
+        <Height>100</Height>
+        <Text>FIFO</Text>
+        <TextX>20</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>FIFO_Real</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xD54A</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>d24fa1f0</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Max. length</Name>
+            <DataType>I</DataType>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1000000</MaxValue>
+            <Description>maximum buffer length</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_PushFIFOReal</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Run_PopFIFOReal</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Run_FlushFIFOReal</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <DataType>F</DataType>
+            <Description>data</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>75</YCoordinate>
+            <CName>data</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>data</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>75</YCoordinate>
+            <CName>data</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>pop</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>pop</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>push</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <CName>push</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>flush</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>flush</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>pop</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>pop</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>push</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>push</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>flush</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>flush</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

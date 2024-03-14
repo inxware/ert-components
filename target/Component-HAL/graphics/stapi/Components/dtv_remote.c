@@ -27,15 +27,15 @@
 //#include "keypress.h"
 
 EHS_FB_FUNCTIONS_START(DtvRemote)
-EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvRemote)
 EHS_FB_FUNCTIONS_END
 
 EHS_FB_FUNCTIONS_START(DtvRemote1)
-EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvRemote)
 EHS_FB_FUNCTIONS_END
 
 EHS_FB_FUNCTIONS_START(DtvRemote2)
-EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote) /* shares the same run function as DtvRemote */
+EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvRemote) /* shares the same run function as DtvRemote */
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_DTV_REMOTE_RUN -1

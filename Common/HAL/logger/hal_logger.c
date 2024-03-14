@@ -36,13 +36,6 @@
 #include "hal_string.h"
 #include "messages.h"
 
-
-/* @todo We don't close the logging file - should do in EHS exit */
-
-#ifdef EHS_BUILDOPT_STDIO_ENABLE_FUNCTION_TRACING
-EHS_GLOBAL ehs_uint32 EhsTraceFlags = 0;
-#endif
-
 //#ifdef EHS_ANDROID  this is only needed in the hal_logger.h file?
 //#include <android/log.h>
 //#endif
@@ -105,7 +98,6 @@ ehs_char* EhsLModuleNames[] =
 };
 #endif
 
-
 /*****************************************************************************/
 /* Variables defined with global-scope */
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
@@ -161,7 +153,7 @@ void EhsHLogger_init()
     }
     if (nId != EHS_LOG_MODULE_QUANTITY)
     {
-        EhsError(EHSH_LOGGER_INVALID_NAMES_TABLE);
+        EHSH_LOG_ERROR(EHSH_LOGGER_INVALID_NAMES_TABLE);
     }
 #endif
 }
@@ -179,10 +171,10 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const
     if (nModule < EHSH_LOG_MODULE_UNDEFINED) nModule = EHSH_LOG_MODULE_UNDEFINED;
     if (nModule > EHS_LOG_MODULE_QUANTITY) nModule = EHSH_LOG_MODULE_UNDEFINED;
 
-    ehs_uint32 time;
+    ehs_uint32 time=0;
     //EhsStdioPrintf("LOGGING time=%d,level=%s nMod=%d nLevel%d] %s",0,"somelevel", nModule,nLevel,szMsg);
     const char* szLevel;
-    const char* szModule;
+    //const char* szModule;
     if (!(nLevel & nLogLevel))
     {
         goto end;
@@ -210,11 +202,11 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const
     }
     if (nModule < EHS_LOG_MODULE_QUANTITY)
     {
-        szModule = EhsLModuleNames[nModule];
+        //szModule = EhsLModuleNames[nModule];
     }
     else
     {
-        szModule = "undefined";
+        //szModule = "undefined";
         nModule = EHSH_LOG_MODULE_UNDEFINED;
     }
 #ifdef EHS_RUNTIME_FILELOGGER_ENABLED

@@ -22,10 +22,10 @@
     <p class=component>
       This function block provides a TCP IP ot UDP IP socket for connecting to IP ports on remote or local servers.  
     </p>
-    <p>
+    <p class=component>
       State behaviour: The component is stateful and must be in the open state to send or receive data (TCP or UDP) to and from a server. 
     </p>
-    <p>
+    <p class=component>
       Once a connection to a server is established data may be received from the server. Further data may be sent by the server in following packets. There is no marshalling of data by the function block and overruns are possible with large data packets! 
     </p>      
     <!--Parameters - form - short desc: long desc-->
@@ -130,11 +130,7 @@
         <td class=ports><a name=[Out]Received>Received</a></td>
         <td>Asserted when a data respose is received from a server. Only active when the port is opnened (even in UDP mode).</td>
       </tr>
-      <tr>
-        <td>inc</td>
-        <td>Asserted if and only if an increment event is received and the count is less than
-          the maximum threshold.</td>
-      </tr>
+
     </table>
 
 

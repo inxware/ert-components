@@ -18,6 +18,8 @@
 #ifndef EHS_OPERATOR_FUNCTIONS1_H
 #define EHS_OPERATOR_FUNCTIONS1_H
 
+#include "ehs_fb_types.h"
+
 /******************************************************************************/
 /* Declare 2-input integer addition */
 

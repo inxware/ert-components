@@ -65,6 +65,7 @@
 
 /* Use this to set the log level of each component */
 /* todo we should have  this overridden for different tarets? */
+#ifndef EHS_LOGLEVEL_VERBOSE
 void EhsHSetLogLevels()
 {
     EhsHLogger_setLogLevel("Kernel",EHSH_LOG_LEVEL_ERROR);
@@ -80,6 +81,24 @@ void EhsHSetLogLevels()
     EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO);
     EhsHLogger_setLogLevel("file",EHSH_LOG_LEVEL_ERROR);//|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO);
 }
+#else
+void EhsHSetLogLevels()
+{
+    EhsHLogger_setLogLevel("Kernel",EHSH_LOG_LEVEL_ERROR);
+    EhsHLogger_setLogLevel("HalProcess",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
+    EhsHLogger_setLogLevel("Devman",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
+    EhsHLogger_setLogLevel("Undefined",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
+    EhsHLogger_setLogLevel("Logger", EHSH_LOG_LEVEL_ERROR);
+    EhsHLogger_setLogLevel("Graphics", EHSH_LOG_LEVEL_ERROR);
+    EhsHLogger_setLogLevel("HalMemory", EHSH_LOG_LEVEL_ERROR);
+    EhsHLogger_setLogLevel("HalProcess",EHSH_LOG_LEVEL_ERROR);
+    EhsHLogger_setLogLevel("HalString",EHSH_LOG_LEVEL_ERROR);
+    EhsHLogger_setLogLevel("TgtViewport",EHSH_LOG_LEVEL_ERROR);
+    EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO);
+    EhsHLogger_setLogLevel("file",EHSH_LOG_LEVEL_ERROR);//|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO);
+}
+#endif
+
 /* Log Levels
 EHSH_LOG_LEVEL_ERROR	= 0x01,
 EHSH_LOG_LEVEL_WARNING	= 0x02,
@@ -105,6 +124,7 @@ EhsMetaDataType EhsMetaData;
 /* Variables Required from other components */
 extern EhsApplicationMetaDataType EhsApplicationMetaData;
 
+void (*EhsAppLoadedCallback)(ehs_uint32) = NULL; 
 
 /*****************************************************************************/
 /* Variables defined with global-scope */
@@ -118,6 +138,7 @@ ehs_bool *EhsHSys_initCompleteRef = &EhsL_initComplete;
 /*****************************************************************************/
 /* Function definitions */
 
+/* NOTE: WE ARE NOW GLOBBERING ALL OF THIS TO NULL AT BOOT TO CLEAR ALL STRINGS */
 EhsMetaDataType EhsMetaData=
 {
     .DynamicUpdateTime=0,
@@ -129,11 +150,33 @@ EhsMetaDataType EhsMetaData=
     .condDevmanNewMiscDLData = NULL,// Notes these need to be set 
     .mutexDevmanNewMiscDLData = NULL,
     .devmanPingFail = EHS_FALSE,
-    .devmanLastGoodPing = 0LL
+    .devmanLastGoodPing = 0LL,
+    .MiscAppProcId=0
 }; //flag to identify static elements are valid;
 
 #define EHSVERSIONINFOFILE "version.nfo"
 
+EHS_LOCAL const ehs_char* ehsToolboxHashes = EHS_TOOLBOX_HASHES"0x0";
+
+
+/**
+ * Sets a pointer to a function which gets called after the app has attempted to load.
+ * An integer passed to a function represents app status IDs defined in hal.h
+ */
+EHS_GLOBAL void EhsHSetAppLoadStatusCallback(void (*callback)(ehs_uint32))
+{
+    EhsAppLoadedCallback = callback;
+}
+
+/**
+ * Notifies about app loading status by passing app status IDs defined in hal.h
+ */
+EHS_GLOBAL void EhsHAppLoadStatusNotify(ehs_uint32 status)
+{
+    if(EhsAppLoadedCallback != NULL){
+        EhsAppLoadedCallback(status);
+    }
+}
 
 /*
  * Populate the meta data with the start up info and identifiy the install directory
@@ -143,6 +186,7 @@ EhsMetaDataType EhsMetaData=
 #define EHS_DEBUG_ROOT_DIR
 void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir)
 {
+#ifndef EHS_TARGET_NO_MAIN_ARGS
     ehs_char buf[EHS_MAXPATHLENGTH];
     ehs_char *temp;
     ehs_uint16 i=0;
@@ -227,6 +271,7 @@ void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir)
 
 #else
     /* Add the command line path if there was one */
+    #ifndef INX_SODL_IN_FLASH
     EhsStrcpy(EhsMetaData.zEhsStartedDirectory,start_dir);
     if (EhsMetaData.zArgv0[0]=='/')   /* Check we haven;t been given an absolute path to the exe (e.g. by XP) */
     {
@@ -293,6 +338,7 @@ void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir)
             EhsStrcat(EhsMetaData.zInstallRootDirectory, &buf[1]);
         }
     } /* end of normal concatenation method */
+    #endif //   #ifndef INX_SODL_IN_FLASH
 #endif
 #endif
 #ifdef EHS_DEBUG_ROOT_DIR
@@ -302,15 +348,21 @@ void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir)
     EHSH_LOG_INFO("startdir=%s\n", start_dir);
     EHSH_LOG_INFO("Final install dir=%s\n", EhsMetaData.zInstallRootDirectory);
 #endif
+#endif // EHS_TARGET_NO_MAIN_ARGS
     //EHSH_LOG_INFO("Done all sys init code");
     /* And set the start time stamp */
-    EhsHGetdateTime(EhsMetaData.zEHSStartDate,EHS_TRUE);
+    EhsHGetdateTime(EhsMetaData.zEHSStartDate,EHS_TRUE, 0);
     //EHSH_LOG_INFO("Done all sys init code");
 }
 
-/* Version ans system status information */
+void EhsHInitEhsMetaData() {
+    //EhsMemset(&EhsMetaData,0,sizeof(EhsMetaData)); // This does something bad...
+    EhsMetaData.zAppsDirectory[0]='\0'; // just in case the aboe doesn't do what we expect ;(
+}
+
+/* Version and system status information */
 EHS_GLOBAL void EhsHMetaUpdateStatic()
-{
+{   
     EhsTOsSys_UpdateEnvironment(&EhsMetaData,1);
     EhsMetaData.bStaticUpdate=EHS_TRUE;
 }
@@ -322,14 +374,31 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetInstPath()
 {
     return EhsMetaData.zInstallRootDirectory;
 }
+EHS_GLOBAL const ehs_char* EhsHMetaGetToolboxHashes(){
+    return ehsToolboxHashes;
+}
 EHS_GLOBAL const ehs_char* EhsHMetaGetUserPath()
 {
     return EhsMetaData.zUserDirectory;
 }
+EHS_GLOBAL const ehs_char* EhsHMetaGetAppsPath()
+{
+    if ( EhsMetaData.zAppsDirectory[0] != '\0' )
+        return EhsMetaData.zAppsDirectory;
+    else 
+        return NULL;
+}
+
+EHS_GLOBAL void EhsHMetaSetAppsPath(ehs_char* path)
+{
+    EhsStrcpy(EhsMetaData.zAppsDirectory,path);
+}
+
 EHS_GLOBAL const ehs_char* EhsHMetaGetHWID()
 {
     return EhsMetaData.zDeviceID;
 }
+
 EHS_GLOBAL const ehs_char* EhsHMetaGetIPAddr()
 {
     return EhsMetaData.zDeviceIPAddr;
@@ -361,7 +430,7 @@ EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMAvail()
     //printf("hsMetaData.RAMAvail_KB =%s",hsMetaData.RAMAvail_KB);
     return EhsMetaData.RAMAvail_KB;
 }
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMUsedEHS()
+EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMUsedEHS_kB()
 {
     //printf("EhsMetaData.RAMUsed_KB =%s\n",EhsMetaData.RAMUsed_KB);
     return EhsMetaData.RAMUsed_KB;
@@ -386,21 +455,34 @@ EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorTotal()
     //printf(" =%s\n",);
     return EhsMetaData.nUserSpaceTotal_KB;
 }
+
 EHS_GLOBAL const ehs_uint16 EhsHMetaGetCPUUsage()
 {
 //	printf("CPU_usage get=%d\n",EhsMetaData.CPUUsage);
     return EhsMetaData.CPUUsage;
 }
+
+EHS_GLOBAL const ehs_uint16 EhsHMetaGetMiscAppCPUUsage()
+{
+    return EhsMetaData.MiscAppCPUUsage;
+}
+
+EHS_GLOBAL const ehs_uint32 EhsHMetaGetMiscAppRAMUsed_kB()
+{
+    return EhsMetaData.MiscAppRAMUsed_KB;
+}
+
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysAvail()
 {
-    //printf(" =%s\n",);
     return (EhsMetaData.nSysSpaceTotal_KB -EhsMetaData.nSysSpaceUsed_KB);
 }
+
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysTotal()
 {
     //printf(" =%s\n",);
     return EhsMetaData.nSysSpaceTotal_KB;
 }
+
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysUsed()
 {
     //printf(" =%s\n",);
@@ -418,8 +500,11 @@ EHS_GLOBAL const ehs_char * EhsHMetaGetBuildDate()
 }
 EHS_GLOBAL const ehs_char * EhsHMetaGetTargetVariant()
 {
-    //printf("EhsMetaData.zTargetVariant =%s\n",EhsMetaData.zTargetVariant);
+    #ifdef EHS_ESP32_SUPPORT
+    return "ehs-esp32";
+    #else
     return EhsMetaData.zTargetVariant;
+    #endif
 }
 EHS_GLOBAL const ehs_char * EhsHMetaGetEHSStartDate()
 {
@@ -481,6 +566,15 @@ EHS_GLOBAL const ehs_char * EhsHAppMetaGetAppName()
     return EhsApplicationMetaData.zApplicationName;
 }
 
+/* The followiing for another process name (not an EHS app)*/
+EHS_GLOBAL  ehs_char * EhsHMetaGetMiscAppNamePtr()
+{
+#ifdef EHS_DEVMAN_SUPPORT
+    return EhsMetaData.MiscAppProcName;
+#else
+    return NULL;
+#endif
+}
 
 /* Retuens true if we have had a failed ping to the primary server */
 ehs_bool EhsHMetaGetMissedPing()
@@ -534,13 +628,21 @@ EHS_GLOBAL void EhsHMetaSetNewDevmanMiscDLDataNew(ehs_bool val)
 
 EHS_GLOBAL ehs_char* EhsHMetaGetPtrToDevmanMiscDLData()
 {
+#ifdef EHS_DEVMAN_SUPPORT
     return EhsMetaData.zDevmanMiscDLData;
+#else
+    return NULL;
+#endif
 }
 
 
 EHS_GLOBAL ehs_char* EhsHMetaGetPtrToDevmanMiscDLDataType()
 {
+#ifdef EHS_DEVMAN_SUPPORT
     return EhsMetaData.zDevmanMiscDLDataType;
+#else
+    return NULL;
+#endif
 }
 
 /* Thread safe versions
@@ -558,13 +660,18 @@ EHS_GLOBAL void EhsHMetaSetDevmanMiscDLDataType(const ehs_char* zMiscInfo)
 #endif //EHS_DEVMAN_SUPPORT
 }
 
+/* Set some miscellaneous devman JSON monitor data into two buffers?? 
+  and then signal the semaphore there's some data 
+*/ 
+
 EHS_GLOBAL void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
 {
 #ifdef EHS_DEVMAN_SUPPORT
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     EhsStrcpy(EhsMetaData.zDevmanMiscDLData, zMiscInfo); // * todo - this needs to merge JSON - Ideally not using  JSON library for portability
     EhsStrcpy(EhsMetaData.zDevmanNewMiscDLData, zMiscInfo);
-    if (EhsMetaData.mutexDevmanNewMiscDLData != NULL) {
+    if ( EhsMetaData.mutexDevmanNewMiscDLData != NULL  
+         && EhsMetaData.condDevmanNewMiscDLData != NULL ) { /*( Only signal if the signals have been set up */
         EhsTPMutex_lock(EhsMetaData.mutexDevmanNewMiscDLData);
         EhsTPCondition_broadcast(EhsMetaData.condDevmanNewMiscDLData);
         EhsTPMutex_unlock(EhsMetaData.mutexDevmanNewMiscDLData);
@@ -573,8 +680,7 @@ EHS_GLOBAL void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
 #endif //EHS_DEVMAN_SUPPORT
 }
 
-
-
+/* Strange place for these?*/
 EHS_GLOBAL EhsTPConditionClass EhsHMetaGetDevmanMiscDLDataSemaphor()
 {
     return EhsMetaData.condDevmanNewMiscDLData;
@@ -607,8 +713,11 @@ EHS_GLOBAL void EhsHMetaGetCpyDevmanNewMiscDLData(ehs_char* zMiscInfo)
 /* this gets just the new part */
 EHS_GLOBAL ehs_char*  EhsHMetaGetDevmanNewMiscDLDataPtr()
 {
-
+#ifdef EHS_DEVMAN_SUPPORT
     return EhsMetaData.zDevmanNewMiscDLData;
+#else
+    return NULL;
+#endif
 }
 
 
@@ -625,7 +734,11 @@ EHS_GLOBAL void EhsHMetaSetNewDevmanMiscULDataNew(ehs_bool val)
 
 EHS_GLOBAL ehs_char* EhsHMetaGetPtrToDevmanMiscULData()
 {
+#ifdef EHS_DEVMAN_SUPPORT
     return EhsMetaData.zDevmanMiscULData;
+#else
+    return NULL;
+#endif
 }
 
 /********************************/
@@ -956,14 +1069,17 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             EhsHLogger_init(); /* initialise the system Logger */
             /* EHSH_LOG_LEVEL_ERROR|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO|EHSH_LOG_LEVEL_ENTER|EHSH_LOG_LEVEL_EXIT */
             EhsHSetLogLevels();
-
+            EhsHInitEhsMetaData(); //Make sure the pltform Meta data file is all blanked out
 #ifdef EHS_NETWORKING_SUPPORT
             EhsHURLGlobalInit();
 #endif
 
             EhsTOsSys_init(); /* initialise the Operating System */
+            
 #ifdef EHS_DEBUG_TCPIP_CONSOLE
-            EhsHThread_execute(EhsSvcTcp_server,NULL,-90);
+            printf("Starting TCPIP CONSOLE thread\n");
+            EhsHThread_execute(EhsSvcTcp_server, NULL, -15, EHS_THREAD_USE_DEFAULT_STACK_SIZE);//-90); //////// CHANGES ONLYA
+            printf("Started TCPIP CONSOLE thread\n");
 #endif
             EhsHGetEHSVersionInfo(&EhsMetaData); /*Populate the version information table */
             /* Path info is defined at first start before any cds etc */
@@ -996,12 +1112,13 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             /* set flag to indicate to other threads that EHS is now in business */
 
             EhsMetaData.PairedOrganisationIDRequested=0; //was 2 for some reason?
+#ifdef EHS_DEVMAN_SUPPORT
             EhsHMetaSetNewDevmanMiscDLDataNew(EHS_FALSE);
             ehs_char* data = EhsHMetaGetPtrToDevmanMiscDLData();
             data[0]='\0';
             data = EhsHMetaGetPtrToDevmanMiscDLDataType();
             data[0]='\0';
-
+#endif
             EhsL_initComplete = EHS_TRUE;
         }
 
@@ -1019,7 +1136,9 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
 #endif //EHS_COMMS_API_SUPPORT
 #ifdef EHS_GUI_SUPPORT
             EhsTGfxApp_init();
+#ifndef EHS_DONT_USE_BASIC_FONTS
             EhsGraphicsFontTable_init();
+#endif    
             EhsWidgetViewport_default_config();//Clear the old viewport parameters in case the new one has no widget for it
 #endif
 #ifdef EHS_AV_SUPPORT
@@ -1042,7 +1161,9 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
 #endif
 #ifdef EHS_GUI_SUPPORT
             EhsTGfxApp_reset(); //doesn't so anything currently
+#ifndef EHS_DONT_USE_BASIC_FONTS
             EhsGraphicsFontTable_init(); // the memory is wiped by the garbage collector.
+#endif
             EhsWidgetViewport_default_config();//Clear the old viewport parameters in case the new one has no widget for it
 #endif
 #ifdef EHS_AV_SUPPORT
@@ -1071,7 +1192,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
                 if (EhsTPlatformReady( (void*) target_loop_iteration,target_env_blob) ) break;
                 if (timeout>0 && i> timeout*10) break;
                 i=1+1;
-                EhsSleep(100); //sleep for 100ms
+                EhsSleep(EHS_TIME_ms(100)); //sleep for 100ms
             }
             // where do we do this - if at all - pthread cond destroy
         }
@@ -1107,3 +1228,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             #endif
             */
         }
+
+EHS_GLOBAL ehs_uint32 EhsConsoleQueue_maxSize(){
+    return EHS_DEBUG_CONSOLE_BUFFER_SIZE;
+}

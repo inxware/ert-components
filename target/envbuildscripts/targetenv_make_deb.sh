@@ -3,34 +3,40 @@
 # Creates a Debian .deb package and removes duplicate libaries from EHS tree that 
 # can be installed as dependencies for debian
 
+#TODO2023 all the ambifier specific bits of this need to changed the EHS_DEBIAN_VERSION and $GNU_ARCH instead!
 
-echo "**************************************************************************************"
-echo "**  Making Debian package - ONLY RUN ME AS A make targetenv_* option - not standalone **"
-echo "**************************************************************************************"
+set -e
 
-if [  1 == 1 ]; then
+echo "######################################### BUILDING DEBIAN PACKAGE ##############################################"
+
+echo "****************************************************************************************************************"
+echo "**  Making Debian package - ONLY RUN ME AS A make targetenv_* option - not standalone                         **"
+echo "****************************************************************************************************************"
 
 export SPECIFIC_TARGET=$1
-if [ "$2" == "--with-tools" ]; then
-export NO_AUTOSTART=yes
-export WITH_TOOLS=yes
-#echo including tools OK?
-#read -n 1
+if [ "$2" = "--with-tools" ]; then
+	export NO_AUTOSTART=yes
+	export WITH_TOOLS=yes
+	echo "WARNING: Including inxware tools in the runtime packager OK?"
+	read -n 1
 fi
 
 if [ "$2" == "--no-autostart" ]; then
-export NO_AUTOSTART=yes
+	export NO_AUTOSTART=yes
 fi
 
-
-echo "########################################################"
-echo " Run me after make targetenv                            "
-echo "  Build parameters: "
-echo "--> $EHS_GNU_OS"
-echo "--> $EHS_GNU_ARCH"
-echo "--> $EHS_OS"
-echo "--> $EHS_ARCH"
-echo "########################################################"
+echo "#################################################################################################################"
+echo "### Run me after make targetenv                            "
+echo "### Build parameters: "
+echo "### EHS_GNU_OS               --> ${EHS_GNU_OS}"
+echo "### EHS_GNU_ARCH             --> ${EHS_GNU_ARCH}"
+echo "### EHS_OS                   --> ${EHS_OS}"
+echo "### EHS_GNU_ARCH             --> ${EHS_ARCH}"
+echo "### SPECIFIC_TARGET          --> ${SPECIFIC_TARGET}"
+echo "### SYSTEM_VARIANT           --> ${SYSTEM_VARIANT}"
+echo "### EHS_DEBIAN_VERSION       --> ${EHS_DEBIAN_VERSION}"
+echo "### INXWARE_TARGETENV_HACKS  --> ${INXWARE_TARGETENV_HACKS}"
+echo "#################################################################################################################"
 
 EHS_VERSION_SUGGEST=`sed -n 1p ../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/sysdata/version.nfo`
 echo "Suggested EHS version string is ${EHS_VERSION_SUGGEST}"
@@ -53,8 +59,8 @@ mkdir -p "${DEBIAN_WORKING_BASE}/debian/DEBIAN"
 
 #make a copy of our cosey runtime 
 pwd
-ls "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/"
-echo "XXXX1"
+#ls "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/"
+echo "Creating a Debian staging directory using:"
 echo "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/ -> ${DEBIAN_WORKING_BASE}/debian/opt/ehs/"
 cp -Rf "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/" "${DEBIAN_WORKING_BASE}/debian/opt/ehs/"
 
@@ -76,9 +82,8 @@ rmdir ${DEBIAN_WORKING_BASE}/debian/opt/ehs/appdata/temp/
 rm -f ${DEBIAN_WORKING_BASE}/debian/opt/ehs/sysdata/app2run.nfo
 touch ${DEBIAN_WORKING_BASE}/debian/opt/ehs/appdata/default/__cleaned.nfo
 
-
 if [ -n "${WITH_TOOLS}" ]; then
-cp  "../dist/installers/setup-inxware-tools-without-runtime.exe" "${DEBIAN_WORKING_BASE}/debian/opt/ehs/"
+	cp  "../dist/installers/setup-inxware-tools-without-runtime.exe" "${DEBIAN_WORKING_BASE}/debian/opt/ehs/"
 fi
 #touch "${DEBIAN_WORKING_BASE}/debian/DEBIAN/conffiles"
 #echo '/etc/ehs.conf' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/conffiles"
@@ -86,21 +91,31 @@ fi
 
 #Make the control file for the DEBIAN directory
 if [ -n "${WITH_TOOLS}" ]; then
-	echo "Package: brix" > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+	echo "Package: inxware" > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 	echo "Version: 0:${EHS_VERSION}-1" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 else
 #todo the next switch should select between commercial/free versions perhaps?
-	if [ "${SYSTEM_VARIANT}" == "ambifier" -o "${SYSTEM_VARIANT}" == "ambifier2" -o "${SYSTEM_VARIANT}" == "ambifier2-deb11" -o "${SYSTEM_VARIANT}" == "ambifier2-adnoc" ]; then
+# old crap way of doing it:
+#	if [ "${SYSTEM_VARIANT}" = "ambifier" -o "${SYSTEM_VARIANT}" = "ambifier2" -o "${SYSTEM_VARIANT}" = "ambifier2-adnoc" ]; then
+#		echo "Package: ehs" > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+#		echo "Version: 0:${EHS_VERSION}-1" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+#	else 
+#		if [ "${SYSTEM_VARIANT}" = "ambifier-debug" -o "${SYSTEM_VARIANT}" = "ambifier2-debug" -o "${SYSTEM_VARIANT}" = "ambifier2-deb11"  ]; then
+#			echo "Package: ehs-debug"                 > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+#			echo "Version: 0:${EHS_VERSION}-debug-1" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+#		else
+#			echo "NOt found any of the specific targets so building the inxware package"
+#			echo "Package: inxware-ert"                > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+#			echo "Version: 0:${EHS_VERSION}-1" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+#		fi
+#	fi
+	if [ "${DEBIAN_PACKAGE_NAME}" = "" ]; then
 		echo "Package: ehs" > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 		echo "Version: 0:${EHS_VERSION}-1" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 	else 
-		if [ "${SYSTEM_VARIANT}" == "ambifier-debug" -o "${SYSTEM_VARIANT}" == "ambifier2-debug" -o "${SYSTEM_VARIANT}" == "ambifier2-deb11"  ]; then
-			echo "Package: ehs-debug"                 > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
-			echo "Version: 0:${EHS_VERSION}-debug-1" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
-		else
-			echo "Package: brix"                > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
-			echo "Version: 0:${EHS_VERSION}-1" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
-		fi
+			echo "platform config.mk specifies devian package name as ${DEBIAN_PACKAGE_NAME}"
+			echo "Package: ${DEBIAN_PACKAGE_NAME}" > "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+			echo "Version: 0:${EHS_VERSION}-1"     >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 	fi
 fi
 
@@ -109,37 +124,75 @@ echo "Installed-Size: 5000"      >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/contro
 echo "Section: middleware"       >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 echo "Priority: standard"        >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 # Note we may have over used SYSTEM_VARIANT for some of therse options? Perhaps we need an additional level for DEPLOYMNENT_VARIANT or something
-if [ "${SYSTEM_VARIANT}" == "ambifier2" -o "${SYSTEM_VARIANT}" == "ambifier-deb11" -o "${SYSTEM_VARIANT}" == "ambifier2-debug" \
-	-o "${SYSTEM_VARIANT}" == "ambifier2-adnoc" -o "${SYSTEM_VARIANT}" == "ambifier2-deb11" ]; then
+
+# TODO2023 - this should be changed to a specific set of dependencies defined in config.mk
+echo "Building package for SYSTEM_VARIANT=$SYSTEM_VARIANT"
+ 
+if [ "${SYSTEM_VARIANT}" = "ambifier2" -o "${SYSTEM_VARIANT}" = "ambifier-deb11" -o "${SYSTEM_VARIANT}" = "ambifier2-debug" \
+	-o "${SYSTEM_VARIANT}" = "ambifier2-adnoc" -o "${SYSTEM_VARIANT}" = "ambifier2-deb11" ]; then
+#### AMBIFIER BUILDS ### 
   #echo "Depends: xorg,ambifier" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
-  if [ "${SYSTEM_VARIANT}" == "ambifier2-deb11" ]; then
+  if [ "${EHS_DEBIAN_VERSION}" = "11" ]; then
   	echo "Depends: xorg,ambifier,lm-sensors,libarchive13,libxml2,libpng16-16,libgstreamer1.0-0,libgstreamer-plugins-base1.0-0,gstreamer1.0-plugins-good,gstreamer1.0-plugins-bad,gstreamer1.0-plugins-ugly,libgtk2.0-0,libcurl4" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
   else	
 	echo "Depends: xorg,ambifier,lm-sensors,libarchive13,libxml2,libpng16-16,libgstreamer1.0-0,libgstreamer-plugins-base1.0-0,gstreamer1.0-plugins-good,gstreamer1.0-plugins-bad,gstreamer1.0-plugins-ugly,libgtk2.0-0,libcurl3" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
   fi
-  echo "Architecture: amd64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+  ##todo2022 these two arch options should be made as one outside of the SYSTEM VARIANT condition.
+  if [ "${EHS_ARCH}" = "arm64" ];then
+      echo "Architecture: arm64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"	
+  elif [ "${EHS_ARCH}" = "arm" ];then
+      echo "Architecture: armhf" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"	
+  else
+      echo "Architecture: amd64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+  fi
 else
-echo "SYSTEM_VARIANT=$SYSTEM_VARIANT"
- echo "Architecture: i386" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+#### GENERAL BUILDS ###
+ if [ "${EHS_ARCH}" = "arm64" ];then
+      echo "Architecture: arm64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"	
+  elif [ "${EHS_ARCH}" = "arm" ];then
+      echo "Architecture: armhf" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"	
+  elif [ "${EHS_ARCH}" = "amd64" ];then
+      echo "Architecture: amd64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"	
+  else
+      echo "Architecture: i386" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+   fi
 #echo "Depends: " >> ./debian/DEBIAN/control
-  if [ "${SYSTEM_VARIANT}" == "ambifier" -o "${SYSTEM_VARIANT}" == "ambifier-debug" ]; then
+#todo2023 - see above this should be replaced by config.mk
+  if [ "${SYSTEM_VARIANT}" = "ambifier" -o "${SYSTEM_VARIANT}" = "ambifier-debug" ]; then
     echo "Depends: xorg,ambifier" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
   else
     if [ -n "${WITH_TOOLS}" ]; then
       echo "Depends: xorg,wine" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
-    else 
-      echo "Depends: xorg" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+	elif [ "${SYSTEM_VARIANT}" = "msg200-supervisor" ]; then
+	  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+      echo "Not adding any dependencies (\$SYSTEM VARIANT=supervisor)" 
+	  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    else
+	  echo "Depends: xorg" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
     fi
   fi
 fi
-if [ "${SYSTEM_VARIANT}" == "ambifier-debug" -o "${SYSTEM_VARIANT}" == "ambifier2-debug" \
-  -o "${SYSTEM_VARIANT}" == "ambifier2-adnoc" ] ; then
-echo 'Replaces: ehs' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
-#echo 'Breaks: ehs' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control" 
+
+# Allow plain "ehs.deb" versions to be replaced with others.
+
+# If we are default ehs then allow replacement of ehs-debug
+if [ "${DEBIAN_PACKAGE_NAME}" = "" -o "${DEBIAN_PACKAGE_NAME}" = "ehs" ] ; then
+	echo 'Replaces: ehs-debug' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+	#echo 'Breaks: ehs' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control" 
 else
-echo 'Replaces: ehs-debug' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
-#echo 'Breaks: ehs-debug' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control" 
+	echo 'Replaces: ehs' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+	#echo 'Breaks: ehs-debug' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control" 
 fi
+
+# old crap way of doing above
+#if [ "${SYSTEM_VARIANT}" = "ambifier-debug" -o "${SYSTEM_VARIANT}" = "ambifier2-debug" \
+#  -o "${SYSTEM_VARIANT}" = "ambifier2-adnoc" -o "${SYSTEM_VARIANT}" = "ambifier2-deb11" ] ; then
+#echo 'Replaces: ehs' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+#####echo 'Breaks: ehs' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control" 
+#else
+#echo 'Replaces: ehs-debug' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+######echo 'Breaks: ehs-debug' >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control" 
+#fi
 
 # also  need - but breaks gtk2.0,gstreamer0.10
 echo "Bugs: support.inx-systems.net" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
@@ -155,15 +208,19 @@ echo " Enables networked embedded applications to be easily generated, deployed 
 echo "#!/bin/bash" > "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
 echo "### BEGIN INIT INFO" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
 echo "# Provides:  ehs" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
-# TODO Ambifier2 - stope depending on csdctl
-if [  "${SYSTEM_VARIANT}" == "ambifier" -o "${SYSTEM_VARIANT}" == "ambifier-debug" \
-   -o "${SYSTEM_VARIANT}" == "ambifier2" -o "${SYSTEM_VARIANT}" == "ambifier2-debug" \
-   -o "${SYSTEM_VARIANT}" == "ambifier2-deb11" -o "${SYSTEM_VARIANT}" == "ambifier2-adnoc" ]; then
-echo '# Required-Start: $network $local_fs' >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
-echo '# Should-Start: csdctl' >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs" 
+
+# TODO This should just be a wait for network flag in the config.mk file
+# TODO Ambifier2 - should also stop depending on csdctl?
+if [  "${SYSTEM_VARIANT}" = "ambifier" -o "${SYSTEM_VARIANT}" = "ambifier-debug" \
+   -o "${SYSTEM_VARIANT}" = "ambifier2" -o "${SYSTEM_VARIANT}" = "ambifier2-debug" \
+   -o "${SYSTEM_VARIANT}" = "ambifier2-deb11" -o "${SYSTEM_VARIANT}" = "ambifier2-adnoc" ]; then
+
+	echo '# Required-Start: $network $local_fs' >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
+	echo '# Should-Start: csdctl' >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs" 
 else
-echo "# Required-Start: $network $local_fs" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
+	echo "# Required-Start: $network $local_fs" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
 fi
+
 echo "# Required-Stop:" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
 echo "# Default-Start:  2" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
 echo "# Default-Stop:  0 1 6" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
@@ -394,31 +451,10 @@ pushd "${DEBIAN_WORKING_BASE}"
 fakeroot dpkg-deb --build debian ./
 popd
 
-# Check to see if this needs to be installed in a Debian package server
-test -z "${UPLOADPORT}" && export  UPLOADPORT=8822
-fi
+echo "*****************************************************************************************************************"
+echo " Debian package built:"
+ls -l ../TARGET_TREES/ehs_deb-${SPECIFIC_TARGET}/*.deb
+echo " Use 'make upload_ehs_deb UPLOAD=<ssh url to Devman enabled debian server>' to upload for deployment"
+echo "*****************************************************************************************************************"
 
-if [ -n "${UPLOAD}" ];then
-	echo "UPLOADING deb package (SYSTEM_VARIANT=${SYSTEM_VARIANT} to ${UPLOAD} ..."
-	UPLOAD_DOMAIN=` echo "${UPLOAD}" | cut -d':' -f1 `
-	UPLOAD_PATH=` echo "${UPLOAD}" | cut -d':' -f1 --complement`
-	scp -P ${UPLOADPORT} ../TARGET_TREES/ehs_deb-${SPECIFIC_TARGET}/*.deb "${UPLOAD}/"
-if [ "${SYSTEM_VARIANT}" = "ambifier2" -o "${SYSTEM_VARIANT}" == "ambifier2-debug" ]; then
-	ssh -p  ${UPLOADPORT} "${UPLOAD_DOMAIN}" "cd /"${UPLOAD_PATH}"/ && ./install64_command.sh || echo \"Done - Check messages!\""
-elif [ "${SYSTEM_VARIANT}" = "ambifier2-deb11" ]; then
-	ssh -p  ${UPLOADPORT} "${UPLOAD_DOMAIN}" "cd /"${UPLOAD_PATH}"/ && ./installdeb11_command.sh || echo \"Done - Check messages!\""
-else
-	echo "VARIANT=${SYSTEM_VARIANT}"
-	ssh -p  ${UPLOADPORT} "${UPLOAD_DOMAIN}" "cd /"${UPLOAD_PATH}"/ && ./install_command.sh || echo \"Done - Check messages!\""
-fi
-	
-else
-	echo "Not UPLOADING deb package to any Debian package servers"
-fi
-
-
-
-
-
-
-
+echo "######################################### FINISHED BUILDING DEBIAN PACKAGE ######################################"

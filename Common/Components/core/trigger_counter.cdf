@@ -1,42 +1,108 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>EventCounter</Class>
-  <Block>
-    <Type>Event_Processor</Type>
-  </Block>
-  <Menu>Event
-    <Menu>Counters/Iterators
-      <Menu>Counter</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is an event counter with reset.</LongDescription>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="0">Count</FunctionName>
-  </Port>
-  <Port>
-    <Description>rst</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="0">Reset</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>50</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">Count</FunctionName>
-    <FunctionName argument="1">Reset</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>50</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="2">Count</FunctionName>
-    <FunctionName argument="2">Reset</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2022-09-06T15:12:39Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is an event counter with reset.</LongDescription>
+        <UserName/>
+        <Menu>
+            Event
+            <Menu>
+                Counters/Iterators
+                <Menu>Counter</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Event_Processor</Type>
+        <Width>65</Width>
+        <Height>40</Height>
+        <Text>Counter</Text>
+        <TextX>7</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.5</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>0</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>2</ERT1_ID>
+        <Class>EventCounter</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xB649</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>978676ce</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>Count</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Reset</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>rst</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>reset</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

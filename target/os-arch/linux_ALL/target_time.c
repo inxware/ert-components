@@ -43,20 +43,23 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "target.h"
-#include "timer.h"
 
 #ifndef EHS_MINGW
 #ifndef EHS_BSD
 #include <sys/timex.h>
 #endif
 #endif
+#include <errno.h>
+#include <time.h>
+#include "target.h"
+#include "timer.h"
+
 
 //#include <sys/time.h>
 
 #include "messages.h"
-#include <errno.h>
-#include <time.h>
+#include "hal_logger.h"
+
 
 #ifdef EHS_USE_ORDINARY_NANOSLEEP
 
@@ -104,7 +107,7 @@ EhsTickType EhsTgtTimer_now()
 
     if (clock_gettime(CLOCK_MONOTONIC, &xtime) == -1)
     {
-        EhsError(EHS_TGT_ERROR_TIME_FAILURE(errno));
+        EHSH_LOG_ERROR(EHS_TGT_ERROR_TIME_FAILURE(errno));
         ret = EHS_TICKTYPE_INVALID;
     }
     else

@@ -26,7 +26,6 @@
 #include "globals.h"
 /*****************************************************************************/
 /* Define macros  */
-
 /**
  * Filename used for logging
  */
@@ -102,11 +101,11 @@ typedef enum
 
 
 #ifdef EHS_BUILDOPT_STDIO_MESSAGE_TRACE
-#define EHS_TRACE_MESSAGE(szMsg,...)  EhsStdioPrintf(szMsg,##__VA_ARGS__) // THis is for random text
-#define EHS_TRACE_FUNCTION(x)   EhsStdioPrintf("%s\n",#x)   //this is for stringifying function names for Enter tracing
+#define EHS_TRACE_MESSAGE(x,...)  EhsStdioSimplePrintf(x,##__VA_ARGS__) // THis is for random text
+#define EHS_TRACE_FUNCTION(x)   EhsStdioSimplePrintf("%s\n",#x)   //this is for stringifying function names for Enter tracing
 #else
 #define EHS_TRACE_FUNCTION(x)
-#define EHS_TRACE_MESSAGE(szMsg,...)
+#define EHS_TRACE_MESSAGE(...)
 #endif
 
 
@@ -131,17 +130,16 @@ typedef enum
  * @todo the else function here is for debug this needs to be dumped... This F*ing logging code has wasted hours....
  */
 #if defined(EHS_RUNTIME_LOGGER_ENABLED) && defined(EHSL_MODULE_ID)
-#ifdef EHS_ANDROID
-
-#define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){LOGE(__VA_ARGS__);}
-#else
-#define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){EhsSprintf(EhsHLogger_Msg,__VA_ARGS__);EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
-#endif
+ #ifdef EHS_ANDROID
+  #define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){LOGE(__VA_ARGS__);}
+ #else
+  /* todo  consider another build option macro for not including the __FILE__ and  __LINE__ test on the log line to save code sizes of debug builds*/
+  #define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){EhsSprintf(EhsHLogger_Msg,__VA_ARGS__);EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
+ #endif
 //else{EhsSprintf(EhsHLogger_Msg,__VA_ARGS__); EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
 #else
 #define EHSH_LOG_MESSAGE(nLevel,...); {}
 #endif
-
 /**
  * Macros intended for users of the logger (require definition of EHSL_LOG_LEVEL_xxx
  */
@@ -164,9 +162,8 @@ typedef enum
 //#define EhsError(err) {EhsConsolePrintf(err); EHSH_LOG_ERROR(err);}
 //#define EhsWarning(err) {EhsConsolePrintf(err); EHSH_LOG_WARNING(err);}
 //@todo for legacy support
-#define EhsError(...) EHSH_LOG_ERROR(__VA_ARGS__) //@todo get rid of this version - use the EHSH version
-#define EhsWarning(...) EHSH_LOG_WARNING(__VA_ARGS__) //@todo get rid of this version - use the EHSH version
-
+//#define EhsError(...) EHSH_LOG_ERROR(__VA_ARGS__) //@todo get rid of this version - use the EHSH version
+//#define EhsWarning(...) EHSH_LOG_WARNING(__VA_ARGS__) //@todo get rid of this version - use the EHSH version
 
 /* Compile time switched tracing function */
 #ifdef EHS_BUILDOPT_STDIO_ENABLE_FUNCTION_TRACING
@@ -175,6 +172,7 @@ typedef enum
  * Used in running debugging EHS via tracing calls. This represents a bitmask
  * of the subsystems that are currently being traced. 0 means trace is disabled.
  */
+/* TOdo all these trasing functions - at elast the ernel ones, should go in the kernel code-base*/
 EHS_GLOBAL ehs_uint32 EhsTraceFlags;
 
 #define EHS_TRACE_FLAG_ATOM 0x8000 /**< Applies to functions that are called at the lowest level: bytes (file handling), tokens (parser), events (kernel) ... */
@@ -194,6 +192,7 @@ EHS_GLOBAL ehs_uint32 EhsTraceFlags;
  * Conditional trace a function with no args @todo these need simplifying to a single __VA_ARG__ type */
 /*lint -save -e960 -e961 #/## used only in debug build */
 #define EHS_TRACE_FUNC0(subsys,name) {if (EHS_TRACE_FLAG_SET(subsys)) EhsConsolePrintf("%s()\n\r",#name); }
+//todo Use the var args istead of all these???
 /** Conditional trace a function with one argument */
 #define EHS_TRACE_FUNC1(subsys,name,fmt,A) {if (EHS_TRACE_FLAG_SET(subsys)) EhsConsolePrintf("%s("fmt")\n\r",#name,A); }
 /** Conditional trace a function with two arguments */

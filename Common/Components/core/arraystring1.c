@@ -19,7 +19,6 @@
 
 
 #include "globals.h"
-#include "target.h"
 /** @todo check which includes are required here */
 //#include "types.h"
 #include "setCompletes.h"
@@ -29,11 +28,12 @@
 
 EHS_FB_FUNCTIONS_START(ArrayString1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayStringRead", 0x00, ArrayStringRead1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayStringClear", 0x01, ArrayStringClear1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayStringWrite", 0x01, ArrayStringWrite1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayStringWrite", 0x02, ArrayStringWrite1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayStringClear", 0x02, ArrayStringClear1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayStringRead", 0x03, ArrayStringRead1)
+
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -188,11 +188,12 @@ EHS_FB_RUN_FUNCTION(ArrayStringWrite1)
 
 EHS_FB_FUNCTIONS_START(ArrayInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayIntRead", 0x00, ArrayIntRead1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayIntClear", 0x01, ArrayIntClear1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayIntWrite", 0x01, ArrayIntWrite1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayIntWrite", 0x02, ArrayIntWrite1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayIntClear", 0x02, ArrayIntClear1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayIntRead", 0x03, ArrayIntRead1)
+
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -310,11 +311,12 @@ EHS_FB_RUN_FUNCTION(ArrayIntWrite1)
 
 EHS_FB_FUNCTIONS_START(ArrayBool1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayBoolRead", 0x00, ArrayBoolRead1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayBoolClear", 0x01, ArrayBoolClear1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayBoolWrite", 0x01, ArrayBoolWrite1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayBoolWrite", 0x02, ArrayBoolWrite1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayBoolClear", 0x02, ArrayBoolClear1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayBoolRead", 0x03, ArrayBoolRead1)
+
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -437,11 +439,12 @@ EHS_FB_RUN_FUNCTION(ArrayBoolWrite1)
 
 EHS_FB_FUNCTIONS_START(ArrayReal1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayRealRead", 0x00, ArrayRealRead1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayRealClear", 0x01, ArrayRealClear1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayRealWrite", 0x01, ArrayRealWrite1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayRealWrite", 0x02, ArrayRealWrite1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayRealClear", 0x02, ArrayRealClear1)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayRealRead", 0x03, ArrayRealRead1)
+
 EHS_FB_FUNCTIONS_END
 
 /**

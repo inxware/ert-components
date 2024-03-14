@@ -11,7 +11,7 @@ export STAGING_DIRECTORY="../TARGET_TREES/$TARGET_ENV_NAME"
 
 ########################################################################
 # Create a base directory structure suitable for all targets
-echo "## CREATING GENERIC EHS FILE SYSTEM  (Targetenv_directories.sh)  ########################"
+echo "############# Creating Generic eRT file system (targetenv_directories.sh)  #########################"
 # create base directory if necessary
 mkdir -p ../TARGET_TREES
 echo "NOT Removing any previous environment: ${TARGET_ENV_NAME}"
@@ -27,19 +27,57 @@ mkdir -p $STAGING_DIRECTORY
 mkdir -p ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET
 cp -PR ../ert-components/target/envtree/Generic-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/  
 
-echo "#~~~~~~~~~~ Adding Generic Devman Components to ert file system  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~#"
+echo -e "++++++++++++++++++++ Adding Generic Devman Components to ert file system   \t++++++++++++++++++++"
 mkdir -p ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/devman
 cp -PR ./target/envtree/Generic-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ 
 cp -PR ./target/envtree/Generic-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ 
 
 # ./target/envbuildscripts/targetenv_clean_config.sh $SPECIFIC_TARGET
-echo "#~~~~~~~~~~ Adding specificdDevman components to ert file system  ~~~~~~~~~~~~~~~~~~~~~~~~~~~#"
+echo -e "++++++++++++++++++++ Adding OS & ARCH specific components to ert file system  \t++++++++++++++++++++"
 # Copy the target specific files to the file system
 # note - may not be target specific files for some OSs
-test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
-test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
-test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || :
+test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || echo "!!Not copying: ./$EHS_OS-ehs-tree/root-ehs_dir"
+test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || echo "!!Not copying: ./$EHS_OS-ehs-tree/devman/core-ehs_dir"
+test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || echo "!!Not copying: ./$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir"
 
+########################################################################
+## Adding more paltform and product specific asssets and scripts: 
+
+
+# Some devices have varying OSs features that need to be modified:
+if  test -d ./target/envtree/PLATFORM-SPECIFIC/${SYSTEM_VARIANT}/root-ehs_dir
+then
+   echo -e "++++++++++++++++++++ Applying ${SYSTEM_VARIANT} assets to staging directory \t++++++++++++++++++++"
+	cp -PR ./target/envtree/PLATFORM-SPECIFIC/${SYSTEM_VARIANT}/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/
+else
+   echo -e "-------------------" NOT Applying ${SYSTEM_VARIANT} assets to staging directory -------------------""
+fi
+
+# Some devices have varying OSs features that need to be modified:
+if [ "${PRODUCT_VARIANT}" != ""  ]; then
+   if  test -d ./target/envtree/PLATFORM-SPECIFIC/${SYSTEM_VARIANT}-${PRODUCT_VARIANT}/root-ehs_dir
+   then
+      echo -e "++++++++++++++++++++ Applying [${PRODUCT_NAME}] assets for SYSTEM VARIANT to staging directory  \t\t++++++++++++++++++++"
+      cp -PR ./target/envtree/PLATFORM-SPECIFIC/${SYSTEM_VARIANT}-${PRODUCT_VARIANT}/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/
+   else
+      echo -e "------------------- NOT Applying [${PRODUCT_NAME}] assets for SYSTEM VARIANT"
+   fi
+else 
+      echo -e "-------------------- PRODUCT_VARIANT variable is not set."
+fi
+
+#### Add selected Host OS configuration scripts that should run at install (first install boot more precisely) ####
+echo "++++++++++++++++++++ Adding Host OS configuration sripts                        ++++++++++++++++++++"
+echo "Selected scripts:"
+echo "${HOST_OS_CONFIG_SCRIPTS}"
+#Create the script directory if it isn't in the env
+mkdir -p ../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/HostOsInit
+#remove any directory place holders or residual runtime spam
+rm -f ../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/HostOsInit/*
+for i in ${HOST_OS_CONFIG_SCRIPTS}; do 
+	cp ./target/envtree/${EHS_OS}-ehs-tree/system/HostOsInit/$i.* ../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/HostOsInit/
+done
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 ########################################################################
 ## Retrieve version info for the output..
@@ -52,9 +90,10 @@ else
    VERSION_NAME="UNKOWN"
    TIME_STAMP="UNKOWN"
 fi
-echo "###################################################################################"
-echo "### Done Build:$VERSION_NAME - $TIME_STAMP"
+echo "#####################################################################################################"
+echo "### Done Staging Directory Build for version :$VERSION_NAME - $TIME_STAMP"
 echo "### Cleaned only Devman state and runtime logs, all applications and user data remains"
 echo "### To completely clean the target tree delete the TARGETENV directory and re-run this make"
-echo "###################################################################################"
+echo "####============================ DONE TAREGETENV_DIRECTORIES ===================================#####"
+echo "#####################################################################################################"
 

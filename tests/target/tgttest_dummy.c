@@ -92,9 +92,6 @@ void EhsShutdown()
  */
 EhsKEStateType EhsKEState;
 
-#ifdef EHS_TARGET_ENABLE_FUNCTION_TRACING
-ehs_uint32 EhsTraceFlags = 0u;
-#endif
 
 /*****************************************************************************/
 /* From console.c */

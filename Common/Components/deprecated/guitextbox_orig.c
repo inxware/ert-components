@@ -44,40 +44,40 @@
 
 EHS_FB_FUNCTIONS_START(GUI_TextboxString)
 
-EHS_FB_FUNCTION_ENTRY("CreateGUI_WriteTextBoxString", 0x00, GUI_Textbox_create)
+EHS_FB_FUNCTION_ENTRY("CreateGUI_WriteTextBoxString", 0x01, GUI_Textbox_create)
 
-EHS_FB_FUNCTION_ENTRY("DestroyGUI_WriteTextBoxString", 0x01, GUI_Textbox_destroy)
+EHS_FB_FUNCTION_ENTRY("DestroyGUI_WriteTextBoxString", 0x02, GUI_Textbox_destroy)
 
-EHS_FB_FUNCTION_ENTRY("RunGUI_WriteTextBoxString", 0x02, GUI_TextboxString_write)
+EHS_FB_FUNCTION_ENTRY("RunGUI_WriteTextBoxString", 0x03, GUI_TextboxString_write)
 EHS_FB_FUNCTIONS_END
 
 #ifdef EHS_TARGET_FP_SUPPORT
 EHS_FB_FUNCTIONS_START(GUI_TextboxFloat)
 
-EHS_FB_FUNCTION_ENTRY("CreateGUI_WriteTextBoxFloat", 0x03, GUI_Textbox_create)
+EHS_FB_FUNCTION_ENTRY("CreateGUI_WriteTextBoxFloat", 0x01, GUI_Textbox_create)
 
-EHS_FB_FUNCTION_ENTRY("DestroyGUI_WriteTextBoxFloat", 0x04, GUI_Textbox_destroy)
+EHS_FB_FUNCTION_ENTRY("DestroyGUI_WriteTextBoxFloat", 0x02, GUI_Textbox_destroy)
 
-EHS_FB_FUNCTION_ENTRY("RunGUI_WriteTextBoxFloat", 0x05, GUI_TextboxFloat_write)
+EHS_FB_FUNCTION_ENTRY("RunGUI_WriteTextBoxFloat", 0x03, GUI_TextboxFloat_write)
 EHS_FB_FUNCTIONS_END
 #endif
 
 EHS_FB_FUNCTIONS_START(GUI_TextboxInt)
 
-EHS_FB_FUNCTION_ENTRY("CreateGUI_WriteTextBoxInt", 0x06, GUI_Textbox_create)
+EHS_FB_FUNCTION_ENTRY("CreateGUI_WriteTextBoxInt", 0x01, GUI_Textbox_create)
 
-EHS_FB_FUNCTION_ENTRY("DestroyGUI_WriteTextBoxInt", 0x07, GUI_Textbox_destroy)
+EHS_FB_FUNCTION_ENTRY("DestroyGUI_WriteTextBoxInt", 0x02, GUI_Textbox_destroy)
 
-EHS_FB_FUNCTION_ENTRY("RunGUI_WriteTextBoxInt", 0x08, GUI_TextboxInt_write)
+EHS_FB_FUNCTION_ENTRY("RunGUI_WriteTextBoxInt", 0x03, GUI_TextboxInt_write)
 EHS_FB_FUNCTIONS_END
 
 EHS_FB_FUNCTIONS_START(GUI_TextboxBool)
 
-EHS_FB_FUNCTION_ENTRY("CreateGUI_WriteTextBoxBool",0x09, GUI_Textbox_create)
+EHS_FB_FUNCTION_ENTRY("CreateGUI_WriteTextBoxBool",0x01, GUI_Textbox_create)
 
-EHS_FB_FUNCTION_ENTRY("DestroyGUI_WriteTextBoxBool", 0x0A, GUI_Textbox_destroy)
+EHS_FB_FUNCTION_ENTRY("DestroyGUI_WriteTextBoxBool", 0x02, GUI_Textbox_destroy)
 
-EHS_FB_FUNCTION_ENTRY("RunGUI_WriteTextBoxInt", 0x08, GUI_TextboxBool_write)
+EHS_FB_FUNCTION_ENTRY("RunGUI_WriteTextBoxInt", 0x03, GUI_TextboxBool_write)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -94,10 +94,12 @@ EHS_FB_IDENTIFY_FUNCTION(GUI_Textbox)
 EHS_FB_INIT_FUNCTION(GUI_Textbox)
 {
     EhsGuiParamsType xParams;
-    EhsGraphicsFontClass* pFont;
+    EhsGraphicsFontClass* pFont = NULL;
     ehs_bool bRet = EHS_FALSE; /* assume initialisation fails */
     EhsParseGuiParameters(EHS_FB_INIT_PARAMETERS,&xParams);
+#ifndef EHS_DONT_USE_BASIC_FONTS
     pFont = EhsGraphicsFont_load(EHSHG_FONT_DEFAULT);
+#endif
     if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
     {
         *(EhsWidgetClass**)EHS_FB_INIT_CONTEXT = EhsWidgetTextbox_init(&(xParams.xRect),

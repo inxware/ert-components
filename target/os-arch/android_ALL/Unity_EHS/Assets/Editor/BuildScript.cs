@@ -2,9 +2,13 @@
 
 public class BuildScript 
 {
-    static void Android(){
-        string path = System.Environment.GetEnvironmentVariable("UNITY_ANDROID_BATCH_BUILD_PATH");    
-        string[] scenes = { "Assets/Scenes/SimpleSignageOnline.unity" };
-        BuildPipeline.BuildPlayer(scenes,  path, BuildTarget.Android, BuildOptions.AcceptExternalModificationsToPlayer );
+     public static void Android() {
+        EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
+        BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
+        buildPlayerOptions.scenes = new[] { "Assets/Scenes/SimpleSignageOnline.unity" };
+        buildPlayerOptions.locationPathName = System.Environment.GetEnvironmentVariable("UNITY_ANDROID_BATCH_BUILD_PATH");
+        buildPlayerOptions.target = BuildTarget.Android;
+        buildPlayerOptions.options = BuildOptions.None;
+        BuildPipeline.BuildPlayer(buildPlayerOptions);
     }
 }

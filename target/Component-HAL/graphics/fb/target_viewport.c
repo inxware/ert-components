@@ -410,7 +410,7 @@ void EhsTV_blit(EhsTVClass* pViewport,
     case EHS_GRAPHICS_COLOUR_A8:
     /* @todo support blitting for this kind of image */
     default:
-        EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_FORMAT("EhsTV_blit",pSurface->eFormat));
+        EHSH_LOG_ERROR(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_FORMAT("EhsTV_blit",pSurface->eFormat));
         break;
     }
 
@@ -702,7 +702,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
             pSurface->pPalette = NULL;
             break;
         default:
-            EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("EhsTVSurface_create"));
+            EHSH_LOG_ERROR(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("EhsTVSurface_create"));
             //if (bTemporary) {
             EhsHMem_tempFree(pSurface);
             //}

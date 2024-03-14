@@ -61,13 +61,23 @@
 /**
  * Perform necessary Operating system setup upon system initialisation
  */
+#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    extern EhsConsoleQueueType EhsTgtConsoleInputQueue;
+    extern EhsConsoleQueueType EhsTgtConsoleOutputQueue;
+    static void EhsTOS_ConsoleQueue_init(){
+        EhsTgtConsoleInputQueue.xQueue=EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+        EhsTgtConsoleOutputQueue.xQueue=EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+    }
+#else //#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    static void EhsTOS_ConsoleQueue_init(){
+    }
+#endif //#else #ifdef EHS_DEBUG_TCPIP_CONSOLE
 void EhsTOsSys_init(void)
 {
+    EhsTOS_ConsoleQueue_init();
     EhsTPMutex_init();
     EhsTgtTimer_init();
     /* start TCP/IP server thread */
-    // Moved to common code : EhsHThread_execute(EhsSvcTcp_server,NULL,-90); // start with low priority for debugging portal
-
 }
 
 

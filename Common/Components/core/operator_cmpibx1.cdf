@@ -1,69 +1,138 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>ComparatorGreaterInt1</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-  </Block>
-  <Menu>Math
-    <Menu>Operators
-      <Menu>&gt;
-        <Menu>int</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is a 2-input integer comparator.</LongDescription>
-  <Parameter>
-    <Name>Constant</Name>
-    <DataType>I</DataType>
-    <DefaultValue>0</DefaultValue>
-    <MinValue>-2147483648</MinValue>
-    <MaxValue>2147483647</MaxValue>
-    <Description>Comparator constant</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Port>
-    <DataType>I</DataType>
-    <Description>A</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="1">Run_ComparatorGreaterInt</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>B</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="2">Run_ComparatorGreaterInt</FunctionName>
-  </Port>
-  <Port>
-    <DataType>B</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <FunctionName argument="3">Run_ComparatorGreaterInt</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">Run_ComparatorGreaterInt</FunctionName>
-  </Port>
-  <Port>
-    <Description>t</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="4">Run_ComparatorGreaterInt</FunctionName>
-  </Port>
-  <Port>
-    <Description>f</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>25</YCoordinate>
-    <FunctionName argument="5">Run_ComparatorGreaterInt</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a 2-input integer comparator.</LongDescription>
+        <UserName/>
+        <Menu>
+            Math
+            <Menu>
+                Operators
+                <Menu>
+                    &gt;
+                    <Menu>int</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>50</Width>
+        <Height>60</Height>
+        <Text>B&gt;A</Text>
+        <TextX>12</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>ComparatorGreaterInt1</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xD107</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>1e5f650c</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Constant</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-2147483648</MinValue>
+            <MaxValue>2147483647</MaxValue>
+            <Description>Comparator constant</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+            <DisplayOnWidget>
+                <x>12</x>
+                <y>38</y>
+            </DisplayOnWidget>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_ComparatorGreaterInt</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <DataType>I</DataType>
+            <Description>A</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName>A</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>B</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName>B</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>45</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>t</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>45</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>t</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>f</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>45</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>f</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

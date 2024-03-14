@@ -12,8 +12,10 @@
 #include "inx-component.h"
 #include "inx-application_info_getter.h"
 #include "hal_devapps.h" // Use the app downloader code from here
-//todo - the following includes should n't be used. Use the HAL methods instead.
+
+//todo2022 - the following includes should n't be used. Use the HAL methods instead.
 #include <sys/types.h>
+
 #include <dirent.h>
 //ICB HEADER MACRO END -- DO NOT ALTER
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -27,15 +29,15 @@ typedef struct
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(application_info_getter)
 
-EHS_FB_FUNCTION_ENTRY("getList", 0x00, application_info_getter_getList)
+EHS_FB_FUNCTION_ENTRY("getList", 0x01, application_info_getter_getList)
 
-EHS_FB_FUNCTION_ENTRY("getInfo", 0x01, application_info_getter_getInfo)
+EHS_FB_FUNCTION_ENTRY("getInfo", 0x02, application_info_getter_getInfo)
 
-EHS_FB_FUNCTION_ENTRY("setDefault", 0x02, application_info_getter_setDefault)
+EHS_FB_FUNCTION_ENTRY("setDefault", 0x03, application_info_getter_setDefault)
 
-EHS_FB_FUNCTION_ENTRY("deleteApp", 0x03, application_info_getter_deleteApp)
+EHS_FB_FUNCTION_ENTRY("deleteApp", 0x04, application_info_getter_deleteApp)
 
-EHS_FB_FUNCTION_ENTRY("getDefault", 0x04, application_info_getter_getDefault)
+EHS_FB_FUNCTION_ENTRY("getDefault", 0x05, application_info_getter_getDefault)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -262,7 +264,7 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getInfo)
             return;
         }
 
-        //todo 2022 don't do this for ESP32
+        //todo 2022 don't do this for ESP32 -why not?
 #ifndef EHS_ESP32_SUPPORT
         // read to end of file
         while (EhsFgets(returndata,EHS_STRING_LENGTH_MAX,infofile) != NULL)

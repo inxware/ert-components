@@ -63,7 +63,7 @@ typedef struct
 
 EHS_FB_FUNCTIONS_START(AdditionTwoInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_AdditionTwoInputInt", 0x00, AdditionTwoInputInt)
+EHS_FB_FUNCTION_ENTRY("Run_AdditionTwoInputInt", 0x01, AdditionTwoInputInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -111,7 +111,7 @@ EHS_FB_RUN_FUNCTION(AdditionTwoInputInt)
 
 EHS_FB_FUNCTIONS_START(AdditionThreeInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_AdditionThreeInputInt", 0x00, AdditionThreeInputInt)
+EHS_FB_FUNCTION_ENTRY("Run_AdditionThreeInputInt", 0x01, AdditionThreeInputInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -159,7 +159,7 @@ EHS_FB_RUN_FUNCTION(AdditionThreeInputInt)
 
 EHS_FB_FUNCTIONS_START(AdditionFourInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_AdditionFourInputInt", 0x00, AdditionFourInputInt)
+EHS_FB_FUNCTION_ENTRY("Run_AdditionFourInputInt", 0x01, AdditionFourInputInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -208,7 +208,7 @@ EHS_FB_RUN_FUNCTION(AdditionFourInputInt)
 
 EHS_FB_FUNCTIONS_START(AdditionTwoInputReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_AdditionTwoInputReal", 0x00, AdditionTwoInputReal)
+EHS_FB_FUNCTION_ENTRY("Run_AdditionTwoInputReal", 0x01, AdditionTwoInputReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -258,7 +258,7 @@ EHS_FB_RUN_FUNCTION(AdditionTwoInputReal)
 
 EHS_FB_FUNCTIONS_START(AdditionThreeInputReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_AdditionThreeInputReal", 0x00, AdditionThreeInputReal)
+EHS_FB_FUNCTION_ENTRY("Run_AdditionThreeInputReal", 0x01, AdditionThreeInputReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -308,7 +308,7 @@ EHS_FB_RUN_FUNCTION(AdditionThreeInputReal)
 
 EHS_FB_FUNCTIONS_START(AdditionFourInputReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_AdditionFourInputReal", 0x00, AdditionFourInputReal)
+EHS_FB_FUNCTION_ENTRY("Run_AdditionFourInputReal", 0x01, AdditionFourInputReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -359,7 +359,7 @@ EHS_FB_RUN_FUNCTION(AdditionFourInputReal)
 
 EHS_FB_FUNCTIONS_START(SubtractionInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_SubtractionInt", 0x00, SubtractionInt)
+EHS_FB_FUNCTION_ENTRY("Run_SubtractionInt", 0x01, SubtractionInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -407,7 +407,7 @@ EHS_FB_RUN_FUNCTION(SubtractionInt)
 
 EHS_FB_FUNCTIONS_START(SubtractionReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_SubtractionReal", 0x00, SubtractionReal)
+EHS_FB_FUNCTION_ENTRY("Run_SubtractionReal", 0x01, SubtractionReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -458,7 +458,7 @@ EHS_FB_RUN_FUNCTION(SubtractionReal)
 
 EHS_FB_FUNCTIONS_START(MultiplyTwoInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_MultiplyTwoInputInt", 0x00, MultiplyTwoInputInt)
+EHS_FB_FUNCTION_ENTRY("Run_MultiplyTwoInputInt", 0x01, MultiplyTwoInputInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -508,7 +508,7 @@ EHS_FB_RUN_FUNCTION(MultiplyTwoInputInt)
 
 EHS_FB_FUNCTIONS_START(MultiplyThreeInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_MultiplyThreeInputInt", 0x00, MultiplyThreeInputInt)
+EHS_FB_FUNCTION_ENTRY("Run_MultiplyThreeInputInt", 0x01, MultiplyThreeInputInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -555,7 +555,7 @@ EHS_FB_RUN_FUNCTION(MultiplyThreeInputInt)
 
 EHS_FB_FUNCTIONS_START(MultiplyFourInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_MultiplyFourInputInt", 0x00, MultiplyFourInputInt)
+EHS_FB_FUNCTION_ENTRY("Run_MultiplyFourInputInt", 0x01, MultiplyFourInputInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -603,7 +603,7 @@ EHS_FB_RUN_FUNCTION(MultiplyFourInputInt)
 
 EHS_FB_FUNCTIONS_START(MultiplyTwoInputReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_MultiplyTwoInputReal", 0x00, MultiplyTwoInputReal)
+EHS_FB_FUNCTION_ENTRY("Run_MultiplyTwoInputReal", 0x01, MultiplyTwoInputReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -652,7 +652,7 @@ EHS_FB_RUN_FUNCTION(MultiplyTwoInputReal)
 
 EHS_FB_FUNCTIONS_START(MultiplyThreeInputReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_MultiplyThreeInputReal", 0x00, MultiplyThreeInputReal)
+EHS_FB_FUNCTION_ENTRY("Run_MultiplyThreeInputReal", 0x01, MultiplyThreeInputReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -701,7 +701,7 @@ EHS_FB_RUN_FUNCTION(MultiplyThreeInputReal)
 
 EHS_FB_FUNCTIONS_START(MultiplyFourInputReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_MultiplyFourInputReal", 0x00, MultiplyFourInputReal)
+EHS_FB_FUNCTION_ENTRY("Run_MultiplyFourInputReal", 0x01, MultiplyFourInputReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -753,7 +753,7 @@ EHS_FB_RUN_FUNCTION(MultiplyFourInputReal)
 
 EHS_FB_FUNCTIONS_START(DivisionInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_DivisionInt", 0x00, DivisionInt)
+EHS_FB_FUNCTION_ENTRY("Run_DivisionInt", 0x01, DivisionInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -790,7 +790,13 @@ EHS_FB_INIT_FUNCTION(DivisionInt)
  */
 EHS_FB_RUN_FUNCTION(DivisionInt)
 {
-    NCAPSA_nOut(0) = NCAPSA_nIn(0) / NCAPSA_nIn(1);
+    EhsDataflowIntType n = NCAPSA_nIn(0);
+    EhsDataflowIntType d = NCAPSA_nIn(1);
+    if(d == 0){
+        EHSH_LOG_ERROR("DivisionInt - dividing by '0' is not allowed.");
+        return;
+    }
+    NCAPSA_nOut(0) =  n / d ;
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -801,7 +807,7 @@ EHS_FB_RUN_FUNCTION(DivisionInt)
 
 EHS_FB_FUNCTIONS_START(DivisionReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_DivisionReal", 0x00, DivisionReal)
+EHS_FB_FUNCTION_ENTRY("Run_DivisionReal", 0x01, DivisionReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -838,7 +844,13 @@ EHS_FB_INIT_FUNCTION(DivisionReal)
  */
 EHS_FB_RUN_FUNCTION(DivisionReal)
 {
-    NCAPSA_dOut(0) = NCAPSA_dIn(0) / NCAPSA_dIn(1);
+    double n = (double)NCAPSA_dIn(0);
+    double d = (double)NCAPSA_dIn(1);
+    if(d == 0.0){
+        EHSH_LOG_ERROR("DivisionReal - dividing by '0' is not allowed.");
+        return;
+    }
+    NCAPSA_dOut(0) = (EhsDataflowFloatType)(n / d);
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -851,7 +863,7 @@ EHS_FB_RUN_FUNCTION(DivisionReal)
 
 EHS_FB_FUNCTIONS_START(ModulusInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_ModulusInt", 0x00, ModulusInt)
+EHS_FB_FUNCTION_ENTRY("Run_ModulusInt", 0x01, ModulusInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -899,7 +911,7 @@ EHS_FB_RUN_FUNCTION(ModulusInt)
 
 EHS_FB_FUNCTIONS_START(ModulusReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ModulusReal", 0x00, ModulusReal)
+EHS_FB_FUNCTION_ENTRY("Run_ModulusReal", 0x01, ModulusReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -949,7 +961,7 @@ EHS_FB_RUN_FUNCTION(ModulusReal)
 
 EHS_FB_FUNCTIONS_START(PowerInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_PowerInt", 0x00, PowerInt)
+EHS_FB_FUNCTION_ENTRY("Run_PowerInt", 0x01, PowerInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1022,7 +1034,7 @@ EHS_FB_RUN_FUNCTION(PowerInt)
 
 EHS_FB_FUNCTIONS_START(PowerReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_PowerReal", 0x00, PowerReal)
+EHS_FB_FUNCTION_ENTRY("Run_PowerReal", 0x01, PowerReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1072,7 +1084,7 @@ EHS_FB_RUN_FUNCTION(PowerReal)
 
 EHS_FB_FUNCTIONS_START(SquareInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_SquareInt", 0x00, SquareInt)
+EHS_FB_FUNCTION_ENTRY("Run_SquareInt", 0x01, SquareInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1120,7 +1132,7 @@ EHS_FB_RUN_FUNCTION(SquareInt)
 
 EHS_FB_FUNCTIONS_START(SquareReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_SquareReal", 0x00, SquareReal)
+EHS_FB_FUNCTION_ENTRY("Run_SquareReal", 0x01, SquareReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1170,7 +1182,7 @@ EHS_FB_RUN_FUNCTION(SquareReal)
 
 EHS_FB_FUNCTIONS_START(AddAccumulateInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_AddAccumulateInt", 0x00, AddAccumulateInt)
+EHS_FB_FUNCTION_ENTRY("Run_AddAccumulateInt", 0x01, AddAccumulateInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1229,7 +1241,7 @@ EHS_FB_RUN_FUNCTION(AddAccumulateInt)
 
 EHS_FB_FUNCTIONS_START(AddAccumulateReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_AddAccumulateReal", 0x00, AddAccumulateReal)
+EHS_FB_FUNCTION_ENTRY("Run_AddAccumulateReal", 0x01, AddAccumulateReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1287,7 +1299,7 @@ EHS_FB_RUN_FUNCTION(AddAccumulateReal)
 
 EHS_FB_FUNCTIONS_START(SubAccumulateInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_SubAccumulateInt", 0x00, SubAccumulateInt)
+EHS_FB_FUNCTION_ENTRY("Run_SubAccumulateInt", 0x01, SubAccumulateInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1346,7 +1358,7 @@ EHS_FB_RUN_FUNCTION(SubAccumulateInt)
 
 EHS_FB_FUNCTIONS_START(SubAccumulateReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_SubAccumulateReal", 0x00, SubAccumulateReal)
+EHS_FB_FUNCTION_ENTRY("Run_SubAccumulateReal", 0x01, SubAccumulateReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1406,7 +1418,7 @@ EHS_FB_RUN_FUNCTION(SubAccumulateReal)
 
 EHS_FB_FUNCTIONS_START(SquareRootReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_SquareRootReal", 0x00, SquareRootReal)
+EHS_FB_FUNCTION_ENTRY("Run_SquareRootReal", 0x01, SquareRootReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1455,7 +1467,7 @@ EHS_FB_RUN_FUNCTION(SquareRootReal)
 
 EHS_FB_FUNCTIONS_START(LogBaseTenReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogBaseTenReal", 0x00, LogBaseTenReal)
+EHS_FB_FUNCTION_ENTRY("Run_LogBaseTenReal", 0x01, LogBaseTenReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1504,7 +1516,7 @@ EHS_FB_RUN_FUNCTION(LogBaseTenReal)
 
 EHS_FB_FUNCTIONS_START(LogReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogReal", 0x00, LogReal)
+EHS_FB_FUNCTION_ENTRY("Run_LogReal", 0x01, LogReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1562,7 +1574,7 @@ struct  tTrigparms
 
 EHS_FB_FUNCTIONS_START(SineReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_SineReal", 0x00, SineReal)
+EHS_FB_FUNCTION_ENTRY("Run_SineReal", 0x01, SineReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1615,7 +1627,7 @@ EHS_FB_RUN_FUNCTION(SineReal)
 
 EHS_FB_FUNCTIONS_START(CosineReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_CosineReal", 0x00, CosineReal)
+EHS_FB_FUNCTION_ENTRY("Run_CosineReal", 0x01, CosineReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1669,7 +1681,7 @@ EHS_FB_RUN_FUNCTION(CosineReal)
 
 EHS_FB_FUNCTIONS_START(TanReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_TanReal", 0x00, TanReal)
+EHS_FB_FUNCTION_ENTRY("Run_TanReal", 0x01, TanReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1722,7 +1734,7 @@ EHS_FB_RUN_FUNCTION(TanReal)
 
 EHS_FB_FUNCTIONS_START(ArcSineReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArcSineReal", 0x00, ArcSineReal)
+EHS_FB_FUNCTION_ENTRY("Run_ArcSineReal", 0x01, ArcSineReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1775,7 +1787,7 @@ EHS_FB_RUN_FUNCTION(ArcSineReal)
 
 EHS_FB_FUNCTIONS_START(ArcCosineReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArcCosineReal", 0x00, ArcCosineReal)
+EHS_FB_FUNCTION_ENTRY("Run_ArcCosineReal", 0x01, ArcCosineReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1828,7 +1840,7 @@ EHS_FB_RUN_FUNCTION(ArcCosineReal)
 
 EHS_FB_FUNCTIONS_START(ArcTanReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArcTanReal", 0x00, ArcTanReal)
+EHS_FB_FUNCTION_ENTRY("Run_ArcTanReal", 0x01, ArcTanReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1881,7 +1893,7 @@ EHS_FB_RUN_FUNCTION(ArcTanReal)
 
 EHS_FB_FUNCTIONS_START(HyperbolicSineReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_HyperbolicSineReal", 0x00, HyperbolicSineReal)
+EHS_FB_FUNCTION_ENTRY("Run_HyperbolicSineReal", 0x01, HyperbolicSineReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1933,7 +1945,7 @@ EHS_FB_RUN_FUNCTION(HyperbolicSineReal)
 
 EHS_FB_FUNCTIONS_START(HyperbolicCosineReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_HyperbolicCosineReal", 0x00, HyperbolicCosineReal)
+EHS_FB_FUNCTION_ENTRY("Run_HyperbolicCosineReal", 0x01, HyperbolicCosineReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1985,7 +1997,7 @@ EHS_FB_RUN_FUNCTION(HyperbolicCosineReal)
 
 EHS_FB_FUNCTIONS_START(HyperbolicTanReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_HyperbolicTanReal", 0x00, HyperbolicTanReal)
+EHS_FB_FUNCTION_ENTRY("Run_HyperbolicTanReal", 0x01, HyperbolicTanReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2037,7 +2049,7 @@ EHS_FB_RUN_FUNCTION(HyperbolicTanReal)
 
 EHS_FB_FUNCTIONS_START(ArcHyperbolicSineReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArcHyperbolicSineReal", 0x00, ArcHyperbolicSineReal)
+EHS_FB_FUNCTION_ENTRY("Run_ArcHyperbolicSineReal", 0x01, ArcHyperbolicSineReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2089,7 +2101,7 @@ EHS_FB_RUN_FUNCTION(ArcHyperbolicSineReal)
 
 EHS_FB_FUNCTIONS_START(ArcHyperbolicCosineReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArcHyperbolicCosineReal", 0x00, ArcHyperbolicCosineReal)
+EHS_FB_FUNCTION_ENTRY("Run_ArcHyperbolicCosineReal", 0x01, ArcHyperbolicCosineReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2141,7 +2153,7 @@ EHS_FB_RUN_FUNCTION(ArcHyperbolicCosineReal)
 
 EHS_FB_FUNCTIONS_START(ArcHyperbolicTanReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArcHyperbolicTanReal", 0x00, ArcHyperbolicTanReal)
+EHS_FB_FUNCTION_ENTRY("Run_ArcHyperbolicTanReal", 0x01, ArcHyperbolicTanReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2195,7 +2207,7 @@ EHS_FB_RUN_FUNCTION(ArcHyperbolicTanReal)
 
 EHS_FB_FUNCTIONS_START(AbsInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_AbsInt", 0x00, AbsInt)
+EHS_FB_FUNCTION_ENTRY("Run_AbsInt", 0x01, AbsInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2249,7 +2261,7 @@ EHS_FB_RUN_FUNCTION(AbsInt)
 
 EHS_FB_FUNCTIONS_START(ExponentialReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ExponentialReal", 0x00, ExponentialReal)
+EHS_FB_FUNCTION_ENTRY("Run_ExponentialReal", 0x01, ExponentialReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2303,7 +2315,7 @@ EHS_FB_RUN_FUNCTION(ExponentialReal)
 
 EHS_FB_FUNCTIONS_START(ComparatorGreaterInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterInt", 0x00, ComparatorGreaterInt1)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterInt", 0x01, ComparatorGreaterInt1)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_COMPEQUALS_IN_0 0
@@ -2411,7 +2423,7 @@ EHS_FB_RUN_FUNCTION(ComparatorGreaterInt1)
 
 EHS_FB_FUNCTIONS_START(ComparatorGreaterReal1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterReal", 0x00, ComparatorGreaterReal1)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterReal", 0x01, ComparatorGreaterReal1)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2499,7 +2511,7 @@ EHS_FB_RUN_FUNCTION(ComparatorGreaterReal1)
 
 EHS_FB_FUNCTIONS_START(ComparatorGreaterEqualInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterEqualInt", 0x00, ComparatorGreaterEqualInt1)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterEqualInt", 0x01, ComparatorGreaterEqualInt1)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2588,7 +2600,7 @@ EHS_FB_RUN_FUNCTION(ComparatorGreaterEqualInt1)
 
 EHS_FB_FUNCTIONS_START(ComparatorGreaterEqualReal1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterEqualReal", 0x00, ComparatorGreaterEqualReal1)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterEqualReal", 0x01, ComparatorGreaterEqualReal1)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2676,7 +2688,7 @@ EHS_FB_RUN_FUNCTION(ComparatorGreaterEqualReal1)
 
 EHS_FB_FUNCTIONS_START(ComparatorEqualInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorEqualInt", 0x00, ComparatorEqualInt1)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorEqualInt", 0x01, ComparatorEqualInt1)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2766,7 +2778,7 @@ EHS_FB_RUN_FUNCTION(ComparatorEqualInt1)
 
 EHS_FB_FUNCTIONS_START(ComparatorEqualReal1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorEqualReal", 0x00, ComparatorEqualReal1)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorEqualReal", 0x01, ComparatorEqualReal1)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2857,9 +2869,9 @@ EHS_FB_RUN_FUNCTION(ComparatorEqualReal1)
 
 EHS_FB_FUNCTIONS_START(IntegratorInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_IntegratorInt", 0x00, IntegratorInt)
+EHS_FB_FUNCTION_ENTRY("Run_IntegratorInt", 0x01, IntegratorInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_IntegratorIntReset", 0x01, IntegratorInt_Reset)
+EHS_FB_FUNCTION_ENTRY("Run_IntegratorIntReset", 0x02, IntegratorInt_Reset)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_INEGRATORINT_OFFSET 0
@@ -2973,9 +2985,9 @@ EHS_FB_RUN_FUNCTION(IntegratorInt_Reset)
 
 EHS_FB_FUNCTIONS_START(IntegratorReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_IntegratorReal", 0x00, IntegratorReal)
+EHS_FB_FUNCTION_ENTRY("Run_IntegratorReal", 0x01, IntegratorReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_IntegratorRealReset", 0x01, IntegratorReal_Reset)
+EHS_FB_FUNCTION_ENTRY("Run_IntegratorRealReset", 0x02, IntegratorReal_Reset)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_INEGRATORREAL_OFFSET 0
@@ -3090,7 +3102,7 @@ EHS_FB_RUN_FUNCTION(IntegratorReal_Reset)
 
 EHS_FB_FUNCTIONS_START(MaxInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_MaxInt", 0x00, MaxInt)
+EHS_FB_FUNCTION_ENTRY("Run_MaxInt", 0x01, MaxInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -3145,7 +3157,7 @@ EHS_FB_RUN_FUNCTION(MaxInt)
 
 EHS_FB_FUNCTIONS_START(MinInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_MinInt", 0x00, MinInt)
+EHS_FB_FUNCTION_ENTRY("Run_MinInt", 0x01, MinInt)
 EHS_FB_FUNCTIONS_END
 
 /**

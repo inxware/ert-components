@@ -14,9 +14,10 @@
 
 void EhsTInitFileSystem(struct android_app* app)
 {
-    // copy over assets
-   // LOGE("Init FSOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-    //EHSH_LOG_ERROR("XXXXXXXXXXXXXXX EhsTInitFileSystem");
+   /* Copy over assets from Android resource directory to their installed location.
+      Cherry pick any files that might be debug mode security certificates
+      todo2023 - this should be remoed for secure builds
+   */  
     AAssetManager * mgr = app->activity->assetManager;
     AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
     const char* filename = (const char*)NULL;
@@ -26,8 +27,8 @@ void EhsTInitFileSystem(struct android_app* app)
         char buf[BUFSIZ];
         FILE* out = NULL;
         int nb_read = 0;
-        //EHSH_LOG_ERROR("XXXXXXXXXXXXXXX %s\n",filename);
-        if (EhsStrcmp("cacert.pem",filename) == 0)
+#ifndef EHS_SECURE_BUILD
+        if (EhsStrcmp("cacert.pem",filename) == 0 || EhsStrcmp("devman-ca.crt",filename) == 0)
         {
             //EHSH_LOG_ERROR("XXXXXXXXXXXXXXX found cert");
             ehs_char full_write_path[EHS_STRING_LENGTH_MAX]="";
@@ -36,15 +37,13 @@ void EhsTInitFileSystem(struct android_app* app)
             EhsStrcat(full_write_path,filename);
             out = Ehs_DevmanFopen (full_write_path,"w");
         }
-        else   // just stick them in t
+        else   // just stick them in the user directory
         {
-            //Ehs_UserFopen(const ehs_char * szFilename,const ehs_char * access);
-            //Ehs_SysFopen(const ehs_char * szFilename,const ehs_char * access);
-            //Ehs_AppFopen(const ehs_char * szFilename,const ehs_char * access) ;
-            //EhsStrcat(full_write_path,filename);
-            //EhsStrcat(full_write_path,filename);
-            FILE* out = Ehs_UserFopen(filename,"w");
+#endif
+            out = Ehs_UserFopen(filename,"w");
+#ifndef EHS_SECURE_BUILD
         }
+#endif
 
         while (out && (nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
             fwrite(buf, nb_read, 1, out);

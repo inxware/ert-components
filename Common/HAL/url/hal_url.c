@@ -320,7 +320,7 @@ ehs_bool EhsHCreateQueryStringNum(ehs_char * current_post, ehs_char * tag,const 
 
 ehs_bool EhsHSetUpClientTlsCertificate(CURL *curl, RuntimePathType location, ehs_char * cert_path,ehs_char * key_path, ehs_char * pPassphrase)
 {
-// @TODO - this needs to be reviewd e.g. cert for android, ambifier, unity etc.
+// @TODO - mve these buffer off the stack... one day
 
     ehs_char full_cert_path[EHS_STRING_LENGTH_MAX];
     ehs_char full_key_path[EHS_STRING_LENGTH_MAX];
@@ -399,7 +399,7 @@ ehs_bool EhsHSetUpCaTlsCertificate(CURL *curl, RuntimePathType location, ehs_cha
         /* set the file with the certs vaildating the server */
 
 //#define DONT_____EHS_NETWORKING_NO_CA_CHECK/#define EHS_TLS_DISABLE_SERVER_AUTH
-#define EHS_TLS_DISABLE_SERVER_AUTH
+//#define EHS_TLS_DISABLE_SERVER_AUTH
 #ifdef EHS_TLS_DISABLE_SERVER_AUTH
 
 #warning "NOT DOING TLS HOST_AUTHENTICATION"
@@ -940,7 +940,7 @@ ehs_bool EhsHURLConfigPostGet(CURL *curl,EhsH_URLwrite_data_bufferType * buffer_
 
         if (CURLE_OK != success)
         {
-            EHSH_LOG_ERROR("CURLOPT_URL failed for URL=[%x] post=%s",curl, URL);
+            EHSH_LOG_ERROR("CURLOPT_URL failed for URL=[%x] post=%s",(unsigned int) curl, URL);
             ret = EHS_FALSE;
         }
         else

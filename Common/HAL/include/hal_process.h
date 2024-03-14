@@ -46,11 +46,11 @@
  * EhsTPMutexClass is an opaque pointer to pthread_mutex_t* EhsTPMutexStruct
  */
 
-typedef struct EhsTPMutexStruct *EhsTPMutexClass;
+typedef struct EhsTPMutexStruct * EhsTPMutexClass;
 
 /* This is a conditional sempahpore - usally posix thread type. also defined as an opaque pointer */
 
-typedef struct EhsTPConditionStruct *EhsTPConditionClass;
+typedef struct EhsTPConditionStruct * EhsTPConditionClass;
 
 /*****************************************************************************/
 /* Declare global variables */
@@ -119,6 +119,7 @@ EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_UrlGet;
 /**
  * Mutex resource used to control access to the playManager data
  */
+// why here? 
 EHS_GLOBAL EhsTPMutexClass EhsTPMutex_playManager;
 
 /*****************************************************************************/
@@ -158,12 +159,14 @@ typedef EhsThreadFuncReturnType (*EhsGeneralThreadFuncType)(void* context);
 
 #ifndef EHS_SKIP_COMPONENT_ONLY_HAL
 
-EHS_GLOBAL ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context,ehs_sint16 priority) ;
+#define EHS_THREAD_USE_DEFAULT_STACK_SIZE -1 
+
+EHS_GLOBAL ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize);
 
 /**
  * Execute a function from a function block in a separate thread - generic
  */
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void * context,ehs_sint16 priority) ;
+EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void * context, ehs_sint16 priority, ehs_sint32 stackSize);
 EHS_GLOBAL void EhsTPThread_exit();
 #define EhsHThread_yield() EhsTPThread_yield();	// Yield thread
 #define EhsHThread_exit() EhsTPThread_exit();return 0l	//< Value that can be safely used for returning from thread functions

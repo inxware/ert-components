@@ -103,8 +103,6 @@ EhsWidgetClass* EhsWidgetPatch_init(const EhsGraphicsRectangleClass* pBounds, eh
  */
 ehs_bool EhsWidgetPatch_create(EhsWidgetClass* pWidget)
 {
-//	LOGI("EHS:Patch_create-----------");
-
     /* No specific widget creation activities are required */
     return EHS_TRUE;
 }

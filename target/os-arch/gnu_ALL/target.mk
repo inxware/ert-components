@@ -11,21 +11,54 @@
 
 ifndef EHS_COMMS_API_SUPPORT
 	export  EHS_COMMS_API_SUPPORT=bsdsockets
-	DEFS += EHS_COMMS_API_SUPPORT_BSDSOCKETS
-    DEFS += EHS_COMMS_API_SUPPORT
+    DEFS += $(EHS_COMMS_API_SUPPORT)
 endif
 
 #target types are always the same for all linux so just use one file
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/
 
+#These are the core mandatory target apecific porting components needed to run eRT. 
 OBJECTS += target_file.$(OBJ)
 OBJECTS += target_process.$(OBJ) 
 OBJECTS += target_main.$(OBJ)
 OBJECTS += target_math.$(OBJ) 
 
 # We nearly always need this for GNU targets
-LIB+=z
+  LIB+=z
+  
+ifdef EHS_MINGW2
+	LIB+=archive-2
+else
+	ifdef EHS_SKIP_GNULIBRARIES
+		LIB+=archive
+	else			
+		LIB+=archive	
+	endif
+endif
 
+export EHS_DEBIAN_VERSION
 
-
+ifdef EHS_ANDROID
+	#doing libidn in url.mk to ensure oorder of statics is correct
+	#LIB+=idn
+else
+    ifndef EHS_SKIP_GNULIBRARIES
+    	ifeq ($(EHS_DEBIAN_VERSION),8)
+           LIB+=idn
+		else ifeq ($(EHS_DEBIAN_VERSION),9)
+           LIB+=idn2
+		else ifeq ($(EHS_DEBIAN_VERSION),10)
+           LIB+=idn2
+		else ifeq ($(EHS_DEBIAN_VERSION),11)
+           LIB+=idn2
+       	else   
+	   	   ifneq ($(EHS_MINGW),)    
+        		#LIB+=idn
+			else
+#default is now libidn2
+			    LIB+=idn2
+			endif
+       	endif
+    endif
+endif

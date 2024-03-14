@@ -44,7 +44,7 @@ EHS_FB_FUNCTIONS(gui_text_string1)
 
 #ifdef EHS_TARGET_FP_SUPPORT
 #define EHS_FB_NAME_gui_text_real1 "gui_text_real1"
-#define EHS_FB_ID_gui_text_real1E 0x5009
+#define EHS_FB_ID_gui_text_real1 0x5009
 
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common

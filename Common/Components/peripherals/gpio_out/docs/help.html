@@ -1,73 +1,161 @@
 <html>
-<head>
-<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
-</head>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <link href="iabStyle.css" rel="StyleSheet" type="text/css">
+    <link href="../iabStyle.css" rel="StyleSheet" type="text/css">
+    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css">
+    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css">
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container"> <span class="toc_span"> Gpio Output </span> <span
 
-<body>
+          class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span
 
-<!--Name of Component-->
-<h1 class=component>
-GPIO OUTPUT
-</h1>
-<!--General Description-->
-<p class=component>
-GPIO Output.
-</p>
+          class="toc_span_items"> <a href="#parameters"> Params &#8595; </a> </span>
+        <span class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </span>
+      </div>
+      <p class="component"> General purpose output block.&nbsp; </p>
+      <p class="component">Outputs default to TTL (pull up and pull down) or
+        Open Drain (Pull down only).</p>
+      <p class="component">GPIO inputs are require only their pinID to be
+        defined and the values are polled. There is no support for
+        interrupt/event driven options that some hardware may support.</p>
+       <heading3>NXP Kenitis reference Board</heading3>
+         <p>0:CONFIG_GPIO_PROCBOARDLED1_RED_PIN
+         <p>1:CONFIG_GPIO_PROCBOARDLED1_GRN_PIN
+         <p>2:CONFIG_GPIO_PROCBOARDLED2_RED_PIN
+         <p>3:CONFIG_GPIO_PROCBOARDLED2_GRN_PIN
+         <p>4:CONFIG_GPIO_BUTTON_SET_PIN
+         <p>5:CONFIG_GPIO_BUTTON_MODE_PIN (INX_NXP_KENETIS_BOARD_VARIANT == INX_HR_HRc)
+         <p>6:CONFIG_GPIO_BUTTON_DOWN_PIN
+         <p>7:CONFIG_GPIO_BUTTON_UP_PIN
+         <p>8:CONFIG_GPIO_CONTROL_INTERNAL_RELAY_1
+         <p>9:CONFIG_GPIO_CONTROL_INTERNAL_RELAY_2
+         <p>10:CONFIG_GPIO_CONTROL_INTERNAL_RELAY_3
+         <p>11:CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_1
+         <p>12:CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_2
+         <p>13:CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_3
+         <p>14:CONFIG_GPIO_SENSE_CONRELAY_1
+         <p>15:CONFIG_GPIO_SENSE_CONRELAY_2
+         <heading3>Pine64 A6 Cluster Board Armbian/Android</heading3>
+         <p>0:FP LED CH1</p>
+          <p>1:FP LED CH2</p>
+          <p>2:FP LED CH3</p>
+          <p>3:FP LED CH4</p>
+          <p>4:FP LED CH5</p>
+          <p>5:FP LED CH6</p>
+          <p>6:FP LED CH7</p>
 
-<!--Ports - form - short desc: long desc-->
-<h3 class=ports>Ports</h3>
-<ul class=noBullet>
-<li>
-<h6 class=ports>
-[In]
-read:
-<a name="[In]read">
-</h6>
-<p class=ports>Event for setting GPIO output value.</p>
-</li>
-<li>
-<h6 class=ports>
-[Out]
-value:
-<a name="[In]value">
-</h6>
-<p class=ports>Outputs this value to GPIO.</p>
-</li>
-</ul>
+            <p>Reset#1-CH7_GPIO_ResetCh1	62	gpio226 PH2</p>
+            <p>Reset#2-CH7_GPIO_ResetCh2	37	gpio227 PH3</p>
+            <p>Reset#3-CH7_GPIO_ResetCh3	68	gpio229 PH5</p>
+            <p>Reset#4-CH7_GPIO_ResetCh4	66	gpio230 PH6</p>
+            <p>Reset#5-CH7_GPIO_ResetCh5	38	gpio232 PH8</p>
+            <p>Reset#6/7-CH7_GPIO_ResetCh6/CH6_GPIO_ResetCh7	77	gpio233 PH9</p>
+            <p>Global Mute SLOTn_PB1	75	gpio33	PB1</p>
+            
+            
+          
+    </div>
+    <!--Parameters - form - short desc: long desc-->
+    <div class="section_heading"> <span class="toc_span" id="parameters">
+        Parameters </span>
+      <div class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </div>
+      <div class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </div>
+      <div class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </div>
+    </div>
+    <table class="table_params">
+      <tbody>
+        <tr>
+          <th style="width:60px;"> name </th>
+          <th> type </th>
+          <th> default </th>
+          <th> min. </th>
+          <th> max. </th>
+          <th> description </th>
+        </tr>
+        <tr>
+          <td>Pin ID</td>
+          <td>String</td>
+          <td>(Blank)</td>
+          <td>-</td>
+          <td>-</td>
+          <td>ID for PIN</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="section_heading"> <span class="toc_span" id="ports"> Ports </span>
+      <span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
+      <span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span
 
-<!--Parameters - form - short desc: long desc-->
-<h3 class=parameters>Parameters</h3>
-<p class=profiles>GPIO ID.</p>
-<!--State Machine - form - image - example-->
-<h3 class=stateMachine>State Machine</h3>
-<p class=stateMachine>Stateless.</p>
-<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
-<!--profiles - form - list-->
-<h3 class=profiles>Profiles</h3>
-<p class=profiles>All.</p>
-<!--Toolbox-->
-<h3 class=toolbox>Toolbox</h3>
-<p class=toolbox>GUI/Level1.</p>
-<!--Version-->
-<h3 class=version>Version</h3>
-<p class=version>v2.1.</p>
-<!--Dependencies - form - list-->
-<h3 class=dependencies>Native Dependencies</h3>
-<ul class=dependencies><li class=dependencies>
-<h6 class=dependencies>TDK1.1: </h6>
-<p class=dependencies></p>
-</li></ul>
-<!--Licence Type-->
-<h3 class=licenceType>Licence Type</h3>
-<p class=licenceType>LGPL.</p>
-<!--Component Supplier-->
-<h3 class=supplier>Component Supplier</h3>
-<p class=supplier>inx ltd.</p>
-<!--More Info on Website-->
-<h3 class=more>More Information</h3>
-<p class=link><a href=http://www.inx-systems.net target=_blank>More information - external website hosted by the Component Supplier.</a></p>
-</body></html>
+        class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
+    </div>
+    <table class="table">
+      <tbody>
+        <tr>
+          <th> In Ev. </th>
+          <th> <br>
+          </th>
+        </tr>
+        <tr>
+          <td class="portsBool"><a name="[In]write">write</a></td>
+          <td>Write input event.</td>
+        </tr>
+        <tr>
+          <th> Data In </th>
+          <th> <br>
+          </th>
+        </tr>
+        <tr>
+          <td class="portsBool"><br>
+          </td>
+          <td>Input data.</td>
+        </tr>
+        <tr>
+          <th> Data Out </th>
+          <th> <br>
+          </th>
+        </tr>
+        <tr>
+          <th> Out Ev. </th>
+          <th> <br>
+          </th>
+        </tr>
+      </tbody>
+    </table>
+    <div class="section_heading"> <span class="toc_span" id="misc"> Misc </span>
+      <span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
+      <span class="toc_span_items"> <a href="#ports"> Ports &#8593; </a> </span> <span
+
+        class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
+    </div>
+    <table>
+      <tbody>
+        <tr class="fsm_row">
+          <td style="width:90px;"> <b> State Machine </b> </td>
+          <td colspan="5"> Stateless. </td>
+        </tr>
+        <tr>
+          <td class="heading-cell"> <b> Toolbox </b> </td>
+          <td> GUI/Level1. </td>
+          <td class="heading-cell"> <b> Version </b> </td>
+          <td> v2.1. </td>
+        </tr>
+        <tr>
+          <td class="heading-cell"> <b> Licence Type </b> </td>
+          <td> MPL2.0 </td>
+          <td class="heading-cell"> <b> Component Supplier </b> </td>
+          <td> <a href="http://www.inx-systems.net" target="_blank"> inx ltd. </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell"> <b> Minumum DCC </b> </td>
+          <td> A0000 </td>
+          <td class="heading-cell"> <b> Profiles </b> </td>
+          <td> GPIO ID. </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

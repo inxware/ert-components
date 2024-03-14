@@ -23,6 +23,14 @@
 typedef int socklen_t;
 #endif
 
+#ifdef EHS_MINGW
+#define EHS_MQTT_PUBLISH_EXPORT __declspec(dllexport)
+#else
+#define EHS_MQTT_PUBLISH_EXPORT // nothing
+#endif
+/* Function used for polling the MQTT client process on various platforms*/
+EHS_MQTT_PUBLISH_EXPORT ehs_bool EhsMQTTPublishWritePoll(ehs_char *topic, ehs_char* payload, ehs_uint8* qos);
+
 
 
 #endif

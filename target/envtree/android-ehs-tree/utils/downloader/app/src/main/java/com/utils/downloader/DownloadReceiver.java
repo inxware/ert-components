@@ -16,7 +16,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             int result = DownloadService.download(extras);
             setResult(result, null, null);
         }else{
-            setResult(DownloadService.DownloadRequest.DOWNLOAD_FAIL, null, null);
+            setResult(DownloadService.DownloadRequest.DOWNLOADER_NOT_READY, null, null);
             EHSS_Logger.error("Downloader failed! No arguments were passed.");
         }
     }

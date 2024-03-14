@@ -1,39 +1,87 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>Constant_Bool</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-  </Block>
-  <Menu>Deprecated
-    <Menu>Constant
-      <Menu>bool</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is a boolean constant.</LongDescription>
-  <Parameter>
-    <Name>Boolean Constant</Name>
-    <DataType>B</DataType>
-    <DefaultValue>0</DefaultValue>
-    <Description>boolean constant</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Port>
-    <DataType>B</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">Run_ConstantBool</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">Run_ConstantBool</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="2">Run_ConstantBool</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a boolean constant.</LongDescription>
+        <UserName/>
+        <Menu>
+            Deprecated
+            <Menu>
+                Constant
+                <Menu>bool</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>Constant_Bool</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x7BDF</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>ebf3cd41</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Boolean Constant</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>boolean constant</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_ConstantBool</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <DataType>B</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

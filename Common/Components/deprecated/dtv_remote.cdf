@@ -1,54 +1,108 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>DtvRemoteKey</Class>
-  <Block>
-    <Type>IO</Type>
-  </Block>
-  <Menu>Deprecated
-    <Menu>DTV
-      <Menu>Remote Key</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>Remote key providing events for button presses</LongDescription>
-  <Port>
-    <Description>menu</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="1">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>ok</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="2">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>exit</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="3">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>up</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <FunctionName argument="4">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>down</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>50</YCoordinate>
-    <FunctionName argument="5">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>internal</Description>
-    <PortType>InternalPort</PortType>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">run</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>Remote key providing events for button presses</LongDescription>
+        <UserName/>
+        <Menu>
+            Deprecated
+            <Menu>
+                DTV
+                <Menu>Remote Key</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>DtvRemoteKey</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xBB0F</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>b0db129f</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>run</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>menu</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>menu</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ok</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>ok</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>exit</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>exit</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>up</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>up</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>down</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>down</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>internal</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>internal</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

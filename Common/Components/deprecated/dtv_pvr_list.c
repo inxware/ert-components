@@ -41,7 +41,7 @@
 #include "setCompletes.h"
 #include "hal-api.h" /* Needed for logging */
 EHS_FB_FUNCTIONS_START(DtvPvrList)
-//EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvPvrList)
+//EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvPvrList)
 EHS_FB_FUNCTIONS_END
 
 /**

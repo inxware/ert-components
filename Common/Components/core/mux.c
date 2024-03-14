@@ -38,11 +38,63 @@ typedef struct
 /******************************************************************************/
 /* Define xyzzy function block */
 
+EHS_FB_FUNCTIONS_START(MultiplexOneInputInt)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexOneInputInt1)
+
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputInt)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(MultiplexOneInputInt)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexOneInputInt1)
+{
+    int* px = (int*)((NCAPSA_pMain)->pIn[0]);
+    if(*px != 3)
+    {
+    }
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
+/* Define xyzzy function block */
+
 EHS_FB_FUNCTIONS_START(MultiplexTwoInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexTwoInputInt1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexTwoInputInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexTwoInputInt2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexTwoInputInt2)
 
 EHS_FB_FUNCTIONS_END
 
@@ -113,11 +165,11 @@ EHS_FB_RUN_FUNCTION(MultiplexTwoInputInt2)
 
 EHS_FB_FUNCTIONS_START(MultiplexThreeInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexThreeInputInt1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexThreeInputInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexThreeInputInt2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexThreeInputInt2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, MultiplexThreeInputInt3)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexThreeInputInt3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -192,13 +244,13 @@ EHS_FB_RUN_FUNCTION(MultiplexThreeInputInt3)
 
 EHS_FB_FUNCTIONS_START(MultiplexFourInputInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexFourInputInt1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexFourInputInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexFourInputInt2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexFourInputInt2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, MultiplexFourInputInt3)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexFourInputInt3)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x03, MultiplexFourInputInt4)
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, MultiplexFourInputInt4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -284,13 +336,61 @@ EHS_FB_RUN_FUNCTION(MultiplexFourInputInt4)
 
 #ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
+/* Define MultiplexOneInputReal function block */
+
+EHS_FB_FUNCTIONS_START(MultiplexOneInputFloat)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexOneInputFloat1)
+
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputFloat)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(MultiplexOneInputFloat)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexOneInputFloat1)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
 /* Define MultiplexTwoInputReal function block */
 
 EHS_FB_FUNCTIONS_START(MultiplexTwoInputFloat)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexTwoInputFloat1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexTwoInputFloat1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexTwoInputFloat2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexTwoInputFloat2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -351,11 +451,11 @@ EHS_FB_RUN_FUNCTION(MultiplexTwoInputFloat2)
 
 EHS_FB_FUNCTIONS_START(MultiplexThreeInputFloat)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexThreeInputFloat1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexThreeInputFloat1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexThreeInputFloat2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexThreeInputFloat2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, MultiplexThreeInputFloat3)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexThreeInputFloat3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -430,13 +530,13 @@ EHS_FB_RUN_FUNCTION(MultiplexThreeInputFloat3)
 
 EHS_FB_FUNCTIONS_START(MultiplexFourInputFloat)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexFourInputFloat1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexFourInputFloat1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexFourInputFloat2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexFourInputFloat2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, MultiplexFourInputFloat3)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexFourInputFloat3)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x03, MultiplexFourInputFloat4)
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, MultiplexFourInputFloat4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -522,13 +622,61 @@ EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat4)
 
 #endif /* EHS_TARGET_FP_SUPPORT */
 /******************************************************************************/
+/* Define MultiplexOneInputBool function block */
+
+EHS_FB_FUNCTIONS_START(MultiplexOneInputBool)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexOneInputBool1)
+
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputBool)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(MultiplexOneInputBool)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexOneInputBool1)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
 /* Define MultiplexTwoInputBool function block */
 
 EHS_FB_FUNCTIONS_START(MultiplexTwoInputBool)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexTwoInputBool1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexTwoInputBool1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexTwoInputBool2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexTwoInputBool2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -589,11 +737,11 @@ EHS_FB_RUN_FUNCTION(MultiplexTwoInputBool2)
 
 EHS_FB_FUNCTIONS_START(MultiplexThreeInputBool)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexThreeInputBool1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexThreeInputBool1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexThreeInputBool2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexThreeInputBool2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, MultiplexThreeInputBool3)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexThreeInputBool3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -668,13 +816,13 @@ EHS_FB_RUN_FUNCTION(MultiplexThreeInputBool3)
 
 EHS_FB_FUNCTIONS_START(MultiplexFourInputBool)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexFourInputBool1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexFourInputBool1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexFourInputBool2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexFourInputBool2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, MultiplexFourInputBool3)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexFourInputBool3)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x03, MultiplexFourInputBool4)
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, MultiplexFourInputBool4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -759,13 +907,61 @@ EHS_FB_RUN_FUNCTION(MultiplexFourInputBool4)
 }
 
 /******************************************************************************/
+/* Define MultiplexOneInputString function block */
+
+EHS_FB_FUNCTIONS_START(MultiplexOneInputString)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexOneInputString1)
+
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputString)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(MultiplexOneInputString)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexOneInputString1)
+{
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
 /* Define MultiplexTwoInputString function block */
 
 EHS_FB_FUNCTIONS_START(MultiplexTwoInputString)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexTwoInputString1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexTwoInputString1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexTwoInputString2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexTwoInputString2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -826,11 +1022,11 @@ EHS_FB_RUN_FUNCTION(MultiplexTwoInputString2)
 
 EHS_FB_FUNCTIONS_START(MultiplexThreeInputString)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexThreeInputString1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexThreeInputString1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexThreeInputString2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexThreeInputString2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, MultiplexThreeInputString3)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexThreeInputString3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -905,13 +1101,13 @@ EHS_FB_RUN_FUNCTION(MultiplexThreeInputString3)
 
 EHS_FB_FUNCTIONS_START(MultiplexFourInputString)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, MultiplexFourInputString1)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexFourInputString1)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, MultiplexFourInputString2)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexFourInputString2)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, MultiplexFourInputString3)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexFourInputString3)
 
-EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x03, MultiplexFourInputString4)
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, MultiplexFourInputString4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1001,24 +1197,15 @@ EHS_FB_RUN_FUNCTION(MultiplexFourInputString4)
 /* Define IndexedMultiplexer_Event function block */
 
 EHS_FB_FUNCTIONS_START(IndexedMultiplexer_Event)
-
-EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x00, IndexedMultiplexer_Event_1)
-
-EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x01, IndexedMultiplexer_Event_2)
-
-EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x02, IndexedMultiplexer_Event_3)
-
-EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x03, IndexedMultiplexer_Event_4)
-
-EHS_FB_FUNCTION_ENTRY("Run_Input5",0x04, IndexedMultiplexer_Event_5)
-
-EHS_FB_FUNCTION_ENTRY("Run_Input6", 0x05, IndexedMultiplexer_Event_6)
-
-EHS_FB_FUNCTION_ENTRY("Run_Input7", 0x06, IndexedMultiplexer_Event_7)
-
-EHS_FB_FUNCTION_ENTRY("Run_Input8", 0x07, IndexedMultiplexer_Event_8)
-
-EHS_FB_FUNCTION_ENTRY("Reset", 0x08, IndexedMultiplexer_Event_Reset)
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, IndexedMultiplexer_Event_1)
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, IndexedMultiplexer_Event_2)
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, IndexedMultiplexer_Event_3)
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, IndexedMultiplexer_Event_4)
+EHS_FB_FUNCTION_ENTRY("Run_Input5", 0x05, IndexedMultiplexer_Event_5)
+EHS_FB_FUNCTION_ENTRY("Run_Input6", 0x06, IndexedMultiplexer_Event_6)
+EHS_FB_FUNCTION_ENTRY("Run_Input7", 0x07, IndexedMultiplexer_Event_7)
+EHS_FB_FUNCTION_ENTRY("Run_Input8", 0x08, IndexedMultiplexer_Event_8)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x09, IndexedMultiplexer_Event_Reset)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_INDEX_EVENT_OUT_INDEX 0		/**< Function block output for index triggered */

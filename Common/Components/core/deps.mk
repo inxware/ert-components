@@ -64,7 +64,7 @@ const1.$(OBJ) : target.h globals.h const1.h setCompletes.h hal-api.h
 
 convertor.$(OBJ) : target.h convertor.h setCompletes.h globals.h hal-api.h
 
-core_components.$(OBJ) : blockref_table.h arraystring1.h buffer.h calc_i.h const1.h convertor.h demux.h event_counter1.h file.h ehs_if.h logic.h mux.h operator1.h sfc.h state.h stringfn.h time_clock.h wall_clock.h trigger.h fs_dir_list1.h fs_dir_create_remove.h system_exec.h rtinfo.h appinfo.h appget.h
+core_components.$(OBJ) : blockref_table.h arraystring1.h buffer.h calc_i.h const1.h convertor.h demux.h event_counter1.h file.h ehs_if.h logic.h mux.h operator1.h sfc.h stringfn.h time_clock.h wall_clock.h trigger.h fs_dir_list1.h fs_dir_create_remove.h system_exec.h rtinfo.h appinfo.h appget.h
 
 demux.$(OBJ) : target.h demux.h setCompletes.h ehs_comp_api2.h hal-api.h
 
@@ -95,8 +95,6 @@ SFCBarGroup1.$(OBJ) : globals.h sfc.h setCompletes.h hal-api.h
 SFCBarGroup1Event.$(OBJ) : ehs_fb_types.h sfc.h setCompletes.h
 
 sfc.$(OBJ) : globals.h sfc.h setCompletes.h hal-api.h
-
-state.$(OBJ) : ehs_fb_types.h state.h setCompletes.h hal-api.h
 
 stringfn.$(OBJ) : globals.h ehs_fb_types.h ehs_fb_types.h stringfn.h fid.h app_data.h hal-api.h
 

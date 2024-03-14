@@ -11,9 +11,9 @@
 #ifndef INX_COMPONENT_H
 #define INX_COMPONENT_H
 
-#include "target.h"
-#include "buffer.h"
 #include "globals.h"
+//#include "target.h"
+#include "buffer.h"
 #include "ehs_comp_api2.h"
 #include "blockref_table.h"
 #include "target.h"

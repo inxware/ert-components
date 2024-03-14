@@ -90,7 +90,8 @@ void* EhsTDPlayback_init(EhsFbPvrPlayClass *pPvrPlay)
     }
     //register bus handler call back so we can listen to the pipeline
     bus = gst_pipeline_get_bus (GST_PIPELINE(pPlayback->playbin));
-    gst_bus_set_sync_handler(bus,(GstBusSyncHandler)EhsTDPlayback_bus_sync_handler,(gpointer)pPvrPlay);
+    //gst_bus_set_sync_handler(bus,(GstBusSyncHandler)EhsTDPlayback_bus_sync_handler,(gpointer)pPvrPlay) - gst0.1? method (or i586 mingw at least?)
+    gst_bus_set_sync_handler(bus,(GstBusSyncHandler)EhsTDPlayback_bus_sync_handler,(gpointer)pPvrPlay,NULL);
     gst_object_unref(bus);
     pPlayback->xPlaybackState = EHS_FB_STATE_NOT_LOADED; //@todo move to the holding class
     pPlayback->nPlaySpeed = 0; //@todo move to the holding class

@@ -235,7 +235,7 @@ error:
                 {
                     break;
                 }
-                EhsSleep(EHS_TIME_us(1000)); /* = 10ms wait at longest - the give up */
+                EhsSleep(EHS_TIME_us(1000)); /* = 1ms wait at longest - the give up */
             }
         }
     }
@@ -467,9 +467,9 @@ ehs_bool start_appget_getapp(const ehs_char * appname, const ehs_char * localnam
             EHSH_LOG_ERROR("ObjData->szpDownloadDir=[%s]\n",ObjData->szpDownloadDir);
 #endif
             /* Start URL get thread to pump data into a buffer */
-            EhsHThread_execute( HAL_AppGetRead_data, (void*) ObjData,-95) ;
+            EhsHThread_execute( HAL_AppGetRead_data, (void*) ObjData, -95, EHS_THREAD_USE_DEFAULT_STACK_SIZE) ;
             /* Start Incremental archive decoder/writer */
-            EhsHThread_execute(HAL_appGetWaitForURLDataAndWrite, (void*) ObjData,-95) ; /* this thread will deallocate ObjData when done */
+            EhsHThread_execute(HAL_appGetWaitForURLDataAndWrite, (void*) ObjData, -95, EHS_THREAD_USE_DEFAULT_STACK_SIZE) ; /* this thread will deallocate ObjData when done */
             if (block)
             {
 

@@ -38,7 +38,6 @@
 
 #include "guiparams.h"
 #include "globals.h" /* EHS_STRING_LENGTH_MAX */
-#include "parser.h" /* contains EhsGet*FromString routines */
 #include "hal_string.h"
 #include "font.h"
 
@@ -281,6 +280,19 @@ ehs_bool EhsParseGuiParameters_textbox(const char** pParam, EhsGuiParamsType* pG
                         EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentT),pParam[nParsed++]);
                         EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentB),pParam[nParsed++]);
                         EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nLineSep),pParam[nParsed++]);
+                        if (nVersion >= 140)
+                        {
+                            if (nParamsRead >= (2+nParsed))
+                            {
+                                EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nType),pParam[nParsed++]);
+                                EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nProp),pParam[nParsed++]);
+                                if (nParamsRead >= (2+nParsed))
+                                {
+                                    EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nCurve),pParam[nParsed++]);
+                                    EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nParent),pParam[nParsed++]);
+                                }
+                            }
+                        }
                         bRet = EHS_TRUE;
                     }
                 }
@@ -314,6 +326,10 @@ ehs_bool EhsParseGuiParameters_patch(const char** pParam, EhsGuiParamsType* pGui
         if (nParamsRead >= (4+nParsed))
         {
             nParsed += EhsLParse_colourARGB(&(pParam[nParsed]),&(pGuiParams->uClass.xTextbox.xFgColour),nParamsRead-nParsed);
+            if (nParamsRead >= (1+nParsed))
+            {
+                EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nCurve),pParam[nParsed++]);
+            }
             bRet = EHS_TRUE;
         }
     }
@@ -321,6 +337,25 @@ ehs_bool EhsParseGuiParameters_patch(const char** pParam, EhsGuiParamsType* pGui
     return bRet;
 }
 
+/* checks if widget is textbox type and outputs type if so */
+ehs_bool EhsParseGuiParametersTextBox2Type(const char* szObjectType, ehs_sint16* type)
+{
+    *type = -1;
+    if(0 == EhsStricmp(szObjectType,"gui_textbox2")){
+        *type = 0;
+        return EHS_TRUE;
+    }else if(0 == EhsStricmp(szObjectType,"gui_boolbox2")){
+        *type = 1;
+        return EHS_TRUE;
+    }else if(0 == EhsStricmp(szObjectType,"gui_intbox2")){
+        *type = 2;
+        return EHS_TRUE;
+    }else if(0 == EhsStricmp(szObjectType,"gui_realbox2")){
+        *type = 3;
+        return EHS_TRUE;
+    }
+    return EHS_FALSE;
+}
 
 /**
  * Convert parameters text into an instance of EhsGuiParamsType.
@@ -369,6 +404,10 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         {
             nVersion = 130;
         }
+        else if (EhsStrnicmp("1.4",pParam[nParam],3) == 0)
+        {
+            nVersion = 140;
+        }
         nParam++;
 
         /* identify widget type & load params */
@@ -389,7 +428,7 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
             } /* else class is invalid */
         }
         else if ((0 == EhsStricmp(szObjectType,"gui_textbox")) ||
-                 (0 == EhsStricmp(szObjectType,"gui_textbox2")))
+                 EhsParseGuiParametersTextBox2Type(szObjectType, &pParams->nTextBoxType))
         {
             if (EhsParseGuiParameters_textbox(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam))
             {

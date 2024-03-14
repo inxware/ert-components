@@ -22,11 +22,11 @@ typedef struct
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(ehs_controller)
 
-EHS_FB_FUNCTION_ENTRY("exit_ehs", 0x00, ehs_controller_exit_ehs)
+EHS_FB_FUNCTION_ENTRY("exit_ehs", 0x01, ehs_controller_exit_ehs)
 
-EHS_FB_FUNCTION_ENTRY("move_to_foreground", 0x01, ehs_controller_move_to_foreground)
+EHS_FB_FUNCTION_ENTRY("move_to_foreground", 0x02, ehs_controller_move_to_foreground)
 
-EHS_FB_FUNCTION_ENTRY("move_to_background", 0x02, ehs_controller_move_to_background)
+EHS_FB_FUNCTION_ENTRY("move_to_background", 0x03, ehs_controller_move_to_background)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER

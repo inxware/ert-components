@@ -11,7 +11,7 @@
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-rtc.h"
-#include "heatrod_config.h"
+#include "inxware_hrx_config.h"
 #include "ehs_main.h" // we run th main from here!
 //ICB HEADER MACRO END -- DO NOT ALTER
 
@@ -27,9 +27,9 @@ typedef struct inx_rtc_state
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(rtc)
 
-EHS_FB_FUNCTION_ENTRY("set", 0x00, rtc_set)
+EHS_FB_FUNCTION_ENTRY("set", 0x01, rtc_set)
 
-EHS_FB_FUNCTION_ENTRY("read", 0x01, rtc_read)
+EHS_FB_FUNCTION_ENTRY("read", 0x02, rtc_read)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER

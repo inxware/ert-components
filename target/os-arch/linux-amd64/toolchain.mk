@@ -18,7 +18,8 @@
 ## Linker Options
 ##
 #We have floating Point
-LNKFLAGS+= -Wl,-lm
+#todo move this to the os-arch config.mk?
+LIB+=m
 
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/toolchain.mk # toolchain is gnu
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/toolchain.mk # in case we have any linux extras..

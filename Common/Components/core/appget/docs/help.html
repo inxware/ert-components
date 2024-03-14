@@ -1,0 +1,207 @@
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
+  </head>
+  <body>
+    <div class="page_container" style="font-size: small;">
+      <div id="toc_container"> <span class="toc_span">Application Server</span>
+        <!--these display in reverse order because they use float:right--> <span
+          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
+            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
+            href="#ports">Ports &#8595;</a></span> </div>
+      <!--General Description-->
+      <p class="component"> <span style="font-family: Helvetica,Arial,sans-serif;">Use
+          this component to retrieve a list of applications available on a
+          Devman Server and install them on your node. Note: This component is
+          only functional if you have a Devman server subscription of your own
+          Devman server instance. </span><br>
+        <span style="font-family: Helvetica,Arial,sans-serif;">Mode parameter
+          detailed explanation:</span></p>
+      <p class="component"><span style="font-family: Helvetica,Arial,sans-serif;"></span><span
+          style="font-family: Helvetica,Arial,sans-serif;">0 install standard
+          app</span><span style="font-family: Helvetica,Arial,sans-serif;"></span><span
+          style="font-family: Helvetica,Arial,sans-serif;"><br>
+        </span></p>
+      <p class="component"><span style="font-family: Helvetica,Arial,sans-serif;">1
+          install as the home app</span><span style="font-family: Helvetica,Arial,sans-serif;"><br>
+        </span></p>
+      <p class="component"><span style="font-family: Helvetica,Arial,sans-serif;">2
+          as temp app. <br>
+        </span></p>
+      <p class="component"><span style="font-family: Helvetica,Arial,sans-serif;">The
+          app will only run once and may not be stored in the device. Once
+          exited, t</span><span style="font-family: Helvetica,Arial,sans-serif;">he
+          Info port retrieves various meta data strings for the given
+          application.</span></p>
+      <p class="component"><span style="font-family: Helvetica,Arial,sans-serif;">
+        </span></p>
+      <p></p>
+      <!--Parameters - form - short desc: long desc-->
+      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+      <table class="table_params">
+        <tbody>
+          <tr>
+            <th style="width:60px;">name</th>
+            <th>type</th>
+            <th>default</th>
+            <th>min.</th>
+            <th>max.</th>
+            <th>description</th>
+          </tr>
+          <tr>
+            <td>Server</td>
+            <td>String</td>
+            <td>devman.inx-systems.com</td>
+            <td><br>
+            </td>
+            <td><br>
+            </td>
+            <td>URL for your devman server</td>
+          </tr>
+          <tr>
+            <td>Install and Run</td>
+            <td>Boolean</td>
+            <td>False</td>
+            <td>0</td>
+            <td>1</td>
+            <td>True = application should run when it is installed. </td>
+          </tr>
+          <tr>
+            <td>Install as Default</td>
+            <td>Boolean</td>
+            <td>False</td>
+            <td>0</td>
+            <td>1</td>
+            <td>True = Initial application the device will run without replacing
+              the home app.</td>
+          </tr>
+          <tr>
+            <td>Install Mode</td>
+            <td>Integer</td>
+            <td>0</td>
+            <td>0</td>
+            <td>2</td>
+            <td>0 install standard app, 1 install as the home app,2 as temp app.</td>
+          </tr>
+        </tbody>
+      </table>
+      <!--Ports - form - short desc: long desc-->
+      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
+          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
+            href="#parameters">Params &#8593; </a></span> </div>
+      <table class="table">
+        <tbody>
+          <tr>
+            <th>In Ev.</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="portsInt/portsBool/portsStr/portsReal/portsEvent">get
+              list</td>
+            <td><br>
+            </td>
+          </tr>
+          <tr>
+            <td>install</td>
+            <td><br>
+            </td>
+          </tr>
+          <tr>
+            <td>info</td>
+            <td><br>
+            </td>
+          </tr>
+          <tr>
+            <th>Data In</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td><br>
+            </td>
+            <td><br>
+            </td>
+          </tr>
+          <tr>
+            <th>Data Out</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td><br>
+            </td>
+            <td><br>
+            </td>
+          </tr>
+          <tr>
+            <th style="height: 18.2px;">Out Ev.</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td><br>
+            </td>
+            <td><br>
+            </td>
+          </tr>
+          <tr>
+            <td><br>
+            </td>
+            <td><br>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
+          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
+            href="#parameters">Params &#8593; </a></span> </div>
+      <table>
+        <tbody>
+          <tr class="fsm_row">
+            <td style="width:90px;"> <b>State Machine</b> </td>
+            <td colspan="5"> <span class="fsm_blob">state0<sub>0</sub></span>
+              [doa,dob]&#8594; <span class="fsm_blob">state1</span> [doc]&#8594;&#8592;[dod,doe]
+              <span class="fsm_blob">state2</span> &#8855;&nbsp; <span class="fsm_blob">state1</span>
+              [dof]&#8594;[dog,dog] <span class="fsm_blob">state3</span> [doh]&#8594; <span
+                class="fsm_blob">state5</span> </td>
+            <td> <br>
+            </td>
+            <td> <br>
+            </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Toolbox</b> </td>
+            <td> core/io/net/netx/ui/media/dsp/ </td>
+            <td class="heading-cell"> <b>Version</b> </td>
+            <td> v1.0. </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Licence Type</b> </td>
+            <td> MPL2.0 </td>
+            <td class="heading-cell"> <b>Component Supplier</b> </td>
+            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+            </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Minumum DCC</b> </td>
+            <td>A0000</td>
+            <td class="heading-cell"> <b>Profiles</b> </td>
+            <td> All. </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

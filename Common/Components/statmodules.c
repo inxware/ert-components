@@ -125,7 +125,8 @@ void EhsAddStaticModules()
     // content moved the media toolkit EhsToolkitTable_addTable(EhsBlockRefTable_Dtv); //@toodo the Dtv stuff should be refactored into the media directory
     EhsToolkitTable_addTable(EhsBlockRefTable_Media);
 #else
-#if defined(EHS_ANDROID) || defined(EHS_UNITY3D_WIDGETS)
+//todo we are planning to remove this and the above EHS_AV_SUPPORT should be set to Android by default.
+#if defined(EHS_ANDROID)
     EhsToolkitTable_addTable(EhsBlockRefTable_Media);
 #endif
 #endif
@@ -163,8 +164,6 @@ ehs_bool EhsResetStaticModules()
 #ifdef EHS_GUI_SUPPORT
     EhsWidgetTable_reset(&EhsWidgetTable); //
     EhsTV_reset(&EhsTV); // @todo PD this should be moved into toolkit initialisation functions - instead of conditional compile.
-    //EhsTV_clear(&EhsTV); //THIS IS DONE INSIDE EhsTV_reset() clear the viewport screen
-    //EHSH_LOG_TRACE("Clearing the VIEWPORT");
 #endif /* EHS_GUI_SUPPORT */
     return EHS_TRUE;
 }

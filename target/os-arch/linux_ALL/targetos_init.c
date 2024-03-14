@@ -71,6 +71,11 @@
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 
+#ifndef TASK_COMM_LEN
+#define TASK_COMM_LEN 16
+// not found in linux/sched.h usually
+#endif
+
 /*****************************************************************************/
 /* Declare prototypes of local functions */
 
@@ -89,20 +94,27 @@
 /**
  * Perform necessary Operating system setup upon system initialisation
  */
+#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    extern EhsConsoleQueueType EhsTgtConsoleInputQueue;
+    extern EhsConsoleQueueType EhsTgtConsoleOutputQueue;
+    static void EhsTOS_ConsoleQueue_init(){
+        EhsTgtConsoleInputQueue.xQueue=EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+        EhsTgtConsoleOutputQueue.xQueue=EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+    }
+#else //#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    static void EhsTOS_ConsoleQueue_init(){
+    }
+#endif //#else #ifdef EHS_DEBUG_TCPIP_CONSOLE
+
 void EhsTOsSys_init(void)
 {
+    EhsTOS_ConsoleQueue_init();
     EhsTPMutex_init();
 #ifdef EHS_MINGW
     EhsTgtTimer_init();
 #endif
 
-//        #ifdef EHS_GUI_SUPPORT //@todo this shoulf be in the common areas an gtk replaced with gui?
-//	Don't need this for gtk support: EhsToolkitTable_addTable(EhsBlockRefTable_gtk);
-//       #endif
-    /* start TCP/IP server thread */
-    /*@todo we should have another thread starter for non component threads such as this */
-    // - moved to Common code : EhsHThread_execute((EhsGeneralThreadFuncType)EhsSvcTcp_server,NULL,-90); // start with low priority for debugging portal
-}
+ }
 
 #define EHS_BUGGY_LINUX_NETWORKING_API
 
@@ -147,7 +159,7 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
 #ifdef EHS_USE_WIFI_INTERFACE
     strcpy(buffer.ifr_name, "wlan0");
 #else
-    strcpy(buffer.ifr_name, "enp2s0"); //@todo the interface name should be a parameter
+    strcpy(buffer.ifr_name, "enp2s0"); //This is the default one we try first, then we iterate other options below
 #endif
 #ifdef EHS_ANDROID
     // @TODO - check other network interface for android
@@ -209,10 +221,18 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
                                 {
                                     EhsSprintf(buf, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X", (unsigned char)buffer.ifr_hwaddr.sa_data[0],(unsigned char)buffer.ifr_hwaddr.sa_data[1],(unsigned char)buffer.ifr_hwaddr.sa_data[2],(unsigned char)buffer.ifr_hwaddr.sa_data[3],(unsigned char)buffer.ifr_hwaddr.sa_data[4],(unsigned char)buffer.ifr_hwaddr.sa_data[5]);
                                 }
-                                else
+                                else 
                                 {
-                                    EhsStrcpy(buf,"n/a");
-                                }
+                                    strcpy(buffer.ifr_name,"wlp0s20f3");
+                                    if (ioctl(s, SIOCGIFHWADDR, &buffer) != -1 )
+                                    {
+                                        EhsSprintf(buf, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X", (unsigned char)buffer.ifr_hwaddr.sa_data[0],(unsigned char)buffer.ifr_hwaddr.sa_data[1],(unsigned char)buffer.ifr_hwaddr.sa_data[2],(unsigned char)buffer.ifr_hwaddr.sa_data[3],(unsigned char)buffer.ifr_hwaddr.sa_data[4],(unsigned char)buffer.ifr_hwaddr.sa_data[5]);
+                                    }
+                                    else
+                                    {
+                                        EhsStrcpy(buf,"na-xx-xx-xx-xx-xx");
+                                    }
+                                }   
                             }
                         }
                     }
@@ -229,7 +249,7 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
 #define USE_MOST_GENERIC
 #if defined ( USE_MOST_GENERIC )
 
-    EhsStrcpy(bufIP, "n/a-e"); // might not get it...
+    EhsStrcpy(bufIP, "NA"); // might not get it...
 
     if (getifaddrs(&ifAddrStruct) != -1)
     {
@@ -238,7 +258,7 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
             addressBuffer[0]='\0';/* avoid unititialised strcpy */
             addressBuffer6[0]='\0';
             //if (ifa->ifa_addr == NULL) continue; // do we want to skip unconnected ethernet ports? still would like MAC address
-            if (EhsStrcmp(ifa->ifa_name, buffer.ifr_name) == 0)   /*@todo "eth0" should be made variable and target specific */
+            if (EhsStrcmp(ifa->ifa_name, buffer.ifr_name) == 0)   /* Have we found the IP address we are using for the MAC address? */
             {
                 if (ifa ->ifa_addr->sa_family == AF_INET)   // check it is IP4
                 {
@@ -261,9 +281,7 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
                     //addressBuffer6[0]='\0';
                     inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer6,INET6_ADDRSTRLEN);
                     EHSH_LOG_INFO("%s IPv6 Address %s\n", ifa->ifa_name, addressBuffer6);
-                    // EhsSprintf(bufIP,"%s",addressBuffer); //hack for buggy endian stuff in linux
-
-
+                    // EhsSprintf(bufIP,"%s",addressBuffer); /* todo IPV6 support */
                 }
 
                 /* Choose the IPV4 address as a preference*/
@@ -303,8 +321,7 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
 
 /* Some timeval functions - gnu suggested code - but obvious*/
 
-int
-timeval_subtract ( struct timeval *result,struct timeval *x,struct timeval *y)
+int timeval_subtract ( struct timeval *result,struct timeval *x,struct timeval *y)
 {
     /* Perform the carry for the later subtraction by updating y. */
     if (x->tv_usec < y->tv_usec)
@@ -331,9 +348,8 @@ timeval_subtract ( struct timeval *result,struct timeval *x,struct timeval *y)
 
 
 /*
- * get RAM Usage
+ * @brief Get CPU & RAM Usage of the eRT process
  */
-
 typedef  struct timeval timeval_t;
 
 ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, ehs_uint32 * RAM_Used, ehs_uint32 * RAM_Free)
@@ -376,11 +392,6 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
     struct rusage rusage;
     ehs_bool ret = EHS_FALSE;
     static ehs_uint16 last_cpu_usage_percent=0; //remember the last one if we can't get a value.
-    /*
-    clock_t tick_diff_since_last = 0;
-    clock_t temp_timeVal_ticks = 0;
-    */
-
     static timeval_t Last_timeVal; // 0 at start of program is valid time interval
     static  timeval_t Last_userTimeUsed= {.tv_sec=0,.tv_usec=0}; //is this portable - is ansi c99?
     static  timeval_t Last_sysTimeUsed= {.tv_sec=0,.tv_usec=0};
@@ -389,11 +400,6 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
     timeval_t diff_sysTimeUsed= {.tv_sec=0,.tv_usec=0};
     timeval_t temp_timeVal_time;
     timeval_t diff_time= {.tv_sec=0,.tv_usec=0};
-    /*
-    temp_timeVal_ticks=clock (); // we'll use the time since the process started - OOPs this is CPU on process not time...
-    tick_diff_since_last=temp_timeVal_ticks-Last_timeVal_ticks;
-    Last_timeVal_ticks=temp_timeVal_ticks;
-    */
     gettimeofday(&temp_timeVal_time, NULL);
 
     if (Last_timeVal.tv_sec && Last_timeVal.tv_usec)
@@ -408,7 +414,7 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
         Last_timeVal.tv_usec = temp_timeVal_time.tv_usec;
     }
 
-    if (ms_elapsed > 20)
+    if (ms_elapsed > 100)
     {
         Last_timeVal.tv_sec = temp_timeVal_time.tv_sec;
         Last_timeVal.tv_usec = temp_timeVal_time.tv_usec;
@@ -426,7 +432,7 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
         timeval_subtract(&diff_userTimeUsed, &rusage.ru_utime,
                          &Last_userTimeUsed);
         timeval_subtract(&diff_sysTimeUsed, &rusage.ru_stime, &Last_sysTimeUsed);
-        if (ms_elapsed > 20)
+        if (ms_elapsed > 100)
         {
             Last_userTimeUsed.tv_sec = rusage.ru_utime.tv_sec;
             Last_userTimeUsed.tv_usec = rusage.ru_utime.tv_usec;
@@ -434,12 +440,11 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
             Last_sysTimeUsed.tv_usec = rusage.ru_stime.tv_usec;
             //}
             //do the calculation in ms to avoid overflow
-            //if (ms_elapsed>20) { //avoid div 0.
-            *cpu_usage_percent = last_cpu_usage_percent
-                                 = (ehs_uint16)(((diff_userTimeUsed.tv_sec + diff_sysTimeUsed.tv_sec)
-                                                 * 1000 + (diff_userTimeUsed.tv_usec
-                                                         + diff_sysTimeUsed.tv_usec) / 10) / (ms_elapsed)); // 10 = 1000us/100%.
-            //*cpu_usage_percent=*cpu_usage_percent*100;
+            *cpu_usage_percent = last_cpu_usage_percent = (ehs_uint16)(
+                                (
+                                    ( diff_userTimeUsed.tv_sec  + diff_sysTimeUsed.tv_sec  ) * 100000 // 100000 = 1000ms*100(%) 
+                                +   ( diff_userTimeUsed.tv_usec + diff_sysTimeUsed.tv_usec ) / 10
+                                ) / (ms_elapsed)); // 10 = 1000us/100(%).
         }
         else     // this is actually redundant - see out time check if..
         {
@@ -454,10 +459,10 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
         *RAM_Used = (ehs_uint32) 0;
         *cpu_usage_percent = (ehs_uint16) 0;
     }
-#ifndef EHS_ANDROID
-#ifndef EFAULT
-#define EFAULT -1
-#endif
+//#ifndef EHS_ANDROID
+//#ifndef EFAULT
+//#define EFAULT -1
+//#endif
     if (sysinfo(&info) != EFAULT)
     {
 
@@ -465,22 +470,439 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
         *RAM_Free = (ehs_uint32) (((info.freeram + info.freehigh
                                     + info.bufferram) * info.mem_unit) / 1024);
         //		+ info.bufferram) * info.mem_unit) / 1024)));
-        //EHSH_LOG_WARNING("Got  RAM =%d Free High=%d\n",(ehs_uint32) ((info.totalram * info.mem_unit) / 1024),(ehs_uint32) (((info.freeram + info.freehigh + info.bufferram) * info.mem_unit) / 1024));
     }
     else
     {
-#endif
+//#endif
         EHSH_LOG_WARNING("Could not retrieve CPU and RAM info\n");
         *RAM_Size = (ehs_uint32) 0;
         *RAM_Free = (ehs_uint32) 0;
-#ifndef EHS_ANDROID
+//#ifndef EHS_ANDROID
     }
-#endif
+//#endif
     //+rusage->ru_nswap;
     ret = EHS_TRUE; //@todo tidy up with error trapping (currently not used).
     return ret;
-
 }
+
+/* @brief get the (first found) process ID of a process name from /proc/xxx */
+#define EHS_MAX_PROC_ENTRYS_TO_SEARCH 1000000
+ehs_uint32  get_procid_from_procname(ehs_char * procname)
+{
+     ehs_uint32 i=1; // we don'#'t care about 0 as this is (init)
+     ehs_uint32 ret=0;
+     ehs_uint32 found=0;
+     ehs_char proc_path[EHS_STRING_LENGTH_MAX];
+     ehs_char proc_name_test[EHS_STRING_LENGTH_MAX];
+     ehs_FILE * procfile;
+     //printf("Checking for %s..\n",procname);
+     do {
+        //EhsSprintf(proc_path,"/proc/%d/cmdline",i); // this has args and spam in it.
+        EhsSprintf(proc_path,"/proc/%d/comm",i); // this is usually limited to 16 bytes (or what ever TASK_COMM_LEN is set to )
+        //printf("Checking %s\n",proc_path);
+        if (procfile = EhsFopen(proc_path,"r")) {
+            //printf("Opening Proc...%d\n",i);
+            found++;
+            EhsFgets(proc_name_test,EHS_STRING_LENGTH_MAX,procfile);
+            EhsStrTrimR(proc_name_test); // /proc/*/cmdline adds a new line for us, so just in casse (though we are using comm instead)...
+            //printf("[%s]=[%s]\n",procname,proc_name_test);
+            //if (EhsStrcmp(procname,proc_name_test)==0) { //,EHS_STRING_LENGTH_MAX)==0) {
+            if (EhsStrncmp(procname,proc_name_test,TASK_COMM_LEN-1)==0) {
+            //if (EhsStrstr(procname,proc_name_test)!=NULL) {
+                ret=i;
+                //printf("!!!!!!! Found /proc/%d for %s\n",i,proc_name_test);
+            }
+            EhsFclose(procfile);
+        }
+        i++;
+        //printf("Another...%d & %d \n");
+     } while (ret == 0 && (found < EHS_MAX_PROC_ENTRYS_TO_SEARCH) && (i < EHS_MAX_PROC_ENTRYS_TO_SEARCH));
+     return ret;
+}
+
+/* This gets the miscelaneous information for an arbitrary process given by process ID */
+/* Linux only uses the following /proc/[[*]/stat info */
+/*
+/proc/[pid]/stat
+          Status information about the process.  This is used by ps(1).
+          It is defined in the kernel source file fs/proc/array.c.
+
+          The fields, in order, with their proper scanf(3) format speci‐
+          fiers, are listed below.  Whether or not certain of these
+          fields display valid information is governed by a ptrace
+          access mode PTRACE_MODE_READ_FSCREDS | PTRACE_MODE_NOAUDIT
+          check (refer to ptrace(2)).  If the check denies access, then
+          the field value is displayed as 0.  The affected fields are
+          indicated with the marking [PT].
+
+          (1) pid  %d
+                    The process ID.
+
+          (2) comm  %s
+                    The filename of the executable, in parentheses.
+                    This is visible whether or not the executable is
+                    swapped out.
+
+          (3) state  %c
+                    One of the following characters, indicating process
+                    state:
+
+                    R  Running
+
+                    S  Sleeping in an interruptible wait
+
+                    D  Waiting in uninterruptible disk sleep
+
+                    Z  Zombie
+
+                    T  Stopped (on a signal) or (before Linux 2.6.33)
+                       trace stopped
+
+                    t  Tracing stop (Linux 2.6.33 onward)
+
+                    W  Paging (only before Linux 2.6.0)
+
+                    X  Dead (from Linux 2.6.0 onward)
+
+                    x  Dead (Linux 2.6.33 to 3.13 only)
+
+                    K  Wakekill (Linux 2.6.33 to 3.13 only)
+
+                    W  Waking (Linux 2.6.33 to 3.13 only)
+
+                    P  Parked (Linux 3.9 to 3.13 only)
+
+                    I  Idle (Linux 4.14 onward)
+
+          (4) ppid  %d
+                    The PID of the parent of this process.
+
+          (5) pgrp  %d
+                    The process group ID of the process.
+
+          (6) session  %d
+                    The session ID of the process.
+
+          (7) tty_nr  %d
+                    The controlling terminal of the process.  (The minor
+                    device number is contained in the combination of
+                    bits 31 to 20 and 7 to 0; the major device number is
+                    in bits 15 to 8.)
+
+          (8) tpgid  %d
+                    The ID of the foreground process group of the con‐
+                    trolling terminal of the process.
+
+          (9) flags  %u
+                    The kernel flags word of the process.  For bit mean‐
+                    ings, see the PF_* defines in the Linux kernel
+                    source file include/linux/sched.h.  Details depend
+                    on the kernel version.
+
+                    The format for this field was %lu before Linux 2.6.
+
+          (10) minflt  %lu
+                    The number of minor faults the process has made
+                    which have not required loading a memory page from
+                    disk.
+
+          (11) cminflt  %lu
+                    The number of minor faults that the process's
+                    waited-for children have made.
+
+          (12) majflt  %lu
+                    The number of major faults the process has made
+                    which have required loading a memory page from disk.
+
+          (13) cmajflt  %lu
+                    The number of major faults that the process's
+                    waited-for children have made.
+
+          (14) utime  %lu
+                    Amount of time that this process has been scheduled
+                    in user mode, measured in clock ticks (divide by
+                    sysconf(_SC_CLK_TCK)).  This includes guest time,
+                    guest_time (time spent running a virtual CPU, see
+                    below), so that applications that are not aware of
+                    the guest time field do not lose that time from
+                    their calculations.
+
+          (15) stime  %lu
+                    Amount of time that this process has been scheduled
+                    in kernel mode, measured in clock ticks (divide by
+                    sysconf(_SC_CLK_TCK)).
+
+          (16) cutime  %ld
+                    Amount of time that this process's waited-for chil‐
+                    dren have been scheduled in user mode, measured in
+                    clock ticks (divide by sysconf(_SC_CLK_TCK)).  (See
+                    also times(2).)  This includes guest time,
+                    cguest_time (time spent running a virtual CPU, see
+                    below).
+
+          (17) cstime  %ld
+                    Amount of time that this process's waited-for chil‐
+                    dren have been scheduled in kernel mode, measured in
+                    clock ticks (divide by sysconf(_SC_CLK_TCK)).
+
+          (18) priority  %ld
+                    (Explanation for Linux 2.6) For processes running a
+                    real-time scheduling policy (policy below; see
+                    sched_setscheduler(2)), this is the negated schedul‐
+                    ing priority, minus one; that is, a number in the
+                    range -2 to -100, corresponding to real-time priori‐
+                    ties 1 to 99.  For processes running under a non-
+                    real-time scheduling policy, this is the raw nice
+                    value (setpriority(2)) as represented in the kernel.
+                    The kernel stores nice values as numbers in the
+                    range 0 (high) to 39 (low), corresponding to the
+                    user-visible nice range of -20 to 19.
+
+                    Before Linux 2.6, this was a scaled value based on
+                    the scheduler weighting given to this process.
+
+          (19) nice  %ld
+                    The nice value (see setpriority(2)), a value in the
+                    range 19 (low priority) to -20 (high priority).
+
+          (20) num_threads  %ld
+                    Number of threads in this process (since Linux 2.6).
+                    Before kernel 2.6, this field was hard coded to 0 as
+                    a placeholder for an earlier removed field.
+
+          (21) itrealvalue  %ld
+                    The time in jiffies before the next SIGALRM is sent
+                    to the process due to an interval timer.  Since ker‐
+                    nel 2.6.17, this field is no longer maintained, and
+                    is hard coded as 0.
+
+          (22) starttime  %llu
+                    The time the process started after system boot.  In
+                    kernels before Linux 2.6, this value was expressed
+                    in jiffies.  Since Linux 2.6, the value is expressed
+                    in clock ticks (divide by sysconf(_SC_CLK_TCK)).
+
+                    The format for this field was %lu before Linux 2.6.
+
+          (23) vsize  %lu
+                    Virtual memory size in bytes.
+
+          (24) rss  %ld
+                    Resident Set Size: number of pages the process has
+                    in real memory.  This is just the pages which count
+                    toward text, data, or stack space.  This does not
+                    include pages which have not been demand-loaded in,
+                    or which are swapped out.
+
+          (25) rsslim  %lu
+                    Current soft limit in bytes on the rss of the
+                    process; see the description of RLIMIT_RSS in
+                    getrlimit(2).
+
+          (26) startcode  %lu  [PT]
+                    The address above which program text can run.
+
+          (27) endcode  %lu  [PT]
+                    The address below which program text can run.
+
+          (28) startstack  %lu  [PT]
+                    The address of the start (i.e., bottom) of the
+                    stack.
+
+          (29) kstkesp  %lu  [PT]
+                    The current value of ESP (stack pointer), as found
+                    in the kernel stack page for the process.
+
+          (30) kstkeip  %lu  [PT]
+                    The current EIP (instruction pointer).
+
+          (31) signal  %lu
+                    The bitmap of pending signals, displayed as a deci‐
+                    mal number.  Obsolete, because it does not provide
+                    information on real-time signals; use
+                    /proc/[pid]/status instead.
+
+          (32) blocked  %lu
+                    The bitmap of blocked signals, displayed as a deci‐
+                    mal number.  Obsolete, because it does not provide
+                    information on real-time signals; use
+                    /proc/[pid]/status instead.
+
+          (33) sigignore  %lu
+                    The bitmap of ignored signals, displayed as a deci‐
+                    mal number.  Obsolete, because it does not provide
+                    information on real-time signals; use
+                    /proc/[pid]/status instead.
+
+          (34) sigcatch  %lu
+                    The bitmap of caught signals, displayed as a decimal
+                    number.  Obsolete, because it does not provide
+                    information on real-time signals; use
+                    /proc/[pid]/status instead.
+
+          (35) wchan  %lu  [PT]
+                    This is the "channel" in which the process is wait‐
+                    ing.  It is the address of a location in the kernel
+                    where the process is sleeping.  The corresponding
+                    symbolic name can be found in /proc/[pid]/wchan.
+
+          (36) nswap  %lu
+                    Number of pages swapped (not maintained).
+
+          (37) cnswap  %lu
+                    Cumulative nswap for child processes (not main‐
+                    tained).
+
+          (38) exit_signal  %d  (since Linux 2.1.22)
+                    Signal to be sent to parent when we die.
+
+          (39) processor  %d  (since Linux 2.2.8)
+                    CPU number last executed on.
+
+          (40) rt_priority  %u  (since Linux 2.5.19)
+                    Real-time scheduling priority, a number in the range
+                    1 to 99 for processes scheduled under a real-time
+                    policy, or 0, for non-real-time processes (see
+                    sched_setscheduler(2)).
+
+          (41) policy  %u  (since Linux 2.5.19)
+                    Scheduling policy (see sched_setscheduler(2)).
+                    Decode using the SCHED_* constants in linux/sched.h.
+
+                    The format for this field was %lu before Linux
+                    2.6.22.
+
+          (42) delayacct_blkio_ticks  %llu  (since Linux 2.6.18)
+                    Aggregated block I/O delays, measured in clock ticks
+                    (centiseconds).
+
+          (43) guest_time  %lu  (since Linux 2.6.24)
+                    Guest time of the process (time spent running a vir‐
+                    tual CPU for a guest operating system), measured in
+                    clock ticks (divide by sysconf(_SC_CLK_TCK)).
+
+          (44) cguest_time  %ld  (since Linux 2.6.24)
+                    Guest time of the process's children, measured in
+                    clock ticks (divide by sysconf(_SC_CLK_TCK)).
+
+          (45) start_data  %lu  (since Linux 3.3)  [PT]
+                    Address above which program initialized and unini‐
+                    tialized (BSS) data are placed.
+
+          (46) end_data  %lu  (since Linux 3.3)  [PT]
+                    Address below which program initialized and unini‐
+                    tialized (BSS) data are placed.
+
+          (47) start_brk  %lu  (since Linux 3.3)  [PT]
+                    Address above which program heap can be expanded
+                    with brk(2).
+
+          (48) arg_start  %lu  (since Linux 3.5)  [PT]
+                    Address above which program command-line arguments
+                    (argv) are placed.
+
+          (49) arg_end  %lu  (since Linux 3.5)  [PT]
+                    Address below program command-line arguments (argv)
+                    are placed.
+
+          (50) env_start  %lu  (since Linux 3.5)  [PT]
+                    Address above which program environment is placed.
+
+          (51) env_end  %lu  (since Linux 3.5)  [PT]
+                    Address below which program environment is placed.
+
+          (52) exit_code  %d  (since Linux 3.5)  [PT]
+                    The thread's exit status in the form reported by
+                    waitpid(2).
+*/
+ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_Used, ehs_uint32 procid)
+{
+    ehs_char proc_path[EHS_STRING_LENGTH_MAX];
+    
+    //struct sysinfo info;
+    //struct rusage rusage;
+    ehs_bool ret = EHS_FALSE;
+    ehs_bool scanOK;
+    static ehs_uint16 last_cpu_usage_percent=0; //remember the last one if we can't get a value.
+    static timeval_t Last_timeVal; // 0 at start of program is valid time interval
+    static  ehs_uint64 Last_userTimeUsed=0; 
+    static  ehs_uint64 Last_sysTimeUsed=0;
+    ehs_uint64 cpu_usage = 0; // in ticks
+    ehs_uint64 ram_usage = 0; // in bytes?
+    ehs_uint64 ms_elapsed=0; /* we might want to change this to us to ms*/
+    timeval_t diff_userTimeUsed= {.tv_sec=0,.tv_usec=0};
+    timeval_t diff_sysTimeUsed= {.tv_sec=0,.tv_usec=0};
+    timeval_t temp_timeVal_time;
+    timeval_t diff_time= {.tv_sec=0,.tv_usec=0};
+    if (procid) {
+        gettimeofday(&temp_timeVal_time, NULL);
+
+        if (Last_timeVal.tv_sec && Last_timeVal.tv_usec)
+        {
+            timeval_subtract(&diff_time, &temp_timeVal_time,&Last_timeVal);
+            ms_elapsed = diff_time.tv_sec*1000+diff_time.tv_usec/1000;
+        }
+        else
+        {
+            ms_elapsed=0;
+            Last_timeVal.tv_sec = temp_timeVal_time.tv_sec;
+            Last_timeVal.tv_usec = temp_timeVal_time.tv_usec;
+        }
+
+        if (ms_elapsed > 100)
+        {
+            Last_timeVal.tv_sec = temp_timeVal_time.tv_sec;
+            Last_timeVal.tv_usec = temp_timeVal_time.tv_usec;
+        }
+        //printf ("procid = %d\n",procid);
+        EhsSprintf(proc_path,"/proc/%d/stat",procid);
+        ehs_FILE* procfile = EhsFopen(proc_path,"r");
+        if (procfile) {
+            //printf("Opening /proc/%d/stat",procid);
+            ehs_uint64 New_userTimeUsed;// = Last_userTimeUsed;
+            ehs_uint64 New_sysTimeUsed;// = Last_sysTimeUsed;
+//#if PC Linux             - this seems to have two extra values not in the above specification
+            scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*ld %*ld %*llu %*lu %lu"
+                ,&New_userTimeUsed,&New_sysTimeUsed,&ram_usage);
+//#else 
+// as specification above
+//            scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*llu %*lu %lu"
+//                ,&New_userTimeUsed,&New_sysTimeUsed,&ram_usage);
+//#endif
+
+            //printf("scanOK=%d=%d(EHS_EOF), CPU-U=%d, CPU-S=%d, RAM = %d:",
+            //    scanOK,EHS_EOF,Last_userTimeUsed,Last_sysTimeUsed,ram_usage);
+            if (scanOK > 0) ret =EHS_TRUE;    
+            EhsFclose(procfile);
+            //printf("++ Last user CPU =%d",Last_userTimeUsed);
+            if (New_userTimeUsed > 0 || New_sysTimeUsed > 0 ) {
+                cpu_usage = ((New_userTimeUsed - Last_userTimeUsed) + (New_sysTimeUsed - Last_sysTimeUsed )); // ms of CPU usage since last
+            }
+            printf("[cpu time in ticks = %d (tick=%u)]",cpu_usage,sysconf(_SC_CLK_TCK));
+            if (ms_elapsed > 100)
+            {
+                *cpu_usage_percent = 
+                last_cpu_usage_percent = 
+                    (ehs_uint16)(((cpu_usage)*10000/sysconf(_SC_CLK_TCK)) )/ (ms_elapsed/10);
+            }
+            else ret = EHS_FALSE;
+
+            Last_sysTimeUsed= New_sysTimeUsed;
+            Last_userTimeUsed= New_userTimeUsed;
+            /* Calulcate RAM from arg X*/
+            *RAM_Used = (ehs_uint32)((ram_usage*sysconf(_SC_PAGESIZE))/1024); // return value in kB.
+            //printf ("perc CPU=%d RAM=%d (ms elapsed=%u\n",*cpu_usage_percent,*RAM_Used,ms_elapsed);
+        }
+    }
+    if (ret == EHS_FALSE) {
+        EHSH_LOG_WARNING("Could not retrieve CPU and RAM info\n");
+        *RAM_Used = (ehs_uint32) 0;
+        *cpu_usage_percent = (ehs_uint16) 0;
+    }
+    return ret;
+}
+
+
 
 /*
  * Get Disk statistics - doesn't work for mingw
@@ -509,7 +931,7 @@ ehs_bool get_dir_stats(ehs_uint32 * Size, ehs_uint32 * Used, ehs_uint32 * Free,
     }
     else     // some warning nunbers..
     {
-        /*EHSH_LOG_WARNING*/printf("statvfs Failed for %s\n",path);
+        //EHSH_LOG_WARNING(statvfs Failed for %s\n",path);
         *Free = 0;
         *Size = 0;
         *Used = 0;
@@ -544,7 +966,6 @@ void getOSVersion(ehs_char * dst)
     buffer = EhsHMem_tempAlloc(EHS_STRING_LENGTH_MAX);
     if (buffer == NULL)
         return;	// lazy return
-
 
     size_t result;
     ehs_char * c;
@@ -582,24 +1003,35 @@ void getOSVersion(ehs_char * dst)
  * */
 ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 what)
 {
-    ehs_char szTemp[EHS_STRING_LENGTH_MAX];
     ehs_uint32 tempint;
 
-    if (EhsStrlen(pEhsMetaData->zUserDirectory))
-    {
-        // get disk space in user directory
-        EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
-        get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,szTemp);
+    if (what < 2) {
+        #ifndef INX_SODL_IN_FLASH 
+        ehs_char szTemp[EHS_STRING_LENGTH_MAX]; //todo2024 why do we use a buffer here and not just use pEhsMetaData->zUserDirectory?
+        if (EhsStrlen(pEhsMetaData->zUserDirectory))
+        {
+            // get disk space in user directory
+            EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
+            get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,szTemp);
+        }
+        else
+        {
+            EHSH_LOG_WARNING("User Directory has not been set, no disk stats available.");
+        }
+        #endif
+        /* todo we may want the rtinfo function block to work, even without Devman, but saving memory for now*/
+        #ifdef EHS_DEVMAN_SUPPORT
+        if (pEhsMetaData->MiscAppProcName[0] != 0) {
+            //printf("MiscAppProcName=%s",pEhsMetaData->MiscAppProcName);
+            pEhsMetaData->MiscAppProcId=get_procid_from_procname(pEhsMetaData->MiscAppProcName);
+        }
+        #endif
     }
-    else
-    {
-        EHSH_LOG_WARNING("User Directory has not been set, no disk stats available.");
-    }
-
-    //EhsStrcpy(pEhsMetaData->zDeviceIPAddr,"unknown");  // if we are networked get IP address here
-    //EhsStrcpy(pEhsMetaData->zDeviceID,"none"); //@todo here
+    
     EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
     get_cpu_ram_info(&(pEhsMetaData->CPUUsage), &(pEhsMetaData->RAMTotal_KB),&(pEhsMetaData->RAMUsed_KB),&(pEhsMetaData->RAMAvail_KB));
+    get_cpu_ram_info_misc(&(pEhsMetaData->MiscAppCPUUsage),&(pEhsMetaData->MiscAppRAMUsed_KB),pEhsMetaData->MiscAppProcId);
+
     //getOSVersion(pEhsMetaData->OSVersion);
     return EHS_FALSE;
 }

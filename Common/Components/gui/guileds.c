@@ -79,7 +79,7 @@ struct EhsFbTextdisplayStruct
 
 EHS_FB_FUNCTIONS_START(gui_leds)
 
-EHS_FB_FUNCTION_ENTRY("update", 0x00, gui_leds_update)
+EHS_FB_FUNCTION_ENTRY("update", 0x01, gui_leds_update)
 EHS_FB_FUNCTIONS_END
 
 /**

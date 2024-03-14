@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 echo "Building Docker image"
 PATH_TO_TARGET_DOCKERFILE="${PWD}/target/platform/${TARGET}/Dockerfile"
 DOCKER_IMAGE_NAME="${PWD}/target/platform/${TARGET}/Dockerimagename"  

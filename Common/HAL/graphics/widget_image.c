@@ -23,7 +23,6 @@
 #include "hal_process.h"
 #include "hal_mem.h"
 
-
 /**
  * Insert a widget itno the Z-ordered list of widgets. This is called
  * after a widget has been initialized, but before the index to the widget
@@ -288,13 +287,13 @@ ehs_bool EhsWidgetImage_loadImage(EhsWidgetClass* pWidget)
         }*/
         else
         {
-            EhsError(EHS_MSG_ERROR_WIDGET_TYPE_NOT_RECOG(szExtension));
+            EHSH_LOG_ERROR(EHS_MSG_ERROR_WIDGET_TYPE_NOT_RECOG(szExtension));
             bRet = EHS_FALSE;
         }
     }
     else
     {
-        EhsError(EHS_MSG_ERROR_WIDGET_TYPE_NOT_RECOG(szFilename));
+        EHSH_LOG_ERROR(EHS_MSG_ERROR_WIDGET_TYPE_NOT_RECOG(szFilename));
         bRet = EHS_FALSE;
     }
 

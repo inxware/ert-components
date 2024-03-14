@@ -39,11 +39,11 @@ struct EhsFbTextdisplayStruct
 
 EHS_FB_FUNCTIONS_START(gui_textdisplay)
 
-EHS_FB_FUNCTION_ENTRY("update", 0x00, gui_textdisplay_update)
+EHS_FB_FUNCTION_ENTRY("update", 0x01, gui_textdisplay_update)
 
-EHS_FB_FUNCTION_ENTRY("clear", 0x01, gui_textdisplay_clear)
+EHS_FB_FUNCTION_ENTRY("clear", 0x02, gui_textdisplay_clear)
 
-EHS_FB_FUNCTION_ENTRY("poll", 0x02, gui_textdisplay_poll)
+EHS_FB_FUNCTION_ENTRY("poll", 0x03, gui_textdisplay_poll)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_TEXTDISPLAY_TEXT_IN 0

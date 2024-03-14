@@ -53,11 +53,11 @@ typedef struct
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(netSocket)
 
-EHS_FB_FUNCTION_ENTRY("open", 0x00, netSocket_open)
+EHS_FB_FUNCTION_ENTRY("open", 0x01, netSocket_open)
 
-EHS_FB_FUNCTION_ENTRY("close", 0x01, netSocket_close)
+EHS_FB_FUNCTION_ENTRY("close", 0x02, netSocket_close)
 
-EHS_FB_FUNCTION_ENTRY("send", 0x02, netSocket_send)
+EHS_FB_FUNCTION_ENTRY("send", 0x03, netSocket_send)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -317,6 +317,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
     ehs_bool start_reading = EHS_FALSE;
     ehs_char port_string[32];
     inx_netSocket_state_type* inx_netSocket_state = (inx_netSocket_state_type*) EHS_FB_RUN_CONTEXT;
+    /* todo2023 - try to avoid using this on the stack */
     ehs_uint8 bBuffIn[EHS_TGT_TCP_IN_BUFF_SIZE]; /* buffer for incoming data */
     Ehs_FB_ThreadStarted();
     ehs_sint32 nDataReceived;
@@ -519,7 +520,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
         }
 #else
         tv.tv_sec = 0;
-        tv.tv_usec = 1000*inx_netSocket_state->read_dwell_time_ms;
+        tv.tv_usec = 100*inx_netSocket_state->read_dwell_time_ms;
         rv = select(nfds, &readfds, NULL, NULL,&tv);  // todo this fails with -1 - unknown issue
         switch (rv)
         {
@@ -533,7 +534,6 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
             // loop round and read it (but less of a gap... (todo)
             EhsSleepUs (100*inx_netSocket_state->read_dwell_time_ms);
             break;
-
         }
 #endif
 

@@ -42,7 +42,12 @@ public class EHS_PluginHandler : EHS_ICommandsProcessor
             if(length>0){
                 byte[] data = new byte[length];
                 Marshal.Copy(bufferPtr, data, 0, length);
-                string command = EHS_Utils.FixJson(System.Text.Encoding.UTF8.GetString(data, 0, data.Length));
+                string dataString = System.Text.Encoding.UTF8.GetString(data, 0, data.Length);
+                if(!string.IsNullOrEmpty(dataString) && dataString.Contains("setmedia")){ 
+                    EHS_ViewHandler.ViewDetailHandler.ViewDetailVideoControlHandler.SyncTimeout.SetTimeout(EHS_ViewHandler.ViewDetailHandler.START_DELAY);
+                    EHS_ViewHandler.ViewDetailHandler.ViewDetailVideoControlHandler.SyncTimeout.Start();
+                }
+                string command = EHS_Utils.FixJson(dataString);
                 Debug.LogWarning(command);
                 manager.AddCommand(command);
             }

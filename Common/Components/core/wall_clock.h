@@ -27,6 +27,7 @@
 
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(wall_clock);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(wall_clock);
+EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(wall_clock); //this relates to C-file destroy function
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(wall_clock_get);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(wall_clock_set);
 /* declare the table for use by the blockref table */

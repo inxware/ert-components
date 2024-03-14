@@ -24,7 +24,7 @@
 //#include "keypress.h"
 
 EHS_FB_FUNCTIONS_START(DtvRemote)
-EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvRemote)
 EHS_FB_FUNCTIONS_END
 
 /*

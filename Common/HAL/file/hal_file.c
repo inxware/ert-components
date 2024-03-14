@@ -40,9 +40,9 @@
 #define EHS_RUNTIME_APPDATA_DIR_STRING   	"appdata"
 #define EHS_RUNTIME_SYSDATA_DIR_STRING   	"sysdata"
 #define EHS_RUNTIME_USERDATA_DIR_STRING  	"userdata"
-#define EHS_RUNTIME_USERDATA_POSTFIX_DIR_STRING  "brix" // We add this to $HOME to contain user data - only this will be wiped by a devman command then!
+#define EHS_RUNTIME_USERDATA_POSTFIX_DIR_STRING  "inxware" // We add this to $HOME to contain user data - only this will be wiped by a devman command then!
 #define EHS_RUNTIME_DEVMAN_DIR_STRING  		"devman"
-#define EHS_RUNTIME_APPDATAFALLBACKS_DIR_STRING  "fallbacks"
+#define EHS_RUNTIME_APPDATAFALLBACKS_DIR_STRING  "appdata/fallbacks"
 #define EHS_RUNTIME_OS_ROOT_STRING					 "/"
 
 /*****************************************************************************/
@@ -89,6 +89,7 @@ ehs_bool EhsFInitFileSystem()
 {
     ehs_bool ret = EHS_FALSE;
     ret = EhsTgtFilesystem_Init();
+    if (ret == EHS_FALSE) EHSH_LOG_ERROR("Could not initliase the file system");
     ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
     EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_SYSDATA_DIR,"init.nfo", EHS_TRUE);
     Ehs_MakePath(szCanonicalFilePath,EHS_TRUE);
@@ -320,7 +321,9 @@ ehs_bool EhsTF_tryCanonicPath(ehs_char * szCanonicalFilePath,RuntimePathType dir
         directory = EHS_RUNTIME_BIN_DIR_STRING;
         break;
     case EHS_RUNTIME_APPDATA_DIR:
-        directory = EHS_RUNTIME_APPDATA_DIR_STRING;
+        directory = EHS_RUNTIME_APPDATA_DIR_STRING; 
+        //bUseEhsPath = EHS_FALSE; //
+        if (EhsHMetaGetAppsPath()) EhsStrcpy(szCanonicalFilePath, EhsHMetaGetAppsPath()); 
         break;
     case EHS_RUNTIME_SYSDATA_DIR:
         directory = EHS_RUNTIME_SYSDATA_DIR_STRING;
@@ -335,6 +338,8 @@ ehs_bool EhsTF_tryCanonicPath(ehs_char * szCanonicalFilePath,RuntimePathType dir
         break;
     case EHS_RUNTIME_APPDATAFALLBACKS_DIR:
         directory = EHS_RUNTIME_APPDATAFALLBACKS_DIR_STRING;
+        //bUseEhsPath = EHS_FALSE; // We still want to concatenate the "fallbacks" directory
+        if (EhsHMetaGetAppsPath()) EhsStrcpy(szCanonicalFilePath, EhsHMetaGetAppsPath()); 
         break;
     case EHS_RUNTIME_OS_ROOT: /* Priveleged Only! */
         EhsStrcpy(szCanonicalFilePath, EHS_TD_FILES_SEPARATOR_STR); // replace with full path
@@ -538,10 +543,31 @@ ehs_bool EhsHRemove(const ehs_char * szOrigFilename)
     }
 }
 
+ehs_bool EhsHCopy(const ehs_char* szSrcFilename, const ehs_char* szDstFilename)
+{
+    FILE* source_file = fopen(szSrcFilename, "rb");
+    if (source_file == NULL) {
+        return EHS_FALSE;
+    }
+    FILE* dest_file = fopen(szDstFilename, "wb");
+    if (dest_file == NULL) {
+        fclose(source_file);
+        return EHS_FALSE;
+    }
+    char buffer[1024];
+    size_t read_count;
+    while ((read_count = fread(buffer, 1, sizeof(buffer), source_file)) > 0) {
+        fwrite(buffer, 1, read_count, dest_file);
+    }
+    fclose(source_file);
+    fclose(dest_file);
+    return EHS_TRUE;
+}
+
 /** Tries to open a file in the system directory */
 ehs_FILE* Ehs_SysFopen(const ehs_char * szFilename, const ehs_char * access)
 {
-    ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
+    ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH]="";
     EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_SYSDATA_DIR,szFilename, EHS_TRUE);
     return EhsFopen(szCanonicalFilePath, access);
 }
@@ -549,20 +575,19 @@ ehs_FILE* Ehs_SysFopen(const ehs_char * szFilename, const ehs_char * access)
 /* opens a file relative to base dir */
 ehs_FILE* Ehs_AppBaseFopen(const ehs_char * szFilename, const ehs_char * access)
 {
-    ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
-    EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_APPDATA_DIR,
-                         szFilename, EHS_TRUE);
-    /*FILE * f=EhsFopen("../SODLLoadLog.txt","w");
-     fprintf (f,"ZZZZZZZZZZZZZZZZZZZZZZZZZZZ\nTrting to open %s\n",szCanonicalFilePath);
-     EhsFclose(f);
-     */
-    return Ehs_PathOpen(szCanonicalFilePath, access); //*force creation if it doesn't exist */
+    ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH]="";
+    if (EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_APPDATA_DIR,szFilename, EHS_TRUE)) { 
+        return Ehs_PathOpen(szCanonicalFilePath, access); //*force creation if it doesn't exist */
+    }
+    else {
+        return NULL;
+    }
 }
 
 /** Tries to open a file in the active application directory */
 ehs_FILE* Ehs_AppFopen(const ehs_char * szFilename, const ehs_char * access)
 {
-    ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
+    ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH]="";
     if (EhsHMetagetCurrentAppDir(szCanonicalFilePath))
     {
         EhsStrcat(szCanonicalFilePath, EHS_TD_FILES_SEPARATOR_STR);
@@ -598,7 +623,7 @@ ehs_FILE* Ehs_UserFopen(const ehs_char * szFilename, const ehs_char * access)
 {
     ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
     EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_USERDATA_DIR,szFilename, EHS_TRUE);
-    if (EhsStrstr("w", access) || EhsStrstr("a", access) || EhsStrstr("+",access))
+    if (EhsStrstr("w", access) || EhsStrstr("wb", access) || EhsStrstr("a", access) || EhsStrstr("+",access))
         return Ehs_PathOpen(szCanonicalFilePath, access);
     else
         return EhsFopen(szCanonicalFilePath, access); //Don't try to create if we are reading - return the error

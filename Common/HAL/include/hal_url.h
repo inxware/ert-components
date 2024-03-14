@@ -15,9 +15,9 @@
  *
  */
 
-//#include "hal-api.h" // need stuff from a few places in the hal
+#include "globals.h" // need stuff from a few places in the hal
 #include "hal-api.h"
-#include <curl/curl.h>
+#include "curl/curl.h"
 
 ehs_bool EhsHURLGlobalInit() ;
 

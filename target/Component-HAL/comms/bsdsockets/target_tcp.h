@@ -23,7 +23,9 @@
 //#undef _POSIX_C_SOURCE
 
 //needed in Debian 9.5 netdb.h files
+#ifndef __USE_XOPEN2K
 #define __USE_XOPEN2K
+#endif
 #include <arpa/inet.h>
 #include <sys/types.h>        /*  socket types              */
 #include <sys/socket.h>       /*  socket definitions        */
@@ -36,7 +38,7 @@
 #include <errno.h>            /* access to errno & error values */
 #include <stdarg.h>				/* variable length parameters for TCP logging */
 
-//#include "target.h"
+#include "globals.h"
 #include "console_queue.h"
 
 /**
@@ -46,9 +48,15 @@
 //#define EHS_TGT_TCP_LOG_ENABLED //default off
 @todo this should go into the main debug condfig header file
 */
+
+#ifndef EHS_TGT_TCP_OUT_BUFF_SIZE
 #define EHS_TGT_TCP_OUT_BUFF_SIZE  65536u	/**< Size of buffer to use when sending to TCP/IP */
-#define EHS_TGT_TCP_IN_BUFF_SIZE  61440	/**< Size of buffer to use when receiving from TCP/IP - must be smaller than the max remainder of destination queue buffer  */
-#define EHS_TGT_TCP_PORTNUM  11425u			/**< Port number to use for receiving TCP/IP connections */
+#endif
+#ifndef EHS_TGT_TCP_IN_BUFF_SIZE
+#define EHS_TGT_TCP_IN_BUFF_SIZE  61440u	/**< Size of buffer to use when receiving from TCP/IP */
+#endif
+
+#define EHS_TGT_TCP_PORTNUM 11425u			/**< Port number to use for receiving TCP/IP connections */
 
 #define EHS_TGT_TCP_LISTENTIME_us 20000u /**< Time to listen (uS) for incoming TCP/IP data */
 #define EHS_TGT_TCP_SUSPENDTIME_us 20000u /**< Time to sleep (uS) to allow main EHS thread to do processing */

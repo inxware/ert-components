@@ -6,7 +6,7 @@
   </Block>
   <Menu>Math
     <Menu>calculation
-      <Menu>int (8 input)</Menu>
+      <Menu>DELME int (8 input)</Menu>
     </Menu>
   </Menu>
   <LongDescription>Integer Operations on a,b,c,d,e,f,g,h. supports +,-,*,/,%,^,abs(x),square(y),min(x,y),max(x,y),sin(output mult, angle),cos(output mult, angle)</LongDescription>
@@ -91,12 +91,12 @@
     <PortType>StartPort</PortType>
     <XCoordinate>0</XCoordinate>
     <YCoordinate>10</YCoordinate>
-    <FunctionName argument="10">run</FunctionName>
+    <FunctionName argument="0">run</FunctionName>
   </Port>
   <Port>
     <PortType>FinishPort</PortType>
     <XCoordinate>50</XCoordinate>
     <YCoordinate>10</YCoordinate>
-    <FunctionName argument="11">run</FunctionName>
+    <FunctionName argument="10">run</FunctionName>
   </Port>
 </Component>

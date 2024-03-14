@@ -203,6 +203,8 @@ static void engine_draw_frame(struct engine* engine)
  */
 static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 {
+   
+   #error This is not normally called - see android_ALL/target_main.c for the one you should be using
     struct engine* engine = (struct engine*)app->userData;
     switch (cmd)
     {

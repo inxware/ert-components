@@ -1,0 +1,8 @@
+# The runtime envtree directory for debian ambifiers
+
+This directory may contains a complete inxware runtime executable environment. 
+It should not include binaries such as DLLS, and 3rd-party plugsin, but should include all 
+config and scripts needed to run eRT.
+
+# Todo 
+- Rename this as debian-ambifier (and consider using $PROCUCT_NAME also for different servers )

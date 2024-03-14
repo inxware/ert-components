@@ -34,7 +34,7 @@ endif
 VPATH+=: $(EHS_TARGET_COMMS_API_PATH)
 INC_DIRS += $(EHS_TARGET_COMMS_API_PATH)
 
-ifeq ($(EHS_GNU_OS),mingw32msvc)
+ifeq ($(EHS_GNU_OS),mingw32posix)
 LIB += ws2_32
 LIB += wldap32 # this is for the libcurl library  and is for mingw builds only. Done Here because libcurl is in common code tree
 endif

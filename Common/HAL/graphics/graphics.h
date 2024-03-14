@@ -18,6 +18,7 @@
 
 #include "ehs_types.h"
 #include "target_config.h"
+#include "target_file.h"
 #include "graphics_types.h"
 //#include "font.h"
 #include "targetgfx_init.h"

@@ -26,13 +26,14 @@
 
 /* OK we do ned to include this here anyway (because we use macros...) into it */
 
-#define _GNU_SOURCE /* Needed for pthread_mutexattr_settype */
+/* Needed for pthread_mutexattr_settype */
 /* check out the GPL situtation of _GNU_SOURCE */
-#ifndef __USE_UNIX98
-    #define  __USE_UNIX98
-#endif
 #ifndef _GNU_SOURCE
     #define _GNU_SOURCE
+#endif
+
+#ifndef __USE_UNIX98
+    #define  __USE_UNIX98
 #endif
 
 #include <pthread.h>
@@ -101,6 +102,10 @@ ehs_bool EhsTP_shellExecuteStdout(char* sZstdout,const char * szCmd, int max_buf
  */
 #define EhsTgtProcess_isOrphan(x) (EHS_FALSE)
 
+/**
+ * @brief Reboot the device
+ */
+void EhsTargetReboot( void );
 
 /*****************************************************************************/
 /* Define types */

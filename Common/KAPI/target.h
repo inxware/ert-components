@@ -18,10 +18,11 @@
 #define EHS_TARGET_H
 
 /* target specific details -- include these first */
-#include "target_config.h"
 #include "target_types.h"
+#include "target_config.h"
 #include "target_specific.h"
-#include "hal-api.h"
+
+//#include "hal-api.h"
 
 //#include "hal_time.h"
 //#include "hal_file.h"

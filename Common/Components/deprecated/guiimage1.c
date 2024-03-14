@@ -67,15 +67,15 @@
 
 EHS_FB_FUNCTIONS_START(GUI_Image1)
 
-EHS_FB_FUNCTION_ENTRY("create", 0x00, GUI_Image1_create)
+EHS_FB_FUNCTION_ENTRY("create", 0x01, GUI_Image1_create)
 
-EHS_FB_FUNCTION_ENTRY("destroy", 0x01, GUI_Image1_destroy)
+EHS_FB_FUNCTION_ENTRY("destroy", 0x02, GUI_Image1_destroy)
 
-EHS_FB_FUNCTION_ENTRY("show", 0x02, GUI_Image1_show)
+EHS_FB_FUNCTION_ENTRY("show", 0x03, GUI_Image1_show)
 
-EHS_FB_FUNCTION_ENTRY("hide", 0x03, GUI_Image1_hide)
+EHS_FB_FUNCTION_ENTRY("hide", 0x04, GUI_Image1_hide)
 
-EHS_FB_FUNCTION_ENTRY("update", 0x04, GUI_Image1_update)
+EHS_FB_FUNCTION_ENTRY("update", 0x05, GUI_Image1_update)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_GUIIMAGE_IN_X 0		/**< Function block input for X offset */

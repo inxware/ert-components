@@ -24,7 +24,7 @@
 
 EHS_FB_FUNCTIONS_START(LogicNot)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicNot", 0x00, LogicNot)
+EHS_FB_FUNCTION_ENTRY("Run_LogicNot", 0x01, LogicNot)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -74,7 +74,7 @@ EHS_FB_RUN_FUNCTION(LogicNot)
 
 EHS_FB_FUNCTIONS_START(LogicTwoInputAnd)
 
-EHS_FB_FUNCTION_ENTRY( "Run_LogicTwoInputAnd", 0x00, LogicTwoInputAnd)
+EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputAnd", 0x01, LogicTwoInputAnd)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -128,7 +128,7 @@ EHS_FB_RUN_FUNCTION(LogicTwoInputAnd)
 
 EHS_FB_FUNCTIONS_START(LogicThreeInputAnd)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputAnd", 0x00, LogicThreeInputAnd)
+EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputAnd", 0x01, LogicThreeInputAnd)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -182,7 +182,7 @@ EHS_FB_RUN_FUNCTION(LogicThreeInputAnd)
 
 EHS_FB_FUNCTIONS_START(LogicFourInputAnd)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputAnd", 0x00, LogicFourInputAnd)
+EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputAnd", 0x01, LogicFourInputAnd)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -236,7 +236,7 @@ EHS_FB_RUN_FUNCTION(LogicFourInputAnd)
 
 EHS_FB_FUNCTIONS_START(LogicTwoInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputOr", 0x00, LogicTwoInputOr)
+EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputOr", 0x01, LogicTwoInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -291,7 +291,7 @@ EHS_FB_RUN_FUNCTION(LogicTwoInputOr)
 
 EHS_FB_FUNCTIONS_START(LogicThreeInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputOr", 0x00, LogicThreeInputOr)
+EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputOr", 0x01, LogicThreeInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -346,7 +346,7 @@ EHS_FB_RUN_FUNCTION(LogicThreeInputOr)
 
 EHS_FB_FUNCTIONS_START(LogicFourInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputOr", 0x00, LogicFourInputOr)
+EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputOr", 0x01, LogicFourInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -401,7 +401,7 @@ EHS_FB_RUN_FUNCTION(LogicFourInputOr)
 
 EHS_FB_FUNCTIONS_START(LogicTwoInputNor)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputNor", 0x00, LogicTwoInputNor)
+EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputNor", 0x01, LogicTwoInputNor)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -448,7 +448,7 @@ EHS_FB_RUN_FUNCTION(LogicTwoInputNor)
 
 EHS_FB_FUNCTIONS_START(LogicThreeInputNor)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputNor", 0x00, LogicThreeInputNor)
+EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputNor", 0x01, LogicThreeInputNor)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -495,7 +495,7 @@ EHS_FB_RUN_FUNCTION(LogicThreeInputNor)
 
 EHS_FB_FUNCTIONS_START(LogicFourInputNor)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputNor", 0x00, LogicFourInputNor)
+EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputNor", 0x01, LogicFourInputNor)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -542,7 +542,7 @@ EHS_FB_RUN_FUNCTION(LogicFourInputNor)
 
 EHS_FB_FUNCTIONS_START(LogicTwoInputNand)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputNand", 0x00, LogicTwoInputNand)
+EHS_FB_FUNCTION_ENTRY("Run_LogicTwoInputNand", 0x01, LogicTwoInputNand)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -589,7 +589,7 @@ EHS_FB_RUN_FUNCTION(LogicTwoInputNand)
 
 EHS_FB_FUNCTIONS_START(LogicThreeInputNand)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputNand", 0x00, LogicThreeInputNand)
+EHS_FB_FUNCTION_ENTRY("Run_LogicThreeInputNand", 0x01, LogicThreeInputNand)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -636,7 +636,7 @@ EHS_FB_RUN_FUNCTION(LogicThreeInputNand)
 
 EHS_FB_FUNCTIONS_START(LogicFourInputNand)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputNand", 0x00, LogicFourInputNand)
+EHS_FB_FUNCTION_ENTRY("Run_LogicFourInputNand", 0x01, LogicFourInputNand)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -683,7 +683,7 @@ EHS_FB_RUN_FUNCTION(LogicFourInputNand)
 
 EHS_FB_FUNCTIONS_START(LogicXor)
 
-EHS_FB_FUNCTION_ENTRY("Run_LogicXor", 0x00, LogicXor)
+EHS_FB_FUNCTION_ENTRY("Run_LogicXor", 0x01, LogicXor)
 EHS_FB_FUNCTIONS_END
 
 /**

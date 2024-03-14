@@ -27,12 +27,23 @@
 # Set this for any intra-code conditional builds
 DEFS+=EHS_GUI_SUPPORT
 
-INC_DIRS+=: $(EHS_COMMON_TOOLKIT_GUI_PATH)
-#INC_DIRS+=$(EHS_COMMON_TOOLKIT_PNG_PATH)
-VPATH+=: $(EHS_COMMON_TOOLKIT_GUI_PATH)
+INC_DIRS += $(EHS_COMMON_TOOLKIT_GUI_PATH)
+VPATH += $(EHS_COMMON_TOOLKIT_GUI_PATH)
 
 include $(EHS_COMMON_TOOLKIT_GUI_PATH)/deps.mk
 
-OBJECTS += gui_components.$(OBJ) guiparams.$(OBJ) guitextbox2.$(OBJ) guipatch.$(OBJ)
-OBJECTS += gui_image_file.$(OBJ)
+# add extended ui widgets deps
+INC_DIRS += $(EHS_COMMON_TOOLKIT_GUI_PATH)/ui_widgets
+VPATH += $(EHS_COMMON_TOOLKIT_GUI_PATH)/ui_widgets
+include $(EHS_COMMON_TOOLKIT_GUI_PATH)/ui_widgets/deps.mk
+
+OBJECTS += inx-gui_patch.$(OBJ)
+OBJECTS += inx-gui_image_file.$(OBJ)
+OBJECTS += inx-gui_widget.$(OBJ)
+
+OBJECTS += gui_components.$(OBJ) guiparams.$(OBJ) 
 OBJECTS += guiviewport.$(OBJ)
+
+OBJECTS += inx-ui_spinner.$(OBJ)
+OBJECTS += inx-ui_chart.$(OBJ)
+OBJECTS += inx-ui_list.$(OBJ)

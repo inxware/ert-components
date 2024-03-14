@@ -36,15 +36,15 @@ typedef struct
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(html_java)
 
-EHS_FB_FUNCTION_ENTRY("LoadScript", 0x00, html_java_LoadScript)
+EHS_FB_FUNCTION_ENTRY("LoadScript", 0x01, html_java_LoadScript)
 
-EHS_FB_FUNCTION_ENTRY("RunFunction", 0x01, html_java_RunFunction)
+EHS_FB_FUNCTION_ENTRY("RunFunction", 0x02, html_java_RunFunction)
 
-EHS_FB_FUNCTION_ENTRY("UnLoadAll", 0x02, html_java_UnLoadAll)
+EHS_FB_FUNCTION_ENTRY("UnLoadAll", 0x03, html_java_UnLoadAll)
 
-EHS_FB_FUNCTION_ENTRY("setVisibile", 0x03, html_java_setVisibile)
+EHS_FB_FUNCTION_ENTRY("setVisibile", 0x04, html_java_setVisibile)
 
-EHS_FB_FUNCTION_ENTRY("setInvisible", 0x04, html_java_setInvisible)
+EHS_FB_FUNCTION_ENTRY("setInvisible", 0x05, html_java_setInvisible)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -117,14 +117,21 @@ EHS_FB_INIT_FUNCTION(html_java)
     //EhsWidgetClass *pWidget;
     /* Parse the GUI parameters */
     pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-    EhsParseGuiParameters(guiParams,&inx_html_java_state->xParams);
+    if (guiParams) {
+        EhsParseGuiParameters(guiParams,&inx_html_java_state->xParams);
 
-    /* we probably don't need to add the widget to the viewport blitter - but if we do :*/
-    //*(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetViewport_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xPatch);//@todo this should be params
+        /* we probably don't need to add the widget to the viewport blitter - but if we do :*/
+        //*(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetViewport_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xPatch);//@todo this should be params
 
-    EhsSscanf(pParams,"%s %c %s %s",inx_html_java_state->ScriptURL,&inx_html_java_state->Data,inx_html_java_state->Function,inx_html_java_state->BaseURL);
-    inx_html_java_state->timeout = -1; // todo add a FB parameter
-    /* Add any further intialisation code here */
+        EhsSscanf(pParams,"%s %c %s %s",inx_html_java_state->ScriptURL,&inx_html_java_state->Data,inx_html_java_state->Function,inx_html_java_state->BaseURL);
+        inx_html_java_state->timeout = -1; // todo add a FB parameter
+        /* Add any further intialisation code here */
+    }
+    else {
+            (*(EhsWidgetClass**)EHS_FB_INIT_CONTEXT = NULL);
+            // don't flag error we may still want the app to run without a UI
+    }
+
     return bRet; /* initialisation always succeeds */
 }
 

@@ -7,6 +7,15 @@ import android.content.Intent;
 import com.utils.downloader.utils.cert.CertificateManager;
 import com.utils.downloader.utils.EHSS_Logger;
 
+/* This class Allows new certificates to be broadcast (usuallly by the supervisor during boot)
+
+todo2024:
+This is insecure and very convoluted. It should be removed ASAP
+-> we would be better off reading them from a file at installation time and then deleting them.
+-> Only further updates the server certificates should be possible via a secure connection to devman or root access to the device via ADB)
+
+*/
+
 public class CertificateReceiver extends BroadcastReceiver {
 
     private static final String IP_ADDRESS = "ip_address";
@@ -29,6 +38,7 @@ public class CertificateReceiver extends BroadcastReceiver {
                  new Thread() {
                      @Override
                      public void run() {
+                        /* These steps create the random number files in the app's normal filesapce not a secure areaa */
                          if(!IsNull(ca_cert_file)) {
                              EHSS_Logger.info("Storing ca certificates.");
                              CertificateManager.getInstance().addCaCert(final_context, ip_address, ca_cert_file);

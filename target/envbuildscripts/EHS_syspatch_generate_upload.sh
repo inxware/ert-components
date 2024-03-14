@@ -3,11 +3,14 @@
 # New version information is created for the runtime using the same rules as targetenv
 # 
 
+set -e
+
 export SPECIFIC_TARGET=$1
 
 ########################################################################
 # Check if we are uploading for android platform
 if [[ "$SPECIFIC_TARGET" == *"android"* ]]; then
+    echo "Building all the Android packages" 
 	./target/envbuildscripts/ehs_android_syspatch_upload.sh $SPECIFIC_TARGET
 	exit 0
 fi
@@ -142,15 +145,15 @@ cp dldata.sh  "../../EHS/$ARCHIVE_DIRECTORY/"
 ########################################################################
 ##Update to server
 
-if [[ -n ${DEVMANSSHPORT} ]]; then 
-	export PORT=${DEVMANSSHPORT}
+if [[ -n ${SSHPORT} ]]; then 
+	export PORT=${SSHPORT}
 else
 	export PORT=22
 fi
 #ssh $DEVMANUID@"$DEVMANSERVER" 'rm -Rf '\"${SERVER_SYSPATCH_DIR}\"'/*'
-ssh -p "${PORT}" "${DEVMANUID}@${DEVMANSERVER}" 'mkdir '\"${SERVER_SYSPATCH_DIR}\"'/'\"${PATCH_NAME}\"
-scp -P "${PORT}" "./dldata.sh"  "$DEVMANUID@${DEVMANSERVER}:"\"${SERVER_SYSPATCH_DIR}\"'/'\"${PATCH_NAME}\"'/' || exit
-scp -P "${PORT}" "./dldata.tgz" "$DEVMANUID@${DEVMANSERVER}:"\"${SERVER_SYSPATCH_DIR}\"'/'\"${PATCH_NAME}\"'/' || exit
+ssh -p "${PORT}" "${DEVMANUID}@${DEVMANSERVER}" 'mkdir '\"${SERVER_SYSPATCH_DIR}\"'/'\"${PATCH_NAME}\" || exit 1
+scp -P "${PORT}" "./dldata.sh"  "$DEVMANUID@${DEVMANSERVER}:"\"${SERVER_SYSPATCH_DIR}\"'/'\"${PATCH_NAME}\"'/' || exit 1
+scp -P "${PORT}" "./dldata.tgz" "$DEVMANUID@${DEVMANSERVER}:"\"${SERVER_SYSPATCH_DIR}\"'/'\"${PATCH_NAME}\"'/' || exit 1
 echo "Complete - Installed on devman server: ${DEVMANSERVER}"
 echo "PATCH NAME=${PATCH_NAME}"
 ########################################################################

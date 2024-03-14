@@ -46,6 +46,29 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format8);
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_format8)
 
+/* integer variant */
+#define EHS_FB_NAME_string_format8_int "string_format8_int"
+#define EHS_FB_ID_string_format8_int 0x5FEC
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_format8_int);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_format8_int);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format8_int);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(string_format8_int)
+
+#ifdef EHS_TARGET_FP_SUPPORT
+/* real variant */
+#define EHS_FB_NAME_string_format8_real "string_format8_real"
+#define EHS_FB_ID_string_format8_real 0x1627
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_format8_real);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_format8_real);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format8_real);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(string_format8_real)
+#endif
 /******************************************************************************/
 /* Declare FormatString8 */
 

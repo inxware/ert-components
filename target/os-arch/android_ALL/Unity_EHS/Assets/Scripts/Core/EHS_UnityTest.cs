@@ -102,6 +102,7 @@ public class EHS_UnityTest : EHS_ICommandsProcessor
                     }
                     return false;
                 }
+                command = EHS_Utils.FixJson(command);
                 Debug.LogWarning(command);
                 manager.AddCommand(command);
                 counter++;

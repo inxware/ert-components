@@ -24,9 +24,9 @@
 
 EHS_FB_FUNCTIONS_START(UrlGet)
 
-EHS_FB_FUNCTION_ENTRY("getpost", 0x00, UrlGet_get)
+EHS_FB_FUNCTION_ENTRY("getpost", 0x01, UrlGet_get)
 
-EHS_FB_FUNCTION_ENTRY("abort", 0x01, UrlGet_abort)
+EHS_FB_FUNCTION_ENTRY("abort", 0x02, UrlGet_abort)
 EHS_FB_FUNCTIONS_END
 
 /* port identifiers for getpost */

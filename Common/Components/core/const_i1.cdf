@@ -1,35 +1,83 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>Constant_Int1</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-  </Block>
-  <Menu>Data Utilities
-    <Menu>Constant
-      <Menu>int</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is an integer constant.</LongDescription>
-  <Parameter>
-    <Name>Integer Value</Name>
-    <DataType>I</DataType>
-    <DefaultValue>0</DefaultValue>
-    <MinValue>-2147483648</MinValue>
-    <MaxValue>2147483647</MaxValue>
-    <Description>integer constant</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Port>
-    <Description>internal</Description>
-    <PortType>InternalPort</PortType>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">Run_ConstantInt</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">Run_ConstantInt</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is an integer constant.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                Constant
+                <Menu>int</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>95</Width>
+        <Height>20</Height>
+        <LocationX>0</LocationX>
+        <LocationY>5</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>Constant_Int1</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x9647</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>ce6ff368</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Integer Value</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-2147483648</MinValue>
+            <MaxValue>2147483647</MaxValue>
+            <Description>integer constant</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+            <DisplayOnWidget>
+                <x>5</x>
+                <y>4</y>
+            </DisplayOnWidget>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_ConstantInt</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>internal</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>internal</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>15</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

@@ -67,8 +67,14 @@ public class EHS_TextAnimate
         }
     }
 
-    public void SetText(string text){ 
+    public void SetText(string text){
         textAnimatorPlayer.ShowText( AddEffects( text ) );
+    }
+
+    public void Clear(){
+        textAnimatorPlayer.ShowText(null);
+        textAnimatorPlayer.StopShowingText();
+        //textAnimatorPlayer.StopAllCoroutines();
     }
 
     public void Disable(){ 

@@ -66,8 +66,8 @@
 /**
  * Check for any errors and report them if appropriate
  */
-#define TRACE_VIEWPORT
-//#undef TRACE_VIEWPORT
+//#define TRACE_VIEWPORT
+#undef TRACE_VIEWPORT
 #ifdef TRACE_VIEWPORT
 int EhsTraceLevel = 0;
 static char* currentFunc;
@@ -103,6 +103,7 @@ struct EhsTVStruct
     struct engine* engine;
 };
 
+#ifdf EHS_OPENGLE_TEST_CODE
 
 GLfloat vertices[] = {0,0,0, 0,1,0, 1,0,0, 0,1,0, 1,1,0, 1,0,0,
                       -1,0,0, 0,0,0, -1,-1,0, -1,-1,0, 0,-1,0, 0,0,0,
@@ -266,9 +267,12 @@ static void engine_draw_frame(struct engine* engine) {
 	eglSwapBuffers(engine->display, engine->surface);
 }
 */
+#endif // end of OPENGLE_TEST_CODE
 
 static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 {
+   
+    #error This is not normally called - see android_ALL/target_main.c for the one you should be using
     struct engine* engine = (struct engine*)app->userData;
     switch (cmd)
     {
@@ -471,11 +475,10 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
 
     EHSH_LOG_INFO(" Starting GTK");
     go=1;
-    while (1)
-    {
-        //This may include code fornadling keyboard and mouse events using some other system than OpenGL
-    } //this seems less crashy than the gtk_main() blocker!
-    EHSH_LOG_WARNING("gtk_main - exited!");
+    //while (1)
+    //{
+    //   //This may include code fornadling keyboard and mouse events using some other system than OpenGL
+    //}  //this seems less crashy than the gtk_main() blocker!
     EhsHThread_exit();
 }
 
@@ -884,7 +887,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
     }
     else
     {
-        EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("unrecognised bitmap format"));
+        EHSH_LOG_ERROR(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("unrecognised bitmap format"));
     }
 
     LEAVE(EhsTVSurface_create);
@@ -945,7 +948,8 @@ ehs_uint16 EhsTVSurface_pitch(EhsTVSurfaceClass* pSurface)
     {
     case EHS_GRAPHICS_COLOUR_ARGB8888:
         /* TODO This will be the power of two width check this is right!*/
-        /* nRet = pSurface->nBufferWidth; */
+        nRet = pSurface->nBufferWidth; //nWidth
+        //nRet = pSurface->fmt
         break;
     case EHS_GRAPHICS_COLOUR_A1:
         nRet = pSurface->fmt.A1.nWidth;
@@ -964,7 +968,8 @@ ehs_uint16 EhsTVSurface_width(EhsTVSurfaceClass* pSurface)
     switch (pSurface->eFormat)
     {
     case EHS_GRAPHICS_COLOUR_ARGB8888:
-        /* probably not needed for OpenGL */
+        /* possibly not needed for OpenGL? */
+        nRet = pSurface->nWidth;
         break;
     case EHS_GRAPHICS_COLOUR_A1:
         nRet = pSurface->fmt.A1.nWidth;
@@ -984,6 +989,7 @@ ehs_uint16 EhsTVSurface_height(EhsTVSurfaceClass* pSurface)
     {
     case EHS_GRAPHICS_COLOUR_ARGB8888:
         /* probably not needed for OpenGL */
+        nRet = pSurface->nHeight;
         break;
     case EHS_GRAPHICS_COLOUR_A1:
         nRet = pSurface->fmt.A1.nHeight;

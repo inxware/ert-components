@@ -1,22 +1,35 @@
 #!/system/bin/sh
 
-export LONG_DOWNLOAD_LOCK_FILE="/sdcard/.EHS/.longDownload"
+export EHS_REBOOT_FLAG="/data/local/tmp/ehs_reboot"
 
-WaitDownloadFile(){
-	D_RETRIES=1000 # 1000 seconds
+WriteRebootFlag(){
+	touch "$EHS_REBOOT_FLAG"
+}
+
+ClearRebootFlag(){
+	test -f "$EHS_REBOOT_FLAG" && rm "$EHS_REBOOT_FLAG"
+}
+
+IsRebootFlag(){
+	test -f "$EHS_REBOOT_FLAG" && echo "yes"
+}
+
+WaitLockFile(){
+	LOCK_FILE=$1
+	D_RETRIES=$2 # seconds
 	D_DELAY=1 # [sec]
 	D_COUNTER=0
-    D_RESULT="None"
+	D_RESULT="None"
 	while [ "$D_COUNTER" -lt "$D_RETRIES" ]; do
-		if [ -f "$LONG_DOWNLOAD_LOCK_FILE" ]; then
-			D_RESULT=$( cat $LONG_DOWNLOAD_LOCK_FILE )
-            rm $LONG_DOWNLOAD_LOCK_FILE
+		if [ -f "$LOCK_FILE" ]; then
+			D_RESULT=$( cat $LOCK_FILE )
+			rm $LOCK_FILE
 			break
 		fi
-		D_COUNTER=$((COUNTER+1))
+		D_COUNTER=$((D_COUNTER+1))
 		sleep $D_DELAY
 	done
-    echo $D_RESULT
+	echo $D_RESULT
 }
 
 WaitDir(){
@@ -87,7 +100,7 @@ InitDownloader(){
 		RETRIES=5; DELAY=2; COUNTER=0; SUCCESS=""; LOGGED="";
 		while [ "$COUNTER" -lt "$RETRIES" ]; do
 			TEST_BROADCAST=$( am broadcast -a com.utils.downloader.broadcastreceiver.DOWNLOAD )
-			if [[ "$TEST_BROADCAST" == *"result=404"* ]]; then
+			if [[ "$TEST_BROADCAST" == *"result=100"* ]]; then
 				SUCCESS="TRUE"
 				echo "Download service started."
 				break			
@@ -96,47 +109,11 @@ InitDownloader(){
 			sleep $DELAY
 		done
 		if [ -z "$SUCCESS" ]; then 
-			if [ -z "$LOGGED" ]; then
-				echo "Download Failed."
-				LOGGED="YES"
-			fi
+			echo "Download Failed."
 			StopService ${DOWNLOADER_PACKAGE}/${DOWNLOADER_SERVICE}
 			sleep 1
 			StopApp 'com.utils.downloader'
 		fi
-	fi
-}
-
-Downloader(){
-	ADDRESS=$1; DOWNLOAD_PATH=$2; OUTPUT_PATH=$3;
-	if ! [ -z "$ADDRESS" ]; then
-		if ! [ -z "$OUTPUT_PATH" ]; then
-			# run downloader
-			MSG=$( InitDownloader )
-			if [ -f "$LONG_DOWNLOAD_LOCK_FILE" ]; then
-				rm $LONG_DOWNLOAD_LOCK_FILE
-			fi
-			RESULT=$( am broadcast -a com.utils.downloader.broadcastreceiver.DOWNLOAD --es 'ip_address' ${ADDRESS} --es 'download_path' ${DOWNLOAD_PATH} --es 'output_path' ${OUTPUT_PATH} )
-			if [[ "$RESULT" == *"result=608"* ]]; then
-			    RESULT=$( WaitDownloadFile ) # sort out long download
-			fi
-			if [ -z "$RESULT" ]; then
-				echo "Failed to get any results from downloader."
-			else
-				if [[ "$RESULT" == *"result=200"* ]]; then
-					echo "YES"
-				elif [[ "$RESULT" == *"result=404"* ]]; then
-					echo "Failed to download."
-				else
-					echo "Downloader may not be installed or running properlly."
-					StopApp 'com.utils.downloader'
-				fi
-			fi
-		else
-			echo "Output path was not specified."
-		fi
-	else
-		echo "IP address was not specified."
 	fi
 }
 
@@ -203,10 +180,9 @@ CloseDownloaderUpdatePage(){
 }
 
 RebootDevice(){
-	LaunchDownloaderUpdatePage
-	DownloaderStatus "System is rebooting ..."
-	sleep 2
-	reboot
+	#LaunchDownloaderUpdatePage
+	#DownloaderStatus "System is rebooting ..."
+	WriteRebootFlag
 }
 
 # read version code 

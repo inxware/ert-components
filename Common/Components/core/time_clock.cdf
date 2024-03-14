@@ -1,97 +1,186 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>time_clock</Class>
-  <Block>
-    <Type>Event_Processor</Type>
-  </Block>
-  <Menu>Event
-    <Menu>Clock</Menu>
-  </Menu>
-  <LongDescription>Creates periodic timed events.</LongDescription>
-  <Parameter>
-    <Name>Time Interval (uSecs)</Name>
-    <DataType>I</DataType>
-    <DefaultValue>1000000</DefaultValue>
-    <MinValue>1</MinValue>
-    <MaxValue>2147483647</MaxValue>
-    <Description>Time interval between events.</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>Periodic Flag</Name>
-    <DataType>B</DataType>
-    <DefaultValue>1</DefaultValue>
-    <Description>Periodic if TRUE, single delay only if FALSE. </Description>
-    <ListPlacement>2</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>Retriggerable Flag</Name>
-    <DataType>B</DataType>
-    <DefaultValue>1</DefaultValue>
-    <Description>Retriggerable if TRUE. </Description>
-    <ListPlacement>3</ListPlacement>
-  </Parameter>
-  <Port>
-    <Description>start</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">start</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>period</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>45</YCoordinate>
-    <FunctionName argument="1">start</FunctionName>
-  </Port>
-  <Port>
-    <DataType>B</DataType>
-    <Description>rpt</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>60</YCoordinate>
-    <FunctionName argument="2">start</FunctionName>
-  </Port>
-  <Port>
-    <DataType>B</DataType>
-    <Description>retrig</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>75</YCoordinate>
-    <FunctionName argument="3">start</FunctionName>
-  </Port>
-  <Port>
-    <Description>clk</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>60</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <FunctionName argument="1">tick</FunctionName>
-  </Port>
-  <Port>
-    <Description>stop</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>25</YCoordinate>
-    <FunctionName argument="0">stop</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>60</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="4">start</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>60</XCoordinate>
-    <YCoordinate>25</YCoordinate>
-    <FunctionName argument="1">stop</FunctionName>
-  </Port>
-  <Port>
-    <Description>internal</Description>
-    <PortType>InternalPort</PortType>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">tick</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2022-09-06T15:11:45Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>Creates periodic timed events.</LongDescription>
+        <UserName/>
+        <Menu>
+            Event
+            <Menu>Timer</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Event_Processor</Type>
+        <Width>65</Width>
+        <Height>90</Height>
+        <Text>Timer</Text>
+        <TextX>15</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.5</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>2</ERT1_ID>
+        <Class>time_clock</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xEEFF</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>1a0af9dc</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Time Interval (uSecs)</Name>
+            <DataType>I</DataType>
+            <DefaultValue>1000000</DefaultValue>
+            <MinValue>1</MinValue>
+            <MaxValue>2147483647</MaxValue>
+            <Description>Time interval between events.</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Periodic Flag</Name>
+            <DataType>B</DataType>
+            <DefaultValue>1</DefaultValue>
+            <Description>Periodic if TRUE, single delay only if FALSE. </Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Retriggerable Flag</Name>
+            <DataType>B</DataType>
+            <DefaultValue>1</DefaultValue>
+            <Description>Retriggerable if TRUE. </Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>start</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>tick</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>stop</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>start</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>start</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>period</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>period</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>rpt</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>rpt</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>retrig</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>retrig</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>clk</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>clk</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>stop</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>stop</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>internal</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>internal</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

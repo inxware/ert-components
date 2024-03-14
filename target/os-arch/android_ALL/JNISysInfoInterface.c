@@ -19,7 +19,7 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetIPAddr();
 EHS_GLOBAL const ehs_char* EhsHMetaGetEHSVersion();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMAvail();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMTotal();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMUsedEHS();
+EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMUsedEHS_kB();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorAvail();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorUsed();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorTotal();

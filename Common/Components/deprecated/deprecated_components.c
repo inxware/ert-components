@@ -15,7 +15,7 @@
  */
 
 #include "blockref_table.h"
-#include "parse_sodl.h"
+#include "hal_utils.h"
 
 #ifdef EHS_GUI_SUPPORT
 #include "guitextbox.h"
@@ -38,7 +38,7 @@
 
 const EhsBlockRefType EhsBlockRefTable_deprecated[] =
 {
-#ifdef EHS_GUI_SUPPORT
+#if defined(EHS_GUI_SUPPORT) && !defined(EHS_GUI_SUPPORT_MODE_B)
 	/* guiimage.h */
 	/* EHS_BLOCKREF_ENTRY(EHS_FB_NAME_GUIIMAGE_NAME, GUI_Image), // compile error */
 	/* guiimage1.h */
@@ -73,7 +73,7 @@ const EhsBlockRefType EhsBlockRefTable_deprecated[] =
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_ComparatorGreaterEqualInt,EHS_FB_ID_ComparatorGreaterEqualInt,ComparatorGreaterEqualInt),
 #ifdef EHS_TARGET_FP_SUPPORT
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_ComparatorEqualReal,EHS_FB_ID_ComparatorEqualReal,ComparatorEqualReal),
-	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_CComparatorGreaterReal,EHS_FB_ID_CComparatorGreaterReal,ComparatorGreaterReal),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_CComparatorGreaterReal,EHS_FB_ID_ComparatorGreaterReal,ComparatorGreaterReal),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_ComparatorGreaterEqualReal,EHS_FB_ID_ComparatorGreaterEqualReal,ComparatorGreaterEqualReal),
 #endif /* EHS_TARGET_FP_SUPPORT */
 	/* from arraystring.h */

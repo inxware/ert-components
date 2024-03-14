@@ -30,9 +30,9 @@
 
 include $(EHS_TARGET_AV_PATH)/../gst_common/video.mk
 
+LIB+=gstreamer-1.0
 
-LIB+=gstreamer-0.10
-LIB+=gstinterfaces-0.10
-LIB+=gdi32 #This maybe duplicated in graphics also
+#LIB+=gstinterfaces-0.10
+#LIB+=gdi32 #This maybe duplicated in graphics also
 
 OBJECTS += target_os_dtv.$(OBJ)

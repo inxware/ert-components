@@ -58,7 +58,7 @@ void EhsTGfxSys_init(void)
 {
     if (!EhsToolkitTable_addTable(EhsBlockRefTable_Dtv))
     {
-        EhsError(EHS_TGT_FATAL_TOOLKIT("DTV"));
+        EHSH_LOG_ERROR(EHS_TGT_FATAL_TOOLKIT("DTV"));
         EhsShutdown();
     }
     else

@@ -10,8 +10,11 @@ The runtime environment is self contained, including a copy of glibc if the vers
 By default the runtime will make use of the host's version of glibc, but if this causes problems runtime can 
 be made to use the internel version using the following run command:
 
-run_ehs.sh NO_RESTART LIB_INX
+    ./run_ehs.sh NO_RESTART LIB_INX
+
+Otherwise the (normal) default launch for a production system is
 
  
-
+    ./run_ehs.sh YES_RESTART LIB_HOST (default paramters)
+    
 

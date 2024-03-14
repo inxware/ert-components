@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-08-15T14:53:49Z</CreationDate>
+        <UpdatedDate>2023-08-18T15:02:17Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Get the RMS value of the audio input.</ShortDescription>
+        <LongDescription>This function block gets the audio input amplitude. The sampling frequency, bit rate and output interval period can be defined.</LongDescription>
+        <UserName/>
+        <Menu>
+            Peripherals
+            <Menu>Audio Input Level</Menu>
+        </Menu>
+    </Description>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>audio_input_level</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xC5BF</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>34b7d6db</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>sampling_rate</Name>
+            <DataType>I</DataType>
+            <DefaultValue>44100</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>192000</MaxValue>
+            <Description>Sampling rate in Hz</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+            <DisplayOnWidget>
+                <x>25</x>
+                <y>15</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>bit_rate</Name>
+            <DataType>I</DataType>
+            <DefaultValue>8</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>8</MaxValue>
+            <Description>The bit length of each sample.</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+            <DisplayOnWidget>
+                <x>25</x>
+                <y>30</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>output_period</Name>
+            <DataType>I</DataType>
+            <DefaultValue>1000</DefaultValue>
+            <MinValue>100</MinValue>
+            <MaxValue>3600000</MaxValue>
+            <Description>THe period of the data output in ms. Incremental step of 100 ms. Minimum 100 ms</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+            <DisplayOnWidget>
+                <x>25</x>
+                <y>45</y>
+            </DisplayOnWidget>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>start</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>destroy</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>start</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <CName>start</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>done</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>destroy</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>destroy</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>destroyed</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>67</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>destroyed</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>data_got</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>37</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>data_got</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>fail</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>fail</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>value</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <CName>value</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

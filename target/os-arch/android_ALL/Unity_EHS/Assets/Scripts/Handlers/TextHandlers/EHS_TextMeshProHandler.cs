@@ -50,7 +50,7 @@ public class EHS_TextMeshProHandler : ITextObjectHandler {
     }
 
     public ITextObjectHandler Clear() {
-        SetText("");
+        textAnimate.Clear();
         return this;
     }
 

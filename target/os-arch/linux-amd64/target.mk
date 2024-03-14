@@ -8,8 +8,11 @@
 #---------------------------------------------------------------#
 
 # Makefile fragment to build target specific component and support code.
+# THis is used for making amd64 bit builds using the standard gcc toolchain
+# todo 2023: This needs to be compared to the configs for x86_64 - are these just host built and amd are the fully cross built from ert-contrib etc.?
+
 # Called by ../../platform/<platform-type>
-# @author: inx limited
+#
 
 # Predefined variables
 
@@ -26,6 +29,4 @@
 
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/target.mk
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/target.mk
-
-
 

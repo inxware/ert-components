@@ -26,10 +26,12 @@ public class DownloadService extends Service {
 
     public static int download(HashMap<String, String> extras){
         if(instance != null && instance.downloadRequest != null){
-            instance.downloadRequest.Download(extras);
-            return instance.downloadRequest.Wait();
+            if(!extras.isEmpty()) {
+                instance.downloadRequest.Download(extras);
+            }
+            return DownloadRequest.DOWNLOADER_READY;
         }
-        return 0;
+        return DownloadRequest.DOWNLOADER_NOT_READY;
     }
 
     private void register(BroadcastReceiver receiver, String url){
@@ -100,23 +102,20 @@ public class DownloadService extends Service {
 
     public class DownloadRequest extends Thread {
 
+        public static final int DOWNLOADER_NOT_READY = 0;
+        public static final int DOWNLOADER_READY = 100;
         public static final int DOWNLOAD_OK = 200;
         public static final int DOWNLOAD_FAIL = 404;
-        public static final int DOWNLOAD_TOO_LONG = 608;
-        public static final int TOO_LONG_TIMEOUT = 40 * 1000;
-        public static final String LONG_DOWNLOAD_LOCK_FILE = "/sdcard/.EHS/.longDownload";
+        public static final String DOWNLOAD_LOCK_FILE = "/sdcard/.EHS/.downloading";
 
-        private final ConditionVariable cv, cv_d;
+        private final ConditionVariable cv;
         private HashMap<String, String> extras;
         private boolean running;
-        private int result;
 
         public DownloadRequest(){
             cv = new ConditionVariable();
-            cv_d = new ConditionVariable();
             running = false;
             extras = null;
-            result = 0;
         }
 
         public void Start(){
@@ -125,7 +124,6 @@ public class DownloadService extends Service {
                 cv.close();
                 synchronized (this) {
                     running = true;
-                    result = 0;
                 }
                 start();
             }catch (Exception e){
@@ -149,23 +147,9 @@ public class DownloadService extends Service {
 
         public void Download(HashMap<String, String> extras){
             synchronized (this) {
-                this.result = 0;
                 this.extras = extras;
             }
             cv.open();
-        }
-
-        public int Wait(){
-            if(result == 0) {
-                cv_d.close();
-                if (!cv_d.block(TOO_LONG_TIMEOUT)) {
-                    EHSS_Logger.info("======= Download Request Thread [TOO LONG] =======");
-                    synchronized (this) {
-                        result = DOWNLOAD_TOO_LONG;
-                    }
-                }
-            }
-            return result;
         }
 
         public synchronized boolean isRunning(){
@@ -180,25 +164,16 @@ public class DownloadService extends Service {
                     boolean success = Downloader.Exec(getApplicationContext(), extras);
                     synchronized (this) {
                         this.extras = null;
-                        if(result == DOWNLOAD_TOO_LONG){
-                            if(success){
-                                EHSS_Logger.info("======= Download Request Thread [LONG WAIT SUCCESS] =======.");
-                                EHSS_Utils.write(LONG_DOWNLOAD_LOCK_FILE, "result="+DOWNLOAD_OK);
-                            }else{
-                                EHSS_Logger.info("======= Download Request Thread [LONG WAIT FAIL] =======.");
-                                EHSS_Utils.write(LONG_DOWNLOAD_LOCK_FILE, "result="+DOWNLOAD_FAIL);
-                            }
+                        if(success){
+                            EHSS_Logger.info("======= Download Request Thread [SUCCESS] =======.");
+                            EHSS_Utils.write(DOWNLOAD_LOCK_FILE, "result="+DOWNLOAD_OK);
                         }else{
-                            if (success) {
-                                result = DOWNLOAD_OK;
-                            } else {
-                                result = DOWNLOAD_FAIL;
-                            }
+                            //EHSS_Logger.info("======= Download Request Thread [FAIL] =======.");
+                            EHSS_Utils.write(DOWNLOAD_LOCK_FILE, "result="+DOWNLOAD_FAIL);
                         }
                     }
                 }
                 EHSS_Logger.info("======= Download Request Thread [OK] =======");
-                cv_d.open();
                 cv.close();
             }
         }

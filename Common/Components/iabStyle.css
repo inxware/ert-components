@@ -66,7 +66,7 @@ td{
 }
 th{
     align-content: left;
-    background-color: lightgrey;
+    background-color: #E5E4E2;
     width:50px;
     text-align:left;
 }
@@ -107,7 +107,6 @@ mark{
 
 .table_params td, .table_params tr, .table_params th{
     padding: 2px;
-    
 }
 
 /* Note these don't work on current webkit version, so hard coded in the table header for now instead */
@@ -136,7 +135,7 @@ display:inline;
 
 
 #toc_container {
-    background: #00f9f9 none repeat scroll 0 0;
+    background: #C0C0C0 none repeat scroll 0 0;
     margin-bottom: 1em;
     padding: 5px;
     height: 20px;
@@ -152,7 +151,7 @@ display:inline;
      padding: 8px;
      width: 95%;*/
      height: 18px;
-     background: #00f0f0 none repeat scroll 0 0;
+     background: #C0C0C0 none repeat scroll 0 0;
      margin-bottom: 1em;
      padding: 5px;
  }

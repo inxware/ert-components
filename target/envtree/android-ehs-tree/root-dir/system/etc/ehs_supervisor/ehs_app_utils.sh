@@ -73,44 +73,7 @@ StartApp(){
     fi    
 }
 
-DownloadApk(){
-    APK_NAME=$1
-    APK_LOCATION=$2
-    ADDRESS=$3
-    ADDRESS_PATH=$4
-    SupervisorLog 'Download address ('${ADDRESS}${ADDRESS_PATH}')'
-    MSG=$( LaunchDownloaderSetupPage ) # launching a set-up intent
-    SupervisorLog "$MSG"
-    if ! [ -f "$APK_LOCATION" ]; then
-        SupervisorLog "Downloading ($APK_NAME) ==> ($APK_LOCATION) ..."
-        DownloaderStatus "Downloading ($APK_NAME) ..."
-        DELAY=3;LOGGED="";RETRIES=3;
-        while true; do
-            COMPLETE=$( Downloader "$ADDRESS" "$ADDRESS_PATH" "$APK_LOCATION" )
-            if [ "$COMPLETE" = "YES" ]; then
-                SupervisorLog "Successful download of ($APK_NAME) apk."
-                break
-            else
-                if [ -z "$LOGGED" ]; then
-                    SupervisorError "Failed to download ($APK_NAME) apk. ====> $COMPLETE"
-                fi
-            fi
-            sleep $DELAY
-            if [ "$RETRIES" -lt "1" ]; then
-                # failed to download the app
-                DownloaderStatus "Failed to download $ADDRESS // $ADDRESS_PATH // $APK_LOCATION Is the network configured?"
-                SupervisorLog "Failed to download. $ADDRESS // $ADDRESS_PATH // $APK_LOCATION Is the network configured?"
-            else
-                RETRIES=$((RETRIES-1))
-            fi
-            if [ -z "$LOGGED" ]; then
-                SupervisorLog "Retrying ..."
-                LOGGED="YES"
-            fi
-        done
-    fi
-}
-
+#todo2023 - Whycan't we do this from the host with adb install? Do we use this for OTA updates as well (I suppose we do!)
 InstallNewApk(){
     APK_NAME=$1
     APK_LOCATION=$2
@@ -130,7 +93,7 @@ InstallNewApk(){
                 SupervisorLog "The installation was successful ($APK_NAME)."
                 DownloaderStatus "Success!"
             else
-                DownloaderStatus "Failed to install!"
+                DownloaderStatus "Failed to install - install check failed!"
                 SupervisorLog "The installation failed ($APK_NAME)."
             fi
             sleep 1
@@ -139,7 +102,7 @@ InstallNewApk(){
         fi
         rm $APK_LOCATION
     else
-        DownloaderStatus "Failed to install!"
+        DownloaderStatus "Failed to install - no apk at $APK_LOCATION !"
         SupervisorError "Failed to install ($APK_NAME) apk."
         sleep 1
     fi

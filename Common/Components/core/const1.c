@@ -31,7 +31,7 @@
 
 EHS_FB_FUNCTIONS_START(ConstantInt1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConstantInt", 0x00, ConstantInt1)
+EHS_FB_FUNCTION_ENTRY("Run_ConstantInt", 0x01, ConstantInt1)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -77,7 +77,7 @@ EHS_FB_RUN_FUNCTION(ConstantInt1)
 
 EHS_FB_FUNCTIONS_START(ConstantString1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConstantString", 0x00, ConstantString1)
+EHS_FB_FUNCTION_ENTRY("Run_ConstantString", 0x01, ConstantString1)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -148,7 +148,7 @@ EHS_FB_RUN_FUNCTION(ConstantString1)
 
 EHS_FB_FUNCTIONS_START(ConstantBool1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConstantBool", 0x00, ConstantBool1)
+EHS_FB_FUNCTION_ENTRY("Run_ConstantBool", 0x01, ConstantBool1)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -191,7 +191,7 @@ EHS_FB_RUN_FUNCTION(ConstantBool1)
 
 EHS_FB_FUNCTIONS_START(ConstantFloat1)
 
-EHS_FB_FUNCTION_ENTRY("Run_ConstantReal", 0x00, ConstantFloat1)
+EHS_FB_FUNCTION_ENTRY("Run_ConstantReal", 0x01, ConstantFloat1)
 EHS_FB_FUNCTIONS_END
 
 /**

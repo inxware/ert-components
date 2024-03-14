@@ -1,35 +1,83 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>Constant_Real1</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-  </Block>
-  <Menu>Data Utilities
-    <Menu>Constant
-      <Menu>real</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is a real constant.</LongDescription>
-  <Parameter>
-    <Name>Real Constant</Name>
-    <DataType>F</DataType>
-    <DefaultValue>0</DefaultValue>
-    <MinValue>-1.7E308</MinValue>
-    <MaxValue>1.7E+308</MaxValue>
-    <Description>real constant</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Port>
-    <Description>internal</Description>
-    <PortType>InternalPort</PortType>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">Run_ConstantReal</FunctionName>
-  </Port>
-  <Port>
-    <DataType>F</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">Run_ConstantReal</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a real constant.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                Constant
+                <Menu>real</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>95</Width>
+        <Height>20</Height>
+        <LocationX>0</LocationX>
+        <LocationY>5</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>Constant_Real1</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x9458</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>241bb8d2</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Real Constant</Name>
+            <DataType>F</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-1.7E308</MinValue>
+            <MaxValue>1.7E+308</MaxValue>
+            <Description>real constant</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+            <DisplayOnWidget>
+                <x>5</x>
+                <y>4</y>
+            </DisplayOnWidget>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_ConstantReal</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>internal</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>internal</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>15</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

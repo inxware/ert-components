@@ -1,38 +1,99 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>EventOneInputManRstAnd</Class>
-  <Menu>Event
-    <Menu>Combiners/Flow
-      <Menu>Manual AND
-        <Menu>AND1</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is a 1-input event AND with an external manual reset. It is asserted once and will not fire again until manually reset.</LongDescription>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="0">And1</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>15</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="1">And1</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>15</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <FunctionName argument="1">Reset</FunctionName>
-  </Port>
-  <Port>
-    <Description>R</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <FunctionName argument="0">Reset</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a 1-input event AND with an external manual reset. It is asserted once and will not fire again until manually reset.</LongDescription>
+        <UserName/>
+        <Menu>
+            Event
+            <Menu>
+                Combiners/Flow
+                <Menu>
+                    Manual AND
+                    <Menu>AND1</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>And_Event</Type>
+        <TypeVariant>manu_2</TypeVariant>
+        <Width>20</Width>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>EventOneInputManRstAnd</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xA002</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>4f220f90</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>And1</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Reset</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>1</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>1</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

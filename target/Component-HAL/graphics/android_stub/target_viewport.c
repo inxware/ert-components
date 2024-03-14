@@ -36,7 +36,6 @@
 /*****************************************************************************/
 /* Included files */
 
-
 //#include "target_viewport.h"
 #include "globals.h"
 #include "hal_string.h"
@@ -61,8 +60,8 @@
 /**
  * Check for any errors and report them if appropriate
  */
-#define TRACE_VIEWPORT
-//#undef TRACE_VIEWPORT
+//#define TRACE_VIEWPORT
+#undef TRACE_VIEWPORT
 #ifdef TRACE_VIEWPORT
 int EhsTraceLevel = 0;
 static char* currentFunc;

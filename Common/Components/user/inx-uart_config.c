@@ -30,8 +30,8 @@ extern uint8_t gUARTParity;
 
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(uart_config)
-EHS_FB_FUNCTION_ENTRY("uart_config_enable", 0x00, uart_config_enable)
-EHS_FB_FUNCTION_ENTRY("uart_config_disable", 0x01, uart_config_disable)
+EHS_FB_FUNCTION_ENTRY("uart_config_enable", 0x01, uart_config_enable)
+EHS_FB_FUNCTION_ENTRY("uart_config_disable", 0x02, uart_config_disable)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER

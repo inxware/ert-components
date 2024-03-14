@@ -2,6 +2,7 @@
 # inx limited 2020
 # Creates an android .apk
 
+set -e
 
 echo "**************************************************************************************"
 echo "**  Making Android APK - _* option - not standalone **"
@@ -11,52 +12,269 @@ echo "**************************************************************************
 unset JAVA_HOME
 
 export SPECIFIC_TARGET=$1
+
 export EHS_ROOT=`pwd` # assuming we're in the ehs project root
 pushd ${EHS_ROOT}/..
 export REPOSITORY_ROOT=`pwd`
 popd
-if [ -z "$SPECIFIC_TARGET" ]; then
+if [ "${SPECIFIC_TARGET}" = "" ]; then
     echo "TARGET is not specified."
     exit 1
 fi
+if [ "$EHS_ANDROID_PACKAGE_SIGNING_PATH" = "" ]; then
+   echo "You need to set a signing path EHS_ANDROID_PACKAGE_SIGNING_PATH in your config "
+   echo " to point to something in ../DevmanSecurity currently.... Sorry!"
+   exit
+fi
+
+
 pushd ../TARGET_TREES || exit 1
-TARGET_TREES=$(pwd)
+export TARGET_TREES=$(pwd)
 popd
 if ! [ -d "$TARGET_TREES" ]; then
     echo "TARGET_TREES directory is not available!"
     exit 1
 fi
+
+# todo this isn't needed here any more..
+#if [ "${EHS_PRODUCT_NAME}" = "" ]; then
+#    echo "WARNING: EHS_PRODUCT_NAME is not set"
+#else
+#    export EHS_PRODUCT_NAME
+#fi
+
+if [ "${BUILD_WITH_ANDROID_SUPERVISOR}" = "" ]; then
+    echo "BUILD_WITH_SUPERVISOR is not set (Not the OS supervisor package with this build)" 
+else
+    export BUILD_WITH_ANDROID_SUPERVISOR
+fi
+
 export TARGET_PATH=${TARGET_TREES}/ehs_env-${SPECIFIC_TARGET}
-export ANDROID_STUDIO_ROOT=${TARGET_PATH}/android_studio_project
-if ! [ -d $ANDROID_STUDIO_ROOT ]; then
-    echo "Android Studio project folder ($ANDROID_STUDIO_ROOT) is not present in TARGET_TREES."
-    echo "Please run 'make targetenv' before doing this."
-    exit 1
-fi
-TARGET_ENV_APK_HACKS=${EHS_ROOT}"/target/envbuildscripts/targetenv_make_apk_hacks/"${SPECIFIC_TARGET}"_hacks.sh"
-if ! [ -f "$TARGET_ENV_APK_HACKS" ]; then
-    echo "Cannot do targetenv_apk for ANDROID ($SPECIFIC_TARGET). Hack script doesn't exist for this target."
-	exit 1
+
+export ANDROID_ROOT="$EHS_ROOT/../inx_android_build"
+export ANDROID_SDK=${ANDROID_ROOT}"/SDK"
+export JDK_PATH="/usr/lib/jvm/java-8-openjdk-amd64"
+
+export ANDROID_STUDIO_ROOT="${TARGET_PATH}/android_studio_project"
+export ANDROID_STUDIO_BUILD_RELEASE_APK_NAME="app-release.apk"
+export ANDROID_STUDIO_BUILD_BUNDLE_OUTPUT=""
+export ANDROID_STUDIO_SRC_ROOT="${ANDROID_STUDIO_ROOT}/app"
+export ANDROID_STUDIO_BUILD_APK_OUTPUT="${ANDROID_STUDIO_SRC_ROOT}/build/outputs/apk"
+export ANDROID_TARGET_APK_NAME="ehs.apk" # @TODO - this name should probably be changed to eRT? Just beware that renaming will afect supervisor and updates scripts !
+export REPOSITORY_ANDROID_STUDIO_ROOT="$EHS_ROOT/target/os-arch/android_ALL/android_studio_ehs"
+
+if [ "${EHS_ARCH}" = "arm64" ]; then 
+    echo "Using 64 bit eRT Android plug-in for this target."
+    export ANDROID_STUDIO_JNILIBS_PATH="$ANDROID_STUDIO_SRC_ROOT/src/main/jniLibs/arm64-v8a"
+else
+    # assume its 32 bit
+    echo "Using 32 bit eRT Android plug-in for this target."
+    export ANDROID_STUDIO_JNILIBS_PATH="$ANDROID_STUDIO_SRC_ROOT/src/main/jniLibs/armeabi-v7a"
 fi
 
-export TARGET_SYSPATCH=${TARGET_PATH}/syspatch
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "EHS_UNITY_PROJECT_EXPORT_SUPPORT=${EHS_UNITY_PROJECT_EXPORT_SUPPORT}"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+################# SET-UP UNITY ENV #################
+if [ "${EHS_UNITY_PROJECT_EXPORT_SUPPORT}" != "" ]; then
+    echo "* Building apk from exported Unity project *"
+    # set Unity android env defined in export script
+    # This willl override the paths to default "normal" android APK SDK & template project paths.
+    source ${EHS_ROOT}/target/envbuildscripts/targetenv_unity_export.sh $1 "no-run"
 
-source $TARGET_ENV_APK_HACKS
+    # @TODO - seems like main difference is name 'app' for eRT project and 'launcher' for Unity.
+    # Could rename 'app' -> 'launcher' in eRT project template to simplyfy things
+    # "launcher" is the Unity Android Studio name that then gets used as the final apk name - this is not easy to change in Unity.
+    export ANDROID_STUDIO_BUILD_RELEASE_APK_NAME="launcher-release.apk"
+    export ANDROID_STUDIO_BUILD_BUNDLE_OUTPUT="${ANDROID_STUDIO_ROOT}/launcher/build/outputs/bundle"
+    export ANDROID_STUDIO_SRC_ROOT="${ANDROID_STUDIO_ROOT}/launcher"
+    export ANDROID_STUDIO_BUILD_APK_OUTPUT="${ANDROID_STUDIO_SRC_ROOT}/build/outputs/apk"
+    export ANDROID_TARGET_APK_NAME="tellisign.apk"
+    # unset env that should not be used when building Unity target
+    # @TODO - we may want to overwrite both 32-bit and 64-bit for Unity platforms so that 'make targetenv_unity_export' is not needed when only eRT changes
+    export REPOSITORY_ANDROID_STUDIO_ROOT=""
+    export ANDROID_STUDIO_JNILIBS_PATH=""
+fi
+####################################################
+
+export ANDROID_STUDIO_USERDATA_PATH="${ANDROID_STUDIO_SRC_ROOT}/src/main/assets/userdata"
+export ANDROID_STUDIO_DEVMAN_PATH="${ANDROID_STUDIO_USERDATA_PATH}/devman"
+export ANDROID_STUDIO_APP_PATH="${ANDROID_STUDIO_USERDATA_PATH}/appdata"
+
+mkdir -p ${ANDROID_STUDIO_USERDATA_PATH}
+mkdir -p ${ANDROID_STUDIO_DEVMAN_PATH}
+mkdir -p ${ANDROID_STUDIO_APP_PATH}
+echo "Android studio project at ${ANDROID_STUDIO_USERDATA_PATH}"
+
+echo "====================================================================================="
+echo "Copying the staging directory content to the Android studio project."
+if [ "${REPOSITORY_ANDROID_STUDIO_ROOT}" = "" ]; then
+    echo "Android Studio project is not being sateged for this target as part of building apk."
+    echo "e.g. Unity does it while exporting project. 'make targetenv_unity_export'"
+else
+    echo "Copying Android Studio project from repository ($REPOSITORY_ANDROID_STUDIO_ROOT) to a staging directory."
+    if [ -d "${REPOSITORY_ANDROID_STUDIO_ROOT}" ]; then
+        cp -Rf $REPOSITORY_ANDROID_STUDIO_ROOT/* $ANDROID_STUDIO_ROOT/
+    else
+        echo "Failed to copy the default eRT App app!"
+        echo "Have you ran make targetenv? Does the staging directory exist?"
+        exit 1   
+    fi
+fi
+echo "Copying latest eRT pluging to Android Studio project."
+if [ "${ANDROID_STUDIO_JNILIBS_PATH}" = "" ]; then
+    echo "Android Studio project should already contain latest plugin."
+    echo "e.g. Unity does it while exporting project. 'make targetenv_unity_export'"
+else
+    echo "cp ${TARGET_PATH}/bin/ehs.${EXE} ${ANDROID_STUDIO_JNILIBS_PATH}/libnative-activity.${EXE}"
+    cp ${TARGET_PATH}/bin/ehs.${EXE} ${ANDROID_STUDIO_JNILIBS_PATH}/libnative-activity.${EXE}
+fi
+echo "Copying 'devman' data"
+cp -Rf ${TARGET_PATH}/devman/* ${ANDROID_STUDIO_DEVMAN_PATH}
+echo "Copying 'userdata' data"
+[ "$(ls ${TARGET_PATH}/userdata)" ] && cp -Rf ${TARGET_PATH}/userdata/* ${ANDROID_STUDIO_USERDATA_PATH}/
+echo "Copying 'appdata' data"
+[ "$(ls ${TARGET_PATH}/appdata)" ] && cp -Rf ${TARGET_PATH}/appdata/* ${ANDROID_STUDIO_APP_PATH}/
+echo "Done!"
+echo "====================================================================================="
+
+
 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 # override version
 VERSION_DIR=${TARGET_PATH}/sysdata
 if [ -d "$VERSION_DIR" ]; then
-    cp -r ${VERSION_DIR} ${ANDROID_STUDIO_USERDATA_PATH} || exit 1
+    cp -r ${VERSION_DIR} ${ANDROID_STUDIO_USERDATA_PATH}/ || echo "XX" || exit 1
     NEW_VERSION=$( cat $ANDROID_STUDIO_USERDATA_PATH/sysdata/version.nfo )
-    echo "Uploading EHS version : $NEW_VERSION"
+    echo "Packaging EHS version : $NEW_VERSION"
 else
     echo "EHS version not specified."
 fi
 
-TargetEnvMakeApk_Build
+echo "====================================================================================="
+echo "Building eRT APK"
+echo ""
+########## download and install sdk if not present ##########
 
-# create syspatch data
-CreateDevmanAppUpdatesData
+ANDROID_SDK_URL="https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip"
+ANDROID_PROJECT_ROOT=$ANDROID_STUDIO_ROOT
+
+if ! [ -d "$ANDROID_PROJECT_ROOT" ] ; then
+    echo "Pass a valid path to android studio project : $ANDROID_PROJECT_ROOT"
+    echo "as a first argument of this script."
+    exit 1
+fi    
+
+if ! [ -f "$ANDROID_PROJECT_ROOT/gradlew" ]; then
+    echo "Pass a valid path to gradlew android studio project as a first argument of this script."
+    echo "[$ANDROID_PROJECT_ROOT/gradlew]"
+    exit 1
+fi    
+
+if ! [ -d "$ANDROID_ROOT" ]; then
+    mkdir -p $ANDROID_ROOT
+fi
+
+#todo2022 - this isn't needed with the docker (or does it detect Java OK in docker and skip it?)
+if ! [ -d "$JDK_PATH" ]; then
+    # Download JDK using debian package
+    echo "Installing JDK ..."
+    sudo apt install openjdk-8-jdk
+    if ! [ -d "$JDK_PATH" ]; then
+        echo "Failed to install JAVA into JAVA_HOME location ($JDK_PATH)."
+        echo "set JDK_PATH env of this script to a valid openjdk-8-jdk location."
+        exit 1
+    fi    
+else
+    echo "Android JDK =============> OK"    
+fi
+
+# Set JDK env var
+if [ "${JAVA_HOME}" = "" ]; then
+    echo "Setting JAVA_HOME env."
+    export JAVA_HOME="$JDK_PATH"
+    echo $JAVA_HOME
+fi    
+
+if ! [ -d "$ANDROID_SDK" ]; then
+    # Download SDK
+    echo "Downloading SDK"
+    if ! curl -k -s -o "$ANDROID_ROOT/android-sdk.zip" $ANDROID_SDK_URL ;
+    then
+        echo "Failed to download SDK"
+        "$ANDROID_ROOT/android-sdk.zip"
+        exit 1
+    fi
+    echo "Unpacking SDK to $ANDROID_SDK"
+    if ! unzip -qq "$ANDROID_ROOT/android-sdk.zip" -d "$ANDROID_SDK";
+    then
+        echo "Failed to unpack SDK"
+        rm -f "$ANDROID_ROOT/android-sdk.zip"
+        rm -rf $ANDROID_SDK
+        exit 1
+    fi
+    rm -f "$ANDROID_ROOT/android-sdk.zip"
+    # Accept android SDK licenses
+    export REPO_OS_OVERRIDE="linux"
+    echo "Accepting licence for the SDK"
+    yes | $ANDROID_SDK/tools/bin/sdkmanager --sdk_root=$ANDROID_SDK --licenses
+else
+    echo "Android SDK =============> OK"    
+fi
+
+# Set SDK env var
+if [ "${ANDROID_SDK_ROOT}" = "" ]; then
+    echo "Setting ANDROID_SDK_ROOT env."
+    export ANDROID_SDK_ROOT="$ANDROID_SDK"
+    echo $ANDROID_SDK_ROOT
+fi
+
+
+#################### build and sign apk #####################
+if [ "$EHS_ANDROID_PACKAGE_SIGNING_PATH" != "" ]; then
+# @TODO - signing data should get copied as part of tragetenv ?
+echo "Signing and building EHS APK"
+pushd ${EHS_ROOT}/..
+SIGN_RELEASE_DATA_PATH=$(pwd)/DevmanSecurity/${EHS_ANDROID_PACKAGE_SIGNING_PATH}
+popd
+SIGNING_KEY=$SIGN_RELEASE_DATA_PATH/signing_key.jks
+echo "Using key ($SIGNING_KEY)"
+# Write all essential app signing things to gradle.properties
+GRADLE_PROPS_FILE=${ANDROID_PROJECT_ROOT}/gradle.properties
+echo "" >> $GRADLE_PROPS_FILE
+echo "RELEASE_STORE_FILE=$SIGNING_KEY" >> $GRADLE_PROPS_FILE
+while read line; do
+    echo "$line" >> $GRADLE_PROPS_FILE
+done < "$SIGN_RELEASE_DATA_PATH/release"
+
+else 
+echo "WARNING: Not Using a specific signing key"
+fi
+ 
+
+#cat $GRADLE_PROPS_FILE
+pushd $ANDROID_PROJECT_ROOT
+chmod +x ./gradlew
+./gradlew clean
+./gradlew assembleRelease
+if [ "${ANDROID_STUDIO_BUILD_BUNDLE_OUTPUT}" = "" ]; then
+    echo "Android bundle (.aab) is not built for this target."
+else
+    echo "Building android bundle."
+if [ "$EHS_ANDROID_PACKAGE_SIGNING_PATH" != "" ]; then
+    ./gradlew signReleaseBundle
+fi
+    echo "Copying .aab from ($ANDROID_STUDIO_BUILD_BUNDLE_OUTPUT) to the target tree"
+    cp -R "${ANDROID_STUDIO_BUILD_BUNDLE_OUTPUT}" "${TARGET_PATH}"
+fi
+popd
+
+echo "Copying .apk from ($ANDROID_STUDIO_BUILD_APK_OUTPUT) to the target tree"
+cp -R "${ANDROID_STUDIO_BUILD_APK_OUTPUT}" "${TARGET_PATH}"
+
+EHS_APK=${TARGET_PATH}/apk/release/${ANDROID_STUDIO_BUILD_RELEASE_APK_NAME}
+cp ${EHS_APK} ${TARGET_PATH}/bin/${ANDROID_TARGET_APK_NAME}
+echo "Done!"
+echo "====================================================================================="
 
 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"

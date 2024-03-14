@@ -13,4 +13,7 @@
 #This is generally needed
 ifndef EHS_ANDROID
 LIB+=pthread
+else
+#This is included in bionic libc
+#LIB+=pthread
 endif

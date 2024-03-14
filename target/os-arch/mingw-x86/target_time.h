@@ -50,7 +50,6 @@
  * MUST BE ONE LESS THAN A POWER OF TWO! Otherwise EhsCurrentTime() won't work correctly.
  */
 #define EHS_TICKTYPE_MAX 0x7fffffffffffffff
-#define EHS_TICKTYPE_MAX_HALF 0x8000000
 #define EHS_TICKTYPE_INVALID -1 /**< Used as a rogue value for time functions */
 
 /**

@@ -73,15 +73,16 @@
  * Check for any errors and report them if appropriate
  */
 #define TRACE_VIEWPORT
+#undef TRACE_VIEWPORT
 #ifdef TRACE_VIEWPORT
 static int level = 0;
 static char* currentFunc;
 #define INDENT(x) ((x==0)?"":((x==1)?">":((x==2)?">>":((x==3)?">>>":(">..>")))))
 #define ENTER(x) printf("%sEnter %s\n",INDENT(level),#x);level++;currentFunc = #x;
 #define LEAVE(x) --level;printf("%sLeave %s\n",INDENT(level),#x)
-#define EHSL_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EhsError(EHS_MSG_TGT_STAPI(#func,GetErrorText(err))); }
+#define EHSL_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EHSH_LOG_ERROR(EHS_MSG_TGT_STAPI(#func,GetErrorText(err))); }
 #else
-#define EHSL_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EhsError(EHS_MSG_TGT_STAPI(#func,GetErrorText(err))); }
+#define EHSL_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EHSH_LOG_ERROR(EHS_MSG_TGT_STAPI(#func,GetErrorText(err))); }
 #define ENTER(x)
 #define LEAVE(x)
 #endif
@@ -799,7 +800,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
                 if (nPaletteSize < 1)
                 {
                     ErrCode = ST_ERROR_BAD_PARAMETER;
-                    EhsError(EHS_MSG_TGT_NO_PALETTE);
+                    EHSH_LOG_ERROR(EHS_MSG_TGT_NO_PALETTE);
                 }
                 else
                 {
@@ -899,7 +900,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
     }
     else
     {
-        EhsError(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("unrecognised bitmap format"));
+        EHSH_LOG_ERROR(EHS_MSG_TGT_GRAPHICS_UNSUPPORTED_MODE("unrecognised bitmap format"));
         if(pSurface)
             EhsTVSurface_destroy(pViewport, pSurface);
         pSurface = NULL;

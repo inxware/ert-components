@@ -28,7 +28,7 @@ typedef struct
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(application_run)
 
-EHS_FB_FUNCTION_ENTRY("runApp", 0x00, application_run_runApp)
+EHS_FB_FUNCTION_ENTRY("runApp", 0x01, application_run_runApp)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -68,10 +68,10 @@ EHS_FB_INIT_FUNCTION(application_run)
 {
     ehs_bool bRet = EHS_TRUE; /* assume success */
     //this is the reference to the object data for this instance of the function block
-    inx_application_run_state_type* inx_application_run_state = (inx_application_run_state_type*)EHS_FB_INIT_CONTEXT;
+    //inx_application_run_state_type* inx_application_run_state = (inx_application_run_state_type*)EHS_FB_INIT_CONTEXT;
     /* read the initialisation parameters */
     //EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
-
+    //todo this should support a fixed paramters qith an application name too.
     /* Add any further intialisation code here */
     return bRet; /* initialisation always succeeds */
 }
@@ -88,7 +88,7 @@ EHS_FB_RUN_FUNCTION(application_run_runApp)
 {
     ehs_bool bSucc = EHS_FALSE;
     ehs_char cAppCanonicalName[EHS_MAXPATHLENGTH];
-    inx_application_run_state_type* inx_application_run_state = (inx_application_run_state_type*)EHS_FB_RUN_CONTEXT;
+    // not used: inx_application_run_state_type* inx_application_run_state = (inx_application_run_state_type*)EHS_FB_RUN_CONTEXT;
 
     // Your code here
     if (EHS_FB_IN_CONNECTED_API2(INX_application_run_ARG_runApp_Name))

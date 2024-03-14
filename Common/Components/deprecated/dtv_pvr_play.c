@@ -71,15 +71,15 @@
 #include "hal_dtv.h"
 
 EHS_FB_FUNCTIONS_START(DtvPvrPlay1)
-EHS_FB_FUNCTION_ENTRY("set", 0x00, DtvPvrPlay1_set)
-EHS_FB_FUNCTION_ENTRY("get", 0x01, DtvPvrPlay1_get)
-EHS_FB_FUNCTION_ENTRY("play", 0x02, DtvPvrPlay1_play)
-EHS_FB_FUNCTION_ENTRY("pause", 0x03, DtvPvrPlay1_pause)
-EHS_FB_FUNCTION_ENTRY("reverse", 0x04, DtvPvrPlay1_rev)
-EHS_FB_FUNCTION_ENTRY("faster", 0x05, DtvPvrPlay1_faster)
-EHS_FB_FUNCTION_ENTRY("slower", 0x06, DtvPvrPlay1_slower)
-EHS_FB_FUNCTION_ENTRY("stop", 0x07, DtvPvrPlay1_stop)
-EHS_FB_FUNCTION_ENTRY("end", 0x08, DtvPvrPlay1_end)
+EHS_FB_FUNCTION_ENTRY("set", 0x01, DtvPvrPlay1_set)
+EHS_FB_FUNCTION_ENTRY("get", 0x02, DtvPvrPlay1_get)
+EHS_FB_FUNCTION_ENTRY("play", 0x03, DtvPvrPlay1_play)
+EHS_FB_FUNCTION_ENTRY("pause", 0x04, DtvPvrPlay1_pause)
+EHS_FB_FUNCTION_ENTRY("reverse", 0x05, DtvPvrPlay1_rev)
+EHS_FB_FUNCTION_ENTRY("faster", 0x06, DtvPvrPlay1_faster)
+EHS_FB_FUNCTION_ENTRY("slower", 0x07, DtvPvrPlay1_slower)
+EHS_FB_FUNCTION_ENTRY("stop", 0x08, DtvPvrPlay1_stop)
+EHS_FB_FUNCTION_ENTRY("end", 0x09, DtvPvrPlay1_end)
 EHS_FB_FUNCTIONS_END
 
 /* port identifiers */

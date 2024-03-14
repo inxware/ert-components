@@ -21,6 +21,21 @@
 #include "ehs_fb_types.h"
 
 /******************************************************************************/
+/* Declare 1-input integer multiplexor */
+
+#define EHS_FB_NAME_MultiplexOneInputInt "MultiplexOneInputInt"
+#define EHS_FB_ID_MultiplexOneInputInt 0x7A6B
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputInt);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexOneInputInt);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexOneInputInt1);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(MultiplexOneInputInt)
+
+/******************************************************************************/
+
+/******************************************************************************/
 /* Declare 2-input integer multiplexor */
 
 #define EHS_FB_NAME_MultiplexTwoInputInt "MultiplexTwoInputInt"
@@ -65,6 +80,19 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputInt4);
 EHS_FB_FUNCTIONS(MultiplexFourInputInt)
 
 /******************************************************************************/
+/* Declare 1-input boolean multiplexor */
+
+#define EHS_FB_NAME_MultiplexOneInputBool "MultiplexOneInputBool"
+#define EHS_FB_ID_MultiplexOneInputBool 0xD662
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputBool);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexOneInputBool);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexOneInputBool1);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(MultiplexOneInputBool)
+
+/******************************************************************************/
 /* Declare 2-input boolean multiplexor */
 
 #define EHS_FB_NAME_MultiplexTwoInputBool "MultiplexTwoInputBool"
@@ -107,6 +135,19 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputBool4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexFourInputBool)
+
+/******************************************************************************/
+/* Declare 1-input string multiplexor */
+
+#define EHS_FB_NAME_MultiplexOneInputString "MultiplexOneInputString"
+#define EHS_FB_ID_MultiplexOneInputString 0x5AB4
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputString);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexOneInputString);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexOneInputString1);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(MultiplexOneInputString)
 
 /******************************************************************************/
 /* Declare 2-input string multiplexor */
@@ -155,9 +196,21 @@ EHS_FB_FUNCTIONS(MultiplexFourInputString)
 
 #ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
+/* Declare 1-input real multiplexor */
+#define EHS_FB_NAME_MultiplexOneInputReal "MultiplexOneInputReal"
+#define EHS_FB_ID_MultiplexOneInputReal 0x7442
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputFloat);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexOneInputFloat);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexOneInputFloat1);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(MultiplexOneInputFloat)
+
+/******************************************************************************/
 /* Declare 2-input boolean multiplexor */
-#define EHS_FB_NAME_MULTIPLEX_TWO_INPUT_FLOAT_NAME "MultiplexTwoInputReal"
-#define EHS_FB_ID_MULTIPLEX_TWO_INPUT_FLOAT_NAME 0x2C3C
+#define EHS_FB_NAME_MultiplexTwoInputReal "MultiplexTwoInputReal"
+#define EHS_FB_ID_MultiplexTwoInputReal 0x2C3C
 
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputFloat);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexTwoInputFloat);

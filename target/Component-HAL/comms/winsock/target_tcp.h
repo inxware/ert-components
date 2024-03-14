@@ -25,7 +25,7 @@ _WIN32_WINNT should be define in target_config.h, but just in case
 #define _WIN32_WINNT 0x0501
 #endif
 //#endif
-#include "target.h"
+#include "globals.h"
 #include "console_queue.h"
 //#include <winsock.h>
 #include <errno.h>            /* access to errno & error values */
@@ -59,11 +59,15 @@ _WIN32_WINNT should be define in target_config.h, but just in case
 /**
  * Size of buffer to use when sending to TCP/IP. For portability we make this less than or equal to MAXINT(ehs_sint16)
  */
+#ifndef EHS_TGT_TCP_OUT_BUFF_SIZE
 #define EHS_TGT_TCP_OUT_BUFF_SIZE  65536u	/**< Size of buffer to use when sending to TCP/IP */
+#endif
 /**
  * Size of buffer to use when receiving from TCP/IP. For portability we make this less than or equal to MAXINT(ehs_sint16)
  */
+#ifndef EHS_TGT_TCP_IN_BUFF_SIZE
 #define EHS_TGT_TCP_IN_BUFF_SIZE  61440	/**< Size of buffer to use when receiving from TCP/IP - must be smaller than the max remainder of destination queue buffer  */
+#endif
  
 /* Set the ort  number used for the debugger */
 // todo2022 - this shouldn't be in here it should be in the target_consoe header o r c file

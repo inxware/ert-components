@@ -1,115 +1,216 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>DtvRemoteKey2</Class>
-  <Block>
-    <Type>IO</Type>
-  </Block>
-  <Menu>Peripherals
-    <Menu>Remote Control Units</Menu>
-  </Menu>
-  <LongDescription>Remote key providing events for button presses. For devices with other types of input hardware, such as keyboards, this device will still pick relevant keypresses (navigation keys and numbers keys).</LongDescription>
-  <Port>
-    <Description>menu</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="1">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>ok</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <FunctionName argument="2">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>exit</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>50</YCoordinate>
-    <FunctionName argument="3">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>up</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>60</YCoordinate>
-    <FunctionName argument="4">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>down</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>70</YCoordinate>
-    <FunctionName argument="5">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>left</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>80</YCoordinate>
-    <FunctionName argument="6">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>right</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>90</YCoordinate>
-    <FunctionName argument="7">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>play</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>100</YCoordinate>
-    <FunctionName argument="8">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>pause</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>110</YCoordinate>
-    <FunctionName argument="9">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>stop</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>120</YCoordinate>
-    <FunctionName argument="10">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>internal</Description>
-    <PortType>InternalPort</PortType>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">run</FunctionName>
-  </Port>
-  <Port>
-    <Description>enable</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">enable</FunctionName>
-  </Port>
-  <Port>
-    <Description>--</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="1">enable</FunctionName>
-  </Port>
-  <Port>
-    <Description>disable</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="0">disable</FunctionName>
-  </Port>
-  <Port>
-    <Description>--</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="1">disable</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>Remote key providing events for button presses. For devices with other types of input hardware, such as keyboards, this device will still pick relevant keypresses (navigation keys and numbers keys).</LongDescription>
+        <UserName/>
+        <Menu>
+            Peripherals
+            <Menu>Remote Control Units</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>DtvRemoteKey2</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xD17A</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>7a1fa86e</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>run</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>enable</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>disable</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>menu</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>menu</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ok</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>ok</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>exit</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>exit</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>up</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>up</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>down</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>down</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>left</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>left</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>right</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>right</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>play</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>100</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>play</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>pause</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>110</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>pause</CName>
+            <Function argument="9">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>stop</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>120</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>stop</CName>
+            <Function argument="10">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>internal</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>internal</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>enable</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>enable</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>__</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>disable</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>disable</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>__</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

@@ -36,7 +36,7 @@
 
 EHS_FB_FUNCTIONS_START(ComparatorGreaterInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterInt", 0x00, ComparatorGreaterInt)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterInt", 0x01, ComparatorGreaterInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -121,7 +121,7 @@ EHS_FB_RUN_FUNCTION(ComparatorGreaterInt)
 
 EHS_FB_FUNCTIONS_START(ComparatorGreaterReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterReal", 0x00, ComparatorGreaterReal)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterReal", 0x01, ComparatorGreaterReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -177,7 +177,7 @@ EHS_FB_RUN_FUNCTION(ComparatorGreaterReal)
 
 EHS_FB_FUNCTIONS_START(ComparatorGreaterEqualInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterEqualInt", 0x00, ComparatorGreaterEqualInt)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterEqualInt", 0x01, ComparatorGreaterEqualInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -233,7 +233,7 @@ EHS_FB_RUN_FUNCTION(ComparatorGreaterEqualInt)
 
 EHS_FB_FUNCTIONS_START(ComparatorGreaterEqualReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterEqualReal", 0x00, ComparatorGreaterEqualReal)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorGreaterEqualReal", 0x01, ComparatorGreaterEqualReal)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -289,7 +289,7 @@ EHS_FB_RUN_FUNCTION(ComparatorGreaterEqualReal)
 
 EHS_FB_FUNCTIONS_START(ComparatorEqualInt)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorEqualInt", 0x00, ComparatorEqualInt)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorEqualInt", 0x01, ComparatorEqualInt)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -345,7 +345,7 @@ EHS_FB_RUN_FUNCTION(ComparatorEqualInt)
 
 EHS_FB_FUNCTIONS_START(ComparatorEqualReal)
 
-EHS_FB_FUNCTION_ENTRY("Run_ComparatorEqualReal", 0x00, ComparatorEqualReal)
+EHS_FB_FUNCTION_ENTRY("Run_ComparatorEqualReal", 0x01, ComparatorEqualReal)
 EHS_FB_FUNCTIONS_END
 
 /**

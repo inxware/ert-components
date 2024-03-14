@@ -8,6 +8,7 @@
 #---------------------------------------------------------------#
 
 # Makefile fragment to build target specific component and support code.
+
 # Called by ../../platform/<platform-type>
 # @author: inx limited
 
@@ -22,20 +23,26 @@
 #  VPATH - where to look for source code
 #  EHS_TARGET_OS_HW_PATH - path to the current directory (set by platform makefile)
 
+ifeq ($(TOOLCHAIN_NAME),HOST)
+	ifeq ($(EHS_GNU_ARCH),x86_64)
+		#Debian contrib libraries are found here: 
+		#export INC_DIRS+=/usr/include/
+		export LIB_DIRS += /usr/lib/x86_64-linux-gnu/
+	else
+		#Debian contrib libraries are found here: 
+		#export INC_DIRS+=/usr/include/
+		#export LIB_DIRS += /usr/lib//usr/lib/x86-linux-gnu/
+	endif
+else
+		#No special target paths here unless we are specific target as below	
+endif
+
+
 # include sourcecode from this dir in build
 
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/target.mk
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/target.mk
 
-INC_DIRS += $(EHS_TARGET_OS_HW_PATH)/textdisplay #@todo this should be moved when win support is available
-
-ifdef EHS_PERIPHERALS_LEDS
-OBJECTS += target_leds.$(OBJ)
-endif
-
-ifdef EHS_PERIPHERALS_USBLCD
-OBJECTS += target_textdisplay.$(OBJ)
-endif
 
 
 

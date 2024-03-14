@@ -13,7 +13,7 @@
 #include "setCompletes.h"
 
 EHS_FB_FUNCTIONS_START(DtvDiagStr)
-EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvDiagStr)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, DtvDiagStr)
 EHS_FB_FUNCTIONS_END
 
 /**

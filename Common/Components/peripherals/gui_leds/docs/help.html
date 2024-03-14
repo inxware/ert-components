@@ -1,117 +1,291 @@
 <html>
-<head>
-<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-<LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-<LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
-</head>
-
-<body>
-
-<!--Name of Component-->
-<h1 class=component>
-gui_leds
-</h1>
-<!--General Description-->
-<p class=component>
-Controls the illumination of LEDs for displays to be controlled. The function block is updated by enumerated boolean variables (and two special LEds for cluster and backlight- to be deprecated).
-</p>
-<!--Ports - form - short desc: long desc-->
-<h3 class=ports>Ports</h3>
-<ul class=noBullet><li>
-<h6 class=ports>
-[In]
-update:
-<a name="[In]update">
-</h6>
-<p class=ports></p>
-  </li><li>
-<h6 class=portsBool>
-[In]
-cluster:
-<a name="[In]cluster">
-</h6>
-<p class=ports></p>
-  </li><li>
-<h6 class=portsBool>
-[In]
-F1:
-<a name="[In]F1">
-</h6>
-<p class=ports></p>
-  </li><li>
-<h6 class=portsBool>
-[In]
-F2:
-<a name="[In]F2">
-</h6>
-<p class=ports></p>
-  </li><li>
-<h6 class=portsBool>
-[In]
-F3:
-<a name="[In]F3">
-</h6>
-<p class=ports></p>
-  </li><li>
-<h6 class=portsBool>
-[In]
-F4:
-<a name="[In]F4">
-</h6>
-<p class=ports></p>
-  </li><li>
-<h6 class=portsBool>
-[In]
-F5:
-<a name="[In]F5">
-</h6>
-<p class=ports></p>
-  </li><li>
-<h6 class=portsBool>
-[In]
-backlight:
-<a name="[In]backlight">
-</h6>
-<p class=ports></p>
-</li></ul>
-<p>
-EDIT - list of tags available to link to the ports for the component in the HTML: <a href="#[In]update">[In]update</a>, <a href="#[In]cluster">[In]cluster</a>, <a href="#[In]F1">[In]F1</a>, <a href="#[In]F2">[In]F2</a>, <a href="#[In]F3">[In]F3</a>, <a href="#[In]F4">[In]F4</a>, <a href="#[In]F5">[In]F5</a>, <a href="#[In]backlight">[In]backlight</a>,
-</p>
-<!--Parameters - form - short desc: long desc-->
-<h3 class=parameters>Parameters</h3>
-<ul class=noBullet><li>
-</li></ul>
-<!--State Machine - form - image - example-->
-<h3 class=stateMachine>State Machine</h3>
-<p class=stateMachine>Stateless.</p>
-<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
-<!--profiles - form - list-->
-<h3 class=profiles>Profiles</h3>
-<ul class=noBullet><li>
-<h6 class=profiles>Media: </h6>
-<p class=profiles></p>
-</li></ul>
-<!--Toolbox-->
-<h3 class=toolbox>Toolbox</h3>
-<p class=toolbox>GUI/Level1.</p>
-<!--Version-->
-<h3 class=version>Version</h3>
-<p class=version>v2.1.</p>
-<!--Dependencies - form - list-->
-<h3 class=dependencies>Native Dependencies</h3>
-<ul class=dependencies><li class=dependencies>
-<h6 class=dependencies>TDK1.1: </h6>
-<p class=dependencies></p>
-</li></ul>
-<!--Licence Type-->
-<h3 class=licenceType>Licence Type</h3>
-<p class=licenceType>LGPL.</p>
-<!--Component Supplier-->
-<h3 class=supplier>Component Supplier</h3>
-<p class=supplier>inx ltd.</p>
-<!--More Info on Website-->
-<h3 class=more>More Information</h3>
-<p class=link><a href=http://www.inx-systems.net target=_blank>More information - external website hosted by the Component Supplier.</a></p>
-</body></html>
+ <head>
+  <LINK HREF="iabStyle.css" REL="StyleSheet" TYPE="text/css">
+  </LINK>
+  <LINK HREF="../iabStyle.css" REL="StyleSheet" TYPE="text/css">
+  </LINK>
+  <LINK HREF="../../iabStyle.css" REL="StyleSheet" TYPE="text/css">
+  </LINK>
+  <LINK HREF="../../../iabStyle.css" REL="StyleSheet" TYPE="text/css">
+  </LINK>
+ </head>
+ <body>
+  <div class="page_container">
+   <div id="toc_container">
+    <span class="toc_span">
+     Gui Leds
+    </span>
+    <span class="toc_span_items">
+     <a href="#misc">
+      Misc	&darr;
+     </a>
+    </span>
+    <span class="toc_span_items">
+     <a href="#parameters">
+      Params &darr;
+     </a>
+    </span>
+    <span class="toc_span_items">
+     <a href="#ports">
+      Ports &darr;
+     </a>
+    </span>
+   </div>
+   <p class="component">
+    Controls the illumination of LEDs for displays to be controlled. The function block is updated by enumerated boolean variables (and two special LEds for cluster and backlight- to be deprecated).
+   </p>
+  </div>
+  <!--Parameters - form - short desc: long desc-->
+  <div class="section_heading">
+   <span class="toc_span" id="parameters">
+    Parameters
+   </span>
+   <div class="toc_span_items">
+    <a href="#toc_container">
+     Top &uarr;
+    </a>
+   </div>
+   <div class="toc_span_items">
+    <a href="#misc">
+     Misc &darr;
+    </a>
+   </div>
+   <div class="toc_span_items">
+    <a href="#ports">
+     Ports &darr;
+    </a>
+   </div>
+  </div>
+  <table class="table_params">
+   <tr>
+    <th style="width:60px;">
+     name
+    </th>
+    <th>
+     type
+    </th>
+    <th>
+     default
+    </th>
+    <th>
+     min.
+    </th>
+    <th>
+     max.
+    </th>
+    <th>
+     description
+    </th>
+   </tr>
+  </table>
+  <div class="section_heading">
+   <span class="toc_span" id="ports">
+    Ports
+   </span>
+   <span class="toc_span_items">
+    <a href="#toc_container">
+     Top &uarr;
+    </a>
+   </span>
+   <span class="toc_span_items">
+    <a href="#misc">
+     Misc &darr;
+    </a>
+   </span>
+   <span class="toc_span_items">
+    <a href="#parameters">
+     Params &uarr;
+    </a>
+   </span>
+  </div>
+  <table class="table">
+   <tr>
+    <th>
+     In Ev.
+    </th>
+    <th>
+    </th>
+   </tr>
+   <tr>
+    <th>
+     Data In
+    </th>
+    <th>
+    </th>
+   </tr>
+   <tr>
+    <th>
+     Data Out
+    </th>
+    <th>
+    </th>
+   </tr>
+   <tr>
+    <th>
+     Out Ev.
+    </th>
+    <th>
+    </th>
+   </tr>
+   <tr>
+    <td>
+     <a name="[In]update">
+      update
+     </a>
+    </td>
+    <td>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <a name="[In]cluster">
+      cluster
+     </a>
+    </td>
+    <td>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <a name="[In]F1">
+      F1
+     </a>
+    </td>
+    <td>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <a name="[In]F2">
+      F2
+     </a>
+    </td>
+    <td>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <a name="[In]F3">
+      F3
+     </a>
+    </td>
+    <td>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <a name="[In]F4">
+      F4
+     </a>
+    </td>
+    <td>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <a name="[In]F5">
+      F5
+     </a>
+    </td>
+    <td>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <a name="[In]backlight">
+      backlight
+     </a>
+    </td>
+    <td>
+    </td>
+   </tr>
+  </table>
+  <div class="section_heading">
+   <span class="toc_span" id="misc">
+    Misc
+   </span>
+   <span class="toc_span_items">
+    <a href="#toc_container">
+     Top &uarr;
+    </a>
+   </span>
+   <span class="toc_span_items">
+    <a href="#ports">
+     Ports &uarr;
+    </a>
+   </span>
+   <span class="toc_span_items">
+    <a href="#parameters">
+     Params &uarr;
+    </a>
+   </span>
+  </div>
+  <table>
+   <tr class="fsm_row">
+    <td style="width:90px;">
+     <b>
+      State Machine
+     </b>
+    </td>
+    <td colspan="5">
+     Stateless.
+    </td>
+   </tr>
+   <tr>
+    <td class="heading-cell">
+     <b>
+      Toolbox
+     </b>
+    </td>
+    <td>
+     GUI/Level1.
+    </td>
+    <td class="heading-cell">
+     <b>
+      Version
+     </b>
+    </td>
+    <td>
+     v2.1.
+    </td>
+   </tr>
+   <tr>
+    <td class="heading-cell">
+     <b>
+      Licence Type
+     </b>
+    </td>
+    <td>
+     MPL2.0
+    </td>
+    <td class="heading-cell">
+     <b>
+      Component Supplier
+     </b>
+    </td>
+    <td>
+     <a href="http://www.inx-systems.net" target="_blank">
+      inx ltd.
+     </a>
+    </td>
+   </tr>
+   <tr>
+    <td class="heading-cell">
+     <b>
+      Minumum DCC
+     </b>
+    </td>
+    <td>
+     A0000
+    </td>
+    <td class="heading-cell">
+     <b>
+      Profiles
+     </b>
+    </td>
+    <td>
+    </td>
+   </tr>
+  </table>
+ </body>
+</html>

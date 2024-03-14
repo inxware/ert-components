@@ -162,6 +162,7 @@ typedef struct
     EhsICalcEngInstrType* pInstrQueue;
     EhsInternalCalcData* pDataStack;
     ehs_uint16 nInstrSize;
+    ehs_bool bValid;
 } EhsICalcEngContext;
 
 

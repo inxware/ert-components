@@ -27,14 +27,12 @@
 /* Define macros  */
 
 /* If we are using SSL/TLS */
-// @TODO - this needs to be reviewd e.g. cert for android, ambifier, unity etc.
-#if defined(EHS_ANDROID) && !defined(EHS_AMBIFIER) // this should  really be the default for anything tha is not ambifier.com really.
-#define EHS_DEVMAN_CA_CERTIFICATE          "./core/certs/cacert.pem"
-#else
-//#error "not expecting a non android build at mo"
-#define EHS_DEVMAN_CA_CERTIFICATE          "./core/certs/devman-ca.crt"
-#endif
+// todo: We need to get EHS to use a cert from a keystore so we don't have duplicates fo the downloader etc.
 
+/* Select our custom (possibly self signed) CA bundle or single server certificate. 
+   The paltform/.../config.mk for the target defines bundle or single when make targetenv is called */
+
+#define EHS_DEVMAN_CA_CERTIFICATE          "./core/certs/devman-ca.crt"
 #define EHS_DEVMAN_CLIENT_PRIVATEKEY 	   "./core/certs/devman-client.key"
 #define EHS_DEVMAN_CLIENT_CERTIFICATE      "./core/certs/devman-client.crt"
 #define EHS_DEVMAN_CLIENT_CERTIFICATE_KEY  "./core/certs/devman-client-crt-key.pem" // Combined key and and certificate file

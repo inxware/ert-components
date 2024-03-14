@@ -11,12 +11,12 @@
 # inxware ERT configuration file for linux_x86_gtk_gst_deb
 # @author: inx limited
 
-include ./target/platform/linux_x86_gtk_gst/config.mk
+include ./target/platform/linux_x86_gtk_gst_debian8/config.mk
 #################################################################################################################
 # Set general architecture and OS version 
 #################################################################################################################
 #overrides the deb only variant var
-SYSTEM_VARIANT=debian_tools
+INXWARE_TARGETENV_HACKS=debian_tools
 EHS_DEBIAN_VERSION=8
 
 ################################################################################################################
@@ -24,14 +24,9 @@ EHS_DEBIAN_VERSION=8
 ################################################################################################################
 # Set ALL debug use this:
 #DEBUG OPTIONS
-#EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-# Or use one of the more fine-grained debug congurations
-# Or enable only stdout & serial console logging
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
-EHS_DEBUGALL=yes
-endif
+EHS_DEBUGALL=true
+#EHS_RUNTIME_LOGGER_ENABLED-yes
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
+#DO we still need this?
 DEFS += EHS_GST_010

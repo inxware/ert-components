@@ -27,8 +27,8 @@ extern unsigned char ucMBAddress;
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(modbus_config)
-EHS_FB_FUNCTION_ENTRY("enable", modbus_config_enable)
-EHS_FB_FUNCTION_ENTRY("disable", modbus_config_disable)
+EHS_FB_FUNCTION_ENTRY("enable", 0x01, modbus_config_enable)
+EHS_FB_FUNCTION_ENTRY("disable", 0x02, modbus_config_disable)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER

@@ -18,7 +18,9 @@
 #include "hal-api.h"
 
 /*  @todo move file stuff somewhere else */
+#ifndef EHS_GUI_SUPPORT_MODE_B
 #include "png.h"
+#endif
 /**
  * Create a colour structure from individual red, green, blue components
  */
@@ -184,8 +186,8 @@ void EhsGraphicsRectangle_proportionalScale(EhsGraphicsRectangleClass* prRet, co
 static ehs_bool ExifRead_word ( FILE * file, unsigned int * word)
 {
     int c1, c2;
-    if (c1 = getc(file) == EOF) return EHS_FALSE;
-    if (c2 = getc(file) == EOF) return EHS_FALSE;
+    if ((c1 = getc(file)) == EOF) return EHS_FALSE;
+    if ((c2 = getc(file)) == EOF) return EHS_FALSE;
     *word = (((ehs_uint16) c1) << 8) + ((ehs_uint16) c2);
     return EHS_TRUE;
 }
@@ -252,7 +254,7 @@ ehs_bool readExif( ehs_FILE * file, EhsGfxFileOrientation * orientation)
     /* Read Exif head, check for "Exif" */
     for (i = 0; i < 6; i++)
     {
-        if (tempgetchar = EhsFgetc(file) == EOF) goto error;
+        if ( (tempgetchar = EhsFgetc(file)) == EOF ) goto error;
         exif_data[i] = (unsigned char)  tempgetchar;
 
         if (exif_data[0] != 0x45 ||
@@ -418,7 +420,7 @@ ehs_bool doCheckFileHeader(const char* Path, ehs_bool bLoadImageFromAppDir, EhsG
     // unable to open
     if (file == 0)
     {
-        EhsError(EHS_MSG_ERROR_FILE_NOT_OPEN(Path));
+        EHSH_LOG_ERROR(EHS_MSG_ERROR_FILE_NOT_OPEN(Path));
     }
     else
     {
@@ -429,7 +431,9 @@ ehs_bool doCheckFileHeader(const char* Path, ehs_bool bLoadImageFromAppDir, EhsG
             break;
         case EHS_GFXFILETYPE_PNG:   // PNG header check
             result = 0;
+#ifndef EHS_GUI_SUPPORT_MODE_B
             if (EhsFread(buffer, 1, nread, file) == nread)	result = png_sig_cmp(buffer, 0, nread);
+#endif
             break;
         case EHS_GFXFILETYPE_JPG:  // JPG check
             EHSH_LOG_WARNING("Did not check PNG header validity as requested");

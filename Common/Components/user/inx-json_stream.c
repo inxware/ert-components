@@ -35,10 +35,10 @@ typedef struct
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(json_stream_parser)
 
-EHS_FB_FUNCTION_ENTRY("read", 0x00, json_stream_parser_read)
+EHS_FB_FUNCTION_ENTRY("read", 0x01, json_stream_parser_read)
 
-EHS_FB_FUNCTION_ENTRY("parse", 0x01, json_stream_parser_parse)
-EHS_FB_FUNCTION_ENTRY("eos", 0x02, json_stream_parser_eos)
+EHS_FB_FUNCTION_ENTRY("parse", 0x02, json_stream_parser_parse)
+EHS_FB_FUNCTION_ENTRY("eos", 0x03, json_stream_parser_eos)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER

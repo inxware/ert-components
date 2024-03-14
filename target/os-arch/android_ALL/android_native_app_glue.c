@@ -25,6 +25,7 @@
 #include "android_native_app_glue.h"
 #include "target_logger.h"
 
+
 static void free_saved_state(struct android_app* android_app)
 {
     pthread_mutex_lock(&android_app->mutex);

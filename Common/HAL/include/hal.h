@@ -27,6 +27,11 @@
 /*****************************************************************************/
 /* Define macros  */
 
+/* App status id */
+#define EHS_APP_LOAD_FAILED      0x00
+#define EHS_APP_LOAD_SUCCESFULL  0x01
+#define EHS_APP_LOAD_STARTED     0x02
+
 /*****************************************************************************/
 /* Define types */
 
@@ -37,14 +42,17 @@ typedef enum ehs_startupmode_enum {EHSMETADATA_NODEBUGONSTARTS=0,EHSMETADATA_DEB
 /* Target tree implemented */
 ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob) ;
 
-
 /*@todo this could HAL? - should be a new EHS object file.
+//todo2024 this is quite a lot of RAM with all these strings! Do we want this to be more dynamic just-enough allocations or just smaller allocations?
+//todo also consider #defing out some of these wanot apply to MCU type targets like the Devman pass through buffers etc. It shouldn't really be here any way is it's too dynamic... 
  * Also should be made private - but some target OS stuff needs changing to use setters getters */
-typedef struct
+typedef struct EhsMetaDataType
 {
     /* The following are truly global - not per EHS */
+#ifndef EHS_TARGET_NO_MAIN_ARGS
     ehs_char zArgv0[EHS_STRING_LENGTH_MAX]; // contains the calling coommand.
     ehs_char zArgv1[EHS_STRING_LENGTH_MAX]; // contains the calling coommand.
+#endif
     ehs_char zDeviceIPAddr[EHS_STRING_LENGTH_MAX]; // if we are networked get IP address here
     ehs_char zDeviceID[EHS_STRING_LENGTH_MAX]; // Use the Hardware ID (e.g. MAC address).
     ehs_char zEhsStartedDirectory[EHS_STRING_LENGTH_MAX]; // contains the cwd when EHS was first started
@@ -62,11 +70,14 @@ typedef struct
 
     /* The remainder is environment information - but with potentially EHS instance specific information*/
     ehs_startupmode_t DebugOnStart;
+    #ifndef INX_SODL_IN_FLASH
     ehs_char zInstallRootDirectory[EHS_STRING_LENGTH_MAX]; // Path to ehs/.
-    ehs_char zUserDirectory[EHS_STRING_LENGTH_MAX]; // Path to user directory, may be in <user home>/userdata or if root user <install dir>/userdata.
+    ehs_char zAppsDirectory[EHS_STRING_LENGTH_MAX]; // Root Path to App directory as we sometimes want this in it's own partition.
     ehs_char AppCurrentLive[EHS_STRING_LENGTH_MAX]; //Canonical Application Name of current Live App.
     ehs_char NextAppToRun[EHS_STRING_LENGTH_MAX]; //Canonical Application Name of next App to run. //@todo - ensure initialised as an empty string
-
+    // #endif possibly we would need the following if SODL is flash and we still have a file system.
+    ehs_char zUserDirectory[EHS_STRING_LENGTH_MAX]; // Root Path to user directory, may be in <user home>/userdata or if root user <install dir>/userdata.
+    #endif
     ehs_uint32 PairedOrganisationID; /*  This is info provided by devman that indicates what organisation ID a device is paired with - this is enumerated for security.... */
     ehs_uint8 PairedOrganisationIDRequested; /* 0: no pairing data updates, 1 pairing data valid, 2 pairing data pending, 3 paring data invalid*/
 
@@ -81,21 +92,28 @@ typedef struct
     //ehs_uint32 nUserSpaceAvail_KB;
     ehs_uint16 CPUUsage; /* % CPU usage by EHS */
     //ehs_char OSVersion[EHS_STRING_LENGTH_MAX];
+    /* If we are montitoring some other app then this is its info */
+    ehs_uint32 MiscAppProcId; // This isthe proc ID for the app to monitor - set to 0 if we are not monitoring
+    ehs_uint32 MiscAppRAMUsed_KB;
+    ehs_uint32 MiscAppCPUUsage;
+
     ehs_bool NewDevmanMiscDLData;
     ehs_bool NewDevmanMiscULData; // probably don't need this because we send everything always
     //ehs_char xxxx[20];
     ehs_bool devmanPingFail ;
     time_t devmanLastGoodPing;
-    EhsTPConditionClass condDevmanNewMiscDLData; // some utexes we've decided to store here rather than with the global ones. No idea why... It is a PITA!
-    EhsTPMutexClass mutexDevmanNewMiscDLData; // same for this !!
+    EhsTPConditionClass condDevmanNewMiscDLData; // opaque pointer to condition mutext - some mutexes we've decided to store here rather than with the global ones. No idea why...
+    EhsTPMutexClass mutexDevmanNewMiscDLData; // opawue pointer to an ordnary mutex
     Ehs_ConsoleCommand_Type InternallyRequestedCommand;
+#ifdef EHS_DEVMAN_SUPPORT
+    ehs_char MiscAppProcName[EHS_STRING_LENGTH_MAX];
     ehs_char zDevmanMiscDLDataType[EHS_STRING_LENGTH_MAX];
     ehs_char zDevmanMiscDLData[EHS_STRING_LENGTH_MAX];
     ehs_char zDevmanNewMiscDLData[EHS_STRING_LENGTH_MAX];
     ehs_char zDevmanMiscULData[EHS_STRING_LENGTH_MAX];
+#endif
     ehs_char zSysInfo[EHS_STRING_LENGTH_MAX];
     /* EHS state machine */
-
 } EhsMetaDataType;
 
 /***************************
@@ -118,14 +136,29 @@ typedef struct
 /* @todo move all these functions to function specific hal.h and C files .. ha'h should hust be a convenience include for HAL*/
 
 /**
+ * Sets a pointer to a function which gets called after the app has attempted to load.
+ * An integer passed to a function represents app status IDs defined in hal.h
+ */
+EHS_GLOBAL void EhsHSetAppLoadStatusCallback(void (*callback)(ehs_uint32));
+
+/**
+ * Notifies about app loading status by passing app status IDs defined in hal.h
+ */
+EHS_GLOBAL void EhsHAppLoadStatusNotify(ehs_uint32 status);
+
+/**
  * EHS & App Meta data getter setter Functions
  *
  * @todo these should be moved to a hal_sysinfo.h file
  */
 EHS_GLOBAL void EhsHMetaUpdateStatic();
 EHS_GLOBAL void EhsHMetaUpdateDynamic();
+EHS_GLOBAL const ehs_char* EhsHMetaGetToolboxHashes();
 EHS_GLOBAL const ehs_char* EhsHMetaGetInstPath(); /* Called to return the installation directory of EHS. */
 EHS_GLOBAL const ehs_char* EhsHMetaGetUserPath(); /* Called to return the user directory. */
+EHS_GLOBAL const ehs_char* EhsHMetaGetAppsPath(); /* Called to return a nonstandard Apps root path, return NULL if there isn't one set*/
+EHS_GLOBAL void EhsHMetaSetAppsPath(ehs_char* path); /* Set a non standard Apps path.*/
+
 /*
 EHS_GLOBAL const ehs_char* EhsHMetaAppLiveDefaultDir();
 EHS_GLOBAL const ehs_char* EhsHSetMetaAppLiveDefaultDir(ehs_uint8 which);
@@ -138,7 +171,7 @@ EHS_GLOBAL void EhsHMetaSetInstPath(const char * value); /* Set the HW-based dev
 EHS_GLOBAL const ehs_char* EhsHMetaGetEHSVersion(); /* Return the HW-based device ID */
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMAvail();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMTotal();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMUsedEHS();
+EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMUsedEHS_kB();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorAvail();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorUsed();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorTotal();
@@ -151,8 +184,9 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetBuildDate();
 EHS_GLOBAL const ehs_char* EhsHMetaGetTargetVariant();
 EHS_GLOBAL const ehs_char* EhsHMetaGetEHSStartDate();
 EHS_GLOBAL const ehs_char * EhsHMetaGetOSVersion();
-
-
+EHS_GLOBAL  ehs_char * EhsHMetaGetMiscAppNamePtr(); // returns writeable pointer.
+EHS_GLOBAL const ehs_uint16 EhsHMetaGetMiscAppCPUUsage();
+EHS_GLOBAL const ehs_uint32 EhsHMetaGetMiscAppRAMUsed_kB();
 
 /* and the apps meta data */
 
@@ -164,7 +198,6 @@ EHS_GLOBAL void EhsHMetaAppSetCurrent(ehs_char * App);
 EHS_GLOBAL const ehs_char* EhsHMetaAppGetCurrent();
 EHS_GLOBAL void EhsHMetaSetNextAppToRun(ehs_char * App);
 EHS_GLOBAL const ehs_char* EhsHMetaGetNextAppToRun();
-
 
 EHS_GLOBAL ehs_startupmode_t EhsHAppMetaGetDebugOnStartMode() ;
 ehs_bool EhsHRequestEHSInterrupt(); /* return boolean if a command other than EHS_CONTINUE is present */
@@ -206,7 +239,6 @@ EHS_GLOBAL void EhsHApp_reset(void);
  * Called to activate the thread to show the app
  */
 EHS_GLOBAL void EhsHApp_show(void);
-
 
 /**
  * Called to clean up after the execution of an application in order to make

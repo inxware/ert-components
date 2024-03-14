@@ -22,8 +22,6 @@
 
 //#include "ehs_types.h"
 #include "globals.h"
-//#include "parse_sodl.h"
-
 #include "ehs_fb_types.h"
 //#include "ehs_types.h"
 
@@ -179,7 +177,7 @@ EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVer
 #ifndef EHRT1
 EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_char* szName);
 #else
-EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_uint16 szName);
+EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_uint8 szName);
 #endif
 
 

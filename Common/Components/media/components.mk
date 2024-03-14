@@ -23,6 +23,9 @@
 #  OBJECTS - list of object files added by this makefile
 #  VPATH - where to look for source code
 
+#Dependencies
+#$(info Setting XMLS to yes)
+EHS_INCLUDE_XML_SUPPORT=yes
 
 include $(EHS_COMMON_COMPONENTS_PATH)/media/deps.mk
 

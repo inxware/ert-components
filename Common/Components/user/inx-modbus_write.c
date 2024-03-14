@@ -63,7 +63,7 @@ static void inxModbusWriteRegisterWidget(inx_modbus_write_state_type* pState)
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(modbus_write)
 
-EHS_FB_FUNCTION_ENTRY("write", 0x00, modbus_write_write)
+EHS_FB_FUNCTION_ENTRY("write", 0x01, modbus_write_write)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER

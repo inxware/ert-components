@@ -118,7 +118,7 @@ struct EhsTDFilesStruct
 /**
  * Check for any errors and report them if appropriate
  */
-#define EHS_TD_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EhsError(EHS_MSG_TGT_STAPI(func,GetErrorText(err))); }
+#define EHS_TD_REPORT_ERRORS(err,func) if ((err) != ST_NO_ERROR) { EHSH_LOG_ERROR(EHS_MSG_TGT_STAPI(func,GetErrorText(err))); }
 
 /**
  * Indicates that the search for files isn't currently taking place

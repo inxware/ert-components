@@ -49,7 +49,10 @@ public class EHS_TextureHandlers
         // (3) Quad handler
         textureHandlers.Add(EHS_QuadHandler.QuadTextureHandler.HandlerType, 
                             new EHS_QuadHandler.QuadTextureHandler(this.mediaSource));
-        // (4) 3x3 Matrix handler // @TODO - fix later
+        // (4) Background image handler
+        textureHandlers.Add(EHS_ViewHandler.ViewDetailHandler.ViewDetailImageControlHandler.BackgroundImageTextureHandler.HandlerType, 
+                            new EHS_ViewHandler.ViewDetailHandler.ViewDetailImageControlHandler.BackgroundImageTextureHandler(this.mediaSource));
+        // (5) 3x3 Matrix handler // @TODO - fix later
         //textureHandlers.Add(EHS_MatrixHandler.MatrixTextureHandler.HandlerType, 
         //                    new EHS_MatrixHandler.MatrixTextureHandler(this.mediaSource));
         // ...

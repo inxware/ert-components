@@ -32,20 +32,37 @@
 
 /*****************************************************************************/
 /* Included files */
-
-#include "target_config.h" /* special include required before macro definitions */
+#include "target.h"
+//includes in target.h #include "target_config.h" /* special include required before macro definitions */
 #include "ehs_types.h"
 /*****************************************************************************/
 /* Define macros  */
 
 /* Defines system-wide, target-independent limits */
 #ifdef EHS_UNITY3D_CONFIG
-#define EHS_STRING_LENGTH_MAX 2*2047
+/* todo2024 the following should be done in hte platform config.mk file (or something common to all unity apps */
+	#define EHS_STRING_LENGTH_MAX 2*2047
+	#warning "EHS_UNITY3D_CONFIG is configured for this platform using the default value of 2*2047" 
 #endif //EHS_UNITY3D_CONFIG
 
 #ifndef EHS_STRING_LENGTH_MAX
 #define EHS_STRING_LENGTH_MAX 2047 /*@todo This needs to be killed off and proper dynamic allocation used - at least for edges */
+/* Presumably the folloing is because the MSVC build doesn't build against a kernel library */
+/* We also don't need this check for the kernel that shouldn't care about strings */
+#if !defined(EHS_MSVC) && !defined(EHS_KERNEL_BUILD)
+   
+	#warning "EHS_STRING_LENGTH_MAX is not configured for this platform using the default value of 2047"
+#endif
 #endif //EHS_STRING_LENGTH_MAX
+
+#ifndef MAX_FILENAME_LEN
+#define MAX_FILENAME_LEN EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef MAX_PARAM_STR_LEN
+#define MAX_PARAM_STR_LEN (EHS_STRING_LENGTH_MAX*2)
+#endif
+
 
 #define EHS_SINT32_MAX 2147483647
 #define EHS_SINT32_MIN -2147483648
@@ -101,11 +118,13 @@
 /**
  * How long to wait before polling console input (when no application is executing)
  */
+#define EHS_IDLE_PERIOD_US 5000u
 #define EHS_IDLE_PERIOD EHS_TIME_ms(200u)
 
 /**
  * How long to wait between reading chunks of input file before concluding that
- * nothing else is coming
+ * nothing else is coming.
+ * Note this may be used in the component code console ATM.
  */
 #define EHS_TIMEOUT_READ_FILE EHS_TIME_s(10u)
 
@@ -113,10 +132,13 @@
  * How long to wait where no event input is available (i.e. how long it takes
  * application to wake up after a new event first appears
  */
+#ifndef EHS_WAKEUP_TIME
 #define EHS_WAKEUP_TIME EHS_TIME_ms(20u)
+#endif
 
 #define EHS_KINDER_EHS_PROCESSING
 #ifdef EHS_KINDER_EHS_PROCESSING
+#ifndef EHS_KIND_SLEEP_TIME
 /**
  * How long EHS will wait between executing groups or chunks of a group, which then bail..
  * e.g. infinite loops might want to be broken up a bit !!!
@@ -124,6 +146,7 @@
  * ~todo - This is temporary - we should revert to EhsKEGroup_execute_x that has deadline exit and doesn't hog CPU in tight loops!
  */
 #define EHS_KIND_SLEEP_TIME EHS_TIME_ms(20u)
+#endif
 #endif
 
 /**
@@ -135,18 +158,33 @@
 #define EHS_TABLE_END(x) (NULL == *(void**)(x))
 
 /* define application size limits */
+#ifndef EHS_GROUP_DEFAULT_PERIOD
+/* todo2023 separate these from the global type defs etc. and make them overidable from profile types and platform config.mk files. 
+            Most of these should only be visible to the kernel (i.e. not part of the KAPI).
+*/
+/* Group Processing granularity and allocation paramters */
+/* Define default group processing granularity - note this is very long because we don't usually have any contention on processing.*/
+/* EHS_GROUP_DEFAULT_PERIOD is the time period over which a group of event proccess will get a new allocation */
 #define EHS_GROUP_DEFAULT_PERIOD		EHS_TIME_ms(1000)
+#endif
+
+#ifndef EHS_GROUP_DEFAULT_ALLOCATION
+
+/* This is the maxium amount of queue processing time for the groupd of event processes before the group stops processing */
 #define EHS_GROUP_DEFAULT_ALLOCATION	EHS_TIME_ms( 800)
+#endif
+
 
 /**
  * Defines the states that the debugger can be in
+ * todo2022 - this shouldn't be inthe ert-component code.
  */
 typedef enum
 {
-    EHS_DEBUG_OFF, /**< No debug messages are generated */
-    EHS_DEBUG_ON, /**< Debug messages are generated for every trigger and every data flow */
-    EHS_DEBUG_MONITOR
-    /**< Debug messages are generated only for monitored triggers and events */
+	EHS_DEBUG_OFF, /**< No debug messages are generated */
+	EHS_DEBUG_ON, /**< Debug messages are generated for every trigger and every data flow */
+	EHS_DEBUG_MONITOR
+/**< Debug messages are generated only for monitored triggers and events */
 } EhsDebugModeType;
 
 /*****************************************************************************/

@@ -65,13 +65,6 @@ EHS_LOCAL void EhsTargetHandleTerm(int);
 /*****************************************************************************/
 /* Function definitions */
 
-/* Delete this - no longer used?
- *
-
-void* EhsL_server(void* pDummy) {
-	EhsSvcTcp_server(NULL);
-}
-*/
 
 /* linux (and gnu) is always ready as soon as main is run */
 ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob)
@@ -106,7 +99,6 @@ EhsTargetIntType main(int argc, ehs_char ** argv )
         SIG_IGN
     }, NULL);
 #endif
-
     EhsMain(NULL,NULL); /* doesn't return in this version */
     EhsExit(0);
     return 0;

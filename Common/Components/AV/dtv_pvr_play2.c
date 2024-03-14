@@ -61,10 +61,9 @@
 
 #include "ehs_fb_types.h" /* for some elements referred to in fid.h */
 
-#include "target.h"
+#include "globals.h"
 #include "target_os_dtv.h"
 #include "dtv_pvr_play2.h" //@todo what is this for?
-#include "globals.h"
 #include "setCompletes.h"
 #include "callback_queue.h"
 #include "app_data.h"
@@ -74,22 +73,22 @@
 #include "hal_dtv.h" //This is not in the hal.h it needs to be included specifically
 
 EHS_FB_FUNCTIONS_START(DtvPvrPlay2)
-EHS_FB_FUNCTION_ENTRY("setinput", 0x00, DtvPvrPlay2_set_input)
-EHS_FB_FUNCTION_ENTRY("setpos", 0x01, DtvPvrPlay2_set_pos)
-EHS_FB_FUNCTION_ENTRY("settime", 0x02, DtvPvrPlay2_set_time)
-EHS_FB_FUNCTION_ENTRY("get", 0x03, DtvPvrPlay2_get)
-EHS_FB_FUNCTION_ENTRY("play", 0x04, DtvPvrPlay2_play)
-EHS_FB_FUNCTION_ENTRY("pause", 0x05, DtvPvrPlay2_pause)
-EHS_FB_FUNCTION_ENTRY("reverse", 0x06, DtvPvrPlay2_rev)
-EHS_FB_FUNCTION_ENTRY("faster", 0x07, DtvPvrPlay2_faster)
-EHS_FB_FUNCTION_ENTRY("slower", 0x08, DtvPvrPlay2_slower)
-EHS_FB_FUNCTION_ENTRY("stop", 0x09, DtvPvrPlay2_stop)
-EHS_FB_FUNCTION_ENTRY("end", 0x0A, DtvPvrPlay2_end)
-EHS_FB_FUNCTION_ENTRY("setWindow", 0x0B, DtvPvrPlay2_set_window)
+EHS_FB_FUNCTION_ENTRY("setinput", 0x01, DtvPvrPlay2_set_input)
+EHS_FB_FUNCTION_ENTRY("setpos", 0x02, DtvPvrPlay2_set_pos)
+EHS_FB_FUNCTION_ENTRY("settime", 0x03, DtvPvrPlay2_set_time)
+EHS_FB_FUNCTION_ENTRY("get", 0x04, DtvPvrPlay2_get)
+EHS_FB_FUNCTION_ENTRY("play", 0x05, DtvPvrPlay2_play)
+EHS_FB_FUNCTION_ENTRY("pause", 0x06, DtvPvrPlay2_pause)
+EHS_FB_FUNCTION_ENTRY("reverse", 0x07, DtvPvrPlay2_rev)
+EHS_FB_FUNCTION_ENTRY("faster", 0x08, DtvPvrPlay2_faster)
+EHS_FB_FUNCTION_ENTRY("slower", 0x09, DtvPvrPlay2_slower)
+EHS_FB_FUNCTION_ENTRY("stop", 0x0A, DtvPvrPlay2_stop)
+EHS_FB_FUNCTION_ENTRY("end", 0x0B, DtvPvrPlay2_end)
+EHS_FB_FUNCTION_ENTRY("setWindow", 0x0C, DtvPvrPlay2_set_window)
 
-EHS_FB_FUNCTION_ENTRY("vol", 0x0C, DtvPvrPlay2_set_volume)
-EHS_FB_FUNCTION_ENTRY("toFront", 0x0D,DtvPvrPlay2_to_front)
-EHS_FB_FUNCTION_ENTRY("toBack", 0x0E,DtvPvrPlay2_to_back)
+EHS_FB_FUNCTION_ENTRY("vol", 0x0D, DtvPvrPlay2_set_volume)
+EHS_FB_FUNCTION_ENTRY("toFront", 0x0E,DtvPvrPlay2_to_front)
+EHS_FB_FUNCTION_ENTRY("toBack", 0x0F,DtvPvrPlay2_to_back)
 EHS_FB_FUNCTIONS_END
 
 /* port identifiers - @todo These are badly named*/
@@ -146,20 +145,29 @@ EHS_FB_INIT_FUNCTION(DtvPvrPlay2)
     pPvrPlay->MediaPlayerState=EHS_FB_STATE_NOT_LOADED;
     EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
     pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-    EhsParseGuiParameters(guiParams,&xParams);  // We will be reading data is if we are a patch type (LGB Does this - it should be a generic render type rather than for a specific widget type)
-    //copy the frame data into struct and ignore the rest
-    pPvrPlay->nXpos_adjusted=pPvrPlay->nXpos=xParams.xRect.nLeft;
-    pPvrPlay->nYpos_adjusted=pPvrPlay->nYpos=xParams.xRect.nTop;
-    pPvrPlay->nWidth_adjusted=pPvrPlay->nWidth=xParams.xRect.nWidth;
-    pPvrPlay->nHeight_adjusted=pPvrPlay->nHeight=xParams.xRect.nHeight;
-    pPvrPlay->video_on_top=(xParams.nZorder!=0x80000000);// 0 in LAB is converted to 0x80000000 just to be anoying.
-    pPvrPlay->pTDPlayback = EhsTDPlayback_init(pPvrPlay);
-    if (! pPvrPlay->pTDPlayback)
-    {
-        EHSH_LOG_ERROR("Could not initialise Media Player");
-        return EHS_FALSE;
+    if (guiParams) {
+        EhsParseGuiParameters(guiParams,&xParams);  // We will be reading data is if we are a patch type (LGB Does this - it should be a generic render type rather than for a specific widget type)
+        //copy the frame data into struct and ignore the rest
+        pPvrPlay->nXpos_adjusted=pPvrPlay->nXpos=xParams.xRect.nLeft;
+        pPvrPlay->nYpos_adjusted=pPvrPlay->nYpos=xParams.xRect.nTop;
+        pPvrPlay->nWidth_adjusted=pPvrPlay->nWidth=xParams.xRect.nWidth;
+        pPvrPlay->nHeight_adjusted=pPvrPlay->nHeight=xParams.xRect.nHeight;
+        pPvrPlay->video_on_top=(xParams.nZorder!=0x80000000);// 0 in LAB is converted to 0x80000000 just to be anoying.
+        pPvrPlay->pTDPlayback = EhsTDPlayback_init(pPvrPlay);
+        if (! pPvrPlay->pTDPlayback)
+        {
+            EHSH_LOG_ERROR("Could not initialise Media Player");
+            //return EHS_FALSE;
+        }
     }
-    return EhsTDPlayback_reset((EhsTDPlaybackClass*)pPvrPlay->pTDPlayback); /* initialisation was successful */
+    else {
+        // slready reported: EHSH_LOG_ERROR("Could not parse paramter file");
+        pPvrPlay->pTDPlayback = NULL;
+    }
+
+    //todo 2023 fail silently. We should check and log error, but carry on anyway
+    EhsTDPlayback_reset((EhsTDPlaybackClass*)pPvrPlay->pTDPlayback); /* initialisation was successful */
+    return EHS_TRUE;
 }
 
 EHS_FB_DESTROY_FUNCTION(DtvPvrPlay2)

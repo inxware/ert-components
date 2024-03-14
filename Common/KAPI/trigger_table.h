@@ -73,6 +73,12 @@ EHS_GLOBAL void EhsTrigger_monitorTriggeredFunctions(EhsTriggerType* xTrigger, d
  */
 EHS_GLOBAL void EhsTriggerTable_clearAllMonitors(void);
 
+/**
+ * clears specific events in trigger table, based on what's specified in
+ * void* pConditionData
+ */
+EHS_GLOBAL void EhsTriggerTable_clearEvents(void* pConditionData);
+
 
 #endif /* EHS_TRIGGER_TABLE_H */
 

@@ -26,10 +26,10 @@ INC_DIRS += $(EHS_TARGET_AV_PATH)/../gst10_common
 
 include $(EHS_TARGET_AV_PATH)/../gst10_common/deps.mk
 
-ifeq ($(EHS_DEBIAN_10),yes)
+#todo2022 we should be using a global contrib middleware support path not conditional everywhere.
+ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 INC_DIRS += /usr/include/gstreamer-1.0
 else
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/gstreamer-1.0
 endif
-
 OBJECTS += target_dtv.$(OBJ) targetvideo_init.$(OBJ)

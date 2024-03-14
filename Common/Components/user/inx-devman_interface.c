@@ -20,8 +20,8 @@
 /* My Component state data structure. - Use this in your code! */
 typedef struct
 {
-    ehs_char AppName[EHS_STRING_LENGTH_MAX];
-    ehs_char ProcessName[EHS_STRING_LENGTH_MAX];
+    //ehs_char AppName[EHS_STRING_LENGTH_MAX]; // This may be a default for the app that Devman will monitor for us (e.g. cpu and RAM) - todo2025 - not currently implemented - see rtinfo.
+    //ehs_char ProcessName[EHS_STRING_LENGTH_MAX]; // This may also be a default for the app.
     ehs_bool instance_running;
 } inx_DevmanInterface_state_type; //Reference this, maybe store your config parameters in here too.
 
@@ -29,14 +29,11 @@ typedef struct
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(DevmanInterface)
-
-EHS_FB_FUNCTION_ENTRY("send", 0x00, DevmanInterface_send)
-
-EHS_FB_FUNCTION_ENTRY("getServerUrl", 0x01, DevmanInterface_getServerUrl)
-
-EHS_FB_FUNCTION_ENTRY("listen4New", 0x02, DevmanInterface_listen4New)
-
-EHS_FB_FUNCTION_ENTRY("getMiscData", 0x03, DevmanInterface_getMiscData)
+EHS_FB_FUNCTION_ENTRY("send", 0x01, DevmanInterface_send)
+EHS_FB_FUNCTION_ENTRY("getServerUrl", 0x02, DevmanInterface_getServerUrl)
+EHS_FB_FUNCTION_ENTRY("setServerUrl", 0x05, DevmanInterface_setServerUrl)
+EHS_FB_FUNCTION_ENTRY("listen4New", 0x03, DevmanInterface_listen4New)
+EHS_FB_FUNCTION_ENTRY("getMiscData", 0x04, DevmanInterface_getMiscData)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -45,6 +42,8 @@ EHS_FB_FUNCTIONS_END
 #define INX_DevmanInterface_ARG_send_sendDone 1
 #define INX_DevmanInterface_ARG_getServerUrl_serverURL 1
 #define INX_DevmanInterface_ARG_getServerUrl_getAllDone 1
+#define INX_DevmanInterface_ARG_setServerUrl_serverURL 1
+#define INX_DevmanInterface_ARG_setServerUrl_serverURLDone 1
 #define INX_DevmanInterface_ARG_listen4New_JSON 1
 #define INX_DevmanInterface_ARG_listen4New_gotAll 1
 #define INX_DevmanInterface_ARG_getMiscData_newJSON 1
@@ -89,13 +88,12 @@ EHS_FB_IDENTIFY_FUNCTION(DevmanInterface)
 
 EHS_FB_INIT_FUNCTION(DevmanInterface)
 {
-
     ehs_bool bRet = EHS_TRUE; /* assume success */
     //this is the reference to the object data for this instance of the function block
     inx_DevmanInterface_state_type* inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_INIT_CONTEXT;
     /* read the initialisation parameters */
 
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s %s",inx_DevmanInterface_state->AppName,inx_DevmanInterface_state->ProcessName);
+    // todo 2025 we may  want ot use this as a default instead of rtinfo's app to monitor EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s %s",inx_DevmanInterface_state->AppName,inx_DevmanInterface_state->ProcessName);
     inx_DevmanInterface_state->instance_running = EHS_FALSE;
     /* Add any further intialisation code here */
     return bRet; /* initialisation always succeeds */
@@ -136,12 +134,14 @@ extern EhsMetaDataType EhsMetaData;
 // todo remove the following (see below))
 #include <sys/time.h>
 
-/* Waits for the Devman thread to have set a signal then reads the data out */
+/* Polls the Devman Monitor thread for System data (not player data) from Devman */
+/* todo this function block should be using HAL processing not pthreads */
 EHS_FB_THREAD_FUNCTION(DevmanInterface_listen4New_thread)
 {
 
     inx_DevmanInterface_state_type* inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_RUN_CONTEXT;
-    pthread_mutex_t *lock = EhsHMetaGetDevmanMiscDLDataMutex();
+    EhsTPMutexClass semlock = EhsHMetaGetDevmanMiscDLDataMutex();
+    EhsTPConditionClass sema = EhsHMetaGetDevmanMiscDLDataSemaphor();
     int error =0;
     int rc;
     struct timespec ts;
@@ -153,49 +153,58 @@ EHS_FB_THREAD_FUNCTION(DevmanInterface_listen4New_thread)
         {
             break;
         }
-        pthread_mutex_lock(lock);
-// todo - look at the older version of the next bit to be linux non-specific
-        rc =  gettimeofday(&tp, NULL);
-        ts.tv_sec  = tp.tv_sec;
-        ts.tv_nsec = tp.tv_usec * 1000;
-        ts.tv_sec += 2; // wait 2 s
-
-        if ((error=pthread_cond_timedwait (EhsHMetaGetDevmanMiscDLDataSemaphor(),lock,&ts )) == 0)
-        {
-            if (EHS_FB_OUT_CONNECTED_API2(INX_DevmanInterface_ARG_listen4New_JSON))
+        /* If the sempahores are not intialsed yet then try and initalise them */
+        if (semlock == NULL || sema == NULL) {
+            EhsSleepUs(200000); /* sleep a while before trying again. */
+            semlock = EhsHMetaGetDevmanMiscDLDataMutex();
+            sema = EhsHMetaGetDevmanMiscDLDataSemaphor();
+        }
+        else {
+            pthread_mutex_lock((pthread_mutex_t *)semlock);
+    
+            rc =  gettimeofday(&tp, NULL);
+            ts.tv_sec  = tp.tv_sec;
+            ts.tv_nsec = tp.tv_usec * 1000;
+            ts.tv_sec += 2; // wait 2 s
+    
+            if ((error=pthread_cond_timedwait ((pthread_cond_t *) sema, (pthread_mutex_t *)semlock,&ts )) == 0)
             {
-                EhsHMetaGetCpyDevmanNewMiscDLData(EHS_FB_OUT_S_API2(INX_DevmanInterface_ARG_listen4New_JSON)) ;
+                if (EHS_FB_OUT_CONNECTED_API2(INX_DevmanInterface_ARG_listen4New_JSON))
+                {
+                    EhsHMetaGetCpyDevmanNewMiscDLData(EHS_FB_OUT_S_API2(INX_DevmanInterface_ARG_listen4New_JSON)) ;
+                }
+
+                EHS_FB_FINISH(INX_DevmanInterface_ARG_listen4New_gotAll);
+
             }
-
-            EHS_FB_FINISH(INX_DevmanInterface_ARG_listen4New_gotAll);
-
-        }
-        else
-        {
-#ifdef EHS_DEBUG_MUTEX
-            switch (error)
+            else
             {
-            case  ETIMEDOUT:
-                EHSH_LOG_ERROR("Exited condition wait because timed out");
-                break;
-            case EINVAL :
-                EHSH_LOG_ERROR(" Invalid.= arguement");
+    //#define EHS_DEBUG_MUTEX
+    #ifdef EHS_DEBUG_MUTEX
+                switch (error)
+                {
+                case  ETIMEDOUT:
+                    EHSH_LOG_ERROR("Exited condition wait because timed out");
+                    break;
+                case EINVAL :
+                    EHSH_LOG_ERROR(" Invalid.= arguement");
 
-                break;
-            case EPERM:
-                EHSH_LOG_ERROR("Mutex no ownwed by thread");
-                break;
-            default:
+                    break;
+                case EPERM:
+                    EHSH_LOG_ERROR("Mutex no ownwed by thread");
+                    break;
+                default:
+                    break;
+                }
+    #endif
+            }
+            if (error != 0 && error != ETIMEDOUT)
+            {
+                EHSH_LOG_ERROR("Bad mutex for JSON checks\n");
                 break;
             }
-#endif
-        }
-        if (error != 0 && error != ETIMEDOUT)
-        {
-            EHSH_LOG_ERROR("Bad mutex for JSON checks\n");
-            break;
-        }
-        pthread_mutex_unlock(lock);
+            pthread_mutex_unlock((pthread_mutex_t *)semlock);
+        }/* end of test for initialised sempahores */  
     }
 }
 
@@ -234,12 +243,32 @@ EHS_FB_RUN_FUNCTION(DevmanInterface_getMiscData)
 
     // Your code here
     if (EHS_FB_OUT_CONNECTED_API2(INX_DevmanInterface_ARG_getMiscData_newJSON))
-        EHS_FB_OUT_S_API2(INX_DevmanInterface_ARG_getMiscData_newJSON) ;
+        EhsStrcpy(EHS_FB_OUT_S_API2(INX_DevmanInterface_ARG_getMiscData_newJSON),"Not Implemented") ;
     EHS_FB_FINISH(INX_DevmanInterface_ARG_getMiscData_new);
 }//ICB FUNCTION getMiscData MACRO END -- DO NOT ALTER THIS LINE
 
 
 
+//ICB FUNCTION setServerUrl MACRO START -- DO NOT ALTER
+/**
+ * Definition of DevmanInterface_setServerUrl.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+
+EHS_FB_RUN_FUNCTION(DevmanInterface_setServerUrl)
+{
+    inx_DevmanInterface_state_type* inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_RUN_CONTEXT;
+
+    // Your code here
+    if (EHS_FB_IN_CONNECTED_API2(INX_DevmanInterface_ARG_setServerUrl_serverURL))
+    {
+         EhsHDevmanAddURLtoHeadList(EHS_DEVMAN_COREURLS,EHS_FB_IN_S_API2(INX_DevmanInterface_ARG_setServerUrl_serverURL));
+    }
+    EHS_FB_FINISH(INX_DevmanInterface_ARG_setServerUrl_serverURLDone);
+}//ICB FUNCTION send MACRO END -- DO NOT ALTER THIS LINE
 
 //ICB FUNCTION getServerUrl MACRO START -- DO NOT ALTER
 /**
@@ -254,7 +283,12 @@ EHS_FB_RUN_FUNCTION(DevmanInterface_getServerUrl)
     inx_DevmanInterface_state_type* inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_RUN_CONTEXT;
 
     // Your code here
+    //ehs_char xx[2000];
+    //EhsHDevmanGetURL(xx, EHS_DEVMAN_COREURLS,EHS_MAXDEVMANNAMELEN, 0);
+    //printf ("XXXXXX:%s\n",xx);
+    //todo 2022 #if DEMVNA MAX_STRLEN > EHS_MAXSTRING_LEN #error (Max Devman Str is too long!)
+    //todo we need to make sure this doesn't tuncate and just fails enirely intead
     if (EHS_FB_OUT_CONNECTED_API2(INX_DevmanInterface_ARG_getServerUrl_serverURL))
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_DevmanInterface_ARG_getServerUrl_serverURL),"Not Implemented");
+        EhsHDevmanGetURL(EHS_FB_OUT_S_API2(INX_DevmanInterface_ARG_getServerUrl_serverURL), EHS_DEVMAN_COREURLS,EHS_MAXDEVMANNAMELEN, 0); //reporting status the first in the list
     EHS_FB_FINISH(INX_DevmanInterface_ARG_getServerUrl_getAllDone);
 }//ICB FUNCTION getServerUrl MACRO END -- DO NOT ALTER THIS LINE

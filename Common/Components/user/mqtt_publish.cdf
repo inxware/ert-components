@@ -1,86 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
     <CDFInfo>
-        <Version>2</Version>
+        <Version>3</Version>
         <CreationDate>2022-08-25T11:00:20Z</CreationDate>
-        <UpdatedDate>2022-08-25T11:01:05Z</UpdatedDate>
+        <UpdatedDate>2023-10-25T09:17:34Z</UpdatedDate>
     </CDFInfo>
-    <ID>
+    <Description>
+        <ShortDescription>mqtt_publish</ShortDescription>
+        <LongDescription>mqtt_publish</LongDescription>
+        <UserName/>
+        <Menu>
+            Networking
+            <Menu>
+                MQTT
+                <Menu>MQTT Publish</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>105</Width>
+        <Height>80</Height>
+        <Text>MQTT Pub</Text>
+        <TextX>5</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.5</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
         <ERT1_ID>1</ERT1_ID>
-    </ID>
-    <Class>mqtt_publish</Class>
-    <FbApiDescriptorHash>todo Api Descriptor</FbApiDescriptorHash>
+        <Class>mqtt_publish</Class>
+    </FBID>
     <Hashes>
         <NameHash_CRC16>0x16F8</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC16>todo Api Descriptor hash</FbApiDescriptorHash_CRC16>
+        <FbApiDescriptorHash_CRC32>4dd741fd</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
     </Hashes>
-    <Module>usercomponents</Module>
-    <Menu>
-        Networking
-        <Menu>MQTT Publish</Menu>
-    </Menu>
-    <ShortDescription>mqtt_publish</ShortDescription>
-    <LongDescription>mqtt_publish</LongDescription>
+    <Parameters>
+        <Parameter>
+            <Name>topic</Name>
+            <DataType>S</DataType>
+            <Description>topic</Description>
+            <DefaultValue>default</DefaultValue>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>qos</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>255</MaxValue>
+            <Description>quality of service</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+    </Parameters>
     <Functions>
         <Function>
             <name>publish</name>
             <ID>
-                <ERT1_ID>0</ERT1_ID>
+                <ERT1_ID>1</ERT1_ID>
             </ID>
         </Function>
     </Functions>
-    <Port>
-        <CName>publish</CName>
-        <Description>publish</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>10</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <Function argument="0">
-            <Function_ERT1_ID>0</Function_ERT1_ID>
-        </Function>
-    </Port>
-    <Port>
-        <CName>finishpublish</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>130</XCoordinate>
-        <YCoordinate>10</YCoordinate>
-        <Wcet>0</Wcet>
-        <Function argument="1">
-            <Function_ERT1_ID>0</Function_ERT1_ID>
-        </Function>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>topic</CName>
-        <Description>topic name</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>30</YCoordinate>
-        <Function argument="1">
-            <Function_ERT1_ID>0</Function_ERT1_ID>
-        </Function>
-    </Port>
-    <Port>
-        <DataType>S</DataType>
-        <CName>payload</CName>
-        <Description>Payload</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>50</YCoordinate>
-        <Function argument="2">
-            <Function_ERT1_ID>0</Function_ERT1_ID>
-        </Function>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>qos</CName>
-        <Description>qos</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>70</YCoordinate>
-        <Function argument="3">
-            <Function_ERT1_ID>0</Function_ERT1_ID>
-        </Function>
-    </Port>
+    <Ports>
+        <Port>
+            <Description>publish</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>publish</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishpublish</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>topic</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>topic</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>payload</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>payload</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>qos</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>qos</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

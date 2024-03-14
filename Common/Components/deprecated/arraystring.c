@@ -27,9 +27,9 @@
 
 EHS_FB_FUNCTIONS_START(ArrayString)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayStringRead", 0x00, ArrayStringRead)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayStringRead", 0x01, ArrayStringRead)
 
-EHS_FB_FUNCTION_ENTRY("Run_ArrayStringWrite", 0x01, ArrayStringWrite)
+EHS_FB_FUNCTION_ENTRY("Run_ArrayStringWrite", 0x02, ArrayStringWrite)
 EHS_FB_FUNCTIONS_END
 
 /**

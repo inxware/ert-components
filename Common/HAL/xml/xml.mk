@@ -27,30 +27,30 @@
 # This is because we use the XML uild system to build XML lib rather than link to it here (statically or dynamically)
 # XML is the only library we consider core to EHS, though it currently isn't used for core EHS other than potentialy for devmanmonitor processing. 
 
-
-
 include $(EHS_COMMON_HAL_PATH)/xml/deps.mk
 
 
 VPATH+= $(EHS_COMMON_HAL_PATH)/xml #nothing in here really
-#VPATH+= $(ENVIRONMENT_PATH)/libxml2/src/include # libxml2 headersa
-ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
-INC_DIRS += /usr/include/libxml2
-else
-INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)/libxml2
+
+ifdef EHS_INCLUDE_XML_SUPPORT
+	ifneq ($(EHS_HOST_DEBIAN_BUILD),)
+	INC_DIRS += /usr/include/libxml2
+	else
+	INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)/libxml2
+	endif
+
+	#This is for playManager
+	ifdef EHS_ANDROID
+	LIB+=:libxml2.a 
+	else
+		LIB += xml2 
+		ifdef EHS_MINGW
+		#This is to make sure linxml2 doesn't prefix the symbols with random tat
+		DEFS += LIBXML_STATIC
+		endif
+	endif
 endif
 
-#This is for playManager
-ifdef EHS_ANDROID
-LIB+=:libxml2.a 
-else
-LIB+=xml2 
-endif
-
-# library is in standard position.
-
+# This is the minimal xmls parser used for Devman core:
 OBJECTS+= hal_xml_minimal.$(OBJ)
-# Reference target XML support library.
-# todo - should we include libxml2 here or should it be in a separate make file
-#@todo this should move to the base full switches.
 

@@ -26,7 +26,6 @@
 #include "system_exec.h"
 #include "setCompletes.h"
 #include "target.h"
-#include "parser.h"
 #include "app_data.h"
 
 #include "hal-api.h" /* Required for logging */
@@ -52,7 +51,7 @@
 /* Define Exec function block */
 
 EHS_FB_FUNCTIONS_START(Exec)
-EHS_FB_FUNCTION_ENTRY("Run", 0x00, Exec)
+EHS_FB_FUNCTION_ENTRY("Run", 0x01, Exec)
 EHS_FB_FUNCTIONS_END
 
 /**

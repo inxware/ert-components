@@ -5,9 +5,13 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.security.MessageDigest;
@@ -67,5 +71,30 @@ public class EHSS_Utils {
         catch (IOException e) {
             EHSS_Logger.error("File write failed: " + e.toString());
         }
+    }
+
+    public static String read(InputStream is) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
+    }
+
+    public static String read(String filePath) {
+        try {
+            File file = new File(filePath);
+            FileInputStream fin = new FileInputStream(file);
+            String ret = read(fin);
+            fin.close();
+            return ret;
+        }
+        catch (IOException e) {
+            EHSS_Logger.error("File read failed: " + e.toString());
+        }
+        return null;
     }
 }

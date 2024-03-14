@@ -18,14 +18,14 @@
 
 //#include <math.h>
 //EHS- API
+#include "globals.h"
+
 #include "ehs_fb_types.h"
 #include "setCompletes.h"
 #include "callback_queue.h"
 #include "fid.h"
 #include "hal_devapps.h" // needed for devapp hal code
 
-
-#include "target.h"
 #include "appget.h"
 //EHS Common services API
 #include "hal_string.h"
@@ -83,9 +83,9 @@
 
 
 EHS_FB_FUNCTIONS_START(appget)
-EHS_FB_FUNCTION_ENTRY("listremote", 0x00, appget_list_remote)
-EHS_FB_FUNCTION_ENTRY("getinstall", 0x01, appget_getapp)
+EHS_FB_FUNCTION_ENTRY("listremote", 0x01, appget_list_remote)
 EHS_FB_FUNCTION_ENTRY("getinfo", 0x02, appget_getinfo)
+EHS_FB_FUNCTION_ENTRY("getinstall", 0x03, appget_getapp)
 EHS_FB_FUNCTIONS_END
 
 //define the port mappings

@@ -9,5 +9,6 @@
 #include "../gnu_ALL/target_file.h"
 #include <jni.h>
 #include <android_native_app_glue.h>
+#include <fcntl.h>
 
 void EhsTInitFileSystem(struct android_app* app); // copies over assets etc to real files

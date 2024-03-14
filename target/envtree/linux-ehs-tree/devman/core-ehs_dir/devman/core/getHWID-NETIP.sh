@@ -26,7 +26,10 @@
   if [ -z "$local_ifconfigZ" ]; then
     local_ifconfigZ=`/sbin/ip address show dev eno1`
   if [ -z "$local_ifconfigZ" ]; then
+    local_ifconfigZ=`/sbin/ip address show dev wlp0s20f3`
+  if [ -z "$local_ifconfigZ" ]; then
     local_ifconfigZ=`/sbin/ip address show dev wlan0`
+  fi
   fi
   fi
   fi

@@ -1,65 +1,131 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>GUI_OutputTextBoxBool</Class>
-  <Block>
-    <Type>IO</Type>
-  </Block>
-  <Menu>Deprecated
-    <Menu>GUI_Output
-      <Menu>bool</Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is an integer GUI output.</LongDescription>
-  <Parameter>
-    <Name>Widget Tag</Name>
-    <DataType>WT</DataType>
-    <DefaultValue>widget</DefaultValue>
-    <Description>widget tag</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>Widget-Group</Name>
-    <DataType>ST</DataType>
-    <DefaultValue>default</DefaultValue>
-    <Description>widget group</Description>
-    <ListPlacement>2</ListPlacement>
-  </Parameter>
-  <Port>
-    <Description>create</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">CreateGUI_WriteTextBoxBool</FunctionName>
-  </Port>
-  <Port>
-    <Description>destroy</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>25</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">DestroyGUI_WriteTextBoxBool</FunctionName>
-  </Port>
-  <Port>
-    <Description>write</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">RunGUI_WriteTextBoxBool</FunctionName>
-  </Port>
-  <Port>
-    <DataType>B</DataType>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>60</YCoordinate>
-    <FunctionName argument="1">RunGUI_WriteTextBoxBool</FunctionName>
-  </Port>
-  <Port>
-    <Description>updated</Description>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>100</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="2">RunGUI_WriteTextBoxBool</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is an integer GUI output.</LongDescription>
+        <UserName/>
+        <Menu>
+            Deprecated
+            <Menu>
+                GUI_Output
+                <Menu>bool</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>GUI_OutputTextBoxBool</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x0FF5</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>8c4638e1</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Widget Tag</Name>
+            <DataType>WT</DataType>
+            <DefaultValue>widget</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>widget tag</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Widget-Group</Name>
+            <DataType>ST</DataType>
+            <DefaultValue>default</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>widget group</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>CreateGUI_WriteTextBoxBool</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>DestroyGUI_WriteTextBoxBool</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>RunGUI_WriteTextBoxBool</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>create</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>create</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>destroy</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName>destroy</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>write</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>write</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description/>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>updated</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>updated</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

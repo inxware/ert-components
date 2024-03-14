@@ -197,7 +197,7 @@ void EhsTV_initVlc(const EhsGraphicsRectangleClass* pBounds)
     {
         DWORD err = GetLastError();
 
-        EhsError("Couldn't find libvlc-control.dll");
+        EHSH_LOG_ERROR("Couldn't find libvlc-control.dll");
         bRet = EHS_FALSE;
     }
     if (hLibControl)
@@ -251,7 +251,7 @@ void EhsTV_initVlc(const EhsGraphicsRectangleClass* pBounds)
     {
         DWORD err = GetLastError();
 
-        EhsError("Couldn't find libvlc.dll");
+        EHSH_LOG_ERROR("Couldn't find libvlc.dll");
         bRet = EHS_FALSE;
     }
 
@@ -328,7 +328,7 @@ void EhsTV_getSurface(ehs_uint16* pnWid, ehs_uint16* pnHt, ehs_uint8** ppY, ehs_
 
     if (EhsL_pVout)
     {
-        EhsError("**Error: Output thread already initialised\n");
+        EHSH_LOG_ERROR("**Error: Output thread already initialised\n");
         bRet = EHS_FALSE;
     }
 
@@ -338,7 +338,7 @@ void EhsTV_getSurface(ehs_uint16* pnWid, ehs_uint16* pnHt, ehs_uint8** ppY, ehs_
         EhsL_pVout = DLL__vlc_object_find((vlc_object_t*)EhsTV_pLibvlc->p_vlc, VLC_OBJECT_VOUT, FIND_ANYWHERE);
         if (!EhsL_pVout)
         {
-            EhsError("**Error: __vlc_object_find failed\n");
+            EHSH_LOG_ERROR("**Error: __vlc_object_find failed\n");
             bRet = EHS_FALSE;
         }
     }
@@ -352,7 +352,7 @@ void EhsTV_getSurface(ehs_uint16* pnWid, ehs_uint16* pnHt, ehs_uint8** ppY, ehs_
         p_render = (picture_heap_t*)((uint8_t*)(EhsL_pVout)+572);
         if (!p_render)
         {
-            EhsError("**Error: EhsTV_getSurface: p_render is null");
+            EHSH_LOG_ERROR("**Error: EhsTV_getSurface: p_render is null");
             bRet = EHS_FALSE;
         }
     }
@@ -366,7 +366,7 @@ void EhsTV_getSurface(ehs_uint16* pnWid, ehs_uint16* pnHt, ehs_uint8** ppY, ehs_
         pSpu = *(spu_t**)((uint8_t*)&(EhsL_pVout->p_spu) + 72);
         if (!pSpu)
         {
-            EhsError("**Error: EhsTV_getSurface: pSpu is null");
+            EHSH_LOG_ERROR("**Error: EhsTV_getSurface: pSpu is null");
             bRet = EHS_FALSE;
         }
     }
@@ -376,7 +376,7 @@ void EhsTV_getSurface(ehs_uint16* pnWid, ehs_uint16* pnHt, ehs_uint8** ppY, ehs_
         EhsL_pSubpic = DLLspu_CreateSubpicture(pSpu);
         if (!EhsL_pSubpic)
         {
-            EhsError("**Error: spu_CreateSubpicture failed");
+            EHSH_LOG_ERROR("**Error: spu_CreateSubpicture failed");
             bRet = EHS_FALSE;
         }
     }

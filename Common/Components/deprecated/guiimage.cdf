@@ -1,81 +1,162 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>GUI_Image</Class>
-  <Block>
-    <Type>IO</Type>
-  </Block>
-  <Menu>Deprecated
-    <Menu>GUI_Image</Menu>
-  </Menu>
-  <LongDescription>This is a GUI image.</LongDescription>
-  <Parameter>
-    <Name>Widget Tag</Name>
-    <DataType>WT</DataType>
-    <DefaultValue>widget</DefaultValue>
-    <Description>widget tag</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Parameter>
-    <Name>Widget-Group</Name>
-    <DataType>ST</DataType>
-    <DefaultValue>default</DefaultValue>
-    <Description>widget group</Description>
-    <ListPlacement>2</ListPlacement>
-  </Parameter>
-  <Port>
-    <Description>create</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">RunGUI_LoadImage</FunctionName>
-  </Port>
-  <Port>
-    <Description>destroy</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>25</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">DestroyGUI_Image</FunctionName>
-  </Port>
-  <Port>
-    <Description>show</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>40</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">RealizeGUI_Image</FunctionName>
-  </Port>
-  <Port>
-    <Description>hide</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>55</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">UnrealizeGUI_Image</FunctionName>
-  </Port>
-  <Port>
-    <Description>move</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>70</YCoordinate>
-    <AtomicFlag>0</AtomicFlag>
-    <FunctionName argument="0">RunGUI_MoveImage</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>x</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>90</YCoordinate>
-    <FunctionName argument="1">RunGUI_MoveImage</FunctionName>
-  </Port>
-  <Port>
-    <DataType>I</DataType>
-    <Description>y</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>105</YCoordinate>
-    <FunctionName argument="2">RunGUI_MoveImage</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a GUI image.</LongDescription>
+        <UserName/>
+        <Menu>
+            Deprecated
+            <Menu>GUI_Image</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>GUI_Image</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x3C7C</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>5d311f11</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Widget Tag</Name>
+            <DataType>WT</DataType>
+            <DefaultValue>widget</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>widget tag</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Widget-Group</Name>
+            <DataType>ST</DataType>
+            <DefaultValue>default</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>widget group</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>RunGUI_LoadImage</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>DestroyGUI_Image</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>RealizeGUI_Image</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>UnrealizeGUI_Image</name>
+            <ID>
+                <ERT1_ID>4</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>RunGUI_MoveImage</name>
+            <ID>
+                <ERT1_ID>5</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>create</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>create</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>destroy</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName>destroy</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>show</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>show</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>hide</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <CName>hide</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>move</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>move</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>x</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>x</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>y</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>105</YCoordinate>
+            <CName>y</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

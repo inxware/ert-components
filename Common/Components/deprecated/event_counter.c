@@ -43,15 +43,16 @@
 
 EHS_FB_FUNCTIONS_START(EventCounterVersatile)
 
-EHS_FB_FUNCTION_ENTRY("Run_StartEventCounter", 0x00, EventCounterVersatile_Start)
+EHS_FB_FUNCTION_ENTRY("Run_StartEventCounter", 0x01, EventCounterVersatile_Start)
 
-EHS_FB_FUNCTION_ENTRY("Run_ResetEventCounter", 0x01, EventCounterVersatile_Reset)
+EHS_FB_FUNCTION_ENTRY("Run_StopEventCounter", 0x02, EventCounterVersatile_Stop)
 
-EHS_FB_FUNCTION_ENTRY("Run_CountEventCounter", 0x02, EventCounterVersatile_Count)
+EHS_FB_FUNCTION_ENTRY("Run_ResetEventCounter", 0x03, EventCounterVersatile_Reset)
 
-EHS_FB_FUNCTION_ENTRY("Run_DecrementEventCounter", 0x03, EventCounterVersatile_Decrement)
+EHS_FB_FUNCTION_ENTRY("Run_CountEventCounter", 0x04, EventCounterVersatile_Count)
 
-EHS_FB_FUNCTION_ENTRY("Run_StopEventCounter", 0x04, EventCounterVersatile_Stop)
+EHS_FB_FUNCTION_ENTRY("Run_DecrementEventCounter", 0x05, EventCounterVersatile_Decrement)
+
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_EVENTCOUNTER_THRESHOLD 0

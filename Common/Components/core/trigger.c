@@ -29,11 +29,11 @@
 
 EHS_FB_FUNCTIONS_START(EventLatchingAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventLatchingAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventLatchingAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventLatchingAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventLatchingAnd2)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x02, EventLatchingAndReset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x03, EventLatchingAndReset)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -66,7 +66,7 @@ EHS_FB_INIT_FUNCTION(EventLatchingAnd)
     /* cast the pointer to type ehs_bool...*/
     pBOOL = (ehs_bool*)EHS_FB_INIT_CONTEXT;
     /* make sure both BOOLS are initially false...*/
-    pBOOL[0] = EHS_FALSE;
+    pBOOL[0] = EHS_FALSE; // this indicates the 
     pBOOL[1] = EHS_FALSE;
     return EHS_TRUE; /* initialisation always succeeds */
 }
@@ -137,7 +137,7 @@ EHS_FB_RUN_FUNCTION(EventLatchingAndReset)
 
 EHS_FB_FUNCTIONS_START(Start)
 
-EHS_FB_FUNCTION_ENTRY("Run_Start", 0x00, Start)
+EHS_FB_FUNCTION_ENTRY("Run_Start", 0x01, Start)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -184,7 +184,7 @@ EHS_FB_RUN_FUNCTION(Start)
 
 EHS_FB_FUNCTIONS_START(EventOr)
 
-EHS_FB_FUNCTION_ENTRY("Run_TriggerOr", 0x00, EventOr)
+EHS_FB_FUNCTION_ENTRY("Run_TriggerOr", 0x01, EventOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -238,7 +238,7 @@ EHS_FB_RUN_FUNCTION(EventOr)
 
 EHS_FB_FUNCTIONS_START(EventBooleanControl)
 
-EHS_FB_FUNCTION_ENTRY("Update", 0x00, EventBooleanControl)
+EHS_FB_FUNCTION_ENTRY("Update", 0x01, EventBooleanControl)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -296,11 +296,11 @@ EHS_FB_RUN_FUNCTION(EventBooleanControl)
 
 EHS_FB_FUNCTIONS_START(EventTwoInputLatchingAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventTwoInputLatchingAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventTwoInputLatchingAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventTwoInputLatchingAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventTwoInputLatchingAnd2)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x02, EventTwoInputLatchingAndReset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x03, EventTwoInputLatchingAndReset)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -397,13 +397,13 @@ EHS_FB_RUN_FUNCTION(EventTwoInputLatchingAndReset)
 
 EHS_FB_FUNCTIONS_START(EventThreeInputLatchingAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventThreeInputLatchingAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventThreeInputLatchingAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventThreeInputLatchingAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventThreeInputLatchingAnd2)
 
-EHS_FB_FUNCTION_ENTRY("And3", 0x02, EventThreeInputLatchingAnd3)
+EHS_FB_FUNCTION_ENTRY("And3", 0x03, EventThreeInputLatchingAnd3)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x03, EventThreeInputLatchingAndReset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x04, EventThreeInputLatchingAndReset)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -530,15 +530,15 @@ EHS_FB_RUN_FUNCTION(EventThreeInputLatchingAndReset)
 
 EHS_FB_FUNCTIONS_START(EventFourInputLatchingAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventFourInputLatchingAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventFourInputLatchingAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventFourInputLatchingAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventFourInputLatchingAnd2)
 
-EHS_FB_FUNCTION_ENTRY("And3", 0x02, EventFourInputLatchingAnd3)
+EHS_FB_FUNCTION_ENTRY("And3", 0x03, EventFourInputLatchingAnd3)
 
-EHS_FB_FUNCTION_ENTRY("And4", 0x03, EventFourInputLatchingAnd4)
+EHS_FB_FUNCTION_ENTRY("And4", 0x04, EventFourInputLatchingAnd4)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x04, EventFourInputLatchingAndReset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x05, EventFourInputLatchingAndReset)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -689,9 +689,9 @@ EHS_FB_RUN_FUNCTION(EventFourInputLatchingAndReset)
 
 EHS_FB_FUNCTIONS_START(EventOneInputManRstAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventOneInputManRstAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventOneInputManRstAnd1)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x01, EventOneInputManRstAndReset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x02, EventOneInputManRstAndReset)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -706,7 +706,7 @@ EHS_FB_FUNCTIONS_END
 EHS_FB_IDENTIFY_FUNCTION(EventOneInputManRstAnd)
 {
     /* reserve state data for two BOOLs...*/
-    EHS_FB_IDENTIFY_MEMORY = 2 * sizeof(ehs_bool);
+    EHS_FB_IDENTIFY_MEMORY = sizeof(ehs_bool);
     return;
 }
 
@@ -726,7 +726,8 @@ EHS_FB_INIT_FUNCTION(EventOneInputManRstAnd)
 }
 
 /**
- * Run the function <more detail required>.
+ * Run the function asserts output only once when all inputs have been asserted.
+ * The reset must be asserted before any further outputs are emitted. 
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -739,8 +740,8 @@ EHS_FB_RUN_FUNCTION(EventOneInputManRstAnd1)
     /* a one input resetting AND acts as a gate, will only fire if reset and will not fire again until reset again */
     if (p[0] == EHS_FALSE)
     {
-        EHS_FB_FINISH(1);
         p[0] = EHS_TRUE; // set 'has fired' to true
+        EHS_FB_FINISH(1);
     }
     return;
 }
@@ -767,11 +768,11 @@ EHS_FB_RUN_FUNCTION(EventOneInputManRstAndReset)
 
 EHS_FB_FUNCTIONS_START(EventTwoInputManRstAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventTwoInputManRstAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventTwoInputManRstAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventTwoInputManRstAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventTwoInputManRstAnd2)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x02, EventTwoInputManRstAndReset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x03, EventTwoInputManRstAndReset)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -786,7 +787,7 @@ EHS_FB_FUNCTIONS_END
 EHS_FB_IDENTIFY_FUNCTION(EventTwoInputManRstAnd)
 {
     /* reserve state data for two BOOLs...*/
-    EHS_FB_IDENTIFY_MEMORY = 3 * sizeof(ehs_bool);
+    EHS_FB_IDENTIFY_MEMORY = 2 * sizeof(ehs_bool);
     return;
 }
 
@@ -801,14 +802,16 @@ EHS_FB_INIT_FUNCTION(EventTwoInputManRstAnd)
 {
     ehs_bool* 	p = (ehs_bool*)EHS_FB_INIT_CONTEXT;
     /* make sure both BOOLS are initially false...*/
-    p[0] = EHS_FALSE;	// 'has fired' bool
-    p[1] = EHS_FALSE;
-    p[2] = EHS_FALSE;
+    p[0] = EHS_FALSE;	
+    p[1] = EHS_FALSE;   
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
- * Run the function <more detail required>.
+ * Run the function asserts output only once when all inputs have been asserted.
+ * The reset must be asserted before any further outputs are emitted. 
+ * 
+ * Coded for speed over code size
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -817,19 +820,20 @@ EHS_FB_INIT_FUNCTION(EventTwoInputManRstAnd)
 EHS_FB_RUN_FUNCTION(EventTwoInputManRstAnd1)
 {
     ehs_bool* p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-
     /* the triggers are stored as BOOLs...*/
-    p[1] = EHS_TRUE;
-    if ((p[0] == EHS_FALSE) && (p[2] == EHS_TRUE))
+    if ((p[0] == EHS_FALSE) && (p[1] == EHS_TRUE))
     {
+        p[0] = EHS_TRUE; 
         EHS_FB_FINISH(1);
-        p[0] = EHS_TRUE; // set 'has fired' to true
+    }
+    else {
+        p[0] = EHS_TRUE; 
     }
     return;
 }
 
 /**
- * Run the function <more detail required>.
+ * Run the function See above.
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -838,17 +842,19 @@ EHS_FB_RUN_FUNCTION(EventTwoInputManRstAnd1)
 EHS_FB_RUN_FUNCTION(EventTwoInputManRstAnd2)
 {
     ehs_bool* p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-    p[2] = EHS_TRUE;
-    if ((p[0] == EHS_FALSE) && (p[1] == EHS_TRUE))
+    if ((p[0] == EHS_TRUE) && (p[1] == EHS_FALSE))
     {
+        p[1] = EHS_TRUE; 
         EHS_FB_FINISH(1);
-        p[0] = EHS_TRUE; // set 'has fired' to true
+    }
+    else {
+        p[1] = EHS_TRUE;  
     }
     return;
 }
 
 /**
- * Run the function <more detail required>.
+ * Run the function : See above.
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -861,7 +867,6 @@ EHS_FB_RUN_FUNCTION(EventTwoInputManRstAndReset)
     p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
     p[0] = EHS_FALSE;	// reset 'has fired' flag
     p[1] = EHS_FALSE;
-    p[2] = EHS_FALSE;
     EHS_FB_FINISH(1);
     return;
 }
@@ -872,13 +877,13 @@ EHS_FB_RUN_FUNCTION(EventTwoInputManRstAndReset)
 
 EHS_FB_FUNCTIONS_START(EventThreeInputManRstAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventThreeInputManRstAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventThreeInputManRstAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventThreeInputManRstAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventThreeInputManRstAnd2)
 
-EHS_FB_FUNCTION_ENTRY("And3", 0x02, EventThreeInputManRstAnd3)
+EHS_FB_FUNCTION_ENTRY("And3", 0x03, EventThreeInputManRstAnd3)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x03, EventThreeInputManRstAndReset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x04, EventThreeInputManRstAndReset)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -893,7 +898,7 @@ EHS_FB_FUNCTIONS_END
 EHS_FB_IDENTIFY_FUNCTION(EventThreeInputManRstAnd)
 {
     /* reserve state data for two BOOLs...*/
-    EHS_FB_IDENTIFY_MEMORY = 4 * sizeof(ehs_bool);
+    EHS_FB_IDENTIFY_MEMORY = 3 * sizeof(ehs_bool);
     return;
 }
 
@@ -914,12 +919,11 @@ EHS_FB_INIT_FUNCTION(EventThreeInputManRstAnd)
     p[0] = EHS_FALSE;	// 'has fired' bool
     p[1] = EHS_FALSE;
     p[2] = EHS_FALSE;
-    p[3] = EHS_FALSE;
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
 /**
- * Run the function <more detail required>.
+ * (See above))
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -928,20 +932,21 @@ EHS_FB_INIT_FUNCTION(EventThreeInputManRstAnd)
 EHS_FB_RUN_FUNCTION(EventThreeInputManRstAnd1)
 {
     ehs_bool* p = NULL;
-
     /* the triggers are stored as BOOLs...*/
     p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-    p[1] = EHS_TRUE;
-    if (p[0] == EHS_FALSE && p[2] == EHS_TRUE && p[3] == EHS_TRUE)
+    if (p[0] == EHS_FALSE && (p[1] && p[2]))
     {
-        EHS_FB_FINISH(1);
         p[0] = EHS_TRUE; // set 'has fired' to true
+        EHS_FB_FINISH(1);
+    }
+    else {
+        p[0] = EHS_TRUE;
     }
     return;
 }
 
 /**
- * Run the function <more detail required>.
+ * see above.
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -950,20 +955,21 @@ EHS_FB_RUN_FUNCTION(EventThreeInputManRstAnd1)
 EHS_FB_RUN_FUNCTION(EventThreeInputManRstAnd2)
 {
     ehs_bool* p = NULL;
-
     /* the triggers are stored as ehs_bool...*/
     p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-    p[2] = EHS_TRUE;
-    if (p[0] == EHS_FALSE && p[1] == EHS_TRUE && p[3] == EHS_TRUE)
+    if (p[1] == EHS_FALSE && (p[0] && p[2]))
     {
+        p[1] = EHS_TRUE; // set 'has fired' to true
         EHS_FB_FINISH(1);
-        p[0] = EHS_TRUE; // set 'has fired' to true
+    }
+    else {
+        p[1] = EHS_TRUE;
     }
     return;
 }
 
 /**
- * Run the function <more detail required>.
+ * see above
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -975,11 +981,13 @@ EHS_FB_RUN_FUNCTION(EventThreeInputManRstAnd3)
 
     /* the triggers are stored as ehs_bool...*/
     p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-    p[3] = EHS_TRUE;
-    if (p[0] == EHS_FALSE && p[1] == EHS_TRUE && p[2] == EHS_TRUE)
+    if (p[2] == EHS_FALSE && (p[0] && p[1]))
     {
+        p[2] = EHS_TRUE; // set 'has fired' to true
         EHS_FB_FINISH(1);
-        p[0] = EHS_TRUE; // set 'has fired' to true
+    }
+    else {
+        p[2] = EHS_TRUE;
     }
     return;
 }
@@ -1000,7 +1008,6 @@ EHS_FB_RUN_FUNCTION(EventThreeInputManRstAndReset)
     p[0] = EHS_FALSE;	// reset 'has fired' bool
     p[1] = EHS_FALSE;
     p[2] = EHS_FALSE;
-    p[3] = EHS_FALSE;
     EHS_FB_FINISH(1);
     return;
 }
@@ -1010,15 +1017,15 @@ EHS_FB_RUN_FUNCTION(EventThreeInputManRstAndReset)
 
 EHS_FB_FUNCTIONS_START(EventFourInputManRstAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventFourInputManRstAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventFourInputManRstAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventFourInputManRstAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventFourInputManRstAnd2)
 
-EHS_FB_FUNCTION_ENTRY("And3", 0x02, EventFourInputManRstAnd3)
+EHS_FB_FUNCTION_ENTRY("And3", 0x03, EventFourInputManRstAnd3)
 
-EHS_FB_FUNCTION_ENTRY("And4", 0x03, EventFourInputManRstAnd4)
+EHS_FB_FUNCTION_ENTRY("And4", 0x04, EventFourInputManRstAnd4)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x04, EventFourInputManRstAndReset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x05, EventFourInputManRstAndReset)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1032,7 +1039,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(EventFourInputManRstAnd)
 {
-    /* reserve state data for two BOOLs...*/
+    /* reserve state data for 4 BOOLs...*/
     EHS_FB_IDENTIFY_MEMORY = 4 * sizeof(ehs_bool);
     return;
 }
@@ -1055,7 +1062,6 @@ EHS_FB_INIT_FUNCTION(EventFourInputManRstAnd)
     p[1] = EHS_FALSE;
     p[2] = EHS_FALSE;
     p[3] = EHS_FALSE;
-    p[4] = EHS_FALSE;
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -1072,11 +1078,13 @@ EHS_FB_RUN_FUNCTION(EventFourInputManRstAnd1)
 
     /* the triggers are stored as BOOLs...*/
     p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-    p[1] = EHS_TRUE;
-    if (p[0] == EHS_FALSE && p[2] == EHS_TRUE && p[3] == EHS_TRUE && p[4] == EHS_TRUE)
+    if (p[0] == EHS_FALSE && (p[1] && p[2] && p[3]))
     {
-        EHS_FB_FINISH(1);
         p[0] = EHS_TRUE; // set 'has fired' to true
+        EHS_FB_FINISH(1);
+    }
+    else {
+        p[0] = EHS_TRUE;
     }
     return;
 }
@@ -1091,14 +1099,15 @@ EHS_FB_RUN_FUNCTION(EventFourInputManRstAnd1)
 EHS_FB_RUN_FUNCTION(EventFourInputManRstAnd2)
 {
     ehs_bool* p = NULL;
-
     /* the triggers are stored as ehs_bool...*/
     p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-    p[2] = EHS_TRUE;
-    if (p[0] == EHS_FALSE && p[1] == EHS_TRUE && p[3] == EHS_TRUE && p[4] == EHS_TRUE)
+    if (p[1] == EHS_FALSE && ( p[0] && p[2] && p[3] ))
     {
+        p[1] = EHS_TRUE;
         EHS_FB_FINISH(1);
-        p[0] = EHS_TRUE; // set 'has fired' to true
+    }
+    else {
+        p[1] = EHS_TRUE;
     }
     return;
 }
@@ -1116,11 +1125,13 @@ EHS_FB_RUN_FUNCTION(EventFourInputManRstAnd3)
 
     /* the triggers are stored as ehs_bool...*/
     p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-    p[3] = EHS_TRUE;
-    if (p[0] == EHS_FALSE && p[1] == EHS_TRUE && p[2] == EHS_TRUE && p[4] == EHS_TRUE)
+    if (p[2] == EHS_FALSE && ( p[0] && p[1] && p[3] ))
     {
+        p[2] = EHS_TRUE; 
         EHS_FB_FINISH(1);
-        p[0] = EHS_TRUE; // set 'has fired' to true
+    }
+    else {
+        p[2] = EHS_TRUE;
     }
     return;
 }
@@ -1138,11 +1149,13 @@ EHS_FB_RUN_FUNCTION(EventFourInputManRstAnd4)
 
     /* the triggers are stored as ehs_bool...*/
     p = (ehs_bool*)EHS_FB_RUN_CONTEXT;
-    p[4] = EHS_TRUE;
-    if (p[0] == EHS_FALSE && p[1] == EHS_TRUE && p[2] == EHS_TRUE && p[3] == EHS_TRUE)
+    if (p[3] == EHS_FALSE && (p[0] && p[1] && p[2] ))
     {
+        p[3] = EHS_TRUE; // set 'has fired' to true
         EHS_FB_FINISH(1);
-        p[0] = EHS_TRUE; // set 'has fired' to true
+    }
+    else {
+         p[3] = EHS_TRUE;
     }
     return;
 }
@@ -1165,7 +1178,6 @@ EHS_FB_RUN_FUNCTION(EventFourInputManRstAndReset)
     p[1] = EHS_FALSE;
     p[2] = EHS_FALSE;
     p[3] = EHS_FALSE;
-    p[4] = EHS_FALSE;
     EHS_FB_FINISH(1);
     return;
 }
@@ -1175,9 +1187,9 @@ EHS_FB_RUN_FUNCTION(EventFourInputManRstAndReset)
 
 EHS_FB_FUNCTIONS_START(EventSelfResetTwoInputLatchingAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventSelfResetTwoInputLatchingAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventSelfResetTwoInputLatchingAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventSelfResetTwoInputLatchingAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventSelfResetTwoInputLatchingAnd2)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1270,11 +1282,11 @@ EHS_FB_RUN_FUNCTION(EventSelfResetTwoInputLatchingAnd2)
 
 EHS_FB_FUNCTIONS_START(EventSelfResetThreeInputLatchingAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventSelfResetThreeInputLatchingAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventSelfResetThreeInputLatchingAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventSelfResetThreeInputLatchingAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventSelfResetThreeInputLatchingAnd2)
 
-EHS_FB_FUNCTION_ENTRY("And3", 0x02, EventSelfResetThreeInputLatchingAnd3)
+EHS_FB_FUNCTION_ENTRY("And3", 0x03, EventSelfResetThreeInputLatchingAnd3)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1400,13 +1412,13 @@ EHS_FB_RUN_FUNCTION(EventSelfResetThreeInputLatchingAnd3)
 
 EHS_FB_FUNCTIONS_START(EventSelfResetFourInputLatchingAnd)
 
-EHS_FB_FUNCTION_ENTRY("And1", 0x00, EventSelfResetFourInputLatchingAnd1)
+EHS_FB_FUNCTION_ENTRY("And1", 0x01, EventSelfResetFourInputLatchingAnd1)
 
-EHS_FB_FUNCTION_ENTRY("And2", 0x01, EventSelfResetFourInputLatchingAnd2)
+EHS_FB_FUNCTION_ENTRY("And2", 0x02, EventSelfResetFourInputLatchingAnd2)
 
-EHS_FB_FUNCTION_ENTRY("And3", 0x02, EventSelfResetFourInputLatchingAnd3)
+EHS_FB_FUNCTION_ENTRY("And3", 0x03, EventSelfResetFourInputLatchingAnd3)
 
-EHS_FB_FUNCTION_ENTRY("And4", 0x03, EventSelfResetFourInputLatchingAnd4)
+EHS_FB_FUNCTION_ENTRY("And4", 0x04, EventSelfResetFourInputLatchingAnd4)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1563,9 +1575,9 @@ EHS_FB_RUN_FUNCTION(EventSelfResetFourInputLatchingAnd4)
 
 EHS_FB_FUNCTIONS_START(EventTwoInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or1", 0x00, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or1", 0x01, EventInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or2", 0x01, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or2", 0x02, EventInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1613,11 +1625,11 @@ EHS_FB_RUN_FUNCTION(EventInputOr)
 
 EHS_FB_FUNCTIONS_START(EventThreeInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or1", 0x00, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or1", 0x01, EventInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or2", 0x01, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or2", 0x02, EventInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or3", 0x02, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or3", 0x03, EventInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1650,13 +1662,13 @@ EHS_FB_INIT_FUNCTION(EventThreeInputOr)
 
 EHS_FB_FUNCTIONS_START(EventFourInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or1", 0x00, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or1", 0x01, EventInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or2", 0x01, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or2", 0x02, EventInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or3", 0x02, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or3", 0x03, EventInputOr)
 
-EHS_FB_FUNCTION_ENTRY("Or4", 0x03, EventInputOr)
+EHS_FB_FUNCTION_ENTRY("Or4", 0x04, EventInputOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1689,7 +1701,7 @@ EHS_FB_INIT_FUNCTION(EventFourInputOr)
 
 EHS_FB_FUNCTIONS_START(EventTwoInputBooleanOr)
 
-EHS_FB_FUNCTION_ENTRY("BoolOrTrig", 0x00, EventTwoInputBooleanOr)
+EHS_FB_FUNCTION_ENTRY("BoolOrTrig", 0x01, EventTwoInputBooleanOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1742,7 +1754,7 @@ EHS_FB_RUN_FUNCTION(EventTwoInputBooleanOr)
 
 EHS_FB_FUNCTIONS_START(EventThreeInputBooleanOr)
 
-EHS_FB_FUNCTION_ENTRY("BoolOrTrig", 0x00, EventThreeInputBooleanOr)
+EHS_FB_FUNCTION_ENTRY("BoolOrTrig", 0x01, EventThreeInputBooleanOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1797,7 +1809,7 @@ EHS_FB_RUN_FUNCTION(EventThreeInputBooleanOr)
 
 EHS_FB_FUNCTIONS_START(EventFourInputBooleanOr)
 
-EHS_FB_FUNCTION_ENTRY("BoolOrTrig", 0x00, EventFourInputBooleanOr)
+EHS_FB_FUNCTION_ENTRY("BoolOrTrig", 0x01, EventFourInputBooleanOr)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1855,7 +1867,7 @@ EHS_FB_RUN_FUNCTION(EventFourInputBooleanOr)
 
 EHS_FB_FUNCTIONS_START(EventToggleBoolean)
 
-EHS_FB_FUNCTION_ENTRY("Toggle", 0x00, EventToggleBoolean)
+EHS_FB_FUNCTION_ENTRY("Toggle", 0x01, EventToggleBoolean)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1916,9 +1928,10 @@ EHS_FB_RUN_FUNCTION(EventToggleBoolean)
 
 EHS_FB_FUNCTIONS_START(EventSetReset)
 
-EHS_FB_FUNCTION_ENTRY("Set", 0x00, EventSetReset_Set)
-
 EHS_FB_FUNCTION_ENTRY("Reset", 0x01, EventSetReset_Reset)
+
+EHS_FB_FUNCTION_ENTRY("Set", 0x02, EventSetReset_Set)
+
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -1977,8 +1990,7 @@ EHS_FB_RUN_FUNCTION(EventSetReset_Reset)
 /* Define EventPositiveEdgeDetect function block */
 
 EHS_FB_FUNCTIONS_START(EventPositiveEdgeDetect)
-
-EHS_FB_FUNCTION_ENTRY("Test", 0x00, EventPositiveEdgeDetect)
+EHS_FB_FUNCTION_ENTRY("Test", 0x01, EventPositiveEdgeDetect)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2041,7 +2053,7 @@ EHS_FB_RUN_FUNCTION(EventPositiveEdgeDetect)
 
 EHS_FB_FUNCTIONS_START(EventNegativeEdgeDetect)
 
-EHS_FB_FUNCTION_ENTRY("Test", 0x00, EventNegativeEdgeDetect)
+EHS_FB_FUNCTION_ENTRY("Test", 0x01, EventNegativeEdgeDetect)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2106,7 +2118,7 @@ EHS_FB_RUN_FUNCTION(EventNegativeEdgeDetect)
 
 EHS_FB_FUNCTIONS_START(EventEdgeDetect)
 
-EHS_FB_FUNCTION_ENTRY("Test", 0x00, EventEdgeDetect)
+EHS_FB_FUNCTION_ENTRY("Test", 0x01, EventEdgeDetect)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -2165,9 +2177,9 @@ EHS_FB_RUN_FUNCTION(EventEdgeDetect)
 
 EHS_FB_FUNCTIONS_START(EventCounter)
 
-EHS_FB_FUNCTION_ENTRY("Count", 0x00, EventCounter)
+EHS_FB_FUNCTION_ENTRY("Count", 0x01, EventCounter)
 
-EHS_FB_FUNCTION_ENTRY("Reset", 0x01, EventCounter_Reset)
+EHS_FB_FUNCTION_ENTRY("Reset", 0x02, EventCounter_Reset)
 EHS_FB_FUNCTIONS_END
 
 /**

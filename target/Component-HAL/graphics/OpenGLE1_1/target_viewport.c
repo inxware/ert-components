@@ -61,8 +61,8 @@
 /**
  * Check for any errors and report them if appropriate
  */
-#define TRACE_VIEWPORT
-//#undef TRACE_VIEWPORT
+//#define TRACE_VIEWPORT
+#undef TRACE_VIEWPORT
 #ifdef TRACE_VIEWPORT
 int EhsTraceLevel = 0;
 static char* currentFunc;
@@ -230,18 +230,6 @@ int engine_init_display(struct engine* engine/*, EhsTVClass* pViewport*/)
 /*****************************************************************************/
 /* Variables defined with global-scope */
 
-
-/**
- * Define the target viewport. Only one viewport is defined at this
- * time.
- * ASSUMPTIONS:
- * This variable should not be accessed directly in functions.
- * A pointer reference to it (passed in the arguement) shouild be used in stead
- * The init function could dymanicall create this to make this code module re-rentrant - i.e. for devices with more than one view port, or display.
- * If this is malloced this global variable could remove this.
- */
-
-
 /**
  * Define the target viewport. Only one viewport is defined at this
  * time.
@@ -254,7 +242,7 @@ int engine_init_display(struct engine* engine/*, EhsTVClass* pViewport*/)
 
 EhsTVClass EhsTV; // Global handle of viewport strcuture
 
-static volatile char go=0;
+//static volatile char go=0;
 
 EhsGraphicsRectangleClass globalRect; /*The area of screen that currently wants updating*/
 EhsGraphicsRectangleClass intersectViewClip; /*Intersection of viewport and area that is currently being updated*/
@@ -283,8 +271,7 @@ int windowHasFrame = 0;
 int hideViewport = 0;
 int showViewport = 0;
 int nZOrder = 0;
-ehs_bool viewport_grab=EHS_TRUE; //default to grab the focus.
-//GtkWidget * GUIViewPortWidget;
+ehs_bool viewport_grab=EHS_TRUE; 
 ehs_bool EhsGtkTimerActive=EHS_FALSE;
 ehs_bool bIsViewportDefined = EHS_FALSE;
 ehs_bool bIsFirstTime = EHS_TRUE;
@@ -483,6 +470,7 @@ void EhsTV_update(EhsTVClass* pViewport)
  */
 void EhsTV_updateRect(EhsTVClass* pViewport, ehs_sint32 nX, ehs_sint32 nY, ehs_sint32 nWidth, ehs_sint32 nHeight)
 {
+    //LOGI("====  EhsTV_updateRect - Starting");
     if (pViewport->engine == NULL)
     {
         EHSH_LOG_WARNING("exit updateRect, too early");
@@ -508,11 +496,12 @@ void EhsTV_updateRect(EhsTVClass* pViewport, ehs_sint32 nX, ehs_sint32 nY, ehs_s
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    
     EhsWidgetTable_draw(&EhsWidgetTable,pViewport,&globalRect);
     // todo shuld we use this instead?: EhsWidgetTable_draw(&EhsWidgetTable,pViewport,&xRect);
     eglSwapBuffers(pViewport->engine->display, pViewport->engine->surface);/* todo - does this block on vsync? if so does it need to be called from a thread? */
-
+    //LOGI("====  EhsTV_updateRect - Leaving (GR=%d,%d,%d,%d)",globalRect.nHeight,globalRect.nWidth,globalRect.nLeft,globalRect.nTop);
+    //EhsSleepUs(20000);
     LEAVE(EhsTV_updateRect);
 }
 
@@ -823,7 +812,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,ehs_uint16 nWidth, 
                 pow2height=nNextPow2(nHeight);
                 if (pow2height == -1 || pow2width == -1)
                 {
-                    EhsError("Image size too large, ignoring image");
+                    EHSH_LOG_ERROR("Image size too large, ignoring image");
                     pSurface->fmt.pRGBAPixels = NULL;
                 }
                 else
@@ -831,7 +820,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,ehs_uint16 nWidth, 
                     pSurface->fmt.pRGBAPixels = EhsHMem_tempAlloc(pow2width * pow2height * EHS_GRAPHICS_COLOUR_ARGB8888_BYTES );
                     if (pSurface->fmt.pRGBAPixels == NULL )
                     {
-                        EhsError("Could not allocate space for image data - ignoring image");
+                        EHSH_LOG_ERROR("Could not allocate space for image data - ignoring image");
                     }
                     pSurface->nWidth = nWidth;			/**< bitmap width */
                     pSurface->nHeight =nHeight;			/**< bitmap height *//**< Used for A1 images */
@@ -847,7 +836,7 @@ EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,ehs_uint16 nWidth, 
                 EhsMemset(pSurface->fmt.pA1Surface.pBitmap,0x0,stridevalue * nHeight);
                 if (pSurface->fmt.pA1Surface.pBitmap == NULL )
                 {
-                    EhsError("Could not allocate space for image data - ignoring image");
+                    EHSH_LOG_ERROR("Could not allocate space for image data - ignoring image");
                 }
                 pSurface->nWidth = nWidth;			/**< bitmap width */
                 pSurface->nHeight =nHeight;			/**< bitmap height *//**< Used for A1 images */
@@ -968,7 +957,7 @@ void EhsTVSurface_finalisePixels (EhsTVSurfaceClass* pSurface)
                 pow2height=nNextPow2(pSurface->nHeight);
                 if (pow2height == -1 || pow2width == -1)
                 {
-                    EhsError("Image size too large, ignoring image");
+                    EHSH_LOG_ERROR("Image size too large, ignoring image");
                     pSurface->fmt.pA1Surface.pBitmap = NULL;
                 }
                 else
@@ -1033,7 +1022,7 @@ void EhsTVSurface_finalisePixels (EhsTVSurfaceClass* pSurface)
                     /* transfer the texture to openGL */
 
                     /* Create a luminance texture that will be overlayed over a fills */
-                    glEnable(GL_TEXTURE_2D);// todo can remove this?
+                    //glEnable(GL_TEXTURE_2D);// todo can remove this?
                     glBindTexture(GL_TEXTURE_2D, pSurface->textureName);
                     /* some default parameters */
                     glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_REPEAT);

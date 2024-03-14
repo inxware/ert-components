@@ -17,7 +17,7 @@
 */
 
 #include <math.h>
-#include "target.h"
+#include "globals.h"
 #include "appinfo.h"
 #include "app_data.h" // IS_CONNECTED_IN()
 
@@ -48,7 +48,7 @@ typedef struct
 
 EHS_FB_FUNCTIONS_START(appinfo)
 
-EHS_FB_FUNCTION_ENTRY("getinfo", 0x00, appinfo_getinfo)
+EHS_FB_FUNCTION_ENTRY("getinfo", 0x01, appinfo_getinfo)
 EHS_FB_FUNCTIONS_END
 
 //define the port mappings

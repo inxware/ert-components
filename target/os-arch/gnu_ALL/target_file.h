@@ -14,7 +14,6 @@
  * @author: inx limited
  *
  */
-
 /**
  * @page Verification Verification report
  * @section hal_file_h
@@ -50,12 +49,19 @@ struct EhsTDFilesStruct ;
  * Longest possible path name (excluding filename, but including separators and
  * terminating zero).
  */
+#ifndef EHS_TD_FILES_MAX_PATH
 #define EHS_TD_FILES_MAX_PATH 1024
+#warning "EHS_TD_FILES_MAX_PATH is not defined setting in target_file.h"
+#endif
+
 
 /**
  * Longest possible filename
  */
+#ifndef EHS_TD_FILES_MAX_FILENAME
 #define EHS_TD_FILES_MAX_FILENAME 512
+#warning "EHS_TD_FILES_MAX_FILENAME is not defined setting in target_file.h"
+#endif
 
 /**
  * Path separator for this target
@@ -67,6 +73,17 @@ struct EhsTDFilesStruct ;
 #define EHS_TD_FILES_SEPARATOR '\\'
 #define EHS_TD_FILES_SEPARATOR_STR "\\"
 #endif
+
+/*****************************************************************************/
+/* Define types */
+typedef FILE ehs_FILE; /**< File type used for file handling */
+//#define ehs_FILE FILE
+
+/*****************************************************************************/
+/* Declare global variables */
+
+/*****************************************************************************/
+/* Declare function prototypes  */
 
 //#warning TODO FILE seperator needs to be made target specific.
 
@@ -124,27 +141,16 @@ struct EhsTDFilesStruct ;
 
 #ifndef EHS_MINGW
 #define EhsFsync sync
-
 #define EhsFfsync fsync
+
 #else
 
 #define EhsFsync (...)
-
 #define EhsFfsync fsync(...)
 #endif
 
 
-/*****************************************************************************/
-/* Define types */
 
-//typedef FILE ehs_FILE; /**< File type used for file handling */
-#define ehs_FILE FILE
-
-/*****************************************************************************/
-/* Declare global variables */
-
-/*****************************************************************************/
-/* Declare function prototypes  */
 
 ehs_bool EhsTgtFilesystem_Init(void);
 

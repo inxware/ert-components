@@ -70,15 +70,15 @@
 #include "hal-api.h" /* Required for logging */
 
 EHS_FB_FUNCTIONS_START(gui_viewport)
-EHS_FB_FUNCTION_ENTRY("create", 0x00, gui_viewport_create)
+EHS_FB_FUNCTION_ENTRY("create", 0x01, gui_viewport_create)
 
-EHS_FB_FUNCTION_ENTRY("destroy", 0x01, gui_viewport_destroy)
+EHS_FB_FUNCTION_ENTRY("destroy", 0x02, gui_viewport_destroy)
 
-EHS_FB_FUNCTION_ENTRY("show", 0x02, gui_viewport_show)
+EHS_FB_FUNCTION_ENTRY("show", 0x03, gui_viewport_show)
 
-EHS_FB_FUNCTION_ENTRY("hide", 0x03, gui_viewport_hide)
+EHS_FB_FUNCTION_ENTRY("hide", 0x04, gui_viewport_hide)
 
-EHS_FB_FUNCTION_ENTRY("update", 0x04, gui_viewport_update)
+EHS_FB_FUNCTION_ENTRY("update", 0x05, gui_viewport_update)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_GUI_VIEWPORT_IN_X 0		/**< Function block input for X offset */
@@ -111,8 +111,10 @@ EHS_FB_FUNCTIONS_END
 //	//@todo the viewColour and xClipRect are duplicated as global variables in the attached.
 //};
 
+/* THese aren't used and shouldn't be directly todo2022 deleteme
 extern EhsGraphicsColourClass viewColour; // we set the background colour and transparency here
 extern EhsGraphicsRectangleClass viewRectangle; //size of the viewport.
+*/
 
 /**
  * Define the identify function
@@ -131,7 +133,7 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
 {
     EhsGuiParamsType xParams;
     EhsWidgetClass *pWidget;
-    ehs_bool bRet = EHS_FALSE; /* assume initialisation fails */
+    ehs_bool bRet = EHS_TRUE; /* assume initialisation succeeds */
     char guiParams[MAX_PARAM_STR_LEN];
     const char* pParams;
     ehs_uint8 nByte;
@@ -140,47 +142,63 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
     ehs_sint32 nScreenWidth = -1;
     ehs_sint32 nScreenHeight = -1;
 
-
     EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
     pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-    EhsParseGuiParameters(guiParams,&xParams);
+    if (guiParams) {
+        /* parse coordinate block parameters */
+        pParams = EhsGetUint8FromString(&nByte, pParams);
+        /* Write the paramters from iAB function block */
+        bRelative = (ehs_bool)nByte;
+        pParams = EhsGetSint32FromString(&nTop, pParams);
+        pParams = EhsGetSint32FromString(&nHeight, pParams);
+        pParams = EhsGetSint32FromString(&nLeft, pParams);
+        pParams = EhsGetSint32FromString(&nWidth, pParams);
+        /* Now read the iGB ones */
+        EhsParseGuiParameters(guiParams,&xParams);
+        /* And decide which we use by prioritizing any valid iAB values 
+        seems we have used both struct and primitives so set boththe same..*/
+        if (nLeft < 1 ) nLeft = xParams.xRect.nLeft;
+        else xParams.xRect.nLeft = nLeft;
+        if (nWidth < 1 ) nWidth = xParams.xRect.nWidth;
+        else xParams.xRect.nWidth = nWidth;
+        if (nTop < 1 ) nTop = xParams.xRect.nTop;
+        else xParams.xRect.nTop = nTop;
+        if (nHeight < 1 ) nHeight = xParams.xRect.nHeight;
+        else xParams.xRect.nHeight = nHeight;
+        
+        //if (xParams.eClass == EHS_WIDGET_CLASS_VIEWPORT)
+        //{@todo reinstate this when the new types are recognised and specified properly in the tools etc.
+        bRet = EHS_TRUE;
+        //}
+        
+        /* Create a widget struct using the parameters from the LGB generated block */
+        *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetViewport_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xPatch);//@todo this should be params
 
-    /* parse coordinate block parameters */
-    pParams = EhsGetUint8FromString(&nByte, pParams);
-    bRelative = (ehs_bool)nByte;
-    pParams = EhsGetSint32FromString(&nTop, pParams);
-    pParams = EhsGetSint32FromString(&nHeight, pParams);
-    pParams = EhsGetSint32FromString(&nLeft, pParams);
-    pParams = EhsGetSint32FromString(&nWidth, pParams);
+        pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
 
-    //if (xParams.eClass == EHS_WIDGET_CLASS_VIEWPORT)
-    //{@todo reinstate this when the new types are recognised and specified properly in the tools etc.
-    bRet = EHS_TRUE;
-    //}
-    /* Create a widget struct using the parameters from the LGB generated block */
-    *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetViewport_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xPatch);//@todo this should be params
+        /* if we have valid hard coded values then write these in */
+        pWidget->bRelativeCoordinates = bRelative;
+        if (bRelative) EhsWidgetsetToScreenSize(&nScreenWidth,&nScreenHeight); //set the widge data sructures to full screen, which EhsWidget_AdjustCoordinates will use and adjust.
 
-    pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-
-    /* if we have valid hard coded values then write these in */
-    pWidget->bRelativeCoordinates = bRelative;
-    if (bRelative) EhsWidgetsetToScreenSize(&nScreenWidth,&nScreenHeight); //set the widge data sructures to full screen, which EhsWidget_AdjustCoordinates will use and adjust.
-
-    /* we need to set the new coordinates in the global iewport parameter set also */
-    EhsWidget_AdjustCoordinates(pWidget, bRelative, nLeft, nWidth, nTop, nHeight ); // updates the widget original position in all rectangles
-    // update the primary view incase the size values have changed
-    EhsPrimaryViewportInfo_setWidth(pWidget->xOrigRect.nWidth);
-    EhsPrimaryViewportInfo_setHeight(pWidget->xOrigRect.nHeight);
-
-
-
-    /* Now control the actual graphics using the HAL graphics functions */
-    EhsWidgetViewport_setwindow(pWidget, pWidget->xOrigRect.nLeft, pWidget->xOrigRect.nTop, pWidget->xOrigRect.nWidth, pWidget->xOrigRect.nHeight);
-    EhsWidgetViewport_fade(pWidget, 255, /* pWidget->specific.patch.nBaseAlpha,*/
-                           pWidget->specificWidgetType.patch.xColour.sComp.nRed,
-                           pWidget->specificWidgetType.patch.xColour.sComp.nGreen,
-                           pWidget->specificWidgetType.patch.xColour.sComp.nBlue);
-    EhsWidgetViewport_show(pWidget); // we do this to set the zorder - @todo viewports are always visible from init - these should follow the rules..
+        /* we need to set the new coordinates in the global Viewport parameter set also */
+        
+        EhsWidget_AdjustCoordinates(pWidget, bRelative, nLeft, nWidth, nTop, nHeight ); // updates the widget original position in all rectangles
+        
+        /* update the primary view incase the size values have changed */
+        EhsPrimaryViewportInfo_setWidth(pWidget->xOrigRect.nWidth);
+        EhsPrimaryViewportInfo_setHeight(pWidget->xOrigRect.nHeight);
+        /* Now control the actual graphics using the HAL graphics functions */
+        EhsWidgetViewport_setwindow(pWidget, pWidget->xOrigRect.nLeft, pWidget->xOrigRect.nTop, pWidget->xOrigRect.nWidth, pWidget->xOrigRect.nHeight);
+        EhsWidgetViewport_fade(pWidget,  pWidget->specificWidgetType.patch.xColour.sComp.nAlpha,
+                            pWidget->specificWidgetType.patch.xColour.sComp.nRed,
+                            pWidget->specificWidgetType.patch.xColour.sComp.nGreen,
+                            pWidget->specificWidgetType.patch.xColour.sComp.nBlue);
+        EhsWidgetViewport_show(pWidget); // we do this to set the zorder - @todo viewports are always visible from init - these should follow the rules..
+    }
+    else {
+            (*(EhsWidgetClass**)EHS_FB_INIT_CONTEXT = NULL);
+            // don't flag error we may still want the app to run without a UI
+    }    
     return bRet; /* initialisation always assumed to succeed */
 }
 
@@ -191,32 +209,34 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
 EHS_FB_RUN_FUNCTION(gui_viewport_create)
 {
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-    EhsWidget_create(pWidget);
+    if (pWidget) {
+        EhsWidget_create(pWidget);
 
-    /*Set pointer in widget structure to point at instance data. Used for mouse click.*/
-    pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
+        /*Set pointer in widget structure to point at instance data. Used for mouse click.*/
+        pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
 
-    /*Set number of mouseClick, mouseUp, mouseDrag ports*/
-    pWidget->mouseDownPortNumber = 2;
-    pWidget->mouseUpPortNumber = 3;
-    pWidget->mouseDragPortNumber = 4;
-    pWidget->mouseUpDownAbsXPortNumber = EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_X;
-    pWidget->mouseUpDownAbsYPortNumber = EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_Y;
-    pWidget->mouseDragOffsetXPortNumber = EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_X;
-    pWidget->mouseDragOffsetYPortNumber = EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_Y;
+        /*Set number of mouseClick, mouseUp, mouseDrag ports*/
+        pWidget->mouseDownPortNumber = 2;
+        pWidget->mouseUpPortNumber = 3;
+        pWidget->mouseDragPortNumber = 4;
+        pWidget->mouseUpDownAbsXPortNumber = EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_X;
+        pWidget->mouseUpDownAbsYPortNumber = EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_Y;
+        pWidget->mouseDragOffsetXPortNumber = EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_X;
+        pWidget->mouseDragOffsetYPortNumber = EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_Y;
 
 
-    /* set the output values for this widget */
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_X) 	= pWidget->xCurRect.nLeft;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_Y) 	= pWidget->xCurRect.nTop;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_WID)	= pWidget->xCurRect.nWidth;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_HT) 	= pWidget->xCurRect.nHeight;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_X)	= 0;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_Y) = 0;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_X)	= 0;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_Y) = 0;
+        /* set the output values for this widget */
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_X) 	= pWidget->xCurRect.nLeft;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_Y) 	= pWidget->xCurRect.nTop;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_WID)	= pWidget->xCurRect.nWidth;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_HT) 	= pWidget->xCurRect.nHeight;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_X)	= 0;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_Y) = 0;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_X)	= 0;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_Y) = 0;
 
-    EHS_FB_FINISH(1);
+        EHS_FB_FINISH(1);
+    }
     return;
 }
 
@@ -227,8 +247,10 @@ EHS_FB_RUN_FUNCTION(gui_viewport_create)
 EHS_FB_RUN_FUNCTION(gui_viewport_destroy)
 {
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-    EhsWidget_destroy(pWidget);
-    EHS_FB_FINISH(1);
+    if (pWidget) {  
+        EhsWidget_destroy(pWidget);
+        EHS_FB_FINISH(1);
+    }
     return;
 }
 
@@ -239,11 +261,12 @@ EHS_FB_RUN_FUNCTION(gui_viewport_destroy)
 EHS_FB_RUN_FUNCTION(gui_viewport_show)
 {
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    if (pWidget) {
+        //EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(gui_viewport_show)); /* @todo what does this do, and how is gui_text_show defined/scoped? */
 
-    //EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(gui_viewport_show)); /* @todo what does this do, and how is gui_text_show defined/scoped? */
-
-    EhsWidgetViewport_show(pWidget);
-    EHS_FB_FINISH(1);
+        EhsWidgetViewport_show(pWidget);
+        EHS_FB_FINISH(1);
+    }
 }
 
 /**
@@ -252,10 +275,12 @@ EHS_FB_RUN_FUNCTION(gui_viewport_show)
 EHS_FB_RUN_FUNCTION(gui_viewport_hide)
 {
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-    EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(gui_viewport_hide));
+    if (pWidget) {
+        EHS_TRACE_FUNCTION(EHS_FB_RUN_NAME(gui_viewport_hide));
 
-    EhsWidgetViewport_hide(pWidget);
-    EHS_FB_FINISH(1);
+        EhsWidgetViewport_hide(pWidget);
+        EHS_FB_FINISH(1);
+    }
 }
 
 /**
@@ -264,83 +289,87 @@ EHS_FB_RUN_FUNCTION(gui_viewport_hide)
 EHS_FB_RUN_FUNCTION(gui_viewport_update)
 {
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    if (pWidget) {
+        ehs_bool bMoveRequired = EHS_FALSE; /* assume that we never need to move, unless inputs are connected */
+        ehs_bool bFadeRequired = EHS_FALSE;
+        EhsDataflowIntType nXoffset = 0;
+        EhsDataflowIntType nYoffset = 0;
+        EhsDataflowIntType nWidOffset = 0;
+        EhsDataflowIntType nHtOffset = 0;
+        EhsDataflowIntType nAlpha = 0;
+        EhsDataflowIntType nRed = 0;
+        EhsDataflowIntType nGreen = 0;
+        EhsDataflowIntType nBlue = 0;
 
-    ehs_bool bMoveRequired = EHS_FALSE; /* assume that we never need to move, unless inputs are connected */
-    ehs_bool bFadeRequired = EHS_FALSE;
-    EhsDataflowIntType nXoffset = 0;
-    EhsDataflowIntType nYoffset = 0;
-    EhsDataflowIntType nWidOffset = 0;
-    EhsDataflowIntType nHtOffset = 0;
-    EhsDataflowIntType nAlpha = 0;
-    EhsDataflowIntType nRed = 0;
-    EhsDataflowIntType nGreen = 0;
-    EhsDataflowIntType nBlue = 0;
+        if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_ALPHA))
+        {
+            nAlpha = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_ALPHA); /*Added this line to fix alpha blending 18/07/2008 PB*/
+            if (nAlpha < 0) nAlpha = 0;
+            if (nAlpha > 255) nAlpha = 255;
+            bFadeRequired = EHS_TRUE;
+        }
+        if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_X))
+        {
+            nXoffset = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_X);
+            bMoveRequired = EHS_TRUE;
+        }
+        if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_Y))
+        {
+            nYoffset = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_Y);
+            bMoveRequired = EHS_TRUE;
+        }
+        if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_WID))
+        {
+            nWidOffset = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_WID);
+            bMoveRequired = EHS_TRUE;
+        }
+        if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_HT))
+        {
+            nHtOffset = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_HT);
+            bMoveRequired = EHS_TRUE;
+        }
+        /*
+        if(EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_RED))
+        {
+            nRed = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_RED);
+            if(nRed < 0) nRed = 0;
+            if(nRed > 255) nRed = 255;
+            bFadeRequired = EHS_TRUE;
+        }
+        if(EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_GREEN))
+        {
+            nGreen = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_GREEN);
+            if(nGreen < 0) nGreen = 0;
+            if(nGreen > 255) nGreen = 255;
+            bFadeRequired = EHS_TRUE;
+        }
+        if(EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_BLUE))
+        {
+            nBlue = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_BLUE);
+            if(nBlue < 0) nBlue = 0;
+            if(nBlue > 255) nBlue = 255;
+            bFadeRequired = EHS_TRUE;
+        }
+        */
+        if (bMoveRequired)
+        {
+            EhsWidgetViewport_update(pWidget, nXoffset, nYoffset, nWidOffset, nHtOffset);
+        }
+        if(bFadeRequired)
+        {
+            EhsWidgetViewport_fade(pWidget, (ehs_uint8)nAlpha, (ehs_uint8)nRed, (ehs_uint8)nGreen, (ehs_uint8)nBlue);
+        }
+        /* set the output values for this widget */
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_X) 	= pWidget->xCurRect.nLeft;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_Y) 	= pWidget->xCurRect.nTop;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_WID)	= pWidget->xCurRect.nWidth;
+        EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_HT) 	= pWidget->xCurRect.nHeight;
 
-    if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_ALPHA))
-    {
-        nAlpha = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_ALPHA); /*Added this line to fix alpha blending 18/07/2008 PB*/
-        if (nAlpha < 0) nAlpha = 0;
-        if (nAlpha > 255) nAlpha = 255;
-        bFadeRequired = EHS_TRUE;
+        EHS_FB_FINISH(1);
     }
-    if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_X))
-    {
-        nXoffset = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_X);
-        bMoveRequired = EHS_TRUE;
+    else {
+        
     }
-    if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_Y))
-    {
-        nYoffset = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_Y);
-        bMoveRequired = EHS_TRUE;
-    }
-    if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_WID))
-    {
-        nWidOffset = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_WID);
-        bMoveRequired = EHS_TRUE;
-    }
-    if (EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_HT))
-    {
-        nHtOffset = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_HT);
-        bMoveRequired = EHS_TRUE;
-    }
-    /*
-    if(EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_RED))
-    {
-    	nRed = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_RED);
-    	if(nRed < 0) nRed = 0;
-    	if(nRed > 255) nRed = 255;
-    	bFadeRequired = EHS_TRUE;
-    }
-    if(EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_GREEN))
-    {
-    	nGreen = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_GREEN);
-    	if(nGreen < 0) nGreen = 0;
-    	if(nGreen > 255) nGreen = 255;
-    	bFadeRequired = EHS_TRUE;
-    }
-    if(EHS_FB_IN_CONNECTED(EHS_FB_GUI_VIEWPORT_IN_BLUE))
-    {
-    	nBlue = EHS_FB_IN_I(EHS_FB_GUI_VIEWPORT_IN_BLUE);
-    	if(nBlue < 0) nBlue = 0;
-    	if(nBlue > 255) nBlue = 255;
-    	bFadeRequired = EHS_TRUE;
-    }
-    */
-    if (bMoveRequired)
-    {
-        EhsWidgetViewport_update(pWidget, nXoffset, nYoffset, nWidOffset, nHtOffset);
-    }
-    if(bFadeRequired)
-    {
-        EhsWidgetViewport_fade(pWidget, (ehs_uint8)nAlpha, (ehs_uint8)nRed, (ehs_uint8)nGreen, (ehs_uint8)nBlue);
-    }
-    /* set the output values for this widget */
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_X) 	= pWidget->xCurRect.nLeft;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_Y) 	= pWidget->xCurRect.nTop;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_WID)	= pWidget->xCurRect.nWidth;
-    EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_HT) 	= pWidget->xCurRect.nHeight;
-
-    EHS_FB_FINISH(1);
 }
 
 #endif /* EHS_GUI_SUPPORT */

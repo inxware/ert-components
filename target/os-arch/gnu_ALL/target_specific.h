@@ -27,13 +27,14 @@
 #define EHS_TGT_MEMORY_ALIGNED(type,name) type name
 
 #ifndef EHSStdioPrintf
-
-#ifdef EHS_ANDROID
-// might need to include a logger header in here...
-#define EhsStdioPrintf(x,y,z,...) __android_log_print(1, x,y,z,__VA_ARGS__)
-#else
-#define EhsStdioPrintf(x,y,z,...) printf(x,y,z,__VA_ARGS__)
-#endif
+    #ifdef EHS_ANDROID
+        // might need to include a logger header in here...
+        #define EhsStdioPrintf(...) __android_log_print(1,/*TAG=*/"EHS", __VA_ARGS__)
+        #define EhsStdioSimplePrintf(...) __android_log_print(1,/*TAG=*/"EHS", __VA_ARGS__)
+    #else
+        #define EhsStdioPrintf(x,...) printf(x,__VA_ARGS__)
+        #define EhsStdioSimplePrintf(...) printf(__VA_ARGS__)
+    #endif
 #endif
 
 /* math functions not implemented in Windows */

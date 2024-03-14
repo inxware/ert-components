@@ -21,7 +21,8 @@ EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 #ifdef EHS_PERIPHERALS_GUI_KEYBOARD
 		EHS_BLOCKREF_ENTRY(EHS_FB_NAME_GUI_keypress,EHS_FB_ID_GUI_keypress, GUI_keypress),
 #endif
-#ifdef EHS_PERIPHERALS_GPIO
+
+#ifdef EHS_PERIPHERALS_GPIO_SUPPORT
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_gpio_out,EHS_FB_ID_gpio_out, gpio_out),
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_gpio_in,EHS_FB_ID_gpio_in, gpio_in),
 #endif

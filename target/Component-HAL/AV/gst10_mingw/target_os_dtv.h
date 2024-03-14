@@ -6,11 +6,14 @@
  * not, please visit
  *	<https://www.mozilla.org/en-US/MPL/2.0/>
  ***************************************************************/
+#ifndef __target_os_dtv_h
+#define __target_os_dtv_h
+
 
 #include <gst/gst.h>
 #include "hal_dtv.h"
 
-struct EhsTDPlaybackStruct
+typedef struct EhsTDPlaybackStruct
 {
     EhsFBMediaPlayerStateEnum xPlaybackState; //= EHS_FB_STATE_NOT_LOADED; /**< What state is the playback in? */
     ehs_sint32 nPlaySpeed; //= 0; /**< What speed are we playing at the current time? */
@@ -34,3 +37,4 @@ EHS_GLOBAL void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay);
 EHS_GLOBAL void EhsTDPlayback_setWindow(EhsFbPvrPlayClass* pPvrPlay);
 
 EHS_GLOBAL void EhsTDPlayback_updateZorder(EhsFbPvrPlayClass* pPvr);
+#endif

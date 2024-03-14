@@ -84,7 +84,7 @@ void getEHSDefaultConfigFromFile()
         while (EhsFgets(returndata,EHS_STRING_LENGTH_MAX,EhsGraphicsFile) != NULL)
         {
 
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_XCOORD))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_XCOORD)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 if (EhsGetUint16FromString(&nVal,element_cropped))
@@ -93,7 +93,7 @@ void getEHSDefaultConfigFromFile()
 
                 }
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_YCOORD))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_YCOORD)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 if (EhsGetUint16FromString(&nVal,element_cropped))
@@ -102,7 +102,7 @@ void getEHSDefaultConfigFromFile()
                    
                 }
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_WIDTH))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_WIDTH)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 if (EhsGetUint16FromString(&nVal,element_cropped))
@@ -111,7 +111,7 @@ void getEHSDefaultConfigFromFile()
                     
                 }
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_HEIGHT))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_HEIGHT)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 if (EhsGetUint16FromString(&nVal,element_cropped))
@@ -120,22 +120,22 @@ void getEHSDefaultConfigFromFile()
                     
                 }
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_RED))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_RED)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsGetUint16FromString(&nRed,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_GREEN))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_GREEN)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsGetUint16FromString(&nGreen,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_BLUE))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_BLUE)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsGetUint16FromString(&nBlue,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_ALPHA))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_ALPHA)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 if (EhsGetUint16FromString(&nVal,element_cropped))
@@ -144,7 +144,7 @@ void getEHSDefaultConfigFromFile()
                     
                 }
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_HASFRAME))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_HASFRAME)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 if (EhsGetUint16FromString(&nVal,element_cropped))
@@ -152,7 +152,7 @@ void getEHSDefaultConfigFromFile()
                     EhsPrimaryViewportInfo_setHasFrame(nVal);
                 }
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_ZORDER))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHSGRAPHICS_ZORDER)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 if (EhsGetUint16FromString(&nVal,element_cropped))
@@ -485,17 +485,17 @@ void EhsWidgetViewport_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpo
 }
 
 /**
- * Fade the viewport according to a set of colour values
+ * Fade the viewport (and change any colours) according to a set of colour values
  *
  * @return true if successful.
  */
 ehs_bool EhsWidgetViewport_fade(struct EhsWidgetStruct* pWidget, ehs_uint8 nOpacity, ehs_uint8 nRed, ehs_uint8 nGreen, ehs_uint8 nBlue)
 {
-#ifdef WASTE_TIME
+ #ifdef EHS_DOES_THIS_WORK
     ehs_bool bChanged = EHS_FALSE;
     EhsGraphicsColourClass nColour;
     /* determine the new foreground and background opacity required by this widget */
-    ehs_uint16 nCalcOpacity = (pWidget->specificWidgetType.pathc -- -- whatever -- nBgBaseAlpha);// * nOpacity) / 255;
+    ehs_uint16 nCalcOpacity = ((pWidget->specificWidgetType.patch.nBaseAlpha* nOpacity) / 255);
     /* scale down to 8-bit */
     ehs_uint8 nOpacityByte = (ehs_uint8)nCalcOpacity;
 
@@ -504,19 +504,21 @@ ehs_bool EhsWidgetViewport_fade(struct EhsWidgetStruct* pWidget, ehs_uint8 nOpac
     nColour.sComp.nGreen = nGreen;
     nColour.sComp.nBlue = nBlue;
     nColour.sComp.nAlpha = nOpacityByte;
-
-    /*If any of the values are different to what is already store then tell the viewport to change colour */
-    if ((nOpacityByte != pWidget->specificWidgetType.patch -- whatever .xBgColour.sComp.nAlpha) || (nRed != pWidget->specificWidgetType.patch -- 		whatever .xBgColour.sComp.nRed) || (nGreen != pWidget->specificWidgetType.patch .xBgColour.sComp.nGreen) || (nBlue != pWidget->specificWidgetType.patch -- whatever .xBgColour.sComp.nBlue))
+  
+    /*If any of the values are different to what is already store then tell the viewport to change colour */  
+    if ((nOpacityByte != pWidget->specificWidgetType.patch.xColour.sComp.nAlpha) 
+        || (nRed !=      pWidget->specificWidgetType.patch.xColour.sComp.nRed) 
+        || (nGreen !=    pWidget->specificWidgetType.patch.xColour.sComp.nGreen) 
+        || (nBlue !=    pWidget->specificWidgetType.patch.xColour.sComp.nBlue))
     {
-        pWidget->specificWidgetType.patch --whatever .xBgColour.sComp.nAlpha = nOpacityByte;
-        pWidget->specificWidgetType.patch --whatever .xBgColour.sComp.nRed = nRed;
-        pWidget->specificWidgetType.patch --whatever .xBgColour.sComp.nGreen = nGreen;
-        pWidget->specificWidgetType.patch --whatever .xBgColour.sComp.nBlue = nBlue;
-
+        pWidget->specificWidgetType.patch.xColour.sComp.nAlpha = nOpacityByte;
+        pWidget->specificWidgetType.patch.xColour.sComp.nRed = nRed;
+        pWidget->specificWidgetType.patch.xColour.sComp.nGreen = nGreen;
+        pWidget->specificWidgetType.patch.xColour.sComp.nBlue = nBlue;
         bChanged = EHS_TRUE;
     }
-#endif
     EhsTV_fade(&EhsTV, pWidget->specificWidgetType.patch.xColour);
+    #endif
     return EHS_TRUE;
 }
 
@@ -552,6 +554,7 @@ ehs_bool EhsWidgetViewport_default_config()
     EhsTV_fade(&EhsTV, EhsPrimaryViewportInfo.nColour);
     EhsTV_showFrame(&EhsTV, EhsPrimaryViewportInfo.bHasFrame);
     EhsTV_setZOrder(EhsPrimaryViewportInfo.nZOrder);
+    return EHS_TRUE;
 }
 
 

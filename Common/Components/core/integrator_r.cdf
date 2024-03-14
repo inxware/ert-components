@@ -1,70 +1,148 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-  <Class>Integrator_Real</Class>
-  <Block>
-    <Type>Data_Processor</Type>
-  </Block>
-  <Menu>Math
-    <Menu>Operators
-      <Menu>integrator
-        <Menu>real</Menu>
-      </Menu>
-    </Menu>
-  </Menu>
-  <LongDescription>This is a real integrator.</LongDescription>
-  <Parameter>
-    <Name>Offset (can use x.yE+nn notation)</Name>
-    <DataType>F</DataType>
-    <DefaultValue>0</DefaultValue>
-    <MinValue>-1.7E308</MinValue>
-    <MaxValue>1.7E+308</MaxValue>
-    <Description>Offset value for cumulative sum.</Description>
-    <ListPlacement>1</ListPlacement>
-  </Parameter>
-  <Port>
-    <DataType>F</DataType>
-    <Description>offset</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>20</YCoordinate>
-    <FunctionName argument="1">Run_IntegratorReal</FunctionName>
-    <FunctionName argument="1">Run_IntegratorRealReset</FunctionName>
-  </Port>
-  <Port>
-    <DataType>F</DataType>
-    <Description>val</Description>
-    <PortType>InputPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <MandatoryFlag>1</MandatoryFlag>
-    <FunctionName argument="2">Run_IntegratorReal</FunctionName>
-  </Port>
-  <Port>
-    <Description>reset</Description>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>50</YCoordinate>
-    <FunctionName argument="0">Run_IntegratorRealReset</FunctionName>
-  </Port>
-  <Port>
-    <DataType>F</DataType>
-    <PortType>OutputPort</PortType>
-    <XCoordinate>50</XCoordinate>
-    <YCoordinate>30</YCoordinate>
-    <FunctionName argument="3">Run_IntegratorReal</FunctionName>
-    <FunctionName argument="2">Run_IntegratorRealReset</FunctionName>
-  </Port>
-  <Port>
-    <PortType>StartPort</PortType>
-    <XCoordinate>0</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="0">Run_IntegratorReal</FunctionName>
-  </Port>
-  <Port>
-    <PortType>FinishPort</PortType>
-    <XCoordinate>50</XCoordinate>
-    <YCoordinate>10</YCoordinate>
-    <FunctionName argument="4">Run_IntegratorReal</FunctionName>
-    <FunctionName argument="3">Run_IntegratorRealReset</FunctionName>
-  </Port>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a real integrator.</LongDescription>
+        <UserName/>
+        <Menu>
+            Math
+            <Menu>
+                Operators
+                <Menu>
+                    integrator
+                    <Menu>real</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>65</Width>
+        <Height>75</Height>
+        <Text>Integrate</Text>
+        <TextX>10</TextX>
+        <TextY>10</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>Integrator_Real</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xB217</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>dd20524</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Offset (can use x.yE+nn notation)</Name>
+            <DataType>F</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-1.7E308</MinValue>
+            <MaxValue>1.7E+308</MaxValue>
+            <Description>Offset value for cumulative sum.</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_IntegratorReal</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>Run_IntegratorRealReset</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <DataType>F</DataType>
+            <Description>offset</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>offset</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>val</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <MandatoryFlag>1</MandatoryFlag>
+            <CName>val</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>reset</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <CName>reset</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName/>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description/>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName/>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

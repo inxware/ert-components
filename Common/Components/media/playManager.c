@@ -11,71 +11,77 @@
 
 #include "libxml/xmlreader.h"
 
-//#define EHS_DEBUG_SMILPARSER
-//#define EHS_DEBUG_SMILPARSER_EX
-
-
 #ifdef EHS_DEBUG_SMILPARSER
+    /* Stack tracing code */
+    #ifndef EHS_ANDROID
+    #include <execinfo.h>
+    #endif
+    #include <stdio.h>
+    #include <stdlib.h>
 
-/* Stack tracing code */
-#ifndef EHS_ANDROID
-#include <execinfo.h>
-#endif
-#include <stdio.h>
-#include <stdlib.h>
+    /* Obtain a backtrace and print it to stdout. */
+    void
+    print_trace (void)
+    {
+    #ifndef EHS_ANDROID
+        void *array[10];
+        size_t size;
+        char **strings;
+        size_t i;
 
-/* Obtain a backtrace and print it to stdout. */
-void
-print_trace (void)
-{
-#ifndef EHS_ANDROID
-    void *array[10];
-    size_t size;
-    char **strings;
-    size_t i;
+        size = backtrace (array, 10);
+        strings = backtrace_symbols (array, size);
 
-    size = backtrace (array, 10);
-    strings = backtrace_symbols (array, size);
+        printf ("Obtained %zd stack frames.\n", size);
 
-    printf ("Obtained %zd stack frames.\n", size);
+        for (i = 0; i < size; i++)
+            printf ("%s\n", strings[i]);
 
-    for (i = 0; i < size; i++)
-        printf ("%s\n", strings[i]);
-
-    free (strings);
-#endif
-}
-/* end of stacj tracing code */
-#define EHS_SMILPARSER_TICK_TIME 100000 //20000
-#define EHS_SMILPARSER_DEFAULT_START_GRACE 6000000 // 60 second start time @todo should be a block config parameters
-#define EHS_WAITINGFORSTARTACKCOUNTDOWN 50 // 5 seconds
+        free (strings);
+    #endif
+    }
+    /* end of stacj tracing code */
+    #define EHS_SMILPARSER_TICK_TIME_US 100000
+    #define EHS_SMILPARSER_DEFAULT_START_GRACE 6000000 // 60 second start time @todo should be a block config parameters
+    #define EHS_WAITINGFORSTARTACKCOUNTDOWN 50 // 5 seconds
+    #error "YOU ARE BUILDING THE DEBUG VERSION _ARE YOU SURE?"
 #else
-#define EHS_SMILPARSER_TICK_TIME 20000
-#define EHS_SMILPARSER_DEFAULT_START_GRACE 20000000 //@todo make this a parameter of the function block.
-#define EHS_WAITINGFORSTARTACKCOUNTDOWN 250 // 5 seconds
+    #ifdef EHS_MINGW
+    // Using fast (1ms) iteration time for windows to make revolver more responsive
+    #define EHS_SMILPARSER_TICK_TIME_US 1000
+    #else
+    // 10 ms for our linux and android - as we don't have preicuse timing for these currently, but could test making this faster and no CPU 
+    #define EHS_SMILPARSER_TICK_TIME_US 10000 
+
+    #endif
+
+    #define EHS_SMILPARSER_DEFAULT_START_GRACE 20000000 //@todo make this a parameter of the function block.
+    #define EHS_WAITINGFORSTARTACKCOUNTDOWN 250 // 5 seconds
+    #endif
+
+    #ifdef  EHS_DEBUG_SMILPARSER_EX
+    #ifndef EHS_ANDROID
+    #define _debug_ID_signalling_printf printf
+    #else
+    #define _debug_ID_signalling_printf EHSH_LOG_INFO
+    #endif
+    #else
+    #define _debug_ID_signalling_printf(...) //printf
 #endif
 
-#ifdef  EHS_DEBUG_SMILPARSER_EX
-#ifndef EHS_ANDROID
-#define _debug_ID_signalling_printf printf
-#else
-#define _debug_ID_signalling_printf EHSH_LOG_INFO
-#endif
-#else
-#define _debug_ID_signalling_printf(...) //printf
-#endif
+#define EHS_SMILPARSER_TIMEOUT_ACK_FOR_PARENT_LIST_US 30000000
 
 /* Set this (default set) to use dater clib malloc and not EHS's traced malloc manager */
 #define EHS_DONT_USE_EHS_MANAGED_HEAP
 
 EHS_FB_FUNCTIONS_START(PlayManager)
-EHS_FB_FUNCTION_ENTRY("Next_Playlist", 0x00, PlayManager_Next_Playlist)
-EHS_FB_FUNCTION_ENTRY("Tick", 0x01, PlayManager_Tick)
-EHS_FB_FUNCTION_ENTRY("Played", 0x02, PlayManager_Played)
-EHS_FB_FUNCTION_ENTRY("Started", 0x03, PlayManager_Started)
+EHS_FB_FUNCTION_ENTRY("Next_Playlist", 0x01, PlayManager_Next_Playlist)
+EHS_FB_FUNCTION_ENTRY("Tick", 0x02, PlayManager_Tick)
+EHS_FB_FUNCTION_ENTRY("Played", 0x03, PlayManager_Played)
 EHS_FB_FUNCTION_ENTRY("Next_URL", 0x04, PlayManager_Next_URL)
 EHS_FB_FUNCTION_ENTRY("Got", 0x05, PlayManager_Got)
 EHS_FB_FUNCTION_ENTRY("Set_Paths", 0x06, PlayManager_Set_Paths)
+EHS_FB_FUNCTION_ENTRY("Started", 0x07, PlayManager_Started)
 EHS_FB_FUNCTIONS_END
 
 /* Port Mappings */
@@ -252,7 +258,7 @@ typedef struct EhsPlayManagerEventStruct
 
     /* Dynamic control flags and vars*/
     ehs_bool bWaiting2EndList;  /* flag set when an immediate repeat list that has completed but not expired */
-    ehs_uint32 bEndFiredWaitingForAck; /* timeout set when the stop event has been fired, but waiting for an ackowledge before the item dissapears */
+    ehs_uint32 bEndFiredWaitingForAck; /* timeout (in loop iterations) set when the stop event has been fired, but waiting for an ackowledge before the item dissapears */
     ehs_bool repeatTrigger; /* transitory flag set to instruct the player to play the event again if it has expired r finished. */
     ehs_sint32 repeatCountDown; /* used to count how many times content has been repeated */
     ehs_bool bCurrentPlayStarted; // this for any object or list that has started. When this is set the list's end time is checked.
@@ -336,7 +342,7 @@ typedef struct EhsPlaymanegerLayoutRootStruct
 typedef struct
 {
     //EhsTimerType xTimer; //depricated to use a thread instead
-    ehs_sint32 NewPlaylistStartGracePeriod; // this is the counted count down time (in clock ticks that must occur before any events from a new playlist are asserted
+    ehs_sint32 NewPlaylistStartGracePeriod; // this is the counted loop iterations countdown (in clock ticks that must occur before any events from a new playlist are asserted
     ehs_sint32 initial_grace_seconds; // this is the constant values set in the parameters. if it set to -1 then no timeout or grace value is used.
 
     EhsCallbackQueueEntryType xEntry; // this is the space for the callback queue struct.
@@ -435,11 +441,12 @@ EHS_FB_THREAD_FUNCTION(PlayManagerThread)
         {
             break;
         }
-        if (pPlayManager && *bNewSodlFlagRef == EHS_FALSE && *bRuntablesReadyRef == EHS_TRUE)
+        if (pPlayManager->tickCallBackQueue != NULL && *bNewSodlFlagRef == EHS_FALSE && *bRuntablesReadyRef == EHS_TRUE)
         {
             EhsCallbackQueue_execute(&pPlayManager->tickCallBackQueue); //@todo we seem to get a null instance here - why is this thread running before an instance or after deleted?
         }
-        EhsSleep(EHS_TIME_us(pPlayManager->tPeriod));
+        //EhsSleep(EHS_TIME_us(pPlayManager->tPeriod)); - no idea what units for EhsSleep should be... 
+        EhsSleepUs(pPlayManager->tPeriod);
     }
     EHSH_LOG_ERROR("Exiting Playmanager thread OK");
     Ehs_FB_ThreadComplete();
@@ -506,7 +513,7 @@ EHS_FB_INIT_FUNCTION(PlayManager)
     /* set up the callback queue to call the callback function */
     /* Initialise the timer */
 
-    pPlayManager->tPeriod = EhsTgtTimer_usToTick(EHS_SMILPARSER_TICK_TIME); // 100ms or do we want 10.
+    pPlayManager->tPeriod = EHS_SMILPARSER_TICK_TIME_US; // This should be quick (less than 10ms as we may need several iterations for some events and we are sometimes doing more real-time stuff)
 
     pPlayManager->downloadURL[0] = '\0';
     pPlayManager->downloadPath[0] = '\0';
@@ -528,7 +535,7 @@ EHS_FB_INIT_FUNCTION(PlayManager)
 
     resetPlaylistFlags(pPlayManager);
 
-    pPlayManager->NewPlaylistStartGracePeriod = pPlayManager->initial_grace_seconds*1000000/EHS_SMILPARSER_TICK_TIME; //(EHS_SMILPARSER_DEFAULT_START_GRACE/EHS_SMILPARSER_TICK_TIME); /* Grace period is defined as tick periods - currently fixed */
+    pPlayManager->NewPlaylistStartGracePeriod = pPlayManager->initial_grace_seconds*1000000/EHS_SMILPARSER_TICK_TIME_US; //(EHS_SMILPARSER_DEFAULT_START_GRACE/EHS_SMILPARSER_TICK_TIME_US); /* Grace period is defined as tick periods - currently fixed */
     pPlayManager->pFireFIData = EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(-1); /* add the instance data for the fire function */
     EhsCallbackQueue_register(&(pPlayManager->tickCallBackQueue),EHS_FB_RUN_NAME(PlayManager_Tick),EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(-1), &(pPlayManager->xEntry));
     EHS_FB_START_THREAD(PlayManagerThread, -90);
@@ -3268,7 +3275,7 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
     ehs_char filename[EHS_STRING_LENGTH_MAX]; //Initialise some memory for reading in the filename
     resetPlaylistFlags(pPlayManager); // particularl need to sait waiting on play to 0 in case we are locked up.
     pPlayManager->NewSmil=EHS_TRUE;
-    pPlayManager->NewPlaylistStartGracePeriod =  pPlayManager->initial_grace_seconds*1000000/EHS_SMILPARSER_TICK_TIME;//(EHS_SMILPARSER_DEFAULT_START_GRACE/EHS_SMILPARSER_TICK_TIME); // restart the count down when we get a new file
+    pPlayManager->NewPlaylistStartGracePeriod =  pPlayManager->initial_grace_seconds*1000000/EHS_SMILPARSER_TICK_TIME_US;//(EHS_SMILPARSER_DEFAULT_START_GRACE/EHS_SMILPARSER_TICK_TIME_US); // restart the count down when we get a new file
 
     /* Cancel any current downloading and wait for it to cancel */
 
@@ -3304,9 +3311,35 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
     /* Remove the previous layout info */
     Layout_DestroyLayoutInfo(pPlayManager);
 
+    /* We create a seperate source reader, so remove any previous ones */
+    if (pPlayManager->srcFileReader != NULL)
+    {
+        xmlTextReaderClose(pPlayManager->srcFileReader);
+        xmlFreeTextReader(pPlayManager->srcFileReader);
+        pPlayManager->srcFileReader = NULL;
+    }
+
     if (EhsStrcmp(filename,"__clear.smil") != 0)
     {
-
+#ifdef EHS_MINGW
+        /* A workaround for Windows used as a fix for renaming smil file
+         * that is in use. */
+        ehs_char win_filename[EHS_STRING_LENGTH_MAX];
+        EhsStrcpy(win_filename, filename);
+        EhsStrcat(win_filename, ".win");
+        if(EhsTF_exists(win_filename) == 1){
+            if(!EhsHRemove(win_filename)){
+                EHSH_LOG_ERROR("Win playlist file - failed to remove a previous copy!");
+            }
+        }
+        if(!EhsHCopy(filename, win_filename)){
+            EHSH_LOG_ERROR("Win playlist file - failed to make a copy!");
+        }
+        if(EhsTF_exists(win_filename) == 1){
+            EhsStrcpy(filename, win_filename);
+        }
+        EHSH_LOG_INFO("Win playlist file = %s", filename);
+#endif
         fileReader = xmlReaderForFile(filename, NULL, 0);
 
         if (fileReader != NULL)   /* We stop the current download if ther is one - the rest of previous SMIL won't be downloaded */
@@ -3326,11 +3359,7 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
                     /* update the instance fileReader so that we can read the XML later on when an event is asserted */
                     /* After we have done parsing for the events then set the parser for the src attributes going */
                     pPlayManager->fileReader = fileReader; /* we have one file reader */
-                    if (pPlayManager->srcFileReader != NULL)   /* We create a seperate source reader, so remove any previous ones */
-                    {
-                        xmlTextReaderClose(pPlayManager->srcFileReader);
-                        xmlFreeTextReader(pPlayManager->srcFileReader);
-                    }
+
                     pPlayManager->srcFileReader = xmlReaderForFile(filename, NULL,0);
                     if (!pPlayManager->srcFileReader)
                     {
@@ -3350,12 +3379,18 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
                 }
                 else
                 {
+                    // free up resources and release file
+                    xmlTextReaderClose(fileReader);
+                    xmlFreeTextReader(fileReader);
                     EHSH_LOG_ERROR( "PlayManager_Next_Playlist: expected smil, found %s",
                                     nextTag);
                 }
             }
             else
             {
+                // free up resources and release file
+                xmlTextReaderClose(fileReader);
+                xmlFreeTextReader(fileReader);
                 EHSH_LOG_ERROR( "PlayManager_Next_Playlist: failed to read first tag");
             }
         }
@@ -3628,7 +3663,7 @@ ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayM
         EHS_FB_OUT_I(EHS_FB_PLAYMANAGER_TICK_ID) = pEvent->SendersObjectUniqueID; // output the unique ID if we are an object.
         if (bEndEvent)
         {
-            pEvent->bEndFiredWaitingForAck=30000000/EHS_SMILPARSER_TICK_TIME; // 30s in uS We wait thn timeout so that notification for parent lists work ...
+            pEvent->bEndFiredWaitingForAck=EHS_SMILPARSER_TIMEOUT_ACK_FOR_PARENT_LIST_US/EHS_SMILPARSER_TICK_TIME_US; // 30s in uS We wait thn timeout so that notification for parent lists work ...
             EHS_FB_FINISH(EHS_FB_PLAYMANAGER_TICK_STOPPLAY);
             /* We don't remove/update the event until we get an ack or timeout. */
         }
@@ -4963,7 +4998,9 @@ EHS_FB_RUN_FUNCTION( PlayManager_Tick)
     {
         pPlayManager->pWaitingOnEvent = 0;
     }
-
+    /* todo  consider looping from a few times to process event creations more quickly 
+    - but be careful not to count down some of the counters for each loop thoug as we only want to do that per tick
+       - so we might need a flag for "first_run" to modify counting to only happen once per tick */
     pCurrentEvent = pPlayManager->pEvent; /* this is the head of the linked list of events */
     if (    /* Are we ready to go??? */
         (pPlayManager->waitForAllDownloads == EHS_FALSE && pPlayManager->NewPlaylistStartGracePeriod == 0 )

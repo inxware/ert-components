@@ -24,7 +24,7 @@
 //ICB STATE VAR MACRO START -- DO NOT ALTER
 /* My Component state data structure. - Use this in your code! */
 
-#define _inx_socketsrver_printf //printf
+#define _inx_socketsrver_printf(x,...) {} //printf
 
 
 void debugConnections(EhsTgtTcpSockAddrInType * rp);
@@ -59,13 +59,13 @@ typedef struct
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(netsocketsrvr)
 
-EHS_FB_FUNCTION_ENTRY("open", 0x00, netsocketsrvr_open)
+EHS_FB_FUNCTION_ENTRY("open", 0x01, netsocketsrvr_open)
 
-EHS_FB_FUNCTION_ENTRY("close", 0x01, netsocketsrvr_close)
+EHS_FB_FUNCTION_ENTRY("close", 0x02, netsocketsrvr_close)
 
-EHS_FB_FUNCTION_ENTRY("sendData", 0x02, netsocketsrvr_sendData)
+EHS_FB_FUNCTION_ENTRY("sendData", 0x03, netsocketsrvr_sendData)
 
-//EHS_FB_FUNCTION_ENTRY("receiveData", 0x03, netsocketsrvr_receiveData)
+//EHS_FB_FUNCTION_ENTRY("receiveData", 0x04, netsocketsrvr_receiveData)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 
@@ -405,6 +405,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_listen)
     ehs_sint32 sckt_err = 0;
     ehs_bool start_reading = EHS_FALSE;
     inx_netsocketsrvr_state_type* inx_netSocket_state = (inx_netsocketsrvr_state_type*) EHS_FB_RUN_CONTEXT;
+    /* todo2023 - try to avoid using this on the stack */
     ehs_uint8 bBuffIn[EHS_TGT_TCP_IN_BUFF_SIZE]; /* buffer for incoming data */
     Ehs_FB_ThreadStarted();
     ehs_sint32 nDataReceived;

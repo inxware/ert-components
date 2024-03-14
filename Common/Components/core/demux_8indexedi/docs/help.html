@@ -1,228 +1,220 @@
 <html>
-
-<head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
-</head>
-
-<body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">IndexedDemultiplexer_Int</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
+    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container"> <span class="toc_span">IndexedDemultiplexer_Int</span>
+        <!--these display in reverse order because they use float:right--> <span
+          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
+            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
+            href="#ports">Ports &#8595;</a></span> </div>
+      <!--General Description-->
+      <p class="component"> This component is used to distribute integer data <a
+          href="#[In]Val">[In]Val</a>, to an output corresponding to the index
+        of the integer data input <a href="#[In]Ind">[In]Ind</a>. When the
+        input event <a href="#[In]Go">[In]Go</a> is triggered, either the data
+        <a href="#[In]Val">[In]Val</a> is distributed to an output that
+        corrsponds to the index of <a href="#[In]Ind">[In]Ind</a>, or if the
+        index of <a href="#[In]Ind">[In]Ind</a> exceeds the number of outputs,
+        then the overflow event <a href="#[Out]Overflow">[Out]Overflow</a> is
+        fired and the value of the output <a href="#[Out]Offset">[Out]Offset</a>
+        is set to the value of the input <a href="#[In]Ind">[In]Ind</a> minus
+        the number of event outputs. The overflow event <a href="#[Out]Overflow">[Out]Overflow</a>
+        is used to cascade components of this type by passing the overflow event
+        <a href="#[Out]Overflow">[Out]Overflow</a> and the data output <a href="#[Out]Offset">[Out]Offset</a>
+        to the input of the next component in the cascade. </p>
+      <!--Parameters - form - short desc: long desc-->
+      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+      <table class="table_params">
+        <tbody>
+          <tr>
+            <th style="width:60px;">name</th>
+            <th>type</th>
+            <th>default</th>
+            <th>min.</th>
+            <th>max.</th>
+            <th>description</th>
+          </tr>
+          <tr>
+            <td>Index start&nbsp;&nbsp;&nbsp; </td>
+            <td>Integer</td>
+            <td>1<br>
+            </td>
+            <td><br>
+            </td>
+            <td><br>
+            </td>
+            <td><br>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!--Ports - form - short desc: long desc-->
+      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
+          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
+            href="#parameters">Params &#8593; </a></span> </div>
+      <table class="table">
+        <tbody>
+          <tr>
+            <th>In Ev.</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[In]Go">Go</a></td>
+            <td>Event input, triggers the output event and presents data to the
+              data output, corresponding to the value of input <a href="#[In]Ind">[In]Ind</a>.</td>
+          </tr>
+          <tr>
+            <th>Data In</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[In]Ind">Ind</a></td>
+            <td>Data input, index of the output for the data to be distributed
+              to</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[In]Val">Val</a></td>
+            <td>Data input, value of the data to be distributed.</td>
+          </tr>
+          <tr>
+            <th>Data Out</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]1">1</a></td>
+            <td> Data output 1.</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]2">2</a></td>
+            <td> Data output 2.</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]3">3</a></td>
+            <td> Data output 3.</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]4">4</a></td>
+            <td> Data output 4.</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]5">5</a></td>
+            <td> Data output 5.</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]6">6</a></td>
+            <td> Data output 6.</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]7">7</a></td>
+            <td> Data output 7.</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]8">8</a></td>
+            <td> Data output 8.</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]Offset">Offset</a></td>
+            <td> Data output, value of the index minus the number of event
+              outputs.</td>
+          </tr>
+          <tr>
+            <th>Out Ev.</th>
+            <th><br>
+            </th>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]f1"></a></td>
+            <td>Event output 1</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]f2"></a></td>
+            <td>Event output 2</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]f3"></a></td>
+            <td>Event output 3</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]f4"></a></td>
+            <td>Event output 4</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]f5"></a></td>
+            <td>Event output 5</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]f6"></a></td>
+            <td>Event output 6</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]f7"></a></td>
+            <td>Event output 7</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]f8"></a></td>
+            <td>Event output 8</td>
+          </tr>
+          <tr>
+            <td class="portsInt"><a name="[Out]Overflow">Overflow</a></td>
+            <td>Event output, fired if the index of <a href="#[In]Ind">[In]Ind</a>
+              exceeds the number of outputs to distribute data to.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
+          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
+            href="#parameters">Params &#8593; </a></span> </div>
+      <table>
+        <tbody>
+          <tr class="fsm_row">
+            <td style="width:90px;"> <b>State Machine</b> </td>
+            <td colspan="5">
+              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>          &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+          <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
+              None </td>
+            <td> <br>
+            </td>
+            <td> <br>
+            </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Toolbox</b> </td>
+            <td> core/io/net/netx/ui/media/dsp/ </td>
+            <td class="heading-cell"> <b>Version</b> </td>
+            <td> v1.0. </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Licence Type</b> </td>
+            <td> MPL2.0 </td>
+            <td class="heading-cell"> <b>Component Supplier</b> </td>
+            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+            </td>
+          </tr>
+          <tr>
+            <td class="heading-cell"> <b>Minumum DCC</b> </td>
+            <td>A0000</td>
+            <td class="heading-cell"> <b>Profiles</b> </td>
+            <td> All. </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <!--General Description-->
-    <p class=component>
-      This component is used to distribute integer data <a href="#[In]Val">[In]Val</a>, to an output corresponding to the index of the integer data input <a href="#[In]Ind">[In]Ind</a>. When the input event <a href="#[In]Go">[In]Go</a> is triggered, either the data <a href="#[In]Val">[In]Val</a> is distributed to an output that corrsponds to the index of <a href="#[In]Ind">[In]Ind</a>, or if the index of <a href="#[In]Ind">[In]Ind</a> exceeds the number of outputs, then the overflow event <a href="#[Out]Overflow">[Out]Overflow</a> is fired and the value of the output <a href="#[Out]Offset">[Out]Offset</a> is set to the value of the input <a href="#[In]Ind">[In]Ind</a> minus the number of event outputs. The overflow event <a href="#[Out]Overflow">[Out]Overflow</a> is used to cascade components of this type by passing the overflow event <a href="#[Out]Overflow">[Out]Overflow</a> and the data output <a href="#[Out]Offset">[Out]Offset</a> to the input of the next component in the cascade.
-    </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-    </table>
-
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[In]Go>Go</a></td>
-        <td>Event input, triggers the output event and presents data to the data output, corresponding to the value of input <a href="#[In]Ind">[In]Ind</a>.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[In]Ind>Ind</a></td>
-        <td>Data input, index of the output for the data to be distributed to</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[In]Val>Val</a></td>
-        <td>Data input, value of the data to be distributed.</td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]1>1</a></td>
-        <td> Data output 1.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]2>2</a></td>
-        <td> Data output 2.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]3>3</a></td>
-        <td> Data output 3.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]4>4</a></td>
-        <td> Data output 4.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]5>5</a></td>
-        <td> Data output 5.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]6>6</a></td>
-        <td> Data output 6.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]7>7</a></td>
-        <td> Data output 7.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]8>8</a></td>
-        <td> Data output 8.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]Offset>Offset</a></td>
-        <td> Data output, value of the index minus the number of event outputs.</td>
-      </tr>
-      
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]f1></a></td>
-        <td>Event output 1</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]f2></a></td>
-        <td>Event output 2</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]f3></a></td>
-        <td>Event output 3</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]f4></a></td>
-        <td>Event output 4</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]f5></a></td>
-        <td>Event output 5</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]f6></a></td>
-        <td>Event output 6</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]f7></a></td>
-        <td>Event output 7</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]f8></a></td>
-        <td>Event output 8</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]Overflow>Overflow</a></td>
-        <td>Event output, fired if the index of <a href="#[In]Ind">[In]Ind</a> exceeds the number of outputs to distribute data to.</td>
-      </tr>
-      <tr>
-        <td>inc</td>
-        <td>Asserted if and only if an increment event is received and the count is less than
-          the maximum threshold.</td>
-      </tr>
-    </table>
-
-
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
-          <span class="fsm_blob">state2</span>
-          &otimes;&nbsp;
-          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;
-          <span class="fsm_blob">state5</span> -->
-          None
-        </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
-          core/io/net/netx/ui/media/dsp/
-        </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
-          v1.0.
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
-          MPL2.0
-        </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
-          All.
-        </td>
-      </tr>
-    </table>
-
-  </div>
-</body>
-
+  </body>
 </html>

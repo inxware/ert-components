@@ -36,7 +36,9 @@ VPATH+=: $(EHS_TARGET_GRAPHICS_PATH)/Components
 INC_DIRS += $(EHS_TARGET_GRAPHICS_PATH)/Components
 
 OBJECTS += target_data.$(OBJ)
+ifndef EHS_DONT_USE_BASIC_FONTS
 OBJECTS += loadfont.$(OBJ)
+endif
 OBJECTS += target_viewport.$(OBJ) 
 OBJECTS += targetgfx_init.$(OBJ)
 #OBJECTS += dtv_diag.$(OBJ)

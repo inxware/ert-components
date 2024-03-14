@@ -19,7 +19,7 @@
 
 #define EHS_TARGET_CODE
 
-//#define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_NETWORK) /* define before hal_logger.h */
+// #define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_NETWORK) /* define before hal_logger.h */
 #include "hal_logger.h"
 
 #include "target_types.h"
@@ -30,6 +30,13 @@
 #include "hal_console.h"
 #include "hal-api.h"
 
+#if EHS_DEBUG_CONSOLE_BUFFER_SIZE < EHS_TGT_TCP_IN_BUFF_SIZE
+#error "EHS_DEBUG_CONSOLE_BUFFER_SIZE must be larger or equal to EHS_TGT_TCP_IN_BUFF_SIZE"
+#endif
+
+#if EHS_DEBUG_CONSOLE_BUFFER_SIZE < EHS_TGT_TCP_OUT_BUFF_SIZE
+#error "EHS_DEBUG_CONSOLE_BUFFER_SIZE must be larger or equal to EHS_TGT_TCP_OUT_BUFF_SIZE"
+#endif
 
 /*****************************************************************************/
 /* Declare prototypes of local functions */
@@ -64,7 +71,6 @@ EHS_LOCAL ehs_uint32 EhsSvcTcp_expandEscapes(ehs_uint8 *pData, ehs_uint32 nSize,
  */
 EHS_LOCAL ehs_bool EhsSvcTcp_waitForClient(void);
 
-
 /**
  * Open a new TCP/IP connection. This involves setting up a EhsTgtTcpSocketType, binding it
  * then listening for incoming connections.
@@ -93,7 +99,7 @@ EHS_LOCAL EhsTgtTcpSocketType EhsSvcTcpSocketConnection;
 /**
  * Write log data to the log file.
  */
-EHS_LOCAL void EhsSvcTcp_log(const ehs_char* params,...); /*lint !e960 Variable arguments required to support generalized printf */
+EHS_LOCAL void EhsSvcTcp_log(const ehs_char *params, ...); /*lint !e960 Variable arguments required to support generalized printf */
 
 /**
  * Log (potentially) binary data to the log file
@@ -101,7 +107,7 @@ EHS_LOCAL void EhsSvcTcp_log(const ehs_char* params,...); /*lint !e960 Variable 
  * @param pData pointer to the data to log
  * @param nDataReceived amount of data to log
  */
-EHS_LOCAL void EhsSvcTcp_logBinaryData(const ehs_uint8* pData, ehs_uint32 nDataReceived);
+EHS_LOCAL void EhsSvcTcp_logBinaryData(const ehs_uint8 *pData, ehs_uint32 nDataReceived);
 
 /**
  * How long line lengths should be when displaying data
@@ -111,12 +117,12 @@ EHS_LOCAL void EhsSvcTcp_logBinaryData(const ehs_uint8* pData, ehs_uint32 nDataR
 /**
  * File that receives all log data
  */
-EHS_LOCAL ehs_FILE* EhsSvcTcpLogfile;
+EHS_LOCAL ehs_FILE *EhsSvcTcpLogfile;
 
 /**
  * Write log data to the log file.
  */
-void EhsSvcTcp_log(const ehs_char* params,...) /*lint !e960 Variable arguments required to support generalized printf */
+void EhsSvcTcp_log(const ehs_char *params, ...) /*lint !e960 Variable arguments required to support generalized printf */
 {
     /* Disabling as getting errors - perhaps we need to check the file handle? */
 #if 0
@@ -136,10 +142,10 @@ void EhsSvcTcp_log(const ehs_char* params,...) /*lint !e960 Variable arguments r
  * @param pData pointer to the data to log
  * @param nDataReceived amount of data to log
  */
-void EhsSvcTcp_logBinaryData(const ehs_uint8* pData, ehs_uint32 nDataReceived)
+void EhsSvcTcp_logBinaryData(const ehs_uint8 *pData, ehs_uint32 nDataReceived)
 {
     ehs_uint8 lLen = 0u; /* length of the line output so far */
-    ehs_uint32 i; /* index into the data received */
+    ehs_uint32 i;        /* index into the data received */
 
     for (i = 0u; i < nDataReceived; i++)
     {
@@ -152,16 +158,16 @@ void EhsSvcTcp_logBinaryData(const ehs_uint8* pData, ehs_uint32 nDataReceived)
         }
 
         /* filter out funny (i.e. control) characters */
-        cOut = (((cOut > 0x20u)&&(cOut < 0x7fu))||(cOut==EHS_CHAR_LF))?cOut:((ehs_uint8)('.'));
+        cOut = (((cOut > 0x20u) && (cOut < 0x7fu)) || (cOut == EHS_CHAR_LF)) ? cOut : ((ehs_uint8)('.'));
 
         /* output the character */
-        EhsFputc((ehs_sint32)cOut,EhsSvcTcpLogfile);
+        EhsFputc((ehs_sint32)cOut, EhsSvcTcpLogfile);
 
         /* break the line if it exceeds EHS_SVC_TCP_LOG_LINELEN characters */
-        lLen = (cOut == EHS_CHAR_LF)?0u:(lLen+1u);
+        lLen = (cOut == EHS_CHAR_LF) ? 0u : (lLen + 1u);
         if (lLen > EHS_SVC_TCP_LOG_LINELEN)
         {
-            EhsFputc((ehs_sint32)EHS_CHAR_LF,EhsSvcTcpLogfile);
+            EhsFputc((ehs_sint32)EHS_CHAR_LF, EhsSvcTcpLogfile);
             lLen = 0u;
         }
     }
@@ -178,14 +184,14 @@ void EhsSvcTcp_logBinaryData(const ehs_uint8* pData, ehs_uint32 nDataReceived)
  * @param[in] nErrCode Error code that gives rise to this error message
  */
 
-void EhsSvcTcp_logSocketError(const ehs_char* szCaller, EhsTgtTcpErrType nErrCode)
+void EhsSvcTcp_logSocketError(const ehs_char *szCaller, EhsTgtTcpErrType nErrCode)
 {
     ehs_char szError[EHS_STRING_LENGTH_MAX];
-    szError[0]='\0';
-    const ehs_sint8 OK_ZERO = EhsTgtTcp_getErrorText(szError,nErrCode);
+    szError[0] = '\0';
+    const ehs_sint8 OK_ZERO = EhsTgtTcp_getErrorText(szError, nErrCode);
     if (OK_ZERO == 0)
     {
-        EhsSvcTcp_log("**Error: TCP/IP error (%-d) in %s: %s\n", nErrCode, szCaller,szError);
+        EhsSvcTcp_log("**Error: TCP/IP error (%-d) in %s: %s\n", nErrCode, szCaller, szError);
     }
     else
     {
@@ -195,14 +201,12 @@ void EhsSvcTcp_logSocketError(const ehs_char* szCaller, EhsTgtTcpErrType nErrCod
 
 #else
 /* not logging, so stub out calls to log functions */
-#define EhsSvcTcp_log(x,...)
-#define EhsSvcTcp_logBinaryData(a,b)
+#define EhsSvcTcp_log(x, ...)
+#define EhsSvcTcp_logBinaryData(a, b)
 #endif
 
 /*****************************************************************************/
 /* Function definitions */
-
-
 
 /**
  * Open a new TCP/IP connection. This involves setting up a EhsTgtTcpSocketType, binding it
@@ -210,56 +214,74 @@ void EhsSvcTcp_logSocketError(const ehs_char* szCaller, EhsTgtTcpErrType nErrCod
  *
  * @return True if connection was opened successfully.
  */
+
 ehs_bool EhsSvcTcp_openConnection(void)
 {
     EhsTgtTcpSockAddrInTypeWindows connection; /* used to construct the address of the EhsTgtTcpSocketType we're creating */
-    ehs_bool ret = EHS_FALSE; /* assume initialisation fails */
-    //ehs_uint8 retVal;
+    ehs_bool ret = EHS_FALSE;                  /* assume initialisation fails */
+    // ehs_uint8 retVal;
 
     /* set up connection ready for bind */
+    //printf("OC1\n");
     memset(&connection, 0, sizeof(connection));
-    connection.sin_family = AF_INET; //ipv4 only
-    connection.sin_addr.s_addr = htonl(INADDR_ANY); //listen on any interface
-    connection.sin_port = htons( EHS_TGT_TCP_PORTNUM ); // use our magic port number
-
+    //printf("OC2\n");
+    connection.sin_family = AF_INET;                  // ipv4 only
+    connection.sin_addr.s_addr = htonl(INADDR_ANY);   // listen on any interface
+    connection.sin_port = htons(EHS_TGT_TCP_PORTNUM); // use our magic port number
+    //printf("OC3\n");
     /* Create EhsTgtTcpSocketType */
-    EhsSvcTcpSocketListen = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+    EhsSvcTcpSocketListen = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    //printf("OC4\n");
     if (EhsSvcTcpSocketListen == EHS_TGT_TCP_INVALID_SOCKET)
     {
-        EHSH_LOG_ERROR("Could not Open debugger socket - invalid socket");
+        //printf("Could not Open debugger socket - invalid socket");
         EhsSvcTcp_logSocketError("EhsSvcTcp_openConnection.EhsTgtTcpSocketType", EhsTgtTcp_getErrorCode(EHS_TRUE));
+        return ret;
     }
+
+    //PBB 2023-03-21 we set this so that we can get back our listening socket if the server is restarted
+    //PBB 2023-04-05 we must use the system type int or this command fails
+    const int so_reuseaddr = 1;
+    const int result=setsockopt(EhsSvcTcpSocketListen, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
+    if(result!=0){
+        //printf("Warning: Could not set SO_REUSEADDR\n");
+        EhsSvcTcp_logSocketError("EhsSvcTcp_openConnection.setsockopt", EhsTgtTcp_getErrorCode(EHS_TRUE));
+    }
+
     /* Bind EhsTgtTcpSocketType */
-    else if ( bind( EhsSvcTcpSocketListen, (EhsTgtTcpSockAddrType*) &connection, (ehs_sint32)sizeof(connection) ) == EHS_TGT_TCP_SOCKET_ERROR)
+    if (bind(EhsSvcTcpSocketListen, (EhsTgtTcpSockAddrType *)&connection, (ehs_sint32)sizeof(connection)) == EHS_TGT_TCP_SOCKET_ERROR)
     {
-        EHSH_LOG_ERROR("Could not bind debugger socket - unknown error");
+        ///printf("Could not bind debugger socket\n");
         EhsSvcTcp_logSocketError("EhsSvcTcp_openConnection.bind", EhsTgtTcp_getErrorCode(EHS_TRUE));
     }
     /* Listen for incoming connections. Allows for 1 pending connection only */
-    else if (listen( EhsSvcTcpSocketListen, 1) == EHS_TGT_TCP_SOCKET_ERROR)
+    else if (listen(EhsSvcTcpSocketListen, 1) == EHS_TGT_TCP_SOCKET_ERROR)
     {
-        EHSH_LOG_ERROR("Could not listen on opened socket - client already connected");
+        //printf("Could not listen on opened socket - client already connected");
         EhsSvcTcp_logSocketError("EhsSvcTcp_openConnection.listen", EhsTgtTcp_getErrorCode(EHS_TRUE));
     }
     else
     {
         ret = EHS_TRUE;
     }
+
     /* We seem to run this whatever the socket is ...
-    	 * this sets the socket to use linger (l_onoff = 1) but have a linger time of 0 (l_linger = 0)
-    	 * and is required in order for the socket to close immediately after close() is called
-    	 * It is recommended to use these settings for SO_LINGER rather than turn linger off (l_onoff = 0)
-    	 * which may have implementation specific consequences - ie might use TIME_WAIT before releasing socket
-    	 */
+     * this sets the socket to use linger (l_onoff = 1) but have a linger time of 0 (l_linger = 0)
+     * and is required in order for the socket to close immediately after close() is called
+     * It is recommended to use these settings for SO_LINGER rather than turn linger off (l_onoff = 0)
+     * which may have implementation specific consequences - ie might use TIME_WAIT before releasing socket
+     */
 #ifdef EHS_ENABLE_SOLINGER
+
     if (EhsSvcTcpSocketListen)
     {
         EhsLinger Option;
         Option.l_onoff = 1;
         Option.l_linger = 0;
-        retVal = setsockopt(EhsSvcTcpSocketListen, SOL_SOCKET, SO_LINGER, (const  char *) &Option,  sizeof(EhsLinger));
+        retVal = setsockopt(EhsSvcTcpSocketListen, SOL_SOCKET, SO_LINGER, (const char *)&Option, sizeof(EhsLinger));
     }
 #endif
+    //printf("XXX Socket exit\n");
     return ret;
 }
 
@@ -272,14 +294,14 @@ ehs_bool EhsSvcTcp_closeConnection(void)
 {
     ehs_bool ret = EHS_FALSE; /* assume close failed */
 
-//	while (!ret) {
+    //	while (!ret) {
     ret = EhsSvcTgtTcp_closeConnection(EhsSvcTcpSocketConnection);
-//		EhsSleep(EHS_TIME_us(EHS_TGT_TCP_SUSPENDTIME_us));
-//	}
+    //		EhsSleep(EHS_TIME_us(EHS_TGT_TCP_SUSPENDTIME_us));
+    //	}
 
-//	ret = close(EhsSvcTcpSocketListen);
+    //	ret = close(EhsSvcTcpSocketListen);
 
-//	ret = close(EhsSvcTcpSocketConnection);
+    //	ret = close(EhsSvcTcpSocketConnection);
 
     return ret;
 }
@@ -289,20 +311,22 @@ ehs_bool EhsSvcTcp_closeConnection(void)
  */
 ehs_bool EhsSvcTcp_waitForClient()
 {
-    //ehs_uint8 retVal;
+    // ehs_uint8 retVal;
 
     EhsSvcTcp_log("***Waiting for client\n");
     EhsSvcTcpSocketConnection = EHS_TGT_TCP_INVALID_SOCKET;
     while (EhsSvcTcpSocketConnection == EHS_TGT_TCP_INVALID_SOCKET)
     {
-        EhsSvcTcpSocketConnection = accept( EhsSvcTcpSocketListen, NULL, NULL);
+        EhsSvcTcpSocketConnection = accept(EhsSvcTcpSocketListen, NULL, NULL);
         if (EhsSvcTcpSocketConnection == EHS_TGT_TCP_INVALID_SOCKET)
         {
             EhsSvcTcp_logSocketError("EhsSvcTcp_waitForClient.accept (ignoring)", EhsTgtTcp_getErrorCode(EHS_TRUE));
             return EHS_FALSE;
         }
+        // todo the delay here should just be a global default that can be overriden in platform config files.
+        //  we have no idea why these are here fi they are conlated with other paltform switches.
 #ifdef EHS_LWIP
-        //accept is blocking on lwip
+        // accept is blocking on lwip
 #else
         EhsSleepUs(500000); //* Don#t loop too quick
 #endif
@@ -319,10 +343,9 @@ ehs_bool EhsSvcTcp_waitForClient()
  * @param pbDisconnect True if the disconnect has been received
  * @return size of data now in pData (<= nSize)
  */
-#ifdef EHS_LWIP
-#else //#ifdef EHS_LWIP
-//TODO "PMLD need to change this function to only change the first escape (to read the command) and then it needs to be called from a mnore logical place rather than on the whole received buffer"
-#endif //#else #ifdef EHS_LWIP
+
+// TODO "PMLD need to change this function to only change the first escape (to read the command) and then it needs to be called from a mnore logical place rather than on the whole received buffer"
+
 // We shouls also write up what the format is in a doc as it is a tool API too.
 ehs_uint32 EhsSvcTcp_expandEscapes(ehs_uint8 *pData, ehs_uint32 nSize, ehs_bool *pbDisconnect)
 {
@@ -338,7 +361,7 @@ ehs_uint32 EhsSvcTcp_expandEscapes(ehs_uint8 *pData, ehs_uint32 nSize, ehs_bool 
             case 'D':
                 *pbDisconnect = EHS_TRUE;
                 /* if <esc> was last character of last packet, nSize is zero, otherwise it's nCount-1 */
-                nSize = (nCount > 0u)?(nCount-1u):0u;
+                nSize = (nCount > 0u) ? (nCount - 1u) : 0u;
                 break;
             case 'E':
                 /* overwrite <esc>E with just <esc>. How to do this depends... */
@@ -355,35 +378,35 @@ ehs_uint32 EhsSvcTcp_expandEscapes(ehs_uint8 *pData, ehs_uint32 nSize, ehs_bool 
                      * points to entry 7, we want to move to 7, from 8, entries 8-11
                      * (i.e. len = 4 = (nSize-1) - nCount */
                     nSize--;
-                    memmove((void*)(&(pData[nCount])), (const void*)(&(pData[nCount+1u])), (size_t)(nSize-nCount));
-                    //pData[nSize]=0;;// we probably want to set the now repeated last char to a safe value (that isn't a command...)
+                    memmove((void *)(&(pData[nCount])), (const void *)(&(pData[nCount + 1u])), (size_t)(nSize - nCount));
+                    // pData[nSize]=0;;// we probably want to set the now repeated last char to a safe value (that isn't a command...)
                 }
                 break;
             default: /* shouldn't happen */
-                EhsSvcTcp_log("Unexpected escape sequence <esc>\0x%x\n",pData[nCount]);
+                EhsSvcTcp_log("Unexpected escape sequence <esc>\0x%x\n", pData[nCount]);
             }
             bLastCharEsc = EHS_FALSE;
-            //break;// we don't want to do all the buffer, as we would bugger later binary data...
+            // break;// we don't want to do all the buffer, as we would bugger later binary data...
         }
 
         if (pData[nCount] == EHS_CHAR_ESC)
         {
             bLastCharEsc = EHS_TRUE;
             /* If the last character in the current buffer is escape - defer processing it until later */
-            if ((nCount+1u) >= nSize)
+            if ((nCount + 1u) >= nSize)
             {
                 nSize--;
             }
         }
-        else bLastCharEsc = EHS_FALSE;
+        else
+            bLastCharEsc = EHS_FALSE;
         nCount++;
     }
     return nSize;
-
 }
 
 /**
- * Receive data from the target, then pass it on to EHS
+ * Receive data from the debugger, then pass it on to EHS
  *
  * @return True if the client didn't request to disconnect.
  */
@@ -399,12 +422,12 @@ ehs_bool EhsSvcTcp_receive(void)
     {
 
         // do this in the queue pop/push - EhsConsole_buffer_empty = EHS_FALSE; //stop any further reads until this is set back to true.Assuming single threaded write so no mutexing.
-        nDataReceived = (ehs_sint32)EhsSvcTcp_expandEscapes(pData,(ehs_uint32)nDataReceived,&bDisconnect);
-        if(bDisconnect)
+        nDataReceived = (ehs_sint32)EhsSvcTcp_expandEscapes(pData, (ehs_uint32)nDataReceived, &bDisconnect);
+        if (bDisconnect)
         {
             EhsSvcTcp_log("***Client instructed a disconnect\n");
         }
-        EhsSvcTcp_logBinaryData(pData,(ehs_uint32)nDataReceived);
+        EhsSvcTcp_logBinaryData(pData, (ehs_uint32)nDataReceived);
 
         /* pass received data onto EHS */
         if (EhsTgtConsoleInputQueueRef)
@@ -413,9 +436,9 @@ ehs_bool EhsSvcTcp_receive(void)
             {
                 /* push data onto the queue until no data remains */
                 EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
-                ehs_sint32 nDataPushed = (ehs_sint32)EhsConsoleQueue_push(EhsTgtConsoleInputQueueRef, pData, (ehs_uint32)nDataReceived);
+                ehs_sint32 nDataPushed = EhsConsoleQueue_push(EhsTgtConsoleInputQueueRef, pData, (ehs_uint32)nDataReceived);
                 EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
-                EhsSvcTcp_logBinaryData(pData,(ehs_uint32)nDataPushed);
+                EhsSvcTcp_logBinaryData(pData, (ehs_uint32)nDataPushed);
 
                 /* advance pointer to start of data that hasn't yet been pushed */
                 pData += nDataPushed;
@@ -423,27 +446,32 @@ ehs_bool EhsSvcTcp_receive(void)
                 /* If EHS couldn't handle everything, give it a chance to consume the data that's on the queue already */
                 if (nDataReceived > 0L)
                 {
-                    //EhsSleep(EHS_TIME_us(5000LL));//EHS_TGT_TCP_SUSPENDTIME_us));
+                    // EhsSleep(EHS_TIME_us(5000LL));//EHS_TGT_TCP_SUSPENDTIME_us));
+                    // todo the delay here should just be a global default that can be overriden in platform config files.
+                    // we have no idea why these are here fi they are conlated with other paltform switches.
+
 #ifdef EHS_LWIP
-                    //EhsSleep(20);
-#else //#ifdef EHS_LWIP
-                    EhsSleepUs(EHS_TGT_TCP_SUSPENDTIME_us);
-#endif //#else #ifdef EHS_LWIP
+            EhsSleepUs(20000LL); // 20ms?
+            //EhsSleep(20); //todo2023 - what is 20 this time? Presume ticks
+#else  // #ifdef EHS_LWIP
+            EhsSleepUs(EHS_TGT_TCP_SUSPENDTIME_us);
+#endif // #else #ifdef EHS_LWIP
                 }
             }
         }
     }
     else if (nDataReceived == EHS_TGT_TCP_SOCKET_ERROR)
     {
-        //PBB 2022-04-14 in my testing nDataReceive==-1 and EhsTgtTcp_getErrorCode(EHS_TRUE)==11
-        //indicates the other side has disconnected so we should disconnect as well
-        //if(EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_AGAIN)
+        // PBB 2022-04-14 in my testing nDataReceive==-1 and EhsTgtTcp_getErrorCode(EHS_TRUE)==11
+        // indicates the other side has disconnected so we should disconnect as well
+        // if(EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_AGAIN)
         //{
         EhsSvcTcp_logSocketError("EhsSvcTcp_receive.recv", EhsTgtTcp_getErrorCode(EHS_FALSE));
         bDisconnect = EHS_TRUE;
         //}
 #ifdef EHS_LWIP
-        EhsSleepUs(1000000LL);
+        // Wait 100ms if there is a socket error
+        EhsSleepUs(100000LL);
 #endif
     }
     else
@@ -451,7 +479,7 @@ ehs_bool EhsSvcTcp_receive(void)
         /* we didn't receive anything, but it's ok */
         bDisconnect = EHS_FALSE;
 #ifdef EHS_LWIP
-        EhsSleep(250);
+        EhsSleepUs(10000);
 #endif
     }
 
@@ -466,7 +494,7 @@ ehs_bool EhsSvcTcp_receive(void)
 ehs_bool EhsSvcTcp_send()
 {
     ehs_bool bConnected = EHS_TRUE; /* assume that we stay connected */
-    if ( EhsTgtConsoleOutputQueueRef != NULL)
+    if (EhsTgtConsoleOutputQueueRef != NULL)
     {
         /* do we have any data to send? */
         if (!EhsConsoleQueue_isEmpty(EhsTgtConsoleOutputQueueRef))
@@ -475,11 +503,12 @@ ehs_bool EhsSvcTcp_send()
             ehs_sint32 nDataSize;
 
             /* send one bufferful of data. This prevents EHS from monopolising a conversation. */
-            //EHSH_LOG_INFO("QPop: in = %d, out = %d\n", EhsTgtConsoleOutputQueueRef->uInIdx, EhsTgtConsoleOutputQueueRef->uOutIdx);
+            // EHSH_LOG_INFO("QPop: in = %d, out = %d\n", EhsTgtConsoleOutputQueueRef->uInIdx, EhsTgtConsoleOutputQueueRef->uOutIdx);
             nDataSize = (ehs_sint32)EhsConsoleQueue_pop(EhsTgtConsoleOutputQueueRef, bBuffOut, EHS_TGT_TCP_OUT_BUFF_SIZE);
             EhsSvcTcp_log("***Sent %d bytes\n", nDataSize);
-            EhsSvcTcp_logBinaryData((const ehs_uint8*)bBuffOut, (ehs_uint32)nDataSize);
-            //bBuffOut[nDataSize] = '\0';
+            // printf("***Sent %d bytes\n", nDataSize);
+            EhsSvcTcp_logBinaryData((const ehs_uint8 *)bBuffOut, (ehs_uint32)nDataSize);
+            // bBuffOut[nDataSize] = '\0';
             /***** send bBuff to TCP/IP ****/
             if (EhsSvcTcpSocketConnection)
             {
@@ -488,12 +517,20 @@ ehs_bool EhsSvcTcp_send()
                     EhsSvcTcp_logSocketError("EhsSvcTcp_send.send", EhsTgtTcp_getErrorCode(EHS_TRUE));
                     bConnected = EHS_FALSE;
                 }
+                else
+                {
+                    // printf("PBB console_server:497 %d\n",nDataSize);
+                }
             }
             else
             {
                 EHSH_LOG_ERROR("EhsSvcTcpSocketConnection is NULL");
                 bConnected = EHS_FALSE;
             }
+        }
+        else
+        {
+            // printf("PBB 506 queue is empty\n");
         }
     }
     else
@@ -510,42 +547,49 @@ ehs_bool EhsSvcTcp_send()
  * then if there's outgoing data waiting in the outbound queue.
  * @param[in] pData dummy parameter, ignored.
  */
-EhsThreadFuncReturnType EhsSvcTcp_server(void* pData)
+EhsThreadFuncReturnType EhsSvcTcp_server(void *pData)
 {
     ehs_bool init;
-    ehs_uint32 failCount =0 ;
+    ehs_uint32 failCount = 0;
 #ifdef EHS_TGT_TCP_LOG_ENABLED
-    EhsSvcTcpLogfile = Ehs_SysFopen("ehs_tcpip.log","w"); /* make this in the current directory  */
+    EhsSvcTcpLogfile = Ehs_SysFopen("ehs_tcpip.log", "w"); /* make this in the current directory  */
 #endif
     /* wait for initialisation to finish */
     EhsSvcTcp_log("Server started\n");
+    //printf("Socket Server Started..\n");
     while (!(*EhsHSys_initCompleteRef))
     {
         EhsSleep(EhsTgtTimer_usToTick(EHS_TGT_TCP_SUSPENDTIME_us));
         EhsSvcTcp_log("waiting for EHS initialization to complete\n");
     }
+    //printf("VVV-1\n");
     init = EhsTgtTcp_init();
     EhsSvcTcp_log("Initialization complete\n");
-
+    //printf("Socket Server Started..\n");
+    //printf("VVV-2 init=%d\n",init);
     if (init)
     {
         init = EhsSvcTcp_openConnection();
-        if (init) EhsSvcTcp_log("Connection open\n");
-        else EHSH_LOG_ERROR("Debug socket not open");
+        //printf("VVV-3 init=%d\n",init);
+        if (init)
+            EhsSvcTcp_log("Connection open\n");
+        else
+            EHSH_LOG_ERROR("Debug socket not open");
     }
-
-    while(init) /* loop for each client connection */
+    //printf("SS 2\n");
+    while (init) /* loop for each client connection */
     {
         /* tcpip initialisation */
         ehs_bool ClientConnected = EHS_TRUE;
         ehs_uint32 TestUsageCount = 0u;
+        //printf("SS 3\n");
         if (EhsSvcTcp_waitForClient() == EHS_FALSE)
         {
             failCount++;
-            if (failCount > 10 )
+            if (failCount > 10)
             {
                 EHSH_LOG_ERROR("Exiting debug listening socket");
-                break;  /* Block until we get a client or bail if we get something nasty*/
+                break; /* Block until we get a client or bail if we get something nasty*/
             }
             else
             {
@@ -553,33 +597,39 @@ EhsThreadFuncReturnType EhsSvcTcp_server(void* pData)
                 continue;
             }
         }
-        failCount = 0 ;
+        failCount = 0;
         EhsSvcTcp_log("***Client connected\n");
+        //printf("ClientConnected = %d\n", ClientConnected);
         while (ClientConnected) /*shunt data in and out of client and detect if we close somehow */
         {
             TestUsageCount++;
 
-#if (EHS_TGT_TCP_IN_BUFF_SIZE > (EHS_MAX_CONSOLE_QUEUE_SIZE - EHS_FILE_BUFF_SIZE )) // we eill assume the EHS_FILE_BUFF_SIZE is always bigger that what need to red the next command.
-#error "Your console queue size is smaller than the socket buffer + space for maximum remaining data from previous reads ()"
-#endif
-            // @todo - mutex should be applied here rather than inside of 'EhsSvcTcp_receive', as length of the queue may change by the time it reaches 'push' in EhsSvcTcp_receive.
-            // it wasn't put here because of a while loop that is inside of 'EhsSvcTcp_receive' and could potetnially block for longer time. (or does it?)
-            if (EhsConsoleQueue_space(EhsTgtConsoleInputQueueRef) >= EHS_TGT_TCP_IN_BUFF_SIZE)   // only read data if there is enough space in the queue
+            // todo2022 is there a way to compare vlues in preprocessor?
+            // #if (EHS_TGT_TCP_IN_BUFF_SIZE > (EHS_DEBUG_CONSOLE_BUFFER_SIZE - EHS_FILE_BUFF_SIZE )) // we eill assume the EHS_FILE_BUFF_SIZE is always bigger that what need to red the next command.
+            // #error "Your console queue size is smaller than the socket buffer + space for maximum remaining data from previous reads ()"
+            // #endif
+            //  @todo - mutex should be applied here rather than inside of 'EhsSvcTcp_receive', as length of the queue may change by the time it reaches 'push' in EhsSvcTcp_receive.
+            //  it wasn't put here because of a while loop that is inside of 'EhsSvcTcp_receive' and could potetnially block for longer time. (or does it?)
+            if (EhsConsoleQueue_space(EhsTgtConsoleInputQueueRef) >= EHS_TGT_TCP_IN_BUFF_SIZE) // only read data if there is enough space in the queue
             {
 
                 ClientConnected = EhsSvcTcp_receive();
-                //int size;
-                //if (size = EhsConsoleQueue_length(EhsTgtConsoleInputQueueRef) > 0) {
-                //}
+                // int size;
+                // if (size = EhsConsoleQueue_length(EhsTgtConsoleInputQueueRef) > 0) {
+                // }
             }
             else
             {
             }
-#ifdef EHS_LWIP
+#ifdef EHS_NXP_SUPPORT
+            // PBB 2022-10-13 This sleep is important or else on the NXP
+            // you get stuck in a loop because the console queue is full but without a sleep
+            // it can't be cleared by the other threads
+            EhsSleepUs((EHS_TGT_TCP_SUSPENDTIME_us*2)); // todo this should be changed to use a mcro so we know what this time actually is
 #else
-            EhsSleepUs(5000);//EHS_TGT_TCP_SUSPENDTIME_us)); /* Make this more friendly when there is a connection & data transfer */
+            EhsSleepUs((EHS_TGT_TCP_SUSPENDTIME_us)); /* Make this more friendly when there is a connection & data transfer */
 
-            //EHS_TGT_TCP_SUSPENDTIME_us
+            // EHS_TGT_TCP_SUSPENDTIME_us
 #endif
             if (ClientConnected)
             {
@@ -595,9 +645,9 @@ EhsThreadFuncReturnType EhsSvcTcp_server(void* pData)
         }
         init = EhsSvcTgtTcp_closeConnection(EhsSvcTcpSocketConnection);
         EhsSvcTcp_log("UsageCount %d\n", TestUsageCount);
+        //printf("UsageCount closed %d\n", TestUsageCount);
     }
-
+    //printf ("Existing console server\n");
     EhsTgtTcp_term();
     EhsHThread_exit();
-
 }

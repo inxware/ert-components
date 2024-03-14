@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <ISNoCode>true</ISNoCode>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-05-04T12:29:47Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription/>
+        <UserName/>
+        <Menu>
+            Software Structure
+            <Menu>
+                Function Blocks
+                <Menu>Comment Block</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Comment_Block</Type>
+		<Width>90</Width>
+        <Height>90</Height>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>xcomment</Class>
+    </FBID>    
+    <Hashes>
+        <NameHash_CRC16>0xCEA8</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>c0d8d429</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+   <Parameters>
+        <Parameter>
+            <Name>Text</Name>
+            <DataType>S</DataType>
+            <DefaultValue>Comment</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description/>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+		<Parameter>
+            <Name>Text Color</Name>
+            <DataType>S</DataType>
+            <DefaultValue>#000000</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description/>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Backgound Color</Name>
+            <DataType>S</DataType>
+            <DefaultValue>#9DFF9C</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description/>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+    </Parameters>
+	<Functions/>
+    <Ports/>
+</Component>

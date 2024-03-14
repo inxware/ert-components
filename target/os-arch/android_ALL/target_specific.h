@@ -17,9 +17,8 @@
  */
 #define EHS_TGT_MEMORY_ALIGNED(type,name) type name
 
-
-#define EhsStdioPrintf(x,y,z,...)  __android_log_print(ANDROID_LOG_INFO,z,x,y,z,__VA_ARGS__) /*;__android_log_print(ANDROID_LOG_INFO,z,x,y,z,__VA_ARGS__)*/
-
+#define EhsStdioPrintf(x,y,z,...)  __android_log_print(ANDROID_LOG_INFO,z,x,y,z,__VA_ARGS__) /* @TODO - review this function */
+#define EhsStdioSimplePrintf(...) __android_log_print(ANDROID_LOG_INFO,/*TAG=*/"EHS",__VA_ARGS__)
 
 /* math functions not implemented in Windows */
 

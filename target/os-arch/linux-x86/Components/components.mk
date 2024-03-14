@@ -9,7 +9,8 @@
 
 # Makefile fragment to build the target-specific code for EHS.
 # Called by ../target.mk
-# @author: inx limited
+#
+
 # Predefined variables
 
 #  OBJ - File extension for object files

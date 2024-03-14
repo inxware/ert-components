@@ -38,18 +38,17 @@
  */
 
 #include "target.h"
-
 #include "fs_dir_list1.h"
-
 #include "globals.h"
 #include "setCompletes.h"
 #include "app_data.h"
 #include "hal-api.h"
 
+
 EHS_FB_FUNCTIONS_START(FileSystemDirList1)
-EHS_FB_FUNCTION_ENTRY("set", 0x00, FileSystemDirSet1)
-EHS_FB_FUNCTION_ENTRY("get", 0x01, FileSystemDirGet1)
-EHS_FB_FUNCTION_ENTRY("rel", 0x02, FileSystemDirRelease1)
+EHS_FB_FUNCTION_ENTRY("set", 0x01, FileSystemDirSet1)
+EHS_FB_FUNCTION_ENTRY("get", 0x02, FileSystemDirGet1)
+EHS_FB_FUNCTION_ENTRY("rel", 0x03, FileSystemDirRelease1)
 EHS_FB_FUNCTIONS_END
 
 /**

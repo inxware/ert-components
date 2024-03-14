@@ -211,8 +211,6 @@ void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay)
     }
     gdk_threads_init();
 #endif
-    //#undef EHS_DEBUG
-    //#define EHS_DEBUG
     /*
      #define VLC_PARAMETERS "--plugin-path=../bin/csdir/vlc", "--reset-plugins-cache", "--ignore-config", "--vout=x11", "--no-osd", "--no-video-title-show", "--aout=alsa","--audio", "--no-loop","--no-repeat","--http-caching=20000","--http-reconnect","--http-user-agent=inxplayer-2.0"
      #define NO_VLC_PARAMETERS 13 // , "--no-plugins-cache", "--list"
@@ -243,7 +241,7 @@ void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay)
 //#define EHS_XDEBUG
     if (pPvrPlay->video_on_top)
     {
-#ifdef EHS_XDEBUG//defined(EHS_DEBUG) && defined(EHS_DEBUG_AV)
+#ifdef EHS_XDEBUG//&& defined(EHS_DEBUG_AV)
         const char * const vlc_args[] = {VLC_PARAMETERS,"--video-on-top", "-vvv", full_plugin_path,NULL};
         pPlayback->pVLCInstance = libvlc_new(NO_VLC_PARAMETERS+3, vlc_args);
 #else
@@ -253,7 +251,7 @@ void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay)
     }
     else
     {
-#ifdef EHS_XDEBUG//defined(EHS_DEBUG) && defined(EHS_DEBUG_AV)
+#ifdef EHS_XDEBUG//&& defined(EHS_DEBUG_AV)
         const char * const vlc_args[] = {VLC_PARAMETERS,"--no-video-on-top", "-vvv", full_plugin_path,NULL};
         pPlayback->pVLCInstance = libvlc_new(NO_VLC_PARAMETERS+3, vlc_args);
 #else
@@ -267,7 +265,6 @@ void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay)
     {
         EHSH_LOG_ERROR("Could Not Initialise VLC lib");
     }
-#undef EHS_DEBUG
     if (NULL == pPlayback->pVLCInstance)
     {
         EhsHMem_tempFree(pPlayback);

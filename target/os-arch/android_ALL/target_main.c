@@ -38,7 +38,7 @@
 #include "globals.h"
 #include "ehs_main.h"
 #include "hal-api.h" // required for the meta data storage
-//#include "keypress.h" /* todo kbdhit should be available in hal.h? */
+#include "keypress.h" /* todo kbdhit should be available in hal.h? */
 #ifdef EHS_GUI_SUPPORT
 #include "targetgfx_init.h"
 #endif
@@ -47,6 +47,7 @@
 #endif
 
 #if defined(EHS_MEDIA_SUPPORT) && !defined(EHS_UNITY3D_WIDGETS)
+//todo - should we have a target_os_dtv.h in the targetcomponents/.../unity3d/ folder 
 #include "target_os_dtv.h"
 #endif
 
@@ -125,12 +126,6 @@ EHS_LOCAL void EhsTargetHandleTerm(int);
 /*****************************************************************************/
 /* Function definitions */
 
-/* Delete this - no longer used?
-void* EhsL_server(void* pDummy) {
-	EHSH_LOG_INFO("server started up\n");
-	EhsSvcTcp_server(NULL);
-}
-*/
 
 #define EHS_MOVE_IGNORE_VAL 5
 // see https://wiki.linuxquestions.org/wiki/List_of_Keysyms_Recognised_by_Xmodmap for xmod map
@@ -141,6 +136,7 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
 {
     int32_t action,source,x,y;
     int32_t key_val;
+    int32_t key_modifier;
     int32_t eventType = AInputEvent_getType(event);
     static int32_t last_x = -1;
     static int32_t last_y = -1;
@@ -169,9 +165,11 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
         {
 
             key_val = AKeyEvent_getKeyCode(event);
+            key_modifier = AKeyEvent_getMetaState(event);
+            if (key_modifier == 65 || key_modifier == 129) key_modifier = AMETA_SHIFT_ON; // Fix for pine64 keyboards
 #if defined(EHS_GUI_SUPPORT) && defined(EHS_PERIPHERAL_DEVICE_SUPPORT)
 
-            LOGI("Input Event Type : AMOTION_EVENT_ACTION_DOWN = %d",key_val);
+            //LOGI("Input Event Type : AMOTION_EVENT_ACTION_DOWN[mod=%d] = %d",key_modifier,key_val);
             switch (key_val )
             {
             case AKEYCODE_SOFT_LEFT:
@@ -235,10 +233,12 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
                 EhsGUIKbHit('`');
                 break;
             case  AKEYCODE_MINUS:
-                EhsGUIKbHit('-');
+                if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit('_');
+                else EhsGUIKbHit('-');
                 break;
             case  AKEYCODE_EQUALS:
-                EhsGUIKbHit('=');
+                if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit('+');
+                else EhsGUIKbHit('=');
                 break;
             case  AKEYCODE_LEFT_BRACKET :
                 EhsGUIKbHit('(');
@@ -250,22 +250,32 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
                 EhsGUIKbHit('\\');
                 break;
             case  AKEYCODE_SEMICOLON :
-                EhsGUIKbHit(';');
+                if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit(':');
+                else EhsGUIKbHit(';');
                 break;
-            case   AKEYCODE_APOSTROPHE :
-                EhsGUIKbHit('\'');
+            /*
+            case   AKEYCODE_BACKTICK :
+                if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit('|');
+                else EhsGUIKbHit('\'');
                 break;
+            */
             case   AKEYCODE_SLASH :
-                EhsGUIKbHit('/');
+                if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit('?');
+                else EhsGUIKbHit('/');
                 break;
+            case AKEYCODE_APOSTROPHE :
+            if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit('@');
+                else EhsGUIKbHit('\'');
             case  AKEYCODE_AT :
                 EhsGUIKbHit('@');
                 break;
             case  AKEYCODE_COMMA :
-                EhsGUIKbHit(',');
+                if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit('<');
+                else EhsGUIKbHit(',');
                 break;
             case   AKEYCODE_PERIOD :
-                EhsGUIKbHit('.');
+                if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit('>');
+                else EhsGUIKbHit('.');
                 break;
             /* dump these for now */
             case AKEYCODE_CALL:
@@ -288,13 +298,50 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
                 else if ((key_val >= AKEYCODE_A ) && (key_val <= AKEYCODE_Z ))
                 {
 #ifdef EHS_GUI_SUPPORT
-                    EhsGUIKbHit(key_val-AKEYCODE_A+'a');
+                    if (key_modifier == AMETA_SHIFT_ON) EhsGUIKbHit(key_val-AKEYCODE_A+'A');
+                    else EhsGUIKbHit(key_val-AKEYCODE_A+'a');
 #endif
                 }
                 else if ((key_val >= AKEYCODE_0 ) && ( key_val <= AKEYCODE_9))
                 {
 #ifdef EHS_GUI_SUPPORT
-                    EhsGUIKbHit(key_val-AKEYCODE_0+'0');
+                    if (key_modifier == AMETA_SHIFT_ON) {
+                        switch (key_val) {
+                            AKEYCODE_0 :
+                                EhsGUIKbHit(')');
+                                break;
+                            AKEYCODE_1 :
+                                EhsGUIKbHit('!');
+                                break;
+                            AKEYCODE_2 :
+                                EhsGUIKbHit('"');
+                                break;
+                            AKEYCODE_3 :
+                                EhsGUIKbHit('#'); // for some reason '£' doesn't work here.
+                                break;
+                            AKEYCODE_4 :
+                                EhsGUIKbHit('$');
+                                break;
+                            AKEYCODE_5 :
+                                EhsGUIKbHit('%');
+                                break;
+                            AKEYCODE_6 :
+                                EhsGUIKbHit('^');
+                                break;
+                            AKEYCODE_7 :
+                                EhsGUIKbHit('&');
+                                break;
+                            AKEYCODE_8 :
+                                EhsGUIKbHit('*');
+                                break;
+                            AKEYCODE_9 :
+                                EhsGUIKbHit('(');
+                                break;
+                            default :
+                            break;
+                        }
+                    }
+                    else EhsGUIKbHit(key_val-AKEYCODE_0+'0');
 #endif
                 }
 
@@ -308,7 +355,7 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
         }
 
     case AINPUT_EVENT_TYPE_MOTION:
-#ifdef INX_FIXED_THIS_IT_SEEMS_TO_CRASH_PINE64_H6
+
         source = AInputEvent_getSource(event);
 
         switch(source)
@@ -334,6 +381,7 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
                 EhsT_android_event_button_release(x,y);
 #endif
                 break; //deliberate fall through
+#ifdef INX_FIXED_THIS_IT_SEEMS_TO_CRASH_PINE64_H6
             case AMOTION_EVENT_ACTION_MOVE: /* todo - the following is generl touch screen and should be put in a common module */
 #ifdef EHS_GUI_SUPPORT
                 if (eventType == AMOTION_EVENT_ACTION_MOVE) EhsT_android_event_motion_notify(x,y);
@@ -350,13 +398,13 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
                     last_y = y;
                 }
                 break;
+#endif
             default:
                 break;
             }/* end of action switch */
         default:
             break;
         }
-#endif
     default:
         break;
     }/* end of event type switch */
@@ -467,6 +515,9 @@ Ehs_ConsoleCommand_Type process_android_events(struct android_app* state)
 
 ehs_bool EhsT_platform_ready = EHS_FALSE;
 ehs_bool EhsT_isLostFocus = EHS_FALSE;
+
+/* This is the one you should be using for all Android appp lifecycle events (ignore others)
+*/
 
 static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 {
@@ -908,7 +959,7 @@ void android_main(struct android_app* state)
 #endif
     EHSH_LOG_INFO("Launching android main process.");
 #if defined(EHS_MEDIA_SUPPORT) && !defined(EHS_UNITY3D_WIDGETS)
-    // Audio/Video initialization
+    // Audio/Video initialization - todo this should be in the graphics/unity3d/ folder.
     EhsTDPlayback_initJNI(state);
 #endif
     ehs_android_main(&process_android_events,state);
@@ -943,8 +994,6 @@ void * ehs_android_main(Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),
     return 0;
 }
 
-
-
 /**
  * Handle the SIGTERM signal
  */
@@ -957,7 +1006,10 @@ void EhsTargetHandleTerm(int sig)
 /* poll/call this before starting EHS to check if the host app environment is ready to start */
 ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob)
 {
+    // todo2023 the following should be a more generic way if deciding if the target is ready.
+    // Probably just need a summy target_loop_iteration() function? 
 #ifdef EHS_UNITY3D_WIDGETS
+//If we are integrated into unity then we don't run the android loop, we get called by unity instead
     return EHS_TRUE;
 #else
     if (target_loop_iteration)

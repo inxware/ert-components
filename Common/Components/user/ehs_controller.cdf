@@ -1,2 +1,152 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component><Icon>ehs_controller.bmp</Icon><Class>ehs_controller</Class><Module>usercomponents</Module><Menu>System<Menu>Local<Menu>Runtime Control</Menu></Menu></Menu><ShortDescription>System operations to control EHS </ShortDescription><LongDescription>Controls the current EHS window</LongDescription><Port><Description>exit</Description><PortType>StartPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>10</YCoordinate><AtomicFlag>0</AtomicFlag><FunctionName argument="0">exit_ehs</FunctionName></Port><Port><Description>fore</Description><PortType>StartPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>30</YCoordinate><AtomicFlag>0</AtomicFlag><FunctionName argument="0">move_to_foreground</FunctionName></Port><Port><Description>back</Description><PortType>StartPort</PortType><XCoordinate>0</XCoordinate><YCoordinate>60</YCoordinate><AtomicFlag>0</AtomicFlag><FunctionName argument="0">move_to_background</FunctionName></Port><Port><Description>error[fore]</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>40</YCoordinate><Wcet>0</Wcet><FunctionName argument="1">move_to_foreground</FunctionName></Port><Port><Description>------[back]</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>60</YCoordinate><Wcet>0</Wcet><FunctionName argument="1">move_to_background</FunctionName></Port><Port><Description>error[exit]</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>10</YCoordinate><Wcet>0</Wcet><FunctionName argument="1">exit_ehs</FunctionName></Port><Port><Description>error[back]</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>70</YCoordinate><Wcet>0</Wcet><FunctionName argument="2">move_to_background</FunctionName></Port><Port><Description>------[fore]</Description><PortType>FinishPort</PortType><XCoordinate>85</XCoordinate><YCoordinate>30</YCoordinate><Wcet>0</Wcet><FunctionName argument="2">move_to_foreground</FunctionName></Port></Component>
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>System operations to control EHS </ShortDescription>
+        <LongDescription>Controls the current EHS window</LongDescription>
+        <UserName/>
+        <Menu>
+            System
+            <Menu>
+                Local
+                <Menu>Runtime Control</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Width>105</Width>
+        <Height>105</Height>
+        <Text>Runtime Controller</Text>
+        <TextX>0</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>ehs_controller</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xE08E</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>795acc35</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>exit_ehs</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>move_to_foreground</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>move_to_background</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>exit</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>exit</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>fore</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>fore</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>back</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>back</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error[fore]</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error_fore_</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>------[back]</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>_______back_</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error[exit]</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error_exit_</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error[back]</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error_back_</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>------[fore]</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>_______fore_</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

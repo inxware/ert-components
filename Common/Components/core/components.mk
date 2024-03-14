@@ -26,8 +26,9 @@
 include $(EHS_COMMON_COMPONENTS_PATH)/core/deps.mk
 OBJECTS += fs_dir_list1.$(OBJ) fs_dir_create_remove.$(OBJ)
 OBJECTS += event_counter1.$(OBJ) SFCBarGroup1.$(OBJ) SFCBarGroup1Event.$(OBJ) arraystring1.$(OBJ) buffer.$(OBJ) calc_i.$(OBJ) const1.$(OBJ) convertor.$(OBJ) core_components.$(OBJ) 
-OBJECTS += demux.$(OBJ) file.$(OBJ) fileFunctionsUtils.$(OBJ) ehs_if.$(OBJ) logic.$(OBJ)  mux.$(OBJ) operator1.$(OBJ) sfc.$(OBJ) state.$(OBJ) stringfn.$(OBJ) 
+OBJECTS += demux.$(OBJ) file.$(OBJ) fileFunctionsUtils.$(OBJ) ehs_if.$(OBJ) logic.$(OBJ)  mux.$(OBJ) operator1.$(OBJ) sfc.$(OBJ) state_condition.$(OBJ) state_debug.$(OBJ) state_manager.$(OBJ) stringfn.$(OBJ) 
 OBJECTS += time_clock.$(OBJ) trigger.$(OBJ) system_exec.$(OBJ) rtinfo.$(OBJ) wall_clock.$(OBJ) appinfo.$(OBJ)
+OBJECTS += inx-rng.$(OBJ)
 ifdef EHS_DEVMAN_SUPPORT
 OBJECTS +=  appget.$(OBJ) 
 endif

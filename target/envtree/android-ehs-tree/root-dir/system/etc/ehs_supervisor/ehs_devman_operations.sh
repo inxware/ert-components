@@ -24,6 +24,7 @@ HandleDevmanOperationUpdates(){
         FILE_CONTENT=$(cat "$SCRIPT_FILE")
         if [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_CLEAN_MEDIA_KEY"* ]]; then
             SupervisorLog "Clean media folder"
+            rm -Rf /sdcard/Android/data/com.inx.ehs/files/userdata/media/*
         elif [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_MUTE_KEY"* ]]; then
             SupervisorLog "Setting volume mute "
         elif [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_REBOOT_KEY"* ]]; then
@@ -53,9 +54,11 @@ HandleDevmanOperationUpdates(){
             SetNtpServer "$VALUE"
             SupervisorLog "Setting NTP server to ($VALUE)"
         elif [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_LOGS0_KEY"* ]]; then
-            SupervisorLog "Update logs0"
+            SupervisorLog "Update logs0 ==> $EHS_SUPSCRIPTS_LOCATION ==> $SERVER_ADDRESS ==> $EHS_DEVICE_ID"
+            /system/bin/sh ${EHS_SUPERVISOR_LOCATION}/ehs_upload_logs.sh "0" "$EHS_SUPSCRIPTS_LOCATION" "$SERVER_ADDRESS" "$EHS_DEVICE_ID"
         elif [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_LOGS1_KEY"* ]]; then
-            SupervisorLog "Update logs1"
+            SupervisorLog "Update logs1 ==> $EHS_SUPSCRIPTS_LOCATION ==> $SERVER_ADDRESS ==> $EHS_DEVICE_ID"
+            /system/bin/sh ${EHS_SUPERVISOR_LOCATION}/ehs_upload_logs.sh "1" "$EHS_SUPSCRIPTS_LOCATION" "$SERVER_ADDRESS" "$EHS_DEVICE_ID"
         elif [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_PATCH_KEY"* ]]; then
             echo "patch"
         fi

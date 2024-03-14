@@ -40,7 +40,9 @@ widget_textbox.h :   font.h html.h
 
 widget_viewport.h :   graphics.h
 
+ifndef EHS_DONT_USE_BASIC_FONTS
 font.$(OBJ) : font.h hal_logger.h hal_file.h hal_string.h hal_viewport.h  hal_mem.h
+endif
 
 graphics.$(OBJ) : graphics.h hal-api.h png.h
 

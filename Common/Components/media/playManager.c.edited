@@ -14,13 +14,13 @@
 #include "hal_media.h"
 
 EHS_FB_FUNCTIONS_START(PlayManager)
-EHS_FB_FUNCTION_ENTRY("Next_Playlist", 0x00, PlayManager_Next_Playlist)
-EHS_FB_FUNCTION_ENTRY("Tick", 0x01, PlayManager_Tick)
-EHS_FB_FUNCTION_ENTRY("Played", 0x02, PlayManager_Played)
-EHS_FB_FUNCTION_ENTRY("Started", 0x03, PlayManager_Started)
-EHS_FB_FUNCTION_ENTRY("Next_URL", 0x04, PlayManager_Next_URL)
-EHS_FB_FUNCTION_ENTRY("Got", 0x05, PlayManager_Got)
-EHS_FB_FUNCTION_ENTRY("Set_Paths", 0x06, PlayManager_Set_Paths)
+EHS_FB_FUNCTION_ENTRY("Next_Playlist", 0x01, PlayManager_Next_Playlist)
+EHS_FB_FUNCTION_ENTRY("Tick", 0x02, PlayManager_Tick)
+EHS_FB_FUNCTION_ENTRY("Played", 0x03, PlayManager_Played)
+EHS_FB_FUNCTION_ENTRY("Started", 0x04, PlayManager_Started)
+EHS_FB_FUNCTION_ENTRY("Next_URL", 0x05, PlayManager_Next_URL)
+EHS_FB_FUNCTION_ENTRY("Got", 0x06, PlayManager_Got)
+EHS_FB_FUNCTION_ENTRY("Set_Paths", 0x07, PlayManager_Set_Paths)
 EHS_FB_FUNCTIONS_END
 				
 

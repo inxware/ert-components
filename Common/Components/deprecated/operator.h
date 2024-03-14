@@ -18,6 +18,9 @@
 #ifndef EHS_OPERATOR_FUNCTIONS_H
 #define EHS_OPERATOR_FUNCTIONS_H
 
+#include "globals.h"
+#include "ehs_fb_types.h"
+
 /******************************************************************************/
 /* Declare integer > */
 #define EHS_FB_NAME_ComparatorGreaterInt "ComparatorGreaterInt"

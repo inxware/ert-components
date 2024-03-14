@@ -1,84 +1,149 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Component>
-    <Icon>inx-permanent_storage.bmp</Icon>
-    <Class>permanent_storage_bool</Class>
+<?xml version="1.0" encoding="UTF-8"?><Component>
     <Module>usercomponents</Module>
-    <Menu>System
-        <Menu>Permanent Storage Bool</Menu>
-    </Menu>
-    <ShortDescription>permanent_storage_bool</ShortDescription>
-    <LongDescription>permanent_storage_bool</LongDescription>
-    <Port>
-        <CName>write</CName>
-        <Description>Write</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>10</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0">write</FunctionName>
-    </Port>
-    <Port>
-        <CName>read</CName>
-        <Description>Read</Description>
-        <PortType>StartPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>20</YCoordinate>
-        <AtomicFlag>1</AtomicFlag>
-        <FunctionName argument="0">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>I</DataType>
-        <CName>id</CName>
-        <Description>id</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>30</YCoordinate>
-        <FunctionName argument="1">write</FunctionName>
-        <FunctionName argument="1">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>B</DataType>
-        <CName>value</CName>
-        <Description>value</Description>
-        <PortType>InputPort</PortType>
-        <XCoordinate>0</XCoordinate>
-        <YCoordinate>40</YCoordinate>
-        <FunctionName argument="2">write</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishwrite</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>10</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1">write</FunctionName>
-    </Port>
-    <Port>
-        <CName>finishread</CName>
-        <Description>--</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>20</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="1">read</FunctionName>
-    </Port>
-    <Port>
-        <DataType>B</DataType>
-        <CName>value</CName>
-        <Description>value</Description>
-        <PortType>OutputPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>30</YCoordinate>
-        <FunctionName argument="1">read</FunctionName>
-    </Port>
-    <Port>
-        <CName>finisherr</CName>
-        <Description>read error</Description>
-        <PortType>FinishPort</PortType>
-        <XCoordinate>105</XCoordinate>
-        <YCoordinate>40</YCoordinate>
-        <Wcet>0</Wcet>
-        <FunctionName argument="2">read</FunctionName>
-    </Port>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>permanent_storage_bool</ShortDescription>
+        <LongDescription>permanent_storage_bool</LongDescription>
+        <UserName/>
+        <Menu>
+            File System
+            <Menu>
+                NV Storage
+                <Menu>Boolean</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>85</Width>
+        <Height>80</Height>
+        <Text>NV Store</Text>
+        <TextX>15</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.5</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>0</ERT1_ID>
+        <Class>permanent_storage_bool</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x4B94</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>2ced7eb1</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>write</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>read</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>Write</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>write</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Read</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName>read</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>1</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>id</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <CName>id</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>value</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <CName>value</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishwrite</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finishread</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>value</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <CName>value</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>read error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>finisherr</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
 </Component>

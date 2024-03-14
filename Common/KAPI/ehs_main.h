@@ -20,7 +20,14 @@
 #include "ehs_types.h"
 
 /**
- * EHS Entry point. Initialise EHS, then start running EHS & handling console
+ * @brief Initilised EHS (data tables, kernel console etc.). 
+ * @note THIS SHOULD ONLY BE CALLED IF EheMain() is not being used as it is called from there.
+ */
+
+EHS_GLOBAL ehs_bool EhsInit();
+
+/**
+ * @brief EHS Entry point. Initialise EHS, then start running EHS & handling console
  * input.
  * This can return running state change requests
  */

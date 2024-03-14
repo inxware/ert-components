@@ -66,15 +66,15 @@
 
 /*actual mapping of Functions to IDF names - depricate the MACROs!!!*/
 EHS_FB_FUNCTIONS_START(DevmanPlayer)
-EHS_FB_FUNCTION_ENTRY("startchecking", 0x00, DevmanPlayer_start_checking) 
-EHS_FB_FUNCTION_ENTRY("stopchecking", 0x01, DevmanPlayer_stop_checking)
-EHS_FB_FUNCTION_ENTRY("changeurl", 0x02, DevmanPlayer_change_url)
-EHS_FB_FUNCTION_ENTRY("reconfigure", 0x03, DevmanPlayer_reconfigure)
-EHS_FB_FUNCTION_ENTRY("trackchanged", 0x04, DevmanPlayer_track_changed)
-EHS_FB_FUNCTION_ENTRY("passthru_next", 0x05, DevmanPlayer_pass_thru_get_next)
-EHS_FB_FUNCTION_ENTRY("passthru_send", 0x06, DevmanPlayer_pass_thru_send_next)
-EHS_FB_FUNCTION_ENTRY("out", 0x07, DevmanPlayer_out)
-EHS_FB_FUNCTION_ENTRY("reset", 0x08, DevmanPlayer_reset)
+EHS_FB_FUNCTION_ENTRY("startchecking", 0x01, DevmanPlayer_start_checking) 
+EHS_FB_FUNCTION_ENTRY("stopchecking", 0x02, DevmanPlayer_stop_checking)
+EHS_FB_FUNCTION_ENTRY("changeurl", 0x03, DevmanPlayer_change_url)
+EHS_FB_FUNCTION_ENTRY("out", 0x04, DevmanPlayer_out)
+EHS_FB_FUNCTION_ENTRY("reconfigure", 0x05, DevmanPlayer_reconfigure)
+EHS_FB_FUNCTION_ENTRY("trackchanged", 0x06, DevmanPlayer_track_changed)
+EHS_FB_FUNCTION_ENTRY("reset", 0x07, DevmanPlayer_reset)
+EHS_FB_FUNCTION_ENTRY("passthru_next", 0x08, DevmanPlayer_pass_thru_get_next)
+EHS_FB_FUNCTION_ENTRY("passthru_send", 0x09, DevmanPlayer_pass_thru_send_next)
 EHS_FB_FUNCTIONS_END
 //EHS_FB_FUNCTION_ENTRY(EHS_FB_DEVMAN_PLAYER_START_FROM_DISK,  DevmanPlayer_StartFromDisk)
 //EHS_FB_FUNCTION_ENTRY(EHS_FB_DEVMAN_PLAYER_CLEAR_PLAYLIST, DevmanPlayer_clearPlaylist)
@@ -136,7 +136,7 @@ struct EhsFbDevmanPlayerStruct   //Note make all ints and bools ehs_uint32 to av
     ehs_uint16 iPingPeriod; /* [Parameter] also adjustable by pulse rate input */
     ehs_uint32 nMute; /*[devman-output-variable] output for controlling player volume @todo this should be enumerated for different players*/
     ehs_uint32 nPlayerState; /*[devman-input-variable] inout to identify player state parameter.*/
-    ehs_uint32 nChannels; /* UNUSED [devman-ouput-variable] to identify mono. stereo, 5.1 audio output modes */
+    ehs_uint32 nChannels; /*  [devman-ouput-variable] to identify mono. stereo, 5.1 audio output modes */
     ehs_uint32 nPlayMode; /*[devman-ouput-variable] to identify player loop or random modes */
     ehs_char szPlaylistURL[EHS_STRING_LENGTH_MAX]; /*[devman-ouput-variable] to identify the fully qualified URL of where playlists are downloaded from - if devman specfies only the filename then the media source URL prepended here by devman code?*/
     ehs_char szPlaylistURLReport[EHS_STRING_LENGTH_MAX]; /* This is the application's reported URL that is reported back to the portal - it isn't used for anything else */
@@ -277,7 +277,6 @@ void EhsGetDevmanPlayerURL(struct EhsFbDevmanPlayerStruct* pDevmanPlayer)
     {
         pDevmanPlayer->CurrentURLindex=-2; /* start from the top again, but wait to loop around - results in two loops before -2 option is actualy tried */
     }
-    //EhsStrcpy(pDevmanPlayer->szUrl, "http://devman.inx-systems.com/cgi-bin/devman_player.cgi");
     EHSH_LOG_INFO("Using Devman Player URL:%s (index %d)\n", pDevmanPlayer->szUrl,pDevmanPlayer->CurrentURLindex);
 }
 
@@ -590,17 +589,16 @@ void LoadStateFromFile(struct EhsFbDevmanPlayerStruct* pDevmanPlayer)
     	pDevmanPlayer->bMediaParmChange=EHS_TRUE;
     	EhsFclose(file);
     }
+    */
     if (file = Ehs_UserFopen("configs/devman-player/Channels.cfg", "r")) {
     	EhsFscanf(file, "%d", &pDevmanPlayer->nChannels);
     	pDevmanPlayer->bMediaParmChange=EHS_TRUE;
     	EhsFclose(file);
     }
-    */
-
     if ( (file = Ehs_UserFopen("configs/devman-player/Mute.cfg", "r")) )
     {
         EhsFscanf(file, "%d", &pDevmanPlayer->nMute);
-        pDevmanPlayer->bMuteParmChange=EHS_TRUE;
+        pDevmanPlayer->bMuteParmChange=EHS_TRUE; //* We don't want to assert this event on ecery boot. We don't for anything else we save.
         EhsFclose(file);
     }
 
@@ -650,7 +648,7 @@ EHS_FB_INIT_FUNCTION(DevmanPlayer)
     pDevmanPlayer->bMuteParmChange=EHS_FALSE; // Set this at init if a mute state has been read from the state info
     pDevmanPlayer->nMute = EHS_FALSE;
     pDevmanPlayer->nPlayerState = 0; /* not playing */
-    pDevmanPlayer->nChannels = 2; // Deprecated  - all information is now stored in JSON for various audio channels
+    pDevmanPlayer->nChannels = 2; // This is the audio channels port on the function block
     pDevmanPlayer->nPlayMode = 0; /* normal play */
     /* Dynamic variables */
     pDevmanPlayer->iPlayerMode = 0;
@@ -1096,8 +1094,8 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                     EhsFprintf(file, "%d\n", pDevmanPlayer->nPlayMode); //@tdp this shoud be fired by start of it is active
                     EhsFclose(file);
                 }
-                //* @todoIDF NEEDED*/ EhsStrncpy(EHS_FB_OUT_I(9),pTempStr,EHS_STRING_LENGTH_MAX);
-                //*EHS_FB_FINISH(9);
+                // * @todoIDF NEEDED*/ EhsStrncpy(EHS_FB_OUT_I(9),pTempStr,EHS_STRING_LENGTH_MAX);
+                // *EHS_FB_FINISH(9);
 
             }
         }
@@ -1116,7 +1114,11 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                 EhsStrcpy(EHS_FB_OUT_S(4),pDevmanPlayer->jsonPlayerParameters);
                 bSome = 1;
             }
-            if (0 == getAttributeValue("channels=", pDevmanPlayer->szXml,
+        }
+#else
+        #ifdef TODO2022 
+	// we need to get the XML format soted in Devman (channels=...)
+	if (0 == getAttributeValue("channels=", pDevmanPlayer->szXml,
                                        pTempStr))
             {
                 pDevmanPlayer->nChannels = atoi(pTempStr);
@@ -1128,13 +1130,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                 EHS_FB_OUT_I(5) = atoi(pTempStr);
                 bSome = 1;
             }
-            if (bSome)   // @todo don't need this? Set flag to say we've got new parameters for things we have found at start up.
-            {
-                //bPlayerParmsChanged=EHS_TRUE;
-                EHS_FB_FINISH(6);
-            }
-        }
-#else
+	#endif
         if (zTempStr2 = Ehs_ReadXMLTag(pDevmanPlayer->szXml, "SetPlayerParameters"))
         {
 
@@ -1146,11 +1142,14 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
             }
             */
             EhsStrcpy(EHS_FB_OUT_S(4),pDevmanPlayer->jsonPlayerParameters);
-            EHS_FB_OUT_I(5) = 2 ;// number of channels?? todo - we can remove this port to save space. We Probably just want to bin this output as this sort of thing will go in the JSON instead.
 
+	   bSome = 1;
             //bPlayerParmsChanged=EHS_TRUE;
-            EHS_FB_FINISH(6);
         }
+	if (bSome) {
+            EHS_FB_FINISH(6);
+	}
+
 
 #endif
         /* Receiving and buffering JSON data from Devman */
@@ -1158,29 +1157,34 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
         {
             ehs_uint32 jsonBufferSize = EhsStrlen(zTempStr2) + 1;
             ehs_char* jsonBuffer = (ehs_char*)malloc(jsonBufferSize);
-            Ehs_CopyXMLTagElement(jsonBuffer, zTempStr2, jsonBufferSize, EHS_TRUE);
-            ehs_uint32 jsonDataSize = EhsStrlen(jsonBuffer);
-            if(jsonDataSize > 0)
-            {
-                EhsLinkedList* list = pDevmanPlayer->pIncomingJsonAppPassThruDataList;
-                ehs_uint32 json_count = ehs_push_json_array_string(list, jsonBuffer, jsonDataSize);
-                EHSH_LOG_INFO("PASSTHROUGH - (%d) (%d) (%s)",jsonDataSize,json_count,jsonBuffer);
-                if(list->count > 0 && list->count == json_count)  // output first element
+            if (jsonBuffer) {
+                Ehs_CopyXMLTagElement(jsonBuffer, zTempStr2, jsonBufferSize, EHS_TRUE);
+                ehs_uint32 jsonDataSize = EhsStrlen(jsonBuffer);
+                if(jsonDataSize > 0)
                 {
-                    EhsNode* node = list->back;
-                    if((node->data_size + 1) < EHS_STRING_LENGTH_MAX)
+                    EhsLinkedList* list = pDevmanPlayer->pIncomingJsonAppPassThruDataList;
+                    ehs_uint32 json_count = ehs_push_json_array_string(list, jsonBuffer, jsonDataSize);
+                    EHSH_LOG_INFO("PASSTHROUGH - (%d) (%d) (%s)",jsonDataSize,json_count,jsonBuffer);
+                    if(list->count > 0 && list->count == json_count)  // output first element
                     {
-                        EhsStrncpy(EHS_FB_OUT_S(12),node->data,node->data_size);
-                        (EHS_FB_OUT_S(12))[node->data_size]='\0';
-                        EHS_FB_FINISH(11);
-                    }
-                    else
-                    {
-                        EHSH_LOG_ERROR("JSON pass thru data size exceeds the EHS_STRING_LENGTH_MAX size limit (%d).\n", EHS_STRING_LENGTH_MAX);
+                        EhsNode* node = list->back;
+                        if((node->data_size + 1) < EHS_STRING_LENGTH_MAX)
+                        {
+                            EhsStrncpy(EHS_FB_OUT_S(12),node->data,node->data_size);
+                            (EHS_FB_OUT_S(12))[node->data_size]='\0';
+                            EHS_FB_FINISH(11);
+                        }
+                        else
+                        {
+                            EHSH_LOG_ERROR("JSON pass thru data size exceeds the EHS_STRING_LENGTH_MAX size limit (%d).\n", EHS_STRING_LENGTH_MAX);
+                        }
                     }
                 }
+                free(jsonBuffer);
             }
-            free(jsonBuffer);
+            else {
+                 EHSH_LOG_WARNING("Could not allocate memory for passthru JSON");
+            }
         }
 
         if ((zTempStr2 = strstr(pDevmanPlayer->szXml, "Mute")))
@@ -1188,7 +1192,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
             if (0 == getAttributeValue("state=", zTempStr2, pTempStr))
             {
                 pDevmanPlayer->nMute = atoi(pTempStr);
-                if (file = Ehs_UserFopen("configs/devman-player/Mute.cfg", "w"))
+                if ( (file = Ehs_UserFopen("configs/devman-player/Mute.cfg", "w")) )
                 {
                     EhsFprintf(file, "%d\n", pDevmanPlayer->nMute); //@tdp this shoud be fired by start of it is active
                     EhsFclose(file);
@@ -1247,10 +1251,11 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
         if (!bPlayerMuteChanged)   //this should stop
         {
             EHS_FB_OUT_B(6) = pDevmanPlayer->nMute;
-            EHS_FB_FINISH(7);
+        /*  EHS_FB_FINISH(7); Don't assert event like we don't for anything else at init, so we can differentiate init values elewhere properly*/
         }
         pDevmanPlayer->bMuteParmChange=EHS_FALSE;
     }
+
     //@todo this crashes when the app is stopped and started again with iab specially when run under GDB.
     if (pDevmanPlayer->szXml)
     {

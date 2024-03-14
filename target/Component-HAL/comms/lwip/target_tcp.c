@@ -145,6 +145,7 @@ ehs_sint32 EhsTgtTcp_recvNonblock(EhsTgtTcpSocketType xRxSocket, ehs_uint8* pDat
                 nDataReceived = EHS_TGT_TCP_SOCKET_ERROR;
             }
             //so people don't call us in a loop forever
+            //todo2023 what is 10 in us or something?
             vTaskDelay(10);
         }
     }
@@ -188,7 +189,9 @@ ehs_bool EhsSvcTgtTcp_closeConnection(EhsTgtTcpSocketType EhsSvcTcpSocketConnect
         {
             if (EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_NOTCONN)
             {
+#ifdef EHS_TGT_TCP_LOG_ENABLED
                 EhsSvcTcp_logSocketError("EhsSvcTcp_closeConnection.shutdown", EhsTgtTcp_getErrorCode(EHS_FALSE));
+#endif
             }
             else
             {

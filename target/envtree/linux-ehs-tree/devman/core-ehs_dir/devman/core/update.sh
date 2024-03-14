@@ -79,7 +79,7 @@ test -e ${SYSDATA}/HTTP_PROXY && export http_proxy=`cat "${SYSDATA}/HTTP_PROXY"`
 test -e ${SYSDATA}/HTTPS_PROXY && export https_proxy=`cat "${SYSDATA}/HTTPS_PROXY"`
 
 # Check to see if there is anything on the server
-dl_dataready=`wget $SSLCERTS -q -O - --post-data 'Group=DEFAULT&DeviceType=DEFAULT&DeviceID='$INXDEVICEID $DEVMANURL/cgi-bin/isupdated.cgi`
+dl_dataready=`wget $SSLCERTS -q -O - --post-data 'Group=DEFAULT&DeviceType=DEFAULT&DeviceID='$INXDEVICEID $DEVMANURL/devmanIsUpdatedCGI.php`
 
 if [ "$dl_dataready" == "data_ready" ]; then 
 	# Server has data available #

@@ -11,13 +11,17 @@ public class EHS_Timer
     }
 
     public virtual void Start(){
-        timer_start = Timer();
-        started = true;
+        lock(this){
+            timer_start = Timer();
+            started = true;
+        }
     }
 
     public virtual void Stop(){
-        started = false;
-        timer_start = 0;
+        lock(this){
+            started = false;
+            timer_start = 0;
+        }
     }
 
     public bool IsStrated(){

@@ -7,6 +7,8 @@
 *	<https://www.mozilla.org/en-US/MPL/2.0/>
 ****************************************************************/
 
+// todo2023 - this should really be in the gui toolbox not the peripherals toolbox.
+
 /**
  * @file keypress.c
  *
@@ -30,11 +32,11 @@
 
 EHS_FB_FUNCTIONS_START(GUI_keypress)
 
-EHS_FB_FUNCTION_ENTRY("hit", 0x00, GUI_keypress_hit)
+EHS_FB_FUNCTION_ENTRY("hit", 0x01, GUI_keypress_hit)
 
-EHS_FB_FUNCTION_ENTRY("enable", 0x01, GUI_keypress_Enable)
+EHS_FB_FUNCTION_ENTRY("enable", 0x02, GUI_keypress_Enable)
 
-EHS_FB_FUNCTION_ENTRY("disable", 0x02, GUI_keypress_Disable)
+EHS_FB_FUNCTION_ENTRY("disable", 0x03, GUI_keypress_Disable)
 EHS_FB_FUNCTIONS_END
 
 #define EHS_FB_GUI_KEYPRESS -1 /**< Callback id for keypress event */

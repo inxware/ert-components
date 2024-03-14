@@ -27,13 +27,5 @@
 include $(EHS_COMMON_HAL_PATH)/file/deps.mk
 
 OBJECTS+= hal_file.$(OBJ)
-
 VPATH+=: $(EHS_COMMON_HAL_PATH)/file
-
-# This doesn't work for some reason
-#ifdef EHS_MINGW2
-#LIB += archive-2
-#else
-#LIB += archive
-#endif
 

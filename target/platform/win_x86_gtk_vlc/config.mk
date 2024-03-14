@@ -15,8 +15,8 @@
 # Set general architecture and OS version 
 #################################################################################################################
 
-EHS_GNU_ARCH=i586## this will pick up the glibc2.9 library
-EHS_GNU_OS=mingw32msvc## make sure we have no spaces after !!
+EHS_GNU_ARCH=i686## this will pick up the glibc2.9 library
+EHS_GNU_OS=mingw32posix## make sure we have no spaces after !!
 KERNEL_VERSION=#None
 
 # ehs is more generic and doesn't use special libc magic.
@@ -26,6 +26,10 @@ EHS_OS=mingw# does this work for
 # SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
 SYSTEM_VARIANT=windesktop
 
+# Used for specifing name of the eRT package/executable
+ERT_PACKAGE_NAME=ehs
+# Used for specifing user facing name of installed application (windows installer)
+ERT_NSIS_EXE_NAME=eRT
 
 ################################################################################################################
 # Configure debug/production levels
@@ -34,12 +38,6 @@ SYSTEM_VARIANT=windesktop
 
 # Some debug options
 #EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
-EHS_DEBUGALL=yes
-
-endif
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
@@ -59,7 +57,7 @@ EHS_DEVMAN_MON_SUPPORT=yes
 ################################################################################################################
 # COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory 
 # libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
-# $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
+# $(EHS_GNU_OS_ARCH)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
 #Note - windows targets in componentlibrary use hyphens between components (randomly)
 COMPONENT_VARIANT=gtk-vlc

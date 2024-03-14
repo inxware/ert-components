@@ -67,7 +67,7 @@ EhsTVSurfaceClass* doConvertRGB8(png_structp PngPtr, png_infop InfoPtr)
 #endif
             //EHSH_LOG_INFO("XXX pointer is at %x offset is %d from width=%d and stride=%d", pPixels,nLineOffset, (InfoPtr->width),EhsTVSurface_pitch(pRet) );
             /* get color values */
-            EHSH_LOG_INFO("DOING RGB Convert %d by %d RGB convert -with offset %d",InfoPtr->width,InfoPtr->height,nLineOffset);
+            EHSH_LOG_INFO("DOING RGB Convert %d by %d RGB convert -with offset %d",(ehs_uint32) InfoPtr->width,(ehs_uint32)InfoPtr->height,nLineOffset);
             for( i = 0u; i < InfoPtr->height; i++)
             {
                 //EHSH_LOG_INFO("XXX pointer position b4 %d-%d-%d", i,j,pos);

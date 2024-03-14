@@ -36,35 +36,59 @@ revision.h : .PHONY
 
 timer.h : target.h callback_queue.h
 
-#OBJECTS+= CBUtils.$(OBJ)
-OBJECTS+= callback_queue.$(OBJ)
-
+# The baisc paths for all configs:
 VPATH+=$(EHS_COMMON_EHS_PATH)
 VPATH+=$(EHS_COMMON_KAPI_PATH)
 
+# Set up any debugging settings. 
 ifdef EHS_DEBUGALL
-#todo2022 - This is a bit of amess - seems we want some strucuture to these being set?
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
-EHS_DEBUG=yes
-EHS_DEBUG_TCPIP_CONSOLE=yes
+	EHS_DEBUG_TCPIP_CONSOLE=yes
+	EHS_RUNTIME_LOGGER_ENABLED=yes
+	EHS_DEBUG_AV=yes
+# Assume we will always want to define this build as a debug build and upload and manage on Devamn accordingly 
+export 	BUILD_MODE=debug
 endif
 
+# Enable the TCPIP connection to tools for debugging and app upload 
 ifdef  EHS_DEBUG_TCPIP_CONSOLE 
-#This is the only place this DEF should be set so that the conditional build includes all work too.
-DEFS += EHS_DEBUG_TCPIP_CONSOLE
-OBJECTS+= console_queue.$(OBJ)
+	DEFS += EHS_DEBUG_TCPIP_CONSOLE
+	OBJECTS+=console_queue.$(OBJ)
 endif
+
+# Enable logging to the device's lcal (stdio) logging
+
+
+#todo this should probably go in the AV module
+ifdef EHS_DEBUG_AV
+	DEFS += EHS_DEBUG_AV	
+endif
+
+# This is the very verose that you will not want to accidently build into anything you release.
+ifdef EHS_DEBUG_TRACE
+    DEFS += EHS_BUILDOPT_STDIO_MESSAGE_TRACE #this is for specific messages
+    DEFS += EHS_BUILDOPT_STDIO_ENABLE_FUNCTION_TRACING # this is the legacy tracing @todo remove the argument number specificity
+	DEFS += EHS_RUNTIME_LOGGER_ENABLED # This is needed for trace debugging.
+else 
+	ifdef EHS_RUNTIME_LOGGER_ENABLED
+		DEFS += EHS_RUNTIME_LOGGER_ENABLED
+	endif
+endif
+
 
 #todo2022 - this should go in the comms.mk file
 ifdef EHS_COMMS_API_SUPPORT
-ifneq ($(EHS_COMMS_API_SUPPORT), none)
-EHS_TARGET_COMMS_API_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/comms/$(EHS_COMMS_API_SUPPORT)
-DEFS+=EHS_COMMS_API_SUPPORT
-INC_DIRS+=EHS_TARGET_COMMS_API_PATH
-include $(EHS_TARGET_COMMS_API_PATH)/comms.mk
-#ifeq ($(EHS_COMMS_API_SUPPORT), bsdsockets)
-#@todo move the DEF to the comms.mk file
-#endif
+	ifneq ($(EHS_COMMS_API_SUPPORT), none)
+		EHS_TARGET_COMMS_API_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/comms/$(EHS_COMMS_API_SUPPORT)
+		DEFS+=EHS_COMMS_API_SUPPORT
+		INC_DIRS+=$(EHS_TARGET_COMMS_API_PATH)
+		include $(EHS_TARGET_COMMS_API_PATH)/comms.mk
+		#ifeq ($(EHS_COMMS_API_SUPPORT), bsdsockets)
+			#@todo move the DEF to the comms.mk file
+		#endif
+	endif
 endif
+
+# for any traget that do not need to store arguments passed to the main
+ifdef EHS_TARGET_NO_MAIN_ARGS
+	DEFS+=EHS_TARGET_NO_MAIN_ARGS=1
 endif

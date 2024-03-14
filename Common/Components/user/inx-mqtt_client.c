@@ -13,33 +13,39 @@
 #include "inx-mqtt_client.h"
 #include "inx-mqtt_subscribe.h"
 #include "inx-mqtt_publish.h"
+#include "hal_network.h"
 #include "ehs_main.h" // we run th main from here!
 //ICB HEADER MACRO END -- DO NOT ALTER
 
-
 #define INX_MQTT_PUBLISH_FIFO_SIZE 1
+
+#ifndef INX_MQTT_CERT_FILENAME_LENGTH
+#define INX_MQTT_CERT_FILENAME_LENGTH 32
+#endif
+
 typedef struct inx_mqtt_client_state_mine
 {
-    ehs_char clientCertFileName[13];
-    ehs_char clientKeyFileName[13];
-    ehs_char rootCAFileName[13];
+    char host[EHS_STRING_LENGTH_MAX];
+    ehs_uint16 port;
+    char clientid[EHS_STRING_LENGTH_MAX];
+    char username[EHS_STRING_LENGTH_MAX];
+    char password[EHS_STRING_LENGTH_MAX];
+    ehs_bool tls;
+    ehs_char clientCertFileName[INX_MQTT_CERT_FILENAME_LENGTH];
+    ehs_char clientKeyFileName[INX_MQTT_CERT_FILENAME_LENGTH];
+    ehs_char rootCAFileName[INX_MQTT_CERT_FILENAME_LENGTH];
     ehs_bool connect;
     EhsFunctionInstanceDataType* pFIdata;
     struct inx_mqtt_client_state_mine* pNext;
     struct inx_mqtt_client_state_mine* pPrev;
 } inx_mqtt_client_state_type_mine;
 
-//ICB STATE VAR MACRO START -- DO NOT ALTER
-/* My Component state data structure. - Use this in your code! */
-typedef struct inx_mqtt_client_state
-{
-    ehs_char* client_cert;
-    ehs_char* client_key;
-    ehs_char* server_cert;
-} inx_mqtt_client_state_type; //Reference this, maybe store your config parameters in here too.
-//ICB STATE VAR MACRO END -- DO NOT ALTER
 static inx_mqtt_client_state_type_mine* gpFirstWidget=NULL;
-static inx_mqtt_client_state_type_mine* inxMQTTSubscribeGetLastWidget()
+
+
+/* @brief Iterates through the global list pointed to by gpFirstWidget
+*/
+static inx_mqtt_client_state_type_mine* inxMQTTClientGetLastWidget()
 {
     inx_mqtt_client_state_type_mine* widget=gpFirstWidget;
     while(widget!=NULL && widget->pNext!=NULL)
@@ -47,21 +53,27 @@ static inx_mqtt_client_state_type_mine* inxMQTTSubscribeGetLastWidget()
         widget=widget->pNext;
         if(widget==widget->pNext)
         {
-            EHSH_LOG_ERROR("inxMQTTSubscribeGetLastWidget infinite loop found");
+            EHSH_LOG_ERROR("inxMQTTClientGetLastWidget infinite loop found");
             widget->pNext=NULL;
+            break;
         }
     }
     return widget;
 }
-static void inxMQTTSubscribeRegisterWidget(inx_mqtt_client_state_type_mine* pState)
+
+/*
+  @brief Build linked list of MQTT Client Functions function blocks.
+*/
+static void inxMQTTClientRegister(inx_mqtt_client_state_type_mine* pState)
 {
     if(gpFirstWidget==NULL)
     {
         gpFirstWidget=pState;
         return;
     }
+    EHSH_LOG_ERROR("More than 1 MQTT client present - I don't think we support this!");
 
-    inx_mqtt_client_state_type_mine* lastWidget=inxMQTTSubscribeGetLastWidget();
+    inx_mqtt_client_state_type_mine* lastWidget=inxMQTTClientGetLastWidget();
     if(lastWidget==NULL)
     {
         gpFirstWidget=pState;
@@ -73,7 +85,12 @@ static void inxMQTTSubscribeRegisterWidget(inx_mqtt_client_state_type_mine* pSta
     }
 }
 
-/*static void inxMQTTSubscribeRemoveWidget(inx_mqtt_client_state_type_mine* pState){
+/* Remove a client widget*/
+static void inxMQTTClientRemove(inx_mqtt_client_state_type_mine* pState){
+    /* todo2023 again we want this to iterate if we are going to have more than 1 client connection. 
+      but for now we are just going to do this:*/
+    gpFirstWidget = NULL;
+    /* Instead of something a bit like this but with iteration 
 	if(pState->pPrev!=NULL){
 		pState->pPrev->pNext=pState->pNext;
 	}
@@ -84,13 +101,15 @@ static void inxMQTTSubscribeRegisterWidget(inx_mqtt_client_state_type_mine* pSta
 	if(gpFirstWidget==pState){
 		gpFirstWidget=pState->pNext;
 	}
-}*/
+    */
+}
+
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(mqtt_client)
 
-EHS_FB_FUNCTION_ENTRY("connect", 0x00, mqtt_client_connect)
-EHS_FB_FUNCTION_ENTRY("disconnect", 0x01, mqtt_client_disconnect)
+EHS_FB_FUNCTION_ENTRY("connect", 0x01, mqtt_client_connect)
+EHS_FB_FUNCTION_ENTRY("disconnect", 0x02, mqtt_client_disconnect)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -101,21 +120,22 @@ EHS_FB_FUNCTIONS_END
 #define INX_mqtt_client_ARG_connect_clientid 4
 #define INX_mqtt_client_ARG_connect_port 5
 #define INX_mqtt_client_ARG_connect_host 6
-#define INX_mqtt_client_ARG_connect_finishdisconnect 1
-#define INX_mqtt_client_ARG_connect_finishconnect 2
+#define INX_mqtt_client_ARG_connect_err_msg 1
+#define INX_mqtt_client_ARG_connect_finishconnect 1
+#define INX_mqtt_client_ARG_connect_err_connect 2
+#define INX_mqtt_client_ARG_connect_finishdisconnect 3
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 #ifdef EHS_MINGW
-#define EHS_MQTT_CLIENT_EXPORT __declspec(dllexport)
+    #define EHS_MQTT_CLIENT_EXPORT __declspec(dllexport)
 #else
-#define EHS_MQTT_CLIENT_EXPORT // nothing
+    #define EHS_MQTT_CLIENT_EXPORT // nothing
 #endif
 EHS_MQTT_CLIENT_EXPORT void EhsMQTTConnectEvent(ehs_bool connect);
 EHS_MQTT_CLIENT_EXPORT void EhsMQTTConnectPoll(ehs_bool* connect,char** host,uint16_t* pPort,uint8_t* pTLS,char** clientid,char** username,char** password,char** clientCertFileName,char** clientKeyFileName,char** rootCAFileName);
+EHS_MQTT_CLIENT_EXPORT void EhsMQTTReportError(const ehs_char* err_msg);
 
-#ifdef EHS_MQTT_SUPPORT_LWIP
-
-
-#else //if not lwip-based solution use aws iot
+#ifdef EHS_MQTT_SUPPORT_AWS_GREENGRASS
+/* All this needs to go into a target HAL layer */
 #include <aws/io/channel.h>
 #include <aws/io/channel_bootstrap.h>
 #include <aws/io/event_loop.h>
@@ -130,6 +150,9 @@ EHS_MQTT_CLIENT_EXPORT void EhsMQTTConnectPoll(ehs_bool* connect,char** host,uin
 #include <aws/mqtt/mqtt.h>
 #include <aws/mqtt/client.h>
 
+/* 
+  todo 2023 This should go in a shared MQTT header
+*/
 typedef enum
 {
     EHS_MQTT_THREAD_STATE_INIT,
@@ -140,6 +163,9 @@ typedef enum
     EHS_MQTT_THREAD_STATE_INTERRUPTED
 } EhsMQTTThreadState;
 
+/*
+    todo - not sure why this is called the test_....?
+*/
 struct test_context
 {
     uint32_t connections;
@@ -156,6 +182,11 @@ struct test_context
     struct aws_condition_variable condition_variable;
 };
 
+ehs_char mqtt_error_msg_buffer[128];
+
+/* 
+todo2023 - shouldn't we be using this?
+*/
 static void clean_connection(struct test_context* tester)
 {
     /*if(tester->connection){
@@ -193,6 +224,8 @@ static void s_mqtt_on_connection_complete(
         tester->threadState=EHS_MQTT_THREAD_STATE_DISCONNECTED;
         clean_connection(tester);
         aws_condition_variable_notify_one(&tester->condition_variable);
+        EhsSprintf(mqtt_error_msg_buffer, "falied to connect (error code : %d)", error_code);
+        EhsMQTTReportError(mqtt_error_msg_buffer);
         return;
     }
 
@@ -302,7 +335,6 @@ static void s_on_packet_received(
     void *userdata)
 {
     ehs_char topicStr[EHS_STRING_LENGTH_MAX];
-    ehs_char payloadStr[EHS_STRING_LENGTH_MAX];
     (void)connection;
     (void)topic;
     (void)dup;
@@ -315,14 +347,12 @@ static void s_on_packet_received(
     bool notify = false;
     struct test_context *tester = userdata;
 
-    if(topic->len<sizeof(topicStr) && payload->len<sizeof(payloadStr))
+    if(topic->len<sizeof(topicStr) && payload->len<EHS_STRING_LENGTH_MAX)
     {
         memcpy(topicStr,topic->ptr,topic->len);
         topicStr[topic->len]='\0';
-        memcpy(payloadStr,payload->ptr,payload->len);
-        payloadStr[payload->len]='\0';
         aws_mutex_lock(&tester->lock);
-        EhsMQTTSubscribeEvent(topicStr,payloadStr);
+        EhsMQTTSubscribeEvent(topicStr,(char*)payload->ptr,payload->len);
         aws_mutex_unlock(&tester->lock);
     }
 }
@@ -410,26 +440,79 @@ EHS_FB_THREAD_FUNCTION(mqtt_client_thread)
             if(connect)
             {
                 tester.threadState=EHS_MQTT_THREAD_STATE_CONNECTING;
+                // client id must be specified !
+                if(clientid == NULL || EhsStrlen(clientid) <= 0){
+                    EhsMQTTReportError("clientId is not specified");
+                    break;
+                }
+                // host must be specified !
+                if(host == NULL || EhsStrlen(host) <= 0){
+                    EhsMQTTReportError("host url is not specified");
+                    break;
+                }
+                // port must be specified !
+                if(port == 0){
+                    EhsMQTTReportError("port must be specified and larger than 0");
+                    break;
+                }
                 if(tls==EHS_TRUE)
                 {
+                    ehs_bool hasClientCert = EHS_FALSE;
                     EhsHMetagetCurrentAppDir(canonicalAppdataPath);
                     canonicalClientCertFileName[0]='\0';
-                    EhsStrcat(canonicalClientCertFileName,canonicalAppdataPath);
-                    EhsStrcat(canonicalClientCertFileName,EHS_TD_FILES_SEPARATOR_STR);
-                    EhsStrcat(canonicalClientCertFileName,clientCertFileName);
+                    if(clientCertFileName != NULL && clientCertFileName[0] != '\0'){
+                        EhsStrcat(canonicalClientCertFileName,canonicalAppdataPath);
+                        EhsStrcat(canonicalClientCertFileName,EHS_TD_FILES_SEPARATOR_STR);
+                        EhsStrcat(canonicalClientCertFileName,clientCertFileName);
+                        // check if certificate exists
+                        if(EhsTF_exists(canonicalClientCertFileName) == 0){
+                            printf("File (%s) does NOT exist !\n", clientCertFileName);
+                            EhsMQTTReportError("cannot find client cert");
+                            break;
+                        }
+                        hasClientCert = EHS_TRUE;
+                    }
+                    ehs_bool hasClientKey = EHS_FALSE;
                     canonicalClientKeyFileName[0]='\0';
-                    EhsStrcat(canonicalClientKeyFileName,canonicalAppdataPath);
-                    EhsStrcat(canonicalClientKeyFileName,EHS_TD_FILES_SEPARATOR_STR);
-                    EhsStrcat(canonicalClientKeyFileName,clientKeyFileName);
+                    if(clientKeyFileName != NULL && clientKeyFileName[0] != '\0'){
+                        EhsStrcat(canonicalClientKeyFileName,canonicalAppdataPath);
+                        EhsStrcat(canonicalClientKeyFileName,EHS_TD_FILES_SEPARATOR_STR);
+                        EhsStrcat(canonicalClientKeyFileName,clientKeyFileName);
+                        // check if certificate exists
+                        if(EhsTF_exists(canonicalClientKeyFileName) == 0){
+                            printf("File (%s) does NOT exist !\n", clientKeyFileName);
+                            EhsMQTTReportError("cannot find client key");
+                            break;
+                        }
+                        hasClientKey = EHS_TRUE;
+                    }
+                    ehs_bool hasCaCert = EHS_FALSE;
                     canonicalRootCAFileName[0]='\0';
-                    EhsStrcat(canonicalRootCAFileName,canonicalAppdataPath);
-                    EhsStrcat(canonicalRootCAFileName,EHS_TD_FILES_SEPARATOR_STR);
-                    EhsStrcat(canonicalRootCAFileName,rootCAFileName);
-                    if(AWS_OP_SUCCESS == aws_tls_ctx_options_init_client_mtls_from_path(&tls_ctx_opt, allocator, canonicalClientCertFileName,canonicalClientKeyFileName))
+                    if(rootCAFileName != NULL && rootCAFileName[0] != '\0'){
+                        EhsStrcat(canonicalRootCAFileName,canonicalAppdataPath);
+                        EhsStrcat(canonicalRootCAFileName,EHS_TD_FILES_SEPARATOR_STR);
+                        EhsStrcat(canonicalRootCAFileName,rootCAFileName);
+                        // check if certificate exists
+                        if(EhsTF_exists(canonicalRootCAFileName) == 0){
+                            printf("File (%s) does NOT exist !\n", rootCAFileName);
+                            EhsMQTTReportError("cannot find ca cert");
+                            break;
+                        }
+                        hasCaCert = EHS_TRUE;
+                    }
+
+                    ehs_sint32 aws_ret = AWS_OP_SUCCESS;
+                    if(hasClientCert == EHS_TRUE || hasClientKey == EHS_TRUE){
+                        aws_ret = aws_tls_ctx_options_init_client_mtls_from_path(&tls_ctx_opt, allocator, canonicalClientCertFileName, canonicalClientKeyFileName);
+                    }else{
+                        aws_tls_ctx_options_init_default_client(&tls_ctx_opt, allocator);
+                    }
+
+                    if(AWS_OP_SUCCESS == aws_ret)
                     {
                         if(AWS_OP_SUCCESS == aws_tls_ctx_options_set_alpn_list(&tls_ctx_opt, "x-amzn-mqtt-ca"))
                         {
-                            if(AWS_OP_SUCCESS == aws_tls_ctx_options_override_default_trust_store_from_path(&tls_ctx_opt,NULL,canonicalRootCAFileName))
+                            if(hasCaCert == EHS_FALSE || AWS_OP_SUCCESS == aws_tls_ctx_options_override_default_trust_store_from_path(&tls_ctx_opt,NULL,canonicalRootCAFileName))
                             {
                                 tester.tls_ctx = aws_tls_client_ctx_new(allocator, &tls_ctx_opt);
                                 if(tester.tls_ctx != NULL)
@@ -439,25 +522,25 @@ EHS_FB_THREAD_FUNCTION(mqtt_client_thread)
                                 }
                                 else
                                 {
-                                    //TODO tls_ctx is NULL
+                                    EhsMQTTReportError("failed to create client context");
                                     break;
                                 }
                             }
                             else
                             {
-                                //TODO failed to init certs
+                                EhsMQTTReportError("failed to store ca cert");
                                 break;
                             }
                         }
                         else
                         {
-                            //TODO failed to init TLS opts
+                            EhsMQTTReportError("failed to initalise tls options");
                             break;
                         }
                     }
                     else
                     {
-                        //TODO failed to init client mtls
+                        EhsMQTTReportError("failed to initalise client cert and key");
                         break;
                     }
                 }//if(tls==EHS_TRUE)
@@ -627,13 +710,7 @@ EHS_FB_THREAD_FUNCTION(mqtt_client_thread)
     EhsHThread_exit();
 }
 #endif //else if EHS_LWIP
-//ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
-/* Parameters */
-/* Create some macros for the default parameters */
-#define INX_FB_mqtt_client_client_cert client.pem
-#define INX_FB_mqtt_client_client_key client.key
-#define INX_FB_mqtt_client_server_cert server.crt
-//ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
+
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 /**
  * Identify the function block to EHS.
@@ -643,18 +720,19 @@ EHS_FB_THREAD_FUNCTION(mqtt_client_thread)
  */
 EHS_FB_IDENTIFY_FUNCTION(mqtt_client)
 {
-    /* Uncomment the following if you need to parse the parameters to calculate memory required */
-    /*
-    	ehs_char* client_cert;
-    	ehs_char* client_key;
-    	ehs_char* server_cert;
-    	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%s %s %s",&client cert,&client key,&server cert); */
-    /*
-    EHS_FB_IDENTIFY_MEMORY = sizeof(inx_mqtt_client_state_type);
-     */
     EHS_FB_IDENTIFY_MEMORY = sizeof(inx_mqtt_client_state_type_mine);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+
+/* Set string set as NULL as 0-length string */
+void handle_mqtt_param_string(ehs_char* str, ehs_uint32 size)
+{
+    if(str && EhsStrcmp(str, "NULL") == 0)
+    {
+        EhsMemset(str, '\0', size);
+    }
+}
+
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
 /**
  * Initialise the function block. Populate the context area for the function block.
@@ -662,50 +740,60 @@ EHS_FB_IDENTIFY_FUNCTION(mqtt_client)
  *  EHS_FB_INIT_CONTEXT - pointer to the context area provided by EHS for this function block
  *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
  */
-
 EHS_FB_INIT_FUNCTION(mqtt_client)
 {
-    /*
-    ehs_char* client_cert;
-    ehs_char* client_key;
-    ehs_char* server_cert;
-     */
     ehs_bool bRet = EHS_TRUE; /* assume success */
-    //this is the reference to the object data for this instance of the function block
-    /*
-    inx_mqtt_client_state_type* inx_mqtt_client_state = (inx_mqtt_client_state_type*)EHS_FB_INIT_CONTEXT;
-     */
-    /* read the initialisation parameters */
-    /*
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s %s %s",&client cert,&client key,&server cert);
-    */
-    /* Add any further intialisation code here */
 
     inx_mqtt_client_state_type_mine* inx_mqtt_client_state = (inx_mqtt_client_state_type_mine*)EHS_FB_INIT_CONTEXT;
     inx_mqtt_client_state->pFIdata=NULL;
     inx_mqtt_client_state->connect=0;
     inx_mqtt_client_state->pNext=NULL;
     inx_mqtt_client_state->pPrev=NULL;
-    /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%12s%12s%12s",inx_mqtt_client_state->clientCertFileName,inx_mqtt_client_state->clientKeyFileName,inx_mqtt_client_state->rootCAFileName);
+    inx_mqtt_client_state->port = 0;
+    inx_mqtt_client_state->tls = 0;
+
+    const char* pParams = EHS_FB_INIT_PARAMETERS;
+    if (pParams) {
+        EhsSscanf(pParams, "%s %d %s %s %s %d %s %s %s",
+                  inx_mqtt_client_state->host, &inx_mqtt_client_state->port, inx_mqtt_client_state->clientid,
+                  inx_mqtt_client_state->username, inx_mqtt_client_state->password,
+                  &inx_mqtt_client_state->tls,
+                  inx_mqtt_client_state->clientCertFileName, inx_mqtt_client_state->clientKeyFileName, inx_mqtt_client_state->rootCAFileName);
+        /* Check for Lucid tools use of NULL as place holder for missing strings */
+        handle_mqtt_param_string(inx_mqtt_client_state->host, EHS_STRING_LENGTH_MAX);
+        handle_mqtt_param_string(inx_mqtt_client_state->clientid, EHS_STRING_LENGTH_MAX);
+        handle_mqtt_param_string(inx_mqtt_client_state->username, EHS_STRING_LENGTH_MAX);
+        handle_mqtt_param_string(inx_mqtt_client_state->password, EHS_STRING_LENGTH_MAX);
+        handle_mqtt_param_string(inx_mqtt_client_state->clientCertFileName, INX_MQTT_CERT_FILENAME_LENGTH);
+        handle_mqtt_param_string(inx_mqtt_client_state->clientKeyFileName, INX_MQTT_CERT_FILENAME_LENGTH);
+        handle_mqtt_param_string(inx_mqtt_client_state->rootCAFileName, INX_MQTT_CERT_FILENAME_LENGTH);
+
+    }
+    else {
+        EHSH_LOG_ERROR("No MQTT connection client paramters found");
+    }
     /* Add any further intialisation code here */
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
-    inxMQTTSubscribeRegisterWidget(inx_mqtt_client_state);
-    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    //EhsTPMutex_lock(EhsTPMutex_fbIO);
+    inxMQTTClientRegister(inx_mqtt_client_state);
+    //EhsTPMutex_unlock(EhsTPMutex_fbIO);
 #if EHS_LWIP
-#else //if EHS_LWIP
+#elif defined(EHS_MQTT_SUPPORT_AWS_GREENGRASS) //if EHS_LWIP
     EHS_FB_START_THREAD(mqtt_client_thread,-99);
-#endif //else if EHS_LWIP
+#endif //#elif defined(EHS_MQTT_SUPPORT_AWS_GREENGRASS) //if EHS_LWIP
     return bRet; /* initialisation always succeeds */
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(mqtt_client)
 {
-    /*
+    /* todo2023 - if we do want handle multiple clients then we will need to find the specific instance and remove it from the linked list
+
     inx_mqtt_client_state_type *inx_mqtt_client_state = (inx_mqtt_client_state_type*)EHS_FB_DESTROY_CONTEXT;
      */
     //Your code below here
+    EHSH_LOG_WARNING("Setting the linked list to NULL - possibly a memory leek?");
+    inxMQTTClientRemove(EHS_FB_INIT_CONTEXT);
+
     return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
@@ -730,33 +818,21 @@ EHS_FB_RUN_FUNCTION(mqtt_client_connect)
     //create a pointer to our run data so that we can process events from unity later
     inx_mqtt_client_state->pFIdata = EHS_FB_RUN_CONTEXT_REF;
     inx_mqtt_client_state->connect=1;
-    /*
-    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_port))
-    	EHS_FB_IN_I_API2(INX_mqtt_client_ARG_connect_port) ;
-    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_clientid))
-    	EHS_FB_IN_S_API2(INX_mqtt_client_ARG_connect_clientid) ;
-    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_username))
-    	EHS_FB_IN_S_API2(INX_mqtt_client_ARG_connect_username) ;
-    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_tls))
-    	EHS_FB_IN_B_API2(INX_mqtt_client_ARG_connect_tls) ;
-    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_password))
-    	EHS_FB_IN_S_API2(INX_mqtt_client_ARG_connect_password) ;
-    if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_host))
-    	EHS_FB_IN_S_API2(INX_mqtt_client_ARG_connect_host) ;
-    EHS_FB_FINISH(INX_mqtt_client_ARG_connect_finishdisconnect);
-    EHS_FB_FINISH(INX_mqtt_client_ARG_connect_finishconnect);
-     */
+
 }//ICB FUNCTION connect MACRO END -- DO NOT ALTER THIS LINE
 
 #ifdef EHS_MINGW
-#define EHS_MQTT_CLIENT_EXPORT __declspec(dllexport)
+   #define EHS_MQTT_CLIENT_EXPORT __declspec(dllexport)
 #else
-#define EHS_MQTT_CLIENT_EXPORT // nothing
+   #define EHS_MQTT_CLIENT_EXPORT // nothing
 #endif
 
+/* 
+   @brief Reads the data values from inout ports and overides any paramters
+*/
 EHS_MQTT_CLIENT_EXPORT void EhsMQTTConnectPoll(ehs_bool* connect,char** host,uint16_t* pPort,uint8_t* pTLS,char** clientid,char** username,char** password,char** clientCertFileName,char** clientKeyFileName,char** rootCAFileName)
 {
-    inx_mqtt_client_state_type_mine* inx_mqtt_client_state=inxMQTTSubscribeGetLastWidget();
+    inx_mqtt_client_state_type_mine* inx_mqtt_client_state=inxMQTTClientGetLastWidget();
     if(inx_mqtt_client_state==NULL)
     {
         *connect=0;
@@ -777,34 +853,52 @@ EHS_MQTT_CLIENT_EXPORT void EhsMQTTConnectPoll(ehs_bool* connect,char** host,uin
             if(EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_host))
             {
                 *host=EHS_FB_IN_S_API2(INX_mqtt_client_ARG_connect_host);
+            }else{
+                *host = inx_mqtt_client_state->host;
             }
             if(EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_port))
             {
                 *pPort=EHS_FB_IN_I_API2(INX_mqtt_client_ARG_connect_port);
+            }else{
+                *pPort=inx_mqtt_client_state->port;
             }
             if(EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_tls))
             {
                 *pTLS=EHS_FB_IN_B_API2(INX_mqtt_client_ARG_connect_tls);
+            }else{
+                *pTLS=inx_mqtt_client_state->tls;
             }
             if(EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_clientid))
             {
                 *clientid=EHS_FB_IN_S_API2(INX_mqtt_client_ARG_connect_clientid);
+            }else{
+                *clientid=inx_mqtt_client_state->clientid;
             }
             if(EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_username))
             {
                 *username=EHS_FB_IN_S_API2(INX_mqtt_client_ARG_connect_username);
+            }else{
+                *username=inx_mqtt_client_state->username;
             }
             if(EHS_FB_IN_CONNECTED_API2(INX_mqtt_client_ARG_connect_password))
             {
                 *password=EHS_FB_IN_S_API2(INX_mqtt_client_ARG_connect_password);
+            }else{
+                *password=inx_mqtt_client_state->password;
             }
         }
     }
 }
 
+/* 
+@brief Callb ack when the connection is made (just asserts the output event)
+todo2024 - this should support instance data for the specific function instance. 
+*/
+
 EHS_MQTT_CLIENT_EXPORT void EhsMQTTConnectEvent(ehs_bool connect)
 {
-    inx_mqtt_client_state_type_mine* pState=inxMQTTSubscribeGetLastWidget();
+    // todo2024 just using the last one for now.
+    inx_mqtt_client_state_type_mine* pState=inxMQTTClientGetLastWidget();
     if(pState==NULL)
     {
 
@@ -831,6 +925,33 @@ EHS_MQTT_CLIENT_EXPORT void EhsMQTTConnectEvent(ehs_bool connect)
     }
 }
 
+/* Writes out error messages. 
+   todo2023 - this seems to assume we only ever report errors via the the last client FB, which is OK wjile we only have 1 but is a bit random.
+*/
+
+EHS_MQTT_CLIENT_EXPORT void EhsMQTTReportError(const ehs_char* err_msg)
+{
+    if(err_msg && err_msg[0] != '\0')
+    {
+        EhsTPMutex_lock(EhsTPMutex_fbIO);
+        inx_mqtt_client_state_type_mine* pState=inxMQTTClientGetLastWidget();
+        if(pState != NULL)
+        {
+            //create pFIData variable so we can use the APIs
+            EhsFunctionInstanceDataType* pFIdata=pState->pFIdata;
+            if(pFIdata != NULL)
+            {
+                if (EHS_FB_OUT_CONNECTED_API2(INX_mqtt_client_ARG_connect_err_msg))
+                {
+                    EhsStrcpy(EHS_FB_OUT_S_API2(INX_mqtt_client_ARG_connect_err_msg), err_msg);
+                    EHS_FB_FINISH(INX_mqtt_client_ARG_connect_err_connect);
+                }
+            }
+        }
+        EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    }
+}
+
 //ICB FUNCTION disconnect MACRO START -- DO NOT ALTER
 /**
  * Definition of mqtt_client_disconnect.
@@ -841,10 +962,6 @@ EHS_MQTT_CLIENT_EXPORT void EhsMQTTConnectEvent(ehs_bool connect)
  */
 EHS_FB_RUN_FUNCTION(mqtt_client_disconnect)
 {
-    /*
-    inx_mqtt_client_state_type* inx_mqtt_client_state = (inx_mqtt_client_state_type*)EHS_FB_RUN_CONTEXT;
-    */
-
     // Your code here
     inx_mqtt_client_state_type_mine* inx_mqtt_client_state = (inx_mqtt_client_state_type_mine*)EHS_FB_RUN_CONTEXT;
     inx_mqtt_client_state->connect=0;

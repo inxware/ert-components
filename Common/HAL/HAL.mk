@@ -68,14 +68,11 @@ ifdef EHS_JSON_SUPPORT
 include $(EHS_COMMON_HAL_PATH)/json/json.mk
 endif
 #Requires Library support
+#$(info Checking XML flag)
 
-#Minimal XML - no library needed 
-ifdef EHS_DEVMAN_SUPPORT 
-#  || defined (EHS_MEDIA_SUPPORT)  && !defined(EHS_SKIP_GNULIBRARIES)
-    include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
-else ifdef EHS_INCLUDE_XML_SUPPORT
-    include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
-endif
+#Note this includes the internal minimal XML parser used in Devman core.
+#libxml2 is deselcted internally if not needed
+include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
 
 #########################################
 #Networking dependent components support
@@ -91,8 +88,8 @@ endif
 ##########################################
 # Knit it all together 
 ##########################################
-
-INC_DIRS += $(EHS_COMMON_HAL_PATH)/include
+# THis is done earlier in platform.mk so all the target stuff can work
+#INC_DIRS += $(EHS_COMMON_HAL_PATH)/include
 
 OBJECTS+= hal.$(OBJ)
 

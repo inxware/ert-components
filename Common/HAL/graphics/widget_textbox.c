@@ -125,8 +125,7 @@ EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, 
     EhsTPMutex_unlock(EhsTPMutex_viewport);
     return pWidget;
 }
-
-
+    
 
 /**
  * Create the widget. This is a necessary step prior to showing the widget.
@@ -137,7 +136,6 @@ ehs_bool EhsWidgetTextbox_create(EhsWidgetClass* pWidget)
 {
     /* No specific textbox creation activities are required */
     /* todo this may in fact be where the glyph blitter should be called from for initial text - for efficiency */
-
     return EHS_TRUE;
 }
 
@@ -157,6 +155,7 @@ void EhsWidgetTextbox_destroy(EhsWidgetClass* pWidget)
     /* no specific textbox destruction activities are required */
 }
 
+
 /**
  * Cause the widget to be displayed (assuming it's already been created). If
  * it hasn't been created, there are no ill effects.
@@ -169,6 +168,17 @@ void EhsWidgetTextbox_destroy(EhsWidgetClass* pWidget)
  * @param pViewport. Viewport to display the widget on.
  * @param pClipRect Specifies the bounds for drawing the widget
  */
+#ifdef BLIT
+void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
+{
+    EhsTVSurfaceClass* pSurface;
+    EhsGraphicsColourClass xPalette[2];
+    xPalette[0] = EHS_WIDGET_TEXTBOX(pWidget).xBgColour;
+    xPalette[1] = EHS_WIDGET_TEXTBOX(pWidget).xFgColour;
+    pSurface = EhsTVSurface_create(pViewport,pWidget->xCurRect.nWidth,pWidget->xCurRect.nHeight,EHS_GRAPHICS_COLOUR_A1,xPalette,2);//,EHS_TRUE);
+    EhsTVSurface_destroy(pViewport, pSurface);
+}
+#else
 void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
     EhsTVSurfaceClass* pSurface;
@@ -207,6 +217,8 @@ void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpor
                     /* iterate through the words in the string and deal word-by-word */
                     while(bOk && EhsHGHtmlString_getWord(&(EHS_WIDGET_TEXTBOX(pWidget).xText), &szWord, &eType, &pCurrentWord))
                     {
+#ifndef EHS_DONT_USE_BASIC_FONTS
+                        
                         switch (eType)
                         {
                         case EHSHG_HTML_WORD_STYLE_TEXT:
@@ -233,6 +245,10 @@ void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpor
                         default:
                             break;
                         }
+#else 
+// No other font renders currently implemented!
+
+#endif
                     }
                 }
             }
@@ -277,18 +293,7 @@ void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpor
         EhsTV_blit_withlock(pViewport, EHS_WIDGET_TEXTBOX(pWidget).pSurface, &(pWidget->xCurRect),&xSrc, 255u);
     }
 }
-
-#ifdef BLIT
-void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
-{
-    EhsTVSurfaceClass* pSurface;
-    EhsGraphicsColourClass xPalette[2];
-    xPalette[0] = EHS_WIDGET_TEXTBOX(pWidget).xBgColour;
-    xPalette[1] = EHS_WIDGET_TEXTBOX(pWidget).xFgColour;
-    pSurface = EhsTVSurface_create(pViewport,pWidget->xCurRect.nWidth,pWidget->xCurRect.nHeight,EHS_GRAPHICS_COLOUR_A1,xPalette,2);//,EHS_TRUE);
-    EhsTVSurface_destroy(pViewport, pSurface);
-}
-#endif /*BLIT*/
+#endif
 /**
  * Set the text to be displayed onto a specific textbox. This function can be called
  * directly by any functions
@@ -313,6 +318,8 @@ void EhsWidgetTextbox_write(struct EhsWidgetStruct* pWidget, const ehs_char* szT
         {
             EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
         }
+        pWidget->bContentUpdated = EHS_TRUE;
+        //printf("Write pWidget: %p\n", pWidget);
     }
     EhsTPMutex_unlock(EhsTPMutex_viewport);
 }

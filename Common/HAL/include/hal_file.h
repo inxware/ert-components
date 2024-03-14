@@ -31,9 +31,10 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "hal.h" // needed for EhsMetaDataType
+#include "globals.h"
 #include "target_file.h"
-#include "ehs_types.h"
+#include "hal.h" // needed for EhsMetaDataType
+
 
 /*****************************************************************************/
 /* Define macros  */
@@ -42,7 +43,7 @@
 /* Define types */
 
 
-/* THis is used for selecting what kind of directory HAL file system commands will operate with */
+/* This is used for selecting what kind of directory HAL file system commands will operate with */
 typedef enum
 {
     EHS_RUNTIME_BIN_DIR,
@@ -135,7 +136,7 @@ ehs_bool Ehs_Touch(ehs_char * path);
 ehs_bool Ehs_MakePath(const ehs_char * path,ehs_bool last_is_file );
 ehs_bool EhsHRename(const ehs_char * szOrigFilename,const ehs_char * szToFilename);
 ehs_bool EhsHRemove(const ehs_char * szOrigFilename);
-
+ehs_bool EhsHCopy(const ehs_char* szSrcFilename, const ehs_char* szDstFilename);
 
 /* helper functions that are probably found in hal_file.c */
 
