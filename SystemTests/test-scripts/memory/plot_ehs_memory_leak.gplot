@@ -1,0 +1,2 @@
+plot "./memory.log" using 1 title "VSZ",  "./memory.log" using 2 title "PHY"
+
