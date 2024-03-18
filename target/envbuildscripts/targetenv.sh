@@ -25,7 +25,7 @@ export UPLOAD
 #create File system, including target specific parts and version information
 #echo  "running ./target/envbuildscripts/targetenv_directories.sh" $SPECIFIC_TARGET
 echo -e "\nXXXXXXXXXXXXXXXX  Copying eRT hosted assets to staging directory...    XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-./target/enlinux_amd64_gtk_gstvbuildscripts/targetenv_directories.sh $SPECIFIC_TARGET
+./target/envbuildscripts/targetenv_directories.sh $SPECIFIC_TARGET
 ### EHS ################################################
 if test -e ehs_${SPECIFIC_TARGET}.${EXE}; then 
 	echo -e "Found ehs_"${SPECIFIC_TARGET}.${EXE}", copying to target staging directory:\n../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.${EXE}\n"; 

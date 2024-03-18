@@ -35,6 +35,9 @@ EHS_MQTT_SUPPORT=1
 DEFS=EHS_MQTT_SUPPORT=1
 DEFS += EHS_ESP32_SUPPORT=1
 
+#DEFS += TARGET_OS_VERSION_STRING='\"esp32s3.$(date +'%Y%m%d%H%M%S').$(git rev-parse --short HEAD).$(grep -o '".*"' ${PWD}/target/os-arch/esp32s3_freertos-xtensa/target_version_string.mk  | sed 's/"//g' | cut -d. -f4 | awk '{print $1 + 1}')\"'" > ${PWD}/target/os-arch/esp32s3_freertos-xtensa/target_version_string.mk
+DEFS += TARGET_OS_VERSION_STRING='"$(shell cat ./Releases/version_strings |tr '\n' '.')"' 
+
 EHS_UART_SUPPORT=yes
 
 #Enable gdb debugging by default
@@ -74,7 +77,9 @@ OBJECTS += mqtt.$(OBJ)
 OBJECTS += target_uart.${OBJ}
 OBJECTS += target_wifi.${OBJ}
 OBJECTS += target_ethernet.${OBJ}
+ifeq (EHS_OTA_SUPPORT,stubbed)
 OBJECTS += target_ota.${OBJ}
+endif
 OBJECTS += target_data_bin.${OBJ}
 
 #expect we will need all of the lib*.a from ert-contrib-middleware/target_libs/..esp32s3 .. /build/lib/ here 
@@ -187,4 +192,3 @@ endif
 #LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa
 
 # include $(EHS_TARGET_COMPONENT_HAL_PATH)/graphics/lvgl/lvgl_test.mk
-include $(EHS_TARGETS_ROOT_PATH)/os-arch/esp32s3_freertos-xtensa/target_version_string.mk

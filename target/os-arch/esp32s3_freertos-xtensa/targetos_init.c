@@ -234,6 +234,12 @@ void getNextValue(ehs_char * dst, ehs_FILE *pFile, char * buffer)
     }
 }
 
+//Method of checking the version number string read from file
+//#define XSTR(x) STR(x)
+//#define STR(x) #x
+//#pragma message "TARGET_OS_VERSION_STRING" XSTR(TARGET_OS_VERSION_STRING)
+//#error TARGET_OS_VERSION_STRING
+
 void getOSVersion(ehs_char * dst)
 {
     if (dst == NULL) return;

@@ -8,15 +8,6 @@ set -e
 
 # Check to see if we should use a docker image
 PATH_TO_TARGET_DOCKER_IMAGE="${PWD}/target/platform/${TARGET}/Dockerimagename"
-#todo check for a config.mk variable - either as an argument or set by mkae as an environment variable.
-if [[ "$TARGET" == *"esp32s3"* ]]
-then
-    echo "DEFS += TARGET_OS_VERSION_STRING='\"esp32s3.$(date +'%Y%m%d%H%M%S').$(git rev-parse --short HEAD).$(grep -o '".*"' ${PWD}/target/os-arch/esp32s3_freertos-xtensa/target_version_string.mk  | sed 's/"//g' | cut -d. -f4 | awk '{print $1 + 1}')\"'" > ${PWD}/target/os-arch/esp32s3_freertos-xtensa/target_version_string.mk
-    pushd ${PWD}
-    git add target/os-arch/esp32s3_freertos-xtensa/target_version_string.mk
-    git update-index --skip-worktree target/os-arch/esp32s3_freertos-xtensa/target_data_bin.c
-    popd
-fi
 
 if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
 	read Dockerimagename <  ${PATH_TO_TARGET_DOCKER_IMAGE} || echo "Could not read ${PATH_TO_TARGET_DOCKER_IMAGE} "

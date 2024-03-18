@@ -83,7 +83,7 @@ EHS_TARGET_NO_MAIN_ARGS=yes
 EHS_OTA_SUPPORT=stubbed
 
 #Application Selection
-EHS_DEFAULT_APP=hardware-test-apps/HRDCv2
+#EHS_DEFAULT_APP=hardware-test-apps/<your Lucid App path>
 
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
