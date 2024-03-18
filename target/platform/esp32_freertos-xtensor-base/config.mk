@@ -50,8 +50,13 @@ DEFS += EHS_LWIP
 DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
 
+#EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+EHS_OTA_SUPPORT=stubbed
+
+
 #DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
 #DEVMAN_SERVER_PROTOCOL=https
+
 
 include ./target/devman-configs/inx-systems.com.mk
 
