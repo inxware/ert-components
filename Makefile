@@ -285,7 +285,7 @@ targetenv_cleanall: chkconfig
 	@./target/envbuildscripts/targetenv_clean_all.sh $(TARGET)
 upload_ehs_deb: chkconfig #
 	@./target/envbuildscripts/upload_ehs_deb.sh $(TARGET)
-upload_ehs_sys_patch: chkconfig #
+upload_ehs_sys_patch: chkconfig #upload
 	@./target/envbuildscripts/EHS_syspatch_generate_upload.sh $(TARGET)
 upload_server2server_OS_Update: chkconfig #
 	@./target/envbuildscripts/EHS_server2server_update_generate_upload.sh $(TARGET)

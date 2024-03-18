@@ -21,4 +21,4 @@ ERT_NSIS_EXE_NAME=eRT
 include ./target/platform/win_x86_lvgl/config.mk
 
 # enable eRT1 support
-EHRT1=yes
+ERT_SODL_VERSION=1

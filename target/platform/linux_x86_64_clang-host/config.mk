@@ -50,7 +50,8 @@ EHS_COMPONENT_NETWORKING_SUPPORT=all
 EHS_DEVMAN_SUPPORT=all
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 EHS_DEVMAN_MON_SUPPORT=yes 
-#todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
+
+EHS_OTA_SUPPORT=stubbed
 
 ################################################################################################################
 # Select which source of contributed library dependencies are used to build the target

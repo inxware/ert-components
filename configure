@@ -11,9 +11,9 @@
 
 if [ ! -n "${1}" ] ;then
     echo "Usage" 
-    echo "./configure [TARGET] [-edit]"
+    echo "./configure [YOUR TARGET FROM BELOW]"
     echo "OR"
-    echo "./configure -edit to edit the current config.mk file"
+    echo "./configure help to see more utilities"
 
     echo "where target is one of the following target configurations:"
     ls --hide "*.mk"  ./target/platform/
@@ -27,7 +27,24 @@ if [ ! -n "${1}" ] ;then
    fi
    exit 1
 fi
-if [ "$1" = "-edit" ]; then
+if [ "$1" = "-help" -o "$1" = "help" ]; then
+  echo " Utilities to help build eRT for your target: "
+  echo "./configure                        : show the list of targets available"
+  echo "./configure your_target            : choose a target to build for (this is sticky configuration)"
+  echo "./confgiure -edit                  : edit ./target/platform/${TARGET} (exit to return here!) with nano" 
+  echo "./confgiure -debug                 : run the target on this host with GDB (if the host supports it!)" 
+  echo "./confgiure -run                   : run the target on this host (if the host supports it!)"  
+  echo "./confgiure -edit-dockerfile       : change the docker configuration (if this target has a Dockerfile)"
+  echo "./confgiure -edit-dockerimagename  : change the name of te docke image used to build the target" 
+  echo "./confgiure -pushd		     : cahnge directory to the ../TARGET_TREES staging directory (exit to return here)"
+  echo "./confgiure -pushd-config          : change directory to ./target/platform/${TARGET} (exit to return here!)"
+  echo "Use the following to see build commands and utilities:"
+  echo "make help"
+  exit 0
+fi
+
+# The tree is configured entirely by this reference to config files in target/platform/*
+if [ "$1" = "-edit" ];then
 	source ./TARGET.cfg
 	nano ./target/platform/${TARGET}/config.mk
 	exit
@@ -76,13 +93,18 @@ fi
 # Check we have the config
 if [ ! -d ./target/platform/$1 ]; then
     echo "ERROR TARGET [$1] Does not exist. Please use of the following or create a new profile"
+    echo "mkdir -p ./target/platform/<your new platform>"
+    echo "and copy a config.mk from another similar platform or base platform" 
     ls --hide "*.mk"  ./target/platform/
     exit 1
 fi
 # The tree is configured entirely by this reference to config files in target/platform/*
-echo "TARGET=$1" > ./TARGET.cfg
 if [ "$2" = "-edit" ];then
+	echo "TARGET=$1" > ./TARGET.cfg
 	nano ./target/platform/${1}/config.mk
+elif [ "$1" != "" ];then
+	echo "TARGET=$1" > ./TARGET.cfg
+
 fi
 
 echo "**************************************************************************************************************************************************"

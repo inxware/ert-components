@@ -35,7 +35,6 @@ EHS_MQTT_SUPPORT=1
 DEFS=EHS_MQTT_SUPPORT=1
 DEFS += EHS_ESP32_SUPPORT=1
 
-#DEFS += TARGET_OS_VERSION_STRING='\"esp32s3.$(date +'%Y%m%d%H%M%S').$(git rev-parse --short HEAD).$(grep -o '".*"' ${PWD}/target/os-arch/esp32s3_freertos-xtensa/target_version_string.mk  | sed 's/"//g' | cut -d. -f4 | awk '{print $1 + 1}')\"'" > ${PWD}/target/os-arch/esp32s3_freertos-xtensa/target_version_string.mk
 DEFS += TARGET_OS_VERSION_STRING='"$(shell cat ./Releases/version_strings |tr '\n' '.')"' 
 
 EHS_UART_SUPPORT=yes

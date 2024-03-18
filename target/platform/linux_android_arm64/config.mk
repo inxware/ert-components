@@ -89,6 +89,8 @@ EHS_MEDIA_SUPPORT=all
 
 # To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
 EHS_AV_SUPPORT=android
+
+EHS_OTA_SUPPORT=stubbed
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
 
 DEVMAN_SERVER_DOMAIN=devman.inx-systems.com

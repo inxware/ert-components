@@ -38,6 +38,9 @@ endif
 endif
 endif
 
+########################################################################################################
+## HTML Rendering
+########################################################################################################
 ifdef EHS_WEBKIT_SUPPORT
 ifneq ($(EHS_WEBKIT_SUPPORT), none)
 EHS_TARGET_WEBKIT_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/webkit/$(EHS_WEBKIT_SUPPORT)
@@ -45,6 +48,10 @@ DEFS+=EHS_WEBKIT_SUPPORT
 include $(EHS_TARGET_WEBKIT_PATH)/webkit.mk
 endif
 endif
+
+########################################################################################################
+## Text Displays 
+########################################################################################################
 
 ifdef EHS_TEXT_DEVICE_SUPPORT
 ifneq ($(EHS_TEXT_DEVICE_SUPPORT), none)

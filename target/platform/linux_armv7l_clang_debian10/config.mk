@@ -98,27 +98,10 @@ COMPONENT_VARIANT=base
 # backward compatability with previous apps  is required. Note this requires the toolbox hash checks to be  disabled                                                        #
 EHS_TOOLKIT_DEPRECATED=yes
 
-ifdef NOT_DEFD
-#todo delete all this!!
-
-#INX_SYS_ROOT=../ert-contrib-middleware/target_libs/armv7l-pc-linux-gnueabihf_x86_64-linux-gnu_clang10ubuntu18_x86_64-linux-gnu_clang10ubuntu18_base/build
-#CFLAGS+=-I${INX_SYS_ROOT}/usr/include/atk-1.0 -I${INX_SYS_ROOT}/usr/include/gdk-pixbuf-2.0 -I${INX_SYS_ROOT}/usr/lib/arm-linux-gnueabihf/gtk-2.0/include -I${INX_SYS_ROOT}/usr/include/pango-1.0 -I${INX_SYS_ROOT}/usr/include/cairo -I${INX_SYS_ROOT}/usr/lib/arm-linux-gnueabihf/glib-2.0/include -I${INX_SYS_ROOT}/usr/include/glib-2.0 -I${INX_SYS_ROOT}/usr/include/gtk-2.0 -Wl,-m,armelf_linux_eabi -v -B ${INX_SYS_ROOT}/usr/lib/gcc/arm-linux-gnueabihf/8 -B ${INX_SYS_ROOT}/usr/lib/ --sysroot=${INX_SYS_ROOT} --target=armv7l-pc-linux-gnueabihf -mfloat-abi=hard -B..ertS-build-support/toolchains/x86_64/x86_64-linux-gnu_clang10ubuntu18/bin
-#LNKFLAGS+=--target=armv7l-pc-linux-gnueabihf -v -L${INX_SYS_ROOT}/usr/lib/gcc/arm-linux-gnueabihf/8 --sysroot=${INX_SYS_ROOT} -L${INX_SYS_ROOT}/lib
-
-#FLAGS+=-Wl,-m -v --target=armv7l-pc-linux-gnueabihf -mfloat-abi=hard 
-
-#LNKFLAGS+=--target=armv7l-pc-linux-gnueabihf -v 
-#the following are to stop clang selecting the host /usr/bin/ld
-#LNKFLAGS+=-B../ert-build-support/toolchains/x86_64/armv7l-linux-gnu-clang10ubuntu18/bin
-#LNKFLAGS+=-fuse-ld=lld
-endif
+EHS_OTA_SUPPORT=stubbed
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
 ################################################################################################################
 # Define any OS install scripts that should be run on first install
 ################################################################################################################
 #HOST_OS_CONFIG_SCRIPTS+= \
-
-include ./target/devman-configs/inx-systems.com.mk
-DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
-DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=yes

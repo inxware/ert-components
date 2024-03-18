@@ -856,7 +856,6 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
         EhsSprintf(proc_path,"/proc/%d/stat",procid);
         ehs_FILE* procfile = EhsFopen(proc_path,"r");
         if (procfile) {
-            //printf("Opening /proc/%d/stat",procid);
             ehs_uint64 New_userTimeUsed;// = Last_userTimeUsed;
             ehs_uint64 New_sysTimeUsed;// = Last_sysTimeUsed;
 #ifndef EHS_ANDROID
@@ -874,7 +873,6 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
                 scanOK,EHS_EOF,Last_userTimeUsed,Last_sysTimeUsed,ram_usage);
             
             if (scanOK > 0) ret =EHS_TRUE;    
-            //printf("++ Last user CPU =%d",Last_userTimeUsed);
             if (New_userTimeUsed > 0 || New_sysTimeUsed > 0 ) {
                 cpu_usage = ((New_userTimeUsed - Last_userTimeUsed) + (New_sysTimeUsed - Last_sysTimeUsed )); // ms of CPU usage since last
             }
@@ -891,7 +889,6 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
             Last_userTimeUsed= New_userTimeUsed;
             /* Calulcate RAM from arg X*/
             *RAM_Used = (ehs_uint32)((ram_usage*sysconf(_SC_PAGESIZE))/1024); // return value in kB.
-            //printf ("perc CPU=%d RAM=%d (ms elapsed=%u\n",*cpu_usage_percent,*RAM_Used,ms_elapsed);
         }
     }
     if (ret == EHS_FALSE) {
@@ -1022,7 +1019,6 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
         /* todo we may want the rtinfo function block to work, even without Devman, but saving memory for now*/
         #ifdef EHS_DEVMAN_SUPPORT
         if (pEhsMetaData->MiscAppProcName[0] != 0) {
-            //printf("MiscAppProcName=%s",pEhsMetaData->MiscAppProcName);
             pEhsMetaData->MiscAppProcId=get_procid_from_procname(pEhsMetaData->MiscAppProcName);
         }
         #endif

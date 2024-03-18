@@ -9,7 +9,7 @@
 *.so
 *.class
 *.exe
-*.a
+#*.a
 *.d
 *.elf
 
@@ -29,7 +29,7 @@ target/os-arch/nxp_arm/heatrod_controller/Debug/
 
 # Libraries
 *.lib
-*.a
+#*.a
 *.la
 *.lo
 # Shared objects (inc. Windows DLLs)
@@ -50,6 +50,7 @@ TARGET.cfg
 *.i*86
 *.x86_64
 *.hex
+*.img
 
 # eclipse project files #
 ########################

@@ -85,5 +85,4 @@ EHS_OTA_SUPPORT=stubbed
 #Application Selection
 #EHS_DEFAULT_APP=hardware-test-apps/<your Lucid App path>
 
-
 ################################### END OF TOOLBOX CONFIGURATION ###################################################

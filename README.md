@@ -1,22 +1,39 @@
-# eRT Platform build
+Overview
+========
+What is eRT?
+------------
+eRT is an event-based RunTime for running nocode applications on embedded devicesor any kinnd of comouting system including servers, edge compute and desktop computing.
 
-The eRT-components repository is the hub repository needed to build the inxware eRT runtime. The repo contains a build and test CI for 
-validating publically supported hardware and can be extended (pull requests accepted) to extend support for current and future hardware.
+Copying & Terms of Use
+======================
+ Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ You may use, distribute and modify this code under the terms 
+ of the MPL2.0 license. You should have received a copy of the 
+ MPL2.0 (Mozilla Public License2.0) license with this file. If 
+ not, please visit 
+	<https://www.mozilla.org/en-US/MPL/2.0/>
 
+The eRT component software is licenced as MPL and any sub-systems within it are licenced under a similarly permissive library (unless otherwise stated in the source file headers or LICENSE documents).
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
+
+
+About this Repository
+---------------------
+The ```ert-components`` repository is the core repository needed to be the inxware eRT runtime. 
 This build system currently supports the following hardware architectures and operating systems: 
 
 * arm7/arm64 (bare-bones/freeRTOS/Linux/Android), 
 * xtensor (esp32/FreeRTOS)
 * x86/x86_64 (linux/windows)
 
-The build system support fine grained target configuration for particular hardware and user configurations, 
-including package management and direct installation. To see the full list type ./configure in the root of this repository
+The build system support fine-grained target configuration for particular hardware and user configurations, 
+including package management and direct installation. To see the full list type `./configure` in the root of this repository.
 
-# System Requirements
-
-The eRT build system ues docker to create some specific build environment, but needs a few linux packages installed first to get started.
-
-The simplest way to check your system is to use the make prepdeps command. e.g. 
+The eRT runtime also contains various options for **System Supervisors**, which may take the form of scripts,deamons, apps or a sparate executable binary, These are typically applicable to multi-tasking operating systems such as Linux, Android, Windows where maintenance of the OS may be required via Devman. The System Supervisors are usually also responsble for providing eRt softare updates and disaster recovery as an independent process eRT binary itself.
+# Build System Requirements
+- The eRT build system ues docker to create some specific build environment, but needs a few linux packages installed first to get started.
+- The simplest way to check your system is to use the make prepdeps command. e.g. 
 ```
 ./configure linux_x86_64_clang
 make prepdeps.
@@ -30,11 +47,19 @@ These repositories are cloned into adjascent directories to ert-components when 
 
 40GB of space is required for the 3 repositories. A further few GBs is recommended for built binaries and installable packages.
 
+eRT requires a proprietory event handling kernel library to be linked to the application. This binary can be copied and deployed for non-commercial applications without prior-agreement with inx limited. Before deploying commercial applications (i.e. copying the eRT kernel in commercial products and services you must first contact inxware@inx-systems.com). 
 
-# MANIFEST
+These repositories are cloned into adjascent directories to ert-components when make prepdeps os first ran on a target (see below).
 
+40GB of space is required for the 3 repositories. A further few GBs is recommended for built binaries and installable packages.
+
+Manifest
+========
 
 eRT runs application built with the inxware iAB tools, which can be downloaded from https://github.com/inxware/inxware-dev-tools
+
+Source & Dependencies
+---------------------
 
 An open source publication of this eRT runtime is hosted at https://github.com/inxware/ert-components
 
@@ -51,26 +76,129 @@ apps               (Contains applications which maybe installed into production 
 
 All the above repos are available at ssh://inx-data@server/home/inx-data/data/Repos/*.git
 
+Deployment
+----------
+Built eRT objects may be of the following format:
+1. Linux user-space application
+1. Windows application 
+1. Android APK
+1. Unity .so plugin
+1. MCU-specific system image
+
+
 # BUILDING eRT Locally
 
 You can check eRT out onto a linux machine and run the build and some CI operations on your own hardware.
 
 The command steps needed to build EHS for a specific target:
 
-```make help ```
+Speific OS's may have variations with additional assets, including supervisors and other system specific utilities.
+These can found in `/target/envtree/` The most general version of this is in `.../Generic-ehs-tree/root-ehs_dir\*`
 
-to get a list of supported targets type
-``` ./configure help ```
-
-
-# Specific Platform Notes
-
-e.g.
+The command steps needed to build eRT for a specific targets and different deployment/packaging options:
+```bash
+make help 
 ```
-./configure linux_x86_gtk_gst
+
+to get a list of supported targets types
+```bash
+./configure
+```
+
+The `./configure` sets the source tree to bild the specific platform required and all following make commands will be configured to do the right thing for the specific target after this. 
+
+To edit the configuration file for your selected platform you can use
+
+```bash
+./configure -edit
+```
+
+Build System Requirements
+-------------------------
+The eRT build system ues `docker` to create some specific build environment, but needs a few linux packages installed first to get started.
+
+The simplest way to check your system is to use the make prepdeps command. e.g. 
+```bash
+./configure linux_x86_64_clang
+make prepdeps.
+```
+
+This will install git build-essential (GNU make) and docker and two other large inxware repositories containing toolchains and prebuilts:
+`ert-build-support` - contains binary tolchains and uses git lfs.
+`ert-contrib-middlware` - is contains pre-built 3rd party dependencies and builts and scripts for re-creating or updating
+
+These repositories are cloned into adjascent directories to ert-components when make prepdeps os first ran on a target (see below).
+
+40GB of space is required for the 3 repositories. A further few GBs is recommended for built binaries and installable packages.
+
+Example Build Sequence
+-----------------------
+The eRT build system will build, packafge and deploy eRT to many different devices types, operating system package formats and OTA deployment servers.
+
+The steps to build a linux application you can run on a Debian 11 desktop with graphics: 
+
+```bash
+./configure linux_x86_64_gtk_gst_debian11-debug  # Choose 
 make prepdeps
-make all
+make all_docker
 make targetenv 
 make targetenv_version
-make targetenv_deb 
+make targetenv_deb
 ```
+
+Example of Running a Basic Deployment
+-------------------------------------
+The `make targetenv` step above will assemble the eRT binary and supporting files in the 
+staging directory located in ../TARGET_TREES/ehs-env_<your target platform name>
+
+A minimum install includes just the bianry and the Lucid SODL file: 
+```bash
+./bin/ehs.exe          #<-- you run this!
+./apps/default/t.sdl   #<-- ehs.exe runs this Lucid application by default
+```
+
+Alternatively you can run or debug eRT with the following shortcuts:
+```
+./configure -run
+./configure -debug
+```
+
+Developing New Components
+=========================
+TODO - reference documentation and iCB tools & CDF (Component Description Files)
+
+Useful utilities
+----------------
+To update your development environment's Lucid tools install with new or altered CDF files:
+
+```bash
+make toolsenv_update
+```
+
+ Version Control
+ ===============
+eRT 
+---
+The following version information file is auto integrated by make targetenv_version
+```bash
+Releases/version_strings 
+```
+Containing
+```
+2 - Major version (Manually updated)
+2 - Min version (Manually updated)
+463 - Release number (Auto incremented and shared in Repo)
+```
+
+System Supervisors
+------------------
+
+### Android System Supervisor 
+---
+```bash
+./target/envtree/android-ehs-tree/root-dir/system/etc/ehs_supervisor/version
+```
+
+### Gnu Linux 
+No version control for cron-based update scripts is currently supported
+

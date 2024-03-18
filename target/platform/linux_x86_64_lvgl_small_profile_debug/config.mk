@@ -8,45 +8,56 @@
 #---------------------------------------------------------------#
 
 # @file config.mk 
-# inxware ERT configuration file for linux_armv7l_clang
+# inxware ERT configuration file for linux_x86_gtk_gst_debian11
 # @author: inx limited
 
 #Target Platform Uses
-# This is the horrific arm / raspberry pi config with scraped components and uses a clang compiler 
-# so that is can potentially integrate green grass components built with the same compiler
-# It should be refactored to used docker and Debians arm  cross compile environment for Rasberrian
-# All contributed middlware is provided by a munge of things we want rid of ???
+# For 64 bit linux running on Debian 11. Generic Vanilla version.
+# All contributed middlware is provided by the container container inxware/inx-debian11
 
 #################################################################################################################
 # Set general architecture and OS version 
 #################################################################################################################
-
-# EHS Section 
-# ehs is more generic
-EHS_ARCH=arm
+# MUST SET the following for any component config: 
+# EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
+# ehs is more generic, selects the ./target/os-arch/<type>
+EHS_ARCH=amd64
+#todo2023 the following should be used when the x86_64 kernel build is fixed.
+##EHS_ARCH=x86
 EHS_OS=linux
 
-EHS_TOOLCHAIN_TYPE=clang
+# Optionally set the following if contrib build uses GNU-specific OS and ARCH naming conventions 
+# - Select the os-arch directory with these
+#todo2023 the followig is what we should be using here, but the kernel is not built right for x86_64
+##EHS_GNU_ARCH=x86_64
+##EHS_GNU_OS=linux-gnu
+
+#Select a specific version of contrib libraries and build support
+#EHS_GNU_OS_VERSION=-1.0
+
+#EHS_TOOLCHAIN_TYPE=gcc - leaving as default
+
+# Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_OS_ARCH 
 TOOLCHAIN_NAME=HOST
+#OR target a specific toolchain: This target is using the same compiler as for the 32bit vlang build:
+#TOOLCHAIN_PATH=./x86_64/XXXX
 
-EHS_GNU_ARCH=armv7l
-EHS_GNU_OS=linux-gnu
+#Select a targe version for Debian. This may affect linking options to host libraries and the packager
+EHS_DEBIAN_VERSION=11
+# SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies to pick up the rigt architecture
+EHS_HOST_DEBIAN_BUILD=x86
 
-# SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies 
-EHS_HOST_DEBIAN_BUILD=armhf
-
-#EHS_GNU_OS_VERSION=-clang10ubuntu18
-EHS_DEBIAN_VERSION=10
-
-#Experimental hacks:
-CFLAGS += -Wno-error=deprecated-declarations
+# SYSTEM_VARIANT optionally indicates specific target environment confgurations.
+# See target/envbuildscripts/targetenv_hacks_*.sh scripts).  
+# SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
+#SYSTEM_VARIANT=
 
 ################################################################################################################
 # Configure debug/production levels
 ################################################################################################################
-# Set ALL debug use this:
+# Set ALL debug use this: 
+#too2023 - we need to add this to everyting until we decide if we will have a debug and non-debug kernel. (I guess we ultimately wan the latter to mimise sizes.)
 EHS_DEBUGALL=true
-
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
@@ -60,23 +71,20 @@ EHS_COMPONENT_NETWORKING_SUPPORT=all
 EHS_DEVMAN_SUPPORT=all
 #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
 EHS_DEVMAN_MON_SUPPORT=yes
-#todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
-
-# Select the format of MQTT support for this target
-#This isn't working yet!
-#EHS_MQTT_SUPPORT=greengrass
 
 ################################################################################################################
 # Select which source of contributed library dependencies are used to build the target
 ################################################################################################################
-
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
 #Note - windows targets in component library use hyphens between components (randomly)
 # COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory 
 # libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
 # $(EHS_GNU_OS_ARCH)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
-COMPONENT_VARIANT=base
+
+#todo2023 this is not right if it says GTK and GST but we are using LVGL and FFMPEG 
+#- prolly need to rename the component dependencies if it is GTK or LVGL or do we need a new one for LVGL and FFMPEG?
+COMPONENT_VARIANT=gtk_gst
 
 # Note: This is a host build so we don't ned it but will add it in case we fdo have any bits we may build for the target.
 # For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms  rather than built in ert-ccontriib-middleware).:
@@ -87,31 +95,30 @@ COMPONENT_VARIANT=base
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
 ################################################################################################################
 
+# To enable  IO features  (DCC=1)  (e.g. GPIO, ADC.DAC, serial, user inputs etc. set  EHS_PERIPHERAL_DEVICE_SUPPORT )                                          #
+#This include RCUs, text displays, etc. We usually have this for arm linux so leaving this here
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
+
+# To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub, lvgl}, depending support for your target   #
+# Set this to match one of the graphics types in EHS/target/graphics
+EHS_GUI_SUPPORT=lvgl
+
 # To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
- EHS_AV_SUPPORT=devmanonly
+EHS_AV_SUPPORT=ffmpeg
+
 # Set EHS_VIDEO_SUPPORT to "no" to disable video rndering support in the media payer (e.g. for audio only devies) 
-#EHS_VIDEO_SUPPORT=no
+EHS_VIDEO_SUPPORT=yes
 # This  is set to include the rendering features in eRT. It is  nearly always set, so should be removed (default on) and specific platforme xceptionsset instead
- EHS_MEDIA_SUPPORT=all
+EHS_MEDIA_SUPPORT=all
 
 # The following toolbox contains legacy components that are no longer supported in the main toolsboxes and can b relegacted here in case               #
 # backward compatability with previous apps  is required. Note this requires the toolbox hash checks to be  disabled                                                        #
 EHS_TOOLKIT_DEPRECATED=yes
 
-ifdef NOT_DEFD
-#todo delete all this!!
+# To enable  IO features "netx" DCC=1)  (e.g. GPIO, ADC.DAC, serial, user inputs etc. set  EHS_PERIPHERAL_DEVICE_SUPPORT ) 
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
-#INX_SYS_ROOT=../ert-contrib-middleware/target_libs/armv7l-pc-linux-gnueabihf_x86_64-linux-gnu_clang10ubuntu18_x86_64-linux-gnu_clang10ubuntu18_base/build
-#CFLAGS+=-I${INX_SYS_ROOT}/usr/include/atk-1.0 -I${INX_SYS_ROOT}/usr/include/gdk-pixbuf-2.0 -I${INX_SYS_ROOT}/usr/lib/arm-linux-gnueabihf/gtk-2.0/include -I${INX_SYS_ROOT}/usr/include/pango-1.0 -I${INX_SYS_ROOT}/usr/include/cairo -I${INX_SYS_ROOT}/usr/lib/arm-linux-gnueabihf/glib-2.0/include -I${INX_SYS_ROOT}/usr/include/glib-2.0 -I${INX_SYS_ROOT}/usr/include/gtk-2.0 -Wl,-m,armelf_linux_eabi -v -B ${INX_SYS_ROOT}/usr/lib/gcc/arm-linux-gnueabihf/8 -B ${INX_SYS_ROOT}/usr/lib/ --sysroot=${INX_SYS_ROOT} --target=armv7l-pc-linux-gnueabihf -mfloat-abi=hard -B..ertS-build-support/toolchains/x86_64/x86_64-linux-gnu_clang10ubuntu18/bin
-#LNKFLAGS+=--target=armv7l-pc-linux-gnueabihf -v -L${INX_SYS_ROOT}/usr/lib/gcc/arm-linux-gnueabihf/8 --sysroot=${INX_SYS_ROOT} -L${INX_SYS_ROOT}/lib
-
-#FLAGS+=-Wl,-m -v --target=armv7l-pc-linux-gnueabihf -mfloat-abi=hard 
-
-#LNKFLAGS+=--target=armv7l-pc-linux-gnueabihf -v 
-#the following are to stop clang selecting the host /usr/bin/ld
-#LNKFLAGS+=-B../ert-build-support/toolchains/x86_64/armv7l-linux-gnu-clang10ubuntu18/bin
-#LNKFLAGS+=-fuse-ld=lld
-endif
+EHS_PERIPHERALS_GPIO_SUPPORT=gui
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
 ################################################################################################################
@@ -119,6 +126,21 @@ endif
 ################################################################################################################
 #HOST_OS_CONFIG_SCRIPTS+= \
 
+#Set up the Devman config
 include ./target/devman-configs/inx-systems.com.mk
-DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
-DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=yes
+
+#Some lower level config to emulate a smaller device
+
+ERT_SODL_VERSION=1
+
+#DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
+#DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=yes
+
+#Set the Packager method for make targetenv_pack
+EHS_PACKAGER_TYPE=deb
+
+#Checking out the smaller buffer
+DEFS += EHS_COMPONENT_NETWORKING_EMULATELWIP=1
+DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
+DEFS += EHS_TGT_TCP_OUT_BUFF_SIZE=128u
+DEFS += EHS_TGT_TCP_IN_BUFF_SIZE=128u

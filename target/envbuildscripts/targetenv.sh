@@ -29,7 +29,7 @@ echo -e "\nXXXXXXXXXXXXXXXX  Copying eRT hosted assets to staging directory...  
 ### EHS ################################################
 if test -e ehs_${SPECIFIC_TARGET}.${EXE}; then 
 	echo -e "Found ehs_"${SPECIFIC_TARGET}.${EXE}", copying to target staging directory:\n../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.${EXE}\n"; 
-	cp linux_amd64_gtk_gst"ehs_${SPECIFIC_TARGET}.${EXE}" "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/ehs.${EXE}"
+	cp "ehs_${SPECIFIC_TARGET}.${EXE}" "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/ehs.${EXE}"
 else 
 	echo "ERROR: ehs_${SPECIFIC_TARGET}.${EXE} not found! - please build using make all first or try make help for more details  - Exiting ..." 
 exit
@@ -221,7 +221,7 @@ echo "XXXXXXXXXXXXXXXXXXXXX Looking for platform hacks script... XXXXXXXXXXXXXXX
 # Some devices have varying OSs features that need to be modified:
 # Targetenv hacks are selected specifically with $INXWARE_TARGETENV_HACKS as there are other unrelated 
 # factors defined by $SPECIFIC_TARGET used elsewhere too which may are may not be useful here.
-# TODO we hlinux_amd64_gtk_gstould probably support a list of hack files in the INXWARE_TARGETENV_HACKS variable
+# TODO we should probably support a list of hack files in the INXWARE_TARGETENV_HACKS variable
 if  test -e ./target/envbuildscripts/platform-hacks/targetenv_hacks_${INXWARE_TARGETENV_HACKS}.sh 
 then
 	echo "Applying Hack: /target/envbuildscripts/platform-hacks/targetenv_hacks_${INXWARE_TARGETENV_HACKS}.sh $INXWARE_TARGETENV_HACKS"

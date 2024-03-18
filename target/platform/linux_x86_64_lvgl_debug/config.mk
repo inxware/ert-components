@@ -22,15 +22,12 @@
 # EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
 # ehs is more generic, selects the ./target/os-arch/<type>
 EHS_ARCH=amd64
-#todo2023 the following should be used when the x86_64 kernel build is fixed.
-##EHS_ARCH=x86
 EHS_OS=linux
 
 # Optionally set the following if contrib build uses GNU-specific OS and ARCH naming conventions 
 # - Select the os-arch directory with these
-#todo2023 the followig is what we should be using here, but the kernel is not built right for x86_64
-##EHS_GNU_ARCH=x86_64
-##EHS_GNU_OS=linux-gnu
+#EHS_GNU_ARCH=amd64
+#EHS_GNU_OS=linux
 
 #Select a specific version of contrib libraries and build support
 #EHS_GNU_OS_VERSION=-1.0
@@ -96,12 +93,12 @@ COMPONENT_VARIANT=gtk_gst
 #This include RCUs, text displays, etc. We usually have this for arm linux so leaving this here
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
-# To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
+# To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub, lvgl}, depending support for your target   #
 # Set this to match one of the graphics types in EHS/target/graphics
-EHS_GUI_SUPPORT=gtk
+EHS_GUI_SUPPORT=lvgl
 
 # To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
-EHS_AV_SUPPORT=gst10
+EHS_AV_SUPPORT=ffmpeg
 
 # Set EHS_VIDEO_SUPPORT to "no" to disable video rndering support in the media payer (e.g. for audio only devies) 
 EHS_VIDEO_SUPPORT=yes
@@ -116,6 +113,7 @@ EHS_TOOLKIT_DEPRECATED=yes
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
 EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+EHS_OTA_SUPPORT=stubbed
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
 ################################################################################################################

@@ -114,6 +114,8 @@ EHS_ANDROID_INSTALL_VERSION=9.0
 #todo the packer could inculdue the apk and supervisr option to disintangle the horrors of the installer for normal cases
 EHS_PACKAGER_TYPE=apk
 
+EHS_OTA_SUPPORT=stubbed
+
 # Path to a direcory in DevmanSecurity repo with items used for signing android apk and aab files
 
 #export EHS_ANDROID_SIMPLE_APK=yes

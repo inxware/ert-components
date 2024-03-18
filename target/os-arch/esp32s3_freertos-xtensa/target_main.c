@@ -754,7 +754,6 @@ ota_data_write_jump:
      // we need to specify the installation path before starting EhsMain, 
      // so that things like user dir gets set-up properly
      EhsHMetaSetInstPath(base_path);
-//todo the following thread's features should be done in the low priority thread not its own as in the manual
 #if EHS_OTA_SUPPORT == EHS_OTA_SUPPORT_SUPPORT
      xTaskCreate(target_OTA_task, "OTA_Task", 8192, NULL, ESP_TASK_TCPIP_PRIO - 1, NULL);
 #endif
