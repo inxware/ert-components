@@ -105,6 +105,7 @@ EHS_TOOLKIT_DEPRECATED=yes
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
 EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+EHS_OTA_SUPPORT=stubbed
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
 ################################################################################################################

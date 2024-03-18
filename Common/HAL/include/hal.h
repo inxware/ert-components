@@ -71,6 +71,7 @@ typedef struct EhsMetaDataType
     /* The remainder is environment information - but with potentially EHS instance specific information*/
     ehs_startupmode_t DebugOnStart;
     #ifndef INX_SODL_IN_FLASH
+    ehs_char OSVersion[EHS_STRING_LENGTH_MAX]; // This is the linux distro version of the host
     ehs_char zInstallRootDirectory[EHS_STRING_LENGTH_MAX]; // Path to ehs/.
     ehs_char zAppsDirectory[EHS_STRING_LENGTH_MAX]; // Root Path to App directory as we sometimes want this in it's own partition.
     ehs_char AppCurrentLive[EHS_STRING_LENGTH_MAX]; //Canonical Application Name of current Live App.
@@ -91,7 +92,6 @@ typedef struct EhsMetaDataType
     ehs_uint32 nSysSpaceTotal_KB;
     //ehs_uint32 nUserSpaceAvail_KB;
     ehs_uint16 CPUUsage; /* % CPU usage by EHS */
-    //ehs_char OSVersion[EHS_STRING_LENGTH_MAX];
     /* If we are montitoring some other app then this is its info */
     ehs_uint32 MiscAppProcId; // This isthe proc ID for the app to monitor - set to 0 if we are not monitoring
     ehs_uint32 MiscAppRAMUsed_KB;

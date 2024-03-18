@@ -12,7 +12,7 @@
 # @author: inx limited
 
 #################################################################################################################
-# Set general architecture and OS version 
+# Set general architecture and OS version
 #################################################################################################################
 
 # MUST SET the following for any component config: 
@@ -28,16 +28,10 @@ TOOLCHAIN_NAME=xtensa-esp32-elf-4.4.1
 # Configure debug/production levels
 ################################################################################################################
 
+#todo2022 DEFS+ should be done conditionally on EHS_ESP32 in the os-arch/xtensa target.mk
 export EHS_ESP32=yes
-
 DEFS += EHS_ESP32
 
-EHS_DEBUGALL=true
-#todo remove the following DEFS if 
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-# set EHS_DEBUG_AV for verbose debugg from the media sub system
-DEFS += EHS_DEBUG_AV
-# Set ALL debug use this:
 EHS_DEBUGALL=yes
 
 
@@ -47,11 +41,18 @@ EHS_DEBUGALL=yes
 
 # Note the following might not remain lwip - we could use esp32's native mqtt component instead of ert#s lwip based one (TBC if this is difficult
 DEFS += EHS_NO_LIBXML2_SUPPORT=1
-EHS_MQTT_SUPPORT=lwip
-export EHS_PERIPHERAL_DEVICE_SUPPORT=all
-export EHS_PERIPHERALS_GPIO=yes
+EHS_MQTT_SUPPORT=esp32
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
+# Note the specifc Component-HAL support for IO is the same for allesp32 so is defined in the os-arch
 
 # we may also no use any lwip stuff sirectly in EHS
 DEFS += EHS_LWIP
-
+DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
+
+#DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
+#DEVMAN_SERVER_PROTOCOL=https
+
+include ./target/devman-configs/inx-systems.com.mk
+
+EHS_DEFAULT_APP=NONE

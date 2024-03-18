@@ -1,0 +1,14 @@
+EHS_TARGET_LORAWAN_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/lorawan
+VPATH +=: $(EHS_TARGET_LORAWAN_PATH)
+INC_DIRS += $(EHS_TARGET_LORAWAN_PATH)
+
+# EHS_TARGET_LORAWAN_SRCS:=$(wildcard lorawan*.c)
+# $(error srcs are $(EHS_TARGET_LORAWAN_SRCS))
+# 
+# #EHS_TARGET_LORAWAN_SRCS +=
+# 
+# OBJECTS += $(EHS_TARGET_LORAWAN_SRCS:.c=.o)
+
+OBJECTS += lorawan_helper.$(OBJ)
+OBJECTS += lorawan.$(OBJ)
+OBJECTS += lorawan-wio_e5.$(OBJ)

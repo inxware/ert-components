@@ -42,13 +42,6 @@ EHS_DEBIAN_VERSION=8
 # Set ALL debug use this:
 #DEBUG OPTIONS
 EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-# Or use one of the more fine-grained debug congurations
-# Or enable only stdout & serial console logging
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
-EHS_DEBUGALL=yes
-endif
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
@@ -67,7 +60,7 @@ EHS_DEVMAN_MON_SUPPORT=yes
 ################################################################################################################
 # COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory 
 # libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
-# $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME)
+# $(EHS_GNU_OS_ARCH)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME)
 
 #COMPONENT_VARIANT is the postfix after archicture identifiers to define a specific set of components
 #Note - windows targets in componentlibrary use hyphens between components (randomly)

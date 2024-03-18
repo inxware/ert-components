@@ -53,6 +53,12 @@ export EHS_GNU_ARCH
 #some slightly target pecific hack paramters we should export. 
 #We should probably do this in the more specific target
 
+#default to ASCII SODL 
+ifndef ERT_SODL_VERSION
+ERT_SODL_VERSION=0
+endif
+export ERT_SODL_VERSION
+
 export DEBIAN_PACKAGE_NAME
 
 #Note we have some toolchains in the oposite order e.g. linux-android-armv7a 
@@ -230,12 +236,13 @@ else
 endif
 
 ################ Choose which type of EHS kernel to link to   #########################
-ifdef EHRT1
+ifeq ($(ERT_SODL_VERSION),1)
     LIB+=:libehs_ehrt1.a
-    DEFS += EHRT1
 else
     LIB+=:libehs.a
 endif
+#And just in case the code needs to know what the SODL type is
+DEFS += ERT_SODL_VERSION=$(ERT_SODL_VERSION)
 
 ################ Select between render mode A and B ###############################
 ifdef EHS_GUI_SUPPORT
@@ -316,6 +323,7 @@ export EHS_DEFAULT_APP
 export DEVMAN_SERVER_DOMAIN
 export DEVMAN_SERVER_PROTOCOL
 export DEVMAN_UNAME
+export DEBIAN_INXWARE_SERVER_DOMAIN
 # Devman upload packaging (to generalise at some point for each type of packager - perhaps a list of APKs to zip?)
 export EHS_PRODUCT_NAME
 #todo 2023: We should be able to dump this wen we get rid of the android installer script duplication
@@ -328,9 +336,6 @@ export NETWORK_HARDWIRED_HOSTS
 #we need to set this for cases where it needs to override an inheritted server config
 export DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE
 export DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED
-# Dvman uploader credentials
-export DEVMAN_UNAME
-
 
 # The following will install the additional platform processes (e.g. android downloader or linux cron). 
 export EHS_INSTALL_SUPERVISOR

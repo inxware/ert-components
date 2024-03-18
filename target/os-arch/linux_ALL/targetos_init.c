@@ -819,8 +819,6 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
 {
     ehs_char proc_path[EHS_STRING_LENGTH_MAX];
     
-    //struct sysinfo info;
-    //struct rusage rusage;
     ehs_bool ret = EHS_FALSE;
     ehs_bool scanOK;
     static ehs_uint16 last_cpu_usage_percent=0; //remember the last one if we can't get a value.
@@ -861,19 +859,21 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
             //printf("Opening /proc/%d/stat",procid);
             ehs_uint64 New_userTimeUsed;// = Last_userTimeUsed;
             ehs_uint64 New_sysTimeUsed;// = Last_sysTimeUsed;
-//#if PC Linux             - this seems to have two extra values not in the above specification
+#ifndef EHS_ANDROID
+// Debian seems to fit this format (not the above)
             scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*ld %*ld %*llu %*lu %lu"
                 ,&New_userTimeUsed,&New_sysTimeUsed,&ram_usage);
-//#else 
+#else 
 // as specification above
-//            scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*llu %*lu %lu"
-//                ,&New_userTimeUsed,&New_sysTimeUsed,&ram_usage);
-//#endif
+            scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*llu %*lu %lu"
+                ,&New_userTimeUsed,&New_sysTimeUsed,&ram_usage);
+#endif
 
-            //printf("scanOK=%d=%d(EHS_EOF), CPU-U=%d, CPU-S=%d, RAM = %d:",
-            //    scanOK,EHS_EOF,Last_userTimeUsed,Last_sysTimeUsed,ram_usage);
-            if (scanOK > 0) ret =EHS_TRUE;    
             EhsFclose(procfile);
+            printf("scanOK=%d=%d(EHS_EOF), CPU-U=%d, CPU-S=%d, RAM = %d:",
+                scanOK,EHS_EOF,Last_userTimeUsed,Last_sysTimeUsed,ram_usage);
+            
+            if (scanOK > 0) ret =EHS_TRUE;    
             //printf("++ Last user CPU =%d",Last_userTimeUsed);
             if (New_userTimeUsed > 0 || New_sysTimeUsed > 0 ) {
                 cpu_usage = ((New_userTimeUsed - Last_userTimeUsed) + (New_sysTimeUsed - Last_sysTimeUsed )); // ms of CPU usage since last
@@ -1031,8 +1031,8 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
     EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
     get_cpu_ram_info(&(pEhsMetaData->CPUUsage), &(pEhsMetaData->RAMTotal_KB),&(pEhsMetaData->RAMUsed_KB),&(pEhsMetaData->RAMAvail_KB));
     get_cpu_ram_info_misc(&(pEhsMetaData->MiscAppCPUUsage),&(pEhsMetaData->MiscAppRAMUsed_KB),pEhsMetaData->MiscAppProcId);
-
-    //getOSVersion(pEhsMetaData->OSVersion);
+    /* Get the Linux Distr version */
+    getOSVersion(pEhsMetaData->OSVersion);
     return EHS_FALSE;
 }
 

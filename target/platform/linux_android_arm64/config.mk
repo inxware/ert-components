@@ -35,8 +35,8 @@ CC_SWITCHES+=-fpic
 EHS_ANDROID=yes
 DEFS += EHS_BSD EHS_ANDROID
 
-CC_OVERRIDE=aarch64-linux-android-gcc
-LINK_OVERRIDE=aarch64-linux-android-gcc
+CC_OVERRIDE=aarch64-linux-android30-clang
+LINK_OVERRIDE=aarch64-linux-android30-clang
 
 ################################################################################################################
 # Configure debug/production levels
@@ -44,7 +44,6 @@ LINK_OVERRIDE=aarch64-linux-android-gcc
 
 # Or use one of the more fine-grained debug congurations
 # Or enable only stdout & serial console logging
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
 #enable TCPIP debugger connections (Do not enable for secure production builds)
 # Set ALL debug use this:
 EHS_DEBUGALL=yes
@@ -91,3 +90,12 @@ EHS_MEDIA_SUPPORT=all
 # To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
 EHS_AV_SUPPORT=android
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
+
+DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
+
+DEVMAN_SERVER_PROTOCOL=https
+
+#Just install via adb install
+#export EHS_ANDROID_SIMPLE_APK=yes
+## todo make the base scripts export the above...
+EHS_ANDROID_PACKAGE_SIGNING_PATH=show.online.google.play

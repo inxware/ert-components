@@ -25,11 +25,11 @@ export UPLOAD
 #create File system, including target specific parts and version information
 #echo  "running ./target/envbuildscripts/targetenv_directories.sh" $SPECIFIC_TARGET
 echo -e "\nXXXXXXXXXXXXXXXX  Copying eRT hosted assets to staging directory...    XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-./target/envbuildscripts/targetenv_directories.sh $SPECIFIC_TARGET
+./target/enlinux_amd64_gtk_gstvbuildscripts/targetenv_directories.sh $SPECIFIC_TARGET
 ### EHS ################################################
 if test -e ehs_${SPECIFIC_TARGET}.${EXE}; then 
 	echo -e "Found ehs_"${SPECIFIC_TARGET}.${EXE}", copying to target staging directory:\n../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.${EXE}\n"; 
-	cp "ehs_${SPECIFIC_TARGET}.${EXE}" "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/ehs.${EXE}"
+	cp linux_amd64_gtk_gst"ehs_${SPECIFIC_TARGET}.${EXE}" "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin/ehs.${EXE}"
 else 
 	echo "ERROR: ehs_${SPECIFIC_TARGET}.${EXE} not found! - please build using make all first or try make help for more details  - Exiting ..." 
 exit
@@ -108,15 +108,18 @@ else
 	echo "WARNING!!! NOT Checking out the latest PRODUCTION branch of your app repo EHS_SKIP_REPO_PULL is set "
 	echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 fi
+
+EHS_APP_EXPORT_DIR=export-ert${ERT_SODL_VERSION}
+
 if [ "${EHS_DEFAULT_APP}" = "" ]; then
 	echo "Installing the desktop HOME app (../apps/systemapps/Home/) "
-	cp -Rf ../apps/systemapps/Home/export/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit
+	cp -Rf ../apps/systemapps/Home/${EHS_APP_EXPORT_DIR}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit
 else 
    if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then 
        echo "WARNING!!!!!!!!!: Not installing a default app (EHS_DEFAULT_APP = "NONE") !!!!!!!!!!"
    else
 	   echo "Installing platform configured [../apps/${EHS_DEFAULT_APP}]"
-	   cp -Rf ../apps/${EHS_DEFAULT_APP}/export/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit
+	   cp -Rf ../apps/${EHS_DEFAULT_APP}/${EHS_APP_EXPORT_DIR}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit
 	   echo "Default app copied OK"
    fi
 fi
@@ -218,7 +221,7 @@ echo "XXXXXXXXXXXXXXXXXXXXX Looking for platform hacks script... XXXXXXXXXXXXXXX
 # Some devices have varying OSs features that need to be modified:
 # Targetenv hacks are selected specifically with $INXWARE_TARGETENV_HACKS as there are other unrelated 
 # factors defined by $SPECIFIC_TARGET used elsewhere too which may are may not be useful here.
-# TODO we hould probably support a list of hack files in the INXWARE_TARGETENV_HACKS variable
+# TODO we hlinux_amd64_gtk_gstould probably support a list of hack files in the INXWARE_TARGETENV_HACKS variable
 if  test -e ./target/envbuildscripts/platform-hacks/targetenv_hacks_${INXWARE_TARGETENV_HACKS}.sh 
 then
 	echo "Applying Hack: /target/envbuildscripts/platform-hacks/targetenv_hacks_${INXWARE_TARGETENV_HACKS}.sh $INXWARE_TARGETENV_HACKS"

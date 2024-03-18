@@ -66,7 +66,7 @@ DEFS += EHS_WIFI_SUPPORT
 EHS_WIFI_SUPPORT=yes
 
 # enable eRT1 support
-EHRT1=yes
+ERT_SODL_VERSION=1
 
 # exclude unused xml parser which saves around 200k of the flash on esp32s3 device
 EHS_EXCLUDE_XML_PARSER=yes

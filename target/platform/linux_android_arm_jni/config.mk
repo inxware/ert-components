@@ -12,14 +12,8 @@
 # @author: inx limited
 # This Target is a proper Android app honouring the activiy model of android.
 
-
 #DEBUG OPTIONS
-EHS_DEBUGALL=true
-ifdef EHS_DEBUGALL
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
 EHS_DEBUGALL=yes
-endif
 
 #################################################################################################################
 # Set general architecture and OS version 
@@ -71,7 +65,7 @@ EHS_DEVMAN_MON_SUPPORT=yes
 #Note - windows targets in component library use hyphens between components (randomly)
 # COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory 
 # libraries to be used. The path is defined as follows (without delimietrs if options are not set:)
-# $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
+# $(EHS_GNU_OS_ARCH)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME) 
 COMPONENT_VARIANT=android_native
 
 # For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms  rather than built in ert-ccontriib-middleware).:
@@ -95,3 +89,10 @@ EHS_MEDIA_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
+
+#DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
+include ./target/devman-configs/inx-systems.com.mk
+#DEVMAN_SERVER_PROTOCOL=https
+
+EHS_ANDROID_INSTALL_VERSION=9.0
+

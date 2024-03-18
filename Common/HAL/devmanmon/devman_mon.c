@@ -801,7 +801,9 @@ void *DevmanMonThread(void *arg)
             EhsHCreateQueryStringNum(PostString, "percproc_miscapp",
                                      EhsHMetaGetMiscAppCPUUsage(), EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryStringNum(PostString, "ramuse_miscapp",
-                                     EhsHMetaGetMiscAppRAMUsed_kB, EHS_POST_STRING_LENGTH_MAX);
+                                     EhsHMetaGetMiscAppRAMUsed_kB(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "percmem_miscapp",
+                                     (EhsHMetaGetMiscAppRAMUsed_kB()*100)/EhsHMetaGetRAMTotal(), EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryString(curl, PostString, "misc_sys_info",
                                   EhsHMetaGetSysInfo(), EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryStringNum(PostString, "ramuse_ehs",

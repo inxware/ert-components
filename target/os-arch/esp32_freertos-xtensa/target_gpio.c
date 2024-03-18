@@ -114,7 +114,7 @@ EHS_GLOBAL ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
     }
     else
     {
-        ESP_LOGI("Failed to write GPIO (%d,%d).", pGPIO->pin_id, pGPIO->pin_value);
+        ESP_LOGI(TAG,"Failed to write GPIO (%d,%d).", pGPIO->pin_id, pGPIO->pin_value);
     }
     return ret;
 }

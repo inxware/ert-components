@@ -36,14 +36,7 @@ EHS_OS=linux
 # Configure debug/production levels
 ################################################################################################################
 # Set ALL debug use this:
-#DEBUG OPTIONS
-ifdef EHS_DEBUGALL
-# Or use one of the more fine-grained debug congurations
-# Or enable only stdout & serial console logging
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG_AV
 EHS_DEBUGALL=yes
-endif
 
 ################################################################################################################
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
