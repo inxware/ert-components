@@ -37,8 +37,8 @@
 
 /*****************************************************************************/
 /* Included files */
-//#include <sys/types.h>
-//#include <signal.h>
+// #include <sys/types.h>
+// #include <signal.h>
 #include <unistd.h>
 
 #include "target.h"
@@ -62,8 +62,8 @@
 #endif
 #include <stdio.h>
 
-//#todo if need to include the following there are some #includes that fail ,
-//which seems to depend on having the GNU macro defined #include
+// #todo if need to include the following there are some #includes that fail ,
+// which seems to depend on having the GNU macro defined #include
 //"freertos/task.h"
 
 #include "esp_event.h"
@@ -75,9 +75,10 @@
 #include <string.h>
 
 #define CONFIG_ESP_MAXIMUM_RETRY 5
-#define CONFIG_ESP_WIFI_SSID "INX_TEST"
-#define CONFIG_ESP_WIFI_PASSWORD "1234567890"
-
+#define CONFIG_ESP_WIFI_SSID "photonsurge"
+#define CONFIG_ESP_WIFI_PASSWORD "planet9$"
+// #define CONFIG_ESP_WIFI_SSID "dlink_DWR-920_003F"
+// #define CONFIG_ESP_WIFI_PASSWORD "VvRCB27795"
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
 
@@ -91,7 +92,7 @@ static EventGroupHandle_t s_wifi_event_group;
 /* target_host is www.espressif.com */
 // char *TARGET_HOST = "www.espressif.com";
 /* target_host is own gateway */
-char *TARGET_HOST = "www.google.com";
+char *TARGET_HOST = "www.example.com";
 
 static int s_retry_num = 0;
 
@@ -126,6 +127,8 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 
+UBaseType_t uxHighWaterMark;
+
 esp_err_t wifi_init_sta()
 {
     esp_err_t ret_value = ESP_OK;
@@ -141,17 +144,16 @@ esp_err_t wifi_init_sta()
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
 
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
-                    &event_handler, NULL));
+                                               &event_handler, NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
-                    &event_handler, NULL));
+                                               &event_handler, NULL));
 
     wifi_config_t wifi_config =
-    {
-        .sta = {
-            .ssid = CONFIG_ESP_WIFI_SSID,
-            .password = CONFIG_ESP_WIFI_PASSWORD
-        },
-    };
+        {
+            .sta = {
+                .ssid = CONFIG_ESP_WIFI_SSID,
+                .password = CONFIG_ESP_WIFI_PASSWORD},
+        };
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
@@ -189,9 +191,9 @@ esp_err_t wifi_init_sta()
     vEventGroupDelete(s_wifi_event_group);
     return ret_value;
 }
-//#define TEST_TCP_SOCKET
+// #define TEST_TCP_SOCKET
 #ifdef TEST_TCP_SOCKET
-//#include "protocol_examples_common.h"
+// #include "protocol_examples_common.h"
 
 #include "lwip/err.h"
 #include "lwip/sockets.h"
@@ -199,33 +201,40 @@ esp_err_t wifi_init_sta()
 #include <lwip/netdb.h>
 #include "esp_netif.h"
 
-
-#define PORT                        11425
-#define KEEPALIVE_IDLE              5
-#define KEEPALIVE_INTERVAL          5
-#define KEEPALIVE_COUNT             3
+#define PORT 11425
+#define KEEPALIVE_IDLE 5
+#define KEEPALIVE_INTERVAL 5
+#define KEEPALIVE_COUNT 3
 
 static void do_retransmit(const int sock)
 {
     int len;
     char rx_buffer[128];
 
-    do {
+    do
+    {
         len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
-        if (len < 0) {
+        if (len < 0)
+        {
             ESP_LOGE(TAG, "Error occurred during receiving: errno %d", errno);
-        } else if (len == 0) {
+        }
+        else if (len == 0)
+        {
             ESP_LOGW(TAG, "Connection closed");
-        } else {
+        }
+        else
+        {
             rx_buffer[len] = 0; // Null-terminate whatever is received and treat it like a string
             ESP_LOGI(TAG, "Received %d bytes: %s", len, rx_buffer);
 
             // send() can return less bytes than supplied length.
             // Walk-around for robust implementation.
             int to_write = len;
-            while (to_write > 0) {
+            while (to_write > 0)
+            {
                 int written = send(sock, rx_buffer + (len - to_write), to_write, 0);
-                if (written < 0) {
+                if (written < 0)
+                {
                     ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
                 }
                 to_write -= written;
@@ -245,7 +254,8 @@ static void tcp_server_task(void *pvParameters)
     int keepCount = KEEPALIVE_COUNT;
     struct sockaddr_storage dest_addr;
 
-    if (addr_family == AF_INET) {
+    if (addr_family == AF_INET)
+    {
         struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in *)&dest_addr;
         dest_addr_ip4->sin_addr.s_addr = htonl(INADDR_ANY);
         dest_addr_ip4->sin_family = AF_INET;
@@ -253,7 +263,8 @@ static void tcp_server_task(void *pvParameters)
         ip_protocol = IPPROTO_IP;
     }
 #ifdef CONFIG_LWIP_IPV6
-    else if (addr_family == AF_INET6) {
+    else if (addr_family == AF_INET6)
+    {
         struct sockaddr_in6 *dest_addr_ip6 = (struct sockaddr_in6 *)&dest_addr;
         bzero(&dest_addr_ip6->sin6_addr.un, sizeof(dest_addr_ip6->sin6_addr.un));
         dest_addr_ip6->sin6_family = AF_INET6;
@@ -263,7 +274,8 @@ static void tcp_server_task(void *pvParameters)
 #endif
 
     int listen_sock = socket(addr_family, SOCK_STREAM, ip_protocol);
-    if (listen_sock < 0) {
+    if (listen_sock < 0)
+    {
         ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
         vTaskDelete(NULL);
         return;
@@ -279,7 +291,8 @@ static void tcp_server_task(void *pvParameters)
     ESP_LOGI(TAG, "Socket created");
 
     int err = bind(listen_sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-    if (err != 0) {
+    if (err != 0)
+    {
         ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
         ESP_LOGE(TAG, "IPPROTO: %d", addr_family);
         goto CLEAN_UP;
@@ -287,12 +300,14 @@ static void tcp_server_task(void *pvParameters)
     ESP_LOGI(TAG, "Socket bound, port %d", PORT);
 
     err = listen(listen_sock, 1);
-    if (err != 0) {
+    if (err != 0)
+    {
         ESP_LOGE(TAG, "Error occurred during listen: errno %d", errno);
         goto CLEAN_UP;
     }
 
-    while (1) {
+    while (1)
+    {
 
         ESP_LOGI(TAG, "Socket listening");
 
@@ -301,7 +316,8 @@ static void tcp_server_task(void *pvParameters)
 
         int sock = accept(listen_sock, (struct sockaddr *)&source_addr, &addr_len);
         ESP_LOGI(TAG, "Looking for ip address: %s", inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1));
-        if (sock < 0) {
+        if (sock < 0)
+        {
             ESP_LOGE(TAG, "Unable to accept connection: errno %d", errno);
             break;
         }
@@ -313,11 +329,13 @@ static void tcp_server_task(void *pvParameters)
         setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int));
         // Convert ip address to string
 
-        if (source_addr.ss_family == PF_INET) {
+        if (source_addr.ss_family == PF_INET)
+        {
             inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
         }
 #ifdef CONFIG_EXAMPLE_IPV6
-            else if (source_addr.ss_family == PF_INET6) {
+        else if (source_addr.ss_family == PF_INET6)
+        {
             inet6_ntoa_r(((struct sockaddr_in6 *)&source_addr)->sin6_addr, addr_str, sizeof(addr_str) - 1);
         }
 #endif
@@ -329,17 +347,17 @@ static void tcp_server_task(void *pvParameters)
         close(sock);
     }
 
-    CLEAN_UP:
+CLEAN_UP:
     close(listen_sock);
     vTaskDelete(NULL);
 }
 #endif
 
-//#define EHS_ESP32_LED_TEST
+// #define EHS_ESP32_LED_TEST
 #ifdef EHS_ESP32_LED_TEST
 #include "driver/gpio.h"
 #include "esp_log.h"
-//#include "led_strip.h"
+// #include "led_strip.h"
 #define BLINK_GPIO GPIO_NUM_2
 
 static uint8_t s_led_state = 0;
@@ -347,7 +365,7 @@ static uint8_t s_led_state = 0;
 static void configure_led(void)
 {
     gpio_reset_pin(BLINK_GPIO);
-     //Set the GPIO as a push/pull output
+    // Set the GPIO as a push/pull output
     gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
 }
 
@@ -363,7 +381,7 @@ void app_test_main(void)
     // Configure the peripheral according to the LED type
     configure_led();
     for (int i = 0; i < 1000;
-            i++)   // make this finite loop so code afterwards is compiled
+         i++) // make this finite loop so code afterwards is compiled
     {
         printf("Hello world! LED\n");
         fflush(stdout);
@@ -376,6 +394,23 @@ void app_test_main(void)
 }
 
 #endif
+
+#include "mqtt.h"
+
+void mqtt_test_main(void)
+{
+    for (;;)
+    {
+        //  printf("Hello MQTT!\n");
+
+        mqttMainLoop();
+
+        fflush(stdout);
+        sleep(1);
+
+       
+    }
+}
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -394,14 +429,6 @@ EHS_LOCAL void EhsTargetHandleTerm(int);
 /*****************************************************************************/
 /* Function definitions */
 
-/* Delete this - no longer used?
- *
-
-void* EhsL_server(void* pDummy) {
-        printf("server started up\n");
-        EhsSvcTcp_server(NULL);
-}
-*/
 
 /* linux (and gnu) is always ready as soon as main is run */
 ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
@@ -416,16 +443,19 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
  *
  */
 // EhsTargetIntType main(int argc, ehs_char ** argv )
+
+
 void app_main(void)
 {
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
-            ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+        ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
+
     ESP_ERROR_CHECK(ret);
 
     if (wifi_init_sta() == ESP_OK)
@@ -441,29 +471,32 @@ void app_main(void)
         }
     }
 
-//#ifdef EHS_ESP32_LED_TEST
-//    app_test_main();
-//#endif
-
-
+    // #ifdef EHS_ESP32_LED_TEST
+    //     app_test_main();
+    // #endif
+   
 #define EHS_ERT_KERNEL_AVAILABLE
 #ifdef EHS_ERT_KERNEL_AVAILABLE
 
     TaskHandle_t xHandle = NULL;
-    uint32_t stack_depth = 34000;
+    uint32_t stack_depth = 40000;
 
 #ifdef TEST_TCP_SOCKET
 #ifdef CONFIG_LWIP_IPV4
-    xTaskCreate(tcp_server_task, "tcp_server", 4096, (void*)AF_INET, 5, NULL);
+    xTaskCreate(tcp_server_task, "tcp_server", 4096, (void *)AF_INET, 5, NULL);
 #endif
 #ifdef CONFIG_LWIP_IPV6
-    xTaskCreate(tcp_server_task, "tcp_server", 4096, (void*)AF_INET6, 5, NULL);
+    xTaskCreate(tcp_server_task, "tcp_server", 4096, (void *)AF_INET6, 5, NULL);
 #endif
 #endif
-    xTaskCreate(EhsMain, "EhsMain", stack_depth,NULL, tskIDLE_PRIORITY, xHandle);
-    //xTaskCreate(app_test_main, "app_test_main", stack_depth, ( void * ) 1, 1, NULL);
-    //EhsMain(NULL, NULL); /* doesn't return in this version */;
+    xTaskCreate(EhsMain, "EhsMain", stack_depth, NULL, ESP_TASK_TCPIP_PRIO + 1, xHandle); // tskIDLE_PRIORITY + 5
+    // xTaskCreate(app_test_main, "app_test_main", stack_depth, ( void * ) 1, 1, NULL);
+    // EhsMain(NULL, NULL); /* doesn't return in this version */;
+
+   
 #endif
+
+    mqtt_test_main();
 }
 
 /**
@@ -476,8 +509,6 @@ void EhsTargetHandleTerm(int sig)
     EhsExit(0);
 }
 
-
-/* House keeping life cycle functions 
+/* House keeping life cycle functions
   todo2022 these would normally go in the target_is_init.cfile
 */
-

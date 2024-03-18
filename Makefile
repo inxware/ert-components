@@ -27,7 +27,8 @@
 #todo to stop the script bailing out the other includes should be prepended with -, but this maybe a bit obscure for now
 -include ./TARGET.cfg   
 
-export TARGET# if passed on the command ine then export
+export TARGET
+# if passed on the command ine then export
 #export OBJDIRECTORY=./OBJECTS/$(TARGET)#
 export TARGET_NAME=ehs_$(TARGET)#
 
@@ -38,11 +39,10 @@ SCRIPT_PATH=../scripts
 #ENVIRONMENT_PATH=../environment - no longer used for EHS
 
 #Core EHS paths:
-EHS_ROOT_PATH=$(PWD)
+export EHS_ROOT_PATH=$(PWD)
 EHS_BUILD_PATH=$(EHS_ROOT_PATH)
 EHS_TARGETS_ROOT_PATH=$(EHS_ROOT_PATH)/target
 EHS_PLATFORM_PATH=$(EHS_TARGETS_ROOT_PATH)/platform/$(TARGET)
-
 EHS_COMMON_PATH=$(EHS_ROOT_PATH)/Common
 EHS_COMMON_HAL_PATH=$(EHS_COMMON_PATH)/HAL
 EHS_COMMON_KERNEL_PATH=$(EHS_COMMON_PATH)/Kernel
@@ -63,7 +63,8 @@ export EHS_CORE_SUPPORT_BASE=$(EHS_ROOT_PATH)/../ert-build-support
 
 #We need to export this for bash targetenv scripts to use
 export EXE
-
+#This is the binary output filename extension
+export FINAL
 # standard definitions for Csource
 DEFS = MAKE_TARGET=$(TARGET) 
 
@@ -81,6 +82,7 @@ VPATH+=./
 #$(OBJDIRECTORY)
 
 #Get OS specfic HAL code
+
 include $(EHS_PLATFORM_PATH)/../platform.mk
 
 .PHONY: chkconfig
@@ -110,7 +112,7 @@ all: $(TARGET_NAME).$(FINAL) chkconfig
 	@echo $(CC) $(CC_SWITCHES) $(CPPFLAGS) $<
 	$(CPP) $(CC_SWITCHES) $(CPPFLAGS) $< -o $@
 
-$(TARGET_NAME).$(EXE) : $(OBJECTS)
+$(TARGET_NAME).$(FINAL) : $(OBJECTS)
 #	@echo $(PWD)
 #	@echo Linking with Flags: $(LINK) $(LNKFLAGS) $<
 	$(LINK) $(LD_SWITCHES) $(OBJECTS) $(LNKFLAGS) 
@@ -120,15 +122,15 @@ $(TARGET_NAME).$(EXE) : $(OBJECTS)
 ifdef EHS_ANDROID
 ifdef EHS_ANDROID_JNI
 #todo remove this if we no longer support JNI meandroid builds or change it to use the staging directory if we do
-	@cp -f $(TARGET_NAME).$(EXE) ./target/os-arch/android_ALL/android-java-project/libs/armeabi/lib$(TARGET_NAME).$(EXE)
-	@echo copied to ./target/os-arch/android_ALL/android-java-project/libs/armeabi/lib$(TARGET_NAME).$(EXE)
+	@cp -f $(TARGET_NAME).$(FINAL) ./target/os-arch/android_ALL/android-java-project/libs/armeabi/lib$(TARGET_NAME).$(FINAL)
+	@echo copied to ./target/os-arch/android_ALL/android-java-project/libs/armeabi/lib$(TARGET_NAME).$(FINAL)
 endif
 #	@mkdir -p ../TARGET_TREES/ehs_env-$(TARGET)/ todo - look for paths used in esoteric android targetenv scripts.
-#	@cp -f $(TARGET_NAME).$(EXE) ../TARGET_TREES/ehs_env-$(TARGET)/
+#	@cp -f $(TARGET_NAME).$(FINAL) ../TARGET_TREES/ehs_env-$(TARGET)/
 #	@echo copied to ../TARGET_TREES/ehs_env-$(TARGET)/
 else
 	@mkdir -p ../TARGET_TREES/ehs_env-$(TARGET)/bin
-	@cp -f $(TARGET_NAME).$(EXE) ../TARGET_TREES/ehs_env-$(TARGET)/bin/ehs.exe
+	@cp -f $(TARGET_NAME).$(FINAL) ../TARGET_TREES/ehs_env-$(TARGET)/bin/ehs.exe
 	@echo copied to ../TARGET_TREES/ehs_env-$(TARGET)/bin/ehs.exe
 endif
 	
@@ -145,36 +147,69 @@ ifndef TARGET
 	@echo "and then run ./configure [selected TARGET]".
 	@echo or use
 	@echo make TARGET=[selected TARGET] [required TARGET] 
+else
+	@echo "The following dependencies are available for this build"
+	@./target/envbuildscripts/buildenv_checkpaths.sh
 endif
+
+
+compare_kernelconfig:
+ifndef TARGET
+	@echo "No TARGET specified. Please run ./confgure for a list of available targets"
+	@echo "and then run ./configure [selected TARGET]".
+	@echo or use
+	@echo make TARGET=[selected TARGET] [required TARGET] 
+else
+	@echo "The following dependencies are available for this build with the kernel at  ${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}"
+	@echo "meld ./target/platform/$(TARGET)/ ../EHS-kernel/target/platform/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/"
+	@meld ./target/platform/$(TARGET)/ ../EHS-kernel/target/platform/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/
+endif
+
+
 
 help:
 	@echo "******************************************************************************************************************************"
 	@echo "*                                 MAKE HELP FOR inxware runtime software" 
 	@echo "* Make Targets in order of usual execution:"
 	@echo "* "
-	@echo "* prepdeps  - Checksout dependencies git (unless SKIP_REPOS=yes)"
-	@echo "* all       - makes ehs_$(TARGET).exe and copied TARGETENV bin as ehs.exe "
-	@echo "* targetenv - Creates the target runtime file structure in TAREGETENV"
-	@echo "*                      - use make targetenv HOST_OS_CONFIG_SCRIPTS_EXTRA=\"XXX-ABCD YYY-EFGH\"  to include additional OS config"
-	@echo "* depend    - Starts a bash script to identify the dependencies."
-	@echo "* "
+	@echo "* prepdeps           - Checksout dependencies git (unless SKIP_REPOS=yes)"
+	@echo "* all                - makes ehs_$(TARGET).exe and copied TARGETENV bin as ehs.exe "
+	@echo "* targetenv          - Creates the target runtime file structure in the staging directory ../TAREGET_TREES/"
+	@echo "*                        - use make targetenv HOST_OS_CONFIG_SCRIPTS_EXTRA=\"XXX-ABCD YYY-EFGH\"  to include additional OS config"
+	@echo "* targetenv_package  - Creates the target runtime package using the installer method speficied by the platform/config.mk"
+	@echo "* ---------------------------------------------------------------------------------------------------------------------------"
+	@echo "* BUILD Diagnostics:"
+	@echo "* chkconfig    		  - Shows the current key config parameters implied by the platform/<TARGET>config.mk"
+	@echo "* compare_kernelconfig - Compares  platform/<TARGET>/config.mk with the one in ../EHS-kernel/targete/platform/<OS ARCH VERSION>/"
+	@echo "* chk_ext_deps		  - SHows the external dependencies met or unmet for the platform configuration"
+	@echo "* depend			- !!WARNING!! this updated the source level dependencies and update the deps.mk make files"
+	@echo "* ---------------------------------------------------------------------------------------------------------------------------"
 	@echo "* all_docker	       - makes ehs_$(TARGET).exe for host or docker enviorment and copied TARGETENV bin as ehs.exe "
 	@echo "* publish_docker_image - Build new docker image and publish it to inxware dockerhub organization"
 	@echo "* target_buildenv      - Start the platform's DOCKER environment shell.  Useful during build system tuning."
 	@echo "* targetenv_version    - Create a new version number for the target. Note this will check in all changes and create a tagged commit"
-	@echo "* targetenv_cleanall   - Removes ALL data and directories from TARGETENV/."
+	@echo "* targetenv_cleanall   - Removes ALL data and directories from ../TARGET_TREES/ehs_env-$(TARGET)"
 	@echo "* targetenv_cleancfg   - Removes all user data from the TARGETENV tree for deployment."
 	@echo "*                      - Set env variable KEEP_USERCONFIG=yes to keep the userdata/configuration data in tact."
 	@echo "*                      - Set env variable KEEP_DEVMANCONFIG=yes to keep the devman servers in tact."
 	@echo "*                      - Set env variable KEEP_APPLICATION=yes to keep the appdata in tact."
 	@echo "* targetenv_makeprod   - Configures the runtime with standard INX apps and devman configuration. Cleans existing config first! "
+	@echo "* targetenv_pre_build  - Run everything that is needed before building traget"
+	@echo "* targetenv_pre_build_docker - Run make targetenv_pre_build in docker image."
 	@echo "* targetenv_deb        - Creates a debian installer for current tree (targetted at /opt/ehs). optional: UPLOAD=<deb repo URL>"
-	@echo "* targetenv_apk        - Builds android APK and stores it in TARGETENV"
+	@echo "* targetenv_apk        - Builds android APK and stores it in ../TARGET_TREES/"
+	@echo "* targetenv_apk_docker - Builds android APK and stores it in ../TARGET_TREES/ in an android arm configured docker image."
+	@echo "* targetenv_unity_export - Exports Unity 3D IDE (C#) based project to eRT compatible project/exe e.g. eRT Android Studio project or Windows app with eRT plugin."
+	@echo "* targetenv_unity_export_docker - Same as above but in docker."
 	@echo "* targetenv_esp32      - Builds an esp32 image for subsequent deployment via usb or OTA deployment"
-	@echo "* targetenv_esp32_docker    - runs make targetenv_esp32 in an esp32 configured docker image."
-	@echo "* targetenv_apk_docker      - Builds android APK and stores it in TARGETENV in an android arm configured docker image."
-	@echo "* upload_ehs_via_adb   - Uploads TARGETENV tree package to a specific android device via adb. optional: ADB_IP=<device ip>"
-	@echo "* upload_ehs_sys_patch - Uploads TARGETENV tree package to the default devman server or to the specificed server using:"
+	@echo "* targetenv_esp32_docker    - runs make targetenv_esp32 in an esp32s3 configured docker image."
+	@echo "* targetenv_esp32s3     - Builds an esp32s3 image for subsequent deployment via usb or OTA deployment"
+	@echo "* targetenv_esp32s3_docker  - runs make targetenv_esp32s3 in an esp32s3 configured docker image."
+	@echo "* targetenv_nsis_docker - Builds a windows installer using the NSIS installer"
+	@echo "* upload_ehs_via_adb   - Uploads apks to the connected (or IP mapped) android device via adb. optional: ADB_IP=<device ip>"
+	@echo "* upload_ehs_deb       - Uploads the debian package created targetenv_deb. Set  UPLOAD=<deb repo URL>"
+	@echo "* targetenv_android_dep_pack - Bundles eRT android supplementary apps, supervisor into Devman uploadable packages (no APKs are built)."
+	@echo "* upload_ehs_sys_patch - Uploads TARGETENV tree package (Linux and Android only - FREERTOS fimrware images too?) to a Devman server"
 	@echo "*                      - Use VERSION_NAME=[your version name] to give the build a special name."
 	@echo "*                      - e.g. make DEVMANSERVER=[your.url.com] DEVMANUID=[your username] upload_ehs_sys_patch."
 	@echo "*                      - If the patch requires a server reboot (i.e. because it has a new start-upo script) then"
@@ -208,24 +243,48 @@ all_docker: chkconfig
 	@./target/envbuildscripts/all_docker.sh $(TARGET)
 targetenv: chkconfig
 	@./target/envbuildscripts/targetenv.sh $(TARGET) 
+targetenv_pre_build: chkconfig
+	@./target/envbuildscripts/targetenv_pre_build.sh $(TARGET)
+targetenv_pre_build_docker: chkconfig
+	@./target/envbuildscripts/targetenv_pre_build_docker.sh $(TARGET)
+targetenv_package: chkconfig
+	@./target/envbuildscripts/targetenv_make_package.sh $(TARGET) 
+targetenv_nsis: chkconfig
+	@./target/envbuildscripts/targetenv_make_nsis.sh $(TARGET)
+targetenv_nsis_docker: chkconfig
+	@./target/envbuildscripts/targetenv_make_nsis_docker.sh $(TARGET)
 targetenv_esp32: chkconfig
 	@./target/envbuildscripts/targetenv_esp32.sh $(TARGET) 
 targetenv_esp32_docker: chkconfig
 	@./target/envbuildscripts/targetenv_esp32_docker.sh $(TARGET) 
+targetenv_esp32s3: chkconfig
+	@./target/envbuildscripts/targetenv_esp32s3.sh $(TARGET) 
+targetenv_esp32s3_docker: chkconfig
+	@./target/envbuildscripts/targetenv_esp32s3_docker.sh $(TARGET) 
 targetenv_apk_docker: chkconfig
-	@./target/envbuildscripts/targetenv_apk_docker.sh $(TARGET) 
+	@./target/envbuildscripts/targetenv_make_apk_docker.sh $(TARGET)
 targetenv_version: chkconfig
 	@./target/envbuildscripts/targetenv_create_version_info.sh $(TARGET) INC_VERSION
 targetenv_makeprod: chkconfig
 	@./target/envbuildscripts/targetenv_makeprod.sh $(TARGET) 
 targetenv_deb: chkconfig
 	@./target/envbuildscripts/targetenv_make_deb.sh $(TARGET)
+targetenv_deb_docker: chkconfig
+	@./target/envbuildscripts/targetenv_make_deb_docker.sh $(TARGET)
 targetenv_apk: chkconfig
 	@./target/envbuildscripts/targetenv_make_apk.sh $(TARGET) 	
+targetenv_android_dep_pack: chkconfig
+	@./target/envbuildscripts/targetenv_android_dep_pack.sh $(TARGET)
+targetenv_unity_export: chkconfig
+	@./target/envbuildscripts/targetenv_unity_export.sh $(TARGET)
+targetenv_unity_export_docker: chkconfig
+	@./target/envbuildscripts/targetenv_unity_export_docker.sh $(TARGET)
 targetenv_cleancfg: chkconfig
 	@./target/envbuildscripts/targetenv_clean_config.sh $(TARGET)
 targetenv_cleanall: chkconfig
 	@./target/envbuildscripts/targetenv_clean_all.sh $(TARGET)
+upload_ehs_deb: chkconfig #
+	@./target/envbuildscripts/upload_ehs_deb.sh $(TARGET)
 upload_ehs_sys_patch: chkconfig #
 	@./target/envbuildscripts/EHS_syspatch_generate_upload.sh $(TARGET)
 upload_server2server_OS_Update: chkconfig #
@@ -243,7 +302,10 @@ publish_docker_image:
 target_buildenv: 
 	@./target/envbuildscripts/target_buildenv.sh
 clean:
-	rm $(TARGET_NAME).$(EXE) $(OBJECTS) $(CLEAN_FILES)
+	find -name "*.o" -delete
+	rm -f *.d
+	find -name "*.d" -delete
+	rm $(TARGET_NAME).$(FINAL) $(CLEAN_FILES)
 	
 .DEFAULT_GOAL := all
 	

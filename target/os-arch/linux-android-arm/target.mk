@@ -8,8 +8,9 @@
 #---------------------------------------------------------------#
 
 # Makefile fragment to build target specific component and support code.
+
 # Called by ../../platform/<platform-type>
-# @author: inx limited
+#
 
 # Predefined variables
 

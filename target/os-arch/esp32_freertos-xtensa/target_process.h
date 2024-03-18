@@ -23,10 +23,6 @@
 #error "This file should only be included by hal_process.h"
 #endif
 
-// These are defined in the esp32 lwipopts headers
-//#define TCPIP_THREAD_STACKSIZE 1024
-//#define TCPIP_THREAD_PRIO 8
-//#define CONFIG_MAIN_THREAD_PRIORITY TCPIP_THREAD_PRIO + 1
 
 typedef void *pMutexRef;
 typedef void *xTaskHandle;
@@ -35,13 +31,16 @@ typedef void (*lwip_thread_fn)(void *arg);
 
 /*****************************************************************************/
 /* Included target API files */
-//#include "freertos/FreeRTOS.h"
 
-/********************************storage class specified for parameter
- * ‘bcmp’*********************************************/
 /* Define macros  */
 #define PTHREAD_COND_INITIALIZER 0
 #define PTHREAD_MUTEX_INITIALIZER 0
+
+//#todo2022 @xiaosheng :
+// Is it intended that we don't use mutexes in the build (are there problems we have not reported?
+// THis config needs to be the same as that used in the kernel (We are duplicating these file currently, 
+// on all platforms but wehen we know they are the same the kernel code will reference these ones here in ert-components. 
+
 //#define pthread_mutex_lock(x) sys_mutex_lock(x)
 #define pthread_mutex_lock(x)                                                  \
   do {                                                                         \
@@ -107,5 +106,9 @@ void EhsTargetExit(ehs_uint16);
 
 ehs_bool EhsTP_shellExecuteStdout(char *sZstdout, const char *szCmd,
                                   int max_buffer_len);
+/**
+ * @brief Reboot the device
+ */
+void EhsTargetReboot( void );
 /* EHS_TARGET_PROCESS_H */
 #endif

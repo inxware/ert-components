@@ -33,10 +33,12 @@
 
 /*****************************************************************************/
 /* Included files */
+#include <stdio.h>
+
+#include "globals.h"
 #include "hal.h" // Note - target_file.h must be included specifically - not part of hal.h
-#include "stdio.h"
-#include "target_config.h"
-#include "target_types.h"
+//#include "target_config.h"
+//#include "target_types.h"
 /*****************************************************************************/
 /* Define macros  */
 
@@ -46,8 +48,6 @@ typedef FILE ehs_FILE;
 #define EHS_EOF EOF
 #define EHS_TD_FILES_SEPARATOR '/'
 #define EHS_TD_FILES_SEPARATOR_STR "/"
-#define EHS_TD_FILES_MAX_FILENAME 128
-
 /* If we want to use the super small flash file system durectory free files
  * #define this: */
 #undef EHS_USE_SIMPLE_FILESYSTEM
@@ -93,13 +93,18 @@ ehs_sint16 EhsFgetc(ehs_FILE *stream);
 
 // assume we have a standard lib for these
 
+#ifndef EHS_TD_FILES_MAX_PATH
+#warning "Setting EHS_TD_FILES_MAX_PATH as no default found"
 #define EHS_TD_FILES_MAX_PATH 1024
+#endif
 
 /**
  * Longest possible filename
  */
+#ifndef EHS_TD_FILES_MAX_FILENAME
+#warning "Setting EHS_TD_FILES_MAX_FILENAME as no default found"
 #define EHS_TD_FILES_MAX_FILENAME 512
-
+#endif
 /**
  * Path separator for this target
  */

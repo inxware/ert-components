@@ -41,6 +41,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include "esp_log.h"
+#include "esp_system.h"
 #ifdef TAG
 #undef TAG
 #endif
@@ -235,12 +236,13 @@ EhsTPMutexClass EhsTPMutex_devmanPlayerData;
   * Used for the mutexing the DL and UP biffers for devman comms
   */
 EhsTPMutexClass  EhsTPMutex_devmanMiscBuffers;
+#endif
 
+#ifdef EHS_MEDIA_SUPPORT
 /**
  * Mutex resource used to control access to the playManager shared resources
  */
 EhsTPMutexClass EhsTPMutex_playManager;
-
 #endif
 
 /** Reference to PID of parent process */
@@ -422,7 +424,10 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
  */
 // todo2022 review if we want to use the absolute max (how cooperative is EHS? and does this override interrupts or any drivers?)
 // previously we have set this to one above the TCPIP_THREAD_PROCESS priority
-#define CONFIG_MAIN_THREAD_PRIORITY 0//(configMAX_PRIORITIES-1) //TCPIP_THREAD_PRIO + 1
+#ifndef tskIDLE_PRIORITY
+#define tskIDLE_PRIORITY 0
+#endif
+#define CONFIG_MAIN_THREAD_PRIORITY tskIDLE_PRIORITY+3//(configMAX_PRIORITIES-1) //TCPIP_THREAD_PRIO + 1
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
 
@@ -437,7 +442,7 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
 */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_sint16 priority)
+EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
 {
     EhsTPThread thread;
     pthread_attr_t tattr_param;
@@ -523,7 +528,7 @@ EHS_LOCAL pthread_cond_t condDevmanNewMiscDLData = PTHREAD_COND_INITIALIZER;
  ehs_bool EhsProcessInitCond(EhsTPConditionClass * refToCond)
  { 
     if (*refToCond == NULL ) {
-        *refToCond = (EhsTPConditionClass*)&EhsProcess_mutexDevmanNewMiscDLData;
+        *refToCond = (EhsTPConditionClass*)&condDevmanNewMiscDLData;
     }
     else {
         EHSH_LOG_ERROR("Refised to assigning mutexDevmanNewMiscDLData Twice!");
@@ -558,3 +563,8 @@ ehs_bool EhsTP_shellExecuteStdout(char* sZstdout,const char * szCmd, int max_buf
     return EHS_FALSE;
 }
 
+
+void EhsTargetReboot( void )
+{
+    esp_restart();
+}

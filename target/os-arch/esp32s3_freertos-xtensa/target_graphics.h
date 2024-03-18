@@ -1,0 +1,45 @@
+#ifndef _EHS_TARGET_GRAPHICS_H_
+#define _EHS_TARGET_GRAPHICS_H_
+
+#ifdef EHS_GUI_SUPPORT_MODE_B_LVGL
+
+#include "lvgl_helpers.h"
+#include "esp_heap_caps.h"
+#include "target_config.h"
+
+#ifndef TARGET_LVGL_HORIZONTAL
+#define TARGET_LVGL_HORIZONTAL  EHS_CONFIG_DISPLAY_WIDTH
+#endif
+#ifndef TARGET_LVGL_VERTICAL
+#define TARGET_LVGL_VERTICAL    EHS_CONFIG_DISPLAY_HEIGHT
+#endif
+
+#define TARGET_DISPLAY_BUFFER_SIZE  DISP_BUF_SIZE
+
+#define TARGET_LVGL_DRIVER_INIT lvgl_driver_init()
+
+#define TARGET_MEMORY_DYNAMIC   1
+#if TARGET_MEMORY_DYNAMIC == 1
+#define TARGET_LVGL_MALLOC(size) heap_caps_malloc(size, MALLOC_CAP_DMA)
+#endif
+
+#define TARGET_LVGL_DISPLAY_FLUSH_FUNCTION          disp_driver_flush
+
+#define TARGET_LVGL_POINTER 1
+#if TARGET_LVGL_POINTER == 1
+#define TARGET_LVGL_POINTER_CALLBACK_FUNCTION       touch_driver_read
+#endif
+
+#define TARGET_LVGL_KEYBOARD 0
+#if TARGET_LVGL_KEYBOARD == 1
+#define TARGET_LVGL_KEYBOARD_CALLBACK_FUNCTION
+#endif
+
+#define TARGET_LVGL_ENCODER 0
+#if TARGET_LVGL_ENCODER == 1
+#define TARGET_LVGL_ENCODER_CALLBACK_FUNCTION
+#endif
+
+#endif
+
+#endif

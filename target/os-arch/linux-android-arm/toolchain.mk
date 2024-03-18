@@ -10,11 +10,14 @@
 
 #  Uses $(INC_DIRS), $(TARGET_NAME), $(DEFS)
 #  Defines $(CC), $(LINK), $(CFLAGS), $(LNKFLAGS), $(INC), $(LIB), $(EXE), $(OBJ), $(FINAL)
+#
 
+#
 # Toolset specific 
 
 #We have floating Point
-LNKFLAGS+= -Wl,-lm #@todo this isn't for all arms - should move to platform
+LIB+=m
+#@todo this isn't for all arms - should move to platform
 
 ##
 ## Linker Options

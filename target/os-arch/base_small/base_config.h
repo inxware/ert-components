@@ -27,6 +27,9 @@
 #define EHS_MAXPATHLENGTH 128
 #define EHS_MAX_URL_LENGTH 128
 
+#define EHS_TD_FILES_MAX_PATH 128
+#define EHS_TD_FILES_MAX_FILENAME 64
+
 /**
  * Defines the default target identifier for this instance of EHS
  */
@@ -78,11 +81,12 @@
 #ifndef EHS_FILE_BUFF_SIZE
 #define EHS_FILE_BUFF_SIZE 256 /**< Size of buffers used to read/write to files */
 #endif
+
 /**
  * Maximum console queue size. This *must* be a power of 2 and less than 2<<31.
  */
-#ifndef EHS_MAX_CONSOLE_QUEUE_SIZE
-#define EHS_MAX_CONSOLE_QUEUE_SIZE (1<<5) //65536 // - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
+#ifndef EHS_DEBUG_CONSOLE_BUFFER_SIZE
+#define EHS_DEBUG_CONSOLE_BUFFER_SIZE (1u<<9)  //512 bytes 256 - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
 #endif
 
 #ifndef EHS_CONFIG_DISPLAY_HEIGHT

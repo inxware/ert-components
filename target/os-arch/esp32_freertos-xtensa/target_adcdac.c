@@ -20,6 +20,10 @@ esp_specific_thing x;
 // GPIO14 if ADC2 static const adc_bits_width_t width = ADC_WIDTH_BIT_12; static
 // const adc_atten_t atten = ADC_ATTEN_DB_0;
 
+/* 
+    We need to configure the ADCs in either single or multiple modes...
+    For the time being we will only be using ADC1 (Unit 2 is used by the WiFi unit on esp32s)
+*/
 ehs_uint8 unit = 0;
 
 static ehs_bool set_ADC_unit(ehs_uint8 value)
@@ -45,12 +49,14 @@ static ehs_bool set_ADC_unit(ehs_uint8 value)
     return EHS_TRUE;
 }
 
+/* Sets the bit width of the samples */
 static ehs_bool set_ADC_width(ehs_uint8 width)
 {
     adc1_config_width(width);
     return EHS_TRUE;
 }
 
+/* todo2024 Seems we always return the same value irrepsective of what is actually set (do we even need this function?) */
 static ehs_bool get_ADC_width(ehs_uint8 *width)
 {
     *width = ADC_WIDTH_BIT_9;
@@ -75,8 +81,10 @@ static ehs_bool configure_ADC1(ehs_uint8 channel)
 static ehs_bool configure_ADC2(ehs_uint8 channel)
 {
     adc2_config_channel_atten(channel, ADC_ATTEN_DB_0);
+    return EHS_TRUE;
 }
 
+// todo - what is the *config needed for in generic code?
 EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_uint8 configure,
                                   ehs_uint8 *config)
 {
@@ -95,6 +103,7 @@ EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_uint8 configure,
     return EHS_TRUE;
 }
 
+/* polled adc read function */
 EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
         ehs_uint8 config)
 {
@@ -116,6 +125,12 @@ EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
     }
     return EHS_TRUE;
 }
+
+ehs_bool destroy_adc()
+{
+    return EHS_TRUE;
+}
+
 /*
 #include "target_time.h"
 //#undef TEST_ADCDAC

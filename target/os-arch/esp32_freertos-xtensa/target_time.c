@@ -13,6 +13,7 @@
 #include "freertos/semphr.h"
 #include "target_types.h"
 #include "timer.h"
+#include "hal_logger.h"
 #include <errno.h>
 
 #define TAG "target_time"
@@ -77,8 +78,9 @@ void EhsTgtTimer_reset()
 
     ESP_ERROR_CHECK_WITHOUT_ABORT(timer_init(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, &config));
     ESP_ERROR_CHECK_WITHOUT_ABORT(timer_set_counter_value(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, 0));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(timer_disable_intr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER));
     ESP_ERROR_CHECK_WITHOUT_ABORT(timer_enable_intr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER));
-    ESP_ERROR_CHECK_WITHOUT_ABORT(timer_isr_callback_add(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,EhsEsp32TgtTimer_tick, NULL, 0)); // EhsTgtTimer_tick() - don't sent it any data it already has it
+    ESP_ERROR_CHECK_WITHOUT_ABORT(timer_isr_callback_add(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,EhsEsp32TgtTimer_tick, NULL, 0)); // ESP_INTR_FLAG_NMI // EhsTgtTimer_tick() - don't sent it any data it already has it
     ESP_ERROR_CHECK_WITHOUT_ABORT(timer_start(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER));
     // timer_isr_register(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,
     // &timer_tg0_isr, NULL, 0, &s_timer_handle);
@@ -97,10 +99,10 @@ void EhsTgtTimer_set(EhsTickType tExpiryTime)
 {
     // todo2022 - this should also set the timeout of the hardware to timer to
     // give us a call back at the right time.
+    //todo2022 we usethe ESP_ERROR_CHECK_WITHOUT_ABORT to avoid errors  
     EhsTgtTimerExpiryTime = tExpiryTime;
     timer_group_set_alarm_value_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,tExpiryTime);
-    // lets not do any of the software versions for this target -
-    // EhsTgtTimerExpiryTime = tExpiryTime;
+    timer_group_enable_alarm_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER);
 }
 
 /**
@@ -174,11 +176,12 @@ void EhsSleepUs(ehs_uint32 tSleepTime)
  */
 ehs_bool EhsTgtTimer_tick()
 {
-        if ((EhsTgtTimerExpiryTime != EHS_TICKTYPE_INVALID) &&
-                EHS_TARGET_TIME_IS_EARLIER(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
-        {
-                EhsTimer_tick();
-        }
+        // if ((EhsTgtTimerExpiryTime != EHS_TICKTYPE_INVALID) &&
+        //         EHS_TARGET_TIME_IS_EARLIER(EhsTgtTimerExpiryTime,EHS_CURRENT_TIME))
+        // {
+        //     printf("TEST\n");
+        //         EhsTimer_tick();
+        // }
         
 
         return EHS_TRUE;

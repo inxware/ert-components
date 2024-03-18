@@ -52,7 +52,7 @@
  */
 
 #define EhsTgtTimer_usToTick(us)                                               \
-  ((EhsTickType)((EhsTickType)(us) / (EhsTickType)EHS_uS_PER_TICK))
+  EHS_uS_PER_TICK <= us ? ((EhsTickType)((EhsTickType)(us) / (EhsTickType)EHS_uS_PER_TICK)) : 1
 #define EhsTgtTimer_msToTick(ms)                                               \
   ((EhsTickType)((EhsTickType)(ms)*1000 / (EhsTickType)EHS_mS_PER_TICK))
 

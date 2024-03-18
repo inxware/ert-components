@@ -43,10 +43,10 @@ CFLAGS+= -DUNITY_INCLUDE_CONFIG_H -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"'
 
 #LNKFLAGS+= -nostdlib -Wl,--gc-sections -Wl,-static -Wl,--start-group -T esp32.rom.ld -T esp32.rom.libgcc.ld -T esp32.rom.syscalls.ld -T esp32.rom.newlib-data.ld -T esp32.rom.api.ld -T esp32.rom.newlib-funcs.ld -T esp32.rom.newlib-time.ld -Wl,--wrap=longjmp -lesp_rom  -lnewlib -lm -u newlib_include_heap_impl -u newlib_include_syscalls_impl -u newlib_include_pthread_impl -u newlib_include_assert_impl -lgcc -lstdc++ -lgcov -Wl,--end-group -Wl,-EL
 #todo2022 the following link  command uses start group to avoid using -Wl on each link. 
-#we may want ocosiderthis approach generally for handling libraries included via the normal LIB+= method, but for now we'll do it explcitly here and remove the LIB+ stuff that duplicates this in the target.mk file.
+#We may want ocosiderthis approach generally for handling libraries included via the normal LIB+= method, but for now we'll do it explcitly here and remove the LIB+ stuff that duplicates this in the target.mk file.
 LNKFLAGS+= -nostdlib -Wl,--gc-sections -Wl,-static -Wl,--start-group -lapp_update -u esp_app_desc -Wl,--wrap=_Unwind_SetEnableExceptionFdeSorting -Wl,--wrap=__register_frame_info_bases -Wl,--wrap=__register_frame_info -Wl,--wrap=__register_frame -Wl,--wrap=__register_frame_info_table_bases -Wl,--wrap=__register_frame_info_table -Wl,--wrap=__register_frame_table -Wl,--wrap=__deregister_frame_info_bases -Wl,--wrap=__deregister_frame_info -Wl,--wrap=_Unwind_Find_FDE -Wl,--wrap=_Unwind_GetGR -Wl,--wrap=_Unwind_GetCFA -Wl,--wrap=_Unwind_GetIP -Wl,--wrap=_Unwind_GetIPInfo -Wl,--wrap=_Unwind_GetRegionStart -Wl,--wrap=_Unwind_GetDataRelBase -Wl,--wrap=_Unwind_GetTextRelBase -Wl,--wrap=_Unwind_SetIP -Wl,--wrap=_Unwind_SetGR -Wl,--wrap=_Unwind_GetLanguageSpecificData -Wl,--wrap=_Unwind_FindEnclosingFunction -Wl,--wrap=_Unwind_Resume -Wl,--wrap=_Unwind_RaiseException -Wl,--wrap=_Unwind_DeleteException -Wl,--wrap=_Unwind_ForcedUnwind -Wl,--wrap=_Unwind_Resume_or_Rethrow -Wl,--wrap=_Unwind_Backtrace -Wl,--wrap=__cxa_call_unexpected -Wl,--wrap=__gxx_personality_v0 -u __cxx_fatal_exception 
 LNKFLAGS+= -T esp32.rom.ld -T esp32.rom.libgcc.ld -T esp32.rom.syscalls.ld -T esp32.rom.newlib-data.ld -T esp32.rom.api.ld -T esp32.rom.newlib-funcs.ld -T esp32.rom.newlib-time.ld -lesp_rom -Wl,--wrap=longjmp -lesp_system -u __ubsan_include -u ld_include_highint_hdl -T memory.ld -T sections.ld -lfreertos -Wl,--undefined=uxTopUsedPriority -lpthread -u pthread_include_pthread_impl -u pthread_include_pthread_cond_impl -u pthread_include_pthread_local_storage_impl -u pthread_include_pthread_rwlock_impl -lnewlib -lc -lm -u newlib_include_heap_impl -u newlib_include_syscalls_impl -u newlib_include_pthread_impl -u newlib_include_assert_impl -lxt_hal -lcore -lnet80211 -lpp -lsmartconfig -lcoexist -lespnow -lmesh -lgcc -lstdc++ -lgcov -T esp32.peripherals.ld  
-# todo2022 These shoulld be done properly using the LINK+ vriable but this seems to slightly broken: 
+# todo2022 These shoulld be done properly using the LIB variable but this seems to slightly broken: 
 LNKFLAGS+= -lcoexist -lespnow -lmesh -lnet80211 -lphy -lpp -lrtc -lsmartconfig -lwapi -lxt_hal -lapp_trace -lapp_update -lbootloader_support -lbt -lcoap -lconsole -ldriver -lefuse -lesp32 -lesp_adc_cal -lesp_common 
 LNKFLAGS+= -lesp_eth -lesp_event -lesp_gdbstub -lesp_hid -lesp_http_client -lesp_http_server -lesp_https_ota -lesp_hw_support -lesp_ipc -lesp_lcd -lesp_local_ctrl -lesp_netif -lesp_phy -lesp_pm -lesp_ringbuf -lesp_rom 
 LNKFLAGS+= -lesp_serial_slave_link -lesp_system -lesp_timer -lesp-tls -lesp_wifi -lexpat -lfatfs -lfreemodbus -lfreertos -lhal -lheap -lidf_test -ljsmn -ljson -llibsodium 
@@ -54,35 +54,9 @@ LNKFLAGS+= -lnvs_flash -lopenssl -lopenthread -lperfmon -lprotobuf-c -lprotocomm
 LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa -lhal -lesp_littlefs -Wl,--end-group -Wl,-EL -fno-rtti
 LIB+=c
 LIB+=cxx
-
-#-I ${IDF_PATH}/components/newlib/platform_include 
-#-I . -L/home/retr0/test-esp/flash_encryption/build/esp_rom -lesp_rom -L ${IDF_PATH}/components/esp_rom/esp32/ld
-
-
-#Bits we have in a single line compile and link:
-#-L/home/retr0/test-esp/flash_encryption/build/newlib
-#-I ${IDF_PATH}/components/newlib/platform_include 
-#-I . -L/home/retr0/test-esp/flash_encryption/build/esp_rom -lesp_rom -L ${IDF_PATH}/components/esp_rom/esp32/ld
-
 LIB_DIRS += $(EHS_ROOT_PATH)
-#LIB_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)
-#LIBRARY_DIRECTORIES += $(EHS_COMPONENT_SUPPORT_BUILD)/libs
-#LD_SWITCHES += $(addprefix -L ,$(LIB_DIRS))
-#setup linker flags / options
-#LNKFLAGS+= -Wl,-o$(TARGET_NAME).$(EXE)
-#LNKFLAGS+= -Wl,-E 
-#INC_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)/../include
-# -rpath - We may want to include rpath =${ORIGIN}/cslib instead of explicitly calling this at run time with ./cslib/ld-linux.so.2 --library-path ./cslib/	./ehs.exe
-#, but probably not as all libs wouls need to be built with this option also so we'll stick with the launcher method instead
-#-E is needed for the dlopen stuff VLC and LUA does
 
-##-rpath - don't want hard-coded lib paths!   ##export dynamics is required for LUA @todo move this to the most basic linux make file level or the LUA make file.
-# Concatentate linker options, source and paths.
-#LNKFLAGS+=$(foreach i,$(LIB_DIRS),-Wl,-L$i)
-#LNKFLAGS+= $(foreach i,$(LIB),-Wl,-l$i)
-#LDFLAGS= -L $(EHS_COMPONENT_SUPPORT_LIBS)
 LDFLAGS = -static
-
 EXE=elf
 
 # use the usual gcc/clang tool chain config

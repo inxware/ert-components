@@ -6,17 +6,9 @@
 # not, please visit 
 #	<https://www.mozilla.org/en-US/MPL/2.0/>
 #---------------------------------------------------------------#
-# @author: inx limited
-# 
-#
-#
-# Predefined variables
-#
+
 # Makefile fragment to build target specific component and support code.
 # Called by ../../platform/<platform-type>
-#
-
-
 
 #  OBJ - File extension for object files
 
@@ -28,11 +20,6 @@
 #  EHS_TARGET_OS_HW_PATH - path to the current directory (set by platform makefile)
 
 # include sourcecode from this dir in build
-
-# esp32 probably doesn't have any chared code with gnu or linux (TBC)
-#include $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/target.mk
-#include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/target.mk
-
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/
 
@@ -40,20 +27,28 @@ VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/
 EHS_COMMS_TASK=tcp_server_common
 EHS_COMMS_API_SUPPORT=lwip
 EHS_ESP32_SUPPORT=1
-DEFS += EHS_ESP32_SUPPORT=1
-ENABLE_GDB=1 
-#todo2022 find a betterway of setting XML SUPPORT
-# EHS_INCLUDE_XML_SUPPORT
-# Use lwip
 
+#os-arch-wide platform component-HAL settings:
+EHS_PERIPHERALS_GPIO_SUPPORT=ESP32_IDF
+EHS_PERIPHERALS_ADC_DAC_SUPPORT=ESP32_IDF
+
+#We always have MQTT support for ESP32, lets set it here for all esp32
+EHS_MQTT_SUPPORT=esp32
+
+#Enable gdb debugging by default
+ENABLE_GDB=1 
+
+# Use lwip
+DEFS += EHS_LWIP=1
 #INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/lwip/
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/Component-HAL/comms/lwip
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/hal/
 
-#idf build has som specific subdirectories:
+#IDF build has som specific subdirectories:
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/esp_additions/freertos
 #some things reference with freertos/ and others don't ...
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/esp_additions/
+INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/components/mqtt/esp-mqtt
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/apps/
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/apps/ping/
 INC_DIRS +=$(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/examples/wifi_test
@@ -64,14 +59,13 @@ OBJECTS += target_math.$(OBJ)
 OBJECTS += targetos_init.$(OBJ)
 OBJECTS += target_process.$(OBJ)
 OBJECTS += target_main.$(OBJ)
-OBJECTS += target_gpio.$(OBJ)
 OBJECTS += target_time.$(OBJ)
 OBJECTS += ping.$(OBJ)
 #OBJECTS += wifi_test.$(OBJ)
-OBJECTS += target_adcdac.$(OBJ)
-
 #OBJECTS += target_math.$(OBJ) 
 #OBJECTS += esp_main_example.$(OBJ) 
+#OBJECTS += certificate.$(OBJ)
+OBJECTS += mqtt.$(OBJ)
 
 #expect we will need all of the lib*.a from ert-contrib-middleware/target_libs/..esp32 .. /build/lib/ here 
 # LIB += ....
@@ -83,17 +77,14 @@ OBJECTS += target_adcdac.$(OBJ)
 
 #LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa
 
-
-
-
 #LNKFLAGS+= -lcoexist -lespnow -lmesh -lnet80211 -lphy -lpp -lrtc -lsmartconfig -lwapi -lxt_hal -lapp_trace -lapp_update -lbootloader_support -lbt -lcoap -lconsole -ldriver -lefuse -lesp32 -lesp_adc_cal -lesp_common 
 #LNKFLAGS+= -lesp_eth -lesp_event -lesp_gdbstub -lesp_hid -lesp_http_client -lesp_http_server -lesp_https_ota -lesp_hw_support -lesp_ipc -lesp_lcd -lesp_local_ctrl -lesp_netif -lesp_phy -lesp_pm -lesp_ringbuf -lesp_rom 
 
-LIB+=:libehs.a
+# This is of course done for every platform LIB+=:libehs.a
 ifdef FIXED_ESP32_LINKLINE_USING_STARTGROUP
 LIB += coexist
 LIB += espnow
-LIB += mesh
+#LIB += mesh
 LIB += net80211
 LIB += phy
 LIB += pp
@@ -129,7 +120,7 @@ LIB += esp_phy
 LIB += esp_pm
 LIB += esp_ringbuf
 LIB += esp_rom
-
+LIB += mqtt
 #LNKFLAGS+= -lesp_serial_slave_link -lesp_system -lesp_timer -lesp-tls -lesp_wifi -lexpat -lfatfs -lfreemodbus -lfreertos -lhal -lheap -lidf_test -ljsmn -ljson -llibsodium 
 
 LIB += esp_serial_slave_link
@@ -147,6 +138,7 @@ LIB += idf_test
 LIB += jsmn
 LIB += json
 LIB += libsodium
+
 #LNKFLAGS+= -lnvs_flash -lopenssl -lopenthread -lperfmon -lprotobuf-c -lprotocomm -lpthread -lsdmmc -lsoc -lspiffs -lspi_flash -ltcpip_adapter -ltcp_transport -llog -llwip -lmbedtls -lmdns -lmqtt -lnewlib -lnghttp 
 
 
@@ -154,7 +146,6 @@ LIB += log
 LIB += lwip
 LIB += mbedtls
 LIB += mdns
-LIB += mqtt
 LIB += newlib
 LIB += nghttp
 LIB += nvs_flash

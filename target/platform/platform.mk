@@ -27,13 +27,12 @@
 #  EHS_PLATFORM_PATH - path to the current directory (set by platform makefile)
 
 ################## Get the platform parameters from the platform config.mk file #######
-
+$(info $(EHS_PLATFORM_PATH))
 include $(EHS_PLATFORM_PATH)/config.mk
 
 # TOOLCHAIN_NAME is an override, should only be set by config.mk and not constructed
 #set the build host's machine's architecture (it is always linux so far...)
 export EHS_BUILD_MAC_ARCH=$(shell uname -m)
-
 
 ifdef EHS_GNU_OS
 	TOOLCHAIN_OS=$(EHS_GNU_OS)
@@ -46,8 +45,15 @@ else
 	TOOLCHAIN_ARCH=$(EHS_ARCH)
 endif
 
+#These paramters are used in the targetenv shell scripts so need to be exported
 export EHS_OS
+export EHS_ARCH
+export EHS_GNU_OS
+export EHS_GNU_ARCH
+#some slightly target pecific hack paramters we should export. 
+#We should probably do this in the more specific target
 
+export DEBIAN_PACKAGE_NAME
 
 #Note we have some toolchains in the oposite order e.g. linux-android-armv7a 
 #- in which case we can either fix it in the support repo or use the TOOLCHAIN_NAME override
@@ -69,10 +75,14 @@ export KERNEL_HEADERS_RELPATH
 export INC_DIRS += ${KERNEL_HEADERS_BASE_DIR}/$(KERNEL_HEADERS_RELPATH)
 
 ############## Define the OS_HW PATH for dependencies within the eRT-componnents source tree ######
+
 export EHS_TARGET_OS_HW_PATH=$(EHS_TARGETS_ROOT_PATH)/os-arch/$(EHS_OS)-$(EHS_ARCH)
 
-#Paramters that need exportng to targetenv and other bas scripts
+# Paramters that need exportng to targetenv and other bas scripts
+# SYSTEM_VARIANT selects different OS initialisation scripts and other dployed files that cary with specific targets. 
 export SYSTEM_VARIANT
+# THe hacks file i for more unusual target specific requirements, such as adding 3rd-party apps and resoures for a particular product
+export INXWARE_TARGETENV_HACKS
 
 ####################   Configure the os-arch independent toolchain paths  ############################## 
 
@@ -80,17 +90,24 @@ ifdef TOOLCHAIN_NAME
     ifeq ($(TOOLCHAIN_NAME),HOST)
         export TOOLCHAIN_PATH=HOST
     else
-        export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_NAME)
+        ifndef TOOLCHAIN_PATH
+            export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_NAME)
+        endif
     endif
 else
+    ifndef TOOLCHAIN_PATH
         ifneq ($(TOOLCHAIN_PATH),HOST)
-        # check for an arch and OS specific one first. Other wise try an arch only (which is rarely/never used so far):
+        # check for an arch and OS specific one first. Otherwise try an arch only (which is rarely/never used so far):
                 ifneq ($wildcard $($(EHS_CORE_SUPPORT_BASE)/toolchains/$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)),)
                         export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)
                 else
                         export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_ARCH)
                 endif
         endif
+    else
+    #There is an explicit Toolchain path (relative to ert-build-support/toolchains/) specificed, so let this be used.
+
+    endif
 endif
 
 ifdef CC_OVERRIDE
@@ -146,9 +163,10 @@ include $(EHS_TARGET_OS_HW_PATH)/toolchain.mk
 export EHS_TARGET_COMPONENT_HAL_PATH=$(EHS_TARGETS_ROOT_PATH)/Component-HAL
 
 ifndef COMPONENT_BASE_TECHNOLOGIES
-$(error COMPONENT_BASE_TECHNOLOGIES  is not defined)
+$(error == COMPONENT_BASE_TECHNOLOGIES is not defined)
 else
-$(info Your Build target is using the following ert-contrib_middleware: $(COMPONENT_BASE_TECHNOLOGIES) )
+$(info == Your Build target is using the following ert-contrib_middleware:) 
+$(info == [$(COMPONENT_BASE_TECHNOLOGIES)] )
 endif
 
 # and apply to the compiler paths 
@@ -162,63 +180,71 @@ export EHS_COMPONENT_SUPPORT_LIBS:=$(EHS_COMPONENT_SUPPORT_BUILD)/lib/
  # Required for EHS core stuff (What is the difference between the following?)
 include $(EHS_TARGET_OS_HW_PATH)/target.mk
 
-################## Set up any debugging settings.                               ####### 
-# Check if call trace logging has been enabled
-ifdef EHS_DEBUG_TRACE
-DEFS += EHS_BUILDOPT_STDIO_MESSAGE_TRACE #this is for specific messages
-DEFS += EHS_BUILDOPT_STDIO_ENABLE_FUNCTION_TRACING # this is the legacy tracing @todo remove the argument number specificity
-DEFS += EHS_RUNTIME_LOGGER_ENABLED
-DEFS += EHS_DEBUG# (Switch on all Debug?)
-endif
-# set the standard error/warning/info debug macro if set
-ifdef EHS_DEBUG
-DEFS += EHS_DEBUG# (Switch on all Debug?)
-endif
-# set the AV middleware debugger on
-ifdef EHS_DEBUG_AV
-DEFS += EHS_DEBUG_AV# (Switch on all Debug?)
-endif
-
 ############## Set up some eRT Source level conditional build macros          ##########
 # If the platform as system variant, let the code use the macro for build configuration.
 DEFS += $(SYSTEM_VARIANT)#todo as above!
-
 
 # IF WE HAVE A NATIVE BUILD (e.g. docker) THEN MUCH OF THE ABOVE SHOULD PROBABLY BE REMOVED? 
 # Though it probably doesn't do any harm having linkes to resources in ert-* support repos if there's nothing in them.
 # TODO2022 we want this to be set more generically for platform.mk that wnt to build under a specific docker or vagrant environment.
 # todo EHS_SPECIAL_CLIB_EXT seems to not be used any more and can probably be removed....
 
-ifeq ($(EHS_HOST_DEBIAN_BUILD),yes)
-#todo2022 not sure if either of the following are actually required, as they sohuld be set up by docker or vagrant for the speicific target
-    export INC_DIRS+=/usr/include
-    #todo2022 the following line needs to be done better (i.e. to pick  up the required target) if it is needed.
-    export LIB_DIRS+=/usr/lib/x86_64-linux-gnu/
-    export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
-    # We might still hav some middleware dependecies for a host build 
-    export INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)
-    export LIB_DIRS+=$(EHS_COMPONENT_SUPPORT_LIBS)
+#This doesn't seem to be useful (build OK without) but seems to be more target specific than should be done here? 
+ifneq ($(EHS_HOST_DEBIAN_BUILD),)
+#    $(info HOST_BUILD is set, using the host's /usr/ directory for core and component dependencies")
+    LIB_DIRS += $(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
+#    # We might still hav some middleware dependecies for a host build 
+    INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)
+    LIB_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)
+    $(info == Using EHS kernel from:)
+    $(info == [$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/])
+    $(info == Also including the default ert-contrib middleware include path:)
+    $(info == [$(EHS_COMPONENT_SUPPORT_INCLUDE)])
+    $(info == Also including the default ert-contrib middleware library path:)
+    $(info == [$(EHS_COMPONENT_SUPPORT_LIBS)])
 else
   # Add paths the ert-build-support's LIBC
    ifdef EHS_CLIB_OVERRIDE_PATH
-       export INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/include/
-       export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
-       export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/kernel/
+       $(info == EHS_CLIB_OVERRIDE_PATH is set, using the override path:)
+       $(info == [../ert-build-support/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/])
+       INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/include/
+       LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
+       LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/kernel/
       # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/lib/
    else
   #Note the following is usally handled with the gcc --sysroot, but we'll add INC and LIB paths explicitly too.
-       export INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/include/
-       export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/lib/
-       export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
+       $(info == Using the default ert-build-support path:)
+       $(info ==[../ert-build-support/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/])
+       INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/include/
+       LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/lib/
+       LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
       # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/lib/
    endif
+    $(info == Using the default ert-contrib middleware include path:)
+    $(info == [$(EHS_COMPONENT_SUPPORT_INCLUDE)])
+    $(info == Using the default ert-contrib middleware library path:)
+    $(info == [$(EHS_COMPONENT_SUPPORT_LIBS)])
     # Add the component paths (Names distilled above) 
-    export INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)
-    export LIB_DIRS+=$(EHS_COMPONENT_SUPPORT_LIBS)
-
+    INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)
+    LIB_DIRS+=$(EHS_COMPONENT_SUPPORT_LIBS)
 endif
 
+################ Choose which type of EHS kernel to link to   #########################
+ifdef EHRT1
+    LIB+=:libehs_ehrt1.a
+    DEFS += EHRT1
+else
+    LIB+=:libehs.a
+endif
 
+################ Select between render mode A and B ###############################
+ifdef EHS_GUI_SUPPORT
+# at the moment only mode B is only used for lvgl
+ifeq ($(EHS_GUI_SUPPORT),lvgl)
+export EHS_RENDER_MODE=B
+export EHS_DONT_USE_BASIC_FONTS=yes
+endif
+endif
 
 ################# Setup the target include paths for core EHS ##########################
 INC_DIRS +=$(EHS_PLATFORM_PATH)
@@ -231,29 +257,105 @@ include $(EHS_TARGET_OS_HW_PATH)/deps.mk
 INC_DIRS += $(EHS_TARGET_OS_HW_PATH)
 VPATH+= $(EHS_TARGET_OS_HW_PATH)
 
+# Don't include this yet because it gets configured by the target specific make scripts.
+### include $(EHS_COMMON_HAL_PATH)/HAL.mk
+# but we do need to do this:
+INC_DIRS += $(EHS_COMMON_HAL_PATH)/include
+
 #include sourcecode from components dir in build
 include $(EHS_TARGET_OS_HW_PATH)/Components/deps.mk
 INC_DIRS += $(EHS_TARGET_OS_HW_PATH)/Components
 VPATH+= $(EHS_TARGET_OS_HW_PATH)/Components
 
-include $(EHS_TARGET_COMPONENT_HAL_PATH)/component-hal.mk
-
 #
 # add required object files to OBJECTS
 #
-#Core EHS
+# We some times uese this build system to build totall irrelevant code to eRT
 ifndef EXCLUDE_EHS_COMMON
-ifdef EHS_BUILD_MONOLITHIC_KERNEL
-include $(EHS_COMMON_KERNEL_PATH)/kernel.mk
+    ifdef EHS_BUILD_MONOLITHIC_KERNEL
+        include $(EHS_COMMON_KERNEL_PATH)/kernel.mk
+    endif
+
+    #define the component HAL first because this can affect the components selected for the toolboxes'
+    include $(EHS_TARGET_COMPONENT_HAL_PATH)/component-hal.mk
+
+    #Configure the Components Code used
+    #build the common Layer (The common components.mk file will conditionally compile depending on Component Options
+    include $(EHS_COMMON_COMPONENTS_PATH)/components.mk
+    #All target stuff is done from the platform.mk file (indirectly) relative target specific layer
+    include $(EHS_COMMON_EHS_PATH)/ehs.mk
 endif
+
+# Important to inlcude the HAL last because it's build will depend on what subcomponents are included above.
 include $(EHS_COMMON_HAL_PATH)/HAL.mk
 
-#Configure the Components Code used
-#build the common Layer (The common components.mk file will conditionally compile depending on Component Options
-include $(EHS_COMMON_COMPONENTS_PATH)/components.mk
-#All target stuff is done from the platform.mk file (indirectly) relative target specific layer
-include $(EHS_COMMON_EHS_PATH)/ehs.mk
-endif
+#All config files should be included now
+   $(info ====================================================================)
+   $(info TOOLBOXES:)
+   $(info EHS_PERIPHERALS_GPIO_SUPPORT=$(EHS_PERIPHERALS_GPIO_SUPPORT))
+   $(info DEBUG:)
+   $(info EHS_DEBUGALL            =$(EHS_DEBUGALL))
+   $(info EHS_DEBUG_AV            =$(EHS_DEBUG_AV))
+   $(info EHS_DEBUG_TCPIP_CONSOLE =$(EHS_DEBUG_TCPIP_CONSOLE))
+   $(info EHS_DEBUG_TRACE         =$(EHS_DEBUG_TRACE))
+   $(info ====================================================================)
+
 
 ############## Agregate OS configuration scripts from config.mk recipe and command line ###########
 export HOST_OS_CONFIG_SCRIPTS+=$(HOST_OS_CONFIG_SCRIPTS_EXTRA)
+
+############# Some very specific variables that need to be exported to targetenv scripts:
+export EHS_PLUGIN_LIBRARY_DEPENDENCY
+
+############ Export the application config for bash scripts
+# This defines the default application - set NONE for none, otherwise the default desktop home app is installed
+export EHS_DEFAULT_APP
+
+############ Pick up any Devman URLs and credentials and pass these on to the build and packaing environments #####
+#This is the URL the CORE devman services will use to connect
+export DEVMAN_SERVER_DOMAIN
+export DEVMAN_SERVER_PROTOCOL
+export DEVMAN_UNAME
+# Devman upload packaging (to generalise at some point for each type of packager - perhaps a list of APKs to zip?)
+export EHS_PRODUCT_NAME
+#todo 2023: We should be able to dump this wen we get rid of the android installer script duplication
+export DEVMAN_SERVER_NAME
+
+export NETWORK_NTP_SERVER
+export NETWORK_HARDWIRED_HOSTS
+
+# don't need this in bash: export EHS_MQTT_SUPPORT
+#we need to set this for cases where it needs to override an inheritted server config
+export DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE
+export DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED
+# Dvman uploader credentials
+export DEVMAN_UNAME
+
+
+# The following will install the additional platform processes (e.g. android downloader or linux cron). 
+export EHS_INSTALL_SUPERVISOR
+
+# The following is used mostly for supervisor and downloader configuration. 
+export EHS_ANDROID_INSTALL_VERSION
+
+## This is used for the uploader to a package server
+export SSHPORT 
+
+## This is used for exporting of Unity 3D IDE (C#) based project to eRT compatible project/exe 
+# e.g. eRT Android Studio project or Windows app with eRT plugin.
+export EHS_UNITY_PROJECT_EXPORT_SUPPORT
+
+# Path to a direcory with items used for signing android apk and aab files
+export EHS_ANDROID_PACKAGE_SIGNING_PATH
+
+# Used to indicate wherther android traget is built with supervisor
+export BUILD_WITH_ANDROID_SUPERVISOR
+
+# Used for specifying any android supplementary apps that needs to be added to target e.g. Amabifier.apk
+export ANDROID_SUPPLEMENTARY_APP_REPO
+export ANDROID_SUPPLEMENTARY_APP_PATH
+
+# Used for specifing name of the eRT package/executable
+export ERT_PACKAGE_NAME
+# Used for specifing user facing name of installed application (windows installer)
+export ERT_NSIS_EXE_NAME

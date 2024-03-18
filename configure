@@ -10,28 +10,89 @@
 
 
 if [ ! -n "${1}" ] ;then
-    echo Usage 
-    echo ./configure [TARGET]
-    echo where target is one of the following target configurations:
+    echo "Usage" 
+    echo "./configure [TARGET] [-edit]"
+    echo "OR"
+    echo "./configure -edit to edit the current config.mk file"
+
+    echo "where target is one of the following target configurations:"
     ls --hide "*.mk"  ./target/platform/
-    exit
+
+   if test -e ./TARGET.cfg
+   then     
+     echo "____________________________________________________________"
+     echo "Your build tree is currently configured for"
+     cat ./TARGET.cfg
+     echo "____________________________________________________________"
+   fi
+   exit 1
+fi
+if [ "$1" = "-edit" ]; then
+	source ./TARGET.cfg
+	nano ./target/platform/${TARGET}/config.mk
+	exit
+fi
+if [ "$1" = "-edit-dockerfile" ]; then
+	source ./TARGET.cfg
+	nano ./target/platform/${TARGET}/Dockerfile
+	exit
+fi
+if [ "$1" = "-edit-dockerimagename" ]; then
+	source ./TARGET.cfg
+	nano ./target/platform/${TARGET}/Dockerimagename
+	exit
+fi
+if [ "$1" = "-debug" ]; then
+	source ./TARGET.cfg
+	pushd ../TARGET_TREES/ehs_env-${TARGET}/bin
+	export DISPLAY=:0.0
+	gdb -ex "set substitute-path inxwware ../" -ex "run" ./ehs.exe
+	popd
+	exit
+fi
+if [ "$1" = "-run" ]; then
+	source ./TARGET.cfg
+	pushd ../TARGET_TREES/ehs_env-${TARGET}/bin
+	export DISPLAY=:0.0
+	./ehs.exe
+	popd
+	exit
+fi
+if [ "$1" = "-pushd" ]; then
+	source ./TARGET.cfg
+	echo "Changing directory, type exit to return"
+	pushd ../TARGET_TREES/ehs_env-${TARGET}/
+	bash
+	exit
+fi
+if [ "$1" = "-pushd-config" ]; then
+	source ./TARGET.cfg
+	echo "Changing directory, type exit to return"
+	pushd ./target/platform/${TARGET}/
+	bash
+	exit
 fi
 
+# Check we have the config
 if [ ! -d ./target/platform/$1 ]; then
-    echo ERROR TARGET Does not exist. Please use of the following or create a new profile
+    echo "ERROR TARGET [$1] Does not exist. Please use of the following or create a new profile"
     ls --hide "*.mk"  ./target/platform/
-    exit
+    exit 1
 fi
 # The tree is configured entirely by this reference to config files in target/platform/*
 echo "TARGET=$1" > ./TARGET.cfg
+if [ "$2" = "-edit" ];then
+	nano ./target/platform/${1}/config.mk
+fi
 
 echo "**************************************************************************************************************************************************"
 echo "The build tree is configured for target $1."
 echo "Next Steps & Options:"
-echo "$make all_docker 			# Make the eRT runtime binary in configured docker ------->  START HERE IF YOU HAVE ALREADY CHECKED OUT THE DEPENDENCIES!"
-echo "$make prepdeps            # Clone or update dependency repositories ---------------->  START HERE IF this is your first non-githib CI build"
-echo "$make -j 6 all 			# Build eRT directly on your host environment ------------>  Configurerd your host to build or interactive docker shell?"
-echo "$make targetenv		    # Assemble all rutime dependencies in the staging directory: ../TARGET_TREES/ehs-env-$1"
+echo " make all_docker 		# Make the eRT runtime binary in configured docker ------->  START HERE IF YOU HAVE ALREADY CHECKED OUT THE DEPENDENCIES!"
+echo " make prepdeps    	# Clone or update dependency repositories ---------------->  START HERE IF this is your first non-githib CI build"
+echo " make -j 8 all 		# Build eRT directly on your host environment ------------>  Configurerd your host to build or interactive docker shell?"
+echo " make targetenv		# Assemble all rutime dependencies in the staging directory: ../TARGET_TREES/ehs-env-$1"
+echo " make targetpack		# Package the staging directory into a target specific package"
 echo "... Ready to build ${TARGET}"
 echo "type $make help for more packaging and maintenace options." 	
 echo "***************************************************************************************************************************************************"

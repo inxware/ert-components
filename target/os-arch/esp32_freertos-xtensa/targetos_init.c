@@ -31,7 +31,7 @@
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal.h"
 #include "hal_file.h"
 #include "hal_string.h"
@@ -43,22 +43,20 @@
 #include "callback_queue.h"
 #include "blockref_table.h"
 #include "hal_process.h"
-//#include "console_server.h"
-#include "ehs_types.h"
 #include "unistd.h"
 
 #include "sys/types.h"
 #include "netinet/in.h"
 #include "linux/if.h"
-#include "net/if.h"
-#include "sys/ioctl.h"
-#include "sys/types.h"
+#include "net/if.h" //todo2022 remove this
+#include "sys/ioctl.h" //todo2022 remove this
+#include "sys/types.h" //todo2022 remove this
 // Network HW access
-#include "sys/socket.h"
-#include "arpa/inet.h"
-#include "sys/param.h"
+#include "sys/socket.h" //todo2022 remove this
+#include "arpa/inet.h" //todo2022 remove this
+#include "sys/param.h" //todo2022 remove this
 //File system HW access
-#include "sys/types.h"
+#include "sys/types.h" //todo2022 remove this
 #ifndef EHS_ANDROID
 #include "sys/statvfs.h"
 #else
@@ -68,7 +66,6 @@
 #include "sys/time.h"
 #include "sys/resource.h"
 #include "sys/sysinfo.h"
-#include "unistd.h"
 */
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -95,8 +92,26 @@
 /**
  * Perform necessary Operating system setup upon system initialisation
  */
+#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    #include "console_queue.h"
+    #include "target_mem.h"
+    //static ehs_uint8 consoleQueueInputBuffer[EHS_DEBUG_CONSOLE_BUFFER_SIZE];
+    //static ehs_uint8 consoleQueueOutputBuffer[EHS_DEBUG_CONSOLE_BUFFER_SIZE];
+    extern EhsConsoleQueueType EhsTgtConsoleInputQueue;
+    extern EhsConsoleQueueType EhsTgtConsoleOutputQueue;
+    static void EhsTOS_ConsoleQueue_init(){
+        //EhsTgtConsoleInputQueue.xQueue=consoleQueueInputBuffer;
+        //EhsTgtConsoleOutputQueue.xQueue=consoleQueueOutputBuffer;
+        EhsTgtConsoleInputQueue.xQueue=(ehs_uint8*)EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+        EhsTgtConsoleOutputQueue.xQueue=(ehs_uint8*)EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+    }
+#else //#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    static void EhsTOS_ConsoleQueue_init(){
+    }
+#endif //#else #ifdef EHS_DEBUG_TCPIP_CONSOLE
 void EhsTOsSys_init(void)
 {
+    EhsTOS_ConsoleQueue_init();
     EhsTPMutex_init();
     ESP_LOGI(TAG, "EHS inited");
 }
@@ -142,7 +157,6 @@ ehs_bool get_dir_stats(ehs_uint32 * Size, ehs_uint32 * Used, ehs_uint32 * Free,
     }
     else     // some warning nunbers..
     {
-        /*EHSH_LOG_WARNING*/printf("statvfs Failed for %s\n",path);
         *Free = 0;
         *Size = 0;
         *Used = 0;
@@ -186,6 +200,7 @@ void getOSVersion(ehs_char * dst)
     ehs_char * c;
     ehs_char * ptr;
     ehs_char * ptrEOL;
+    //todo2024 why not use malloc for these too to avoid two large stack variables
     ehs_char szKey[EHS_STRING_LENGTH_MAX];
     ehs_char tmp[EHS_STRING_LENGTH_MAX];
     long lSize = 200;
@@ -211,11 +226,12 @@ void getOSVersion(ehs_char * dst)
     EhsHMem_tempFree(buffer);
 }
 
+#ifdef EHS_DEVMAN_MON_SUPPORT
 ehs_bool GetDevmanBASEURL(ehs_char *szUrl)
 {
     return EHS_FALSE;
 }
-
+#endif
 
 
 /* updated dynamic and static data
@@ -225,12 +241,13 @@ ehs_bool GetDevmanBASEURL(ehs_char *szUrl)
  * */
 ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 what)
 {
-    ehs_char szTemp[EHS_STRING_LENGTH_MAX];
+    
     ehs_uint32 tempint;
 
     if (EhsStrlen(pEhsMetaData->zUserDirectory))
     {
         // get disk space in user directory
+        ehs_char szTemp[EHS_STRING_LENGTH_MAX]; //todo2024 why do we use a buffer here and not just use pEhsMetaData->zUserDirectory?
         EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
         get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,szTemp);
     }
@@ -238,9 +255,6 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
     {
         EHSH_LOG_WARNING("User Directory has not been set, no disk stats available.");
     }
-
-    //EhsStrcpy(pEhsMetaData->zDeviceIPAddr,"unknown");  // if we are networked get IP address here
-    //EhsStrcpy(pEhsMetaData->zDeviceID,"none"); //@todo here
     EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
     get_cpu_ram_info(&(pEhsMetaData->CPUUsage), &(pEhsMetaData->RAMTotal_KB),&(pEhsMetaData->RAMUsed_KB),&(pEhsMetaData->RAMAvail_KB));
     //getOSVersion(pEhsMetaData->OSVersion);
