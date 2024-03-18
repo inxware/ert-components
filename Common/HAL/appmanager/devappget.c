@@ -165,7 +165,7 @@ EhsThreadFuncReturnType HAL_appGetWaitForURLDataAndWrite(void *XObjData)
             {
                 for (;;)
                 {
-                    r = archive_read_data_block(a, &databuf, &size[0], (off_t *)&offset[0] );/* tod work out hat is going on here with data types off_t*/
+                    r = archive_read_data_block(a, &databuf, &size[0], &offset[0] );/* tod work out hat is going on here with data types off_t*/
                     appget_success = EHS_FALSE;
                     if (r == ARCHIVE_EOF)
                     {
@@ -318,7 +318,7 @@ EhsThreadFuncReturnType HAL_AppGetRead_data(void *XObjData)
 
     if (CURLE_OK != success)
     {
-        EHSH_LOG_ERROR("ERROR: CURLOPT_URL CURL=[%x] post=%s", ObjData->curl,szTempString);
+        EHSH_LOG_ERROR("ERROR: CURLOPT_URL CURL=[%p] post=%s", ObjData->curl,szTempString);
     }
     else
     {

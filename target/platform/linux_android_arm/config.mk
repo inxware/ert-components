@@ -122,4 +122,3 @@ EHS_OTA_SUPPORT=stubbed
 ## todo make the base scripts export the above...
 EHS_ANDROID_PACKAGE_SIGNING_PATH=show.online.google.play
 EHS_ANDROID_PACKAGE_SIGNING_PATH=ehs.google.play
-
