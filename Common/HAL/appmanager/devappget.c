@@ -255,7 +255,7 @@ error:
 EhsThreadFuncReturnType HAL_AppGetRead_data(void *XObjData)
 {
     //appgetObj *ObjData = (appgetObj*) EHS_FB_RUN_CONTEXT;
-    long ret32;
+    long ret64; // 64 bit required for libcurl's get info
     ehs_bool ret=EHS_FALSE;
     appgetObj *ObjData= (appgetObj *)XObjData;
     ehs_char szTempString[UNWISE_MAX(EHS_MAXDEVMANNAMELEN,EHS_SYS_MAXPATHLENGTH)];
@@ -345,9 +345,9 @@ EhsThreadFuncReturnType HAL_AppGetRead_data(void *XObjData)
                     //do the call
                     if (CURLE_OK == success)
                     {
-                        curl_easy_getinfo(ObjData->curl, CURLINFO_RESPONSE_CODE, &ret32); //we call this as we would have at least read the server file and need to check it there.
+                        curl_easy_getinfo(ObjData->curl, CURLINFO_RESPONSE_CODE, &ret64); //we call this as we would have at least read the server file and need to check it there.
 
-                        if (ret32 == 200)
+                        if (ret64 == 200)
                         {
                             /* All good! */
                             EHSH_LOG_INFO("app URL %s got OK",szTempString);
@@ -355,7 +355,7 @@ EhsThreadFuncReturnType HAL_AppGetRead_data(void *XObjData)
                         }
                         else
                         {
-                            EHSH_LOG_ERROR("Could not access URL %s = error=%d",szTempString,ret32);
+                            EHSH_LOG_ERROR("Could not access URL %s = error=%ld",szTempString,ret64);
                             appget_success=EHS_FALSE;
                         }
                     }
