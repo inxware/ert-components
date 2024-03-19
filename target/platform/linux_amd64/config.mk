@@ -56,15 +56,12 @@ EHS_DEVMAN_MON_SUPPORT=yes
 
 #We don't have GPIO on any amd64 devices I don't think?
 #If we want GPIO then we need the peripherals toolbox
-#EHS_PERIPHERAL_DEVICE_SUPPORT=all
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
 # Assume these generic devices don't have GPIO (#ifndef in case we use this as a base for other builds)
 #ifndef EHS_PERIPHERALS_GPIO_SUPPORT
-#EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+EHS_OTA_SUPPORT=stubbed
 #endif
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
-#DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
-#DEVMAN_SERVER_PROTOCOL=https
-
-include ./target/devman-configs/inx-systems.com.mk
 
 EHS_DEFAULT_APP=NONE
