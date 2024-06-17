@@ -23,7 +23,7 @@ About this Repository
 The ```ert-components`` repository is the core repository needed to be the inxware eRT runtime. 
 This build system currently supports the following hardware architectures and operating systems: 
 
-* arm7/arm64 (bare-bones/freeRTOS/Linux/Android), 
+* arm7/arm64 (freeRTOS/Linux/Android), 
 * xtensor (esp32/FreeRTOS)
 * x86/x86_64 (linux/windows)
 
