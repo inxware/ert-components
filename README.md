@@ -8,14 +8,15 @@ Device Support
 ==============
 inxware eRT can run on any CPU architecture and use any OS or baremetal SDK.
 This repository can generate modifiable builds for the following SoCs, SoMs, Evaluation boards, servers and desktop systems:
-* arm7
-  - NXP Kenitis
-  - STM32
-* arm64
-  - RaspberryPi(3-5)
-  - Radxa (Rock2-5) 
+* ARM7
+  - NXP Kenitis (FreeRTOS, MBED)
+  - STM32 (FreeRTOS, Arduino)
+  - RP2040 (Arduino)
+* ARM64
+  - RaspberryPi3-5 (Linux, Android)
+  - Radxa-Rock2-5 (Linux, Android)
 * xtensor (esp32)
-  - ESP32, ESP32S3, ESP32C2
+  - ESP32, ESP32S3, ESP32C2 (IDF, FreeRTOS)
 * x86/x86_64
   - Linux (Debian 7-12, Ubuntu 14-24, Linux-Lite, Yocto, OpenEmbedded)
   - Windows (7-11: VS, MINGW)
