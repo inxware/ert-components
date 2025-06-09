@@ -12,13 +12,13 @@ This repository can generate modifiable builds for the following SoCs, SoMs, Eva
   - NXP Kenitis
   - STM32
 * arm64
-- RaspberryPi(3-5)
-- Radxa (Rock2-5) 
+  - RaspberryPi(3-5)
+  - Radxa (Rock2-5) 
 * xtensor (esp32)
-- ESP32, ESP32S3, ESP32C2
+  - ESP32, ESP32S3, ESP32C2
 * x86/x86_64
-- Linux (Debian 7-12, Ubuntu 14-24, Linux-Lite, Yocto, OpenEmbedded)
-- Windows (7-11: VS, MINGW)
+  - Linux (Debian 7-12, Ubuntu 14-24, Linux-Lite, Yocto, OpenEmbedded)
+  - Windows (7-11: VS, MINGW)
 
 
 Copying & Terms of Use
