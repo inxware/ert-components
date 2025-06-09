@@ -1,31 +1,39 @@
-Overview
-========
 What is eRT?
-------------
-eRT is an event-based RunTime for running nocode applications on embedded devicesor any kinnd of comouting system including servers, edge compute and desktop computing.
+============
+eRT provides the the runtime environment for inxware-lucid applications for embedded systems.
+Read more about inxware and download the nocode systems engineering IDE from 
+https://appland.inxware.io/
+
+Device Support
+==============
+inxware eRT can run on any CPU architecture and use any OS or baremetal SDK.
+This repository can generate modifiable builds for the following SoCs, SoMs, Evaluation boards, servers and desktop systems:
+* arm7
+  - NXP Kenitis
+  - STM32
+* arm64
+- RaspberryPi(3-5)
+- Radxa (Rock2-5) 
+* xtensor (esp32)
+- ESP32, ESP32S3, ESP32C2
+* x86/x86_64
+- Linux (Debian 7-12, Ubuntu 14-24, Linux-Lite, Yocto, OpenEmbedded)
+- Windows (7-11: VS, MINGW)
+
 
 Copying & Terms of Use
 ======================
- Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
- You may use, distribute and modify this code under the terms 
- of the MPL2.0 license. You should have received a copy of the 
- MPL2.0 (Mozilla Public License2.0) license with this file. If 
- not, please visit 
-	<https://www.mozilla.org/en-US/MPL/2.0/>
 
-The eRT component software is licenced as MPL and any sub-systems within it are licenced under a similarly permissive library (unless otherwise stated in the source file headers or LICENSE documents).
+eRT components are licenced under LGPLv3 license (See LICENSE.md) unless otherwise stated within sub modules from 3rd-parties. 
+
+Full firmware builds contain the inxware kernel library which is a 100% portable closed source element of inxware and is licensed for commercial and non-commercial use for up to 10 copies per user or organisation.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
-
 About this Repository
 ---------------------
-The ```ert-components`` repository is the core repository needed to be the inxware eRT runtime. 
+The ```ert-components``` repository is the core repository needed to be the inxware eRT runtime. 
 This build system currently supports the following hardware architectures and operating systems: 
-
-* arm7/arm64 (freeRTOS/Linux/Android), 
-* xtensor (esp32/FreeRTOS)
-* x86/x86_64 (linux/windows)
 
 The build system support fine-grained target configuration for particular hardware and user configurations, 
 including package management and direct installation. To see the full list type `./configure` in the root of this repository.
