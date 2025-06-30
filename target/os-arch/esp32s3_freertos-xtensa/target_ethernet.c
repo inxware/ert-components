@@ -78,6 +78,7 @@ static esp_eth_handle_t eth_init_spi(spi_eth_module_config_t *spi_eth_module_con
 
     // Init common MAC and PHY configs to default
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
+    mac_config.rx_task_stack_size = 3072; /* TODO - THIS SHOULD BE A CONFIG PARAMTER OVERRIDABLE PER PLATFORM? */
     eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
 
     // Update PHY config based on board specific configurations
@@ -146,6 +147,15 @@ esp_err_t target_eth_init(esp_eth_handle_t *eth_handles_out)
 
     eth_handle = eth_init_spi(&spi_eth_module_config, NULL, NULL);
     ESP_GOTO_ON_FALSE(eth_handle, ESP_FAIL, err, TAG, "SPI Ethernet init failed");
+
+    bool autonego = false;
+    esp_eth_ioctl(eth_handle, ETH_CMD_S_AUTONEGO, &autonego);
+    bool flowcontrol = true;
+    esp_eth_ioctl(eth_handle, ETH_CMD_S_FLOW_CTRL, &flowcontrol);
+    eth_speed_t ethernet_speed = ETH_SPEED_10M;
+    esp_eth_ioctl(eth_handle, ETH_CMD_G_SPEED, &ethernet_speed);
+    eth_duplex_t ethernet_duplex = ETH_DUPLEX_HALF;
+    esp_eth_ioctl(eth_handle, ETH_CMD_S_DUPLEX_MODE, &ethernet_duplex);
 
     *eth_handles_out = eth_handle;
 

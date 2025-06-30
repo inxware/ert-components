@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-07-25T15:55:36Z</CreationDate>
+        <UpdatedDate>2024-06-20T20:50:09Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Configures network interface</ShortDescription>
+        <LongDescription>Configures network interface</LongDescription>
+        <UserName/>
+        <Menu>
+            Networking
+            <Menu>Network Config</Menu>
+        </Menu>
+    </Description>
+     <Block>
+        <Type>IO</Type>
+        <Text>Net Config</Text>
+        <TextX>23</TextX>
+        <TextY>162</TextY>
+        <TextScale>1.3</TextScale>
+        <TextVertical>0</TextVertical>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>network_config</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x6B0B</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>1c1da911</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>get_status</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>get_config</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>set_config</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>status</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>15</YCoordinate>
+            <CName>status</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>15</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>status_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>connected</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName>connected</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>err</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <CName>get_config_err</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>mode</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>get_mode</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>address</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>get_address</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>gateway</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>get_gateway</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>mask</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>get_mask</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>dns</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>100</YCoordinate>
+            <CName>get_dns</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>set</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>117</YCoordinate>
+            <CName>set</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>get</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>get</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>get_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>115</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>set_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>err</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>125</YCoordinate>
+            <CName>set_err</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>mode</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>127</YCoordinate>
+            <CName>set_mode</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>address</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>137</YCoordinate>
+            <CName>set_address</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>gateway</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>147</YCoordinate>
+            <CName>set_gateway</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>mask</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>157</YCoordinate>
+            <CName>set_mask</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>dns</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>167</YCoordinate>
+            <CName>set_dns</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

@@ -1,142 +1,136 @@
 <html>
-  <head>
-    <title>help</title>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container" style="background-color: silver;"> <span class="toc_span">HyperbolicCosineReal
+<head>
+<title>help</title>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container" style="background-color: silver;"> <span class="toc_span">HyperbolicCosineReal
           </span><!--these display in reverse order because they use float:right-->
-        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
-            href="#ports">Ports &#8595;</a></span> </div>
-      <!--General Description--><br>
-      <p class="component">This component performs the cosh function on the
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span> </div>
+<!--General Description--><br/>
+<p class="component">This component performs the cosh function on the
         32-bit floating point input and presents the result to the data output.
       </p>
-      <p class="component">The cosh function is the hyperbolic cosine function
+<p class="component">The cosh function is the hyperbolic cosine function
         and an analog of the ordinary trigonometric cosine function. </p>
-      <p class="component">The mathematical operation is performed when the
+<p class="component">The mathematical operation is performed when the
         input event is triggered and the result of the mathematical operation is
         presented to the data output. The output event is triggered to signal
         the completion of the mathematical operation.
         <!--Parameters - form - short desc: long desc--> </p>
-      <div class="section_heading" style="background-color: silver;"> <span id="parameters"
-          class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-            <th style="width:60px;">name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>min.</th>
-            <th>max.</th>
-            <th>description</th>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading" style="background-color: silver;"> <span id="ports"
-          class="toc_span">Ports</span> <span class="toc_span_items"><a href="#toc_container">Top
+<div class="section_heading" style="background-color: silver;"> <span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+</tbody>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading" style="background-color: silver;"> <span class="toc_span" id="ports">Ports</span> <span class="toc_span_items"><a href="#toc_container">Top
             &#8593;</a></span> <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
-        <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
-      </div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="portsInt"><br>
-            </td>
-            <td>Triggers the cosh operation</td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td><br>
-            </td>
-            <td>The angle in radians</td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th style="height: 15.2px;"><br>
-            </th>
-          </tr>
-          <tr>
-            <td><br>
-            </td>
-            <td>The result of the cosh operation</td>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td><br>
-            </td>
-            <td>Triggered when the cosh operation is completed</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading" style="background-color: silver;"> <span id="misc"
-          class="toc_span">Misc</span> <span class="toc_span_items"><a href="#toc_container">Top
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th>In Ev.</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td class="portsInt"><br/>
+</td>
+<td>Triggers the cosh operation</td>
+</tr>
+<tr>
+<th>Data In</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td><br/>
+</td>
+<td>The angle in radians</td>
+</tr>
+<tr>
+<th>Data Out</th>
+<th style="height: 15.2px;"><br/>
+</th>
+</tr>
+<tr>
+<td><br/>
+</td>
+<td>The result of the cosh operation</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td><br/>
+</td>
+<td>Triggered when the cosh operation is completed</td>
+</tr>
+</tbody>
+</table>
+<div class="section_heading" style="background-color: silver;"> <span class="toc_span" id="misc">Misc</span> <span class="toc_span_items"><a href="#toc_container">Top
             &#8593;</a></span> <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
-        <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
-      </div>
-      <!--State Machine - form - image - example-->
-      <!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
-      <!--profiles - form - list-->
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5"> <span class="fsm_blob">Reset<sub>0</sub></span>
-              [inc,dec]&#8594; <span class="fsm_blob">Counting</span>
-              [reset]&#8594;&#8592;[inc,dec] <span class="fsm_blob">Reset</span> &#8855;&nbsp; <span
-                class="fsm_blob">Counting</span> [reset]&#8594;[inc,dec] <span class="fsm_blob">Error</span>
-              [reset]&#8594; <span class="fsm_blob">Reset</span> </td>
-            <td> <br>
-            </td>
-            <td> <br>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> Core. </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v2.1. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<!--State Machine - form - image - example-->
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b>State Machine</b> </td>
+<td colspan="5"> <span class="fsm_blob">Reset<sub>0</sub></span>
+              [inc,dec]→ <span class="fsm_blob">Counting</span>
+              [reset]→←[inc,dec] <span class="fsm_blob">Reset</span> ⊗  <span class="fsm_blob">Counting</span> [reset]→[inc,dec] <span class="fsm_blob">Error</span>
+              [reset]→ <span class="fsm_blob">Reset</span> </td>
+<td> <br/>
+</td>
+<td> <br/>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Toolbox</b> </td>
+<td> Core. </td>
+<td class="heading-cell"> <b>Version</b> </td>
+<td> v2.1. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Licence Type</b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b>Component Supplier</b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Minumum DCC</b> </td>
+<td>A0000</td>
+<td class="heading-cell"> <b>Profiles</b> </td>
+<td> All. </td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
 </html>

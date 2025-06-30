@@ -240,5 +240,27 @@
                 <Function_ERT1_ID>3</Function_ERT1_ID>
             </Function>
         </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>width</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>field_width</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>delim</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>delim</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
     </Ports>
 </Component>

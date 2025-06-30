@@ -62,6 +62,17 @@ public class EHSS_Utils {
         return "";
     }
 
+    public static void write(File file, String data) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            EHSS_Logger.error("File write failed: " + e.toString());
+        }
+    }
+
     public static void write(String fileName, String data) {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(fileName));
@@ -84,15 +95,24 @@ public class EHSS_Utils {
         return sb.toString();
     }
 
-    public static String read(String filePath) {
+    public static String read(File file) {
         try {
-            File file = new File(filePath);
             FileInputStream fin = new FileInputStream(file);
             String ret = read(fin);
             fin.close();
             return ret;
         }
         catch (IOException e) {
+            EHSS_Logger.error("File read failed: " + e.toString());
+        }
+        return null;
+    }
+
+    public static String read(String filePath) {
+        try {
+            return read(new File(filePath));
+        }
+        catch (Exception e) {
             EHSS_Logger.error("File read failed: " + e.toString());
         }
         return null;

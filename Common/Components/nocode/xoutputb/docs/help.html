@@ -1,110 +1,107 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <link href="iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span"> XoutputBoolean </span>
-        <span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span
-          class="toc_span_items"> <a href="#parameters"> Params &#8595; </a> </span>
-        <span class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </span>
-      </div>
-      <p class="component"> This component provides a way to expose a boolean
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container"> <span class="toc_span"> XoutputBoolean </span>
+<span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8595; </a> </span>
+<span class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </span>
+</div>
+<p class="component"> This component provides a way to expose a boolean
         output, so that the encapsulated subsytem can pass data to components in
         the parent workspace. The data output is represented as a port on the
         ensulating function block, which can be viewed by pressing the 'up'
         button to display the parent workspace. </p>
-    </div>
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading"> <span class="toc_span" id="parameters">
+</div>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="parameters">
         Parameters </span>
-      <div class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </div>
-      <div class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </div>
-      <div class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </div>
-    </div>
-    <table class="table_params">
-      <tbody>
-        <tr>
-          <th style="width:60px;"> name </th>
-          <th> type </th>
-          <th> default </th>
-          <th> min. </th>
-          <th> max. </th>
-          <th> description </th>
-        </tr>
-      </tbody>
-    </table>
-    <div class="section_heading"> <span class="toc_span" id="ports"> Ports </span>
-      <span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
-      <span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span
-        class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
-    </div>
-    <table class="table">
-      <tbody>
-        <tr>
-          <th> In Ev. </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <th> Data In </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <td> <a name="[In]"> </a> </td>
-          <td>
-            <p class="ports"> Input data, the data to be presented to the
+<div class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </div>
+<div class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </div>
+<div class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;"> name </th>
+<th> type </th><th> description </th>
+<th> default </th>
+<th> min. </th>
+<th> max. </th>
+
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="ports"> Ports </span>
+<span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
+<span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th> In Ev. </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<th> Data In </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<td> <a name="[In]"> </a> </td>
+<td>
+<p class="ports"> Input data, the data to be presented to the
               components in the parent workspace. </p>
-          </td>
-        </tr>
-        <tr>
-          <th> Data Out </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <th> Out Ev. </th>
-          <th> <br>
-          </th>
-        </tr>
-      </tbody>
-    </table>
-    <div class="section_heading"> <span class="toc_span" id="misc"> Misc </span>
-      <span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
-      <span class="toc_span_items"> <a href="#ports"> Ports &#8593; </a> </span> <span
-        class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
-    </div>
-    <table>
-      <tbody>
-        <tr class="fsm_row">
-          <td style="width:90px;"> <b> State Machine </b> </td>
-          <td colspan="5"> Stateless. </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Toolbox </b> </td>
-          <td> Core. </td>
-          <td class="heading-cell"> <b> Version </b> </td>
-          <td> v2.1. </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Licence Type </b> </td>
-          <td> MPL2.0 </td>
-          <td class="heading-cell"> <b> Component Supplier </b> </td>
-          <td> <a href="http://www.inx-systems.net" target="_blank"> inx ltd. </a>
-          </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Minumum DCC </b> </td>
-          <td> A0000 </td>
-          <td class="heading-cell"> <b> Profiles </b> </td>
-          <td> All. </td>
-        </tr>
-      </tbody>
-    </table>
-  </body>
+</td>
+</tr>
+<tr>
+<th> Data Out </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<th> Out Ev. </th>
+<th> <br/>
+</th>
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="misc"> Misc </span>
+<span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
+<span class="toc_span_items"> <a href="#ports"> Ports &#8593; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
+</div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b> State Machine </b> </td>
+<td colspan="5"> Stateless. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Toolbox </b> </td>
+<td> Core. </td>
+<td class="heading-cell"> <b> Version </b> </td>
+<td> v2.1. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Licence Type </b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b> Component Supplier </b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank"> inx ltd. </a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Minumum DCC </b> </td>
+<td> A0000 </td>
+<td class="heading-cell"> <b> Profiles </b> </td>
+<td> All. </td>
+</tr>
+</tbody>
+</table>
+</body>
 </html>

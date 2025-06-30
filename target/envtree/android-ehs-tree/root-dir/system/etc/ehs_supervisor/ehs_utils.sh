@@ -199,3 +199,11 @@ MountRW(){
 MountRO(){
 	ErrorUtilsOverride
 }
+
+RestartNetwork(){
+	ErrorUtilsOverride
+}
+
+CopyEhsDeviceID(){
+	ErrorUtilsOverride
+}

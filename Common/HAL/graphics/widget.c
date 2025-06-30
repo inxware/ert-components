@@ -76,6 +76,7 @@ EhsWidgetTableClass EhsWidgetTable= {0};
 void EhsWidget_create(EhsWidgetClass* pWidget)
 {
     ehs_bool bIsInit = EHS_WIDGET_STATE_INITIALIZED(pWidget->nState);
+#ifndef EHS_GUI_SUPPORT_MODE_B
     /** @todo - refactor - it is only for convenience that viewport is using the widget struct  */
     pWidget->mouseClickPortNumber = -1; // default value
     pWidget->mouseDownPortNumber = -1; // default value
@@ -86,7 +87,7 @@ void EhsWidget_create(EhsWidgetClass* pWidget)
     pWidget->mouseDragOffsetXPortNumber = -1; // default value as only currently implemented on viewport
     pWidget->mouseDragOffsetYPortNumber = -1; // default value as only currently implemented on viewport
     /* @todo this structure seems wasteful. Wouldn't it be better to not lock the viewport unless we were going to act on it, i.e. move mutex functions inside the if statement */
-
+#endif
     /* ensure only this thread can handle the viewport until we unlock it */
     /* EhsTPMutex_lock(EhsTPMutex_viewport); */
     pWidget->bContentChanged = EHS_TRUE;
@@ -139,16 +140,18 @@ void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pR
     pWidget->UpdatedOffsettRect.nLeft=0;
     pWidget->nZ = nZ;
     pWidget->nAlpha = nAlpha;
-    EHS_WIDGET_IMAGE(pWidget).szFilename = NULL;
     pWidget->bContentChanged = EHS_FALSE;
-    pWidget->bOptimiseForSpeed = EHS_FALSE;
     pWidget->pFIData = NULL;
     pWidget->pfCreateFunc = NULL;
     pWidget->pfDestroyFunc = NULL;
     pWidget->pfDrawFunc = NULL;
     pWidget->pfFadeFunc = NULL;
+#ifndef EHS_GUI_SUPPORT_MODE_B
+    pWidget->bOptimiseForSpeed = EHS_FALSE;
+    EHS_WIDGET_IMAGE(pWidget).szFilename = NULL;
     pWidget->pfMouseDownEventFunc = NULL;
     pWidget->pMouseDownEventData = NULL;
+#endif
 }
 
 
@@ -198,9 +201,9 @@ void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bRelative, eh
     if (nLeft >= 0 )
     {
         if (bRelative)
-            pWidget->xOrigRect.nLeft = (nLeft*nScreenWidth)/100;
+            pWidget->xOrigRect.nLeft = (ehs_coord)((nLeft*nScreenWidth)/100);
         else
-            pWidget->xOrigRect.nLeft = nLeft;
+            pWidget->xOrigRect.nLeft = (ehs_coord)nLeft;
     }
     else   // else adjust the LGB values if relative
     {
@@ -211,9 +214,9 @@ void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bRelative, eh
     if (nWidth >= 0 )
     {
         if (bRelative)
-            pWidget->xOrigRect.nWidth 	= (nWidth*nScreenWidth)/100;
+            pWidget->xOrigRect.nWidth 	= (ehs_coord)((nWidth*nScreenWidth)/100);
         else
-            pWidget->xOrigRect.nWidth = nWidth;
+            pWidget->xOrigRect.nWidth = (ehs_coord)nWidth;
     }
     else   // else adjust the LGB values if relative
     {
@@ -224,9 +227,9 @@ void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bRelative, eh
     if (nTop >= 0 )
     {
         if (bRelative)
-            pWidget->xOrigRect.nTop 	= (nTop*nScreenHeight)/100;
+            pWidget->xOrigRect.nTop = (ehs_coord)((nTop*nScreenHeight)/100);
         else
-            pWidget->xOrigRect.nTop = nTop;
+            pWidget->xOrigRect.nTop = (ehs_coord)nTop;
     }
     else   // else adjust the LGB values if relative
     {
@@ -237,9 +240,9 @@ void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bRelative, eh
     if (nHeight >= 0 )
     {
         if (bRelative)
-            pWidget->xOrigRect.nHeight 	= (nHeight*nScreenHeight)/100;
+            pWidget->xOrigRect.nHeight 	= (ehs_coord)((nHeight*nScreenHeight)/100);
         else
-            pWidget->xOrigRect.nHeight = nHeight;
+            pWidget->xOrigRect.nHeight = (ehs_coord)nHeight;
     }
     else   // else adjust the LGB values if relative
     {
@@ -399,7 +402,7 @@ void EhsWidget_move(EhsWidgetClass* pWidget, EhsDataflowIntType nX, EhsDataflowI
 {
     if (pWidget) {
         EhsGraphicsRectangleClass xOldPos; /* contains the previous position of the widget */
-        ehs_float dWHsrc; /* ratio of wid:ht for the two input rectangles */
+        //ehs_float dWHsrc; /* ratio of wid:ht for the two input rectangles */
 
         EhsTPMutex_lock(EhsTPMutex_viewport);
 
@@ -656,6 +659,7 @@ void EhsWidgetTable_dirty(const EhsWidgetTableClass* pWidgetTable)
  */
 void EhsWidgetTable_triggerViewportMouseDown(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
+#ifndef EHS_GUI_SUPPORT_MODE_B
     EhsFunctionInstanceDataType *pFIdata;
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
@@ -686,6 +690,7 @@ void EhsWidgetTable_triggerViewportMouseDown(const EhsWidgetTableClass* pWidgetT
             }
         }
     }
+#endif
 }
 
 /**
@@ -694,6 +699,7 @@ void EhsWidgetTable_triggerViewportMouseDown(const EhsWidgetTableClass* pWidgetT
  */
 void EhsWidgetTable_triggerViewportMouseUp(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
+#ifndef EHS_GUI_SUPPORT_MODE_B
     EhsFunctionInstanceDataType *pFIdata;
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
@@ -722,6 +728,7 @@ void EhsWidgetTable_triggerViewportMouseUp(const EhsWidgetTableClass* pWidgetTab
             }
         }
     }
+#endif
 }
 
 /**
@@ -730,6 +737,7 @@ void EhsWidgetTable_triggerViewportMouseUp(const EhsWidgetTableClass* pWidgetTab
  */
 void EhsWidgetTable_triggerViewportMouseDrag(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
+#ifndef EHS_GUI_SUPPORT_MODE_B
     EhsWidgetClass* pWidget;
     EhsFunctionInstanceDataType *pFIdata;
     ehs_sint16 nIndex;
@@ -759,6 +767,7 @@ void EhsWidgetTable_triggerViewportMouseDrag(const EhsWidgetTableClass* pWidgetT
             }
         }
     }
+#endif
 }
 
 /**
@@ -766,6 +775,7 @@ void EhsWidgetTable_triggerViewportMouseDrag(const EhsWidgetTableClass* pWidgetT
  */
 void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
+#ifndef EHS_GUI_SUPPORT_MODE_B
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
     ehs_bool bClickProcessed = EHS_FALSE;
@@ -796,7 +806,7 @@ void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableCla
                                 EhsFunctionInstanceData_triggerEvent(pWidget->pFIData,(pWidget->mouseDownPortNumber));;
                             bClickProcessed = EHS_TRUE;
                         }
-                    } 
+                    }
                     else 
                     {
                         /* this is used for widgets created without pFIData e.g. GPIO widget */
@@ -812,6 +822,7 @@ void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableCla
             }
         }
     }
+#endif
 }
 
 /**
@@ -820,6 +831,7 @@ void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableCla
  */
 void EhsWidgetTable_registerMouseUpOnWidgetMatchCoords(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
+#ifndef EHS_GUI_SUPPORT_MODE_B
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
     ehs_bool bClickProcessed = EHS_FALSE;
@@ -856,6 +868,7 @@ void EhsWidgetTable_registerMouseUpOnWidgetMatchCoords(const EhsWidgetTableClass
             }
         }
     }
+#endif
 }
 
 
@@ -868,7 +881,7 @@ void EhsWidgetTable_registerMouseUpOnWidgetMatchCoords(const EhsWidgetTableClass
  */
 void EhsWidget_resizeWidgetToMaintainAspectRatio(EhsWidgetClass* pWidget)  //, const EhsGraphicsRectangleClass* prSrc){
 {
-    ehs_float dWHsrc; /* ratio of wid:ht for the two input rectangles */
+   // ehs_float dWHsrc; /* ratio of wid:ht for the two input rectangles */
     EhsGraphicsRectangleClass xDstRect; /* defines the bounds of the rectangle on the target */
 
     //dWHsrc = (ehs_float)pWidget->MediaRect.nWidth/(ehs_float)pWidget->MediaRect.nHeight;

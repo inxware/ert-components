@@ -47,5 +47,4 @@ JNIEXPORT void JNICALL Java_com_inx_ehs_utils_EhsJNI_jniSetId(JNIEnv *env, jobje
     EhsHMetaSetHWID((*env)->GetStringUTFChars(env, value, &iscopy));
     EhsHMetaSetInstPath((*env)->GetStringUTFChars(env, path, &iscopy));
     EhsHOsSys_UpdateEnvironment();
-    //EhsTInitFileSystem(env->envapp??? can't ge the app so this is done in java instead);
 }

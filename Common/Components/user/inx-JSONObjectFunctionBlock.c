@@ -19,7 +19,7 @@
 //ICB HEADER MACRO END -- DO NOT ALTER
 typedef struct inx_JSONObject_chunk_struct
 {
-    ehs_char chunk[EHS_STRING_LENGTH_MAX];
+    ehs_char chunk[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH! leave this max and truncate & warn incoming?
     struct inx_JSONObject_chunk_struct* pNext;
 } inx_JSONObject_chunk_type;
 
@@ -65,13 +65,13 @@ typedef struct
     inx_JSONObject_chunk_type* input;
     inx_JSONObject_queryPart_type *query;
     inx_JSONObject_queryPart_type *queryPos;
-    ehs_char result[EHS_STRING_LENGTH_MAX];
+    ehs_char result[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!
     ehs_uint32 parseLevel;
     ehs_uint32 queryLevel;
     ehs_sint32 returnLevel;
     inx_JSONObject_dataType dataType;
     ehs_uint32 resultLength;
-    ehs_char needcomma[EHS_STRING_LENGTH_MAX];
+    ehs_char needcomma[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!??
     inx_JSONObject_array_type *arrayStart;
     inx_JSONObject_array_type *arrayPos;
     ehs_bool fieldNameMode;

@@ -122,6 +122,17 @@ EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_UrlGet;
 // why here? 
 EHS_GLOBAL EhsTPMutexClass EhsTPMutex_playManager;
 
+/**
+ * Mutex resource used to control access to the Modbus Master shared resources
+ */
+EHS_GLOBAL EhsTPMutexClass EhsTPMutex_MBMaster;
+
+/**
+ * Mutex resource used to control access to the MQTT shared resources
+ */
+EHS_GLOBAL EhsTPMutexClass EhsTPMutex_subMQTT;
+EHS_GLOBAL EhsTPMutexClass EhsTPMutex_pubMQTT;
+
 /*****************************************************************************/
 /* Declare function prototypes
  *

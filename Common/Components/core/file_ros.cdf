@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:36Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+        <UpdatedDate>2024-05-24T11:22:04Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription/>
@@ -23,7 +23,7 @@
     <Block>
         <Type>IO</Type>
         <Width>65</Width>
-        <Height>120</Height>
+        <Height>125</Height>
         <Text>File RO</Text>
         <TextX>10</TextX>
         <TextY>5</TextY>
@@ -33,12 +33,12 @@
         <LocationY>-15</LocationY>
     </Block>
     <FBID>
-        <ERT1_ID>0</ERT1_ID>
+        <ERT1_ID>1</ERT1_ID>
         <Class>FILE_ReadOnly_String</Class>
     </FBID>
     <Hashes>
         <NameHash_CRC16>0x560C</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>a6aff77a</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>8aa7439c</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -76,9 +76,21 @@
             <Name>Use Application Dir</Name>
             <DataType>B</DataType>
             <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
             <Description>Find Files in Application Directory rather than the user data directory</Description>
             <ListPlacement>4</ListPlacement>
             <ArgPlacement>4</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Binary</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Binary file mode</Description>
+            <ListPlacement>5</ListPlacement>
+            <ArgPlacement>5</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>
@@ -173,7 +185,7 @@
             <Description>data</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>60</XCoordinate>
-            <YCoordinate>85</YCoordinate>
+            <YCoordinate>82</YCoordinate>
             <CName>data</CName>
             <Function argument="1">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -184,7 +196,7 @@
             <Description>err code</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>60</XCoordinate>
-            <YCoordinate>95</YCoordinate>
+            <YCoordinate>102</YCoordinate>
             <CName>err_code</CName>
             <Function argument="1">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -236,6 +248,39 @@
             <YCoordinate>70</YCoordinate>
             <Wcet>0</Wcet>
             <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>size</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>92</YCoordinate>
+            <CName>data_size</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>width</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>width</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>delim</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>delim</CName>
             <Function argument="2">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
             </Function>

@@ -30,6 +30,7 @@
 /* declare functions provided by this function block */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(gui_viewport);
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(gui_viewport);
+EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(gui_viewport);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_viewport_create);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_viewport_destroy);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_viewport_show);

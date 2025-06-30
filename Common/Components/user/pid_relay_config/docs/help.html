@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">PID Relay Config</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!-- General Description -->
+<p class="component">
+      The <strong>PID Relay Config</strong> function block is responsible for configuring the relays of a PID controller. This function block handles the setup of relay timings and operations, ensuring that the PID controller's relays are correctly configured based on the input parameters.
+    </p>
+<!-- Parameters -->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">Name</th>
+<th>Type</th><th>Description</th>
+<th>Default</th>
+<th>Min.</th>
+<th>Max.</th>
+
+</tr>
+<tr>
+<td>type id</td>
+<td>I</td><td>Specifies the type of PID relay configuration (e.g., Internal or External).</td>
+<td>0</td>
+<td>0</td>
+<td>10</td>
+
+</tr>
+</table>
+<!-- Ports -->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th>Data In</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]config">config</a></td>
+<td>Event to initiate the relay configuration process.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]rel_1">rel 1</a></td>
+<td>Input port for Relay 1 configuration value.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]cyc_len_1">cyc 1</a></td>
+<td>Input port for the cycle length of relay 1.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]rel_2">rel 2</a></td>
+<td>Input port for Relay 2 configuration value.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]cyc_len_2">cyc 2</a></td>
+<td>Input port for the cycle length of relay 2.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]rel_3">rel 3</a></td>
+<td>Input port for Relay 3 configuration value.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]cyc_len_3">cyc 3</a></td>
+<td>Input port for the cycle length of relay 3.</td>
+</tr>
+<tr>
+<th>Data Out</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]config_done">--</a></td>
+<td>Indicates that the relay configuration process is complete.</td>
+</tr>
+</tbody>
+</table>
+<!-- Miscellaneous -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tbody>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td>
+<td>HeatRod</td>
+<td class="heading-cell"><b>Version</b></td>
+<td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td>
+<td>MPL2.0</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td>
+<td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td>
+<td>All.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>

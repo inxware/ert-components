@@ -43,6 +43,7 @@
  * @todo The DEVMAN XML tags should be included from headers in a DEVMAN config directory.
  */
 
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
 
 #include "ehs_fb_types.h"
 #include "devman_player.h"
@@ -75,6 +76,7 @@ EHS_FB_FUNCTION_ENTRY("trackchanged", 0x06, DevmanPlayer_track_changed)
 EHS_FB_FUNCTION_ENTRY("reset", 0x07, DevmanPlayer_reset)
 EHS_FB_FUNCTION_ENTRY("passthru_next", 0x08, DevmanPlayer_pass_thru_get_next)
 EHS_FB_FUNCTION_ENTRY("passthru_send", 0x09, DevmanPlayer_pass_thru_send_next)
+EHS_FB_FUNCTION_ENTRY("info", 0x0A, DevmanPlayer_info)
 EHS_FB_FUNCTIONS_END
 //EHS_FB_FUNCTION_ENTRY(EHS_FB_DEVMAN_PLAYER_START_FROM_DISK,  DevmanPlayer_StartFromDisk)
 //EHS_FB_FUNCTION_ENTRY(EHS_FB_DEVMAN_PLAYER_CLEAR_PLAYLIST, DevmanPlayer_clearPlaylist)
@@ -121,7 +123,15 @@ EHS_FB_FUNCTIONS_END
 const ehs_char* LUA_FILE = "../devman/plugins/1/devman_player.inx";
 #endif
 
-#define EHS_STRING_LENGTH_MAX_LARGE (EHS_STRING_LENGTH_MAX*4) //@todo formalise this
+#ifndef EHS_CURRENT_TRACK_LENGTH_MAX
+// make sure the current track string length is larger if EHS_DATA_TABLE_STRING_DEFAULT_LENGTH > EHS_STRING_LENGTH_MAX
+#if EHS_DATA_TABLE_STRING_DEFAULT_LENGTH > (EHS_STRING_LENGTH_MAX*2)
+    #define EHS_CURRENT_TRACK_LENGTH_MAX (EHS_STRING_LENGTH_MAX*2)
+#else
+    #define EHS_CURRENT_TRACK_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+#endif // EHS_CURRENT_TRACK_LENGTH_MAX
+
 struct EhsFbDevmanPlayerStruct   //Note make all ints and bools ehs_uint32 to avoid scanf ("%d") problem overwriting the next entry...!
 {
     ehs_bool bCheckingFlag; /** [Variable] Poll server */
@@ -130,14 +140,15 @@ struct EhsFbDevmanPlayerStruct   //Note make all ints and bools ehs_uint32 to av
     ehs_bool bResetingMedia; // this is set so that cleared playlist is pushed out the data ports (but no new playlist event is emitted
     ehs_bool bMediaParmChange; // Set this at init if volume or channels has been read to allow this to be asserted
     ehs_bool bMuteParmChange; // Set this at init if a mute state has been read from the state info
-    ehs_char szUrl[EHS_STRING_LENGTH_MAX]; /* [devman-variable] This is the devman server URL */
-    ehs_char szUrl_parameter [EHS_STRING_LENGTH_MAX]; /* This is the stored value of the given parameter - priority over the devman/core/config value */
-    ehs_char szUrl_input [EHS_STRING_LENGTH_MAX];	/* This is the input value of the devman - priority over the devman/core/config value and parameter*/
+    ehs_char szUrl[EHS_STRING_LENGTH_MAX]; /* [devman-variable] This is the devman server URL */ //TODO:STRINGLENGTH!
+    ehs_char szUrl_parameter [EHS_STRING_LENGTH_MAX]; /* This is the stored value of the given parameter - priority over the devman/core/config value */ //TODO:STRINGLENGTH!
+    ehs_char szUrl_input [EHS_STRING_LENGTH_MAX];	/* This is the input value of the devman - priority over the devman/core/config value and parameter*/ //TODO:STRINGLENGTH!
     ehs_uint16 iPingPeriod; /* [Parameter] also adjustable by pulse rate input */
     ehs_uint32 nMute; /*[devman-output-variable] output for controlling player volume @todo this should be enumerated for different players*/
     ehs_uint32 nPlayerState; /*[devman-input-variable] inout to identify player state parameter.*/
     ehs_uint32 nChannels; /*  [devman-ouput-variable] to identify mono. stereo, 5.1 audio output modes */
     ehs_uint32 nPlayMode; /*[devman-ouput-variable] to identify player loop or random modes */
+    //TODO:STRINGLENGTH! see following and check they are truncated and overuns avoids and reported.
     ehs_char szPlaylistURL[EHS_STRING_LENGTH_MAX]; /*[devman-ouput-variable] to identify the fully qualified URL of where playlists are downloaded from - if devman specfies only the filename then the media source URL prepended here by devman code?*/
     ehs_char szPlaylistURLReport[EHS_STRING_LENGTH_MAX]; /* This is the application's reported URL that is reported back to the portal - it isn't used for anything else */
     ehs_char szPlaylistFile[EHS_STRING_LENGTH_MAX]; /*[devman-ouput-variable] to identify the filename of the playlist (located at the base URL) */
@@ -145,18 +156,19 @@ struct EhsFbDevmanPlayerStruct   //Note make all ints and bools ehs_uint32 to av
     ehs_char szLocalMediaPath[EHS_STRING_LENGTH_MAX]; /* [Parameter] NOT CURRENTLY USED - identifies the local path - should have an output port to define a constant path */
     ehs_bool bUseDevmanCoreUrl; /*[Parameter] to identify that devman should ignore URL specs and revert to the core URL */
     ehs_uint32 iPlayerMode; /*[devman-input-variable] to identify the current index in the playlist being played */
-    ehs_char szCurrentTrack[EHS_STRING_LENGTH_MAX]; /*[devman-input-variable] to identify the current media name in the playlist being played */
+    ehs_char szCurrentTrack[EHS_CURRENT_TRACK_LENGTH_MAX]; /*[devman-input-variable] to identify the current media name in the playlist being played */
     ehs_char szTrackStartTime[EHS_STRING_LENGTH_MAX]; /*[devman-input-variable] to identify the next wall clock time when the next media will be played */
     ehs_uint32 iCurrentTrackDuration; /*[devman-input-variable] to identify the current time (in seconds) that the current media has being played */// @todo check 16 bit is correct
     ehs_char jsonPlayerInfo[EHS_STRING_LENGTH_MAX]; /* Volume measured on input port */
-    ehs_char jsonPlayerParameters[EHS_STRING_LENGTH_MAX]; /* incoming from devman server JSON commands for volumes for each channel */
+    ehs_char jsonPlayerParameters[EHS_STRING_LENGTH_MAX]; /* incoming from devman server JSON commands for volumes for each channel */ //TODO:STRINGLENGTH!!! Should this be much larger as we have loads more stuff in this now.
     EhsLinkedList* pIncomingJsonAppPassThruDataList; /* aggregates incoming JSON object in a linked list. */
     EhsJsonList* pOutgoingJsonAppPassThruDataList; /* used for sending JSON array to devman server. */
     EhsCallbackQueueType EhsDevmanPlayerOutCallback; //pointer to the call back
     EhsCallbackQueueEntryType xCallbackOut; /* [ internal system variable!! */
-    ehs_char * szXml;// now malloced by the URL code - [EHS_STRING_LENGTH_MAX_LARGE]; /* [ internal system variable!! @todo this is dangerous this is a fixed size char array for the SMIL data - needs to be dynamically allocated*/
+    ehs_char * szXml;// now malloced by the URL code.
     ehs_sint16 CurrentURLindex; // counter for the server index it is trying - 2 is reserved for the input port value, and -1 for the FB parameter
     ehs_uint16 nHTTPReturnNo; // return value of the server post
+    ehs_char jsonMiscMediaInfo[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
 };
 
 #ifdef EHS_DEVMAN_PLAYER_USE_LUA
@@ -167,7 +179,6 @@ static int traceback2(lua_State *L)
 #endif
 
 /**        Some utility functions **/
-
 
 /*
  * @todo This can be moved to the HAL
@@ -192,16 +203,16 @@ int getAttributeValue(ehs_char* szAttribute, ehs_char* szXml, ehs_char* szTempSt
     ehs_uint8 quoteCount = 0;
     ehs_uint16 j = 0;
 
-    if (pTempStr3 = EhsStrstr(szXml, szAttribute))
+    if ( (pTempStr3 = EhsStrstr(szXml, szAttribute)) )
     {
         // crashy if string too long! EhsStrcpy(pTempStr1, pTempStr3); // don't use n version as this always reads all (up to n) from source
-        for (i =0 ; i< EHS_STRING_LENGTH_MAX; i++)
+        for (i =0 ; i< EHS_STRING_LENGTH_MAX; i++) //TODO:STRINGLENGTH! this should be a parameter from the client that knows!!
         {
             pTempStr1[i] = pTempStr3[i];
             if (pTempStr3[i] == '\0') break;
 
         }
-        pTempStr1[EHS_STRING_LENGTH_MAX-1]='\0'; // in case we got right to the end!
+        pTempStr1[EHS_STRING_LENGTH_MAX-1]='\0'; // in case we got right to the end! //TODO:STRINGLENGTH! needs mallod in parameter.
         if (strlen(pTempStr1) > 0)
         {
             for (i = 0; i < strlen(pTempStr1); i++)
@@ -246,7 +257,7 @@ int getAttributeValue(ehs_char* szAttribute, ehs_char* szXml, ehs_char* szTempSt
 void EhsGetDevmanPlayerURL(struct EhsFbDevmanPlayerStruct* pDevmanPlayer)
 {
 
-    ehs_char tempPath[EHS_STRING_LENGTH_MAX];
+    ehs_char tempPath[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH! shoild be file length or from port info.
     if (pDevmanPlayer->CurrentURLindex <= -2 )
     {
         if (EhsStrlen(pDevmanPlayer->szUrl_input) < 8) pDevmanPlayer->CurrentURLindex=-1; /* We haven't got a proper URL so don't bother with this */
@@ -303,7 +314,8 @@ EHS_FB_THREAD_FUNCTION(DevmanPlayer_thread)
     ehs_sint32 retry=EHS_DEVMAN_PLAYER_RETRY_PERIOD_FIRSTURL; /* this counts how many times we're not using the top of list URL */
     ehs_sint32 retrytimes=EHS_DEVMAN_PLAYER_RETRY_TIMES_FIRSTURL; /* this counts how many times we're not using the top of list URL */
     ehs_bool trynext=EHS_TRUE; /*flag to identify if the next in the list should be tried */
-    ehs_char sZtemp[EHS_STRING_LENGTH_MAX*2];
+    ehs_char sZtemp[EHS_STRING_LENGTH_MAX*2]; //TODO:STRINGLENGTH!
+    //pTempCertificatePath
 
 
     ehs_uint16 iSleepCount = 0;
@@ -313,7 +325,7 @@ EHS_FB_THREAD_FUNCTION(DevmanPlayer_thread)
     CURL *curl = NULL;
     CURL * curl_temp = NULL;
     EhsH_URLwrite_data_bufferType * write_data_buffer_struct = NULL; // this is used to store all data read from the target.
-    ehs_uint32 ret32 = -1; //=(ehs_uint32*) (&sZuserdata[EHS_STRING_LENGTH_MAX_LARGE-(sizeof(ehs_uint32) )]);
+    ehs_uint32 ret32 = -1; 
     EhsNetworkServerInfo_t server_info= {.http_username="",.http_password="",.authentication=0};
     ehs_char *returndata = NULL; // this points to the data generated in EhsH_URLwrite_data_bufferType. It is cleared by the free function for EhsHwrite_data_bufferTypes
     ehs_bool bDostuff = EHS_TRUE;
@@ -332,11 +344,16 @@ EHS_FB_THREAD_FUNCTION(DevmanPlayer_thread)
         EHSH_LOG_ERROR("Could not initialise URL access");
         goto curl_init_error;
     }
+    /* TODO2025 - tis doesn't seem to support seperate key and certicates files for client authentication */
     write_data_buffer_struct=EhsHDoAllGenericConfig (curl,&server_info, 64*1024, 50000,120);/* 2 minute timeouts and 50ms chunk gap */
 
-    /* Add any ssl certificates */
-    EhsHSetUpClientTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, NULL /* combined in PEM */, NULL);
-    EhsHSetUpCaTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CA_CERTIFICATE);
+    if (EhsHGetDevmanCombinedClientCertificateKeyPath(sZtemp,pDevmanPlayer->szUrl) > 0) { /* 0 - no certificate available, 1 certificate available, 2 new certificate available */
+        /* Add any ssl certificates */
+        EhsHSetUpClientTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, sZtemp /*EHS_DEVMAN_CLIENT_CERTIFICATE_KEY*/, NULL /* combined in PEM */, NULL);
+    }
+    if (EhsHGetDevmanCaCertificatePath(sZtemp,pDevmanPlayer->szUrl) > 0 ) {
+        EhsHSetUpCaTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, sZtemp/*EHS_DEVMAN_CA_CERTIFICATE*/);
+    }
 
     EhsHSetUpLocalProxy(curl);
     PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough -we get this from the app-lifetime memory pool
@@ -385,6 +402,12 @@ EHS_FB_THREAD_FUNCTION(DevmanPlayer_thread)
             EhsHCreateQueryStringNum(PostString, "device_space_used",(EhsHMetaGetStorAvail()),EHS_POST_STRING_LENGTH_MAX); // report in MB to save MHz* /
             EhsHCreateQueryStringNum(PostString, "device_space_available",(EhsHMetaGetStorTotal()),EHS_POST_STRING_LENGTH_MAX);
 
+            const ehs_char* tempMediaMiscBUff = pDevmanPlayer->jsonMiscMediaInfo;
+            if(tempMediaMiscBUff == NULL || tempMediaMiscBUff[0] == '\0'){
+                tempMediaMiscBUff="{}"; // send an empty json if nothing in the media buffer
+            }
+            EhsHCreateQueryString(curl_temp, PostString, "misc_media_info", tempMediaMiscBUff, EHS_POST_STRING_LENGTH_MAX);
+
             // send JSON pass thru data
             EhsJsonList* json_list = pDevmanPlayer->pOutgoingJsonAppPassThruDataList;
             if(json_list && json_list->length)
@@ -411,9 +434,18 @@ EHS_FB_THREAD_FUNCTION(DevmanPlayer_thread)
             EhsHCreateQueryString(curl_temp,PostString, "local_time", sZtemp,EHS_POST_STRING_LENGTH_MAX);
             pDevmanPlayer->szXml=NULL;//Set this to nothing so we don't parse it again.
 
-
             /* Try the list of URLs starting with app specfic then target config. files and set a pDevmanPlayer->szUrl */
             EhsGetDevmanPlayerURL(pDevmanPlayer); /* Note CurrentURL index in range >=1000 are from the core devman URL list*/
+            /* If we trying other URLS we'll need to get certificates for these too */ 
+            //todo2025 we only support combined client keys for player it seems?? I supposewe always crate them?
+            if (EhsHGetDevmanCombinedClientCertificateKeyPath(sZtemp,pDevmanPlayer->szUrl) > 0) { /* 0 - no certificate available, 1 certificate available, 2 new certificate available */
+                /* Add any ssl certificates */
+                EhsHSetUpClientTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, sZtemp /*EHS_DEVMAN_CLIENT_CERTIFICATE_KEY*/, NULL /* combined in PEM */, NULL);
+            }
+            if (EhsHGetDevmanCaCertificatePath(sZtemp,pDevmanPlayer->szUrl) > 0 ) {
+                EhsHSetUpCaTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, sZtemp/*EHS_DEVMAN_CA_CERTIFICATE*/);
+            }
+            /* Setup the URL */
             if (EhsHURLConfigPostGet(curl,write_data_buffer_struct,pDevmanPlayer->szUrl, PostString,EHS_TRUE))
             {
                 http_no=EhsHURLdoRequest(curl);
@@ -625,7 +657,6 @@ EHS_FB_INIT_FUNCTION(DevmanPlayer)
     ehs_FILE * file;
     struct EhsFbDevmanPlayerStruct* pDevmanPlayer =
         (struct EhsFbDevmanPlayerStruct *) EHS_FB_INIT_CONTEXT;
-    ehs_char szBuff[EHS_STRING_LENGTH_MAX] = { '\0' }; /* buffer for data to the server     */
     const ehs_char* pBuff = EHS_FB_INIT_PARAMETERS;//&szBuff[0];
     ehs_uint8 iTemp;
     /* Set some defaults incase we miss soething */
@@ -656,6 +687,7 @@ EHS_FB_INIT_FUNCTION(DevmanPlayer)
     pDevmanPlayer->szTrackStartTime[0] = '\0';
     pDevmanPlayer->iCurrentTrackDuration = 0; // @todo check 16 bit is correct
     EhsStrcpy(pDevmanPlayer->jsonPlayerInfo,""); /* default input measured volume */
+    pDevmanPlayer->jsonMiscMediaInfo[0] = '\0';
     //EhsCallbackQueueEntryType xCallbackOut;		/**< used to callback out when xml is returned */
     pDevmanPlayer->szXml = NULL; // allocated later
     pDevmanPlayer->CurrentURLindex=-2; /*Start Looking at the input port URL */
@@ -765,7 +797,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_change_url)
         (struct EhsFbDevmanPlayerStruct *) EHS_FB_RUN_CONTEXT;
     if (EHS_FB_IN_CONNECTED(0))
     {
-        EhsStrncpy(pDevmanPlayer->szUrl, EHS_FB_IN_S(0), EHS_STRING_LENGTH_MAX);
+        EhsStrncpy(pDevmanPlayer->szUrl, EHS_FB_IN_S(0), EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!
         EhsStrcpy(pDevmanPlayer->szUrl_input, pDevmanPlayer->szUrl); /* make a backup copy if we need to revert back from the failover list */
         pDevmanPlayer->CurrentURLindex = -2; // This is the one to try next!
         /* We don't want to save this permanently to a save in file
@@ -873,8 +905,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_track_changed)
         pDevmanPlayer->iPlayerMode = 0;
 
     if (EHS_FB_IN_CONNECTED(1))
-        EhsStrncpy(pDevmanPlayer->szCurrentTrack, EHS_FB_IN_S(1),
-                   EHS_STRING_LENGTH_MAX);
+        EhsStrncpy(pDevmanPlayer->szCurrentTrack, EHS_FB_IN_S(1), EHS_CURRENT_TRACK_LENGTH_MAX);
     else
         EhsStrcpy(pDevmanPlayer->szCurrentTrack, "");
 
@@ -979,22 +1010,33 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
     if (XML_length > 5 )
     {
         bSome = 0;
+        // @TODO - review this code, and add validation for it being a real request, not a spam
         zTempStr2 = strstr(pDevmanPlayer->szXml, "New_Playlist");
         if (zTempStr2)
         {
-
+            // @TODO - This is a HACKy method to prevent overwriting current playlist files
+            // with playlist url from 'download only' request which then play wrong stuff on
+            // reboot. Ideally this should be done in the app rather than devman player code.
+            ehs_bool bSavePlaylistCfgFiles = EHS_TRUE;
+            if (EhsStrstr(zTempStr2, "downloadonly=1") != NULL)
+            {
+                bSavePlaylistCfgFiles = EHS_FALSE;
+            }
             /* Note this is not useful on it own so doesn't set some*/
             if (0 == getAttributeValue("mediaSrcURL=", zTempStr2, pTempStr))
             {
                 EhsStrncpy(pDevmanPlayer->szMediaSrcUrl, pTempStr,
-                           EHS_STRING_LENGTH_MAX);
+                           EHS_STRING_LENGTH_MAX);  //TODO:STRINGLENGTH!
                 // return the pointer to within the string provided.
                 bSome = 1; /* We probably don't need to save this is this is only used during a download which we are assuming isn't interrupted */
                 //@todo should the init check all current data is present and reload it?
-                if (file = Ehs_UserFopen("configs/devman-player/MediaSrcUrl.cfg", "w"))
+                if(bSavePlaylistCfgFiles == EHS_TRUE) 
                 {
-                    EhsFprintf(file, "%s\n", pDevmanPlayer->szMediaSrcUrl);
-                    EhsFclose(file);
+                    if (file = Ehs_UserFopen("configs/devman-player/MediaSrcUrl.cfg", "w"))
+                    {
+                        EhsFprintf(file, "%s\n", pDevmanPlayer->szMediaSrcUrl); 
+                        EhsFclose(file);
+                    }
                 }
             }
             /* We do this one after the MediaSrcURL so we can concatenate if the playlist is not fully qualified. */
@@ -1002,13 +1044,13 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
             {
                 if (EhsCopyFileNameFromURL(pDevmanPlayer->szPlaylistFile,pTempStr))   // we have a fully qualified URL
                 {
-                    EhsStrncpy(pDevmanPlayer->szPlaylistURL, pTempStr,EHS_STRING_LENGTH_MAX);
+                    EhsStrncpy(pDevmanPlayer->szPlaylistURL, pTempStr,EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!
                     nNewPlaylistFromDevMan=EHS_TRUE;
 
                 }
                 else     //create a fully qualified URL from the media source URL - if it doesn't exist in the XML we get the remembered value or worst case is that we just get the file name
                 {
-                    EhsStrncpy(pDevmanPlayer->szPlaylistURL,pDevmanPlayer->szMediaSrcUrl, EHS_STRING_LENGTH_MAX);
+                    EhsStrncpy(pDevmanPlayer->szPlaylistURL,pDevmanPlayer->szMediaSrcUrl, EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!
                     EhsStrcat(pDevmanPlayer->szPlaylistURL, "/"); // in case one wasn't added
                     EhsStrcat(pDevmanPlayer->szPlaylistURL, pTempStr); //add the filename onto theURL @todo Check white space is chomped!
                     /* and update the FIle name version */
@@ -1017,13 +1059,15 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                 }
                 /* output the data */
                 bSome = 1;
-                if (file = Ehs_UserFopen("configs/devman-player/PlayListURL.cfg", "w"))
+                if(bSavePlaylistCfgFiles == EHS_TRUE) 
                 {
-                    EhsFprintf(file, "%s\n", pDevmanPlayer->szPlaylistURL);
-                    EhsFclose(file);
+                    if (file = Ehs_UserFopen("configs/devman-player/PlayListURL.cfg", "w"))
+                    {
+                        EhsFprintf(file, "%s\n", pDevmanPlayer->szPlaylistURL);
+                        EhsFclose(file);
+                    }
                 }
             }
-
             /* else Don't change EhsStrncpy(EHS_FB_OUT_S(1),"\0",1); */
         }
 
@@ -1134,7 +1178,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
         if (zTempStr2 = Ehs_ReadXMLTag(pDevmanPlayer->szXml, "SetPlayerParameters"))
         {
 
-            Ehs_CopyXMLTagElement(pDevmanPlayer->jsonPlayerParameters, zTempStr2, EHS_STRING_LENGTH_MAX, EHS_TRUE);
+            Ehs_CopyXMLTagElement(pDevmanPlayer->jsonPlayerParameters, zTempStr2, EHS_STRING_LENGTH_MAX, EHS_TRUE); //TODO:STRINGLENGTH!!! Is this a big JSON too?
             /* We don't do this any more - app dependent - just send out the command and let the apps store what's needed
             if (file = Ehs_UserFopen("configs/devman-player/Players.cfg","w")) {
             	EhsFprintf(file, "%s\n", pDevmanPlayer->jsonPlayerParameters);
@@ -1283,3 +1327,25 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
     EHS_FB_FINISH(8); // guess this is asserted the status event?
     EhsTPMutex_unlock(EhsTPMutex_devmanPlayerData);
 }
+
+/**
+ * Definition of DevmanPlayer_info.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DevmanPlayer_info)
+{
+	EhsTPMutex_lock(EhsTPMutex_devmanPlayerData);
+
+    struct EhsFbDevmanPlayerStruct* pDevmanPlayer = (struct EhsFbDevmanPlayerStruct *) EHS_FB_RUN_CONTEXT;
+	if (EHS_FB_IN_CONNECTED(0))
+    {
+        const ehs_char* jsonData = EHS_FB_IN_S(0);
+        EhsStrncpy(pDevmanPlayer->jsonMiscMediaInfo, jsonData, EHS_DATA_TABLE_STRING_DEFAULT_LENGTH);
+        //printf("%s\n",jsonData);
+    }
+
+    EhsTPMutex_unlock(EhsTPMutex_devmanPlayerData);
+}//ICB FUNCTION info MACRO END -- DO NOT ALTER THIS LINE

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2024-12-30T12:06:20Z</CreationDate>
+        <UpdatedDate>2024-12-30T12:12:20Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Read ADC value on request</ShortDescription>
+        <LongDescription>Read ADC value when the sample port is triggered. It will output error when the ADC unit is not initialised or configured in a different mode</LongDescription>
+        <UserName/>
+        <Menu>
+            Peripherals
+            <Menu>
+                ADC
+                <Menu>ADC Read Single</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>75</Width>
+        <Height>60</Height>
+        <Text>ADC S.S.</Text>
+        <TextX>10</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>adc_read_single</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xB63C</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>52e52713</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>device_id</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>9</MaxValue>
+            <Description>The ADC Device number to be configured. For internal ADCs, this is the unit. For external ADCs, this is the address enumeration.</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+            <DisplayOnWidget>
+                <x>30</x>
+                <y>20</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>channel</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>15</MaxValue>
+            <Description>The ADC Channel ID. If it’s disabled, it will neither output anything nor trigger the output event.</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+            <DisplayOnWidget>
+                <x>30</x>
+                <y>40</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>fixed_point</Name>
+            <DataType>I</DataType>
+            <DefaultValue>10</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>16</MaxValue>
+            <Description>fixed_point</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>sample</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>samp.</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <CName>sample</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>value</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <CName>value</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>32</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

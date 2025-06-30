@@ -1,0 +1,9 @@
+
+EHS_TARGET_MQTT_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/mqtt/$(EHS_MQTT_SUPPORT)
+DEFS += EHS_MQTT_SUPPORT
+
+# include sourcecode path of this dir in build
+VPATH+=$(EHS_TARGET_MQTT_PATH)
+INC_DIRS+=$(EHS_TARGET_MQTT_PATH)
+
+include $(EHS_TARGET_MQTT_PATH)/mqtt.mk

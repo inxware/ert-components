@@ -1,285 +1,296 @@
 <?xml version="1.0" encoding="UTF-8"?><Component>
-    <Module>usercomponents</Module>
-    <CDFInfo>
-        <Version>3</Version>
-        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
-    </CDFInfo>
-    <Description>
-        <ShortDescription>Run Javascript and render HTML</ShortDescription>
-        <LongDescription>load plain JavaScript or HTML with Javascript and run functions</LongDescription>
+	<Module>usercomponents</Module>
+	<CDFInfo>
+		<Version>3</Version>
+		<CreationDate>2023-04-18T13:32:37Z</CreationDate>
+		<UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+	</CDFInfo>
+	<Description>
+		<ShortDescription>Run Javascript and render HTML</ShortDescription>
+		<LongDescription>load plain JavaScript or HTML with Javascript and run functions</LongDescription>
         <UserName/>
-        <Menu>
-            Languages
-            <Menu>JavaScript</Menu>
-        </Menu>
-    </Description>
-    <FBID>
-        <ERT1_ID>0</ERT1_ID>
-        <Class>html_java</Class>
-    </FBID>
-    <Hashes>
-        <NameHash_CRC16>0x3C43</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>feb6385a</FbApiDescriptorHash_CRC32>
+		<Menu>
+			Languages
+			<Menu>JavaScript</Menu>
+		</Menu>
+	</Description>
+	<Block>
+		<Type>Data</Type>
+		<Height>155</Height>
+		<Text>WebKit</Text>
+		<TextX>35</TextX>
+		<TextY>5</TextY>
+		<TextScale>1.25</TextScale>
+		<TextVertical>0</TextVertical>
+		<LocationX>0</LocationX>
+		<LocationY>-15</LocationY>
+	</Block>
+	<FBID>
+		<ERT1_ID>0</ERT1_ID>
+		<Class>html_java</Class>
+	</FBID>
+	<Hashes>
+		<NameHash_CRC16>0x3C43</NameHash_CRC16>
+		<FbApiDescriptorHash_CRC32>feb6385a</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
-    </Hashes>
-    <Parameters>
-        <Parameter>
-            <Name>Widget Tag</Name>
-            <DataType>WT</DataType>
-            <DefaultValue>widget</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>0</MaxValue>
-            <Description>Widget Tag</Description>
-            <ListPlacement>1</ListPlacement>
-            <ArgPlacement>1</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Widget Group</Name>
-            <DataType>ST</DataType>
-            <DefaultValue>default</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>0</MaxValue>
-            <Description>Widget Group</Description>
-            <ListPlacement>2</ListPlacement>
-            <ArgPlacement>2</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>ScriptURL</Name>
-            <DataType>S</DataType>
+	</Hashes>
+	<Parameters>
+		<Parameter>
+			<Name>Widget Tag</Name>
+			<DataType>WT</DataType>
+			<DefaultValue>widget</DefaultValue>
+			<MinValue>0</MinValue>
+			<MaxValue>0</MaxValue>
+			<Description>Widget Tag</Description>
+			<ListPlacement>1</ListPlacement>
+			<ArgPlacement>1</ArgPlacement>
+		</Parameter>
+		<Parameter>
+			<Name>Widget Group</Name>
+			<DataType>ST</DataType>
+			<DefaultValue>default</DefaultValue>
+			<MinValue>0</MinValue>
+			<MaxValue>0</MaxValue>
+			<Description>Widget Group</Description>
+			<ListPlacement>2</ListPlacement>
+			<ArgPlacement>2</ArgPlacement>
+		</Parameter>
+		<Parameter>
+			<Name>ScriptURL</Name>
+			<DataType>S</DataType>
             <DefaultValue/>
-            <MinValue>0</MinValue>
-            <MaxValue>0</MaxValue>
-            <Description>direct data or URL to HTML or JavaScript</Description>
-            <ListPlacement>3</ListPlacement>
-            <ArgPlacement>3</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Data</Name>
-            <DataType>B</DataType>
-            <DefaultValue>1</DefaultValue>
-            <Description>use URL data as content</Description>
-            <ListPlacement>4</ListPlacement>
-            <ArgPlacement>4</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Function</Name>
-            <DataType>S</DataType>
-            <DefaultValue>JSmain</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>0</MaxValue>
-            <Description>default Function to run if not specified</Description>
-            <ListPlacement>5</ListPlacement>
-            <ArgPlacement>5</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>BaseURL</Name>
-            <DataType>S</DataType>
+			<MinValue>0</MinValue>
+			<MaxValue>0</MaxValue>
+			<Description>direct data or URL to HTML or JavaScript</Description>
+			<ListPlacement>3</ListPlacement>
+			<ArgPlacement>3</ArgPlacement>
+		</Parameter>
+		<Parameter>
+			<Name>Data</Name>
+			<DataType>B</DataType>
+			<DefaultValue>1</DefaultValue>
+			<Description>use URL data as content</Description>
+			<ListPlacement>4</ListPlacement>
+			<ArgPlacement>4</ArgPlacement>
+		</Parameter>
+		<Parameter>
+			<Name>Function</Name>
+			<DataType>S</DataType>
+			<DefaultValue>JSmain</DefaultValue>
+			<MinValue>0</MinValue>
+			<MaxValue>0</MaxValue>
+			<Description>default Function to run if not specified</Description>
+			<ListPlacement>5</ListPlacement>
+			<ArgPlacement>5</ArgPlacement>
+		</Parameter>
+		<Parameter>
+			<Name>BaseURL</Name>
+			<DataType>S</DataType>
             <DefaultValue/>
-            <MinValue>0</MinValue>
-            <MaxValue>0</MaxValue>
-            <Description>This is the base URL that would be used for cross domain checking (if enabled)</Description>
-            <ListPlacement>6</ListPlacement>
-            <ArgPlacement>6</ArgPlacement>
-        </Parameter>
-    </Parameters>
-    <Functions>
-        <Function>
-            <name>LoadScript</name>
-            <ID>
-                <ERT1_ID>1</ERT1_ID>
-            </ID>
-        </Function>
-        <Function>
-            <name>RunFunction</name>
-            <ID>
-                <ERT1_ID>2</ERT1_ID>
-            </ID>
-        </Function>
-        <Function>
-            <name>UnLoadAll</name>
-            <ID>
-                <ERT1_ID>3</ERT1_ID>
-            </ID>
-        </Function>
-        <Function>
-            <name>setVisibile</name>
-            <ID>
-                <ERT1_ID>4</ERT1_ID>
-            </ID>
-        </Function>
-        <Function>
-            <name>setInvisible</name>
-            <ID>
-                <ERT1_ID>5</ERT1_ID>
-            </ID>
-        </Function>
-    </Functions>
-    <Ports>
-        <Port>
-            <Description>LoadScript</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>10</YCoordinate>
-            <CName>LoadScript</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>ScriptURL</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>30</YCoordinate>
-            <CName>ScriptURL</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>Loaded</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>105</XCoordinate>
-            <YCoordinate>10</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>Loaded</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>Run</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>70</YCoordinate>
-            <CName>Run</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>Function</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>80</YCoordinate>
-            <CName>Function</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>Complete</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>105</XCoordinate>
-            <YCoordinate>70</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>Complete</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>jsonIN</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>90</YCoordinate>
-            <CName>jsonIN</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>jsonOUT</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>105</XCoordinate>
-            <YCoordinate>80</YCoordinate>
-            <CName>jsonOUT</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>UnLoad</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>50</YCoordinate>
-            <CName>UnLoad</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>3</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <Description>Unloaded</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>105</XCoordinate>
-            <YCoordinate>50</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>Unloaded</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>3</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>--&gt;</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>105</XCoordinate>
-            <YCoordinate>110</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>visSet</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>4</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>Hide</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>130</YCoordinate>
-            <CName>Hide</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>5</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <Description>--&gt;</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>105</XCoordinate>
-            <YCoordinate>130</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>set</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>5</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>Show</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>110</YCoordinate>
-            <CName>Show</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>4</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>BaseURL</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>20</YCoordinate>
-            <CName>BaseURL</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-    </Ports>
+			<MinValue>0</MinValue>
+			<MaxValue>0</MaxValue>
+			<Description>This is the base URL that would be used for cross domain checking (if enabled)</Description>
+			<ListPlacement>6</ListPlacement>
+			<ArgPlacement>6</ArgPlacement>
+		</Parameter>
+	</Parameters>
+	<Functions>
+		<Function>
+			<name>LoadScript</name>
+			<ID>
+				<ERT1_ID>1</ERT1_ID>
+			</ID>
+		</Function>
+		<Function>
+			<name>RunFunction</name>
+			<ID>
+				<ERT1_ID>2</ERT1_ID>
+			</ID>
+		</Function>
+		<Function>
+			<name>UnLoadAll</name>
+			<ID>
+				<ERT1_ID>3</ERT1_ID>
+			</ID>
+		</Function>
+		<Function>
+			<name>setVisibile</name>
+			<ID>
+				<ERT1_ID>4</ERT1_ID>
+			</ID>
+		</Function>
+		<Function>
+			<name>setInvisible</name>
+			<ID>
+				<ERT1_ID>5</ERT1_ID>
+			</ID>
+		</Function>
+	</Functions>
+	<Ports>
+		<Port>
+			<Description>loadScript</Description>
+			<PortType>StartPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>10</YCoordinate>
+			<CName>LoadScript</CName>
+			<Function argument="0">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+				<AtomicFlag>1</AtomicFlag>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>S</DataType>
+			<Description>scriptURL</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>30</YCoordinate>
+			<CName>ScriptURL</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>loaded</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>105</XCoordinate>
+			<YCoordinate>10</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>Loaded</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>run</Description>
+			<PortType>StartPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>70</YCoordinate>
+			<CName>Run</CName>
+			<Function argument="0">
+				<Function_ERT1_ID>2</Function_ERT1_ID>
+				<AtomicFlag>1</AtomicFlag>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>S</DataType>
+			<Description>function</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>80</YCoordinate>
+			<CName>Function</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>2</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>complete</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>105</XCoordinate>
+			<YCoordinate>70</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>Complete</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>2</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>S</DataType>
+			<Description>jsonIN</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>90</YCoordinate>
+			<CName>jsonIN</CName>
+			<Function argument="2">
+				<Function_ERT1_ID>2</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>S</DataType>
+			<Description>jsonOUT</Description>
+			<PortType>OutputPort</PortType>
+			<XCoordinate>105</XCoordinate>
+			<YCoordinate>80</YCoordinate>
+			<CName>jsonOUT</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>2</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>unLoad</Description>
+			<PortType>StartPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>50</YCoordinate>
+			<CName>UnLoad</CName>
+			<Function argument="0">
+				<Function_ERT1_ID>3</Function_ERT1_ID>
+				<AtomicFlag>1</AtomicFlag>
+			</Function>
+		</Port>
+		<Port>
+			<Description>unloaded</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>105</XCoordinate>
+			<YCoordinate>50</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>Unloaded</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>3</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>--&gt;</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>105</XCoordinate>
+			<YCoordinate>110</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>visSet</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>4</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>hide</Description>
+			<PortType>StartPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>130</YCoordinate>
+			<CName>Hide</CName>
+			<Function argument="0">
+				<Function_ERT1_ID>5</Function_ERT1_ID>
+				<AtomicFlag>1</AtomicFlag>
+			</Function>
+		</Port>
+		<Port>
+			<Description>--&gt;</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>105</XCoordinate>
+			<YCoordinate>130</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>set</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>5</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>show</Description>
+			<PortType>StartPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>110</YCoordinate>
+			<CName>Show</CName>
+			<Function argument="0">
+				<Function_ERT1_ID>4</Function_ERT1_ID>
+				<AtomicFlag>1</AtomicFlag>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>S</DataType>
+			<Description>baseURL</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>20</YCoordinate>
+			<CName>BaseURL</CName>
+			<Function argument="2">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+	</Ports>
 </Component>

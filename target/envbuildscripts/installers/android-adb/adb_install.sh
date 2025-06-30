@@ -213,8 +213,11 @@ echo "Setting up adb ($ADB)"
 adb disconnect ||: 
 sleep 10
 # the following will rempount the system directories read/write mode
+if [ -z "$ADB_IP" ]; then
+adbconnect
+else
 adbconnect $ADB_IP $ADB_PORT
-
+fi
 # make sure the configuration android version matches the device 
 check_android_version
 # make sure the configuration android platform matches the device
@@ -235,10 +238,22 @@ source ${EHS_ROOT}/target/envbuildscripts/installers/android-adb/install_scripts
 pushd ./target/envtree/android-ehs-tree
 DOWNLOADER_APK=downloader.apk
 DOWNLOADER_PACKAGE=com.utils.downloader
+rmtemp
 mktemp
 cptemp utils/$DOWNLOADER_APK
 uninstall ${DOWNLOADER_PACKAGE}
-sleep 2
+sleep 4
+
+# clear previous downloader data folders if they exist
+EHS_DL_DATA="/storage/emulated/0/Android/data/com.utils.downloader"
+EXISTS=$( shell_exec 'if [ -d "'${EHS_DL_DATA}'" ]; then echo "YES"; fi' )
+if ! [ -z "$EXISTS" ]; then
+	echo "Clearing $EHS_DL_DATA ..."
+	shell_exec 'rm -rf '${EHS_DL_DATA}
+else
+	echo "No previous downloder Updates folder found ..."
+fi
+
 install ${DOWNLOADER_APK}
 starthomeapp ${DOWNLOADER_PACKAGE} '.InitActivity'
 sleep 2

@@ -23,4 +23,8 @@ if [ "$NETWORK_NTP_SERVER" != "" ];then
 	echo "Done!"
 fi
 # install certificates
-install_certs || exit 1
+if [ "$DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE" = "none" -a "$DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED" = "no" ]; then
+	echo "Skipping certificates installation for this target."
+else
+	install_certs || exit 1
+fi

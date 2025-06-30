@@ -1,181 +1,165 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container">&nbsp; 8 Input Integer Calculation&nbsp;
-        <!--these display in reverse order because they use float:right--> <span
-
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-
-            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
-
-            href="#ports">Ports &#8595;</a></span> </div>
-      <!--General Description-->
-      <p class="component"> This component allows a mathematical expression to
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">  8 Input Integer Calculation 
+        <!--these display in reverse order because they use float:right--> <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span> </div>
+<!--General Description-->
+<p class="component"> This component allows a mathematical expression to
         be entered in the Expression parameter, and performs an operation on the
-        data inputs <a href="#[In]A">[In]A</a>, <a href="#[In]B">[In]B</a>, <a
-
-          href="#[In]C">[In]C</a>, <a href="#[In]D">[In]D</a>, <a href="#[In]E">[In]E</a>,
+        data inputs <a href="#[In]A">[In]A</a>, <a href="#[In]B">[In]B</a>, <a href="#[In]C">[In]C</a>, <a href="#[In]D">[In]D</a>, <a href="#[In]E">[In]E</a>,
         <a href="#[In]F">[In]F</a>, <a href="#[In]G">[In]G</a>, <a href="#[In]H">[In]H</a>
         and presents the result to the data output. </p>
-      <p class="component"> The integer operations that are supported are as
+<p class="component"> The integer operations that are supported are as
         follows: <i>+, -, *, /, %, ^, abs(x), square(x), min(x,y), max(x,y),
-          sin(&#945;,&#920;), cos(&#945;,&#920;)</i> where <i>&#945;</i> is a multiplier applied to the
-        result and <i>&#920;</i> is the angle. Any one of the data inputs <i>A</i>
-        to <i>H</i> can be substituted for <i>x,y,&#945;</i> or <i>&#920;</i>, for
+          sin(α,Θ), cos(α,Θ)</i> where <i>α</i> is a multiplier applied to the
+        result and <i>Θ</i> is the angle. Any one of the data inputs <i>A</i>
+        to <i>H</i> can be substituted for <i>x,y,α</i> or <i>Θ</i>, for
         example <i>(A*B)/square(B)</i>. </p>
-      <!--Parameters - form - short desc: long desc-->
-      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-            <th style="width:60px;">name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>min.</th>
-            <th>max.</th>
-            <th>description</th>
-          </tr>
-          <tr>
-            <td>Expression</td>
-            <td>String</td>
-            <td>None</td>
-            <td>None</td>
-            <td>None</td>
-            <td>The expression to calculate.</td>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
 
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
+</tr>
+<tr>
+<td>Expression</td>
+<td>String</td><td>The expression to calculate.</td>
+<td>None</td>
+<td>None</td>
+<td>None</td>
 
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]"></a></td>
-            <td>Input event, performs the calculation specified by the
+</tr>
+</tbody>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span> </div>
+<table class="table">
+<tbody>
+<tr>
+<th>In Ev.</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]"></a></td>
+<td>Input event, performs the calculation specified by the
               Expression parameter on the data inputs.</td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]A">A</a></td>
-            <td>Data input.</td>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]B">B</a></td>
-            <td>Data input.</td>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]C">C</a></td>
-            <td>Data input.</td>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]D">D</a></td>
-            <td>Data input.</td>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]E">E</a></td>
-            <td>Data input.</td>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]F">F</a></td>
-            <td>Data input.</td>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]G">G</a></td>
-            <td>Data input.</td>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]H">H</a></td>
-            <td>Data input.</td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[Out]"></a></td>
-            <td>Data output, the result of the calculation.</td>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
->Output event.</td>
-          </tr>
-          <tr>
-            <td>inc</td>
-            <td>Asserted if and only if an increment event is received and the
+</tr>
+<tr>
+<th>Data In</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]A">A</a></td>
+<td>Data input.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]B">B</a></td>
+<td>Data input.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]C">C</a></td>
+<td>Data input.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]D">D</a></td>
+<td>Data input.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]E">E</a></td>
+<td>Data input.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]F">F</a></td>
+<td>Data input.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]G">G</a></td>
+<td>Data input.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]H">H</a></td>
+<td>Data input.</td>
+</tr>
+<tr>
+<th>Data Out</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]"></a></td>
+<td>Data output, the result of the calculation.</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+<th><br/>
+&gt;Output event.
+</th></tr>
+<tr>
+<td>inc</td>
+<td>Asserted if and only if an increment event is received and the
               count is less than the maximum threshold.</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-
-          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
-
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5">
-              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span> </div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b>State Machine</b> </td>
+<td colspan="5">
+<!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
           <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>
           &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
           <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
               None </td>
-            <td> <br>
-            </td>
-            <td> <br>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> Core </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v1.0. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+<td> <br/>
+</td>
+<td> <br/>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Toolbox</b> </td>
+<td> Core </td>
+<td class="heading-cell"> <b>Version</b> </td>
+<td> v1.0. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Licence Type</b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b>Component Supplier</b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Minumum DCC</b> </td>
+<td>A0000</td>
+<td class="heading-cell"> <b>Profiles</b> </td>
+<td> All. </td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
 </html>

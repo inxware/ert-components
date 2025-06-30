@@ -1,112 +1,103 @@
 <html>
-
 <head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
-
 <body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">DemultiplexTwoOutputBool</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">DemultiplexTwoOutputBool</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
       This component is used to distribute boolean data <a href="#[In]Val">[In]</a>, to an output corresponding to the input event received. For example if the input event <a href="#[In]s1">[In]s1</a> is triggered, then the input data <a href="#[In]Val">[In]</a> will be presented to output <a href="#[Out]o1">[Out]o1</a> and fire the associated event <a href="#[Out]1">[Out]1</a>. Note that the data persists at the outputs.
     </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
 
-    </table>
-
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[In]s1>s1</a></td>
-        <td>Event input 1, triggers the corresponding output event and presents data to output <a href="#[Out]o1">[Out]o1</a>.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[In]s2>s2</a></td>
-        <td>Event input 2, triggers the corresponding output event and presents data to output <a href="#[Out]o2">[Out]o2</a>.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[In]Val></a></td>
-        <td>Data input, value of the data to be distributed.</td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]o1>o1</a></td>
-        <td>Data output 1.</td>
-      </tr>
-      <tr>
-        <td class=portsInt><a name=[Out]o2>o2</a></td>
-        <td>Data output 2.</td>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td><a name="[Out]1"></a></td>
-        <td>Event output 1.</td>
-      </tr>
-      <tr>
-        <td><a name="[Out]2"></a></td>
-        <td>Event output 2.</td>
-      </tr>
-
-    </table>
-
-
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]s1">s1</a></td>
+<td>Event input 1, triggers the corresponding output event and presents data to output <a href="#[Out]o1">[Out]o1</a>.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]s2">s2</a></td>
+<td>Event input 2, triggers the corresponding output event and presents data to output <a href="#[Out]o2">[Out]o2</a>.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]Val"></a></td>
+<td>Data input, value of the data to be distributed.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]o1">o1</a></td>
+<td>Data output 1.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]o2">o2</a></td>
+<td>Data output 2.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td><a name="[Out]1"></a></td>
+<td>Event output 1.</td>
+</tr>
+<tr>
+<td><a name="[Out]2"></a></td>
+<td>Event output 2.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+<!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
           <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
           <span class="fsm_blob">state2</span>
           &otimes;&nbsp;
@@ -116,54 +107,52 @@
 
           None
         </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
+<td>
+<b></b>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
           Core
         </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
           v1.0.
         </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
           MPL2.0
         </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minumum DCC</b>
+</td><td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
           All.
         </td>
-      </tr>
-    </table>
-
-  </div>
+</tr>
+</table>
+</div>
 </body>
-
 </html>

@@ -173,30 +173,41 @@ ehs_bool EhsHUrlPathEscape(ehs_char * szUrlOut, const ehs_char * szUrlIn)
 }
 
 /**
- * \brief returns a pointer to the non-domain part of the URL (i.e. after first / in path) from a URL
- * and copies the host only part into szHost
+ * \brief returns a pointer to the path part of the URL (i.e. after first trailing / after the Domain in a URL) from a URL
+ * and copies the host only part into szHost pointer string buffer provided.
+ * Todo need to add a variable max string length to these arguements. Currently we don't support any strings larger than max string length.
+ * Warning - this requires a http pefix
  */
 ehs_char* EhsGetHostAndPathFromURL(ehs_char * szHost, const ehs_char * szUrl)
 {
-    ehs_sint16 i;
+    ehs_sint16 i,j=0;
     ehs_sint16 offset = 0 ;
     ehs_char * szPath = NULL;
-
+    if (szUrl == NULL || szUrl[0] != 'h') {
+        EHSH_LOG_ERROR("Url is null or without prefix http");
+    }
+    //todo replace this with left first search for //
     EhsStrcpy(szHost,szUrl); // default is to use it as we got it if no path is found..
-
-    if (    EhsStrncmp(szUrl,"http://",EhsStrlen("http://"))   == 0  ) offset = EhsStrlen("http://");
-    if (    EhsStrncmp(szUrl,"https://",EhsStrlen("https://")) == 0  ) offset = EhsStrlen("https://");
-    if (    EhsStrncmp(szUrl, "ftp://",EhsStrlen("ftp://"))    == 0  ) offset = EhsStrlen("ftp://");
-    if (    EhsStrncmp(szUrl, "ftps://",EhsStrlen("ftps://"))  == 0  ) offset = EhsStrlen("ftps://");
-    if (    EhsStrncmp(szUrl, "ssh://",EhsStrlen("ssh://"))    == 0  ) offset = EhsStrlen("ssh://");
+    for (i = 0; i < EhsStrlen(szUrl); i++) {
+        if (szUrl[i] == '/') j++; //not trusting strstr
+        if (j > 1) {
+            offset = i;
+            break;
+        }
+    }
+    
     /* search forward to find the beginning of the path*/
+    j=0;
     for (i = offset+1; i < EhsStrlen(szUrl); i++)
     {
-        if ((szUrl[i] == '/') || (szUrl[i] == '\\'))
+        //printf("%c",szUrl[i]);
+        szHost[j]=szUrl[i];
+        j++;
+        if ((szUrl[i] == '/') || (szUrl[i] == '\\') ||  (szUrl[i] == '\0') ||  i > (EHS_STRING_LENGTH_MAX-1) ) //find end of domain part
         {
-            szPath = (ehs_char*)&szUrl[i]; // include the first /
-            EhsStrncpy(szHost, szUrl,i); // don't include the /
-            szHost[i]='\0'; //stncpy doesn't do this for us apparently!
+            szPath = (ehs_char*)&szUrl[i+1]; // 
+            //EhsStrncpy(szHost, szPath,i); // don't include the /
+            szHost[j-1]='\0'; //add EOL where end of
             break;
         }
     }
@@ -342,13 +353,7 @@ ehs_bool EhsHSetUpClientTlsCertificate(CURL *curl, RuntimePathType location, ehs
             keypresent  = EhsTF_exists(full_key_path);
         }
     }
-    else
-    {
-        if (EhsTF_tryCanonicPath(full_key_path,location, cert_path, EHS_TRUE))   // I suppose we expect both to be in a PEM
-        {
-            keypresent = EhsTF_exists(full_key_path);
-        }
-    }
+
     if (certpresent)
     {
         EHSH_LOG_INFO("Setting Certficate");
@@ -375,7 +380,7 @@ ehs_bool EhsHSetUpClientTlsCertificate(CURL *curl, RuntimePathType location, ehs
 #endif
     if (retval == EHS_FALSE)
     {
-        EHSH_LOG_ERROR("Could not set the TLS certificate paths=[%s] & [%s]",cert_path, key_path);
+        //EHSH_LOG_ERROR("Could not set the TLS certificate paths=[%s] & [%s]",cert_path, key_path);// this is a false alarm when a combined client cert and key is used.
     }
     return retval;
 }
@@ -407,7 +412,6 @@ ehs_bool EhsHSetUpCaTlsCertificate(CURL *curl, RuntimePathType location, ehs_cha
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); /* for hosts that we can't find certificates */
 #else
-
         /* disconnect if we can't validate server's cert */
         curl_easy_setopt(curl, CURLOPT_CAINFO, full_cert_path);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
@@ -553,7 +557,6 @@ ehs_bool EhsHURLfree_write_data_buffer(EhsH_URLwrite_data_bufferType * temp)
     if (temp->buffer) EhsHMem_permFree(temp->buffer);
     temp->buffer = NULL;// should not be useful, but just in case...
     EhsHMem_permFree(temp);
-
     return EHS_TRUE;
 }
 
@@ -837,6 +840,144 @@ EhsH_URLwrite_data_bufferType * EhsHDoAllGenericConfig (CURL * curl,EhsNetworkSe
     return buffer_struct;
 }
 
+/*  @brief searches for certicates in ./devman/core/certs/<DOMAIN>/.. for certificates to use instead of defaults.
+
+   Extracts the domain from a URL and produced a path to the certifiate (or the default certificate if not found)
+   returns:
+    0 : if no certificate found (and no default is set which it always has at the moment)
+    1  : a default certificate was found
+    2  : a particular certificate was found 
+    pCertPath is set to the full absolute path to the relevant certificate in the Devman directory.
+*/
+ehs_uint8 EhsHGetDevmanCaCertificatePath(ehs_char* pCertPath,const ehs_char * pServerUrl) {
+    ehs_char szTemp[EHS_STRING_LENGTH_MAX];
+    if (pServerUrl != NULL ) {
+        EhsStrcpy(szTemp,EHS_DEVMAN_CERTIFICATES_BASE);
+        EhsGetHostAndPathFromURL(&szTemp[sizeof(EHS_DEVMAN_CERTIFICATES_BASE)-1], pServerUrl);// get the domain to check the path with the normal try method for Devman directories
+        //printf("Looking for ca certs for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
+        EhsStrcat(szTemp,EHS_TD_FILES_SEPARATOR_STR EHS_DEVMAN_CA_CERTIFICATE_FILENAME); // addd a trailing slash of course
+        if (EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,szTemp, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0) { // check if we have Devman directory for this domain}
+            EhsStrcpy(pCertPath,szTemp);
+            //printf("Found dedicated ca certs (%s)\n",pCertPath);
+            return 2;
+        }else {
+            if ( EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,EHS_DEVMAN_CA_CERTIFICATE, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0)  // Do we have a default?
+            {
+                EhsStrcpy(pCertPath,EHS_DEVMAN_CA_CERTIFICATE);
+                //printf("Found default ca certs in (%s)\n",pCertPath);
+                return 1;
+            }
+            else {
+                EhsStrcpy(pCertPath,EHS_DEVMAN_CA_CERTIFICATE);
+                //printf("Not Found any ca certs for (%s)\n",pCertPath);
+                return 0; //we'll still return the default path
+            }
+        }
+    }
+    else {
+        EHSH_LOG_ERROR("URL is null");
+    }
+    return 0;
+}
+
+/*  @brief searches for certicates in ./devman/core/certs/<DOMAIN>/* for certificates to use instead of defaults.
+
+   Extracts the domain from a URL and produced a path to the certifiate (or the default certificate if not found)
+   returns:
+    0 : if no certificate found (and no default is set which it always has at the moment)
+    1  : a default certificate was found
+    2  : a particular certificate was found 
+    pCertPath is set to the full absolute path to the relevant certificate in the Devman directory.
+*/
+ehs_uint8 EhsHGetDevmanCombinedClientCertificateKeyPath(ehs_char* pCertPath,const ehs_char * pServerUrl) {
+    ehs_char szTemp[EHS_STRING_LENGTH_MAX];
+    EhsStrcpy(szTemp,EHS_DEVMAN_CERTIFICATES_BASE);
+    EhsGetHostAndPathFromURL(&szTemp[sizeof(EHS_DEVMAN_CERTIFICATES_BASE)-1], pServerUrl);// get the domain to check the path with the normal try method for Devman directories
+    //printf("Looking for combined certs for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
+    EhsStrcat(szTemp,EHS_TD_FILES_SEPARATOR_STR EHS_DEVMAN_CLIENT_CERTIFICATE_KEY_FILENAME); // addd a trailing slash of course
+    if (EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,szTemp, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0) { // check if we have Devman directory for this domain}
+            EhsStrcpy(pCertPath,szTemp);
+            //printf("Found dedicated combined certs (%s)\n",pCertPath);
+            return 2;
+    }else {
+        if ( EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0)  // Do we have a default?
+        {
+            EhsStrcpy(pCertPath, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY);
+            //printf("Found default combined certs in (%s)\n",pCertPath);
+            return 1;
+        }
+        else {
+            EhsStrcpy(pCertPath, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY);
+            //printf("Not Found any combined certs for (%s)\n",pCertPath);
+            return 0; //we'll still return the default path
+        }
+    }
+    return 0;
+}
+
+/* WARNING!!! Not tested or probably complete as we don't bother testing ofr client certifcates just the Ca certificates for each server at the moment
+    because we may have combined keys and certificate files and it's getting a bit boring!
+    TODO2025 - finish this
+    Extracts the domain from a URL and produced a path to the certifiate (or the default certificate if not found)
+   returns:
+    0  : if no certificate found (and no default is set which it always has at the moment)
+    1  : a default certificate was found
+    2  : a particular certificate was found 
+
+    +10  : if no certificate found (and no default is set which it always has at the moment)
+    +11  : a default certificate was found
+    +12  : a particular certificate was found 
+    pCertPath is set to the full absolute path to the relevant certificate in the Devman directory.
+*/
+ehs_uint8 EhsHGetDevmanClientCertificateKeyPaths(ehs_char* pCertPath,ehs_char* pKeyPath,const ehs_char * pServerUrl) {
+    ehs_char szTemp[EHS_STRING_LENGTH_MAX];
+    ehs_uint8 ret = 0;
+    EhsStrcpy(szTemp,EHS_DEVMAN_CERTIFICATES_BASE);
+    EhsGetHostAndPathFromURL(&szTemp[sizeof(EHS_DEVMAN_CERTIFICATES_BASE)-1], pServerUrl);// get the domain to check the path with the normal try method for Devman directories
+    printf("Looking for certs for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
+    EhsStrcat(szTemp,EHS_TD_FILES_SEPARATOR_STR EHS_DEVMAN_CLIENT_CERTIFICATE_FILENAME); // addd a trailing slash of course
+    if (EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,szTemp, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0) { // check if we have Devman directory for this domain}
+            EhsStrcpy(pCertPath,szTemp);
+            printf("Found dedicated ca certs (%s)\n",pCertPath);
+            ret = 2;
+    }else {
+        if ( EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,EHS_DEVMAN_CLIENT_CERTIFICATE, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0)  // Do we have a default?
+        {
+            EhsStrcpy(pCertPath,EHS_DEVMAN_CLIENT_CERTIFICATE);
+            printf("Found default ca certs in (%s)\n",pCertPath);
+            ret = 1;
+        }
+        else {
+            EhsStrcpy(pCertPath,EHS_DEVMAN_CLIENT_CERTIFICATE);
+            printf("Not Found any ca certs for (%s)\n",pCertPath);
+            ret = 0; //we'll still return the default path
+        }
+    }
+    /* Now test for the Client Key */
+    EhsStrcpy(szTemp,EHS_DEVMAN_CERTIFICATES_BASE);
+    EhsGetHostAndPathFromURL(&szTemp[sizeof(EHS_DEVMAN_CERTIFICATES_BASE)-1], pServerUrl);// get the domain to check the path with the normal try method for Devman directories
+    printf("(Looking for client key for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
+    EhsStrcat(szTemp,EHS_TD_FILES_SEPARATOR_STR EHS_DEVMAN_CLIENT_PRIVATEKEY_FILENAME); // addd a trailing slash of course
+    if (EhsTF_tryCanonicPath(pKeyPath, EHS_RUNTIME_DEVMAN_DIR,szTemp, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pKeyPath) > 0) { // check if we have Devman directory for this domain}
+            EhsStrcpy(pKeyPath, szTemp);
+            printf("Found dedicated client key (%s)\n",pKeyPath);
+            //ret += 12;
+    }else {
+        if ( EhsTF_tryCanonicPath(pKeyPath, EHS_RUNTIME_DEVMAN_DIR,EHS_DEVMAN_CLIENT_PRIVATEKEY, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pKeyPath) > 0)  // Do we have a default?
+        {
+            EhsStrcpy(pKeyPath, EHS_DEVMAN_CLIENT_PRIVATEKEY);
+            printf("Found default client key in (%s)\n",pKeyPath);
+            ret += 10;
+        }
+        else {
+            EhsStrcpy(pKeyPath, EHS_DEVMAN_CLIENT_PRIVATEKEY);
+            printf("Not Found any client key for (%s)\n",pKeyPath);
+            ret += 11; //we'll still return the default path
+        }
+    }
+    return ret;
+}
+
 /**
  * Function to set up an http post or get, adding query data to the URI if not null
  * If this is post it uses curl's post string stuff, otherwise it concats a URL encoded query
@@ -860,12 +1001,7 @@ ehs_bool EhsHURLConfigPostGet(CURL *curl,EhsH_URLwrite_data_bufferType * buffer_
 
     ehs_bool ret = EHS_FALSE; //default if nothing works
     CURLcode success;
-    //ehs_char * formatted_querydata = NULL;
     ehs_char encodedUrl[EHS_STRING_LENGTH_MAX]; // fully sanatised URL
-
-    //ehs_char * szTruncatedURL[EHS_STRING_LENGTH_MAX]; /* copy of the URL's host */
-    //ehs_char * szUrlPathQuery;/* points to after the host part of the URL */
-    //ehs_char szUrlEncodedPathQuery[EHS_STRING_LENGTH_MAX]; /* CURL's memory for the encoded part that needs freeing */
 
     /* first sort out the pre-query string (i.e. host and path) for any escaping that might be needed */
     if ( URL)
@@ -924,7 +1060,7 @@ ehs_bool EhsHURLConfigPostGet(CURL *curl,EhsH_URLwrite_data_bufferType * buffer_
     }
     else     /* make a GET URI by concat URL with query string */
     {
-        ehs_char szTempString[EHS_STRING_LENGTH_MAX];
+        ehs_char szTempString[EHS_STRING_LENGTH_MAX*8]; //TODO:STRINGLENGTH!!! - suggested hack for now
         //success = curl_easy_setopt(curl, CURLOPT_POST, 0);
         success = curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
         EhsStrcpy(szTempString, encodedUrl);
@@ -936,7 +1072,6 @@ ehs_bool EhsHURLConfigPostGet(CURL *curl,EhsH_URLwrite_data_bufferType * buffer_
             //if (curl && formatted_querydata) curl_free((ehs_char*)formatted_querydata);
         }
         success = curl_easy_setopt(curl, CURLOPT_URL, szTempString);/*@todo Do some testing here */
-
 
         if (CURLE_OK != success)
         {

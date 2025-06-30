@@ -13,6 +13,7 @@ This will be based on the NXP binary format for now, but doesn’t need to be sp
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DevmanScheduler); // this relates to C file identify function
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(DevmanScheduler); // this relates to C-file init function
 EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(DevmanScheduler); //this relates to C-file destroy function
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanScheduler_init_schedule); //a function executed by a start port
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanScheduler_get_schedule); //a function executed by a start port
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanScheduler_set_schedule); //a function executed by a start port
 /* declare the table for use by the blockref table */

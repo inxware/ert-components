@@ -42,18 +42,40 @@ VPATH+=$(EHS_COMMON_KAPI_PATH)
 
 # Set up any debugging settings. 
 ifdef EHS_DEBUGALL
+ifneq ($(EHS_DEBUG_TCPIP_CONSOLE),target_specific)
 	EHS_DEBUG_TCPIP_CONSOLE=yes
+endif
+ifeq ($(EHS_RUNTIME_LOGGER_ENABLED), no)
+	undefine EHS_RUNTIME_LOGGER_ENABLED
+else
 	EHS_RUNTIME_LOGGER_ENABLED=yes
+endif
 	EHS_DEBUG_AV=yes
 # Assume we will always want to define this build as a debug build and upload and manage on Devamn accordingly 
 export 	BUILD_MODE=debug
 endif
 
+
 # Enable the TCPIP connection to tools for debugging and app upload 
-ifdef  EHS_DEBUG_TCPIP_CONSOLE 
-	DEFS += EHS_DEBUG_TCPIP_CONSOLE
-	OBJECTS+=console_queue.$(OBJ)
+ifdef  EHS_DEBUG_TCPIP_CONSOLE
+	ifeq ($(EHS_DEBUG_TCPIP_CONSOLE), none)
+		EHS_DEBUG_TCPIP_CONSOLE=stubbed
+	endif
+else
+	EHS_DEBUG_TCPIP_CONSOLE=stubbed
 endif
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/comms/tcp_server_common/tcp.mk
+
+#TODO2025 - the following should be moved to a HAL make file.
+ifdef EHS_COMMS_API_SUPPORT
+	ifneq ($(EHS_COMMS_API_SUPPORT), none)
+		EHS_TARGET_COMMS_API_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/comms/$(EHS_COMMS_API_SUPPORT)
+		DEFS+=EHS_COMMS_API_SUPPORT
+		INC_DIRS+=$(EHS_TARGET_COMMS_API_PATH)
+		include $(EHS_TARGET_COMMS_API_PATH)/comms.mk
+	endif
+endif
+
 
 # Enable logging to the device's lcal (stdio) logging
 
@@ -63,7 +85,7 @@ ifdef EHS_DEBUG_AV
 	DEFS += EHS_DEBUG_AV	
 endif
 
-# This is the very verose that you will not want to accidently build into anything you release.
+# This is the very verbose that you will not want to accidently build into anything you release.
 ifdef EHS_DEBUG_TRACE
     DEFS += EHS_BUILDOPT_STDIO_MESSAGE_TRACE #this is for specific messages
     DEFS += EHS_BUILDOPT_STDIO_ENABLE_FUNCTION_TRACING # this is the legacy tracing @todo remove the argument number specificity
@@ -71,20 +93,6 @@ ifdef EHS_DEBUG_TRACE
 else 
 	ifdef EHS_RUNTIME_LOGGER_ENABLED
 		DEFS += EHS_RUNTIME_LOGGER_ENABLED
-	endif
-endif
-
-
-#todo2022 - this should go in the comms.mk file
-ifdef EHS_COMMS_API_SUPPORT
-	ifneq ($(EHS_COMMS_API_SUPPORT), none)
-		EHS_TARGET_COMMS_API_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/comms/$(EHS_COMMS_API_SUPPORT)
-		DEFS+=EHS_COMMS_API_SUPPORT
-		INC_DIRS+=$(EHS_TARGET_COMMS_API_PATH)
-		include $(EHS_TARGET_COMMS_API_PATH)/comms.mk
-		#ifeq ($(EHS_COMMS_API_SUPPORT), bsdsockets)
-			#@todo move the DEF to the comms.mk file
-		#endif
 	endif
 endif
 

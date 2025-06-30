@@ -38,6 +38,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_get_next);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_send_next);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_reset);
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_info); //a function executed by a start port
 //EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_StartFromDisk);
 //EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_clearPlaylist);
 

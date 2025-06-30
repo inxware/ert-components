@@ -7,6 +7,8 @@
 *	<https://www.mozilla.org/en-US/MPL/2.0/>
 ****************************************************************/
 
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -17,7 +19,9 @@
 #include <fcntl.h>
 #ifndef EHS_MINGW
 // #define _GNU_SOURCE
+#ifndef EHS_LWIP
 #include <poll.h>
+#endif // EHS_LWIP
 #warning "need to move poll.h to hal"
 #endif
 
@@ -48,10 +52,9 @@ typedef struct
     struct sockaddr_in remoteConnectionSockAddr; // This stores the address of the remote host (needed for UDP sendto responses
     int remoteConnectionSockAddrSize; // populated with the size of the address struct
     int clientSocket; // the accepted socket used for TCP comms
-    ehs_char data_recv_buf[EHS_STRING_LENGTH_MAX];
-    ehs_char data_send_buf[EHS_STRING_LENGTH_MAX];
-    ehs_char Interface[EHS_STRING_LENGTH_MAX];
-
+    ehs_char data_recv_buf[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH?
+    ehs_char data_send_buf[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!?
+    ehs_char Interface[EHS_STRING_LENGTH_MAX];  //TODO:STRINGLENGTH!?
 } inx_netsocketsrvr_state_type; //Reference this, maybe store your config parameters in here too.
 
 //ICB STATE VAR MACRO END -- DO NOT ALTER
@@ -65,7 +68,6 @@ EHS_FB_FUNCTION_ENTRY("close", 0x02, netsocketsrvr_close)
 
 EHS_FB_FUNCTION_ENTRY("sendData", 0x03, netsocketsrvr_sendData)
 
-//EHS_FB_FUNCTION_ENTRY("receiveData", 0x04, netsocketsrvr_receiveData)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 
@@ -560,7 +562,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_listen)
                 }
                 if (inx_netSocket_state->data_send_size > 0)
                 {
-                    //EHS_FB_START_RUN_FUNCTION(ActualSendData);
+                    EHS_FB_START_RUN_FUNCTION(ActualSendData);
                 }
                 inx_netSocket_state->data_send_size = 0;
                 /* Throttle read rate using configured parameter Not using poll timeout and not sleep for posix*/
@@ -638,7 +640,11 @@ void debugConnections(EhsTgtTcpSockAddrInType * rp)
                  sizeof( hostBfr ),
                  servBfr,
                  sizeof( servBfr ),
+#ifdef EHS_LWIP
+                 0 );
+#else
                  NI_NUMERICHOST | NI_NUMERICSERV );
+#endif
     switch ( rp->ai_family )
     {
     case PF_INET:   /* IPv4 address record. */

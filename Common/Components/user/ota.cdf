@@ -11,9 +11,26 @@
         <UserName/>
         <Menu>
             System
-            <Menu>OTA</Menu>
+            <Menu>
+                OTA Tools
+                <Menu>OTA</Menu>
+            </Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>Data</Type>
+        <Height>190</Height>
+        <Text>OTA</Text>
+        <TextX>25</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <Block>
+        <Type>Data_Processor</Type>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>OTA</Class>

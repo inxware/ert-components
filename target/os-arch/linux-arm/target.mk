@@ -66,6 +66,8 @@ else
    endif
 endif
 
+OBJECTS += spi.$(OBJ)
+
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/target.mk
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/target.mk
 

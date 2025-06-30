@@ -7,7 +7,7 @@ ADDRESS=$1
 ID=$2
 OUT_DIR=$3
 
-LONG_DOWNLOAD_LOCK_FILE="/sdcard/.EHS/.downloading"
+LONG_DOWNLOAD_LOCK_FILE="/storage/emulated/0/Android/data/com.utils.downloader/files/downloading.lock"
 
 # clear lock
 test -f "$LONG_DOWNLOAD_LOCK_FILE" && rm "$LONG_DOWNLOAD_LOCK_FILE"

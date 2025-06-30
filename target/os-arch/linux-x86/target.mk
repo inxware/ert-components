@@ -34,7 +34,16 @@ ifeq ($(TOOLCHAIN_NAME),HOST)
 		#export LIB_DIRS += /usr/lib//usr/lib/x86-linux-gnu/
 	endif
 else
-		#No special target paths here unless we are specific target as below	
+#No special target paths here unless we are specific target as below	
+endif
+
+########################################################################
+#  Set some default toolbox/component librarues for this target type
+########################################################################
+
+# Default to stubbing this for targets that don't declare
+ifndef EHS_PERIPHERALS_GPIO_SUPPORT
+EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
 endif
 
 

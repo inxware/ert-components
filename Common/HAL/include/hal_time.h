@@ -21,7 +21,7 @@
 /* Included files */
 #include "target_types.h"
 #include "target_time.h"
-#include <time.h>
+#include <time.h> // todo 2024 - this should be in target_time.h not in the HAL.
 
 /*****************************************************************************/
 /* Define macros  */
@@ -32,10 +32,26 @@
 
 /* Wall clock date and time functions */
 //Returns seconds since 1970 and the W3C formatted string
-ehs_uint64 EhsHGetdateTime(ehs_char* sZtemp, ehs_bool local, ehs_uint32 format);
-void EhsHDateTimeBreakdown(time_t t, ehs_uint32 *year, ehs_uint32 *month, ehs_uint32 *mday, ehs_uint32 *wday, ehs_uint32 *hour, ehs_uint32 *minute, ehs_uint32 *second);
+ehs_uint64 EhsHGetdateTime(ehs_char* sZtemp, ehs_uint32 sZtempSize, ehs_bool local, ehs_uint32 format);
+void EhsHDateTimeBreakdown(time_t t, ehs_bool local, ehs_uint32 *year, ehs_uint32 *month, ehs_uint32 *mday, ehs_uint32 *wday, ehs_uint32 *hour, ehs_uint32 *minute, ehs_uint32 *second);
 
-ehs_bool EhsHSetDateTime(ehs_char * date_string, ehs_uint32 unix_time, ehs_char * time_zone);
+/**
+ * @brief This returns the local timestamp from unix one
+ * 
+ * @param t pointer to the unix timestamp
+ * @return ehs_uint64 local timestamp
+ */
+ehs_uint64 EhsHGetLocalTimestampFromUnix(time_t *t);
+
+/**
+ * @brief This returns the signed difference between local and unix time (localtime - gmtime)
+ * 
+ * @param t pointer to the unix timestamp
+ * @return ehs_int32 local timestamp - unix timestamp
+ */
+ehs_sint32 EhsHDiffLocalUnix(time_t *t);
+
+ehs_bool EhsHSetDateTime(ehs_char * date_string, ehs_uint32 unix_time, ehs_char * time_zone, ehs_uint32 *time_sec);
 
 #define EHS_uS_PER_S 1000000u
 
@@ -77,13 +93,14 @@ ehs_bool EhsHSetDateTime(ehs_char * date_string, ehs_uint32 unix_time, ehs_char 
 
 /* time conversion macros - optimised for the specific timer resolution of this device */
 #ifdef EHS_TARGET_FIXED_TIMER_RESOLUTION
-#define EHS_TIME_us(x) ((EhsTickType)((x)/EHS_uS_PER_TICK))		/**< Convert a time in microseconds to system ticks */
+#error "Timer conversion in this mode looks wrong!"
+#define EHS_TIME_us(x) ((EhsTickType)((x)/EHS_uS_PER_TICK))		    /**< Convert a time in microseconds to system ticks */
 #define EHS_TIME_ms(x) ((EhsTickType)(x)/(EHS_uS_PER_TICK * 1000u))	/**< Convert a time in ms to system ticks */
-#define EHS_TIME_s(x) ((EhsTickType)((x) * EHS_TICKS_PER_S))	/**< Convert a time in seconds to system ticks */
+#define EHS_TIME_s(x) ((EhsTickType)((x) * EHS_TICKS_PER_S))	    /**< Convert a time in seconds to system ticks */
 #else
-#define EHS_TIME_us(x) (EhsTgtTimer_usToTick(x))							/**< Convert a time in microseconds to system ticks */
-#define EHS_TIME_ms(x) (EhsTgtTimer_usToTick((x)*1000u))					/**< Convert a time in milliseconds to system ticks */
-#define EHS_TIME_s(x) (EhsTgtTimer_usToTick((x)*1000000u))				/**< Convert a time in seconds to system ticks */
+#define EHS_TIME_us(x) (EhsTgtTimer_usToTick(x))			/**< Convert a time in microseconds to system ticks */
+#define EHS_TIME_ms(x) (EhsTgtTimer_usToTick((x)*1000u))	/**< Convert a time in milliseconds to system ticks */
+#define EHS_TIME_s(x) (EhsTgtTimer_usToTick((x)*1000000u))	/**< Convert a time in seconds to system ticks */
 #endif
 
 /**

@@ -35,13 +35,13 @@
  * @todo - should have one version of the following
  * */
 
-typedef const struct
+typedef const struct EhsBlockRefType_struct
 {
-#ifdef EHRT1
+#if ERT_SODL_VERSION > 0
     const ehs_uint16 szName; /**< Function block name */
-#else //#ifdef EHRT1
+#else //#ifdef ERT_SODL_VERSION
     const ehs_char *szName; /**< Function block name */
-#endif //#else #ifdef EHRT1
+#endif //ERT_SODL_VERSION
     ehs_uint16 nVers; /**< Function block version */
     EhsInitFuncType fpInitFunc; /**< The initialise function for this function block */
     EhsDestroyFuncType fpDestroyFunc; /**< The initialise function for this function block */
@@ -61,19 +61,18 @@ typedef const struct
 //#define EHS_BLOCKREF_ENTRY_API2(x,vers) {(EHS_FB_VAR_TO_STRING(x)),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
 //#define EHS_BLOCKREF_ENTRY_WITH_DESTROY(name,x) {(name),(EhsInitFuncType)EHS_FB_INIT_NAME(x), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME(x), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(x),  EHS_FB_FUNCTABLE_NAME(x)}
 //#define EHS_BLOCKREF_ENTRY_WITH_DESTROY_API2(x,vers) {(EHS_FB_VAR_TO_STRING(x)),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME_API2(x,vers), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
-//TODO2022 ASK aptrick what the (0) do in these functions - has the user components got a different implementation??
-#ifdef EHRT1
-#define EHS_BLOCKREF_ENTRY(name,id,x) {(id), (0), (EhsInitFuncType)EHS_FB_INIT_NAME(x), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(x), EHS_FB_FUNCTABLE_NAME(x)}
-#define EHS_BLOCKREF_ENTRY_API2(x,id,vers) {(id), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
-#define EHS_BLOCKREF_ENTRY_WITH_DESTROY(name,id,x) {(id), (0),(EhsInitFuncType)EHS_FB_INIT_NAME(x), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME(x), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(x),  EHS_FB_FUNCTABLE_NAME(x)}
-#define EHS_BLOCKREF_ENTRY_WITH_DESTROY_API2(x,id,vers) {(id), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME_API2(x,vers), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
+#if ERT_SODL_VERSION > 0
+    #define EHS_BLOCKREF_ENTRY(name,id,x) {(id), (0), (EhsInitFuncType)EHS_FB_INIT_NAME(x), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(x), EHS_FB_FUNCTABLE_NAME(x)}
+    #define EHS_BLOCKREF_ENTRY_API2(x,id,vers) {(id), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
+    #define EHS_BLOCKREF_ENTRY_WITH_DESTROY(name,id,x) {(id), (0),(EhsInitFuncType)EHS_FB_INIT_NAME(x), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME(x), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(x),  EHS_FB_FUNCTABLE_NAME(x)}
+    #define EHS_BLOCKREF_ENTRY_WITH_DESTROY_API2(x,id,vers) {(id), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(x,vers), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME_API2(x,vers), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(x,vers),  EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
 #else
-// The original API needed the function block name as quoted string (arg1) and also C envornment function name - resolved in API2
-#define EHS_BLOCKREF_ENTRY(_string_functionBlockName,id,_c_functionBlockName) {(_string_functionBlockName), (0), (EhsInitFuncType)EHS_FB_INIT_NAME(_c_functionBlockName), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(_c_functionBlockName), EHS_FB_FUNCTABLE_NAME(_c_functionBlockName)}
-// API2 avoids duplicating the function name as the 1st and 3rd arguments 
-#define EHS_BLOCKREF_ENTRY_API2(_c_functionBlockName,id,vers) {(EHS_FB_VAR_TO_STRING(_c_functionBlockName)), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(_c_functionBlockName,vers), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(_c_functionBlockName,vers),  EHS_FB_FUNCTABLE_NAME_API2(_c_functionBlockName,vers)}
-#define EHS_BLOCKREF_ENTRY_WITH_DESTROY(_string_functionBlockName,id,_c_functionBlockName) {(_string_functionBlockName), (0),(EhsInitFuncType)EHS_FB_INIT_NAME(_c_functionBlockName), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME(_c_functionBlockName), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(_c_functionBlockName),  EHS_FB_FUNCTABLE_NAME(_c_functionBlockName)}
-#define EHS_BLOCKREF_ENTRY_WITH_DESTROY_API2(_c_functionBlockName,id,vers) {(EHS_FB_VAR_TO_STRING(_c_functionBlockName)), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(_c_functionBlockName,vers), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME_API2(_c_functionBlockName,vers), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(_c_functionBlockName,vers),  EHS_FB_FUNCTABLE_NAME_API2(_c_functionBlockName,vers)}
+    // The original API needed the function block name as quoted string (arg1) and also C envornment function name - resolved in API2
+    #define EHS_BLOCKREF_ENTRY(_string_functionBlockName,id,_c_functionBlockName) {(_string_functionBlockName), (0), (EhsInitFuncType)EHS_FB_INIT_NAME(_c_functionBlockName), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(_c_functionBlockName), EHS_FB_FUNCTABLE_NAME(_c_functionBlockName)}
+    // API2 avoids duplicating the function name as the 1st and 3rd arguments 
+    #define EHS_BLOCKREF_ENTRY_API2(_c_functionBlockName,id,vers) {(EHS_FB_VAR_TO_STRING(_c_functionBlockName)), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(_c_functionBlockName,vers), (EhsDestroyFuncType)NULL, (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(_c_functionBlockName,vers),  EHS_FB_FUNCTABLE_NAME_API2(_c_functionBlockName,vers)}
+    #define EHS_BLOCKREF_ENTRY_WITH_DESTROY(_string_functionBlockName,id,_c_functionBlockName) {(_string_functionBlockName), (0),(EhsInitFuncType)EHS_FB_INIT_NAME(_c_functionBlockName), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME(_c_functionBlockName), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME(_c_functionBlockName),  EHS_FB_FUNCTABLE_NAME(_c_functionBlockName)}
+    #define EHS_BLOCKREF_ENTRY_WITH_DESTROY_API2(_c_functionBlockName,id,vers) {(EHS_FB_VAR_TO_STRING(_c_functionBlockName)), (vers),(EhsInitFuncType)EHS_FB_INIT_NAME_API2(_c_functionBlockName,vers), (EhsDestroyFuncType)EHS_FB_DESTROY_NAME_API2(_c_functionBlockName,vers), (EhsIdentifyFuncType)EHS_FB_IDENTIFY_NAME_API2(_c_functionBlockName,vers),  EHS_FB_FUNCTABLE_NAME_API2(_c_functionBlockName,vers)}
 #endif
 /* IMPORTANT NOTES ON API2 !!!!!!!!
 The iCB tool is currently (2022) is using API2 for both Port event and data and also the component's block entry in the xxxcomponents.c files.
@@ -95,7 +94,8 @@ So for now:
 //@TODO ref tables should be compilable from dlls also - for dynamic builds
 //#define EHS_BLOCKREF_ENTRY_EX(name, x, init, ident) {name,(EhsInitFuncType)init,(EhsDestroyFuncType)NULL,(EhsIdentifyFuncType)ident,EHS_FB_FUNCTABLE_NAME(x)}
 //#define EHS_BLOCKREF_ENTRY_EX_WITH_DESTROY(name, x, init, destroy, ident) {name,(EhsInitFuncType)init,(EhsDestroyFuncType)destroy,(EhsIdentifyFuncType)ident,EHS_FB_FUNCTABLE_NAME(x)}
-#ifdef EHRT1
+// todo2024 - the following looks like it's the same for both versions and I think it should be the same
+#if ERT_SODL_VERSION > 0
 #define EHS_BLOCKREF_ENTRY_EX(name, id, x, init, ident) {id, (0),(EhsInitFuncType)init,(EhsDestroyFuncType)NULL,(EhsIdentifyFuncType)ident,EHS_FB_FUNCTABLE_NAME(x)}
 #define EHS_BLOCKREF_ENTRY_EX_API2(name, id, x, init, ident, vers) {id, (vers),(EhsInitFuncType)init,(EhsDestroyFuncType)NULL,(EhsIdentifyFuncType)ident,EHS_FB_FUNCTABLE_NAME_API2(x,vers)}
 #define EHS_BLOCKREF_ENTRY_EX_WITH_DESTROY(name, id, x, init, destroy, ident) {id, (0),(EhsInitFuncType)init,(EhsDestroyFuncType)destroy,(EhsIdentifyFuncType)ident,EHS_FB_FUNCTABLE_NAME(x)}
@@ -160,10 +160,10 @@ EHS_GLOBAL ehs_bool EhsToolkitTable_addTable(EhsBlockRefType* pTable);
  * @param nVers Vers to search table for
  * @return NULL if no matching name and vers found, or pointer to block reference if it is found.
  */
-#ifndef EHRT1
-EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVers, const ehs_char* szName, ehs_uint16 nVers);
+#if ERT_SODL_VERSION > 0
+    EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVers, const ehs_uint16 szName, ehs_uint16 nVers);
 #else
-EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVers, const ehs_uint16 szName, ehs_uint16 nVers);
+    EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVers, const ehs_char* szName, ehs_uint16 nVers);
 #endif
 
 
@@ -174,13 +174,11 @@ EHS_GLOBAL EhsBlockRefType* EhsBlockRefTable_findObject(ehs_bool * bIncorrectVer
  * @param szName Function name to search table for
  * @return NULL if name not found, or pointer to EhsFuncRefType reference if it is found.
  */
-#ifndef EHRT1
-EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_char* szName);
+#if ERT_SODL_VERSION > 0
+    EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_uint8 szName);
 #else
-EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_uint8 szName);
+    EHS_GLOBAL EhsFuncRefType* EhsBlockRef_findFunction(EhsBlockRefType* block, const ehs_char* szName);
 #endif
-
-
 
 #endif /* EHS_BLOCKREF_TABLE_H */
 

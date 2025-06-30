@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-05-02T10:03:17Z</CreationDate>
-        <UpdatedDate>2023-05-02T10:03:18Z</UpdatedDate>
+        <UpdatedDate>2024-08-28T20:17:11Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>JSON Stream Parser</ShortDescription>
@@ -34,7 +34,7 @@
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xDCB6</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>db71dc89</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>4e49579a</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters/>
@@ -264,6 +264,9 @@
             <YCoordinate>180</YCoordinate>
             <Wcet>0</Wcet>
             <CName>Error</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
             <Function argument="8">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>
@@ -275,6 +278,9 @@
             <XCoordinate>100</XCoordinate>
             <YCoordinate>190</YCoordinate>
             <CName>__</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
             <Function argument="5">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>

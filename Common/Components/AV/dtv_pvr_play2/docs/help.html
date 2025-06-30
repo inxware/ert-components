@@ -1,19 +1,17 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <link href="iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span"> Dtvpvrplay2 </span> <span
-          class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span
-          class="toc_span_items"> <a href="#parameters"> Params &#8595; </a> </span>
-        <span class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </span>
-      </div>
-      <p class="component"> This component is used to play audio or video from
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container"> <span class="toc_span"> Dtvpvrplay2 </span> <span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8595; </a> </span>
+<span class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </span>
+</div>
+<p class="component"> This component is used to play audio or video from
         local media files or stream from remote URLs. If the media is an audio
         file then there is no widget displayed in the GUI, however a widget is
         still required in the GUI Builder, LGB. For video media the position and
@@ -22,8 +20,7 @@
           [In]off.x </a> and <a href="#[In]off.y"> [In]off.y </a> can be used
         to change the position of the widget when the input event <a href="#[In]setWindow">
           [In]setWindow </a> is asserted, by specifying the offset from its
-        original position in the x and y axis respectively. The data inputs <a
-          href="#[In]wid"> [In]wid </a> and <a href="#[In]ht"> [In]ht </a>
+        original position in the x and y axis respectively. The data inputs <a href="#[In]wid"> [In]wid </a> and <a href="#[In]ht"> [In]ht </a>
         can be used to change the width and the height of the widget when the
         input event <a href="#[In]setWindow"> [In]setWindow </a> is asserted.
         It should be noted that the data inputs <a href="#[In]off.x"> [In]off.x
@@ -33,23 +30,20 @@
         to the absolute x and y coordinates of the widget in reference to the
         viewport. This allows the data output to be used to detect if widgets
         are overlapping in the GUI. </p>
-      <p class="component"> The input event <a href="#[In]set%20input"> [In]set
+<p class="component"> The input event <a href="#[In]set%20input"> [In]set
           input </a> is used to load the media file as specified by the data
         input <a href="#[In]path/URL"> [In]path/URL </a> and configure the
         decoder. The input events <a href="#[In]play"> [In]play </a> , <a href="#[In]pause">
           [In]pause </a> , <a href="#[In]reverse"> [In]reverse </a> , <a href="#[In]faster">
           [In]faster </a> , <a href="#[In]slower"> [In]slower </a> and <a href="#[In]stop">
-          [In]stop </a> control the playback of the media. The input events <a
-          href="#[In]faster"> [In]faster </a> and <a href="#[In]slower">
+          [In]stop </a> control the playback of the media. The input events <a href="#[In]faster"> [In]faster </a> and <a href="#[In]slower">
           [In]slower </a> increase and descrease the playback speed by the some
         increment that is implementation specific but typically doubles the
         playback speed each time it is triggered. So to return the playback
-        speed to normal (100%) after doubling the speed 3 times by triggering <a
-          href="#[In]faster"> [In]faster </a> , <a href="#[In]slower">
+        speed to normal (100%) after doubling the speed 3 times by triggering <a href="#[In]faster"> [In]faster </a> , <a href="#[In]slower">
           [In]slower </a> must be triggered 3 times. </p>
-      <p class="component"> During playback, when the input event <a href="#[In]set%20pos">
-          [In]set pos </a> is asserted, the value presented to the data input <a
-          href="#[In]%28%%29"> [In](%) </a> specifies the point (as a
+<p class="component"> During playback, when the input event <a href="#[In]set%20pos">
+          [In]set pos </a> is asserted, the value presented to the data input <a href="#[In]%28%%29"> [In](%) </a> specifies the point (as a
         percentage of the length of the media) at which the media should be
         played from. Similarly when the input event <a href="#[In]set%20time">
           [In]set time </a> is asserted, the value presented to the data input
@@ -57,434 +51,431 @@
         which the media should be played from. Please note, these values are not
         persistent and the media will always play from the start when the input
         event <a href="#[In]play"> [In]play </a> is asserted. </p>
-      <p class="component"> The input events <a href="#[In]to%20front"> [In]to
+<p class="component"> The input events <a href="#[In]to%20front"> [In]to
           front </a> and <a href="#[In]to%20back"> [In]to back </a> are used
         to change the z-order of the widget and bring the media to the front and
         obscure other widgets or to send the media to the back and show other
         widgets on top of it. The input event <a href="#[In]setVol"> [In]setVol
         </a> takes the value presented at the data input <a href="#[In]%28%%29">
           [In](%) </a> and sets the volume of the playback accordingly. </p>
-      <p class="component"> When the input event <a href="#[In]getinfo">
+<p class="component"> When the input event <a href="#[In]getinfo">
           [In]getinfo </a> is asserted, information is presented to the data
-        outputs corresponding to the position (%) and time (s) inputs events <a
-          href="#[In]set%20pos"> [In]set pos </a> and <a href="#[In]set%20time">
+        outputs corresponding to the position (%) and time (s) inputs events <a href="#[In]set%20pos"> [In]set pos </a> and <a href="#[In]set%20time">
           [In]set time </a> . Information is also presented at the data outputs
         <a href="#[Out]length%20info"> [Out]length info </a> and <a href="#[Out]speed%20info">
           [Out]speed info </a> regarding the length of the media (in seconds)
         and the current playback speed (as a percentage of normal speed). </p>
-    </div>
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading"> <span class="toc_span" id="parameters">
+</div>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="parameters">
         Parameters </span>
-      <div class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </div>
-      <div class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </div>
-      <div class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </div>
-    </div>
-    <table class="table_params">
-      <tbody>
-        <tr>
-          <th style="width:60px;"> name </th>
-          <th> type </th>
-          <th> default </th>
-          <th> min. </th>
-          <th> max. </th>
-          <th> description </th>
-        </tr>
-        <tr>
-        </tr>
-        <tr>
-          <td> Widget Tag </td>
-          <td> String </td>
-          <td> None </td>
-          <td> widget </td>
-          <td> widget tag </td>
-          <td> Name of the widget as displayed in the GUI builder. </td>
-        </tr>
-        <tr>
-        </tr>
-        <tr>
-          <td> Widget-Group </td>
-          <td> Selectable </td>
-          <td> None </td>
-          <td> default </td>
-          <td> widget group </td>
-          <td> Group that the widget belongs to in the GUI builder. </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="section_heading"> <span class="toc_span" id="ports"> Ports </span>
-      <span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
-      <span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span
-        class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
-    </div>
-    <table class="table">
-      <tbody>
-        <tr>
-          <th> In Ev. </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <td> <a name="[In]set input"> set input </a> </td>
-          <td>
-            <p class="ports"> Input event, loads the media specified in the data
+<div class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </div>
+<div class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </div>
+<div class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;"> name </th>
+<th> type </th><th> description </th>
+<th> default </th>
+<th> min. </th>
+<th> max. </th>
+
+</tr>
+<tr>
+</tr>
+<tr>
+<td> Widget Tag </td>
+<td> String </td><td> Name of the widget as displayed in the GUI builder. </td>
+<td> None </td>
+<td> widget </td>
+<td> widget tag </td>
+
+</tr>
+<tr>
+</tr>
+<tr>
+<td> Widget-Group </td>
+<td> Selectable </td><td> Group that the widget belongs to in the GUI builder. </td>
+<td> None </td>
+<td> default </td>
+<td> widget group </td>
+
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="ports"> Ports </span>
+<span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
+<span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th> In Ev. </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<td> <a name="[In]set input"> set input </a> </td>
+<td>
+<p class="ports"> Input event, loads the media specified in the data
               input <a href="#[In]path/URL"> [In]path/URL </a> . </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]set pos"> set pos </a> </td>
-          <td>
-            <p class="ports"> Input event, sets the position for playback as
+</td>
+</tr>
+<tr>
+<td> <a name="[In]set pos"> set pos </a> </td>
+<td>
+<p class="ports"> Input event, sets the position for playback as
               specified by the data input <a href="#[In]%28%%29"> [In](%) </a>
               as a percentage of the media length. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]set time"> set time </a> </td>
-          <td>
-            <p class="ports"> Input event, sets the position for playback as
+</td>
+</tr>
+<tr>
+<td> <a name="[In]set time"> set time </a> </td>
+<td>
+<p class="ports"> Input event, sets the position for playback as
               specified by the data input <a href="#[In]%28s%29"> [In](s) </a>
               as time in seconds. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]getinfo"> getinfo </a> </td>
-          <td>
-            <p class="ports"> Input event, when triggered it presents
+</td>
+</tr>
+<tr>
+<td> <a name="[In]getinfo"> getinfo </a> </td>
+<td>
+<p class="ports"> Input event, when triggered it presents
               information to the data outputs regarding current position as a
               percentage of media length, current position as time in seconds,
               the length of the media and the playback speed as a percentage of
               the normal speed. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]play"> play </a> </td>
-          <td>
-            <p class="ports"> Input event, starts playing the media. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]pause"> pause </a> </td>
-          <td>
-            <p class="ports"> Input event, pauses the media. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]reverse"> reverse </a> </td>
-          <td>
-            <p class="ports"> Input event, reverses the direction of play. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]faster"> faster </a> </td>
-          <td>
-            <p class="ports"> Input event, typically doubles the playback speed
+</td>
+</tr>
+<tr>
+<td> <a name="[In]play"> play </a> </td>
+<td>
+<p class="ports"> Input event, starts playing the media. </p>
+</td>
+</tr>
+<tr>
+<td> <a name="[In]pause"> pause </a> </td>
+<td>
+<p class="ports"> Input event, pauses the media. </p>
+</td>
+</tr>
+<tr>
+<td> <a name="[In]reverse"> reverse </a> </td>
+<td>
+<p class="ports"> Input event, reverses the direction of play. </p>
+</td>
+</tr>
+<tr>
+<td> <a name="[In]faster"> faster </a> </td>
+<td>
+<p class="ports"> Input event, typically doubles the playback speed
               but is implementation specific. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]slower"> slower </a> </td>
-          <td>
-            <p class="ports"> Input event, typically halves the play speed but
+</td>
+</tr>
+<tr>
+<td> <a name="[In]slower"> slower </a> </td>
+<td>
+<p class="ports"> Input event, typically halves the play speed but
               is implementation specific. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]stop"> stop </a> </td>
-          <td>
-            <p class="ports"> Input event, stps the media from playing. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]setVol"> setVol </a> </td>
-          <td>
-            <p class="ports"> Input event, sets the volume of the playback. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]setWindow"> setWindow </a> </td>
-          <td>
-            <p class="ports"> Input event, sets the widget properties to the
+</td>
+</tr>
+<tr>
+<td> <a name="[In]stop"> stop </a> </td>
+<td>
+<p class="ports"> Input event, stps the media from playing. </p>
+</td>
+</tr>
+<tr>
+<td> <a name="[In]setVol"> setVol </a> </td>
+<td>
+<p class="ports"> Input event, sets the volume of the playback. </p>
+</td>
+</tr>
+<tr>
+<td> <a name="[In]setWindow"> setWindow </a> </td>
+<td>
+<p class="ports"> Input event, sets the widget properties to the
               values presented at the data inputs <a href="#[In]off.x">
                 [In]off.x </a> , <a href="#[In]off.y"> [In]off.y </a> , <a href="#[In]w">
                 [In]w </a> and <a href="#[In]h"> [In]h </a> . </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]to front"> to front </a> </td>
-          <td>
-            <p class="ports"> Input event, brings the media player to the front.
+</td>
+</tr>
+<tr>
+<td> <a name="[In]to front"> to front </a> </td>
+<td>
+<p class="ports"> Input event, brings the media player to the front.
             </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]to back"> to back </a> </td>
-          <td>
-            <p class="ports"> Input event, sends the media player to the front.
+</td>
+</tr>
+<tr>
+<td> <a name="[In]to back"> to back </a> </td>
+<td>
+<p class="ports"> Input event, sends the media player to the front.
             </p>
-          </td>
-        </tr>
-        <tr>
-          <th> Data In </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <td> <a name="[In]path/URL"> path/URL </a> </td>
-          <td>
-            <p class="ports"> Data input, the media file path or URL to be
+</td>
+</tr>
+<tr>
+<th> Data In </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<td> <a name="[In]path/URL"> path/URL </a> </td>
+<td>
+<p class="ports"> Data input, the media file path or URL to be
               loaded. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In](%)"> (%) </a> </td>
-          <td>
-            <p class="ports"> Data input, the position from which to play the
+</td>
+</tr>
+<tr>
+<td> <a name="[In](%)"> (%) </a> </td>
+<td>
+<p class="ports"> Data input, the position from which to play the
               media. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In](s)"> (s) </a> </td>
-          <td>
-            <p class="ports"> Data input, the position from which to play the
+</td>
+</tr>
+<tr>
+<td> <a name="[In](s)"> (s) </a> </td>
+<td>
+<p class="ports"> Data input, the position from which to play the
               media. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In](%)"> (%) </a> </td>
-          <td>
-            <p class="ports"> Data input, the volume of the playback as a
+</td>
+</tr>
+<tr>
+<td> <a name="[In](%)"> (%) </a> </td>
+<td>
+<p class="ports"> Data input, the volume of the playback as a
               percentage. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]off.x"> off.x </a> </td>
-          <td>
-            <p class="ports"> Data input, specifies the offset in the x axis of
+</td>
+</tr>
+<tr>
+<td> <a name="[In]off.x"> off.x </a> </td>
+<td>
+<p class="ports"> Data input, specifies the offset in the x axis of
               the widget from its initial position. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]off.y"> off.y </a> </td>
-          <td>
-            <p class="ports"> Data input, specifies the offset in the y axis of
+</td>
+</tr>
+<tr>
+<td> <a name="[In]off.y"> off.y </a> </td>
+<td>
+<p class="ports"> Data input, specifies the offset in the y axis of
               the widget from its initial position. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]w"> w </a> </td>
-          <td>
-            <p class="ports"> Data input, specifies the width of the widget. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[In]h"> h </a> </td>
-          <td>
-            <p class="ports"> Data input, specifies the height of the widget. </p>
-          </td>
-        </tr>
-        <tr>
-          <th> Data Out </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <td> <a name="[Out]meta"> meta </a> </td>
-          <td>
-            <p class="ports"> Data output, presents meta data contained in media
+</td>
+</tr>
+<tr>
+<td> <a name="[In]w"> w </a> </td>
+<td>
+<p class="ports"> Data input, specifies the width of the widget. </p>
+</td>
+</tr>
+<tr>
+<td> <a name="[In]h"> h </a> </td>
+<td>
+<p class="ports"> Data input, specifies the height of the widget. </p>
+</td>
+</tr>
+<tr>
+<th> Data Out </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<td> <a name="[Out]meta"> meta </a> </td>
+<td>
+<p class="ports"> Data output, presents meta data contained in media
               file when input event <a href="#[In]set%20input"> [In]set input </a>
               is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]---info"> ---info </a> </td>
-          <td>
-            <p class="ports"> Data output, the position from which to play the
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]---info"> ---info </a> </td>
+<td>
+<p class="ports"> Data output, the position from which to play the
               media. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]---info"> ---info </a> </td>
-          <td>
-            <p class="ports"> Data output, the position from which to play the
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]---info"> ---info </a> </td>
+<td>
+<p class="ports"> Data output, the position from which to play the
               media. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]length info"> length info </a> </td>
-          <td>
-            <p class="ports"> Data output, the length of the media in seconds. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]speed info"> speed info </a> </td>
-          <td>
-            <p class="ports"> Data output, the current playback speed as a
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]length info"> length info </a> </td>
+<td>
+<p class="ports"> Data output, the length of the media in seconds. </p>
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]speed info"> speed info </a> </td>
+<td>
+<p class="ports"> Data output, the current playback speed as a
               percentage of normal. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]abs x"> abs x </a> </td>
-          <td>
-            <p class="ports"> Data output, the x coordinate of the widget
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]abs x"> abs x </a> </td>
+<td>
+<p class="ports"> Data output, the x coordinate of the widget
               relative to the viewport origin. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]abs y"> abs y </a> </td>
-          <td>
-            <p class="ports"> Data output, the y coordinate of the widget
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]abs y"> abs y </a> </td>
+<td>
+<p class="ports"> Data output, the y coordinate of the widget
               relative to the viewport origin. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]w"> w </a> </td>
-          <td>
-            <p class="ports"> Data output, the width of the widget. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]h"> h </a> </td>
-          <td>
-            <p class="ports"> Data output, the height of the widget. </p>
-          </td>
-        </tr>
-        <tr>
-          <th> Out Ev. </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]w"> w </a> </td>
+<td>
+<p class="ports"> Data output, the width of the widget. </p>
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]h"> h </a> </td>
+<td>
+<p class="ports"> Data output, the height of the widget. </p>
+</td>
+</tr>
+<tr>
+<th> Out Ev. </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]------------"> ------------ </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]------------"> ------------ </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]------------"> ------------ </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]------------"> ------------ </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]ended"> ended </a> </td>
-          <td>
-            <p class="ports"> Output event, is asserted when the media has
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]ended"> ended </a> </td>
+<td>
+<p class="ports"> Output event, is asserted when the media has
               ended. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-        <tr>
-          <td> <a name="[Out]----------"> ---------- </a> </td>
-          <td>
-            <p class="ports"> Output event, triggered when corresponding input
+</td>
+</tr>
+<tr>
+<td> <a name="[Out]----------"> ---------- </a> </td>
+<td>
+<p class="ports"> Output event, triggered when corresponding input
               event is asserted. </p>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="section_heading"> <span class="toc_span" id="misc"> Misc </span>
-      <span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
-      <span class="toc_span_items"> <a href="#ports"> Ports &#8593; </a> </span> <span
-        class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
-    </div>
-    <table>
-      <tbody>
-        <tr class="fsm_row">
-          <td style="width:90px;"> <b> State Machine </b> </td>
-          <td colspan="5"> Stateless. </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Toolbox </b> </td>
-          <td> AV. </td>
-          <td class="heading-cell"> <b> Version </b> </td>
-          <td> v2.1. </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Licence Type </b> </td>
-          <td> MPL2.0 </td>
-          <td class="heading-cell"> <b> Component Supplier </b> </td>
-          <td> <a href="http://www.inx-systems.net" target="_blank"> inx ltd. </a>
-          </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Minumum DCC </b> </td>
-          <td> A0000 </td>
-          <td class="heading-cell"> <b> Profiles </b> </td>
-          <td> All. </td>
-        </tr>
-      </tbody>
-    </table>
-  </body>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="misc"> Misc </span>
+<span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
+<span class="toc_span_items"> <a href="#ports"> Ports &#8593; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
+</div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b> State Machine </b> </td>
+<td colspan="5"> Stateless. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Toolbox </b> </td>
+<td> AV. </td>
+<td class="heading-cell"> <b> Version </b> </td>
+<td> v2.1. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Licence Type </b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b> Component Supplier </b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank"> inx ltd. </a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Minumum DCC </b> </td>
+<td> A0000 </td>
+<td class="heading-cell"> <b> Profiles </b> </td>
+<td> All. </td>
+</tr>
+</tbody>
+</table>
+</body>
 </html>

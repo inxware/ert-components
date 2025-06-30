@@ -33,7 +33,13 @@ typedef unsigned char	ehs_uint8; /**< standard 8-bit unsigned type */
 typedef char			ehs_sint8; /**< standard 8-bit signed type */
 typedef unsigned char	ehs_bool; /**< Standard boolean type */
 typedef char			ehs_char; /**< Standard char type */
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+typedef float			ehs_float; /**< Standard EHS floating point type */
+#define EHS_FL_FMT "%f" /**< scanf format string for ehs_float */
+#else
 typedef double			ehs_float; /**< Standard EHS floating point type */
+#define EHS_FL_FMT "%lf" /**< scanf format string for ehs_float */
+#endif
 
 typedef int			EhsThreadFuncReturnType; /**< Type to return from a thread function */
 
@@ -72,5 +78,13 @@ typedef int EhsTargetIntType;
 #ifndef NULL
 #define NULL ((void*)0)
 #endif
+
+#ifndef EHS_MEMORY_ATTRIB
+#define EHS_MEMORY_ATTRIB
+#endif
+
+#ifndef EHS_DATA_MEMORY_ATTRIB
+#define EHS_DATA_MEMORY_ATTRIB
+#endif//EHS_DATA_MEMORY_ATTRIB
 
 #endif /* EHS_TARGET_TYPES_H */

@@ -1,0 +1,124 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Display Backlight</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      Set the dislpay backlight intensity in terms of percentage.
+    </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">Name</th>
+<th>Type</th><th>Description</th>
+<th>Default</th>
+<th>Min.</th>
+<th>Max.</th>
+
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]set_intensity">set</a></td>
+<td>Event to set the display backlight intensity.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]intensity">intensity</a></td>
+<td>Desired intensity level for the backlight. From 0 to 100.
+          It will be clipped to 0 or 100 if it's out of range.
+        </td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]done">done</a></td>
+<td>Indicates the backlight intensity has been set.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

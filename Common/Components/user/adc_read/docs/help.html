@@ -1,176 +1,152 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <div class="page_container" style="font-size: x-small;">
-      <div id="toc_container"> <span class="toc_span">adc_read</span>
-        <!--these display in reverse order because they use float:right--> <span
-          class="toc_span_items"><a href="#misc">Misc ?</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params ?</a></span> <span class="toc_span_items"><a
-            href="#ports">Ports ?</a></span> </div>
-      This component takes analogue data and converts it into a digital, real
-      value.<br>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container" style="font-size: x-small;">
+<div id="toc_container"> <span class="toc_span">adc_read</span>
+<span class="toc_span_items"><a href="#misc">Misc ?</a></span>
+<span class="toc_span_items"><a href="#parameters">Params ?</a></span>
+<span class="toc_span_items"><a href="#ports">Ports ?</a></span>
+</div>
+      This component reads analogue data from an ADC (Analog-to-Digital Converter) channel and converts it into a digital value. It supports continuous sampling and configurable parameters for channel selection, clock rate, and averaging.
       <p class="component"> </p>
-      <!--Parameters - form - short desc: long desc-->
-      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top ?</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc ?</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports ?</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-            <th style="width:60px;">name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>min.</th>
-            <th>max.</th>
-            <th>description</th>
-          </tr>
-          <tr>
-            <td>channel</td>
-            <td>integer</td>
-            <td>0</td>
-            <td>0</td>
-            <td><br>
-            </td>
-            <td>The unique channel number that you are receiving data from</td>
-          </tr>
-          <tr>
-            <td style="height: 15.2px;">enable_continuous</td>
-            <td>Boolean</td>
-            <td>False</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>clock_rate_hz</td>
-            <td>integer</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>Average</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
-        <span class="toc_span_items"><a href="#toc_container">Top ?</a></span> <span
-          <span="" class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
-        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table class="table">
-      </table>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports">Set Channel</td>
-            <td>Set Channel</td>
-          </tr>
-          <tr>
-            <td>Sample</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]channel">channel</a></td>
-            <td>Data in</td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]value">value</a></td>
-            <td>Outputs the digital value of the analogue data</td>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]--">--</a></td>
-            <td>Finish read</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
-        <span class="toc_span_items"><a href="#toc_container">Top ?</a></span> <span
-          class="toc_span_items"><a href="#ports">Ports ?</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params ? </a></span> </div>
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5">
-              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>          &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]          <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
-              None </td>
-            <td> <br>
-            </td>
-            <td> <br>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> Core </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v1.0. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+<!-- Parameters -->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top ?</a></div>
+<div class="toc_span_items"><a href="#misc">Misc ?</a></div>
+<div class="toc_span_items"><a href="#ports">Ports ?</a></div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+<tr>
+<td>channel</td>
+<td>integer</td><td>The unique channel number that the ADC will read from</td>
+<td>0</td>
+<td>0</td>
+<td>4096</td>
+
+</tr>
+<tr>
+<td>enable_continuous</td>
+<td>boolean</td><td>Enable or disable continuous sampling mode</td>
+<td>false</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+<tr>
+<td>clock_rate_hz</td>
+<td>float</td><td>Clock rate in Hz for continuous mode operation</td>
+<td>1</td>
+<td>0</td>
+<td>9000000000</td>
+
+</tr>
+<tr>
+<td>Average</td>
+<td>integer</td><td>Number of acquisitions to average for smoothing the output</td>
+<td>1</td>
+<td>0</td>
+<td>1000000</td>
+
+</tr>
+</tbody>
+</table>
+<!-- Ports -->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top ?</a></span>
+<span class="toc_span_items"><a href="#misc">Misc ?</a></span>
+<span class="toc_span_items"><a href="#parameters">Params ?</a></span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th>In Ev.</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports">Set Channel</td>
+<td>Starts the ADC read operation for a specific channel</td>
+</tr>
+<tr>
+<td>Sample</td>
+<td>Initiates a sampling operation</td>
+</tr>
+<tr>
+<th>Data In</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]channel">channel</a></td>
+<td>Input to select the channel to read from</td>
+</tr>
+<tr>
+<th>Data Out</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]value">value</a></td>
+<td>Outputs the digital value of the analog data</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]--">--</a></td>
+<td>Indicates the completion of the read operation</td>
+</tr>
+</tbody>
+</table>
+<!-- Misc -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top ?</a></span>
+<span class="toc_span_items"><a href="#ports">Ports ?</a></span>
+<span class="toc_span_items"><a href="#parameters">Params ?</a></span>
+</div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b>State Machine</b> </td>
+<td colspan="5">None</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Toolbox</b> </td>
+<td> Core </td>
+<td class="heading-cell"> <b>Version</b> </td>
+<td> v1.0. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Licence Type</b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b>Component Supplier</b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Minumum DCC</b> </td>
+<td>A0000</td>
+<td class="heading-cell"> <b>Profiles</b> </td>
+<td> All. </td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
 </html>

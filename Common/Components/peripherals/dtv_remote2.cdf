@@ -11,7 +11,10 @@
         <UserName/>
         <Menu>
             Peripherals
-            <Menu>Remote Control Units</Menu>
+            <Menu>
+                User Inputs
+                <Menu>Remote Control Unit</Menu>
+            </Menu>   
         </Menu>
     </Description>
     <Block>

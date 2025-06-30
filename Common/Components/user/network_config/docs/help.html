@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Network Config</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!-- General Description -->
+<p class="component">
+      Configures network interface.
+    </p>
+<!-- Parameters -->
+<div class="section_heading">
+<span class="toc_span" id="function">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+<th>description</th>
+</tr>
+</table>
+<!-- Ports -->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]status">status</a></td>
+<td>Get network status.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]get">get</a></td>
+<td>Get network information.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]set">set</a></td>
+<td>Set the network config.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]mode">mode</a></td>
+<td>Network mode.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]address">address</a></td>
+<td>Network address.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]gateway">gateway</a></td>
+<td>Network gateway.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]mask">mask</a></td>
+<td>Network mask.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]dns">dns</a></td>
+<td>Network dns.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]statusGot">--</a></td>
+<td>Got the network status.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]infoGot">--</a></td>
+<td>Got the network information.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]infoSet">--</a></td>
+<td>Set network information done.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]connected">connected</a></td>
+<td>Network connected.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]info_err">err</a></td>
+<td>Network info get error number.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]got_mode">mode</a></td>
+<td>Network information mode.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]got_address">address</a></td>
+<td>Network information address.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]got_gateway">gateway</a></td>
+<td>Network information gateway.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]got_mask">mask</a></td>
+<td>Network information mask.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]got_dns">dns</a></td>
+<td>Network information dns.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]set_err">err</a></td>
+<td>Network info set error number.</td>
+</tr>
+</table>
+<!-- Miscellaneous -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          N/A
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b></td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b></td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

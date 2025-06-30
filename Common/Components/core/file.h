@@ -50,6 +50,8 @@
 #define ERR_INVALID_FORMAT						6
 #define ERR_INVALID_PRECISION					7
 #define ERR_STRING_COPY_FAILED					8
+#define ERR_NO_DATA_SIZE_IN_BIN_MODE			9
+#define ERR_DATA_SIZE_TOO_LARGE			        10
 
 /* utility function prototypes */
 int GetFilename(const char *pParams, char *szFileName,char *szFileTempExtension);

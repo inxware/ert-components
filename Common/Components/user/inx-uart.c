@@ -23,6 +23,10 @@ static EhsDataflowStringType gEHsUartRecvMsg = NULL;
 static int gEhsUartRecvLen = 0;
 static int gSendReturnCode = 1;
 
+#ifndef EHS_TARGET_UART_COUNT 
+#define EHS_TARGET_UART_COUNT 1
+#endif//EHS_TARGET_UART_COUNT 
+
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(UART)
@@ -138,8 +142,16 @@ EHS_FB_RUN_FUNCTION(UART_start)
 				  gTargetUartPinRx[port],
 				  gTargetUartPinRts[port],
 				  gTargetUartPinCts[port],
-				  19200,
-				  3, 2, 0, 0);
+				  gUARTBaudRate[port],
+				  //TODO2024 fix the constant parameters. See the docstring in target_uart.c
+				  // Data Length
+				  3,
+				  // Parity
+				  gUARTParity[port],
+				  // Stop Bits
+				  gUARTStopBits[port],
+				  // Flow Control
+				  gUARTHWCTRL[port]);
 	if (inx_UART_state->RS485 == EHS_TRUE)
 		TgtUart_RS485Setup(port);
 	TgtUART_Intr_register(port, Common_UART_onReceive);

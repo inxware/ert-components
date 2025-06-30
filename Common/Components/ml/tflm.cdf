@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2024-08-14T10:46:06Z</CreationDate>
+        <UpdatedDate>2024-08-14T10:48:28Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Run machine learning models with limited resources</ShortDescription>
+        <LongDescription>Run machine learning models with limited resources like a few kilobytes of memory.</LongDescription>
+        <UserName/>
+        <Menu>
+            Machine Learning
+            <Menu>Tensor Flow Lite Micro</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data</Type>
+        <Height>95</Height>
+        <Text>ML</Text>
+        <TextX>25</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>TFLM</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x1005</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>a8cfdb74</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>model_type</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <Description>Model Type</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>load_model</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>do_inference</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>load</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <CName>load_model</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>model</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <CName>model_file_path</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>load_ok</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>load_error</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>errno</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>32</YCoordinate>
+            <CName>load_errno</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>do</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>47</YCoordinate>
+            <CName>do_inference</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>47</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>done_inference</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>data</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>57</YCoordinate>
+            <CName>data</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>output</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>57</YCoordinate>
+            <CName>output</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>class/regression</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>67</YCoordinate>
+            <CName>class_regression</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

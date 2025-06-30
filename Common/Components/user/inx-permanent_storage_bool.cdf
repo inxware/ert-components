@@ -13,7 +13,7 @@
             File System
             <Menu>
                 NV Storage
-                <Menu>Boolean</Menu>
+                <Menu>bool</Menu>
             </Menu>
         </Menu>
     </Description>

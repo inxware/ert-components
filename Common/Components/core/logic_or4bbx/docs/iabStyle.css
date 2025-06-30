@@ -1,0 +1,99 @@
+/* Base styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.page_container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Table of Contents */
+#toc_container {
+    background-color: #f8f9fa;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.toc_span {
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+.toc_span_items {
+    float: right;
+    margin-left: 10px;
+}
+
+.toc_span_items a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+/* Section Headings */
+.section_heading {
+    background-color: #e9ecef;
+    padding: 10px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+/* Tables */
+.table_params, .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px; /* Add spacing after tables */
+}
+
+.table_params th, .table th {
+    background-color: #f8f9fa;
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #dee2e6;
+}
+
+.table_params td, .table td {
+    padding: 10px;
+    border: 1px solid #dee2e6;
+}
+
+/* Component Description */
+.component {
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+/* Ports */
+.ports {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Heading Cells */
+.heading-cell {
+    font-weight: bold;
+    background-color: #f8f9fa;
+}
+
+/* FSM Row */
+.fsm_row {
+    background-color: #f8f9fa;
+}
+
+/* Links */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+} 

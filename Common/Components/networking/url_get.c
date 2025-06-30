@@ -100,16 +100,13 @@ static CURL * _global_curl=NULL;
 
 #endif
 
-/* Some internal limits */
-#define EHS_STRING_LENGTH_MAX_LARGE (EHS_STRING_LENGTH_MAX*4) //@todo formalise this
-
 struct EhsFbUrlGetStruct   //Note make all ints and bools ehs_uint32 to avoid scanf ("%d") problem overwriting the next entry...!
 {
     ehs_bool bBusy; /* This is set when a thread starts and is unset when the thread is complete (We don't do multiple gets yet).*/
 
     ehs_bool bPost; /*Make the http a POST not GETrequest.*/
 
-    ehs_uint16 nCertificateLocation; /* ssl certificate base location  0:not set,  1:user, 2 : app, 3:devman, 4:system, 5:os root */
+    ehs_uint16 nCertificateLocation; /* ssl certificate base location  0:Operating System default,  1:user, 2 : app, 3:devman, 4:system, 5:not set */
     /* Not currently used.
     	 * ehs_char szHeaderReceived[EHS_STRING_LENGTH_MAX];
     	 */
@@ -126,14 +123,14 @@ struct EhsFbUrlGetStruct   //Note make all ints and bools ehs_uint32 to avoid sc
     CURL *curl; /* THis allows session cookies to be used for this one block*/
     /*	EhsCallbackQueueEntryType xCallbackOut; [ internal system variable!! */
 
-    ehs_char szHeaderToSend[EHS_STRING_LENGTH_MAX]; // comma separated list of header lines (libcurl format)
-    ehs_char szHeadersReceived[EHS_STRING_LENGTH_MAX]; // comma separated list of header lines (libcurl format)
+    ehs_char szHeaderToSend[EHS_STRING_LENGTH_MAX]; // comma separated list of header lines (libcurl format) //TODO:STRINGLENGTH!
+    ehs_char szHeadersReceived[EHS_STRING_LENGTH_MAX]; // comma separated list of header lines (libcurl format) //TODO:STRINGLENGTH!
 
-    ehs_char szSslCertificatePath[EHS_STRING_LENGTH_MAX]; /* SSL client certificate filename (in secure directory)*/
-    ehs_char szSslCertificatePassword[EHS_STRING_LENGTH_MAX]; /* SSL key filename if it has one */
-    ehs_char szCaSslCertificate[EHS_STRING_LENGTH_MAX];   /* SSL host certificate file (overrides system ones) */
+    ehs_char szSslCertificatePath[EHS_STRING_LENGTH_MAX]; /* SSL client certificate filename (in secure directory)*/ //TODO:STRINGLENGTH!
+    ehs_char szSslCertificatePassword[EHS_STRING_LENGTH_MAX]; /* SSL key filename if it has one */ //TODO:STRINGLENGTH!
+    ehs_char szCaSslCertificate[EHS_STRING_LENGTH_MAX];   /* SSL host certificate file (overrides system ones) */ //TODO:STRINGLENGTH!
     ehs_char szURL[EHS_MAX_URL_LENGTH]; //todo check this legnth rubbish out one day!
-    ehs_char szPostData[EHS_STRING_LENGTH_MAX];
+    ehs_char szPostData[EHS_STRING_LENGTH_MAX*8]; //TODO:STRINGLENGTH!!! This can be pretty big no? and may need to as big as a dynamic size port
     ehs_char szSavePath[EHS_STRING_LENGTH_MAX];
     ehs_char szActualSavePath[EHS_STRING_LENGTH_MAX]; // this is constructed from the above and URL information.
     ehs_char szUname[EHS_STRING_LENGTH_MAX];
@@ -346,25 +343,19 @@ int ehs_curl_debug_callback(CURL *handle, curl_infotype type, char *data, size_t
 
     switch (type) {
         case CURLINFO_TEXT:
-            //printf("[INFO] %.*s", (int)size, data);
             EHSH_LOG_ERROR("CURL [INFO] %.*s", (int)size, data);
             break;
         case CURLINFO_HEADER_IN:
-            //printf("[HEADER_IN] %.*s", (int)size, data);
             EHSH_LOG_ERROR("CURL [HEADER_IN] %.*s", (int)size, data);
             break;
         case CURLINFO_HEADER_OUT:
-            //printf("[HEADER_OUT] %.*s", (int)size, data);
             EHSH_LOG_ERROR("CURL [HEADER_OUT] %.*s", (int)size, data);
             break;
         case CURLINFO_DATA_IN:
-            //printf("[DATA_IN] %.*s", (int)size, data);
-           // EHSH_LOG_ERROR("CURL [DATA_IN] %.*s", (int)size, data);
+            // EHSH_LOG_ERROR("CURL [DATA_IN] %.*s", (int)size, data);
             break;
         case CURLINFO_DATA_OUT:
-            //printf("[DATA_OUT] %.*s", (int)size, data);
           //  EHSH_LOG_ERROR("CURL [DATA_OUT] %.*s", (int)size, data);
-
             break;
         default: /* Do nothing */ ;
     }
@@ -403,7 +394,6 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
 
     EhsTPMutex_unlock(EhsTPMutex_UrlGet);
     EHSH_LOG_INFO("========Started Getting path [%s] : URL[%s]",pUrlGet->szActualSavePath, pUrlGet->szURL);
-    //LOGI("EHS_FB_THREAD_FUNCTION(GetUrl_thread) \n");
     Ehs_FB_ThreadStarted();
     /* Invariant initialisation - create a read buffer for data also */
     /* make our read buffer no greater than the EHS_STRING_LENGTH_MAX as this is all we can push onto the bus*/
@@ -469,19 +459,27 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
         switch (pUrlGet->nCertificateLocation)
         {
         case 3 : //devman - use the devman paths if no others are provided. provided ones must be located in in ./devman/core/certs
-            if (EhsStrlen(pUrlGet->szSslCertificatePath)>0)
-                EhsStrcpy(szTempFilePath,pUrlGet->szSslCertificatePath);
-            else
-                EhsStrcpy(szTempFilePath,EHS_DEVMAN_CLIENT_CERTIFICATE_KEY);
-
-            if (EhsStrlen(pUrlGet->szCaSslCertificate)>0)
-                EhsStrcpy(szTempFilePath2,pUrlGet->szCaSslCertificate);
-            else
-                EhsStrcpy(szTempFilePath2,EHS_DEVMAN_CA_CERTIFICATE);
-            use_ca_certificate = EHS_TRUE;
-            use_client_certificate = EHS_TRUE;
+            if (EhsStrlen(pUrlGet->szSslCertificatePath)>0) {
+                EhsStrcpy(szTempFilePath,pUrlGet->szSslCertificatePath); 
+                use_client_certificate = EHS_TRUE;
+            } else {
+                //EhsStrcpy(szTempFilePath,EHS_DEVMAN_CLIENT_CERTIFICATE_KEY); // not needed if we have dynamic domain checking
+//                printf("------------------------>1\n");
+                use_client_certificate = (EhsHGetDevmanCombinedClientCertificateKeyPath(szTempFilePath,pUrlGet->szURL) > 0 );
+            }
+            if (EhsStrlen(pUrlGet->szCaSslCertificate)>0) {
+                EhsStrcpy(szTempFilePath2,pUrlGet->szCaSslCertificate); 
+                use_ca_certificate = EHS_TRUE;
+            } else {
+ //               printf("------------------------>2\n");
+                //EhsStrcpy(szTempFilePath2,EHS_DEVMAN_CA_CERTIFICATE);  
+                use_ca_certificate = (EhsHGetDevmanCaCertificatePath(szTempFilePath2,pUrlGet->szURL) > 0);
+            }            
             break;
-        case 0 : // app
+        case 0 : // Operating System 
+        //todo 2025 - currently most systems only work if the cert bundle we provide in the Devman/core/certs directory are installed.
+                use_client_certificate = (EhsHGetDevmanCombinedClientCertificateKeyPath(szTempFilePath,pUrlGet->szURL) > 0 );
+            break;
         case 1 : // any user
         case 2 : // this user (private space for app \todo make app-specific private user space.
         case 4 : // system
@@ -528,29 +526,27 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
             EHSH_LOG_INFO("Could not set certificate root location %d. Ignoring certificates",pUrlGet->nCertificateLocation);
             break;
         }
-
-        if (use_client_certificate == EHS_TRUE)
+        if (EhsStrlen(pUrlGet->szSslCertificatePassword) > 0)
         {
-            if (EhsStrlen(pUrlGet->szSslCertificatePassword) > 0)
-            {
-                EhsHSetUpClientTlsCertificate(PURLLGET_CURL, location, szTempFilePath, NULL /* combined in PEM */, pUrlGet->szSslCertificatePassword);
-                EHSH_LOG_INFO("Setting a cert password");
-            }
-            else
-            {
-                EHSH_LOG_ERROR("NOT Setting a cert passwod");
-                EhsHSetUpClientTlsCertificate(PURLLGET_CURL, location, szTempFilePath, NULL /* combined in PEM */, NULL);
-            }
-
-        }
-        if (use_ca_certificate == EHS_TRUE)   // use custom CA certificates
-        {
-            EHSH_LOG_INFO("Setting CA custom path to [%s]",szTempFilePath2);
-            EhsHSetUpCaTlsCertificate(PURLLGET_CURL, location, szTempFilePath2);
+            EhsHSetUpClientTlsCertificate(PURLLGET_CURL, location, szTempFilePath, NULL /* combined in PEM */, pUrlGet->szSslCertificatePassword);
+            EHSH_LOG_INFO("Setting a cert password");
         }
         else
         {
-            EHSH_LOG_ERROR("Couldn't set custom cert path. Setting CA Defalt path to [%s]",EHS_DEVMAN_CA_CERTIFICATE);
+            EHSH_LOG_ERROR("NOT Setting a cert passwod");
+            printf("------------------------>3\n");
+                
+            EhsHSetUpClientTlsCertificate(PURLLGET_CURL, location, szTempFilePath, NULL /* combined in PEM */, NULL);
+        }
+        if (use_ca_certificate == EHS_TRUE)   // use custom CA certificates
+        {
+                EHSH_LOG_INFO("Setting CA custom path to [%s]",szTempFilePath2);
+                printf("------------------------%s>4\n",szTempFilePath2);
+            
+                EhsHSetUpCaTlsCertificate(PURLLGET_CURL, location, szTempFilePath2);
+        }
+        else
+        {    
             EhsHSetUpCaTlsCertificate(PURLLGET_CURL, location, EHS_DEVMAN_CA_CERTIFICATE);
         }
     } // ed of init sub scope
@@ -594,7 +590,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     /* If there are passwords set then use them */
     if ((EhsStrlen(pUrlGet->szUname) > 0))
     {
-        EHSH_LOG_ERROR("!!!!!!!!! Setting Crdentials Get username = %s : %s \n",pUrlGet->szUname,pUrlGet->szPasswd);
+        //EHSH_LOG_INFO("!!!!!!!!! Setting Crdentials Get username = %s : %s \n",pUrlGet->szUname,pUrlGet->szPasswd);
         EhsStrcpy(server_info.http_username, pUrlGet->szUname);
         EhsStrcpy(server_info.http_password, pUrlGet->szPasswd);
         EhsHSetUpServerSecurity(PURLLGET_CURL, &server_info);
@@ -613,7 +609,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
         //curl_easy_setopt(PURLLGET_CURL, CURLOPT_COOKIELIST,"ALL"); /* clears all cookies (but enables the cookie session from now on ??? weird) */
     }/* here to force merge decision read next line!!!! */
     /* Use this it's an override for the cookie session. not exclusive with send Cookies which is really don't remember cookies */
-    /*
+    /* todo2024 re-instate this?ss
     if (EhsStrlen(pUrlGet->szCookiesToSend)) {
     	curl_easy_setopt(PURLLGET_CURL, CURLOPT_COOKIE, pUrlGet->szHeaderToSend);
     } else {
@@ -728,11 +724,11 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                 Ehs_MakePath(szCanonicalFilePath, EHS_TRUE);
                 pUrlGet->write_data_buffer_struct->filehandle = Ehs_UserFopen(szTempFilePath2, "wb");
 #else
+                /* todo2024 Need to document this. Seems to try the file lots of different ways in case of a fopen issue?*/
                 pUrlGet->write_data_buffer_struct->filehandle = Ehs_UserFopen(szTempFilePath2, "w");
                 if ( pUrlGet->write_data_buffer_struct->filehandle &&
                         ( fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF ) )
                 {
-
                     EHSH_LOG_ERROR(" Download file descriptor error. trying again : fd= %d\n",fileno(pUrlGet->write_data_buffer_struct->filehandle));
                     FILE * f = pUrlGet->write_data_buffer_struct->filehandle;
                     pUrlGet->write_data_buffer_struct->filehandle = Ehs_UserFopen(szTempFilePath2, "w");
@@ -741,30 +737,25 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                            ( fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF ) )
                     {
                         EHSH_LOG_ERROR(" Download file descriptor error - retry unseccessful:  fd = %d\n",fileno(pUrlGet->write_data_buffer_struct->filehandle));
-                        request_config_error = EHS_TRUE; //- todo we could still try to revocer this?
+                        request_config_error = EHS_TRUE; //- todo we could still try to recover this?
                         ret32 = -1;
                     }
-
                 }
                 else
                 {
                     /* Try an actual command and retry also */
-                    EHSH_LOG_ERROR("++ 12\n");
                     fseek(pUrlGet->write_data_buffer_struct->filehandle,0,SEEK_SET); // * check the file */
                     if (fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF )
                     {
                         FILE *  f;
-                        EHSH_LOG_ERROR("++ 13\n");
                         f = pUrlGet->write_data_buffer_struct->filehandle;
                         pUrlGet->write_data_buffer_struct->filehandle = Ehs_UserFopen(szTempFilePath2, "w"); // try again and hope for the best
                         EhsFclose(f);
                     }
                 }
 #endif
-
                 if (!pUrlGet->write_data_buffer_struct->filehandle)
                 {
-                    //EHSH_LOG_ERROR("++ 14\n");
                     EHSH_LOG_ERROR("Couldn't write file %s\n",pUrlGet->szActualSavePath);
                     ret32 = -1;
                     request_config_error = EHS_TRUE;
@@ -818,7 +809,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     {
         EhsFclose(pUrlGet->write_data_buffer_struct->filehandle);
         pUrlGet->write_data_buffer_struct->filehandle = NULL;
-        EHSH_LOG_ERROR("!!!!Checking status of downloaded file %s\n",szTempFilePath2);
+        //EHSH_LOG_ERROR("!!!!Checking status of downloaded file %s\n",szTempFilePath2);
         bFileexists = Ehs_UserStat(szTempFilePath2, &statbuf); //@todo We want a hal_file version of stat - should have localpath// exemption.
         if (statbuf.st_size == EHS_TRUE) request_config_error = EHS_TRUE;
     }
@@ -855,7 +846,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
         }
 
     }
-    else     // NEtworking Problem - leve all as is
+    else     // Networking Problem - leve all as is
     {
         EHSH_LOG_ERROR(" Not got %s", szTempFilePath2);
         if (pUrlGet->bWriteToFile) Ehs_UserRm(szTempFilePath2); // tidy up the temp file if we coldn't actually download it.
@@ -874,6 +865,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
             if (szRedirect && success == CURLE_OK) EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_FINALURL), szRedirect);
             else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_FINALURL), "");
         }
+/* todo 2024 - re-instate this for community version*/
 #ifdef ENABLE_GET_HEADERS
         if ( EHS_FB_OUT_CONNECTED(EHS_FB_URLGET_HEADERS))   /* move to a function call! */
         {
@@ -916,29 +908,28 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
 
         }
 #endif
+        /* handle existing when a new app is downloaded */
         if (*bNewSodlFlagRef)
         {
-            EHSH_LOG_INFO(" New SODL exit");
             goto getyourcoat;
         }
-        EHSH_LOG_INFO(" Still here");
+        /* Report what happened if good or bad */
         if (request_config_error == EHS_FALSE)
         {
-            EHSH_LOG_INFO(" Firing Good");
             EhsTPMutex_lock(EhsTPMutex_fbIO);
-            EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), "OK: HTTP: 200"); //@todo add the errornumber "ERROR: HTTP %d",ret)
-            EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = 200; //@todo this have the actual http return value.
-            EHS_FB_FINISH(EHS_FB_URLGET_DATACOMPLETE); //@todo we Need a all data complete version of this and a chunk version
+            if(pUrlGet->write_data_buffer_struct->bAbort==EHS_FALSE){ // only notify compleate if not aborted
+                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), "OK: HTTP: 200"); //@todo add the errornumber "ERROR: HTTP %d",ret)
+                EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = ret32; //@todo this have the actual http return value.
+                EHS_FB_FINISH(EHS_FB_URLGET_DATACOMPLETE); //@todo we Need a all data complete version of this and a chunk version
+            }
             EhsTPMutex_unlock(EhsTPMutex_fbIO);
         }
         else
         {
-            EHSH_LOG_INFO(" Firing Error!  ");
             EhsTPMutex_lock(EhsTPMutex_fbIO);
             EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), "Internal File System Error"); //@todo add the errornumber "ERROR: HTTP %d",ret)
             EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = ret32;
             EHS_FB_FINISH(EHS_FB_URLGET_ERROR);
-            //EHS_FB_FINISH(EHS_FB_URLGET_DATACOMPLETE); //In this fail mode we possiby still have outut all the data
             EhsTPMutex_unlock(EhsTPMutex_fbIO);
         }
     }
@@ -1029,7 +1020,6 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                 EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), szTempString); //@todo add the errornumber "ERROR: HTTP %d",ret)
                 EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = ret32;
                 EHS_FB_FINISH(EHS_FB_URLGET_DATACOMPLETE); //@todo we Need a all data complete version of this and a chunk version
-                //EHS_FB_FINISH(EHS_FB_URLGET_ERROR); - assuming this isn't error if it can occur
             }
         }
         else     /* Didn't need to do - we can ignore network errors as we would only get here if the network worked sifficiently to know what we have is OK*/
@@ -1047,7 +1037,6 @@ getyourcoat:
         curl_easy_cleanup(PURLLGET_CURL);
     } /* clean up only if the app has finished */
 error:
-
     EhsHURLfree_write_data_buffer(pUrlGet->write_data_buffer_struct); // Don't worry this checks for null
     pUrlGet->bBusy = EHS_FALSE;
     Ehs_FB_ThreadComplete();
@@ -1120,11 +1109,9 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(UrlGet_get)
         EhsSnprintf(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING),EHS_STRING_LENGTH_MAX,"Busy with %s",pUrlGet->szURL);
         //EHSH_LOG_ERROR("xxxxxxxx BUSY with %s getting [%s]",pUrlGet->szURL,EHS_FB_IN_S(EHS_FB_URLGET_URL ));
         OK = EHS_FALSE;
-        EHS_FB_FINISH(EHS_FB_URLGET_ERROR);
     }
     else
     {
-        //EHSH_LOG_ERROR("xxxxxxxx NOT BUSY with %s getting [%s]",pUrlGet->szURL,EHS_FB_IN_S(EHS_FB_URLGET_URL));
         EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING),"");
         EhsFunctionInstanceDataType* blob = (EhsFunctionInstanceDataType*) pFIdata;
         if (EHS_FB_IN_CONNECTED(EHS_FB_URLGET_URL ))
@@ -1145,8 +1132,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(UrlGet_get)
         } // else is the default and connection is constant at runtime
         if (EHS_FB_IN_CONNECTED(EHS_FB_URLGET_URLDIRDUMP))
         {
-            pUrlGet->nPathLevelsToIgnore
-                = EHS_FB_IN_I(EHS_FB_URLGET_URLDIRDUMP);
+            pUrlGet->nPathLevelsToIgnore = EHS_FB_IN_I(EHS_FB_URLGET_URLDIRDUMP);
         }
         if (EHS_FB_IN_CONNECTED(EHS_FB_URLGET_PRIORITY))
         {
@@ -1196,6 +1182,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(UrlGet_get)
         {
             pUrlGet->bDataPortConnected=EHS_FALSE;
         }
+        /* Check status and either do things, setting flags as required */
         if (OK)  //@todo need to update EHS_FB_START_THREAD with thread priority info in here
         {
             EHS_UrlGet_CreateSavePath(pUrlGet); // construct a save path
@@ -1205,7 +1192,6 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(UrlGet_get)
         }
         else
         {
-            // Don't change this - we may still be busy...  : pUrlGet->bBusy = EHS_FALSE;
             EHS_FB_FINISH(EHS_FB_URLGET_ERROR);
         }
     }

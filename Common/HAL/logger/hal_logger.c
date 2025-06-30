@@ -99,13 +99,14 @@ ehs_char* EhsLModuleNames[] =
 #endif
 
 /*****************************************************************************/
-/* Variables defined with global-scope */
-#ifdef EHS_RUNTIME_LOGGER_ENABLED
+
 /**
  * Indicates the current log level for each moduel
  */
 EhsHLoggerLogLevel EhsHLoggerModuleLogLevel[EHS_LOG_MODULE_QUANTITY];
 
+/* Variables defined with global-scope */
+#ifdef EHS_RUNTIME_LOGGER_ENABLED
 /**
  * Temporary string used by EHSH_LOG_ macros to write message
  */
@@ -114,6 +115,15 @@ ehs_char EhsHLogger_Msg[EHSH_LOG_MAX_MSG];
 
 /*****************************************************************************/
 /* Function definitions */
+
+ehs_char* EhsHLogger_Buffer()
+{
+#ifdef EHS_RUNTIME_LOGGER_ENABLED
+    return EhsHLogger_Msg;
+#else
+    return NULL;
+#endif
+}
 
 /**
  * Initialise the logger subsystem

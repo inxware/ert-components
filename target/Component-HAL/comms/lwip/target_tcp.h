@@ -26,7 +26,7 @@
 
 // this isn't actually needed here:
 #include "lwip/sockets.h"
-
+#include "lwip/netdb.h" // needed for tcpip client & server function blocks
 /**
  * Used to perform Logging of TCP/IP data
  */

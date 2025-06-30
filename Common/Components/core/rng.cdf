@@ -51,6 +51,26 @@
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
         </Parameter>
+        <Parameter>
+            <Name>min</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-2147483648</MinValue>
+            <MaxValue>2147483647</MaxValue>
+            <Description>Minimum value of the range</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>max</Name>
+            <DataType>I</DataType>
+            <DefaultValue>100</DefaultValue>
+            <MinValue>-2147483648</MinValue>
+            <MaxValue>2147483647</MaxValue>
+            <Description>maximum value of the range</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
     </Parameters>
     <Functions>
         <Function>

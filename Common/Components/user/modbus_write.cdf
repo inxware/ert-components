@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+        <UpdatedDate>2024-06-17T15:26:18Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>MODBUS-RT value output/write</ShortDescription>
@@ -12,15 +12,15 @@
         <Menu>
             Peripherals
             <Menu>
-                MODBUS Client
-                <Menu>Modbus Out</Menu>
+                MODBUS
+                <Menu>MODBUS Master Write</Menu>
             </Menu>
         </Menu>
     </Description>
     <Block>
         <Type>IO</Type>
-        <Width>105</Width>
-        <Height>50</Height>
+        <Width>115</Width>
+        <Height>80</Height>
         <Text>MODBUS Out</Text>
         <TextX>5</TextX>
         <TextY>5</TextY>
@@ -30,15 +30,58 @@
         <LocationY>-15</LocationY>
     </Block>
     <FBID>
-        <ERT1_ID>0</ERT1_ID>
+        <ERT1_ID>1</ERT1_ID>
         <Class>modbus_write</Class>
     </FBID>
     <Hashes>
         <NameHash_CRC16>0x7801</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>5eceb5dc</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>359ad833</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
-    <Parameters/>
+    <Parameters>
+        <Parameter>
+            <Name>device_id</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>255</MaxValue>
+            <Description>MODBUS bus ID</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+            <DisplayOnWidget>
+                <x>40</x>
+                <y>30</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>reg_type</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <Description>Register type from 0 to 3</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+            <DisplayOnWidget>
+                <x>40</x>
+                <y>40</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>reg_addr</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>65535</MaxValue>
+            <Description>Register Address</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+            <DisplayOnWidget>
+                <x>40</x>
+                <y>50</y>
+            </DisplayOnWidget>
+        </Parameter>
+    </Parameters>
     <Functions>
         <Function>
             <name>write</name>
@@ -56,24 +99,13 @@
             <CName>write</CName>
             <Function argument="0">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>channel</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>20</YCoordinate>
-            <CName>channel</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
             </Function>
         </Port>
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>10</YCoordinate>
             <Wcet>0</Wcet>
             <CName>finishwrite</CName>
@@ -86,9 +118,64 @@
             <Description>value</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>20</YCoordinate>
+            <YCoordinate>50</YCoordinate>
             <CName>value</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>register</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>register</CName>
             <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>Error</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>error_code</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>device</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>device</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>type</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>type</CName>
+            <Function argument="4">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>

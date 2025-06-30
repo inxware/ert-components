@@ -6,8 +6,16 @@
 # not, please visit 
 #	<https://www.mozilla.org/en-US/MPL/2.0/>
 #---------------------------------------------------------------#
-
+# default is using library built with 32k instruction cache
 ifeq ($(TOOLCHAIN_NAME),xtensa-esp32s3-elf-5.1)
+    ESP32_TOOLCHAIN_MATCH = 1
+endif
+# this is using library built with 16k instruction cache
+ifeq ($(TOOLCHAIN_NAME),xtensa-esp32s3-elf-5.1-16k)
+    ESP32_TOOLCHAIN_MATCH = 1
+endif
+
+ifeq ($(ESP32_TOOLCHAIN_MATCH),1)
 # add v5.1 specific configuration
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/esp32s3_freertos-xtensa/toolchain_idf_5_1_x.mk
 else ifeq ($(TOOLCHAIN_NAME),xtensa-esp32s3-elf-4.4.4)

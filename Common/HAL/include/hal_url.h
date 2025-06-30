@@ -15,8 +15,12 @@
  *
  */
 
+//todo2025 - we should abstract this a little further and hide the libcurl handle part. 
+//move to target/Component-HAL/libcurl/ - we will then also have lwip and possibly greengrass versions
+
 #include "globals.h" // need stuff from a few places in the hal
-#include "hal-api.h"
+//#include "hal-api.h"
+#include "hal_file.h"
 #include "curl/curl.h"
 
 ehs_bool EhsHURLGlobalInit() ;
@@ -60,7 +64,7 @@ typedef ehs_uint32 (*EhsHURLget_write_chunk_CB)(void * userdata,void * bufferdat
  */
 typedef struct EhsHwrite_data_buffer
 {
-    FILE *filehandle; /* File handle, if not null data will also be written into here */
+    ehs_FILE *filehandle; /* File handle, if not null data will also be written into here */
     //ehs_char poisontest1[64];
     ehs_uint32 size;   /* size of buffer chunk */
     ehs_uint32 current_position; /* NUmber of bytes downloaded */
@@ -107,8 +111,7 @@ ehs_bool EhsHCreateQueryString(CURL * curl,ehs_char * current_querystring, ehs_c
 ehs_bool EhsHCreateQueryStringNum( ehs_char * current_post, ehs_char * tag,
                                    const ehs_uint32 value, ehs_uint32 max_length);
 
-
-EHS_GLOBAL RuntimePathType xdirectory_type;
+/* This doesn't seem to be used any more - TODO2025 DELETE extern untimePathType xdirectory_type; */
 
 /* Security and authentication configuration */
 ehs_bool EhsHSetUpClientTlsCertificate(CURL *curl, RuntimePathType directory_type, ehs_char * cert_path,ehs_char * key_path, ehs_char * pPassphrase);
@@ -172,5 +175,12 @@ EhsH_URLwrite_data_bufferType * EhsHDoAllGenericConfig (CURL * curl,EhsNetworkSe
  */
 ehs_bool EhsHURLConfigPostGet(CURL *curl,EhsH_URLwrite_data_bufferType * buffer_struct,const ehs_char* URL, const ehs_char* post_data,ehs_bool bPost);
 long EhsHURLdoRequest(CURL *curl);
+
+/* certifcate path checker for Devman installed certificates */
+
+ehs_uint8 EhsHGetDevmanCombinedClientCertificateKeyPath(ehs_char* pCertPath,const ehs_char * pServerUrl);
+ehs_uint8 EhsHGetDevmanClientCertificateKeyPaths(ehs_char* pCertPath,ehs_char* pKeyPath,const ehs_char * pServerUrl);
+ehs_uint8 EhsHGetDevmanCaCertificatePath(ehs_char* pCertPath,const ehs_char * pServerUrl);
+
 
 #endif

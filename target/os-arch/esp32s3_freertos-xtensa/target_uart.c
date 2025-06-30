@@ -141,7 +141,7 @@ int TgtUart_Start(int UART_num, int tx_io, int rx_io, int rts_io, int cts_io, in
         uart_config_t uart_config = {
             .baud_rate = baudrate,
             .data_bits = UART_WORD_LENGTH[databits],
-            .parity = UART_PARITY[parity],
+            .parity = gEhsUART_PARITY[parity],
             .stop_bits = UART_STOP_BITS[stop_bits],
             .flow_ctrl = UART_HW_FLOWCTRL[flow_control],
             .source_clk = UART_SCLK_APB,
@@ -319,7 +319,7 @@ int TgtUART_Intr_register(int UART_num, uart_cb_func_t cb_func)
     {
         UART_CALLBACK_FUNCTIONS[UART_num] = cb_func;
         sprintf(task_str, "uart_event_task-%d", UART_num);
-        xReturned = xTaskCreate(UART_ISR_espressif, task_str, 2048, ( void * ) UART_num, 12, &(UART_statusData[UART_num].intrCtxObj));
+        xReturned = xTaskCreate(UART_ISR_espressif, task_str, 3072, ( void * ) UART_num, EHS_PRI_UART, &(UART_statusData[UART_num].intrCtxObj));
         if (xReturned != pdPASS)
         {
             UART_statusData[UART_num].intrCtxObj = NULL;

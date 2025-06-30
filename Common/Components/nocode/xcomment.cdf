@@ -11,11 +11,7 @@
         <LongDescription/>
         <UserName/>
         <Menu>
-            Software Structure
-            <Menu>
-                Function Blocks
-                <Menu>Comment Block</Menu>
-            </Menu>
+            Comment Block
         </Menu>
     </Description>
     <Block>

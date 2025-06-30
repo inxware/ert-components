@@ -42,7 +42,7 @@ typedef struct
     {
         struct
         {
-            ehs_char szBitmapName[EHS_STRING_LENGTH_MAX]; /**< Filename holding the bitmap */
+            ehs_char szBitmapName[EHS_STRING_LENGTH_MAX]; /**< Filename holding the bitmap */ //TODO:STRINGLENGTH!
             ehs_uint8 nImageAlpha ; /** This is a value for the whole image's alpha value */
         } xBitmap;
         struct

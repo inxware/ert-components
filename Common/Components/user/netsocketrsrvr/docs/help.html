@@ -1,209 +1,212 @@
-<html>
+<!DOCTYPE html>
 
+<html lang="en">
 <head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
-
 <body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">Socket Server</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
-      This function block provides a TCP IP ot UDP IP socket that listens for incoming connections and data.  
-    </p>  
-    <p class=component>
-      State behaviour: The component is stateful and must be in the open state to send or receive data (TCP or UDP). 
-      Only one client at a time may connect with the socket until it is disconnected by the client or the server is closed and re-opened.
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Socket Server</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      This function block provides a TCP or UDP socket that listens for incoming connections and data. The socket server can handle communication over a specified network interface and port, operating in either TCP or UDP mode. The component must be in the open state to send or receive data, and it can only manage one client connection at a time. After a client disconnects, the socket must be closed and reopened to accept new connections.
     </p>
-    <p class=component>
-      On receiving data the client IP address is assrted on an output port. Further data may be sent by the client in following packets. There is no marshalling of data by the function block and overruns are possible with large data packets! 
+<p class="component">
+      On receiving data, the client's IP address is asserted on an output port. The function block does not buffer or marshal incoming data, so large data packets may cause overruns if not consumed immediately. The socket server can send data back to the client while maintaining the connection until explicitly closed.
     </p>
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-      <tr>
-        <td>Interface</td>
-        <td>S</td>
-        <td></td>
-        <td>0</td>
-        <td>256</td>
-        <td>The remote network interface to connect to.</td>
-      </tr>
-      <tr>
-        <td>Port</td>
-        <td>I</td>
-        <td>8000</td>
-        <td>0</td>
-        <td>65535</td>
-        <td>The IP port to connect to.</td>
-      </tr>
-      <tr>
-        <td>udp</td>
-        <td>I</td>
-        <td>0</td>
-        <td>0</td>
-        <td>1</td>
-        <td>set to 1 for UDP data grams and 0 for TCP data streams.</td>
-      </tr>
-    </table>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
 
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]open>open</a></td>
-        <td>Opens the port provided and listens for connections</td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]close>close</a></td>
-        <td>Closes the port provided and stops listening for TCP and UDP connections and data packets</td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]send>send</a></td>
-        <td>Send data to connected client.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]url>url</a></td>
-        <td>The local IP inteface on which to listen for connections (typically localhost/127.0.0.01).</td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]port>port</a></td>
-        <td>The local IP port on which to listen for connections.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]data>data</a></td>
-        <td>Data to send to client. Binary or string data may be sent, but null terminated string format is expected of there is no dta length specified.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]inSize>inSize</a></td>
-        <td>Size of data buffer to send back to the client.</td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[Out]data>data</a></td>
-        <td>Data received. NUll terminated string. -> Note this is not buffered so must be consumed immediately (e.g. into a FIFO) to ensure large data streams are acquired</td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[Out]size>size</a></td>
-        <td>Number of bytes received.</td>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[Out]Received>Received</a></td>
-        <td>Data received. NUll terminated string. -> Note this is not buffered so must be consumed immediately (e.g. into a FIFO) to ensure large data streams are acquired</td>
-      </tr>
+</tr>
+<tr>
+<td>Interface</td>
+<td>S</td><td>The network interface to use for connections.</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
 
-    </table>
+</tr>
+<tr>
+<td>Port</td>
+<td>I</td><td>The port number to listen on for incoming connections.</td>
+<td>8000</td>
+<td>0</td>
+<td>100000</td>
 
+</tr>
+<tr>
+<td>udp</td>
+<td>I</td><td>Set to 1 for UDP mode, 0 for TCP mode.</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
 
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
-          <span class="fsm_blob">state2</span>
-          &otimes;&nbsp;
-          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;
-          <span class="fsm_blob">state5</span> -->
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]open">open</a></td>
+<td>Opens the socket on the specified port and interface to listen for incoming connections.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]close">close</a></td>
+<td>Closes the socket and stops listening for incoming connections.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]send">send</a></td>
+<td>Sends data to the connected client.</td>
+</tr>
+<tr>
+<th>Data In</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]IF">IF</a></td>
+<td>The network interface to use (e.g., localhost or specific IP).</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]port">port</a></td>
+<td>The port to use for the socket connection.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]data">data</a></td>
+<td>Data to send to the client. Can be binary or string format.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]inSize">inSize</a></td>
+<td>The size of the data buffer to send to the client.</td>
+</tr>
+<tr>
+<th>Data Out</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]data">data</a></td>
+<td>Data received from the client. Must be consumed immediately to prevent loss.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]size">size</a></td>
+<td>Number of bytes received.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]source">source</a></td>
+<td>The source IP address of the client that sent the data.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]opened">opened</a></td>
+<td>Indicates the socket is open and ready to receive connections.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]closed">closed</a></td>
+<td>Indicates the socket has been closed.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]error">error</a></td>
+<td>Indicates an error occurred during operation.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]received">received</a></td>
+<td>Indicates data has been received from the client.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]sent">sent</a></td>
+<td>Indicates data has been successfully sent to the client.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]sendError">sendError</a></td>
+<td>Indicates an error occurred while sending data.</td>
+</tr>
+</table>
+<!-- Miscellaneous -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
           None
         </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
           Network/Level1
         </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
           v1.0.
         </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
           MPL2.0
         </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
           Networking.
         </td>
-      </tr>
-    </table>
-
-  </div>
+</tr>
+</table>
+</div>
 </body>
-
 </html>

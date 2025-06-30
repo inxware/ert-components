@@ -50,6 +50,9 @@ static EhsCallbackQueueType xWifiStationCallbackQueue;
 
 static ehs_bool gEhsStatusWifiStationDisconnected = EHS_FALSE;
 
+// used for the wifi connecting state machine
+static volatile eWifiStationConnectState gEhsWifiStationConnectState = WifiStationConnectState_IDLE;
+
 #define EHS_WIFISTATION_THREADLOOP_SLEEP_TIME_S 1
 
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
@@ -127,6 +130,54 @@ static void EhsWifiStationSetCBSource(enum eWifiStationCallbackSource source)
 static enum eWifiStationCallbackSource EhsWifiStationGetCBSource()
 {
 	return sWifiStationCallbackSource;
+}
+
+const char* WifiStationConnectStateString(eWifiStationConnectState state)
+{
+	const char* state_str = "WifiStationConnectState_UNKNOWN";
+	switch (state)
+	{
+	case WifiStationConnectState_IDLE:
+		state_str = "WifiStationConnectState_IDLE";
+		break;
+	case WifiStationConnectState_INIT:
+		state_str = "WifiStationConnectState_INIT";
+		break;
+	case WifiStationConnectState_CONFIGURE:
+		state_str = "WifiStationConnectState_CONFIGURE";
+		break;
+	case WifiStationConnectState_CONNECT:
+		state_str = "WifiStationConnectState_CONNECT";
+		break;
+	case WifiStationConnectState_CONNECTING:
+		state_str = "WifiStationConnectState_CONNECTING";
+		break;
+	case WifiStationConnectState_CONNECTING_GOT_IP:
+		state_str = "WifiStationConnectState_CONNECTING_GOT_IP";
+		break;
+	case WifiStationConnectState_CONNECTED:
+		state_str = "WifiStationConnectState_CONNECTED";
+		break;
+	case WifiStationConnectState_FAILED:
+		state_str = "WifiStationConnectState_FAILED";
+		break;
+	default:
+		break;
+	};
+	return state_str;
+}
+
+eWifiStationConnectState getWifiStationConnectState()
+{
+	return gEhsWifiStationConnectState;
+}
+
+void setWifiStationConnectState(eWifiStationConnectState state)
+{
+	gEhsWifiStationConnectState = state;
+#if EHS_ESP32_DISABLE_LOGS != 1
+	printf("********* %s *********\n",WifiStationConnectStateString(state));
+#endif
 }
 
 EHS_FB_THREAD_FUNCTION(wifi_station_thread)

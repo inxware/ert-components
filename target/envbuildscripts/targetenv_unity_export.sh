@@ -121,12 +121,18 @@ function ExportUnityAndroidStudio() {
     echo "Copying EHS Unity project ($EHS_UNITY_PROJECT_ROOT) to $EHS_UNITY_PROJECT_PATH"
     cp -r $EHS_UNITY_PROJECT_ROOT $EHS_UNITY_PROJECT_PATH || CancelFailed
 
+    # overwrite with latest eRT plugins (make sure both plugins are uptodate)
+    echo "Copying 32-bit ehs plugin to Unity project"
+    cp ${EHS_ANDROID_LIB_FILE} "$EHS_UNITY_PROJECT_PATH/Assets/Libs/arm/libnative-activity.so" || CancelFailed
+    echo "Copying 64-bit ehs plugin to Unity project"
+    cp ${DEPENDENCY_FILE} "$EHS_UNITY_PROJECT_PATH/Assets/Libs/arm64/libnative-activity.so" || CancelFailed
+
     # make sure that Unity toolchain is present
     PrepareUnityToolchain
 
     echo "***************************************"
     echo "******  Build Unity 3d project   ******"
-    echo "***************************************"    
+    echo "***************************************"
 
     # using android sdk/ndk that is part of Unity toolchain
     # set enviroment vars
@@ -167,12 +173,6 @@ function ExportUnityAndroidStudio() {
     # replace versions in the files
     sed -i "s/versionName ${CURRENT_VERSION_NAME}/versionName ${NEW_VERSION_NAME}/g" $ANDROID_STUDIO_ROOT/launcher/build.gradle || CancelFailed
     sed -i "s/versionCode $CURRENT_VERSION_CODE/versionCode $NEW_VERSION_CODE/g" $ANDROID_STUDIO_ROOT/launcher/build.gradle || CancelFailed
-
-    # overwrite with latest eRT plugins (make sure both plugins are uptodate)
-    echo "Copying 32-bit ehs plugin to Unity project"
-    cp ${EHS_ANDROID_LIB_FILE} "$EHS_UNITY_PROJECT_PATH/Assets/Libs/arm/libnative-activity.so" || CancelFailed
-    echo "Copying 64-bit ehs plugin to Unity project"
-    cp ${DEPENDENCY_FILE} "$EHS_UNITY_PROJECT_PATH/Assets/Libs/arm64/libnative-activity.so" || CancelFailed
 }
 
 

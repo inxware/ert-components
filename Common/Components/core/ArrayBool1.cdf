@@ -15,7 +15,7 @@
                 Buffers
                 <Menu>
                     Array
-                    <Menu>Bool</Menu>
+                    <Menu>bool</Menu>
                 </Menu>
             </Menu>
         </Menu>

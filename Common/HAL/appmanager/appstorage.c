@@ -37,7 +37,12 @@ ehs_bool EhsAppMakeDirString(ehs_char * dest, const ehs_char * dirname,const ehs
 #ifndef INX_SODL_IN_FLASH
     if (dest && dirname)
     {
-        EhsStrcpy(dest,EhsHMetaGetInstPath()); // todo - we should prolly configure this for function for mini falsh devies anyway
+#ifdef EHS_ESP32_SUPPORT
+        // on esp32 target '/appdata' is a partition and not located within inst path
+        EhsStrcpy(dest,"");
+#else
+        EhsStrcpy(dest,EhsHMetaGetInstPath());
+#endif
         EhsStrcat(dest, EHS_TD_FILES_SEPARATOR_STR EHS_SYS_APP_BASE_DIR EHS_TD_FILES_SEPARATOR_STR );
         //EhsdirnameStrcat(dest,"\\" EHS_SYS_APP_BASE_DIR "\\");
 
@@ -117,10 +122,13 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
         }
     }
 #endif
+    /* this checks if download token exists in *_dl directory, then moves it to 
+     * a live direcory (removes _dl postfix)
+     */
     EhsAppMakeDownloadString(appdir_x, canonicalName); /* First check if the download is valid */
     EhsStrcat(appdir_x, EHS_TD_FILES_SEPARATOR_STR );
     EhsStrcat(appdir_x, EHS_SYS_APP_DOWNLOAD_OK_TOKEN);
-    if (EhsTF_exists(appdir_x) > 0 || EhsStrcmp(canonicalName,"temp") == 0 )   /* We only do this if there is valid version or the debugger's temp apps*/
+    if (EhsTF_exists(appdir_x) > 0)   /* We only do this if there is valid version or the debugger's temp apps*/
     {
         EHSH_LOG_INFO("Found valid download for %s",canonicalName);
         EhsAppMakePreviousDirString(appdir_x, canonicalName); /* Shift Current to previous */
@@ -138,42 +146,50 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
         //}
         /*Switch download app to live */
         EhsAppMakeLiveDirString(appdir, canonicalName);
-        //if (ret == 2) { /* Happy Path */
-        if ( EhsStrcmp(canonicalName,"temp") != 0)
+
+        if (EhsHRename(appdir, appdir_x) == EHS_FALSE)
         {
-            if (EhsHRename(appdir, appdir_x) == EHS_FALSE)
-            {
-                EHSH_LOG_WARNING("Can't backup current app %s\n to \n%s\n",appdir,appdir_x);
-                ret = 1;/* Can't backup up current app */
-            }
-
-            //} else { /* We can't make a back up so we delete the current live version*/
-            //	if (EhsTF_rmdir(appdir) == EHS_FALSE) {
-            //		EHSH_LOG_WARNING("Can't remove current application %s",canonicalName);
-            //		ret = 1;
-            //	}
-            //}
-            EhsAppMakeDownloadString(appdir_x, canonicalName);
-
-            if (EhsHRename(appdir_x, appdir) == EHS_FALSE)
-            {
-                //EHSH_LOG_INFO
-                ret = 0; /* default to default make download live */
-            }
-            else
-            {
-                ret = 2; /* made directory OK - don't need this... */
-                EHSH_LOG_INFO("Set app %s to live\n%s\n->%s\n",canonicalName,appdir_x,appdir);
-            }
+            EHSH_LOG_WARNING("Can't backup current app %s\n to \n%s\n",appdir,appdir_x);
+            ret = 1;/* Can't backup up current app */
         }
-        else ret = 2;
 
+        //} else { /* We can't make a back up so we delete the current live version*/
+        //	if (EhsTF_rmdir(appdir) == EHS_FALSE) {
+        //		EHSH_LOG_WARNING("Can't remove current application %s",canonicalName);
+        //		ret = 1;
+        //	}
+        //}
+        EhsAppMakeDownloadString(appdir_x, canonicalName);
+
+        if (EhsHRename(appdir_x, appdir) == EHS_FALSE)
+        {
+            //EHSH_LOG_INFO
+            ret = 0; /* default to default make download live */
+        }
+        else
+        {
+            ret = 2; /* made directory OK - don't need this... */
+            EHSH_LOG_INFO("Set app %s to live\n%s\n->%s\n",canonicalName,appdir_x,appdir);
+        }
     }
-    else
-    {
-        EHSH_LOG_ERROR("App %s does not have a valid new download version",canonicalName);
-        ret = 10; /* no flag present not doing anything*/
+    // make sure that we have a valid app, and if not request download of default app
+    if(ret > 0){
+        EhsAppMakeLiveDirString(appdir, canonicalName);
+        EhsStrcat(appdir, EHS_TD_FILES_SEPARATOR_STR );
+        EhsStrcat(appdir, EHS_DEFAULT_SODL_NAME );
+        if (EhsTF_exists(appdir) == EHS_FALSE) { // check if the app exists
+            ret = 0; // try default
+        }
     }
+    if(ret == 0){
+        EhsAppMakeLiveDirString(appdir, EHS_SYS_DEFAULT_APP2RUN);
+        EhsStrcat(appdir, EHS_TD_FILES_SEPARATOR_STR );
+        EhsStrcat(appdir, EHS_DEFAULT_SODL_NAME );
+        if (EhsTF_exists(appdir) == EHS_FALSE) { // check if the app exists
+            ret = 10; // no app even in the default directy, return download default request if not installed
+        }
+    }
+    
     return ret;
 #else
     return 2;
@@ -201,7 +217,7 @@ ehs_bool EhsAppSetDefaultApp(ehs_char * app)
     }
     return ret;
 #else
-    return EHS_TRUE;s
+    return EHS_TRUE;
 #endif
 }
 
@@ -224,7 +240,7 @@ ehs_bool EhsAppGetDefaultApp(ehs_char * cDefaultApp)
     }
     if ((app2run_FILE = Ehs_SysFopen(EHS_SYS_APP2RUN_FILENAME, "r")))
     {
-        fgets(cDefaultApp,EHS_SYS_MAXPATHLENGTH,app2run_FILE); // read one line from file
+        EhsFgets(cDefaultApp,EHS_SYS_MAXPATHLENGTH,app2run_FILE); // read one line from file
         EhsFclose(app2run_FILE);
         //trim - remove new line chr or spaces
         ehs_char * s;
@@ -289,7 +305,7 @@ ehs_bool EhsAppInitLiveAppDir()
         EHSH_LOG_ERROR(" Looking for app2runfile...");
         if ((app2run_FILE = Ehs_SysFopen(EHS_SYS_APP2RUN_FILENAME, "r")) && !bAlwaysStartDefault)
         {
-            fgets(AppCanonical,EHS_SYS_MAXPATHLENGTH,app2run_FILE); // read one line from file
+            EhsFgets(AppCanonical,EHS_SYS_MAXPATHLENGTH,app2run_FILE); // read one line from file
             EhsFclose(app2run_FILE);
             if (EhsStrlen(AppCanonical)>0 )
             {
@@ -375,7 +391,6 @@ do_rest: /* Finally check of there is a downloaded version  and do switch if so 
         break;
     case 1:
     case 2:
-    case 3:
         if (EhsStrlen(AppCanonical) > 0 )
         {
             EhsHMetaAppSetCurrent(AppCanonical);/* Update internal structure */
@@ -388,13 +403,12 @@ do_rest: /* Finally check of there is a downloaded version  and do switch if so 
     case 10: // Apparantly there is no download app or defalt in this case so download th default.
         if (app_installed != EHS_TRUE)
         {
+            EHSH_LOG_ERROR("No default app found!");
+#if defined(EHS_DEVMAN_MON_SUPPORT) && !defined(EHS_ESP32_SUPPORT)
             ehs_char szUrl[EHS_MAXDEVMANNAMELEN];// App URL/
-#ifdef EHS_DEVMAN_MON_SUPPORT
             GetDevmanBASEURL(szUrl);
-#endif
             EHSH_LOG_INFO("Downloading App!");
             EhsStrcat(szUrl, EHS_DEVMAN_APPGETDEFAULTURLPATHONLY);
-#ifdef EHS_DEVMAN_MON_SUPPORT
             if (start_appget_getapp("default_devman","default_devman", szUrl, EHS_TRUE, EHS_FALSE, EHS_FALSE))   // don#tuse the run fags we just copy this into default.
             {
                 EHSH_LOG_INFO("Downloaded - Making the Default app!");
@@ -404,7 +418,6 @@ do_rest: /* Finally check of there is a downloaded version  and do switch if so 
                 EhsHMetaAppSetCurrent(EHS_SYS_DEFAULT_APP2RUN); // this sets the app to default if it wasn't the default already for some reason
 
             }
-            EHSH_LOG_ERROR("No EHS_DEVMAN_MON_SUPPORT");
 #endif //EHS_DEVMAN_MON_SUPPORT
         }
         break;
@@ -424,7 +437,7 @@ void EhsAppConfirmCurrentApp()
 #ifndef INX_SODL_IN_FLASH
     ehs_char appdir[EHS_SYS_MAXPATHLENGTH];
     // ehs_FILE* app2run_FILE;
-    EhsStrcpy(appdir,EhsHMetaAppGetCurrent(appdir));
+    EhsStrcpy(appdir,EhsHMetaAppGetCurrent());
     EhsStrcat(appdir,EHS_SYS_APP2RUN_PREVIOUS_FILENAME_POSTFIX);
     Ehs_SysRmdir(appdir); /* todo we may not want to do this so that revert can be used for each app*/
     EhsTF_cd(appdir); /* we don't return an error if we ran the default rather than requested app */
@@ -438,10 +451,9 @@ void EhsAppConfirmCurrentApp()
  * */
 ehs_bool EhsAppDenyCurrentApp()
 {
-    #ifdef INX_SODL_IN_FLASH
+#ifdef INX_SODL_IN_FLASH
     return EHS_TRUE;
-    }
-    #else
+#else
     if (EhsHMetaAppGetCurrent()>0)   // rally souldn't happn unless w have trampled over a structure
     {
         if (EhsStrlen(EhsHMetaAppGetCurrent()) > 0 )
@@ -474,6 +486,5 @@ ehs_bool EhsAppDenyCurrentApp()
     //if (EhsTF_exists(appdir) != 2) EhsTF_mkdir(appdir);
     EhsHMetaAppSetCurrent(EHS_SYS_APP_DEFAULT_NAME);/* Update internal structure */
     return EHS_FALSE;
-    #endif
-
+#endif
 }

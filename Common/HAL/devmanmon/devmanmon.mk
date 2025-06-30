@@ -18,11 +18,19 @@
 #  VPATH - where to look for source code
 #  EHS_TARGET_DEVMAN_MON_PATH - path to the current directory (set by platform makefile)
 # Make sure any code switches for this are active
-EHS_INCLUDE_XML_SUPPORT=yes
-DEFS+= EHS_DEVMAN_MON_SUPPORT
 
 # include sourcecode from this dir in build
 include $(EHS_COMMON_HAL_PATH)/devmanmon/deps.mk
 VPATH+=$(EHS_COMMON_HAL_PATH)/devmanmon
+
+ifeq ($(EHS_DEVMAN_MON_SUPPORT),mqtt)
+DEFS+=EHS_DEVMAN_MON_SUPPORT=EHS_DEVMAN_MON_MQTT
+OBJECTS += devman_mon_mqtt.$(OBJ)
+OBJECTS += devman_mon_ota.$(OBJ)
+else
+EHS_INCLUDE_XML_SUPPORT=yes
+DEFS+=EHS_DEVMAN_MON_SUPPORT=EHS_DEVMAN_MON_CURL
+endif
+
 OBJECTS += devman_mon.$(OBJ)
 

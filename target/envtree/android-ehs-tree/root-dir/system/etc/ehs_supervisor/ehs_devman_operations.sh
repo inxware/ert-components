@@ -10,6 +10,7 @@ DEVMAN_UPDATE_NTPURL_KEY="ehs-android-ntp-server-script"
 DEVMAN_UPDATE_VOLUME_KEY="ehs-android-volume-script"
 DEVMAN_UPDATE_LOGS0_KEY="ehs-android-logs0-script"
 DEVMAN_UPDATE_LOGS1_KEY="ehs-android-logs1-script"
+DEVMAN_UPDATE_DEVICE_ID_KEY="ehs-android-device-id-script"
 
 DEVMAN_UPDATE_PATCH_KEY="ehs-android-update-script"
 
@@ -59,6 +60,18 @@ HandleDevmanOperationUpdates(){
         elif [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_LOGS1_KEY"* ]]; then
             SupervisorLog "Update logs1 ==> $EHS_SUPSCRIPTS_LOCATION ==> $SERVER_ADDRESS ==> $EHS_DEVICE_ID"
             /system/bin/sh ${EHS_SUPERVISOR_LOCATION}/ehs_upload_logs.sh "1" "$EHS_SUPSCRIPTS_LOCATION" "$SERVER_ADDRESS" "$EHS_DEVICE_ID"
+        elif [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_DEVICE_ID_KEY"* ]]; then
+            if [ -f "$EHS_SUPSCRIPTS_LOCATION/dldata.tgz" ]; then
+                VALUE=$(cat "$EHS_SUPSCRIPTS_LOCATION/dldata.tgz")
+                SupervisorLog "Request to change device id. $EHS_DEVICE_ID ==> $VALUE"
+                if [ -n "$EHS_NEW_DEVICE_ID_REQUEST_FILE" ]; then # make sure the file destination env is set
+                    cp $EHS_SUPSCRIPTS_LOCATION/dldata.tgz $EHS_NEW_DEVICE_ID_REQUEST_FILE
+                else
+                    SupervisorLog "Request to change device id FAILED. EHS_NEW_DEVICE_ID_REQUEST_FILE env not set."
+                fi
+            else
+                SupervisorLog "Request to change device id FAILED. File ($EHS_SUPSCRIPTS_LOCATION/dldata.tgz) not present"
+            fi
         elif [[ "$FILE_CONTENT" == *"$DEVMAN_UPDATE_PATCH_KEY"* ]]; then
             echo "patch"
         fi

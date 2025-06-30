@@ -60,6 +60,7 @@
 #endif
 
 #ifndef MAX_PARAM_STR_LEN
+// TODO2024: We are problably only doble this for low memory devices where.
 #define MAX_PARAM_STR_LEN (EHS_STRING_LENGTH_MAX*2)
 #endif
 
@@ -102,7 +103,9 @@
 /* define file names and size limits */
 
 /* @todo These should move to FILE HAL code too */
-#define EHS_FILENAME_SIZE 1024 /**< Defines the size of the part of filename before the '.' */
+#ifndef EHS_FILENAME_SIZE
+#define EHS_FILENAME_SIZE EHS_TD_FILES_MAX_FILENAME /**< Defines the size of the part of filename before the '.' */
+#endif
 #define EHS_FILEEXT_SIZE 3 /**< Used only for console Defines the size of the part of the filename after the '.' */
 #define EHS_FILESTRING_SIZE (EHS_FILENAME_SIZE + EHS_FILEEXT_SIZE + 2) /**< 2 comes from 1 character separator + 1 null character */
 #define EHS_DEFAULT_FILENAME "default.txt" /**< Used when an invalid filename is given */

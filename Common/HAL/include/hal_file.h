@@ -32,7 +32,10 @@
 /*****************************************************************************/
 /* Included files */
 #include "globals.h"
-#include "target_file.h"
+#ifndef EHS_FILESYSTEM_SUPPORT__STUBBED
+    #include "target_file.h"
+#endif
+
 #include "hal.h" // needed for EhsMetaDataType
 
 
@@ -55,8 +58,46 @@ typedef enum
     EHS_RUNTIME_OS_ROOT // Privileged!!
 } RuntimePathType;
 
+/* If we are not including a target_file.h we need ot define a few defaults to */
+#ifdef EHS_FILESYSTEM_SUPPORT__STUBBED
+typedef int ehs_FILE;
+
+/**
+ * Longest possible path name (excluding filename, but including separators and
+ * terminating zero).
+ */
+#ifndef EHS_KERNEL_BUILD
+#ifndef EHS_TD_FILES_MAX_PATH
+#define EHS_TD_FILES_MAX_PATH 1
+#warning "EHS_TD_FILES_MAX_PATH is not defined setting in target_file.h"
+#endif
+#endif
+
+/**
+ * Longest possible filename
+ */
+#ifndef EHS_KERNEL_BUILD
+#ifndef EHS_TD_FILES_MAX_FILENAME
+#define EHS_TD_FILES_MAX_FILENAME 1
+#warning "EHS_TD_FILES_MAX_FILENAME is not defined setting in target_file.h"
+#endif
+#endif
+
+/**
+ * Path separator for this target
+ */
+#ifndef EHS_MINGW
+#define EHS_TD_FILES_SEPARATOR '/'
+#define EHS_TD_FILES_SEPARATOR_STR "/"
+#else
+#define EHS_TD_FILES_SEPARATOR '\\'
+#define EHS_TD_FILES_SEPARATOR_STR "\\"
+#endif
 
 
+#define EHS_EOF EOF
+
+#endif
 /* ehs_FILE is defined in target_file.h */
 
 /*****************************************************************************/
@@ -71,55 +112,67 @@ typedef enum
  * purpose - they show the prototype of the function in question.
  */
 
-
-
-#define EHS_SYS_MAXPATHLENGTH 2048
 #define EHS_COMMON_DIRECTORY_SEPARATOR '/'
 #define EHS_FILE_LOCALHOST_PREFIX "localhost:" /* This is use to allow non-secure access to arbitrary host OS files */
 
-
+/* If these are not defined as a direct libc implementation then we use the inx 16 bit definitions (e.g. stubs or emulated)*/
 #ifndef EhsFopen
-EHS_GLOBAL ehs_FILE *EhsFopen(const ehs_char* fname, const ehs_char* fmode);
+ ehs_FILE *EhsFopen(const ehs_char* fname, const ehs_char* fmode);
 #endif
 
 #ifndef EhsFclose
-EHS_GLOBAL ehs_sint16 EhsFclose(ehs_FILE* f);
+ehs_sint16 EhsFclose(ehs_FILE* f);
 #endif
 
 #ifndef EhsFread
-EHS_GLOBAL ehs_sint16 EhsFread(void* pBuff, ehs_uint16 nSize, ehs_uint16 nCount, ehs_FILE* f);
+ehs_sint16 EhsFread(void* pBuff, ehs_uint16 nSize, ehs_uint16 nCount, ehs_FILE* f);
 #endif
 
 #ifndef EhsFwrite
-EHS_GLOBAL ehs_sint16 EhsFwrite(void* pBuff, ehs_uint16 nSize, ehs_uint16 nCount, ehs_FILE* f);
+ehs_sint16 EhsFwrite(void* pBuff, ehs_uint16 nSize, ehs_uint16 nCount, ehs_FILE* f);
 #endif
 
 
 
 #ifndef EhsFgetc
-EHS_GLOBAL ehs_sint16 EhsFgetc(ehs_FILE *f);
+ehs_sint16 EhsFgetc(ehs_FILE *f);
 #endif
 
 #ifndef EhsFgets
-EHS_GLOBAL ehs_char* EhsFgets(ehs_char* pBuff, ehs_uint16 nSize, ehs_FILE* f);
+ehs_char* EhsFgets(ehs_char* pBuff, ehs_uint16 nSize, ehs_FILE* f);
 #endif
 
 #ifndef EhsFprintf
-EHS_GLOBAL ehs_sint16 EhsFprintf(ehs_FILE *f, const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support fprintf */
+ehs_sint16 EhsFprintf(ehs_FILE *f, const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support fprintf */
 #endif
 
 #ifndef EhsFscanf
-EHS_GLOBAL ehs_sint16 EhsFscanf(ehs_FILE *f, const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support fscanf */
+ehs_sint16 EhsFscanf(ehs_FILE *f, const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support fscanf */
 #endif
 
 #ifndef EhsSscanf
-EHS_GLOBAL ehs_sint16 EhsSscanf(ehs_char *pBuff, const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support fscanf */
+ehs_sint16 EhsSscanf(ehs_char *pBuff, const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support fscanf */
 #endif
 
 #ifndef EhsFflush
-EHS_GLOBAL ehs_sint16 EhsFflush(ehs_FILE* f);
+ehs_sint16 EhsFflush(ehs_FILE* f);
 #endif
 
+#ifndef EhsFseek
+ehs_sint8 EhsFseek(ehs_FILE f,ehs_sint8 x,ehs_sint8 y); 
+#endif
+
+#ifndef EhsFtell
+ehs_sint8 EhsFtell(ehs_FILE f);
+#endif
+
+#ifndef EhsFrewind
+ehs_sint8 EhsFrewind(ehs_FILE f);
+#endif
+
+/*
+These are inx abstractions for normal libc file operations
+*/
 
 /* This is for creating any directories that may or may not be crated by the installer */
 ehs_bool EhsFInitFileSystem();
@@ -141,12 +194,39 @@ ehs_bool EhsHCopy(const ehs_char* szSrcFilename, const ehs_char* szDstFilename);
 /* helper functions that are probably found in hal_file.c */
 
 /**
+ * @brief Read entire file with unknown size. User needs to free the string content and close the file pointer afterwards.
+ * 
+ * @param fp (Input) The file pointer to the file
+ * @param ret_code (Output) The return code. 0: OK. 1: No memory left. 2: Read size is less than determined size.
+ * @return ehs_char* Read content with allocted memory. Need to be freed with EhsHMem_tempFree
+ *
+ * @code {.C}
+ * ehs_FILE *fp = EhsFopen("test.txt", 'r');
+ * ehs_uint8 ret_code = 0;
+ * ehs_char *content = EhsFreadDynamic(fp, &ret_code);
+ * // Do something with the content
+ * if (ret_code == 0) printf("%s\n", content);
+ * if (fp != NULL)
+ * {
+ *      EhsFclose(fp);
+ *      fp = NULL;
+ * }
+ * if (content != NULL)
+ * {
+ *      EhsHMem_tempFree(content);
+ *      content = NULL;
+ * }
+ * @endcode
+ */
+ehs_char *EhsFreadDynamic(ehs_FILE *fp, ehs_uint8 *ret_code);
+
+/**
  * Consume the current line up until the end of line character
  * @param[in] pFile Pointer to the file to use
  * @return True if the end of line character was found, false otherwise, we've
  * probably hit the end of the file
  */
-EHS_GLOBAL ehs_bool EhsFconsumeLine(ehs_FILE* pFile);
+ehs_bool EhsFconsumeLine(ehs_FILE* pFile);
 
 /**
  * Get a single word from the current file. Word is terminated by whitespace unless
@@ -158,16 +238,16 @@ EHS_GLOBAL ehs_bool EhsFconsumeLine(ehs_FILE* pFile);
  * white space. In the NULL case, leading white space is stripped from strings
  * @return Pointer to the characters we've read unless we encounter end of line or end of file.
  */
-EHS_GLOBAL ehs_char* EhsFgetWord(ehs_FILE* pFile, ehs_char* szWord, ehs_uint16 nLen, const ehs_char* szSeparators);
+ehs_char* EhsFgetWord(ehs_FILE* pFile, ehs_char* szWord, ehs_uint16 nLen, const ehs_char* szSeparators);
 
 /* for accessing files that should be in directories but aren't always, force will return a canonical address even if it doesn't exist*/
 ehs_bool EhsTF_tryCanonicPath(ehs_char * szParameterFilePath, RuntimePathType directory,const char * file, ehs_bool force);
 /* this function tries to open a file in the user directory */
-EHS_GLOBAL ehs_FILE* Ehs_UserFopen(const ehs_char * szFilename,const ehs_char * access);
+ehs_FILE* Ehs_UserFopen(const ehs_char * szFilename,const ehs_char * access);
 /* this function tries to open a file in the system directory */
-EHS_GLOBAL ehs_FILE* Ehs_SysFopen(const ehs_char * szFilename,const ehs_char * access);
+ehs_FILE* Ehs_SysFopen(const ehs_char * szFilename,const ehs_char * access);
 /* this function tries to open a file in the app directory */
-EHS_GLOBAL ehs_FILE* Ehs_AppFopen(const ehs_char * szFilename,const ehs_char * access) ;
+ehs_FILE* Ehs_AppFopen(const ehs_char * szFilename,const ehs_char * access) ;
 
 /** \brief Component & system facing */
 /* return 0 if OK, 1 for error */
@@ -201,13 +281,12 @@ ehs_bool EhsTF_utime(ehs_char* szPath,struct utimbuf *new_times);
 ehs_bool Ehs_UserStat(char * szPathname, struct stat *statbuf);
 ehs_bool Ehs_UserUtime(char * szPathname, struct utimbuf *new_times);
 #else
-//stubbed versions - we should probablt define an ehs_stat type that is void * for clients...
+//stubbed versions - we should probably define an ehs_stat type that is void * for clients...
 ehs_bool EhsTF_stat(ehs_char* szPath,void *statbuf);
 ehs_bool EhsTF_utime(ehs_char* szPath,void *new_times);
 ehs_bool Ehs_UserStat(char * szPathname, void *statbuf);
 ehs_bool Ehs_UserUtime(char * szPathname, void *new_times);
 #endif
-
 
 ehs_bool Ehs_UserRename(const ehs_char * szOrigFilename,
                         const ehs_char * szToFilename);
@@ -264,14 +343,11 @@ typedef enum { EHS_TD_FILEFLAG_NONE = 0,
 /*****************************************************************************/
 /* Declare global variables */
 
-//These are still here so that the deprecated dtv stuff will still build - PBB 20100815
-EHS_GLOBAL EhsTDFilesClass* EhsTDFilesRef;
-
 /**
  * Currently we only allow for one, global file context
  */
 
-EHS_GLOBAL EhsTDFilesClass* EhsTDFilesRef;
+extern EhsTDFilesClass* EhsTDFilesRef;
 
 
 #ifndef EhsTDFiles_init
@@ -279,7 +355,7 @@ EHS_GLOBAL EhsTDFilesClass* EhsTDFilesRef;
  * Set up the files strucutre
  * @param[in] pFiles Context for the file operation
  */
-EHS_GLOBAL void EhsTDFiles_init(EhsTDFilesClass** pFiles);
+void EhsTDFiles_init(EhsTDFilesClass** pFiles);
 #endif
 
 #ifndef EhsTDFiles_cleanup
@@ -287,7 +363,7 @@ EHS_GLOBAL void EhsTDFiles_init(EhsTDFilesClass** pFiles);
  * Cleanup - close the current directory
  * @param[in] pFiles Context for the file operation
  */
-EHS_GLOBAL void EhsTDFiles_cleanup(EhsTDFilesClass* pFiles);
+void EhsTDFiles_cleanup(EhsTDFilesClass* pFiles);
 #endif
 
 #ifndef EhsTDFiles_getDir
@@ -297,7 +373,7 @@ EHS_GLOBAL void EhsTDFiles_cleanup(EhsTDFilesClass* pFiles);
  * @param[out] szDir Text containing the current path. Caller must pass in an array of length EHS_TD_FILES_MAX_PATH
  * @return true if successful
  */
-EHS_GLOBAL ehs_bool EhsTDFiles_getDir(EhsTDFilesClass* pFiles, ehs_char* szDir);
+ehs_bool EhsTDFiles_getDir(EhsTDFilesClass* pFiles, ehs_char* szDir);
 #endif
 
 #ifndef EhsTDFiles_setDir
@@ -308,7 +384,7 @@ EHS_GLOBAL ehs_bool EhsTDFiles_getDir(EhsTDFilesClass* pFiles, ehs_char* szDir);
  * not be the root of the underlying OS file system). Absolute and relative paths are supported.
  * @return true if successful.
  */
-EHS_GLOBAL ehs_bool EhsTDFiles_setDir(EhsTDFilesClass* pFiles, const ehs_char* szDir);
+ehs_bool EhsTDFiles_setDir(EhsTDFilesClass* pFiles, const ehs_char* szDir);
 #endif
 
 #ifndef EhsTDFiles_listFirst
@@ -320,7 +396,7 @@ EHS_GLOBAL ehs_bool EhsTDFiles_setDir(EhsTDFilesClass* pFiles, const ehs_char* s
  * of length EHS_TD_FILES_MAX_FILENAME
  * @return true if a file name has been obtained
  */
-EHS_GLOBAL ehs_uint8 EhsTDFiles_listFirst(EhsTDFilesClass* pFiles, ehs_char* szName);
+ehs_uint8 EhsTDFiles_listFirst(EhsTDFilesClass* pFiles, ehs_char* szName);
 #endif
 
 
@@ -340,7 +416,7 @@ ehs_sint32 EhsTDFiles_countDirFiles ( const char *path );
  * of length EHS_TD_FILES_MAX_FILENAME
  * @return true if a file name has been obtained
  */
-EHS_GLOBAL ehs_uint8 EhsTDFiles_listNext(EhsTDFilesClass* pFiles, ehs_char* szName);
+ehs_uint8 EhsTDFiles_listNext(EhsTDFilesClass* pFiles, ehs_char* szName);
 #endif
 
 

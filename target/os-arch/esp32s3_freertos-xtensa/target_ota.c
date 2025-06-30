@@ -3,7 +3,8 @@
 #include <string.h>
 #include <stddef.h>
 #include <limits.h>
-#include "target_hal_ota.h"
+#include "hal_ota.h"
+#include "globals.h"
 #include "target_types.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -33,13 +34,24 @@ static target_ota_state_t ota_state = TARGET_OTA_IDLE;
 static TaskHandle_t gOTA_task_handle = NULL;
 static ehs_bool gsWriting = EHS_FALSE;
 
-static ehs_uint8 *gData = NULL;
+//static ehs_uint8 *gData = NULL;
+static ehs_uint8 gData[EHS_STRING_LENGTH_MAX] = { 0 };
 static ehs_sint32 gSize = 0;
 static ehs_sint32 gOffset = 0;
 
 static esp_ota_handle_t gESP_OTA_handle = NULL;
 
 static const esp_partition_t *update_partition = NULL;
+
+static ehs_bool gOtaTaskNotify = EHS_FALSE;
+static ehs_uint8 gOtaTaskNotifyValue = OTA_FLAG_INIT;
+
+static target_ota_on_abort_t gOnAbortCallback = NULL;
+
+target_ota_state_t thOTA_current_state(void)
+{
+    return ota_state;
+}
 
 ehs_sint32 thOTA_begin(ehs_bool alt_partition, ehs_sint32 partition_num)
 {
@@ -60,12 +72,15 @@ ehs_sint32 thOTA_begin(ehs_bool alt_partition, ehs_sint32 partition_num)
     );
     if (err != ESP_OK)
     {
+        ESP_LOGE(TAG, "OTA begin aborted.");
         esp_ota_abort(gESP_OTA_handle);
         gESP_OTA_handle = NULL;
         if (err == ESP_ERR_NO_MEM) return 3;
         return 4;
     }
-    xTaskNotify(gOTA_task_handle, OTA_FLAG_BEGIN, eSetValueWithOverwrite);
+    // xTaskNotify(gOTA_task_handle, OTA_FLAG_BEGIN, eSetValueWithOverwrite);
+    gOtaTaskNotify = EHS_TRUE;
+    gOtaTaskNotifyValue = OTA_FLAG_BEGIN;
     return 0;
 }
 
@@ -77,18 +92,24 @@ ehs_uint8 thOTA_write_passthrough(ehs_char * databuf, ehs_sint32 size, ehs_sint3
     if (offset < 0) return 4;
     gSize = size;
     gOffset = offset;
-    if (gData == NULL) gData = (ehs_uint8 *) calloc(gSize, sizeof(ehs_uint8));
-    else gData = realloc(gData, gSize * sizeof(ehs_uint8));
+    // if (gData == NULL) gData = (ehs_uint8 *) calloc(gSize, sizeof(ehs_uint8));
+    // else gData = realloc(gData, gSize * sizeof(ehs_uint8));
     if (gData == NULL) return 5;
+    if (gSize > EHS_STRING_LENGTH_MAX) return 6;
     memcpy(gData, databuf, gSize * sizeof(ehs_uint8));
-    xTaskNotify(gOTA_task_handle, OTA_FLAG_WRITE, eSetValueWithOverwrite);
+    //ESP_LOGD(TAG, "OTA Write %d -> %d", offset, offset + size);
+    // xTaskNotify(gOTA_task_handle, OTA_FLAG_WRITE, eSetValueWithOverwrite);
+    gOtaTaskNotify = EHS_TRUE;
+    gOtaTaskNotifyValue = OTA_FLAG_WRITE;
     return 0;
 }
 
 void thOTA_end(void)
 {
     if (ota_state == TARGET_OTA_IDLE || gESP_OTA_handle == NULL) return;
-    xTaskNotify(gOTA_task_handle, OTA_FLAG_END, eSetValueWithOverwrite);
+    // xTaskNotify(gOTA_task_handle, OTA_FLAG_END, eSetValueWithOverwrite);
+    gOtaTaskNotify = EHS_TRUE;
+    gOtaTaskNotifyValue = OTA_FLAG_END;
 }
 
 static inline char IRAM_ATTR to_hex_digit(unsigned val)
@@ -139,8 +160,7 @@ ehs_bool thOTA_checkValid(ehs_bool alt_partition, ehs_sint32 partition_num)
 
 ehs_bool thOTA_switch(ehs_bool alt_partition, ehs_sint32 partition_num)
 {
-    if (update_partition == NULL) return EHS_FALSE;
-    while (ota_state != TARGET_OTA_IDLE) vTaskDelay(10 / portTICK_PERIOD_MS);
+    if (update_partition == NULL || ota_state != TARGET_OTA_ENDED) return EHS_FALSE;
     esp_err_t err = esp_ota_set_boot_partition(update_partition);
     update_partition = NULL;
     if (err != ESP_OK)
@@ -154,22 +174,29 @@ ehs_bool thOTA_switch(ehs_bool alt_partition, ehs_sint32 partition_num)
 void thOTA_abort(void)
 {
     if (ota_state == TARGET_OTA_IDLE || gESP_OTA_handle == NULL) return;
-    xTaskNotify(gOTA_task_handle, OTA_FLAG_ABORT, eSetValueWithOverwrite);
+    // xTaskNotify(gOTA_task_handle, OTA_FLAG_ABORT, eSetValueWithOverwrite);
+    gOtaTaskNotify = EHS_TRUE;
+    gOtaTaskNotifyValue = OTA_FLAG_ABORT;
+}
+
+void thOTA_on_abort_callback(target_ota_on_abort_t callback)
+{
+    gOnAbortCallback = callback;
+}
+
+void thOTA_idle(void)
+{
+    ota_state = TARGET_OTA_IDLE;
 }
 
 void target_OTA_task(void *pvParameters)
 {
-    gOTA_task_handle = xTaskGetCurrentTaskHandle();
     ehs_uint32 notificationValue = OTA_FLAG_INIT;
     esp_err_t err;
-    while (1)
+    if (gOtaTaskNotify == EHS_TRUE)
     {
-        xTaskNotifyWait(
-            0x00,
-            ULONG_MAX,
-            &notificationValue,
-            portMAX_DELAY
-        );
+        gOtaTaskNotify = EHS_FALSE;
+        notificationValue = gOtaTaskNotifyValue;
         switch (ota_state) {
         case TARGET_OTA_IDLE:
             if ((notificationValue & OTA_FLAG_BEGIN) != 0) ota_state = TARGET_OTA_BEGAN;
@@ -180,12 +207,13 @@ void target_OTA_task(void *pvParameters)
                 esp_ota_abort(gESP_OTA_handle);
                 gESP_OTA_handle = NULL;
                 ota_state = TARGET_OTA_IDLE;
+                if(gOnAbortCallback != NULL) gOnAbortCallback();
             }
             else if ((notificationValue & OTA_FLAG_END) != 0)
             {
                 esp_ota_end(gESP_OTA_handle);
                 gESP_OTA_handle = NULL;
-                ota_state = TARGET_OTA_IDLE;
+                ota_state = TARGET_OTA_ENDED;
             }
             else if ((notificationValue & OTA_FLAG_WRITE) != 0 && gData != NULL)
             {
@@ -193,9 +221,11 @@ void target_OTA_task(void *pvParameters)
                 err = esp_ota_write_with_offset(gESP_OTA_handle, gData, gSize, gOffset);
                 if (err != ESP_OK)
                 {
+                    ESP_LOGE(TAG, "OTA write aborted, writing state failed.");
                     esp_ota_abort(gESP_OTA_handle);
                     gESP_OTA_handle = NULL;
                     ota_state = TARGET_OTA_IDLE;
+                    if(gOnAbortCallback != NULL) gOnAbortCallback();
                 }
                 gSize = 0;
                 gOffset = 0;
@@ -204,9 +234,13 @@ void target_OTA_task(void *pvParameters)
             }
             if (gData != NULL)
             {
-                free(gData);
-                gData = NULL;
+                // free(gData);
+                // gData = NULL;
+                memset(gData, 0, EHS_STRING_LENGTH_MAX);
             }
+        break;
+        case TARGET_OTA_ENDED:
+            // wait to complete
         break;
         default:
             vTaskDelay(1);
@@ -214,5 +248,4 @@ void target_OTA_task(void *pvParameters)
         }
         notificationValue = OTA_FLAG_INIT;
     }
-    vTaskDelete(NULL);
 }

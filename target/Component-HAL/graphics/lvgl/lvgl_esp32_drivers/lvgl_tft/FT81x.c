@@ -11,6 +11,7 @@
 #if ESP_IDF_VERSION <= ESP_IDF_VERSION_VAL(5,0,0)
 #include "rom/gpio.h"
 #endif
+#include "target_display.h"
 /* some pre-definded colors */
 #define RED		0xff0000UL
 #define ORANGE	0xffa500UL
@@ -168,6 +169,16 @@ void touch_calibrate(void)
 	EVE_memWrite32(REG_TOUCH_TRANSFORM_F, 0x0000C783);
 #endif
 
+#if defined(EVE_ME812A)
+	EVE_memWrite32(REG_TOUCH_TRANSFORM_A, 0x0000D7C5);
+	EVE_memWrite32(REG_TOUCH_TRANSFORM_B, 0xFFFFFFD0);
+	EVE_memWrite32(REG_TOUCH_TRANSFORM_C, 0xFFE08E2E);
+	EVE_memWrite32(REG_TOUCH_TRANSFORM_D, 0x000002BF);
+	EVE_memWrite32(REG_TOUCH_TRANSFORM_E, 0xFFFF7D9F);
+	EVE_memWrite32(REG_TOUCH_TRANSFORM_F, 0x01EEC036);
+#endif
+
+
 /* activate this if you are using a module for the first time or if you need to re-calibrate it */
 /* write down the numbers on the screen and either place them in one of the pre-defined blocks above or make a new block */
 // Note: requires FT81x_FULL to be defined
@@ -286,7 +297,7 @@ void FT81x_init(void)
 	{
 		tft_active = 1;
 
-		EVE_memWrite8(REG_PWM_DUTY, 0x30);	/* setup backlight, range is from 0 = off to 0x80 = max */
+		EVE_memWrite8(REG_PWM_DUTY, 0x50);	/* setup backlight, range is from 0 = off to 0x80 = max */
 
 		touch_calibrate();
 
@@ -334,4 +345,11 @@ void TFT_WriteBitmap(uint8_t* Bitmap, uint16_t X, uint16_t Y, uint16_t Width, ui
 void FT81x_flush(lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t * color_map)
 {
 	TFT_WriteBitmap((uint8_t*)color_map, area->x1, area->y1, lv_area_get_width(area), lv_area_get_height(area));
+}
+
+void FT81x_backlight(int intensity)
+{
+	spi_acquire();
+	EVE_memWrite8(REG_PWM_DUTY, intensity);	/* setup backlight, range is from 0 = off to 0x80 = max */
+	spi_release();
 }

@@ -7,25 +7,28 @@
 *	<https://www.mozilla.org/en-US/MPL/2.0/>
 ****************************************************************/
 
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-mqtt_subscribe.h"
-#include "ehs_main.h" // we run the main from here!
-//ICB HEADER MACRO END -- DO NOT ALTER
-//ICB STATE VAR MACRO START -- DO NOT ALTER
-/* My Component state data structure. - Use this in your code! */
-typedef struct inx_mqtt_subscribe_state
+#include "hal_mqtt.h"
+
+// implement a stub function for mqtt devman mon support
+#if !defined(EHS_DEVMAN_MON_SUPPORT) || (EHS_DEVMAN_MON_SUPPORT != EHS_DEVMAN_MON_MQTT)
+// make sure that this function returns NULL when devman mon is not set to mqtt
+inx_mqtt_subscribe_state_type* EhsMqttDevmanMonSubscribeNeedProcessing()
 {
-    ehs_bool needProcessing;
-    ehs_bool needSubscribe;
-    ehs_uint8 qos;
-    ehs_char topic[EHS_STRING_LENGTH_MAX];
-    EhsFunctionInstanceDataType* pFIdata;
-    struct inx_mqtt_subscribe_state* pNext;
-    struct inx_mqtt_subscribe_state* pPrev;
-} inx_mqtt_subscribe_state_type; //Reference this, maybe store your config parameters in here too.
-//ICB STATE VAR MACRO END -- DO NOT ALTER
+    return NULL;
+}
+// make sure that this function returns NULL when devman mon is not set to mqtt
+inx_mqtt_subscribe_state_type* EhsMqttDevmanMonSubscribeGetWidgetById(const char* topic __attribute__((unused)))
+{
+    return NULL;
+}
+#endif
+
 static inx_mqtt_subscribe_state_type* gpFirstWidget=NULL;
 
 static inx_mqtt_subscribe_state_type* inxMQTTSubscribeGetLast()
@@ -43,15 +46,30 @@ static inx_mqtt_subscribe_state_type* inxMQTTSubscribeGetLast()
     return widget;
 }
 
+static ehs_bool inxMQTTSubNeedProc(inx_mqtt_subscribe_state_type* widget)
+{
+    ehs_bool np;
+    EhsTPMutex_lock(EhsTPMutex_subMQTT);
+    np = widget->needProcessing;
+    EhsTPMutex_unlock(EhsTPMutex_subMQTT);
+    return np;
+}
+
 static inx_mqtt_subscribe_state_type* inxMQTTSubscribeGetFirstWidgetNeedProcessing()
 {
+    // process mqtt subscribe objects from the devamn mon
+    inx_mqtt_subscribe_state_type* pEhsMqttDevmanMonSubscribe = EhsMqttDevmanMonSubscribeNeedProcessing();
+    if(pEhsMqttDevmanMonSubscribe != NULL){
+        return pEhsMqttDevmanMonSubscribe;
+    }
+    // process mqtt subscribe objects from the function blocks
     inx_mqtt_subscribe_state_type* widget=gpFirstWidget;
-    while(widget!=NULL && widget->needProcessing==EHS_FALSE && widget->pNext!=NULL)
+    while(widget!=NULL && inxMQTTSubNeedProc(widget)==EHS_FALSE && widget->pNext!=NULL)
     {
         widget=widget->pNext;
         if(widget==widget->pNext)
         {
-            EHSH_LOG_ERROR("inxMQTTSubscribeGetLast infinite loop found");
+            EHSH_LOG_ERROR("inxMQTTSubscribeGetFirstWidgetNeedProcessing infinite loop found");
             widget->pNext=NULL;
         }
     }
@@ -61,7 +79,7 @@ static inx_mqtt_subscribe_state_type* inxMQTTSubscribeGetFirstWidgetNeedProcessi
     }
     else
     {
-        if(widget->needProcessing==EHS_FALSE)
+        if(inxMQTTSubNeedProc(widget)==EHS_FALSE)
         {
             widget=NULL;
         }
@@ -71,10 +89,19 @@ static inx_mqtt_subscribe_state_type* inxMQTTSubscribeGetFirstWidgetNeedProcessi
 
 static inx_mqtt_subscribe_state_type* inxMQTTSubscribeGetWidgetById(const char* topic)
 {
+    // process mqtt subscribe objects from the devamn mon
+    inx_mqtt_subscribe_state_type* pEhsMqttDevmanMonSubscribe = EhsMqttDevmanMonSubscribeGetWidgetById(topic);
+    if(pEhsMqttDevmanMonSubscribe != NULL){
+        return pEhsMqttDevmanMonSubscribe;
+    }
+    // process mqtt subscribe objects from the function blocks
     inx_mqtt_subscribe_state_type* widget=gpFirstWidget;
     while(widget!=NULL)
     {
-        if(EhsStrcmp(widget->topic,topic)==0)
+        EhsTPMutex_lock(EhsTPMutex_subMQTT);
+        int cmp=EhsStrcmp(widget->topic,topic);
+        EhsTPMutex_unlock(EhsTPMutex_subMQTT);
+        if(cmp==0)
         {
             break;
         }
@@ -182,6 +209,7 @@ EHS_FB_INIT_FUNCTION(mqtt_subscribe)
     inx_mqtt_subscribe_state->needSubscribe=EHS_FALSE;
     inx_mqtt_subscribe_state->topic[0]='\0';
     inx_mqtt_subscribe_state->qos=0;
+    inx_mqtt_subscribe_state->pMqttSubscribeCallback=NULL;
     inx_mqtt_subscribe_state->pNext=NULL;
     inx_mqtt_subscribe_state->pPrev=NULL;
     const char* pParams = EHS_FB_INIT_PARAMETERS;
@@ -190,23 +218,38 @@ EHS_FB_INIT_FUNCTION(mqtt_subscribe)
         pParams = EhsGetUint8FromString(&inx_mqtt_subscribe_state->qos, pParams);
         handle_mqtt_param_string(inx_mqtt_subscribe_state->topic, EHS_STRING_LENGTH_MAX);
     }
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
     inxMQTTSubscribeRegisterWidget(inx_mqtt_subscribe_state);
-    EhsTPMutex_unlock(EhsTPMutex_fbIO);
     return bRet; /* initialisation always succeeds */
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(mqtt_subscribe)
 {
-    /*
-    inx_mqtt_subscribe_state_type *inx_mqtt_subscribe_state = (inx_mqtt_subscribe_state_type*)EHS_FB_DESTROY_CONTEXT;
-    */
+    inx_mqtt_subscribe_state_type* inx_mqtt_subscribe_state = (inx_mqtt_subscribe_state_type*)EHS_FB_DESTROY_CONTEXT;
+    inx_mqtt_subscribe_state->pMqttSubscribeCallback=NULL;
+    
     //Your code below here
     gpFirstWidget=NULL;
     return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
+
+ehs_bool EhsMqttSubscribeCallback(struct inx_mqtt_subscribe_state* pState, char* payload, ehs_sint32 payloadSize)
+{
+    if(pState == NULL || pState->pFIdata==NULL){
+        return EHS_FALSE;
+    }
+    //create pFIData variable so we can use the APIs
+    EhsFunctionInstanceDataType* pFIdata=(EhsFunctionInstanceDataType*)pState->pFIdata;
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EHS_FB_OUT_I_API2(INX_mqtt_subscribe_ARG_subscribe_data_size) = payloadSize;
+    EhsMemcpy(EHS_FB_OUT_S_API2(INX_mqtt_subscribe_ARG_subscribe_event),payload,payloadSize);
+    ((ehs_char*)EHS_FB_OUT_S_API2(INX_mqtt_subscribe_ARG_subscribe_event))[payloadSize] = '\0'; // null terminate payload for non-binary read (payloadSize < EHS_STRING_LENGTH_MAX)
+    EHS_FB_FINISH(INX_mqtt_subscribe_ARG_subscribe_finishevent);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+
+    return EHS_TRUE;
+}
 
 //ICB FUNCTION subscribe MACRO START -- DO NOT ALTER
 /**
@@ -222,8 +265,9 @@ EHS_FB_RUN_FUNCTION(mqtt_subscribe_subscribe)
 
     // Your code here
     //create a pointer to our run data so that we can process events from unity later
-    inx_mqtt_subscribe_state->pFIdata = EHS_FB_RUN_CONTEXT_REF;
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    inx_mqtt_subscribe_state->pFIdata = (void*)EHS_FB_RUN_CONTEXT_REF;
+    inx_mqtt_subscribe_state->pMqttSubscribeCallback = EhsMqttSubscribeCallback;
+    EhsTPMutex_lock(EhsTPMutex_subMQTT);
     if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_subscribe_ARG_subscribe_topic))
     {
         EhsStrcpy(inx_mqtt_subscribe_state->topic,EHS_FB_IN_S_API2(INX_mqtt_subscribe_ARG_subscribe_topic));
@@ -234,7 +278,7 @@ EHS_FB_RUN_FUNCTION(mqtt_subscribe_subscribe)
     }
     inx_mqtt_subscribe_state->needSubscribe=EHS_TRUE;
     inx_mqtt_subscribe_state->needProcessing=EHS_TRUE;
-    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    EhsTPMutex_unlock(EhsTPMutex_subMQTT);
     /*
     if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_subscribe_ARG_subscribe_qos))
     if (EHS_FB_OUT_CONNECTED_API2(INX_mqtt_subscribe_ARG_subscribe_event))
@@ -259,23 +303,16 @@ EHS_FB_RUN_FUNCTION(mqtt_subscribe_unsubscribe)
 
     // Your code here
     //create a pointer to our run data so that we can process events from unity later
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EhsTPMutex_lock(EhsTPMutex_subMQTT);
     inx_mqtt_subscribe_state->needSubscribe=EHS_FALSE;
     inx_mqtt_subscribe_state->needProcessing=EHS_TRUE;
-    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    EhsTPMutex_unlock(EhsTPMutex_subMQTT);
     EHS_FB_FINISH(INX_mqtt_subscribe_ARG_unsubscribe_finishunsubscribe);
 }//ICB FUNCTION unsubscribe MACRO END -- DO NOT ALTER THIS LINE
 
 
-#ifdef EHS_MINGW
-#define EHS_MQTT_SUBSCRIBE_EXPORT __declspec(dllexport)
-#else
-#define EHS_MQTT_SUBSCRIBE_EXPORT // nothing
-#endif
-
-EHS_MQTT_SUBSCRIBE_EXPORT ehs_bool EhsMQTTSubscribeWritePoll(char* buffer,ehs_bool* subscribe,uint8_t* qos)
+ehs_bool EhsMQTTSubscribeWritePoll(char* buffer, ehs_bool* subscribe, ehs_uint8* qos)
 {
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
     ehs_bool success=EHS_FALSE;
     inx_mqtt_subscribe_state_type* pState=inxMQTTSubscribeGetFirstWidgetNeedProcessing();
     if(pState==NULL)
@@ -284,28 +321,24 @@ EHS_MQTT_SUBSCRIBE_EXPORT ehs_bool EhsMQTTSubscribeWritePoll(char* buffer,ehs_bo
     }
     else
     {
+        EhsTPMutex_lock(EhsTPMutex_subMQTT);
         EhsSprintf(buffer,"%s",pState->topic);
         *subscribe=pState->needSubscribe;
         *qos=pState->qos;
         pState->needProcessing=EHS_FALSE;
+        EhsTPMutex_unlock(EhsTPMutex_subMQTT);
         success=EHS_TRUE;
     }
-    EhsTPMutex_unlock(EhsTPMutex_fbIO);
     return success;
 }
 
-EHS_MQTT_SUBSCRIBE_EXPORT ehs_bool EhsMQTTSubscribeEvent(char* topic, char* payload, int payloadSize)
+ehs_bool EhsMQTTSubscribeEvent(char* topic, char* payload, ehs_sint32 payloadSize)
 {
+    ehs_bool success=EHS_FALSE;
     inx_mqtt_subscribe_state_type* pState=inxMQTTSubscribeGetWidgetById(topic);
-    if(pState==NULL || pState->pFIdata==NULL || payloadSize >= EHS_STRING_LENGTH_MAX)
+    if(pState != NULL && pState->pMqttSubscribeCallback != NULL && payloadSize < EHS_MQTT_SUBS_RECV_BUFF_MAX_LENGTH)
     {
-        return EHS_FALSE;
+        success = pState->pMqttSubscribeCallback(pState, payload, payloadSize);
     }
-    //create pFIData variable so we can use the APIs
-    EhsFunctionInstanceDataType* pFIdata=pState->pFIdata;
-    EHS_FB_OUT_I_API2(INX_mqtt_subscribe_ARG_subscribe_data_size) = payloadSize;
-    EhsMemcpy(EHS_FB_OUT_S_API2(INX_mqtt_subscribe_ARG_subscribe_event),payload,payloadSize);
-    ((ehs_char*)EHS_FB_OUT_S_API2(INX_mqtt_subscribe_ARG_subscribe_event))[payloadSize] = '\0'; // null terminate payload for non-binary read (payloadSize < EHS_STRING_LENGTH_MAX)
-    EHS_FB_FINISH(INX_mqtt_subscribe_ARG_subscribe_finishevent);
-    return EHS_TRUE;
+    return success;
 }

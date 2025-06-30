@@ -529,7 +529,7 @@ EHS_FB_RUN_FUNCTION(ConvertorBoolToReal)
     	{
     		NCAPSA_dOut(0) = 0.0;
     	}*/
-    NCAPSA_dOut(0) = (double)NCAPSA_bIn(0);
+    NCAPSA_dOut(0) = (ehs_float)NCAPSA_bIn(0);
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -576,7 +576,7 @@ EHS_FB_INIT_FUNCTION(ConvertorIntToReal)
  */
 EHS_FB_RUN_FUNCTION(ConvertorIntToReal)
 {
-    NCAPSA_dOut(0) = (double)NCAPSA_nIn(0);
+    NCAPSA_dOut(0) = (ehs_float)NCAPSA_nIn(0);
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -627,7 +627,7 @@ EHS_FB_RUN_FUNCTION(ConvertorStringToReal)
     char* pString = &szString[0];
 
     pString = strcpy(pString, NCAPSA_szIn(0));
-    NCAPSA_dOut(0) = atof(pString);
+    NCAPSA_dOut(0) = (ehs_float)atof(pString);
 
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
@@ -652,6 +652,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToString)
 {
+    EHS_FB_IDENTIFY_MEMORY  = sizeof(ehs_sint32);
 }
 
 /**
@@ -663,6 +664,13 @@ EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToString)
  */
 EHS_FB_INIT_FUNCTION(ConvertorRealToString)
 {
+    ehs_uint32 numdec; // default
+    if(EhsGetUint32FromString(&numdec, EHS_FB_INIT_PARAMETERS) != NULL){
+        *(ehs_uint32*)EHS_FB_INIT_CONTEXT = numdec;
+    }else{
+        *(ehs_uint32*)EHS_FB_INIT_CONTEXT = 3; // default number of decimal places
+    }
+    
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -677,7 +685,43 @@ EHS_FB_RUN_FUNCTION(ConvertorRealToString)
 {
     if(EHS_FB_OUT_CONNECTED(0) && EHS_FB_IN_CONNECTED(0))
     {
-        EhsSprintf(NCAPSA_szOut(0), "%.3f", NCAPSA_dIn(0));
+        const char* fmt_str = "%.3f";
+        switch (*(ehs_sint32*)EHS_FB_INIT_CONTEXT)
+        {
+            case 0:{
+                fmt_str = "%.0f";
+                break;
+            }
+            case 1:{
+                fmt_str = "%.1f";
+                break;
+            }
+            case 2:{
+                fmt_str = "%.2f";
+                break;
+            }
+            case 3:{
+                fmt_str = "%.3f";
+                break;
+            }
+            case 4:{
+                fmt_str = "%.4f";
+                break;
+            }
+            case 5:{
+                fmt_str = "%.5f";
+                break;
+            }
+            case 6:{
+                fmt_str = "%.6f";
+                break;
+            }
+            default:{
+                fmt_str = "%.3f";
+                break;
+            }
+        }
+        EhsSprintf(NCAPSA_szOut(0), fmt_str, NCAPSA_dIn(0));
     }
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;

@@ -1,233 +1,109 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span">application_info_getter</span>
-        <!--these display in reverse order because they use float:right--> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
-            href="#ports">Ports &#8595;</a></span> </div>
-      <!--General Description-->
-      <p class="component"> </p>
-      <!--Parameters - form - short desc: long desc-->
-      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          <!--ports="" -="" form="" short="" desc:="" long="" desc--=""> <span
-            class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-            class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-              href="#parameters">Params &#8593; </a></span> </span></div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]"></a>get list</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]"></a>app info</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]"></a>get default</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]"></a>set default</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]"></a>uninstall</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports">keywords</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports">app name</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports">app name</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports">app name</td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">list</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">amount</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">info</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">commercial Name</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">version</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">description</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">app name</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">error</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]-----">-----</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]error">error</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]-----">-----</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]error">error</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]-----">-----</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]error">error</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]-----">-----</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]error">error</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]-----">-----</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]error">error</a></td>
-            <td><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5">
-              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>          &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]          <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
-              None </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> Core </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v1.0. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">application_info_getter</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!-- General Description -->
+<p class="component">This component retrieves information about locally installed applications, including their names, descriptions, and icons.</p>
+<!-- Parameters -->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<table class="table_params">
+<tbody>
+<tr></tr>
+</tbody>
+</table>
+<!-- Ports -->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tbody>
+<tr><th>In Ev.</th><th>Description</th></tr>
+<tr><td class="ports">get list</td><td>Starts retrieving the list of locally installed applications.</td></tr>
+<tr><td class="ports">app info</td><td>Requests detailed information about a specific application.</td></tr>
+<tr><td class="ports">get default</td><td>Fetches the default application details.</td></tr>
+<tr><td class="ports">set default</td><td>Sets a specific application as the default.</td></tr>
+<tr><td class="ports">uninstall</td><td>Uninstalls the specified application from the device.</td></tr>
+<tr><th>Data In</th><th>Description</th></tr>
+<tr><td class="ports">keywords</td><td>Keywords to filter applications in the list.</td></tr>
+<tr><td class="ports">app name[info]</td><td>Application name to retrieve information for.</td></tr>
+<tr><td class="ports">app name[setDefault]</td><td>Application name to be set as the default.</td></tr>
+<tr><td class="ports">app name[delete]</td><td>Application name to be uninstalled.</td></tr>
+<tr><th>Data Out</th><th>Description</th></tr>
+<tr><td class="ports">list</td><td>Returns the list of locally installed applications.</td></tr>
+<tr><td class="ports">amount</td><td>Returns the total number of applications matching the criteria.</td></tr>
+<tr><td class="ports">info</td><td>Returns detailed information about a specific application.</td></tr>
+<tr><td class="ports">name</td><td>Returns the name of the application.</td></tr>
+<tr><td class="ports">commercial Name</td><td>Returns the commercial name of the application.</td></tr>
+<tr><td class="ports">version</td><td>Returns the version of the application.</td></tr>
+<tr><td class="ports">description</td><td>Returns the description of the application.</td></tr>
+<tr><td class="ports">app name[getDefault]</td><td>Returns the name of the default application.</td></tr>
+<tr><td class="ports">errors</td><td>Returns errors encountered during operations.</td></tr>
+<tr><th>Out Ev.</th><th>Description</th></tr>
+<tr><td class="ports">-----[list]</td><td>Indicates the completion of retrieving the application list.</td></tr>
+<tr><td class="ports">error[list]</td><td>Indicates an error occurred while retrieving the application list.</td></tr>
+<tr><td class="ports">-----[info]</td><td>Indicates the completion of retrieving application information.</td></tr>
+<tr><td class="ports">error[info]</td><td>Indicates an error occurred while retrieving application information.</td></tr>
+<tr><td class="ports">-----[getDefault]</td><td>Indicates the completion of getting the default application.</td></tr>
+<tr><td class="ports">error[getDefault]</td><td>Indicates an error occurred while getting the default application.</td></tr>
+<tr><td class="ports">-----[setDefault]</td><td>Indicates the completion of setting an application as default.</td></tr>
+<tr><td class="ports">error[setDefault]</td><td>Indicates an error occurred while setting an application as default.</td></tr>
+<tr><td class="ports">-----[delete]</td><td>Indicates the completion of uninstalling an application.</td></tr>
+<tr><td class="ports">error[delete]</td><td>Indicates an error occurred while uninstalling an application.</td></tr>
+</tbody>
+</table>
+<!-- Miscellaneous -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td>
+<td colspan="5">None</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td>
+<td>Core</td>
+<td class="heading-cell"><b>Version</b></td>
+<td>v1.0.</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td>
+<td>MPL2.0</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td>
+<td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td>
+<td>All.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
 </html>

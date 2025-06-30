@@ -381,3 +381,7 @@ Unlock(){
 		echo "Already unlocked."	
 	fi	 
 }
+
+CopyEhsDeviceID(){
+	 # Do Nothing, and only overwrite if needed for a specific OS
+}

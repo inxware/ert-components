@@ -71,10 +71,10 @@ EHS_FB_FUNCTIONS_END
 #define EHS_RTINFO_GETDYN_StorAvail_KB_OUT 2
 #define EHS_RTINFO_GETDYN_CPU_USAGE_OUT 3 // cpu for eRT process
 #define EHS_RTINFO_GETDYN_PAIR_ID_OUT 4
-#define EHS_RTINFO_GETDYN_PAIR_FINISH 2
 #define EHS_RTINFO_GETDYN_RAM_USAGE_OUT 5 // ram for eRT process
 #define EHS_RTINFO_GETDYN_CPU_MISC_USAGE_OUT 6 // cpu for misc user-specified process
 #define EHS_RTINFO_GETDYN_RAM_MISC_USAGE_OUT 7 // RAM for misc user-specified process
+#define EHS_RTINFO_GETDYN_PAIR_FINISH 2
 
 //@todo Add a parameter that adds a minumum time interval that must have elapsed for the function to return a new value (for cpu % time interval).
 
@@ -166,7 +166,8 @@ EHS_FB_RUN_FUNCTION(runtimeinfo_updatedynamic)
 #endif
     /* and the dynamic data */
     /* call the os-specfic call e.g. EHSTos_GetFileInfo(&pRtinfoObj); */
-    EhsStrcpy(EHS_FB_OUT_S(EHS_RTINFO_GETDYN_IPAddr_OUT),EhsHMetaGetIPAddr());
+    if (EHS_FB_OUT_CONNECTED(EHS_RTINFO_GETDYN_IPAddr_OUT))
+        EhsStrcpy(EHS_FB_OUT_S(EHS_RTINFO_GETDYN_IPAddr_OUT),EhsHMetaGetIPAddr());
     EHS_FB_OUT_I(EHS_RTINFO_GETDYN_RAMAvail_KB_OUT)=EhsHMetaGetRAMAvail();             /* Get total spare RAM */
     EHS_FB_OUT_I(EHS_RTINFO_GETDYN_StorAvail_KB_OUT)=EhsHMetaGetStorAvail();           /* File storage available for user data */
     EHS_FB_OUT_I(EHS_RTINFO_GETDYN_CPU_USAGE_OUT)=EhsHMetaGetCPUUsage();               /* CPU for eRT process */

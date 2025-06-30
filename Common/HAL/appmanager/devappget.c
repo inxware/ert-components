@@ -278,15 +278,17 @@ EhsThreadFuncReturnType HAL_AppGetRead_data(void *XObjData)
 #ifdef EHS_USE_CURLS_LAME_SIGNAL_AVOIDANCE
     /* Some system specific configs @todo review the x-platform validity*/
     curl_easy_setopt(ObjData->curl, CURLOPT_NOSIGNAL, 1); /* avoid long jump crash - remove signal handlers @todo may have DNS look up time out problem).
-	 @todo Consider building libcurl with c-ares support to enable asynchronous DNS lookups*/
-    /* There is not time out used yet - perhaps use low data rate instead as this doesn't needCURLOPT_NOSIGNAL */
+	@todo Add option to build libcurl with c-ares support and enable asynchronous DNS lookups*/
 #endif
     /* Add any ssl certificates */
-    //EhsHSetUpClientTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, NULL /* combined in PEM */, NULL);
-    //TODO put the above back in
+#ifdef EHS_USE_SEPARATE_CLIENT_CERTIFICATE
+    /* THis is not usually set */
+    EhsHSetUpClientTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, NULL /* combined in PEM */, NULL);
+#endif
+#ifndef EHS_HTTP_DISABLE_SERVER_AUTHENTICATION
     EhsHSetUpCaTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CA_CERTIFICATE);
-
     EhsHSetUpServerSecurity(ObjData->curl,&ObjData->server_info);
+#endif
     EhsHSetUpLocalProxy(ObjData->curl); // this picks up the global values for the device
     /* Reset the buffer struct so it reads */
     ObjData->AppGet_write_data_buffer_struct.size_read = 0; //get it ready to go.

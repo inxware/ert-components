@@ -32,6 +32,7 @@
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_KERNEL /**< @todo define a special logger id here */
 #include "hal-api.h"
+#include "hal.h"
 
 #include "app_data.h" // Needed for the app meta data structure.
 #include "targetos_init.h"
@@ -61,6 +62,10 @@
 //@todo this probably doesn't need to be here when all the system calls are moved to their respective places.
 #ifdef EHS_DEVMAN_MON_SUPPORT
 #include "hal_devman.h"
+#endif
+
+#ifndef EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE
+#define EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE EHS_THREAD_USE_DEFAULT_STACK_SIZE
 #endif
 
 /* Use this to set the log level of each component */
@@ -119,8 +124,6 @@ EHSH_LOG_LEVEL_EXIT		= 0x10
 
 /* Private data structs */
 
-EhsMetaDataType EhsMetaData;
-
 /* Variables Required from other components */
 extern EhsApplicationMetaDataType EhsApplicationMetaData;
 
@@ -139,6 +142,24 @@ ehs_bool *EhsHSys_initCompleteRef = &EhsL_initComplete;
 /* Function definitions */
 
 /* NOTE: WE ARE NOW GLOBBERING ALL OF THIS TO NULL AT BOOT TO CLEAR ALL STRINGS */
+
+#ifdef __cplusplus
+EhsMetaDataType EhsMetaData=
+{
+    0,
+    EHS_FALSE,
+    0,
+    0, // was 2 for some reason
+    EHS_FALSE,
+    EHS_FALSE,
+    NULL,// Notes these need to be set 
+    NULL,
+    EHS_FALSE,
+    0LL,
+    0,
+    EHS_FALSE
+}; 
+#else
 EhsMetaDataType EhsMetaData=
 {
     .DynamicUpdateTime=0,
@@ -151,8 +172,15 @@ EhsMetaDataType EhsMetaData=
     .mutexDevmanNewMiscDLData = NULL,
     .devmanPingFail = EHS_FALSE,
     .devmanLastGoodPing = 0LL,
-    .MiscAppProcId=0
+    .MiscAppProcId=0,
+    .bStartWithoutApp=EHS_FALSE
 }; //flag to identify static elements are valid;
+#endif
+
+/**/
+EhsTargetConfigInfoType EhsTargetConfigInfo = {
+    .defaultStringDataLen=EHS_DATA_TABLE_STRING_DEFAULT_LENGTH
+};
 
 #define EHSVERSIONINFOFILE "version.nfo"
 
@@ -199,6 +227,13 @@ void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir)
     else
     {
         EhsMetaData.DebugOnStart=EHSMETADATA_NODEBUGONSTARTS;
+    }
+
+    // check if we want to start eRT without running any app
+    if (EhsStrcmp(EhsMetaData.zArgv1,"--no-app") == 0) {
+        EhsMetaData.bStartWithoutApp = EHS_TRUE;
+    }else{
+        EhsMetaData.bStartWithoutApp = EHS_FALSE;
     }
 
     /* Because we are using Opaque processing handles we need to initialise the handles using the target specific process.. */
@@ -342,56 +377,80 @@ void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir)
 #endif
 #endif
 #ifdef EHS_DEBUG_ROOT_DIR
+#ifndef INX_SODL_IN_FLASH
     //EHSH_LOG_INFO("argv0=%s",EhsMetaData.zArgv0);
     //EHSH_LOG_INFO("startdir=%s",start_dir);
     EHSH_LOG_INFO("argv0=%s\n", EhsMetaData.zArgv0);
     EHSH_LOG_INFO("startdir=%s\n", start_dir);
     EHSH_LOG_INFO("Final install dir=%s\n", EhsMetaData.zInstallRootDirectory);
 #endif
+#endif
 #endif // EHS_TARGET_NO_MAIN_ARGS
     //EHSH_LOG_INFO("Done all sys init code");
     /* And set the start time stamp */
-    EhsHGetdateTime(EhsMetaData.zEHSStartDate,EHS_TRUE, 0);
+    EhsHGetdateTime(EhsMetaData.zEHSStartDate,EHS_START_DATE_LENGTH_MAX,EHS_TRUE, 0);
     //EHSH_LOG_INFO("Done all sys init code");
 }
 
 void EhsHInitEhsMetaData() {
+#ifndef INX_SODL_IN_FLASH
     //EhsMemset(&EhsMetaData,0,sizeof(EhsMetaData)); // This does something bad...
     EhsMetaData.zAppsDirectory[0]='\0'; // just in case the aboe doesn't do what we expect ;(
+#endif
 }
 
 /* Version and system status information */
-EHS_GLOBAL void EhsHMetaUpdateStatic()
+void EhsHMetaUpdateStatic()
 {   
-    EhsTOsSys_UpdateEnvironment(&EhsMetaData,1);
+    EhsTOsSys_UpdateEnvironment(&EhsMetaData,EHS_OS_ENV_STATIC_ID);
     EhsMetaData.bStaticUpdate=EHS_TRUE;
 }
-EHS_GLOBAL void EhsHMetaUpdateDynamic()
+void EhsHMetaUpdateDynamic()
 {
-    EhsTOsSys_UpdateEnvironment(&EhsMetaData,2);
+    EhsTOsSys_UpdateEnvironment(&EhsMetaData,EHS_OS_ENV_DYNAMIC_ID);
 }
+
+void EhsHMetaUpdateNetwork()
+{
+    EhsTOsSys_UpdateEnvironment(&EhsMetaData,EHS_OS_ENV_NETWORK_ID);
+}
+
 EHS_GLOBAL const ehs_char* EhsHMetaGetInstPath()
 {
+#ifndef INX_SODL_IN_FLASH
     return EhsMetaData.zInstallRootDirectory;
+#else
+    return NULL;
+#endif
 }
 EHS_GLOBAL const ehs_char* EhsHMetaGetToolboxHashes(){
     return ehsToolboxHashes;
 }
 EHS_GLOBAL const ehs_char* EhsHMetaGetUserPath()
 {
+#ifndef INX_SODL_IN_FLASH
     return EhsMetaData.zUserDirectory;
+#else 
+    return NULL;
+#endif 
 }
 EHS_GLOBAL const ehs_char* EhsHMetaGetAppsPath()
 {
+#ifndef INX_SODL_IN_FLASH
     if ( EhsMetaData.zAppsDirectory[0] != '\0' )
         return EhsMetaData.zAppsDirectory;
     else 
         return NULL;
+#else
+    return NULL;
+#endif
 }
 
 EHS_GLOBAL void EhsHMetaSetAppsPath(ehs_char* path)
 {
+#ifndef INX_SODL_IN_FLASH
     EhsStrcpy(EhsMetaData.zAppsDirectory,path);
+#endif
 }
 
 EHS_GLOBAL const ehs_char* EhsHMetaGetHWID()
@@ -399,9 +458,29 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetHWID()
     return EhsMetaData.zDeviceID;
 }
 
+EHS_GLOBAL ehs_sint16 EhsHMetaGetNetworkMode()
+{
+    return EhsMetaData.nDeviceNetworkMode;
+}
+
 EHS_GLOBAL const ehs_char* EhsHMetaGetIPAddr()
 {
     return EhsMetaData.zDeviceIPAddr;
+}
+
+EHS_GLOBAL const ehs_char* EhsHMetaGetGateway()
+{
+    return EhsMetaData.zDeviceGateway;
+}
+
+EHS_GLOBAL const ehs_char* EhsHMetaGetMask()
+{
+    return EhsMetaData.zDeviceMask;
+}
+
+EHS_GLOBAL const ehs_char* EhsHMetaGetDNS1()
+{
+    return EhsMetaData.zDeviceDNS1;
 }
 
 EHS_GLOBAL void EhsHMetaSetHWID(const char * value)
@@ -411,7 +490,9 @@ EHS_GLOBAL void EhsHMetaSetHWID(const char * value)
 
 EHS_GLOBAL void EhsHMetaSetInstPath(const char * value)
 {
+#ifndef INX_SODL_IN_FLASH
     if (value) EhsStrcpy(EhsMetaData.zInstallRootDirectory,value);
+#endif
 }
 
 EHS_GLOBAL void EhsHMetaSetIPAddr(const char * value)
@@ -460,6 +541,12 @@ EHS_GLOBAL const ehs_uint16 EhsHMetaGetCPUUsage()
 {
 //	printf("CPU_usage get=%d\n",EhsMetaData.CPUUsage);
     return EhsMetaData.CPUUsage;
+}
+
+EHS_GLOBAL const ehs_sint16 EhsHMetaGetCPUTemp()
+{
+//  printf("CPU temperature get=%d\n", EhsMetaData.CPUTemp);
+    return EhsMetaData.CPUTemp;
 }
 
 EHS_GLOBAL const ehs_uint16 EhsHMetaGetMiscAppCPUUsage()
@@ -516,27 +603,47 @@ EHS_GLOBAL ehs_startupmode_t EhsHMetaGetDebugOnStartMode()
     return EhsMetaData.DebugOnStart;
 }
 
+EHS_GLOBAL ehs_bool EhsHMetaGetStartWithoutApp()
+{
+    return EhsMetaData.bStartWithoutApp;
+}
+
+EHS_GLOBAL void EhsHMetaSetStartWithoutApp(ehs_bool enable)
+{
+    EhsMetaData.bStartWithoutApp = enable;
+}
+
 EHS_GLOBAL void EhsHMetaAppSetCurrent(ehs_char * App)
 {
     /* todo should check length and return an error */
+#ifndef INX_SODL_IN_FLASH
     EhsStrcpy(EhsMetaData.AppCurrentLive, App);
+#endif
 }
 
 //@todo - needs renaming!
 EHS_GLOBAL const ehs_char* EhsHMetaAppGetCurrent()
 {
+#ifndef INX_SODL_IN_FLASH
     return EhsMetaData.AppCurrentLive;
+#endif
 }
 
 EHS_GLOBAL void EhsHMetaSetNextAppToRun(ehs_char * App)
 {
     /* todo should check length and return an error */
+#ifndef INX_SODL_IN_FLASH
     EhsStrcpy(EhsMetaData.NextAppToRun, App);
+#endif
 }
 
 EHS_GLOBAL const ehs_char* EhsHMetaGetNextAppToRun()
 {
+#ifndef INX_SODL_IN_FLASH
     return EhsMetaData.NextAppToRun;
+#else
+    return NULL;
+#endif
 }
 
 
@@ -602,13 +709,18 @@ void EhsHMetaSetMissedPing()
 /* The following are inter app related functions, but get data from the ES environment - not the app environment */
 EHS_GLOBAL const ehs_char * EhsHAppMetaGetLiveDir()
 {
+#ifndef INX_SODL_IN_FLASH
     return EhsMetaData.AppCurrentLive;
+#else
+    return NULL;
+#endif
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetSysInfo()
+extern const ehs_char* EhsHMetaGetSysInfo()
 {
     return EhsMetaData.zSysInfo;
 }
+
 void EhsHMetaSetSyscInfo(const ehs_char* zSysInfo)
 {
     EhsStrcpy(EhsMetaData.zSysInfo, zSysInfo);
@@ -616,17 +728,17 @@ void EhsHMetaSetSyscInfo(const ehs_char* zSysInfo)
 
 /* Miscelaneoud data (JSOn usually) to server */
 /* Download data */
-EHS_GLOBAL ehs_bool EhsHMetaIsNewDevmanMiscDLData()
+extern ehs_bool EhsHMetaIsNewDevmanMiscDLData()
 {
     return EhsMetaData.NewDevmanMiscDLData;
 }
 
-EHS_GLOBAL void EhsHMetaSetNewDevmanMiscDLDataNew(ehs_bool val)
+extern void EhsHMetaSetNewDevmanMiscDLDataNew(ehs_bool val)
 {
     EhsMetaData.NewDevmanMiscDLData = val;
 }
 
-EHS_GLOBAL ehs_char* EhsHMetaGetPtrToDevmanMiscDLData()
+extern ehs_char* EhsHMetaGetPtrToDevmanMiscDLData()
 {
 #ifdef EHS_DEVMAN_SUPPORT
     return EhsMetaData.zDevmanMiscDLData;
@@ -636,7 +748,7 @@ EHS_GLOBAL ehs_char* EhsHMetaGetPtrToDevmanMiscDLData()
 }
 
 
-EHS_GLOBAL ehs_char* EhsHMetaGetPtrToDevmanMiscDLDataType()
+extern ehs_char* EhsHMetaGetPtrToDevmanMiscDLDataType()
 {
 #ifdef EHS_DEVMAN_SUPPORT
     return EhsMetaData.zDevmanMiscDLDataType;
@@ -664,7 +776,7 @@ EHS_GLOBAL void EhsHMetaSetDevmanMiscDLDataType(const ehs_char* zMiscInfo)
   and then signal the semaphore there's some data 
 */ 
 
-EHS_GLOBAL void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
+extern void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
 {
 #ifdef EHS_DEVMAN_SUPPORT
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
@@ -681,12 +793,12 @@ EHS_GLOBAL void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
 }
 
 /* Strange place for these?*/
-EHS_GLOBAL EhsTPConditionClass EhsHMetaGetDevmanMiscDLDataSemaphor()
+extern EhsTPConditionClass EhsHMetaGetDevmanMiscDLDataSemaphor()
 {
     return EhsMetaData.condDevmanNewMiscDLData;
 
 }
-EHS_GLOBAL EhsTPMutexClass EhsHMetaGetDevmanMiscDLDataMutex()
+extern EhsTPMutexClass EhsHMetaGetDevmanMiscDLDataMutex()
 {
     return EhsMetaData.mutexDevmanNewMiscDLData;
 }
@@ -701,7 +813,7 @@ EHS_GLOBAL void EhsHMetaGetCpyDevmanMiscDLData(ehs_char* zMiscInfo)
 }
 
 /* this gets just the new part */
-EHS_GLOBAL void EhsHMetaGetCpyDevmanNewMiscDLData(ehs_char* zMiscInfo)
+extern void EhsHMetaGetCpyDevmanNewMiscDLData(ehs_char* zMiscInfo)
 {
 #ifdef EHS_DEVMAN_SUPPORT
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
@@ -711,7 +823,7 @@ EHS_GLOBAL void EhsHMetaGetCpyDevmanNewMiscDLData(ehs_char* zMiscInfo)
 }
 
 /* this gets just the new part */
-EHS_GLOBAL ehs_char*  EhsHMetaGetDevmanNewMiscDLDataPtr()
+extern ehs_char*  EhsHMetaGetDevmanNewMiscDLDataPtr()
 {
 #ifdef EHS_DEVMAN_SUPPORT
     return EhsMetaData.zDevmanNewMiscDLData;
@@ -722,17 +834,17 @@ EHS_GLOBAL ehs_char*  EhsHMetaGetDevmanNewMiscDLDataPtr()
 
 
 /* upload Data */
-EHS_GLOBAL ehs_bool EhsHMetaIsNewDevmanMiscULData()
+extern ehs_bool EhsHMetaIsNewDevmanMiscULData()
 {
     return EhsMetaData.NewDevmanMiscULData;
 }
 /************* Not thread safe */
-EHS_GLOBAL void EhsHMetaSetNewDevmanMiscULDataNew(ehs_bool val)
+extern void EhsHMetaSetNewDevmanMiscULDataNew(ehs_bool val)
 {
     EhsMetaData.NewDevmanMiscULData = val;
 }
 
-EHS_GLOBAL ehs_char* EhsHMetaGetPtrToDevmanMiscULData()
+extern ehs_char* EhsHMetaGetPtrToDevmanMiscULData()
 {
 #ifdef EHS_DEVMAN_SUPPORT
     return EhsMetaData.zDevmanMiscULData;
@@ -742,7 +854,7 @@ EHS_GLOBAL ehs_char* EhsHMetaGetPtrToDevmanMiscULData()
 }
 
 /********************************/
-EHS_GLOBAL void EhsHMetaSetDevmanMiscULData(const ehs_char* zMiscInfo)
+extern void EhsHMetaSetDevmanMiscULData(const ehs_char* zMiscInfo)
 {
 #ifdef EHS_DEVMAN_SUPPORT
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
@@ -751,7 +863,7 @@ EHS_GLOBAL void EhsHMetaSetDevmanMiscULData(const ehs_char* zMiscInfo)
 #endif //EHS_DEVMAN_SUPPORT
 }
 
-EHS_GLOBAL void EhsHMetaGetCpyDevmanMiscULData(ehs_char* zMiscInfo)
+extern void EhsHMetaGetCpyDevmanMiscULData(ehs_char* zMiscInfo)
 {
 #ifdef EHS_DEVMAN_SUPPORT
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
@@ -761,7 +873,6 @@ EHS_GLOBAL void EhsHMetaGetCpyDevmanMiscULData(ehs_char* zMiscInfo)
     EhsTPMutex_unlock(EhsTPMutex_devmanMiscBuffers);
 #endif //EHS_DEVMAN_SUPPORT
 }
-
 
 void EhsHGetEHSVersionInfo(EhsMetaDataType * EhsMetaData)
 {
@@ -782,8 +893,8 @@ void EhsHGetEHSVersionInfo(EhsMetaDataType * EhsMetaData)
     }
     else
     {
-        EhsFgets(EhsMetaData->zVersion,EHS_STRING_LENGTH_MAX,EhsVersionFile);
-        EhsFgets(EhsMetaData->zBuildDate,EHS_STRING_LENGTH_MAX,EhsVersionFile);
+        EhsFgets(EhsMetaData->zVersion,EHS_VERSION_LENGTH_MAX,EhsVersionFile);
+        EhsFgets(EhsMetaData->zBuildDate,EHS_BUILD_DATE_LENGTH_MAX,EhsVersionFile);
         EhsFgets(temp,64,EhsVersionFile); // skip the build tag hash
         if (EhsStrlen(temp)>0  && EhsStrlen(temp)< 64) EhsMetaData->nRepoID=atoi(temp);
         else
@@ -791,8 +902,8 @@ void EhsHGetEHSVersionInfo(EhsMetaDataType * EhsMetaData)
             EhsMetaData->nRepoID=-2; //@todo need formal error enumerator for invalid data
         }
         //EhsFgets(EhsMetaData->zTargetVariant,EHS_STRING_LENGTH_MAX,EhsVersionFile); // skip the build tag hash
-        EhsFgets(EhsMetaData->zTargetVariant,EHS_STRING_LENGTH_MAX,EhsVersionFile);
-        EhsFgets(EhsMetaData->zModuleList,EHS_STRING_LENGTH_MAX,EhsVersionFile);
+        EhsFgets(EhsMetaData->zTargetVariant,EHS_TARGET_VARIANT_LENGTH_MAX,EhsVersionFile);
+        EhsFgets(EhsMetaData->zModuleList,EHS_MODULE_LIST_LENGTH_MAX,EhsVersionFile);
         EhsFclose(EhsVersionFile);
     }
 }
@@ -1066,6 +1177,10 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
         void EhsHSys_init()
         {
             EhsHMem_init(); /* this function has no pre-requisites: it should be called first */
+            
+            /* Create basic file syste if the installer hasn't */
+            EhsFInitFileSystem();
+
             EhsHLogger_init(); /* initialise the system Logger */
             /* EHSH_LOG_LEVEL_ERROR|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO|EHSH_LOG_LEVEL_ENTER|EHSH_LOG_LEVEL_EXIT */
             EhsHSetLogLevels();
@@ -1077,9 +1192,9 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             EhsTOsSys_init(); /* initialise the Operating System */
             
 #ifdef EHS_DEBUG_TCPIP_CONSOLE
-            printf("Starting TCPIP CONSOLE thread\n");
-            EhsHThread_execute(EhsSvcTcp_server, NULL, -15, EHS_THREAD_USE_DEFAULT_STACK_SIZE);//-90); //////// CHANGES ONLYA
-            printf("Started TCPIP CONSOLE thread\n");
+            //printf("Starting TCPIP CONSOLE thread\n");
+            EhsHThread_execute(EhsSvcTcp_server, NULL, EHS_PRI_TCP_IP_CONSOLE, EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE);//-90); //////// CHANGES ONLYA
+            //printf("Started TCPIP CONSOLE thread\n");
 #endif
             EhsHGetEHSVersionInfo(&EhsMetaData); /*Populate the version information table */
             /* Path info is defined at first start before any cds etc */

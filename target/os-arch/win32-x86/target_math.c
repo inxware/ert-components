@@ -22,30 +22,39 @@
 /**
  * Implementation of asinh as VisualStudio doesn't provide one.
  */
-double asinh(double x)
+ehs_float asinh(ehs_float x)
 {
-    double ret = log(x + sqrt(x*x+1));
-
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+    ehs_float ret = logf(x + sqrtf(x*x+1));
+#else
+    ehs_float ret = log(x + sqrt(x*x+1));
+#endif
     return ret;
 }
 
 /**
  * Implementation of acosh as VisualStudio doesn't provide one.
  */
-double acosh(double x)
+ehs_float acosh(ehs_float x)
 {
-    double ret = log(x + sqrt(x*x-1));
-
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+    ehs_float ret = logf(x + sqrtf(x*x-1));
+#else
+    ehs_float ret = log(x + sqrt(x*x-1));
+#endif
     return ret;
 }
 
 /**
  * Implementation of atanh as VisualStudio doesn't provide one.
  */
-double atanh(double x)
+ehs_float atanh(ehs_float x)
 {
-    double ret = 0.5 * log((1+x)/(1-x));
-
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+    ehs_float ret = 0.5f * logf((1+x)/(1-x));
+#else
+    ehs_float ret = 0.5 * log((1+x)/(1-x));
+#endif
     return ret;
 }
 

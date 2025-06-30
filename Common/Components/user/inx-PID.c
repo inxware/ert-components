@@ -1,61 +1,61 @@
 //ICB HEADER MACRO START -- DO NOT ALTER
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
-
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-PID.h"
+//ICB HEADER MACRO END -- DO NOT ALTER
 #include "hal_pid.h"
 #include "hal_logger.h"
-//ICB HEADER MACRO END -- DO NOT ALTER
-//ICB STATE VAR MACRO START -- DO NOT ALTER
-/* My Component state data structure. - Use this in your code! */
-typedef struct inx_PID_state
-{
-	EhsCallbackQueueType xQueue;
-	EhsCallbackQueueEntryType xEntry;
-	ehs_pid_ctrl_type pid_ctrl;
-} inx_PID_state_type; //Reference this, maybe store your config parameters in here too.
-//ICB STATE VAR MACRO END -- DO NOT ALTER
+
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(PID)
-EHS_FB_FUNCTION_ENTRY("set_value", 0x01, PID_set_value)
-EHS_FB_FUNCTION_ENTRY("set_config", 0x02, PID_set_config)
-EHS_FB_FUNCTION_ENTRY("control_cb", 0x03, PID_control_cb)
-EHS_FB_FUNCTION_ENTRY("get_value", 0x04, PID_get_value)
+EHS_FB_FUNCTION_ENTRY("init", 0x01, PID_init)
+EHS_FB_FUNCTION_ENTRY("new_measure", 0x02, PID_new_measure)
+EHS_FB_FUNCTION_ENTRY("set_point_value", 0x03, PID_set_point_value)
+EHS_FB_FUNCTION_ENTRY("set_pid_config", 0x04, PID_set_pid_config)
+EHS_FB_FUNCTION_ENTRY("set_io_config", 0x05, PID_set_io_config)
+EHS_FB_FUNCTION_ENTRY("get_isr_value", 0x06, PID_get_isr_value)
+EHS_FB_FUNCTION_ENTRY("get_ctrl_value", 0x07, PID_get_ctrl_value)
+EHS_FB_FUNCTION_ENTRY("disable_ctrl", 0x08, PID_disable_ctrl)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
 /* Friendly labels for the run function data and event function argument enumerations */
-#define INX_PID_ARG_set_value_setpoint 1
-#define INX_PID_ARG_set_value_measurement 2
-#define INX_PID_ARG_set_value_valueSetOK 1
-#define INX_PID_ARG_set_config_configP 1
-#define INX_PID_ARG_set_config_configI 2
-#define INX_PID_ARG_set_config_configD 3
-#define INX_PID_ARG_set_config_ChADC 4
-#define INX_PID_ARG_set_config_EnRelayCheck 5
-#define INX_PID_ARG_set_config_MaxGlobalValue 6
-#define INX_PID_ARG_set_config_ChGPIO1 7
-#define INX_PID_ARG_set_config_ChGPIO2 8
-#define INX_PID_ARG_set_config_ChGPIO3 9
-#define INX_PID_ARG_set_config_OutputMode 10
-#define INX_PID_ARG_set_config_EnableControl 11
-#define INX_PID_ARG_set_config_maxi 12
-#define INX_PID_ARG_set_config_ConfigSetOK 1
-#define INX_PID_ARG_control_cb_outInPercent 1
-#define INX_PID_ARG_control_cb_errorValue 2
-#define INX_PID_ARG_control_cb_PWM2Out 3
-#define INX_PID_ARG_control_cb_PWM1Out 4
-#define INX_PID_ARG_control_cb_PWM3Out 5
-#define INX_PID_ARG_control_cb_control 1
-#define INX_PID_ARG_get_value_adc_value 1
-#define INX_PID_ARG_get_value_got_val 1
+#define INX_PID_ARG_init_isr_mode 1
+#define INX_PID_ARG_init_calib 2
+#define INX_PID_ARG_init_init_done 1
+#define INX_PID_ARG_new_measure_new_measured_val 1
+#define INX_PID_ARG_new_measure_measuerd_val 1
+#define INX_PID_ARG_new_measure_connected 2
+#define INX_PID_ARG_new_measure_new_measuerd_done 1
+#define INX_PID_ARG_new_measure_measured_done 2
+#define INX_PID_ARG_set_point_value_set_point_val 1
+#define INX_PID_ARG_set_point_value_set_point_done 1
+#define INX_PID_ARG_set_pid_config_p_coeff 1
+#define INX_PID_ARG_set_pid_config_i_coeff 2
+#define INX_PID_ARG_set_pid_config_d_coeff 3
+#define INX_PID_ARG_set_pid_config_max_i_val 4
+#define INX_PID_ARG_set_pid_config_max_global_val 5
+#define INX_PID_ARG_set_pid_config_pid_config_done 1
+#define INX_PID_ARG_set_io_config_sensor_id 1
+#define INX_PID_ARG_set_io_config_output_mode 2
+#define INX_PID_ARG_set_io_config_output1 3
+#define INX_PID_ARG_set_io_config_output2 4
+#define INX_PID_ARG_set_io_config_output3 5
+#define INX_PID_ARG_set_io_config_relay_check 6
+#define INX_PID_ARG_set_io_config_io_config_done 1
+#define INX_PID_ARG_get_isr_value_measuerd_val 1
+#define INX_PID_ARG_get_isr_value_connected 2
+#define INX_PID_ARG_get_isr_value_measured_done 1
+#define INX_PID_ARG_get_ctrl_value_perc_out_val 1
+#define INX_PID_ARG_get_ctrl_value_pwm1 2
+#define INX_PID_ARG_get_ctrl_value_pwm2 3
+#define INX_PID_ARG_get_ctrl_value_pwm3 4
+#define INX_PID_ARG_get_ctrl_value_ctrl_done 1
+#define INX_PID_ARG_disable_ctrl_disable_state 1
+#define INX_PID_ARG_disable_ctrl_disable_done 1
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
-//ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
-/* Parameters */
-/* Create some macros for the default parameters */
-//ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
+
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 /**
  * Identify the function block to EHS.
@@ -65,7 +65,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(PID)
 {
-	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_PID_state_type);
+	EHS_FB_IDENTIFY_MEMORY = sizeof(ehs_pid_ctrl_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
@@ -78,54 +78,35 @@ EHS_FB_IDENTIFY_FUNCTION(PID)
 
 EHS_FB_INIT_FUNCTION(PID)
 {
-	unsigned int PIDNo = 0;
-	unsigned int ISR_Mode = 0;
-	float P_Default = 0.0f;
-	float I_Default = 0.0f;
-	float D_Default = 0.0f;
 	ehs_bool bRet = EHS_TRUE; /* assume success */
-	//this is the reference to the object data for this instance of the function block
-	inx_PID_state_type* inx_PID_state = (inx_PID_state_type*)EHS_FB_INIT_CONTEXT;
-	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %f %f %f", &PIDNo, &ISR_Mode, &P_Default, &I_Default, &D_Default);
-
-	inx_PID_state->pid_ctrl.pid_no = (ehs_sint32)PIDNo;
-	inx_PID_state->pid_ctrl.ISR_mode = (ehs_bool)ISR_Mode;
-	inx_PID_state->pid_ctrl.target_data = NULL;
-	inx_PID_state->pid_ctrl.nSetValue = 0;
-	inx_PID_state->pid_ctrl.nMeasuredValue = 0;
-	inx_PID_state->pid_ctrl.P = P_Default;
-	inx_PID_state->pid_ctrl.I = I_Default;
-	inx_PID_state->pid_ctrl.D = D_Default;
-	inx_PID_state->pid_ctrl.bEnableRelayCheck = EHS_FALSE;
-	inx_PID_state->pid_ctrl.nMaxGlobalValue = 4096; // default is a max value of the adc 12-bit (2^12) adc
-	inx_PID_state->pid_ctrl.nMaxIValue = 200;
-
-	// todo - should these have specific default values
-	inx_PID_state->pid_ctrl.nChannelADC = -1;
-    inx_PID_state->pid_ctrl.nChannelGPIOOut1 = 0;
-    inx_PID_state->pid_ctrl.nChannelGPIOOut2 = 0;
-    inx_PID_state->pid_ctrl.nChannelGPIOOut3 = 0;
 	
-	inx_PID_state->pid_ctrl.nOutputPercent = 0;
-    inx_PID_state->pid_ctrl.bPWMOut1 = EHS_FALSE;
-    inx_PID_state->pid_ctrl.bPWMOut2 = EHS_FALSE;
-    inx_PID_state->pid_ctrl.bPWMOut3 = EHS_FALSE;
-    inx_PID_state->pid_ctrl.nError = PID_CTRL_NO_ERROR;
+	//this is the reference to the object data for this instance of the function block
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_INIT_CONTEXT;
+	/* read the initialisation parameters */
+	const char* pParams = EHS_FB_INIT_PARAMETERS;
+	pParams = EhsGetSint32FromString(&(pid_ctrl->pid_no), pParams);
+	pParams = EhsGetUint8FromString(&(pid_ctrl->ISR_mode), pParams);
+	pParams = EhsGetSint32FromString(&(pid_ctrl->nSensorID), pParams);
+	pParams = EhsGetDoubleFromString(&(pid_ctrl->P), pParams);
+	pParams = EhsGetDoubleFromString(&(pid_ctrl->I), pParams);
+	pParams = EhsGetDoubleFromString(&(pid_ctrl->D), pParams);
+	pParams = EhsGetSint32FromString(&(pid_ctrl->nOutputMode), pParams);
+	pParams = EhsGetSint32FromString(&(pid_ctrl->nChannelOutput1), pParams);
+	pParams = EhsGetSint32FromString(&(pid_ctrl->nChannelOutput2), pParams);
+	pParams = EhsGetSint32FromString(&(pid_ctrl->nChannelOutput3), pParams);
+	pParams = EhsGetUint8FromString(&(pid_ctrl->bDisableControl), pParams);
+	pParams = EhsGetUint8FromString(&(pid_ctrl->calib_mode), pParams);
 
-	/* set up the callback queue to call the callback function */
-	inx_PID_state->xQueue = NULL;
-	EhsCallbackQueue_register(&(inx_PID_state->xQueue),
-								EHS_FB_RUN_NAME(PID_control_cb),
-								EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(-1),
-								&(inx_PID_state->xEntry));
-
-	/* tell the timer what to callback upon expiry */
-	inx_PID_state->pid_ctrl.pCallback = &(inx_PID_state->xQueue);
-
-	if( EhsInitPIDCtrl(&inx_PID_state->pid_ctrl) == EHS_FALSE ){
-		EHSH_LOG_ERROR("Failed to init PID controller (error=%d)\n", (ehs_sint32)inx_PID_state->pid_ctrl.nError);
-	}
+	pid_ctrl->setpointValue = 0;
+	pid_ctrl->measuredValue = 0;
+	pid_ctrl->bEnableRelayCheck = EHS_FALSE;
+	pid_ctrl->maxGlobalValue = 1000;
+	pid_ctrl->maxIValue = 20;
+	pid_ctrl->nOutputPercent = 0;
+	pid_ctrl->bPWMOut1 = EHS_FALSE;
+	pid_ctrl->bPWMOut2 = EHS_FALSE;
+	pid_ctrl->bPWMOut3 = EHS_FALSE;
+	pid_ctrl->nError = PID_CTRL_NO_ERROR;
 
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */
@@ -134,140 +115,232 @@ EHS_FB_INIT_FUNCTION(PID)
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(PID)
 {
-	inx_PID_state_type *inx_PID_state = (inx_PID_state_type*)EHS_FB_DESTROY_CONTEXT;
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_DESTROY_CONTEXT;
 	
-	EhsDestroyPIDCtrl(&inx_PID_state->pid_ctrl);
+	EhsPIDCtrlDestroy(pid_ctrl);
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
-//ICB FUNCTION set_value MACRO START -- DO NOT ALTER
+//ICB FUNCTION init MACRO START -- DO NOT ALTER
 /**
- * Definition of PID_set_value.
+ * Definition of PID_init.
  * [User's info entered in ICB added here]
  * This function can access the object data shared using the following macros:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
  */
-EHS_FB_RUN_FUNCTION(PID_set_value)
+EHS_FB_RUN_FUNCTION(PID_init)
 {
-	inx_PID_state_type* inx_PID_state = (inx_PID_state_type*)EHS_FB_RUN_CONTEXT;
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_RUN_CONTEXT;
 
-	ehs_bool bUpdate = EHS_FALSE;
-
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_value_setpoint)){
-		inx_PID_state->pid_ctrl.nSetValue = EHS_FB_IN_I_API2(INX_PID_ARG_set_value_setpoint);
-		bUpdate = EHS_TRUE;
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_init_isr_mode)){
+		pid_ctrl->ISR_mode = EHS_FB_IN_B_API2(INX_PID_ARG_init_isr_mode);
 	}
-	if(inx_PID_state->pid_ctrl.ISR_mode == EHS_FALSE){
-		if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_value_measurement)) {
-			inx_PID_state->pid_ctrl.nMeasuredValue = EHS_FB_IN_I_API2(INX_PID_ARG_set_value_measurement);
-			bUpdate = EHS_TRUE;
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_init_calib)){
+		pid_ctrl->calib_mode = EHS_FB_IN_B_API2(INX_PID_ARG_init_calib);
+	}
+	if( EhsPIDCtrlInit(pid_ctrl) == EHS_TRUE ){
+		EHS_FB_FINISH(INX_PID_ARG_init_init_done);
+	}else{
+		EHSH_LOG_ERROR("Failed to init PID controller (error=%d)\n", (ehs_sint32)pid_ctrl->nError);
+	}
+}//ICB FUNCTION init MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION new_measure MACRO START -- DO NOT ALTER
+/**
+ * Definition of PID_new_measure.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(PID_new_measure)
+{
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_RUN_CONTEXT;
+
+	if(pid_ctrl->ISR_mode == EHS_TRUE){
+		EHSH_LOG_ERROR("Setting new measuered value in ISR mode is not supported.");
+		return;
+	}
+
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_new_measure_new_measured_val)){
+		pid_ctrl->measuredValue = EHS_FB_IN_F_API2(INX_PID_ARG_new_measure_new_measured_val);
+		if(EhsPIDCtrlSetMeasuredValue(pid_ctrl) == EHS_TRUE){
+			EHS_FB_FINISH(INX_PID_ARG_new_measure_new_measuerd_done);
+			if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_new_measure_measuerd_val)){
+				ehs_bool isConnected = EHS_FALSE;
+				EHS_FB_OUT_F_API2(INX_PID_ARG_new_measure_measuerd_val) = EhsPIDCtrlGetSensorValue(pid_ctrl, &isConnected);
+				EHS_FB_OUT_B_API2(INX_PID_ARG_new_measure_connected) = isConnected;
+				EHS_FB_FINISH(INX_PID_ARG_new_measure_measured_done);
+			}
 		}
 	}
-	if(bUpdate == EHS_TRUE){
-		ehs_bool ret = EhsSetMeasuredValuePIDCtrl(&inx_PID_state->pid_ctrl);
-		if(ret == EHS_FALSE){
-			// todo - output error
+}//ICB FUNCTION new_measure MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION set_point_value MACRO START -- DO NOT ALTER
+/**
+ * Definition of PID_set_point_value.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(PID_set_point_value)
+{
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_RUN_CONTEXT;
+
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_point_value_set_point_val)){
+		pid_ctrl->setpointValue = EHS_FB_IN_F_API2(INX_PID_ARG_set_point_value_set_point_val);
+		if(EhsPIDCtrlSetSetpointValue(pid_ctrl) == EHS_TRUE){
+			EHS_FB_FINISH(INX_PID_ARG_set_point_value_set_point_done);
+		}else{
+			EHSH_LOG_ERROR("EhsPIDCtrlSetSetpointValue configure FAILED ! \n");
 		}
 	}
-	
-	EHS_FB_FINISH(INX_PID_ARG_set_value_valueSetOK);
-}//ICB FUNCTION set_value MACRO END -- DO NOT ALTER THIS LINE
-//ICB FUNCTION set_config MACRO START -- DO NOT ALTER
+}//ICB FUNCTION set_point_value MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION set_pid_config MACRO START -- DO NOT ALTER
 /**
- * Definition of PID_set_config.
+ * Definition of PID_set_pid_config.
  * [User's info entered in ICB added here]
  * This function can access the object data shared using the following macros:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
  */
-EHS_FB_RUN_FUNCTION(PID_set_config)
+EHS_FB_RUN_FUNCTION(PID_set_pid_config)
 {
-	inx_PID_state_type* inx_PID_state = (inx_PID_state_type*)EHS_FB_RUN_CONTEXT;
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_configP)){
-		inx_PID_state->pid_ctrl.P = EHS_FB_IN_F_API2(INX_PID_ARG_set_config_configP);
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_pid_config_p_coeff)){
+		pid_ctrl->P = EHS_FB_IN_F_API2(INX_PID_ARG_set_pid_config_p_coeff);
 	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_configI)){
-		inx_PID_state->pid_ctrl.I = EHS_FB_IN_F_API2(INX_PID_ARG_set_config_configI);
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_pid_config_i_coeff)){
+		pid_ctrl->I = EHS_FB_IN_F_API2(INX_PID_ARG_set_pid_config_i_coeff);
 	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_configD)){
-		inx_PID_state->pid_ctrl.D = EHS_FB_IN_F_API2(INX_PID_ARG_set_config_configD);
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_pid_config_d_coeff)){
+		pid_ctrl->D = EHS_FB_IN_F_API2(INX_PID_ARG_set_pid_config_d_coeff);
 	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_ChADC)){
-		inx_PID_state->pid_ctrl.nChannelADC = EHS_FB_IN_I_API2(INX_PID_ARG_set_config_ChADC);
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_pid_config_max_i_val)){
+		pid_ctrl->maxIValue = EHS_FB_IN_F_API2(INX_PID_ARG_set_pid_config_max_i_val);
 	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_EnRelayCheck)){
-		inx_PID_state->pid_ctrl.bEnableRelayCheck = EHS_FB_IN_B_API2(INX_PID_ARG_set_config_EnRelayCheck);
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_pid_config_max_global_val)){
+		pid_ctrl->maxGlobalValue = EHS_FB_IN_F_API2(INX_PID_ARG_set_pid_config_max_global_val);
 	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_MaxGlobalValue)){
-		inx_PID_state->pid_ctrl.nMaxGlobalValue = EHS_FB_IN_I_API2(INX_PID_ARG_set_config_MaxGlobalValue);
+	if(EhsPIDCtrlConfigurePID(pid_ctrl) == EHS_TRUE){
+		EHS_FB_FINISH(INX_PID_ARG_set_pid_config_pid_config_done);
+	}else{
+		EHSH_LOG_ERROR("EhsPIDCtrlConfigurePID configure FAILED ! \n");
 	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_ChGPIO1)){
-		inx_PID_state->pid_ctrl.nChannelGPIOOut1 = EHS_FB_IN_I_API2(INX_PID_ARG_set_config_ChGPIO1);
-	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_ChGPIO2)){
-		inx_PID_state->pid_ctrl.nChannelGPIOOut2 = EHS_FB_IN_I_API2(INX_PID_ARG_set_config_ChGPIO2);
-	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_ChGPIO3)){
-		inx_PID_state->pid_ctrl.nChannelGPIOOut3 = EHS_FB_IN_I_API2(INX_PID_ARG_set_config_ChGPIO3);
-	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_OutputMode)){
-		inx_PID_state->pid_ctrl.nOutputMode = EHS_FB_IN_I_API2(INX_PID_ARG_set_config_OutputMode);
-	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_EnableControl)){
-		inx_PID_state->pid_ctrl.bEnableControl = EHS_FB_IN_B_API2(INX_PID_ARG_set_config_EnableControl);
-	}
-	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_config_maxi)){
-		inx_PID_state->pid_ctrl.nMaxIValue = EHS_FB_IN_I_API2(INX_PID_ARG_set_config_maxi);
-	}
-	ehs_bool ret = EhsConfigurePIDCtrl(&inx_PID_state->pid_ctrl);
-	if(ret == EHS_FALSE){
-		// todo - output error
-	}
-	
-	EHS_FB_FINISH(INX_PID_ARG_set_config_ConfigSetOK);
-}//ICB FUNCTION set_config MACRO END -- DO NOT ALTER THIS LINE
-//ICB FUNCTION control_cb MACRO START -- DO NOT ALTER
+}//ICB FUNCTION set_pid_config MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION set_io_config MACRO START -- DO NOT ALTER
 /**
- * Definition of PID_control_cb.
+ * Definition of PID_set_io_config.
  * [User's info entered in ICB added here]
  * This function can access the object data shared using the following macros:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
  */
-EHS_FB_RUN_FUNCTION(PID_control_cb)
+EHS_FB_RUN_FUNCTION(PID_set_io_config)
 {
-	inx_PID_state_type* inx_PID_state = (inx_PID_state_type*)EHS_FB_RUN_CONTEXT;
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_control_cb_outInPercent))
-		EHS_FB_OUT_I_API2(INX_PID_ARG_control_cb_outInPercent) = inx_PID_state->pid_ctrl.nOutputPercent;
-	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_control_cb_errorValue))
-		EHS_FB_OUT_I_API2(INX_PID_ARG_control_cb_errorValue) = (ehs_sint32)inx_PID_state->pid_ctrl.nError;
-	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_control_cb_PWM1Out))
-		EHS_FB_OUT_B_API2(INX_PID_ARG_control_cb_PWM1Out) = inx_PID_state->pid_ctrl.bPWMOut1;
-	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_control_cb_PWM2Out))
-		EHS_FB_OUT_B_API2(INX_PID_ARG_control_cb_PWM2Out) = inx_PID_state->pid_ctrl.bPWMOut2;
-	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_control_cb_PWM3Out))
-		EHS_FB_OUT_B_API2(INX_PID_ARG_control_cb_PWM3Out) = inx_PID_state->pid_ctrl.bPWMOut3;
-	EHS_FB_FINISH(INX_PID_ARG_control_cb_control);
-}//ICB FUNCTION control_cb MACRO END -- DO NOT ALTER THIS LINE
-//ICB FUNCTION get_value MACRO START -- DO NOT ALTER
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_io_config_sensor_id)){
+		pid_ctrl->nSensorID = EHS_FB_IN_I_API2(INX_PID_ARG_set_io_config_sensor_id);
+	}
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_io_config_output_mode)){
+		pid_ctrl->nOutputMode = EHS_FB_IN_I_API2(INX_PID_ARG_set_io_config_output_mode);
+	}
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_io_config_output1)){
+		pid_ctrl->nChannelOutput1 = EHS_FB_IN_I_API2(INX_PID_ARG_set_io_config_output1);
+	}
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_io_config_output2)){
+		pid_ctrl->nChannelOutput2 = EHS_FB_IN_I_API2(INX_PID_ARG_set_io_config_output2);
+	}
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_io_config_output3)){
+		pid_ctrl->nChannelOutput3 = EHS_FB_IN_I_API2(INX_PID_ARG_set_io_config_output3);
+	}
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_set_io_config_relay_check)){
+		pid_ctrl->bEnableRelayCheck = EHS_FB_IN_B_API2(INX_PID_ARG_set_io_config_relay_check) ;
+	}
+	if(EhsPIDCtrlConfigureIO(pid_ctrl) == EHS_TRUE){
+		EHS_FB_FINISH(INX_PID_ARG_set_io_config_io_config_done);
+	}else{
+		EHSH_LOG_ERROR("EhsPIDCtrlConfigureIO configure FAILED ! \n");
+	}
+}//ICB FUNCTION set_io_config MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION get_isr_value MACRO START -- DO NOT ALTER
 /**
- * Definition of PID_get_value.
+ * Definition of PID_get_isr_value.
  * [User's info entered in ICB added here]
  * This function can access the object data shared using the following macros:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
  */
-EHS_FB_RUN_FUNCTION(PID_get_value)
+EHS_FB_RUN_FUNCTION(PID_get_isr_value)
 {
-	inx_PID_state_type* inx_PID_state = (inx_PID_state_type*)EHS_FB_RUN_CONTEXT;
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_get_value_adc_value)){
-		EHS_FB_OUT_I_API2(INX_PID_ARG_get_value_adc_value) = EhsGetAdcValuePIDCtrl(&(inx_PID_state->pid_ctrl));
+	if(pid_ctrl->ISR_mode == EHS_FALSE){
+		EHSH_LOG_ERROR("Getting measuered value in non-ISR mode is not supported.");
+		return;
 	}
-	EHS_FB_FINISH(INX_PID_ARG_get_value_got_val);
-}//ICB FUNCTION get_value MACRO END -- DO NOT ALTER THIS LINE
+
+	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_get_isr_value_measuerd_val)){
+		ehs_bool isConnected = EHS_FALSE;
+		EHS_FB_OUT_F_API2(INX_PID_ARG_get_isr_value_measuerd_val) = EhsPIDCtrlGetSensorValue(pid_ctrl, &isConnected);
+		EHS_FB_OUT_B_API2(INX_PID_ARG_get_isr_value_connected) = isConnected;
+		EHS_FB_FINISH(INX_PID_ARG_get_isr_value_measured_done);
+	}
+}//ICB FUNCTION get_isr_value MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION get_ctrl_value MACRO START -- DO NOT ALTER
+/**
+ * Definition of PID_get_ctrl_value.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(PID_get_ctrl_value)
+{
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_RUN_CONTEXT;
+	ehs_bool bUpdated = EHS_FALSE;
+
+	if(EhsPIDCtrlUpdateOutputs(pid_ctrl) == EHS_FALSE){
+		EHSH_LOG_ERROR("Failed to updated PID (%d) output data.", pid_ctrl->pid_no);
+		return;
+	}
+
+	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_get_ctrl_value_perc_out_val)){
+		EHS_FB_OUT_F_API2(INX_PID_ARG_get_ctrl_value_perc_out_val) = (ehs_float) pid_ctrl->nOutputPercent;
+		bUpdated = EHS_TRUE;
+	}
+	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_get_ctrl_value_pwm1)){
+		EHS_FB_OUT_B_API2(INX_PID_ARG_get_ctrl_value_pwm1) = pid_ctrl->bPWMOut1;
+		bUpdated = EHS_TRUE;
+	}
+	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_get_ctrl_value_pwm2)){
+		EHS_FB_OUT_B_API2(INX_PID_ARG_get_ctrl_value_pwm2) = pid_ctrl->bPWMOut2;
+		bUpdated = EHS_TRUE;
+	}
+	if (EHS_FB_OUT_CONNECTED_API2(INX_PID_ARG_get_ctrl_value_pwm3)){
+		EHS_FB_OUT_B_API2(INX_PID_ARG_get_ctrl_value_pwm3) = pid_ctrl->bPWMOut3;
+		bUpdated = EHS_TRUE;
+	}
+	if(bUpdated == EHS_TRUE){
+		EHS_FB_FINISH(INX_PID_ARG_get_ctrl_value_ctrl_done);
+	}
+}//ICB FUNCTION get_ctrl_value MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION disable_ctrl MACRO START -- DO NOT ALTER
+/**
+ * Definition of PID_disable_ctrl.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(PID_disable_ctrl)
+{
+	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_RUN_CONTEXT;
+
+	if (EHS_FB_IN_CONNECTED_API2(INX_PID_ARG_disable_ctrl_disable_state)){
+		pid_ctrl->bDisableControl = EHS_FB_IN_B_API2(INX_PID_ARG_disable_ctrl_disable_state);
+		EhsPIDCtrlDisable(pid_ctrl);
+	}
+	EHS_FB_FINISH(INX_PID_ARG_disable_ctrl_disable_done);
+}//ICB FUNCTION disable_ctrl MACRO END -- DO NOT ALTER THIS LINE

@@ -34,7 +34,7 @@
     </Block>
     <FBID>
         <ERT1_ID>0</ERT1_ID>
-        <Class>IndexedDemultiplexer_Real</Class>
+        <Class>IndexedDemultiplexer_Float</Class>
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xDA95</NameHash_CRC16>

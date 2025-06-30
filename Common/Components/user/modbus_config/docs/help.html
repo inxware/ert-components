@@ -1,158 +1,205 @@
-<html>
+<!DOCTYPE html>
 
+<html lang="en">
 <head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
-
 <body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">modbus_config</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Modbus Config</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+<strong>Modbus Config</strong> is used to configure the MODBUS-RT interface.
     </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-    </table>
-
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]Enable>Enable</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]Disable>Disable</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]id>id</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[Out]-->--</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[Out]-->--</a></td>
-        <td></td>
-      </tr>
-
-    </table>
-
-
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+<th>description</th>
+</tr>
+<tr>
+<td>bus_id</td>
+<td>I</td>
+<td>0</td>
+<td>0</td>
+<td>100</td>
+<td>Bus ID for the MODBUS communication.</td>
+</tr>
+<tr>
+<td>master</td>
+<td>B</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>Whether MODBUS is in Master mode.</td>
+</tr>
+<tr>
+<td>data_mode</td>
+<td>I</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>Whether MODBUS is in RTU, ASCII or TCP/IP mode. 0 if RTU, 1 if ASCII, 2 if TCP/IP.</td>
+</tr>
+<tr>
+<td>port_id</td>
+<td>I</td>
+<td>0</td>
+<td>0</td>
+<td>2147483647</td>
+<td>The port ID of the MODBUS interface.</td>
+</tr>
+<tr>
+<td>ip</td>
+<td>S</td>
+<td>127.0.0.1</td>
+<td></td>
+<td></td>
+<td>The target IP if in TCP/IP mode.</td>
+</tr>
+<tr>
+<td>cert</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>The certificate filename of the MODBUS TCP/IP communication.</td>
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]Enable">Enable</a></td>
+<td>Enable the MODBUS configuration.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name='[In]Disable"'>Disable</a></td>
+<td>Disable the MODBUS configuration.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]Bus_ID">Bus_ID</a></td>
+<td>Bus ID input for MODBUS communication.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]Port">Port</a></td>
+<td>Port number input for MODBUS configuration.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]IP">IP</a></td>
+<td>IP address input for MODBUS configuration.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]Cert">Cert</a></td>
+<td>Certificate input for secure communication.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]Enabled">--</a></td>
+<td>Enable action is done.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]Disabled">--</a></td>
+<td>The configured MODBUS is disabled.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]Errno">Errno</a></td>
+<td>Error number of MODBUS config. 0 if success.</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          N/A
         </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
-          <span class="fsm_blob">state2</span>
-          &otimes;&nbsp;
-          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;
-          <span class="fsm_blob">state5</span> -->
-          None
-        </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
           Core
         </td>
-        <td class=heading-cell>
-          <b>Version</b>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
         </td>
-        <td>
-          v1.0.
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
           MPL2.0
         </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
           All.
         </td>
-      </tr>
-    </table>
-
-  </div>
+</tr>
+</table>
+</div>
 </body>
-
 </html>

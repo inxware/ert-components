@@ -1,22 +1,19 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <!--Name of Component-->
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span">GUI Image File</span>
-        <!--these display in reverse order because they use float:right--> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
-            href="#ports">Ports &#8595;</a></span> </div>
-      <!--General Description-->
-      <p class="component"> This component is used to create a widget to display
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<!--Name of Component-->
+<div class="page_container">
+<div id="toc_container"> <span class="toc_span">GUI Image File</span>
+<!--these display in reverse order because they use float:right--> <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span> </div>
+<!--General Description-->
+<p class="component"> This component is used to create a widget to display
         an image in the GUI. The image to be shown is specified at design-time
         in the widget properties in the GUI Builder, LGB. Images can be loaded
         at run-time by presenting a filename to the data input <a href="#[In]file">[In]file</a>
@@ -24,23 +21,23 @@
         loaded at run-time are expected to be in the 'userdata' subdirectory of
         the target directory and can be PNG (.png), GIF (.gif) or JPEG (.jpg)
         format. This default location can be overridden by setting the parameter
-        Load Image From App Directory to TRUE. This setting allows an image
+        Load From App Dir to TRUE. This setting allows an image
         added to the project as a resource to be displayed in the widget at
         runtime, as resources are stored in the 'appdata' subdirectory of the
         target directory. </p>
-      <p class="component"> When the input event <a href="#[In]create">[In]create</a>
+<p class="component"> When the input event <a href="#[In]create">[In]create</a>
         is triggered, the image specified at design-time in the GUI Builder,
         LGB, is loaded. If the input event <a href="#[In]load">[In]load</a> has
         been triggered prior to <a href="#[In]create">[In]create</a>, then the
         image specified by the filename presented to the data input <a href="#[In]file">[In]file</a>
         is loaded. Please note that the input event <a href="#[In]show">[In]show</a>
         needs to be triggered to display the image. </p>
-      <p class="component"> After the widget has been created and shown, a new
+<p class="component"> After the widget has been created and shown, a new
         image can be displayed by triggering the <a href="#[In]load">[In]load</a>
         event. Once the input event <a href="#[In]destroy">[In]destroy</a> has
         been triggered, the <a href="#[In]create">[In]create</a> event needs to
         be triggered again before another image can be shown. </p>
-      <p class="component"> The position, dimensions, colour and transparency of
+<p class="component"> The position, dimensions, colour and transparency of
         the image are specified in the widget properties in the GUI Builder,
         LGB. The dimensions of the image as specified in LGB can be interpreted
         in two ways depending on the property, Maintain Aspect Ratio, in the
@@ -50,7 +47,7 @@
         extent of the box whilst retaining its original aspect ratio. If the
         property Maintain Aspect Ratio is set to FALSE then the image is
         stretched to the dimensions specified in LGB. </p>
-      <p class="component"> It should be noted that in LGB, there is a Lock
+<p class="component"> It should be noted that in LGB, there is a Lock
         Aspect Ratio check box in the widget properties dialog. When ticked,
         this preserves the aspect ratio of the image when the widget is resized
         in LGB. This is only to aid in the layout of images in the GUI. The
@@ -58,7 +55,7 @@
         whether the image will stretch to fit the dimensions of the widget or
         retain its aspect ratio and use the widget dimensions as a bounding box.
       </p>
-      <p class="component"> The data inputs <a href="#[In]off.x">[In]off.x</a>
+<p class="component"> The data inputs <a href="#[In]off.x">[In]off.x</a>
         and <a href="#[In]off.y">[In]off.y</a> can be used to change the
         position of the image by specifying the offset from its original
         position in the x and y axis respectively. The data inputs <a href="#[In]off.wid">[In]off.wid</a>
@@ -71,19 +68,19 @@
         change the height to maintain the aspect ratio and changes to height
         using the data input <a href="#[In]off.ht">[In]off.ht</a> are ignored.
       </p>
-      <p class="component"> The input event <a href="#[In]create">[In]create</a>
+<p class="component"> The input event <a href="#[In]create">[In]create</a>
         will allocate the memory for the image and <a href="#[In]destroy">[In]destroy</a>
         will deallocate the memory. When the input event <a href="#[In]create">[In]create</a>
         is triggered, data is presented to outputs <a href="#[Out]abs%20x">[Out]abs
           x</a>, <a href="#[Out]abs%20y">[Out]abs y</a>, <a href="#[Out]wid">[Out]wid</a>
         and <a href="#[Out]ht">[Out]ht</a>, describing the absolute position
         and dimensions of the image as created. </p>
-      <p class="component"> The input events <a href="#[In]show">[In]show</a>
+<p class="component"> The input events <a href="#[In]show">[In]show</a>
         and <a href="#[In]hide">[In]hide</a> will show and hide the image. The
         state of the image as shown or hidden is persistent, so that if <a href="#[In]show">[In]show</a>
         is asserted before <a href="#[In]create">[In]create</a>, the image will
         be shown when <a href="#[In]create">[In]create</a> is asserted. </p>
-      <p class="component"> When the input event <a href="#[In]update">[In]update</a>
+<p class="component"> When the input event <a href="#[In]update">[In]update</a>
         is asserted, the values presented to the inputs <a href="#[In]off.x">[In]off.x</a>,
         <a href="#[In]off.y">[In]off.y</a>, <a href="#[In]off.wid">[In]off.wid</a>,
         <a href="#[In]off.ht">[In]off.ht</a> and <a href="#[In]alpha">[In]alpha</a>
@@ -98,250 +95,246 @@
         absolute x and y coordinates of the widget in reference to the viewport.
         This allows the data output to be used to detect if widgets are
         overlapping in the GUI. </p>
-      <!--Parameters - form - short desc: long desc-->
-      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-            <th style="width:60px;">name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>min.</th>
-            <th>max.</th>
-            <th>description</th>
-          </tr>
-          <tr>
-            <td>Widget Tag</td>
-            <td>WT</td>
-            <td>None</td>
-            <td>widget</td>
-            <td>widget tag</td>
-            <td> Name of the widget as displayed in the GUI builder.</td>
-          </tr>
-          <tr>
-            <td>Widget-Group</td>
-            <td>String</td>
-            <td>None</td>
-            <td>default</td>
-            <td>widget group</td>
-            <td>Group that the widget belongs to in the GUI builder.</td>
-          </tr>
-          <tr>
-            <td>Maintain Aspect Ratio</td>
-            <td>Boolean</td>
-            <td>False</td>
-            <td>False</td>
-            <td>True</td>
-            <td>Maintains aspect ratio of widget when width is changed and
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+<tr>
+<td>Widget Tag</td>
+<td>WT</td><td> Name of the widget as displayed in the GUI builder.</td>
+<td>None</td>
+<td>widget</td>
+<td>widget tag</td>
+
+</tr>
+<tr>
+<td>Widget-Group</td>
+<td>String</td><td>Group that the widget belongs to in the GUI builder.</td>
+<td>None</td>
+<td>default</td>
+<td>widget group</td>
+
+</tr>
+<tr>
+<td>Maintain Aspect Ratio</td>
+<td>Boolean</td><td>Maintains aspect ratio of widget when width is changed and
               ignores changes in height if TRUE, allows width and height to be
-              altered independently if FALSE.</td>
-          </tr>
-          <tr>
-            <td>Register Click Disregarding Z-Order</td>
-            <td>Boolean</td>
-            <td>False</td>
-            <td>False</td>
-            <td>True</td>
-            <td>Allows a widget to register a mouse click event when it is
+              altered independently if FALSE. </td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+
+</tr>
+<tr>
+<td>Always Clickable</td>
+<td>Boolean</td><td>Allows a widget to register a mouse click event when it is
               hidden behind another widget if TRUE, the widget only registers
               mouse clicks if the widget is visible at the coords that the mouse
               click occurs at if FALSE.</td>
-          </tr>
-          <tr>
-            <td>Load Image From App Directory</td>
-            <td>Boolean</td>
-            <td>False</td>
-            <td>False</td>
-            <td>True</td>
-            <td>Load the image from the app directory at runtime if TRUE, else
+<td>False</td>
+<td>False</td>
+<td>True</td>
+
+</tr>
+<tr>
+<td>Load From App Dir</td>
+<td>Boolean</td><td>Load the image from the app directory at runtime if TRUE, else
               load the image from the user directory.</td>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="portsInt"><a name="[In]create">create</a></td>
-            <td>Allocates memory for the image.</td>
-          </tr>
-          <tr>
-            <td><a name="[In]destroy">destroy</a></td>
-            <td>Deallocates memory for the image.</td>
-          </tr>
-          <tr>
-            <td><a name="[In]load">load</a></td>
-            <td>Loads the image specified by the data input</td>
-          </tr>
-          <tr>
-            <td><a name="[In]show">show</a></td>
-            <td>Shows the image in the GUI.</td>
-          </tr>
-          <tr>
-            <td><a name="[In]hide">hide</a></td>
-            <td>Hides the image in the GUI.</td>
-          </tr>
-          <tr>
-            <td><a name="[In]update">update</a></td>
-            <td>Updates the properties of the widget.</td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td><a name="[In]file">file</a></td>
-            <td>Specifies the file name of the image to be loaded at runtime.</td>
-          </tr>
-          <tr>
-            <td>off.x</td>
-            <td>Specifies the offset in the x axis of the widget from its
+<td>False</td>
+<td>False</td>
+<td>True</td>
+
+</tr>
+</tbody>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span> </div>
+<table class="table">
+<tbody>
+<tr>
+<th>In Ev.</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]create">create</a></td>
+<td>Allocates memory for the image.</td>
+</tr>
+<tr>
+<td><a name="[In]destroy">destroy</a></td>
+<td>Deallocates memory for the image.</td>
+</tr>
+<tr>
+<td><a name="[In]load">load</a></td>
+<td>Loads the image specified by the data input</td>
+</tr>
+<tr>
+<td><a name="[In]show">show</a></td>
+<td>Shows the image in the GUI.</td>
+</tr>
+<tr>
+<td><a name="[In]hide">hide</a></td>
+<td>Hides the image in the GUI.</td>
+</tr>
+<tr>
+<td><a name="[In]update">update</a></td>
+<td>Updates the properties of the widget.</td>
+</tr>
+<tr>
+<th>Data In</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td><a name="[In]file">file</a></td>
+<td>Specifies the file name of the image to be loaded at runtime.</td>
+</tr>
+<tr>
+<td>off.x</td>
+<td>Specifies the offset in the x axis of the widget from its
               initial position when the update event is asserted.</td>
-          </tr>
-          <tr>
-          </tr>
-          <tr>
-            <td>off.y</td>
-            <td>Specifies the offset in the y axis of the widget from its
+</tr>
+<tr>
+</tr>
+<tr>
+<td>off.y</td>
+<td>Specifies the offset in the y axis of the widget from its
               initial position when the update event is asserted.</td>
-          </tr>
-          <tr>
-            <td>off.wid</td>
-            <td>Specifies the offset in width of the widget from its original
+</tr>
+<tr>
+<td>off.wid</td>
+<td>Specifies the offset in width of the widget from its original
               dimensions when the update event is asserted.</td>
-          </tr>
-          <tr>
-            <td>off.ht</td>
-            <td>Specifies the offset in height of the widget from its original
+</tr>
+<tr>
+<td>off.ht</td>
+<td>Specifies the offset in height of the widget from its original
               dimensions when the update event is asserted.</td>
-          </tr>
-          <tr>
-            <td>alpha</td>
-            <td>Shows the image in the GUI.</td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td>abs x</td>
-            <td>The x coordinate of the image relative to the viewport origin
+</tr>
+<tr>
+<td>alpha</td>
+<td>Shows the image in the GUI.</td>
+</tr>
+<tr>
+<th>Data Out</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td>abs x</td>
+<td>The x coordinate of the image relative to the viewport origin
               presented when the create or update events are triggered.</td>
-          </tr>
-          <tr>
-            <td>abs y</td>
-            <td>The y coordinate of the image relative to the viewport origin
+</tr>
+<tr>
+<td>abs y</td>
+<td>The y coordinate of the image relative to the viewport origin
               presented when the create or update events are triggered.</td>
-          </tr>
-          <tr>
-            <td>wid</td>
-            <td>The width of the image presented when the create or update
+</tr>
+<tr>
+<td>wid</td>
+<td>The width of the image presented when the create or update
               events are triggered.</td>
-          </tr>
-          <tr>
-            <td>ht</td>
-            <td>The height of the image presented when the create or update
+</tr>
+<tr>
+<td>ht</td>
+<td>The height of the image presented when the create or update
               events are triggered.</td>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td>---</td>
-            <td>Triggered when the input event <a href="#[In]create">[In]create</a>
+</tr>
+<tr>
+<th>Out Ev.</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td>---</td>
+<td>Triggered when the input event <a href="#[In]create">[In]create</a>
               is asserted.</td>
-          </tr>
-          <tr>
-            <td>---</td>
-            <td>Triggered when the input event <a href="#[In]destroy">[In]destroy</a>
+</tr>
+<tr>
+<td>---</td>
+<td>Triggered when the input event <a href="#[In]destroy">[In]destroy</a>
               is asserted.</td>
-          </tr>
-          <tr>
-            <td>---</td>
-            <td>Triggered when the input event <a href="#[In]load">[In]load</a>
+</tr>
+<tr>
+<td>---</td>
+<td>Triggered when the input event <a href="#[In]load">[In]load</a>
               is asserted.</td>
-          </tr>
-          <tr>
-            <td>---</td>
-            <td>Triggered when the input event <a href="#[In]show">[In]show</a>
+</tr>
+<tr>
+<td>---</td>
+<td>Triggered when the input event <a href="#[In]show">[In]show</a>
               is asserted.</td>
-          </tr>
-          <tr>
-            <td>---</td>
-            <td>Triggered when the input event <a href="#[In]hide">[In]hide</a>
+</tr>
+<tr>
+<td>---</td>
+<td>Triggered when the input event <a href="#[In]hide">[In]hide</a>
               is asserted.</td>
-          </tr>
-          <tr>
-            <td>---</td>
-            <td>Triggered when the input event <a href="#[In]update">[In]update</a>
+</tr>
+<tr>
+<td>---</td>
+<td>Triggered when the input event <a href="#[In]update">[In]update</a>
               is asserted.</td>
-          </tr>
-          <tr>
-            <td>click</td>
-            <td>Triggered when the user clicks on the image in the GUI.</td>
-          </tr>
-          <tr>
-            <td>mouse down</td>
-            <td>Ttriggered when the user presses the mouse button and the
+</tr>
+<tr>
+<td>click</td>
+<td>Triggered when the user clicks on the image in the GUI.</td>
+</tr>
+<tr>
+<td>mouse down</td>
+<td>Ttriggered when the user presses the mouse button and the
               pointer is over the image.</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <!--State Machine - form - image - example-->
-      <!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
-      <!--profiles - form - list-->
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5"> Stateless. </td>
-            <td> <br>
-            </td>
-            <td> <br>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> GUI. </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v2.1. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span> </div>
+<!--State Machine - form - image - example-->
+<!--<p class=image><img src=smiley.gif width=32 height=32 /></p>-->
+<!--profiles - form - list-->
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b>State Machine</b> </td>
+<td colspan="5"> Stateless. </td>
+<td> <br/>
+</td>
+<td> <br/>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Toolbox</b> </td>
+<td> GUI. </td>
+<td class="heading-cell"> <b>Version</b> </td>
+<td> v2.1. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Licence Type</b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b>Component Supplier</b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Minumum DCC</b> </td>
+<td>A0000</td>
+<td class="heading-cell"> <b>Profiles</b> </td>
+<td> All. </td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
 </html>

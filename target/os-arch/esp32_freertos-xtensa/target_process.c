@@ -150,6 +150,16 @@ EHS_LOCAL pthread_mutex_t EhsL_playManager;
 EHS_LOCAL pthread_mutex_t EhsL_devmanMiscBuffers;
 #endif
 
+/**
+ * Mutex resource used to control access to shared information in Modbus Master
+ */
+EHS_LOCAL pthread_mutex_t EhsL_MBMaster;
+
+/**
+ * Mutex resource used to control access to shared information in MQTT
+ */
+EHS_LOCAL pthread_mutex_t EhsL_subMQTT;
+EHS_LOCAL pthread_mutex_t EhsL_pubMQTT;
 
 /*****************************************************************************/
 /* Variables defined with global-scope */
@@ -244,6 +254,17 @@ EhsTPMutexClass  EhsTPMutex_devmanMiscBuffers;
  */
 EhsTPMutexClass EhsTPMutex_playManager;
 #endif
+
+/**
+ * Mutex resource used to control access to the Modbus Master shared resources
+ */
+EhsTPMutexClass EhsTPMutex_MBMaster;
+
+/**
+ * Mutex resource used to control access to the MQTT shared resources
+ */
+EhsTPMutexClass EhsTPMutex_subMQTT;
+EhsTPMutexClass EhsTPMutex_pubMQTT;
 
 /** Reference to PID of parent process */
 EHS_GLOBAL pid_t* EhsT_pidParent;
@@ -367,6 +388,19 @@ EHS_GLOBAL void EhsTPMutex_init(void)
     //memset(&EhsL_devmanMiscBuffers,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_devmanMiscBuffers,&attr);
 #endif
+
+    EhsTPMutex_MBMaster = (EhsTPMutexClass)&EhsL_MBMaster;
+    //memset(&EhsL_MBMaster,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_MBMaster,&attr);
+
+    EhsTPMutex_subMQTT = (EhsTPMutexClass)&EhsL_subMQTT;
+    //memset(&EhsL_subMQTT,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_subMQTT,&attr);
+
+    EhsTPMutex_pubMQTT = (EhsTPMutexClass)&EhsL_pubMQTT;
+    //memset(&EhsL_pubMQTT,0,sizeof(pthread_mutex_t));
+    pthread_mutex_init(&EhsL_pubMQTT,&attr);
+
     // not used: EhsTPMutex_globalTimer =(EhsTPMutexClass)&EhsL_globalTimer;
 
     pthread_mutexattr_destroy(&attr);
@@ -401,7 +435,14 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
     if (EhsTPMutex_widgetTable) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_widgetTable);
     EhsTPMutex_widgetTable = NULL;
 
+    if (EhsTPMutex_MBMaster) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_MBMaster);
+    EhsTPMutex_MBMaster = NULL; 
 
+    if (EhsTPMutex_subMQTT) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_subMQTT);
+    EhsTPMutex_subMQTT = NULL;
+
+    if (EhsTPMutex_pubMQTT) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_pubMQTT);
+    EhsTPMutex_pubMQTT = NULL;
 
 #ifdef EHS_DEVMAN_SUPPORT
     if (EhsTPMutex_devmanPlayerData) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_devmanPlayerData);
@@ -501,7 +542,7 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
         EHSH_LOG_ERROR("ERROR Could not create thread: Unknown Error");;
     }
     //ret = pthread_attr_destroy(&tattr);
-    return thread;
+    return (ret == 0);
 }
 
 

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2024-06-03T06:42:34Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This is a 8-input real multiplexer.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                Num
+                <Menu>Num Mux</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Text>nMX</Text>
+        <TextX>3</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>0</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>NumMultiplexReal</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xDAA7</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>add742ca</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>Run_Input</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <DataType>F</DataType>
+            <Description>o1</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>45</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <CName>o1</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>n3</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>67</YCoordinate>
+            <CName>n3</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>n5</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>87</YCoordinate>
+            <CName>n5</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>n6</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>97</YCoordinate>
+            <CName>n6</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>d1</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>112</YCoordinate>
+            <CName>d1</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>d2</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>122</YCoordinate>
+            <CName>d2</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>o</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>45</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>o</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>n4</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>77</YCoordinate>
+            <CName>n4</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>i</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName>i</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>n1</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>47</YCoordinate>
+            <CName>n1</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>n2</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>57</YCoordinate>
+            <CName>n2</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>-ve</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <CName>negative</CName>
+            <Function argument="9">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

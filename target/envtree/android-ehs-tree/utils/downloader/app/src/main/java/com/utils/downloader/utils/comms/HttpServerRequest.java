@@ -1,11 +1,14 @@
 package com.utils.downloader.utils.comms;
 
+import android.content.Context;
 import android.os.Build;
 
 import com.utils.downloader.utils.EHSS_Logger;
+import com.utils.downloader.utils.EHSS_Timeout;
 import com.utils.downloader.utils.EHSS_Utils;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -23,17 +26,23 @@ public class HttpServerRequest extends ServerRequest {
 
     private String urlAddress = null;
     private Integer responseCode = null;
+    private final Context context;
+    // these are used for triggering network restart request
+    public static final String NETWORK_RESTART_FLAG_FILE = "ehs_network_restart.flag";
+    private static final long NETWORK_RESTART_TIMEOUT = 30 * 60 * 1000; // [ms]
+    private static EHSS_Timeout networkFailTimer = new EHSS_Timeout(NETWORK_RESTART_TIMEOUT);
 
-    public static HttpServerRequest create(String urlAddress, IMessage request){
-        return new HttpServerRequest(urlAddress, request);
+    public static HttpServerRequest create(Context context, String urlAddress, IMessage request){
+        return new HttpServerRequest(context, urlAddress, request);
     }
 
-    public static HttpServerRequest create(String urlAddress){
-        return create(urlAddress, null);
+    public static HttpServerRequest create(Context context, String urlAddress){
+        return create(context, urlAddress, null);
     }
 
-    public HttpServerRequest(String urlAddress, IMessage request) {
+    public HttpServerRequest(Context context, String urlAddress, IMessage request) {
         super(request);
+        this.context = context;
         this.urlAddress = urlAddress;
     }
 
@@ -44,6 +53,7 @@ public class HttpServerRequest extends ServerRequest {
         }
         IMessage response;
         try {
+            checkNetworkFailTimeout();
             URL url = new URL(urlAddress);
             URLConnection connection = url.openConnection();
             boolean isHttps = (connection instanceof HttpsURLConnection);
@@ -70,8 +80,10 @@ public class HttpServerRequest extends ServerRequest {
             }else {
                 response = new MessageFactory(getExpected()).create(connection.getInputStream());
             }
+            stopNetworkFailTimeout();
         } catch (Exception e) {
-            EHSS_Logger.debug("Server request error (2): " + e.toString());
+            EHSS_Logger.debug("Server post request error (2): " + e.toString());
+            startNetworkFailTimeout();
             return null;
         }
         return response;
@@ -81,6 +93,7 @@ public class HttpServerRequest extends ServerRequest {
 
         IMessage response;
         try {
+            checkNetworkFailTimeout();
             URL url = new URL(urlAddress);
             URLConnection connection = url.openConnection();
             boolean isHttps = (connection instanceof HttpsURLConnection);
@@ -111,8 +124,10 @@ public class HttpServerRequest extends ServerRequest {
             }else {
                 response = new MessageFactory(getExpected()).create(connection.getInputStream());
             }
+            stopNetworkFailTimeout();
         } catch (Exception e) {
-            EHSS_Logger.debug("Server request error 3: " + e.toString());
+            EHSS_Logger.debug("Server get request error (3): " + e.toString());
+            startNetworkFailTimeout();
             return null;
         }
         return response;
@@ -133,7 +148,8 @@ public class HttpServerRequest extends ServerRequest {
             writer.close();
             os.close();
         } catch (Exception e) {
-            EHSS_Logger.debug("Server request error 1: " + e.toString());
+            EHSS_Logger.debug("Server request error (1): " + e.toString());
+            startNetworkFailTimeout();
         }
     }
 
@@ -153,5 +169,32 @@ public class HttpServerRequest extends ServerRequest {
                 return true;// hv.verify(verify_url, session);
             }
         });
+    }
+
+    private void startNetworkFailTimeout(){
+        if(!networkFailTimer.isStarted()){
+            EHSS_Logger.info("Start network fail timer ("+NETWORK_RESTART_TIMEOUT+" [ms])");
+            networkFailTimer.start();
+        }
+    }
+
+    private void stopNetworkFailTimeout(){
+        if(networkFailTimer.isStarted()){
+            EHSS_Logger.info("Stop network fail timer");
+            networkFailTimer.stop();
+        }
+    }
+
+    private void checkNetworkFailTimeout(){
+        if(networkFailTimer.isTimeout()){
+            try {
+                EHSS_Logger.info("WRITE NETWORK RESTART FLAG (" + NETWORK_RESTART_FLAG_FILE + ")");
+                File flagFile = new File(context.getExternalFilesDir(null), NETWORK_RESTART_FLAG_FILE);
+                EHSS_Utils.write(flagFile, "restart");
+            }catch (Exception e){
+                EHSS_Logger.error("Failed to create network restart flag : " + e);
+            }
+            networkFailTimer.stop();
+        }
     }
 }

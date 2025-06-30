@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:36Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+        <UpdatedDate>2024-05-24T11:22:50Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription/>
@@ -34,12 +34,12 @@
         <LocationY>-15</LocationY>
     </Block>
     <FBID>
-        <ERT1_ID>0</ERT1_ID>
+        <ERT1_ID>1</ERT1_ID>
         <Class>FILE_WriteOnly_String</Class>
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xBBA0</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>fbbb5713</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>94eea7cc</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -77,9 +77,21 @@
             <Name>Append</Name>
             <DataType>B</DataType>
             <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
             <Description>Append rather than overwrite.</Description>
             <ListPlacement>4</ListPlacement>
             <ArgPlacement>4</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Binary</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Binary file mode</Description>
+            <ListPlacement>5</ListPlacement>
+            <ArgPlacement>5</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>
@@ -174,7 +186,7 @@
             <Description>data</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>85</YCoordinate>
+            <YCoordinate>80</YCoordinate>
             <CName>data</CName>
             <Function argument="1">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -237,6 +249,17 @@
             <YCoordinate>70</YCoordinate>
             <Wcet>0</Wcet>
             <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>size</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>data_size</CName>
             <Function argument="2">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
             </Function>

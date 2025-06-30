@@ -31,7 +31,6 @@ include $(EHS_COMMON_HAL_PATH)/include/deps.mk
 # MANDATORY KERNEL HAL SUPPORT
 #============================================================
 
-include $(EHS_COMMON_HAL_PATH)/file/file.mk
 include $(EHS_COMMON_HAL_PATH)/date/date.mk
 include $(EHS_COMMON_HAL_PATH)/processing/processing.mk
 include $(EHS_COMMON_HAL_PATH)/linkedlist/linkedlist.mk
@@ -39,10 +38,23 @@ include $(EHS_COMMON_HAL_PATH)/logger/logger.mk
 include $(EHS_COMMON_HAL_PATH)/memory/mem.mk
 include $(EHS_COMMON_HAL_PATH)/string/string.mk
 include $(EHS_COMMON_HAL_PATH)/appmanager/appmanager.mk
+include $(EHS_COMMON_HAL_PATH)/ota/ota.mk
+include $(EHS_COMMON_HAL_PATH)/hashmap/hashmap.mk
 
 #============================================================
 # OPTIONAL COMMON COMPONENT HAL SUPPORT
 #============================================================
+
+#Default we include FILE SYSTEM SUPPORT
+ifneq ($(EHS_FILESYSTEM_SUPPORTNONE),none)
+include $(EHS_COMMON_HAL_PATH)/file/file.mk
+endif
+
+ifdef EHS_CONFIGS_SUPPORT
+ifneq ($(EHS_CONFIGS_SUPPORT),none)
+	include $(EHS_COMMON_HAL_PATH)/configs/configs.mk
+endif
+endif
 
 ifdef EHS_GUI_SUPPORT
 ifneq ($(EHS_GUI_SUPPORT), none) 
@@ -52,12 +64,14 @@ endif
 
 ifdef EHS_WEBKIT_SUPPORT
 ifneq ($(EHS_WEBKIT_SUPPORT), none)
-include $(EHS_COMMON_HAL_PATH)/webkit/webkit.mk
+	include $(EHS_COMMON_HAL_PATH)/webkit/webkit.mk
 endif
 endif
 
 ifdef EHS_LUA_SUPPORT
-include $(EHS_COMMON_HAL_PATH)/lua/lua.mk
+ifneq ($(EHS_LUA_SUPPORT), none)
+	include $(EHS_COMMON_HAL_PATH)/lua/lua.mk
+endif
 endif
 
 #####################
@@ -65,10 +79,11 @@ endif
 #####################
 #Integrated Code
 ifdef EHS_JSON_SUPPORT
-include $(EHS_COMMON_HAL_PATH)/json/json.mk
+ifneq ($(EHS_JSON_SUPPORT), none)
+	include $(EHS_COMMON_HAL_PATH)/json/json.mk
 endif
-#Requires Library support
-#$(info Checking XML flag)
+endif
+
 
 #Note this includes the internal minimal XML parser used in Devman core.
 #libxml2 is deselcted internally if not needed
@@ -78,11 +93,19 @@ include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
 #Networking dependent components support
 #########################################
 ifdef EHS_NETWORKING_SUPPORT
-include $(EHS_COMMON_HAL_PATH)/url/url.mk
+ifneq ($(EHS_NETWORKING_SUPPORT), none)
+	include $(EHS_COMMON_HAL_PATH)/url/url.mk
+endif
 endif
 
+# Define devman mon type enum
+DEFS+=EHS_DEVMAN_MON_CURL=1
+DEFS+=EHS_DEVMAN_MON_MQTT=2
+# include devman mon support if enabled
 ifdef EHS_DEVMAN_MON_SUPPORT
-include $(EHS_COMMON_HAL_PATH)/devmanmon/devmanmon.mk
+ifneq ($(EHS_DEVMAN_MON_SUPPORT), none)
+	include $(EHS_COMMON_HAL_PATH)/devmanmon/devmanmon.mk
+endif
 endif
 
 ##########################################

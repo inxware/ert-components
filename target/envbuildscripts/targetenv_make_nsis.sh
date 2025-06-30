@@ -10,6 +10,8 @@ export SPECIFIC_TARGET="$1"
 export ERT_PACKAGE_NAME="$2"
 export ERT_NSIS_EXE_NAME="$3"
 
+EHS_EXE_VERSION=$( head -c -1 ./Releases/version_strings | tr '\n' '.' )
+
 export EHS_ROOT=`pwd` # assuming we're in the ehs project root
 pushd "${EHS_ROOT}/.."
 export REPOSITORY_ROOT=`pwd`
@@ -39,19 +41,21 @@ if [ -f "${INSTALLER_EXE}" ]; then
   rm "${INSTALLER_EXE}"
 fi
 
-INSTALLER_NSI_SOURCE="${EHS_ROOT}/scripts/build-deploy/packagers/nsis/inxware-ert-installer.nsi"
+INSTALLER_NSI_DIR=${EHS_ROOT}/scripts/build-deploy/packagers/nsis
+INSTALLER_NSI_SOURCE=${INSTALLER_NSI_DIR}/inxware-ert-installer.nsi
 INSTALLER_NSI_DEST="$NSIS_WORKING_BASE/inxware-ert-installer.nsi"
 if [ ! -f "$INSTALLER_NSI_SOURCE" ]; then
     echo "Failed to find required file: $INSTALLER_NSI_SOURCE"
     exit 1
 fi
 cp -fv "$INSTALLER_NSI_SOURCE" "$INSTALLER_NSI_DEST"
+cp -fv ${INSTALLER_NSI_DIR}/ehs.ico ${NSIS_WORKING_BASE}/ehs.ico
 
 if [ "$ERT_NSIS_EXE_NAME" = "" ]; then
   export ERT_NSIS_EXE_NAME="eRT"
 fi
 
-makensis -DERT_TARGET="${SPECIFIC_TARGET}" -DERT_PACKAGE_NAME="${ERT_PACKAGE_NAME}" -DERT_NSIS_EXE_NAME="${ERT_NSIS_EXE_NAME}" -V1 "$INSTALLER_NSI_DEST"
+makensis -DERT_TARGET="${SPECIFIC_TARGET}" -DERT_PACKAGE_NAME="${ERT_PACKAGE_NAME}" -DERT_NSIS_EXE_NAME="${ERT_NSIS_EXE_NAME}" -DERT_VERSION="${EHS_EXE_VERSION}" -V1 "$INSTALLER_NSI_DEST"
 
 if [ -f "${INSTALLER_EXE}" ]; then
   echo "Successfully generated Windows installer: ${INSTALLER_EXE}"

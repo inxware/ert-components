@@ -142,7 +142,7 @@ void EhsGraphicsRectangle_union(EhsGraphicsRectangleClass* ret, const EhsGraphic
  * @param[in] prBounds Specifies the rectangle that prRet must fit into.
  * @param[in] prSrc Specifies the proportions that we wish to keep
  */
-void EhsGraphicsRectangle_proportionalScale(EhsGraphicsRectangleClass* prRet, const EhsGraphicsRectangleClass* prBounds, const EhsGraphicsRectangleClass* prSrc)
+void EhsGraphicsRectangle_proportionalScale(EhsGraphicsRectangleClass* prRet, const EhsGraphicsRectangleClass* prBounds, const EhsGraphicsSizeClass* prSrc)
 {
     ehs_float dWHbounds, dWHsrc; /* ratio of wid:ht for the two input rectangles */
 
@@ -402,8 +402,11 @@ error:
 ehs_bool doCheckFileHeader(const char* Path, ehs_bool bLoadImageFromAppDir, EhsGfxFileType filetypecheck, EhsGfxFileOrientation * orientation)
 {
     int result = -1; // assume failure, 0 is a match
+    
+    #ifndef EHS_GUI_SUPPORT_MODE_B
     const int nread = 8;
     unsigned char buffer[8];
+    #endif
 
     *orientation = 0;
 

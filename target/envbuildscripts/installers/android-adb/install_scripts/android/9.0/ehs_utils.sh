@@ -1,6 +1,7 @@
 #!/system/bin/sh
 
 source "$EHS_SUPERVISOR_LOCATION/ehs_utils_common.sh"
+source "$EHS_SUPERVISOR_LOCATION/ehs_logger.sh"
 
 StartService(){
 	SERVICE=$1
@@ -20,4 +21,8 @@ SetAsHomeApp(){
 
 GetHomeApp(){
 	dumpsys activity | grep mHomeProcess
+}
+
+RestartNetwork(){
+	SupervisorLog "RestartNetwork - not implemented for android 9.0"
 }

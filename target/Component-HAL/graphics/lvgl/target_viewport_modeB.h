@@ -9,8 +9,9 @@ void EhsTargetWidgetUi_destroy(struct EhsWidgetStruct* pWidget);
 
 void EhsTargetWidgetUi_draw(struct EhsWidgetStruct* pWidget);
 
+void EhsTargetWidgetUi_viewport_cleanup(struct EhsWidgetStruct* pWidget);
+
 /* generic functions */
 void EhsTargetWidget_show(struct EhsWidgetStruct* pWidget, ehs_uint8 nState);
-
 
 #endif

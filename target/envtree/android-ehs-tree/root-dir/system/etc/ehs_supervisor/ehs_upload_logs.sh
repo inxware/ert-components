@@ -17,6 +17,9 @@ function PrintSysLogs(){
 	dmesg | tail -n 50
 	echo "******************* ifconfig *****************************"
 	ifconfig
+	echo "DNS:"
+	getprop net.dns1
+	getprop net.dns2
 	echo "******************* kernel cmd ***************************"
 	cat  /proc/cmdline
 	echo "******************* ANR LOGS *****************************"
@@ -27,6 +30,13 @@ function PrintSysLogs(){
 	top -m 20 -n 3 -b || top -m 20 -n 3
 	echo "********************* df -h  *****************************"
 	df -h 
+	echo "******************** Device ID  **************************"
+	echo "Override:"
+	test -f /sdcard/.EHS/ehs_new_id && cat /sdcard/.EHS/ehs_new_id ||:
+	echo "******************** Certificates ************************"
+	md5sum /sdcard/Android/data/com.inx.ehs/files/devman/core/certs/* ||:
+#	echo "******************** Content Check ***********************"
+#	md5sum md5sum /sdcard/Android/data/com.inx.ehs/files/userdata/media/schedmedia/TSA/_data/*/*/*.wav  ||:
 	echo "******************** meminfo  ****************************"
 	cat /proc/meminfo
 	echo "******************** /proc/sys/fs/file-nr ****************"
@@ -37,7 +47,7 @@ function PrintSysLogs(){
 function UploadLogs(){
 	am broadcast -a com.utils.downloader.broadcastreceiver.DOWNLOAD --es ip_address ${LOG_ADDERSS} \
 	--es post_data 'Group=DEFAULT&DeviceType=DEFAULT&DeviceID='$LOG_DEVICEID'&rawreport=' \
-	--es post_path /cgi-bin/rawreport.cgi --es post_file ${TARGET_FILE}
+	--es post_path /rawreport.php --es post_file ${TARGET_FILE}
 }
 
 
@@ -46,6 +56,9 @@ if [ "$LOG_TYPE" = "0" ]; then
 else
 	PrintSysLogs | tr -d ';&' &>> ${TARGET_FILE}
 fi
+
+chmod a+rwx ${TARGET_FILE}
+sync
 
 UploadLogs
 

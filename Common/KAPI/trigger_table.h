@@ -57,7 +57,7 @@ EHS_GLOBAL EhsTriggerType* EhsTriggerTable_addTrigger(EhsTriggerIdType nTrigId);
  *
  * @param xTrigger The trigger to fire
  */
-EHS_GLOBAL void EhsTrigger_fire(EhsTriggerType* xTrigger);
+EHS_GLOBAL EHS_MEMORY_ATTRIB void EhsTrigger_fire(EhsTriggerType* xTrigger);
 
 /**
  * Change the monitor state for all functions driven by this trigger

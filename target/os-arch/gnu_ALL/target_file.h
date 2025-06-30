@@ -49,18 +49,21 @@ struct EhsTDFilesStruct ;
  * Longest possible path name (excluding filename, but including separators and
  * terminating zero).
  */
+#ifndef EHS_KERNEL_BUILD
 #ifndef EHS_TD_FILES_MAX_PATH
 #define EHS_TD_FILES_MAX_PATH 1024
 #warning "EHS_TD_FILES_MAX_PATH is not defined setting in target_file.h"
 #endif
-
+#endif
 
 /**
  * Longest possible filename
  */
+#ifndef EHS_KERNEL_BUILD
 #ifndef EHS_TD_FILES_MAX_FILENAME
 #define EHS_TD_FILES_MAX_FILENAME 512
 #warning "EHS_TD_FILES_MAX_FILENAME is not defined setting in target_file.h"
+#endif
 #endif
 
 /**
@@ -116,13 +119,13 @@ typedef FILE ehs_FILE; /**< File type used for file handling */
 #define EhsFseek(f,x,y) fseek(f,x,y)
 
 #define EhsFtell(f) ftell(f)
+
+#define EhsFrewind(f) rewind(f)
+
 /**
  * Write block of data to file
  */
 #define EhsFwrite(ptr, size, num, stream) fwrite((const void*)ptr, (size_t)size, (size_t)num, stream)
-
-
-
 
 /**
  * Read block of data from file

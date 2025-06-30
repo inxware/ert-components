@@ -13,7 +13,6 @@
 # Automatically Generated. DO NOT EDIT
 # 
 
-
 dtv_remote2.h : ehs_fb_types.h
 
 gpio_in.h : ehs_fb_types.h inx-component.h

@@ -1,0 +1,142 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Calibrate</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      The `Calibrate` function block is responsible for calibrating a process by applying scale and offset values to the input data. It manages the calibration process and ensures the data is adjusted according to the provided calibration parameters.
+    </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">Name</th>
+<th>Type</th><th>Description</th>
+<th>Default</th>
+<th>Min.</th>
+<th>Max.</th>
+
+</tr>
+<tr>
+<td>id</td>
+<td>Integer</td><td>The identifier for the calibration process.</td>
+<td>-1</td>
+<td>-2147483648</td>
+<td>2147483647</td>
+
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]calibrate">calibrate</a></td>
+<td>Event to initiate the calibration process.</td>
+</tr>
+<tr>
+<th>Data In</th>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]scale">scale</a></td>
+<td>Scale value for calibration.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]offset">offset</a></td>
+<td>Offset value for calibration.</td>
+</tr>
+<tr>
+<th>Data Out</th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]errno">errno</a></td>
+<td>Error number if the calibration fails.</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]done">done</a></td>
+<td>Event triggered when calibration is successfully completed.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]err">err</a></td>
+<td>Event triggered when an error occurs during calibration.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          HeatRod
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

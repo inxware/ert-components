@@ -13,7 +13,7 @@
             File System
             <Menu>
                 NV Storage
-                <Menu>Integer</Menu>
+                <Menu>int</Menu>
             </Menu>
         </Menu>
     </Description>

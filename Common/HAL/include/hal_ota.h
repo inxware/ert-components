@@ -22,7 +22,10 @@
 typedef enum {
     TARGET_OTA_IDLE = 0,
     TARGET_OTA_BEGAN,
+    TARGET_OTA_ENDED
 } target_ota_state_t;
+
+typedef void (*target_ota_on_abort_t)(void); 
 
 /**
  * @brief Internally defined function. Do not re-implement this in the target code!
@@ -32,6 +35,11 @@ typedef enum {
  *
  */
 void Common_OTA_Write_ACK(ehs_uint8 errno);
+
+/**
+ * @brief OTA process current state
+ */
+target_ota_state_t thOTA_current_state(void);
 
 /**
  * @brief Begin the OTA update process
@@ -79,7 +87,7 @@ void thOTA_end(void);
  *          - EHS_TRUE  if CRC check matches
  *          - EHS_FALSE if CRC check fails
  */
-ehs_bool thOTA_checkChecksum(ehs_bool alt_partition, ehs_sint32 partition_num, ehs_uint8 * CS_token, ehs_sint32 CS_token_len);
+ehs_bool thOTA_checkChecksum(ehs_bool alt_partition, ehs_sint32 partition_num, ehs_char * CS_token, ehs_sint32 CS_token_len);
 
 /**
  * @brief Check whether the written OTA image is valid on flash
@@ -107,5 +115,15 @@ ehs_bool thOTA_switch(ehs_bool alt_partition, ehs_sint32 partition_num);
  * @brief Abort the OTA update process
  */
 void thOTA_abort(void);
+
+/**
+ * @brief Set the OTA on abort callback
+ */
+void thOTA_on_abort_callback(target_ota_on_abort_t callback);
+
+/**
+ * @brief Force the OTA process state to IDLE
+ */
+void thOTA_idle(void);
 
 #endif//_HAL_OTA_H_

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
+        <UpdatedDate>2024-06-20T09:19:53Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription/>
+        <LongDescription>This an integer mapping function.</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                Num
+                <Menu>Map Int</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data_Processor</Type>
+        <Text>MapInt</Text>
+        <TextX>1</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>0</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>MapInt</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x4455</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>f047b2f</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>not found</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-2147483648</MinValue>
+            <MaxValue>2147483647</MaxValue>
+            <Description>key not found value</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>map</Name>
+            <DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+            <Description>define the integers map</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>indexed</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Enable mapping port to port.</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>Run_Input</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>o</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>o</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>i</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName>i</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>i1</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>37</YCoordinate>
+            <CName>i1</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>i2</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>47</YCoordinate>
+            <CName>i2</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>i3</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>57</YCoordinate>
+            <CName>i3</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>i4</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>67</YCoordinate>
+            <CName>i4</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>i5</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>77</YCoordinate>
+            <CName>i5</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>i6</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>87</YCoordinate>
+            <CName>i6</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>i7</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>97</YCoordinate>
+            <CName>i7</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>i8</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>107</YCoordinate>
+            <CName>i8</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>o1</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>37</YCoordinate>
+            <CName>o1</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>o2</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>47</YCoordinate>
+            <CName>o2</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>o3</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>57</YCoordinate>
+            <CName>o3</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>o4</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>67</YCoordinate>
+            <CName>o4</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>o5</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>77</YCoordinate>
+            <CName>o5</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>o6</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>87</YCoordinate>
+            <CName>o6</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>o7</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>97</YCoordinate>
+            <CName>o7</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>o8</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>35</XCoordinate>
+            <YCoordinate>107</YCoordinate>
+            <CName>o8</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

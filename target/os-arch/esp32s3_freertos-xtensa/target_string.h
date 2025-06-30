@@ -43,6 +43,12 @@
 
 #define EhsSscanf sscanf
 
+#ifdef NANOPRINTF_IMPLEMENTATION
+#define EhsVsnprintf npf_vsnprintf
+#else
+#define EhsVsnprintf vsnprintf
+#endif
+
 #define EhsStrcpy strcpy
 
 #define EhsStrncpy strncpy

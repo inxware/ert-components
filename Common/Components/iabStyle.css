@@ -144,17 +144,11 @@ display:inline;
     width: 95%;*/
 }
 .section_heading {
-    /* background: #f9f9f9 none repeat scroll 0 0;
-     border: 1px solid #aaa;
-     display: table;
-     margin-bottom: 1em;
-     padding: 8px;
-     width: 95%;*/
-     height: 18px;
-     background: #C0C0C0 none repeat scroll 0 0;
-     margin-bottom: 1em;
-     padding: 5px;
- }
+    height: 18px;
+    background: #C0C0C0 none repeat scroll 0 0;
+    margin-bottom: 0;
+    padding: 5px;
+}
 
 .toc_span{
     font-family:arial;font-size:15px;color:black;
@@ -183,5 +177,10 @@ display:inline;
 
 li.dependencies {
 display:none;
+}
+
+/* Add spacing after tables */
+.table_params, .table {
+    margin-bottom: 1em;
 }
 

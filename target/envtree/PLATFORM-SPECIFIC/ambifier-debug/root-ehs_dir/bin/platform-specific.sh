@@ -10,6 +10,45 @@
 # 
 ########################################################################
 
+######################################################################
+# Get a known network address is there is one, 
+# so we can check the network is up before starting
+######################################################################
+
+if [ "${DEBUGMODE}" != "DONT_WAITFORNETWORK" ]; then
+	TESTURL=""
+	if [ -e "${DEVMANCOREDIR}/config/DEVMANURL.000" ]; then 
+		TESTURL_TRY=`cat "${DEVMANCOREDIR}/config/DEVMANURL.000"`
+		if [ ${#TESTURL_TRY} -gt 8 ]; then
+			TESTURL="$( echo $TESTURL_TRY | sed -re 's#^http://|https://##; s#/score/$##' )"
+		else
+			TESTURL=""
+		fi	
+	fi
+	if [ -n "${TESTURL}" ];then
+		MAXWAIT=60
+		WAITTIME=0
+		PINGPERIOD=2
+		ping -c 1 -w 1 ${TESTURL} &> /dev/null
+		while [ $? != 0 ] && [ $WAITTIME -le $MAXWAIT ] ; do
+			WAITTIME=$(($WAITTIME + ${PINGPERIOD}))
+			sleep ${PINGPERIOD}
+			ping -c 1 -w 1 ${TESTURL} &> /dev/null
+		done
+	#else we don't wait - assume there's no network if one isn't specced in DEVMANURL.000
+	fi
+fi # dont wait for network
+#######################################################################
+# Check to see if we need to run some OS configuration on first install
+######################################################################
+./runOsInit.sh  || :
+
+########################################################################
+# We must have wget installed for Devman: fall back install here 
+########################################################################
+
+test `which wget` || apt-get install -y wget
+
 ########################################################################
 # Ambifier-Specific Initialisation
 ########################################################################

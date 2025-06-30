@@ -20,6 +20,8 @@
 #define EHS_RTINFO_FUNCTIONS_H
 #include "ehs_fb_types.h"
 
+// @TODO - this function is now deprecated, move it to deprecated. Use API2 RuntimeInfo2 instead!
+
 /******************************************************************************/
 /* Declare the block entries */
 #define EHS_FB_NAME_RuntimeInfo "RuntimeInfo"

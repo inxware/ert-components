@@ -1,3 +1,7 @@
+#TODO2025 - this needs to b in a directory of course as we will have many LoRaWAN implementations.
+
+
+
 EHS_TARGET_LORAWAN_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/lorawan
 VPATH +=: $(EHS_TARGET_LORAWAN_PATH)
 INC_DIRS += $(EHS_TARGET_LORAWAN_PATH)

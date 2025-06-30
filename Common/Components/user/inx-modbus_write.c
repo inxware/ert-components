@@ -7,11 +7,15 @@
 *	<https://www.mozilla.org/en-US/MPL/2.0/>
 ****************************************************************/
 
+/* MODBUS Master mode component interface implementation */
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-modbus_write.h"
-#include "ehs_main.h" // we run th main from here!
+#include "portcallbacks.h"
+#include "mb_m.h"
+//#include "ehs_main.h" // we run th main from here!
 //ICB HEADER MACRO END -- DO NOT ALTER
 
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -19,10 +23,17 @@
 typedef struct inx_modbus_write_state
 {
     EhsFunctionInstanceDataType* pFIdata;
+    ehs_sint32 device_id;
+    ehs_sint32 reg_type;
+    ehs_sint32 reg_addr;
+    // Data to be written to the slave
+    ehs_sint32 data;
     struct inx_modbus_write_state* pNext;
     struct inx_modbus_write_state* pPrev;
 } inx_modbus_write_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
+
+/* todo2026 why is this static?  */
 static inx_modbus_write_state_type* gpFirstWidget=NULL;
 
 static inx_modbus_write_state_type* inxModbusWriteGetLastWidget()
@@ -41,9 +52,15 @@ static inx_modbus_write_state_type* inxModbusWriteGetLastWidget()
 
 static void inxModbusWriteRegisterWidget(inx_modbus_write_state_type* pState)
 {
+    if (pState == NULL)
+    {
+        return;
+    }
     if(gpFirstWidget==NULL)
     {
         gpFirstWidget=pState;
+        gpFirstWidget->pPrev = NULL;
+        gpFirstWidget->pNext = NULL;
         return;
     }
 
@@ -56,25 +73,52 @@ static void inxModbusWriteRegisterWidget(inx_modbus_write_state_type* pState)
     {
         lastWidget->pNext=pState;
         pState->pPrev=lastWidget;
+        pState->pNext = NULL;
     }
+}
+
+/*
+ * Get the context which matches the given parameters. If nothing found, it returns NULL
+ */
+static inx_modbus_write_state_type* inxModbusWriteSearch(ehs_sint32 device_id, ehs_sint32 register_type, ehs_sint32 address)
+{
+    inx_modbus_write_state_type* widget = gpFirstWidget;
+    while (widget != NULL)
+    {
+        if (widget->reg_type == register_type && widget->reg_addr == address && widget->device_id == device_id) return widget;
+        widget=widget->pNext;
+        if (widget == NULL) return NULL;
+        if(widget==widget->pNext)
+        {
+            EHSH_LOG_ERROR("inxModbusWriteSearch infinite loop found");
+            widget->pNext=NULL;
+        }
+    }
+    return NULL;
 }
 
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(modbus_write)
-
 EHS_FB_FUNCTION_ENTRY("write", 0x01, modbus_write_write)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
 /* Friendly labels for the run function data and event function argument enumerations */
-#define INX_modbus_write_ARG_write_channel 1
-#define INX_modbus_write_ARG_write_value 2
+#define INX_modbus_write_ARG_write_value 1
+#define INX_modbus_write_ARG_write_register 2
+#define INX_modbus_write_ARG_write_device 3
+#define INX_modbus_write_ARG_write_type 4
+#define INX_modbus_write_ARG_write_error_code 1
 #define INX_modbus_write_ARG_write_finishwrite 1
+#define INX_modbus_write_ARG_write_error 2
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
 /* Create some macros for the default parameters */
+#define INX_FB_modbus_write_device_id 0
+#define INX_FB_modbus_write_reg_type 0
+#define INX_FB_modbus_write_reg_addr 0
 //ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 /**
@@ -87,7 +131,10 @@ EHS_FB_IDENTIFY_FUNCTION(modbus_write)
 {
     /* Uncomment the following if you need to parse the parameters to calculate memory required */
     /*
-    	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
+    ehs_sint32 device_id;
+    ehs_sint32 reg_type;
+    ehs_sint32 reg_addr;
+    EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%d %d %d",&device_id,&reg_type,&reg_addr); */
     EHS_FB_IDENTIFY_MEMORY = sizeof(inx_modbus_write_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
@@ -106,13 +153,13 @@ EHS_FB_INIT_FUNCTION(modbus_write)
     //this is the reference to the object data for this instance of the function block
     inx_modbus_write_state_type* inx_modbus_write_state = (inx_modbus_write_state_type*)EHS_FB_INIT_CONTEXT;
     /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d",&inx_modbus_write_state->device_id,&inx_modbus_write_state->reg_type,&inx_modbus_write_state->reg_addr);//todo2026-Use 'n' memory safe version 
     inx_modbus_write_state->pFIdata=NULL;
     inx_modbus_write_state->pNext=NULL;
     inx_modbus_write_state->pPrev=NULL;
 
     /* Add any further intialisation code here */
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    EhsTPMutex_lock(EhsTPMutex_fbIO); // whay are we mutexing this at all (let alone an IO feature) - we're in the init() phase ...
     inxModbusWriteRegisterWidget(inx_modbus_write_state);
     EhsTPMutex_unlock(EhsTPMutex_fbIO);
     return bRet; /* initialisation always succeeds */
@@ -142,15 +189,65 @@ EHS_FB_RUN_FUNCTION(modbus_write_write)
 {
     inx_modbus_write_state_type* inx_modbus_write_state = (inx_modbus_write_state_type*)EHS_FB_RUN_CONTEXT;
 
+    // MODBUS is not in master mode
+    // todo2025 We need a flag check here to see if the MODBUS system is intialised. It currently crashes and bricks the device.
+    // todo2025 This flag sould be per Serial port - I think we have an array for uarts or can this library not work with slave mode at all?
+
+    if (!gbEhsMBMasterFlag)
+    {
+        if (EHS_FB_OUT_CONNECTED_API2(INX_modbus_write_ARG_write_error_code))
+            EHS_FB_OUT_I_API2(INX_modbus_write_ARG_write_error_code)  = -503;
+        EHS_FB_FINISH(INX_modbus_write_ARG_write_error);
+        return;
+    }
+
     // Your code here
+    // eMBMasterReqErrCode mb_error = MB_MRE_MASTER_BUSY;
     inx_modbus_write_state->pFIdata = EHS_FB_RUN_CONTEXT_REF;
-    /*
-    if (EHS_FB_IN_CONNECTED_API2(INX_modbus_write_ARG_write_channel))
-    	EHS_FB_IN_I_API2(INX_modbus_write_ARG_write_channel) ;
     if (EHS_FB_IN_CONNECTED_API2(INX_modbus_write_ARG_write_value))
-    	EHS_FB_IN_I_API2(INX_modbus_write_ARG_write_value) ;
-    */
-    EHS_FB_FINISH(INX_modbus_write_ARG_write_finishwrite);
+    { 
+        if (EHS_FB_IN_CONNECTED_API2(INX_modbus_write_ARG_write_register) &&
+            EHS_FB_IN_CONNECTED_API2(INX_modbus_write_ARG_write_device) &&
+            EHS_FB_IN_CONNECTED_API2(INX_modbus_write_ARG_write_type))
+        {
+            inx_modbus_write_state->reg_addr = EHS_FB_IN_I_API2(INX_modbus_write_ARG_write_register) ;
+            inx_modbus_write_state->reg_type = EHS_FB_IN_I_API2(INX_modbus_write_ARG_write_type) ;
+            inx_modbus_write_state->device_id = EHS_FB_IN_I_API2(INX_modbus_write_ARG_write_device) ;
+        }
+        inx_modbus_write_state->data = EHS_FB_IN_I_API2(INX_modbus_write_ARG_write_value) ;
+        switch (inx_modbus_write_state->reg_type)
+        {
+            case MB_REG_TYPE_COIL:
+            {
+                // Convert non-zero data to 0xFF00 to meet the MODBUS specification
+                inx_modbus_write_state->data = inx_modbus_write_state->data ? 0xFF00 : 0;
+                
+                break;
+            }
+            case MB_REG_TYPE_HOLDING:
+            {
+                break;
+            }
+            default:
+            {
+                if (EHS_FB_OUT_CONNECTED_API2(INX_modbus_write_ARG_write_error_code))
+                    EHS_FB_OUT_I_API2(INX_modbus_write_ARG_write_error_code)  = MB_MRE_NO_REG;
+                EHS_FB_FINISH(INX_modbus_write_ARG_write_error);
+            }
+        }
+        // printf("INX_MODBUS_WRITE device_id: [%d], reg_type: [%d], reg_addr: [%d], value: [%d]\n",
+        //         inx_modbus_write_state->device_id,
+        //         inx_modbus_write_state->reg_type,
+        //         inx_modbus_write_state->reg_addr,
+        //         inx_modbus_write_state->data);
+        eMBMasterWrite(inx_modbus_write_state->device_id, inx_modbus_write_state->reg_type, inx_modbus_write_state->reg_addr, inx_modbus_write_state->data);
+    }
+    else
+    {
+        if (EHS_FB_OUT_CONNECTED_API2(INX_modbus_write_ARG_write_error_code))
+            EHS_FB_OUT_I_API2(INX_modbus_write_ARG_write_error_code)  = -1;
+        EHS_FB_FINISH(INX_modbus_write_ARG_write_error);
+    }
 }//ICB FUNCTION write MACRO END -- DO NOT ALTER THIS LINE
 
 #ifdef EHS_MINGW
@@ -159,6 +256,35 @@ EHS_FB_RUN_FUNCTION(modbus_write_write)
 #define EHS_MODBUS_WRITE_EXPORT // nothing
 #endif
 
+EHS_MODBUS_WRITE_EXPORT ehs_sint32 EhsHMBMasterWriteGetValue(ehs_sint32 device_id, eMBRegisterType register_type, ehs_sint32 address, ehs_sint32 *pValue)
+{
+    if (pValue == NULL) return -2;
+    inx_modbus_write_state_type *widget = inxModbusWriteSearch(device_id, register_type, address);
+    if (widget == NULL) return -1;
+    *pValue = widget->data;
+    //printf("write:      (val=%d) id=%d reg=%d addr=%d \n", *pValue, device_id, register_type, address);
+    return 0;
+}
+
+EHS_MODBUS_WRITE_EXPORT ehs_sint32 EhsHMBMasterWriteError(ehs_sint32 device_id, eMBRegisterType register_type, ehs_sint32 address, ehs_sint32 error)
+{
+    //printf("write: (ERR) val id=%d reg=%d addr=%d \n", device_id, register_type, address);
+    inx_modbus_write_state_type *widget = inxModbusWriteSearch(device_id, register_type, address);
+    if (widget == NULL) return -1;
+    EhsFunctionInstanceDataType* pFIdata=widget->pFIdata;
+    if (pFIdata == NULL) return -2;
+
+    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    eMBMasterReqErrCode mb_error = (eMBMasterReqErrCode)error;
+    if (EHS_FB_OUT_CONNECTED_API2(INX_modbus_write_ARG_write_error_code))
+        EHS_FB_OUT_I_API2(INX_modbus_write_ARG_write_error_code)  = mb_error;
+    if (mb_error != MB_MRE_NO_ERR) EHS_FB_FINISH(INX_modbus_write_ARG_write_error);
+    else EHS_FB_FINISH(INX_modbus_write_ARG_write_finishwrite);
+    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+    return 0;
+}
+
+/*
 //called by the modbus layer to get a value to be put on the wire
 static ehs_bool inxModbusWriteGetValue(const uint32_t channel,uint16_t* pValue)
 {
@@ -194,3 +320,4 @@ EHS_MODBUS_WRITE_EXPORT ehs_bool EhsModbusGetValue(const uint32_t channel,uint16
 {
     return inxModbusWriteGetValue(channel,pValue);
 }
+*/

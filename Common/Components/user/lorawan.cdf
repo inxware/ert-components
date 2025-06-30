@@ -3,24 +3,35 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-06-13T14:43:25Z</CreationDate>
-        <UpdatedDate>2023-06-21T12:11:47Z</UpdatedDate>
+        <UpdatedDate>2025-03-14T13:26:56Z</UpdatedDate>
     </CDFInfo>
     <Description>
-        <ShortDescription>OTAA LoRaWAN module</ShortDescription>
-        <LongDescription>This function block describes the LoRaWAN communication with external LoRaWAN module. The communication between the platform and this module is UART. The UART port on the platform is hardware to the first instance (e.g. UART0). The authentication mode is OTAA mode only. This is Class C (continuous) LoRaWAN communication only.</LongDescription>
+        <ShortDescription>LoRaWAN module</ShortDescription>
+        <LongDescription>This function block describes the LoRaWAN communication with external LoRaWAN module. The communication between the platform and this module is UART or the other methods. The UART port on the platform is hardware to the first instance (e.g. UART0). The authentication mode is either OTAA or ABP mode. This is Class C (continuous) LoRaWAN communication only.</LongDescription>
         <UserName/>
         <Menu>
             Networking
             <Menu>LoraWAN</Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>IO</Type>
+        <Height>480</Height>
+        <Text>LoRaWAN</Text>
+        <TextX>40</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>lorawan</Class>
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xC89A</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>bd595c67</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>617232a8</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -33,10 +44,6 @@
             <Description>The LoRaWAN target module. Default to 0 (WIO-E5). 0 for Wio-E5.</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
-            <DisplayOnWidget>
-                <x>50</x>
-                <y>5</y>
-            </DisplayOnWidget>
         </Parameter>
         <Parameter>
             <Name>Mode</Name>
@@ -47,27 +54,19 @@
             <Description>The connection mode of LoRaWAN. 0 for OTAA, 1 for ABP. Default to 0 (OTAA)</Description>
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
-            <DisplayOnWidget>
-                <x>50</x>
-                <y>20</y>
-            </DisplayOnWidget>
         </Parameter>
         <Parameter>
             <Name>Region</Name>
-            <DataType>S</DataType>
-            <DefaultValue>EU868</DefaultValue>
-            <MinValue/>
-            <MaxValue/>
-            <Description>Region Parameters of LoRaWAN communications. Default to "EU868". The options are: "EU868", "US915", "CN779", "EU433", "AU915", "CN470", "AS923", "KR920", "IN865", "RU864", "STE920".</Description>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>10</MaxValue>
+            <Description>Region Parameters of LoRaWAN communications. Default to 0. The options are: 0(EU868), 1(US915), 2(CN779), 3(EU433), 4(AU915), 5(CN470), 6(AS923), 7(KR920), 8(IN865), 9(RU864), 10(STE920).</Description>
             <ListPlacement>3</ListPlacement>
             <ArgPlacement>3</ArgPlacement>
-            <DisplayOnWidget>
-                <x>50</x>
-                <y>35</y>
-            </DisplayOnWidget>
         </Parameter>
         <Parameter>
-            <Name>REPT</Name>
+            <Name>Repeat</Name>
             <DataType>I</DataType>
             <DefaultValue>1</DefaultValue>
             <MinValue>1</MinValue>
@@ -77,7 +76,7 @@
             <ArgPlacement>4</ArgPlacement>
         </Parameter>
         <Parameter>
-            <Name>RETRY</Name>
+            <Name>Retry</Name>
             <DataType>I</DataType>
             <DefaultValue>3</DefaultValue>
             <MinValue>0</MinValue>
@@ -85,6 +84,96 @@
             <Description>Confirmed message retry times. From 0 to 254.</Description>
             <ListPlacement>5</ListPlacement>
             <ArgPlacement>5</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>AutoJoin</Name>
+            <DataType>I</DataType>
+            <DefaultValue>300</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>86400</MaxValue>
+            <Description>Fixed period in seconds up to 24 hours to join the network after disconnection. 0 to disable auto join feature. For the targets that do not have interval settings, any non-zero value would enable the feature. If the target does not support auto-join, this parameter has no effect.</Description>
+            <ListPlacement>6</ListPlacement>
+            <ArgPlacement>6</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>ADR</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Adaptive Data Rate. With this on, the DR setting would be ignored.</Description>
+            <ListPlacement>7</ListPlacement>
+            <ArgPlacement>7</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>DR</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>15</MaxValue>
+            <Description>Data Rate. Varies from 0 to 15.</Description>
+            <ListPlacement>8</ListPlacement>
+            <ArgPlacement>8</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>RXWIN2</Name>
+            <DataType>F</DataType>
+            <DefaultValue>869.525</DefaultValue>
+            <MinValue>400</MinValue>
+            <MaxValue>999</MaxValue>
+            <Description>Second RX window frequency in MHz</Description>
+            <ListPlacement>9</ListPlacement>
+            <ArgPlacement>9</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>appKey</Name>
+            <DataType>S</DataType>
+            <DefaultValue>00000000000000000000000000000000</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <Description>Default Application key for OTAA join mode</Description>
+            <ListPlacement>10</ListPlacement>
+            <ArgPlacement>10</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>appEui</Name>
+            <DataType>S</DataType>
+            <DefaultValue>0000000000000000</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <Description>Application Unique ID for OTAA join mode</Description>
+            <ListPlacement>11</ListPlacement>
+            <ArgPlacement>11</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>nwkSKey</Name>
+            <DataType>S</DataType>
+            <DefaultValue>00000000000000000000000000000000</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <Description>Network Session Key for ABP join mode</Description>
+            <ListPlacement>12</ListPlacement>
+            <ArgPlacement>12</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>appSKey</Name>
+            <DataType>S</DataType>
+            <DefaultValue>00000000000000000000000000000000</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <Description>Application Session Key for ABP join mode</Description>
+            <ListPlacement>13</ListPlacement>
+            <ArgPlacement>13</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>devAddrABP</Name>
+            <DataType>S</DataType>
+            <DefaultValue>00000000</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <Description>Device Address for ABP join mode</Description>
+            <ListPlacement>14</ListPlacement>
+            <ArgPlacement>14</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>
@@ -118,32 +207,527 @@
                 <ERT1_ID>5</ERT1_ID>
             </ID>
         </Function>
+        <Function>
+            <name>connect_cb</name>
+            <ID>
+                <ERT1_ID>6</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>send_msg_cb</name>
+            <ID>
+                <ERT1_ID>7</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>reset_cb</name>
+            <ID>
+                <ERT1_ID>8</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>get_statusData_cb</name>
+            <ID>
+                <ERT1_ID>9</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>set_datarate</name>
+            <ID>
+                <ERT1_ID>10</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>get_payload_length</name>
+            <ID>
+                <ERT1_ID>11</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>disable</name>
+            <ID>
+                <ERT1_ID>12</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>set_datarate_cb</name>
+            <ID>
+                <ERT1_ID>13</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>get_payload_length_cb</name>
+            <ID>
+                <ERT1_ID>14</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>disable_cb</name>
+            <ID>
+                <ERT1_ID>15</ERT1_ID>
+            </ID>
+        </Function>
     </Functions>
     <Ports>
         <Port>
             <DataType>S</DataType>
-            <Description>DevAddr</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>27</YCoordinate>
-            <CName>DevAddr</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>AppKey</Description>
+            <Description>appKey</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>27</YCoordinate>
+            <YCoordinate>45</YCoordinate>
             <CName>AppKey</CName>
             <Function argument="1">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
-            <Description>connect</Description>
+            <DataType>S</DataType>
+            <Description>appEui</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <CName>AppEui</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>payload</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>195</YCoordinate>
+            <CName>payload</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>received</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>115</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>received</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>reset</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>227</YCoordinate>
+            <CName>reset</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>appSKey</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>75</YCoordinate>
+            <CName>AppSKey</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>nwkSKey</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>65</YCoordinate>
+            <CName>NwkSKey</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ok</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>37</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>connect_cb_ok</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>failed</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>57</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>connect_fail</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>devAddr</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>47</YCoordinate>
+            <CName>DevAddr</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>15</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>connectDone</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>165</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>send_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ok</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>187</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>msg_sent</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>failed</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>197</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>send_failed</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>227</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>reset_sent</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>busy</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>280</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>get_sd_failed</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>270</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>data_got</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ok</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>292</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>get_sd_cb_ok</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>9</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>busy</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>237</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>reset_send_failed</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>busy</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>175</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>send_fail</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>busy</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>connectFail</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>fport</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>185</YCoordinate>
+            <CName>frame_port</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ccbi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>ccbi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>smcbi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>smcbi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>rcbi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>rcbi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>8</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>gsdcbi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>gsdcbi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>9</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>set</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>332</YCoordinate>
+            <CName>set_datarate</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>10</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>332</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>set_datarate_sent</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>10</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>DR</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>342</YCoordinate>
+            <CName>dr_in</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>10</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>busy</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>342</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>set_datarate_busy</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>10</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ok</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>355</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>set_datarate_ok</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>13</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>sfrcbi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>sfrcbi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>13</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>disable</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>427</YCoordinate>
+            <CName>disable</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>12</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>427</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>disable_sent</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>12</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>375</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>get_pl_len_sent</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>11</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>busy</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>385</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>get_pl_len_busy</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>11</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ok</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>397</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>pl_len_got</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>14</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>len</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>407</YCoordinate>
+            <CName>pl_len</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>14</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>busy</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>437</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>disable_busy</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>12</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>disabled</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>450</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>disabled</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>15</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>fport</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>135</YCoordinate>
+            <CName>fport_rx</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>lnkStat</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>145</YCoordinate>
+            <CName>link_status</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>join</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
             <YCoordinate>15</YCoordinate>
@@ -154,21 +738,21 @@
             </Function>
         </Port>
         <Port>
-            <DataType>S</DataType>
-            <Description>AppEui</Description>
+            <DataType>B</DataType>
+            <Description>ADR</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>40</YCoordinate>
-            <CName>AppEui</CName>
-            <Function argument="2">
+            <YCoordinate>35</YCoordinate>
+            <CName>adr_in</CName>
+            <Function argument="5">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
-            <Description>send_msg</Description>
+            <Description>send</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>122</YCoordinate>
+            <YCoordinate>165</YCoordinate>
             <CName>send_msg</CName>
             <Function argument="0">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -176,76 +760,21 @@
             </Function>
         </Port>
         <Port>
-            <DataType>S</DataType>
-            <Description>payload</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>147</YCoordinate>
-            <CName>payload</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>3</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
             <DataType>B</DataType>
-            <Description>msg_confirmed</Description>
+            <Description>confirm</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>135</YCoordinate>
+            <YCoordinate>175</YCoordinate>
             <CName>msg_confirmed</CName>
-            <Function argument="2">
+            <Function argument="3">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
-            <Description>received</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>90</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>received</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>recv_msg</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>102</YCoordinate>
-            <CName>recv_msg</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>reset</Description>
+            <Description>status</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>170</YCoordinate>
-            <CName>reset</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>4</Function_ERT1_ID>
-                <AtomicFlag>0</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <Description>reset_done</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>170</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>reset_done</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>4</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>get_data</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>192</YCoordinate>
+            <YCoordinate>270</YCoordinate>
             <CName>get_data</CName>
             <Function argument="0">
                 <Function_ERT1_ID>5</Function_ERT1_ID>
@@ -253,124 +782,143 @@
             </Function>
         </Port>
         <Port>
-            <DataType>S</DataType>
-            <Description>status</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>205</YCoordinate>
-            <CName>status</CName>
+            <Description>getLength</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>375</YCoordinate>
+            <CName>get_pl_len</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>11</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>done</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>250</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>reset_done</CName>
             <Function argument="1">
-                <Function_ERT1_ID>5</Function_ERT1_ID>
+                <Function_ERT1_ID>8</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
             <DataType>I</DataType>
-            <Description>send_errCode</Description>
+            <Description>errno</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>147</YCoordinate>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>207</YCoordinate>
             <CName>send_errCode</CName>
             <Function argument="1">
-                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <Function_ERT1_ID>7</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
             <DataType>S</DataType>
-            <Description>DevEui</Description>
+            <Description>message</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>217</YCoordinate>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>125</YCoordinate>
+            <CName>recv_msg</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>devAddr</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>85</YCoordinate>
+            <CName>DevAddr_ABP</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>gplcbi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>gplcbi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>14</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>dcbi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>dcbi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>15</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>miscOpt</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>95</YCoordinate>
+            <CName>miscOpt</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>region</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName>region</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ormsgi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>ormsgi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>status</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>302</YCoordinate>
+            <CName>status</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>9</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>devEui</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>312</YCoordinate>
             <CName>DevEui</CName>
             <Function argument="2">
-                <Function_ERT1_ID>5</Function_ERT1_ID>
+                <Function_ERT1_ID>9</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
-            <Description>fail</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>40</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>connectFail</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>ok</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>15</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>connectDone</CName>
+            <DataType>I</DataType>
+            <Description>errno</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>165</XCoordinate>
+            <YCoordinate>67</YCoordinate>
+            <CName>connect_errno</CName>
             <Function argument="2">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>fail</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>135</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>send_fail</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>3</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>ok</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>122</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>send_done</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>3</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>ok</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>192</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>data_got</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>5</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>AppSKey</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>65</YCoordinate>
-            <CName>AppSKey</CName>
-            <Function argument="3">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>NwkSKey</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>77</YCoordinate>
-            <CName>NwkSKey</CName>
-            <Function argument="4">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>DevAddr_ABP</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>52</YCoordinate>
-            <CName>DevAddr_ABP</CName>
-            <Function argument="5">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <Function_ERT1_ID>6</Function_ERT1_ID>
             </Function>
         </Port>
     </Ports>

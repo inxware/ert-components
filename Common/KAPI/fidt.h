@@ -26,7 +26,7 @@ typedef struct
 {
     EhsFunctionInstanceDataType* pFunctions; /**< Contains the actual function instances */
     ehs_uint32 nSize; /**< Defines the size of the function instance data table for the specific application - populated at SODL parse time*/
-    ehs_uint32 nMemorySize; //Size of memory allocated at init time of this structure.
+    //ehs_uint32 nMemorySize; //Size of memory allocated at init time of this structure. ! NOT USED !
 } EhsFunctionInstanceDataTableType;
 
 /**

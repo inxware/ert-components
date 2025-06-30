@@ -18,6 +18,17 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             </Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>IO</Type>
+        <Height>255</Height>
+        <Text>Wi-Fi Station</Text>
+        <TextX>35</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>wifi_station</Class>
@@ -51,10 +62,6 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <Description>Wi-Fi authentication type. 0 for Password authentication, 1 for open network, 2 for WPA2/3-Enterprise network.</Description>
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
-            <DisplayOnWidget>
-                <x>60</x>
-                <y>45</y>
-            </DisplayOnWidget>
         </Parameter>
         <Parameter>
             <Name>tryReconnect</Name>

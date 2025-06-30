@@ -13,8 +13,12 @@
 #  OBJ - File extension for object files
 
 #os-arch-wide platform component-HAL settings:
-EHS_PERIPHERALS_GPIO_SUPPORT=ESP32_IDF
-EHS_PERIPHERALS_ADC_DAC_SUPPORT=ESP32_IDF
+ifndef EHS_PERIPHERALS_GPIO_SUPPORT
+EHS_PERIPHERALS_GPIO_SUPPORT=ESP32S3_IDF
+endif
+ifndef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+EHS_PERIPHERALS_ADC_DAC_SUPPORT=ESP32S3_IDF
+endif
 
 # Expected variables
 
@@ -23,7 +27,18 @@ EHS_PERIPHERALS_ADC_DAC_SUPPORT=ESP32_IDF
 #  VPATH - where to look for source code
 #  EHS_TARGET_OS_HW_PATH - path to the current directory (set by platform makefile)
 
+# Default OS Features Supported
+ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
+ifndef EHS_FILESYSTEM_SUPPORT
+	EHS_FILESYSTEM_SUPPORT=posix
+endif
+endif
+
+# target path
+_TARGET_PATH = $(EHS_TARGETS_ROOT_PATH)/os-arch/esp32s3_freertos-xtensa/
+
 # include sourcecode from this dir in build
+# We do not need this
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32s3-xtensa/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32s3-xtensa/
 
@@ -31,13 +46,10 @@ VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32s3-xtensa/
 EHS_COMMS_TASK=tcp_server_common
 EHS_COMMS_API_SUPPORT=lwip
 EHS_ESP32_SUPPORT=1
-EHS_MQTT_SUPPORT=1
-DEFS=EHS_MQTT_SUPPORT=1
 DEFS += EHS_ESP32_SUPPORT=1
 
-DEFS += TARGET_OS_VERSION_STRING='"$(shell cat ./Releases/version_strings |tr '\n' '.')"' 
-
-EHS_UART_SUPPORT=yes
+include TARGET.cfg
+DEFS += 'TARGET_OS_VERSION_STRING="$(shell head -c -1 ./Releases/version_strings | tr '\n' '.')\x20:$(TARGET)"'
 
 #Enable gdb debugging by default
 ENABLE_GDB=1 
@@ -46,6 +58,7 @@ ENABLE_GDB=1
 DEFS += EHS_LWIP=1
 #INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/lwip/
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/Component-HAL/comms/lwip
+INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/Component-HAL/wifi
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/hal/
 
 #IDF build has som specific subdirectories:
@@ -72,14 +85,35 @@ OBJECTS += ping.$(OBJ)
 #OBJECTS += target_math.$(OBJ) 
 #OBJECTS += esp_main_example.$(OBJ) 
 #OBJECTS += certificate.$(OBJ)
-OBJECTS += mqtt.$(OBJ)
+ifeq ($(EHS_UART_SUPPORT),yes)
 OBJECTS += target_uart.${OBJ}
+endif
 OBJECTS += target_wifi.${OBJ}
 OBJECTS += target_ethernet.${OBJ}
-ifeq (EHS_OTA_SUPPORT,stubbed)
+ifeq ($(EHS_OTA_SUPPORT),stubbed)
+else
 OBJECTS += target_ota.${OBJ}
 endif
+ifneq (,$(wildcard $(_TARGET_PATH)/target_data_bin.c))
 OBJECTS += target_data_bin.${OBJ}
+else
+OBJECTS += target_data_bin_default.$(OBJ)
+endif
+OBJECTS += target_display.$(OBJ)
+OBJECTS += target_sys_stat.$(OBJ)
+
+#todo 2025 This probably shouldn't be here either? COmponent HAL??
+ifdef EHS_MODBUS_SUPPORT
+OBJECTS += target_mbport.$(OBJ)
+endif
+
+ifdef EHS_I2C_SUPPORT
+DEFS += EHS_I2C_SUPPORT
+OBJECTS += target_specific.$(OBJ)
+endif
+
+#todo2025 - still not sure how we should be doing this:
+EHS_PERIPHERALS_BACKLIGHT_SUPPORT=esp32s3
 
 #expect we will need all of the lib*.a from ert-contrib-middleware/target_libs/..esp32s3 .. /build/lib/ here 
 # LIB += ....
@@ -154,6 +188,7 @@ LIB += heap
 LIB += jsmn
 LIB += json
 LIB += libsodium
+#LIB += esp_psram
 
 #LNKFLAGS+= -lnvs_flash -lopenssl -lopenthread -lperfmon -lprotobuf-c -lprotocomm -lpthread -lsdmmc -lsoc -lspiffs -lspi_flash -ltcpip_adapter -ltcp_transport -llog -llwip -lmbedtls -lmdns -lmqtt -lnewlib -lnghttp 
 

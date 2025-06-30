@@ -17,6 +17,16 @@
             </Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>IO</Type>
+        <Text>Reboot</Text>
+        <TextX>5</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>0</LocationY>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>Reboot</Class>
@@ -37,7 +47,7 @@
     </Functions>
     <Ports>
         <Port>
-            <Description>reboot</Description>
+            <Description> </Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
             <YCoordinate>20</YCoordinate>

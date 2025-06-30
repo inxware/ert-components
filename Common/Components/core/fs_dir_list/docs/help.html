@@ -1,156 +1,148 @@
 <html>
-
 <head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
-
 <body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">FileSystemDirList1</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
-      This component is used to retrieve a list of entries in a directory, the entries are retrieved one at a time until there are no more entries to retrieve. <br> 
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">FileSystemDirList1</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      This component is used to retrieve a list of entries in a directory, the entries are retrieved one at a time until there are no more entries to retrieve. <br/> 
       The directory is specified by the parameter Directory and is overridden to the data input <a href="#[In]dir">[In]dir</a> when the input event <a href="#[In]set dir">[In]set dir</a> is asserted. If a valid directory has been specified then the output event <a href="#[Out]Ready">[Out]Ready</a> is triggered, else <a href="#[Out]Error">[Out]Error</a> is triggered. 
-      The directory path is relative to "userdata" in the EHS root directory unless the "use app dir" option is true, in which case the files are relative to "appdata" which are are packaged in the RESOURCE section of iAB's project. <br>
+      The directory path is relative to "userdata" in the EHS root directory unless the "use app dir" option is true, in which case the files are relative to "appdata" which are are packaged in the RESOURCE section of iAB's project. <br/>
       If it is required, the root directory of the device can be referenced by prefixing the path with the "/" character if OS specific file system data is needed (This should be avoided!).
     </p>
-    <p class=component>
+<p class="component">
       A list of entries in the directory is presented, one entry at a time, to the data output <a href="#[Out]name">[Out]name</a> on each occassion that the input event <a href="#[In]get entry">[In]get entry</a> is asserted and the output event <a href="#[Out]file">[Out]file</a> or <a href="#[Out]dir">[Out]dir</a> is triggered depending on whether the entry is a file or directory respectively. If there are no further entries in the list then the output event <a href="#[Out]no more">[Out]no more</a> is triggered when the input event <a href="#[In]get entry">[In]get entry</a> is asserted. The parameter FindFiles is a Boolean value that specifies if files should be retrieved from the list of entries. Similarly the parameter FindDirs is a Boolean value that specifies if directories should be retrieved from the list of entries.
     </p>
-    <p class=component>
+<p class="component">
       The reset input event <a href="#[In]reset">[In]reset</a> will retrieve the first entry in the list the next time that the input event <a href="#[In]get entry">[In]get entry</a> is asserted. If the input event <a href="#[In]set dir">[In]set dir</a> is triggered then this also resets to retrieve the first entry in the list for the specified directory.
     </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-      <tr>
-        <td>Directory</td>
-        <td>S</td>
-        <td>None</td>
-        <td>Media Directory</td>
-        <td>None</td>
-        <td> The path of the directory to list the entries of.</td>
-      </tr>
-      <tr>
-        <td>FindFiles</td>
-        <td>B</td>
-        <td>1</td>
-        <td>0</td>
-        <td>1</td>
-        <td>Boolean value to indicate whether files are retrieved from the list.</td>
-      </tr>
-      <tr>
-        <td>FindDirs</td>
-        <td>B</td>
-        <td>0</td>
-        <td>0</td>
-        <td>1</td>
-        <td>Boolean value to indicate whether directories are retrieved from the list.</td>
-      </tr>
-    </table>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
 
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]set dir">set dir</a></td>
-        <td>Input event, sets the directory to list the entries of.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]reset">reset</a></td>
-        <td>Input event, resets to retrieve the first entry of the list.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]dir">dir</a></td>
-        <td>Data input, the path of the directory to list.</td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Name">name</a></td>
-        <td>Data input, the path of the directory to list.</td>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Ready">Ready</a></td>
-        <td>Output event, triggered when the path specified is a valid directory.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Error">Error</a></td>
-        <td>Output event, triggered when the path specified is not a valid directory.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]file">file</a></td>
-        <td>Output event, triggered when the entry retrieved is a file.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]dir">dir</a></td>
-        <td>Output event, triggered when the entry retrieved is a directory.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]no more">no more</a></td>
-        <td>Output event, triggered when there are no more entries to retrieve.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]------">------</a></td>
-        <td>Output event.</td>
-      </tr>
+</tr>
+<tr>
+<td>Directory</td>
+<td>S</td><td> The path of the directory to list the entries of.</td>
+<td>None</td>
+<td>Media Directory</td>
+<td>None</td>
 
-    </table>
+</tr>
+<tr>
+<td>FindFiles</td>
+<td>B</td><td>Boolean value to indicate whether files are retrieved from the list.</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
 
+</tr>
+<tr>
+<td>FindDirs</td>
+<td>B</td><td>Boolean value to indicate whether directories are retrieved from the list.</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
 
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]set dir">set dir</a></td>
+<td>Input event, sets the directory to list the entries of.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]reset">reset</a></td>
+<td>Input event, resets to retrieve the first entry of the list.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]dir">dir</a></td>
+<td>Data input, the path of the directory to list.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Name">name</a></td>
+<td>Data input, the path of the directory to list.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Ready">Ready</a></td>
+<td>Output event, triggered when the path specified is a valid directory.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Error">Error</a></td>
+<td>Output event, triggered when the path specified is not a valid directory.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]file">file</a></td>
+<td>Output event, triggered when the entry retrieved is a file.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]dir">dir</a></td>
+<td>Output event, triggered when the entry retrieved is a directory.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]no more">no more</a></td>
+<td>Output event, triggered when there are no more entries to retrieve.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]------">------</a></td>
+<td>Output event.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+<!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
           <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
           <span class="fsm_blob">state2</span>
           &otimes;&nbsp;
@@ -159,54 +151,52 @@
           <span class="fsm_blob">state5</span> -->
           None
         </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
+<td>
+<b></b>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
           Core
         </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
           v1.0.
         </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
           MPL2.0
         </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minumum DCC</b>
+</td><td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
           All.
         </td>
-      </tr>
-    </table>
-
-  </div>
+</tr>
+</table>
+</div>
 </body>
-
 </html>

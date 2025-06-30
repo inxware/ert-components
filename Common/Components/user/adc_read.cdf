@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+        <UpdatedDate>2024-12-13T14:47:12Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>adc_read</ShortDescription>
@@ -11,7 +11,10 @@
         <UserName/>
         <Menu>
             Peripherals
-            <Menu>ADC Read</Menu>
+            <Menu>
+                ADC
+                <Menu>ADC Read</Menu>
+            </Menu>
         </Menu>
     </Description>
     <Block>
@@ -27,12 +30,12 @@
         <LocationY>-15</LocationY>
     </Block>
     <FBID>
-        <ERT1_ID>0</ERT1_ID>
+        <ERT1_ID>1</ERT1_ID>
         <Class>adc_read</Class>
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xA05C</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>ba8f9b1d</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>6ce9f97d</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -54,6 +57,8 @@
             <Name>enable_continuous</Name>
             <DataType>B</DataType>
             <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
             <Description>Enable continuous mode clock</Description>
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
@@ -77,6 +82,16 @@
             <Description>Acquisitions to average</Description>
             <ListPlacement>4</ListPlacement>
             <ArgPlacement>4</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Bias</Name>
+            <DataType>F</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-100000</MinValue>
+            <MaxValue>100000</MaxValue>
+            <Description>The bias to be taken from the average</Description>
+            <ListPlacement>5</ListPlacement>
+            <ArgPlacement>5</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>
@@ -102,7 +117,7 @@
             <CName>read</CName>
             <Function argument="0">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
+                <AtomicFlag>0</AtomicFlag>
             </Function>
         </Port>
         <Port>
@@ -124,7 +139,7 @@
             <CName>sample</CName>
             <Function argument="0">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
+                <AtomicFlag>0</AtomicFlag>
             </Function>
         </Port>
         <Port>

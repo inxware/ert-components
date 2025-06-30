@@ -10,6 +10,45 @@
 # 
 ########################################################################
 
+######################################################################
+# Get a known network address is there is one, 
+# so we can check the network is up before starting
+######################################################################
+
+if [ "${DEBUGMODE}" != "DONT_WAITFORNETWORK" ]; then
+	TESTURL=""
+	if [ -e "${DEVMANCOREDIR}/config/DEVMANURL.000" ]; then 
+		TESTURL_TRY=`cat "${DEVMANCOREDIR}/config/DEVMANURL.000"`
+		if [ ${#TESTURL_TRY} -gt 8 ]; then
+			TESTURL="$( echo $TESTURL_TRY | sed -re 's#^http://|https://##; s#/score/$##' )"
+		else
+			TESTURL=""
+		fi	
+	fi
+	if [ -n "${TESTURL}" ];then
+		MAXWAIT=60
+		WAITTIME=0
+		PINGPERIOD=2
+		ping -c 1 -w 1 ${TESTURL} &> /dev/null
+		while [ $? != 0 ] && [ $WAITTIME -le $MAXWAIT ] ; do
+			WAITTIME=$(($WAITTIME + ${PINGPERIOD}))
+			sleep ${PINGPERIOD}
+			ping -c 1 -w 1 ${TESTURL} &> /dev/null
+		done
+	#else we don't wait - assume there's no network if one isn't specced in DEVMANURL.000
+	fi
+fi # dont wait for network
+#######################################################################
+# Check to see if we need to run some OS configuration on first install
+######################################################################
+./runOsInit.sh  || :
+
+########################################################################
+# We must have wget installed for Devman: fall back install here 
+########################################################################
+
+test `which wget` || apt-get install -y wget
+
 ########################################################################
 # Ambifier-Specific Initialisation
 ########################################################################
@@ -54,6 +93,18 @@ fi
 
 # work around to make ld-linux executable, should be done by installer
 test -e "${PWD}/corelib/ld-linux.so.2" && chmod +x "${PWD}/corelib/ld-linux.so.2"
+
+# work around to get devmanmon to report to first server when start ehs at boot, otherwise will fallback to report to default server
+if [ -f Ambifier2_LinuxServer/Ambifier2_LinuxServer.x86_64 ]; then
+sleep 2
+  pidof Ambifier2_LinuxServer.x86_64 && killall Ambifier2_LinuxServer.x86_64
+  pushd  Ambifier2_LinuxServer
+  chmod +x Ambifier2_LinuxServer.x86_64
+  ./Ambifier2_LinuxServer.x86_64 -batchmode "headless" -nographics &
+#  ./Ambifier2_LinuxServer.x86_64 &
+  popd
+
+fi
 
 #migration of fixed playlist to multi-playlist support, so previous laylist keep on playing
 pushd ../userdata/media/scheds/

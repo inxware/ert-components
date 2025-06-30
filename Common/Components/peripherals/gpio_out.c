@@ -35,7 +35,11 @@ EHS_FB_INIT_FUNCTION(gpio_out)
 {
     //this is the reference to the object data for this instance of the function block
     ehs_gpio_out_state_type* gpio_out_state = (ehs_gpio_out_state_type*)EHS_FB_INIT_CONTEXT;
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d%hhu%hhu",&gpio_out_state->pin_id,&gpio_out_state->initial_state,&gpio_out_state->open_drain_mode);
+    unsigned short int initial_state = 0;
+    unsigned short int open_drain_mode = 0;
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %hu %hu",&gpio_out_state->pin_id, &initial_state, &open_drain_mode);
+    gpio_out_state->initial_state = (ehs_uint8) initial_state;
+    gpio_out_state->open_drain_mode = (ehs_bool) open_drain_mode;
     if (gpio_out_state->initial_state == 0) 
         gpio_out_state->pin_value = EHS_FALSE;
     else if (gpio_out_state->initial_state == 1)

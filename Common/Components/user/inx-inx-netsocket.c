@@ -6,6 +6,9 @@
 * not, please visit
 *	<https://www.mozilla.org/en-US/MPL/2.0/>
 ****************************************************************/
+
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -18,7 +21,9 @@
 //todo2022 remove these heade requirements and use the target component HAL...
 #ifndef EHS_MINGW
 // #define _GNU_SOURCE
+#ifndef EHS_LWIP
 #include <poll.h>
+#endif // EHS_LWIP
 #else
 #include <winsock2.h>
 #endif
@@ -42,9 +47,9 @@ typedef struct
     //ehs_bool stopListeningNow; //flag this when you want to stop the server.
     ehs_bool closeConnectionNow; //flag this when you want to stop a connection (server or client mode) is set to 0 when actually closed.
 
-    ehs_char data_recv_buf[EHS_STRING_LENGTH_MAX];
-    ehs_char data_send_buf[EHS_STRING_LENGTH_MAX];
-    ehs_char URL[EHS_STRING_LENGTH_MAX];
+    ehs_char data_recv_buf[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!!! These could be very large with pass through stuff enabled?
+    ehs_char data_send_buf[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!!! These could be very large with pass through stuff enabled? Can we just make these bigger?
+    ehs_char URL[EHS_STRING_LENGTH_MAX];  //TODO:STRINGLENGTH!
 } inx_netSocket_state_type; //Reference this, maybe store your config parameters in here too.
 
 
@@ -117,7 +122,6 @@ EHS_FB_IDENTIFY_FUNCTION(netSocket)
 void EhsNetSocketClientInitDynamic(inx_netSocket_state_type* inx_netSocket_state)
 {
     inx_netSocket_state->data_recv_buf[0]='\0';
-    inx_netSocket_state->bIsOpening = EHS_FALSE; // reset this so no new threads can start
     inx_netSocket_state->data_send_buf[0]='\0';
     memset(inx_netSocket_state->data_send_buf,0,EHS_STRING_LENGTH_MAX);
     inx_netSocket_state->data_recv_size=0;
@@ -126,6 +130,7 @@ void EhsNetSocketClientInitDynamic(inx_netSocket_state_type* inx_netSocket_state
     //inx_netSocket_state->negotiated_addr=NULL; // only used for sendTo (from linked list)
     inx_netSocket_state->connection_socket = EHS_TGT_TCP_INVALID_SOCKET;
     inx_netSocket_state->closeConnectionNow = EHS_FALSE;
+    inx_netSocket_state->bIsOpening = EHS_FALSE; // reset this so no new threads can start
 }
 
 
@@ -153,8 +158,9 @@ EHS_FB_INIT_FUNCTION(netSocket)
 EHS_FB_DESTROY_FUNCTION(netSocket)
 {
     inx_netSocket_state_type *inx_netSocket_state = (inx_netSocket_state_type*)EHS_FB_DESTROY_CONTEXT;
-    inx_netSocket_state->closeConnectionNow = EHS_TRUE;
+    
     EhsTPMutex_lock(EhsTPMutex_socketClient);
+    inx_netSocket_state->closeConnectionNow = EHS_TRUE;
     if (inx_netSocket_state->connection_socket != EHS_TGT_TCP_INVALID_SOCKET )
     {
         EhsSvcTgtTcp_closeConnection(inx_netSocket_state->connection_socket); // unblock the accept or receive calls
@@ -189,21 +195,20 @@ EHS_FB_RUN_FUNCTION(netSocket_send_actual)
     ehs_bool bConnected = EHS_TRUE; /* assume that we stay connected */
     ssize_t data_size = 0 ;//@todo this thould be ehsified for winsock
 
+    if (inx_netSocket_state->connection_socket == EHS_TGT_TCP_INVALID_SOCKET)
+    {
+        EHSH_LOG_ERROR("socket not created for tcpip - not trying");
+        goto error_notopen;
+    }
     /***** send bBuff to TCP/IP ****/
     /* @todo we do this in blocking mode, which would stop reading for large data, This could be done non-blocking, by keeping tabs on the amount sent each time? */
     if (inx_netSocket_state->tcp_udp == 0)   /* TCPIP */
     {
-        if (inx_netSocket_state->connection_socket== EHS_TGT_TCP_INVALID_SOCKET)
-        {
-            EHSH_LOG_ERROR("socket not created for tcpip - not trying");
-            goto error_notopen;
-        }
         data_size = send(inx_netSocket_state->connection_socket,(const ehs_char *) inx_netSocket_state->data_send_buf,(ehs_sint32) inx_netSocket_state->data_send_size,(ehs_sint32) 0); /* Send connection in blocking mode */
     }
     else     /* UDP mode use sendto */
     {
         /* @todo this might need the selected addrinfo rather than the list version */
-
         struct sockaddr_in si_other;
         memset((char *) &si_other, 0, sizeof(si_other));
         si_other.sin_family = AF_INET;
@@ -251,8 +256,9 @@ error_notopen:
         EhsSvcTgtTcp_closeConnection(inx_netSocket_state->connection_socket);
         inx_netSocket_state->connection_socket = EHS_TGT_TCP_INVALID_SOCKET;
     }
-    EhsTPMutex_unlock(EhsTPMutex_socketClient);
     inx_netSocket_state->closeConnectionNow = EHS_TRUE;
+    EhsTPMutex_unlock(EhsTPMutex_socketClient);
+    
     EhsTPMutex_lock(EhsTPMutex_fbIO);
     EHS_FB_FINISH_API2(INX_netSocket_ARG_open_send_error );
     EhsTPMutex_unlock(EhsTPMutex_fbIO);
@@ -267,8 +273,8 @@ error_send:
         EhsSvcTgtTcp_closeConnection(inx_netSocket_state->connection_socket);
         inx_netSocket_state->connection_socket = EHS_TGT_TCP_INVALID_SOCKET;
     }
-    EhsTPMutex_unlock(EhsTPMutex_socketClient);
     inx_netSocket_state->closeConnectionNow = EHS_TRUE;
+    EhsTPMutex_unlock(EhsTPMutex_socketClient);
 
     EhsTPMutex_lock(EhsTPMutex_fbIO);
     EHS_FB_FINISH_API2(INX_netSocket_ARG_open_send_error );
@@ -337,8 +343,9 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
         hint.ai_socktype = SOCK_DGRAM;
         hint.ai_protocol = 0;// is any protocol
     }
-
+    EhsTPMutex_lock(EhsTPMutex_socketClient);
     inx_netSocket_state->closeConnectionNow = EHS_FALSE;
+    EhsTPMutex_unlock(EhsTPMutex_socketClient);
     EhsSprintf(port_string, "%d", inx_netSocket_state->port);/*todo put max width stuff in here */
     hint.ai_family = PF_INET;//PF_UNSPEC; //@todo this should be a parameter
     /* The following could be used but needs a hint struct without the name included and a return version. */
@@ -350,7 +357,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
 
     if (0 != err)
     {
-        _netsock_debug_printf("getaddrinfo failed for %s:%s connection error = %d\n",inx_netSocket_state->URL,port_string,err);
+        EHSH_LOG_ERROR("getaddrinfo failed for %s:%s connection error = %d",inx_netSocket_state->URL,port_string,err);
         goto connect_error; //@todo could do with some diagnostic here
     }
     /* Create EhsTgtTcpSocketType */
@@ -398,7 +405,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
                 //the following is done in connect_error
                 //EhsSvcTgtTcp_closeConnection(inx_netSocket_state->connection_socket);
                 //inx_netSocket_state->connection_socket=EHS_TGT_TCP_INVALID_SOCKET;
-                EHSH_LOG_INFO("Could not create TCPIP connection to port %d - %s", inx_netSocket_state->port, strerror(errno));
+                EHSH_LOG_ERROR("Could not create TCPIP connection to port %d - %s", inx_netSocket_state->port, strerror(errno));
                 goto connect_error;
             }
             else
@@ -437,12 +444,36 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
     timeout.tv_sec=0;
     timeout.tv_usec=10000;
 
+    // @TODO - make the send timeout a FB parameter or non-blocking
+    struct timeval snd_timeout;
+    if (inx_netSocket_state->tcp_udp == 1) 
+    {
+        // udp send timeout
+        snd_timeout.tv_sec=5;
+        snd_timeout.tv_usec=0;
+    }
+    else
+    {
+        // tcp send timeout
+        snd_timeout.tv_sec=30;
+        snd_timeout.tv_usec=0;
+    }
+
     //if (setsockopt(inx_netSocket_state->connection_socket, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tvx,sizeof(struct timeval))
     if (inx_netSocket_state->connection_socket != EHS_TGT_TCP_INVALID_SOCKET)
     {
-        if (setsockopt(inx_netSocket_state->connection_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)))
+        // socket recive timeout
+        int err = setsockopt(inx_netSocket_state->connection_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+        if (err)
         {
-            EHSH_LOG_ERROR("setsockopt failed");
+            EHSH_LOG_ERROR("clinet setsockopt SO_RCVTIMEO failed err=%d", err);
+        }
+
+        // socket send timeout
+        err = setsockopt(inx_netSocket_state->connection_socket, SOL_SOCKET, SO_SNDTIMEO, &snd_timeout, sizeof(snd_timeout));
+        if (err) 
+        {
+            EHSH_LOG_ERROR("clinet setsockopt SO_SNDTIMEO failed err=%d", err);
         }
     }
 #else
@@ -464,6 +495,9 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
         {
             EHS_FB_START_RUN_FUNCTION(netSocket_send_actual);
         }
+        if(inx_netSocket_state->closeConnectionNow==EHS_TRUE){
+            EHSH_LOG_ERROR("Close requested in the thread!");
+        }
         inx_netSocket_state->data_send_size=0;
         if (inx_netSocket_state->tcp_udp == 0)
         {
@@ -479,7 +513,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
 #endif
             if (nDataReceived == EHS_TGT_TCP_SOCKET_ERROR && errno != EAGAIN && errno != 0)   // The socket has probably closed on us so exit and clean up
             {
-                EHSH_LOG_WARNING("SOCKETERROR WHILE WAITING (%d=%d)",nDataReceived,EHS_TGT_TCP_SOCKET_ERROR);
+                EHSH_LOG_ERROR("SOCKETERROR WHILE WAITING (%d=%d)",nDataReceived,EHS_TGT_TCP_SOCKET_ERROR);
                 break;
             }
         }
@@ -501,8 +535,13 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
             EhsTPMutex_lock(EhsTPMutex_fbIO);
             /* note data received should be EHS_STRING_LENGTH-1 from recv() */
             inx_netSocket_state->data_recv_buf[nDataReceived]='\0'; // just in case the user treats this as a NULL term string.
-            EhsStrncpy(EHS_FB_OUT_S_API2( INX_netSocket_ARG_open_data ),inx_netSocket_state->data_recv_buf, nDataReceived+1);
-            //((ehs_char*) (EHS_FB_OUT_S_API2(INX_netSocket_ARG_open_data)))[nDataReceived] = '\0';
+            if (EHS_FB_OUT_CONNECTED_API2(INX_netSocket_ARG_open_data)){
+                EhsStrncpy(EHS_FB_OUT_S_API2( INX_netSocket_ARG_open_data ),inx_netSocket_state->data_recv_buf, nDataReceived+1);
+                //((ehs_char*) (EHS_FB_OUT_S_API2(INX_netSocket_ARG_open_data)))[nDataReceived] = '\0';
+            }
+            if (EHS_FB_OUT_CONNECTED_API2(INX_netSocket_ARG_open_sizeout_size)){
+                EHS_FB_OUT_I_API2(INX_netSocket_ARG_open_sizeout_size) = nDataReceived ;
+            }
             EHS_FB_FINISH_API2(INX_netSocket_ARG_open_received);
             EhsTPMutex_unlock(EhsTPMutex_fbIO);
             /*  "need to wait here for the data read flag before reading any more.*/
@@ -516,7 +555,9 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
         if (poll(&pfd, 1, inx_netSocket_state->read_dwell_time_ms) > 0)
         {
             //Socket is closed by remote server. exit
+            EhsTPMutex_lock(EhsTPMutex_socketClient);
             inx_netSocket_state->closeConnectionNow=EHS_TRUE;
+            EhsTPMutex_unlock(EhsTPMutex_socketClient);
         }
 #else
         tv.tv_sec = 0;
@@ -575,7 +616,6 @@ good:
     }
     EhsTPMutex_unlock(EhsTPMutex_socketClient);
 
-    inx_netSocket_state->closeConnectionNow = EHS_FALSE; //signal we have closed.
     if (inx_netSocket_state->connection_addr)
         freeaddrinfo(inx_netSocket_state->connection_addr);
     inx_netSocket_state->connection_addr = NULL;
@@ -585,8 +625,12 @@ good:
     EhsTPMutex_unlock(EhsTPMutex_fbIO);
 
 exitfunc:
+    EhsTPMutex_lock(EhsTPMutex_socketClient);
+    inx_netSocket_state->closeConnectionNow = EHS_FALSE; //signal we have closed.
     EhsNetSocketClientInitDynamic( inx_netSocket_state); // reset evrything for next time
     inx_netSocket_state->bIsOpening = EHS_FALSE;
+    EhsTPMutex_unlock(EhsTPMutex_socketClient);
+
     Ehs_FB_ThreadComplete();
     EhsHThread_exit()
     ;
@@ -618,9 +662,10 @@ EHS_FB_RUN_FUNCTION(netSocket_open)
         EhsTPMutex_lock(EhsTPMutex_fbIO);
         EHS_FB_OUT_I_API2(INX_netSocket_ARG_open_errnoerrorno) = -101; //-101 is an open error
         EhsTPMutex_unlock(EhsTPMutex_fbIO);
-        EHSH_LOG_INFO("Socket is already active - must be closed first");
+
+        EHSH_LOG_ERROR("Socket is already active - must be closed first (close connection state=%d)", inx_netSocket_state->closeConnectionNow);
+
         goto error;
-        return;
     }
     else
     {
@@ -634,7 +679,9 @@ EHS_FB_RUN_FUNCTION(netSocket_open)
             inx_netSocket_state->port=EHS_FB_IN_I_API2(INX_netSocket_ARG_open_port);
         }
         EhsTPMutex_unlock(EhsTPMutex_fbIO);
+        EhsTPMutex_lock(EhsTPMutex_socketClient);
         inx_netSocket_state->bIsOpening = EHS_TRUE;
+        EhsTPMutex_unlock(EhsTPMutex_socketClient);
         /* connect to server and start listening for data and start function to send data*/
         EHSH_LOG_INFO("Opening Socket...");
         EHS_FB_START_THREAD(netSocket_receive,-90);
@@ -666,15 +713,19 @@ EHS_FB_RUN_FUNCTION(netSocket_close)
     EhsTPMutex_lock(EhsTPMutex_socketClient);
     if ( inx_netSocket_state->connection_socket != EHS_TGT_TCP_INVALID_SOCKET)
     {
-        EhsSvcTgtTcp_closeConnection(inx_netSocket_state->connection_socket); // unblock anything lingering
-        inx_netSocket_state->connection_socket = EHS_TGT_TCP_INVALID_SOCKET; // we should set this so any other threads don't try to close it again..
-        EhsTPMutex_unlock(EhsTPMutex_socketClient);
+        // this gets called from the socket thread
+        //EhsSvcTgtTcp_closeConnection(inx_netSocket_state->connection_socket); // unblock anything lingering
+        //inx_netSocket_state->connection_socket = EHS_TGT_TCP_INVALID_SOCKET; // we should set this so any other threads don't try to close it again..
         inx_netSocket_state->closeConnectionNow = EHS_TRUE; //signal to close - but  only the
+        EhsTPMutex_unlock(EhsTPMutex_socketClient);
     }
     else
     {
-        EhsTPMutex_unlock(EhsTPMutex_socketClient);
+        
         inx_netSocket_state->closeConnectionNow = EHS_TRUE; //just in case we have a thread still running.
+        EHSH_LOG_ERROR("Failed to close network socket state (%d)", inx_netSocket_state->closeConnectionNow);
+        EhsTPMutex_unlock(EhsTPMutex_socketClient);
+        
         EhsTPMutex_lock(EhsTPMutex_fbIO);
         EHS_FB_FINISH_API2(INX_netSocket_ARG_close_errorclose_error);
         EhsTPMutex_unlock(EhsTPMutex_fbIO);
@@ -741,7 +792,7 @@ connection_error:
     }
     EHS_FB_FINISH_API2(INX_netSocket_ARG_send_error);
     EhsTPMutex_unlock(EhsTPMutex_fbIO);
-    EHSH_LOG_INFO("Connection Error");
+    EHSH_LOG_ERROR("Connection Error");
     return;
 
 length_error:

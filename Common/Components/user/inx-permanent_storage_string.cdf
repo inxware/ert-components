@@ -13,7 +13,7 @@
             File System
             <Menu>
                 NV Storage
-                <Menu>String</Menu>
+                <Menu>string</Menu>
             </Menu>
         </Menu>
     </Description>

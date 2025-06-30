@@ -11,23 +11,18 @@
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-mqtt_publish.h"
-#include "hal_network.h"
-#include "ehs_main.h" // we run the main from here!
+#include "hal_mqtt.h"
 //ICB HEADER MACRO END -- DO NOT ALTER
 
-//ICB STATE VAR MACRO START -- DO NOT ALTER
-/* My Component state data structure. - Use this in your code! */
-typedef struct inx_mqtt_publish_state
+// implement a stub function for mqtt devman mon support
+#if !defined(EHS_DEVMAN_MON_SUPPORT) || (EHS_DEVMAN_MON_SUPPORT != EHS_DEVMAN_MON_MQTT)
+// make sure that this function returns NULL when devman mon is not set to mqtt
+inx_mqtt_publish_state_type* EhsMqttDevmanMonPublishNeedProcessing()
 {
-    ehs_bool needProcessing;
-    ehs_uint8 qos;
-    ehs_char topic[EHS_STRING_LENGTH_MAX];
-    ehs_char message[EHS_STRING_LENGTH_MAX];
-    struct inx_mqtt_publish_state* pNext;
-    struct inx_mqtt_publish_state* pPrev;
-    EhsFunctionInstanceDataType* pFIdata;
-} inx_mqtt_publish_state_type; //Reference this, maybe store your config parameters in here too.
-//ICB STATE VAR MACRO END -- DO NOT ALTER
+    return NULL;
+}
+#endif
+
 static inx_mqtt_publish_state_type* gpFirstWidget=NULL;
 
 static inx_mqtt_publish_state_type* inxMQTTPublishGetLastWidget()
@@ -46,10 +41,26 @@ static inx_mqtt_publish_state_type* inxMQTTPublishGetLastWidget()
     return widget;
 }
 
+static ehs_bool inxMQTTpubNeedProc(inx_mqtt_publish_state_type* widget)
+{
+    ehs_bool np;
+    EhsTPMutex_lock(EhsTPMutex_pubMQTT);
+    np = widget->needProcessing;
+    EhsTPMutex_unlock(EhsTPMutex_pubMQTT);
+    return np;
+}
+
 static inx_mqtt_publish_state_type* inxMQTTPublishGetFirstWidgetNeedProcessing()
 {
+    // process mqtt publish objects from the devamn mon
+    // @TODO - this will always have priority since it's being set from a different thread! we need to some how make this shared equally with objects in fb thread!
+    inx_mqtt_publish_state_type* pEhsMqttDevmanMonPublish = EhsMqttDevmanMonPublishNeedProcessing();
+    if(pEhsMqttDevmanMonPublish != NULL){
+        return pEhsMqttDevmanMonPublish;
+    }
+    // process mqtt publish objects from the function blocks
     inx_mqtt_publish_state_type* widget=gpFirstWidget;
-    while(widget!=NULL && widget->needProcessing==EHS_FALSE && widget->pNext!=NULL)
+    while(widget!=NULL && inxMQTTpubNeedProc(widget)==EHS_FALSE && widget->pNext!=NULL)
     {
         widget=widget->pNext;
         if(widget==widget->pNext)
@@ -65,7 +76,7 @@ static inx_mqtt_publish_state_type* inxMQTTPublishGetFirstWidgetNeedProcessing()
     }
     else
     {
-        if(widget->needProcessing==EHS_FALSE)
+        if(inxMQTTpubNeedProc(widget)==EHS_FALSE)
         {
             widget=NULL;
         }
@@ -165,6 +176,7 @@ EHS_FB_INIT_FUNCTION(mqtt_publish)
     inx_mqtt_publish_state->needProcessing=EHS_FALSE;
     inx_mqtt_publish_state->topic[0]='\0';
     inx_mqtt_publish_state->message[0]='\0';
+    inx_mqtt_publish_state->always_read = EHS_FALSE;
 
     const char* pParams = EHS_FB_INIT_PARAMETERS;
     if (pParams) {
@@ -173,9 +185,7 @@ EHS_FB_INIT_FUNCTION(mqtt_publish)
         handle_mqtt_param_string(inx_mqtt_publish_state->topic, EHS_STRING_LENGTH_MAX);
     }
     /* Add any further intialisation code here */
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
     inxMQTTPublishRegisterWidget(inx_mqtt_publish_state);
-    EhsTPMutex_unlock(EhsTPMutex_fbIO);
     return bRet; /* initialisation always succeeds */
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
@@ -206,8 +216,8 @@ EHS_FB_RUN_FUNCTION(mqtt_publish_publish)
     // Your code here
     //EHSH_LOG_INFO("PBB mqtt_publish_publish");
     //create a pointer to our run data so that we can process events from unity later
-    inx_mqtt_publish_state->pFIdata = EHS_FB_RUN_CONTEXT_REF;
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    inx_mqtt_publish_state->pFIdata = (void*)EHS_FB_RUN_CONTEXT_REF;
+    EhsTPMutex_lock(EhsTPMutex_pubMQTT);
     if (EHS_FB_IN_CONNECTED_API2(INX_mqtt_publish_ARG_publish_topic))
     {
         EhsSprintf(inx_mqtt_publish_state->topic,"%s",EHS_FB_IN_S_API2(INX_mqtt_publish_ARG_publish_topic));
@@ -221,8 +231,8 @@ EHS_FB_RUN_FUNCTION(mqtt_publish_publish)
         inx_mqtt_publish_state->qos=EHS_FB_IN_I_API2(INX_mqtt_publish_ARG_publish_qos);
     }
     inx_mqtt_publish_state->needProcessing=EHS_TRUE;
+    EhsTPMutex_unlock(EhsTPMutex_pubMQTT);
     //we'll run the finish when we actually poll this one
-    EhsTPMutex_unlock(EhsTPMutex_fbIO);
     /*
     EHS_FB_FINISH(INX_mqtt_publish_ARG_publish_finishpublish);
     */
@@ -230,10 +240,10 @@ EHS_FB_RUN_FUNCTION(mqtt_publish_publish)
 
 
 
-EHS_MQTT_PUBLISH_EXPORT ehs_bool EhsMQTTPublishWritePoll(ehs_char * topic, ehs_char* payload, ehs_uint8* qos)
+ehs_bool EhsMQTTPublishWritePoll(ehs_char* topic, ehs_char* payload, ehs_uint8* qos)
 {
-    ehs_bool success=EHS_FALSE;
-    EhsTPMutex_lock(EhsTPMutex_fbIO);
+    ehs_bool success=EHS_TRUE;
+    
     inx_mqtt_publish_state_type* pState=inxMQTTPublishGetFirstWidgetNeedProcessing();
     if(pState==NULL)
     {
@@ -241,21 +251,24 @@ EHS_MQTT_PUBLISH_EXPORT ehs_bool EhsMQTTPublishWritePoll(ehs_char * topic, ehs_c
     }
     else
     {
-        EhsFunctionInstanceDataType* pFIdata=pState->pFIdata;
-        if(pFIdata==NULL)
+        EhsFunctionInstanceDataType* pFIdata=(EhsFunctionInstanceDataType*)pState->pFIdata;
+        if(pFIdata==NULL && pState->always_read==EHS_FALSE)
         {
-
+            success=EHS_FALSE;
         }
-        else
-        {
+        if(success==EHS_TRUE){
+            EhsTPMutex_lock(EhsTPMutex_pubMQTT);
             EhsSprintf(topic,"%s",pState->topic);
             EhsSprintf(payload,"%s",pState->message);
             *qos=pState->qos;
             pState->needProcessing=EHS_FALSE;
-            success=EHS_TRUE;
-            EHS_FB_FINISH(INX_mqtt_publish_ARG_publish_finishpublish);
+            EhsTPMutex_unlock(EhsTPMutex_pubMQTT);
+            EhsTPMutex_lock(EhsTPMutex_fbIO);
+            if(pFIdata){
+                EHS_FB_FINISH(INX_mqtt_publish_ARG_publish_finishpublish);
+            }
+            EhsTPMutex_unlock(EhsTPMutex_fbIO);
         }
     }
-    EhsTPMutex_unlock(EhsTPMutex_fbIO);
     return success;
 }

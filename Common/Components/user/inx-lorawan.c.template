@@ -9,19 +9,38 @@ typedef struct inx_lorawan_state
 {
 	ehs_sint32 Target;
 	ehs_bool Mode;
-	ehs_char* Region;
-	ehs_sint32 REPT;
-	ehs_sint32 RETRY;
+	ehs_sint32 Region;
+	ehs_sint32 Repeat;
+	ehs_sint32 Retry;
+	ehs_sint32 AutoJoin;
+	ehs_bool ADR;
+	ehs_sint32 DR;
+	ehs_float RXWIN2;
+	ehs_char* appKey;
+	ehs_char* appEui;
+	ehs_char* nwkSKey;
+	ehs_char* appSKey;
+	ehs_char* devAddrABP;
 } inx_lorawan_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(lorawan)
-EHS_FB_FUNCTION_ENTRY("connect",1,lorawan_connect)
-EHS_FB_FUNCTION_ENTRY("on_receive_msg",2,lorawan_on_receive_msg)
-EHS_FB_FUNCTION_ENTRY("send_msg",3,lorawan_send_msg)
-EHS_FB_FUNCTION_ENTRY("reset",4,lorawan_reset)
-EHS_FB_FUNCTION_ENTRY("get_statusData",5,lorawan_get_statusData)
+EHS_FB_FUNCTION_ENTRY("connect", 0x01, lorawan_connect)
+EHS_FB_FUNCTION_ENTRY("on_receive_msg", 0x02, lorawan_on_receive_msg)
+EHS_FB_FUNCTION_ENTRY("send_msg", 0x03, lorawan_send_msg)
+EHS_FB_FUNCTION_ENTRY("reset", 0x04, lorawan_reset)
+EHS_FB_FUNCTION_ENTRY("get_statusData", 0x05, lorawan_get_statusData)
+EHS_FB_FUNCTION_ENTRY("connect_cb", 0x06, lorawan_connect_cb)
+EHS_FB_FUNCTION_ENTRY("send_msg_cb", 0x07, lorawan_send_msg_cb)
+EHS_FB_FUNCTION_ENTRY("reset_cb", 0x08, lorawan_reset_cb)
+EHS_FB_FUNCTION_ENTRY("get_statusData_cb", 0x09, lorawan_get_statusData_cb)
+EHS_FB_FUNCTION_ENTRY("set_datarate", 0x0A, lorawan_set_datarate)
+EHS_FB_FUNCTION_ENTRY("get_payload_length", 0x0B, lorawan_get_payload_length)
+EHS_FB_FUNCTION_ENTRY("disable", 0x0C, lorawan_disable)
+EHS_FB_FUNCTION_ENTRY("set_datarate_cb", 0x0D, lorawan_set_datarate_cb)
+EHS_FB_FUNCTION_ENTRY("get_payload_length_cb", 0x0E, lorawan_get_payload_length_cb)
+EHS_FB_FUNCTION_ENTRY("disable_cb", 0x0F, lorawan_disable_cb)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -30,30 +49,65 @@ EHS_FB_FUNCTIONS_END
 #define INX_lorawan_ARG_connect_AppEui 2
 #define INX_lorawan_ARG_connect_AppSKey 3
 #define INX_lorawan_ARG_connect_NwkSKey 4
-#define INX_lorawan_ARG_connect_DevAddr_ABP 5
-#define INX_lorawan_ARG_connect_DevAddr 1
-#define INX_lorawan_ARG_connect_connectFail 1
-#define INX_lorawan_ARG_connect_connectDone 2
-#define INX_lorawan_ARG_on_receive_msg_recv_msg 1
+#define INX_lorawan_ARG_connect_adr_in 5
+#define INX_lorawan_ARG_connect_DevAddr_ABP 6
+#define INX_lorawan_ARG_connect_miscOpt 7
+#define INX_lorawan_ARG_connect_region 8
+#define INX_lorawan_ARG_connect_connectDone 1
+#define INX_lorawan_ARG_connect_connectFail 2
+#define INX_lorawan_ARG_on_receive_msg_fport_rx 1
+#define INX_lorawan_ARG_on_receive_msg_link_status 2
+#define INX_lorawan_ARG_on_receive_msg_recv_msg 3
 #define INX_lorawan_ARG_on_receive_msg_received 1
 #define INX_lorawan_ARG_send_msg_payload 1
-#define INX_lorawan_ARG_send_msg_msg_confirmed 2
-#define INX_lorawan_ARG_send_msg_send_errCode 1
-#define INX_lorawan_ARG_send_msg_send_fail 1
-#define INX_lorawan_ARG_send_msg_send_done 2
-#define INX_lorawan_ARG_reset_reset_done 1
-#define INX_lorawan_ARG_get_statusData_status 1
-#define INX_lorawan_ARG_get_statusData_DevEui 2
-#define INX_lorawan_ARG_get_statusData_data_got 1
+#define INX_lorawan_ARG_send_msg_frame_port 2
+#define INX_lorawan_ARG_send_msg_msg_confirmed 3
+#define INX_lorawan_ARG_send_msg_send_done 1
+#define INX_lorawan_ARG_send_msg_send_fail 2
+#define INX_lorawan_ARG_reset_reset_sent 1
+#define INX_lorawan_ARG_reset_reset_send_failed 2
+#define INX_lorawan_ARG_get_statusData_get_sd_failed 1
+#define INX_lorawan_ARG_get_statusData_data_got 2
+#define INX_lorawan_ARG_connect_cb_DevAddr 1
+#define INX_lorawan_ARG_connect_cb_connect_errno 2
+#define INX_lorawan_ARG_connect_cb_connect_cb_ok 1
+#define INX_lorawan_ARG_connect_cb_connect_fail 2
+#define INX_lorawan_ARG_send_msg_cb_send_errCode 1
+#define INX_lorawan_ARG_send_msg_cb_msg_sent 1
+#define INX_lorawan_ARG_send_msg_cb_send_failed 2
+#define INX_lorawan_ARG_reset_cb_reset_done 1
+#define INX_lorawan_ARG_get_statusData_cb_status 1
+#define INX_lorawan_ARG_get_statusData_cb_DevEui 2
+#define INX_lorawan_ARG_get_statusData_cb_get_sd_cb_ok 1
+#define INX_lorawan_ARG_set_datarate_dr_in 1
+#define INX_lorawan_ARG_set_datarate_set_datarate_sent 1
+#define INX_lorawan_ARG_set_datarate_set_datarate_busy 2
+#define INX_lorawan_ARG_get_payload_length_get_pl_len_sent 1
+#define INX_lorawan_ARG_get_payload_length_get_pl_len_busy 2
+#define INX_lorawan_ARG_disable_disable_sent 1
+#define INX_lorawan_ARG_disable_disable_busy 2
+#define INX_lorawan_ARG_set_datarate_cb_set_datarate_ok 1
+#define INX_lorawan_ARG_get_payload_length_cb_pl_len 1
+#define INX_lorawan_ARG_get_payload_length_cb_pl_len_got 1
+#define INX_lorawan_ARG_disable_cb_disabled 1
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
 /* Create some macros for the default parameters */
 #define INX_FB_lorawan_Target 0
 #define INX_FB_lorawan_Mode 0
-#define INX_FB_lorawan_Region EU868
-#define INX_FB_lorawan_REPT 1
-#define INX_FB_lorawan_RETRY 0
+#define INX_FB_lorawan_Region 0
+#define INX_FB_lorawan_Repeat 1
+#define INX_FB_lorawan_Retry 3
+#define INX_FB_lorawan_AutoJoin 300
+#define INX_FB_lorawan_ADR 0
+#define INX_FB_lorawan_DR 0
+#define INX_FB_lorawan_RXWIN2 869.525
+#define INX_FB_lorawan_appKey 0000000000000000
+#define INX_FB_lorawan_appEui 0000000000000000
+#define INX_FB_lorawan_nwkSKey 0000000000000000
+#define INX_FB_lorawan_appSKey 0000000000000000
+#define INX_FB_lorawan_devAddrABP 00000000
 //ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 /**
@@ -68,10 +122,19 @@ EHS_FB_IDENTIFY_FUNCTION(lorawan)
 /*
 	ehs_sint32 Target;
 	ehs_bool Mode;
-	ehs_char* Region;
-	ehs_sint32 REPT;
-	ehs_sint32 RETRY;
-	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%d %d %s %d %d",&Target,&Mode,&Region,&REPT,&RETRY); */
+	ehs_sint32 Region;
+	ehs_sint32 Repeat;
+	ehs_sint32 Retry;
+	ehs_sint32 AutoJoin;
+	ehs_bool ADR;
+	ehs_sint32 DR;
+	ehs_float RXWIN2;
+	ehs_char* appKey;
+	ehs_char* appEui;
+	ehs_char* nwkSKey;
+	ehs_char* appSKey;
+	ehs_char* devAddrABP;
+	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%d %d %d %d %d %d %d %d %f %s %s %s %s %s",&Target,&Mode,&Region,&Repeat,&Retry,&AutoJoin,&ADR,&DR,&RXWIN2,&appKey,&appEui,&nwkSKey,&appSKey,&devAddrABP); */
 	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_lorawan_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
@@ -87,14 +150,23 @@ EHS_FB_INIT_FUNCTION(lorawan)
 {
 	ehs_sint32 Target;
 	ehs_bool Mode;
-	ehs_char* Region;
-	ehs_sint32 REPT;
-	ehs_sint32 RETRY;
+	ehs_sint32 Region;
+	ehs_sint32 Repeat;
+	ehs_sint32 Retry;
+	ehs_sint32 AutoJoin;
+	ehs_bool ADR;
+	ehs_sint32 DR;
+	ehs_float RXWIN2;
+	ehs_char* appKey;
+	ehs_char* appEui;
+	ehs_char* nwkSKey;
+	ehs_char* appSKey;
+	ehs_char* devAddrABP;
 	ehs_bool bRet = EHS_TRUE; /* assume success */
 	//this is the reference to the object data for this instance of the function block
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_INIT_CONTEXT;
 	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %s %d %d",&Target,&Mode,&Region,&REPT,&RETRY);
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d %d %d %d %d %d %f %s %s %s %s %s",&Target,&Mode,&Region,&Repeat,&Retry,&AutoJoin,&ADR,&DR,&RXWIN2,&appKey,&appEui,&nwkSKey,&appSKey,&devAddrABP);
 
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */
@@ -128,12 +200,18 @@ EHS_FB_RUN_FUNCTION(lorawan_connect)
 		EHS_FB_IN_S_API2(INX_lorawan_ARG_connect_AppSKey) ;
 	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_connect_NwkSKey))
 		EHS_FB_IN_S_API2(INX_lorawan_ARG_connect_NwkSKey) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_connect_adr_in))
+		EHS_FB_IN_B_API2(INX_lorawan_ARG_connect_adr_in) ;
 	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_connect_DevAddr_ABP))
 		EHS_FB_IN_S_API2(INX_lorawan_ARG_connect_DevAddr_ABP) ;
-	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_connect_DevAddr))
-		EHS_FB_OUT_S_API2(INX_lorawan_ARG_connect_DevAddr) ;
-	EHS_FB_FINISH(INX_lorawan_ARG_connect_connectFail);
+	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_connect_miscOpt))
+		EHS_FB_IN_S_API2(INX_lorawan_ARG_connect_miscOpt) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_connect_region))
+		EHS_FB_IN_I_API2(INX_lorawan_ARG_connect_region) ;
 	EHS_FB_FINISH(INX_lorawan_ARG_connect_connectDone);
+	EHS_FB_FINISH(INX_lorawan_ARG_connect_connectFail);
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_connect_connect_errno))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_connect_connect_errno) ;
 }//ICB FUNCTION connect MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION on_receive_msg MACRO START -- DO NOT ALTER
 /**
@@ -148,6 +226,10 @@ EHS_FB_RUN_FUNCTION(lorawan_on_receive_msg)
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
 	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_fport_rx))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_on_receive_msg_fport_rx) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_link_status))
+		EHS_FB_OUT_S_API2(INX_lorawan_ARG_on_receive_msg_link_status) ;
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_recv_msg))
 		EHS_FB_OUT_S_API2(INX_lorawan_ARG_on_receive_msg_recv_msg) ;
 	EHS_FB_FINISH(INX_lorawan_ARG_on_receive_msg_received);
@@ -167,12 +249,12 @@ EHS_FB_RUN_FUNCTION(lorawan_send_msg)
 	// Your code here
 	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_send_msg_payload))
 		EHS_FB_IN_S_API2(INX_lorawan_ARG_send_msg_payload) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_send_msg_frame_port))
+		EHS_FB_IN_I_API2(INX_lorawan_ARG_send_msg_frame_port) ;
 	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_send_msg_msg_confirmed))
 		EHS_FB_IN_B_API2(INX_lorawan_ARG_send_msg_msg_confirmed) ;
-	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_send_msg_send_errCode))
-		EHS_FB_OUT_I_API2(INX_lorawan_ARG_send_msg_send_errCode) ;
-	EHS_FB_FINISH(INX_lorawan_ARG_send_msg_send_fail);
 	EHS_FB_FINISH(INX_lorawan_ARG_send_msg_send_done);
+	EHS_FB_FINISH(INX_lorawan_ARG_send_msg_send_fail);
 }//ICB FUNCTION send_msg MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION reset MACRO START -- DO NOT ALTER
 /**
@@ -187,7 +269,8 @@ EHS_FB_RUN_FUNCTION(lorawan_reset)
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
 	// Your code here
-	EHS_FB_FINISH(INX_lorawan_ARG_reset_reset_done);
+	EHS_FB_FINISH(INX_lorawan_ARG_reset_reset_sent);
+	EHS_FB_FINISH(INX_lorawan_ARG_reset_reset_send_failed);
 }//ICB FUNCTION reset MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION get_statusData MACRO START -- DO NOT ALTER
 /**
@@ -202,9 +285,175 @@ EHS_FB_RUN_FUNCTION(lorawan_get_statusData)
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
 	// Your code here
-	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_status))
-		EHS_FB_OUT_S_API2(INX_lorawan_ARG_get_statusData_status) ;
-	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_DevEui))
-		EHS_FB_OUT_S_API2(INX_lorawan_ARG_get_statusData_DevEui) ;
+	EHS_FB_FINISH(INX_lorawan_ARG_get_statusData_get_sd_failed);
 	EHS_FB_FINISH(INX_lorawan_ARG_get_statusData_data_got);
 }//ICB FUNCTION get_statusData MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION connect_cb MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_connect_cb.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_connect_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_connect_cb_DevAddr))
+		EHS_FB_OUT_S_API2(INX_lorawan_ARG_connect_cb_DevAddr) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_connect_cb_connect_errno))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_connect_cb_connect_errno) ;
+	EHS_FB_FINISH(INX_lorawan_ARG_connect_cb_connect_cb_ok);
+	EHS_FB_FINISH(INX_lorawan_ARG_connect_cb_connect_fail);
+}//ICB FUNCTION connect_cb MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION send_msg_cb MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_send_msg_cb.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_send_msg_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_send_msg_cb_send_errCode))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_send_msg_cb_send_errCode) ;
+	EHS_FB_FINISH(INX_lorawan_ARG_send_msg_cb_msg_sent);
+	EHS_FB_FINISH(INX_lorawan_ARG_send_msg_cb_send_failed);
+}//ICB FUNCTION send_msg_cb MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION reset_cb MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_reset_cb.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_reset_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	EHS_FB_FINISH(INX_lorawan_ARG_reset_cb_reset_done);
+}//ICB FUNCTION reset_cb MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION get_statusData_cb MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_get_statusData_cb.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_get_statusData_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_status))
+		EHS_FB_OUT_S_API2(INX_lorawan_ARG_get_statusData_cb_status) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_DevEui))
+		EHS_FB_OUT_S_API2(INX_lorawan_ARG_get_statusData_cb_DevEui) ;
+	EHS_FB_FINISH(INX_lorawan_ARG_get_statusData_cb_get_sd_cb_ok);
+}//ICB FUNCTION get_statusData_cb MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION set_datarate MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_set_datarate.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_set_datarate)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_datarate_dr_in))
+		EHS_FB_IN_I_API2(INX_lorawan_ARG_set_datarate_dr_in) ;
+	EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_set_datarate_sent);
+	EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_set_datarate_busy);
+}//ICB FUNCTION set_datarate MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION get_payload_length MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_get_payload_length.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_get_payload_length)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	EHS_FB_FINISH(INX_lorawan_ARG_get_payload_length_get_pl_len_sent);
+	EHS_FB_FINISH(INX_lorawan_ARG_get_payload_length_get_pl_len_busy);
+}//ICB FUNCTION get_payload_length MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION disable MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_disable.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_disable)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	EHS_FB_FINISH(INX_lorawan_ARG_disable_disable_sent);
+	EHS_FB_FINISH(INX_lorawan_ARG_disable_disable_busy);
+}//ICB FUNCTION disable MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION set_datarate_cb MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_set_datarate_cb.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_set_datarate_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_cb_set_datarate_ok);
+}//ICB FUNCTION set_datarate_cb MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION get_payload_length_cb MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_get_payload_length_cb.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_get_payload_length_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_payload_length_cb_pl_len))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_get_payload_length_cb_pl_len) ;
+	EHS_FB_FINISH(INX_lorawan_ARG_get_payload_length_cb_pl_len_got);
+}//ICB FUNCTION get_payload_length_cb MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION disable_cb MACRO START -- DO NOT ALTER
+/**
+ * Definition of lorawan_disable_cb.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(lorawan_disable_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	EHS_FB_FINISH(INX_lorawan_ARG_disable_cb_disabled);
+}//ICB FUNCTION disable_cb MACRO END -- DO NOT ALTER THIS LINE

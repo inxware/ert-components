@@ -26,8 +26,7 @@
  */
 //extern EhsBlockRefTableType EhsBlockRefTable_core[];
 
-extern EhsBlockRefType EhsBlockRefTable_core[];
-
+extern const struct EhsBlockRefType_struct EhsBlockRefTable_core[];
 
 /**
 * Declares the core GUI function block toolkit
@@ -50,7 +49,7 @@ extern EhsBlockRefType  EhsBlockRefTable_coreGui[];
 */
 
 #ifdef EHS_PERIPHERAL_DEVICE_SUPPORT
-extern EhsBlockRefType  EhsBlockRefTable_Peripherals[];
+extern const struct EhsBlockRefType_struct  EhsBlockRefTable_Peripherals[];
 #endif
 
 #ifdef EHS_AV_SUPPORT
@@ -78,7 +77,21 @@ extern EhsBlockRefType  EhsBlockRefTable_sandbox[];
  * Declares a toolkit that is used to hold networking components
  */
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
-extern EhsBlockRefType  EhsBlockRefTable_networking[];
+extern const struct EhsBlockRefType_struct  EhsBlockRefTable_networking[];
+#endif
+
+/**
+ * Declares a toolkit that is used to hold camera components
+ */
+#ifdef EHS_MV_SUPPORT
+extern const struct EhsBlockRefType_struct  EhsBlockRefTable_mv[];
+#endif
+
+/**
+ * Declares a toolkit that is used to hold ml components
+ */
+#ifdef EHS_ML_SUPPORT
+extern const struct EhsBlockRefType_struct  EhsBlockRefTable_ml[];
 #endif
 
 /**
@@ -86,7 +99,7 @@ extern EhsBlockRefType  EhsBlockRefTable_networking[];
  */
 #define EHS_USER_COMPONENT_SUPPORT
 #ifdef EHS_USER_COMPONENT_SUPPORT
-extern EhsBlockRefType  EhsBlockRefTable_usercomponents[];
+extern const struct EhsBlockRefType_struct  EhsBlockRefTable_usercomponents[];
 #endif
 
 
@@ -132,6 +145,14 @@ void EhsAddStaticModules()
 #endif
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
     EhsToolkitTable_addTable(EhsBlockRefTable_networking);
+#endif
+
+#ifdef EHS_MV_SUPPORT
+    EhsToolkitTable_addTable(EhsBlockRefTable_mv);
+#endif
+
+#ifdef EHS_ML_SUPPORT
+    EhsToolkitTable_addTable(EhsBlockRefTable_ml);
 #endif
 
 #ifdef EHS_USER_COMPONENT_SUPPORT

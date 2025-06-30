@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">JSON Real Key-Value</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      Parse the float numbers from json string input or file. If there are values not matching the type the value is set NaN and the error port is set.
+    </p>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Min</th>
+<th>Max</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>file</td>
+<td>S</td>
+<td>default.js</td>
+<td></td>
+<td></td>
+<td>JSON filename. Will be ignored if there is the string input.</td>
+</tr>
+<tr>
+<td>k1</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 1. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k2</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 2. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k3</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 3. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k4</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 4. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k5</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 5. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k6</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 6. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k7</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 7. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k8</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 8. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k9</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 9. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k10</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 10. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k11</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 11. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k12</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 12. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k13</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 13. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k14</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 14. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k15</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 15. Will be ignored if there is an according input.</td>
+</tr>
+<tr>
+<td>k16</td>
+<td>S</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Key 16. Will be ignored if there is an according input.</td>
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]start"> </a></td>
+<td>Start parsing JSON input.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]json"> </a></td>
+<td>JSON string input.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k1">k1</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k2">k2</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k3">k3</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k4">k4</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k5">k5</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k6">k6</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k7">k7</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k8">k8</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k9">k9</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k10">k10</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k11">k11</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k12">k12</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k13">k13</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k14">k14</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k15">k15</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]k16">k16</a></td>
+<td>JSON key</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]done"> </a></td>
+<td>Output event indicating the completion of the JSON parsing.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]error">err</a></td>
+<td>Output event indicating the error of the JSON parsing.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]errno">errno</a></td>
+<td>The error number of JSON parsing. 0 if success. 
+          Any positive number indicate the first appearance of the type-mismatched value. 
+          -1 if no JSON input. -2 if JSON file open failed. -3 or -4 if JSON file reads failed.
+          -5 if JSON parsing failed. 
+          -(100 + n) if n-th key is not found.
+        </td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o1">o1</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o2">o2</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o3">o3</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o4">o4</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o5">o5</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o6">o6</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o7">o7</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o8">o8</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o9">o9</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o10">o10</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o11">o11</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o12">o12</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o13">o13</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o14">o14</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o15">o15</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o16">o16</a></td>
+<td>The output of the corresponding key.</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          None
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

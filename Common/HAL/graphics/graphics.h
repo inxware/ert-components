@@ -66,7 +66,7 @@ EHS_GLOBAL void EhsGraphicsRectangle_union(EhsGraphicsRectangleClass* ret, const
  * @param[in] prBounds Specifies the rectangle that prRet must fit into.
  * @param[in] prSrc Specifies the proportions that we wish to keep
  */
-EHS_GLOBAL void EhsGraphicsRectangle_proportionalScale(EhsGraphicsRectangleClass* prRet, const EhsGraphicsRectangleClass* prBounds, const EhsGraphicsRectangleClass* prSrc);
+EHS_GLOBAL void EhsGraphicsRectangle_proportionalScale(EhsGraphicsRectangleClass* prRet, const EhsGraphicsRectangleClass* prBounds, const EhsGraphicsSizeClass* prSrc);
 
 /**
  * Perform setup before loading in a new application

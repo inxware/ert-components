@@ -2,9 +2,9 @@ package com.utils.downloader.utils;
 
 public class EHSS_Timeout extends EHSS_Timer {
 
-    private int timeout = 0;
+    private long timeout = 0;
 
-    public EHSS_Timeout(int timeout){
+    public EHSS_Timeout(long timeout){
         this.timeout = (timeout < 0) ? 0 : timeout;
     }
 

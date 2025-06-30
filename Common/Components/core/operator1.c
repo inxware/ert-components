@@ -1255,8 +1255,8 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(AddAccumulateReal)
 {
-    /* the accumulator requires memory for a double...*/
-    EHS_FB_IDENTIFY_MEMORY = sizeof(double);
+    /* the accumulator requires memory for a ehs_float...*/
+    EHS_FB_IDENTIFY_MEMORY = sizeof(ehs_float);
     return;
 }
 
@@ -1270,7 +1270,7 @@ EHS_FB_IDENTIFY_FUNCTION(AddAccumulateReal)
 EHS_FB_INIT_FUNCTION(AddAccumulateReal)
 {
     /* make sure the accumulator is reset...*/
-    *(double*)EHS_FB_INIT_CONTEXT = 0;
+    *(ehs_float*)EHS_FB_INIT_CONTEXT = 0;
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -1283,12 +1283,12 @@ EHS_FB_INIT_FUNCTION(AddAccumulateReal)
  */
 EHS_FB_RUN_FUNCTION(AddAccumulateReal)
 {
-    double dSum;
+    ehs_float dSum;
     /* simply add the input value to the object state data...*/
-    dSum = *(double*)EHS_FB_RUN_CONTEXT;
+    dSum = *(ehs_float*)EHS_FB_RUN_CONTEXT;
     dSum += NCAPSA_dIn(0);
     /* copy to state data and output...*/
-    *(double*)EHS_FB_RUN_CONTEXT = dSum;
+    *(ehs_float*)EHS_FB_RUN_CONTEXT = dSum;
     NCAPSA_dOut(0) = dSum;
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
@@ -1372,8 +1372,8 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(SubAccumulateReal)
 {
-    /* the accumulator requires memory for a double...*/
-    EHS_FB_IDENTIFY_MEMORY = sizeof(double);
+    /* the accumulator requires memory for a ehs_float...*/
+    EHS_FB_IDENTIFY_MEMORY = sizeof(ehs_float);
     return;
 }
 
@@ -1387,7 +1387,7 @@ EHS_FB_IDENTIFY_FUNCTION(SubAccumulateReal)
 EHS_FB_INIT_FUNCTION(SubAccumulateReal)
 {
     /* make sure the accumulator is reset...*/
-    *(double*)EHS_FB_INIT_CONTEXT = 0;
+    *(ehs_float*)EHS_FB_INIT_CONTEXT = 0;
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -1400,12 +1400,12 @@ EHS_FB_INIT_FUNCTION(SubAccumulateReal)
  */
 EHS_FB_RUN_FUNCTION(SubAccumulateReal)
 {
-    double dSum;
+    ehs_float dSum;
     /* simply add the input value to the object state data...*/
-    dSum = *(double*)EHS_FB_RUN_CONTEXT;
+    dSum = *(ehs_float*)EHS_FB_RUN_CONTEXT;
     dSum -= NCAPSA_dIn(0);
     /* copy to state data and output...*/
-    *(double*)EHS_FB_RUN_CONTEXT = dSum;
+    *(ehs_float*)EHS_FB_RUN_CONTEXT = dSum;
     NCAPSA_dOut(0) = dSum;
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
@@ -1615,7 +1615,7 @@ EHS_FB_INIT_FUNCTION(SineReal)
 EHS_FB_RUN_FUNCTION(SineReal)
 {
     struct tTrigparms* tTrigparms = (struct tTrigparms *) EHS_FB_RUN_CONTEXT;
-    NCAPSA_dOut(0) = (tTrigparms->rads_degs ? sin(NCAPSA_dIn(0)) : (360.0/(2*EHS_PI)*sin(NCAPSA_dIn(0))));
+    NCAPSA_dOut(0) = (tTrigparms->rads_degs ? sinf(NCAPSA_dIn(0)) : sinf( NCAPSA_dIn(0) * EHS_PI / 180.0 ));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1669,7 +1669,7 @@ EHS_FB_RUN_FUNCTION(CosineReal)
 {
 
     struct tTrigparms* tTrigparms = (struct tTrigparms *) EHS_FB_RUN_CONTEXT;
-    NCAPSA_dOut(0) = tTrigparms->rads_degs ? cos(NCAPSA_dIn(0)) : (360.0/(2*EHS_PI)*cos(NCAPSA_dIn(0)));
+    NCAPSA_dOut(0) = tTrigparms->rads_degs ? cosf(NCAPSA_dIn(0)) : cosf(NCAPSA_dIn(0)  * EHS_PI / 180.0 );
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1722,7 +1722,7 @@ EHS_FB_INIT_FUNCTION(TanReal)
 EHS_FB_RUN_FUNCTION(TanReal)
 {
     struct tTrigparms* tTrigparms = (struct tTrigparms *) EHS_FB_RUN_CONTEXT;
-    NCAPSA_dOut(0) = tTrigparms->rads_degs ? tan(NCAPSA_dIn(0)) : (360.0/(2*EHS_PI)*tan(NCAPSA_dIn(0)));
+    NCAPSA_dOut(0) = tTrigparms->rads_degs ? tanf(NCAPSA_dIn(0)) : tanf(NCAPSA_dIn(0) * EHS_PI / 180.0 );
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1775,7 +1775,7 @@ EHS_FB_INIT_FUNCTION(ArcSineReal)
 EHS_FB_RUN_FUNCTION(ArcSineReal)
 {
     struct tTrigparms* tTrigparms = (struct tTrigparms *) EHS_FB_RUN_CONTEXT;
-    NCAPSA_dOut(0) = tTrigparms->rads_degs ? asin(NCAPSA_dIn(0)) : asin((NCAPSA_dIn(0)*2*EHS_PI)/360.0);
+    NCAPSA_dOut(0) = tTrigparms->rads_degs ? asinf(NCAPSA_dIn(0)) : asinf(NCAPSA_dIn(0)) * 180.0 / EHS_PI;
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1828,7 +1828,7 @@ EHS_FB_INIT_FUNCTION(ArcCosineReal)
 EHS_FB_RUN_FUNCTION(ArcCosineReal)
 {
     struct tTrigparms* tTrigparms = (struct tTrigparms *) EHS_FB_RUN_CONTEXT;
-    NCAPSA_dOut(0) = tTrigparms->rads_degs ? acos(NCAPSA_dIn(0)) : acos((NCAPSA_dIn(0)*2*EHS_PI)/360.0);
+    NCAPSA_dOut(0) = tTrigparms->rads_degs ? acosf(NCAPSA_dIn(0)) : acosf(NCAPSA_dIn(0)) * 180.0 / EHS_PI;
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1881,7 +1881,7 @@ EHS_FB_INIT_FUNCTION(ArcTanReal)
 EHS_FB_RUN_FUNCTION(ArcTanReal)
 {
     struct tTrigparms* tTrigparms = (struct tTrigparms *) EHS_FB_RUN_CONTEXT;
-    NCAPSA_dOut(0) = tTrigparms->rads_degs ? atan(NCAPSA_dIn(0)) : atan((NCAPSA_dIn(0)*2*EHS_PI)/360.0);
+    NCAPSA_dOut(0) = tTrigparms->rads_degs ? atanf(NCAPSA_dIn(0)) : atanf(NCAPSA_dIn(0)) * 180.0 / EHS_PI;
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1933,7 +1933,7 @@ EHS_FB_INIT_FUNCTION(HyperbolicSineReal)
  */
 EHS_FB_RUN_FUNCTION(HyperbolicSineReal)
 {
-    NCAPSA_dOut(0) = sinh(NCAPSA_dIn(0));
+    NCAPSA_dOut(0) = sinhf(NCAPSA_dIn(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1985,7 +1985,7 @@ EHS_FB_INIT_FUNCTION(HyperbolicCosineReal)
  */
 EHS_FB_RUN_FUNCTION(HyperbolicCosineReal)
 {
-    NCAPSA_dOut(0) = cosh(NCAPSA_dIn(0));
+    NCAPSA_dOut(0) = coshf(NCAPSA_dIn(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -2037,7 +2037,7 @@ EHS_FB_INIT_FUNCTION(HyperbolicTanReal)
  */
 EHS_FB_RUN_FUNCTION(HyperbolicTanReal)
 {
-    NCAPSA_dOut(0) = tanh(NCAPSA_dIn(0));
+    NCAPSA_dOut(0) = tanhf(NCAPSA_dIn(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -2089,7 +2089,7 @@ EHS_FB_INIT_FUNCTION(ArcHyperbolicSineReal)
  */
 EHS_FB_RUN_FUNCTION(ArcHyperbolicSineReal)
 {
-    NCAPSA_dOut(0) = asinh(NCAPSA_dIn(0));
+    NCAPSA_dOut(0) = asinhf(NCAPSA_dIn(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -2141,7 +2141,7 @@ EHS_FB_INIT_FUNCTION(ArcHyperbolicCosineReal)
  */
 EHS_FB_RUN_FUNCTION(ArcHyperbolicCosineReal)
 {
-    NCAPSA_dOut(0) = acosh(NCAPSA_dIn(0));
+    NCAPSA_dOut(0) = acoshf(NCAPSA_dIn(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -2193,7 +2193,7 @@ EHS_FB_INIT_FUNCTION(ArcHyperbolicTanReal)
  */
 EHS_FB_RUN_FUNCTION(ArcHyperbolicTanReal)
 {
-    NCAPSA_dOut(0) = atanh(NCAPSA_dIn(0));
+    NCAPSA_dOut(0) = atanhf(NCAPSA_dIn(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -2252,10 +2252,63 @@ EHS_FB_RUN_FUNCTION(AbsInt)
     return;
 }
 
+#ifdef EHS_TARGET_FP_SUPPORT
+/*============================================================================*/
+//Absolute value
+/******************************************************************************/
+/* Define AbsReal function block */
+
+EHS_FB_FUNCTIONS_START(AbsReal)
+
+EHS_FB_FUNCTION_ENTRY("Run_AbsReal", 0x01, AbsReal)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(AbsReal)
+{
+    //EHS_FB_IDENTIFY_MEMORY  =  sizeof(struct tTrigparms);
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(AbsReal)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(AbsReal)
+{
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+    NCAPSA_dOut(0) = fabsf(NCAPSA_dIn(0));
+#else
+    NCAPSA_dOut(0) = fabs(NCAPSA_dIn(0));
+#endif
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
 /*============================================================================*/
 //Exponential
-
-#ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
 /* Define ExponentialReal function block */
 
@@ -2301,7 +2354,11 @@ EHS_FB_INIT_FUNCTION(ExponentialReal)
  */
 EHS_FB_RUN_FUNCTION(ExponentialReal)
 {
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+    NCAPSA_dOut(0) = expf(NCAPSA_dIn(0));
+#else
     NCAPSA_dOut(0) = exp(NCAPSA_dIn(0));
+#endif
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -2438,8 +2495,8 @@ EHS_FB_FUNCTIONS_END
 EHS_FB_IDENTIFY_FUNCTION(ComparatorGreaterReal1)
 {
     EHS_TRACE_FUNCTION(EHS_FB_IDENTIFY_NAME(ComparatorGreaterReal1));
-    /* we require the space to hold a double */
-    EHS_FB_IDENTIFY_MEMORY  = sizeof(double);
+    /* we require the space to hold a ehs_float */
+    EHS_FB_IDENTIFY_MEMORY  = sizeof(ehs_float);
     return;
 }
 
@@ -2453,7 +2510,7 @@ EHS_FB_IDENTIFY_FUNCTION(ComparatorGreaterReal1)
 EHS_FB_INIT_FUNCTION(ComparatorGreaterReal1)
 {
     EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(ComparatorGreaterReal1));
-    *(double*)EHS_FB_INIT_CONTEXT = atof(EHS_FB_INIT_PARAMETERS);
+    *(ehs_float*)EHS_FB_INIT_CONTEXT = (ehs_float)atof(EHS_FB_INIT_PARAMETERS);
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -2615,8 +2672,8 @@ EHS_FB_FUNCTIONS_END
 EHS_FB_IDENTIFY_FUNCTION(ComparatorGreaterEqualReal1)
 {
     EHS_TRACE_FUNCTION(EHS_FB_IDENTIFY_NAME(ComparatorGreaterEqualReal1));
-    /* we require the space to hold a double */
-    EHS_FB_IDENTIFY_MEMORY  = sizeof(double);
+    /* we require the space to hold a ehs_float */
+    EHS_FB_IDENTIFY_MEMORY  = sizeof(ehs_float);
     return;
 }
 
@@ -2630,7 +2687,7 @@ EHS_FB_IDENTIFY_FUNCTION(ComparatorGreaterEqualReal1)
 EHS_FB_INIT_FUNCTION(ComparatorGreaterEqualReal1)
 {
     EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(ComparatorGreaterEqualReal1));
-    *(double*)EHS_FB_INIT_CONTEXT = atof(EHS_FB_INIT_PARAMETERS);
+    *(ehs_float*)EHS_FB_INIT_CONTEXT = (ehs_float)atof(EHS_FB_INIT_PARAMETERS);
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -2793,8 +2850,8 @@ EHS_FB_FUNCTIONS_END
 EHS_FB_IDENTIFY_FUNCTION(ComparatorEqualReal1)
 {
     EHS_TRACE_FUNCTION(EHS_FB_IDENTIFY_NAME(ComparatorEqualReal1));
-    /* we require the space to hold a double */
-    EHS_FB_IDENTIFY_MEMORY  = sizeof(double);
+    /* we require the space to hold a ehs_float */
+    EHS_FB_IDENTIFY_MEMORY  = sizeof(ehs_float);
     return;
 }
 
@@ -2808,7 +2865,7 @@ EHS_FB_IDENTIFY_FUNCTION(ComparatorEqualReal1)
 EHS_FB_INIT_FUNCTION(ComparatorEqualReal1)
 {
     EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(ComparatorEqualReal1));
-    *(double*)EHS_FB_INIT_CONTEXT = atof(EHS_FB_INIT_PARAMETERS);
+    *(ehs_float*)EHS_FB_INIT_CONTEXT = (ehs_float)atof(EHS_FB_INIT_PARAMETERS);
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -3004,7 +3061,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(IntegratorReal)
 {
-    /* the integrator requires memory for a double...*/
+    /* the integrator requires memory for a ehs_float...*/
     EHS_FB_IDENTIFY_MEMORY = sizeof(EhsEventIntegratorRealStruct);
     return;
 }
@@ -3018,14 +3075,14 @@ EHS_FB_IDENTIFY_FUNCTION(IntegratorReal)
  */
 EHS_FB_INIT_FUNCTION(IntegratorReal)
 {
-    double dInit;
+    ehs_float dInit;
     EhsEventIntegratorRealStruct* pEventIntegrator = (EhsEventIntegratorRealStruct*)EHS_FB_INIT_CONTEXT;
 
     /* make sure the counter is reset...*/
     pEventIntegrator->fOffset = 0.0;
     pEventIntegrator->fSum = 0.0;
 
-    dInit = atof(EHS_FB_INIT_PARAMETERS);
+    dInit = (ehs_float)atof(EHS_FB_INIT_PARAMETERS);
     pEventIntegrator->fOffset = dInit;
 
 
@@ -3042,8 +3099,8 @@ EHS_FB_INIT_FUNCTION(IntegratorReal)
 EHS_FB_RUN_FUNCTION(IntegratorReal)
 {
     EhsEventIntegratorRealStruct* pEventIntegrator = (EhsEventIntegratorRealStruct*)EHS_FB_INIT_CONTEXT;
-    double dSum;
-    double dRes;
+    ehs_float dSum;
+    ehs_float dRes;
 
     /* simply add the input value to the object state data...*/
     dSum = pEventIntegrator->fSum;
@@ -3079,7 +3136,7 @@ EHS_FB_RUN_FUNCTION(IntegratorReal)
 EHS_FB_RUN_FUNCTION(IntegratorReal_Reset)
 {
     EhsEventIntegratorRealStruct* pEventIntegrator = (EhsEventIntegratorRealStruct*)EHS_FB_INIT_CONTEXT;
-    double dSum;
+    ehs_float dSum;
 
     /* simply reset the object state data and write to output...*/
     if (EHS_FB_IN_CONNECTED(EHS_FB_INEGRATORREAL_OFFSET))

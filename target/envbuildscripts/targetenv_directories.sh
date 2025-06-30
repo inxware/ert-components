@@ -27,22 +27,25 @@ mkdir -p $STAGING_DIRECTORY
 mkdir -p ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET
 cp -PR ../ert-components/target/envtree/Generic-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/  
 
-echo -e "++++++++++++++++++++ Adding Generic Devman Components to ert file system   \t++++++++++++++++++++"
-mkdir -p ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/devman
-cp -PR ./target/envtree/Generic-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ 
-cp -PR ./target/envtree/Generic-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ 
+
+if [ "${EHS_DEVMAN_SUPERVISOR_REQUIRED}" = "yes" ]; then
+   echo -e "++++++++++++++++++++ Adding Generic Devman Components to ert file system   \t++++++++++++++++++++"
+   mkdir -p ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/devman
+   cp -PR ./target/envtree/Generic-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ 
+   cp -PR ./target/envtree/Generic-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ 
+fi
 
 # ./target/envbuildscripts/targetenv_clean_config.sh $SPECIFIC_TARGET
 echo -e "++++++++++++++++++++ Adding OS & ARCH specific components to ert file system  \t++++++++++++++++++++"
 # Copy the target specific files to the file system
 # note - may not be target specific files for some OSs
 test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/root-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || echo "!!Not copying: ./$EHS_OS-ehs-tree/root-ehs_dir"
-test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || echo "!!Not copying: ./$EHS_OS-ehs-tree/devman/core-ehs_dir"
-test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || echo "!!Not copying: ./$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir"
-
+if [ "${EHS_DEVMAN_SUPERVISOR_REQUIRED}" = "yes" ]; then
+   test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/core-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || echo "!!Not copying: ./$EHS_OS-ehs-tree/devman/core-ehs_dir"
+   test -e ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir && cp -PR ../ert-components/target/envtree/$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/ || echo "!!Not copying: ./$EHS_OS-ehs-tree/devman/plugins/player-ehs_dir"
+fi
 ########################################################################
 ## Adding more paltform and product specific asssets and scripts: 
-
 
 # Some devices have varying OSs features that need to be modified:
 if  test -d ./target/envtree/PLATFORM-SPECIFIC/${SYSTEM_VARIANT}/root-ehs_dir
@@ -53,7 +56,8 @@ else
    echo -e "-------------------" NOT Applying ${SYSTEM_VARIANT} assets to staging directory -------------------""
 fi
 
-# Some devices have varying OSs features that need to be modified:
+# Some devices have varying OSs features that need to be added.
+# NOTE: These will clobber any system_variant versions of the same files!
 if [ "${PRODUCT_VARIANT}" != ""  ]; then
    if  test -d ./target/envtree/PLATFORM-SPECIFIC/${SYSTEM_VARIANT}-${PRODUCT_VARIANT}/root-ehs_dir
    then

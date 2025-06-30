@@ -32,10 +32,16 @@
 /* Select our custom (possibly self signed) CA bundle or single server certificate. 
    The paltform/.../config.mk for the target defines bundle or single when make targetenv is called */
 
-#define EHS_DEVMAN_CA_CERTIFICATE          "./core/certs/devman-ca.crt"
-#define EHS_DEVMAN_CLIENT_PRIVATEKEY 	   "./core/certs/devman-client.key"
-#define EHS_DEVMAN_CLIENT_CERTIFICATE      "./core/certs/devman-client.crt"
-#define EHS_DEVMAN_CLIENT_CERTIFICATE_KEY  "./core/certs/devman-client-crt-key.pem" // Combined key and and certificate file
+#define EHS_DEVMAN_CERTIFICATES_BASE               "./core/certs/" 
+#define EHS_DEVMAN_CA_CERTIFICATE_FILENAME         "devman-ca.crt"
+#define EHS_DEVMAN_CLIENT_PRIVATEKEY_FILENAME 	   "devman-client.key"
+#define EHS_DEVMAN_CLIENT_CERTIFICATE_FILENAME     "devman-client.crt"
+#define EHS_DEVMAN_CLIENT_CERTIFICATE_KEY_FILENAME "devman-client-crt-key.pem"
+/* These are the default locations in case thre is nothing special found*/
+#define EHS_DEVMAN_CA_CERTIFICATE         EHS_DEVMAN_CERTIFICATES_BASE EHS_DEVMAN_CA_CERTIFICATE_FILENAME
+#define EHS_DEVMAN_CLIENT_PRIVATEKEY 	   EHS_DEVMAN_CERTIFICATES_BASE EHS_DEVMAN_CLIENT_PRIVATEKEY_FILENAME
+#define EHS_DEVMAN_CLIENT_CERTIFICATE     EHS_DEVMAN_CERTIFICATES_BASE EHS_DEVMAN_CLIENT_CERTIFICATE_FILENAME
+#define EHS_DEVMAN_CLIENT_CERTIFICATE_KEY EHS_DEVMAN_CERTIFICATES_BASE EHS_DEVMAN_CLIENT_CERTIFICATE_KEY_FILENAME // Combined key and and certificate file
 
 /* define a retry rate for starting at the top of the URL list */
 
@@ -47,18 +53,11 @@
 #define EHS_DEVMAN_CORE_RETRY_TIMES_FIRSTURL 10 /* Number of times top of list is tried */
 #endif
 
-#ifndef EHS_MAXDEVMANNAMELEN
-#define EHS_MAXDEVMANNAMELEN 2048 // must be smaller than default string length
-#endif
-
 /* Define some fail-over paths/URLS for DEVMAN */
 #ifndef EHS_DEVMAN_COREURLS
 #define EHS_DEVMAN_COREURLS	"core/config/DEVMANURL"
 #endif
 
-
-
-#define EHS_MAXDEVMANNAMELEN 2048 // must be smaller than default string length //@todo
 
 #ifndef EHS_DEVMAN_DEFAULTBASEURL
 #define EHS_DEVMAN_DEFAULTBASEURL	"https://devman.inx-systems.com"

@@ -43,7 +43,7 @@
     </Hashes>
     <Parameters>
         <Parameter>
-            <Name>Offset (can use x.yE+nn notation)</Name>
+            <Name>Offset (x.yE+n allowed)</Name>
             <DataType>F</DataType>
             <DefaultValue>0</DefaultValue>
             <MinValue>-1.7E308</MinValue>

@@ -7,6 +7,8 @@
 *	<https://www.mozilla.org/en-US/MPL/2.0/>
 ****************************************************************/
 
+/* TODO2024 where did the compact file system for devices that can't run littlefs?*/
+
 /** @file hal_file.c
  * Definitions for Common utilities for supporting file access
  *
@@ -58,6 +60,66 @@
 /* Function definitions */
 
 /**
+ * @brief Read entire file with unknown size. User needs to free the string content and close the file pointer afterwards.
+ * 
+ * WARNING!!!! Don't use this function in function blocks except in init functions and only those with tear down functions.
+ * SUGGESTION - Another version that allows a buffer to be provided to it would be better in all current use-cases. Also If we are doing an dynamic one, it would be best to have an option that uses the temp malloc method that has an auto-clear up
+ * 
+ * @param fp (Input) The file pointer to the file
+ * @param ret_code (Output) The return code. 0: OK. 1: No memory left. 2: Read size is less than determined size.
+ * @return ehs_char* Read content with allocted memory. Need to be freed with EhsHMem_tempFree
+ *
+ * @code {.C}
+ * ehs_FILE *fp = EhsFopen("test.txt", 'r');
+ * ehs_uint8 ret_code = 0;
+ * ehs_char *content = EhsFreadDynamic(fp, &ret_code);
+ * // Do something with the content
+ * if (ret_code == 0) printf("%s\n", content);
+ * if (fp != NULL)
+ * {
+ *      EhsFclose(fp);
+ *      fp = NULL;
+ * }
+ * if (content != NULL)
+ * {
+ *      EhsHMem_tempFree(content);
+ *      content = NULL;
+ * }
+ * @endcode
+ */
+ehs_char *EhsFreadDynamic(ehs_FILE *fp, ehs_uint8 *ret_code)
+{
+	ehs_uint8 ret = 0;
+	ehs_uint64 buf_cur_len = 0;
+	ehs_uint64 buf_size = 0;
+	ehs_char *content = NULL;
+	int ch;
+
+	// Find out file size and rewind
+	while ((ch = EhsFgetc(fp)) != EOF) buf_size++;
+	EhsFseek(fp, 0, SEEK_SET);
+
+	content = (ehs_char *) EhsHMem_tempAlloc(buf_size + 1);
+	if (content == NULL)
+	{
+		ret = 1;
+		goto function_end;
+	}
+
+	buf_cur_len = EhsFread(content, sizeof(ehs_char), buf_size, fp);
+	if (buf_cur_len < buf_size)
+	{
+		ret = 2;
+		goto function_end;
+	}
+	content[buf_size] = 0;
+
+function_end:
+	*ret_code = ret;
+	return content;
+}
+
+/**
  * Consume the current line up until the end of line character
  * @param[in] pFile Pointer to the file to use
  * @return True if the end of line character was found, false otherwise, we've
@@ -93,11 +155,7 @@ ehs_bool EhsFInitFileSystem()
     ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
     EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_SYSDATA_DIR,"init.nfo", EHS_TRUE);
     Ehs_MakePath(szCanonicalFilePath,EHS_TRUE);
-
-#ifdef EHS_ANDROID // rmove the 'defery when we make the following function available for all platforms
-    //EhsTInitFileSystem(); do thi from the target main code as this has the ndk app context
-#endif
-    return EHS_TRUE;
+   return EHS_TRUE;
 }
 
 
@@ -227,13 +285,16 @@ ehs_bool EhsHUpdateFilePathEnvironment(EhsMetaDataType * pEhsMetaData)
     }
     else
     {
+        //TODO2024 -waht do actually mean here? Means whtkind of OS adn choices we made where the user data should be kept and there are more choies than this (e.g. .for windows..)
+#if defined(EHS_ESP32_SUPPORT)
+        EhsStrcpy(pEhsMetaData->zUserDirectory, "/ehs/userdata"); /* as good as guess as any... */
+#else
         EhsStrcpy(pEhsMetaData->zUserDirectory, "/opt/ehs/userdata"); /* as good as guess as any... */
+#endif
         EHSH_LOG_WARNING("EHS User Directory not set, Ehs Install Directory needs to be set first.");
     }
     return EHS_TRUE;
 }
-
-
 
 
 /**
@@ -311,9 +372,10 @@ ehs_bool EhsTF_tryCanonicPath(ehs_char * szCanonicalFilePath,RuntimePathType dir
     ehs_bool returnval = EHS_FALSE;
     /* Default location is in the install directory -we might overwright this! */
 
-    /* Usually we use the install pat as the base - but we might override this for specific cases below */
+    /* Usually we use the install path as the base - but we might override this for specific cases below */
     EhsStrcpy(szCanonicalFilePath, EhsHMetaGetInstPath());
     EhsStrcat(szCanonicalFilePath, EHS_TD_FILES_SEPARATOR_STR);
+    //printf("+++++%s\n",szCanonicalFilePath);
 
     switch (directory_type)
     {
@@ -362,6 +424,7 @@ ehs_bool EhsTF_tryCanonicPath(ehs_char * szCanonicalFilePath,RuntimePathType dir
         EhsStrcat(szCanonicalFilePath, EHS_TD_FILES_SEPARATOR_STR);
         EhsStrcat(szCanonicalFilePath, file);
         returnval = EHS_TRUE;
+       //  printf ("$$$$$ 00 NOt forced %s\n",szCanonicalFilePath);
 
     }
     else if (force)    // same action as above, but we set the return value to false.
@@ -369,10 +432,11 @@ ehs_bool EhsTF_tryCanonicPath(ehs_char * szCanonicalFilePath,RuntimePathType dir
         EhsStrcat(szCanonicalFilePath, EHS_TD_FILES_SEPARATOR_STR);
         EhsStrcat(szCanonicalFilePath, file);
         returnval = EHS_FALSE;
-
+    // printf ("$$$$$11 NOt forced %s\n",szCanonicalFilePath);
     }
     else     /* else just return the file and leave it to CWD */
     {
+     //   printf ("$$$$$22 NOt forced %s\n",szCanonicalFilePath);
         EhsStrcpy(szCanonicalFilePath, file);
         //if (directory_type == EHS_RUNTIME_USERDATA_DIR) EhsFprintf(bob,"file-6=%s, szCanonicalFilePath=%s\n",file,szCanonicalFilePath);
         returnval = EHS_FALSE;
@@ -596,7 +660,7 @@ ehs_FILE* Ehs_AppFopen(const ehs_char * szFilename, const ehs_char * access)
     }
     else
     {
-        return EHS_FALSE;
+        return NULL;
     }
 }
 
@@ -623,7 +687,7 @@ ehs_FILE* Ehs_UserFopen(const ehs_char * szFilename, const ehs_char * access)
 {
     ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH];
     EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_USERDATA_DIR,szFilename, EHS_TRUE);
-    if (EhsStrstr("w", access) || EhsStrstr("wb", access) || EhsStrstr("a", access) || EhsStrstr("+",access))
+    if (EhsStrstr("w", access) || EhsStrstr("wb", access) || EhsStrstr("a", access) || EhsStrstr("ab", access) || EhsStrstr("+",access))
         return Ehs_PathOpen(szCanonicalFilePath, access);
     else
         return EhsFopen(szCanonicalFilePath, access); //Don't try to create if we are reading - return the error

@@ -16,7 +16,7 @@
                 Function Blocks
                 <Menu>
                     data input ports
-                    <Menu>Bool</Menu>
+                    <Menu>bool</Menu>
                 </Menu>
             </Menu>
         </Menu>

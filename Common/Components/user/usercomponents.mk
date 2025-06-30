@@ -9,21 +9,62 @@
 VPATH+=: $(EHS_COMMON_COMPONENTS_PATH)/user
 OBJECTS += usercomponents.$(OBJ)
 OBJECTS += inx-ehs_controller.$(OBJ)
-OBJECTS += inx-application_run.$(OBJ)
-ifdef EHS_NETWORKING_SUPPORT
-#Socker only support needed:
-OBJECTS += inx-inx-netsocket.$(OBJ)
-OBJECTS += inx-netsocketrsrvr.$(OBJ)
-#full tcpip stack needed e.g. http
+OBJECTS += inx-application_run.$(OBJ)#
+
+
+# TODO2025 we need to use the fllowin construct for all entries here rather a million different ones...
+#ifdef EHS_XXXXXX_SUPPORT
+#ifneq ($(EHS_XXXXX_SUPPORT),none)
+# ...
+#endif
+#endif
+
+
 ifdef EHS_DEVMAN_SUPPORT
-OBJECTS += inx-devman_interface.$(OBJ)
+ifneq ($(EHS_DEVMAN_SUPPORT),none)
+	DEFS += EHS_DEVMAN_SUPPORT
+	OBJECTS += inx-devman_interface.$(OBJ)
+endif
+else
+# EHS_DEVMAN_SUPPORT - is too generic, as it includes player, media etc. we need something
+# more graniual for devman mon interface, which can be used by mcu via mqtt
+ifeq ($(EHS_DEVMAN_MON_SUPPORT),mqtt)
+	OBJECTS += inx-devman_interface.$(OBJ)
 endif
 endif
+
+# @TODO - This all needs to go into the networking folder.
+# EHS_NETWORKING_SUPPORT or EHS_COMPONENTS_NETWORK_TCPIP_SOCKET
+ifneq ($(EHS_NETWORKING_SUPPORT)$(EHS_COMPONENTS_NETWORK_TCPIP_SOCKET),)
+#Thsis actually seems to mean HTTP not networking...TODO2025 refactor this to say what it is.
+#Socket only support needed:
+	OBJECTS += inx-inx-netsocket.$(OBJ)
+	OBJECTS += inx-netsocketrsrvr.$(OBJ)
+	DEFS += EHS_COMPONENTS_NETWORK_TCPIP_SOCKET
+else
+endif
+
+# @TODO - move to PERIPHERALS or other toolbox
+ifeq ($(EHS_PERIPHERALS_BACKLIGHT_SUPPORT),)
+EHS_PERIPHERALS_BACKLIGHT_SUPPORT=stubbed
+endif
+ifdef EHS_PERIPHERALS_BACKLIGHT_SUPPORT
+# backlight is using stub if not implementd for target, so should be safe to just define it
+DEFS += EHS_PERIPHERALS_BACKLIGHT_SUPPORT=1
+endif
+
+#TODO2024 - This doesn't look like itfollows our new pattern? (ifeq (....))
 ifndef EHS_SKIP_APPLICATION_INFO_GETTER
+
+#TODO2024 = this CMLS should be of the form EHS_LIBXML_SUPPORT=<xml2,none,...>
+ifndef EHS_NO_LIBXML2_SUPPORT
 OBJECTS += inx-application_info_getter.$(OBJ)
 endif
-ifndef EHS_SKIP_GNULIBRARIES
+endif
+
 include $(EHS_COMMON_HAL_PATH)/json/json.mk
+
+ifndef EHS_SKIP_GNULIBRARIES
 OBJECTS += inx-json_stream.$(OBJ)
 OBJECTS += inx-JSONObjectFunctionBlock.$(OBJ)
 ifndef EHS_EXCLUDE_XML_PARSER
@@ -55,28 +96,6 @@ OBJECTS += inx-webkit.$(OBJ)
 endif
 ifdef EHS_MQTT_SUPPORT
 	DEFS += EHS_MQTT_SUPPORT
-# Lets find out why it breaks the NXP build: DEFS += EHS_MQTT_SUPPORT #PBB 2022-10-25 commented out because it breaks the NXP build
-    ifeq ($(EHS_MQTT_SUPPORT),lwip)
-			#e.g this one should be EHS_MQTT_SUPPORT=<some technology e.g. lwip,...
-			DEFS += EHS_MQTT_SUPPORT_LWIP
-	else ifeq ($(EHS_MQTT_SUPPORT),esp32)
-			#e.g this one should be EHS_MQTT_SUPPORT=<some technology e.g. lwip,...
-			DEFS += EHS_MQTT_SUPPORT_ESP32
-			LIB += mqtt
-			LIB += mbedtls
-#			LIB += libesp-tls
-    else ifeq ($(EHS_MQTT_SUPPORT),greengrass)
-		DEFS += EHS_MQTT_SUPPORT_AWS_GREENGRASS
-		ifeq ($(EHS_GNU_OS),mingw32posix)
-			LIB += aws-c-common aws-c-cal aws-c-io aws-c-compression aws-c-http aws-c-mqtt
-		else
-			LIB += dl 	
-			LIB += :libaws-c-mqtt.a :libaws-c-http.a :libaws-c-compression.a :libaws-c-io.a :libaws-c-cal.a :libs2n.a :libssl.a :libcrypto.a :libaws-c-common.a
-			DEFS += EHS_MQTT_SUPPORT_AWS_GREENGRASS
-		endif
-	else
-# this shouldn't happen!
-	endif
 	OBJECTS += inx-mqtt_client.$(OBJ)
 	OBJECTS += inx-mqtt_publish.$(OBJ)
 	OBJECTS += inx-mqtt_subscribe.$(OBJ)
@@ -89,15 +108,13 @@ ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
 OBJECTS += inx-adc_read.$(OBJ)
 endif
 #todo - the following NXP specific blocks should be implemented for other targets a part of the peripherial (or other toolboxes).
+
 ifdef EHS_NXP_SUPPORT
 OBJECTS += inx-rtc.$(OBJ)
 OBJECTS += inx-pwm.$(OBJ)
 OBJECTS += inx-numeric_display_char.$(OBJ)
-OBJECTS += inx-modbus_config.$(OBJ)
-OBJECTS += inx-modbus_read.$(OBJ)
-OBJECTS += inx-modbus_write.$(OBJ)
-OBJECTS += inx-uart_config.$(OBJ)
 OBJECTS += inx-permanent_storage.$(OBJ)
+
 else ifdef EHS_ESP32_SUPPORT
 #OBJECTS += inx-rtc.$(OBJ)
 #OBJECTS += inx-pwm.$(OBJ)
@@ -107,20 +124,28 @@ else ifdef EHS_ESP32_SUPPORT
 #OBJECTS += inx-modbus_write.$(OBJ)
 #OBJECTS += inx-uart_config.$(OBJ)
 #OBJECTS += inx-permanent_storage.$(OBJ)
+else
+
+
 endif
+
 ifdef EHS_LORAWAN_SUPPORT
 OBJECTS += inx-lorawan.$(OBJ)
 endif
-ifdef EHS_WIFI_SUPPORT
+ifeq ($(EHS_WIFI_SUPPORT),yes)
+DEFS += EHS_WIFI_SUPPORT
 OBJECTS += inx-wifi_station.$(OBJ)
 endif
 ifdef EHS_AUDIO_INPUT_LEVEL_SUPPORT
 OBJECTS += inx-audio_input_level.$(OBJ)
 endif
-ifdef EHS_UART_SUPPORT
-DEFS += EHS_UART_SUPPORT
+#ifdef EHS_UART_SUPPORT
+#DEFS += EHS_UART_SUPPORT=1
 OBJECTS += inx-uart.$(OBJ)
-endif
+OBJECTS += inx-uart_config.$(OBJ)
+#else
+#DEFS += EHS_UART_SUPPORT=0
+#endif
 OBJECTS += inx-hex2string.$(OBJ)
 OBJECTS += inx-Int2HexString.$(OBJ)
 ifdef EHS_SCHEDULER_SUPPORT
@@ -129,6 +154,9 @@ DEFS += EHS_SCHEDULER_SUPPORT
 endif
 ifdef EHS_PID_SUPPORT
 OBJECTS += inx-PID.$(OBJ)
+OBJECTS += inx-calibrate.$(OBJ)
+OBJECTS += inx-pid_relay_config.$(OBJ)
+OBJECTS += inx-pid_hdwr_config_int.$(OBJ)
 DEFS += EHS_PID_SUPPORT
 endif
 ifndef EHS_OTA_SUPPORT
@@ -140,4 +168,68 @@ endif
 OBJECTS += inx-ota.$(OBJ)
 OBJECTS += inx-ota_data_parser.$(OBJ)
 OBJECTS += inx-reboot.$(OBJ)
-EHS_TOOLBOX_HASHES:=$(EHS_TOOLBOX_HASHES)"0xd12a0e92,"
+OBJECTS += inx-cgi2json.$(OBJ)
+OBJECTS += inx-stringdivader.$(OBJ)
+#TODO Change this to stub version later
+ifdef EHS_PERIPHERALS_BACKLIGHT_SUPPORT
+OBJECTS += inx-display_backlight.$(OBJ)
+endif
+ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+OBJECTS += inx-dac.$(OBJ)
+endif
+ifdef EHS_MODBUS_SUPPORT
+DEFS+=EHS_MODBUS_SUPPORT
+OBJECTS += inx-modbus_config.$(OBJ)
+OBJECTS += inx-modbus_read.$(OBJ)
+OBJECTS += inx-modbus_write.$(OBJ)
+OBJECTS += inx-modbus_slave_register.$(OBJ)
+endif
+OBJECTS += inx-num_demux.$(OBJ)
+OBJECTS += inx-num_mux.$(OBJ)
+OBJECTS += inx-rtinfo2.$(OBJ)
+OBJECTS += inx-map_int.$(OBJ)
+OBJECTS += inx-indexed_mux_int.$(OBJ)
+OBJECTS += inx-binary2decimal8.$(OBJ)
+OBJECTS += inx-indexed_mux_str.$(OBJ)
+OBJECTS += inx-sample2str.$(OBJ)
+OBJECTS += inx-key_value.$(OBJ)
+OBJECTS += inx-indexed_demux_int.$(OBJ)
+OBJECTS += inx-unsigned2int.$(OBJ)
+OBJECTS += inx-json_parser_int.$(OBJ)
+OBJECTS += inx-json_parser_bool.$(OBJ)
+OBJECTS += inx-json_parser_real.$(OBJ)
+OBJECTS += inx-indexed_mux_bool.$(OBJ)
+OBJECTS += inx-indexed_mux_real.$(OBJ)
+OBJECTS += inx-indexed_demux_bool.$(OBJ)
+OBJECTS += inx-indexed_demux_real.$(OBJ)
+OBJECTS += inx-indexed_demux_str.$(OBJ)
+OBJECTS += inx-SineInt.$(OBJ)
+OBJECTS += inx-CosineInt.$(OBJ)
+OBJECTS += inx-TanInt.$(OBJ)
+OBJECTS += inx-json_parser_str.$(OBJ)
+OBJECTS += inx-key_value_int.$(OBJ)
+OBJECTS += inx-key_value_real.$(OBJ)
+OBJECTS += inx-key_value_bool.$(OBJ)
+
+ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+OBJECTS += inx-adc_config.$(OBJ)
+	ifeq ($(EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT),none)
+		DEFS += EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT__NONE
+	else
+		OBJECTS += inx-adc_read_continuous.$(OBJ)
+	endif
+	OBJECTS += inx-adc_read_single.$(OBJ)
+endif
+
+ifdef EHS_COMPONENTS_CONSOLE_IO
+	OBJECTS += inx-console_print.$(OBJ)
+	DEFS += EHS_COMPONENTS_CONSOLE_IO
+endif
+
+ifdef EHS_PERIPHERALS_PWM_SUPPORT
+ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),none)
+	OBJECTS += inx-pwm_gen.$(OBJ)
+endif
+endif
+
+EHS_TOOLBOX_HASHES:=$(EHS_TOOLBOX_HASHES)"0x583cfb49,"

@@ -17,8 +17,9 @@ StartHomeApp(){
             SupervisorLog "SetAsHomeApp ====> $MSG"  
         fi
         # confirm the app is running
-        DELAY=5; LOGGED="";
-        while true; do
+        DELAY=5; LOGGED=""; RETRIES=5;
+        COUNTER=0
+        while [ "$COUNTER" -lt "$RETRIES" ]; do
             sleep $DELAY
     	    IS_ACTIVE=$( IsActivityFocused $PACKAGE $INTENT )
     		if [ "$IS_ACTIVE" = "YES" ]; then
@@ -38,6 +39,7 @@ StartHomeApp(){
                     MSG=$( SetAsHomeApp $PACKAGE $INTENT )
                 fi
     		fi
+            COUNTER=$((COUNTER+1))
         done
     else
         SupervisorError "Package ($PACKAGE) is not installed."    

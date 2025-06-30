@@ -109,7 +109,7 @@ all: $(TARGET_NAME).$(FINAL) chkconfig
 	@$(CC) $(CC_SWITCHES) $(CFLAGS) $< -o $@
 
 %.$(OBJ): %.cpp 
-	@echo $(CC) $(CC_SWITCHES) $(CPPFLAGS) $<
+	@echo $(CPP) $(CC_SWITCHES) $(CPPFLAGS) $<
 	$(CPP) $(CC_SWITCHES) $(CPPFLAGS) $< -o $@
 
 $(TARGET_NAME).$(FINAL) : $(OBJECTS)
@@ -194,8 +194,6 @@ help:
 	@echo "*                      - Set env variable KEEP_DEVMANCONFIG=yes to keep the devman servers in tact."
 	@echo "*                      - Set env variable KEEP_APPLICATION=yes to keep the appdata in tact."
 	@echo "* targetenv_makeprod   - Configures the runtime with standard INX apps and devman configuration. Cleans existing config first! "
-	@echo "* targetenv_pre_build  - Run everything that is needed before building traget"
-	@echo "* targetenv_pre_build_docker - Run make targetenv_pre_build in docker image."
 	@echo "* targetenv_deb        - Creates a debian installer for current tree (targetted at /opt/ehs). optional: UPLOAD=<deb repo URL>"
 	@echo "* targetenv_apk        - Builds android APK and stores it in ../TARGET_TREES/"
 	@echo "* targetenv_apk_docker - Builds android APK and stores it in ../TARGET_TREES/ in an android arm configured docker image."
@@ -206,6 +204,8 @@ help:
 	@echo "* targetenv_esp32s3     - Builds an esp32s3 image for subsequent deployment via usb or OTA deployment"
 	@echo "* targetenv_esp32s3_docker  - runs make targetenv_esp32s3 in an esp32s3 configured docker image."
 	@echo "* targetenv_nsis_docker - Builds a windows installer using the NSIS installer"
+	@echo "* targetenv_upload_appland - Uploads target to the appland alongside all of its documentation. optional: ASSETS_ONLY=yes"
+	@echo "* targetenv_upload_ota - Uploads OTA package to Devman server. optional: SERVER_OVERRIDE=<user@url> server destination override"
 	@echo "* upload_ehs_via_adb   - Uploads apks to the connected (or IP mapped) android device via adb. optional: ADB_IP=<device ip>"
 	@echo "* upload_ehs_deb       - Uploads the debian package created targetenv_deb. Set  UPLOAD=<deb repo URL>"
 	@echo "* targetenv_android_dep_pack - Bundles eRT android supplementary apps, supervisor into Devman uploadable packages (no APKs are built)."
@@ -221,6 +221,7 @@ help:
 	@echo "*                             - update patches on the final distation. You may also set DEVMAN_INTERMEDIATE_UNAME & DEVMAN_INTERMEDIATE_SSHPORT"
 	@echo "* toolsenv_update      - Updates the dist directory's IDF and CDF directories with this EHS's version component description files"
 	@echo "* static_analysis      - runs rhe static analyser suite on the full source code tree for all configurations."
+	@echo "* targetenv_run_tests  - Runs all regression tests."
 	@echo "*"
 	@echo "*"
 	@echo "* The usual sequence to build a packge is:"
@@ -243,10 +244,10 @@ all_docker: chkconfig
 	@./target/envbuildscripts/all_docker.sh $(TARGET)
 targetenv: chkconfig
 	@./target/envbuildscripts/targetenv.sh $(TARGET) 
-targetenv_pre_build: chkconfig
-	@./target/envbuildscripts/targetenv_pre_build.sh $(TARGET)
-targetenv_pre_build_docker: chkconfig
-	@./target/envbuildscripts/targetenv_pre_build_docker.sh $(TARGET)
+targetenv_prebuild: chkconfig
+	@./target/envbuildscripts/targetenv_prebuild.sh $(TARGET)
+targetenv_littlefs: chkconfig
+	@./target/envbuildscripts/targetenv_littlefs_docker.sh $(TARGET)
 targetenv_package: chkconfig
 	@./target/envbuildscripts/targetenv_make_package.sh $(TARGET) 
 targetenv_nsis: chkconfig
@@ -261,6 +262,8 @@ targetenv_esp32s3: chkconfig
 	@./target/envbuildscripts/targetenv_esp32s3.sh $(TARGET) 
 targetenv_esp32s3_docker: chkconfig
 	@./target/envbuildscripts/targetenv_esp32s3_docker.sh $(TARGET) 
+targetenv_arduino: chkconfig
+	@./target/envbuildscripts/targetenv_arduino_docker.sh $(TARGET) 
 targetenv_apk_docker: chkconfig
 	@./target/envbuildscripts/targetenv_make_apk_docker.sh $(TARGET)
 targetenv_version: chkconfig
@@ -268,7 +271,7 @@ targetenv_version: chkconfig
 targetenv_makeprod: chkconfig
 	@./target/envbuildscripts/targetenv_makeprod.sh $(TARGET) 
 targetenv_deb: chkconfig
-	@./target/envbuildscripts/targetenv_make_deb.sh $(TARGET)
+	@./target/envbuildscripts/targetenv_make_deb.sh $(TARGET) $(AUTO_START)
 targetenv_deb_docker: chkconfig
 	@./target/envbuildscripts/targetenv_make_deb_docker.sh $(TARGET)
 targetenv_apk: chkconfig
@@ -279,6 +282,12 @@ targetenv_unity_export: chkconfig
 	@./target/envbuildscripts/targetenv_unity_export.sh $(TARGET)
 targetenv_unity_export_docker: chkconfig
 	@./target/envbuildscripts/targetenv_unity_export_docker.sh $(TARGET)
+targetenv_upload_appland: chkconfig
+	@./target/envbuildscripts/targetenv_upload_appland.sh $(TARGET)
+targetenv_upload_ota: chkconfig
+	@./target/envbuildscripts/targetenv_upload_ota.sh $(TARGET)
+targetenv_run_tests: chkconfig
+	@./target/envbuildscripts/targetenv_run_tests.sh $(TARGET)
 targetenv_cleancfg: chkconfig
 	@./target/envbuildscripts/targetenv_clean_config.sh $(TARGET)
 targetenv_cleanall: chkconfig
@@ -303,9 +312,15 @@ target_buildenv:
 	@./target/envbuildscripts/target_buildenv.sh
 clean:
 	find -name "*.o" -delete
+	rm -f *.log
+	rm -f *.map
+	rm -f *.elf
+	rm -f *.bin
+	rm -f *.exe
+	rm -f *.a
 	rm -f *.d
 	find -name "*.d" -delete
-	rm $(TARGET_NAME).$(FINAL) $(CLEAN_FILES)
+	rm -f $(TARGET_NAME).$(FINAL) $(CLEAN_FILES)
 	
 .DEFAULT_GOAL := all
 	

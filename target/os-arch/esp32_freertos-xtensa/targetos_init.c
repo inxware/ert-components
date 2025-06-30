@@ -36,6 +36,7 @@
 #include "hal_file.h"
 #include "hal_string.h"
 #include "hal_logger.h"
+#include "hal_target_sys_stat.h"
 /* Stuff that should be moved to the a more specific OS specific targetos_init header file*/
 /* todo2022 remove the spam from copying this from a linux os-arch */
 /*
@@ -188,50 +189,12 @@ void getNextValue(ehs_char * dst, ehs_FILE *pFile, char * buffer)
 
 void getOSVersion(ehs_char * dst)
 {
-    //@todo - use shell command uname -a, instead of reading from file /etc/lsb-release ?
-    EhsStrcpy(dst,"Unknown");
-    ehs_char * buffer;
-    buffer = EhsHMem_tempAlloc(EHS_STRING_LENGTH_MAX);
-    if (buffer == NULL)
-        return;	// lazy return
-
-
-    size_t result;
-    ehs_char * c;
-    ehs_char * ptr;
-    ehs_char * ptrEOL;
-    //todo2024 why not use malloc for these too to avoid two large stack variables
-    ehs_char szKey[EHS_STRING_LENGTH_MAX];
-    ehs_char tmp[EHS_STRING_LENGTH_MAX];
-    long lSize = 200;
-    EhsStrcpy(szKey, "DISTRIB_CODENAME=");
-
-
-    ehs_FILE *pFile =EhsFopen("/etc/lsb-release","r");
-    if (pFile)
-    {
-        EhsStrcpy(dst,"");
-
-        for (int i=0; i<3; i++)
-        {
-            getNextValue(dst,pFile,buffer);
-            if (i < 2)
-            {
-                EhsStrcat(dst, " ");	// insert some separators
-            }
-        }
-
-        EhsFclose(pFile);
-    }
-    EhsHMem_tempFree(buffer);
+    if (dst == NULL) return;
+    #ifndef TARGET_OS_VERSION_STRING
+    #define TARGET_OS_VERSION_STRING "Unknown"
+    #endif
+    EhsStrcpy(dst,TARGET_OS_VERSION_STRING);
 }
-
-#ifdef EHS_DEVMAN_MON_SUPPORT
-ehs_bool GetDevmanBASEURL(ehs_char *szUrl)
-{
-    return EHS_FALSE;
-}
-#endif
 
 
 /* updated dynamic and static data
@@ -241,15 +204,25 @@ ehs_bool GetDevmanBASEURL(ehs_char *szUrl)
  * */
 ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 what)
 {
+    if(what == EHS_OS_ENV_NETWORK_ID){
+        // Update ip address
+        EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
+        // @TODO - Update network meta data using traget api, instead of using dummy values
+        pEhsMetaData->nDeviceNetworkMode = EHS_NET_DHCP_MODE_ID;
+        EhsStrcpy(pEhsMetaData->zDeviceGateway, "0.0.0.0");
+        EhsStrcpy(pEhsMetaData->zDeviceMask, "0.0.0.0");
+        EhsStrcpy(pEhsMetaData->zDeviceDNS1, "0.0.0.0");
+        return EHS_TRUE; // return here, we only update network specific os env
+    }
     
     ehs_uint32 tempint;
 
     if (EhsStrlen(pEhsMetaData->zUserDirectory))
     {
         // get disk space in user directory
-        ehs_char szTemp[EHS_STRING_LENGTH_MAX]; //todo2024 why do we use a buffer here and not just use pEhsMetaData->zUserDirectory?
-        EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
-        get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,szTemp);
+        //ehs_char szTemp[EHS_STRING_LENGTH_MAX]; //todo2024 why do we use a buffer here and not just use pEhsMetaData->zUserDirectory?
+        //EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
+        get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,pEhsMetaData->zUserDirectory);
     }
     else
     {
@@ -257,6 +230,7 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
     }
     EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
     get_cpu_ram_info(&(pEhsMetaData->CPUUsage), &(pEhsMetaData->RAMTotal_KB),&(pEhsMetaData->RAMUsed_KB),&(pEhsMetaData->RAMAvail_KB));
+    pEhsMetaData->CPUTemp = EhsTGetCpuTemp();
     //getOSVersion(pEhsMetaData->OSVersion);
     return EHS_FALSE;
 }

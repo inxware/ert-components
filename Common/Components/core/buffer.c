@@ -43,7 +43,7 @@ typedef struct			/* state data for real FIFO buffer...*/
     int nPopIndex;    	/* index of next pop point */
     int nCurrentUsage;	/* current usage / size    */
     int nSize;		  	/* actual size             */
-    double* pContents;  /* pointer to contents     */
+    ehs_float* pContents;  /* pointer to contents     */
 } structFIFO_Real;
 
 typedef struct			/* state data for bool FIFO buffer...*/
@@ -77,7 +77,7 @@ typedef struct			/* state data for real LIFO buffer...*/
     int nIndex;			/* index of next push point*/
     int nCurrentUsage;	/* current usage / size    */
     int nSize;		  	/* actual size             */
-    double* pContents;   	/* pointer to contents     */
+    ehs_float* pContents;   	/* pointer to contents     */
 } structLIFO_Real;
 
 typedef struct			/* state data for boolean LIFO buffer...*/
@@ -327,12 +327,12 @@ EHS_FB_IDENTIFY_FUNCTION(FIFOReal)
 EHS_FB_INIT_FUNCTION(FIFOReal)
 {
     int nSize;
-    double* pContents = NULL;
+    ehs_float* pContents = NULL;
     structFIFO_Real* pFIFO_Real = NULL;
 
     nSize = atoi(EHS_FB_INIT_PARAMETERS);
     /* Allocate some space for the buffer from the pParams description...*/
-    pContents = (double*)EhsHMem_writeableAlloc(nSize*sizeof(double));
+    pContents = (ehs_float*)EhsHMem_writeableAlloc(nSize*sizeof(ehs_float));
     if( !pContents )
     {
 
@@ -371,7 +371,7 @@ EHS_FB_RUN_FUNCTION(PushFIFOReal)
     int nPushIndex;
     int nCurrentUsage;
     int nSize;
-    double* pContents = NULL;
+    ehs_float* pContents = NULL;
 
     /* the dereference of pByte gives the location of the state data...*/
     pFIFO_Real = (structFIFO_Real*)EHS_FB_RUN_CONTEXT;
@@ -379,7 +379,7 @@ EHS_FB_RUN_FUNCTION(PushFIFOReal)
     nPushIndex = pFIFO_Real->nPushIndex;
     nCurrentUsage = pFIFO_Real->nCurrentUsage;
     nSize = pFIFO_Real->nSize;
-    pContents = (double*)pFIFO_Real->pContents;
+    pContents = (ehs_float*)pFIFO_Real->pContents;
 
     /* check we haven't walked over the top of the buffer...*/
     if (nCurrentUsage < nSize)
@@ -424,7 +424,7 @@ EHS_FB_RUN_FUNCTION(PopFIFOReal)
     int nPopIndex;
     int nCurrentUsage;
     int nSize;
-    double* pContents = NULL;
+    ehs_float* pContents = NULL;
 
     //ehs_uint8* pB = NULL;
 
@@ -434,7 +434,7 @@ EHS_FB_RUN_FUNCTION(PopFIFOReal)
     nPopIndex = pFIFO_Real->nPopIndex;
     nCurrentUsage = pFIFO_Real->nCurrentUsage;
     nSize = pFIFO_Real->nSize;
-    pContents = (double*)pFIFO_Real->pContents;
+    pContents = (ehs_float*)pFIFO_Real->pContents;
 
     if (nCurrentUsage == 0)
     {
@@ -699,10 +699,9 @@ EHS_FB_INIT_FUNCTION(FIFOString)
         return EHS_TRUE;
     }
 
-
     for (i=0; i<nSize; i++)
     {
-        pContents[i] = (char*)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX);
+        pContents[i] = (char*)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!
         if( !(pContents[i]) )
         {
             return EHS_TRUE;
@@ -1044,12 +1043,12 @@ EHS_FB_IDENTIFY_FUNCTION(LIFOReal)
 EHS_FB_INIT_FUNCTION(LIFOReal)
 {
     int nSize;
-    double* pContents = NULL;
+    ehs_float* pContents = NULL;
     structLIFO_Real* pLIFO_Real = NULL;
 
     nSize = atoi(EHS_FB_INIT_PARAMETERS);
     /* malloc some space for the buffer from the pParams description...*/
-    pContents = (double*)EhsHMem_writeableAlloc(nSize*sizeof(double));
+    pContents = (ehs_float*)EhsHMem_writeableAlloc(nSize*sizeof(ehs_float));
     if( !(pContents) )
     {
         return EHS_TRUE;
@@ -1077,7 +1076,7 @@ EHS_FB_RUN_FUNCTION(PushLIFOReal)
     int nIndex;
     int nCurrentUsage;
     int nSize;
-    double* pContents = NULL;
+    ehs_float* pContents = NULL;
 
     /* the dereference of &EHS_FB_RUN_CONTEXT gives the location of the state data...*/
     pLIFO_Real = (structLIFO_Real*)EHS_FB_RUN_CONTEXT;
@@ -1085,7 +1084,7 @@ EHS_FB_RUN_FUNCTION(PushLIFOReal)
     nIndex = pLIFO_Real->nIndex;
     nCurrentUsage = pLIFO_Real->nCurrentUsage;
     nSize = pLIFO_Real->nSize;
-    pContents = (double*)pLIFO_Real->pContents;
+    pContents = (ehs_float*)pLIFO_Real->pContents;
 
     /* check we haven't walked over the top of the buffer...*/
     if (nCurrentUsage < nSize)
@@ -1126,7 +1125,7 @@ EHS_FB_RUN_FUNCTION(PopLIFOReal)
     int nIndex;
     int nCurrentUsage;
     //int nSize;
-    double* pContents = NULL;
+    ehs_float* pContents = NULL;
 
     //ehs_uint8* pB = NULL;
 
@@ -1136,7 +1135,7 @@ EHS_FB_RUN_FUNCTION(PopLIFOReal)
     nIndex = pLIFO_Real->nIndex;
     nCurrentUsage = pLIFO_Real->nCurrentUsage;
     //nSize = pLIFO_Real->nSize;
-    pContents = (double*)pLIFO_Real->pContents;
+    pContents = (ehs_float*)pLIFO_Real->pContents;
 
     if (nCurrentUsage == 0)
     {
@@ -1375,7 +1374,7 @@ EHS_FB_INIT_FUNCTION(LIFOString)
 
     for (i=0; i<nSize; i++)
     {
-        pContents[i] = (char*)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX);
+        pContents[i] = (char*)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!
         if( !(pContents[i]) )
         {
             return EHS_TRUE;

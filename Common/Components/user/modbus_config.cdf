@@ -1,113 +1,226 @@
 <?xml version="1.0" encoding="UTF-8"?><Component>
-    <Module>usercomponents</Module>
-    <CDFInfo>
-        <Version>3</Version>
-        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
-    </CDFInfo>
-    <Description>
-        <ShortDescription>MODBUS-RT config</ShortDescription>
-        <LongDescription>MODBUS-RT config</LongDescription>
+	<Module>usercomponents</Module>
+	<CDFInfo>
+		<Version>3</Version>
+		<CreationDate>2023-04-18T13:32:37Z</CreationDate>
+		<UpdatedDate>2024-09-03T11:17:43Z</UpdatedDate>
+	</CDFInfo>
+	<Description>
+		<ShortDescription>MODBUS-RT config</ShortDescription>
+		<LongDescription>MODBUS-RT config</LongDescription>
         <UserName/>
-        <Menu>
-            Peripherals
-            <Menu>
-                MODBUS Client
-                <Menu>Modbus Config</Menu>
-            </Menu>
-        </Menu>
-    </Description>
-    <Block>
-        <Type>IO</Type>
-        <Width>105</Width>
-        <Height>60</Height>
-        <Text>MODBUS conf</Text>
-        <TextX>5</TextX>
-        <TextY>5</TextY>
-        <TextScale>1.5</TextScale>
-        <TextVertical>0</TextVertical>
-        <LocationX>0</LocationX>
-        <LocationY>-15</LocationY>
-    </Block>
-    <FBID>
-        <ERT1_ID>0</ERT1_ID>
-        <Class>modbus_config</Class>
-    </FBID>
-    <Hashes>
-        <NameHash_CRC16>0x4DB3</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>44b26689</FbApiDescriptorHash_CRC32>
+		<Menu>
+			Peripherals
+			<Menu>
+				MODBUS
+				<Menu>Modbus Config</Menu>
+			</Menu>
+		</Menu>
+	</Description>
+	<Block>
+		<Type>IO</Type>
+		<Width>115</Width>
+		<Height>100</Height>
+		<Text>MODBUS conf</Text>
+		<TextX>5</TextX>
+		<TextY>5</TextY>
+		<TextScale>1.5</TextScale>
+		<TextVertical>0</TextVertical>
+		<LocationX>0</LocationX>
+		<LocationY>-15</LocationY>
+	</Block>
+	<FBID>
+		<ERT1_ID>1</ERT1_ID>
+		<Class>modbus_config</Class>
+	</FBID>
+	<Hashes>
+		<NameHash_CRC16>0x4DB3</NameHash_CRC16>
+		<FbApiDescriptorHash_CRC32>40628423</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
-    </Hashes>
-    <Parameters/>
-    <Functions>
-        <Function>
-            <name>enable</name>
-            <ID>
-                <ERT1_ID>1</ERT1_ID>
-            </ID>
-        </Function>
-        <Function>
-            <name>disable</name>
-            <ID>
-                <ERT1_ID>2</ERT1_ID>
-            </ID>
-        </Function>
-    </Functions>
-    <Ports>
-        <Port>
-            <Description>Enable</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>10</YCoordinate>
-            <CName>enable</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>id</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>20</YCoordinate>
-            <CName>id</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>--</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
-            <YCoordinate>10</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>finishenable</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>Disable</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>35</YCoordinate>
-            <CName>disable</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <Description>--</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
-            <YCoordinate>35</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>finishdisable</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-    </Ports>
+	</Hashes>
+	<Parameters>
+		<Parameter>
+			<Name>bus_id</Name>
+			<DataType>I</DataType>
+			<DefaultValue>0</DefaultValue>
+			<MinValue>0</MinValue>
+			<MaxValue>100</MaxValue>
+			<Description>Bus ID</Description>
+			<ListPlacement>1</ListPlacement>
+			<ArgPlacement>1</ArgPlacement>
+			<DisplayOnWidget>
+				<x>40</x>
+				<y>20</y>
+			</DisplayOnWidget>
+		</Parameter>
+		<Parameter>
+			<Name>master</Name>
+			<DataType>B</DataType>
+			<DefaultValue>0</DefaultValue>
+			<MinValue>0</MinValue>
+			<MaxValue>1</MaxValue>
+			<Description>Whether MODBUS is in Master mode</Description>
+			<ListPlacement>2</ListPlacement>
+			<ArgPlacement>2</ArgPlacement>
+		</Parameter>
+		<Parameter>
+			<Name>data_mode</Name>
+			<DataType>I</DataType>
+			<DefaultValue>0</DefaultValue>
+			<MinValue>0</MinValue>
+			<MaxValue>2</MaxValue>
+			<Description>Whether MODBUS is in RTU, ASCII or TCP/IP mode. 0 if RTU, 1 if ASCII, 2 if TCP/IP</Description>
+			<ListPlacement>3</ListPlacement>
+			<ArgPlacement>3</ArgPlacement>
+		</Parameter>
+		<Parameter>
+			<Name>port_id</Name>
+			<DataType>I</DataType>
+			<DefaultValue>0</DefaultValue>
+			<MinValue>0</MinValue>
+			<MaxValue>2147483647</MaxValue>
+			<Description>The port ID of the MODBUS interface</Description>
+			<ListPlacement>4</ListPlacement>
+			<ArgPlacement>4</ArgPlacement>
+			<DisplayOnWidget>
+				<x>40</x>
+				<y>40</y>
+			</DisplayOnWidget>
+		</Parameter>
+		<Parameter>
+			<Name>ip</Name>
+			<DataType>S</DataType>
+			<DefaultValue>127.0.0.1</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+			<Description>The target IP if in TCP/IP mode</Description>
+			<ListPlacement>5</ListPlacement>
+			<ArgPlacement>5</ArgPlacement>
+		</Parameter>
+		<Parameter>
+			<Name>cert</Name>
+			<DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+			<Description>The certificate filename of the MODBUS TCP/IP communication.</Description>
+			<ListPlacement>6</ListPlacement>
+			<ArgPlacement>6</ArgPlacement>
+		</Parameter>
+	</Parameters>
+	<Functions>
+		<Function>
+			<name>enable</name>
+			<ID>
+				<ERT1_ID>1</ERT1_ID>
+			</ID>
+		</Function>
+		<Function>
+			<name>disable</name>
+			<ID>
+				<ERT1_ID>2</ERT1_ID>
+			</ID>
+		</Function>
+	</Functions>
+	<Ports>
+		<Port>
+			<Description>enable</Description>
+			<PortType>StartPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>10</YCoordinate>
+			<CName>enable</CName>
+			<Function argument="0">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+				<AtomicFlag>0</AtomicFlag>
+			</Function>
+		</Port>
+		<Port>
+			<Description>--</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>110</XCoordinate>
+			<YCoordinate>10</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>finishenable</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>disable</Description>
+			<PortType>StartPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>70</YCoordinate>
+			<CName>disable</CName>
+			<Function argument="0">
+				<Function_ERT1_ID>2</Function_ERT1_ID>
+				<AtomicFlag>0</AtomicFlag>
+			</Function>
+		</Port>
+		<Port>
+			<Description>--</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>110</XCoordinate>
+			<YCoordinate>70</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>finishdisable</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>2</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>S</DataType>
+			<Description>IP</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>40</YCoordinate>
+			<CName>ip</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>I</DataType>
+			<Description>port</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>30</YCoordinate>
+			<CName>port</CName>
+			<Function argument="2">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>S</DataType>
+			<Description>cert</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>50</YCoordinate>
+			<CName>cert</CName>
+			<Function argument="3">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>I</DataType>
+			<Description>errno</Description>
+			<PortType>OutputPort</PortType>
+			<XCoordinate>110</XCoordinate>
+			<YCoordinate>20</YCoordinate>
+			<CName>Errno</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>I</DataType>
+			<Description>bus_ID</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>20</YCoordinate>
+			<CName>Bus_ID</CName>
+			<Function argument="4">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+	</Ports>
 </Component>

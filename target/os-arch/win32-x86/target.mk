@@ -41,6 +41,8 @@ OBJECTS += ehs_windows.res
 #OBJECTS += targetos_init.$(OBJ)
 #OBJECTS += keypress.$(OBJ)
 OBJECTS += win_components.$(OBJ)
+OBJECTS += target_display.$(OBJ)
+OBJECTS += target_sys_stat.$(OBJ)
 
 ifndef  EHS_COMMS_API_SUPPORT
 export EHS_COMMS_API_SUPPORT=winsock

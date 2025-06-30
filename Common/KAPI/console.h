@@ -19,8 +19,8 @@
 
 #include "ehs_types.h"
 
-
-
+/* We normally change all file lengths to 8.3 file formats for all targets: */
+#define EHS_CONSOLE_MAX_FILENAME_LENGTH 32
 
 EHS_GLOBAL Ehs_ConsoleCommand_Type EhsProcessCommands(void);
 

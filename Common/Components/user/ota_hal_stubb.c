@@ -16,6 +16,14 @@
 #include "hal_ota.h"
 
 /**
+ * @brief OTA process current state
+ */
+target_ota_state_t thOTA_current_state(void)
+{
+    return TARGET_OTA_IDLE;
+}
+
+/**
  * @brief Begin the OTA update process
  * 
  * @param[in] alt_partition Whether the target OTA partition can be chosen
@@ -70,9 +78,9 @@ void thOTA_end(void)
  *          - EHS_TRUE  if CRC check matches
  *          - EHS_FALSE if CRC check fails
  */
-ehs_bool thOTA_checkChecksum(ehs_bool alt_partition, ehs_sint32 partition_num, ehs_uint8 * CS_token, ehs_sint32 CS_token_len)
+ehs_bool thOTA_checkChecksum(ehs_bool alt_partition, ehs_sint32 partition_num, ehs_char * CS_token, ehs_sint32 CS_token_len)
 {
-    return EHS_TRUE;;
+    return EHS_TRUE;
 }
 
 /**
@@ -107,6 +115,22 @@ ehs_bool thOTA_switch(ehs_bool alt_partition, ehs_sint32 partition_num)
  * @brief Abort the OTA update process
  */
 void thOTA_abort(void)
+{
+    return;
+}
+
+/**
+ * @brief Set the OTA on abort callback
+ */
+void thOTA_on_abort_callback(target_ota_on_abort_t callback)
+{
+    return;
+}
+
+/**
+ * @brief Force the OTA process state to IDLE
+ */
+void thOTA_idle(void)
 {
     return;
 }

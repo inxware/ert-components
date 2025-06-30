@@ -111,8 +111,8 @@ EHS_FB_FUNCTIONS_END
 #define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_PLAYLIST_PATH_OUT 0 //-2
 #define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_URL 1 //-3
 #define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_LOCAL_FILE 2 //-4
-#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_NEXT_EVENT_TIME 3 //-5 // @todo This is not used - should remove
-#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_ID 4 //-6
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_ID 3 //-6
+#define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_FILE_COUNT 4
 #define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_FINISH 1 //-7
 #define EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_GET 2 //-8
 #define	EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_NOMORE 3
@@ -127,6 +127,11 @@ EHS_FB_FUNCTIONS_END
 #define EHS_FB_PLAYMANAGER_GOT_ID 2
 #define EHS_FB_PLAYMANAGER_GOT_URL 0
 #define EHS_FB_PLAYMANAGER_GOT_LOCAL 1
+
+
+#define EHS_FB_PLAYMANAGER_SETPATHS_DL_URL 0
+#define EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL 1
+#define EHS_FB_PLAYMANAGER_SETPATHS_START_MODE 2
 
 #define EHS_NODE_TYPE_ATTRIBUTE_FIELD 2
 #define EHS_NODE_TYPE_COMMENT 8
@@ -201,11 +206,9 @@ typedef struct EhsPlayManagerMediaLocationStruct
     struct EhsPlayManagerMediaLocationStruct *pNext;
     ehs_uint32 id;
     ehs_bool marked;
-    ehs_char url[EHS_STRING_LENGTH_MAX];
-    ehs_char localFile[EHS_STRING_LENGTH_MAX];
+    ehs_char url[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!
+    ehs_char localFile[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!
 } EhsPlayManagerMediaLocation;
-
-
 
 typedef struct EhsPlayManagerEventListForParStruct
 {
@@ -377,13 +380,13 @@ typedef struct
     ehs_bool changedEnd;
     EhsPlayManagerEventTypeEnum earliestEndTimeNodeType;
     time_t lastTickTime;
-    ehs_char downloadURL[EHS_STRING_LENGTH_MAX];
-    ehs_char downloadPath[EHS_STRING_LENGTH_MAX];
+    ehs_char downloadURL[EHS_STRING_LENGTH_MAX];//TODO:STRINGLENGTH!
+    ehs_char downloadPath[EHS_STRING_LENGTH_MAX];//TODO:STRINGLENGTH!
 #define EHS_NUM_LASTSRC_CACHESIZE 5
-    ehs_char lastSrcPath[EHS_NUM_LASTSRC_CACHESIZE][EHS_STRING_LENGTH_MAX]; // remember the last 3 readSrc entry and skip it if seen again
+    ehs_char lastSrcPath[EHS_NUM_LASTSRC_CACHESIZE][EHS_STRING_LENGTH_MAX]; // remember the last 3 readSrc entry and skip it if seen again //TODO:STRINGLENGTH!
     ehs_uint32 lstSrcIndex;
+    ehs_uint32 playlistFileCount;
 } EhsPlayManagerType;
-
 
 /*
  * Local prototypes
@@ -2757,19 +2760,19 @@ ehs_char * createLayoutJSON (EhsPlayManagerType* pPlayManager, ehs_uint32 id, eh
     EhsPlayManagerLayout* layout = Layout_GetCreateLayoutRef(pPlayManager, id, EHS_FALSE);
     if (layout)
     {
-        ehs_char * json = EhsHMem_tempAlloc(EHS_STRING_LENGTH_MAX);
+        ehs_char * json = EhsHMem_tempAlloc(EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!!!
 
         if (json)
         {
             json[0]='\0';
             if(EhsStrlen(layout->json)>0)
             {
-                EhsStrncpy(json,layout->json,EHS_STRING_LENGTH_MAX);
+                EhsStrncpy(json,layout->json,EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!!!
             }
             else
             {
                 EhsPlaymanegerLayoutRegion * region =   layout->regions;
-                ehs_char chunk[EHS_STRING_LENGTH_MAX];
+                ehs_char chunk[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!!!
                 /* These are the layout section global values
                 layout->left; //ignored
                 layout->width;//ignored
@@ -2794,7 +2797,7 @@ ehs_char * createLayoutJSON (EhsPlayManagerType* pPlayManager, ehs_uint32 id, eh
                                region->fontSize,
                                layout->tableRows,
                                layout->tableColumns);
-                    if ( (EhsStrlen(json) + EhsStrlen(chunk)) < EHS_STRING_LENGTH_MAX )
+                    if ( (EhsStrlen(json) + EhsStrlen(chunk)) < EHS_STRING_LENGTH_MAX ) //TODO:STRINGLENGTH!
                     {
                         EhsStrcat(json, chunk);
                         EhsSprintf(chunk,"\"%d\":{\"bottom\":%d,\"top\":%d,\"left\":%d,\"right\":%d,\"fontType\":\"%s\",\"fontSize\":%d,\"textRows\":%d,\"textColumns\":%d},",
@@ -2807,7 +2810,7 @@ ehs_char * createLayoutJSON (EhsPlayManagerType* pPlayManager, ehs_uint32 id, eh
                                    region->fontSize,
                                    layout->tableRows,
                                    layout->tableColumns);
-                        if ( (EhsStrlen(json) + EhsStrlen(chunk)) < EHS_STRING_LENGTH_MAX )
+                        if ( (EhsStrlen(json) + EhsStrlen(chunk)) < EHS_STRING_LENGTH_MAX ) //TODO:STRINGLENGTH!
                         {
                             EhsStrcat(json, chunk);
                         }
@@ -2868,8 +2871,15 @@ static void readMetaTag(EhsPlayManagerType* pPlayManager, xmlTextReaderPtr reade
 
     if (tableConfigId != NULL)
     {
-        /* if it starts with http: then it is a full URL to be left unmangled */
-        Layout_AddTableStyle(pPlayManager,tableConfigId,rowscolumns);
+        if(EhsStrcmp("fileCount", tableConfigId) == 0){
+            // check if total file count has been set in the SMIL head
+            if(rowscolumns != NULL){
+                pPlayManager->playlistFileCount = atoi(rowscolumns);
+            }
+        }else{
+            /* if it starts with http: then it is a full URL to be left unmangled */
+            Layout_AddTableStyle(pPlayManager,tableConfigId,rowscolumns);
+        }
         xmlFree(tableConfigId);
 
         /* This would be used if we allowed http to be downloaded - we don't this means it is streamed */
@@ -3151,7 +3161,7 @@ EHS_LOCAL ehs_bool readSrcs(EhsPlayManagerType* pPlayManager,
     ehs_uint32 fired = 0;
     ehs_char* nextTag;
     ehs_char* value;
-    ehs_char preparedOutput[EHS_STRING_LENGTH_MAX];
+    ehs_char preparedOutput[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!!!!
     ehs_char* slashPos = NULL;
     int nodeType;
     int readRet;
@@ -3324,7 +3334,7 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
 #ifdef EHS_MINGW
         /* A workaround for Windows used as a fix for renaming smil file
          * that is in use. */
-        ehs_char win_filename[EHS_STRING_LENGTH_MAX];
+        ehs_char win_filename[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!
         EhsStrcpy(win_filename, filename);
         EhsStrcat(win_filename, ".win");
         if(EhsTF_exists(win_filename) == 1){
@@ -3354,7 +3364,12 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
             {
                 if (strcmp("smil", nextTag) == 0)
                 {
+                    pPlayManager->playlistFileCount = 0; // reset playlist file count to be read from the header
                     smilTag(fileReader, pPlayManager); /* This parses the entire SMIL file and creates sub-systems (creating it's own parent time). */
+                    EhsTPMutex_lock(EhsTPMutex_fbIO);
+                    EHS_FB_OUT_I(EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_FILE_COUNT) = pPlayManager->playlistFileCount;
+                    EhsTPMutex_unlock(EhsTPMutex_fbIO);
+                    printf("playlist=%s, fileCount=%d\n", filename, pPlayManager->playlistFileCount); // apply playlist file count to the port
                     /* The exception is for sequences that are parsed as they become live */
                     /* update the instance fileReader so that we can read the XML later on when an event is asserted */
                     /* After we have done parsing for the events then set the parser for the src attributes going */
@@ -3431,7 +3446,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(PlayManager_Next_Playlist)
 
 EHS_LOCAL ehs_char* lookupMedia(ehs_char* value,EhsPlayManagerType* pPlayManager)
 {
-    ehs_char prepared[EHS_STRING_LENGTH_MAX]; // this is used to build a temporary URL pattern to match against those retrieved.
+    ehs_char prepared[EHS_STRING_LENGTH_MAX]; // this is used to build a temporary URL pattern to match against those retrieved. //TODO:STRINGLENGTH!
     int i = 0;
     EhsPlayManagerMediaLocation* pML = NULL;
     if (EhsStrncmp("http:", value, 5) == 0 || EhsStrncmp("ftp:", value, 4) == 0 || EhsStrncmp("https:", value, 6) == 0 )
@@ -3513,7 +3528,7 @@ ehs_bool assertLayoutOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayManage
         EhsSscanf(pEvent->layoutSection, "SectionId_%d",&id);
         if (id > 0)
         {
-            ehs_char sectionAspectRatioJSON[EHS_STRING_LENGTH_MAX] ="";
+            ehs_char sectionAspectRatioJSON[EHS_STRING_LENGTH_MAX] =""; //TODO:STRINGLENGTH! create layotu JSON to know max string length
             ehs_char * layoutJSON = createLayoutJSON( pPlayManager, (ehs_uint32)id,sectionAspectRatioJSON);
 
             EhsTPMutex_lock(EhsTPMutex_fbIO);
@@ -5190,9 +5205,9 @@ EHS_FB_RUN_FUNCTION(PlayManager_Got)
     EhsPlayManagerMediaLocation* pMediaLocation = NULL;
     EhsPlayManagerMediaLocation* pCurrent = NULL;
     //Read input values
-    ehs_char inURL[EHS_STRING_LENGTH_MAX];
+    ehs_char inURL[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!
     inURL[0] = '\0';
-    ehs_char inLocalFile[EHS_STRING_LENGTH_MAX];
+    ehs_char inLocalFile[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!
     inLocalFile[0] = '\0';
 
     if (EHS_FB_IN_CONNECTED(EHS_FB_PLAYMANAGER_GOT_URL))
@@ -5246,28 +5261,27 @@ EHS_FB_RUN_FUNCTION(PlayManager_Set_Paths)
     EhsPlayManagerNewSmilBehavType NewSmilBehavTemp;
     EhsTPMutex_lock(EhsTPMutex_playManager);
     EhsTPMutex_lock(EhsTPMutex_fbIO);
-    if (EHS_FB_IN_CONNECTED(0))
+    if (EHS_FB_IN_CONNECTED(EHS_FB_PLAYMANAGER_SETPATHS_DL_URL))
     {
-        EhsStrcpy(pPlayManager->downloadURL, EHS_FB_IN_S(0));
+        EhsStrcpy(pPlayManager->downloadURL, EHS_FB_IN_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_URL));
         if (pPlayManager->downloadURL[EhsStrlen(pPlayManager->downloadURL)-1]!='/' || pPlayManager->downloadURL[EhsStrlen(pPlayManager->downloadURL)-1]!='\\' )
         {
             EhsStrcat(pPlayManager->downloadURL,"/");
         }
-        EhsStrcpy(EHS_FB_OUT_S(0), pPlayManager->downloadURL);
+        EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_URL), pPlayManager->downloadURL);
     }
-    if (EHS_FB_IN_CONNECTED(1))
+    if (EHS_FB_IN_CONNECTED(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL))
     {
-        EhsStrcpy(pPlayManager->downloadPath, EHS_FB_IN_S(1));
-        EhsStrcpy(EHS_FB_OUT_S(1), EHS_FB_IN_S(1));
+        EhsStrcpy(pPlayManager->downloadPath, EHS_FB_IN_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL));
+        EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL), EHS_FB_IN_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL));
     }
-    if (EHS_FB_IN_CONNECTED(2))
+    if (EHS_FB_IN_CONNECTED(EHS_FB_PLAYMANAGER_SETPATHS_START_MODE))
     {
-        NewSmilBehavTemp = EHS_FB_IN_I(2);
+        NewSmilBehavTemp = EHS_FB_IN_I(EHS_FB_PLAYMANAGER_SETPATHS_START_MODE);
         if ((NewSmilBehavTemp == CLEAR_ALL) || (NewSmilBehavTemp == KEEP_EARLIERTHANNEW) || (NewSmilBehavTemp == KEEP_ALL) )
         {
             pPlayManager->NewSmilBehaviour = NewSmilBehavTemp;
             EHSH_LOG_INFO("Setting Playlist Start Mode=%d\n",pPlayManager->NewSmilBehaviour);
-            EHS_FB_OUT_I(2) = EHS_FB_IN_I(2);
         } //else don't update.
     }
     EhsTPMutex_unlock(EhsTPMutex_fbIO);

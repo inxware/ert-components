@@ -49,6 +49,12 @@
 #include "targetos_init.h"
 #include "globals.h"
 #include "hal-api.h" // required for the meta data storage
+#ifdef EHS_MQTT_SUPPORT
+#include "hal_mqtt.h"
+#endif
+#include "hal_network.h"
+
+#include "hal_configs.h"
 
 #include "freertos/FreeRTOS.h"
 #include "sdkconfig.h"
@@ -72,6 +78,7 @@
 #if TARGET_USE_WIFI == 1
 #include "esp_wifi.h"
 #include "target_wifi.h"
+#include "wifi_station.h"
 #endif
 #if TARGET_USE_ETHERNET == 1
 #include "esp_wifi.h"
@@ -81,6 +88,7 @@
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
 //#include "mdns.h" // - not used atm
+#include "esp_mac.h"
 #include "nvs_flash.h"
 #include "nvs.h"
 #include <string.h>
@@ -90,36 +98,63 @@
 
 #include "target_data_bin.h"
 
-#ifndef EHS_MAIN_ESP32_TASK_STACK_SIZE
-#define EHS_MAIN_ESP32_TASK_STACK_SIZE 20000
+#include "target_specific.h"
+
+#ifdef EHS_RTC_SUPPORT
+#include "target_hal_rtc.h"
 #endif
 
+#include "esp_heap_caps.h"
+
+#define ESP32S3_TIMG0_BASE 0x6001F000
+#define ESP32S3_TIMG1_BASE 0x60020000
+#define ESP32S3_TIMG_WDT_CONFIG0_OFFSET 0x0048
+#define ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET 0x0064
+#define ESP32S3_TIMG_WDT_WRITEPROTECT_MAGIC_VALUE 0x50d83aa1
+
+#define EHS_REG32(x) (*((volatile ehs_uint32 *) x))
+
+volatile static ehs_uint32 gTimg1Config0 = 0;
+
+#ifndef EHS_MAIN_ESP32_TASK_STACK_SIZE
+#define EHS_MAIN_ESP32_TASK_STACK_SIZE 10000
+#endif
+
+
+#ifndef EHS_MCU_SLOW_LP_THR_SLEEP_MS
+#define EHS_MCU_SLOW_LP_THR_SLEEP_MS 10 /*ms*/
+#endif
+
+
+// set this to '1' for stdout memory usage every second
+#define EHS_ESP32_ENABLE_MEMORY_MONITOR 0
+
 #define CONFIG_ESP_MAXIMUM_RETRY 5
-#define CONFIG_ESP_WIFI_SSID "dlink_DWR-920_003F"
-#define CONFIG_ESP_WIFI_PASSWORD "VvRCB27795"
-// #define CONFIG_ESP_WIFI_SSID "dlink_DWR-920_003F"
-// #define CONFIG_ESP_WIFI_PASSWORD "VvRCB27795"
-/* FreeRTOS event group to signal when we are connected*/
-static EventGroupHandle_t s_wifi_event_group;
 
-static esp_event_handler_instance_t instance_any_id;
-static esp_event_handler_instance_t instance_got_ip;
+#if TARGET_USE_WIFI == 1
 
-/* The event group allows multiple bits for each event, but we only care about
- * two events:
- * - we are connected to the AP with an IP
- * - we failed to connect after the maximum amount of retries */
-#define WIFI_CONNECTED_BIT BIT0
-#define WIFI_FAIL_BIT BIT1
+// define wifi ssid
+#ifdef EHS_CONFIG_WIFI_SSID
+#define CONFIG_ESP_WIFI_SSID EHS_CONFIG_WIFI_SSID
+#else
+#define CONFIG_ESP_WIFI_SSID ""
+#endif
+// define wifi password
+#ifdef EHS_CONFIG_WIFI_PASSWORD
+#define CONFIG_ESP_WIFI_PASSWORD EHS_CONFIG_WIFI_PASSWORD
+#else
+#define CONFIG_ESP_WIFI_PASSWORD ""
+#endif
 
-/* target_host is www.espressif.com */
-// char *TARGET_HOST = "www.espressif.com";
-/* target_host is own gateway */
-char *TARGET_HOST = "www.example.com";
+#define EHS_WIFI_CONFIG_FILE "/ehs/userdata/wifi_config"
+#define EHS_WIFI_SSID_BUFF_MAX 64
+
+ehs_bool EhsWifiStationLoadSettings(ehs_char* ssid, ehs_char* pass);
+ehs_bool EhsWifiStationSaveSettings(const ehs_char* ssid, const ehs_char* pass);
+
+#endif // TARGET_USE_WIFI
 
 extern const char* base_path; // ert install path, defined in target_file
-
-static int s_retry_num = 0;
 
 #if TARGET_USE_ETHERNET == 0
 #if TARGET_USE_WIFI == 0
@@ -134,7 +169,13 @@ static int s_retry_num = 0;
 #endif
 
 #ifndef TARGET_HOSTNAME
-#define TARGET_HOSTNAME "INX esp32s3"
+#define TARGET_HOSTNAME "INX-ESP32S3"
+#endif
+#if TARGET_USE_WIFI == 1
+ehs_char* gWiFiHostNameBuffer[32] = {'\0'};
+#endif
+#if TARGET_USE_ETHERNET == 1
+ehs_char* gEthHostNameBuffer[32] = {'\0'};
 #endif
 
 /** Crash Recovery Global Variables & Definitions **/
@@ -155,8 +196,37 @@ static uint8_t gCrash_count = 0;
 #define NVS_OTA_PART_NAMESPACE "otapart"
 #define NVS_OTA_PART_SEC_NAME "sn"
 
+#define EHS_NET_CONFIG_FILE "/ehs/userdata/config/net_config"
+
+#ifdef EHS_MAX31343_SUPPORT 
+ehs_sint32 gEhsAmbientTemp = 0;
+#endif
+
+/* Callback used for notifing about state of the file system */
+extern void (*ehs_filesystem_initalised_callback)(void);
+
+/* Flag gets set to true when the file system has been initalised */
+volatile ehs_bool gFileSystemInitalised = EHS_FALSE;
+
+/* Flag gets set to true once the network interface stack has been initalised and started */
+volatile ehs_bool gNetworkStarted = EHS_FALSE;
+
+/* Set to true when device has network availble. Set to false when the network is disconnected. */
+/* @TODO - At the momemnt we only use this in the ethernet mode, we should do the same in the wifi mode. */
+volatile ehs_bool gNetworkConnected = EHS_FALSE;
+
+/* This flag is set to true once the app loading process completes regardless of failing or being sucessful. */
+/* @TODO - create a proper state machine, to take appropriate action depending on the state of the app 
+   e.g. free mqtt stack (if previously allocated) when the app fails to load, so there's enough resources for re-parsing */
+volatile ehs_bool gAppLoadingDone = EHS_FALSE;
+
+/* eRT appliaction loading status callback invoked inside the eRT kernel */
 static void app_load_status_handler(ehs_uint32 status)
 {
+    // Re-Enable Watchdog timer
+    EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = ESP32S3_TIMG_WDT_WRITEPROTECT_MAGIC_VALUE;
+    EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_CONFIG0_OFFSET) = gTimg1Config0;
+    EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = 0;
     nvs_handle_t nvs_handle;
     switch(status)
     {
@@ -170,10 +240,17 @@ static void app_load_status_handler(ehs_uint32 status)
             ESP_ERROR_CHECK_WITHOUT_ABORT(nvs_set_u8(nvs_handle, NVS_CRASH_FLAG_NAME, 0));            
             ESP_ERROR_CHECK_WITHOUT_ABORT(nvs_commit(nvs_handle));
             nvs_close(nvs_handle);
+            gAppLoadingDone = EHS_TRUE;
+            break;
+        }
+        case EHS_APP_LOAD_RESTARTING : {
+            ESP_LOGI(TAG, "******* App restarting *******");
+            EhsTargetReboot();
             break;
         }
         case EHS_APP_LOAD_FAILED : {
             ESP_LOGE(TAG, "******* App loading failed *******");
+            gAppLoadingDone = EHS_TRUE;
             break;
         }
         default:
@@ -182,110 +259,158 @@ static void app_load_status_handler(ehs_uint32 status)
     }
 }
 
-#if TARGET_USE_WIFI
-static void event_handler(void *arg, esp_event_base_t event_base,
-                          int32_t event_id, void *event_data)
+#ifdef EHS_ESP32_CMD_PROMPT_SUPPORT
+
+#define EHS_PROMPT_READ_MAX 64 // if changed make sure to update "%Ns" in command_prompt_read "%(max_value-1)s"
+#define EHS_PROMPT_READ_SLEEP 1000
+
+#ifdef EHS_WIFI_SSID_BUFF_MAX
+#if EHS_PROMPT_READ_MAX != EHS_WIFI_SSID_BUFF_MAX
+#error "EHS_PROMPT_READ_MAX and EHS_WIFI_SSID_BUFF_MAX must be the same"
+#endif
+#endif
+
+void command_prompt_println(const char* text)
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
-    {
-        esp_wifi_connect();
-    }
-    else if (event_base == WIFI_EVENT &&
-             event_id == WIFI_EVENT_STA_DISCONNECTED)
-    {
-        if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY)
-        {
-            esp_wifi_connect();
-            s_retry_num++;
-            ESP_LOGI(TAG, "retry to connect to the AP");
+    vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
+    printf("%s\n",text);
+}
+
+ehs_uint32 command_prompt_read(char* buffer)
+{
+    while (1) {
+        if (fscanf(stdin, "%63s", buffer) > 0) { // EHS_PROMPT_READ_MAX 64
+            // Check for and remove the trailing newline, if it exists
+            ehs_uint32 len = EhsStrlen(buffer);  // Find the length of the string
+            if (len > 0 && buffer[len - 1] == '\n') {
+                buffer[len - 1] = '\0';
+            }
+            return len;
         }
-        else
-        {
-            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-        }
-        ESP_LOGI(TAG, "connect to the AP fail");
-    }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
-    {
-        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
-        s_retry_num = 0;
-        xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP)); // Please use Ehs functions for tthis stufff
     }
 }
 
-UBaseType_t uxHighWaterMark;
-
-esp_err_t wifi_init_sta()
+ehs_bool command_prompt_ask_yes_no(const char* question)
 {
-    esp_err_t ret_value = ESP_OK;
-    s_wifi_event_group = xEventGroupCreate();
-
-    ESP_ERROR_CHECK(esp_netif_init());
-
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_t *netif = esp_netif_create_default_wifi_sta();
-
-    esp_netif_set_hostname(netif, TARGET_HOSTNAME);
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
-
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
-                                               &event_handler, NULL, &instance_any_id));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
-                                               &event_handler, NULL, &instance_got_ip));
-
-    wifi_config_t wifi_config =
-        {
-            .sta = {
-                .ssid = CONFIG_ESP_WIFI_SSID,
-                .password = CONFIG_ESP_WIFI_PASSWORD},
-        };
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
-    ESP_ERROR_CHECK(esp_wifi_start());
-
-    /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or
-     * connection failed for the maximum number of re-tries (WIFI_FAIL_BIT). The
-     * bits are set by event_handler() (see above) */
-    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
-                                           WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-                                           pdFALSE, // xClearOnExit
-                                           pdFALSE, // xWaitForAllBits
-                                           portMAX_DELAY);
-
-    /* xEventGroupWaitBits() returns the bits before the call returned, hence we
-     * can test which event actually happened. */
-    if (bits & WIFI_CONNECTED_BIT)
-    {
-        ESP_LOGI(TAG, "connected to ap SSID:%s password:%s", CONFIG_ESP_WIFI_SSID,
-                 CONFIG_ESP_WIFI_PASSWORD);
-        
-        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip));
-        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));
-        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_loop_delete_default());
+    command_prompt_println(question);
+    char anws[EHS_PROMPT_READ_MAX] = {0};
+    if(command_prompt_read(anws) > 0){
+        return (EhsStrcmp(anws,"y")==0) || (EhsStrcmp(anws,"Y")==0) || (EhsStrcmp(anws,"yes")==0) || (EhsStrcmp(anws,"YES")==0) || (EhsStrcmp(anws,"Yes")==0);
     }
-    else if (bits & WIFI_FAIL_BIT)
-    {
-        ESP_LOGE(TAG, "Failed to connect to SSID:%s, password:%s",
-                 CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
-        ret_value = ESP_FAIL;
-    }
-    else
-    {
-        ESP_LOGE(TAG, "UNEXPECTED EVENT");
-        ret_value = ESP_ERR_INVALID_STATE;
-    }
-
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
-    ESP_LOGI(TAG, "connect to ap SSID:%s", CONFIG_ESP_WIFI_SSID);
-    vEventGroupDelete(s_wifi_event_group);
-    sfWifiStationNetifSet(EHS_TRUE);
-    return ret_value;
+    return EHS_FALSE;
 }
-#endif // TARGET_USE_WIFI
+
+void command_prompt_wifi_conf()
+{
+    char ssid[EHS_PROMPT_READ_MAX] = {0};
+    char pass[EHS_PROMPT_READ_MAX] = {0};
+    ehs_bool yes = EHS_FALSE;
+    command_prompt_println("**** WiFi config ****");
+    command_prompt_println("Enter SSID:");
+    command_prompt_read(ssid);
+    command_prompt_println(ssid);
+    command_prompt_println("Enter Password:");
+    command_prompt_read(pass);
+    command_prompt_println(pass);
+    yes = command_prompt_ask_yes_no("Are these correct? (y/n)");
+    if(yes==EHS_TRUE){
+        command_prompt_println("Saving above WiFi credentials.");
+        EhsWifiStationSaveSettings(ssid, pass);
+        command_prompt_println("Connecting to WiFi, please wait...");
+        setWifiStationConnectState(WifiStationConnectState_INIT);
+    }else{
+        command_prompt_println("WiFi NOT configured. Type 'w' to try again.");
+    }
+}
+
+void command_prompt_wifi_reconnect()
+{
+    command_prompt_println("wifi re-connect");
+    setWifiStationConnectState(WifiStationConnectState_INIT);
+}
+
+void command_prompt_wifi_ssid()
+{
+    char ssid[EHS_PROMPT_READ_MAX] = {0};
+    char pass[EHS_PROMPT_READ_MAX] = {0};
+    if(EhsWifiStationLoadSettings(ssid, pass) == EHS_TRUE){
+        ehs_bool connected = isWifiStationConnected();
+        printf("SSID: %s  (%s)\n", ssid, (connected) ? "connected" : "not connected");
+    }
+}
+
+void command_prompt_ip_addr()
+{
+    const ehs_char* ip = isWifiStationConnected() ? WifiStationIpAddress() : NULL;
+    printf("IP: %s\n", (ip && EhsStrlen(ip) > 0) ? ip : "N/A");
+}
+
+void command_prompt_list_ssid_bssid()
+{
+    ehs_char ssid[33] = {0};
+    ehs_char bssid[6] = {0};
+    ehs_sint32 channel = 0, rssi = 0;
+    ehs_uint32 index = 0;
+    vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
+    while(WifiStationScanResult(index, ssid, 33, bssid, 6, &channel, &rssi) == EHS_TRUE){
+        printf("SSID=%s, BSSID(MAC)=%02x:%02x:%02x:%02x:%02x:%02x, Channel=%d, RSSI=%d dBm\n",
+                ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5], channel, rssi);
+        index++;
+        vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
+    }
+    if(index == 0){
+        printf("No SSID found!\n");
+    }
+}
+
+void command_prompt_reboot()
+{
+    command_prompt_println("reboot");
+    EhsTargetReboot();
+}
+
+void command_prompt_help()
+{
+    command_prompt_println("help:\n'w' - WiFi config \n'c' - reconnect WiFi \n's' - get WiFi SSID \n'i' - get IP Address \n'h' - help");
+}
+
+void command_prompt_task(void* params) {
+    
+    command_prompt_println("Type 'w' to configure WiFi or 'h' for help.");
+    char command;
+    while (1) {
+        if (fscanf(stdin, "%c", &command) == 1) {  // Read a single character for command
+            if (command == 'w') {
+                command_prompt_wifi_conf();
+            }
+            else if(command == 'c'){
+                command_prompt_wifi_reconnect();
+            }
+            else if(command == 's'){
+                command_prompt_wifi_ssid();
+            }
+            else if(command == 'i'){
+                command_prompt_ip_addr();
+            }
+            else if(command == 'l'){
+                command_prompt_list_ssid_bssid();
+            }
+            //else if(command == 'r'){
+            //    command_prompt_reboot();
+            //}
+            else if(command == 'h'){
+                command_prompt_help();
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(100)); // Small delay to avoid CPU overload
+    }
+    command_prompt_println("quit command prompt");
+    vTaskDelete(NULL);
+}
+
+#endif // EHS_ESP32_CMD_PROMPT_SUPPORT
+
 #if TARGET_USE_ETHERNET == 1
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
@@ -298,15 +423,19 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         ESP_LOGI(TAG, "Ethernet Link Up");
         ESP_LOGI(TAG, "Ethernet HW Addr %02x:%02x:%02x:%02x:%02x:%02x",
                     mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+        gNetworkConnected = EHS_TRUE;
         break;
     case ETHERNET_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
+        gNetworkConnected = EHS_FALSE;
         break;
     case ETHERNET_EVENT_START:
         ESP_LOGI(TAG, "Ethernet Started");
+        gNetworkStarted = EHS_TRUE;
         break;
     case ETHERNET_EVENT_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");
+        gNetworkStarted = EHS_FALSE;
         break;
     default:
         break;
@@ -324,6 +453,8 @@ static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t
     ESP_LOGI(TAG, "ETHMASK:" IPSTR, IP2STR(&ip_info->netmask));
     ESP_LOGI(TAG, "ETHGW:" IPSTR, IP2STR(&ip_info->gw));
     ESP_LOGI(TAG, "#######################");
+    // make sure ip address/mac is updated after establishing connection 
+    EhsHMetaUpdateDynamic();
 }
 
 static esp_err_t eth_init()
@@ -342,8 +473,14 @@ static esp_err_t eth_init()
     esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
     esp_netif_t *eth_netif = esp_netif_new(&cfg);
 
+    // Append unique suffix from MAC
+    uint8_t mac[6];
+    esp_mac_type_t mac_type = ESP_MAC_EFUSE_FACTORY; // Use the efuse which was burnt by Espressif in production
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_read_mac(mac, mac_type));
+    snprintf(gEthHostNameBuffer, sizeof(gEthHostNameBuffer), TARGET_HOSTNAME"-e%02X%02X%02X%02X", mac[2], mac[3], mac[4], mac[5]);
+    printf("Eth host name : %s\n", gEthHostNameBuffer);
     // Set the hostname
-    esp_netif_set_hostname(eth_netif, TARGET_HOSTNAME);
+    esp_netif_set_hostname(eth_netif, gEthHostNameBuffer);
 
     // Attach Ethernet driver to TCP/IP stack
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(eth_handle)));
@@ -359,228 +496,410 @@ static esp_err_t eth_init()
 }
 #endif // TARGET_USE_ETHERNET == 1
 
-// #define TEST_TCP_SOCKET
-#ifdef TEST_TCP_SOCKET
-// #include "protocol_examples_common.h"
+#if TARGET_USE_WIFI == 1
 
-#include "lwip/err.h"
-#include "lwip/sockets.h"
-#include "lwip/sys.h"
-#include <lwip/netdb.h>
-#include "esp_netif.h"
-
-#define PORT 11425
-#define KEEPALIVE_IDLE 5
-#define KEEPALIVE_INTERVAL 5
-#define KEEPALIVE_COUNT 3
-
-static void do_retransmit(const int sock)
+ehs_bool EhsWifiStationLoadSettings(ehs_char* ssid, ehs_char* pass)
 {
-    int len;
-    char rx_buffer[128];
+    if(!ssid || !pass){
+        return EHS_FALSE;
+    }
+    EhsConfig* config = EhsConfigLoad(EHS_WIFI_CONFIG_FILE);
+    if(!config){
+        EhsStrcpy(ssid, CONFIG_ESP_WIFI_SSID);
+        EhsStrcpy(pass, CONFIG_ESP_WIFI_PASSWORD);
+        return EHS_TRUE;
+    }
+    ehs_bool success = EHS_TRUE;
+    const ehs_char* config_ssid = EhsConfigGetValue(config, "ssid");
+    const ehs_char* config_pass = EhsConfigGetValue(config, "pass");
 
-    do
-    {
-        len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
-        if (len < 0)
-        {
-            ESP_LOGE(TAG, "Error occurred during receiving: errno %d", errno);
+    if(success==EHS_TRUE){
+        if(config_ssid && EhsStrlen(config_ssid) > 0){
+            EhsStrcpy(ssid, config_ssid);
+        }else{
+            success = EHS_FALSE;
         }
-        else if (len == 0)
-        {
-            ESP_LOGW(TAG, "Connection closed");
+    }
+    if(success==EHS_TRUE){
+        if(config_pass && EhsStrlen(config_pass) > 0){
+            EhsStrcpy(pass, config_pass);
+        }else{
+            success = EHS_FALSE;
         }
-        else
-        {
-            rx_buffer[len] = 0; // Null-terminate whatever is received and treat it like a string
-            ESP_LOGI(TAG, "Received %d bytes: %s", len, rx_buffer);
+    }
 
-            // send() can return less bytes than supplied length.
-            // Walk-around for robust implementation.
-            int to_write = len;
-            while (to_write > 0)
-            {
-                int written = send(sock, rx_buffer + (len - to_write), to_write, 0);
-                if (written < 0)
-                {
-                    ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-                }
-                to_write -= written;
-            }
-        }
-    } while (len > 0);
+    EhsConfigFree(config);
+    
+    return success;
 }
 
-static void tcp_server_task(void *pvParameters)
+ehs_bool EhsWifiStationSaveSettings(const ehs_char* ssid, const ehs_char* pass)
 {
-    char addr_str[128];
-    int addr_family = (int)pvParameters;
-    int ip_protocol = 0;
-    int keepAlive = 1;
-    int keepIdle = KEEPALIVE_IDLE;
-    int keepInterval = KEEPALIVE_INTERVAL;
-    int keepCount = KEEPALIVE_COUNT;
-    struct sockaddr_storage dest_addr;
+    ehs_bool success = EHS_TRUE;
 
-    if (addr_family == AF_INET)
-    {
-        struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in *)&dest_addr;
-        dest_addr_ip4->sin_addr.s_addr = htonl(INADDR_ANY);
-        dest_addr_ip4->sin_family = AF_INET;
-        dest_addr_ip4->sin_port = htons(PORT);
-        ip_protocol = IPPROTO_IP;
-    }
-#ifdef CONFIG_LWIP_IPV6
-    else if (addr_family == AF_INET6)
-    {
-        struct sockaddr_in6 *dest_addr_ip6 = (struct sockaddr_in6 *)&dest_addr;
-        bzero(&dest_addr_ip6->sin6_addr.un, sizeof(dest_addr_ip6->sin6_addr.un));
-        dest_addr_ip6->sin6_family = AF_INET6;
-        dest_addr_ip6->sin6_port = htons(PORT);
-        ip_protocol = IPPROTO_IPV6;
-    }
-#endif
+    EhsConfig* config = EhsConfigLoad(EHS_WIFI_CONFIG_FILE);
+    config = (config == NULL) ? EhsConfigCreate() : config;
 
-    int listen_sock = socket(addr_family, SOCK_STREAM, ip_protocol);
-    if (listen_sock < 0)
-    {
-        ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
-        vTaskDelete(NULL);
+    EhsConfigSetValue(config, "ssid", (ssid) ? ssid : "" );
+    EhsConfigSetValue(config, "pass", (pass) ? pass : "" );
+
+    EhsConfigSave(config, EHS_WIFI_CONFIG_FILE);
+    EhsConfigFree(config);
+    
+    return success;
+}
+
+eWifiStationStatus EhsWifiStationConnect(const ehs_char* ssid, const ehs_char* pass, ehs_char *ip_address, ehs_char *mac_address, ehs_sint32* rssi)
+{
+    if(!ssid || !pass || EhsStrlen(ssid) == 0 || EhsStrlen(pass) == 0) {
+        return WifiStation_StateError;
+    }
+    eWifiStationStatus status = doWifiStationConnect(
+                        ssid, 
+                        Type_WifiStation_PSK, 
+                        pass, 
+                        Enterprise_WifiStation_WPA2, 
+                        EAP_WifiStation_TLS, 
+                        TTLS2_WifiStation_MIN,
+                        EHS_FALSE, 
+                        NULL, 
+                        NULL,
+                        NULL, 
+                        NULL, 
+                        NULL, 
+                        NULL, 
+                        ip_address,
+                        mac_address, 
+                        rssi
+                        );
+
+    return status;
+}
+
+#endif // TARGET_USE_WIFI == 1
+
+void EhsLoadNetworkInterfaceConfig()
+{
+    EhsConfig* config = EhsConfigLoad(EHS_NET_CONFIG_FILE);
+    if(config){
+        ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
+        EhsNetworkConfigDataType net_config = { 0 };
+        net_config.save = EHS_FALSE; // we're loading settings, so no need to save them
+        net_config.mode = EHS_NET_DHCP_MODE_ID;
+        const ehs_char* net_static = EhsConfigGetValue(config, "net_static");
+        if(net_static && EhsStrcmp("1", net_static)==0){
+            net_config.mode = EHS_NET_STATIC_MODE_ID;
+            net_config.address = EhsConfigGetValue(config, "net_address");
+            net_config.gateway = EhsConfigGetValue(config, "net_gateway");
+            net_config.mask = EhsConfigGetValue(config, "net_mask");
+            net_config.dns = EhsConfigGetValue(config, "net_dns");
+        }
+        EhsNetworkConfigureInterface(&net_config);
+        EhsConfigFree(config);
+    }
+}
+
+void EhsSaveNetworkInterfaceConfig(const EhsNetworkConfigDataType* net_config)
+{
+    if(net_config == NULL){
         return;
     }
-    int opt = 1;
-    setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-#if defined(CONFIG_LWIP_IPV4) && defined(CONFIG_LWIP_IPV6)
-    // Note that by default IPV6 binds to both protocols, it is must be disabled
-    // if both protocols used at the same time (used in CI)
-    setsockopt(listen_sock, IPPROTO_IPV6, IPV6_V6ONLY, &opt, sizeof(opt));
-#endif
-
-    ESP_LOGI(TAG, "Socket created");
-
-    int err = bind(listen_sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-    if (err != 0)
-    {
-        ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
-        ESP_LOGE(TAG, "IPPROTO: %d", addr_family);
-        goto CLEAN_UP;
+    EhsConfig* config = EhsConfigLoad(EHS_NET_CONFIG_FILE);
+    if(config == NULL){
+        config = EhsConfigCreate();
     }
-    ESP_LOGI(TAG, "Socket bound, port %d", PORT);
-
-    err = listen(listen_sock, 1);
-    if (err != 0)
-    {
-        ESP_LOGE(TAG, "Error occurred during listen: errno %d", errno);
-        goto CLEAN_UP;
-    }
-
-    while (1)
-    {
-
-        ESP_LOGI(TAG, "Socket listening");
-
-        struct sockaddr_storage source_addr; // Large enough for both IPv4 or IPv6
-        socklen_t addr_len = sizeof(source_addr);
-
-        int sock = accept(listen_sock, (struct sockaddr *)&source_addr, &addr_len);
-        ESP_LOGI(TAG, "Looking for ip address: %s", inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1));
-        if (sock < 0)
-        {
-            ESP_LOGE(TAG, "Unable to accept connection: errno %d", errno);
-            break;
+    if(net_config->mode == EHS_NET_STATIC_MODE_ID){
+        EhsConfigSetValue(config, "net_static", "1");
+        if(net_config->address){
+            EhsConfigSetValue(config, "net_address", net_config->address);
         }
-
-        // Set tcp keepalive option
-        setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval, sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int));
-        // Convert ip address to string
-
-        if (source_addr.ss_family == PF_INET)
-        {
-            inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
+        if(net_config->gateway){
+            EhsConfigSetValue(config, "net_gateway", net_config->gateway);
         }
-#ifdef CONFIG_EXAMPLE_IPV6
-        else if (source_addr.ss_family == PF_INET6)
-        {
-            inet6_ntoa_r(((struct sockaddr_in6 *)&source_addr)->sin6_addr, addr_str, sizeof(addr_str) - 1);
+        if(net_config->mask){
+            EhsConfigSetValue(config, "net_mask", net_config->mask);
         }
-#endif
-        ESP_LOGI(TAG, "Socket accepted ip address: %s", addr_str);
-
-        do_retransmit(sock);
-
-        shutdown(sock, 0);
-        close(sock);
+        if(net_config->dns){
+            EhsConfigSetValue(config, "net_dns", net_config->dns);
+        }
+    }else{ // DHCP
+        EhsConfigSetValue(config, "net_static", "0");
     }
-
-CLEAN_UP:
-    close(listen_sock);
-    vTaskDelete(NULL);
-}
-#endif
-
-// #define EHS_ESP32_LED_TEST
-#ifdef EHS_ESP32_LED_TEST
-#include "driver/gpio.h"
-#include "esp_log.h"
-// #include "led_strip.h"
-#define BLINK_GPIO GPIO_NUM_2
-
-static uint8_t s_led_state = 0;
-
-static void configure_led(void)
-{
-    gpio_reset_pin(BLINK_GPIO);
-    // Set the GPIO as a push/pull output
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    EhsConfigSave(config, EHS_NET_CONFIG_FILE);
+    EhsConfigFree(config);
 }
 
-static void blink_led(void)
+// Override functions for esp32 network config
+#if EHS_NETWORK_CONFIG_SUPPORT==EHS_NETWORK_CONFIG_TYPE_ESP32
+/* Returns true when the eRT target network is connected */
+ehs_bool EhsNetworkIsConnected()
 {
-    /// Set the GPIO level according to the state (LOW or HIGH)
-    gpio_set_level(BLINK_GPIO, s_led_state);
+    return gNetworkConnected;
 }
 
-void app_test_main(void)
+/* Configures the traget network interface */
+ehs_sint32 EhsNetworkConfigureInterface(const EhsNetworkConfigDataType* config)
 {
-
-    // Configure the peripheral according to the LED type
-    configure_led();
-    for (int i = 0; i < 1000;
-         i++) // make this finite loop so code afterwards is compiled
-    {
-        printf("Hello world! LED\n");
-        fflush(stdout);
-        blink_led();
-        // Toggle the LED state
-        s_led_state = !s_led_state;
-        // vTaskDelay(1000 / portTICK_PERIOD_MS);
-        sleep(1);
+    esp_netif_t* netif;
+    #if TARGET_USE_WIFI
+        netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    #elif TARGET_USE_ETHERNET
+        netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    #else
+        #error "No network interface defined for this target! "
+    #endif
+    ehs_sint32 nError = EHS_NETWORK_CONFIG_NO_ERROR_ID;
+    if(config->mode == EHS_NET_STATIC_MODE_ID){
+        esp_err_t err = esp_netif_dhcpc_stop(netif);
+        if(err == ESP_OK || err == ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED){
+            ESP_LOGI(TAG, "Network Config - DHCP stopped.");
+            esp_netif_ip_info_t ip;
+            memset(&ip, 0 , sizeof(esp_netif_ip_info_t));
+            ip.ip.addr = (config->address) ? ipaddr_addr(config->address) : 0;
+            ip.netmask.addr = (config->gateway) ? ipaddr_addr(config->gateway) : 0;
+            ip.gw.addr = (config->mask) ? ipaddr_addr(config->mask) : 0;
+            err = esp_netif_set_ip_info(netif, &ip);
+            if(err == ESP_OK){
+                // set dns1 address
+                if(config->dns != NULL){
+                    uint32_t dns_addr = ipaddr_addr(config->dns);
+                    if (dns_addr && (dns_addr != IPADDR_NONE)) {
+                        esp_netif_dns_info_t dns;
+                        dns.ip.u_addr.ip4.addr = dns_addr;
+                        dns.ip.type = IPADDR_TYPE_V4;
+                        err = esp_netif_set_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns);
+                        if(err != ESP_OK){
+                            ESP_LOGE(TAG, "Network Config - Failed to configure static dns err=(%d).", err);
+                            nError = EHS_NETWORK_CONFIG_FAILED_DNS1_ID;
+                        }
+                    }else{
+                        ESP_LOGE(TAG, "Network Config - Failed to configure static dns. Invalid address (%s).", config->dns);
+                        nError = EHS_NETWORK_CONFIG_FAILED_DNS1_ID;
+                    }
+                }
+                ESP_LOGI(TAG, "Network Config - Static interface configured!");
+            }else{
+                ESP_LOGE(TAG, "Network Config - Failed to configure static interface err=(%d).", err);
+                nError = EHS_NETWORK_CONFIG_FAILED_STATIC_ID;
+            }
+        }else{
+            ESP_LOGE(TAG, "Network Config - Failed to stop DHCP err=(%d).", err);
+            nError = EHS_NETWORK_CONFIG_FAILED_STATIC_ID;
+        }
+    }else{ // DHCP mode
+        esp_err_t err = esp_netif_dhcpc_start(netif);
+        if(err == ESP_OK || err == ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED){
+            ESP_LOGI(TAG, "Network Config - DHCP started!");
+        }else{
+            ESP_LOGE(TAG, "Network Config - Failed to start DHCP err=(%d).", err);
+            nError = EHS_NETWORK_CONFIG_FAILED_DHCP_ID;
+        }
     }
+    EhsHMetaUpdateNetwork();
+    if(config->save==EHS_TRUE){
+        EhsSaveNetworkInterfaceConfig(config);
+    }
+    return nError;
 }
 
 #endif
 
-#include "mqtt.h"
-
-void mqtt_test_main(void)
+void EhsFilesystemInitalised()
 {
-    int i;
+    gFileSystemInitalised = EHS_TRUE;
+}
+
+void MCU_SLOW_HP_THR(void *pvp)
+{
+    //
     for (;;)
     {
-        //  printf("Hello MQTT!\n");
-        mqttMainLoop();
+#ifdef EHS_MODBUS_SUPPORT
+        EhsHMBTaskInLoop( EHS_TRUE );
+#endif
+        vTaskDelay( pdMS_TO_TICKS( 10 ) ); //todo2025 1 tick delay seems absurdly fast? What is actually needed? This needs to be changed to a specific amount of time not ticks. 
+                       // Consider using the EhsSleep function which should map to an appropriate delay method (i.e. vDelay with a real)
+    }
+}
 
-        fflush(stdout);
-        for (i = 0; i < UART_COUNT; i++)
-            TgtUART_SendInThread(i);
+void MCU_SLOW_LP_THR(void *pvParameters)
+{
+    // Flag used for indicating whether the inital network settings have been loaded
+    ehs_bool bNetworkSettingsLoaded = EHS_FALSE;
+    ehs_bool bOtaInitalised = EHS_FALSE;
+    int i;
+
+    //todo2025 - change this MACRO to EHS_RTC___MAX31343  (I think we agreed to use "___" for equals in macro land)
+#ifdef EHS_MAX31343_SUPPORT 
+    int j = 0;
+    char str_datetime[21] = { 0 };
+#endif//EHS_MAX31343_SUPPORT 
+// todo2025 Do we use _SUPPORT to say enabled usually?? for EHS_I2C_SUPPORT or EHS_I2C___ENABLED???
+#if defined(EHS_MAX31343_SUPPORT) && defined(EHS_I2C_SUPPORT)
+    EhsTI2CMasterInit();
+#endif//EHS_MAX31343_SUPPORT && EHS_I2C_SUPPORT
+    int k = 0;
+#if TARGET_USE_WIFI == 1
+    // wifi setup init
+    ehs_char wifi_ssid[EHS_WIFI_SSID_BUFF_MAX] = { 0 };
+    ehs_char wifi_pass[EHS_WIFI_SSID_BUFF_MAX] = { 0 };
+    setWifiStationConnectState(WifiStationConnectState_INIT);
+#endif
+    for (;;)
+    {
+        // this statement runs or initalises services, which should wait until
+        // parsing process is compleated
+        if(gAppLoadingDone==EHS_TRUE){
+            
+#if TARGET_USE_WIFI == 1
+            eWifiStationConnectState state = getWifiStationConnectState();
+
+            switch (state)
+            {
+                case WifiStationConnectState_IDLE:
+                    // do nothing
+                    break;
+                case WifiStationConnectState_INIT:
+                    if(isWifiStationInitalised() == EHS_TRUE){
+                        ESP_LOGI(TAG, "Destroy wifi as it's initalised before re-connecting.");
+                        doWifiStationDestroy();
+                        setWifiStationConnectState(WifiStationConnectState_CONFIGURE); // @TODO - this may need seperate state waiting for destroy to compleate
+                    }else{
+                        setWifiStationConnectState(WifiStationConnectState_CONFIGURE);
+                    }
+                    break;
+                case WifiStationConnectState_CONFIGURE:
+                    EhsMemset(wifi_ssid, '\0', EHS_WIFI_SSID_BUFF_MAX);
+                    EhsMemset(wifi_pass, '\0', EHS_WIFI_SSID_BUFF_MAX);
+                    if(EhsWifiStationLoadSettings(wifi_ssid, wifi_pass) == EHS_TRUE){
+                        ESP_LOGI(TAG, "Wifi settings loaded for ssid=%s", wifi_ssid);
+                        // configure remining parameters
+                        configWifiStationSetReconnect(EHS_TRUE, 5); // TODO - read this from config file
+                        // ...
+                        setWifiStationConnectState(WifiStationConnectState_CONNECT);
+                    }else{
+                        ESP_LOGW(TAG, "Wifi settings not available.");
+                        ESP_LOGI(TAG, "Press 'w' to configure WiFi via console.");
+                        setWifiStationConnectState(WifiStationConnectState_IDLE);
+                    }
+                    
+                    break;
+                case WifiStationConnectState_CONNECT:
+                case WifiStationConnectState_CONNECTING:
+                case WifiStationConnectState_CONNECTING_GOT_IP:
+                    eWifiStationStatus conn_status = EhsWifiStationConnect(wifi_ssid, wifi_pass, NULL, NULL, NULL);
+                    if      (conn_status == WifiStation_Connecting){
+                        // wait for wifi to connect ...
+                    }else if(conn_status == WifiStation_Connected){
+                        setWifiStationConnectState(WifiStationConnectState_CONNECTED);
+                    }else{
+                        setWifiStationConnectState(WifiStationConnectState_FAILED);
+                    }
+                    break;
+                case WifiStationConnectState_CONNECTED:
+                    const ehs_char* ip = isWifiStationConnected() ? WifiStationIpAddress() : "N/A";
+                    printf("Wifi connected ip=%s\n", (ip) ? ip : "N/A");
+                    EhsHMetaUpdateDynamic(); // update network metadata with a new IP.
+                    setWifiStationConnectState(WifiStationConnectState_IDLE);
+                    break;
+                case WifiStationConnectState_FAILED:
+                    printf("Failed to connected to the wifi.\n");
+                    setWifiStationConnectState(WifiStationConnectState_IDLE);
+                    break;
+                default:
+                    ESP_LOGE(TAG, "Unknown wifi connect state (%d).", (int)state);
+                    setWifiStationConnectState(WifiStationConnectState_IDLE);
+                    break;
+            }
+#else
+            // load network settings from the file, once both file system and network 
+            // stack have been initalised
+            if(bNetworkSettingsLoaded==EHS_FALSE){
+                EhsLoadNetworkInterfaceConfig();
+                bNetworkSettingsLoaded = EHS_TRUE;
+            }
+#endif
+
+#ifdef EHS_MQTT_SUPPORT
+            // execute esp mqtt clinet loop
+#if TARGET_USE_WIFI == 1           
+            if(isWifiStationConnected()){
+                EhsMqttClientLoop( (void*)EhsMqttDevmanMonSupport() );
+            }
+#else
+            EhsMqttClientLoop( (void*)EhsMqttDevmanMonSupport() );
+#endif // TARGET_USE_WIFI  
+
+#endif // EHS_MQTT_SUPPORT
+
+#if EHS_OTA_SUPPORT == EHS_OTA_SUPPORT_SUPPORT
+
+#if TARGET_USE_WIFI == 1
+            if(isWifiStationConnected()){
+                // execute OTA loop
+                target_OTA_task(NULL);
+            }
+#else
+            // execute OTA loop
+            target_OTA_task(NULL);
+#endif //TARGET_USE_WIFI
+        
+#endif //EHS_OTA_SUPPORT
+
+            // @TODO - This is used by Uart function block - needs to review and potentially moved or Wifi connect needs to be done non-blockig (prefered)
+            fflush(stdout);
+            for (i = 0; i < UART_COUNT; i++){
+                TgtUART_SendInThread(i);
+            }
+
+// #ifdef EHS_MODBUS_SUPPORT
+//             EhsHMBTaskInLoop( EHS_TRUE );
+// #endif
+#ifdef EHS_MAX31343_SUPPORT 
+            gEhsAmbientTemp = EhsTMax31343GetTemperatureFP();
+            //ESP_LOGD(TAG, "Ambient Temp: %d", gEhsAmbientTemp / 1024);
+#ifdef EHS_RTC_SUPPORT
+            // Set the time to RTC every 360000 loops (3600 seconds)
+            if (++j % 360000 == 0)
+            {
+                time_t _t1 = EhsTGetRtcSecond();
+                struct timeval tv = {_t1, 0};
+                settimeofday(&tv, NULL);
+                // struct tm *tm = localtime(&_t1);
+                // ESP_LOGD(TAG, "Time set from RTC %04d-%02d-%02dT%02d:%02d:%02d %d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, tm->tm_wday ? tm->tm_wday : 7);
+            }
+#endif//EHS_RTC_SUPPORT
+#endif//EHS_MAX31343_SUPPORT         
+        } // if(gAppLoadingDone==EHS_TRUE)
+
         // todo: change the sleep interval for EHS MQTT responsive rate
-        //sleep(1);
-        usleep(10000);
+        // todo2024 this needs to be set to a targete-specific (overridable) loop time for a network thread as per the above.
+        vTaskDelay( pdMS_TO_TICKS( EHS_MCU_SLOW_LP_THR_SLEEP_MS ) );
 
-       
+/* @TODO - may need to do wifi connect function non-blocking first
+#if TARGET_USE_WIFI == 1
+        // Wifi reconnect request counter
+        static int wifi_reconnect_counter = 0;
+        const static int WIFI_RECONECT_TIME_OUT = 30000/EHS_MCU_SLOW_LP_THR_SLEEP_MS; // ~30 sec
+        if(wifi_reconnect_counter > WIFI_RECONECT_TIME_OUT){  
+            wifi_reconnect_counter++;
+        }else{
+            ESP_LOGW(TAG, "WiFi re-connect reqired");
+            wifi_reconnect_counter = 0;
+        }
+#endif
+*/
+#if EHS_ESP32_ENABLE_MEMORY_MONITOR == 1
+        static int mem_check_counter = 0;
+        if(mem_check_counter > 1000/EHS_MCU_SLOW_LP_THR_SLEEP_MS){  // 1 sec
+            multi_heap_info_t info;
+            heap_caps_get_info(&info, MALLOC_CAP_8BIT);
+            printf("memory used=%d, free=%d \n",info.total_allocated_bytes,info.total_free_bytes);
+            mem_check_counter=0;
+    
+        }
+        mem_check_counter++;
+#endif
     }
 }
 
@@ -623,6 +942,12 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
  */
 void app_main(void)
 {
+#if EHS_ESP32_DISABLE_LOGS == 1
+    esp_log_level_set("*", ESP_LOG_NONE);
+#endif
+    // Set callback function for notifying about file systems status
+    ehs_filesystem_initalised_callback = EhsFilesystemInitalised;
+
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
@@ -717,53 +1042,52 @@ ota_data_write_jump:
     }
 
     #if TARGET_USE_WIFI == 1
-     if (wifi_init_sta() == ESP_OK)
+    // Append unique suffix from MAC
+    uint8_t mac[6];
+    esp_mac_type_t mac_type = ESP_MAC_EFUSE_FACTORY; // Use the efuse which was burnt by Espressif in production
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_read_mac(mac, mac_type));
+    snprintf(gWiFiHostNameBuffer, sizeof(gWiFiHostNameBuffer), TARGET_HOSTNAME"-w%02X%02X%02X%02X", mac[2], mac[3], mac[4], mac[5]);
+    printf("Wi-Fi host name : %s\n", gWiFiHostNameBuffer);
+     if (doWifiStationNetifInit(gWiFiHostNameBuffer) == EHS_TRUE)
     #elif TARGET_USE_ETHERNET == 1
      if (eth_init() == ESP_OK)
     #endif
      {
-         ESP_LOGI(TAG, "Connection success");
+        ESP_LOGI(TAG, "Connection success");
      }
      else
      {
-         ESP_LOGE(TAG, "Connection failed");
-         while (1)
-         {
-             vTaskDelay(1);
-         }
+        ESP_LOGE(TAG, "Connection failed");
      }
-
-  // #ifdef EHS_ESP32_LED_TEST
-  //     app_test_main();
-  // #endif
  
  #define EHS_ERT_KERNEL_AVAILABLE
  #ifdef EHS_ERT_KERNEL_AVAILABLE
  
-     TaskHandle_t xHandle = NULL;
-     uint32_t stack_depth = EHS_MAIN_ESP32_TASK_STACK_SIZE;
+    TaskHandle_t xHandle = NULL;
+    uint32_t stack_depth = EHS_MAIN_ESP32_TASK_STACK_SIZE;
  
- #ifdef TEST_TCP_SOCKET
- #ifdef CONFIG_LWIP_IPV4
-     xTaskCreate(tcp_server_task, "tcp_server", 4096, (void *)AF_INET, 5, NULL);
+    // we need to specify the installation path before starting EhsMain, 
+    // so that things like user dir gets set-up properly
+    EhsHMetaSetInstPath(base_path);
+
+    // create eRT main loop task
+    ESP_LOGI(TAG,"EhsMain stack depth = %u", stack_depth);
+    // Disable Watchdog timer
+    gTimg1Config0 = EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_CONFIG0_OFFSET);
+    EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = ESP32S3_TIMG_WDT_WRITEPROTECT_MAGIC_VALUE;
+    EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_CONFIG0_OFFSET) = 0;
+    EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = 0;
+    xTaskCreate(EhsMain, "EhsMain", stack_depth, NULL, EHS_PRI_EHS_MAIN, xHandle); // tskIDLE_PRIORITY + 5
+ 
  #endif
- #ifdef CONFIG_LWIP_IPV6
-     xTaskCreate(tcp_server_task, "tcp_server", 4096, (void *)AF_INET6, 5, NULL);
- #endif
- #endif
-     // we need to specify the installation path before starting EhsMain, 
-     // so that things like user dir gets set-up properly
-     EhsHMetaSetInstPath(base_path);
-#if EHS_OTA_SUPPORT == EHS_OTA_SUPPORT_SUPPORT
-     xTaskCreate(target_OTA_task, "OTA_Task", 8192, NULL, ESP_TASK_TCPIP_PRIO - 1, NULL);
+ #ifdef EHS_ESP32_CMD_PROMPT_SUPPORT
+    // TODO - shell we use this in MCU_SLOW_LP_THR ?
+    // create a command prompt task for interacting with the device over a console
+    xTaskCreate(command_prompt_task, "CommandPrompt", 4096, NULL, EHS_PRI_SERIAL_CMD, NULL);
 #endif
-     xTaskCreate(EhsMain, "EhsMain", stack_depth, NULL, ESP_TASK_TCPIP_PRIO + 1, xHandle); // tskIDLE_PRIORITY + 5
-     // xTaskCreate(app_test_main, "app_test_main", stack_depth, ( void * ) 1, 1, NULL);
-     // EhsMain(NULL, NULL); /* doesn't return in this version */;
- 
- #endif
-    // We do mqtt main 
-     mqtt_test_main();
+    xTaskCreate(MCU_SLOW_HP_THR, "MCU_SLOW_HP_THR", 3072, NULL, EHS_PRI_MCU_SLOW_HP_THR, NULL);
+    MCU_SLOW_LP_THR(NULL);
+    // vTaskDelete(NULL);
 }
 
 /**

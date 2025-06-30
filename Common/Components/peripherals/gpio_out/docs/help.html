@@ -1,161 +1,203 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <link href="iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css">
-    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span"> Gpio Output </span> <span
-
-          class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span
-
-          class="toc_span_items"> <a href="#parameters"> Params &#8595; </a> </span>
-        <span class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </span>
-      </div>
-      <p class="component"> General purpose output block.&nbsp; </p>
-      <p class="component">Outputs default to TTL (pull up and pull down) or
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container"> <span class="toc_span"> Gpio Output </span> <span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8595; </a> </span>
+<span class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </span>
+</div>
+<p class="component"> General purpose output block.  </p>
+<p class="component">Outputs default to TTL (pull up and pull down) or
         Open Drain (Pull down only).</p>
-      <p class="component">GPIO inputs are require only their pinID to be
+<p class="component">GPIO inputs are require only their pinID to be
         defined and the values are polled. There is no support for
         interrupt/event driven options that some hardware may support.</p>
-       <heading3>NXP Kenitis reference Board</heading3>
-         <p>0:CONFIG_GPIO_PROCBOARDLED1_RED_PIN
-         <p>1:CONFIG_GPIO_PROCBOARDLED1_GRN_PIN
-         <p>2:CONFIG_GPIO_PROCBOARDLED2_RED_PIN
-         <p>3:CONFIG_GPIO_PROCBOARDLED2_GRN_PIN
-         <p>4:CONFIG_GPIO_BUTTON_SET_PIN
-         <p>5:CONFIG_GPIO_BUTTON_MODE_PIN (INX_NXP_KENETIS_BOARD_VARIANT == INX_HR_HRc)
-         <p>6:CONFIG_GPIO_BUTTON_DOWN_PIN
-         <p>7:CONFIG_GPIO_BUTTON_UP_PIN
-         <p>8:CONFIG_GPIO_CONTROL_INTERNAL_RELAY_1
-         <p>9:CONFIG_GPIO_CONTROL_INTERNAL_RELAY_2
-         <p>10:CONFIG_GPIO_CONTROL_INTERNAL_RELAY_3
-         <p>11:CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_1
-         <p>12:CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_2
-         <p>13:CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_3
-         <p>14:CONFIG_GPIO_SENSE_CONRELAY_1
-         <p>15:CONFIG_GPIO_SENSE_CONRELAY_2
-         <heading3>Pine64 A6 Cluster Board Armbian/Android</heading3>
-         <p>0:FP LED CH1</p>
-          <p>1:FP LED CH2</p>
-          <p>2:FP LED CH3</p>
-          <p>3:FP LED CH4</p>
-          <p>4:FP LED CH5</p>
-          <p>5:FP LED CH6</p>
-          <p>6:FP LED CH7</p>
-
-            <p>Reset#1-CH7_GPIO_ResetCh1	62	gpio226 PH2</p>
-            <p>Reset#2-CH7_GPIO_ResetCh2	37	gpio227 PH3</p>
-            <p>Reset#3-CH7_GPIO_ResetCh3	68	gpio229 PH5</p>
-            <p>Reset#4-CH7_GPIO_ResetCh4	66	gpio230 PH6</p>
-            <p>Reset#5-CH7_GPIO_ResetCh5	38	gpio232 PH8</p>
-            <p>Reset#6/7-CH7_GPIO_ResetCh6/CH6_GPIO_ResetCh7	77	gpio233 PH9</p>
-            <p>Global Mute SLOTn_PB1	75	gpio33	PB1</p>
-            
-            
-          
-    </div>
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading"> <span class="toc_span" id="parameters">
+<h3>Raspberry Pi Model 4 B+ Board</h3>
+<table border="1" cellpadding="10">
+<thead>
+<tr>
+<th>Physical Pin # (Left)</th>
+<th>Function</th>
+<th>Physical Pin # (Right)</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>3.3V Power</td><td>2</td><td>5V Power</td></tr>
+<tr><td>3</td><td>GPIO2 (SDA1, I2C)</td><td>4</td><td>5V Power</td></tr>
+<tr><td>5</td><td>GPIO3 (SCL1, I2C)</td><td>6</td><td>Ground</td></tr>
+<tr><td>7</td><td>GPIO4 (GPCLK0)</td><td>8</td><td>GPIO14 (TXD, UART)</td></tr>
+<tr><td>9</td><td>Ground</td><td>10</td><td>GPIO15 (RXD, UART)</td></tr>
+<tr><td>11</td><td>GPIO17</td><td>12</td><td>GPIO18 (PCM_CLK)</td></tr>
+<tr><td>13</td><td>GPIO27</td><td>14</td><td>Ground</td></tr>
+<tr><td>15</td><td>GPIO22</td><td>16</td><td>GPIO23</td></tr>
+<tr><td>17</td><td>3.3V Power</td><td>18</td><td>GPIO24</td></tr>
+<tr><td>19</td><td>GPIO10 (MOSI, SPI)</td><td>20</td><td>Ground</td></tr>
+<tr><td>21</td><td>GPIO9 (MISO, SPI)</td><td>22</td><td>GPIO25</td></tr>
+<tr><td>23</td><td>GPIO11 (SCLK, SPI)</td><td>24</td><td>GPIO8 (CE0, SPI)</td></tr>
+<tr><td>25</td><td>Ground</td><td>26</td><td>GPIO7 (CE1, SPI)</td></tr>
+<tr><td>27</td><td>ID_SD (I2C ID EEPROM)</td><td>28</td><td>ID_SC (I2C ID EEPROM)</td></tr>
+<tr><td>29</td><td>GPIO5</td><td>30</td><td>Ground</td></tr>
+<tr><td>31</td><td>GPIO6</td><td>32</td><td>GPIO12</td></tr>
+<tr><td>33</td><td>GPIO13</td><td>34</td><td>Ground</td></tr>
+<tr><td>35</td><td>GPIO19 (PCM_FS)</td><td>36</td><td>GPIO16</td></tr>
+<tr><td>37</td><td>GPIO26</td><td>38</td><td>GPIO20 (PCM_DIN)</td></tr>
+<tr><td>39</td><td>Ground</td><td>40</td><td>GPIO21 (PCM_DOUT)</td></tr>
+</tbody>
+</table>
+<h3>NXP Kinetis Reference Board</h3>
+<table border="1">
+<tr>
+<th>Pin Number</th>
+<th>Description</th>
+</tr>
+<tr><td>0</td><td>CONFIG_GPIO_PROCBOARDLED1_RED_PIN</td></tr>
+<tr><td>1</td><td>CONFIG_GPIO_PROCBOARDLED1_GRN_PIN</td></tr>
+<tr><td>2</td><td>CONFIG_GPIO_PROCBOARDLED2_RED_PIN</td></tr>
+<tr><td>3</td><td>CONFIG_GPIO_PROCBOARDLED2_GRN_PIN</td></tr>
+<tr><td>4</td><td>CONFIG_GPIO_BUTTON_SET_PIN</td></tr>
+<tr><td>5</td><td>CONFIG_GPIO_BUTTON_MODE_PIN</td></tr>
+<tr><td>6</td><td>CONFIG_GPIO_BUTTON_DOWN_PIN</td></tr>
+<tr><td>7</td><td>CONFIG_GPIO_BUTTON_UP_PIN</td></tr>
+<tr><td>8</td><td>CONFIG_GPIO_CONTROL_INTERNAL_RELAY_1</td></tr>
+<tr><td>9</td><td>CONFIG_GPIO_CONTROL_INTERNAL_RELAY_2</td></tr>
+<tr><td>10</td><td>CONFIG_GPIO_CONTROL_INTERNAL_RELAY_3</td></tr>
+<tr><td>11</td><td>CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_1</td></tr>
+<tr><td>12</td><td>CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_2</td></tr>
+<tr><td>13</td><td>CONFIG_GPIO_CONTROL_SSR_EXTERNAL_OUT_3</td></tr>
+<tr><td>14</td><td>CONFIG_GPIO_SENSE_CONRELAY_1</td></tr>
+<tr><td>15</td><td>CONFIG_GPIO_SENSE_CONRELAY_2</td></tr>
+</table>
+<h3>Pine64 A6 Cluster Board (Armbian/Android)</h3>
+<table border="1">
+<tr>
+<th>Pin Number</th>
+<th>Description</th>
+</tr>
+<tr><td>0</td><td>FP LED CH1</td></tr>
+<tr><td>1</td><td>FP LED CH2</td></tr>
+<tr><td>2</td><td>FP LED CH3</td></tr>
+<tr><td>3</td><td>FP LED CH4</td></tr>
+<tr><td>4</td><td>FP LED CH5</td></tr>
+<tr><td>5</td><td>FP LED CH6</td></tr>
+<tr><td>6</td><td>FP LED CH7</td></tr>
+</table>
+<h4>Additional Pins for Pine64 A6 Cluster Board</h4>
+<table border="1">
+<tr>
+<th>Description</th>
+<th>Pin Number</th>
+<th>GPIO</th>
+<th>Label</th>
+</tr>
+<tr><td>Reset#1-CH7_GPIO_ResetCh1</td><td>62</td><td>gpio226</td><td>PH2</td></tr>
+<tr><td>Reset#2-CH7_GPIO_ResetCh2</td><td>37</td><td>gpio227</td><td>PH3</td></tr>
+<tr><td>Reset#3-CH7_GPIO_ResetCh3</td><td>68</td><td>gpio229</td><td>PH5</td></tr>
+<tr><td>Reset#4-CH7_GPIO_ResetCh4</td><td>66</td><td>gpio230</td><td>PH6</td></tr>
+<tr><td>Reset#5-CH7_GPIO_ResetCh5</td><td>38</td><td>gpio232</td><td>PH8</td></tr>
+<tr><td>Reset#6/7-CH7_GPIO_ResetCh6/CH6_GPIO_ResetCh7</td><td>77</td><td>gpio233</td><td>PH9</td></tr>
+<tr><td>Global Mute SLOTn_PB1</td><td>75</td><td>gpio33</td><td>PB1</td></tr>
+</table>
+</div>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="parameters">
         Parameters </span>
-      <div class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </div>
-      <div class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </div>
-      <div class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </div>
-    </div>
-    <table class="table_params">
-      <tbody>
-        <tr>
-          <th style="width:60px;"> name </th>
-          <th> type </th>
-          <th> default </th>
-          <th> min. </th>
-          <th> max. </th>
-          <th> description </th>
-        </tr>
-        <tr>
-          <td>Pin ID</td>
-          <td>String</td>
-          <td>(Blank)</td>
-          <td>-</td>
-          <td>-</td>
-          <td>ID for PIN</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="section_heading"> <span class="toc_span" id="ports"> Ports </span>
-      <span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
-      <span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span
+<div class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </div>
+<div class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </div>
+<div class="toc_span_items"> <a href="#ports"> Ports &#8595; </a> </div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;"> name </th>
+<th> type </th><th> description </th>
+<th> default </th>
+<th> min. </th>
+<th> max. </th>
 
-        class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
-    </div>
-    <table class="table">
-      <tbody>
-        <tr>
-          <th> In Ev. </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <td class="portsBool"><a name="[In]write">write</a></td>
-          <td>Write input event.</td>
-        </tr>
-        <tr>
-          <th> Data In </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <td class="portsBool"><br>
-          </td>
-          <td>Input data.</td>
-        </tr>
-        <tr>
-          <th> Data Out </th>
-          <th> <br>
-          </th>
-        </tr>
-        <tr>
-          <th> Out Ev. </th>
-          <th> <br>
-          </th>
-        </tr>
-      </tbody>
-    </table>
-    <div class="section_heading"> <span class="toc_span" id="misc"> Misc </span>
-      <span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
-      <span class="toc_span_items"> <a href="#ports"> Ports &#8593; </a> </span> <span
+</tr>
+<tr>
+<td>Pin ID</td>
+<td>String</td><td>ID for PIN</td>
+<td>(Blank)</td>
+<td>-</td>
+<td>-</td>
 
-        class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
-    </div>
-    <table>
-      <tbody>
-        <tr class="fsm_row">
-          <td style="width:90px;"> <b> State Machine </b> </td>
-          <td colspan="5"> Stateless. </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Toolbox </b> </td>
-          <td> GUI/Level1. </td>
-          <td class="heading-cell"> <b> Version </b> </td>
-          <td> v2.1. </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Licence Type </b> </td>
-          <td> MPL2.0 </td>
-          <td class="heading-cell"> <b> Component Supplier </b> </td>
-          <td> <a href="http://www.inx-systems.net" target="_blank"> inx ltd. </a>
-          </td>
-        </tr>
-        <tr>
-          <td class="heading-cell"> <b> Minumum DCC </b> </td>
-          <td> A0000 </td>
-          <td class="heading-cell"> <b> Profiles </b> </td>
-          <td> GPIO ID. </td>
-        </tr>
-      </tbody>
-    </table>
-  </body>
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="ports"> Ports </span>
+<span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
+<span class="toc_span_items"> <a href="#misc"> Misc &#8595; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th> In Ev. </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<td class="portsBool"><a name="[In]write">write</a></td>
+<td>Write input event.</td>
+</tr>
+<tr>
+<th> Data In </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<td class="portsBool"><br/>
+</td>
+<td>Input data.</td>
+</tr>
+<tr>
+<th> Data Out </th>
+<th> <br/>
+</th>
+</tr>
+<tr>
+<th> Out Ev. </th>
+<th> <br/>
+</th>
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="misc"> Misc </span>
+<span class="toc_span_items"> <a href="#toc_container"> Top &#8593; </a> </span>
+<span class="toc_span_items"> <a href="#ports"> Ports &#8593; </a> </span> <span class="toc_span_items"> <a href="#parameters"> Params &#8593; </a> </span>
+</div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b> State Machine </b> </td>
+<td colspan="5"> Stateless. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Toolbox </b> </td>
+<td> GUI/Level1. </td>
+<td class="heading-cell"> <b> Version </b> </td>
+<td> v2.1. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Licence Type </b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b> Component Supplier </b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank"> inx ltd. </a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b> Minumum DCC </b> </td>
+<td> A0000 </td>
+<td class="heading-cell"> <b> Profiles </b> </td>
+<td> GPIO ID. </td>
+</tr>
+</tbody>
+</table>
+</body>
 </html>

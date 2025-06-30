@@ -25,15 +25,24 @@
 #  OBJECTS - list of object files added by this makefile
 #  VPATH - where to look for source code
 
-include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/deps.mk
+ifdef EHS_TARGET_COMMS_API_PATH
+	include $(EHS_TARGET_COMMS_API_PATH)/../tcp_server_common/deps.mk
+else 
+#	$(info == EHS_TARGET_COMMS_API_PATH is not set - Not using tcpip comms )
+endif
 
-OBJECTS += target_console.$(OBJ)
-
-ifdef EHS_DEBUG_TCPIP_CONSOLE
-OBJECTS+= console_server.$(OBJ)
+#Assume we don't need to check if console is selected by the time the make file is called.
+ifneq ($(EHS_DEBUG_TCPIP_CONSOLE),stubbed)
+	ifneq ($(EHS_DEBUG_TCPIP_CONSOLE),target_specific)
+	OBJECTS += console_server.$(OBJ)
+	endif
+	OBJECTS += target_console.$(OBJ)
+	OBJECTS += console_queue.$(OBJ)
+	DEFS += EHS_DEBUG_TCPIP_CONSOLE
+else
+	OBJECTS += stubbed_console.$(OBJ)
 endif
 
 VPATH+=: $(EHS_TARGET_SERVER_PATH)
-
 INC_DIRS += $(EHS_TARGET_SERVER_PATH)
 

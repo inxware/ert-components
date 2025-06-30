@@ -22,7 +22,10 @@
 #include "hal_devman.h"
 #include "app_data.h"
 #include "globals.h"
-
+#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+#include "devman_mon_mqtt.h"
+#include "devman_mon_ota.h"
+#endif
 
 #ifdef EHS_DEVMAN_LUA_VERSION
 #ifdef EHS_LUA_SUPPORT
@@ -47,44 +50,10 @@
 #endif
 
 
-
-
-#define EHS_DEVMAN_FILE_PATH_LENGTH 4096 // stackable ... just.
-//const ehs_char* file = "../devman/plugins/0/devman_mon.inx";
-const ehs_char* EHS_VERSION = "1.1";
-
 /*****************************************************************************/
 /* Function definitions */
-//void *DevmanMonThread(void *arg); /* prototype for threaded part */
-#ifdef EHS_DEVMAN_LUA_VERSION
-#ifdef EHS_LUA_SUPPORT
-static int traceback(lua_State *L)
-{
-    //  if (!lua_isstring(L, 1))  /* 'message' not a string? */
-    //    return 1;  /* keep it intact */
-    //  lua_getfield(L, LUA_GLOBALSINDEX, "debug");
-    //  if (!lua_istable(L, -1)) {
-    //    lua_pop(L, 1);
-    //    return 1;
-    //  }
-    //  lua_getfield(L, -1, "traceback");
-    //  if (!lua_isfunction(L, -1)) {
-    //    lua_pop(L, 2);
-    //    return 1;
-    //  }
-    //  lua_pushvalue(L, 1);  /* pass error message */
-    //  lua_pushinteger(L, 2);  /* skip this function and traceback */
-    //  lua_call(L, 2, 1);  /* call debug.traceback */
-    EHSH_LOG_ERROR("log: Error - devman-mon server call failed\n");
-    return 1;
-}
-#else
-#error "Tring to use DEVMAN_LUA_VERSION with EHS_LUA_SUPPORT unset. Please set EHS_LUA_SUPPORT and retry!"
-#endif
-#endif
 
 /********************* @todo FUNCTIONS TO BE MOVED TO A NEW DEVMAN HAL MODULE @todo ***************************/
-
 
 /*
  * always returns a URL - if URL not found in filesystem then use #def baseURL
@@ -98,7 +67,6 @@ void EhsHDevmanGetCoreURL(ehs_char * szUrl)
     }
 }
 
-
 /*
  * @brief Returns a valid URL from the list or returns an error number or status number.
  * The file name passed is in fact appended with the index number and seperate files are used for each to
@@ -107,11 +75,8 @@ void EhsHDevmanGetCoreURL(ehs_char * szUrl)
  * @note Leaves the url string pointer content unchanged if there are no URLs specified.
  * */
 
-ehs_bool EhsHDevmanGetURL(ehs_char * URL, ehs_char * list_file,
-                          ehs_uint16 maxlen, ehs_uint16 index)
+ehs_bool EhsHDevmanGetURL(ehs_char * URL, ehs_char * list_file,  ehs_uint16 maxlen, ehs_uint16 index)
 {
-
-    ehs_uint16 i;
     ehs_bool retval = EHS_FALSE;
     ehs_FILE *file;
     ehs_char szTemp[EHS_DEVMAN_FILE_PATH_LENGTH];
@@ -304,7 +269,6 @@ ehs_bool EhsHDevmanRemoveSpecificURLFromList(ehs_char * ehs_path, ehs_char * URL
     ehs_sint16 i;
     ehs_uint16 j,maxlen; //j must be signed so for loop works..
     ehs_FILE *file;
-    ehs_bool ret=EHS_FALSE;
     ehs_char * szTemp2;
     ehs_char *szTemp = EhsHMem_tempAlloc(EHS_DEVMAN_FILE_PATH_LENGTH);
     if (szTemp == NULL)
@@ -409,6 +373,149 @@ ehs_bool GetDevmanBASEURL(ehs_char * szUrl)
     return EHS_TRUE;
 }
 
+extern EhsMetaDataType EhsMetaData;
+extern EhsApplicationMetaDataType EhsApplicationMetaData;
+
+
+/***************************************************************************************/
+
+#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+
+/* Devman mon mqtt subscription callback handler */
+ehs_bool EhsMqttDevmanMonSubscriptionCallback(struct inx_mqtt_subscribe_state* pState, char* payload, ehs_sint32 payloadSize)
+{
+    //inx_mqtt_client_state_type_mine* pMqttClient = EhsMqttDevmanMonMqttClient();
+    if(pState == NULL){
+        return EHS_FALSE;
+    }
+
+    ehs_sint16 topic_id = EhsSubscriptionTopicID(pState->topic);
+    switch(topic_id){
+        /* handle ota subscriptions */
+        case EHS_MQTT_SUB_TOPIC_START_OTA_ID:{
+            payload[payloadSize] = '\0'; // make sure payload is NULL terminated
+            EhsOtaDevmanMonStart(payload, payloadSize);
+            break;
+        }
+        case EHS_MQTT_SUB_TOPIC_POST_CHUNK_OTA_ID:{
+            EhsOtaDevmanMonWrite(payload, payloadSize);
+            break;
+        }
+        default:
+            // unknown
+            break;
+    }
+
+    return EHS_TRUE;
+}
+
+/* request next OTA chunk */
+void EhsOtaDevmanMonNext(const ehs_char* payload)
+{
+    EhsMqttDevmanMonPublish(EHS_MQTT_PUB_TOPIC_GET_CHUNK_OTA_ID, payload);
+}
+
+/* avoid blocking this function! It's a callback which gets called from mqtt clinet loop. */
+void* DevmanMonThread(void* arg)
+{
+    inx_mqtt_client_state_type_mine* pMqttClient = EhsMqttDevmanMonMqttClient();
+
+    switch(EhsGetMqttDevmanMonState())
+    {
+        case MQTT_DEVMAN_MON_INIT:
+        {
+            // populate mqtt clinet broker details
+            pMqttClient->host[0]='\0';
+            // read mqtt url from devman core file
+            GetDevmanBASEURL(pMqttClient->host); /* Get our default URL */
+
+            // read and set clinet id
+            const char* clientid = EhsHMetaGetHWID();
+            printf("Devman mon mqtt clinet id = %s \n", clientid);
+            EhsStrcpy(pMqttClient->clientid, clientid);
+
+            // read and set username and password
+            pMqttClient->username[0]='\0';
+            if (EhsHDevmanGetURL(pMqttClient->username, "core/config/uname", EHS_MAXDEVMANNAMELEN, 0) == EHS_FALSE){
+                EHSH_LOG_ERROR("Failed to read user name config file for Devman mon MQTT clinet. \n");
+            }
+            pMqttClient->password[0]='\0';
+            if (EhsHDevmanGetURL(pMqttClient->password, "core/config/passw", EHS_MAXDEVMANNAMELEN, 0) == EHS_FALSE){
+                EHSH_LOG_ERROR("Failed to read password config file for Devman mon MQTT clinet. \n");
+            }
+            #if EHS_DEVMAN_MQTT_CLIENT_TLS
+            printf("Devman mon mqtt clinet TLS enabled \n");
+            // set expected mqtt broker certificate file names
+            EhsStrcpy(pMqttClient->clientCertFileName, "client.crt");
+            EhsStrcpy(pMqttClient->clientKeyFileName, "client.key");
+            EhsStrcpy(pMqttClient->rootCAFileName, "ca.crt");
+
+            pMqttClient->tls = EHS_TRUE;
+            pMqttClient->port = 8883;
+            #else
+            printf("Devman mon mqtt clinet TLS disabled \n");
+            pMqttClient->clientCertFileName[0]='\0';
+            pMqttClient->clientKeyFileName[0]='\0';
+            pMqttClient->rootCAFileName[0]='\0';
+            pMqttClient->tls = EHS_FALSE;
+            pMqttClient->port = 1883;
+            #endif
+
+            EhsSetMqttDevmanMonState(MQTT_DEVMAN_MON_CONNECT);
+            break;
+        }
+        case MQTT_DEVMAN_MON_CONNECT:
+        {
+            pMqttClient->connect=EHS_TRUE;
+            EhsSetMqttDevmanMonState(MQTT_DEVMAN_MON_CONNECTING);
+            break;
+        }
+        case MQTT_DEVMAN_MON_CONNECTING:
+        {
+            if(EhsGetMqttDevmanMonConnected()){ // check if mqtt clinet has connected
+                EhsSetMqttDevmanMonState(MQTT_DEVMAN_MON_PUB_SUB_INIT);
+            }
+            break;
+        }
+        case MQTT_DEVMAN_MON_PUB_SUB_INIT:
+        {
+            if(EhsGetMqttDevmanMonConnected()){
+                // register subscription topics
+                EhsMqttDevmanMonRegisterSub(EhsMqttDevmanMonSubscriptions(EHS_MQTT_SUB_TOPIC_START_OTA_ID), EHS_MQTT_SUB_TOPIC_START_OTA, pMqttClient->clientid);
+                EhsMqttDevmanMonRegisterSub(EhsMqttDevmanMonSubscriptions(EHS_MQTT_SUB_TOPIC_POST_CHUNK_OTA_ID), EHS_MQTT_SUB_TOPIC_POST_CHUNK_OTA, pMqttClient->clientid);
+                
+                // register publish topics
+                EhsMqttDevmanMonRegisterPub(EhsMqttDevmanMonPublications(EHS_MQTT_PUB_TOPIC_GET_CHUNK_OTA_ID), EHS_MQTT_PUB_TOPIC_GET_CHUNK_OTA, pMqttClient->clientid);
+                EhsMqttDevmanMonRegisterPub(EhsMqttDevmanMonPublications(EHS_MQTT_PUB_TOPIC_DIDCONNECT_ID), EHS_MQTT_PUB_TOPIC_DIDCONNECT, pMqttClient->clientid);
+
+                EhsSetMqttDevmanMonState(MQTT_DEVMAN_MON_RUNNING);
+            }else{
+                EHSH_LOG_ERROR("MQTT clinet is not connected in MQTT_DEVMAN_MON_SUBSCIBE state \n");
+            }
+            break;
+        }
+        case MQTT_DEVMAN_MON_RUNNING:
+        {
+            if(EhsGetMqttDevmanMonConnected()){
+                EhsMqttDevmanMonHandleConnected();
+            }else{
+                EhsMqttDevmanMonHandleDisconnected();
+                // @TODO - change state, if needed ? Seems to be handled by mqtt state.
+            }
+            // process any pending states of the OTA
+            EhsOtaDevmanMonProcess();
+            break;
+        }
+        default:
+        {
+            break; // unknown state
+        }
+    };
+
+    return NULL;
+}
+
+#else // EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_CURL
 /* Note this doesn't use an XML parser - to reduce core dependencies */
 
 ehs_bool ParseDevmanMonitorXML(ehs_char * returndata)
@@ -624,93 +731,46 @@ ehs_bool ParseDevmanMonitorXML(ehs_char * returndata)
     return EHS_TRUE;
 }
 
-extern EhsMetaDataType EhsMetaData;
-extern EhsApplicationMetaDataType EhsApplicationMetaData;
+#ifdef EHS_ENABLE_CURL_VERBOSE
+int ehs_curl_devman_mon_debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
+    (void)handle; // unused
+    (void)userptr; // unused
 
-#ifdef EHS_DEVMAN_LUA_VERSION
-void *DevmanMonThread(void *arg)
-{
-    ehs_char szRet[EHS_STRING_LENGTH_MAX];
-    ehs_char* pRet;
-    int stack_size=0;
-
-    lua_State *L = lua_open(); /* create state */
-
-    lua_gc(L, LUA_GCSTOP, 0); /* stop collector during initialization */
-    luaL_openlibs(L); /* open libraries */
-    lua_gc(L, LUA_GCRESTART, 0);
-
-    //ehs_uint8 s = luaL_loadfile(L, file);
-    ehs_uint8 s = luaL_dofile(L, file); //note for some reason argument passing doesn't work until script has been parsed
-    LuaReportErrors(L, s);
-
-    // int base = lua_gettop(L) - narg;  /* function index */
-    //signal(SIGINT, laction);
-    //status = lua_pcall(L, narg, (clear ? 0 : LUA_MULTRET), base);
-    //signal(SIGINT, SIG_DFL);
-    //lua_remove(L, base);  /* remove traceback function */
-    /* force a complete garbage collection in case of errors */
-    //if (status != 0) lua_gc(L, LUA_GCCOLLECT, 0);
-
-    lua_pushcfunction(L, traceback); /* push traceback function */
-    //lua_pushstring(L, "1.1");
-    if ( s==0 )
-    {
-        while (1)
-        {
-            // execute Lua program
-            lua_getfield(L, LUA_GLOBALSINDEX, "dev_main");
-            lua_pushstring(L, EhsMetaData.zVersion);
-            lua_pushstring(L, EhsMetaData.zBuildDate);
-            lua_pushstring(L, EhsApplicationMetaData.zVersion);
-            lua_pushstring(L, EhsApplicationMetaData.zSODLdate);
-            lua_pushstring(L, EhsApplicationMetaData.zApplicationName);
-            s = lua_pcall(L, 5, 3, 1); //use this instead of lua_call so that ehs doesn't crash on LUA exceptions
-            // Todo: Parse the return string from the lua script.
-            // Currently it does nothing
-            if ( s==0 )
-            {
-                EhsMetaData.nUserSpaceTotal_KB=atoi(lua_tostring(L, lua_gettop(L)));
-                EhsMetaData.nUserSpaceUsed_KB=atoi(lua_tostring(L, lua_gettop(L)-1));
-                /*
-                 EhsStrcpy(szRet, lua_tostring(L, lua_gettop(L)));
-                 pRet = EhsStrTrimLR(szRet);
-                 if ( !EhsStrcmp(pRet, "Restart") ) { / * @todo this shoud be done properly here rather than in lua script! * /
-                 }
-                 */
-
-                lua_pop(L,3); //remove return values returned on the stack. Now this pointer is not valid (probably)
-            }
-            
-
-            stack_size=lua_gettop(L);
-            if (stack_size > 1 ) lua_pop(L,stack_size-1);
-            lua_gc(L, LUA_GCCOLLECT, 0);
-            //@todo read the sleep value from a file
-            EhsSleep(EHS_TIME_s(60)); // sleep for 60s
-        }
-        stack_size=lua_gettop(L);
-        if (stack_size > 1 ) lua_pop(L,stack_size);
+    switch (type) {
+        case CURLINFO_TEXT:
+            EHSH_LOG_ERROR("DEVMON CURL [INFO] %.*s", (int)size, data);
+            break;
+        case CURLINFO_HEADER_IN:
+            EHSH_LOG_ERROR("DEVMON CURL [HEADER_IN] %.*s", (int)size, data);
+            break;
+        case CURLINFO_HEADER_OUT:
+            EHSH_LOG_ERROR("DEVMON CURL [HEADER_OUT] %.*s", (int)size, data);
+            break;
+        case CURLINFO_DATA_IN:
+            // EHSH_LOG_ERROR("DEVMON CURL [DATA_IN] %.*s", (int)size, data);
+            break;
+        case CURLINFO_DATA_OUT:
+          //  EHSH_LOG_ERROR("DEVMON CURL [DATA_OUT] %.*s", (int)size, data);
+            break;
+        default: /* Do nothing */ ;
     }
-    
 
-    lua_close(L);
+    return 0;
 }
-#else
-
+#endif
 
 void *DevmanMonThread(void *arg)
 {
     ehs_char * PostString;
-    ehs_char sZtemp[EHS_STRING_LENGTH_MAX*2];// Max size of a date string
+    ehs_char sZtemp[EHS_STRING_LENGTH_MAX*2];// Max size of a date string //TODO:STRINGLENGTH!!!
     ehs_char szUrl[EHS_MAXDEVMANNAMELEN*2];// URL
-    ehs_char tempBUff[EHS_STRING_LENGTH_MAX*2];// Mutex data buffer
+    ehs_char tempBUff[EHS_STRING_LENGTH_MAX*2];// Mutex data buffer //TODO:STRINGLENGTH!!!
     ehs_uint32 tempint = 0;
     ehs_sint32 retry=EHS_DEVMAN_CORE_RETRY_PERIOD_FIRSTURL; /* this counts how many times we're not using the top of list URL */
     ehs_sint32 retrytimes=EHS_DEVMAN_CORE_RETRY_TIMES_FIRSTURL;  /* Retries before moving on to next URL */
     ehs_bool trynext=EHS_TRUE; /*flag to identify if the next in the list should be tried */
     //ehs_uint32 ret32=0;
-    long http_no = 0L; //=(ehs_uint32*) (&sZuserdata[EHS_STRING_LENGTH_MAX_LARGE-(sizeof(ehs_uint32) )]);
+    long http_no = 0L; 
     EhsH_URLwrite_data_bufferType * buffer_struct=NULL;
     static CURL *curl=NULL; //todo this should be made dynamic butt persistent.
     ehs_sint16 CurrentURLindex = 0;
@@ -731,8 +791,15 @@ void *DevmanMonThread(void *arg)
     GetDevmanBASEURL(szUrl); /* Get our default URL from file or hard-code fallback */
     EhsStrcat(szUrl, EHS_DEVMAN_MONITORURLPATHONLY); /* This is the ping address */
 
-    if (!curl)
+    if (!curl){
         curl = curl_easy_init(); /* this is thread safe if global init is always done before any other url threads start */
+#ifdef EHS_ENABLE_CURL_VERBOSE
+        if(curl){
+            curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, ehs_curl_devman_mon_debug_callback);
+            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        }
+#endif
+    }
 
     if (!curl)
     {
@@ -748,11 +815,18 @@ void *DevmanMonThread(void *arg)
         /* Try to load ssl certificates and keys if we are an https site - or even if the URL doesn't indicate https*/
 
         EHSH_LOG_INFO("Starting Devmon");
+#define EHS_USE_DYNAMIC_DOMAIN_CERTIFICATES
+#ifdef EHS_USE_DYNAMIC_DOMAIN_CERTIFICATES
         // Look for any SSL vertificates and load them for the request. Failure presumes none are available.
-        sslClientCertificates =  EhsHSetUpClientTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, NULL /* combined in PEM */, NULL);
+        EhsHGetDevmanCombinedClientCertificateKeyPath(sZtemp,szUrl);
+        sslClientCertificates =  EhsHSetUpClientTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR,sZtemp , NULL /* combined in PEM */, NULL);
         // separate cert and key: sslClientCertificates =  EhsHSetUpClientTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, EHS_DEVMAN_CLIENT_PRIVATEKEY, NULL);
-        sslCaCertificates =  EhsHSetUpCaTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CA_CERTIFICATE);
-
+        EhsHGetDevmanCaCertificatePath(sZtemp,szUrl);
+        sslCaCertificates =  EhsHSetUpCaTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, sZtemp);
+#else
+        sslClientCertificates =  EhsHSetUpClientTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, EHS_DEVMAN_CLIENT_PRIVATEKEY, NULL); 
+        sslCaCertificates =      EhsHSetUpCaTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CA_CERTIFICATE);
+#endif
         /* set up buffers for received data */
         PostString = EhsHMem_permAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?
         //
@@ -772,42 +846,31 @@ void *DevmanMonThread(void *arg)
                                   EHS_POST_STRING_LENGTH_MAX);
             EhsHCreateQueryString(curl, PostString, "DeviceID",
                                   EhsHMetaGetHWID(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHGetdateTime(sZtemp, EHS_TRUE, 0); //get adate string
+            EhsHGetdateTime(sZtemp,EHS_STRING_LENGTH_MAX, EHS_TRUE, 0); //get adate string
             EhsHCreateQueryString(curl, PostString, "device_date", sZtemp,EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "device_system_space_total_KB",
-                                     EhsHMetaGetStorTotal(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "device_system_space_used_KB",
-                                     EhsHMetaGetSysUsed(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "device_user_space_total_KB",
-                                     EhsHMetaGetStorTotal(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "device_user_space_used_KB",
-                                     EhsHMetaGetStorUsed(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "total_physmem",
-                                     EhsHMetaGetRAMTotal(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "device_system_space_total_KB", EhsHMetaGetStorTotal(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "device_system_space_used_KB", EhsHMetaGetSysUsed(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "device_user_space_total_KB", EhsHMetaGetStorTotal(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "device_user_space_used_KB", EhsHMetaGetStorUsed(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "total_physmem", EhsHMetaGetRAMTotal(), EHS_POST_STRING_LENGTH_MAX);
             //format the version to include platform variant.
             EhsStrcpy(sZtemp,EhsHMetaGetVersion());
             EhsStrcat(sZtemp,":");
             EhsStrcat(sZtemp,EhsHMetaGetTargetVariant());
             EhsHCreateQueryString(curl, PostString, "ehs_version",sZtemp, EHS_POST_STRING_LENGTH_MAX);
 
-            EhsHCreateQueryString(curl, PostString, "ehs_date",
-                                  EhsHMetaGetBuildDate(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryString(curl, PostString, "app_name",
-                                  EhsHAppMetaGetAppName(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryString(curl, PostString, "sdl_date",
-                                  EhsHAppMetaGetAppDate(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "percproc_ehs",
-                                     EhsHMetaGetCPUUsage(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "percproc_miscapp",
-                                     EhsHMetaGetMiscAppCPUUsage(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "ramuse_miscapp",
-                                     EhsHMetaGetMiscAppRAMUsed_kB(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "percmem_miscapp",
-                                     (EhsHMetaGetMiscAppRAMUsed_kB()*100)/EhsHMetaGetRAMTotal(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryString(curl, PostString, "misc_sys_info",
-                                  EhsHMetaGetSysInfo(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "ramuse_ehs",
-                                  EhsHMetaGetRAMUsedEHS_kB(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryString(curl, PostString, "ehs_date", EhsHMetaGetBuildDate(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryString(curl, PostString, "app_name", EhsHAppMetaGetAppName(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryString(curl, PostString, "sdl_date", EhsHAppMetaGetAppDate(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "percproc_ehs", EhsHMetaGetCPUUsage(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "percproc_miscapp", EhsHMetaGetMiscAppCPUUsage(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "ramuse_miscapp", EhsHMetaGetMiscAppRAMUsed_kB(), EHS_POST_STRING_LENGTH_MAX);
+            ehs_uint32 ram_total = EhsHMetaGetRAMTotal();
+            ehs_uint32 perc_mem = (ram_total) ? (EhsHMetaGetMiscAppRAMUsed_kB()*100)/ram_total : 0;
+            EhsHCreateQueryStringNum(PostString, "percmem_miscapp", perc_mem, EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryString(curl, PostString, "misc_sys_info", EhsHMetaGetSysInfo(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "ramuse_ehs", EhsHMetaGetRAMUsedEHS_kB(), EHS_POST_STRING_LENGTH_MAX);
+            /* misc app info is the json structure collected in the app */
             EhsHCreateQueryString(curl, PostString, "misc_app_info",tempBUff, EHS_POST_STRING_LENGTH_MAX);
             if (EhsHMetaGetRAMTotal())
             {
@@ -817,17 +880,12 @@ void *DevmanMonThread(void *arg)
             {
                 tempint = 0;
             }
-            EhsHCreateQueryStringNum(PostString, "percmem_ehs", tempint,
-                                     EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "virtmem_ehs", 0,
-                                     EHS_POST_STRING_LENGTH_MAX);//@todo this isn't implemented yet
-            EhsHCreateQueryString(curl, PostString, "ehs_startdate",
-                                  EhsHMetaGetEHSStartDate(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "percmem_ehs", tempint, EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "virtmem_ehs", 0, EHS_POST_STRING_LENGTH_MAX);//@todo this isn't implemented yet
+            EhsHCreateQueryString(curl, PostString, "ehs_startdate", EhsHMetaGetEHSStartDate(), EHS_POST_STRING_LENGTH_MAX);
 
-            EhsHCreateQueryString(curl, PostString, "ipaddr",
-                                  EhsHMetaGetIPAddr(), EHS_POST_STRING_LENGTH_MAX);
-            EhsHCreateQueryStringNum(PostString, "sdl_version",
-                                     EhsHAppMetaGetBuildNumber(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryString(curl, PostString, "ipaddr", EhsHMetaGetIPAddr(), EHS_POST_STRING_LENGTH_MAX);
+            EhsHCreateQueryStringNum(PostString, "sdl_version", EhsHAppMetaGetBuildNumber(), EHS_POST_STRING_LENGTH_MAX);
             if (EhsHMetaGetMissedPing() == EHS_TRUE)
             {
                 EhsHCreateQueryStringNum(PostString, "devman_mon_missed_pings_duration", EhsHMetaGetCPUMissedPingTime(), EHS_POST_STRING_LENGTH_MAX);
@@ -838,18 +896,27 @@ void *DevmanMonThread(void *arg)
                 EHSH_LOG_INFO("GETTING current pairing info");
                 EhsHCreateQueryString(curl, PostString, "get_pairing_info","yes", EHS_POST_STRING_LENGTH_MAX);
             }
+            /* check if the URL has changed and find any relevant certs */
+#define EHS_USE_DYNAMIC_DOMAIN_CERTIFICATES
+#ifdef EHS_USE_DYNAMIC_DOMAIN_CERTIFICATES
+            EhsHGetDevmanCombinedClientCertificateKeyPath(sZtemp,szUrl);
+            sslClientCertificates =  EhsHSetUpClientTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR,sZtemp , NULL /* combined in PEM */, NULL);
+            EhsHGetDevmanCaCertificatePath(sZtemp,szUrl);
+            sslCaCertificates =  EhsHSetUpCaTlsCertificate(curl, EHS_RUNTIME_DEVMAN_DIR, sZtemp);
+            //printf("SSL CETTIFICATE PATH=%s\n",sZtemp);
+            /* Finally do the call*/
+#endif
             if (EhsHURLConfigPostGet(curl, buffer_struct, szUrl, PostString,EHS_TRUE) )
             {
                 http_no = EhsHURLdoRequest(curl);
                 returndata=EhsHURLget_write_data_buffer(buffer_struct);
                 //EHSH_LOG_INFO("DONE DEMVMAN_MON_REQUEST GOT [%ld]:[%s]\n with POST=%s",http_no,returndata,PostString);
                 //LOGE("DONE DEMVMAN_MON_REQUEST GOT [%s][%ld]:[%s]\n with POST=%s",szUrl,http_no,returndata,PostString);
-                //	 LOGE("DONE DEMVMAN_MON_REQUEST GOT [%ld]:[%s]",http_no,returndata);
+                //LOGE("DONE DEMVMAN_MON_REQUEST GOT [%ld]:[%s]",http_no,returndata);
             }
             else
             {
-                EHSH_LOG_ERROR("DDIDN@TLIKE THE POST SETUP");
-                //LOGE("DDIDN@TLIKE THE POST SETUP");
+                EHSH_LOG_ERROR("DDIDNTLIKE THE POST SETUP");
                 http_no=0;
                 returndata=NULL;
             }
@@ -857,8 +924,6 @@ void *DevmanMonThread(void *arg)
             /* May have populated the return data buffer - assume it is complete*/
             if (http_no == 200)
             {
-                EHSH_LOG_INFO("200 BACK YEAY!");
-                // LOGE("200 BACK YEAY!");
                 if (CurrentURLindex == 0) EhsHMetaResetMissedPingTime(); // reset this if we get a response from the primary server
                 status = EHS_TRUE;
                 if (CurrentURLindex != 0)   /* if not choice number 1 then try the number one very so often */
@@ -879,16 +944,14 @@ void *DevmanMonThread(void *arg)
                     }
                 }
             }
-            else     /* http request failed...*/
+            else /* http request failed...*/
             {
                 EHSH_LOG_ERROR("FAILED TO DO DEMVNANMON POST [%s] errocode=%d:",szUrl,(ehs_sint32) http_no);
-                //LOGE("2FAILED TO DO DEMVNANMON POST errocode=%ld:",http_no);
                 EhsHMetaSetMissedPing();
                 status = EHS_FALSE;
                 trynext=EHS_TRUE;
                 EHSH_LOG_WARNING("No response from [%s]\n",szUrl);
-                //LOGE("No response from [%s]\n",szUrl);
-
+                
                 if (CurrentURLindex == 0 )   /* try a bit harder with the first on the list - only skip to next after a few tries */
                 {
                     retrytimes--;
@@ -932,29 +995,48 @@ curl_init_error:
 
         EhsHMem_permFree(PostString);
         PostString = NULL;
-
     } // end made the buffer OK.
     return NULL;
 }
-#endif
+#endif // EHS_DEVMAN_MON_SUPPORT
 
 //#undef EHS_NODEVMAN
 void DevmanMon_init(void)
 {
 //#define EHS_DEBUG_DISABLE_DEVMON
 #ifndef EHS_DEBUG_DISABLE_DEVMON
-    pthread_t t1;
-#ifdef EHS_LINUX //@todo put in platform build codes here
-    if (pthread_create(&t1, NULL, DevmanMonThread, NULL))
-    {
-        EHSH_LOG_ERROR("Error creating Devman monitor thread");
-    }
-#else
-    if (pthread_create(&t1, NULL, DevmanMonThread, NULL))
-    {
-        EHSH_LOG_ERROR("Error creating Devman monitor thread");
-    }
-#endif
 
+#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+#ifndef EHS_MQTT_SUPPORT
+    #error "Cannot use Devman MQTT mon without 'EHS_MQTT_SUPPORT' in the target config"
 #endif
+    // init devman mon OTA handler
+    EhsOtaDevmanMonSupportInit(EhsOtaDevmanMonNext);
+    // init devman mon mqtt handler
+    EhsMqttDevmanMon_t* pEhsMqttDevmanMon = EhsMqttDevmanMonSupportInit();
+    // set mqtt devman mon loop callback which gets called form matt clinet loop
+    pEhsMqttDevmanMon->pMqttDevmanMonLoop = DevmanMonThread;
+
+    #if EHS_MQTT_CLIENT_FB_THREAD
+    // for targets which use function block thread for running a blocking mqtt clinet loop e.g. linux
+    // we need to create a thread that runs mqtt client loop for devman mon
+    pthread_t t1;
+    if (pthread_create(&t1, NULL, EhsMqttClientLoop, (void*)EhsMqttDevmanMonSupport()))
+    {
+        EHSH_LOG_ERROR("Error creating Devman monitor thread");
+    }
+    #endif
+
+    gMqttClientInstanceCount++;
+    EHSH_LOG_INFO("Increase MQTT clinet instace count (%d) \n", gMqttClientInstanceCount);
+    
+#else // EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_CURL
+    pthread_t t1;
+    if (pthread_create(&t1, NULL, DevmanMonThread, NULL))
+    {
+        EHSH_LOG_ERROR("Error creating Devman monitor thread");
+    }
+#endif // EHS_DEVMAN_MON_SUPPORT
+
+#endif // EHS_DEBUG_DISABLE_DEVMON
 }

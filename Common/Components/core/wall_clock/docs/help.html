@@ -1,177 +1,235 @@
-<html>
-
-<head>
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+  <META name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
   <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
-</head>
-
-<body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">wall_clock</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
-      This component is used to set and retrieve the current system date and time. The date-time format is the w3c standard where the complete date is displayed with the hours, minutes and seconds in the format YYYY-MM-DDThh:mm:ss where YYYY is a 4-digit year, MM is a 2-digit month, DD is a 2-digit day of the month, hh is 2 digits of the hour, mm is 2 digits of the minute and ss is 2 digits of the second. For example 1997-07-16T19:20:30 is a valid date-time string.
-    </p>
-    <p class=component>
-      When the input event <a href="#[In]get">[In]get</a> is asserted, the current date and time is presented to the data output <a href="#[Out]Date String">[Out]Date String</a> in the w3c format described above and the corresponding output event is triggered. Also the number of minutes elapsed since 1970-01-01T00:00:00 is presented to the data output <a href="#[Out]Mins 1970">[Out]Mins 1970</a> and the residual number of seconds presented to the data output <a href="#[Out]& secs">[Out]& secs</a>.
-    </p>
-    <p class=component>
-      When the input event <a href="#[In]set">[In]set</a> is asserted, the sytem date and time is set to the date-time string, in the w3c format described above, presented to the data input <a href="#[Out]time">[Out]time</a>.
-    </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-    </table>
-
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td><a name=[In]get>get</a></td>
-        <td>Input event, gets the current system time.</td>
-      </tr>
-      <tr>
-        <td><a name=[In]set>set</a></td>
-        <td>Input event, sets the current system time.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td><a name="[In]time">time</td>
-        <td>Data input, the date and time to set the system to, in the form YYYY-MM-DDThh:mm:ss.</td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td><a name="[Out]Date String">Date String</td>
-        <td>Data output, the system date and time in the w3c format YYYY-MM-DDThh:mm:ss.</td>
-      </tr>
-      <tr>
-        <td><a name="[Out]Mins 1970">Mins 1970</td>
-        <td>Data output, the number of minutes elapsed since 1970-01-01T00:00:00.</td>
-      </tr>
-      <tr>
-        <td><a name="[Out]& secs">& secs</td>
-        <td>Data output, the residual number of seconds after the minutes elapsed since 1970-01-01T00:00:00.</td>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td><a name="[Out]------">-----</a></td>
-        <td>Output event, triggered when the corresponding input event is asserted.</td>
-      </tr>
-      <tr>
-        <td><a name="[Out]-----">------</a></td>
-        <td>Output event, triggered when the corresponding input event is asserted.</td>
-      </tr>
-
-    </table>
-
-
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-<!--           <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+  <LINK href="iabStyle.css" rel="StyleSheet" type="text/css">
+  <LINK href="../iabStyle.css" rel="StyleSheet" type="text/css">
+  <LINK href="../../iabStyle.css" rel="StyleSheet" type="text/css">
+  <LINK href="../../../iabStyle.css" rel="StyleSheet" type="text/css">
+  <TITLE></TITLE>
+</HEAD>
+<BODY>
+  <DIV class="page_container">
+    <DIV id="toc_container">
+      <SPAN class="toc_span">wall_clock</SPAN> <!--these display in reverse order because they use float:right-->
+      <SPAN class="toc_span_items"><A href="#misc">Misc &darr;</A></SPAN>
+      <SPAN class="toc_span_items"><A href="#parameters">Params &darr;</A></SPAN>
+      <SPAN class="toc_span_items"><A href="#ports">Ports &darr;</A></SPAN>
+    </DIV><!--General Description-->
+    <P class="component">This component is used to set and retrieve the current system date and time. The date-time format is the w3c standard where the
+    complete date is displayed with the hours, minutes and seconds in the format YYYY-MM-DDThh:mm:ss where YYYY is a 4-digit year, MM is a 2-digit month, DD is
+    a 2-digit day of the month, hh is 2 digits of the hour, mm is 2 digits of the minute and ss is 2 digits of the second. For example 1997-07-16T19:20:30 is a
+    valid date-time string.</P>
+    <P class="component">When the input event <A href="#[In]get">[In]get</A> is asserted, the current date and time is presented to the data output <A href=
+    "#[Out]Date%20String">[Out]Date String</A> in the w3c format described above and the corresponding output event is triggered. Also the number of minutes
+    elapsed since 1970-01-01T00:00:00 is presented to the data output <A href="#[Out]Mins%201970">[Out]Mins 1970</A> and the residual number of seconds
+    presented to the data output <A href="#[Out]&amp;%20secs">[Out]& secs</A>.</P>
+    <P class="component">When the input event <A href="#[In]set">[In]set</A> is asserted, the sytem date and time is set to the date-time string, in the w3c
+    format described above, presented to the data input <A href="#[Out]time">[Out]time</A>.</P><!--Parameters - form - short desc: long desc-->
+    <DIV class="section_heading">
+      <SPAN class="toc_span" id="parameters">Parameters</SPAN>
+      <DIV class="toc_span_items">
+        <A href="#toc_container">Top &uarr;</A>
+      </DIV>
+      <DIV class="toc_span_items">
+        <A href="#misc">Misc &darr;</A>
+      </DIV>
+      <DIV class="toc_span_items">
+        <A href="#ports">Ports &darr;</A>
+      </DIV>
+    </DIV>
+    <TABLE class="table_params">
+      <TR>
+        <TH style="width:60px;">name</TH>
+        <TH>type</TH>
+        <TH>description</TH>
+        <TH>default</TH>
+        <TH>min.</TH>
+        <TH>max.</TH>
+      </TR>
+      <TR>
+        <TH>format</TH>
+        <TH>type</TH>
+        <TH>
+          <P>The output date string format.</P>
+          <P>0 for W3C datetime format. </P>
+          <P>1 for Human readable format (e.g. "2023 Jun 14 14:21:54 BST"). </P>
+          <P>2 for Human readable format with weekdays (e.g. "Wed 2023 Jun 14 14:21:54 BST"). </P>
+          <P>3 for YYYY-MM-DDThh:mm:ss format.</P>
+        </TH>
+        <TH>0</TH>
+        <TH>0</TH>
+        <TH>3</TH>
+      </TR>
+    </TABLE><!--Ports - form - short desc: long desc-->
+    <DIV class="section_heading">
+      <SPAN class="toc_span" id="ports">Ports</SPAN> 
+      <SPAN class="toc_span_items"><A href="#toc_container">Top &uarr;</A></SPAN>
+      <SPAN class="toc_span_items"><A href="#misc">Misc &darr;</A></SPAN>
+      <SPAN class="toc_span_items"><A href="#parameters">Params &uarr;</A></SPAN>
+    </DIV>
+    <TABLE class="table">
+      <TR>
+        <TH>In Ev.</TH>
+        <TH></TH>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[In]get" id="[In]get">get</A>
+        </TD>
+        <TD>Input event, gets the current system time.</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[In]set" id="[In]set">set</A>
+        </TD>
+        <TD>Input event, sets the current system time.</TD>
+      </TR>
+      <TR>
+        <TH>Data In</TH>
+        <TH></TH>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[In]time" id="[In]time">time</A>
+        </TD>
+        <TD>Data input, the date and time to set the system to, in the form YYYY-MM-DDThh:mm:ss.</TD>
+      </TR>
+      <TR>
+        <TH>Data Out</TH>
+        <TH></TH>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]Date String">Date String</A>
+        </TD>
+        <TD>Data output, the system date and time in the w3c format YYYY-MM-DDThh:mm:ss.</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]Unix Time">Unix Time</A>
+        </TD>
+        <TD>Unix timestamp (a.k.a. epoch time).</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]Mins 1970">Mins 1970</A>
+        </TD>
+        <TD>Data output, the number of minutes elapsed since 1970-01-01T00:00:00.</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]&amp; secs">& secs</A>
+        </TD>
+        <TD>Data output, the residual number of seconds after the minutes elapsed since 1970-01-01T00:00:00.</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]year">year</A>
+        </TD>
+        <TD>Current year in local time within the timezone</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]month">month</A>
+        </TD>
+        <TD>Current month from January (0-11) in local time within the timezone</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]year">MDay</A>
+        </TD>
+        <TD>Current month day (1-31) in local time within the timezone</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]WDay">WDay</A>
+        </TD>
+        <TD>Current weekday since Sunday (from 0) in local time within the timezone</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]hour">hour</A>
+        </TD>
+        <TD>Current hour since midnight (0-23) in local time within the timezone</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]minute">minute</A>
+        </TD>
+        <TD>Current minutes from hour (0-59) in local time within the timezone</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]second">second</A>
+        </TD>
+        <TD>Current seconds from minute (0-61) in local time within the timezone. Note the normal range is 0-59. The extra range is for leap seconds.</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]local diff">local diff</A>
+        </TD>
+        <TD>The difference between local time and unix time in seconds. local diff = local timestamp - unix timestamp.</TD>
+      </TR>
+      <TR>
+        <TH>Out Ev.</TH>
+        <TH></TH>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]------" id="[Out]------">-----</A>
+        </TD>
+        <TD>Output event, triggered when the corresponding input event is asserted.</TD>
+      </TR>
+      <TR>
+        <TD>
+          <A name="[Out]-----" id="[Out]-----">------</A>
+        </TD>
+        <TD>Output event, triggered when the corresponding input event is asserted.</TD>
+      </TR>
+    </TABLE>
+    <DIV class="section_heading">
+      <SPAN class="toc_span" id="misc">Misc</SPAN> 
+      <SPAN class="toc_span_items"><A href="#toc_container">Top &uarr;</A></SPAN> 
+      <SPAN class="toc_span_items"><A href="#ports">Ports &uarr;</A></SPAN> 
+      <SPAN class="toc_span_items"><A href="#parameters">Params &uarr;</A></SPAN>
+    </DIV>
+    <TABLE>
+      <TR class="fsm_row">
+        <TD style="width:90px;"><B>State Machine</B></TD>
+        <TD colspan="5"><!--           <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
           <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
           <span class="fsm_blob">state2</span>
           &otimes;&nbsp;
           <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
           <span class="fsm_blob">state3</span> [doh]&rarr;
           <span class="fsm_blob">state5</span> -->
-          NONE
-        </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
-          core
-        </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
-          v1.0.
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
-          MPL2.0
-        </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
-          All.
-        </td>
-      </tr>
-    </table>
-
-  </div>
-</body>
-
-</html>
+        NONE</TD>
+        <TD></TD>
+        <TD></TD>
+      </TR>
+      <TR>
+        <TD class="heading-cell"><B>Toolbox</B></TD>
+        <TD>core</TD>
+        <TD class="heading-cell"><B>Version</B></TD>
+        <TD>v1.0.</TD>
+      </TR>
+      <TR>
+        <TD class="heading-cell"><B>Licence Type</B></TD>
+        <TD>MPL2.0</TD>
+        <TD class="heading-cell"><B>Component Supplier</B></TD>
+        <TD>
+          <A href="http://www.inx-systems.net" target="_blank">inx ltd.</A>
+        </TD>
+      </TR>
+      <TR>
+        <TD class="heading-cell"><B>Minumum DCC</B></TD>
+        <TD>A0000</TD>
+        <TD class="heading-cell"><B>Profiles</B></TD>
+        <TD>All.</TD>
+      </TR>
+    </TABLE>
+  </DIV>
+</BODY>
+</HTML>

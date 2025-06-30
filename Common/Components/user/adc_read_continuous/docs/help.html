@@ -1,0 +1,201 @@
+<html>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container" style="font-size: x-small;">
+<div id="toc_container"> <span class="toc_span">adc_read_continuous</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component"> 
+        Read value continuously as mean and mean squared values. The port and data are triggered only if the data is ready. The <a href="#[Parameter]decimation">decimation</a> and <a href="#[Parameter]decimate_average">decimate_average</a> principle is described by the picture below:
+      </p>
+<p class="component">
+<a name="[Image]decimation"><img alt="ADC Decimation" src="adc_read_continuous-1.png"/></a>
+</p>
+<!-- Parameters -->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>def</th>
+<th>min</th>
+<th>max</th>
+
+</tr>
+<tr>
+<td>device_id</td>
+<td>integer</td><td>The ADC Device number to be configured. For internal ADCs, this is the unit. For external ADCs, this is the address enumeration.</td>
+<td>0</td>
+<td>0</td>
+<td>9</td>
+
+</tr>
+<tr>
+<td>channel</td>
+<td>integer</td><td>The ADC Channel ID. If it is disabled, it will neither output anything nor trigger the output event.</td>
+<td>0</td>
+<td>0</td>
+<td>15</td>
+
+</tr>
+<tr>
+<td><a name="[Parameter]decimation">decimation</a></td>
+<td>integer</td><td>The ADC Decimation number. This means dividing the sampling frequency by this parameter.</td>
+<td>1</td>
+<td>1</td>
+<td>1000000000</td>
+
+</tr>
+<tr>
+<td><a name="[Parameter]decimate_average">decimate_average</a></td>
+<td>integer</td><td>The number of the last samples in the decimation period for average. It must be greater than 1 and less than the <a href="#[Parameter]decimation">decimation</a> parameter. This will be capped to the <a href="#[Parameter]decimation">decimation</a> parameter when this is greater than it.</td>
+<td>1</td>
+<td>1</td>
+<td>1000000000</td>
+
+</tr>
+<tr>
+<td><a name="[Parameter]bias">bias</a></td>
+<td>float</td><td>The bias of the out need to be taken from the value. It's a floating point number in mV.
+              This can be overwritten with the <a href="#[In]bias">MS bias</a> input.
+            </td>
+<td>0</td>
+<td>-200000000</td>
+<td>200000000</td>
+
+</tr>
+</tbody>
+</table>
+<!-- Ports -->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th>In Ev.</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports">enable</td>
+<td>Enable the averaging and port output action.</td>
+</tr>
+<tr>
+<td class="ports">disable</td>
+<td>Disable the averaging and port output action.</td>
+</tr>
+<tr>
+<th>Data In</th>
+<th>Description</th>
+<tr>
+<td class="ports"><a name="[In]bias">MS bias</a></td>
+<td>The bias (offset) for <a href="#[Out]mean_squared">Mean Squared</a> calculation. The values is 10 bit fixed precision mV (i.e. x 1024 mV).
+              This input overwrites <a href="#[Parameter]bias">bias</a> parameter.
+            </td>
+</tr>
+</tr>
+<tr>
+<th>Data Out</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]mean">mean</a></td>
+<td>Average based on the <a href="#[Image]decimation">decimation principle</a>. The output values is 10 bit fixed precision mV (i.e. x 1024 mV).</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]variance">var.</a></td>
+<td>Variance based on previous computed mean and the <a href="#[Image]decimation">decimation principle</a>. The result's value is mV^2.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]mean_squared">M.S.</a></td>
+<td>Mean Square based on the <a href="#[Image]decimation">decimation principle</a>. The result's values is mV^2.</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]done">--</a></td>
+<td>Triggered once new data is ready.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]setOK">--</a></td>
+<td>Triggered when mean squared bias is set.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]error">error</a></td>
+<td>Triggerred when:
+              <ol start="1">
+<li>
+<span>The ADC unit is not initialised</span>
+</li>
+<li>
+<span>The ADC unit is not configured with the same mode as the corresponding ADC channel block type (continuous)</span>
+</li>
+</ol>
+</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]en_done">--</a></td>
+<td>When the conversion is enabled.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]dis_done">--</a></td>
+<td>When the conversion is disabled.</td>
+</tr>
+</tbody>
+</table>
+<!-- Misc -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b>State Machine</b> </td>
+<td colspan="5">None</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Toolbox</b> </td>
+<td> Core </td>
+<td class="heading-cell"> <b>Version</b> </td>
+<td> v1.0. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Licence Type</b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b>Component Supplier</b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Minumum DCC</b> </td>
+<td>A0000</td>
+<td class="heading-cell"> <b>Profiles</b> </td>
+<td> All. </td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>

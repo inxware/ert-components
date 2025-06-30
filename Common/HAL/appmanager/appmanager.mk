@@ -22,6 +22,8 @@
 include $(EHS_COMMON_HAL_PATH)/appmanager/deps.mk
 VPATH+=$(EHS_COMMON_HAL_PATH)/appmanager
 ifdef EHS_DEVMAN_MON_SUPPORT
+ifndef EHS_ESP32
 OBJECTS += devappget.$(OBJ) 
+endif
 endif
 OBJECTS += appstorage.$(OBJ) 

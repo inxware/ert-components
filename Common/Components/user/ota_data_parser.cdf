@@ -11,7 +11,10 @@
         <UserName/>
         <Menu>
             System
-            <Menu>OTA Data Parser</Menu>
+            <Menu>
+                OTA Tools
+                <Menu>OTA Data Parser</Menu>
+            </Menu>
         </Menu>
     </Description>
     <Block>

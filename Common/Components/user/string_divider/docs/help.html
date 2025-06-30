@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Data Utilities\String Functions\Raw Data Conversion\String Divider Function Block</span>
+<span class="toc_span_items"><a href="#description">Description &#8595;</a></span>
+<span class="toc_span_items"><a href="#function">Parameters &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+<strong>String divider</strong> provides functionality for dividing strings into multiple chunks based on specified delimiters.
+    </p>
+<!--Description-->
+<div class="section_heading">
+<span class="toc_span" id="description">Description</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#function">Parameters &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<ul>
+<li><strong>Short Description:</strong> String Divider</li>
+<li><strong>Long Description:</strong> Splits a string into multiple parts using specified delimiters, useful for processing and converting raw data into manageable chunks.</li>
+<li><strong>Menu Path:</strong> Data Utilities &gt; String Functions &gt; Raw Data Conversion &gt; String Divider</li>
+</ul>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="function">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#description">Description &#8593;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>Delimiter</td>
+<td>S</td>
+<td> </td>
+<td>The delimiter used to split the input string.</td>
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#description">Description &#8593;</a></span>
+<span class="toc_span_items"><a href="#function">Parameters &#8593;</a></span>
+</div>
+<table class="table">
+<tr>
+<th>Port</th><th>Type</th><th>Description</th>
+</tr>
+<!-- Input Ports -->
+<tr>
+<td class="portsEvent">split</td>
+<td>StartPort</td>
+<td>Event to initiate the splitting of the string.</td>
+</tr>
+<tr>
+<td class="portsData">str</td>
+<td>InputPort</td>
+<td>The input string to be split.</td>
+</tr>
+<tr>
+<td class="portsData">len</td>
+<td>InputPort</td>
+<td>The length of the input string.</td>
+</tr>
+<!-- Output Ports -->
+<tr>
+<td class="portsData">err</td>
+<td>OutputPort</td>
+<td>Error code indicating if there was an issue during splitting.</td>
+</tr>
+<tr>
+<td class="portsData">str1</td>
+<td>OutputPort</td>
+<td>The first part of the split string.</td>
+</tr>
+<tr>
+<td class="portsData">len1</td>
+<td>OutputPort</td>
+<td>The length of the first part of the split string.</td>
+</tr>
+<tr>
+<td class="portsData">str2</td>
+<td>OutputPort</td>
+<td>The second part of the split string.</td>
+</tr>
+<tr>
+<td class="portsData">len2</td>
+<td>OutputPort</td>
+<td>The length of the second part of the split string.</td>
+</tr>
+<tr>
+<td class="portsData">str3</td>
+<td>OutputPort</td>
+<td>The third part of the split string.</td>
+</tr>
+<tr>
+<td class="portsData">len3</td>
+<td>OutputPort</td>
+<td>The length of the third part of the split string.</td>
+</tr>
+<tr>
+<td class="portsData">str4</td>
+<td>OutputPort</td>
+<td>The fourth part of the split string.</td>
+</tr>
+<tr>
+<td class="portsData">len4</td>
+<td>OutputPort</td>
+<td>The length of the fourth part of the split string.</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#function">Parameters &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          N/A
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          core/data_utilities/string_functions/
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

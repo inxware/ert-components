@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -270,16 +271,25 @@ public class MessageFactory {
             return null;
         }
 
-        public boolean save(String path){
-            EHSS_Logger.info( "Saving binary to file (" +path+ ").");
+        public boolean save(File file){
             try {
-                OutputStream outStream = new BufferedOutputStream(new FileOutputStream(path));
+                EHSS_Logger.info( "Saving binary to file (" +file.getAbsolutePath()+ ").");
+                OutputStream outStream = new BufferedOutputStream(new FileOutputStream(file));
                 EHSS_Utils.copyStream(inStream, outStream);
                 outStream.close();
                 return true;
             }catch (FileNotFoundException e){
                 EHSS_Logger.debug(e.toString());
             }catch (IOException e){
+                EHSS_Logger.debug(e.toString());
+            }
+            return false;
+        }
+
+        public boolean save(String path){
+            try {
+                return save(new File(path));
+            }catch (Exception e){
                 EHSS_Logger.debug(e.toString());
             }
             return false;

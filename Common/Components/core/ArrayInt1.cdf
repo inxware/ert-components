@@ -16,7 +16,7 @@
                 Buffers
                 <Menu>
                     Array
-                    <Menu>Integer</Menu>
+                    <Menu>int</Menu>
                 </Menu>
             </Menu>
         </Menu>

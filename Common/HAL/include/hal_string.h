@@ -148,7 +148,7 @@ EHS_GLOBAL const ehs_char* EhsGetUint32FromString(ehs_uint32 * output, const ehs
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer)
  */
-EHS_GLOBAL const ehs_char* EhsGetSint32FromString(ehs_sint32 * output, const ehs_char* input);
+extern const ehs_char* EhsGetSint32FromString(ehs_sint32 * output, const ehs_char* input);
 
 /* and the float version */
 const char* EhsGetDoubleFromString(ehs_float * output, const char* input) ;
@@ -164,7 +164,7 @@ const char* EhsGetDoubleFromString(ehs_float * output, const char* input) ;
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer), or null if parse fails
  */
-EHS_GLOBAL const ehs_char* EhsGetUint16FromString(ehs_uint16* output,const ehs_char* input);
+extern const ehs_char* EhsGetUint16FromString(ehs_uint16* output,const ehs_char* input);
 
 /**
  * Read a signed 16-bit integer from a line of the SODL file.
@@ -177,7 +177,7 @@ EHS_GLOBAL const ehs_char* EhsGetUint16FromString(ehs_uint16* output,const ehs_c
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer), or null if parse fails
  */
-EHS_GLOBAL const ehs_char* EhsGetSint16FromString(ehs_sint16* output, const ehs_char* input);
+extern const ehs_char* EhsGetSint16FromString(ehs_sint16* output, const ehs_char* input);
 /**
  * Read an unsigned 8-bit integer from a line of the SODL file.
  * Generates an error message and sets EhsParseFailed if the value
@@ -189,7 +189,7 @@ EHS_GLOBAL const ehs_char* EhsGetSint16FromString(ehs_sint16* output, const ehs_
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer)
  */
-EHS_GLOBAL const ehs_char* EhsGetUint8FromString(ehs_uint8* output, const ehs_char* input);
+extern const ehs_char* EhsGetUint8FromString(ehs_uint8* output, const ehs_char* input);
 
 /**
  * Read a word from a line of a SODL file. A word is a sequence of characters that do not include whitespace.
@@ -198,13 +198,30 @@ EHS_GLOBAL const ehs_char* EhsGetUint8FromString(ehs_uint8* output, const ehs_ch
  * @param[in] input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer)
  */
-EHS_GLOBAL const ehs_char* EhsGetWordFromString(ehs_char * output, const ehs_char* input);
+extern const ehs_char* EhsGetWordFromString(ehs_char * output, const ehs_char* input);
+
+/**
+ * @brief Parse all string words from a string. This is used for SODL parameters if there are only strings.
+ * 
+ * @param outputs The output string array. The string inside the array are allocated within the App scope. The string will be NULL pointer if it is empty.
+ * @param input The input string
+ * @param length The total number of words to be parsed from the input
+ * @return ehs_uint8 The number of parsed words from string
+ *
+ * @code {.C}
+ * ehs_char *array[2] = { NULL };
+ * ehs_uint8 size = EhsGetWordsFromString(array, "Hello world", 2);
+ * assert(size == 2);
+ * @endcode
+ * 
+ */
+EHS_GLOBAL ehs_uint8 EhsGetWordsFromString(ehs_char **outputs, const ehs_char* input, ehs_uint8 length);
 
 /**
  * Return a pointer to the character after the end of line character,
  * or null. The end of line character can be CR (0x0d), LF (0x0a) or CRLF.
  */
-EHS_GLOBAL const ehs_char* EhsGetEol(const ehs_char* input);
+extern const ehs_char* EhsGetEol(const ehs_char* input);
 
 /**
  * Convert a utf8 string into a utf32 value.
@@ -285,4 +302,12 @@ ehs_char* EhsStrncpy_s(ehs_char* dest, ehs_uint32 nNumElts, const ehs_char* src,
 #ifndef EhsStrstr
 ehs_char* EhsStrstr(ehs_char*, ehs_char*);
 #endif
+
+/* Some more speciliased string parsing functions */
+/* @brief Extracts specific http query strings from a string.*/
+ehs_bool cgi_get_varval(const ehs_char *src, ehs_char *var_name, ehs_char *dst, ehs_uint32 length);
+
+/* Simple URdecoder  - todo2024- call this EhsHSimpleUrlDecode() */
+void cgi_urldecode(ehs_char *url);
+
 #endif /* EHS_HAL_STRING_H */

@@ -43,6 +43,8 @@
 
 #define EhsSscanf sscanf
 
+#define EhsVsnprintf vsnprintf
+
 #define EhsStrcpy strcpy
 
 #define EhsStrncpy strncpy

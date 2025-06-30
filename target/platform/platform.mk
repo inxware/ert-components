@@ -53,13 +53,15 @@ export EHS_GNU_ARCH
 #some slightly target pecific hack paramters we should export. 
 #We should probably do this in the more specific target
 
-#default to ASCII SODL 
+# default to eRT1 binary SODL 
 ifndef ERT_SODL_VERSION
-ERT_SODL_VERSION=0
+ERT_SODL_VERSION=1
 endif
 export ERT_SODL_VERSION
 
 export DEBIAN_PACKAGE_NAME
+
+export EHS_AUTO_START
 
 #Note we have some toolchains in the oposite order e.g. linux-android-armv7a 
 #- in which case we can either fix it in the support repo or use the TOOLCHAIN_NAME override
@@ -87,8 +89,11 @@ export EHS_TARGET_OS_HW_PATH=$(EHS_TARGETS_ROOT_PATH)/os-arch/$(EHS_OS)-$(EHS_AR
 # Paramters that need exportng to targetenv and other bas scripts
 # SYSTEM_VARIANT selects different OS initialisation scripts and other dployed files that cary with specific targets. 
 export SYSTEM_VARIANT
-# THe hacks file i for more unusual target specific requirements, such as adding 3rd-party apps and resoures for a particular product
+# The hacks file i for more unusual target specific requirements, such as adding 3rd-party apps and resoures for a particular product
 export INXWARE_TARGETENV_HACKS
+
+# export the targetenv configuration environment variables for bash
+export EHS_DEVMAN_SUPERVISOR_REQUIRED
 
 ####################   Configure the os-arch independent toolchain paths  ############################## 
 
@@ -116,9 +121,14 @@ else
     endif
 endif
 
+# Shall we remove the following CC, CPP, LINK and AS related lines? They seems like dup of the toolchain.mk
+
+ifdef CXX_OVERRIDE
+CPP:=$(CXX_OVERRIDE)
+endif
+
 ifdef CC_OVERRIDE
 CC:=$(CC_OVERRIDE)
-CPP:=$(CC_OVERRIDE)
 LINK:=$(CC_OVERRIDE)
 endif
 
@@ -134,7 +144,6 @@ export CC
 export CPP
 export LINK
 export AS
-
 
 ################# Set up the Component Library Support Paths ####################################
 # Note : gnu sysroot might use this so do it before including toolchain.mk
@@ -169,10 +178,10 @@ include $(EHS_TARGET_OS_HW_PATH)/toolchain.mk
 export EHS_TARGET_COMPONENT_HAL_PATH=$(EHS_TARGETS_ROOT_PATH)/Component-HAL
 
 ifndef COMPONENT_BASE_TECHNOLOGIES
-$(error == COMPONENT_BASE_TECHNOLOGIES is not defined)
+    $(error == COMPONENT_BASE_TECHNOLOGIES is not defined)
 else
-$(info == Your Build target is using the following ert-contrib_middleware:) 
-$(info == [$(COMPONENT_BASE_TECHNOLOGIES)] )
+    $(info == Your Build target is using the following ert-contrib_middleware:) 
+    $(info == [$(COMPONENT_BASE_TECHNOLOGIES)] )
 endif
 
 # and apply to the compiler paths 
@@ -188,7 +197,8 @@ include $(EHS_TARGET_OS_HW_PATH)/target.mk
 
 ############## Set up some eRT Source level conditional build macros          ##########
 # If the platform as system variant, let the code use the macro for build configuration.
-DEFS += $(SYSTEM_VARIANT)#todo as above!
+DEFS += $(SYSTEM_VARIANT)
+#todo as above!
 
 # IF WE HAVE A NATIVE BUILD (e.g. docker) THEN MUCH OF THE ABOVE SHOULD PROBABLY BE REMOVED? 
 # Though it probably doesn't do any harm having linkes to resources in ert-* support repos if there's nothing in them.
@@ -298,8 +308,24 @@ include $(EHS_COMMON_HAL_PATH)/HAL.mk
 
 #All config files should be included now
    $(info ====================================================================)
-   $(info TOOLBOXES:)
+   $(info EHS_ARCH     =$(EHS_ARCH))
+   $(info EHS_GNU_ARCH =$(EHS_GNU_ARCH))
+   $(info EHS_OS       =$(EHS_OS))
+   $(info EHS_GNU_OS   =$(EHS_GNU_OS))
+   $(info -TOOLBOXES:)
    $(info EHS_PERIPHERALS_GPIO_SUPPORT=$(EHS_PERIPHERALS_GPIO_SUPPORT))
+   $(info EHS_PERIPHERAL_DEVICE_SUPPORT=$(EHS_PERIPHERAL_DEVICE_SUPPORT))
+   $(info EHS_PERIPHERALS_ADC_DAC_SUPPORT=$(EHS_PERIPHERALS_ADC_DAC_SUPPORT))
+   $(info EHS_COMPONENT_NETWORKING_SUPPORT=$(EHS_COMPONENT_NETWORKING_SUPPORT=))
+   $(info EHS_PID_SUPPORT=$(EHS_PID_SUPPORT))
+   $(info EHS_SCHEDULER_SUPPORT=$(EHS_SCHEDULER_SUPPORT))
+   $(info EHS_MODBUS_SUPPORT=$(EHS_MODBUS_SUPPORT))
+   $(info EHS_GUI_SUPPORT=$(EHS_GUI_SUPPORT))
+   $(info EHS_AV_SUPPORT=$(EHS_AV_SUPPORT))
+   $(info EHS_VIDEO_SUPPORT=$(EHS_VIDEO_SUPPORT))
+   $(info EHS_MEDIA_SUPPORT=$(EHS_MEDIA_SUPPORT))
+   $(info EHS_TOOLKIT_DEPRECATED=$(EHS_TOOLKIT_DEPRECATED))
+
    $(info DEBUG:)
    $(info EHS_DEBUGALL            =$(EHS_DEBUGALL))
    $(info EHS_DEBUG_AV            =$(EHS_DEBUG_AV))
@@ -321,6 +347,9 @@ export EHS_DEFAULT_APP
 ############ Pick up any Devman URLs and credentials and pass these on to the build and packaing environments #####
 #This is the URL the CORE devman services will use to connect
 export DEVMAN_SERVER_DOMAIN
+export DEVMAN_SERVER_DOMAIN_1
+export DEVMAN_SERVER_DOMAIN_2
+# export additional domains
 export DEVMAN_SERVER_PROTOCOL
 export DEVMAN_UNAME
 export DEBIAN_INXWARE_SERVER_DOMAIN
@@ -329,8 +358,27 @@ export EHS_PRODUCT_NAME
 #todo 2023: We should be able to dump this wen we get rid of the android installer script duplication
 export DEVMAN_SERVER_NAME
 
+# devman mqtt client TLS enabled. Need to do this here? Shouldn't this be in the HAL.mk file?
+ifeq ($(DEVMAN_SERVER_PROTOCOL),mqtts)
+    DEFS += EHS_DEVMAN_MQTT_CLIENT_TLS=1
+endif
+
 export NETWORK_NTP_SERVER
 export NETWORK_HARDWIRED_HOSTS
+
+# So we don't use any code we shouldnt. We also need to start any service threads for MCUs.
+ifdef EHS_MCU_TARGET
+    export EHS_MCU_TARGET
+    DEFS += EHS_MCU_TARGET
+endif
+
+# Allow basic memory management with no clean up. Not recommended for apps that have 
+# console enabled or can receive new apps.
+ifdef EHS_MEMORY_MANAGMENT
+ifeq ($(EHS_MEMORY_MANAGMENT),notrace)
+    DEFS += EHS_MEMORY_MANAGMENT__NOTRACE
+endif
+endif
 
 # don't need this in bash: export EHS_MQTT_SUPPORT
 #we need to set this for cases where it needs to override an inheritted server config
@@ -364,3 +412,8 @@ export ANDROID_SUPPLEMENTARY_APP_PATH
 export ERT_PACKAGE_NAME
 # Used for specifing user facing name of installed application (windows installer)
 export ERT_NSIS_EXE_NAME
+
+# Used for the appland deployment
+export EHS_APPLAND_INST_SUPPORT
+export EHS_APPLAND_INST_DEPLOY_NAME
+export EHS_APPLAND_INST_OS_NAME

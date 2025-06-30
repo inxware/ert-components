@@ -17,7 +17,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
 	echo "############################################ RUNNING TARGETENV_MAKE_DEB IN DOCKER ##########################################"
 	echo "Building ${TARGET} using Docker image: $Dockerimagename"
 	echo "---------------------------------------------------------------------------------------------------------------------------"
- 	./target/envbuildscripts/target_buildenv_run_command.sh sh -c "./target/envbuildscripts/targetenv_make_deb.sh ${TARGET}"
+ 	./target/envbuildscripts/target_buildenv_run_command.sh sh -c "./target/envbuildscripts/targetenv_make_deb.sh ${TARGET} ${EHS_AUTO_START}"
     echo "########################################## COMPLETED TARGETENV_MAKE_DEB IN DOCKER ##########################################"
 else
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"

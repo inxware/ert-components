@@ -36,21 +36,41 @@ public class EhsUtils {
         }
     }
 
-    public static void clearDirectory(String path){
+    public static boolean clearDirectory(File dest_dir){
         try {
-            File dest_dir = new File(path);
             if (dest_dir.exists()) {
                 String[] children = dest_dir.list();
+                if(children == null || children.length == 0){
+                    return false;
+                }
                 for (int i = 0; i < children.length; i++) {
                     File child = new File(dest_dir, children[i]);
                     if (child.isDirectory()) {
-                        clearDirectory(child.getAbsolutePath());
+                        clearDirectory(child);
                     }
                     child.delete();
                 }
+                return true;
             }
         }catch (Exception e){
             EhsLogger.error(e.toString());
         }
+        return false;
+    }
+
+    public static boolean clearDirectory(String path){
+        try {
+            File dest_dir = new File(path);
+            return clearDirectory(dest_dir);
+        }catch (Exception e){
+            EhsLogger.error(e.toString());
+        }
+        return false;
+    }
+
+    public static void sleep_ms(int value){
+        try{
+            Thread.sleep(value);
+        }catch(Exception e) {}
     }
 }

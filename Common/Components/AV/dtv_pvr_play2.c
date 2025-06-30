@@ -83,12 +83,10 @@ EHS_FB_FUNCTION_ENTRY("reverse", 0x07, DtvPvrPlay2_rev)
 EHS_FB_FUNCTION_ENTRY("faster", 0x08, DtvPvrPlay2_faster)
 EHS_FB_FUNCTION_ENTRY("slower", 0x09, DtvPvrPlay2_slower)
 EHS_FB_FUNCTION_ENTRY("stop", 0x0A, DtvPvrPlay2_stop)
-EHS_FB_FUNCTION_ENTRY("end", 0x0B, DtvPvrPlay2_end)
+EHS_FB_FUNCTION_ENTRY("vol", 0x0B, DtvPvrPlay2_set_volume)
 EHS_FB_FUNCTION_ENTRY("setWindow", 0x0C, DtvPvrPlay2_set_window)
-
-EHS_FB_FUNCTION_ENTRY("vol", 0x0D, DtvPvrPlay2_set_volume)
-EHS_FB_FUNCTION_ENTRY("toFront", 0x0E,DtvPvrPlay2_to_front)
-EHS_FB_FUNCTION_ENTRY("toBack", 0x0F,DtvPvrPlay2_to_back)
+EHS_FB_FUNCTION_ENTRY("toFront", 0x0D,DtvPvrPlay2_to_front)
+EHS_FB_FUNCTION_ENTRY("toBack", 0x0E,DtvPvrPlay2_to_back)
 EHS_FB_FUNCTIONS_END
 
 /* port identifiers - @todo These are badly named*/

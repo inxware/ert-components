@@ -80,6 +80,26 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputInt4);
 EHS_FB_FUNCTIONS(MultiplexFourInputInt)
 
 /******************************************************************************/
+/* Declare 8-input integer multiplexor */
+
+#define EHS_FB_NAME_MultiplexEightInputInt "MultiplexEightInputInt"
+#define EHS_FB_ID_MultiplexEightInputInt 0x0828
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputInt);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexEightInputInt);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt1);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt2);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt3);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt4);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt5);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt6);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt7);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt8);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(MultiplexEightInputInt)
+
+/******************************************************************************/
 /* Declare 1-input boolean multiplexor */
 
 #define EHS_FB_NAME_MultiplexOneInputBool "MultiplexOneInputBool"
@@ -135,6 +155,26 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputBool4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexFourInputBool)
+
+/******************************************************************************/
+/* Declare 8-input boolean multiplexor */
+
+#define EHS_FB_NAME_MultiplexEightInputBool "MultiplexEightInputBool"
+#define EHS_FB_ID_MultiplexEightInputBool 0x2751
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputBool);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexEightInputBool);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool1);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool2);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool3);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool4);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool5);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool6);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool7);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool8);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(MultiplexEightInputBool)
 
 /******************************************************************************/
 /* Declare 1-input string multiplexor */
@@ -194,6 +234,26 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputString4);
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexFourInputString)
 
+/******************************************************************************/
+/* Declare 8-input string multiplexor */
+
+#define EHS_FB_NAME_MultiplexEightInputString "MultiplexEightInputString"
+#define EHS_FB_ID_MultiplexEightInputString 0x2E61
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputString);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexEightInputString);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString1);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString2);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString3);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString4);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString5);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString6);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString7);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString8);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(MultiplexEightInputString)
+
 #ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
 /* Declare 1-input real multiplexor */
@@ -249,6 +309,26 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexFourInputFloat)
+
+/******************************************************************************/
+/* Declare 8-input real multiplexor */
+
+#define EHS_FB_NAME_MultiplexEightInputReal "MultiplexEightInputReal"
+#define EHS_FB_ID_MultiplexEightInputReal 0x8571
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputFloat);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexEightInputFloat);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat1);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat2);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat3);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat4);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat5);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat6);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat7);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat8);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(MultiplexEightInputFloat)
 
 /******************************************************************************/
 /* Declare IndexedMultiplexer_Event */

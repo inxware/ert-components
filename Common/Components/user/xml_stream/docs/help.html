@@ -1,275 +1,231 @@
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span">xml_stream</span>
-        <!--these display in reverse order because they use float:right--> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
-            href="#ports">Ports &#8595;</a></span> </div>
-      <!--General Description-->
-      <p class="component"> </p>
-      <!--Parameters - form - short desc: long desc-->
-      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-            <th style="width:60px;">name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>min.</th>
-            <th>max.</th>
-            <th>description</th>
-          </tr>
-          <tr>
-            <td>ignore_script</td>
-            <td>Boolean</td>
-            <td>False</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>ignore_entities</td>
-            <td>Script</td>
-            <td>&amp;</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]reset">reset</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]read">read</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]next">next</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]streamFinishe">streamFinishe</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]data">data</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]ignore_script">ignore_script</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]ignore_entities">ignore_entities</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]--">--</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]name">name</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]cdata">cdata</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]attr_name">attr_name</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]attr_value">attr_value</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]processing_target">processing_target</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]processing_instruction">processing_instruction</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]comment">comment</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]--">--</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]--">--</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]--">--</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]start_element">start_element</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]finish_element">finish_element</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]character_data">character_data</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]attribute">attribute</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]error">error</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]processing_finish">processing_finish</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]comment_finish">comment_finish</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]cdata_start_finish">cdata_start_finish</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]cdata_end_finish">cdata_end_finish</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]finished">finished</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]streamFinishedFinish">streamFinishedFinish</a></td>
-            <td><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5">
-              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>
-          &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
-              None </td>
-            <td> <br>
-            </td>
-            <td> <br>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> Core </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v1.0. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container"> <span class="toc_span">xml_stream</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+<strong>XML Stream Parser</strong> is a function block designed for parsing XML data streams and generating events based on the XML chunks encountered.
+      </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+<tr>
+<td>ignore_script</td>
+<td>B</td><td>Ignore content of script tags.</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+
+</tr>
+<tr>
+<td>ignore_entities</td>
+<td>S</td><td></td>
+<td>&amp;</td>
+<td></td>
+<td></td>
+
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]reset">reset</a></td>
+<td>Reset the parser.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]read">read</a></td>
+<td>Start to read the XML stream.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]next">next</a></td>
+<td>Move to the next part of the XML stream.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]streamFinishe">streamFinishe</a></td>
+<td></td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]data">data</a></td>
+<td>Input data to be parsed from the XML stream.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]ignore_script">ignore_script</a></td>
+<td>Boolean input to ignore content within script tags.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]ignore_entities">ignore_entities</a></td>
+<td>Specifies entities to be ignored during parsing.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]resetDone">--</a></td>
+<td>The parser is reseted.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]readDone">--</a></td>
+<td>Parser read complete.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]nextDonw">--</a></td>
+<td>Shifted to the next stream chunck.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]startElem">startElem</a></td>
+<td>Event triggered at the start of an XML element.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]finishElem">finishElem</a></td>
+<td>Event triggered at the end of an XML element.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]charDataFound">charData</a></td>
+<td>Event triggered when character data is encountered.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]attribute">attribute</a></td>
+<td>An XML attribute is parsed.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]error">error</a></td>
+<td>Parsing error occurred.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]procAvail">procAvail</a></td>
+<td>Event indicating that a processing instruction is available.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]commentFound">comment</a></td>
+<td>Event triggered when a comment is encountered.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]finishCDATA">finishCDATA</a></td>
+<td>Event triggered at the end of CDATA section.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]allDone">allDone</a></td>
+<td>Event indicating all operations are complete.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]streamEnded">--</a></td>
+<td>The XML stream is ended.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]data">--</a></td>
+<td>Read data</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]name">name</a></td>
+<td>name attribute in XML</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]cdata">cdata</a></td>
+<td>Character data extracted from the XML stream</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]attr_name">attrName</a></td>
+<td>Output for the name of the XML attribute</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]attr_value">attrValue</a></td>
+<td>Value of the XML attribute.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]processing_target">procTarget</a></td>
+<td>processing instruction target</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]processing_instruction">procInstr</a></td>
+<td>processing instruction data</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]comment">comment</a></td>
+<td>Comment in XML data</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"> <b>State Machine</b> </td>
+<td colspan="5">
+<!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+        <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>
+        &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
+        <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
+            None </td>
+<td> <br/>
+</td>
+<td> <br/>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Toolbox</b> </td>
+<td> Core </td>
+<td class="heading-cell"> <b>Version</b> </td>
+<td> v1.0. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Licence Type</b> </td>
+<td> MPL2.0 </td>
+<td class="heading-cell"> <b>Component Supplier</b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Minumum DCC</b> </td>
+<td>A0000</td>
+<td class="heading-cell"> <b>Profiles</b> </td>
+<td> All. </td>
+</tr>
+</table>
+</div>
+</body>
 </html>

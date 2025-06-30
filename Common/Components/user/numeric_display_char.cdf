@@ -11,7 +11,10 @@
         <UserName/>
         <Menu>
             Peripherals
-            <Menu>Digit Display</Menu>
+            <Menu>
+                Displays
+                    <Menu>Numeric</Menu>
+            </Menu>
         </Menu>
     </Description>
     <Block>

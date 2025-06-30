@@ -17,7 +17,6 @@
 
 #define INXWARE_FB_NAME_DevmanInterface "DevmanInterface"
 #define INXWARE_FB_ID_DevmanInterface 0x061C
-
 /* Declaring the functions used here as public interface for static linking into EHS builds */
 EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DevmanInterface); // this relates to C file identify function
 EHS_GLOBAL EHS_FB_INIT_FUNCTION(DevmanInterface); // this relates to C-file init function
@@ -27,6 +26,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanInterface_getServerUrl); //a function execu
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanInterface_setServerUrl); //a function executed by a start port
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanInterface_listen4New); //a function executed by a start port
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanInterface_getMiscData); //a function executed by a start port
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanInterface_getNetStatus); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(DevmanInterface)
 

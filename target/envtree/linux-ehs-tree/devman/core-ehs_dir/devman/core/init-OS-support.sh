@@ -29,11 +29,11 @@ then
    echo -e "$INXDEVICEID\n$INXDEVICEIP\n" > "${DEVMANCOREDIR}${VARIABLE_CACHE}"HWID_NETIP
 fi
 
-#Try ans start cron if it isn't already running
+#Try and start cron if it isn't already running
 if [ ! $(pidof crond) ]
 then
-test /usr/sbin/crond  &&  /usr/sbin/crond > /dev/null
-test /bin/crond  &&  /bin/crond > /dev/null
+test /usr/sbin/crond > /dev/null &&  /usr/sbin/crond > /dev/null
+test /bin/crond ? /dev/null &&  /bin/crond > /dev/null
 # - this will fail harmlessly ubuntu
 fi
 
@@ -57,4 +57,3 @@ then
 else
    "${SYSDATA}"default.crons # make sure we run the system update crons if nothing else - should never happen
 fi
-

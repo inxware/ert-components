@@ -14,7 +14,7 @@
             Software Structure
             <Menu>
                 Function Blocks
-                <Menu>NewComponent</Menu>
+                <Menu>New Component</Menu>
             </Menu>
         </Menu>
     </Description>

@@ -718,8 +718,8 @@ void EhsTV_blit(EhsTVClass* pViewport, const EhsTVSurfaceClass* pImgData, const 
     /* calculate the parts of the image that we need to update */
     if (EhsGraphicsRectangle_intersect(&blitBounds,pDst,&intersectViewClip))
     {
-        dScaleX = (double)(pDst->nWidth) / (double)(pSrc->nWidth);
-        dScaleY = (double)(pDst->nHeight) / (double)(pSrc->nHeight);
+        dScaleX = (ehs_float)(pDst->nWidth) / (ehs_float)(pSrc->nWidth);
+        dScaleY = (ehs_float)(pDst->nHeight) / (ehs_float)(pSrc->nHeight);
         dOffsetX = (ehs_float)(pDst->nLeft - blitBounds.nLeft) * dScaleX;
         dOffsetY = (ehs_float)(pDst->nTop - blitBounds.nTop) * dScaleY;
 

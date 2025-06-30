@@ -16,7 +16,7 @@
                 Function Blocks
                 <Menu>
                     data input ports
-                    <Menu>Real</Menu>
+                    <Menu>real</Menu>
                 </Menu>
             </Menu>
         </Menu>

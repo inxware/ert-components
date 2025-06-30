@@ -35,6 +35,8 @@
 #include "globals.h"
 #include "messages.h"
 #include "hal_logger.h"
+// Used for EhsHMem_writableAlloc
+#include "hal_mem.h"
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -197,7 +199,7 @@ const char* EhsGetDoubleFromString(ehs_float * output, const char* input)
 {
     const ehs_char * in = input;
     int i;
-    if (EhsSscanf(input,"%lf",output)>0)
+    if (EhsSscanf(input,EHS_FL_FMT,output)>0)
     {
         in = EhsStrTrimL(in);
         //find the end of the string
@@ -509,7 +511,6 @@ const ehs_char* EhsGetWordFromString(ehs_char * output, const ehs_char* input)
     return input;
 }
 
-
 /*** @brief This function replaces escaped control characters into the control characters
  *
  *
@@ -586,4 +587,134 @@ const ehs_char* EhsGetQuoteDelimFromString(ehs_char * output, const ehs_char* in
     } // else report no buffer
 
     return input+1; //return pointer to the next character after the quote
+}
+
+/**
+ * @brief Parse all string words from a string. This is used for SODL parameters if there are only strings.
+ * 
+ * @param outputs The output string array. The string inside the array are allocated within the App scope. The string will be NULL pointer if it is empty.
+ * @param input The input string
+ * @param length The total number of words to be parsed from the input
+ * @return ehs_uint8 The number of parsed words from string
+ *
+ * @code {.C}
+ * ehs_char *array[2] = { NULL };
+ * ehs_uint8 size = EhsGetWordsFromString(array, "Hello world", 2);
+ * assert(size == 2);
+ * @endcode
+ * 
+ */
+EHS_GLOBAL ehs_uint8 EhsGetWordsFromString(ehs_char **outputs, const ehs_char* input, ehs_uint8 length)
+{
+    ehs_char in_temp[EHS_STRING_LENGTH_MAX];
+    ehs_uint8 i = 0;
+    ehs_uint16 str_count = 0;
+    // Parse nothing if there is no enough memory left to be allocated
+    if (in_temp == NULL) return 0;
+    for (i = 0 ; i < length && input ; i++)
+    {
+        EhsMemset(in_temp, '\0', str_count + 1);
+        input = EhsStrTrimL(input);
+        if (input[0] != '"')
+        {
+            /* When it's not a string containing spaces */
+            input = EhsGetWordFromString(in_temp, input);
+            str_count = EhsStrlen(in_temp);
+            if (str_count == 4 && EhsStrncmp(in_temp, "NULL", 4) == 0)
+            {
+                outputs[i] = NULL;
+                continue;
+            }
+            else
+            {
+                goto jump_point;
+            }
+        }
+        else
+        {
+            /* When it's a string containing spaces */
+            input = EhsGetQuoteDelimFromString(in_temp, input, EHS_STRING_LENGTH_MAX);
+            str_count = EhsStrlen(in_temp);
+            goto jump_point;
+        }
+jump_point:
+        if (str_count > 0)
+        {
+            outputs[i] = EhsHMem_writeableAlloc(str_count + 1);
+            if (outputs[i] != NULL)
+            {
+                EhsStrcpy(outputs[i], in_temp);
+                outputs[i][str_count] = '\0';
+            }
+        }
+        else outputs[i] = NULL;
+    }
+    return i;
+}
+
+/* This is used by https and could also be used by the cgi conversion function block to convert 
+   urlencoded query strings - thoug is doesn't URL decode so expects all variables to be standard strings
+   todo2024 rename this EhsHCgiGetVarVal 
+*/
+ehs_bool cgi_get_varval(const ehs_char *src, ehs_char *var_name, ehs_char *dst, ehs_uint32 length)
+{
+    ehs_char *name;
+    ehs_bool result;
+    ehs_uint32 index;
+    ehs_uint32 n_length;
+
+    result = EHS_FALSE;
+    dst[0] = 0;
+    name = (ehs_char*)src;
+
+    n_length = strlen(var_name);
+
+    while ((name = strstr(name, var_name)) != 0)
+    {
+        if (name[n_length] == '=')
+        {
+            name += n_length + 1;
+
+            index = strcspn(name, "&");
+            if (index >= length)
+            {
+                index = length - 1;
+            }
+            strncpy(dst, name, index);
+            dst[index] = '\0';
+            result = EHS_TRUE;
+            break;
+        }
+        else
+        {
+            name = strchr(name, '&');
+        }
+    }
+
+    return (result);
+}
+
+
+/* Simple URdecoder  - Consider putting this is common code */
+void cgi_urldecode(ehs_char *url)
+{
+    ehs_char *src = url;
+    ehs_char *dst = url;
+
+    while (*src != '\0')
+    {
+        if ((*src == '%') && (isxdigit((int)*(src + 1))) && (isxdigit((int)*(src + 2))))
+        {
+            *src = *(src + 1);
+            *(src + 1) = *(src + 2);
+            *(src + 2) = '\0';
+            *dst++ = strtol(src, NULL, 16);
+            src += 3;
+        }
+        else
+        {
+            *dst++ = *src++;
+        }
+    }
+    *dst = '\0';
 }

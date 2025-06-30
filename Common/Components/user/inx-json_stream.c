@@ -17,7 +17,7 @@
 //ICB HEADER MACRO END -- DO NOT ALTER
 typedef struct inx_json_stream_parser_chunk_struct
 {
-    ehs_char chunk[EHS_STRING_LENGTH_MAX];
+    ehs_char chunk[EHS_STRING_LENGTH_MAX]; //TODO:STRINGLENGTH!
     struct inx_json_stream_parser_chunk_struct* pNext;
 } inx_json_stream_parser_chunk_type;
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -46,6 +46,8 @@ EHS_FB_FUNCTIONS_END
 #define INX_json_stream_parser_ARG_read_data 1
 #define INX_json_stream_parser_ARG_read_readDataOut 1
 #define INX_json_stream_parser_ARG_read_read_finish 1
+#define INX_json_stream_parser_ARG_read_Error 2
+#define INX_json_stream_parser_ARG_read_ErrorNum 2
 #define INX_json_stream_parser_ARG_parse_nextFinish 1
 #define INX_json_stream_parser_ARG_parse_startMap 2
 #define INX_json_stream_parser_ARG_eos_eosFinish 1
@@ -67,6 +69,8 @@ EHS_FB_FUNCTIONS_END
 #define INX_json_stream_parser_ARG_parse_value 7
 #define INX_json_stream_parser_ARG_parse_Error 8
 #define INX_json_stream_parser_ARG_eos_eosFinish 1
+
+#define INX_json_stream_parser_memory_alloc_error 1001
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
@@ -287,6 +291,17 @@ EHS_FB_RUN_FUNCTION(json_stream_parser_read)
         {
             //no existing input so this is the first
             input=(inx_json_stream_parser_chunk_type*)EhsHMem_tempAlloc(sizeof(inx_json_stream_parser_chunk_type));
+            
+            if(input==NULL) // check if we run out of memory
+            {
+                if(EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_read_ErrorNum))
+                {
+                    EHS_FB_OUT_I_API2(INX_json_stream_parser_ARG_read_ErrorNum)=INX_json_stream_parser_memory_alloc_error;
+                }
+                EHS_FB_FINISH(INX_json_stream_parser_ARG_read_Error);
+                return;
+            }
+
             input->pNext=NULL;
             chunk=input->chunk;
             inx_json_stream_parser_state->input=input;
@@ -301,6 +316,15 @@ EHS_FB_RUN_FUNCTION(json_stream_parser_read)
                 pCurrent=pCurrent->pNext;
             }
             pCurrent->pNext=(inx_json_stream_parser_chunk_type*)EhsHMem_tempAlloc(sizeof(inx_json_stream_parser_chunk_type));
+            if(pCurrent->pNext==NULL) // check if we run out of memory
+            {
+                if(EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_read_ErrorNum))
+                {
+                    EHS_FB_OUT_I_API2(INX_json_stream_parser_ARG_read_ErrorNum)=INX_json_stream_parser_memory_alloc_error;
+                }
+                EHS_FB_FINISH(INX_json_stream_parser_ARG_read_Error);
+                return;
+            }
             pCurrent->pNext->pNext=NULL;
             chunk=pCurrent->pNext->chunk;
         }
@@ -426,13 +450,12 @@ static void inx_json_stream_parser_cleanup(inx_json_stream_parser_state_type* st
     current=state->input;
     if(current!=NULL)
     {
-        while(current->pNext!=NULL)
-        {
+        do{
             parent=current;
             current=current->pNext;
             EhsHMem_tempFree(parent);
             parent=NULL;
-        }
+        }while(current!=NULL && current->pNext!=NULL);
     }
     state->input=NULL;
     state->read=0;

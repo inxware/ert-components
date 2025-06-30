@@ -59,7 +59,7 @@ EHS_GLOBAL void EhsCallbackQueue_register(EhsCallbackQueueType* pQueue,
  * Execute the contents of the callback queue.
  * @param pQueue Pointer to the start of the queue
  */
-EHS_GLOBAL void EhsCallbackQueue_execute(EhsCallbackQueueType* pQueue);
+EHS_GLOBAL EHS_MEMORY_ATTRIB void EhsCallbackQueue_execute(EhsCallbackQueueType* pQueue);
 
 
 /* THis resets the linked list to null.

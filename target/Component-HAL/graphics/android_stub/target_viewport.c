@@ -73,14 +73,11 @@ static char* currentFunc;
 #define LEAVE(x)
 #endif
 
-
-
 int engine_init_display(struct engine* engine/*, EhsTVClass* pViewport*/)
 {
 
     return 0;
 }
-
 
 /*****************************************************************************/
 /* Variables defined with global-scope */

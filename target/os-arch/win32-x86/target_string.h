@@ -40,6 +40,8 @@
 
 #define EhsSscanf sscanf
 
+#define EhsVsnprintf vsnprintf
+
 #define EhsStricmp _stricmp
 
 #define EhsStrnicmp _strnicmp

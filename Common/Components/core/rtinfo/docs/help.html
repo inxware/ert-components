@@ -1,308 +1,293 @@
 <html>
-
 <head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
-
 <body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">RuntimeInfo</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
-      This component is used to retrieve static and dynamic runtime information from the host device. <br>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">RuntimeInfo</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      This component is used to retrieve static and dynamic runtime information from the host device. <br/>
       When the input event <a href="#[In]GetStatic">[In]GetStatic</a> is asserted, data is presented to the following outputs:
-      <br> a unique ID string, typically the MAC address is presented to output <a href="#[Out]Device ID">[Out]Device ID</a>,
-      <br> the total amount of RAM that the device has is presented to output <a href="#[Out]RAM (KB)">[Out]RAM (KB)</a>, 
-      <br> the total amount of disk storage that the device has is presented to output <a href="#[Out]Storage (KB)">[Out]Storage (KB)</a>,
-      <br> the version of EHS running on the device is presented to output <a href="#[Out]EHS version">[Out]EHS version,</a>,
-      <br> the list of modules available in EHS is presented to output <a href="#[Out]ModuleList">[Out]ModuleList</a> 
-      <br> and the directory that EHS is installed on is presented to output <a href="#[Out]Install Dir">[Out]Install Dir</a>.
+      <br/> a unique ID string, typically the MAC address is presented to output <a href="#[Out]Device ID">[Out]Device ID</a>,
+      <br/> the total amount of RAM that the device has is presented to output <a href="#[Out]RAM (KB)">[Out]RAM (KB)</a>, 
+      <br/> the total amount of disk storage that the device has is presented to output <a href="#[Out]Storage (KB)">[Out]Storage (KB)</a>,
+      <br/> the version of EHS running on the device is presented to output <a href="#[Out]EHS version">[Out]EHS version,</a>,
+      <br/> the list of modules available in EHS is presented to output <a href="#[Out]ModuleList">[Out]ModuleList</a>
+<br/> and the directory that EHS is installed on is presented to output <a href="#[Out]Install Dir">[Out]Install Dir</a>.
       </p>
-      <p class=component>
+<p class="component">
       The data output <a href="#[Out]ModuleList">[Out]ModuleList</a> is a XML formatted list of modules available in EHS. The format of the XML is as follows:
       </p>
-      <p class=component>
-        <code>&lt;modules&gt;</code> element
+<p class="component">
+<code>&lt;modules&gt;</code> element
         </p>
-        <p class=component>
-          <table  border="1">
-            <thead>
-              <tr>
-                <th class="center" scope="col">
+<p class="component">
+<table border="1">
+<thead>
+<tr>
+<th class="center" scope="col">
                   Element
                 </th>
-                <th class="center" scope="col">
+<th class="center" scope="col">
                   Subelements
                 </th>
-                <th class="center">
+<th class="center">
                   Descriptions
                 </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">
-                  <code>&lt;modules&gt;</code>
-                </th>
-                <td>
-                  <code>&lt;module&gt;</code>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">
+<code>&lt;modules&gt;</code>
+</th>
+<td>
+<code>&lt;module&gt;</code>
+</td>
+<td>
+<code>&lt;modules&gt;</code>: The main element, a list of modules.
                 </td>
-                <td>
-                  <code>&lt;modules&gt;</code>: The main element, a list of modules.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        
+</tr>
+</tbody>
+</table>
+</p>
+<p class="component">
+<code>&lt;module&gt;</code> element
         </p>
-        <p class=component>
-        <code>&lt;module&gt;</code> element
-        </p>
-        <p class=component>
-          <table  border="1">
-            <thead>
-              <tr>
-                <th class="center" scope="col">
+<p class="component">
+<table border="1">
+<thead>
+<tr>
+<th class="center" scope="col">
                   Element
                 </th>
-                <th class="center" scope="col">
+<th class="center" scope="col">
                   Subelements
                 </th>
-                <th class="center">
+<th class="center">
                   Descriptions
                 </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">
-                  <code>&lt;module&gt;</code>
-                </th>
-                <td>
-                  <code>&lt;name&gt;</code>
-                  </br>
-                  <code>&lt;description&gt;</code>
-                  </br>
-                  <code>&lt;build version&gt;</code>
-                  </br>
-                  <code>&lt;compatibility version&gt;</code>
-                  </br>
-                  <code>&lt;variant&gt;</code>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">
+<code>&lt;module&gt;</code>
+</th>
+<td>
+<code>&lt;name&gt;</code>
+<code>&lt;description&gt;</code>
+<code>&lt;build version&gt;</code>
+<code>&lt;compatibility version&gt;</code>
+<code>&lt;variant&gt;</code>
+</td>
+<td>
+<code>&lt;module&gt;</code>: A module in EHS.
                 </td>
-                <td>
-                  <code>&lt;module&gt;</code>: A module in EHS.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        
+</tr>
+</tbody>
+</table>
+</p>
+<p class="component">
+<code>&lt;module&gt;</code> child elements
         </p>
-        <p class=component>
-        <code>&lt;module&gt;</code> child elements
-        </p>
-        <p class=component>
-          <table  border="1">
-            <thead>
-              <tr>
-                <th class="center" scope="col">
+<p class="component">
+<table border="1">
+<thead>
+<tr>
+<th class="center" scope="col">
                   Element
                 </th>
-                <th class="center" scope="col">
+<th class="center" scope="col">
                   Subelements
                 </th>
-                <th class="center">
+<th class="center">
                   Descriptions
                 </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">
-                  <code>&lt;name&gt;</code>
-                </th>
-                <td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">
+<code>&lt;name&gt;</code>
+</th>
+<td>
+</td>
+<td>
+<code>&lt;name&gt;</code>: The name of the module.
                 </td>
-                <td>
-                  <code>&lt;name&gt;</code>: The name of the module.
+</tr>
+<tr>
+<th scope="row">
+<code>&lt;description&gt;</code>
+</th>
+<td>
+</td>
+<td>
+<code>&lt;description&gt;</code>: A description of the module.
                 </td>
-              </tr>
-              <tr>
-                <th scope="row">
-                  <code>&lt;description&gt;</code>
-                </th>
-                <td>
+</tr>
+<tr>
+<th scope="row">
+<code>&lt;build version&gt;</code>
+</th>
+<td>
+</td>
+<td>
+<code>&lt;build version&gt;</code>: The version of EHS in which the module was built.
                 </td>
-                <td>
-                  <code>&lt;description&gt;</code>: A description of the module.
+</tr>
+<tr>
+<th scope="row">
+<code>&lt;compatability version&gt;</code>
+</th>
+<td>
+</td>
+<td>
+<code>&lt;compatability version&gt;</code>: The earliest version of EHS with which the module is compatible.
                 </td>
-              </tr>
-              <tr>
-                <th scope="row">
-                  <code>&lt;build version&gt;</code>
-                </th>
-                <td>
+</tr>
+<tr>
+<th scope="row">
+<code>&lt;variant&gt;</code>
+</th>
+<td>
+</td>
+<td>
+<code>&lt;variant&gt;</code>: The variant of the module.
                 </td>
-                <td>
-                  <code>&lt;build version&gt;</code>: The version of EHS in which the module was built.
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">
-                  <code>&lt;compatability version&gt;</code>
-                </th>
-                <td>
-                </td>
-                <td>
-                  <code>&lt;compatability version&gt;</code>: The earliest version of EHS with which the module is compatible.
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">
-                  <code>&lt;variant&gt;</code>
-                </th>
-                <td>
-                </td>
-                <td>
-                  <code>&lt;variant&gt;</code>: The variant of the module.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        
-        </p>
-        <p class=component>
+</tr>
+</tbody>
+</table>
+</p>
+<p class="component">
         When the input event <a href="#[In]GetDynamic">[In]GetDynamic</a> is asserted, data is presented to the following outputs:
-        <br> the network IP address is presented to output <a href="#[Out]IP Addre">[Out]IP Addre</a>,
-        <br> the amount of RAM that is currently available for use is presented to output <a href="#[Out]RAM Avail (KB)">[Out]RAM Avail (KB)</a>,
-        <br> the amount of disk storage that is currently available for use is presented to output <a href="#[Out]Stor Avail (KB)">[Out]Stor Avail (KB)</a>
-        <br> the CPU load is presented to output <a href="#[Out]CPU">[Out]CPU</a>. The CPU load is an average of the percentage of CPU use as measured from the time that input event <a href="#[In]GetDynamic">[In]GetDynamic</a> was last triggered.
-        <br> and the Device's Pairing ID <br>
+        <br/> the network IP address is presented to output <a href="#[Out]IP Addre">[Out]IP Addre</a>,
+        <br/> the amount of RAM that is currently available for use is presented to output <a href="#[Out]RAM Avail (KB)">[Out]RAM Avail (KB)</a>,
+        <br/> the amount of disk storage that is currently available for use is presented to output <a href="#[Out]Stor Avail (KB)">[Out]Stor Avail (KB)</a>
+<br/> the CPU load is presented to output <a href="#[Out]CPU">[Out]CPU</a>. The CPU load is an average of the percentage of CPU use as measured from the time that input event <a href="#[In]GetDynamic">[In]GetDynamic</a> was last triggered.
+        <br/> and the Device's Pairing ID <br/>
         A Pairing ID of greater than -1 indicates that the device has not been registered on a Devman server and paired to a user or organisation. The value itself is not useful.
         To refresh the value from the Devman server the Req. Pair ID event port must be asserted. The value will typically update 10 or 20 seconds later.
         </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-    </table>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
 
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]getStatic">getStatic</a></td>
-        <td>Input event, retrieves static runtime information from the host device.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]GetDynamic">GetDynamic</a></td>
-        <td>Input event, retrieves dynamic runtime information from the host device.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Device ID"">Device ID</a></td>
-        <td>Data output, unique ID string, typically the MAC address of the device.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]RAM (KB)">RAM (KB)</a></td>
-        <td>Data output, the total amount of RAM that the device has.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Storage (KB)">Storage (KB)</a></td>
-        <td>Data output, the total amount of disk storage that the device has.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]EHS version">EHS version</a></td>
-        <td>Data output, the version of EHS running on the device, in the format: major.minor.build.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]ModuleList">ModuleList</a></td>
-        <td>Data output, XML formatted list of modules available in EHS on the device.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Install Dir">Install Dir</a></td>
-        <td>Data output, the directory that EHS is installed in on the device.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]IP Addre">IP Addre</a></td>
-        <td>Data output, standard ipv4 format</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]RAM Avail (KB)">RAM Avail (KB)</a></td>
-        <td>Data output, the amount of RAM that is currently available for use by the application.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Stor Avail (KB)">Stor Avail (KB)</a></td>
-        <td>Data output, the amount of disk storage that is currently available for use by the application.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]CPU">CPU</a></td>
-        <td>Data output, the average percentage of CPU usage as measured from the last time the input event <a href="#[In]GetDynamic">[In]GetDynamic</a> was triggered.</td>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]"></a></td>
-        <td>Output event.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]"></a></td>
-        <td>Output event.</td>
-      </tr>
-
-    </table>
-
-
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]getStatic">getStatic</a></td>
+<td>Input event, retrieves static runtime information from the host device.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]GetDynamic">GetDynamic</a></td>
+<td>Input event, retrieves dynamic runtime information from the host device.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a "="" name="[Out]Device ID">Device ID</a></td>
+<td>Data output, unique ID string, typically the MAC address of the device.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]RAM (KB)">RAM (KB)</a></td>
+<td>Data output, the total amount of RAM that the device has.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Storage (KB)">Storage (KB)</a></td>
+<td>Data output, the total amount of disk storage that the device has.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]EHS version">EHS version</a></td>
+<td>Data output, the version of EHS running on the device, in the format: major.minor.build.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]ModuleList">ModuleList</a></td>
+<td>Data output, XML formatted list of modules available in EHS on the device.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Install Dir">Install Dir</a></td>
+<td>Data output, the directory that EHS is installed in on the device.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]IP Addre">IP Addre</a></td>
+<td>Data output, standard ipv4 format</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]RAM Avail (KB)">RAM Avail (KB)</a></td>
+<td>Data output, the amount of RAM that is currently available for use by the application.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Stor Avail (KB)">Stor Avail (KB)</a></td>
+<td>Data output, the amount of disk storage that is currently available for use by the application.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]CPU">CPU</a></td>
+<td>Data output, the average percentage of CPU usage as measured from the last time the input event <a href="#[In]GetDynamic">[In]GetDynamic</a> was triggered.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]"></a></td>
+<td>Output event.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]"></a></td>
+<td>Output event.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+<!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
           <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
           <span class="fsm_blob">state2</span>
           &otimes;&nbsp;
@@ -311,54 +296,52 @@
           <span class="fsm_blob">state5</span> -->
           None
         </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
+<td>
+<b></b>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
           Core
         </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
           v1.0.
         </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
           MPL2.0
         </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minumum DCC</b>
+</td><td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
           All.
         </td>
-      </tr>
-    </table>
-
-  </div>
+</tr>
+</table>
+</div>
 </body>
-
 </html>

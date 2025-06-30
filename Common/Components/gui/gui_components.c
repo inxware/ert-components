@@ -42,7 +42,7 @@ EhsBlockRefType EhsBlockRefTable_coreGui[] =
 #endif /* EHS_TARGET_FP_SUPPORT */
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_gui_text_int2,EHS_FB_ID_gui_text_int2, gui_text_int2,EHS_FB_INIT_NAME(gui_widget),EHS_FB_IDENTIFY_NAME(gui_widget)),
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_gui_text_bool2,EHS_FB_ID_gui_text_bool2, gui_text_bool2,EHS_FB_INIT_NAME(gui_widget),EHS_FB_IDENTIFY_NAME(gui_widget)),
-	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_gui_viewport,EHS_FB_ID_gui_viewport, gui_viewport,EHS_FB_INIT_NAME(gui_viewport),EHS_FB_IDENTIFY_NAME(gui_viewport)),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_gui_viewport,EHS_FB_ID_gui_viewport, gui_viewport),
 #ifdef USB_SUPPORT /*we will put this in anyway and make it dumb for non-supporting targets*/
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_gui_textdisplay,EHS_FB_ID_gui_textdisplay, gui_textdisplay,EHS_FB_INIT_NAME(gui_textdisplay),EHS_FB_IDENTIFY_NAME(gui_textdisplay)),
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_gui_leds,EHS_FB_ID_gui_leds, gui_leds,EHS_FB_INIT_NAME(gui_leds),EHS_FB_IDENTIFY_NAME(gui_leds)),

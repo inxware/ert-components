@@ -1,145 +1,137 @@
 <html>
-
 <head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
-
 <body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">IndexedMultiplexer_Event</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">IndexedMultiplexer_Event</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
       This component is used to identify which event has fired. The use case is where there is a set of components that can be triggered by many events but the identity of the event needs to be known after the set of components has completed it process.
       </p>
-      <p class=component>
+<p class="component">
       When one of the input events 1-8, is triggered, the output event <a href="#[Out]Go">[Out]Go</a> is asserted and the index of the event that was triggered is presented to the data output <a href="#[Out]Ind">[Out]Ind</a>. The value of the the data output <a href="#[Out]Ind">[Out]Ind</a> can then be used to identify which event was triggered.
       </p>
-      <p class=component>
+<p class="component">
       The Event Identifier has two modes of operation, controlled by the parameter Requires Resetting. Mode 1 is the default, when the parameter Requires Resetting is set to 1, then once the output event <a href="#[Out]Go">[Out]Go</a> has been triggered, it cannot be triggered again until the Event Identifier is reset by triggering the input event <a href="#[In]Reset">[In]Reset</a>. Mode 2, when the parameter Requires Resetting is set to 0, will automatically reset the Event Identifier everytime it is triggered so that everytime one of the input events 1-8, is triggered, the output event <a href="#[Out]Go">[Out]Go</a> is asserted and the index of the event that was triggered is presented to the data output <a href="#[Out]Ind">[Out]Ind</a>.
       </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-      <tr>
-        <td>Requires Resetting</td>
-        <td>B</td>
-        <td>1</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-    </table>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
 
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]1">1</a></td>
-        <td>Event input 1.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]2">2</a></td>
-        <td>Event input 2.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]3">3</a></td>
-        <td>Event input 3.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]4">4</a></td>
-        <td>Event input 4.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]5">5</a></td>
-        <td>Event input 5.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]6">6</a></td>
-        <td>Event input 6.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]7">7</a></td>
-        <td>Event input 7.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]8">8</a></td>
-        <td>Event input 8.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]Reset">Reset</a></td>
-        <td>Event input, resets the Event Identifier to a state where it is ready to be triggered by one of the input events 1-8.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Ind">Ind</a></td>
-        <td>Data output, index of the event that was triggered.</td>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Go">Go</a></td>
-        <td>Event output, triggered if any of the input events 1-8 are triggered, if and only if, the Event Identifier is in a state where it is ready to be triggered.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]Reset">Reset</a></td>
-        <td>Event output, triggered when the input event <a href="#[In]Reset">[In]Reset</a> is triggered.</td>
-      </tr>
+</tr>
+<tr>
+<td>Requires Resetting</td>
+<td>B</td><td></td>
+<td>1</td>
+<td></td>
+<td></td>
 
-    </table>
-
-
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]1">1</a></td>
+<td>Event input 1.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]2">2</a></td>
+<td>Event input 2.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]3">3</a></td>
+<td>Event input 3.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]4">4</a></td>
+<td>Event input 4.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]5">5</a></td>
+<td>Event input 5.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]6">6</a></td>
+<td>Event input 6.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]7">7</a></td>
+<td>Event input 7.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]8">8</a></td>
+<td>Event input 8.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]Reset">Reset</a></td>
+<td>Event input, resets the Event Identifier to a state where it is ready to be triggered by one of the input events 1-8.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Ind">Ind</a></td>
+<td>Data output, index of the event that was triggered.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Go">Go</a></td>
+<td>Event output, triggered if any of the input events 1-8 are triggered, if and only if, the Event Identifier is in a state where it is ready to be triggered.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Reset">Reset</a></td>
+<td>Event output, triggered when the input event <a href="#[In]Reset">[In]Reset</a> is triggered.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+<!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
           <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
           <span class="fsm_blob">state2</span>
           &otimes;&nbsp;
@@ -148,54 +140,52 @@
           <span class="fsm_blob">state5</span> -->
           None
         </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
+<td>
+<b></b>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
           Core
         </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
           v1.0.
         </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
           MPL2.0
         </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minumum DCC</b>
+</td><td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
           All.
         </td>
-      </tr>
-    </table>
-
-  </div>
+</tr>
+</table>
+</div>
 </body>
-
 </html>

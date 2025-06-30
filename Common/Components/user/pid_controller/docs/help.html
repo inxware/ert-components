@@ -1,0 +1,206 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">PID Function Block</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      The `PID` function block is responsible for implementing a Proportional-Integral-Derivative (PID) controller with various configurable parameters and operational modes. This function block supports setting PID coefficients, processing measured values, and managing the control output.
+    </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">Name</th>
+<th>Type</th><th>Description</th>
+<th>Default</th>
+<th>Min.</th>
+<th>Max.</th>
+
+</tr>
+<tr>
+<td>pid_no</td>
+<td>Integer</td><td>The identifier for the PID instance.</td>
+<td>-1</td>
+<td>-2147483648</td>
+<td>2147483647</td>
+
+</tr>
+<tr>
+<td>ISR_mode</td>
+<td>Boolean</td><td>Indicates whether the PID controller operates in Interrupt Service Routine (ISR) mode.</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+
+</tr>
+<tr>
+<td>nSensorID</td>
+<td>Integer</td><td>Specifies the sensor ID associated with the PID controller.</td>
+<td>0</td>
+<td>0</td>
+<td>n/a</td>
+
+</tr>
+<tr>
+<td>P</td>
+<td>Float</td><td>Proportional coefficient for the PID controller.</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>n/a</td>
+
+</tr>
+<tr>
+<td>I</td>
+<td>Float</td><td>Integral coefficient for the PID controller.</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>n/a</td>
+
+</tr>
+<tr>
+<td>D</td>
+<td>Float</td><td>Derivative coefficient for the PID controller.</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>n/a</td>
+
+</tr>
+<tr>
+<td>nOutputMode</td>
+<td>Integer</td><td>Defines the output mode for the PID controller.</td>
+<td>0</td>
+<td>0</td>
+<td>n/a</td>
+
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th>Description</th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]init">init</a></td>
+<td>Event to initialize the PID controller with the provided configuration.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]new_measure">new_measure</a></td>
+<td>Event to provide a new measured value to the PID controller.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]set_point_value">set_point_value</a></td>
+<td>Event to set the target setpoint value for the PID controller.</td>
+</tr>
+<tr>
+<th>Data In</th><th>Description</th>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]P">P</a></td>
+<td>Proportional coefficient value.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]I">I</a></td>
+<td>Integral coefficient value.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]D">D</a></td>
+<td>Derivative coefficient value.</td>
+</tr>
+<tr>
+<th>Data Out</th><th>Description</th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]pid_output">pid_output</a></td>
+<td>The output value from the PID controller after processing the input.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]errno">errno</a></td>
+<td>Error number if the PID operation fails.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th>Description</th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]done">done</a></td>
+<td>Event triggered when a PID operation is successfully completed.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]err">err</a></td>
+<td>Event triggered when an error occurs during PID processing.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          core/io/net/netx/ui/media/dsp/
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

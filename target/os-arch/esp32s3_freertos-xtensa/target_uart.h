@@ -1,8 +1,8 @@
 #ifndef _TARGET_UART_H_
 #define _TARGET_UART_H_
 
-#include "target_types.h"
 #include "driver/uart.h"
+#include "target_types.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -10,7 +10,15 @@
 
 #include "esp_task_wdt.h"
 
-#define UART_COUNT 3//UART_NUM_MAX
+#ifndef EHS_TARGET_UART_COUNT 
+#define EHS_TARGET_UART_COUNT 1
+#endif//EHS_TARGET_UART_COUNT 
+#define UART_COUNT EHS_TARGET_UART_COUNT//UART_NUM_MAX
+extern ehs_uint32 gUARTBaudRate[EHS_TARGET_UART_COUNT];
+extern ehs_uint8 gUARTStopBits[EHS_TARGET_UART_COUNT];
+extern ehs_uint8 gUARTParity[EHS_TARGET_UART_COUNT];
+extern ehs_uint8 gUARTHWCTRL[EHS_TARGET_UART_COUNT];
+extern ehs_uint8 gUARTLength[EHS_TARGET_UART_COUNT];
 
 #define UART_TX_BUFFER_SIZE 1024
 #define UART_RX_BUFFER_SIZE 1024
@@ -128,16 +136,17 @@ enum UART_State {
 typedef void (*uart_cb_func_t)(char *payload, int length) ;
 static uart_cb_func_t UART_CALLBACK_FUNCTIONS[UART_COUNT] = {NULL, NULL, NULL};
 
-#define UART_WORD_LENGTH_COUNT 4
+#define UART_WORD_LENGTH_COUNT 9
 /*
  * data_length:
- * 0 -> 5 bits
- * 1 -> 6 bits
- * 2 -> 7 bits
- * 3 -> 8 bits
+ * 5 -> 5 bits
+ * 6 -> 6 bits
+ * 7 -> 7 bits
+ * 8 -> 8 bits
  *
  * */
 static int UART_WORD_LENGTH[UART_WORD_LENGTH_COUNT] = {
+    0,0,0,0,0,
     UART_DATA_5_BITS,
     UART_DATA_6_BITS,
     UART_DATA_7_BITS,
@@ -166,7 +175,7 @@ static int UART_STOP_BITS[UART_STOP_BITS_COUNT] = {
  * 2 -> even parity bit check
  *
  * */
-static int UART_PARITY[UART_PARITY_COUNT] = {
+static int gEhsUART_PARITY[UART_PARITY_COUNT] = {
     UART_PARITY_DISABLE,
     UART_PARITY_ODD,
     UART_PARITY_EVEN
@@ -210,6 +219,7 @@ enum TgtUART_Return_t {
     TgtUART_BUFFER_FULL = -14,
     TgtUART_EVENT_UNDEFINED = -15,
     TgtUART_HEAP_INSUFFICIENT = -16,
+    TgtUART_INVALID_CALLBACK = -17,
     TgtUART_ESPERROR = -100
 };
 
@@ -253,7 +263,7 @@ int TgtUART_Intr_register(int UART_num, uart_cb_func_t cb_func);
  * Mainly used within the AT commands' send-wait-until-acknowledgement loop.
  *
  * */
-inline void TgtUART_WDT_feed() { vTaskDelay(1); }
+#define TgtUART_WDT_feed() vTaskDelay(10)
 
 void Common_UART_onReceive(char *recv_msg, int length);
 void Common_UART_onSendComplete(int retCode);

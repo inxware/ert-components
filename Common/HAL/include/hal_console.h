@@ -54,28 +54,28 @@
  * @param size Size of buff
  * @return number of characters read (or zero if no line is available)
  */
-EHS_GLOBAL ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size);
+ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size);
 /**
  * Print text into the console output. This function blocks as long
  * as necessary to send the output.
  *
  * @param fmt Format specifier for output (as per printf)
  */
-#ifndef EhsConsolePrintf
-EHS_GLOBAL ehs_uint16 EhsConsolePrintf(const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support generalized printf */
-#endif
+//#ifndef EhsConsolePrintf
+extern EHS_MEMORY_ATTRIB ehs_uint16 EhsConsolePrintf(const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support generalized printf */
+//#endif
 /**
  * Check whether console input is available
  *
  * @return true if one or more characters is available
  */
-EHS_GLOBAL ehs_bool EhsConsoleInputHit(void);
+ehs_bool EhsConsoleInputHit(void);
 /**
  * Check whether a complete line is available for reading
  *
  * @return true if a line is available
  */
-EHS_GLOBAL ehs_bool EhsConsoleLineReady(void);
+ehs_bool EhsConsoleLineReady(void);
 /**
  * Read a file from the console input into persistent storage.
  *
@@ -87,7 +87,7 @@ EHS_GLOBAL ehs_bool EhsConsoleLineReady(void);
  *
  * @return true if load is successful
  */
-EHS_GLOBAL ehs_bool EhsConsoleToFile(ehs_uint32 size, const ehs_char* name);
+ehs_bool EhsConsoleToFile(ehs_uint32 size, const ehs_char* name);
 /**
  * Contains input from the console.
  * Initialised by EhsHSys_init

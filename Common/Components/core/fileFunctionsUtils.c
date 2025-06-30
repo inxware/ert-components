@@ -24,9 +24,10 @@
 #define CR '\r'
 #define LF '\n'
 
-/* This function will read a filename from a file block paramter string and split it into file name and optional extension
+/* This function will read a filename from a file block parameter string and split it into file name and optional extension
 It will stop when it gets to an escaped space - which is a bit of a limiations
 TODO we really need to allow this to use filename with spaces in! FOr now will duplicate this function for parsing dyanmic filenames which can have filenames with spaces in
+this has an extension size of 64 bytes //TODO:STRINGLENGTH! trusted client??
 */
 
 int GetFilename(const char *pParams, char *szFileName, char *tempExtension)
@@ -43,7 +44,7 @@ int GetFilename(const char *pParams, char *szFileName, char *tempExtension)
         (nChar != '\0')
         && (nChar != ' ' ) //PBB 20201221 removed due to bad escape char || (nCount > 2 && pParams[nCount-2] == '\ ' )) // stop at a space or an escaped spaces - TODO - do we really want to stop at spaces is this the parm delimeter?
         && nChar != '?'  // this means we have a temp extension to read while writing truncated files.
-        && (nCount < EHS_STRING_LENGTH_MAX) );
+        && (nCount < EHS_STRING_LENGTH_MAX) ); //TODO:STRINGLENGTH! Shoud this be max file path or string length? We prolly need a max value argument for this function or declare it trusted client.
     if ( nCount > 0 )szFileName[nCount-1] = '\0';
 
     if (nChar == '?')
@@ -59,10 +60,14 @@ int GetFilename(const char *pParams, char *szFileName, char *tempExtension)
     }
     else tempExtension[0] = '\0'; //sinals there isn't an extension
 
-
     return( nCount );  // return index of next field.
 }
-/* Bad duplication fo above without space limitation - used for dynamic filename parsing */
+
+
+/* 
+    Duplication fo above without space limitation - used for dynamic filename parsing, extensions are maxum 32 bytes wide. //TODO:STRINGLENGTH! trusted client
+*/
+
 int GetFilenameSplit_allowSpaces(const char *FullFilename, char *szFileName, char *tempExtension)
 {
     int nChar;
@@ -77,7 +82,7 @@ int GetFilenameSplit_allowSpaces(const char *FullFilename, char *szFileName, cha
     while(
         (nChar != '\0')
         && nChar != '?'  // this means we have a temp extension to read while writing truncated files.
-        && (nCount < EHS_STRING_LENGTH_MAX) );
+        && (nCount < EHS_STRING_LENGTH_MAX) ); //TODO:STRINGLENGTH!
     if (nCount > 0 && nChar == '?') szFileName[nCount-1] = '\0';
     else szFileName[nCount] = '\0';
 
@@ -209,7 +214,7 @@ int GetAppend(const char *pParams, int nIndex, int *pAppend)
 int GetFixedWidthField( char *szBuffer, int *nWidth, ehs_FILE* sFile, int *nError )
 {
     int i,nChar;
-    int nMax = *nWidth>EHS_STRING_LENGTH_MAX?EHS_STRING_LENGTH_MAX:*nWidth;
+    int nMax = *nWidth>EHS_STRING_LENGTH_MAX?EHS_STRING_LENGTH_MAX:*nWidth; //TODO:STRINGLENGTH!
     for( i=0; i<nMax ; i++ )  // copy nr of chars specified by field width.
     {
         nChar = EhsFgetc( sFile );  // get next char.

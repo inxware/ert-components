@@ -27,10 +27,64 @@
 /*****************************************************************************/
 /* Define macros  */
 
+#ifndef EHS_IP_ADDR_LENGTH_MAX
+#define EHS_IP_ADDR_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_DEVICE_ID_LENGTH_MAX
+#define EHS_DEVICE_ID_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_NET_MAC_ID_LENGTH_MAX
+#define EHS_NET_MAC_ID_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_INST_ROOT_DIR_LENGTH_MAX
+#define EHS_INST_ROOT_DIR_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_APPS_DIR_LENGTH_MAX
+#define EHS_APPS_DIR_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_USER_DIR_LENGTH_MAX
+#define EHS_USER_DIR_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_VERSION_LENGTH_MAX
+#define EHS_VERSION_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_BUILD_DATE_LENGTH_MAX
+#define EHS_BUILD_DATE_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_START_DATE_LENGTH_MAX
+#define EHS_START_DATE_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_TARGET_VARIANT_LENGTH_MAX
+#define EHS_TARGET_VARIANT_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef EHS_MODULE_LIST_LENGTH_MAX
+#define EHS_MODULE_LIST_LENGTH_MAX EHS_STRING_LENGTH_MAX
+#endif
+
 /* App status id */
 #define EHS_APP_LOAD_FAILED      0x00
 #define EHS_APP_LOAD_SUCCESFULL  0x01
 #define EHS_APP_LOAD_STARTED     0x02
+#define EHS_APP_LOAD_RESTARTING  0x04
+
+/* OS Enviroment Update id */
+#define EHS_OS_ENV_STATIC_ID     1
+#define EHS_OS_ENV_DYNAMIC_ID    2
+#define EHS_OS_ENV_NETWORK_ID    3
+
+/* Network mode id */
+#define EHS_NET_DHCP_MODE_ID     0
+#define EHS_NET_STATIC_MODE_ID   1
 
 /*****************************************************************************/
 /* Define types */
@@ -40,7 +94,7 @@
 typedef enum ehs_startupmode_enum {EHSMETADATA_NODEBUGONSTARTS=0,EHSMETADATA_DEBUGONRESTART,EHSMETADATA_DEBUGONSTART} ehs_startupmode_t;
 
 /* Target tree implemented */
-ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob) ;
+EHS_GLOBAL ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob) ;
 
 /*@todo this could HAL? - should be a new EHS object file.
 //todo2024 this is quite a lot of RAM with all these strings! Do we want this to be more dynamic just-enough allocations or just smaller allocations?
@@ -53,8 +107,16 @@ typedef struct EhsMetaDataType
     ehs_char zArgv0[EHS_STRING_LENGTH_MAX]; // contains the calling coommand.
     ehs_char zArgv1[EHS_STRING_LENGTH_MAX]; // contains the calling coommand.
 #endif
-    ehs_char zDeviceIPAddr[EHS_STRING_LENGTH_MAX]; // if we are networked get IP address here
-    ehs_char zDeviceID[EHS_STRING_LENGTH_MAX]; // Use the Hardware ID (e.g. MAC address).
+    ehs_bool bStartWithoutApp; // a flag used for starting the eRT without running SODL
+    /* Network specifc data */ 
+    ehs_sint16 nDeviceNetworkMode; // Static (0), DHCP (1)
+    ehs_char zDeviceIPAddr[EHS_IP_ADDR_LENGTH_MAX]; // if we are networked get IP address here
+    ehs_char zDeviceGateway[EHS_IP_ADDR_LENGTH_MAX]; // if we are networked gateway here
+    ehs_char zDeviceMask[EHS_IP_ADDR_LENGTH_MAX]; // if we are networked mask address here
+    ehs_char zDeviceDNS1[EHS_IP_ADDR_LENGTH_MAX]; // if we are networked dns1 address here
+
+    ehs_char zDeviceID[EHS_DEVICE_ID_LENGTH_MAX]; // Use the Hardware ID (e.g. MAC address).
+    ehs_char zDeviceNetMacId[EHS_NET_MAC_ID_LENGTH_MAX]; // Use the Hardware ID (e.g. MAC address).
     ehs_char zEhsStartedDirectory[EHS_STRING_LENGTH_MAX]; // contains the cwd when EHS was first started
 
 
@@ -62,23 +124,25 @@ typedef struct EhsMetaDataType
     time_t DynamicUpdateTime; //Time stamp of the last Dynamic update to the structure
     ehs_bool bStaticUpdate; //flag to identify static elements are valid
     ehs_uint32 nRepoID;
-    ehs_char zVersion[EHS_STRING_LENGTH_MAX];
-    ehs_char zBuildDate[EHS_STRING_LENGTH_MAX];
-    ehs_char zEHSStartDate[EHS_STRING_LENGTH_MAX];
-    ehs_char zTargetVariant[EHS_STRING_LENGTH_MAX];
-    ehs_char zModuleList[EHS_STRING_LENGTH_MAX]; //@todo this may need to be made larger?
+    ehs_char zVersion[EHS_VERSION_LENGTH_MAX];
+    ehs_char zBuildDate[EHS_BUILD_DATE_LENGTH_MAX];
+    ehs_char zEHSStartDate[EHS_START_DATE_LENGTH_MAX];
+    ehs_char zTargetVariant[EHS_TARGET_VARIANT_LENGTH_MAX];
+    ehs_char zModuleList[EHS_MODULE_LIST_LENGTH_MAX]; //@todo this may need to be made larger?
 
     /* The remainder is environment information - but with potentially EHS instance specific information*/
     ehs_startupmode_t DebugOnStart;
-    #ifndef INX_SODL_IN_FLASH
-    ehs_char OSVersion[EHS_STRING_LENGTH_MAX]; // This is the linux distro version of the host
-    ehs_char zInstallRootDirectory[EHS_STRING_LENGTH_MAX]; // Path to ehs/.
-    ehs_char zAppsDirectory[EHS_STRING_LENGTH_MAX]; // Root Path to App directory as we sometimes want this in it's own partition.
+#ifndef INX_SODL_IN_FLASH
+#ifndef EHS_EXCLUDE_OS_VERSION
+    ehs_char OSVersion[EHS_STRING_LENGTH_MAX]; // This is the linux distro version of the host ! NOT USED !
+#endif
+    ehs_char zInstallRootDirectory[EHS_INST_ROOT_DIR_LENGTH_MAX]; // Path to ehs/.
+    ehs_char zAppsDirectory[EHS_APPS_DIR_LENGTH_MAX]; // Root Path to App directory as we sometimes want this in it's own partition.
     ehs_char AppCurrentLive[EHS_STRING_LENGTH_MAX]; //Canonical Application Name of current Live App.
     ehs_char NextAppToRun[EHS_STRING_LENGTH_MAX]; //Canonical Application Name of next App to run. //@todo - ensure initialised as an empty string
     // #endif possibly we would need the following if SODL is flash and we still have a file system.
-    ehs_char zUserDirectory[EHS_STRING_LENGTH_MAX]; // Root Path to user directory, may be in <user home>/userdata or if root user <install dir>/userdata.
-    #endif
+    ehs_char zUserDirectory[EHS_USER_DIR_LENGTH_MAX]; // Root Path to user directory, may be in <user home>/userdata or if root user <install dir>/userdata.
+#endif
     ehs_uint32 PairedOrganisationID; /*  This is info provided by devman that indicates what organisation ID a device is paired with - this is enumerated for security.... */
     ehs_uint8 PairedOrganisationIDRequested; /* 0: no pairing data updates, 1 pairing data valid, 2 pairing data pending, 3 paring data invalid*/
 
@@ -92,6 +156,7 @@ typedef struct EhsMetaDataType
     ehs_uint32 nSysSpaceTotal_KB;
     //ehs_uint32 nUserSpaceAvail_KB;
     ehs_uint16 CPUUsage; /* % CPU usage by EHS */
+    ehs_sint16 CPUTemp; /* CPU temperature in Celcius */
     /* If we are montitoring some other app then this is its info */
     ehs_uint32 MiscAppProcId; // This isthe proc ID for the app to monitor - set to 0 if we are not monitoring
     ehs_uint32 MiscAppRAMUsed_KB;
@@ -99,7 +164,6 @@ typedef struct EhsMetaDataType
 
     ehs_bool NewDevmanMiscDLData;
     ehs_bool NewDevmanMiscULData; // probably don't need this because we send everything always
-    //ehs_char xxxx[20];
     ehs_bool devmanPingFail ;
     time_t devmanLastGoodPing;
     EhsTPConditionClass condDevmanNewMiscDLData; // opaque pointer to condition mutext - some mutexes we've decided to store here rather than with the global ones. No idea why...
@@ -153,6 +217,7 @@ EHS_GLOBAL void EhsHAppLoadStatusNotify(ehs_uint32 status);
  */
 EHS_GLOBAL void EhsHMetaUpdateStatic();
 EHS_GLOBAL void EhsHMetaUpdateDynamic();
+EHS_GLOBAL void EhsHMetaUpdateNetwork();
 EHS_GLOBAL const ehs_char* EhsHMetaGetToolboxHashes();
 EHS_GLOBAL const ehs_char* EhsHMetaGetInstPath(); /* Called to return the installation directory of EHS. */
 EHS_GLOBAL const ehs_char* EhsHMetaGetUserPath(); /* Called to return the user directory. */
@@ -164,9 +229,13 @@ EHS_GLOBAL const ehs_char* EhsHMetaAppLiveDefaultDir();
 EHS_GLOBAL const ehs_char* EhsHSetMetaAppLiveDefaultDir(ehs_uint8 which);
 */
 EHS_GLOBAL const ehs_char* EhsHMetaGetHWID(); /* Return the HW-based device ID */
-EHS_GLOBAL const ehs_char* EhsHMetaGetIPAddr(); /* Return the HW-based device ID */
+EHS_GLOBAL ehs_sint16 EhsHMetaGetNetworkMode(); /* Return the HW-based network mode id e.g. DHCP or Static */
+EHS_GLOBAL const ehs_char* EhsHMetaGetIPAddr(); /* Return the HW-based IP address */
+EHS_GLOBAL const ehs_char* EhsHMetaGetGateway(); /* Return the HW-based gateway */
+EHS_GLOBAL const ehs_char* EhsHMetaGetMask(); /* Return the HW-based mask */
+EHS_GLOBAL const ehs_char* EhsHMetaGetDNS1(); /* Return the HW-based DNS1 */
 EHS_GLOBAL void EhsHMetaSetHWID(const char * value); /* Set the HW-based device ID */
-EHS_GLOBAL void EhsHMetaSetIPAddr(const char * value); /* Set the HW-based device ID */
+EHS_GLOBAL void EhsHMetaSetIPAddr(const char * value); /* Set the HW-based ip address */
 EHS_GLOBAL void EhsHMetaSetInstPath(const char * value); /* Set the HW-based device ID */
 EHS_GLOBAL const ehs_char* EhsHMetaGetEHSVersion(); /* Return the HW-based device ID */
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMAvail();
@@ -176,6 +245,7 @@ EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorAvail();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorUsed();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorTotal();
 EHS_GLOBAL const ehs_uint16 EhsHMetaGetCPUUsage();
+EHS_GLOBAL const ehs_sint16 EhsHMetaGetCPUTemp();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysAvail();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysTotal();
 EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysUsed();
@@ -200,6 +270,8 @@ EHS_GLOBAL void EhsHMetaSetNextAppToRun(ehs_char * App);
 EHS_GLOBAL const ehs_char* EhsHMetaGetNextAppToRun();
 
 EHS_GLOBAL ehs_startupmode_t EhsHAppMetaGetDebugOnStartMode() ;
+EHS_GLOBAL ehs_bool EhsHMetaGetStartWithoutApp();
+EHS_GLOBAL void EhsHMetaSetStartWithoutApp(ehs_bool enable);
 ehs_bool EhsHRequestEHSInterrupt(); /* return boolean if a command other than EHS_CONTINUE is present */
 EHS_GLOBAL Ehs_ConsoleCommand_Type EhsHFSMGetInternallyRequestedCommand();
 EHS_GLOBAL ehs_bool EhsHFSMSetInternallyRequestedCommand(Ehs_ConsoleCommand_Type state );

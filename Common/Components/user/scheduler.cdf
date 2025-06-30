@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-12-28T16:10:19Z</CreationDate>
-        <UpdatedDate>2024-01-29T13:56:32Z</UpdatedDate>
+        <UpdatedDate>2024-06-10T23:48:14Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>This function will retrieve data from the schedule information stored on a device.</ShortDescription>
@@ -12,17 +12,28 @@ This will be based on the NXP binary format for now, but doesn’t need to be sp
 </LongDescription>
         <UserName/>
         <Menu>
-            System
+            Control Systems
             <Menu>Devman Scheduler</Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>Data</Type>
+        <Height>150</Height>
+        <Text>Scheduler</Text>
+        <TextX>10</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>DevmanScheduler</Class>
     </FBID>
     <Hashes>
         <NameHash_CRC16>0x142C</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>1ba59908</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>11eac0c2</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -53,27 +64,44 @@ This will be based on the NXP binary format for now, but doesn’t need to be sp
     </Parameters>
     <Functions>
         <Function>
-            <name>get_schedule</name>
+            <name>init_schedule</name>
             <ID>
                 <ERT1_ID>1</ERT1_ID>
             </ID>
         </Function>
         <Function>
-            <name>set_schedule</name>
+            <name>get_schedule</name>
             <ID>
                 <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>set_schedule</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
             </ID>
         </Function>
     </Functions>
     <Ports>
         <Port>
-            <Description>get</Description>
+            <Description>init</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
             <YCoordinate>12</YCoordinate>
-            <CName>get</CName>
+            <CName>init</CName>
             <Function argument="0">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>get</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>get</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
                 <AtomicFlag>0</AtomicFlag>
             </Function>
         </Port>
@@ -82,10 +110,10 @@ This will be based on the NXP binary format for now, but doesn’t need to be sp
             <Description>time</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>25</YCoordinate>
+            <YCoordinate>50</YCoordinate>
             <CName>timeOfDayInMinutes</CName>
             <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
@@ -93,75 +121,20 @@ This will be based on the NXP binary format for now, but doesn’t need to be sp
             <Description>day</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>37</YCoordinate>
+            <YCoordinate>60</YCoordinate>
             <CName>dayOfWeek</CName>
             <Function argument="2">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>----</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>55</XCoordinate>
-            <YCoordinate>12</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>OK</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>value</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>55</XCoordinate>
-            <YCoordinate>25</YCoordinate>
-            <CName>value</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>B</DataType>
-            <Description>changed</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>55</XCoordinate>
-            <YCoordinate>37</YCoordinate>
-            <CName>changed</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>error</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>55</XCoordinate>
-            <YCoordinate>50</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>error</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>errno</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>55</XCoordinate>
-            <YCoordinate>62</YCoordinate>
-            <CName>errno</CName>
-            <Function argument="3">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
             <Description>set</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>72</YCoordinate>
+            <YCoordinate>107</YCoordinate>
             <CName>set_schedule</CName>
             <Function argument="0">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <Function_ERT1_ID>3</Function_ERT1_ID>
                 <AtomicFlag>0</AtomicFlag>
             </Function>
         </Port>
@@ -170,32 +143,10 @@ This will be based on the NXP binary format for now, but doesn’t need to be sp
             <Description>data</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>85</YCoordinate>
+            <YCoordinate>117</YCoordinate>
             <CName>binary_data</CName>
             <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>----</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>55</XCoordinate>
-            <YCoordinate>77</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>set_OK</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>errno</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>55</XCoordinate>
-            <YCoordinate>90</YCoordinate>
-            <CName>set_errono</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <Function_ERT1_ID>3</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
@@ -203,10 +154,134 @@ This will be based on the NXP binary format for now, but doesn’t need to be sp
             <Description>size</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>97</YCoordinate>
+            <YCoordinate>127</YCoordinate>
             <CName>data_size</CName>
             <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>value</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>70</YCoordinate>
+            <CName>value</CName>
+            <Function argument="1">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>----</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>init_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>crc</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <CName>crc</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>----</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>OK</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>errno</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>errno</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>on</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>is_on</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>changed</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>changed</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>----</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>107</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>set_OK</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>117</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error_set</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>errno</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>127</YCoordinate>
+            <CName>set_errono</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
             </Function>
         </Port>
     </Ports>

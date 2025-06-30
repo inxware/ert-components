@@ -66,7 +66,7 @@ EHS_FB_INIT_FUNCTION(ArrayString1)
 
     arrayString = (EHS_structArray*)EHS_FB_INIT_CONTEXT;
 
-    arrayString->clear_value =(char *)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX * sizeof(char*)); // OK so it's a bit bigger than it needs to be..
+    arrayString->clear_value =(char *)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX * sizeof(char*)); //TODO:STRINGLENGTH! 
     if (!arrayString->clear_value)
     {
         EHSH_LOG_ERROR("Could not allocate default value memory");
@@ -89,7 +89,7 @@ EHS_FB_INIT_FUNCTION(ArrayString1)
     {
         for (i = 0; i < arrayString->arraySize; i++)
         {
-            arrayString->arrayData[i] = (char *)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX);
+            arrayString->arrayData[i] = (char *)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!
             if (!arrayString->arrayData[i])
             {
                 EHSH_LOG_ERROR("Could not allocate element Memory");

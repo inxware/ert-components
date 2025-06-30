@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2024-02-23T09:46:47Z</CreationDate>
+        <UpdatedDate>2024-04-28T16:16:30Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>String Divider</ShortDescription>
+        <LongDescription>String Divider</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                String Functions
+                <Menu>
+                    Raw Data Conversion
+                    <Menu>String Divider</Menu>
+                </Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data</Type>
+        <Height>135</Height>
+        <Text>Str Divide</Text>
+        <TextX>15</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>StringDivader</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xC795</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>40488b91</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>delim1</Name>
+            <DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+            <Description>delim1</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>delim2</Name>
+            <DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+            <Description>delim2</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>delim3</Name>
+            <DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+            <Description>delim3</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>split</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>split</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <CName>split</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>str</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>25</YCoordinate>
+            <CName>str</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>len</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>37</YCoordinate>
+            <CName>len</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>str1</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <CName>str1</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>str2</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>57</YCoordinate>
+            <CName>str2</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>str3</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>80</YCoordinate>
+            <CName>str3</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>str4</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>102</YCoordinate>
+            <CName>str4</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>err</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>len1</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <CName>len1</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>len2</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>67</YCoordinate>
+            <CName>len2</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>len3</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>90</YCoordinate>
+            <CName>len3</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>len4</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>112</YCoordinate>
+            <CName>len4</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

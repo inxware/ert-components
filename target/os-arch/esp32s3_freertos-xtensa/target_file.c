@@ -83,6 +83,7 @@ targets).
 ##################################################################
 */
 
+void (*ehs_filesystem_initalised_callback)(void) = NULL;
 
 ehs_bool EhsTF_cd(const ehs_char * dir)
 {
@@ -186,6 +187,8 @@ ehs_bool EhsTF_rmdir(ehs_char* szPath)
 
 ehs_uint8 EhsTF_exists(const ehs_char* fname)
 {
+    if (fname == NULL) return 0; // Check NULL pointer
+    if (fname[0] == '\0') return 0; // Check the string is empty
     struct stat xFileInfo;
     ehs_uint8 nRet = 0;
 
@@ -467,6 +470,10 @@ ehs_bool EhsTgtFilesystem_Init(void)
     listdir("/appdata");
 
     ESP_LOGI(TAG, "Initializing LittleFS Done !");
+
+    if(ehs_filesystem_initalised_callback != NULL){
+        ehs_filesystem_initalised_callback();
+    }
     
     return EHS_TRUE;
 }

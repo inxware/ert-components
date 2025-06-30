@@ -69,7 +69,7 @@ typedef struct
 }
 mbedtls_net_context;
 #else
-#include "mqtt.h"
+//#include "mqtt.h"
 
 typedef struct mqtt_client_t mbedtls_net_context;
 

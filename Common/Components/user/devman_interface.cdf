@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2024-02-01T23:32:37Z</UpdatedDate>
+        <UpdatedDate>2024-06-04T08:36:48Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>Interface to Devman functionality</ShortDescription>
@@ -30,12 +30,12 @@
         <LocationY>-15</LocationY>
     </Block>
     <FBID>
-        <ERT1_ID>0</ERT1_ID>
+        <ERT1_ID>1</ERT1_ID>
         <Class>DevmanInterface</Class>
     </FBID>
     <Hashes>
         <NameHash_CRC16>0x061C</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>867ce209</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>43bd34f2</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -93,6 +93,12 @@
             <name>setServerUrl</name>
             <ID>
                 <ERT1_ID>5</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>getNetStatus</name>
+            <ID>
+                <ERT1_ID>6</ERT1_ID>
             </ID>
         </Function>
     </Functions>
@@ -260,6 +266,50 @@
             <CName>newJSON</CName>
             <Function argument="1">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>net status</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>145</YCoordinate>
+            <CName>net_status</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>---</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>142</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>net_status_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>connected</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>152</YCoordinate>
+            <CName>connected</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>error</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>162</YCoordinate>
+            <CName>net_error</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
             </Function>
         </Port>
     </Ports>

@@ -1,7 +1,7 @@
 <LucidProject>
 <Version>1.4</Version>
 <ProjectName>IPSockets</ProjectName>
-<LastTransferToTarget>2018-04-26 01:12:16:000</LastTransferToTarget>
+<LastTransferToTarget>2024-11-23 15:33:47:000</LastTransferToTarget>
 <GroupSet>
 <Group>
 <ID>1</ID>
@@ -35,11 +35,6 @@
 </BdfFile>
 </BdfFileSet>
 <ResourceFileSet/>
-<NlsFile>
-<HostFileName>nls.csv</HostFileName>
-<Description/>
-<TargetFileName>nls.csv</TargetFileName>
-</NlsFile>
 </ExternalFiles>
 <ScreenSet>
 <Screen>
@@ -76,7 +71,7 @@
 </Widget>
 </WidgetSet>
 <ExternalDataFileMetas>
-<NumberOfHighestGuiFile>1</NumberOfHighestGuiFile>
+<NumberOfHighestGuiFile>10</NumberOfHighestGuiFile>
 <NumberOfHighestPngFile>1</NumberOfHighestPngFile>
 <NumberOfHighestBmpFile>0</NumberOfHighestBmpFile>
 <NumberOfHighestDatFile>0</NumberOfHighestDatFile>

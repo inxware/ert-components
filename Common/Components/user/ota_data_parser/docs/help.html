@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">OTA Data Parser</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!-- General Description -->
+<p class="component">
+      The <strong>OTA Data Parser</strong> function block is designed for processing and parsing Over-The-Air (OTA) data in an embedded system. It supports various functions such as starting, parsing, and aborting the OTA data processing. The block is equipped with multiple input and output ports to handle data, errors, and the state of the parsing process.
+    </p>
+<!-- Parameters -->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">Name</th>
+<th>Type</th><th>Description</th>
+<th>Default</th>
+<th>Min.</th>
+<th>Max.</th>
+
+</tr>
+<tr>
+<td>SHA256</td>
+<td>Boolean</td><td>Using SHA256 for verifying OTA.</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+
+</tr>
+<tr>
+<td>Chunk Size</td>
+<td>Integer</td><td>OTA chunk size in bytes.</td>
+<td>128</td>
+<td>0</td>
+<td>65536</td>
+
+</tr>
+</table>
+<!-- Ports -->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]start">start</a></td>
+<td>Event to start the OTA data parsing process.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]parse">parse</a></td>
+<td>Event to parse a chunk of OTA data.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]abort">abort</a></td>
+<td>Event to abort the OTA data parsing process.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]info">info</a></td>
+<td>Input port for OTA information necessary to initiate parsing.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]raw data">raw data</a></td>
+<td>Raw OTA data chunk to be parsed.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]size">size</a></td>
+<td>Size of the raw OTA data chunk.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]started">--</a></td>
+<td>OTA process started.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]next">next</a></td>
+<td>Indicates the next data chunk is ready.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]done">done</a></td>
+<td>Indicates the completion of OTA data parsing.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]ready">ready</a></td>
+<td>Indicates that parsed OTA data is ready for processing.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]error">error</a></td>
+<td>Indicates an error occurred during the OTA parsing process.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]aborted">--</a></td>
+<td>OTA parsing is aborted.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]sha256">sha256</a></td>
+<td>Output containing the SHA256 hash for verification.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]payload">payload</a></td>
+<td>Output containing the next OTA payload data.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]data">data</a></td>
+<td>Output containing the parsed OTA data.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]size">size</a></td>
+<td>Size of the parsed OTA data.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]offset">offset</a></td>
+<td>Offset in the OTA data after parsing.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]error no">error no</a></td>
+<td>Output port indicating the error number.</td>
+</tr>
+</table>
+<!-- Miscellaneous -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tbody>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td>
+<td>Core</td>
+<td class="heading-cell"><b>Version</b></td>
+<td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td>
+<td>MPL2.0</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td>
+<td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td>
+<td>All.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>

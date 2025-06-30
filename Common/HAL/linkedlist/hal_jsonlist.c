@@ -11,6 +11,9 @@
 #include <string.h>
 #include "hal_jsonlist.h"
 
+#ifdef EHS_MCU_TARGET
+#warning "Heap Memory Utility is being used! (hal_json.c)"
+#endif
 void open_bracket(EhsJsonList* json_list)
 {
     ehs_push_front(json_list->list, "[", 1);

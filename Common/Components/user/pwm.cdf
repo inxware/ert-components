@@ -10,10 +10,13 @@
         <LongDescription>pwm</LongDescription>
         <UserName/>
         <Menu>
-            Peripherals
+            Deprecated
             <Menu>
-                GPIO
-                <Menu>PWM</Menu>
+                Peripherals
+                <Menu>
+                    GPIO
+                    <Menu>PWM</Menu>
+                </Menu>
             </Menu>
         </Menu>
     </Description>
@@ -38,7 +41,48 @@
         <FbApiDescriptorHash_CRC32>f018cd41</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
-    <Parameters/>
+    <Parameters>
+        <Parameter>
+            <Name>Pin ID</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>255</MaxValue>
+            <Description>PWM pin id number</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Enabled</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>PWM default enabled/disabled status</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Period (Hz)</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>2147483647</MaxValue>
+            <Description>PWM period frequency in Hz</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Duty (%)</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>100</MaxValue>
+            <Description>PWM duty cycle (0-100)%</Description>
+            <ListPlacement>4</ListPlacement>
+            <ArgPlacement>4</ArgPlacement>
+        </Parameter>
+    </Parameters>
     <Functions>
         <Function>
             <name>config</name>

@@ -12,6 +12,8 @@ import com.utils.downloader.utils.cert.ICertificate;
 import com.utils.downloader.utils.comms.HttpServerRequest;
 import com.utils.downloader.utils.comms.IMessage;
 import com.utils.downloader.utils.comms.MessageFactory;
+
+import java.io.File;
 import java.util.HashMap;
 
 public class Downloader {
@@ -28,6 +30,7 @@ public class Downloader {
     private static final String POST_PATH = "post_path";
     private static final String POST_FILE = "post_file";
     private static final String IGNORE_FAILED = "ignore_failed";
+    private static final String EXTERNAL_UPDATES_DIR = "/storage/emulated/0/Android/data/com.utils.downloader/files";
 
     private static final String [] EXTRAS_LIST = { IP_ADDRESS, CHECK_AVAILABLE, AVAILABLE_RESPONSE, AVAILABLE_POST, PRE_DOWNLOAD_POST,
                                                    DOWNLOAD_PATH, DOWNLOAD_POST, OUTPUT_PATH, POST_DATA, POST_PATH, POST_FILE, IGNORE_FAILED };
@@ -132,13 +135,13 @@ public class Downloader {
         try {
             String full_address = JoinPath(ip_address, post_path);
             IMessage post = new MessageFactory.DefaultMessage(post_data);
-            HttpServerRequest request = HttpServerRequest.create(full_address, post);
+            HttpServerRequest request = HttpServerRequest.create(context, full_address, post);
             request.setExpected(MessageFactory.DEFAULT_MESSAGE_TYPE);
             ICertificate certificate = CertificateManager.getInstance().getClientCert(context, ip_address);
             request.setCertificate(certificate);
             IMessage message = request.requestPost();
             if (message != null && message.isValid()) {
-                EHSS_Logger.debug("Post response: "+message.getString());
+                //EHSS_Logger.debug("Post response: " + message.getString());
                 return true;
             }
         }catch (Exception e){
@@ -150,18 +153,29 @@ public class Downloader {
     private boolean PostFile(String ip_address, String post_path, String post_data, String post_file){
         try {
             String full_address = JoinPath(ip_address, post_path);
-            String file_data = EHSS_Utils.read(post_file);
+            String file_data;
+            // Check if the path starts with the absolute path to the downloader files (not supported Android11+)
+            if (post_file != null && post_file.startsWith(EXTERNAL_UPDATES_DIR)) {
+                String file_path = getRelativeExternalPath(post_file, EXTERNAL_UPDATES_DIR);
+                EHSS_Logger.info("Downloading ("+file_path+") ...");
+                File file = new File(context.getExternalFilesDir(null), file_path);
+                file_data = EHSS_Utils.read(file);
+            }else {
+                file_data = EHSS_Utils.read(post_file);
+            }
             if(!IsNull(file_data)) {
                 String full_data = post_data + file_data;
                 IMessage post = new MessageFactory.DefaultMessage(full_data);
-                HttpServerRequest request = HttpServerRequest.create(full_address, post);
+                HttpServerRequest request = HttpServerRequest.create(context, full_address, post);
                 request.setExpected(MessageFactory.DEFAULT_MESSAGE_TYPE);
                 ICertificate certificate = CertificateManager.getInstance().getClientCert(context, ip_address);
                 request.setCertificate(certificate);
                 IMessage message = request.requestPost();
                 if (message != null && message.isValid()) {
-                    EHSS_Logger.debug("Post response: " + message.getString());
+                    //EHSS_Logger.info("Post response: " + message.getString());
                     return true;
+                }else{
+                    EHSS_Logger.error("Failed to post : " + post_file);
                 }
             }
         }catch (Exception e){
@@ -199,7 +213,7 @@ public class Downloader {
         if(!IsNull(post_data)) {
             post = new MessageFactory.DefaultMessage(post_data);
         }
-        HttpServerRequest request = HttpServerRequest.create(full_address,post);
+        HttpServerRequest request = HttpServerRequest.create(context, full_address,post);
         request.setExpected(expected);
         ICertificate certificate = CertificateManager.getInstance().getClientCert(context, ip_address);
         request.setCertificate(certificate);
@@ -209,13 +223,32 @@ public class Downloader {
     private boolean Download(String ip_address, String download_path, String download_post, String output_path){
         try {
             IMessage message = Request(ip_address, download_path, download_post, MessageFactory.BIN_MESSAGE_TYPE);
-            if(message != null && message instanceof MessageFactory.BinMessage){
-                return ((MessageFactory.BinMessage)message).save(output_path);
+            if(message instanceof MessageFactory.BinMessage){
+                // Check if the path starts with the absolute path to the downloader files (not supported Android11+)
+                if (output_path != null && output_path.startsWith(EXTERNAL_UPDATES_DIR)) {
+                    String file_path = getRelativeExternalPath(output_path, EXTERNAL_UPDATES_DIR);
+                    EHSS_Logger.info("Downloading ("+file_path+") ...");
+                    File file = new File(context.getExternalFilesDir(null), file_path);
+                    return ((MessageFactory.BinMessage) message).save(file);
+                }else {
+                    return ((MessageFactory.BinMessage) message).save(output_path);
+                }
             }
         }catch (Exception e){
             EHSS_Logger.error(e.toString());
         }
         return false;
+    }
+
+    private static @NonNull String getRelativeExternalPath(String path, String external_files) {
+        // Calculate the starting position for the portion after the external_files path
+        int startPosition = external_files.length();
+        // Check if the next character is a slash to handle the absence of a trailing slash
+        if (path.length() > startPosition && path.charAt(startPosition) == '/') {
+            startPosition++; // Skip the slash
+        }
+        // Extract the remaining part of the path
+        return path.substring(startPosition);
     }
 
     private boolean IsCheckAvailable(String ip_address, String path){

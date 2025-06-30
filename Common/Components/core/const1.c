@@ -205,8 +205,8 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(ConstantFloat1)
 {
-    /* we require the space to hold a double */
-    EHS_FB_IDENTIFY_MEMORY  = sizeof(double);
+    /* we require the space to hold a ehs_float */
+    EHS_FB_IDENTIFY_MEMORY  = sizeof(ehs_float);
     return;
 }
 
@@ -219,8 +219,8 @@ EHS_FB_IDENTIFY_FUNCTION(ConstantFloat1)
  */
 EHS_FB_INIT_FUNCTION(ConstantFloat1)
 {
-    *(double*)EHS_FB_INIT_CONTEXT = atof(EHS_FB_INIT_PARAMETERS);
-    NCAPSA_dOut(0) = *(double*)EHS_FB_INIT_CONTEXT;
+    *(ehs_float*)EHS_FB_INIT_CONTEXT = atof(EHS_FB_INIT_PARAMETERS);
+    NCAPSA_dOut(0) = *(ehs_float*)EHS_FB_INIT_CONTEXT;
     return EHS_TRUE; /* initialisation always succeeds */
 }
 

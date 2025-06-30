@@ -64,6 +64,25 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt4);
 EHS_FB_FUNCTIONS(DemultiplexFourOutputInt)
 
 /******************************************************************************/
+/* Declare demux 8 output int converter */
+#define EHS_FB_NAME_DemultiplexEightOutputInt "DemultiplexEightOutputInt"
+#define EHS_FB_ID_DemultiplexEightOutputInt 0xA1B0
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DemultiplexEightOutputInt);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(DemultiplexEightOutputInt);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt1);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt2);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt3);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt4);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt5);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt6);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt7);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt8);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(DemultiplexEightOutputInt)
+
+/******************************************************************************/
 /* Declare demux 2 output bool converter */
 #define EHS_FB_NAME_DemultiplexTwoOutputBool "DemultiplexTwoOutputBool"
 #define EHS_FB_ID_DemultiplexTwoOutputBool 0xEC76
@@ -104,6 +123,25 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(DemultiplexFourOutputBool)
+
+/******************************************************************************/
+/* Declare demux 8 output int converter */
+#define EHS_FB_NAME_DemultiplexEightOutputBool "DemultiplexEightOutputBool"
+#define EHS_FB_ID_DemultiplexEightOutputBool 0x8DF9
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DemultiplexEightOutputBool);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(DemultiplexEightOutputBool);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool1);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool2);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool3);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool4);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool5);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool6);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool7);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool8);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(DemultiplexEightOutputBool)
 
 /******************************************************************************/
 /* Declare demux 2 output string converter */
@@ -147,6 +185,25 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(DemultiplexFourOutputString)
+
+/******************************************************************************/
+/* Declare demux 8 output string converter */
+#define EHS_FB_NAME_DemultiplexEightOutputString "DemultiplexEightOutputString"
+#define EHS_FB_ID_DemultiplexEightOutputString 0x919E
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DemultiplexEightOutputString);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(DemultiplexEightOutputString);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString1);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString2);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString3);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString4);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString5);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString6);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString7);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString8);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(DemultiplexEightOutputString)
 
 /******************************************************************************/
 /* Declare indexed demux event converter */
@@ -263,6 +320,25 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(DemultiplexFourOutputFloat)
+
+/******************************************************************************/
+/* Declare demux 8 output float converter */
+#define EHS_FB_NAME_DemultiplexEightOutputReal "DemultiplexEightOutputReal"
+#define EHS_FB_ID_DemultiplexEightOutputReal 0x2FD9
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DemultiplexEightOutputFloat);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(DemultiplexEightOutputFloat);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat1);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat2);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat3);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat4);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat5);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat6);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat7);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat8);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(DemultiplexEightOutputFloat)
 
 #endif /* EHS_TARGET_FP_SUPPORT */
 

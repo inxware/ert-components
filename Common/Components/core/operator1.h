@@ -371,6 +371,19 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplyFourInputReal);
 EHS_FB_FUNCTIONS(MultiplyFourInputReal)
 
 /******************************************************************************/
+/* Declare float abs */
+
+#define EHS_FB_NAME_AbsReal "AbsReal"
+#define EHS_FB_ID_AbsReal 0x9775
+
+EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(AbsReal);
+EHS_GLOBAL EHS_FB_INIT_FUNCTION(AbsReal);
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(AbsReal);
+
+/* declare the table for use by the blockref table */
+EHS_FB_FUNCTIONS(AbsReal)
+
+/******************************************************************************/
 /* Declare float divide */
 
 #define EHS_FB_NAME_DivisionReal "DivisionReal"

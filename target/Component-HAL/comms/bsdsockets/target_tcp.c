@@ -35,6 +35,8 @@
  */
 #define EHS_TARGET_CODE
 
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
+
 /*****************************************************************************/
 /* Included files */
 
@@ -294,11 +296,14 @@ ehs_bool EhsSvcTgtTcp_closeConnection(EhsTgtTcpSocketType EhsSvcTcpSocketConnect
     ehs_bool bSuccess = EHS_FALSE; /* assume operation failed */
     int retVal;
 
-    //	retVal = shutdown(EhsSvcTcpSocketConnection,EHS_TGT_TCP_SD_BOTH);
-
-    //	EhsSleep(EHS_TIME_us(EHS_TGT_TCP_SUSPENDTIME_us));
     if ( EhsSvcTcpSocketConnection != EHS_TGT_TCP_INVALID_SOCKET)
     {
+        // shutdown is only needed for TCP
+        retVal = shutdown(EhsSvcTcpSocketConnection, EHS_TGT_TCP_SD_BOTH);
+        EhsSleep(EHS_TIME_us(EHS_TGT_TCP_SUSPENDTIME_us));
+        if(retVal == -1){
+            //EHSH_LOG_ERROR("Failed to shutdown the socket");
+        }
         retVal = EHS_TGT_TCP_CLOSE_SOCKET(EhsSvcTcpSocketConnection);
 
         if (retVal != 0)

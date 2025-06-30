@@ -8,7 +8,7 @@
 
 typedef struct inx_gui_widget_state
 {
-	ehs_uint16 id;
+	//ehs_uint16 id;
 	EhsWidgetUi gui;
 	EhsWidgetClass* pUiWidgetClass;
 } inx_gui_widget_state_type;
@@ -135,31 +135,30 @@ EHS_FB_INIT_FUNCTION(gui_widget)
 #ifdef EHS_GUI_SUPPORT_MODE_B
 			inx_gui_widget_state->gui.data = NULL;
 			inx_gui_widget_state->gui.label = NULL;
-			inx_gui_widget_state->id = EHS_STRING_UI_WIDGET;
+			ehs_uint16 nId = EHS_STRING_UI_WIDGET;
 			switch(xParams.nTextBoxType){ // text box type is comming from iGB and can either be string (0), bool (0), int (0), float (0)
 				case 0: // string widget type
 				{
-					inx_gui_widget_state->id = EHS_STRING_UI_WIDGET + xParams.uClass.xTextbox.nType;
+					nId = EHS_STRING_UI_WIDGET + xParams.uClass.xTextbox.nType;
 					break;
 				}
 				case 1: // bool widget type
 				{
-					inx_gui_widget_state->id = EHS_BOOL_UI_WIDGET + xParams.uClass.xTextbox.nType;
+					nId = EHS_BOOL_UI_WIDGET + xParams.uClass.xTextbox.nType;
 					break;
 				}
 				case 2: // int widget type
 				{
-					inx_gui_widget_state->id = EHS_INT_UI_WIDGET + xParams.uClass.xTextbox.nType;
+					nId = EHS_INT_UI_WIDGET + xParams.uClass.xTextbox.nType;
 					break;
 				}
 				case 3: // float widget type
 				{
-					inx_gui_widget_state->id = EHS_FLOAT_UI_WIDGET + xParams.uClass.xTextbox.nType;
+					nId = EHS_FLOAT_UI_WIDGET + xParams.uClass.xTextbox.nType;
 					break;
 				}
 			}
-			inx_gui_widget_state->pUiWidgetClass = EhsWidgetUI_init(inx_gui_widget_state->id, 
-																    xParams.uClass.xTextbox.nProp,
+			inx_gui_widget_state->pUiWidgetClass = EhsWidgetUI_init(nId, xParams.uClass.xTextbox.nProp,
 																	xParams.uClass.xTextbox.nCurve, 
 																	xParams.uClass.xTextbox.nParent,
 																	&(xParams.xRect),xParams.nZorder,
@@ -209,9 +208,9 @@ EHS_FB_INIT_FUNCTION(gui_widget)
 					}
 				}
 #endif // EHS_GUI_SUPPORT_MODE_B
+				inx_gui_widget_state->pUiWidgetClass->bContentChanged = EHS_TRUE; /* This should be done in the common code */
 				bRet = EHS_TRUE;
 			}
-			inx_gui_widget_state->pUiWidgetClass->bContentChanged = EHS_TRUE; /* This should be done in the common code */
 		}
     }
 
@@ -237,43 +236,41 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint1
 			return;
 		}
 
-		ehs_bool bDataUpdated = EHS_FALSE;
 		ehs_bool bDataChanged = EHS_FALSE;
 		// update widget label data
 		if ((event_id & EHS_WIDGET_UI_EVENT_LABEL_UPDATED || event_id & EHS_WIDGET_UI_EVENT_LABEL_CHANGED) && EHS_FB_OUT_CONNECTED_API2(INX_gui_widget_ARG_create_label_out)){
 			if(label){
-				EhsStrcpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_label_out), label);
+				static const ehs_uint32 UI_OUTPUT_STR_LEN = EHS_STRING_LENGTH_MAX-1;
+				(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_label_out))[UI_OUTPUT_STR_LEN] = '\0';
+				EhsStrncpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_label_out), label, UI_OUTPUT_STR_LEN);
 			}else{
 				EhsStrcpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_label_out), "");
 			}
-			bDataUpdated = (event_id & EHS_WIDGET_UI_EVENT_LABEL_UPDATED) ? EHS_TRUE : EHS_FALSE;
 			bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_LABEL_CHANGED) ? EHS_TRUE : EHS_FALSE;
 		}
 		if(data && (event_id & EHS_WIDGET_UI_EVENT_DATA_UPDATED || event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) && EHS_FB_OUT_CONNECTED_API2(INX_gui_widget_ARG_create_data_out)){
 			if(EhsWidgetUI_is_string_type(pWidget)){
 				const char* str = (const char*)data;
-				EhsStrcpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_data_out), str);
-				bDataUpdated = (event_id & EHS_WIDGET_UI_EVENT_DATA_UPDATED) ? EHS_TRUE : EHS_FALSE;
+				static const ehs_uint32 UI_OUTPUT_STR_LEN = EHS_STRING_LENGTH_MAX-1;
+				(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_data_out))[UI_OUTPUT_STR_LEN] = '\0';
+				EhsStrncpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_data_out), str, UI_OUTPUT_STR_LEN);
 				bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;
 			}else if(EhsWidgetUI_is_bool_type(pWidget)){
 				const ehs_bool* bool_val = (const ehs_bool*)data;
 				EHS_FB_OUT_B_API2(INX_gui_widget_ARG_create_data_out) = *bool_val;
-				bDataUpdated = (event_id & EHS_WIDGET_UI_EVENT_DATA_UPDATED) ? EHS_TRUE : EHS_FALSE;
 				bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;
 			}else if(EhsWidgetUI_is_int_type(pWidget)){
 				const ehs_sint32* int_val = (const ehs_sint32*)data;
 				EHS_FB_OUT_I_API2(INX_gui_widget_ARG_create_data_out) = *int_val;
-				bDataUpdated = (event_id & EHS_WIDGET_UI_EVENT_DATA_UPDATED) ? EHS_TRUE : EHS_FALSE;
 				bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;
 			}else if(EhsWidgetUI_is_float_type(pWidget)){
 				const float float_val = *(const float*)data;
 				EHS_FB_OUT_F_API2(INX_gui_widget_ARG_create_data_out) = float_val;
-				bDataUpdated = (event_id & EHS_WIDGET_UI_EVENT_DATA_UPDATED) ? EHS_TRUE : EHS_FALSE;
 				bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;
 			}
 		}
 		// updated by the input event port
-		if(bDataUpdated){
+		if((event_id & EHS_WIDGET_UI_EVENT_LABEL_UPDATED) || (event_id & EHS_WIDGET_UI_EVENT_DATA_UPDATED)){
 			EHS_FB_FINISH(INX_gui_widget_ARG_create_data___);
 		}
 		// changed by the user via ui
@@ -319,10 +316,11 @@ EHS_FB_RUN_FUNCTION(gui_widget_create)
 			}
 
 			EhsWidget_create(pWidget);
-
+#ifndef EHS_GUI_SUPPORT_MODE_B
 			/*Set number of mouseClick port*/
 			pWidget->mouseClickPortNumber = INX_gui_widget_ARG_create_click;
 			pWidget->mouseDownPortNumber = INX_gui_widget_ARG_create_mouse_down;
+#endif
 			pWidget->bContentChanged = EHS_TRUE; /* This should be done in the common code */
 
 			EHS_FB_FINISH(INX_gui_widget_ARG_create___);		

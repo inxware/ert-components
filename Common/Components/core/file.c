@@ -56,6 +56,7 @@ typedef struct
     int nPrecision;
     int bAppend;     // append data to file if EHS_TRUE else overwrite existing data.
     ehs_bool app_user;/* flag to look into app directory rather than user directory (read only)*/
+    ehs_bool isBinaryMode; // check if we open file in binary mode
     ehs_char szFileExtensionWhenOpen[32]; //This is a string name that is used during writing to a file (truncate mode only */
 } structFileObj;
 
@@ -211,6 +212,10 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_Bool_Read)
     structFileObj* pFileObj = (structFileObj*)EHS_FB_RUN_CONTEXT;
     sFile = pFileObj->sFile;
     cSeparator = pFileObj->cSeparator;
+    if (EHS_FB_IN_CONNECTED(0))
+    {
+        GetSeparator(EHS_FB_IN_S(0),0, (char*)&cSeparator);
+    }
     NCAPSA_nOut(1)=ERR_NO_ERROR;
     if( !sFile )  // invalid file descriptor.
     {
@@ -645,12 +650,20 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_Float_Read)
     int nError,nChar;
     int nWidth,cSeparator;
     char szBuffer[MAX_READ_CHARS] = {'\0'};
-    double dReadReal;
+    ehs_float dReadReal;
     ehs_FILE *sFile = NULL;
     structFileObj* pFileObj = (structFileObj*)EHS_FB_RUN_CONTEXT;
     sFile = pFileObj->sFile;
     nWidth = pFileObj->nWidth;  // reintroduced field width and scrapped precision for floats
     cSeparator = pFileObj->cSeparator;
+    if (EHS_FB_IN_CONNECTED(0))
+    {
+        nWidth = EHS_FB_IN_I(0);
+    }
+    if (EHS_FB_IN_CONNECTED(1))
+    {
+        GetSeparator(EHS_FB_IN_S(1),0, (char*)&cSeparator);
+    }
     NCAPSA_nOut(1)=ERR_NO_ERROR;
     if( !sFile )  // invalid file descriptor.
     {
@@ -670,7 +683,7 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_Float_Read)
         {
             // reintroduced field width and scrapped precision for floats, so just read float and take any non numeric character as a delimiter
             // added %c to capture separating char
-            nRet = EhsFscanf(sFile,"%lf%c",&dReadReal,(char*)&nChar);
+            nRet = EhsFscanf(sFile,EHS_FL_FMT"%c",&dReadReal,(char*)&nChar);
 
             // output a warning if it is not an expected separator
             if (nChar != cSeparator && nChar != 0x0a && nChar != EHS_EOF)
@@ -915,7 +928,7 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_Float_Close)
 EHS_FB_RUN_FUNCTION(FILE_WriteOnly_Float_Write)
 {
     int nWidth,nSeparator,nPrecision;
-    double dWriteReal;
+    ehs_float dWriteReal;
     char cSign;
     ehs_FILE *sFile = NULL;
     structFileObj* pFileObj = (structFileObj*)EHS_FB_RUN_CONTEXT;
@@ -941,9 +954,13 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_Float_Write)
         if( nWidth )   // if width specified (> 0)
         {
             nWidth--;  	// width -1, to account for extra space that sign takes
-            if( dWriteReal < 0.0 )    // force preceding sign for fixed width reasons.
+            if( dWriteReal < (ehs_float)0 )    // force preceding sign for fixed width reasons.
             {
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+                dWriteReal = fabsf(dWriteReal);
+#else
                 dWriteReal = fabs(dWriteReal);
+#endif
                 cSign = '-';
             }
             else
@@ -1167,6 +1184,14 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_Int_Read)
     sFile = pFileObj->sFile;
     nWidth = pFileObj->nWidth;
     cSeparator = pFileObj->cSeparator;
+    if (EHS_FB_IN_CONNECTED(0))
+    {
+        nWidth = EHS_FB_IN_I(0);
+    }
+    if (EHS_FB_IN_CONNECTED(1))
+    {
+        GetSeparator(EHS_FB_IN_S(1),0, (char*)&cSeparator);
+    }
     NCAPSA_nOut(1)=ERR_NO_ERROR;
     if( !sFile )  // invalid file descriptor.
     {
@@ -1531,7 +1556,11 @@ EHS_FB_INIT_FUNCTION(FILE_ReadOnly_String)
     pFileObj->nWidth = nWidth;
     nIndex = GetSeparator(EHS_FB_INIT_PARAMETERS, nIndex, &cSeparator);
     pFileObj->cSeparator = cSeparator;
-    EhsSscanf(&((ehs_char*)EHS_FB_INIT_PARAMETERS)[nIndex],"%hhd",&pFileObj->app_user);
+    pFileObj->isBinaryMode = EHS_FALSE;
+    pFileObj->app_user = EHS_FALSE;
+    const ehs_char* pParams=&((ehs_char*)EHS_FB_INIT_PARAMETERS)[nIndex];
+    pParams=EhsGetUint8FromString(&(pFileObj->app_user), pParams);
+    pParams=EhsGetUint8FromString(&(pFileObj->isBinaryMode), pParams);
     pFileObj->sFile = NULL;
     return EHS_TRUE; /* initialisation always succeeds */
 }
@@ -1571,16 +1600,18 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_String_Open)
         strcpy(szFilename, pFileObj->szFilename);
     }
 
+    const ehs_char* pMode = (pFileObj->isBinaryMode==EHS_TRUE) ? "rb" : "r";
+
     if (EhsStrlen(szFilename) > 10 && EhsStrncmp(szFilename, EHS_FILE_LOCALHOST_PREFIX,EhsStrlen(EHS_FILE_LOCALHOST_PREFIX))== 0)   // allow abolute path to local host
     {
-        sFile = EhsFopen( &szFilename[EhsStrlen(EHS_FILE_LOCALHOST_PREFIX)], "r" );
+        sFile = EhsFopen( &szFilename[EhsStrlen(EHS_FILE_LOCALHOST_PREFIX)], pMode );
     }
     else
     {
         if (pFileObj->app_user)
-            sFile = Ehs_AppFopen(szFilename, "r");
+            sFile = Ehs_AppFopen(szFilename, pMode);
         else
-            sFile = Ehs_UserFopen(szFilename, "r");
+            sFile = Ehs_UserFopen(szFilename, pMode);
     }
 
     /* copy the file descriptor to the state data...*/
@@ -1645,19 +1676,23 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_String_Read)
 {
     int nChar, i = 0;
     int nError = NO_READ_ERRORS;
-    char szBuffer[EHS_STRING_LENGTH_MAX] = {'\0'};
+    
     int nWidth,cSeparator;
     ehs_FILE *sFile = NULL;
     structFileObj* pFileObj = (structFileObj*)EHS_FB_RUN_CONTEXT;
     sFile = pFileObj->sFile;
     nWidth = pFileObj->nWidth;
     cSeparator = pFileObj->cSeparator;
+    ehs_bool isBinary = pFileObj->isBinaryMode;
+    if (EHS_FB_IN_CONNECTED(0))
+    {
+        nWidth = EHS_FB_IN_I(0);
+    }
+    if (EHS_FB_IN_CONNECTED(1))
+    {
+        GetSeparator(EHS_FB_IN_S(1),0, (char*)&cSeparator);
+    }
     NCAPSA_nOut(1)=ERR_NO_ERROR;
-
-    /* initialise szBuffer as empty to ensure that no errors result in
-     * last time's output remaining
-     */
-    szBuffer[0] = '\0';
 
     if(!sFile)
     {
@@ -1667,75 +1702,111 @@ EHS_FB_RUN_FUNCTION(FILE_ReadOnly_String_Read)
     }
     else
     {
-        if (nWidth) // width overrides any delimeters
+        if(isBinary == EHS_TRUE)
         {
-            /* no separator specified, just field width. */
-            GetFixedWidthField( szBuffer, &nWidth, sFile, &nError );
-            EhsStrcpy(NCAPSA_szOut(0), "Hello there ........................");
-            EhsStrcpy(NCAPSA_szOut(0), szBuffer);
-            SetCompletes1((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-        }
-        /*
-        //else if((cSeparator) && (nWidth))
-        //{ / * both separator & field width specified. * /
-        	GetMaxWidthFieldDelim( szBuffer, &nWidth, sFile, &nError );
+            // Determine the number of elements in the file
+            EhsFseek(sFile, 0, SEEK_END);                            // Move to the end of the file
+            ehs_sint32 nSize = EhsFtell(sFile) / sizeof(ehs_uint8);  // Get the size of the file
+            EhsFrewind(sFile);                                        // Move back to the beginning of the file
 
-        // loop thru chars until find the separator or reach EOF
-
-        	nChar = EhsFgetc( sFile );
-        	if (nChar == EHS_EOF) {
-        		nError = READ_ERROR_EOF;
-        	} else {
-        		 while (nChar != cSeparator / *&& nChar != 0x0a* / && nChar != EHS_EOF) {
-        			nChar = EhsFgetc( sFile );
-        }
-        }
-        //			EhsFgetc( sFile );
-
-        EhsStrcpy(NCAPSA_szOut(0), szBuffer);
-        SetCompletes1((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-
-        }
-         */
-        else
-        {
-            /* got a delimeter nut no fixed width */
-            nChar = EhsFgetc( sFile );
-
-            if (nChar == EHS_EOF)
+            if(nSize < EHS_STRING_LENGTH_MAX) //TODO:STRINGLENGTH!
             {
-                nError = READ_ERROR_EOF;
+                // read the data from the file
+                ehs_sint32 elements_read = (ehs_sint32)EhsFread(NCAPSA_szOut(0), sizeof(ehs_uint8), nSize, sFile);
+                if (elements_read == nSize)
+                {
+                    NCAPSA_nOut(2) = nSize;
+                    SetCompletes1((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+                }
+                else
+                {
+                    NCAPSA_nOut(1)=ERR_FILE_READ_ERROR;
+                    SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+                }
             }
             else
             {
-                while (nChar != cSeparator && nChar != EHS_EOF) /* note: used to include && nChar != 0x0a */
-                {
-                    szBuffer[i] = nChar;
-                    i = i + 1;
-                    if(i < EHS_STRING_LENGTH_MAX)
-                    {
-                        nChar = EhsFgetc( sFile );
-                    }
-                    else
-                    {
-                        //ran out of space so break;
-                        break;
-                    }
-                }
-                szBuffer[i] = '\0';
+                // size of data must not exceed max string length
+                NCAPSA_nOut(1)=ERR_DATA_SIZE_TOO_LARGE;
+                SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+            }
+        }
+        else
+        {
+            char szBuffer[EHS_STRING_LENGTH_MAX] = {'\0'};
+            /* initialise szBuffer as empty to ensure that no errors result in
+            * last time's output remaining
+            */
+            szBuffer[0] = '\0';
+            if (nWidth) // width overrides any delimeters
+            {
+                /* no separator specified, just field width. */
+                GetFixedWidthField( szBuffer, &nWidth, sFile, &nError );
                 EhsStrcpy(NCAPSA_szOut(0), szBuffer);
                 SetCompletes1((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
             }
-        }
-        if( nError == READ_ERROR_EOF )
-        {
-            NCAPSA_nOut(1)=ERR_END_OF_FILE;
-            SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-        }
-        else if( nError > 0 )
-        {
-            NCAPSA_nOut(1)=ERR_FILE_READ_ERROR;
-            SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+            /* TODO2024 - what is this for - what were we trying to do here? Is it important?
+            //else if((cSeparator) && (nWidth))
+            //{ / * both separator & field width specified. * /
+                GetMaxWidthFieldDelim( szBuffer, &nWidth, sFile, &nError );
+
+            // loop thru chars until find the separator or reach EOF
+
+                nChar = EhsFgetc( sFile );
+                if (nChar == EHS_EOF) {
+                    nError = READ_ERROR_EOF;
+                } else {
+                    while (nChar != cSeparator / *&& nChar != 0x0a* / && nChar != EHS_EOF) {
+                        nChar = EhsFgetc( sFile );
+            }
+            }
+            //			EhsFgetc( sFile );
+
+            EhsStrcpy(NCAPSA_szOut(0), szBuffer);
+            SetCompletes1((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+
+            }
+            */
+            else
+            {
+                /* got a delimeter nut no fixed width */
+                nChar = EhsFgetc( sFile );
+
+                if (nChar == EHS_EOF)
+                {
+                    nError = READ_ERROR_EOF;
+                }
+                else
+                {
+                    while (nChar != cSeparator && nChar != EHS_EOF) /* note: used to include && nChar != 0x0a */
+                    {
+                        szBuffer[i] = nChar;
+                        i = i + 1;
+                        if(i < EHS_STRING_LENGTH_MAX)
+                        {
+                            nChar = EhsFgetc( sFile );
+                        }
+                        else
+                        {
+                            //ran out of space so break;
+                            break;
+                        }
+                    }
+                    szBuffer[i] = '\0';
+                    EhsStrcpy(NCAPSA_szOut(0), szBuffer); //TODO2024 is this asserting an error?
+                    SetCompletes1((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+                }
+            }
+            if( nError == READ_ERROR_EOF )
+            {
+                NCAPSA_nOut(1)=ERR_END_OF_FILE;
+                SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+            }
+            else if( nError > 0 )
+            {
+                NCAPSA_nOut(1)=ERR_FILE_READ_ERROR;
+                SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+            }
         }
     }
     /* in the meantime, SetCompletes1 is always called when read finishes */
@@ -1792,6 +1863,8 @@ EHS_FB_INIT_FUNCTION(FILE_WriteOnly_String)
     pFileObj->cSeparator = cSeparator;
     nIndex = GetAppend(EHS_FB_INIT_PARAMETERS, nIndex, &bAppend);
     pFileObj->bAppend = bAppend;
+    pFileObj->isBinaryMode = EHS_FALSE;
+    EhsGetUint8FromString(&(pFileObj->isBinaryMode), &((ehs_char*)EHS_FB_INIT_PARAMETERS)[nIndex]);
     pFileObj->sFile=NULL;
     return EHS_TRUE; /* initialisation always succeeds */
 }
@@ -1808,13 +1881,13 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_String_Open)
 {
     char szFilename[EHS_FILESTRING_SIZE] = {'\0'};
     char * szOpenMode;
-    char * szOpenModeApp="a";
-    char * szOpenModeTrunc="w";
     structFileObj* pFileObj = NULL;
     ehs_FILE * sFile = NULL;
     int bAppend = EHS_FALSE;
     NCAPSA_nOut(0)=ERR_NO_ERROR;
     pFileObj = (structFileObj*)EHS_FB_RUN_CONTEXT;
+    char * szOpenModeApp=(pFileObj->isBinaryMode==EHS_TRUE)?"ab":"a";
+    char * szOpenModeTrunc=(pFileObj->isBinaryMode==EHS_TRUE)?"wb":"w";
 
     // first close file if one is currently open
     sFile = pFileObj->sFile;
@@ -1940,15 +2013,16 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_String_Close)
 EHS_FB_RUN_FUNCTION(FILE_WriteOnly_String_Write)
 {
     int nWidth,nSeparator,i;
-    char szWriteString[EHS_STRING_LENGTH_MAX+1] = {'\0'};
     ehs_FILE *sFile = NULL;
     ehs_bool bEndFound=0;
+    ehs_sint32 nBinarySize = 0;
     char *pRet = NULL;
     structFileObj* pFileObj = (structFileObj*)EHS_FB_RUN_CONTEXT;
     sFile = pFileObj->sFile;
     NCAPSA_nOut(0)=ERR_NO_ERROR;
     nWidth = pFileObj->nWidth;
     nSeparator = pFileObj->cSeparator;
+    ehs_bool isBinary = pFileObj->isBinaryMode;
     if( sFile == NULL )
     {
         EHSH_LOG_WARNING("Trying to Writing to unopened file\n" );
@@ -1958,42 +2032,71 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_String_Write)
     }
     else
     {
-        pRet = EhsStrcpy ( szWriteString, NCAPSA_szIn(0) );  // copy string input.
-        if( !pRet )   // string copy failed.
+        if(isBinary==EHS_TRUE)
         {
-            NCAPSA_nOut(0)=ERR_STRING_COPY_FAILED;
-            SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-        }
-        else if( !sFile )  // invalid file descriptor.
-        {
-            NCAPSA_nOut(0)=ERR_INVALID_DESCRIPTOR;
-            SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
-        }
-        else // valid file descriptor.
-        {
-            if (nWidth) // if width specified (> 0)
-            {
-                for (i = 0; i < nWidth; i++)
+            if(EHS_FB_IN_CONNECTED(1)){ // we must specify file size in the binary mode
+                nBinarySize = NCAPSA_nIn(1);
+                if(nBinarySize < EHS_STRING_LENGTH_MAX)
                 {
-                    if (szWriteString[i] == '\0')   //@todo this assumes there's nulls after the entire string?
-                    {
-                        szWriteString[i] = ' ';
-                        bEndFound = EHS_TRUE;
-                    }
-                    if (bEndFound)   // we need to pad the rest as well
-                    {
-                        szWriteString[i] = ' ';
+                    if (nBinarySize > 0 && 0 == EhsFwrite((ehs_uint8*)NCAPSA_szIn(0), sizeof(ehs_uint8), nBinarySize, sFile)) {
+                        EHSH_LOG_ERROR("Couldn't write to file");
                     }
                 }
-                szWriteString[nWidth] = '\0';
-            }
-            if (nSeparator) // if separator specified (> 0)
-            {
-                EhsFprintf(sFile, "%s%c", szWriteString, nSeparator); // fixed width write to file preceded by separator.
+                else
+                {
+                    // size of data must not exceed max string length
+                    NCAPSA_nOut(0)=ERR_DATA_SIZE_TOO_LARGE;
+                    SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+                }
             }
             else
             {
-                EhsFprintf(sFile, "%s", szWriteString); // fixed width write to file without separator.
+                // size of data must be provided when in binary mode
+                NCAPSA_nOut(0)=ERR_NO_DATA_SIZE_IN_BIN_MODE;
+                SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+            }
+        }
+        else
+        {
+            char szWriteString[EHS_STRING_LENGTH_MAX+1] = {'\0'};
+            pRet = EhsStrcpy ( szWriteString, NCAPSA_szIn(0) );  // copy string input.
+
+            if( !pRet )   // string copy failed.
+            {
+                NCAPSA_nOut(0)=ERR_STRING_COPY_FAILED;
+                SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+            }
+            else if( !sFile )  // invalid file descriptor.
+            {
+                NCAPSA_nOut(0)=ERR_INVALID_DESCRIPTOR;
+                SetCompletes2((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+            }
+            else // valid file descriptor.
+            {
+                if (nWidth) // if width specified (> 0)
+                {
+                    for (i = 0; i < nWidth; i++)
+                    {
+                        if (szWriteString[i] == '\0')   //@todo this assumes there's nulls after the entire string?
+                        {
+                            szWriteString[i] = ' ';
+                            bEndFound = EHS_TRUE;
+                        }
+                        if (bEndFound)   // we need to pad the rest as well
+                        {
+                            szWriteString[i] = ' ';
+                        }
+                    }
+                    szWriteString[nWidth] = '\0';
+                }
+                if (nSeparator) // if separator specified (> 0)
+                {
+                    EhsFprintf(sFile, "%s%c", szWriteString, nSeparator); // fixed width write to file preceded by separator.
+                }
+                else
+                {
+                    EhsFprintf(sFile, "%s", szWriteString); // fixed width write to file without separator.
+                }
             }
         }
         SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);

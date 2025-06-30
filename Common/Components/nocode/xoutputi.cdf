@@ -16,7 +16,7 @@
                 Function Blocks
                 <Menu>
                     data output ports
-                    <Menu>Int</Menu>
+                    <Menu>int</Menu>
                 </Menu>
             </Menu>
         </Menu>

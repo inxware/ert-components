@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Key Value Pair</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+<strong>Key Value Pair</strong> is a function block for storing and managing key-value pairs.
+    </p>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Min</th>
+<th>Max</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>domain</td>
+<td>S</td>
+<td>default</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>The domain of this key-value pair.</td>
+</tr>
+<tr>
+<td>key</td>
+<td>S</td>
+<td>default</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>The key of the pair.</td>
+</tr>
+<tr>
+<td>default_value</td>
+<td>B</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>The default value of the pair when the value is not set or the input value is empty during set.</td>
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]set">set</a></td>
+<td>Trigger input to insert or update a key-value pair.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]get">get</a></td>
+<td>Get value with given key.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]value">value</a></td>
+<td>The value to be associated with the key.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]set_done">--</a></td>
+<td>Output indicating the completion of the set operation.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]get_done">--</a></td>
+<td>Output indicating the completion of the get operation.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent">errno</td>
+<td>Setting operation error number. 0 if success. 1 if cannot open file. 2 if failed to read file. 3 if file parsing failure. 4 or 5 if key finding failure. 6 or 7 if failed to write file.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]value">value</a></td>
+<td>The value retrieved for a specified key.</td>
+</tr>
+<tr>
+<td class="portsEvent">errno</td>
+<td>Query operation error number. 0 if success. -1 if domain not found. -2 if failed to read domain file. -3 if domain file parsing failure. -4 if key not found in domain. -5 if value type mismatch.</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          None
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

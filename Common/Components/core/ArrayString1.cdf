@@ -18,7 +18,7 @@ The string length matches that if the connected ports.</LongDescription>
                 Buffers
                 <Menu>
                     Array
-                    <Menu>String</Menu>
+                    <Menu>string</Menu>
                 </Menu>
             </Menu>
         </Menu>

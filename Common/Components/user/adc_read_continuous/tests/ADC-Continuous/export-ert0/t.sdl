@@ -1,0 +1,26 @@
+#V:2.0.0
+#B:4
+#D:Y2025M1d25h9m28s42
+#N:ADC-Continuous
+1
+1	100000	90000
+BEGIN adc_config 0
+0 1500 1 -1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+config	1	1	1	1 S -1 	0 	2 5 -1 
+END
+BEGIN MultiplexThreeInputInt 0
+*
+Run_Input1	1	1	2	1 I 1 	1 I -1 	1 -1 
+Run_Input2	1	1	3	1 I 2 	1 I -1 	1 -1 
+Run_Input3	1	1	4	1 I 3 	1 I -1 	1 -1 
+END
+BEGIN adc_read_continuous 0
+0 1 2500 2500 0 
+enable	1	1	5	0 	0 	1 -1 
+set_bias	1	1	2	1 I 1 	0 	1 4 
+convert	1	1	-1	0 	3 I 1 I 2 I 3 	2 2 3 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

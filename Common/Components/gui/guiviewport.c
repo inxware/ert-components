@@ -98,6 +98,11 @@ EHS_FB_FUNCTIONS_END
 #define EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_X 6	/**< Function block output offset in X position */
 #define EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_Y 7	/**< Function block output offset in Y position */
 
+#define EHS_FB_GUI_VIEWPORT_create_drag_top 5
+#define EHS_FB_GUI_VIEWPORT_create_drag_left 6
+#define EHS_FB_GUI_VIEWPORT_create_drag_right 7
+#define EHS_FB_GUI_VIEWPORT_create_drag_bottom 8
+
 /*
  * Define the Viewport's generic parameters
  */
@@ -142,7 +147,7 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
     ehs_sint32 nScreenWidth = -1;
     ehs_sint32 nScreenHeight = -1;
 
-    EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
+    //EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
     pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
     if (guiParams) {
         /* parse coordinate block parameters */
@@ -170,14 +175,20 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
         //{@todo reinstate this when the new types are recognised and specified properly in the tools etc.
         bRet = EHS_TRUE;
         //}
-        
+#ifdef EHS_GUI_SUPPORT_MODE_B
+        *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetUI_init(EHS_OTHER_UI_WIDGET_VIEWPORT, 0, 0, 0, &(xParams.xRect), xParams.nZorder,
+																 0, 0, 0, 0, 0,
+																 xParams.uClass.xPatch,
+																 xParams.uClass.xPatch,
+																 /*pFont*/NULL);
+#else
         /* Create a widget struct using the parameters from the LGB generated block */
         *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetViewport_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xPatch);//@todo this should be params
-
+#endif
         pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
 
         /* if we have valid hard coded values then write these in */
-        pWidget->bRelativeCoordinates = bRelative;
+        //pWidget->bRelativeCoordinates = bRelative;
         if (bRelative) EhsWidgetsetToScreenSize(&nScreenWidth,&nScreenHeight); //set the widge data sructures to full screen, which EhsWidget_AdjustCoordinates will use and adjust.
 
         /* we need to set the new coordinates in the global Viewport parameter set also */
@@ -202,6 +213,59 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
     return bRet; /* initialisation always assumed to succeed */
 }
 
+EHS_FB_DESTROY_FUNCTION(gui_viewport)
+{
+	EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
+    if (pWidget) {
+        EhsWidgetViewport_cleanup(pWidget);
+        EhsWidget_destroy(pWidget);
+    }
+}
+
+static void gui_viewport_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data)
+    {
+    if(pWidget){
+        EhsFunctionInstanceDataType* pFIdata = pWidget->pFIData;
+        if(pFIdata == NULL){
+            return;
+        }
+        
+        if(event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED){
+            ehs_uint32 direction = (data) ? *((ehs_uint32*)data) : 0; // top : 1 , left : 2, right : 3, bottom : 4
+            switch(direction) {
+                case 1:{ // TOP
+                    printf("*** TOP\n");
+                    EHS_FB_FINISH(EHS_FB_GUI_VIEWPORT_create_drag_top);
+                    break;
+                }
+                case 2:{ // LEFT
+                    printf("*** LEFT\n");
+                    EHS_FB_FINISH(EHS_FB_GUI_VIEWPORT_create_drag_left);
+                    break;
+                }
+                case 3:{ // RIGHT
+                    printf("*** RIGHT\n");
+                    EHS_FB_FINISH(EHS_FB_GUI_VIEWPORT_create_drag_right);
+                    break;
+                }
+                case 4:{ // BOTTOM
+                    printf("*** BOTTOM\n");
+                    EHS_FB_FINISH(EHS_FB_GUI_VIEWPORT_create_drag_bottom);
+                    break;
+                }
+            }
+        }
+        // @TODO - assign mouse clicks
+        if(event_id & EHS_WIDGET_UI_EVENT_MOUSE_CLICKED){	
+            //EHS_FB_FINISH(INX_gui_patch_ARG_create_click);
+        }
+
+        if(event_id & EHS_WIDGET_UI_EVENT_MOUSE_DOWN){	
+            //EHS_FB_FINISH(INX_gui_patch_ARG_create_mouse_down);
+        }
+    }
+}
+
 /**
  * Create the GUI image. Cause a handle to be created in the GUI system, but don't display
  * the item.
@@ -210,11 +274,20 @@ EHS_FB_RUN_FUNCTION(gui_viewport_create)
 {
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
     if (pWidget) {
+
+#ifdef EHS_GUI_SUPPORT_MODE_B
+		/* set up on click callback */
+		EHS_WIDGET_UI(pWidget).event_callback = gui_viewport_event_callback;
+		/* setup widget data */
+		EHS_WIDGET_UI(pWidget).data = NULL;
+#endif
+
         EhsWidget_create(pWidget);
 
         /*Set pointer in widget structure to point at instance data. Used for mouse click.*/
         pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
 
+#ifndef EHS_GUI_SUPPORT_MODE_B
         /*Set number of mouseClick, mouseUp, mouseDrag ports*/
         pWidget->mouseDownPortNumber = 2;
         pWidget->mouseUpPortNumber = 3;
@@ -223,7 +296,7 @@ EHS_FB_RUN_FUNCTION(gui_viewport_create)
         pWidget->mouseUpDownAbsYPortNumber = EHS_FB_GUI_VIEWPORT_OUT_UP_DOWN_Y;
         pWidget->mouseDragOffsetXPortNumber = EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_X;
         pWidget->mouseDragOffsetYPortNumber = EHS_FB_GUI_VIEWPORT_OUT_DRAG_OFFSET_Y;
-
+#endif
 
         /* set the output values for this widget */
         EHS_FB_OUT_I(EHS_FB_GUI_VIEWPORT_OUT_X) 	= pWidget->xCurRect.nLeft;
@@ -247,7 +320,8 @@ EHS_FB_RUN_FUNCTION(gui_viewport_create)
 EHS_FB_RUN_FUNCTION(gui_viewport_destroy)
 {
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-    if (pWidget) {  
+    if (pWidget) {
+        EhsWidgetViewport_cleanup(pWidget);
         EhsWidget_destroy(pWidget);
         EHS_FB_FINISH(1);
     }

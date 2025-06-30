@@ -1,0 +1,167 @@
+//ICB HEADER MACRO START -- DO NOT ALTER
+#include "inx-parameters.h"
+#include "inx-component.h"
+#include "inx-rtinfo2.h"
+//ICB HEADER MACRO END -- DO NOT ALTER
+//ICB STATE VAR MACRO START -- DO NOT ALTER
+/* My Component state data structure. - Use this in your code! */
+typedef struct inx_RuntimeInfo2_state
+{
+} inx_RuntimeInfo2_state_type; //Reference this, maybe store your config parameters in here too.
+//ICB STATE VAR MACRO END -- DO NOT ALTER
+//ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
+/* Populate the data structure used by EHS and map the function names to strings identified in CDF */
+EHS_FB_FUNCTIONS_START(RuntimeInfo2)
+EHS_FB_FUNCTION_ENTRY("getstat", 0x01, RuntimeInfo2_getstat)
+EHS_FB_FUNCTION_ENTRY("getdyn", 0x02, RuntimeInfo2_getdyn)
+EHS_FB_FUNCTION_ENTRY("reqpairid", 0x03, RuntimeInfo2_reqpairid)
+EHS_FB_FUNCTIONS_END
+//ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
+//ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
+/* Friendly labels for the run function data and event function argument enumerations */
+#define INX_RuntimeInfo2_ARG_getstat_GetStatic 1
+#define INX_RuntimeInfo2_ARG_getstat_Device_ID 1
+#define INX_RuntimeInfo2_ARG_getstat_RAM__KB__ 2
+#define INX_RuntimeInfo2_ARG_getstat_Stor__KB_ 3
+#define INX_RuntimeInfo2_ARG_getstat_EHS_version 4
+#define INX_RuntimeInfo2_ARG_getstat_ModuleList 5
+#define INX_RuntimeInfo2_ARG_getstat_Install_Dir 6
+#define INX_RuntimeInfo2_ARG_getstat_ 1
+#define INX_RuntimeInfo2_ARG_getdyn_IP_Addr 1
+#define INX_RuntimeInfo2_ARG_getdyn_RAM_Avail__KB_ 2
+#define INX_RuntimeInfo2_ARG_getdyn_Stor_Avail__KB_ 3
+#define INX_RuntimeInfo2_ARG_getdyn_CPU_eRT 4
+#define INX_RuntimeInfo2_ARG_getdyn_RAM_eRT 5
+#define INX_RuntimeInfo2_ARG_getdyn_CPU 6
+#define INX_RuntimeInfo2_ARG_getdyn_RAM_Misc 7
+#define INX_RuntimeInfo2_ARG_getdyn_TEMP_CPU 8
+#define INX_RuntimeInfo2_ARG_getdyn_TEMP_OP 9
+#define INX_RuntimeInfo2_ARG_getdyn_Pair_ID 10
+#define INX_RuntimeInfo2_ARG_getdyn_ 1
+#define INX_RuntimeInfo2_ARG_getdyn_Pair_ID 2
+//ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
+//ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
+/* Parameters */
+/* Create some macros for the default parameters */
+//ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
+//ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Identify the function block to EHS.
+ * This function provides access to:
+ *  - string containing parameter text
+ * EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this function block's context
+ */
+EHS_FB_IDENTIFY_FUNCTION(RuntimeInfo2)
+{
+/* Uncomment the following if you need to parse the parameters to calculate memory required */
+/*
+	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,""); */
+	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_RuntimeInfo2_state_type);
+}
+//ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+//ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area provided by EHS for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+
+EHS_FB_INIT_FUNCTION(RuntimeInfo2)
+{
+	ehs_bool bRet = EHS_TRUE; /* assume success */
+	//this is the reference to the object data for this instance of the function block
+	inx_RuntimeInfo2_state_type* inx_RuntimeInfo2_state = (inx_RuntimeInfo2_state_type*)EHS_FB_INIT_CONTEXT;
+	/* read the initialisation parameters */
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+
+	/* Add any further intialisation code here */
+	return bRet; /* initialisation always succeeds */
+}
+//ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
+//ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
+EHS_FB_DESTROY_FUNCTION(RuntimeInfo2)
+{
+	inx_RuntimeInfo2_state_type *inx_RuntimeInfo2_state = (inx_RuntimeInfo2_state_type*)EHS_FB_DESTROY_CONTEXT;
+	//Your code below here
+}
+//ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION getstat MACRO START -- DO NOT ALTER
+/**
+ * Definition of RuntimeInfo2_getstat.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(RuntimeInfo2_getstat)
+{
+	inx_RuntimeInfo2_state_type* inx_RuntimeInfo2_state = (inx_RuntimeInfo2_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_IN_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_GetStatic))
+		EHS_FB_IN_S_API2(INX_RuntimeInfo2_ARG_getstat_GetStatic) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_Device_ID))
+		EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getstat_Device_ID) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_RAM__KB__))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getstat_RAM__KB__) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_Stor__KB_))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getstat_Stor__KB_) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_EHS_version))
+		EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getstat_EHS_version) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_ModuleList))
+		EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getstat_ModuleList) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_Install_Dir))
+		EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getstat_Install_Dir) ;
+	EHS_FB_FINISH(INX_RuntimeInfo2_ARG_getstat_);
+}//ICB FUNCTION getstat MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION getdyn MACRO START -- DO NOT ALTER
+/**
+ * Definition of RuntimeInfo2_getdyn.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(RuntimeInfo2_getdyn)
+{
+	inx_RuntimeInfo2_state_type* inx_RuntimeInfo2_state = (inx_RuntimeInfo2_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_IP_Addr))
+		EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getdyn_IP_Addr) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_RAM_Avail__KB_))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_RAM_Avail__KB_) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_Stor_Avail__KB_))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_Stor_Avail__KB_) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_CPU_eRT))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_CPU_eRT) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_RAM_eRT))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_RAM_eRT) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_CPU))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_CPU) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_RAM_Misc))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_RAM_Misc) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_TEMP_CPU))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_TEMP_CPU) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_TEMP_OP))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_TEMP_OP) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_Pair_ID))
+		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_Pair_ID) ;
+	EHS_FB_FINISH(INX_RuntimeInfo2_ARG_getdyn_);
+	EHS_FB_FINISH(INX_RuntimeInfo2_ARG_getdyn_Pair_ID);
+}//ICB FUNCTION getdyn MACRO END -- DO NOT ALTER THIS LINE
+//ICB FUNCTION reqpairid MACRO START -- DO NOT ALTER
+/**
+ * Definition of RuntimeInfo2_reqpairid.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(RuntimeInfo2_reqpairid)
+{
+	inx_RuntimeInfo2_state_type* inx_RuntimeInfo2_state = (inx_RuntimeInfo2_state_type*)EHS_FB_RUN_CONTEXT;
+
+	// Your code here
+}//ICB FUNCTION reqpairid MACRO END -- DO NOT ALTER THIS LINE

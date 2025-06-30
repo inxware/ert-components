@@ -74,7 +74,7 @@
             <ArgPlacement>3</ArgPlacement>
         </Parameter>
         <Parameter>
-            <Name>Register Click Disregarding Z-Order</Name>
+            <Name>Always Clickable</Name>
             <DataType>B</DataType>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>

@@ -21,6 +21,12 @@
 
 /*Overrides Here! */
 
+#include "esp_attr.h" // needed for IRAM_ATTR
+
+/* Memory specific compiler attribute e.g. 'IRAM_ATTR' on esp32s3 */
+#define EHS_MEMORY_ATTRIB IRAM_ATTR
+#define EHS_DATA_MEMORY_ATTRIB DRAM_ATTR
+
 #include "../base_small/base_types.h"
 
 #endif

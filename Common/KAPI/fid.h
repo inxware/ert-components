@@ -40,15 +40,46 @@ typedef struct EhsFunctionInstanceDataStruct
 {
     void* pObjData;
     EhsRunFuncType fpRunFunc; /**< Pointer to the function to run when this function is invoked */
-    ehs_uint8 nNumInputs; /**< Number of data inputs to this function block, it is populated when parsing SODL as the number if inout connections supported by the FB.  */
-    ehs_uint8 nNumOutputs; /**< Number of data outputs to this function block (also populated when parsing SODL).*/
-    ehs_uint8 nFinishPorts; /**< The number of finish ports that can be accessed by this function (also populated when parsing SODL) */
     EhsTriggerType** pFinishPort; /**< Provides access to the set of start ports that are connected to each finish port */
     void** pIn;
     void** pOut;
     ehs_char* cDataOutType; /**< The type of each output data port */
     debug_type_byte dMonitorType; /* bitmask for monitor type for this function - see DEBUG_SET_MASK_ above */
+    ehs_uint8 nNumInputs; /**< Number of data inputs to this function block, it is populated when parsing SODL as the number if inout connections supported by the FB.  */
+    ehs_uint8 nNumOutputs; /**< Number of data outputs to this function block (also populated when parsing SODL).*/
+    ehs_uint8 nFinishPorts; /**< The number of finish ports that can be accessed by this function (also populated when parsing SODL) */
 } EhsFunctionInstanceDataType;
+
+/* TODO BLOCK - remove this or ractify this for debug */
+// @pierre
+#if 0
+#include "stdio.h"
+static inline void EhsHDebugPrint_pFIdata(EhsFunctionInstanceDataType *a)
+{
+    printf(
+        "{\n%p\n"
+        "pObjData %p \n"
+        "fpRunFunc %p\n"
+        "pFinishPort %p\n"
+        "pIn: %p ; pOut: %p\n"
+        "cDataOutType %p\n"
+        "nNumInputs: %d\n"
+        "nNumOutputs: %d\n"
+        "nFinishPorts: %d\n"
+        "}\n",
+        a,
+        a->pObjData,
+        a->fpRunFunc,
+        a->pFinishPort,
+        a->pIn, a->pOut,
+        a->cDataOutType,
+        a->nNumInputs,
+        a->nNumOutputs,
+        a->nFinishPorts
+    );
+}
+#endif
+/* TODO BLOCK */
 
 typedef struct EhsFunctionInstanceClearEventsStruct
 {
@@ -77,7 +108,7 @@ typedef struct EhsFunctionInstanceClearEventsStruct
 #define SetCompletes8(p) EHS_FB_FINISH(8)
 /* default is to only reset one event - no multiple event */
 
-EHS_GLOBAL void EhsFunctionInstanceData_triggerEvent(EhsFunctionInstanceDataType* pByte, ehs_uint32 x);
+EHS_GLOBAL EHS_MEMORY_ATTRIB void EhsFunctionInstanceData_triggerEvent(EhsFunctionInstanceDataType* pByte, ehs_uint32 x);
 
 EHS_GLOBAL void EhsFunctionInstanceData_clearEvents(EhsFunctionInstanceClearEventsType* pClearEvents);
 

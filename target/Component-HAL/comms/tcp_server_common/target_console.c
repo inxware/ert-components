@@ -37,6 +37,18 @@
 
 /*****************************************************************************/
 /* Included files */
+#ifdef EHS_NANOPRINTF_SUPPORT
+/* @TODO - move implementation of functions in nanoprintf.h into nanoprintf.c so, 
+ *         we can include nanoprintf.h header in the traget_string.h without circular 
+ *         dependency isseue which manifest as duplicated function implementation.
+ *         At the moment nanoprintf/nanoprintf.h needs to be called before traget_string.h
+ *         in order to override EhsVsnprintf when EHS_NANOPRINTF_SUPPORT enabled, so until
+ *         functions in nanoprintf.h are moved to .c file , leave this here!
+ */
+#define NANOPRINTF_IMPLEMENTATION
+#include "nanoprintf/nanoprintf.h"
+#endif // EHS_NANOPRINTF_SUPPORT
+
 #include "target.h"
 #include "globals.h"
 #include <stdarg.h>
@@ -136,7 +148,7 @@ ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size)
  * 
  * todo2024 - this should return void as we never check the result.
  */
-ehs_uint16 EhsConsolePrintf(const ehs_char *fmt, ...) /*lint !e960 Allowable derrogation to MISRA 16.1. Variable args permitted */
+EHS_MEMORY_ATTRIB ehs_uint16 EhsConsolePrintf(const ehs_char *fmt, ...) /*lint !e960 Allowable derrogation to MISRA 16.1. Variable args permitted */
 {
     ehs_char szBuffer[EHS_STRING_LENGTH_MAX];
    // ehs_uint16 nLen = EHS_STRING_LENGTH_MAX;
@@ -147,7 +159,7 @@ ehs_uint16 EhsConsolePrintf(const ehs_char *fmt, ...) /*lint !e960 Allowable der
     /* format the message into a chunk of memory allocated especially */
     va_list args;
     va_start(args, fmt);
-    vsnprintf(szBuffer, (size_t)EHS_STRING_LENGTH_MAX, fmt, args); /*lint !e534 Not interested in the return value */
+    EhsVsnprintf(szBuffer, (size_t)EHS_STRING_LENGTH_MAX, fmt, args); /*lint !e534 Not interested in the return value */
     va_end(args);
     // printf("PBB [%s]\n",szBuffer);
     /* keep pushing the message until it's all gone */
@@ -178,7 +190,9 @@ ehs_uint16 EhsConsolePrintf(const ehs_char *fmt, ...) /*lint !e960 Allowable der
         {
             // queue is full so empty it so we can keep writing
             EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
+#ifndef EHS_MEMORY_ATTRIB // @TODO - THIS should you the logger when is fixed and we should add another flag for ISR context
             EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_OVERFLOW);
+#endif
             EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_OVERFLOW, EHS_MSG_CONSOLE_BUFFER_OVERFLOW_LEN);
             nPushed = 0;
         }
@@ -196,8 +210,10 @@ ehs_uint16 EhsConsolePrintf(const ehs_char *fmt, ...) /*lint !e960 Allowable der
     {
         // queue is full so empty it so we can keep writing
         EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
-        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_OVERFLOW, EHS_MSG_CONSOLE_BUFFER_OVERFLOW_LEN);    
+        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_OVERFLOW, EHS_MSG_CONSOLE_BUFFER_OVERFLOW_LEN); 
+#ifndef EHS_MEMORY_ATTRIB // @TODO - THIS should you the logger when is fixed and we should add another flag for ISR context
         EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL);
+#endif
         //EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_TOO_SMALL, EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN);
   //      EhsSprintf(messageV,"**Error:2Small: Size [%d][%d]",EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef),EhsConsoleQueue_maxSize());
   //      EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)messageV, EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN);
@@ -292,7 +308,7 @@ ehs_bool EhsConsoleToFile(ehs_uint32 nSize, const ehs_char *name)
     EhsStrcpy(appPath, "temp/"); /* We always write to this directory */
     EhsStrcat(appPath, name);
     pOut = Ehs_AppBaseFopen(appPath, "wb"); /* open the file temp - should create entire path...*/
-    printf("POUT Write SODL to =%x\n",pOut);
+    //printf("POUT Write SODL to =%x\n",pOut);
 #endif
     /* read data until:
        1. there is nothing left to read OR

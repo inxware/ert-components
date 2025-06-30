@@ -23,14 +23,26 @@
 typedef int socklen_t;
 #endif
 
-#ifdef EHS_MINGW
-#define EHS_MQTT_PUBLISH_EXPORT __declspec(dllexport)
-#else
-#define EHS_MQTT_PUBLISH_EXPORT // nothing
-#endif
-/* Function used for polling the MQTT client process on various platforms*/
-EHS_MQTT_PUBLISH_EXPORT ehs_bool EhsMQTTPublishWritePoll(ehs_char *topic, ehs_char* payload, ehs_uint8* qos);
+/* Network config error code IDs */
+#define EHS_NETWORK_CONFIG_NO_ERROR_ID 0
+#define EHS_NETWORK_CONFIG_FAILED_STATIC_ID 1
+#define EHS_NETWORK_CONFIG_FAILED_DHCP_ID 2
+#define EHS_NETWORK_CONFIG_FAILED_DNS1_ID 3
 
+typedef struct EhsNetworkConfigData
+{
+    ehs_uint16 mode;
+    const ehs_char* address;
+    const ehs_char* gateway;
+    const ehs_char* mask;
+    const ehs_char* dns;
+    ehs_bool save;
+} EhsNetworkConfigDataType;
 
+/* Returns true when the eRT target network is connected */
+ehs_bool EhsNetworkIsConnected();
+
+/* Configures the traget network interface. Returns error code ID. */
+ehs_sint32 EhsNetworkConfigureInterface(const EhsNetworkConfigDataType* config);
 
 #endif

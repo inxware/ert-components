@@ -22,6 +22,10 @@
 #include "hal_viewport.h"
 #include "hal-api.h"
 
+#ifdef EHS_GUI_SUPPORT_MODE_B
+#include "target_viewport_modeB.h"
+#endif
+
 /**
  * Define the global viewport info
  */
@@ -420,7 +424,9 @@ EhsWidgetClass* EhsWidgetViewport_init(const EhsGraphicsRectangleClass* pBounds,
 
     if (pWidget)
     {
+#ifndef EHS_GUI_SUPPORT_MODE_B
         pWidget->eWidgetKind = EHS_WIDGET_KIND_VIEWPORT; //this stops it being composited onto itself
+#endif
         pWidget->nState = EHS_WIDGET_STATE_INIT;
         EhsMemcpy(&(pWidget->xOrigRect),pBounds,sizeof(EhsGraphicsRectangleClass));
         EhsMemcpy(&(pWidget->xCurRect),pBounds,sizeof(EhsGraphicsRectangleClass));
@@ -548,8 +554,9 @@ ehs_bool EhsWidgetViewport_default_config()
 
     // NB - target_viewport:EhsTV_init() defines viewRectangle which uses the same defaults to set paintable area in the viewport
     EhsPrimaryViewportInfo_new();
+#ifndef EHS_ESP32_SUPPORT
     getEHSDefaultConfigFromFile();
-
+#endif
     EhsTV_setwindow(&EhsTV, EHS_FALSE, EhsPrimaryViewportInfo.nX, EhsPrimaryViewportInfo.nY, EhsPrimaryViewportInfo.nWidth, EhsPrimaryViewportInfo.nHeight);
     EhsTV_fade(&EhsTV, EhsPrimaryViewportInfo.nColour);
     EhsTV_showFrame(&EhsTV, EhsPrimaryViewportInfo.bHasFrame);
@@ -595,6 +602,18 @@ ehs_bool EhsWidgetsetToScreenSize(ehs_sint32 *nScreenWidth, ehs_sint32 *nScreenH
     }
     return ret;
 
+}
+
+EHS_GLOBAL ehs_bool EhsWidgetViewport_cleanup(struct EhsWidgetStruct* pWidget)
+{
+    if(pWidget)
+    {
+#ifdef EHS_GUI_SUPPORT_MODE_B
+        EhsTargetWidgetUi_viewport_cleanup(pWidget);
+#endif
+        return EHS_TRUE;
+    }
+    return EHS_FALSE;
 }
 
 

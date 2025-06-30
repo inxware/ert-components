@@ -20,6 +20,16 @@
             </Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>Data</Type>
+        <Text>~Hex</Text>
+        <TextX>5</TextX>
+        <TextY>5</TextY>
+        <TextScale>1</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>0</LocationY>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>Int2HexString</Class>

@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat;
 import com.utils.downloader.utils.EHSS_Logger;
 import com.utils.downloader.utils.EHSS_Utils;
 
+import java.io.File;
 import java.util.HashMap;
 
 public class DownloadService extends Service {
@@ -76,6 +77,7 @@ public class DownloadService extends Service {
             register(new DownloadReceiver(), "com.utils.downloader.broadcastreceiver.DOWNLOAD");
             register(new StatusReceiver(), "com.utils.downloader.broadcastreceiver.STATUS");
             register(new CertificateReceiver(), "com.utils.downloader.broadcastreceiver.CERTIFICATE");
+            register(new UtilsReceiver(), "com.utils.downloader.broadcastreceiver.UTILS");
 
             instance = this;
             downloadRequest = new DownloadRequest();
@@ -106,7 +108,7 @@ public class DownloadService extends Service {
         public static final int DOWNLOADER_READY = 100;
         public static final int DOWNLOAD_OK = 200;
         public static final int DOWNLOAD_FAIL = 404;
-        public static final String DOWNLOAD_LOCK_FILE = "/sdcard/.EHS/.downloading";
+        public static final String DOWNLOAD_LOCK_FILE = "downloading.lock";
 
         private final ConditionVariable cv;
         private HashMap<String, String> extras;
@@ -164,12 +166,18 @@ public class DownloadService extends Service {
                     boolean success = Downloader.Exec(getApplicationContext(), extras);
                     synchronized (this) {
                         this.extras = null;
-                        if(success){
-                            EHSS_Logger.info("======= Download Request Thread [SUCCESS] =======.");
-                            EHSS_Utils.write(DOWNLOAD_LOCK_FILE, "result="+DOWNLOAD_OK);
-                        }else{
-                            //EHSS_Logger.info("======= Download Request Thread [FAIL] =======.");
-                            EHSS_Utils.write(DOWNLOAD_LOCK_FILE, "result="+DOWNLOAD_FAIL);
+                        try {
+                            // Define the path to the lock file
+                            File lockFile = new File(getApplicationContext().getExternalFilesDir(null), DOWNLOAD_LOCK_FILE);
+                            if (success) {
+                                EHSS_Logger.info("Download Request Thread [SUCCESS].");
+                                EHSS_Utils.write(lockFile, "result=" + DOWNLOAD_OK);
+                            } else {
+                                //EHSS_Logger.info("Download Request Thread [FAIL].");
+                                EHSS_Utils.write(lockFile, "result=" + DOWNLOAD_FAIL);
+                            }
+                        }catch (Exception e){
+                            EHSS_Logger.error("======= Download Request Thread [FAIL] =======. " + e.toString());
                         }
                     }
                 }

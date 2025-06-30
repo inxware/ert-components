@@ -55,6 +55,9 @@ EHS_GLOBAL ehs_bool EhsWidgetViewport_show(struct EhsWidgetStruct* pWidget);
 
 EHS_GLOBAL ehs_bool EhsWidgetsetToScreenSize(ehs_sint32 *nScreenWidth, ehs_sint32 *nScreenHeight);
 
+EHS_GLOBAL ehs_bool EhsWidgetViewport_cleanup(struct EhsWidgetStruct* pWidget);
+
+
 /**
  * Structure for primary viewport information
  *

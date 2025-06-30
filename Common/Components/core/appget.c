@@ -303,7 +303,7 @@ EHS_FB_THREAD_FUNCTION(appget_getinfo_thread)
     ehs_char cDescription[EHS_STRING_LENGTH_MAX];
     //EhsHwrite_data_bufferType * write_data_buffer_struct;
     Ehs_FB_ThreadStarted();
-    PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?ehs_char * PostString;
+    PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?ehs_char * PostString; // TODO2024 why we do this here but not for the above
     if (!PostString)
     {
         EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Insufficient memory");
@@ -313,11 +313,10 @@ EHS_FB_THREAD_FUNCTION(appget_getinfo_thread)
     PostString[0]='\0';
     /* Allocate a buffer */
     ObjData->URL_write_data_buffer_struct=EhsHDoAllGenericConfig(ObjData->curl,&ObjData->server_info, 64*1024, 50000,120);/* 2 minute timeouts and 50ms chunk gap */
-
+    
     /* Add any ssl certificates */
-//#ifdef EHS_HACK
+    /* TODO2024 - add alterantive appp download */
     EhsHSetUpClientTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CLIENT_CERTIFICATE_KEY, NULL /* combined in PEM */, NULL);
-//#endif
     EhsHSetUpCaTlsCertificate(ObjData->curl, EHS_RUNTIME_DEVMAN_DIR, EHS_DEVMAN_CA_CERTIFICATE);
 
     EhsHSetUpLocalProxy(ObjData->curl);

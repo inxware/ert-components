@@ -11,9 +11,23 @@
         <UserName/>
         <Menu>
             Peripherals
-            <Menu>UART</Menu>
+            <Menu>
+                Serial
+                <Menu>UART</Menu>
+            </Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>IO</Type>
+        <Height>185</Height>
+        <Text>UART</Text>
+        <TextX>20</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>UART</Class>
@@ -33,10 +47,6 @@
             <Description>The GPIO used to switch the UART capability off. If not used, set to -1.</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
-            <DisplayOnWidget>
-                <x>30</x>
-                <y>20</y>
-            </DisplayOnWidget>
         </Parameter>
         <Parameter>
             <Name>RS485</Name>
@@ -47,10 +57,6 @@
             <Description>Whether this is RS485 function block</Description>
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
-            <DisplayOnWidget>
-                <x>30</x>
-                <y>30</y>
-            </DisplayOnWidget>
         </Parameter>
     </Parameters>
     <Functions>

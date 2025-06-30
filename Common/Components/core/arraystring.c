@@ -71,7 +71,7 @@ EHS_FB_INIT_FUNCTION(ArrayString)
     }
     for (i = 0; i < arrayString->arraySize; i++)
     {
-        arrayString->arrayData[i] = (char *)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX);
+        arrayString->arrayData[i] = (char *)EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX);//TODO:STRINGLENGTH! allocate in run function when we know connected port sizes?
         arrayString->arrayData[i][0] = '\0'; /* make them all empty */
         if (!arrayString->arrayData[i])
         {

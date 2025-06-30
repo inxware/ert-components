@@ -20,16 +20,26 @@
 
 #include "devman_player.h"
 #include "url_get.h"
+#include "inx-network_config.h"
 
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
 
-EhsBlockRefType EhsBlockRefTable_networking[] =
+extern const EhsBlockRefType EhsBlockRefTable_networking[] =
 {
     /* devman_player.h */
 #ifdef EHS_DEVMAN_SUPPORT
+#ifndef EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER__NONE
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_DevmanPlayer,EHS_FB_ID_DevmanPlayer, DevmanPlayer),
 #endif
+#endif // EHS_DEVMAN_SUPPORT
+
+#ifndef EHS_COMPONENTS_NETWORK_URL_GET__NONE
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_UrlGet,EHS_FB_ID_UrlGet,UrlGet),
+#endif
+
+#ifndef EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT__NONE
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_network_config,INXWARE_FB_ID_network_config,network_config),
+#endif
 	{0}
 };
 

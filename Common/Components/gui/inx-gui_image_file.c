@@ -11,7 +11,7 @@
 /* My Component state data structure. - Use this in your code! */
 typedef struct inx_GUI_Image_File_state
 {
-	ehs_uint16 id;
+	//ehs_uint16 id;
 	EhsWidgetUiImage image;
 	EhsWidgetClass* pUiWidgetClass;
 } inx_GUI_Image_File_state_type; //Reference this, maybe store your config parameters in here too.
@@ -99,12 +99,11 @@ EHS_FB_INIT_FUNCTION(GUI_Image_File)
 		bLoadImageFromAppDir = (ehs_bool)nByte;
 #ifdef EHS_GUI_SUPPORT_MODE_B
 		/* Set the image widget specific parameters too */
-		inx_GUI_Image_File_state->id = EHS_OTHER_UI_WIDGET_IMAGE;
 		inx_GUI_Image_File_state->image.bLoadImageFromAppDir = bLoadImageFromAppDir;
 		inx_GUI_Image_File_state->image.bDynamicFilename = EHS_FALSE;
 		EhsStrcpy(inx_GUI_Image_File_state->image.szFilename, xParams.uClass.xBitmap.szBitmapName);
 		xParams.uClass.xPatch.sComp.nAlpha = xParams.uClass.xBitmap.nImageAlpha;
-		inx_GUI_Image_File_state->pUiWidgetClass = EhsWidgetUI_init(inx_GUI_Image_File_state->id, 0, 0, 0,
+		inx_GUI_Image_File_state->pUiWidgetClass = EhsWidgetUI_init(EHS_OTHER_UI_WIDGET_IMAGE, 0, 0, 0,
 															&(xParams.xRect), xParams.nZorder,
 															0, 0, 0, 0, 0,
 															xParams.uClass.xPatch,
@@ -211,11 +210,11 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_create)
 		}
 
 		EhsWidget_create(pWidget);
-
+#ifndef EHS_GUI_SUPPORT_MODE_B
 		/*Set number of mouseClick port*/
 		pWidget->mouseClickPortNumber = INX_GUI_Image_File_ARG_create_click;
 		pWidget->mouseDownPortNumber = INX_GUI_Image_File_ARG_create_mouse_down;
-
+#endif
 		EHS_FB_FINISH(INX_GUI_Image_File_ARG_create___);
 	}
 }//ICB FUNCTION create MACRO END -- DO NOT ALTER THIS LINE
@@ -276,11 +275,11 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_load)
 				EHS_WIDGET_UI(pWidget).data = (void*) &inx_GUI_Image_File_state->image;
 #endif
 				EhsWidget_create(pWidget);
-
+#ifndef EHS_GUI_SUPPORT_MODE_B
 				/*Set number of mouseClick port ~todo - this needs making nicer!*/
 				pWidget->mouseClickPortNumber = INX_GUI_Image_File_ARG_create_click;
 				pWidget->mouseDownPortNumber = INX_GUI_Image_File_ARG_create_mouse_down;
-
+#endif
 				//NOTE - as pfiData is a static associated with each function have to reset pfiData to value set by create function
 				pWidget->pFIData = iBeforeVal;
 				/* Use any dynamic offsets for the widget to position the new image to where eer it may have moved to */

@@ -11,6 +11,8 @@
 typedef struct inx_rng_state
 {
 	ehs_sint32 seed;
+	ehs_sint32 min;
+	ehs_sint32 max;
 } inx_rng_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
@@ -57,13 +59,25 @@ EHS_FB_IDENTIFY_FUNCTION(rng)
 EHS_FB_INIT_FUNCTION(rng)
 {
 	ehs_sint32 seed;
+	ehs_sint32 min;
+	ehs_sint32 max;
 	ehs_bool bRet = EHS_TRUE; /* assume success */
 	//this is the reference to the object data for this instance of the function block
 	inx_rng_state_type* inx_rng_state = (inx_rng_state_type*)EHS_FB_INIT_CONTEXT;
 	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d", &seed);
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d", &seed, &min, &max);
 	inx_rng_state->seed = seed;
 	srand(inx_rng_state->seed);
+	if (min > max)
+	{
+		inx_rng_state->min = max;
+		inx_rng_state->max = min;
+	}
+	else
+	{
+		inx_rng_state->min = min;
+		inx_rng_state->max = max;
+	}
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */
 }
@@ -93,7 +107,8 @@ EHS_FB_RUN_FUNCTION(rng_run)
 		inx_rng_state->seed = EHS_FB_IN_I_API2(INX_rng_ARG_run_seed);
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_rng_ARG_run_num)){
-		ehs_sint32 num = (ehs_sint32) (rand()- RAND_MAX/2); /* Crete zero mean uniform sign 32 bit valuesvalues */
+		//ehs_sint32 num = (ehs_sint32) (rand()- RAND_MAX/2); /* Crete zero mean uniform sign 32 bit valuesvalues */
+		ehs_sint32 num = ((ehs_sint32)rand()) % (inx_rng_state->max + 1 - inx_rng_state->min) + inx_rng_state->min; /* Generate value bounded by the min/max */
 		EHS_FB_OUT_I_API2(INX_rng_ARG_run_num) = num;
 		/* todo2023 We should output the value RAND_MAX also on another port as this will vary between platforms, but we only use 32bit ints for now... */
 	}

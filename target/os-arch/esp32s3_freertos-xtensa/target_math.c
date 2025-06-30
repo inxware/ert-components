@@ -106,12 +106,20 @@ ehs_sint32 EhsTgtInt_cos(ehs_sint32 nMult, ehs_sint32 nAngle)
     return ret;
 }
 
-double EhsTgtFloat_log10(double in)
+ehs_float EhsTgtFloat_log10(ehs_float in)
 {
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+    return log10f(in);
+#else
     return log10(in);
+#endif
 }
 
-double EhsTgtFloat_loge(double in)
+ehs_float EhsTgtFloat_loge(ehs_float in)
 {
+#if EHS_FLOAT_AS_FLOAT_TYPE == 1
+    return logf(in);
+#else
     return log(in);
+#endif
 }

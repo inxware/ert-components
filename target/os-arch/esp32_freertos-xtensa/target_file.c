@@ -179,6 +179,8 @@ ehs_bool EhsTF_rmdir(ehs_char* szPath)
 
 ehs_uint8 EhsTF_exists(const ehs_char* fname)
 {
+    if (fname == NULL) return 0; // Check NULL pointer
+    if (fname[0] == '\0') return 0; // Check the string is empty
     struct stat xFileInfo;
     ehs_uint8 nRet = 0;
 

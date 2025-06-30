@@ -1,142 +1,203 @@
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span">uart_config</span>
-        <!--these display in reverse order because they use float:right--> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
-            href="#ports">Ports &#8595;</a></span> </div>
-      <p class="component"> This </p>
-      <p class="component"> </p>
-      <!--Parameters - form - short desc: long desc-->
-      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-            <th style="width:60px;">name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>min.</th>
-            <th>max.</th>
-            <th>description</th>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]Enable">Enable</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]Disable">Disable</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]Baudrate">Baudrate</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]Stop Bits">Stop Bits</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]Parity">Parity</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]--">--</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]--">--</a></td>
-            <td><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5">
-              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>          &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
-              None </td>
-            <td> <br>
-            </td>
-            <td> <br>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> Core </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v1.0. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">UART Config</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!-- General Description -->
+<p class="component">
+<strong>UART Config</strong> function block for configuring UART settings.
+    </p>
+<!-- Parameters -->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+<tr>
+<td>Port</td>
+<td>I</td><td>UART port</td>
+<td>0</td>
+<td>0</td>
+<td>100</td>
+
+</tr>
+<tr>
+<td>Baud</td>
+<td>I</td><td>Baud rate of the UART</td>
+<td>115200</td>
+<td>110</td>
+<td>921600</td>
+
+</tr>
+<tr>
+<td>Data Length</td>
+<td>I</td><td>UART data length</td>
+<td>8</td>
+<td>5</td>
+<td>8</td>
+
+</tr>
+<tr>
+<td>Parity</td>
+<td>I</td><td>Parity of UART. 0 for No parity, 1 for odd parity, 2 for even parity.</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+
+</tr>
+<tr>
+<td>Stop bits</td>
+<td>I</td><td>UART stop bit count. 0 for 1 bit, 1 for 1.5 bits, 2 for 2 bits.</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+
+</tr>
+<tr>
+<td>Hardware Control</td>
+<td>B</td><td>Whether to enable hardware control of UART</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+
+</tr>
+</table>
+<!-- Ports -->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#description">Description &#8593;</a></div>
+<div class="toc_span_items"><a href="#parameters">Parameters &#8593;</a></div>
+</div>
+<table class="table">
+<!-- Input Ports -->
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent">Set</td>
+<td>Input event to set UART configuration.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData">Baudrate</td>
+<td>Baud rate for UART.</td>
+</tr>
+<tr>
+<td class="portsData">Stop Bits</td>
+<td>Number of stop bits.</td>
+</tr>
+<tr>
+<td class="portsData">Parity</td>
+<td>Parity setting for UART.</td>
+</tr>
+<tr>
+<td class="portsData">Data Length</td>
+<td>Length of data bits.</td>
+</tr>
+<tr>
+<td class="portsData">HW Ctrl</td>
+<td>Hardware flow control setting.</td>
+</tr>
+<!-- Output Ports -->
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsData">--</td>
+<td>UART configured.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData">Errno</td>
+<td>Error number. 0 if success. 1 if port is invalid.</td>
+</tr>
+</table>
+<!-- Miscellaneous -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8593;</a></div>
+<div class="toc_span_items"><a href="#parameters">Parameters &#8593;</a></div>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          None
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
 </html>

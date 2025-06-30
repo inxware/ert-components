@@ -334,6 +334,165 @@ EHS_FB_RUN_FUNCTION(MultiplexFourInputInt4)
     return;
 }
 
+/******************************************************************************/
+/* Define MultiplexEightInputInt function block */
+
+EHS_FB_FUNCTIONS_START(MultiplexEightInputInt)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexEightInputInt1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexEightInputInt2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexEightInputInt3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, MultiplexEightInputInt4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input5", 0x05, MultiplexEightInputInt5)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input6", 0x06, MultiplexEightInputInt6)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input7", 0x07, MultiplexEightInputInt7)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input8", 0x08, MultiplexEightInputInt8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputInt)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(MultiplexEightInputInt)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputInt1)
+{
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputInt2)
+{
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputInt3)
+{
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputInt4)
+{
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputInt5)
+{
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputInt6)
+{
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputInt7)
+{
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputInt8)
+{
+    NCAPSA_nOut(0) = NCAPSA_nIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
 #ifdef EHS_TARGET_FP_SUPPORT
 /******************************************************************************/
 /* Define MultiplexOneInputReal function block */
@@ -614,6 +773,165 @@ EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat3)
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
  */
 EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat4)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
+/* Define MultiplexEightInputFloat function block */
+
+EHS_FB_FUNCTIONS_START(MultiplexEightInputFloat)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexEightInputFloat1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexEightInputFloat2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexEightInputFloat3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, MultiplexEightInputFloat4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input5", 0x05, MultiplexEightInputFloat5)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input6", 0x06, MultiplexEightInputFloat6)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input7", 0x07, MultiplexEightInputFloat7)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input8", 0x08, MultiplexEightInputFloat8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputFloat)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(MultiplexEightInputFloat)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat1)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat2)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat3)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat4)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat5)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat6)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat7)
+{
+    NCAPSA_dOut(0) = NCAPSA_dIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat8)
 {
     NCAPSA_dOut(0) = NCAPSA_dIn(0);
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
@@ -907,6 +1225,165 @@ EHS_FB_RUN_FUNCTION(MultiplexFourInputBool4)
 }
 
 /******************************************************************************/
+/* Define MultiplexEightInputBool function block */
+
+EHS_FB_FUNCTIONS_START(MultiplexEightInputBool)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexEightInputBool1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexEightInputBool2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexEightInputBool3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, MultiplexEightInputBool4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input5", 0x05, MultiplexEightInputBool5)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input6", 0x06, MultiplexEightInputBool6)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input7", 0x07, MultiplexEightInputBool7)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input8", 0x08, MultiplexEightInputBool8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputBool)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(MultiplexEightInputBool)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputBool1)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputBool2)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputBool3)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputBool4)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputBool5)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputBool6)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputBool7)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputBool8)
+{
+    NCAPSA_bOut(0) = NCAPSA_bIn(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
 /* Define MultiplexOneInputString function block */
 
 EHS_FB_FUNCTIONS_START(MultiplexOneInputString)
@@ -1187,6 +1664,169 @@ EHS_FB_RUN_FUNCTION(MultiplexFourInputString3)
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
  */
 EHS_FB_RUN_FUNCTION(MultiplexFourInputString4)
+{
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
+/* Define MultiplexEightInputString function block */
+
+EHS_FB_FUNCTIONS_START(MultiplexEightInputString)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input1", 0x01, MultiplexEightInputString1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input2", 0x02, MultiplexEightInputString2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input3", 0x03, MultiplexEightInputString3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input4", 0x04, MultiplexEightInputString4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input5", 0x05, MultiplexEightInputString5)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input6", 0x06, MultiplexEightInputString6)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input7", 0x07, MultiplexEightInputString7)
+
+EHS_FB_FUNCTION_ENTRY("Run_Input8", 0x08, MultiplexEightInputString8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputString)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(MultiplexEightInputString)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputString1)
+{
+    //char tmp[256] = {'\0'};
+
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputString2)
+{
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputString3)
+{
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputString4)
+{
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputString5)
+{
+    //char tmp[256] = {'\0'};
+
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputString6)
+{
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputString7)
+{
+    strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(MultiplexEightInputString8)
 {
     strcpy(NCAPSA_szOut(0), NCAPSA_szIn(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);

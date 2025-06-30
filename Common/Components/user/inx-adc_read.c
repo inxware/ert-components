@@ -27,6 +27,7 @@ typedef struct inx_adc_read_state
     ehs_bool enable_continuous; /* continuous (clocked) sampling mode / or on demaand */
     ehs_float clock_rate_hz; /* continuous mode clock rate */
     ehs_sint32 average; /* number of samples to average */
+    ehs_float bias; /* The bias of the averaging */
     ehs_float value; /* the currently sapled value */
     EhsFunctionInstanceDataType* pFIdata; /* reference to FB functions */
     struct inx_adc_read_state* pNext; 
@@ -117,15 +118,20 @@ EHS_FB_IDENTIFY_FUNCTION(adc_read)
 
 EHS_FB_INIT_FUNCTION(adc_read)
 {
+    // @TODO - target_adcdac.h to component hal. Also fix how api has been named. It is very confusing and probably not working properly for all targets.
+
     ehs_bool bRet = EHS_TRUE; /* assume success */
 
     //this is the reference to the object data for this instance of the function block
     inx_adc_read_state_type* inx_adc_read_state = (inx_adc_read_state_type*)EHS_FB_INIT_CONTEXT;
     /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhd %hhd %hhd %hhd %lf %d",&inx_adc_read_state->channel,&inx_adc_read_state->unit,&inx_adc_read_state->configuration,&inx_adc_read_state->enable_continuous,&inx_adc_read_state->clock_rate_hz,&inx_adc_read_state->average);
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhd %hhd "EHS_FL_FMT" %d "EHS_FL_FMT,&inx_adc_read_state->channel,&inx_adc_read_state->enable_continuous,&inx_adc_read_state->clock_rate_hz,&inx_adc_read_state->average, &inx_adc_read_state->bias);
+
+    // @TODO - read this from properties
+    inx_adc_read_state->unit = 0;
 
     // configure the adc type
-    configure_adc(inx_adc_read_state->channel,inx_adc_read_state->unit,&inx_adc_read_state->configuration);
+    configure_adc(inx_adc_read_state->channel, inx_adc_read_state->enable_continuous, inx_adc_read_state->clock_rate_hz, inx_adc_read_state->average, inx_adc_read_state->bias, inx_adc_read_state->unit, &inx_adc_read_state->configuration);
 
     // e.g. send in the pratmers and let th hardware layer try and set things up as requested:
     // ehs_bool ok = target_adc_config(inx_adc_read_state);
@@ -147,12 +153,10 @@ EHS_FB_INIT_FUNCTION(adc_read)
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(adc_read)
 {
-    /*
     inx_adc_read_state_type *inx_adc_read_state = (inx_adc_read_state_type*)EHS_FB_DESTROY_CONTEXT;
-    */
     //Your code below here
     gpFirstWidget=NULL;
-    destroy_adc();
+    destroy_adc(inx_adc_read_state->channel);
     return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
@@ -199,11 +203,11 @@ EHS_FB_RUN_FUNCTION(adc_read_sample)
     inx_adc_read_state_type* inx_adc_read_state = (inx_adc_read_state_type*)EHS_FB_RUN_CONTEXT;
     // Your code here
     ehs_float value = 0.0f;
-    if (inx_adc_read_state->enable_continuous != EHS_TRUE) { /* Don't overight the value gotten by the interupt as the poll methos probably wont work */
+    //if (inx_adc_read_state->enable_continuous != EHS_TRUE) { /* Don't overight the value gotten by the interupt as the poll methos probably wont work */
         target_read_adc_sample(inx_adc_read_state->channel,&value,inx_adc_read_state->configuration);
         if (EHS_FB_OUT_CONNECTED_API2(INX_adc_read_ARG_sample_value))
             EHS_FB_OUT_F_API2(INX_adc_read_ARG_sample_value) = value;
-    }
+    //}
     /* Set the done event anyway as the last ADV value will be asserted on the data line */
     EHS_FB_FINISH(INX_adc_read_ARG_sample_finishread);
 }//ICB FUNCTION sample MACRO END -- DO NOT ALTER THIS LINE

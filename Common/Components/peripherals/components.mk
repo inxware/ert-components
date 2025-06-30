@@ -25,6 +25,8 @@
 #  OBJECTS - list of object files added by this makefile
 #  VPATH - where to look for source code
 
+#TODO2025  - Please make these follow the template used in usercomponents.mk rather being slightly different everywhere
+
 INC_DIRS+=: $(EHS_COMMON_COMPONENTS_PATH)/peripherals
 #INC_DIRS+=$(EHS_COMMON_TOOLKIT_PNG_PATH)
 VPATH+=: $(EHS_COMMON_COMPONENTS_PATH)/peripherals
@@ -55,14 +57,49 @@ ifdef EHS_PERIPHERALS_LEDS
 	OBJECTS += guileds.$(OBJ)
 endif
 
+
 ifdef EHS_PERIPHERALS_GPIO_SUPPORT
+ifneq ($(EHS_PERIPHERALS_GPIO_SUPPORT),none)
 #$(info  $$EHS_PERIPHERALS_GPIO_SUPPORT=[$(EHS_PERIPHERALS_GPIO_SUPPORT)])
 #if the hardware doesn't have real GPIO then stubb it if the peripheral toolbox is still needed
-	# include the commone GPIO components in the toolbox. 
+# include the commone GPIO components in the toolbox. 
 	OBJECTS += gpio_out.$(OBJ)
-	OBJECTS += gpio_in.$(OBJ)
-else 
+	OBJECTS += gpio_in.$(OBJ)     
+endif
+endif
 
-#todo2023 = do we want this to be the default? BEst for now if it is.
-	EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+
+#Some platform like ARDUINO have specific RGV LED APIs we might want to use sometimes.
+ifndef EHS_PERIPHERALS_LED_SUPPORT
+#NOTE!!! For now we will stubb all platforms if they do not declare a preference so they all build and run any app.
+EHS_PERIPHERALS_LED_SUPPORT=stubbed
+endif
+
+ifdef EHS_PERIPHERALS_LED_SUPPORT
+ifneq ($(EHS_PERIPHERALS_LED_SUPPORT),none)
+	OBJECTS += inx-led.$(OBJ)
+#todo2025- the following should just be another HAL stub and we don't need to differentiate stubbed from implemented here...
+	ifeq ($(EHS_PERIPHERALS_LED_SUPPORT),stubbed)
+		OBJECTS += inx-led_hal_stubb.$(OBJ)
+	endif
+	DEFS += EHS_PERIPHERALS_LED_SUPPORT
+endif
+endif
+
+#Acceleromter support
+# temporarrilly  do this ...
+ifndef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT=stubbed
+endif
+
+ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+ifneq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),none)
+	OBJECTS += inx-accel_gyro.$(OBJ)
+#todo2025- the following should just be another HAL stub and we don't need to differentiate stubbed from implemented here...
+
+	ifeq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),stubbed)
+		OBJECTS += inx-accel_gyro_stubb.$(OBJ)
+	endif
+	DEFS += EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+endif
 endif

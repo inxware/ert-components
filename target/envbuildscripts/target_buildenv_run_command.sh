@@ -28,6 +28,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     DOCKER_EXTRA_ENVS=""
     KEYWORD="EHS_TARGETENV_PREBUILD_"
     # Use compgen to list all shell variables and filter by keyword pattern
+    # No idea how to use this...??? What is compgen??? Do we do something with PREBUILD??? I hope we don't need this really!
     while IFS= read -r name; do
         if [ "$name" != "" ]; then
             DOCKER_EXTRA_ENVS="$DOCKER_EXTRA_ENVS -e $name"
@@ -37,7 +38,10 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     INX_ERTCOMPONENTS_BUILDENV="-e EHS_OS -e  EHS_ARCH -e  EHS_GNU_OS -e EHS_GNU_ARCH -e SYSTEM_VARIANT -e SPECIFIC_TARGET -e DEVMAN_SERVER_NAME \
             -e DEVMAN_SERVER_DOMAIN -e DEVMAN_SERVER_PROTOCOL -e TARGET -e EHS_PRODUCT_NAME -e TARGET_PATH -e TARGET_SYSPATCH -e EHS_HOST_DEBIAN_BUILD\
             -e EHS_DEBIAN_VERSION -e INXWARE_TARGETENV_HACKS -e ANDROID_STUDIO_JNILIBS_PATH -e EXE -e EHS_ANDROID_PACKAGE_SIGNING_PATH -e EHS_DEBIAN_VERSION \
-            -e EHS_UNITY_PROJECT_EXPORT_SUPPORT -e DEBIAN_PACKAGE_NAME $DOCKER_EXTRA_ENVS"
+            -e EHS_UNITY_PROJECT_EXPORT_SUPPORT -e DEBIAN_PACKAGE_NAME -e EHS_PLUGIN_LIBRARY_DEPENDENCY -e EHS_GUI_SUPPORT -e DEBIAN_PACKAGE_PLATFORM_EXTRA \
+            -e DEBIAN_PACKAGE_EXTRA -e EHS_AUTO_START -e DEVMAN_SERVER_DOMAIN_1 -e DEVMAN_SERVER_DOMAIN_2 -e EHS_DEVMAN_SUPERVISOR_REQUIRED \
+            -e EHS_ML_SUPPORT -e EHS_MV_SUPPORT -e EHS_USE_LIBCAMERA \
+            -e FLASH_BOARD $DOCKER_EXTRA_ENVS"
 
     #echo -n "Found Docker image ${PATH_TO_TARGET_DOCKER_IMAGE} ... "
     DOCKER_STAGING_DIR="${PWD}/../TARGET_TREES/DOCKER/cachespace"
@@ -48,7 +52,9 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
 echo    ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}
     if ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}  &> /dev/null ; then
         echo "Using existing Docker image"
-        ${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV  \
+        #echo "${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV --user $(id -u):$(id -g) --rm --privileged -it --device=/dev/ttyACM0 -v $(pwd)/../../../:/inxware  -w /inxware/ert-components/ ${DOCKER_IMAGE} $@"
+
+        ${SUDO_COMMAND} docker run ${INX_ERTCOMPONENTS_BUILDENV}  \
             --user $(id -u):$(id -g) --rm --privileged -it --device=/dev/ttyACM0 \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\

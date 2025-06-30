@@ -20,7 +20,8 @@
 #include "ehs_types.h"
 
 /**
- * @brief Initilised EHS (data tables, kernel console etc.). 
+ * @brief Initilised EHS (data tables, kernel console etc.). Call this before looping to intialise data strcuctures and hardware init 
+ *       Finally this identifies  and loads boot app. 
  * @note THIS SHOULD ONLY BE CALLED IF EheMain() is not being used as it is called from there.
  */
 
@@ -40,4 +41,10 @@ EHS_GLOBAL Ehs_ConsoleCommand_Type EhsMainLoop( Ehs_ConsoleCommand_Type (*target
 
 Ehs_ConsoleCommand_Type EhsCheckInternalCommands(Ehs_ConsoleCommand_Type Command);
 ehs_bool SetupApplication();
+
+EHS_GLOBAL void EhsAppLoadingStateMachine( Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),void * target_env_blob );
+EHS_GLOBAL Ehs_ConsoleCommand_Type EhsProcessInAppStateMachine( Ehs_ConsoleCommand_Type _Command );
+EHS_GLOBAL Ehs_ConsoleCommand_Type EhsProcessExAppStateMachine( Ehs_ConsoleCommand_Type _Command );
+EHS_GLOBAL ehs_bool EhsCheckAppExitLoop( Ehs_ConsoleCommand_Type Command );
+
 #endif /* EHS_MAIN_H */

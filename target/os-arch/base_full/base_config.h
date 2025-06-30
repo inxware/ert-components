@@ -22,11 +22,55 @@
 #ifndef BASE_CONFIG_H
 #define BASE_CONFIG_H
 
+#ifndef EHS_STRING_LENGTH_MAX
 #define EHS_STRING_LENGTH_MAX 2048
+#endif
+
+#ifndef EHS_MAXPATHLENGTH
 #define EHS_MAXPATHLENGTH 2048
+#endif
+
+#ifndef EHS_SYS_MAXPATHLENGTH
+#define EHS_SYS_MAXPATHLENGTH 2048
+#endif
+
+#ifndef EHS_MAX_URL_LENGTH
 #define EHS_MAX_URL_LENGTH 2048
+#endif
+
+#ifndef EHS_TD_FILES_MAX_PATH
 #define EHS_TD_FILES_MAX_PATH 2048
+#endif
+
+#ifndef EHS_TD_FILES_MAX_FILENAME
 #define EHS_TD_FILES_MAX_FILENAME 2048
+#endif
+
+#ifndef EHS_MAXDEVMANNAMELEN
+#define EHS_MAXDEVMANNAMELEN 2048
+#endif
+
+#ifndef EHS_DEVMAN_FILE_PATH_LENGTH
+#define EHS_DEVMAN_FILE_PATH_LENGTH 4096
+#endif
+
+/*
+ * Default data table string size, for every output port string length created in the kernel
+ */
+#define EHS_DATA_TABLE_STRING_DEFAULT_LENGTH (1u << 15)  // 2^15 = 32768 (32 KB)
+
+#ifndef EHS_DATA_TABLE_STRING_DEFAULT_LENGTH
+#define EHS_DATA_TABLE_STRING_DEFAULT_LENGTH EHS_STRING_LENGTH_MAX
+#endif
+
+#if EHS_DATA_TABLE_STRING_DEFAULT_LENGTH < EHS_STRING_LENGTH_MAX
+#error "EHS_DATA_TABLE_STRING_DEFAULT_LENGTH is smaller than EHS_STRING_LENGTH_MAX, is there something wrong?"
+#endif
+
+// EHS_MAXDEVMANNAMELEN must be smaller than default string length
+#if EHS_STRING_LENGTH_MAX < EHS_MAXDEVMANNAMELEN
+#error "EHS_MAXDEVMANNAMELEN must be smaller than default string length"
+#endif
 
 /**
  * Defines the default target identifier for this instance of EHS
@@ -106,7 +150,6 @@
 #define EHS_TIME_BETWEEN_FRAMES 40 /*Desired framerate of GTK window*/
 #endif
 
-
 /*Amount of memory to initially let SVG player have*/
 /*
 #ifndef EHS_SVG_MEMORY_INIT_SIZE
@@ -118,6 +161,46 @@
 #ifndef COMPOSITING_AVAILABLE //@todo should this be switched off?
 #define COMPOSITING_AVAILABLE
 #endif
+
+/* Thread priorities */
+
+#ifndef EHS_PRI_EHS_MAIN
+#define EHS_PRI_EHS_MAIN                   18
+#endif
+
+#ifndef EHS_PRI_TCP_IP_CONSOLE
+#define EHS_PRI_TCP_IP_CONSOLE            -15
+#endif
+
+#ifndef EHS_PRI_SERIAL_CMD
+#define EHS_PRI_SERIAL_CMD                  0
+#endif
+
+#ifndef EHS_PRI_LVGL_TICK
+#define EHS_PRI_LVGL_TICK                  -5
+#endif
+
+#ifndef EHS_PRI_LVGL_GUI
+#define EHS_PRI_LVGL_GUI                  -99
+#endif
+
+#ifndef EHS_PRI_MCU_SLOW_HP_THR
+#define EHS_PRI_MCU_SLOW_HP_THR            17
+#endif
+
+#ifndef EHS_PRI_MCU_SLOW_LP_THR
+#define EHS_PRI_MCU_SLOW_LP_THR             1
+#endif
+
+#ifndef EHS_PRI_UART
+#define EHS_PRI_UART                       12
+#endif
+
+#ifndef EHS_PRI_MODBUS_MASTER_CTRL
+#define EHS_PRI_MODBUS_MASTER_CTRL          2
+#endif
+
+
 
 /* Canonical System Paths */
 

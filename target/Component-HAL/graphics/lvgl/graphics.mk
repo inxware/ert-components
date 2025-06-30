@@ -40,6 +40,7 @@ INC_DIRS += $(EHS_TARGET_GRAPHICS_PATH)/Components
 
 
 # PPP: Moved to Video Diectory OBJECTS += target_dtv.$(OBJ)
+OBJECTS+=target_viewport_style.$(OBJ)
 OBJECTS+=target_viewport.$(OBJ) 
 OBJECTS+=targetgfx_init.$(OBJ)
 
@@ -49,7 +50,10 @@ OBJECTS+=targetgfx_init.$(OBJ)
 LVGL_DIR_NAME ?= lvgl
 LVGL_DIR=$(EHS_TARGET_GRAPHICS_PATH)
 include $(LVGL_DIR)/$(LVGL_DIR_NAME)/lvgl.mk
+include $(LVGL_DIR)/inx_lv_fonts/inx_lv_fonts.mk
 include $(LVGL_DIR)/lv_drivers/lv_drivers.mk
+
+#EHS_GUI_SUPPORT=lvgl
 
 DEFS+=EHS_GUI_SUPPORT_MODE_B
 DEFS+=EHS_GUI_SUPPORT_MODE_B_LVGL

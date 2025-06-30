@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2024-01-15T10:00:00Z</UpdatedDate>
+        <UpdatedDate>2025-06-05T09:59:42Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription/>
@@ -19,7 +19,7 @@
     </Description>
     <Block>
         <Type>Event_Processor</Type>
-        <Height>195</Height>
+        <Height>215</Height>
         <Text>Clock</Text>
         <TextX>15</TextX>
         <TextY>5</TextY>
@@ -34,7 +34,7 @@
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xED30</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>76aa654f</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>614094fe</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -81,9 +81,9 @@
         </Port>
         <Port>
             <DataType>S</DataType>
-            <Description>Date String</Description>
+            <Description>date string</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>70</YCoordinate>
             <CName>Date_String</CName>
             <Function argument="1">
@@ -93,7 +93,7 @@
         <Port>
             <Description>------</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>60</YCoordinate>
             <Wcet>0</Wcet>
             <CName>______</CName>
@@ -126,7 +126,7 @@
         <Port>
             <Description>-----</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>12</YCoordinate>
             <Wcet>0</Wcet>
             <CName>_____</CName>
@@ -136,9 +136,9 @@
         </Port>
         <Port>
             <DataType>I</DataType>
-            <Description>Mins 1970</Description>
+            <Description>mins 1970</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>90</YCoordinate>
             <CName>Mins_1970</CName>
             <Function argument="2">
@@ -149,7 +149,7 @@
             <DataType>I</DataType>
             <Description>&amp; secs</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>100</YCoordinate>
             <CName>__secs</CName>
             <Function argument="3">
@@ -182,7 +182,7 @@
             <DataType>I</DataType>
             <Description>unix time</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>80</YCoordinate>
             <CName>unix_time_out</CName>
             <Function argument="4">
@@ -191,9 +191,9 @@
         </Port>
         <Port>
             <DataType>I</DataType>
-            <Description>Year</Description>
+            <Description>year</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>110</YCoordinate>
             <CName>Year</CName>
             <Function argument="5">
@@ -204,7 +204,7 @@
             <DataType>I</DataType>
             <Description>MDay</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>130</YCoordinate>
             <CName>MDay</CName>
             <Function argument="6">
@@ -215,7 +215,7 @@
             <DataType>I</DataType>
             <Description>WDay</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>140</YCoordinate>
             <CName>WDay</CName>
             <Function argument="7">
@@ -224,9 +224,9 @@
         </Port>
         <Port>
             <DataType>I</DataType>
-            <Description>Hour</Description>
+            <Description>hour</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>150</YCoordinate>
             <CName>Hour</CName>
             <Function argument="8">
@@ -235,9 +235,9 @@
         </Port>
         <Port>
             <DataType>I</DataType>
-            <Description>Minute</Description>
+            <Description>minute</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>160</YCoordinate>
             <CName>Minute</CName>
             <Function argument="9">
@@ -246,9 +246,9 @@
         </Port>
         <Port>
             <DataType>I</DataType>
-            <Description>Second</Description>
+            <Description>second</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>170</YCoordinate>
             <CName>Second</CName>
             <Function argument="10">
@@ -257,12 +257,23 @@
         </Port>
         <Port>
             <DataType>I</DataType>
-            <Description>Month</Description>
+            <Description>month</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>70</XCoordinate>
+            <XCoordinate>80</XCoordinate>
             <YCoordinate>120</YCoordinate>
             <CName>Month</CName>
             <Function argument="11">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>local diff</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>80</XCoordinate>
+            <YCoordinate>180</YCoordinate>
+            <CName>local_diff</CName>
+            <Function argument="12">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>

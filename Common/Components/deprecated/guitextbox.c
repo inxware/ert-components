@@ -277,7 +277,7 @@ EHS_FB_RUN_FUNCTION(gui_text_string_update)
 EHS_FB_RUN_FUNCTION(gui_text_float_update)
 {
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
-    char str[EHS_STRING_LENGTH_MAX];
+    char str[EHS_STRING_LENGTH_MAX];//TODO:STRINGLENGTH! Or can we always truncate to global (assuming this is the)
     EhsSprintf(str,"%f",EHS_FB_IN_F(EHS_FB_GUI_TEXT_IN_VALUE));
 
     Ehs_gui_text_update(pWidget,str,

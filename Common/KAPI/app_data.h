@@ -36,7 +36,7 @@
  */
 typedef struct
 {
-    volatile ehs_char xDummy[EHS_STRING_LENGTH_MAX]; /**< Just points to a chunk of memory (optional if e have trusted clients)
+    ehs_char* xDummy; /**< Just points to a chunk of memory (optional if e have trusted clients) //TODO2024 - volatile here conflicts with pointer..
 										containing the largest of the possible
 										data types. this is for OUTPUTS*/
     volatile ehs_sint64 xDummyIn[1]; /* Seperate dummy for inputs to avoid random data read into FBs - this is 64 bit to allow for ou worst case lvalue size of a float (todo may need to support larget in the future (wasa char...)*/
@@ -102,6 +102,20 @@ typedef struct EhsDestroyObjElementStruct
 EHS_GLOBAL EhsDataConnectionTableType EhsDataConnectionTable;
 
 /**
+ * This function is called prior to loading a new SODL file. It allocates memory for new
+ * connections and resets all connection values.
+ * @param[in] nInt Number of integer connections that are required
+ * @param[in] nBool Number of boolean connections that are required
+ * @param[in] nString Number of string connections that are required
+ * @param[in] nFloat Number of float connections taht are required (ignored if EHS_TARGET_FP_SUPPORT isn't defined)
+ * @param[in] nUser Number of user data connections that are required
+ * @param[in] pStrMemSizeList Linked-List containing string connections buffers sizes
+ * @param[in] nStrMemSizeListLength Size of pStrMemSizeList
+ * @return true if memory is successfully allocated for these connections.
+ */
+EHS_GLOBAL ehs_bool EhsDataConnectionTable_init(ehs_uint32 nInt, ehs_uint32 nBool, ehs_uint32 nString, ehs_uint32 nFloat, ehs_uint32 nUser, ehs_uint32* pStrMemSizeList, ehs_uint32 nStrMemSizeListLength);
+
+/**
  * Reset the application data to make the application ready to start running from its initial state.
  * To restart the application, each of the groups need to be started, an initial event needs to be
  * added to the event queue
@@ -126,20 +140,6 @@ EHS_GLOBAL ehs_bool EhsAppInitLiveAppDir();
  * Run me at the end of the download
  * */
 EHS_GLOBAL ehs_bool EhsAppSetDownloadOKToken(ehs_char * canonicalName);
-
-/**
- * This function is called prior to loading a new SODL file. It allocates memory for new
- * connections and resets all connection values.
- * @param[in] nInt Number of integer connections that are required
- * @param[in] nBool Number of boolean connections that are required
- * @param[in] nString Number of string connections that are required
- * @param[in] nFloat Number of float connections taht are required (ignored if EHS_TARGET_FP_SUPPORT isn't defined)
- * @param[in] nUser Number of user data connections that are required
- * @param[in] pStrMemSizeList Linked-List containing string connections buffers sizes
- * @param[in] nStrMemSizeListLength Size of pStrMemSizeList
- * @return true if memory is successfully allocated for these connections.
- */
-EHS_GLOBAL ehs_bool EhsDataConnectionTable_init(ehs_uint32 nInt, ehs_uint32 nBool, ehs_uint32 nString, ehs_uint32 nFloat, ehs_uint32 nUser, ehs_uint32* pStrMemSizeList, ehs_uint32 nStrMemSizeListLength);
 
 /*
  * Set the flag for any (Legacy) Functions blocks to close down their threads.

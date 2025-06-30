@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Samples to String</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      Samples to String is a function block that stores real value samples in a string buffer.
+    </p>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Min</th>
+<th>Max</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>Sample Count</td>
+<td>I</td>
+<td>10</td>
+<td>0</td>
+<td>255</td>
+<td>Number of samples to be stored in the output string.</td>
+</tr>
+<tr>
+<td>Decimal Places</td>
+<td>I</td>
+<td>2</td>
+<td>0</td>
+<td>6</td>
+<td>Max number of decimal places.</td>
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]i">i</a></td>
+<td>Input port to trigger storing samples.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]clear">clear</a></td>
+<td>Clear the output port.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]i1">i1</a></td>
+<td>Input for a sample value.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]i2">i2</a></td>
+<td>Input for a second sample value.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]i3">i3</a></td>
+<td>Input for a third sample value.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]o">o</a></td>
+<td>Output port indicating the completion of sample storage.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]cleared">cleared</a></td>
+<td>Output indicating the samples have been cleared.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o1">o1</a></td>
+<td>String output</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o2">o2</a></td>
+<td>String output</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]o3">o3</a></td>
+<td>String output</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          None
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -106,9 +106,8 @@ EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint1
     {
         EhsWidget_init(pWidget, xBounds, nZ, xFgColour.sComp.nAlpha);
 
-        pWidget->eWidgetKind = EHS_WIDGET_KIND_UI;
+        //pWidget->eWidgetKind = EHS_WIDGET_KIND_UI; // mode B (lvgl), widget kind is always ui. #def eWidgetKind in EhsWidgetClass for memory optimisation
         pWidget->nState = EHS_WIDGET_STATE_INIT;
-        pWidget->bOptimiseForSpeed = EHS_FALSE;
         pWidget->bContentUpdated = EHS_FALSE;
         pWidget->bContentChanged = EHS_TRUE;
         pWidget->pfCreateFunc = EhsWidgetUi_create;
@@ -126,7 +125,7 @@ EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint1
         EHS_WIDGET_UI(pWidget).nFgBaseAlpha = xFgColour.sComp.nAlpha;
         EHS_WIDGET_UI(pWidget).xBgColour = xBgColour;
         EHS_WIDGET_UI(pWidget).nBgBaseAlpha = xBgColour.sComp.nAlpha;
-        EHS_WIDGET_UI(pWidget).pFont = pFont;
+        //EHS_WIDGET_UI(pWidget).pFont = pFont; // not used at the moment, so disable to save memory
         EHS_WIDGET_UI(pWidget).nIndentBottom = nIndentB;
         EHS_WIDGET_UI(pWidget).nIndentLeft = nIndentL;
         EHS_WIDGET_UI(pWidget).nIndentRight = nIndentR;

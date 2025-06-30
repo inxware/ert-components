@@ -1,0 +1,182 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">MultiplexEightInputInteger</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      This component is used to take multiple input data (in this instance integer data), and present one as the output data depending on the events received. When an event is received, then the data at the corresponding input is presented to the output <a href="#[Out]o">[Out]o</a>. For example if an event is received at input <a href="#[In]2">[In]2</a>, the data at input <a href="#[In]i2">[In]i2</a> is presented at output <a href="#[Out]o">[Out]o</a>.
+    </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">Name</th>
+<th>Type</th><th>Description</th>
+<th>Default</th>
+<th>Min.</th>
+<th>Max.</th>
+
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]1">1</a></td>
+<td>Event input 1, triggers the presentation of data input  <a href="#[In]i1">[In]i1</a> to the output <a href="#[Out]o">[Out]o</a>.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]2">2</a></td>
+<td>Event input 2, triggers the presentation of data input  <a href="#[In]i2">[In]i2</a> to the output <a href="#[Out]o">[Out]o</a>.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]3">3</a></td>
+<td>Event input 3, triggers the presentation of data input  <a href="#[In]i3">[In]i3</a> to the output <a href="#[Out]o">[Out]o</a>.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]4">4</a></td>
+<td>Event input 4, triggers the presentation of data input  <a href="#[In]i4">[In]i3</a> to the output <a href="#[Out]o">[Out]o</a>.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]5">5</a></td>
+<td>Event input 5, triggers the presentation of data input  <a href="#[In]i5">[In]i5</a> to the output <a href="#[Out]o">[Out]o</a>.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]6">6</a></td>
+<td>Event input 6, triggers the presentation of data input  <a href="#[In]i6">[In]i6</a> to the output <a href="#[Out]o">[Out]o</a>.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]7">7</a></td>
+<td>Event input 7, triggers the presentation of data input  <a href="#[In]i7">[In]i7</a> to the output <a href="#[Out]o">[Out]o</a>.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]8">8</a></td>
+<td>Event input 8, triggers the presentation of data input  <a href="#[In]i8">[In]i3</a> to the output <a href="#[Out]o">[Out]o</a>.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i1">i1</a></td>
+<td>First input signal to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i2">i2</a></td>
+<td>Second input signal to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i3">i3</a></td>
+<td>Third input signal to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i4">i4</a></td>
+<td>Fourth input signal to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i5">i5</a></td>
+<td>Fifth input signal to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i6">i6</a></td>
+<td>Sixth input signal to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i7">i7</a></td>
+<td>Seventh input signal to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i8">i8</a></td>
+<td>Eighth input signal to be multiplexed.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]1">1</a></td>
+<td>Event output, is asserted on every event input.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsReal"><a name="[Out]o">o</a></td>
+<td>Data output, is asserted on every event input.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

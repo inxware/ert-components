@@ -222,8 +222,8 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(ConstantFloat)
 {
-    /* we require the space to hold a double */
-    EHS_FB_IDENTIFY_MEMORY  = sizeof(double);
+    /* we require the space to hold a ehs_float */
+    EHS_FB_IDENTIFY_MEMORY  = sizeof(ehs_float);
     return;
 }
 
@@ -236,7 +236,7 @@ EHS_FB_IDENTIFY_FUNCTION(ConstantFloat)
  */
 EHS_FB_INIT_FUNCTION(ConstantFloat)
 {
-    *(double*)EHS_FB_INIT_CONTEXT = atof(EHS_FB_INIT_PARAMETERS);
+    *(ehs_float*)EHS_FB_INIT_CONTEXT = (ehs_float)atof(EHS_FB_INIT_PARAMETERS);
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -249,7 +249,7 @@ EHS_FB_INIT_FUNCTION(ConstantFloat)
 EHS_FB_RUN_FUNCTION(ConstantFloat)
 {
     /* simply copy the state data to the only output location...*/
-    NCAPSA_dOut(0) = *(double*)EHS_FB_RUN_CONTEXT;
+    NCAPSA_dOut(0) = *(ehs_float*)EHS_FB_RUN_CONTEXT;
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }

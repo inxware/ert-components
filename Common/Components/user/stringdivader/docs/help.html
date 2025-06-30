@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">String Divider</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+<strong>String Divider</strong> divides the string according to the delimiter up to 4 strings.
+    </p>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>delim1</td>
+<td>S</td>
+<td></td>
+<td>Delimiter 1</td>
+</tr>
+<tr>
+<td>delim2</td>
+<td>S</td>
+<td></td>
+<td>Delimiter 2</td>
+</tr>
+<tr>
+<td>delim3</td>
+<td>S</td>
+<td></td>
+<td>Delimiter 3</td>
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<!-- Input Ports -->
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]split">split</a></td>
+<td>Split the string</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]str">str</a></td>
+<td>Input string</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]len">len</a></td>
+<td>Input string length</td>
+</tr>
+<!-- Output Ports -->
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]done">--</a></td>
+<td>Split done</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]err">err</a></td>
+<td>Split error</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]str1">str1</a></td>
+<td>Splited string</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]len1">len1</a></td>
+<td>The length of splited string</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]str2">str2</a></td>
+<td>Splited string</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]len2">len2</a></td>
+<td>The length of splited string</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]str3">str3</a></td>
+<td>Splited string</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]len3">len3</a></td>
+<td>The length of splited string</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]str4">str4</a></td>
+<td>Splited string</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]len4">len4</a></td>
+<td>The length of splited string</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          N/A
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

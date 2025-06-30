@@ -51,6 +51,12 @@
 #include "esp_ota_ops.h"
 #include "esp_err.h"
 
+#include "hal_target_sys_stat.h"
+
+#include "hal_time.h"
+#include <time.h>
+#include <sys/time.h>
+
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 #define HASH_MOD_ID 10000000000
@@ -115,6 +121,41 @@ static void EhsDeviceIdGen(const char *str, char *id)
     id[HASH_ID_LENGTH] = '\0'; // make sure id is NULL terminated
 }
 
+#ifdef EHS_MAX31343_SUPPORT
+/*
+ * Initialise the MAX31343 RTC chip and read-set the time from it
+ */
+void EhsTRtcMAX31343Init( void )
+{
+    ehs_uint8   seconds = 0,
+                minutes = 0,
+                hours = 0,
+                date = 0,
+                day = 0,
+                month = 0;
+    ehs_uint16  year = 0;
+    EhsTMax31343Init();
+    EhsTMax31343GetRTC(&seconds, &minutes, &hours, &day, &date, &month, &year);
+    ESP_LOGI(TAG, "RTC read: %04d-%02d-%02dT%02d:%02d:%02d %d", year, month, date, hours, minutes, seconds, day);
+    // Meet C tm struct wday spec
+    if (day == 7) day = 0;
+    struct tm stm = {
+        .tm_year = year - 1900,
+        .tm_mon = month - 1, // from Jan, range from 0 to 11
+        .tm_mday = date,
+        .tm_wday = day,
+        .tm_hour = hours,
+        .tm_min = minutes,
+        .tm_sec = seconds
+    };
+    struct timeval tv = {
+        .tv_sec = mktime(&stm),
+        .tv_usec = 0
+    };
+    settimeofday(&tv, NULL);
+}
+#endif
+
 /**
  * Perform necessary Operating system setup upon system initialisation
  */
@@ -140,6 +181,9 @@ void EhsTOsSys_init(void)
     EhsTOS_ConsoleQueue_init();
     EhsTPMutex_init();
     esp_ota_mark_app_valid_cancel_rollback();
+    #ifdef EHS_MAX31343_SUPPORT
+    EhsTRtcMAX31343Init();
+    #endif
     ESP_LOGI(TAG, "EHS inited");
 }
 
@@ -162,6 +206,52 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
     esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("ETH_DEF"), &ip_info);
     #endif
     inet_ntoa_r(ip_info.ip.addr, (char*)bufIP, 16);
+}
+
+EHS_LOCAL esp_netif_t* EhsTOS_GetNetworkInterface()
+{
+    #if TARGET_USE_WIFI
+        const char* interface = "WIFI_STA_DEF";
+    #elif TARGET_USE_ETHERNET
+        const char* interface = "ETH_DEF";
+    #else
+        #error "No network interface defined for this target! "
+    #endif
+    return esp_netif_get_handle_from_ifkey(interface);
+}
+
+EHS_LOCAL ehs_bool EhsTOS_GetNetworkInfo(ehs_sint16* mode, ehs_char* address, ehs_char* gateway, ehs_char* mask)
+{
+    if(!mode || !address || !gateway || !mask){
+        return EHS_FALSE;
+    }
+
+    esp_netif_ip_info_t ip_info;
+    esp_netif_t* netif = EhsTOS_GetNetworkInterface();
+    esp_netif_get_ip_info(netif, &ip_info);
+    // get ip address
+    inet_ntoa_r(ip_info.ip.addr, (char*)address, 16);
+    inet_ntoa_r(ip_info.gw, (char*)gateway, 16);
+    inet_ntoa_r(ip_info.netmask, (char*)mask, 16);
+
+    esp_netif_dhcp_status_t status;
+    if (esp_netif_dhcpc_get_status(netif, &status) == ESP_OK) {
+        *mode = (status == ESP_NETIF_DHCP_INIT || status == ESP_NETIF_DHCP_STARTED) ? EHS_NET_DHCP_MODE_ID : EHS_NET_STATIC_MODE_ID;
+    }else{
+        return EHS_FALSE;
+    }
+    return EHS_TRUE;
+}
+
+EHS_LOCAL ehs_bool EhsTOS_GetNetworkDNS1(ehs_char* address)
+{
+    esp_netif_dns_info_t dns;
+    esp_netif_t* netif = EhsTOS_GetNetworkInterface();
+    if(esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns) != ESP_OK){
+        return EHS_FALSE;
+    }
+    inet_ntoa_r(dns.ip.u_addr.ip4.addr, (char*)address, 16);
+    return EHS_TRUE;
 }
 
 /* Some timeval functions - gnu suggested code - but obvious*/
@@ -212,6 +302,9 @@ ehs_bool get_dir_stats(ehs_uint32 * Size, ehs_uint32 * Used, ehs_uint32 * Free,
     }
     return ret;
     #else
+        *Free = 0;
+        *Size = 0;
+        *Used = 0;
     return EHS_FALSE;
     #endif
 }
@@ -249,13 +342,6 @@ void getOSVersion(ehs_char * dst)
     EhsStrcpy(dst,TARGET_OS_VERSION_STRING);
 }
 
-#ifdef EHS_DEVMAN_MON_SUPPORT
-ehs_bool GetDevmanBASEURL(ehs_char *szUrl)
-{
-    return EHS_FALSE;
-}
-#endif
-
 
 /* updated dynamic and static data
  * The "what" parameter can be used 0: get everything, 1 get just static 2 just dynamic
@@ -264,15 +350,22 @@ ehs_bool GetDevmanBASEURL(ehs_char *szUrl)
  * */
 ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 what)
 {
+    if(what == EHS_OS_ENV_NETWORK_ID){
+        // update network config only
+        ehs_bool bNetSuccess = EhsTOS_GetNetworkInfo(&pEhsMetaData->nDeviceNetworkMode, pEhsMetaData->zDeviceIPAddr, pEhsMetaData->zDeviceGateway, pEhsMetaData->zDeviceMask);
+        ehs_bool bDns1Success = EhsTOS_GetNetworkDNS1(pEhsMetaData->zDeviceDNS1);
+        return bNetSuccess && bDns1Success;
+    }
+
     // todo2024 lets try and avoid having this on the stack. If this is an init function we can use the heap as we will free straigh away before any fragmentation.
-    ehs_char szTemp[EHS_STRING_LENGTH_MAX]; //todo2024 why do we use a buffer here and not just use pEhsMetaData->zUserDirectory?
+    //ehs_char szTemp[EHS_STRING_LENGTH_MAX]; //todo2024 why do we use a buffer here and not just use pEhsMetaData->zUserDirectory?
     ehs_uint32 tempint;
     if (what < 2 ) {
         if (EhsStrlen(pEhsMetaData->zUserDirectory))
         {
             // get disk space in user directory
-            EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
-            get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,szTemp);
+            //EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
+            get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,pEhsMetaData->zUserDirectory);
         }
         else
         {
@@ -280,13 +373,12 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
         }
     }
 
-    EhsTOS_GetMACandIPaddr(/*mac=*/szTemp, pEhsMetaData->zDeviceIPAddr); 
+    EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceNetMacId, pEhsMetaData->zDeviceIPAddr); 
     
     // generate XX-XXXX-XXXX format unique id
-    EhsDeviceIdGen(szTemp, pEhsMetaData->zDeviceID);
-
+    EhsDeviceIdGen(pEhsMetaData->zDeviceNetMacId, pEhsMetaData->zDeviceID);
     get_cpu_ram_info(&(pEhsMetaData->CPUUsage), &(pEhsMetaData->RAMTotal_KB),&(pEhsMetaData->RAMUsed_KB),&(pEhsMetaData->RAMAvail_KB));
-
+    pEhsMetaData->CPUTemp = EhsTGetCpuTemp();
     getOSVersion(pEhsMetaData->zVersion);
 
  // todo 2024  we should move this to the target_file.c init function:

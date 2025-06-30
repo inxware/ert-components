@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2024-08-21T10:41:37Z</CreationDate>
+        <UpdatedDate>2024-10-21T16:22:55Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Key Value Pair Storage</ShortDescription>
+        <LongDescription>Key Value Pair Storage</LongDescription>
+        <UserName/>
+        <Menu>
+            Data Utilities
+            <Menu>
+                Key Value Pair
+                <Menu>string</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Data</Type>
+        <Height>90</Height>
+        <Text>Key Value</Text>
+        <TextX>20</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>key_value</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xDC09</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>4702f1f0</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>domain</Name>
+            <DataType>S</DataType>
+            <DefaultValue>default</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <Description>The domain of this key value pair</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+            <DisplayOnWidget>
+                <x>30</x>
+                <y>30</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>key</Name>
+            <DataType>S</DataType>
+            <DefaultValue>default</DefaultValue>
+            <MinValue/>
+            <MaxValue/>
+            <Description>The key of the pair</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+            <DisplayOnWidget>
+                <x>30</x>
+                <y>45</y>
+            </DisplayOnWidget>
+        </Parameter>
+        <Parameter>
+            <Name>default_value</Name>
+            <DataType>S</DataType>
+            <DefaultValue/>
+            <MinValue/>
+            <MaxValue/>
+            <Description>The default value of the pair when value is not set or value input is empty during set</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>upsert</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>query</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>set</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <CName>set</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>set_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>errno</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <CName>err_no</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>get</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>get</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>get_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>value</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>50</YCoordinate>
+            <CName>value_out</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>value</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <CName>value_in</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>errno</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>60</YCoordinate>
+            <CName>query_errno</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

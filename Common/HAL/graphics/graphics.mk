@@ -50,10 +50,10 @@ else
 endif
 
 OBJECTS+= graphics.$(OBJ)
-OBJECTS+= html.$(OBJ)
 OBJECTS+= widget.$(OBJ)
 
 ifneq ($(EHS_RENDER_MODE),B)
+OBJECTS+= html.$(OBJ)
 OBJECTS+= widget_textbox.$(OBJ)
 OBJECTS+= widget_image.$(OBJ)
 OBJECTS+= widget_image_png.$(OBJ)

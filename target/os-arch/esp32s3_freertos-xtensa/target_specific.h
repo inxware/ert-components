@@ -28,6 +28,7 @@
 #ifndef TAG
 #define TAG "esp32_ehs"
 #endif
+#include "target_types.h"
 
 /**
  * Forces the declared variable to be aligned in the way specified by
@@ -72,5 +73,18 @@ EHS_GLOBAL ehs_float EhsTgtFloat_loge(ehs_float);
 EHS_GLOBAL void EhsTargetInitSharedMemory(ehs_bool bUniqueCheck);
 
 #endif /* EHS_TARGET_CODE */
+
+#ifdef EHS_I2C_SUPPORT 
+ehs_bool EhsTI2CMasterInit( void );
+#ifdef EHS_MAX31343_SUPPORT 
+extern ehs_sint32 gEhsAmbientTemp;
+void EhsTMax31343Init( void );
+float EhsTMax31343GetTemperature( void );
+ehs_sint32 EhsTMax31343GetTemperatureFP( void );
+void EhsTMax31343GetRTC(ehs_uint8 *seconds, ehs_uint8 *minutes, ehs_uint8 *hours, ehs_uint8 *day, ehs_uint8 *date, ehs_uint8 *month, ehs_uint16 *year);
+void EhsTMax31343SetYearMonthDateDay(ehs_uint16 year, ehs_uint8 month, ehs_uint8 date, ehs_uint8 day);
+void EhsTMax31343SetHourMinuteSecond(ehs_uint8 hours, ehs_uint8 minutes, ehs_uint8 seconds);
+#endif//EHS_MAX31343_SUPPORT 
+#endif//EHS_I2C_SUPPORT 
 
 #endif /* EHS_TARGET_SPECIFIC_H */

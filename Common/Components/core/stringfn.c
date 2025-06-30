@@ -29,14 +29,6 @@
 #include "hal-api.h" /* Required for logging */
 
 
-/* Some genericl context/init structures */
-
-struct String_SingleParameter
-{
-    ehs_char szURL[EHS_STRING_LENGTH_MAX];
-};
-
-
 /******************************************************************************/
 /* Define string_cat function block */
 
@@ -72,15 +64,6 @@ EHS_FB_INIT_FUNCTION(string_cat)
  */
 EHS_FB_RUN_FUNCTION(string_cat)
 {
-
-    char szData1[EHS_STRING_LENGTH_MAX*4];// = {'\0'}; /* THis could be avoided is strxpy isn't used as this will avoid src-dest issue...*/
-    /* who did this?
-    char* s1 = &szData1[0];
-    char szData2[EHS_STRING_LENGTH_MAX];// = {'\0'};
-    char* s2 = &szData2[0];
-    //char szData3[EHS_STRING_LENGTH_MAX * 2];// = {'\0'};
-    char* s3 = &szData3[0];
-    */
     ehs_uint32 len1,len2,totallen;
     ehs_char* sOut=EHS_FB_OUT_S(0);
     ehs_char* s1=EHS_FB_IN_S(0);
@@ -93,13 +76,11 @@ EHS_FB_RUN_FUNCTION(string_cat)
         len1 = EhsStrlen(s1);
         len2 = EhsStrlen(s2);
         totallen = len1 + len2;
-        if (totallen >= EHS_STRING_LENGTH_MAX)
-            len2 = EHS_STRING_LENGTH_MAX - len1;
-        EhsStrncpy(szData1, s1, len1);/*Use numbered copy here to avoid issue when the inout and output are the same buffer*/
-        EhsStrncpy(&szData1[len1], s2, len2);
-        szData1[len1 + len2] = '\0';// terminate it too
-        EhsStrcpy(sOut, szData1);
-
+        if (totallen >= EHS_DATA_TABLE_STRING_DEFAULT_LENGTH) // @TODO - we should using macro for checking max output port size
+            len2 = EHS_DATA_TABLE_STRING_DEFAULT_LENGTH - len1;
+        EhsStrncpy(sOut, s1, len1);/*Use numbered copy here to avoid issue when the inout and output are the same buffer*/
+        EhsStrncpy(&sOut[len1], s2, len2);
+        sOut[len1 + len2] = '\0';// terminate it too
     }
     else
     {
@@ -157,10 +138,8 @@ EHS_FB_INIT_FUNCTION(string_cmp)
  */
 EHS_FB_RUN_FUNCTION(string_cmp)
 {
-    //char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
-    char* s1;//= &szData1[0];
-    //char szData2[EHS_STRING_LENGTH_MAX] = {'\0'};
-    char* s2;// = &szData2[0];
+    char* s1;
+    char* s2;
     int nCmp;
 
     s1=EHS_FB_IN_S(0);
@@ -236,7 +215,7 @@ EHS_FB_INIT_FUNCTION(string_format)
  */
 EHS_FB_RUN_FUNCTION(string_format)
 {
-    ehs_char escaped[EHS_STRING_LENGTH_MAX];
+    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
 
     ehs_char * empty="";
     ehs_char *in_ptrs[2];
@@ -249,7 +228,6 @@ EHS_FB_RUN_FUNCTION(string_format)
         }
         else in_ptrs[i]=empty;
     }
-
 
     EhsParseEscapeChars(escaped, EHS_FB_RUN_CONTEXT);
 #ifdef INX_DEPRECATED
@@ -326,7 +304,7 @@ EHS_FB_RUN_FUNCTION(string_format8)
     ehs_char * empty="";
     ehs_char * fmt;
     ehs_char *in_ptrs[8];
-    ehs_char escaped[EHS_STRING_LENGTH_MAX];
+    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
 
     for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
     {
@@ -461,7 +439,7 @@ EHS_FB_RUN_FUNCTION(string_format8_int)
     ehs_uint8 fmt_count=0;
     ehs_char * fmt;
     ehs_sint32 in_ptrs[8];
-    ehs_char escaped[EHS_STRING_LENGTH_MAX];
+    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
 
     for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
     {
@@ -587,8 +565,8 @@ EHS_FB_RUN_FUNCTION(string_format8_real)
     ehs_uint8 i,connectioncount=0;
     ehs_uint8 fmt_count=0;
     ehs_char * fmt;
-    float in_ptrs[8];
-    ehs_char escaped[EHS_STRING_LENGTH_MAX];
+    ehs_float in_ptrs[8];
+    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
 
     for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
     {
@@ -597,7 +575,7 @@ EHS_FB_RUN_FUNCTION(string_format8_real)
             in_ptrs[i]=EHS_FB_IN_F(i); /* point at the connections */
             connectioncount++;
         }
-        else in_ptrs[i]=0.0f;
+        else in_ptrs[i]=(ehs_float)0;
     }
     if (EHS_FB_IN_CONNECTED(8)) fmt=EHS_FB_IN_S(8);
     else fmt=EHS_FB_RUN_CONTEXT;
@@ -713,7 +691,7 @@ EHS_FB_RUN_FUNCTION(stringfn_scanf8)
     //ehs_char * empty="";
     ehs_char * fmt;
     ehs_char *out_ptrs[8];
-    ehs_char escaped[EHS_STRING_LENGTH_MAX];
+    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
     ehs_bool allgood = EHS_TRUE;
 
 
@@ -857,14 +835,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(string_len)
 {
-    /*
-     *
-    char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
-    char* s1 = &szData1[0];
-
-    strcpy(s1, EHS_FB_IN_S(0));
-    */
-    EHS_FB_OUT_I(0) = (int)EhsStrlen(EHS_FB_IN_S(0));
+    EHS_FB_OUT_I(0) = (int)EhsStrlen(EHS_FB_IN_S(0)); //TODO:STRINGLENGTH! - should use a max string pending the length of the input.
     EHS_FB_FINISH(1);
     return;
 }
@@ -880,7 +851,7 @@ EHS_FB_FUNCTIONS_END
 struct String_find_struct
 {
     ehs_bool backwards;
-    ehs_char findstring[EHS_STRING_LENGTH_MAX]; /* @todo not brave enough to make dynamic as end of stuct*/
+    ehs_char findstring[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
 } ;
 
 EHS_FB_IDENTIFY_FUNCTION(string_find)
@@ -991,25 +962,15 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(string_toUpper)
 {
-    char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
-    char* s1 = &szData1[0];
-    char szData2[EHS_STRING_LENGTH_MAX] = {'\0'};
-    char* s2 = &szData2[0];
-#ifndef POSIX
+    char* s1 = EHS_FB_IN_S(0);
+    char* s2 = EHS_FB_OUT_S(0);
+    ehs_uint32 len = EhsStrlen(s1);
     ehs_uint16 i;
-#endif
-    // PP: optimisation : read directly from input buffer
-    strcpy(s1, EHS_FB_IN_S(0));
-#ifdef POSIX
-    s2 = strupr(s1);
-#else
-    for (i=0; i<strlen(s1); i++)
+    for (i=0; i<len; i++)
     {
         s2[i]=toupper(s1[i]);
     }
-#endif
-    // PP: optimisation : write directly to ouput buffer
-    strcpy(EHS_FB_OUT_S(0), s2);
+    s2[len]='\0';
     EHS_FB_FINISH(1);
     return;
 }
@@ -1031,24 +992,15 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(string_toLower)
 {
-    char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
-    char* s1 = &szData1[0];
-    char szData2[EHS_STRING_LENGTH_MAX] = {'\0'};
-    char* s2 = &szData2[0];
-#ifndef POSIX
+    char* s1 = EHS_FB_IN_S(0);
+    char* s2 = EHS_FB_OUT_S(0);
+    ehs_uint32 len = EhsStrlen(s1);
     ehs_uint16 i;
-#endif
-    strcpy(s1, EHS_FB_IN_S(0));
-#ifdef POSIX
-    s2 = strlwr(s1);
-#else
-    for (i=0; i<strlen(s1); i++)
+    for (i=0; i<len; i++)
     {
         s2[i]=tolower(s1[i]);
     }
-#endif
-    // PP: optimisation : why not write this directly to output buffer?
-    strcpy(EHS_FB_OUT_S(0), s2);
+    s2[len]='\0';
     EHS_FB_FINISH(1);
     return;
 }
@@ -1067,19 +1019,11 @@ EHS_FB_FUNCTIONS_END
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ * 
+ * TRUSTED CLIENT
  */
 EHS_FB_RUN_FUNCTION(string_charAt)
 {
-
-//	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
-//	char szData2[2] = {'\0','\0'};
-//	int index;
-
-//	strcpy(szData1, EHS_FB_IN_S(0));
-//	index = EHS_FB_IN_I(1);
-//	szData2[0] = szData1[index];
-//	strcpy(EHS_FB_OUT_S(0), szData2);
-
 
     char *szData1;
     char *szData2;
@@ -1122,12 +1066,10 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_RUN_FUNCTION(string_strAt)
 {
-//	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
     char *szData1;
     char *szData2;
     int index;
 
-//	strcpy(szData1, EHS_FB_IN_S(0));
     szData1 = EHS_FB_IN_S(0);
     szData2 = EHS_FB_OUT_S(0);
     index = EHS_FB_IN_I(1);
@@ -1159,7 +1101,7 @@ EHS_FB_FUNCTIONS_END
 struct EhsT_Insertstringparms
 {
     ehs_uint16 index;
-    ehs_char string[EHS_STRING_LENGTH_MAX]; /* should make this dynamic */
+    ehs_char string[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH]; /* should make this dynamic */
 };
 
 EHS_FB_IDENTIFY_FUNCTION(string_insert)
@@ -1189,7 +1131,7 @@ EHS_FB_RUN_FUNCTION(string_insert)
 
     char *szData1; //base string
     char *szData2; //string to insert
-    char *tmp;//[EHS_STRING_LENGTH_MAX] = { '\0' };
+    char *tmp;
     int index, size2;
     struct EhsT_Insertstringparms *parms = EHS_FB_RUN_CONTEXT;
 
@@ -1261,8 +1203,6 @@ EHS_FB_INIT_FUNCTION(string_sub)
  */
 EHS_FB_RUN_FUNCTION(string_sub)
 {
-    //	char szData1[EHS_STRING_LENGTH_MAX] = {'\0'};
-    //	char szData2[EHS_STRING_LENGTH_MAX] = {'\0'};
     char *szData1;
     char *szData2;
     int start, length, i, finish;

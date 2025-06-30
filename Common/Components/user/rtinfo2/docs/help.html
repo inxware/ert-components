@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Runtime Info</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+<strong>Runtime Info</strong> returns Device ID: MAC address, Network Address: IP addr, SODL Type: SODL format version, SODL name: Name of application.
+    </p>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<!-- Input Ports -->
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]GetStatic">GetStatic</a></td>
+<td>Get system static information</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]GetDynamic">GetDynamic</a></td>
+<td>Get system dynamic information</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]Req. Pair">Req. Pair</a></td>
+<td>Request Pair ID</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]MiscApp">MiscApp</a></td>
+<td>Misc App Name</td>
+</tr>
+<!-- Output Ports -->
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]StaticGot"> </a></td>
+<td>Static infrmation got</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]DynamicGOt"> </a></td>
+<td>Dynamic information got</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]PairIDGot">Pair ID</a></td>
+<td>Pair ID got</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]DeviceID">Device ID</a></td>
+<td>Device ID</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]RAMStatic">RAM (kB)</a></td>
+<td>Total RAM in kB</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]StorStatic">Stor (kB)</a></td>
+<td>Total Storage space in kB</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]Ehs_version">Ehs version</a></td>
+<td>EHS runtime version</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]ModuleList">ModuleList</a></td>
+<td>List of loaded modules</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]InstallDi">Install Di</a></td>
+<td>Directory where the EHS is installed</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]IPAddr">Ip Addr</a></td>
+<td>IP Address</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]RAM_avail">RAM avail</a></td>
+<td>Available RAM in kB</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]Store_avai">Store avai</a></td>
+<td>Available Storage space in kB</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]cpu_eRT">cpu (eRT)</a></td>
+<td>The CPU utilisation rate of eRT runtime</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]RAM_eRT">RAM (eRT)</a></td>
+<td>RAM used by eRT runtime</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]cpu_misc">cpu (misc)</a></td>
+<td>Misc CPU utilisation rate</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]RAM_misc">RAM (misc)</a></td>
+<td>Misc RAM usage</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]temp_cpu">temp (cpu)</a></td>
+<td>CPU temperature</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]temp_op">temp (op)</a></td>
+<td>Operational temperature</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]Pair_ID">Pair ID</a></td>
+<td>Pair ID</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          N/A
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</table></div>
+</body>
+</html>

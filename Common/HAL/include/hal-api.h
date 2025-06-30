@@ -33,6 +33,7 @@
 #include "hal_string.h"
 #include "hal_appstorage.h"
 
+
 /* Kernel APIs that can be used */
 #include "callback_queue.h"
 #include "app_data.h"
@@ -67,6 +68,14 @@ EHS_GLOBAL ehs_bool* bNewSodlFlagRef;
 #ifdef EHS_GUI_SUPPORT
 #include "hal_viewport.h" /* This is for the GTK home key feature */
 #endif
+#ifdef EHS_MQTT_SUPPORT
+#include "hal_mqtt.h"
+#endif
+
+#if EHS_HTTPSERVER_SUPPORT
+#include "hal_httpserver.h"
+#endif
+
 
 
 #endif /* EHS_HAL_H */

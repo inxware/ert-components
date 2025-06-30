@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Indexed Mux Real</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      Indexed Mux Real is a function block that multiplexes multiple real value inputs based on a specified index.
+    </p>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Min</th>
+<th>Max</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>in1</td>
+<td>F</td>
+<td>0</td>
+<td>-2147483647</td>
+<td>2147483647</td>
+<td>Default value when no input</td>
+</tr>
+<tr>
+<td>in2</td>
+<td>F</td>
+<td>0</td>
+<td>-2147483647</td>
+<td>2147483647</td>
+<td>Default value when no input</td>
+</tr>
+<tr>
+<td>in3</td>
+<td>F</td>
+<td>0</td>
+<td>-2147483647</td>
+<td>2147483647</td>
+<td>Default value when no input</td>
+</tr>
+<tr>
+<td>in4</td>
+<td>F</td>
+<td>0</td>
+<td>-2147483647</td>
+<td>2147483647</td>
+<td>Default value when no input</td>
+</tr>
+<tr>
+<td>in5</td>
+<td>F</td>
+<td>0</td>
+<td>-2147483647</td>
+<td>2147483647</td>
+<td>Default value when no input</td>
+</tr>
+<tr>
+<td>in6</td>
+<td>F</td>
+<td>0</td>
+<td>-2147483647</td>
+<td>2147483647</td>
+<td>Default value when no input</td>
+</tr>
+<tr>
+<td>in7</td>
+<td>F</td>
+<td>0</td>
+<td>-2147483647</td>
+<td>2147483647</td>
+<td>Default value when no input</td>
+</tr>
+<tr>
+<td>in8</td>
+<td>F</td>
+<td>0</td>
+<td>-2147483647</td>
+<td>2147483647</td>
+<td>Default value when no input</td>
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]event_in">--</a></td>
+<td>Input event to start the multiplexing process.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]index">index</a></td>
+<td>Specifies the index for selecting the input to be passed through.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]in1">in1</a></td>
+<td>Real input value 1 to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]in2">in2</a></td>
+<td>Real input value 2 to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]in3">in3</a></td>
+<td>Real input value 3 to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]in4">in4</a></td>
+<td>Real input value 4 to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]in5">in5</a></td>
+<td>Real input value 5 to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]in6">in6</a></td>
+<td>Real input value 6 to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]in7">in7</a></td>
+<td>Real input value 7 to be multiplexed.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]in8">in8</a></td>
+<td>Real input value 8 to be multiplexed.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]event_out">--</a></td>
+<td>Output event indicating the completion of the multiplexing process.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]error">err</a></td>
+<td>Multiplex error. Generally happens when the index input is less than 1.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]overflowed">ovf</a></td>
+<td>Fired when the index input is greater than 8.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]output">out</a></td>
+<td>The result of the multiplexing based on the selected input.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]overflow">ovf</a></td>
+<td>The index input minus 8 when it's greater than 8.</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          None
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

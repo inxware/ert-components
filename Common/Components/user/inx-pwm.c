@@ -11,8 +11,15 @@
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-pwm.h"
+
+#ifdef EHS_NXP_SUPPORT
+// @TODO - do not use any target specific implemenation here
+// fix how NXP target is structured ! 
 #include "inxware_hrx_config.h"
 #include "ehs_main.h" // we run th main from here!
+#else
+#include "hal_pwm_legacy.h"
+#endif
 //ICB HEADER MACRO END -- DO NOT ALTER
 
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -20,6 +27,9 @@
 typedef struct inx_pwm_state
 {
     ehs_uint8 pin;
+    ehs_bool enabled;
+    ehs_uint32 periodHz;
+    ehs_uint8 powerPercent;
 } inx_pwm_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
@@ -75,11 +85,15 @@ EHS_FB_INIT_FUNCTION(pwm)
     ehs_bool bRet = EHS_TRUE; /* assume success */
 
     //this is the reference to the object data for this instance of the function block
-    /*
+
     inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_INIT_CONTEXT;
-    */
+
     /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"");
+    const char* pParams = EHS_FB_INIT_PARAMETERS;
+    pParams = (pParams) ? EhsGetUint8FromString(&inx_pwm_state->pin, pParams) : pParams;
+    pParams = (pParams) ? EhsGetUint8FromString(&inx_pwm_state->enabled, pParams) : pParams;
+    pParams = (pParams) ? EhsGetUint32FromString(&inx_pwm_state->periodHz, pParams) : pParams;
+    pParams = (pParams) ? EhsGetUint8FromString(&inx_pwm_state->powerPercent, pParams) : pParams;
 
     /* Add any further intialisation code here */
     return bRet; /* initialisation always succeeds */
@@ -88,10 +102,8 @@ EHS_FB_INIT_FUNCTION(pwm)
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(pwm)
 {
-    /*
     inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_DESTROY_CONTEXT;
-    */
-    //Your code below here
+    EhsPWMEnable(inx_pwm_state->pin, EHS_FALSE);
     return EHS_TRUE;
 }
 //Your code below here
@@ -111,16 +123,28 @@ EHS_FB_RUN_FUNCTION(pwm_config)
     inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_RUN_CONTEXT;
 
     // Your code here
-    if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_config_hz) && EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_config_pin))
+    if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_config_pin))
     {
         inx_pwm_state->pin=EHS_FB_IN_I_API2(INX_pwm_ARG_config_pin);
-        inxPWMConfig(EHS_FB_IN_I_API2(INX_pwm_ARG_config_hz),inx_pwm_state->pin);
     }
-    /*
-    if (EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_config_hz))
-    if (EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_config_pin))
-    */
+    if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_config_hz)){
+        inx_pwm_state->periodHz = EHS_FB_IN_I_API2(INX_pwm_ARG_config_hz);
+    }
+#ifdef EHS_NXP_SUPPORT
+    // @TODO - do not use any target specific implemenation here
+    // fix how NXP target is structured ! 
+    inxPWMConfig(inx_pwm_state->periodHz,inx_pwm_state->pin);
     EHS_FB_FINISH(INX_pwm_ARG_config_finishconfig);
+#else
+    if(EhsPWMConfig(inx_pwm_state->pin, inx_pwm_state->periodHz) == EHS_TRUE){
+        if(inx_pwm_state->enabled){
+            if(EhsPWMEnable(inx_pwm_state->pin, inx_pwm_state->enabled)){
+                EhsPWMDuty(inx_pwm_state->pin, inx_pwm_state->powerPercent);
+            }
+        }
+        EHS_FB_FINISH(INX_pwm_ARG_config_finishconfig);
+    }
+#endif
 }//ICB FUNCTION config MACRO END -- DO NOT ALTER THIS LINE
 
 //ICB FUNCTION enable MACRO START -- DO NOT ALTER
@@ -133,17 +157,25 @@ EHS_FB_RUN_FUNCTION(pwm_config)
  */
 EHS_FB_RUN_FUNCTION(pwm_enable)
 {
-    /*
-    inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_RUN_CONTEXT;
-    */
-
-    // Your code here
+#ifdef EHS_NXP_SUPPORT
+    // @TODO - do not use any target specific implemenation here
+    // fix how NXP target is structured ! 
     if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_enable_enable))
     {
         inxPWMEnable(EHS_FB_IN_B_API2(INX_pwm_ARG_enable_enable));
-    }
-    if (EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_enable_enable))
         EHS_FB_FINISH(INX_pwm_ARG_enable_finishenable);
+    }
+#else
+    inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_RUN_CONTEXT;
+    if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_enable_enable))
+    {
+        inx_pwm_state->enabled = EHS_FB_IN_B_API2(INX_pwm_ARG_enable_enable);
+        if(EhsPWMEnable(inx_pwm_state->pin, inx_pwm_state->enabled) == EHS_TRUE){
+            EHS_FB_FINISH(INX_pwm_ARG_enable_finishenable);
+        }
+    }
+#endif
+
 }//ICB FUNCTION enable MACRO END -- DO NOT ALTER THIS LINE
 
 //ICB FUNCTION duty MACRO START -- DO NOT ALTER
@@ -157,11 +189,22 @@ EHS_FB_RUN_FUNCTION(pwm_enable)
 EHS_FB_RUN_FUNCTION(pwm_duty)
 {
     inx_pwm_state_type* inx_pwm_state = (inx_pwm_state_type*)EHS_FB_RUN_CONTEXT;
-
+#ifdef EHS_NXP_SUPPORT
+    // @TODO - do not use any target specific implemenation here
+    // fix how NXP target is structured ! 
     // Your code here
     if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_duty_percent))
     {
         inxPWMDuty(inx_pwm_state->pin,EHS_FB_IN_B_API2(INX_pwm_ARG_duty_percent));
     }
     EHS_FB_FINISH(INX_pwm_ARG_duty_finishduty);
+#else
+    if(EHS_FB_IN_CONNECTED_API2(INX_pwm_ARG_duty_percent))
+    {
+        inx_pwm_state->powerPercent = EHS_FB_IN_B_API2(INX_pwm_ARG_duty_percent);
+        if(EhsPWMDuty(inx_pwm_state->pin, inx_pwm_state->powerPercent) == EHS_TRUE){
+            EHS_FB_FINISH(INX_pwm_ARG_duty_finishduty);
+        }
+    }
+#endif
 }//ICB FUNCTION duty MACRO END -- DO NOT ALTER THIS LINE

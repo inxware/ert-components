@@ -66,7 +66,7 @@ typedef enum
  * Allocate memory to be used to hold information that is read/writeable
  * during the application execution.
  */
-EHS_GLOBAL void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate,const char* fileName, ehs_uint32 lineNumber);
+void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate,const char* fileName, ehs_uint32 lineNumber);
 
 /**
  * Request temporary memory - that is memory that we can individually free,

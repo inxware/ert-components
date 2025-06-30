@@ -47,7 +47,7 @@ typedef struct inx_permanent_storage_state_real
 typedef struct inx_permanent_storage_state_string
 {
     inx_permanent_storage_state_type base;
-    ehs_char value[EHS_STRING_LENGTH_MAX];
+    ehs_char value[EHS_STRING_LENGTH_MAX]; 
 } inx_permanent_storage_state_string_type; //Reference this, maybe store your config parameters in here too.
 
 //ICB STATE VAR MACRO END -- DO NOT ALTER

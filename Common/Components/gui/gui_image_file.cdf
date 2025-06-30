@@ -74,7 +74,7 @@
             <ArgPlacement>3</ArgPlacement>
         </Parameter>
         <Parameter>
-            <Name>Register Click Disregarding Z-Order</Name>
+            <Name>Always Clickable</Name>
             <DataType>B</DataType>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
@@ -84,7 +84,7 @@
             <ArgPlacement>4</ArgPlacement>
         </Parameter>
         <Parameter>
-            <Name>Load Image From App Directory</Name>
+            <Name>Load From App Dir</Name>
             <DataType>B</DataType>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>

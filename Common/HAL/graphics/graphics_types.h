@@ -66,12 +66,24 @@ typedef enum
 /**
  * Regions
  */
+#ifdef EHS_COORD_16_ENABLED
+typedef ehs_sint16 ehs_coord;
+#else
+typedef ehs_sint32 ehs_coord;
+#endif
+
 typedef struct
 {
-    ehs_sint32 nLeft;		/**< Pixels from left of screen to this rect. */
-    ehs_sint32 nWidth;		/**< number of pixels across this rect */
-    ehs_sint32 nTop;		/**< Number of pixels from top of this screen to top of this rect */
-    ehs_sint32 nHeight;		/**< Number of pixels vertically for this rect */
+    ehs_coord nWidth;		/**< number of pixels across this rect */
+    ehs_coord nHeight;		/**< Number of pixels vertically for this rect */
+} EhsGraphicsSizeClass;
+
+typedef struct
+{
+    ehs_coord nLeft;		/**< Pixels from left of screen to this rect. */
+    ehs_coord nWidth;		/**< number of pixels across this rect */
+    ehs_coord nTop;		/**< Number of pixels from top of this screen to top of this rect */
+    ehs_coord nHeight;		/**< Number of pixels vertically for this rect */
 } EhsGraphicsRectangleClass;
 
 /*

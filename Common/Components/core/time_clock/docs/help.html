@@ -1,142 +1,134 @@
 <html>
-
 <head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
-
 <body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">time_clock</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">time_clock</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
       This component is used to create periodic timed events with a period specified by the parameter Time Interval or  by overriding the parameter by presenting a value to the data input <a href="#[In]period">[In]period</a>. Each periodic event triggers the output event <a href="#[Out]clk">[Out]clk</a>. The clock starts when the input event <a href="#[In]start">[In]start</a> is asserted and stops when the input event <a href="#[In]stop">[In]stop</a> is asserted.
     </p>
-    <p class=component>
+<p class="component">
       The clock can be configured to only fire once or to fire repeatedly by setting the parameter Periodic Flag or by overriding the parameter by presenting a value to the data input <a href="#[In]rpt">[In]rpt</a>. Similarly the clock can be configured to reset the time until the next clock event is triggered, every time the input event <a href="#[In]start">[In]start</a> is asserted, by setting the parameter Retriggerable Flag or by overriding the parameter by presenting a value to the data input <a href="#[In]retrig">[In]retrig</a>.
     </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-      <tr>
-        <td>Time Interval (uSecs)</td>
-        <td>I</td>
-        <td>1000000</td>
-        <td>1</td>
-        <td>2147483647</td>
-        <td>Time interval between events.</td>
-      </tr>
-      <tr>
-        <td>Periodic Flag</td>
-        <td>B</td>
-        <td>None</td>
-        <td>1</td>
-        <td>Periodic if TRUE, single delay only if FALSE.</td>
-        <td>[Parameter3]</td>
-      </tr>
-      <tr>
-        <td>Retriggerable Flag</td>
-        <td>B</td>
-        <td>None</td>
-        <td>1</td>
-        <td>Retriggerable if TRUE.</td>
-        <td></td>
-      </tr>
-    </table>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
 
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]start">start</a></td>
-        <td>Input event, starts the clock.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]stop">stop</a></td>
-        <td>Input event, stops the clock.</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]period">period</a></td>
-        <td>Data input, time interval for firing clock events. Overrides the parameter Time Interval.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]rpt">rpt</a></td>
-        <td>Data input, specifies if clock is asserted only once or periodically. Overrides the parameter Periodic Flag.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]retrig">retrig</a></td>
-        <td>Data input, specifies if the timer is reset every time the input event <a href="#[In]start">[In]start</a> is triggered. Overrides the parameter Retriggerable Flag.</td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]clk">clk</a></td>
-        <td>Output event, fired periodically after the interval specified by the parameter Time Interval or by the data input <a href="#[In]period">[In]period</a>.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]"></a></td>
-        <td>Output event.</td>
-      </tr>
-      <tr>
-        <td class=ports><a name="[Out]"></a></td>
-        <td>Output event.</td>
-      </tr>
+</tr>
+<tr>
+<td>Time Interval (uSecs)</td>
+<td>I</td><td>Time interval between events.</td>
+<td>1000000</td>
+<td>1</td>
+<td>2147483647</td>
 
-    </table>
+</tr>
+<tr>
+<td>Periodic Flag</td>
+<td>B</td><td>[Parameter3]</td>
+<td>None</td>
+<td>1</td>
+<td>Periodic if TRUE, single delay only if FALSE.</td>
 
+</tr>
+<tr>
+<td>Retriggerable Flag</td>
+<td>B</td><td></td>
+<td>None</td>
+<td>1</td>
+<td>Retriggerable if TRUE.</td>
 
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]start">start</a></td>
+<td>Input event, starts the clock.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]stop">stop</a></td>
+<td>Input event, stops the clock.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]period">period</a></td>
+<td>Data input, time interval for firing clock events. Overrides the parameter Time Interval.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]rpt">rpt</a></td>
+<td>Data input, specifies if clock is asserted only once or periodically. Overrides the parameter Periodic Flag.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]retrig">retrig</a></td>
+<td>Data input, specifies if the timer is reset every time the input event <a href="#[In]start">[In]start</a> is triggered. Overrides the parameter Retriggerable Flag.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]clk">clk</a></td>
+<td>Output event, fired periodically after the interval specified by the parameter Time Interval or by the data input <a href="#[In]period">[In]period</a>.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]"></a></td>
+<td>Output event.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]"></a></td>
+<td>Output event.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+<!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
           <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
           <span class="fsm_blob">state2</span>
           &otimes;&nbsp;
@@ -145,54 +137,52 @@
           <span class="fsm_blob">state5</span> -->
           None
         </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
+<td>
+<b></b>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
           Core
         </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
           v1.0.
         </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
           MPL2.0
         </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minumum DCC</b>
+</td><td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
           All.
         </td>
-      </tr>
-    </table>
-
-  </div>
+</tr>
+</table>
+</div>
 </body>
-
 </html>

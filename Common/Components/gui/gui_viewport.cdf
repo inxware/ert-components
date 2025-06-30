@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+        <UpdatedDate>2024-09-06T10:26:53Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription/>
@@ -19,8 +19,8 @@
     </Description>
     <Block>
         <Type>IO</Type>
-		<Width>105</Width>
-        <Height>230</Height>
+        <Width>105</Width>
+        <Height>250</Height>
         <Text>Window</Text>
         <TextX>22</TextX>
         <TextY>5</TextY>
@@ -49,8 +49,8 @@
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
             <DisplayOnWidget>
-                <x>40</x>
-                <y>215</y>
+                <x>5</x>
+                <y>232</y>
             </DisplayOnWidget>
         </Parameter>
         <Parameter>
@@ -64,10 +64,10 @@
             <ArgPlacement>2</ArgPlacement>
         </Parameter>
         <Parameter>
-            <Name>Relatative % (false for abs pixels)</Name>
+            <Name>Relative %</Name>
             <DataType>B</DataType>
             <DefaultValue>1</DefaultValue>
-            <Description>Screen Coordinates in % full screen size (or flase for absolute pixels)</Description>
+            <Description>Screen Coordinates in % full screen size (or false for absolute pixels)</Description>
             <ListPlacement>3</ListPlacement>
             <ArgPlacement>3</ArgPlacement>
         </Parameter>
@@ -440,6 +440,50 @@
             <XCoordinate>100</XCoordinate>
             <YCoordinate>125</YCoordinate>
             <CName>off_y</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>drag top</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>197</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>drag_top</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>drag left</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>207</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>drag_left</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>drag right</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>217</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>drag_right</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>drag bottom</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>100</XCoordinate>
+            <YCoordinate>227</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>drag_bottom</CName>
             <Function argument="8">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>

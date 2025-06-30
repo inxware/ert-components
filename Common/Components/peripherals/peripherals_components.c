@@ -12,8 +12,10 @@
 #include "keypress.h"
 #include "gpio_out.h"
 #include "gpio_in.h"
+#include "inx-led.h"
+#include "inx-accel_gyro.h"
 
-EhsBlockRefType EhsBlockRefTable_Peripherals[] =
+extern const EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 {
 #ifdef EHS_PERIPHERALS_RCU
 		EHS_BLOCKREF_ENTRY(EHS_FB_NAME_DtvRemoteKey2,EHS_FB_ID_DtvRemoteKey2, DtvRemote2),
@@ -25,6 +27,14 @@ EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 #ifdef EHS_PERIPHERALS_GPIO_SUPPORT
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_gpio_out,EHS_FB_ID_gpio_out, gpio_out),
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_gpio_in,EHS_FB_ID_gpio_in, gpio_in),
+#endif
+
+#ifdef EHS_PERIPHERALS_LED_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_led, INXWARE_FB_ID_led, led),
+#endif
+
+#ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_accel_gyro, INXWARE_FB_ID_accel_gyro, accel_gyro),
 #endif
     {0}
 };

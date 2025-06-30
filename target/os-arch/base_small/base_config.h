@@ -23,12 +23,105 @@
 #ifndef BASE_CONFIG_H
 #define BASE_CONFIG_H
 
-#define EHS_STRING_LENGTH_MAX 256
-#define EHS_MAXPATHLENGTH 128
-#define EHS_MAX_URL_LENGTH 128
+//This is probablt the ultr-tiny ehs file system path length restriction if we are using this file system
+#ifndef EHS_FILENAME_SIZE
+#define EHS_FILENAME_SIZE 32
+#endif
 
+#ifndef EHS_STRING_LENGTH_MAX
+#define EHS_STRING_LENGTH_MAX 256
+#endif
+
+#ifndef EHS_MAXPATHLENGTH
+#define EHS_MAXPATHLENGTH 128
+#endif
+
+#ifndef EHS_SYS_MAXPATHLENGTH
+#define EHS_SYS_MAXPATHLENGTH 128
+#endif
+
+#ifndef EHS_MAX_URL_LENGTH
+#define EHS_MAX_URL_LENGTH 128
+#endif
+
+#ifndef EHS_TD_FILES_MAX_PATH
 #define EHS_TD_FILES_MAX_PATH 128
-#define EHS_TD_FILES_MAX_FILENAME 64
+#endif
+
+#ifndef EHS_TD_FILES_MAX_FILENAME
+#define EHS_TD_FILES_MAX_FILENAME 32
+#endif
+
+#ifndef EHS_DEVMAN_FILE_PATH_LENGTH
+#define EHS_DEVMAN_FILE_PATH_LENGTH 128
+#endif
+
+#ifndef EHS_DATA_TABLE_STRING_DEFAULT_LENGTH
+#define EHS_DATA_TABLE_STRING_DEFAULT_LENGTH EHS_STRING_LENGTH_MAX
+#endif
+
+#if EHS_DATA_TABLE_STRING_DEFAULT_LENGTH < EHS_STRING_LENGTH_MAX
+#error "EHS_DATA_TABLE_STRING_DEFAULT_LENGTH is smaller than EHS_STRING_LENGTH_MAX, is there something wrong?"
+#endif
+
+#ifndef EHS_MAXDEVMANNAMELEN
+#define EHS_MAXDEVMANNAMELEN EHS_STRING_LENGTH_MAX
+#endif
+
+#if EHS_STRING_LENGTH_MAX != EHS_MAXDEVMANNAMELEN
+#error "EHS_MAXDEVMANNAMELEN must be the same as EHS_STRING_LENGTH_MAX"
+#endif
+
+
+#ifndef EHS_IP_ADDR_LENGTH_MAX
+#define EHS_IP_ADDR_LENGTH_MAX 32
+#endif
+
+#ifndef EHS_NET_MAC_ID_LENGTH_MAX
+#define EHS_NET_MAC_ID_LENGTH_MAX 32
+#endif
+
+#ifndef EHS_DEVICE_ID_LENGTH_MAX
+#define EHS_DEVICE_ID_LENGTH_MAX 32
+#endif
+
+#ifndef EHS_INST_ROOT_DIR_LENGTH_MAX
+#define EHS_INST_ROOT_DIR_LENGTH_MAX 16
+#endif
+
+#ifndef EHS_APPS_DIR_LENGTH_MAX
+#define EHS_APPS_DIR_LENGTH_MAX 16
+#endif
+
+#ifndef EHS_USER_DIR_LENGTH_MAX
+#define EHS_USER_DIR_LENGTH_MAX 16
+#endif
+
+#ifndef EHS_VERSION_LENGTH_MAX
+#define EHS_VERSION_LENGTH_MAX 128
+#endif
+
+#ifndef EHS_BUILD_DATE_LENGTH_MAX
+#define EHS_BUILD_DATE_LENGTH_MAX 64
+#endif
+
+#ifndef EHS_START_DATE_LENGTH_MAX
+#define EHS_START_DATE_LENGTH_MAX 64
+#endif
+
+#ifndef EHS_TARGET_VARIANT_LENGTH_MAX
+#define EHS_TARGET_VARIANT_LENGTH_MAX 64
+#endif
+
+#ifndef EHS_MODULE_LIST_LENGTH_MAX
+#define EHS_MODULE_LIST_LENGTH_MAX 64
+#endif
+
+/* on small devices optimise Widget structure for memory */
+#define EHS_OPTIMIZE_WIDGET_MEM 1
+
+/* no need to create buffer for the os version */
+#define EHS_EXCLUDE_OS_VERSION 1
 
 /**
  * Defines the default target identifier for this instance of EHS
@@ -102,7 +195,6 @@
 #define EHS_TIME_BETWEEN_FRAMES 40 /*Desired framerate of GTK window*/
 #endif
 
-
 /*Amount of memory to initially let SVG player have*/
 /*
 #ifndef EHS_SVG_MEMORY_INIT_SIZE
@@ -113,6 +205,44 @@
 /*Indicates target's X server is capable of compositing/transparency effects*/
 #ifndef COMPOSITING_AVAILABLE //@todo should this be switched off?
 #define COMPOSITING_AVAILABLE
+#endif
+
+/* Thread priorities */
+
+#ifndef EHS_PRI_EHS_MAIN
+#define EHS_PRI_EHS_MAIN                   18
+#endif
+
+#ifndef EHS_PRI_TCP_IP_CONSOLE
+#define EHS_PRI_TCP_IP_CONSOLE              0
+#endif
+
+#ifndef EHS_PRI_SERIAL_CMD
+#define EHS_PRI_SERIAL_CMD                  0
+#endif
+
+#ifndef EHS_PRI_LVGL_TICK
+#define EHS_PRI_LVGL_TICK                  19
+#endif
+
+#ifndef EHS_PRI_LVGL_GUI
+#define EHS_PRI_LVGL_GUI                    0
+#endif
+
+#ifndef EHS_PRI_MCU_SLOW_HP_THR
+#define EHS_PRI_MCU_SLOW_HP_THR            17
+#endif
+
+#ifndef EHS_PRI_MCU_SLOW_LP_THR
+#define EHS_PRI_MCU_SLOW_LP_THR             1
+#endif
+
+#ifndef EHS_PRI_UART
+#define EHS_PRI_UART                       12
+#endif
+
+#ifndef EHS_PRI_MODBUS_MASTER_CTRL
+#define EHS_PRI_MODBUS_MASTER_CTRL          2
 #endif
 
 /* Canonical System Paths */

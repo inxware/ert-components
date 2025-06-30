@@ -41,6 +41,7 @@
 #include <winsock.h>
 //#include <ws2tcpip.h>
 #include <stdint.h>
+#include "hal_target_sys_stat.h"
 
 
 /*****************************************************************************/
@@ -127,11 +128,22 @@ static void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP )
 
 ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData,ehs_uint8 which)
 {
+    if(which == EHS_OS_ENV_NETWORK_ID){
+        // Update ip address
+        EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
+        // @TODO - Update network meta data using traget api, instead of using dummy values
+        pEhsMetaData->nDeviceNetworkMode = EHS_NET_DHCP_MODE_ID;
+        EhsStrcpy(pEhsMetaData->zDeviceGateway, "0.0.0.0");
+        EhsStrcpy(pEhsMetaData->zDeviceMask, "0.0.0.0");
+        EhsStrcpy(pEhsMetaData->zDeviceDNS1, "0.0.0.0");
+        return EHS_TRUE; // return here, we only update network specific os env
+    }
 
     pEhsMetaData->nUserSpaceUsed_KB=0; //@todo here
     pEhsMetaData->nUserSpaceTotal_KB=0;
     //EhsStrcpy(pEhsMetaData->zDeviceIPAddr,"unknown");  // if we are networked get IP address here
     //EhsStrcpy(pEhsMetaData->zDeviceID,"none"); //@todo here
+    pEhsMetaData->CPUTemp = EhsTGetCpuTemp();
     EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
     //EHSH_LOG_INFO("\nDEVICE_ID=%s\n",pEhsMetaData->zDeviceID); // @todo note this can get any network ID, not a specific one
 }

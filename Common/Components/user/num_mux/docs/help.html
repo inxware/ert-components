@@ -1,0 +1,158 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Numeric Digit Multiplexer</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      Multiplex up to 6 whole number digits and 2 decimal places into a floating point number.
+      For example, -ve=True, n1=1, n2=2, n3=3, n4=4, n5=5, n6=6, d1=1, d2=2, the output is -123456.12.
+    </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]i">i</a></td>
+<td>Multiplex the digits into floating point number.</td>
+</tr>
+<th>Data In</th><th></th>
+
+<tr>
+<td class="portsBool"><a name="[In]negative">-ve</a></td>
+<td>Flag to indicate the input number is negative</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]n1">n1</a></td>
+<td>Whole number digit of 1E+5.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]n2">n2</a></td>
+<td>Whole number digit of 1E+4.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]n3">n3</a></td>
+<td>Whole number digit of 1E+3.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]n4">n4</a></td>
+<td>Whole number digit of 1E+2.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]n5">n5</a></td>
+<td>Whole number digit of 1E+1.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]n6">n6</a></td>
+<td>Whole number digit of 1E+0.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]d1">d1</a></td>
+<td>First Decimal Place.</td>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]d2">d2</a></td>
+<td>Second Decimal Place.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsBool"><a name="[Out]o">o</a></td>
+<td>Conversion completed.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsReal"><a name="[In]o1">o1</a></td>
+<td>Floating number output</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -16,7 +16,7 @@
                 Function Blocks
                 <Menu>
                     data output ports
-                    <Menu>String</Menu>
+                    <Menu>string</Menu>
                 </Menu>
             </Menu>
         </Menu>

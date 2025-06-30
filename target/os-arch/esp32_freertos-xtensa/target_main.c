@@ -75,8 +75,19 @@
 #include <string.h>
 
 #define CONFIG_ESP_MAXIMUM_RETRY 5
+
+// define wifi ssid
+#ifdef EHS_CONFIG_WIFI_SSID
+#define CONFIG_ESP_WIFI_SSID EHS_CONFIG_WIFI_SSID
+#else
 #define CONFIG_ESP_WIFI_SSID "photonsurge"
+#endif
+// define wifi password
+#ifdef EHS_CONFIG_WIFI_PASSWORD
+#define CONFIG_ESP_WIFI_PASSWORD EHS_CONFIG_WIFI_PASSWORD
+#else
 #define CONFIG_ESP_WIFI_PASSWORD "planet9$"
+#endif
 // #define CONFIG_ESP_WIFI_SSID "dlink_DWR-920_003F"
 // #define CONFIG_ESP_WIFI_PASSWORD "VvRCB27795"
 /* FreeRTOS event group to signal when we are connected*/
@@ -403,7 +414,7 @@ void mqtt_test_main(void)
     {
         //  printf("Hello MQTT!\n");
 
-        mqttMainLoop();
+        EhsMqttClientLoop(NULL);
 
         fflush(stdout);
         sleep(1);
@@ -444,7 +455,10 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
  */
 // EhsTargetIntType main(int argc, ehs_char ** argv )
 
-
+/* 
+   This is the entry point!
+   IDF uses app_main() for main 
+*/
 void app_main(void)
 {
     // Initialize NVS
@@ -457,7 +471,7 @@ void app_main(void)
     }
 
     ESP_ERROR_CHECK(ret);
-
+    /* todo2024 - does this block the system booting until the WiFi is working? Need to not do this! */
     if (wifi_init_sta() == ESP_OK)
     {
         ESP_LOGI(TAG, "Connection success");
@@ -470,10 +484,6 @@ void app_main(void)
             vTaskDelay(1);
         }
     }
-
-    // #ifdef EHS_ESP32_LED_TEST
-    //     app_test_main();
-    // #endif
    
 #define EHS_ERT_KERNEL_AVAILABLE
 #ifdef EHS_ERT_KERNEL_AVAILABLE
@@ -481,6 +491,9 @@ void app_main(void)
     TaskHandle_t xHandle = NULL;
     uint32_t stack_depth = 40000;
 
+
+//todo2024 we need to replace all the thread starters here with EhsThread_Execute(). 
+//this should start all the normal MCUOS threads.
 #ifdef TEST_TCP_SOCKET
 #ifdef CONFIG_LWIP_IPV4
     xTaskCreate(tcp_server_task, "tcp_server", 4096, (void *)AF_INET, 5, NULL);
@@ -495,7 +508,7 @@ void app_main(void)
 
    
 #endif
-
+    // todo2024 - why is this call _test_ ?? is it not a real main?
     mqtt_test_main();
 }
 

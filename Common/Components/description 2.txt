@@ -1,0 +1,139 @@
+<div class="page_container">
+    <div id="toc_container">
+        <span class="toc_span">Map Int</span>
+        <a href="#misc" class="toc_span_items">Misc &#8595;</a>
+        <a href="#parameters" class="toc_span_items">Params &#8595;</a>
+        <a href="#ports" class="toc_span_items">Ports &#8595;</a>
+    </div>
+
+    <p>This is an integer mapping function. It maps input integer values to output integer values based on a predefined map.</p>
+
+    <div class="section_heading">
+        <a href="#parameters" class="toc_span">Parameters</a>
+        <div class="toc_span_items">
+            <a href="#toc_container">Top &#8593;</a>
+        </div>
+        <div class="toc_span_items">
+            <a href="#misc">Misc &#8595;</a>
+        </div>
+        <div class="toc_span_items">
+            <a href="#ports">Ports &#8595;</a>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>name</th>
+                <th>type</th>
+                <th>default</th>
+                <th>min</th>
+                <th>max</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>not found</td>
+                <td>I</td>
+                <td>0</td>
+                <td>-2147483648</td>
+                <td>2147483647</td>
+                <td>Key not found value</td>
+            </tr>
+            <tr>
+                <td>map</td>
+                <td>S</td>
+                <td>""</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>Define the integers map</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="section_heading">
+        <a href="#ports" class="toc_span">Ports</a>
+        <div class="toc_span_items">
+            <a href="#toc_container">Top &#8593;</a>
+        </div>
+        <div class="toc_span_items">
+            <a href="#misc">Misc &#8595;</a>
+        </div>
+        <div class="toc_span_items">
+            <a href="#parameters">Params &#8593;</a>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>In Ev.</th>
+                <th>Data In</th>
+                <th>Data Out</th>
+                <th>Out Ev.</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><a href="#In" id="i">Trigger input to start the mapping process</a></td>
+                <td><a href="#In" id="i1">Input integer 1 to be mapped</a></td>
+                <td><a href="#Out" id="o1">Mapped output integer 1</a></td>
+                <td><a href="#Out" id="o">Finish event triggered when mapping process is complete</a></td>
+            </tr>
+            <!-- Additional rows as necessary -->
+        </tbody>
+    </table>
+
+    <div class="section_heading">
+        <a href="#misc" class="toc_span">Misc</a>
+        <div class="toc_span_items">
+            <a href="#toc_container">Top &#8593;</a>
+        </div>
+        <div class="toc_span_items">
+            <a href="#ports">Ports &#8593;</a>
+        </div>
+        <div class="toc_span_items">
+            <a href="#parameters">Params &#8593;</a>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>State Machine</th>
+                <th>Toolbox</th>
+                <th>Version</th>
+                <th>Licence Type</th>
+                <th>Component Supplier</th>
+                <th>Minumum DCC</th>
+                <th>Profiles</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>None</td>
+                <td>Data Utilities</td>
+                <td>v1.0</td>
+                <td>MPL2.0</td>
+                <td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+                <td>A0000</td>
+                <td>All</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div>
+        <h2>Functionality:</h2>
+        <p>The Map Int function block is designed to map input integer values to output integer values based on a predefined map. Here's how it works:</p>
+        <ol>
+            <li>The function block accepts up to 8 input integers (i1 to i8).</li>
+            <li>Each input integer is processed through the mapping function.</li>
+            <li>If an input value is found in the map, it is replaced with its corresponding mapped value.</li>
+            <li>If an input value is not found in the map, it is replaced with the "not found" default value.</li>
+            <li>The mapped values are output through the corresponding output ports (o1 to o8).</li>
+            <li>The mapping process is triggered by the input event 'i' and completes with the output event 'o'.</li>
+        </ol>
+        <p>The map is defined as a string parameter in the format "key1=value1,key2=value2,...". The function block supports up to 30 key-value pairs in the map.</p>
+    </div>
+</div>

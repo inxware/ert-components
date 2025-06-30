@@ -27,7 +27,19 @@
 ##EHS_COMMON_KERNEL_GRAPHICS_PATH=$(EHS_COMMON_KERNEL_PATH)/graphics # this is common support code in the HAL.
 ##INC_DIRS+=$(EHS_COMMON_KERNEL_GRAPHICS_PATH)
 
+ifndef EHS_SKIP_GNULIBRARIES
+#TODO2024 - the YAJL SUPPORT SHOULDBE SPECIFIC NOT GNU RELATED.
 include $(EHS_COMMON_HAL_PATH)/json/contrib/yajl.mk
+
+#Note currently only the YAJL header are in the api directory
+INC_DIRS+= $(EHS_COMMON_HAL_PATH)/json/contrib/api
+
+endif
+
+#We have the mini JSON parser also and we mix YAJL and mini  headers in this directory.
+INC_DIRS+= $(EHS_COMMON_HAL_PATH)/json/contrib
+VPATH+= $(EHS_COMMON_HAL_PATH)/json/contrib
+
 
 include $(EHS_COMMON_HAL_PATH)/json/deps.mk
 

@@ -9,6 +9,12 @@
 
 # HW independent linux build environment parameters 
 
+ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
+ifndef EHS_FILESYSTEM_SUPPORT
+	EHS_FILESYSTEM_SUPPORT=posix
+endif
+endif
+
 ifndef EHS_COMMS_API_SUPPORT
 	export  EHS_COMMS_API_SUPPORT=bsdsockets
     DEFS += $(EHS_COMMS_API_SUPPORT)

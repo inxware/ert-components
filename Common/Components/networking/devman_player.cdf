@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:37Z</UpdatedDate>
+        <UpdatedDate>2024-07-16T04:28:25Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription/>
@@ -26,7 +26,7 @@
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xB0BC</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>e22c9a2d</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>a4e747f1</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -77,7 +77,7 @@
             <ArgPlacement>5</ArgPlacement>
         </Parameter>
         <Parameter>
-            <Name>Load Stored playlist at start.</Name>
+            <Name>Load playlist at start</Name>
             <DataType>B</DataType>
             <DefaultValue>1</DefaultValue>
             <Description>Loads the last downloaded Media URL path etc.</Description>
@@ -138,6 +138,12 @@
             <name>passthru_send</name>
             <ID>
                 <ERT1_ID>9</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>info</name>
+            <ID>
+                <ERT1_ID>10</ERT1_ID>
             </ID>
         </Function>
     </Functions>
@@ -674,6 +680,28 @@
             </Function>
             <Function argument="1">
                 <Function_ERT1_ID>8</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>media misc</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>297</YCoordinate>
+            <CName>media_misc</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>10</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>misc info</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>287</YCoordinate>
+            <CName>misc_info</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>10</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
             </Function>
         </Port>
     </Ports>

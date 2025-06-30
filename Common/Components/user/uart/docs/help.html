@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">UART</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+<strong>UART</strong> manages the UART transceiving interface that is configured by the UART Config function block.
+    </p>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>GPIO Switch</td>
+<td>I</td>
+<td>0</td>
+<td>Configures the GPIO switch for UART communication.</td>
+</tr>
+<tr>
+<td>RS485</td>
+<td>B</td>
+<td>0</td>
+<td>Enables or disables RS485 mode for UART communication.</td>
+</tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#description">Description &#8593;</a></span>
+<span class="toc_span_items"><a href="#function">Parameters &#8593;</a></span>
+</div>
+<table class="table">
+<!-- Input Ports -->
+<tr>
+<th>In Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]start">start</a></td>
+<td>Input event to start UART port.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]close">close</a></td>
+<td>Input event to close UART port.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]send">send</a></td>
+<td>Input event to send data.</td>
+</tr>
+<tr>
+<th>Data In</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]port">port</a></td>
+<td>UART port number.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]data">data</a></td>
+<td>Data to be sent over UART.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[In]size">size</a></td>
+<td>Size of the data to be sent.</td>
+</tr>
+<!-- Output Ports -->
+<tr>
+<th>Out Ev.</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]start_OK">OK</a></td>
+<td>UART start done.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]closed">closed</a></td>
+<td>Event indicating UART port is closed.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]close_error">error</a></td>
+<td>Error when closing the port.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]received">received</a></td>
+<td>Data received.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]send_OK">OK</a></td>
+<td>Data sent.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]send_error">error</a></td>
+<td>Send data error.</td>
+</tr>
+<tr>
+<th>Data Out</th><th></th>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]recv_data">data</a></td>
+<td>Data received from UART.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]recv_size">size</a></td>
+<td>Size of the received data.</td>
+</tr>
+<tr>
+<td class="portsData"><a name="[Out]errno">errno</a></td>
+<td>Error number of sending operation. 0 if success. -6 if UART is configured incorrectly.</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#function">Parameters &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>State Machine</b>
+</td>
+<td colspan="5">
+          N/A
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

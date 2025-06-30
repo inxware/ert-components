@@ -1,0 +1,28 @@
+#V:2.0.0
+#B:1
+#D:Y2025M0d9h11m30s47
+#N:ADC-Single
+1
+1	100000	90000
+BEGIN adc_config 0
+0 1500 0 -1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+config	1	1	1	1 S -1 	0 	2 3 -1 
+END
+BEGIN adc_read_single 0
+0 1 10 
+sample	1	1	2	0 	1 I 1 	2 4 5 
+END
+BEGIN time_clock 0
+1000000 1 1 
+start	1	1	3	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 2 
+END
+BEGIN MultiplexTwoInputInt 0
+*
+Run_Input1	1	1	4	1 I 1 	1 I -1 	1 -1 
+Run_Input2	1	1	5	1 I -1 	1 I -1 	1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

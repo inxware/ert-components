@@ -2,12 +2,7 @@
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-ota.h"
-#if (EHS_OTA_SUPPORT == EHS_OTA_SUPPORT_STUBBED)
 #include "hal_ota.h"
-#warning Using OTA stubbed code
-#else
-#include "target_hal_ota.h"
-#endif
 //ICB HEADER MACRO END -- DO NOT ALTER
 //ICB STATE VAR MACRO START -- DO NOT ALTER
 /* My Component state data structure. - Use this in your code! */
@@ -171,6 +166,7 @@ EHS_FB_RUN_FUNCTION(OTA_end)
 
 	// Your code here
 	thOTA_end();
+	// @TODO - this needs a callback with waiting for 'TARGET_OTA_ENDED' state !!!
 	ehs_bool validated;
 	validated = thOTA_checkChecksum(inx_OTA_state->ota_partition_alt, inx_OTA_state->partition_number, inx_OTA_state->SHA256, EhsStrlen(inx_OTA_state->SHA256));
 	if (validated == EHS_FALSE) goto err;
@@ -183,7 +179,7 @@ EHS_FB_RUN_FUNCTION(OTA_end)
 err:
 	EHS_FB_FINISH(INX_OTA_ARG_end_end_error);
 function_end:
-	while (0); // NOP
+	thOTA_idle();
 }//ICB FUNCTION end MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION abort MACRO START -- DO NOT ALTER
 /**
@@ -223,5 +219,7 @@ EHS_FB_RUN_FUNCTION(OTA_write_cb)
 void Common_OTA_Write_ACK(ehs_uint8 errno)
 {
 	write_errno = errno;
+#if !defined(EHS_DEVMAN_MON_SUPPORT) || (EHS_DEVMAN_MON_SUPPORT != EHS_DEVMAN_MON_MQTT) // @TODO - we may want to exclude this in a better way
 	EhsCallbackQueue_execute(&xOTACallbackQueue);
+#endif
 }

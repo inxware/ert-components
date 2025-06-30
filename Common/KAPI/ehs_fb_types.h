@@ -172,10 +172,10 @@ void Ehs_FB_ThreadComplete();
 
 typedef struct
 {
-#ifndef EHRT1
-    const ehs_char szName[EHS_FUNCTION_SIZE]; /**< Function name */
+#if ERT_SODL_VERSION > 0
+    const ehs_uint8 szName; /**< Function ID */
 #else
-    const ehs_uint8 szName; /**< Function name */
+    const ehs_char szName[EHS_FUNCTION_SIZE]; /**< Function name */
 #endif
     EhsRunFuncType fpRunFunc; /**< Pointer to the function corresponding to the name */
 } EhsFuncRefType;
@@ -187,7 +187,7 @@ typedef struct
 #define EHS_FB_FUNCTABLE_NAME(fb) (EhsFuncTable ## fb) /**< Creates the name for the table of functions */
 /*lint +e961 */
 #define EHS_FB_FUNCTIONS_START(fb) EhsFuncRefType EHS_FB_FUNCTABLE_NAME(fb)[] = {
-#ifdef EHRT1
+#if ERT_SODL_VERSION > 0
 #define EHS_FB_FUNCTION_ENTRY(n,i,f) {i,EHS_FB_RUN_NAME(f)},
 #define EHS_FB_FUNCTIONS_END {0} };
 #else
@@ -203,7 +203,7 @@ typedef struct
 #define EHS_FB_FUNCTABLE_NAME_API2(fb,vers) (EhsFuncTable ## fb ## vers) /**< Creates the name for the table of functions */
 /*lint +e961 */
 #define EHS_FB_FUNCTIONS_START_API2(fb,vers) EhsFuncRefType EHS_FB_FUNCTABLE_NAME_API2(fb,vers)[] = {
-#ifdef EHRT1
+#if ERT_SODL_VERSION > 0
 #define EHS_FB_FUNCTION_ENTRY_API2(n,i,f,vers) {i,EHS_FB_RUN_NAME_API2(f,vers)},
 #else
 #define EHS_FB_FUNCTION_ENTRY_API2(n,i,f,vers) {n,EHS_FB_RUN_NAME_API2(f,vers)},
@@ -225,10 +225,10 @@ typedef unsigned char debug_type_byte;
  */
 typedef struct
 {
+    EhsFunctionInstanceIndexType *piComp; /**< Index of each start port */
     EhsTriggerIdType nTriggerId; /**< Identifies the Id of this trigger */
     ehs_uint16 nStartPorts; /**< Number of start ports connected to the finish port */
     debug_type_byte tMonitorType; /* bitmask for monitor type for this function - see DEBUG_SET_MASK_ */
-    EhsFunctionInstanceIndexType *piComp; /**< Index of each start port */
 } EhsTriggerType;
 
 
@@ -241,7 +241,7 @@ typedef ehs_sint32 EhsDataflowIntType;
 
 typedef ehs_bool EhsDataflowBoolType;
 typedef ehs_char* EhsDataflowStringType;
-typedef double EhsDataflowFloatType;
+typedef ehs_float EhsDataflowFloatType;
 typedef void* EhsDataflowUserType;
 
 /*********************************************************************************************/

@@ -145,6 +145,8 @@ typedef FILE ehs_FILE; /**< File type used for file handling */
 
 #define EhsFseek(f, x, y) fseek(f, x, y)
 
+#define EhsFrewind(f) rewind(f)
+
 #define EhsFtell(f) ftell(f)
 /**
  * Write block of data to file

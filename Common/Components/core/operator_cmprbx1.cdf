@@ -43,7 +43,7 @@
     </Hashes>
     <Parameters>
         <Parameter>
-            <Name>Constant (can use x.yE+nn notation)</Name>
+            <Name>Constant (x.yE+n allowed)</Name>
             <DataType>F</DataType>
             <DefaultValue>0.0</DefaultValue>
             <MinValue>-1.7E+308</MinValue>

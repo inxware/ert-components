@@ -100,7 +100,7 @@
         <Port>
             <Description/>
             <PortType>FinishPort</PortType>
-            <XCoordinate>20</XCoordinate>
+            <XCoordinate>25</XCoordinate>
             <YCoordinate>10</YCoordinate>
             <Wcet>0</Wcet>
             <CName/>

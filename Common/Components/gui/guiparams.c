@@ -92,11 +92,17 @@ EHS_LOCAL ehs_uint16 EhsLParse_rectangle(const char** pParam, EhsGraphicsRectang
 
     if (nParamsRead >= 4u)
     {
+        ehs_sint32 nLeft, nTop, nWidth, nHeight;
         /* get common parameters from input */
-        EhsGetSint32FromString(&(pRect->nLeft),pParam[nParsed++]);
-        EhsGetSint32FromString(&(pRect->nTop),pParam[nParsed++]);
-        EhsGetSint32FromString(&(pRect->nWidth),pParam[nParsed++]);
-        EhsGetSint32FromString(&(pRect->nHeight),pParam[nParsed++]);
+        EhsGetSint32FromString(&nLeft,pParam[nParsed++]);
+        EhsGetSint32FromString(&nTop,pParam[nParsed++]);
+        EhsGetSint32FromString(&nWidth,pParam[nParsed++]);
+        EhsGetSint32FromString(&nHeight,pParam[nParsed++]);
+        //printf("x=%d, y=%d, w=%d, h=%d \n", nLeft, nTop, nWidth, nHeight);
+        pRect->nLeft = (ehs_coord)nLeft;
+        pRect->nTop = (ehs_coord)nTop;
+        pRect->nWidth = (ehs_coord)nWidth;
+        pRect->nHeight = (ehs_coord)nHeight;
     }
 
     return nParsed;
@@ -237,7 +243,7 @@ ehs_bool EhsParseGuiParameters_bitmap(const char** pParam, EhsGuiParamsType* pGu
 ehs_bool EhsParseGuiParameters_textbox(const char** pParam, EhsGuiParamsType* pGuiParams, ehs_uint16 nVersion, ehs_uint16 nParamsRead)
 {
     ehs_bool bRet = EHS_FALSE; /* assume failure */
-    char szObjectName[EHS_STRING_LENGTH_MAX]; /* object name - discarded once it's been read */
+    char szObjectName[EHS_STRING_LENGTH_MAX]; /* object name - discarded once it's been read */ //Let's use this as a max for anything to do with GUIs.
 
     ehs_uint16 nParsed = EhsParseGuiParameters_common(pParam, pGuiParams, nVersion, nParamsRead);
     EhsStrcpy((pGuiParams->uClass.xTextbox.szFontName),EHSHG_FONT_DEFAULT);
@@ -370,7 +376,7 @@ ehs_bool EhsParseGuiParametersTextBox2Type(const char* szObjectType, ehs_sint16*
 void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
 {
     const char* pParam[EHS_PARAM_COUNT_MAX]; /* points to the start of each parameter */
-    char szObjectType[EHS_STRING_LENGTH_MAX]; /* object type - used to determine eClass */
+    char szObjectType[EHS_STRING_LENGTH_MAX]; /* object type - used to determine eClass *///TODO:STRINGLENGTH??
     ehs_uint16 nParam;
     ehs_uint16 nParamsRead; /* number of parameters that we've read so far */
     ehs_uint16 nVersion = 0; /* format of the parameters */

@@ -19,7 +19,7 @@ OBJECTS+= yajl_parser.$(OBJ)
 OBJECTS+= yajl_tree.$(OBJ)
 OBJECTS+= yajl_version.$(OBJ)
 
-VPATH+= $(EHS_COMMON_HAL_PATH)/json/contrib 
+DEFS += JSMN_STRICT
+DEFS += JSMN_PARENT_LINKS
 
-INC_DIRS+= $(EHS_COMMON_HAL_PATH)/json/contrib
-INC_DIRS+= $(EHS_COMMON_HAL_PATH)/json/contrib/api
+VPATH+= $(EHS_COMMON_HAL_PATH)/json/contrib 

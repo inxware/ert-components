@@ -1,154 +1,151 @@
-<html>
+<!DOCTYPE html>
 
+<html lang="en">
 <head>
-  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
-
 <body>
-  <div class="page_container">
-    <div id="toc_container">
-      <span class="toc_span">modbus_write</span>
-      <!--these display in reverse order because they use float:right-->
-      <span class="toc_span_items"><a href="#misc">Misc	&darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
-    </div>
-
-    <!--General Description-->
-    <p class=component>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">MODBUS Master Write</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      This function block allows writing a value to a specific register in a device on the MODBUS network. It is used to send data from a MODBUS master to a slave device. The block parameters will only be applied if all the required input ports are connected. For Coil registers, any non-zero input value will be converted to 0xFF00 internally, as per the MODBUS specification.
     </p>
-  
-    <!--Parameters - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="parameters" class="toc_span">Parameters</span>
-      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
-      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
-      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
-    </div>
-    <table class="table_params">
-      <tr>
-        <th  style="width:60px;">name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>min.</th>
-        <th>max.</th>
-        <th>description</th>
-      </tr>
-    </table>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
 
-    <!--Ports - form - short desc: long desc-->
-    <div class="section_heading">
-      <span id="ports" class="toc_span">Ports</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-    <table class="table">
-      <tr>
-        <th>In Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name="[In]Set">Set</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]channel>channel</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td class=ports><a name=[In]value>value</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td class=ports><a name=[Out]-->--</a></td>
-        <td></td>
-      </tr>
+</tr>
+<tr>
+<td>device_id</td>
+<td>I</td><td>MODBUS device ID.</td>
+<td>0</td>
+<td>0</td>
+<td>255</td>
 
-    </table>
+</tr>
+<tr>
+<td>reg_type</td>
+<td>I</td><td>Register Type. Coil(0), Discrete(1), Input(2), Holding(3).</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
 
+</tr>
+<tr>
+<td>reg_addr</td>
+<td>I</td><td>Register Address.</td>
+<td>0</td>
+<td>0</td>
+<td>65535</td>
 
-    <div class="section_heading">
-      <span id="misc" class="toc_span">Misc</span>
-      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
-      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
-      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
-    </div>
-     <table>
-      <tr class="fsm_row">
-        <td style="width:90px;">
-          <b>State Machine</b>
-        </td>
-        <td  colspan=5>
-        <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
-          <span class="fsm_blob">state2</span>
-          &otimes;&nbsp;
-          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;
-          <span class="fsm_blob">state5</span> -->
-          None
-        </td>
-        <td>
-          <b></b>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Toolbox</b>
-        </td>
-        <td>
-          Core
-        </td>
-        <td class=heading-cell>
-          <b>Version</b>
-        </td>
-        <td>
-          v1.0.
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Licence Type</b>
-        </td>
-        <td>
-          MPL2.0
-        </td>
-        <td class=heading-cell>
-          <b>Component Supplier</b>
-        </td>
-        <td>
-          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
-        </td>
-      </tr>
-      <tr>
-        <td class=heading-cell>
-          <b>Minumum DCC</b>
-        </td><td>A0000</td> 
-        <td class=heading-cell>
-          <b>Profiles</b>
-        </td>
-        <td>
-          All.
-        </td>
-      </tr>
-    </table>
-
-  </div>
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]Set">Set</a></td>
+<td>Event to initiate writing a value to a MODBUS register.</td>
+</tr>
+<tr>
+<th>Data In</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]device">device</a></td>
+<td>Device ID from 0 to 255.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]type">type</a></td>
+<td>Register type from 0 to 3, referring to the parameter description.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]register">register</a></td>
+<td>Register address from 0 to 65535.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]value">value</a></td>
+<td>Value to write to the register.</td>
+</tr>
+<tr>
+<th>Data Out</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]Error">Error</a></td>
+<td>Error code. 0 if success, non-zero if failure.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]--">--</a></td>
+<td>Event triggered when the write operation is completed successfully.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]error">error</a></td>
+<td>Event triggered if an error occurs during the write operation.</td>
+</tr>
+</table>
+<!--Miscellaneous-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td>
+<td colspan="5">None</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td>
+<td>Core</td>
+<td class="heading-cell"><b>Version</b></td>
+<td>v1.0.</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td>
+<td>MPL2.0</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td>
+<td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td>
+<td>All.</td>
+</tr>
+</table>
+</div>
 </body>
-
 </html>

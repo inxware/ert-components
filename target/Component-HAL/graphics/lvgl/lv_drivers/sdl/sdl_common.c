@@ -265,6 +265,10 @@ uint32_t keycode_to_ctrl_key(SDL_Keycode sdl_key)
         case SDLK_PAGEUP:
             return LV_KEY_PREV;
 
+        // extend Keys not supported by LVGL
+        case SDLK_F8:
+            return 36; // F8 code
+            
         default:
             return '\0';
     }

@@ -2,9 +2,10 @@
 
 export EHS_SUPERVISOR_LOCATION="/system/etc/ehs_supervisor"
 export DEVICE_STORAGE_LOCATION="/storage/emulated/0"
+export EHS_APP_STORAGE_LOCATION="$DEVICE_STORAGE_LOCATION/Android/data/com.inx.ehs/files"
+export DOWNLOADER_STORAGE_LOCATION="$DEVICE_STORAGE_LOCATION/Android/data/com.utils.downloader/files"
+export EHS_UPDATES_LOCATION="$DOWNLOADER_STORAGE_LOCATION"
 export EHS_STORAGE_LOCATION="$DEVICE_STORAGE_LOCATION/.EHS"
-export EHS_APP_STORAGE_LOCATION="$DEVICE_STORAGE_LOCATION/Android/data/com.inx.ehs/files/"
-export EHS_UPDATES_LOCATION="$EHS_STORAGE_LOCATION/Updates"
 
 # Polling rate of supervisor (seconds)
 EHS_SUPERVISOR_SLEEP=5
@@ -24,7 +25,14 @@ source "$EHS_SUPERVISOR_LOCATION/ehs_gpio_setup.sh"
 source "$EHS_SUPERVISOR_LOCATION/ehs_devman_operations.sh"
 source "$EHS_SUPERVISOR_LOCATION/ehs_id_gen.sh"
 
+# lock and flag files
 EHS_SUPERVISOR_LOCK="$EHS_STORAGE_LOCATION/.ehs_supervisor.lock"
+EHS_NETWORK_RESTART="$DOWNLOADER_STORAGE_LOCATION/ehs_network_restart.flag"
+
+# if this file exists, it will be used to overwrite existing device id with its content
+EHS_NEW_DEVICE_ID_OVERWITE="$EHS_STORAGE_LOCATION/ehs_new_id"
+# this contains new device id and is used as flag to update it
+export EHS_NEW_DEVICE_ID_REQUEST_FILE="$EHS_STORAGE_LOCATION/ehs_requested_new_id"
 
 LockSupervisor(){
 	SupervisorLog "Supervisor Lock ON"
@@ -40,10 +48,18 @@ IsSupervisorLocked(){
 	test -f "$EHS_SUPERVISOR_LOCK" && cat "$EHS_SUPERVISOR_LOCK"
 }
 
+IsNetworkRestartRequested(){
+	test -f "$EHS_NETWORK_RESTART" && echo "YES"
+}
+
+ClearNetworkRestartFlag(){
+	test -f "$EHS_NETWORK_RESTART" && rm "$EHS_NETWORK_RESTART"
+}
+
 ReadDeviceId(){
 	FILE="$EHS_STORAGE_LOCATION/.ehs"
 	if [ -f "$FILE" ]; then
-		echo "$(cat $FILE)" 
+		echo "$(cat $FILE)"
 	fi
 }
 
@@ -59,8 +75,25 @@ ClearUpdatesDir(){
 }
 
 HandleDeviceId(){
+
+	export EHS_DEVICE_ID=""
+
+	# check if device id overwrite file exitst
+	if [ -f "$EHS_NEW_DEVICE_ID_OVERWITE" ]; then
+		SupervisorLog "Overwriting device ID with id send from devman"
+		cat $EHS_NEW_DEVICE_ID_OVERWITE > $EHS_STORAGE_LOCATION/.ehs
+		READ_ID=$( ReadDeviceId )
+		if [ -n "$READ_ID" ]; then
+			PREFIX=$( DevicePrefix )
+			export EHS_DEVICE_ID=${PREFIX}${READ_ID}
+		fi
+	fi
+
+	# read device id if not set up
+	if [ -z "$EHS_DEVICE_ID" ]; then
+
 	LOGGED=""
-	while true; do
+	for i in $(seq 1 10); do # do max 10 attempts
 		EhsSetupId
 		if [ -z "$EHS_DEVICE_ID" ]; then
 			READ_ID=$(ReadDeviceId)
@@ -85,26 +118,55 @@ HandleDeviceId(){
 	EHS_ID=$( EhsReadId )
 	EHS_LOCAL_ID=$( ReadDeviceId )
 	if [ "$EHS_LOCAL_ID" != "$EHS_ID" ]; then
-		SupervisorLog "Override local id as it dosen't match the main id."
+		SupervisorLog "Override local ($EHS_LOCAL_ID) id as it dosen't match the device id ($EHS_ID)."
 		EhsOverwriteId
+		READ_ID=$( ReadDeviceId )
+		if [ -n "$READ_ID" ]; then
+			PREFIX=$( DevicePrefix )
+			export EHS_DEVICE_ID=${PREFIX}${READ_ID}
+		fi
+	fi
+
+	fi
+	if [ -z "$EHS_DEVICE_ID" ]; then
+		SupervisorError "Failed to read device ID !!!!!"
+		# todo - set recovery device id. random generated with prefix?
+	else
+		# make sure that id is also copied to the eRT app external storage location 
+		# this is needed for Android 11+, as the apps cannot read data from elsewhere
+		if [ -n "$( IsPackageInstalled 'com.inx.ehs' )" ]; then
+			CopyEhsDeviceID "$( ReadDeviceId )"
+		fi
+	fi
+}
+
+HandleNewDeviceIdRequest(){
+	if [ -f "$EHS_NEW_DEVICE_ID_REQUEST_FILE" ]; then
+		mv $EHS_NEW_DEVICE_ID_REQUEST_FILE $EHS_NEW_DEVICE_ID_OVERWITE
+		HandleDeviceId # this should update to a new id
+		RestartApp     # restart apps for ert to pickup new id
 	fi
 }
 
 #Runs at boot and cleans up the file system and creates some start logs
 EhsSetup(){
+
+	SupervisorLog "************** [Start EHS Supervisor] **************"
+
+	# @TODO - use a better approach to see if the storage has been mounted
+	# wait for the sd storage to be accesible. Make sure 'Android' directory exists so we know it's mounted 
+	WaitDir "$DEVICE_STORAGE_LOCATION/Android" 500 # 500 [sec]
+
 	SUPERVISOR_VERSION=$( cat "$EHS_SUPERVISOR_LOCATION/version" )
 	SupervisorLog "Setting-up the supervisor (v$SUPERVISOR_VERSION)."
-
-	# wait for the sd storage to be accesible
-	WaitDir "$DEVICE_STORAGE_LOCATION" 500 # 500 [sec]
 
 	SupervisorLog "Folders set-up."
 
 	if ! [ -d "$EHS_STORAGE_LOCATION" ]; then
+		SupervisorLog "Create $EHS_STORAGE_LOCATION ..."
 		mkdir $EHS_STORAGE_LOCATION
-	fi
-	if ! [ -d "$EHS_UPDATES_LOCATION" ]; then
-		mkdir $EHS_UPDATES_LOCATION
+	else
+		SupervisorLog "$EHS_STORAGE_LOCATION exists"
 	fi
 	
 	HandleDeviceId
@@ -159,7 +221,7 @@ UpdatesReady(){
 	# run downloader
 	ClearUpdatesDir
 	if ! [ -d "$EHS_UPDATES_LOCATION" ]; then
-		mkdir $EHS_UPDATES_LOCATION
+		MakeUpdatesDir
 	fi
 	COMPLETE=$( DevmanDownloader "$ADDRESS" "$DEVICE_ID" "$EHS_UPDATES_LOCATION" )
 	if [ "$COMPLETE" = "YES" ]; then
@@ -177,6 +239,7 @@ EhsUpdater(){
 	if [ "$READY" = "YES" ]; then
 		LockSupervisor
 		UPDATE_TYPE=$( HandleDevmanOperationUpdates )
+		HandleNewDeviceIdRequest
 		UnlockSupervisor
 	fi
 	if [ "$UPDATE_TYPE" = "patch" ]; then
@@ -213,6 +276,7 @@ EhsSuperCommands(){
 	if [ -f "$EHS_SUPSCRIPTS_LOCATION/dldata.sh" ]; then
 		LockSupervisor
 		UPDATE_TYPE=$( HandleDevmanOperationUpdates "$EHS_SUPSCRIPTS_LOCATION" )
+		HandleNewDeviceIdRequest
 		if [ "$UPDATE_TYPE" = "patch" ]; then
 			SupervisorLog "========== START EHS COMMAND =========="
 			UPDATE_SCRIPT="$EHS_SUPSCRIPTS_LOCATION/dldata.sh"
@@ -319,5 +383,12 @@ do
 			SupervisorLog "Supervisor lock counter $EHS_SUPERVISOR_LOCK_COUNTER"
 		fi
 	fi
+
+	if [ "$( IsNetworkRestartRequested )" = "YES" ]; then
+		SupervisorLog "Network restart requested"
+		RestartNetwork
+		ClearNetworkRestartFlag
+	fi
+	
 	MANAGE_COUNTER=$((MANAGE_COUNTER+1))
 done

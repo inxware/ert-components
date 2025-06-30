@@ -60,15 +60,11 @@
 #include "hal_viewport.h"
 #include "target_viewport_modeB.h"
 
-#ifdef EHS_RUNTIME_LOGGER_ENABLED
-#define DEBUG_ESP32_TOUCH_EVENT 0
-#if DEBUG_ESP32_TOUCH_EVENT == 1
-#include "esp_log.h"
-#endif
-#endif
-
 /* This should be general and let platform target code handle the target-specific driver and configurations */
 #include "target_graphics.h"
+
+#include "target_viewport_style.h"
+
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 
@@ -101,11 +97,13 @@ static char* currentFunc;
 #define EHS_LVGL_STATE_CLEAN               0x0010
 #define EHS_LVGL_STATE_DEINIT              0x0020
 
-#define EHS_LVGL_FONT_TABLE_SIZE 25
-#define EHS_LVGL_FONT_MIN_SIZE (8 / 2)
+#define EHS_LVGL_FONT_TABLE_SIZE 50 // (100 / 2)
+#define EHS_LVGL_FONT_MIN_SIZE 4 // (8 / 2)
 
 #define EHS_ROLLER_OPTION_SIZE 256
 #define EHS_ROLLER_ENTRY_SIZE 32
+
+#define EHS_LIST_WIDGET_DELIM ';'
 
 struct EhsTVStruct {
 
@@ -134,112 +132,245 @@ static const lv_font_t* gLvglFontTable[EHS_LVGL_FONT_TABLE_SIZE] = {    // 21 av
     LV_FONT_DEFAULT,                        // font size 2, default
     LV_FONT_DEFAULT,                        // font size 4, default
     LV_FONT_DEFAULT,                        // font size 6, default
-    #if LV_FONT_MONTSERRAT_8 == 1
-    &lv_font_montserrat_8,                  // font size 8
+    #if INX_LV_FONT_MONTSERRAT_8 == 1
+    &inx_lv_font_montserrat_8,                  // font size 8
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_10 == 1
-    &lv_font_montserrat_10,                 // font size 10
+    #if INX_LV_FONT_MONTSERRAT_10 == 1
+    &inx_lv_font_montserrat_10,                 // font size 10
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_12 == 1
-    &lv_font_montserrat_12,                 // font size 12
+    #if INX_LV_FONT_MONTSERRAT_12 == 1
+    &inx_lv_font_montserrat_12,                 // font size 12
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_14 == 1
-    &lv_font_montserrat_14,                 // font size 14
+    #if INX_LV_FONT_MONTSERRAT_14 == 1
+    &inx_lv_font_montserrat_14,                 // font size 14
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_16 == 1
-    &lv_font_montserrat_16,                 // font size 16
+    #if INX_LV_FONT_MONTSERRAT_16 == 1
+    &inx_lv_font_montserrat_16,                 // font size 16
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_18 == 1
-    &lv_font_montserrat_18,                 // font size 18
+    #if INX_LV_FONT_MONTSERRAT_18 == 1
+    &inx_lv_font_montserrat_18,                 // font size 18
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_20 == 1
-    &lv_font_montserrat_20,                 // font size 20
+    #if INX_LV_FONT_MONTSERRAT_20 == 1
+    &inx_lv_font_montserrat_20,                 // font size 20
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_22 == 1
-    &lv_font_montserrat_22,                 // font size 22
+    #if INX_LV_FONT_MONTSERRAT_22 == 1
+    &inx_lv_font_montserrat_22,                 // font size 22
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_24 == 1
-    &lv_font_montserrat_24,                 // font size 24
+    #if INX_LV_FONT_MONTSERRAT_24 == 1
+    &inx_lv_font_montserrat_24,                 // font size 24
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_26 == 1
-    &lv_font_montserrat_26,                 // font size 26
+    #if INX_LV_FONT_MONTSERRAT_26 == 1
+    &inx_lv_font_montserrat_26,                 // font size 26
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_28 == 1
-    &lv_font_montserrat_28,                 // font size 28
+    #if INX_LV_FONT_MONTSERRAT_28 == 1
+    &inx_lv_font_montserrat_28,                 // font size 28
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_30 == 1
-    &lv_font_montserrat_30,                 // font size 30
+    #if INX_LV_FONT_MONTSERRAT_30 == 1
+    &inx_lv_font_montserrat_30,                 // font size 30
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_32 == 1
-    &lv_font_montserrat_32,                 // font size 32
+    #if INX_LV_FONT_MONTSERRAT_32 == 1
+    &inx_lv_font_montserrat_32,                 // font size 32
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_34 == 1
-    &lv_font_montserrat_34,                 // font size 34
+    #if INX_LV_FONT_MONTSERRAT_34 == 1
+    &inx_lv_font_montserrat_34,                 // font size 34
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_36 == 1
-    &lv_font_montserrat_36,                 // font size 36
+    #if INX_LV_FONT_MONTSERRAT_36 == 1
+    &inx_lv_font_montserrat_36,                 // font size 36
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_38 == 1
-    &lv_font_montserrat_38,                 // font size 38
+    #if INX_LV_FONT_MONTSERRAT_38 == 1
+    &inx_lv_font_montserrat_38,                 // font size 38
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_40 == 1
-    &lv_font_montserrat_40,                 // font size 40
+    #if INX_LV_FONT_MONTSERRAT_40 == 1
+    &inx_lv_font_montserrat_40,                 // font size 40
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_42 == 1
-    &lv_font_montserrat_42,                 // font size 42
+    #if INX_LV_FONT_MONTSERRAT_42 == 1
+    &inx_lv_font_montserrat_42,                 // font size 42
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_44 == 1
-    &lv_font_montserrat_44,                 // font size 44
+    #if INX_LV_FONT_MONTSERRAT_44 == 1
+    &inx_lv_font_montserrat_44,                 // font size 44
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_46 == 1
-    &lv_font_montserrat_46,                 // font size 46
+    #if INX_LV_FONT_MONTSERRAT_46 == 1
+    &inx_lv_font_montserrat_46,                 // font size 46
     #else
     NULL,
     #endif
-    #if LV_FONT_MONTSERRAT_48 == 1
-    &lv_font_montserrat_48                  // font size 48
+    #if INX_LV_FONT_MONTSERRAT_48 == 1
+    &inx_lv_font_montserrat_48,                 // font size 48
     #else
-    NULL
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_50 == 1
+    &inx_lv_font_montserrat_50,                 // font size 50
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_52 == 1
+    &inx_lv_font_montserrat_52,                 // font size 52
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_54 == 1
+    &inx_lv_font_montserrat_54,                 // font size 54
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_56 == 1
+    &inx_lv_font_montserrat_56,                 // font size 56
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_58 == 1
+    &inx_lv_font_montserrat_58,                 // font size 58
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_60 == 1
+    &inx_lv_font_montserrat_60,                 // font size 60
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_62 == 1
+    &inx_lv_font_montserrat_62,                 // font size 62
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_64 == 1
+    &inx_lv_font_montserrat_64,                 // font size 64
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_66 == 1
+    &inx_lv_font_montserrat_66,                 // font size 66
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_68 == 1
+    &inx_lv_font_montserrat_68,                 // font size 68
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_70 == 1
+    &inx_lv_font_montserrat_70,                 // font size 70
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_72 == 1
+    &inx_lv_font_montserrat_72,                 // font size 72
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_74 == 1
+    &inx_lv_font_montserrat_74,                 // font size 74
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_76 == 1
+    &inx_lv_font_montserrat_76,                 // font size 76
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_78 == 1
+    &inx_lv_font_montserrat_78,                 // font size 78
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_80 == 1
+    &inx_lv_font_montserrat_80,                 // font size 80
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_82 == 1
+    &inx_lv_font_montserrat_82,                 // font size 82
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_84 == 1
+    &inx_lv_font_montserrat_84,                 // font size 84
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_86 == 1
+    &inx_lv_font_montserrat_86,                 // font size 86
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_88 == 1
+    &inx_lv_font_montserrat_88,                 // font size 88
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_90 == 1
+    &inx_lv_font_montserrat_90,                 // font size 90
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_92 == 1
+    &inx_lv_font_montserrat_92,                 // font size 92
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_94 == 1
+    &inx_lv_font_montserrat_94,                 // font size 94
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_96 == 1
+    &inx_lv_font_montserrat_96,                 // font size 96
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_98 == 1
+    &inx_lv_font_montserrat_98,                 // font size 98
+    #else
+    NULL,
+    #endif
+    #if INX_LV_FONT_MONTSERRAT_100 == 1
+    &inx_lv_font_montserrat_100                 // font size 100
+    #else
+    NULL,
     #endif
 };
+
+/* Include inx custom symbol fonts */
+static char* gUnescapeUnicodeBuffer[EHS_STRING_LENGTH_MAX] = {0};
 
 /*****************************************************************************/
 /* Function prototypes */
@@ -289,6 +420,65 @@ static const lv_font_t * Ehs_LVGL_find_font(ehs_uint16 size)
     }
 
     return (const lv_font_t *) result;
+}
+
+/* Use this function for unescaping hex encoded unicode and spcial characters 
+   e.g. "\\xC2\\xB0" - > "\xC2\xB0" or "\\xEF\\x83\\x81" -> "\xEF\x83\x81" */
+char* EhsTargetWidget_lvgl_unescape_unicode(const char* input, char* output) {
+    ehs_uint32 len = (input != NULL) ? EhsStrlen(input) : 0;
+    int j = 0;
+    for (ehs_uint32 i = 0; i < len; i++) {
+        if (input[i] == '\\' && input[i+1] == 'x') {
+            // parse hexadecimal value
+            char hex[3] = {input[i+2], input[i+3], '\0'};
+            output[j++] = (char)strtol(hex, NULL, 16);
+            i += 3; // Skip the next two characters (the '\\x' and the hex value)
+        } else {
+            output[j++] = input[i];
+        }
+    }
+    output[j] = '\0'; // null-terminate the output string
+    return output;
+}
+
+/* Extract RGB hex color from the string "\\cRRGGBB" if present. 
+ * The color code escape string gets removed from char* text after being parsed.
+ * Function returns EHS_TRUE if the code was found, otherwise it returns EHS_FALSE.
+ */
+ehs_bool EhsTargetWidget_lvgl_extract_color(char* text, lv_color_t* color){
+    if(text == NULL || color == NULL){
+        return EHS_FALSE;
+    }
+    ehs_bool found = EHS_FALSE;
+    ehs_sint32 r = 0, g = 0, b = 0;
+
+    char *p = text;
+    while (*p != '\0') {
+        if (*p == '\\' && *(p+1) == 'c' &&
+            isxdigit(*(p+2)) && isxdigit(*(p+3)) &&
+            isxdigit(*(p+4)) && isxdigit(*(p+5)) &&
+            isxdigit(*(p+6)) && isxdigit(*(p+7))) {
+            
+            // Extract the R, G, B values
+            char hex_r[3] = {*(p+2), *(p+3), '\0'};
+            char hex_g[3] = {*(p+4), *(p+5), '\0'};
+            char hex_b[3] = {*(p+6), *(p+7), '\0'};
+            
+            r = (ehs_sint32)strtol(hex_r, NULL, 16);
+            g = (ehs_sint32)strtol(hex_g, NULL, 16);
+            b = (ehs_sint32)strtol(hex_b, NULL, 16);
+            
+            // Move the rest of the string left to overwrite the \cRRGGBB sequence
+            memmove(p, p + 8, strlen(p + 8) + 1);
+            found = EHS_TRUE;
+        } else {
+            p++;
+        }
+    }
+    if(found == EHS_TRUE){
+        *color = lv_color_make(r,g,b);
+    }
+    return found;
 }
 
 /* waits until state completes */
@@ -368,6 +558,9 @@ static void EhsTV_LVGL_handle_ui_calls(lv_timer_t* timer)
     }
 }
 
+
+//todo2022 this loop should be merged into the MCU_SLOW_THR thread
+
 void EhsTV_LVGL_tick_thread(void)
 {
     //(void) data;
@@ -386,8 +579,8 @@ void EhsTV_LVGL_gui_thread(void)
     if(gEhsLvglState == EHS_LVGL_STATE_INIT)
     {
         EhsTargetWidgetUi_init_lvgl();
-        const ehs_sint32 stackSize = 128; // tick thread shouldn't need much stack //todo2024 we may want to include the tick function in a more generic "fast loop" thread
-        EhsHThread_execute(EhsTV_LVGL_tick_thread, NULL, -5, stackSize);
+        const ehs_sint32 stackSize = 2048; // tick thread shouldn't need much stack //todo2024 we may want to include the tick function in a more generic "fast loop" thread
+        EhsHThread_execute(EhsTV_LVGL_tick_thread, NULL, EHS_PRI_LVGL_TICK, stackSize);
         
         gEhsLvglState = EHS_LVGL_STATE_IDLE;
     }
@@ -398,9 +591,10 @@ void EhsTV_LVGL_gui_thread(void)
         gEhsLvglState = EHS_LVGL_STATE_IDLE;
         return;
     }
-
+    /* A callback function is called every 30ms - presumably this does rendering or just a clock? */
     lv_timer_create((lv_timer_cb_t)EhsTV_LVGL_handle_ui_calls, 30, NULL);
-
+    
+    /* THe following loop does some other background stuff TBC*/
     while (1)
     {
         if (gEhsTVExit == EHS_TRUE) break;
@@ -408,7 +602,6 @@ void EhsTV_LVGL_gui_thread(void)
         EhsTPMutex_lock(EhsTPMutex_viewport);
         lv_timer_handler();
         EhsTPMutex_unlock(EhsTPMutex_viewport);
-
         EhsSleep(EHS_TIME_ms(10));
     }
     gEhsTVhandleExit = EHS_TRUE;
@@ -417,14 +610,6 @@ void EhsTV_LVGL_gui_thread(void)
 void on_pointer_feedback_cb(struct _lv_indev_drv_t * drv, uint8_t event_id)
 {
     // implement any handler needed for interacting with the view
-#if DEBUG_ESP32_TOUCH_EVENT == 1
-    if(event_id == LV_INDEV_STATE_PRESSED){
-        lv_indev_data_t data = { 0 };
-        drv->read_cb(drv, &data);
-        int mem = esp_get_free_heap_size();
-        ESP_LOGI("esp32_touch", "(%d %d) mem=%d", data.point.x, data.point.y, mem);
-    }
-#endif
 }
 
 #if TARGET_LVGL_KEYBOARD == 1
@@ -475,6 +660,13 @@ void on_keyboard_pressed_handler(lv_indev_drv_t * indev_drv, lv_indev_data_t * d
                     nCharacter = 0xFF57;
                     break;
                 // @TODO - add the rest of keys from keypress.c
+
+                // handle special key case
+                case 36: // F8
+                    EhsHMetaSetNextAppToRun(EHS_SYS_APP_DEFAULT_NAME);
+                    EhsHFSMForceInternallyRequestedCommand(EHS_RELOAD_EHS_FROM_FILE);
+                    return;
+
                 default:
                     break;
             };
@@ -570,7 +762,7 @@ ehs_bool EhsTV_init(EhsTVClass* pViewport)
 
     gEhsLvglState = EHS_LVGL_STATE_INIT;
 
-    EhsHThread_execute(EhsTV_LVGL_gui_thread, NULL, -99, EHS_THREAD_USE_DEFAULT_STACK_SIZE);
+    EhsHThread_execute(EhsTV_LVGL_gui_thread, NULL, EHS_PRI_LVGL_GUI, EHS_THREAD_USE_DEFAULT_STACK_SIZE);
 
     EhsTargetWidget_lvgl_state_wait(EHS_LVGL_STATE_INIT);
 
@@ -621,6 +813,7 @@ void EhsTV_term(EhsTVClass* pViewport)
 {
     gEhsTVExit = EHS_TRUE;
     while (gEhsTVtickExit != EHS_TRUE || gEhsTVhandleExit != EHS_TRUE);
+    //todo2024 is deleting these buffers before lv_dinit() being called a good idea?
     if (buf1_1 != NULL) free(buf1_1);
     buf1_1 = NULL;
     if (buf1_2 != NULL) free(buf1_2);
@@ -628,9 +821,7 @@ void EhsTV_term(EhsTVClass* pViewport)
     EhsTPMutex_lock(EhsTPMutex_viewport);
     lv_deinit();
     EhsTPMutex_unlock(EhsTPMutex_viewport);
-
     gEhsLvglState |= EHS_LVGL_STATE_DEINIT;
-
     // @todo - wait for lvgl library to be de-initalised
 }
 
@@ -843,6 +1034,50 @@ void EhsTargetWidget_unhide(lv_obj_t *obj)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// viewport callbacks /////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+static void EhsTargetWidgetUi_viewport_event_handler(lv_event_t* e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_GESTURE){
+        struct EhsWidgetStruct* pWidget = e->user_data;
+        if(pWidget == NULL){
+            return;
+        }
+        //lv_obj_t * screen = lv_event_get_current_target(e);
+        lv_dir_t dir = lv_indev_get_gesture_dir(lv_indev_get_act());
+        ehs_uint32 value = 0; // top : 1 , left : 2, right : 3, bottom : 4
+        switch(dir) {
+            case LV_DIR_TOP:{
+                value = 1;
+                break;
+            }
+            case LV_DIR_LEFT:{
+                value = 2;
+                break;
+            }
+            case LV_DIR_RIGHT:{
+                value = 3;
+                break;
+            }
+            case LV_DIR_BOTTOM:{
+                value = 4;
+                
+                break;
+            }default:{
+                return;
+            }
+        }
+        if(EHS_WIDGET_UI(pWidget).event_callback){
+            EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &value);
+            lv_indev_wait_release(lv_indev_get_act());
+        }
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// text gui callbacks /////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -852,9 +1087,7 @@ static void EhsTargetWidgetUi_gui_click_event_handler(lv_event_t* e)
     if(code == LV_EVENT_CLICKED){
         struct EhsWidgetStruct* pWidget = e->user_data;
         if(pWidget != NULL){
-            EhsTPMutex_lock(EhsTPMutex_viewport);
             EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_CLICKED, NULL, NULL);
-            EhsTPMutex_unlock(EhsTPMutex_viewport);
         }
     }
 }
@@ -865,9 +1098,7 @@ static void EhsTargetWidgetUi_gui_pressed_event_handler(lv_event_t* e)
     if(code == LV_EVENT_PRESSED){
         struct EhsWidgetStruct* pWidget = e->user_data;
         if(pWidget != NULL){
-            EhsTPMutex_lock(EhsTPMutex_viewport);
             EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_DOWN, NULL, NULL);
-            EhsTPMutex_unlock(EhsTPMutex_viewport);
         }
     }
 }
@@ -952,10 +1183,21 @@ static void EhsTargetWidgetUi_slider_event_handler(lv_event_t* e)
 //////////////////////////////// chart callbacks ///////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+#define EHS_CHART_AXIS_TICKS_LABEL_COLOR lv_color_make(180, 180, 180)
+#define EHS_CHART_MESH_LINES_COLOR lv_color_make(120, 120, 120)
+
+#define EHS_CHART_MESH_LINES_WIDTH 1
+#define EHS_CHART_MESH_LINES_DASH_GAP 6
+#define EHS_CHART_MESH_LINES_DASH_WIDTH 2
+
 static void chart_draw_begin_event_cb(lv_event_t * e)
 {
-    lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
-    if(dsc != NULL){
+    lv_event_code_t code = lv_event_get_code(e);
+    if( code == LV_EVENT_DRAW_PART_BEGIN ){
+        lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
+        if(dsc == NULL){
+            return;
+        }
         if( dsc->part == LV_PART_MAIN && (dsc->type == LV_CHART_DRAW_PART_DIV_LINE_HOR || LV_CHART_DRAW_PART_DIV_LINE_VER) ) {
             // draw dashed lines in the background
             if(dsc->line_dsc == NULL || dsc->p1 == NULL || dsc->p2 == NULL) return;
@@ -963,23 +1205,41 @@ static void chart_draw_begin_event_cb(lv_event_t * e)
                 // do not draw the first line when pad lv_style_set_pad_all = 0 
                 dsc->line_dsc->width = 0;
             }else{
-                dsc->line_dsc->width = 1;
-                dsc->line_dsc->dash_gap  = 6;
-                dsc->line_dsc->dash_width  = 2;
+                dsc->line_dsc->width = EHS_CHART_MESH_LINES_WIDTH;
+                dsc->line_dsc->dash_gap = EHS_CHART_MESH_LINES_DASH_GAP;
+                dsc->line_dsc->dash_width = EHS_CHART_MESH_LINES_DASH_WIDTH;
+                dsc->line_dsc->color = EHS_CHART_MESH_LINES_COLOR;
             }
         }else if(lv_obj_draw_part_check_type(dsc, &lv_chart_class, LV_CHART_DRAW_PART_TICK_LABEL)){
             // adjust chart tick labels
             if(dsc->id == LV_CHART_AXIS_PRIMARY_X){
                 if(dsc->label_dsc){
                     dsc->label_dsc->ofs_y = -10;
+                    dsc->label_dsc->color = EHS_CHART_AXIS_TICKS_LABEL_COLOR;
                 }
                 if(dsc->line_dsc){
                     dsc->line_dsc->dash_width = 0;
                     dsc->line_dsc->width = 0;
                 }
+                // only scattered chart can have its x-axis lables calculated properly (lvgl bug?)
+                // so to do this in our case we need to do a bit of hackery
+                if(dsc->text){
+                    lv_obj_t * obj = lv_event_get_target(e);
+                    lv_chart_tick_dsc_t * t = get_tick_gsc(obj, LV_CHART_AXIS_PRIMARY_X);
+                    lv_chart_t * chart = (lv_chart_t*)obj;
+                    uint8_t sec_axis = 0; // LV_CHART_AXIS_PRIMARY_X
+                    uint32_t total_tick_num = (t->major_cnt - 1) * (t->minor_cnt);
+                    if(total_tick_num != 0){
+                        int32_t i = dsc->value * t->minor_cnt;
+                        dsc->value = lv_map(i, 0, total_tick_num, chart->xmin[sec_axis], chart->xmax[sec_axis]);
+                        lv_snprintf(dsc->text, sizeof(dsc->text), "%" LV_PRId32, dsc->value);
+                    }   
+                }
+
             }else if(dsc->id == LV_CHART_AXIS_PRIMARY_Y){
                 if(dsc->label_dsc){
                     dsc->label_dsc->ofs_x = 10;
+                    dsc->label_dsc->color = EHS_CHART_AXIS_TICKS_LABEL_COLOR;
                 }
                 if(dsc->line_dsc){
                     dsc->line_dsc->dash_width = 0;
@@ -1021,11 +1281,15 @@ static void EhsTargetWidgetUi_text_field_event_handler(lv_event_t * e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * ta = lv_event_get_target(e);
     if(code == LV_EVENT_CLICKED || code == LV_EVENT_FOCUSED) {
-        /*Focus on the clicked text area*/
+        /* @TODO focus on the clicked text area, handle for devices which don't have keyboard/mouse */
         //if(kb != NULL) lv_keyboard_set_textarea(kb, ta);
-    }
-    else if(code == LV_EVENT_READY) {
-       // LV_LOG_USER("Ready, current text: %s", lv_textarea_get_text(ta));
+        
+    } else if(code == LV_EVENT_READY) {
+        struct EhsWidgetStruct* pWidget = e->user_data;
+        if(pWidget != NULL){
+            const char* value = lv_textarea_get_text(ta);
+            EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, value);
+        }
     }
 }
 
@@ -1039,53 +1303,49 @@ static void EhsTargetWidgetUi_numeric_roller_event_handler(lv_event_t * e)
     if(code == LV_EVENT_VALUE_CHANGED) {
         struct EhsWidgetStruct* pWidget = e->user_data;
         if(pWidget != NULL){
-            lv_obj_t * obj = EHS_WIDGET_UI(pWidget).pUiObject;
-            char buf[EHS_ROLLER_ENTRY_SIZE] = {'\0'};
-            float value = 0;
-            uint32_t buf_pos = 0;
-            uint32_t roller_count = lv_obj_get_child_cnt(obj);
-            for(uint32_t i = 0; i < roller_count && buf_pos < EHS_ROLLER_ENTRY_SIZE; i++){
-                char roller_value[EHS_ROLLER_ENTRY_SIZE] = {0};
-                lv_obj_t * roller = lv_obj_get_child(obj, i);
-                lv_roller_get_selected_str(roller, roller_value, EHS_ROLLER_ENTRY_SIZE);
-                strcat(&buf[buf_pos], roller_value);
-                buf_pos += strlen(roller_value);
-                if(EHS_ROLLER_ENTRY_SIZE <= buf_pos){
-                    break;
+            lv_obj_t* roller = EHS_WIDGET_UI(pWidget).pUiObject;
+            if(roller){
+                char buf[EHS_ROLLER_ENTRY_SIZE] = {'\0'};
+                lv_roller_get_selected_str(roller, buf, EHS_ROLLER_ENTRY_SIZE);
+                float value = 0.0f;
+                if(EhsStrcmp(buf,"-")==0){
+                    value = -0.01f;
+                }else{
+                    value = atof(buf);
                 }
+                EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &value);
             }
-            value = atof(buf);
-            EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &value);
         }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////////// keyboard callbacks ///////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+static void EhsTargetWidgetUi_keyboard_event_handler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    struct EhsWidgetStruct* pWidget = e->user_data;
+    if(!pWidget){
+        return;
+    }
+    if(code == LV_EVENT_READY) {
+        lv_obj_t * ta = lv_event_get_target(e);
+        const char* value = lv_textarea_get_text(ta);
+        if(EHS_WIDGET_UI(pWidget).id == EHS_FLOAT_UI_WIDGET_NUMPAD){
+            float f_value = atof(value);
+            EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_CHANGED|EHS_WIDGET_UI_EVENT_LABEL_CHANGED, "apply", &f_value);
+        }else{
+            EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_CHANGED|EHS_WIDGET_UI_EVENT_LABEL_CHANGED, "apply", value);
+        }
+    }else if(code == LV_EVENT_CANCEL) {
+        EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_LABEL_CHANGED, "cancel", "");
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-static const char* EhsTargetWidgetUi_roller_numeric_next_option(const char* options, char* buff, int buff_size){
-    if(options == NULL || *options == '\0' || buff == NULL){
-        return NULL;
-    }
-    const char *end = options;
-    int i = 0;
-    // Find the end of the substring
-    while (*end != ';' && *end != '\0') {
-        if(i >= buff_size){
-            // option buffer too small
-            return NULL;
-        }
-        buff[i++] = *end;
-        end++;
-    }
-    if(i < buff_size){
-        buff[i] = '\0';
-    }
-    if (*end == ';') {
-        end++;
-    }
-    return end;
-}
 
 static const char* EhsTargetWidgetUi_float_format_str(struct EhsWidgetStruct* pWidget){
     const char* fmt_str = "%.2f";
@@ -1125,6 +1385,23 @@ static const char* EhsTargetWidgetUi_float_format_str(struct EhsWidgetStruct* pW
     return fmt_str;
 }
 
+// Function to remove trailing zeros from the float string
+void EhsTargetWidgetUi_float_remove_trailing_zeros(char *input) {
+    char *decimal_point = strchr(input, '.');  // Find the decimal point
+    if (decimal_point != NULL) {
+        char *end = input + strlen(input) - 1;  // Pointer to the end of the string
+        // Move backwards and remove trailing zeros
+        while (end > decimal_point && *end == '0') {
+            *end = '\0';  // Remove trailing zero
+            end--;
+        }
+        // If the last character is the decimal point, remove it
+        if (*end == '.') {
+            *end = '\0';  // Remove the decimal point
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// EhsTargetWidgetUi_factory ///////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1155,7 +1432,8 @@ lv_obj_t* EhsTargetWidgetUi_create_label(struct EhsWidgetStruct* pWidget){
 
     lv_obj_set_style_text_color         (obj, fg_color,                                                    LV_PART_MAIN);
     lv_obj_set_style_text_opa           (obj, (lv_opa_t) EHS_WIDGET_UI(pWidget).xFgColour.sComp.nAlpha,    LV_PART_MAIN);
-    lv_obj_set_style_text_font          (obj, this_font,                                                   LV_PART_MAIN);
+    
+    lv_obj_set_style_text_font      (obj, this_font,                                                   LV_PART_MAIN);
 
     lv_obj_set_style_text_align         (obj, LV_TEXT_ALIGN_LEFT,                                          LV_PART_MAIN);
     lv_obj_set_style_text_line_space    (obj, EHS_WIDGET_UI(pWidget).nLineSep,                             LV_PART_MAIN);
@@ -1193,10 +1471,8 @@ ehs_bool EhsTargetWidgetUi_set_image_path(EhsWidgetUiImage* ui_image, char* imag
     }
     strcpy(image_path, "A:"); // add drive id required by lvgl image decoders (LV_FS_STDIO_LETTER=65 , where 65 is 'A')
     char* szCanonicalFilePath = &image_path[2]; // offset path by drive id length
-    if(ui_image->bDynamicFilename == EHS_FALSE){
-        ui_image->bLoadImageFromAppDir = EHS_TRUE; 
-    }
-    if(ui_image->bLoadImageFromAppDir == EHS_TRUE){
+
+    if(ui_image->bDynamicFilename == EHS_FALSE || ui_image->bLoadImageFromAppDir == EHS_TRUE){
         bRet = EhsHMetagetCurrentAppDir(szCanonicalFilePath);
         if (bRet == EHS_TRUE){
             EhsStrcat(szCanonicalFilePath, EHS_TD_FILES_SEPARATOR_STR);
@@ -1248,74 +1524,108 @@ lv_obj_t* EhsTargetWidgetUi_create_gauge(struct EhsWidgetStruct* pWidget)
     pWidget->xCurRect.nHeight = pWidget->xCurRect.nWidth;
     pWidget->xOrigRect.nHeight = pWidget->xOrigRect.nWidth;
 
+    ehs_uint16 ehs_style = EHS_WIDGET_UI(pWidget).properties;
+
     meter = lv_meter_create(lv_scr_act());
 
     /*Add a scale first*/
     lv_meter_scale_t * scale = lv_meter_add_scale(meter);
-    lv_meter_set_scale_ticks(meter, scale, 41, 2, 10, lv_palette_main(LV_PALETTE_GREY));
+    lv_meter_set_scale_ticks(meter, scale, 41, 2, 10, ehs_gauge_color(GAUGE_SCALE_MAIN_ARC, ehs_style));
     lv_meter_set_scale_major_ticks(meter, scale, 8, 4, 15, lv_color_black(), 10);
 
     lv_meter_indicator_t * indic;
 
     /*Add a blue arc to the start*/
-    indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_BLUE), 0);
+    indic = lv_meter_add_arc(meter, scale, 3, ehs_gauge_color(GAUGE_SCALE_LEFT_ARC, ehs_style), 0);
     lv_meter_set_indicator_start_value(meter, indic, 0);
     lv_meter_set_indicator_end_value(meter, indic, 20);
 
     /*Make the tick lines blue at the start of the scale*/
-    indic = lv_meter_add_scale_lines(meter, scale, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_BLUE), false, 0);
+    indic = lv_meter_add_scale_lines(meter, scale, ehs_gauge_color(GAUGE_SCALE_LEFT_ARC, ehs_style), ehs_gauge_color(GAUGE_SCALE_LEFT_ARC, ehs_style), false, 0);
     lv_meter_set_indicator_start_value(meter, indic, 0);
     lv_meter_set_indicator_end_value(meter, indic, 20);
 
     /*Add a red arc to the end*/
-    indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_RED), 0);
+    indic = lv_meter_add_arc(meter, scale, 3, ehs_gauge_color(GAUGE_SCALE_RIGHT_ARC, ehs_style), 0);
     lv_meter_set_indicator_start_value(meter, indic, 80);
     lv_meter_set_indicator_end_value(meter, indic, 100);
 
     /*Make the tick lines red at the end of the scale*/
-    indic = lv_meter_add_scale_lines(meter, scale, lv_palette_main(LV_PALETTE_RED), lv_palette_main(LV_PALETTE_RED), false, 0);
+    indic = lv_meter_add_scale_lines(meter, scale, ehs_gauge_color(GAUGE_SCALE_RIGHT_ARC, ehs_style), ehs_gauge_color(GAUGE_SCALE_RIGHT_ARC, ehs_style), false, 0);
     lv_meter_set_indicator_start_value(meter, indic, 80);
     lv_meter_set_indicator_end_value(meter, indic, 100);
 
     /*Add a needle line indicator*/
-    indic = lv_meter_add_needle_line(meter, scale, 4, lv_palette_main(LV_PALETTE_GREY), -10);
+    indic = lv_meter_add_needle_line(meter, scale, 4, ehs_gauge_color(GAUGE_SCALE_NEEDLE, ehs_style), -10);
     meter->user_data = indic;
     #endif
     return meter;
 }
 
 #if LV_USE_ROLLER
-lv_obj_t* EhsTargetWidgetUi_create_roller_widget(lv_obj_t * roller_view, lv_style_t* style, int selected, const char* text){
-    if(roller_view == NULL){
+
+static int EhsTargetWidgetUi_roller_numeric_option_index(const char* options, float value, ehs_uint16 numOfDec){
+    if(options == NULL || *options == '\0'){
         return NULL;
     }
-    lv_obj_t* roller = lv_roller_create(roller_view);
-    lv_roller_set_options(roller, text, LV_ROLLER_MODE_NORMAL);
-    lv_roller_set_visible_row_count(roller, 3);
-    if(style){
-       lv_obj_add_style(roller, style, LV_PART_SELECTED);
+    const char* input = options;
+    int i = 0;
+    int index = 0;
+    while (input[i] != '\0') {
+        // Skip whitespace characters
+        while (input[i] == '\n') {
+            i++;
+        }
+
+        // Check if number is negative
+        ehs_bool isNegative = EHS_FALSE;
+        if (input[i] == '-'){
+            isNegative = EHS_TRUE;
+            i++;
+        }
+        // Check if number is decimal
+        ehs_bool isDecimal = EHS_FALSE;
+        if (input[i] == '.'){
+            isDecimal = EHS_TRUE;
+            i++;
+        }
+
+        // Extract number
+        int number = 0;
+        while (input[i] >= '0' && input[i] <= '9') {
+            number = number * 10 + (input[i] - '0');
+            i++;
+        }
+
+        if(isDecimal==EHS_TRUE){
+            // Check if we're looking for a decimal value
+            int decimal = (int)((roundf(value * 10.0) / 10.0) * pow(10, numOfDec));
+            if(decimal == number){
+                return index;
+            }
+        }else{
+            int int_value = (int)value;
+            // Check if we're looking for a -ve integer value
+            if(int_value < 0 && isNegative==EHS_TRUE && abs(int_value) == number){
+                return index;
+            }
+            // Check if we're looking for a +ve integer value
+            else if(int_value == number && isNegative==EHS_FALSE){
+                return index;
+            }
+        }
+
+        // Check if we're looking for just '-' sign
+        if(numOfDec == 0 && number == 0 && isNegative==EHS_TRUE && isDecimal==EHS_FALSE && value < 0.0f && value > -1.0f){
+            return index;
+        }
+
+        index++;
+        i++;
     }
-    lv_obj_align(roller, LV_ALIGN_CENTER, 0, 0);
-    lv_roller_set_selected(roller, selected, LV_ANIM_OFF);
-    return roller;
+    return -1;
 }
 
-void EhsTargetWidgetUi_set_roller_widget_value(lv_obj_t * roller_view, float value){
-    if(roller_view == NULL){
-        return;
-    }
-    bool is_negative = (value < 0);
-    int integer_part = abs((int)value);
-    int digit_count = 1; // At least one digit
-    while (integer_part /= 10) {
-        digit_count++;
-    }
-
-    uint32_t roller_count = lv_obj_get_child_cnt(roller_view);
-    
-    //lv_obj_t* roller = lv_obj_get_child(list, 0);
-    //lv_roller_get_option_cnt();
-}
 #endif
 
 lv_obj_t* EhsTargetWidgetUi_create_lvgl_label(lv_obj_t* obj, struct EhsWidgetStruct* pWidget, ehs_bool set_text)
@@ -1328,14 +1638,27 @@ lv_obj_t* EhsTargetWidgetUi_create_lvgl_label(lv_obj_t* obj, struct EhsWidgetStr
     lv_obj_set_style_text_font(obj, font, LV_PART_MAIN);
     lv_obj_set_style_text_line_space(obj, EHS_WIDGET_UI(pWidget).nLineSep, LV_PART_MAIN);
     if(set_text == EHS_TRUE){
-        const char* label_text = ((EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data)->label;
-        if(label_text != NULL){
-            lv_label_set_text(label_obj, label_text);
-        }else{
-            lv_label_set_text(label_obj, "");
+        if(EHS_WIDGET_UI(pWidget).data){
+            void* label = ((EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data)->label;
+            const char* label_text = (label) ? (const char*)label : NULL;
+            if(label_text != NULL){
+                lv_label_set_text(label_obj, label_text);
+            }else{
+                lv_label_set_text(label_obj, "");
+            }
         }
     }
     return label_obj;
+}
+
+lv_color_t EhsTargetWidgetUi_bg_color(struct EhsWidgetStruct* pWidget)
+{
+    return lv_color_make(EHS_WIDGET_UI(pWidget).xBgColour.sComp.nRed, EHS_WIDGET_UI(pWidget).xBgColour.sComp.nGreen, EHS_WIDGET_UI(pWidget).xBgColour.sComp.nBlue);
+}
+
+lv_color_t EhsTargetWidgetUi_fg_color(struct EhsWidgetStruct* pWidget)
+{
+    return lv_color_make(EHS_WIDGET_UI(pWidget).xFgColour.sComp.nRed, EHS_WIDGET_UI(pWidget).xFgColour.sComp.nGreen, EHS_WIDGET_UI(pWidget).xFgColour.sComp.nBlue);
 }
 
 void EhsTargetWidgetUi_set_lvgl_background(lv_obj_t* obj, struct EhsWidgetStruct* pWidget, ehs_uint32 part_id)
@@ -1371,7 +1694,8 @@ const char* EhsTargetWidgetUi_set_second_label(struct EhsWidgetStruct* pWidget, 
     if(lv_obj_get_child_cnt(obj) == 0){
         lv_obj_t* label = lv_label_create(obj);
         // use style property reserved to define label style
-        switch (EHS_WIDGET_UI(pWidget).properties)
+        ehs_uint16 style = EHS_WIDGET_UI(pWidget).properties;
+        switch (style)
         {
         case 7:
             lv_obj_set_align(label, LV_ALIGN_OUT_TOP_LEFT);
@@ -1379,12 +1703,12 @@ const char* EhsTargetWidgetUi_set_second_label(struct EhsWidgetStruct* pWidget, 
         case 6:
             lv_obj_set_align(label, LV_ALIGN_OUT_BOTTOM_LEFT);
             break;
-        case 8:
-            lv_obj_set_align(label, LV_ALIGN_TOP_MID);
+        case EHS_CUSTOM_STYLE_8_ID:
+            /* TODO - we use this for calling font for special characters */
             break;
-        case 9:
-            /* heatrod style */
+        case EHS_CUSTOM_STYLE_9_ID: /* HEATROD reserved style */
             font_size = 12;
+            color = lv_color_make(180,180,180);
             lv_obj_set_align(label, LV_ALIGN_BOTTOM_LEFT);
             break;
         default:
@@ -1398,7 +1722,8 @@ const char* EhsTargetWidgetUi_set_second_label(struct EhsWidgetStruct* pWidget, 
         lv_obj_set_style_text_line_space(label, font_size, LV_PART_MAIN);
     }
     lv_obj_t* label = lv_obj_get_child(obj, 0);
-    lv_label_set_text_fmt(label, "%s", text);
+    EhsTargetWidget_lvgl_unescape_unicode(text, gUnescapeUnicodeBuffer);
+    lv_label_set_text_fmt(label, "%s", gUnescapeUnicodeBuffer);
     return lv_label_get_text(label);
 }
 
@@ -1473,6 +1798,7 @@ lv_obj_t* EhsTargetWidgetUi_factory(struct EhsWidgetStruct* pWidget){
         {
             #if LV_USE_SLIDER
             obj = lv_slider_create(lv_scr_act());
+            lv_obj_clear_flag(obj, LV_OBJ_FLAG_GESTURE_BUBBLE);
             lv_obj_add_event_cb(obj, EhsTargetWidgetUi_slider_event_handler, LV_EVENT_VALUE_CHANGED, pWidget);
             lv_obj_add_event_cb(obj, EhsTargetWidgetUi_gui_pressed_event_handler, LV_EVENT_PRESSED, pWidget);
             lv_obj_add_event_cb(obj, EhsTargetWidgetUi_gui_click_event_handler, LV_EVENT_CLICKED, pWidget);
@@ -1543,6 +1869,8 @@ lv_obj_t* EhsTargetWidgetUi_factory(struct EhsWidgetStruct* pWidget){
 
                 // add callback for chart begin draw to update style
                 lv_obj_add_event_cb(obj, chart_draw_begin_event_cb, LV_EVENT_DRAW_PART_BEGIN, (void*)pWidget);
+                lv_obj_add_event_cb(obj, EhsTargetWidgetUi_gui_pressed_event_handler, LV_EVENT_PRESSED, (void*)pWidget);
+                lv_obj_add_event_cb(obj, EhsTargetWidgetUi_gui_click_event_handler, LV_EVENT_CLICKED, (void*)pWidget);
 
                 // remove border
                 lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN);
@@ -1579,56 +1907,56 @@ lv_obj_t* EhsTargetWidgetUi_factory(struct EhsWidgetStruct* pWidget){
                 lv_obj_set_style_size(obj, 0, LV_PART_INDICATOR);
 
                 // set point count for the chart
-                ehs_uint16 point_count = 0;
-                if(pChart->data1_size > pChart->data2_size){
-                    point_count = pChart->data1_size;
-                }else{
-                    point_count = pChart->data2_size;
-                }
+                ehs_uint16 point_count = pChart->data_size;
+
+                // set update mode
+                lv_chart_set_update_mode(obj, LV_CHART_UPDATE_MODE_SHIFT);
+                
                 if(point_count > 0){
                     lv_chart_set_point_count(obj, point_count);
                 }
 
-                uint8_t hdiv = 5;
-                uint8_t vdiv = 9;
+                // number of horizontal/vertical division lines
+                uint8_t hdiv = pChart->hdiv;
+                uint8_t vdiv = pChart->vdiv;
 
                 // set number of division lines
                 lv_chart_set_div_line_count(obj, hdiv, vdiv);
 
+                lv_chart_set_range(obj, LV_CHART_AXIS_PRIMARY_X, pChart->xmin, pChart->xmax);
+                lv_chart_set_range(obj, LV_CHART_AXIS_PRIMARY_Y, pChart->ymin, pChart->ymax);
+
+                lv_chart_set_axis_tick(obj, LV_CHART_AXIS_PRIMARY_X, 10, 0, vdiv, 1, true, 35);
+                lv_chart_set_axis_tick(obj, LV_CHART_AXIS_PRIMARY_Y, 10, 0, hdiv, 1, true, 35);
+
                 /* data1 series */
-                if(pChart->data1_size > 0){
-                    lv_chart_set_range(obj, LV_CHART_AXIS_PRIMARY_X, pChart->xmin, pChart->xmax);
-                    lv_chart_set_range(obj, LV_CHART_AXIS_PRIMARY_Y, pChart->ymin, pChart->ymax);
-
-                    lv_chart_set_axis_tick(obj, LV_CHART_AXIS_PRIMARY_X, 10, 0, vdiv, 1, true, 30);
-                    lv_chart_set_axis_tick(obj, LV_CHART_AXIS_PRIMARY_Y, 10, 0, hdiv, 1, true, 30);
-
-                    lv_chart_series_t * ser1 = lv_chart_add_series(obj, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
-                    for(int i = 0; i < pChart->data1_size; i++){
+                if(pChart->enable_data1){
+                    lv_chart_series_t * ser1 = lv_chart_add_series(obj, ehs_chart_color(EHS_CHART_DATA1_ID, EHS_CUSTOM_STYLE_9_ID), LV_CHART_AXIS_PRIMARY_X|LV_CHART_AXIS_PRIMARY_Y);
+                    for(int i = 0; i < pChart->data_size; i++){
                         lv_chart_set_next_value(obj, ser1, 0);
                     }
                     pChart->data1 = (ehs_sint16*)&ser1->y_points[0];
                 }
-                
+            
                 /* data2 series */
-                if(pChart->data2_size > 0){
-                    // @TODO - range for secondary plot should be different
-                    lv_chart_set_range(obj, LV_CHART_AXIS_SECONDARY_X, pChart->xmin, pChart->xmax);
-                    lv_chart_set_range(obj, LV_CHART_AXIS_SECONDARY_Y, pChart->ymin, pChart->ymax);
-                    lv_chart_series_t * ser2 = lv_chart_add_series(obj, lv_palette_main(LV_PALETTE_BLUE), LV_CHART_AXIS_SECONDARY_Y);
-                    for(int i = 0; i < pChart->data2_size; i++){
+                if(pChart->enable_data2){
+                    lv_chart_series_t * ser2 = lv_chart_add_series(obj, ehs_chart_color(EHS_CHART_DATA2_ID, EHS_CUSTOM_STYLE_9_ID), LV_CHART_AXIS_PRIMARY_X|LV_CHART_AXIS_PRIMARY_Y);
+                    for(int i = 0; i < pChart->data_size; i++){
                         lv_chart_set_next_value(obj, ser2, 0);
                     }
                     pChart->data2 = (ehs_sint16*)&ser2->y_points[0];
-                }                
+                }
+
+                /* data3 series */
+                if(pChart->enable_data3){
+                    lv_chart_series_t * ser3 = lv_chart_add_series(obj, ehs_chart_color(EHS_CHART_DATA3_ID, EHS_CUSTOM_STYLE_9_ID), LV_CHART_AXIS_PRIMARY_X|LV_CHART_AXIS_PRIMARY_Y);
+                    for(int i = 0; i < pChart->data_size; i++){
+                        lv_chart_set_next_value(obj, ser3, 0);
+                    }
+                    pChart->data3 = (ehs_sint16*)&ser3->y_points[0];
+                }          
 
                 // @TODO - add zoom in/out options
-
-                /* title */
-                if(pChart->title[0] != '\0'){
-                    lv_obj_t * chart_label = lv_label_create(obj);
-                    lv_label_set_text(chart_label, pChart->title);
-                }
 
                 lv_chart_refresh(obj);
             }
@@ -1656,7 +1984,7 @@ lv_obj_t* EhsTargetWidgetUi_factory(struct EhsWidgetStruct* pWidget){
             #endif
             break;
         }
-        case EHS_INT_UI_WIDGET_LIST_BOX:
+        case EHS_INT_UI_WIDGET_DROP_DOWN_LIST:
         {
             #if LV_USE_DROPDOWN
 
@@ -1670,7 +1998,7 @@ lv_obj_t* EhsTargetWidgetUi_factory(struct EhsWidgetStruct* pWidget){
             #endif
             break;
         }
-        case EHS_STRING_UI_TEXT_FIELD:
+        case EHS_STRING_UI_WIDGET_TEXT_FIELD:
         {
             #if LV_USE_TEXTAREA
 
@@ -1689,13 +2017,93 @@ lv_obj_t* EhsTargetWidgetUi_factory(struct EhsWidgetStruct* pWidget){
         case EHS_FLOAT_UI_WIDGET_ROLLER:
         {
             #if LV_USE_ROLLER
-            // create a background for the roller object
+            obj = lv_roller_create(lv_scr_act());
+            lv_obj_add_event_cb(obj, EhsTargetWidgetUi_numeric_roller_event_handler, LV_EVENT_VALUE_CHANGED, (void*)pWidget);
+            lv_obj_clear_flag(obj, LV_OBJ_FLAG_GESTURE_BUBBLE); // clear this to prevent GESTURES while rolling
+            lv_roller_set_options(obj, "0", LV_ROLLER_MODE_NORMAL);
+            lv_roller_set_visible_row_count(obj, 3);
+            EhsTargetWidgetUi_set_lvgl_background(obj, pWidget, LV_PART_MAIN);
+            const lv_font_t* font = Ehs_LVGL_find_font(EHS_WIDGET_UI(pWidget).nLineSep);
+            lv_obj_set_style_text_font(obj, font, LV_PART_MAIN);
+            lv_obj_set_style_text_color(obj, EhsTargetWidgetUi_fg_color(pWidget), LV_PART_MAIN);
+            if(true){ // @TODO - control this with style option for roller
+                lv_obj_set_style_text_color(obj, lv_color_make(20, 20, 20), LV_PART_SELECTED);
+                lv_obj_set_style_bg_color(obj, lv_color_make(230, 230, 230), LV_PART_SELECTED);
+                lv_obj_set_style_border_color(obj, lv_color_make(70, 70, 70), LV_PART_MAIN);
+            }
+            lv_roller_set_selected(obj, 0, LV_ANIM_OFF);
+            #endif
+            break;
+        }
+        case EHS_FLOAT_UI_WIDGET_NUMPAD:
+        case EHS_STRING_UI_WIDGET_KEYPAD:
+        {
+            #if LV_USE_TEXTAREA && LV_USE_KEYBOARD
             obj = lv_obj_create(lv_scr_act());
             EhsTargetWidgetUi_set_lvgl_background(obj, pWidget, LV_PART_MAIN);
             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN);
-            lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW);
-            lv_obj_set_style_pad_column(obj, 5, 0);
+            lv_obj_set_style_pad_top(obj, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_left(obj, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN);
+ 
+             /* create the text area */
+            lv_obj_t* ta = lv_textarea_create(obj);
+
+            lv_obj_add_event_cb(ta, EhsTargetWidgetUi_keyboard_event_handler, LV_EVENT_READY, (void*)pWidget);
+            lv_obj_add_event_cb(ta, EhsTargetWidgetUi_keyboard_event_handler, LV_EVENT_CANCEL, (void*)pWidget);
+
+            EhsTargetWidgetUi_set_lvgl_background(ta, pWidget, LV_PART_MAIN);
+            EhsTargetWidgetUi_set_lvgl_obj_text_style(ta, pWidget, LV_PART_MAIN);
+            lv_obj_set_style_pad_top(ta, EHS_WIDGET_UI(pWidget).nIndentTop, LV_PART_MAIN);
+            lv_obj_set_style_pad_bottom(ta, EHS_WIDGET_UI(pWidget).nIndentBottom, LV_PART_MAIN);
+            lv_obj_set_style_pad_left(ta, EHS_WIDGET_UI(pWidget).nIndentLeft, LV_PART_MAIN);
+            lv_obj_set_style_pad_right(ta, EHS_WIDGET_UI(pWidget).nIndentRight, LV_PART_MAIN);
+            lv_obj_set_style_radius(ta, EHS_WIDGET_UI(pWidget).curvature, LV_PART_MAIN);
+            lv_obj_set_style_border_width(ta, 0, LV_PART_MAIN);
+
+            const static int text_size_perc = 20; // size of text field in %
+
+            lv_obj_set_size(ta, lv_pct(100), lv_pct(text_size_perc));
+
+            lv_textarea_set_accepted_chars(ta, "-0123456789.");
+            lv_textarea_set_max_length(ta, 16);
+            lv_textarea_set_one_line(ta, true);
+            lv_textarea_set_text(ta, "");
+
+            /* create a keyboard */
+            lv_obj_t* kb = lv_keyboard_create(obj);
+            lv_obj_set_size(kb, lv_pct(100), lv_pct(100-text_size_perc));
+            lv_obj_set_style_pad_top(kb, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_bottom(kb, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_left(kb, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_right(kb, 0, LV_PART_MAIN);
+            lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_NUMBER);
+            lv_keyboard_set_textarea(kb, ta);
+            
+            //lv_obj_set_grid_cell(kb, LV_GRID_ALIGN_STRETCH, 0, 0, LV_GRID_ALIGN_STRETCH, 2, 0);
             #endif
+            break;
+        }
+        case EHS_STRING_UI_WIDGET_LABEL_LIST:
+        {
+            // create an empty container to hold the list of labels
+            obj = lv_obj_create(lv_scr_act());
+            lv_obj_set_size(obj, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
+            lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
+            lv_obj_set_style_pad_row(obj, EHS_WIDGET_UI(pWidget).nIndentRight, LV_PART_MAIN); // @TODO - for now use right padding for gap in rows
+            lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN);
+            lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_top(obj, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_left(obj, 0, LV_PART_MAIN);
+            lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN);
+            break;
+        }
+        case EHS_OTHER_UI_WIDGET_VIEWPORT:
+        {
+            lv_obj_add_event_cb(lv_scr_act(), EhsTargetWidgetUi_viewport_event_handler, LV_EVENT_GESTURE, (void*)pWidget);
+
             break;
         }
 #if EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_GUI
@@ -1729,8 +2137,8 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
             EhsWidgetUi* gui = (EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data;
             if(gui){
                 if(gui->data){
-                    const char* str_value = (const char*)gui->data;
-                    lv_label_set_text_fmt(EHS_WIDGET_UI(pWidget).pUiObject, "%s", str_value);
+                    EhsTargetWidget_lvgl_unescape_unicode((const char*)gui->data, gUnescapeUnicodeBuffer);
+                    lv_label_set_text_fmt(EHS_WIDGET_UI(pWidget).pUiObject, "%s", gUnescapeUnicodeBuffer);
                     value = lv_label_get_text(EHS_WIDGET_UI(pWidget).pUiObject);
                     event_id |= EHS_WIDGET_UI_EVENT_DATA_UPDATED;
                 }
@@ -1787,7 +2195,7 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
             EhsWidgetUi* gui = (EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data;
             if(gui){
                 if(gui->data){
-                    value = (float)*((double*)gui->data);
+                    value = (float)*((ehs_float*)gui->data);
                     const char* float_format_str = EhsTargetWidgetUi_float_format_str(pWidget);
                     lv_label_set_text_fmt(EHS_WIDGET_UI(pWidget).pUiObject, float_format_str, value);
                     event_id |= EHS_WIDGET_UI_EVENT_DATA_UPDATED;
@@ -1817,7 +2225,8 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
             if(gui){
                 lv_obj_t * btn_label = lv_obj_get_child(EHS_WIDGET_UI(pWidget).pUiObject, 0);
                 if(gui->label){
-                    lv_label_set_text(btn_label, gui->label);
+                    EhsTargetWidget_lvgl_unescape_unicode(gui->label, gUnescapeUnicodeBuffer);
+                    lv_label_set_text(btn_label, gUnescapeUnicodeBuffer);
                 }else{
                     lv_label_set_text(btn_label, "");
                 }
@@ -1833,7 +2242,8 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
             if(gui){
                 lv_obj_t * btn_label = lv_obj_get_child(EHS_WIDGET_UI(pWidget).pUiObject, 0);
                 if(gui->label){
-                    lv_label_set_text(btn_label, gui->label);
+                    EhsTargetWidget_lvgl_unescape_unicode(gui->label, gUnescapeUnicodeBuffer);
+                    lv_label_set_text(btn_label, gUnescapeUnicodeBuffer);
                 }else{
                     lv_label_set_text(btn_label, "");
                 }
@@ -1857,7 +2267,8 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
             if(gui){
                 lv_obj_t * check_box = EHS_WIDGET_UI(pWidget).pUiObject;
                 if(gui->label){
-                    lv_checkbox_set_text(check_box, gui->label);
+                    EhsTargetWidget_lvgl_unescape_unicode(gui->label, gUnescapeUnicodeBuffer);
+                    lv_checkbox_set_text(check_box, gUnescapeUnicodeBuffer);
                 }else{
                     lv_checkbox_set_text(check_box, "");
                 }
@@ -1891,7 +2302,7 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
                 void* slider_data = NULL;
                 if(gui->data){
                     if(EHS_WIDGET_UI(pWidget).id == EHS_FLOAT_UI_WIDGET_SLIDER){
-                        float_value = (float)*((double*)gui->data);
+                        float_value = (float)*((ehs_float*)gui->data);
                         slider_data = &float_value;
                         int_value = (ehs_sint32)float_value; 
                     }else{
@@ -1922,7 +2333,7 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
                 void* bar_data = NULL;
                 if(gui->data){
                     if(EHS_WIDGET_UI(pWidget).id == EHS_FLOAT_UI_WIDGET_PROGRESS_BAR){
-                        float_value = (float)*((double*)gui->data);
+                        float_value = (float)*((ehs_float*)gui->data);
                         bar_data = &float_value;
                         int_value = (ehs_sint32)float_value; 
                     }else{
@@ -1953,7 +2364,7 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
                 void* meter_data = NULL;
                 if(gui->data){
                     if(EHS_WIDGET_UI(pWidget).id == EHS_FLOAT_UI_WIDGET_GAUGE){
-                        float_value = (float)*((double*)gui->data);
+                        float_value = (float)*((ehs_float*)gui->data);
                         meter_data = &float_value;
                         int_value = (ehs_sint32)float_value; 
                     }else{
@@ -1971,7 +2382,15 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
         case EHS_OTHER_UI_WIDGET_CHART:
         {
             #if LV_USE_CHART
-            lv_chart_refresh(EHS_WIDGET_UI(pWidget).pUiObject);
+            lv_obj_t* chart = (lv_obj_t*)EHS_WIDGET_UI(pWidget).pUiObject;
+            EhsWidgetUiChart* gui = (EhsWidgetUiChart*)EHS_WIDGET_UI(pWidget).data;
+            if(gui && gui->sett_changed == EHS_TRUE){
+                // Update chart settings
+                lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_X, gui->xmin, gui->xmax);
+                lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, gui->ymin, gui->ymax);
+                gui->sett_changed = EHS_FALSE;
+            }
+            lv_chart_refresh(chart);
             #endif
             break;
         }
@@ -2011,7 +2430,7 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
             #endif
             break;
         }
-        case EHS_INT_UI_WIDGET_LIST_BOX:
+        case EHS_INT_UI_WIDGET_DROP_DOWN_LIST:
         {
             #if LV_USE_DROPDOWN
             EhsWidgetUi* gui = (EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data;
@@ -2021,7 +2440,7 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
                     char* options = (char*)gui->label;
                     int len = EhsStrlen(options);
                     for(int i = 0; i < len; i++){
-                        if(options[i] == ',') options[i] = '\n';
+                        if(options[i] == EHS_LIST_WIDGET_DELIM) options[i] = '\n';
                     }
                     lv_dropdown_set_options(ddlist, options );
                 }else{
@@ -2039,7 +2458,7 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
             #endif
             break;
         }
-        case EHS_STRING_UI_TEXT_FIELD:
+        case EHS_STRING_UI_WIDGET_TEXT_FIELD:
         {
             #if LV_USE_TEXTAREA
             EhsWidgetUi* gui = (EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data;
@@ -2078,40 +2497,189 @@ void EhsTargetWidgetUi_update(struct EhsWidgetStruct* pWidget)
                 ehs_uint16 event_id = 0;
                 float value = 0;
                 const char* label = NULL;
-                lv_obj_t * roller_view = EHS_WIDGET_UI(pWidget).pUiObject;
-                if(roller_view){
-                    lv_obj_clean(roller_view);
-                }
+                lv_obj_t * roller = EHS_WIDGET_UI(pWidget).pUiObject;
                 if(gui->label){
-                    char* options = (char*)gui->label;
-                    // replace ',' deliminator with a new line
-                    int len = EhsStrlen(options);
-                    for(int i = 0; i < len; i++){
-                        if(options[i] == ',') options[i] = '\n';
-                    }
-                    // create all roller objects
-                    char option[EHS_ROLLER_OPTION_SIZE] = {0};
-                    do{
-                        options = (char*)EhsTargetWidgetUi_roller_numeric_next_option(options, option, EHS_ROLLER_OPTION_SIZE);
-                        if(option[0] != '\0'){
-                            lv_obj_t* roller = EhsTargetWidgetUi_create_roller_widget(roller_view, 0, 0, option);
-                            lv_obj_add_event_cb(roller, EhsTargetWidgetUi_numeric_roller_event_handler, LV_EVENT_VALUE_CHANGED, (void*)pWidget);
-                            lv_obj_center(roller);
-                            //lv_obj_set_width(roller, 50);
+                    char* current_option = lv_roller_get_options(roller);
+                    char* option = (char*)gui->label;
+                    if(current_option==NULL || EhsStrcmp(current_option, option) != 0){
+                        // replace ',' deliminator with a new line
+                        int len = EhsStrlen(option);
+                        for(int i = 0; i < len; i++){
+                            if(option[i] == ',') option[i] = '\n';
                         }
-                        option[0] = '\0';
-                    }while(options != NULL);
+                        lv_roller_set_options(roller, option, LV_ROLLER_MODE_NORMAL);
+                        event_id |= EHS_WIDGET_UI_EVENT_LABEL_UPDATED;
+                    }
                 }
                 if(gui->data){
-                    // @TODO - compleate this
-                    value = (float)*((double*)gui->data);
-                    char buf[EHS_ROLLER_ENTRY_SIZE] = {'\0'};
-                    EhsSprintf(buf, "%.1f", value);
+                    value = (float)*((ehs_float*)gui->data);
+                    char* current_option = lv_roller_get_options(roller);
+                    int index = EhsTargetWidgetUi_roller_numeric_option_index(current_option, value, EHS_WIDGET_UI(pWidget).nNoOfDecPlaces);
+                    if(index > -1 && index < lv_roller_get_option_cnt(roller)){
+                        if(index != lv_roller_get_selected(roller)){
+                            lv_roller_set_selected(roller, index, LV_ANIM_OFF);
+                        }
+                        event_id |= EHS_WIDGET_UI_EVENT_DATA_UPDATED;
+                    }
                     
                 }
                 EhsTargetWidgetUi_gui_data_value_event_handler(pWidget, event_id, label, (void*)&value);
             }
             #endif
+            break;
+        }
+        case EHS_STRING_UI_WIDGET_KEYPAD:
+        {
+            #if LV_USE_TEXTAREA && LV_USE_KEYBOARD
+            EhsWidgetUi* gui = (EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data;
+            if(gui){
+                const char* kb_type = gui->label; // using label to identify which keyboard type to use e.g. numeric or alphanumeric
+                const char* value = gui->data;
+                // get text-area and keyboard objects for the keyboard container
+                lv_obj_t* kb_cntr = EHS_WIDGET_UI(pWidget).pUiObject;
+                lv_obj_t* ta = lv_obj_get_child(kb_cntr, 0);
+                lv_obj_t* kb = lv_obj_get_child(kb_cntr, 1);
+                if(kb && ta && kb_type){
+                    if(EhsStrcmp("num", kb_type) == 0){
+                        lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_NUMBER);
+                        lv_textarea_set_accepted_chars(ta, "-0123456789.");
+                        lv_textarea_set_max_length(ta, 20);
+                    }else{
+                        lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_TEXT_LOWER);
+                        lv_textarea_set_accepted_chars(ta, "");
+                        lv_textarea_set_max_length(ta, 0);
+                    }
+                }
+                if(ta){
+                    if(value){
+                        lv_textarea_set_text(ta, value);
+                    }
+                    lv_obj_add_state(ta, LV_STATE_FOCUSED);
+                }
+            }
+            #endif
+            break;
+        }
+        case EHS_FLOAT_UI_WIDGET_NUMPAD:
+        {
+            #if LV_USE_TEXTAREA && LV_USE_KEYBOARD
+            EhsWidgetUi* gui = (EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data;
+            if(gui){
+                // get text-area and keyboard objects for the keyboard container
+                lv_obj_t* kb_cntr = EHS_WIDGET_UI(pWidget).pUiObject;
+                lv_obj_t* ta = lv_obj_get_child(kb_cntr, 0);
+                lv_obj_t* kb = lv_obj_get_child(kb_cntr, 1);
+                if(kb && ta){
+                    lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_NUMBER);
+                    lv_textarea_set_accepted_chars(ta, "-0123456789.");
+                    lv_textarea_set_max_length(ta, 20);
+                }
+                if(ta){
+                    if(gui->data){
+                        char value[32];
+                        float float_value = (float)*((ehs_float*)gui->data);
+                        const char* fmt = EhsTargetWidgetUi_float_format_str(pWidget);
+                        sprintf(value, fmt, float_value);
+                        EhsTargetWidgetUi_float_remove_trailing_zeros(value);
+                        lv_textarea_set_text(ta, value);
+                    }
+                    lv_obj_add_state(ta, LV_STATE_FOCUSED);
+                }
+            }
+            #endif
+            break;
+        }
+        case EHS_STRING_UI_WIDGET_LABEL_LIST:
+        {
+            EhsWidgetUi* gui = (EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data;
+            if(gui){
+                lv_obj_t* llist = EHS_WIDGET_UI(pWidget).pUiObject;
+                int existing_count = (llist) ? lv_obj_get_child_cnt(llist) : 0;
+                if (gui->data) {
+                    char *labels = (char *)gui->data;
+                    int count = 1;
+                    int len = EhsStrlen(labels);
+                    for (int i = 0; i < len; i++) {
+                        if (labels[i] == EHS_LIST_WIDGET_DELIM){
+                            count++;
+                        }
+                    }
+                    #define EHS_LABEL_LIST_TEXT_MAX_LEN (64 + 1)
+                    if (count != existing_count) {
+                        lv_obj_clean(llist);
+                        int height_perc = 100 / count; // label height in terms of list widget height %
+                        int gap = (pWidget->xCurRect.nHeight > 0)? (int)((float)(100 * EHS_WIDGET_UI(pWidget).nIndentRight) / (float)pWidget->xCurRect.nHeight) : 0;
+                        height_perc -= gap;
+                        height_perc = (height_perc < 0) ? 0 : height_perc;
+                        int start = 0;
+                        for (int i = 0; i <= len; i++) {
+                            if (labels[i] == EHS_LIST_WIDGET_DELIM || labels[i] == '\0') {
+                                unsigned int label_length = i - start;
+                                if (label_length < EHS_LABEL_LIST_TEXT_MAX_LEN - 1) {
+                                    char text[EHS_LABEL_LIST_TEXT_MAX_LEN] = {0};
+                                    strncpy(text, &labels[start], label_length);
+                                    lv_obj_t *label = lv_label_create(llist);
+                                    EhsTargetWidgetUi_set_lvgl_background(label, pWidget, LV_PART_MAIN);
+                                    EhsTargetWidgetUi_set_lvgl_obj_text_style(label, pWidget, LV_PART_MAIN);
+                                    lv_color_t txt_color;
+                                    if (EhsTargetWidget_lvgl_extract_color(text, &txt_color) == EHS_TRUE) {
+                                        lv_obj_set_style_text_color(label, txt_color, LV_PART_MAIN);
+                                    }
+                                    lv_obj_set_style_pad_left(label, EHS_WIDGET_UI(pWidget).nIndentLeft, LV_PART_MAIN);
+                                    lv_obj_set_style_pad_top(label, EHS_WIDGET_UI(pWidget).nIndentTop, LV_PART_MAIN);
+                                    lv_obj_set_style_pad_bottom(label, EHS_WIDGET_UI(pWidget).nIndentBottom, LV_PART_MAIN);
+                                    lv_obj_set_style_pad_right(label, 0, LV_PART_MAIN);
+                                    lv_label_set_text(label, text);
+                                    lv_obj_set_style_radius(label, EHS_WIDGET_UI(pWidget).curvature, LV_PART_MAIN);
+                                    lv_obj_set_style_border_width(label, 0, LV_PART_MAIN);
+                                    lv_obj_set_size(label, lv_pct(100), lv_pct(height_perc));
+                                }
+                                start = i + 1;
+                            }
+                        }
+                    } else {
+                        // If count is the same, update existing labels
+                        int start = 0;
+                        int label_index = 0;
+                        for (int i = 0; i <= len; i++) {
+                            if (labels[i] == EHS_LIST_WIDGET_DELIM || labels[i] == '\0') {
+                                if(label_index >= existing_count){
+                                    break;
+                                }
+                                unsigned int label_length = i - start;
+                                if (label_length < EHS_LABEL_LIST_TEXT_MAX_LEN - 1) {
+                                    lv_obj_t* label = lv_obj_get_child(llist, label_index);
+                                    if (label != NULL) {
+                                        char text[EHS_LABEL_LIST_TEXT_MAX_LEN] = {0};
+                                        strncpy(text, &labels[start], label_length);
+                                        lv_color_t txt_color;
+                                        if (EhsTargetWidget_lvgl_extract_color(text, &txt_color) == EHS_TRUE) {
+                                            // apply color if it's different from the current one
+                                            lv_color_t curr_color = lv_obj_get_style_text_color(label, LV_PART_MAIN);
+                                            if (lv_color_to32(txt_color) != lv_color_to32(curr_color)){
+                                                lv_obj_set_style_text_color(label, txt_color, LV_PART_MAIN);
+                                            }
+                                        }
+                                        lv_label_set_text(label, text);
+                                    }
+                                }
+                                start = i + 1;
+                                label_index++;
+                            }
+                        }
+                    }
+                }else{
+                    if(existing_count > 0){
+                        lv_obj_clean(llist);
+                    }
+                }
+
+            }
+            break;
+        }
+        case EHS_OTHER_UI_WIDGET_VIEWPORT:
+        {
+            // @TODO - add any update code that's required for the viewport
             break;
         }
 #if EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_GUI
@@ -2154,8 +2722,6 @@ void EhsTargetWidgetUi_create_lvgl(struct EhsWidgetStruct* pWidget)
         EhsTargetWidgetUi_style(obj, pWidget);
         
         EhsTargetWidget_hide(obj);
-    }else{
-        // @todo - report error
     }
 }
 
@@ -2245,23 +2811,23 @@ void EhsTargetWidgetUi_draw(struct EhsWidgetStruct* pWidget)
     EhsTPMutex_unlock(EhsTPMutex_viewport);
 }
 
+void EhsTargetWidgetUi_viewport_cleanup(struct EhsWidgetStruct* pWidget)
+{
+    EhsTPMutex_lock(EhsTPMutex_viewport);
+
+    lv_obj_remove_event_cb_with_user_data(lv_scr_act(), EhsTargetWidgetUi_viewport_event_handler, (void*)pWidget);
+
+    EhsTPMutex_unlock(EhsTPMutex_viewport);
+}
+
 void EhsTargetWidget_show(struct EhsWidgetStruct* pWidget, ehs_uint8 nState)
 {
-    // EhsTPMutex_lock(EhsTPMutex_viewport); // mutex already called in 'EhsWidget_create' function
+    //EhsTPMutex_lock(EhsTPMutex_viewport); // mutex already called in 'EhsWidget_show' function
 
     EHS_WIDGET_UI(pWidget).nUiState |= EHS_WIDGET_UI_STATE_SHOW; // set flag to update shown state if this widget in the lvgl loop
     gEhsLvglState |= EHS_LVGL_STATE_UPDATE_WIDGET; // set flag to notify loop about widget changes
 
-    // EhsTPMutex_unlock(EhsTPMutex_viewport); // mutex already called in 'EhsWidget_create' function
-
-    // move to lvgl loop
-    if(EHS_WIDGET_UI(pWidget).pUiObject){
-        if(EHS_WIDGET_STATE_SHOWN(nState)){
-            EhsTargetWidget_unhide(EHS_WIDGET_UI(pWidget).pUiObject);
-        }else{
-            EhsTargetWidget_hide(EHS_WIDGET_UI(pWidget).pUiObject);
-        }
-    }
+    //EhsTPMutex_unlock(EhsTPMutex_viewport); // mutex already called in 'EhsWidget_show' function
 }
 
 void EhsTargetWidgetUi_curvature(lv_obj_t* obj, struct EhsWidgetStruct* pWidget)
@@ -2389,11 +2955,13 @@ void EhsTargetWidgetUi_style(lv_obj_t* obj, struct EhsWidgetStruct* pWidget)
         }
         case 7:
         case 6:
-        case 8:
-        case 9:{
-            //////////////////////////////////////////////////////////////
-            /// reserved for widget label styles. do not overwrite it! ///
-            //////////////////////////////////////////////////////////////
+        case EHS_CUSTOM_STYLE_8_ID:
+        case EHS_CUSTOM_STYLE_9_ID:{
+            /////////////////////////////////////////////////////////////////
+            /// reserved for widget label styles and other custom styles. ///
+            ///                 DO NOT OVERWRITE IT!                      ///
+            ///          see --> EhsTargetWidgetUi_set_second_label       ///
+            /////////////////////////////////////////////////////////////////
             return;
         }
         default:{

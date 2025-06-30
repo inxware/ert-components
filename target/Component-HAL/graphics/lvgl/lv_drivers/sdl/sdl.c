@@ -342,14 +342,16 @@ static void window_create(monitor_t * m)
 
     int flag = 0;
 #if SDL_FULLSCREEN
-    flag |= SDL_WINDOW_FULLSCREEN;
+    flag |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 #endif
+    flag |= SDL_WINDOW_OPENGL;
 
-    m->window = SDL_CreateWindow("eRT",
+    m->window = SDL_CreateWindow("eRT (F8 - Home)",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               SDL_HOR_RES * SDL_ZOOM, SDL_VER_RES * SDL_ZOOM, flag);       /*last param. SDL_WINDOW_BORDERLESS to hide borders*/
 
-    m->renderer = SDL_CreateRenderer(m->window, -1, SDL_RENDERER_SOFTWARE);
+    //m->renderer = SDL_CreateRenderer(m->window, -1, SDL_RENDERER_SOFTWARE);
+    m->renderer = SDL_CreateRenderer(m->window, -1, SDL_RENDERER_ACCELERATED);
     m->texture = SDL_CreateTexture(m->renderer,
                                 SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SDL_HOR_RES, SDL_VER_RES);
     SDL_SetTextureBlendMode(m->texture, SDL_BLENDMODE_BLEND);

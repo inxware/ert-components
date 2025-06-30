@@ -35,5 +35,7 @@ LIB += iphlpapi
 OBJECTS += target_gapfiller.$(OBJ)
 OBJECTS += target_time.$(OBJ)
 OBJECTS += targetos_init.$(OBJ)
+OBJECTS += target_display.$(OBJ)
+OBJECTS += target_sys_stat.$(OBJ)
 
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/target.mk

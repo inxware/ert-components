@@ -11,21 +11,26 @@ Firstly a generic set of config and directories is copied to the staging directo
 
     make targetenv
 
-copies from 
+Copies any general data from 
 
     ./target/envtree/Generic-ehs-tree/root-ehs_dir/root-ehs_dir/*
 
-then OS-specific assets are copied from  is identified in the ./target/os-arch/
+Then OS-specific assets are copied from  is identified in the ./target/os-arch/
 
     ./target/envtree/${EHS_OS}-ehs-tree/root-ehs_dir/root-ehs_dir/*
 
-Then if there is a devman scripts or configuration (e.g. OS-level connection) at 
+There may be platform-specific scripts called by start-up scripts in
+
+    ./target/envtree/PLATFORM-SPECIFIC/${SYSTEM_VARIANT}/root-ehs_dir/*
+
+Then if there is a devman data or configuration (e.g. OS-level connection) these are copied from 
 
     ./target/envtree/${EHS_OS}-ehs-tree/root-ehs_dir/devman/*
 
-Finally there may be some first boot install scripts to be installed from 
+There may be some subsequent first boot install scripts to be installed from 
 
-    ./target/envtree/${EHS_OS}-ehs-tree/root-ehs_dir/system/HostIOSInit/
+    ./target/envtree/${EHS_OS}-ehs-tree/root-ehs_dir/
+
 
 which would be run on firdt boot (see spefific README.md for each OS type)
 

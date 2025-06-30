@@ -11,7 +11,7 @@
 /* My Component state data structure. - Use this in your code! */
 typedef struct inx_gui_patch_state
 {
-	ehs_uint16 id;
+	//ehs_uint16 id;
 	EhsWidgetClass* pUiWidgetClass;
 } inx_gui_patch_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
@@ -86,8 +86,7 @@ EHS_FB_INIT_FUNCTION(gui_patch)
 		if (xParams.eClass == EHS_WIDGET_CLASS_PATCH)
 		{
 #ifdef EHS_GUI_SUPPORT_MODE_B
-			inx_gui_patch_state->id = EHS_OTHER_UI_WIDGET_PANEL;
-			inx_gui_patch_state->pUiWidgetClass = EhsWidgetUI_init(inx_gui_patch_state->id, 0, xParams.uClass.xTextbox.nCurve, 0,
+			inx_gui_patch_state->pUiWidgetClass = EhsWidgetUI_init(EHS_OTHER_UI_WIDGET_PANEL, 0, xParams.uClass.xTextbox.nCurve, 0,
 			                                                    &(xParams.xRect),xParams.nZorder,
 																0, 0, 0, 0, 0,
 																xParams.uClass.xPatch,
@@ -185,11 +184,11 @@ EHS_FB_RUN_FUNCTION(gui_patch_create)
 		}
 
 		EhsWidget_create(pWidget);
-
+#ifndef EHS_GUI_SUPPORT_MODE_B
 		/*Set number of mouseClick port*/
 		pWidget->mouseClickPortNumber = INX_gui_patch_ARG_create_click;
 		pWidget->mouseDownPortNumber = INX_gui_patch_ARG_create_mouse_down;
-
+#endif
 		EHS_FB_FINISH(INX_gui_patch_ARG_create___);
 	}
 }//ICB FUNCTION create MACRO END -- DO NOT ALTER THIS LINE

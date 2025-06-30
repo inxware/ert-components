@@ -13,7 +13,10 @@
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-devman_interface.h"
-
+#include "hal_devman.h"
+#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+#include "hal_mqtt.h"
+#endif
 
 //ICB HEADER MACRO END -- DO NOT ALTER
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -34,6 +37,7 @@ EHS_FB_FUNCTION_ENTRY("getServerUrl", 0x02, DevmanInterface_getServerUrl)
 EHS_FB_FUNCTION_ENTRY("setServerUrl", 0x05, DevmanInterface_setServerUrl)
 EHS_FB_FUNCTION_ENTRY("listen4New", 0x03, DevmanInterface_listen4New)
 EHS_FB_FUNCTION_ENTRY("getMiscData", 0x04, DevmanInterface_getMiscData)
+EHS_FB_FUNCTION_ENTRY("getNetStatus", 0x06, DevmanInterface_getNetStatus)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -52,6 +56,9 @@ EHS_FB_FUNCTIONS_END
 #define INX_DevmanInterface_ARG_listen4New_new 1
 #define INX_DevmanInterface_ARG_getMiscData_JSON 1
 #define INX_DevmanInterface_ARG_getMiscData_gotAll 1
+#define INX_DevmanInterface_ARG_getNetStatus_connected 1
+#define INX_DevmanInterface_ARG_getNetStatus_net_error 2
+#define INX_DevmanInterface_ARG_getNetStatus_net_status_done 1
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
@@ -128,6 +135,7 @@ EHS_FB_RUN_FUNCTION(DevmanInterface_send)
     EHS_FB_FINISH(INX_DevmanInterface_ARG_send_sendDone);
 }//ICB FUNCTION send MACRO END -- DO NOT ALTER THIS LINE
 
+#if EHS_DEVMAN_MON_SUPPORT != EHS_DEVMAN_MON_MQTT
 
 extern EhsMetaDataType EhsMetaData;
 
@@ -208,7 +216,7 @@ EHS_FB_THREAD_FUNCTION(DevmanInterface_listen4New_thread)
     }
 }
 
-
+#endif
 //ICB FUNCTION listen4New MACRO START -- DO NOT ALTER
 /**
  * Definition of DevmanInterface_listen4New.
@@ -219,12 +227,14 @@ EHS_FB_THREAD_FUNCTION(DevmanInterface_listen4New_thread)
  */
 EHS_FB_RUN_FUNCTION(DevmanInterface_listen4New)
 {
+#if EHS_DEVMAN_MON_SUPPORT != EHS_DEVMAN_MON_MQTT
     inx_DevmanInterface_state_type* inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_RUN_CONTEXT;
     if (inx_DevmanInterface_state->instance_running == EHS_FALSE) {
         EHS_FB_START_THREAD(DevmanInterface_listen4New_thread, -90);
         //EHSH_LOG_INFO("Devman FB Listening socket");
     }
     else EHSH_LOG_WARNING("Already running listening thread not restarting");
+#endif
     // Your code here
 }//ICB FUNCTION listen4New MACRO END -- DO NOT ALTER THIS LINE
 
@@ -292,3 +302,39 @@ EHS_FB_RUN_FUNCTION(DevmanInterface_getServerUrl)
         EhsHDevmanGetURL(EHS_FB_OUT_S_API2(INX_DevmanInterface_ARG_getServerUrl_serverURL), EHS_DEVMAN_COREURLS,EHS_MAXDEVMANNAMELEN, 0); //reporting status the first in the list
     EHS_FB_FINISH(INX_DevmanInterface_ARG_getServerUrl_getAllDone);
 }//ICB FUNCTION getServerUrl MACRO END -- DO NOT ALTER THIS LINE
+
+/**
+ * Definition of DevmanInterface_getNetStatus.
+ * [User's info entered in ICB added here]
+ * This function can access the object data shared using the following macros:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DevmanInterface_getNetStatus)
+{
+	inx_DevmanInterface_state_type* inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_RUN_CONTEXT;
+
+    ehs_sint32 net_err_id = 0;
+    ehs_bool devman_connected = EHS_FALSE;
+
+#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+    EhsMqttDevmanMon_t* pEhsMqttDevmanMon = EhsMqttDevmanMonSupport();
+    if(pEhsMqttDevmanMon != NULL){
+        devman_connected = pEhsMqttDevmanMon->mqtt_client_connected;
+    } else {
+        net_err_id = 1;
+    }
+#else
+    // @TODO - check status of non-mqtt interface
+    net_err_id = 1;
+#endif
+
+	// Your code here
+	if (EHS_FB_OUT_CONNECTED_API2(INX_DevmanInterface_ARG_getNetStatus_connected)){
+		EHS_FB_OUT_B_API2(INX_DevmanInterface_ARG_getNetStatus_connected) = devman_connected;
+    }
+	if (EHS_FB_OUT_CONNECTED_API2(INX_DevmanInterface_ARG_getNetStatus_net_error)){
+		EHS_FB_OUT_I_API2(INX_DevmanInterface_ARG_getNetStatus_net_error) = net_err_id;
+    }
+	EHS_FB_FINISH(INX_DevmanInterface_ARG_getNetStatus_net_status_done);
+}//ICB FUNCTION getNetStatus MACRO END -- DO NOT ALTER THIS LINE

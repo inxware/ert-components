@@ -41,7 +41,18 @@
         <FbApiDescriptorHash_CRC32>44cfc129</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
-    <Parameters/>
+    <Parameters>
+        <Parameter>
+            <Name>decimal places</Name>
+            <DataType>I</DataType>
+            <DefaultValue>3</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>6</MaxValue>
+            <Description>Max number of decimal places</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+    </Parameters>
     <Functions>
         <Function>
             <name>Run_ConvertorRealToString</name>

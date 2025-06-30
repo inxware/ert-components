@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Hex String to Raw</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      The `Hex String to String` function block is designed to convert a hexadecimal string into its corresponding binary byte array. This is particularly useful when processing data in hexadecimal format and converting it to raw binary data for further use in applications. If the input hex string has an odd number of characters, the function will prepend a '0' in cases where reading as text string is required.
+    </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]start">start</a></td>
+<td>Event to trigger the conversion process from hexadecimal string to character string.</td>
+</tr>
+<tr>
+<th>Data In</th>
+</tr>
+<tr>
+<td class="portsStr"><a name="[In]hexStringInput">hexStringInput</a></td>
+<td>Hexadecimal string input that is to be converted into a character string.</td>
+</tr>
+<tr>
+<th>Data Out</th>
+</tr>
+<tr>
+<td class="portsStr"><a name="[Out]stringOutput">stringOutput</a></td>
+<td>Character string output after conversion from the input hexadecimal string.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]length">length</a></td>
+<td>Length of the output character string.</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]OK">OK</a></td>
+<td>Event triggered after the conversion process is successfully completed.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td>
+<td colspan="5">None</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td>
+<td>Core</td>
+<td class="heading-cell"><b>Version</b></td>
+<td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td>
+<td>MPL2.0</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td>
+<td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td>
+<td>All.</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

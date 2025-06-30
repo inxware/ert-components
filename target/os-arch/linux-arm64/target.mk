@@ -47,4 +47,21 @@ include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/target.mk
 
 #libs found for this build - sysroot extracted from Blaze board
 
+
+########################################################################
+#  Set some default toolbox/component librarues for this target type
+########################################################################
+
+# Default to stubbing this for targets that don't declare a choice
+ifndef EHS_PERIPHERALS_GPIO_SUPPORT
+EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+endif
+
+ifndef EHS_PERIPHERAL_DEVICE_SUPPORT
 export EHS_PERIPHERAL_DEVICE_SUPPORT=all
+endif
+
+#TODO this should be conditional for raspberry pi
+#DEFS += EHS_TARGETOS_INIT_SPECIFIC_REQUIRED
+#OBJECTS += targetos_init_specific.$(OBJ)
+OBJECTS += spi.$(OBJ)

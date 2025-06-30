@@ -368,7 +368,6 @@ int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
             action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
             switch(action)
             {
-
             case AMOTION_EVENT_ACTION_DOWN:
 #ifdef EHS_GUI_SUPPORT
                 EhsT_android_event_button_press(x,y);
@@ -652,8 +651,6 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
         /**
          * Command from main thread: the app's activity has been started.
          */
-        // This is set up in java (at least for now)
-        //EhsTInitFileSystem(app);
         break;
     case    APP_CMD_RESUME:
         EHSH_LOG_INFO("Handling ANDROID COMMAND - APP_CMD_RESUME"); /* this is called before init window is called */
@@ -768,18 +765,10 @@ void displayKeyboard(struct android_app* mApplication, JNIEnv* lJNIEnv)
     }
 }
 
-
-
-
 /* this is the entry point for the android environment */
 void android_main(struct android_app* state)
 {
     struct engine engine;
-
-    // Make sure glue isn't stripped.
-    // app_dummy(); // no longer need
-    
-    //LOGE("MAINOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
 
     memset(&engine, 0, sizeof(engine));
     // cppcheck-suppress autoVariables
@@ -788,8 +777,6 @@ void android_main(struct android_app* state)
     state->onInputEvent = engine_handle_input;
     engine.app = state;
     /* now call our ehs bit */
-
-    // while(1) {sleep(1);}
 
     JavaVM* vm  = state->activity->vm;
     JNIEnv* env = state->activity->env;
@@ -862,7 +849,6 @@ void android_main(struct android_app* state)
         }
         else LOGI(" No find class :(");
         */
-
         //jobject oActivity = state->activity->clazz; //GetObjectClass
 
         jclass cls = (*jenv)->FindClass(jenv, "org/pjsip/pjsua/pjsua_appJNI");
@@ -877,11 +863,7 @@ void android_main(struct android_app* state)
 
     if (contextMethod)
     {
-        //(*env)->CallVoidMethod(env,state->activity->clazz, contextMethod,(*env)->NewStringUTF(env,"www.google.com"));//(appClassObj, mid, mEnv->NewStringUTF(url));
-
-        LOGI(" OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO...." );
         (*env)->CallStaticVoidMethod(env,state->activity->clazz, contextMethod,(*env)->NewStringUTF(env,"www.google.com"));//(appClassObj, mid, mEnv->NewStringUTF(url));
-        LOGI("Yeah!!!!!!!!!!!!!");
     }
 
     else

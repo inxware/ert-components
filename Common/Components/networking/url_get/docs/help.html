@@ -1,496 +1,511 @@
 <html>
- <head>
-  <LINK HREF="iabStyle.css" REL="StyleSheet" TYPE="text/css">
-  </LINK>
-  <LINK HREF="../iabStyle.css" REL="StyleSheet" TYPE="text/css">
-  </LINK>
-  <LINK HREF="../../iabStyle.css" REL="StyleSheet" TYPE="text/css">
-  </LINK>
-  <LINK HREF="../../../iabStyle.css" REL="StyleSheet" TYPE="text/css">
-  </LINK>
- </head>
- <body>
-  <div class="page_container">
-   <div id="toc_container">
-    <span class="toc_span">
+<head>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">
      Url Get
     </span>
-    <span class="toc_span_items">
-     <a href="#misc">
-      Misc	&darr;
+<span class="toc_span_items">
+<a href="#misc">
+      Misc	&#8595;
      </a>
-    </span>
-    <span class="toc_span_items">
-     <a href="#parameters">
-      Params &darr;
+</span>
+<span class="toc_span_items">
+<a href="#parameters">
+      Params &#8595;
      </a>
-    </span>
-    <span class="toc_span_items">
-     <a href="#ports">
-      Ports &darr;
+</span>
+<span class="toc_span_items">
+<a href="#ports">
+      Ports &#8595;
      </a>
-    </span>
-   </div>
-   <p class="component">
+</span>
+</div>
+<p class="component">
     Retrieves URLs using get or post and returns the data to a file location or as an output string.
    </p>
-  </div>
-  <!--Parameters - form - short desc: long desc-->
-  <div class="section_heading">
-   <span class="toc_span" id="parameters">
+</div>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">
     Parameters
    </span>
-   <div class="toc_span_items">
-    <a href="#toc_container">
-     Top &uarr;
+<div class="toc_span_items">
+<a href="#toc_container">
+     Top &#8593;
     </a>
-   </div>
-   <div class="toc_span_items">
-    <a href="#misc">
-     Misc &darr;
+</div>
+<div class="toc_span_items">
+<a href="#misc">
+     Misc &#8595;
     </a>
-   </div>
-   <div class="toc_span_items">
-    <a href="#ports">
-     Ports &darr;
+</div>
+<div class="toc_span_items">
+<a href="#ports">
+     Ports &#8595;
     </a>
-   </div>
-  </div>
-  <table class="table_params">
-   <tr>
-    <th style="width:60px;">
+</div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">
      name
     </th>
-    <th>
+<th>
      type
-    </th>
-    <th>
-     default
-    </th>
-    <th>
-     min.
-    </th>
-    <th>
-     max.
-    </th>
-    <th>
+    </th><th>
      description
     </th>
-   </tr>
-   <tr>
-   </tr>
-   <td>
+<th>
+     default
+    </th>
+<th>
+     min.
+    </th>
+<th>
+     max.
+    </th>
+
+</tr>
+<tr>
+</tr>
+<td>
     URL
    </td>
-   <td>
+<td>
     State
    </td>
-   <td>
+<td>
     None
    </td>
-   <td>
+<td>
     ""
    </td>
-   <td>
+<td>
     ""
    </td>
-   <td>
+<td>
     URL for the get method (provides base for post)
    </td>
-   <tr>
-   </tr>
-   <td>
+<tr>
+</tr>
+<td>
     Post Data
    </td>
-   <td>
+<td>
     State
    </td>
-   <td>
+<td>
     None
    </td>
-   <td>
+<td>
     ""
    </td>
-   <td>
+<td>
     ""
    </td>
-   <td>
+<td>
     post data to be appended to the URL (Leave empty to use get method).
    </td>
-   <tr>
-   </tr>
-   <td>
+<tr>
+</tr>
+<td>
     Local Path name=Force Post Method
    </td>
-   <td>
+<td>
     File Path
    </td>
-   <td>
+<td>
     None
    </td>
-   <td>
+<td>
     "" 0
    </td>
-   <td>
+<td>
     ""
    </td>
-   <td>
+<td>
     Local path to save data - empty means no save. Forces a post method using the URL string
    </td>
-   <tr>
-   </tr>
-   <td>
+<tr>
+</tr>
+<td>
     Use URL Path
    </td>
-   <td>
+<td>
     Boolean
    </td>
-   <td>
+<td>
     None
    </td>
-   <td>
+<td>
     1
    </td>
-   <td>
+<td>
     -
    </td>
-   <td>
+<td>
     Uses N levels of path when storing files to /Path
    </td>
-   <tr>
-   </tr>
-   <td>
-    Path Levels to Remove (N)
+<tr>
+</tr>
+<td>
+    Auth Certificates Source
    </td>
-   <td>
+<td>
+    Enumeration
+   </td>
+<td>
+    0
+   </td>
+<td>
+    0
+   </td>
+<td>
+    5
+   </td>
+<td>
+    Certificate (client and server bundles) can be restricted to the following sources: 0: Operating System, 1:user/, 2:user-app, 3:devman/certs 4: system/, 5:apps/
+   </td>
+<tr></tr>
+<td>
+    Path Levels to Remove
+   </td>
+<td>
     Integer
    </td>
-   <td>
+<td>
     0
    </td>
-   <td>
+<td>
     0
    </td>
-   <td>
+<td>
     10000
    </td>
-   <td>
-    If Use URL path is set then this parameter specfified how many path levels to remove from the beginning of the path.
+<td>
+    If the URL's path is set then this parameter specfified how many path levels to remove from the beginning of the path when saving the file
    </td>
-   <tr>
-   </tr>
-   <td>
+<tr>
+</tr>
+<td>
     Priority
    </td>
-   <td>
+<td>
     Integer
    </td>
-   <td>
+<td>
     0
    </td>
-   <td>
+<td>
     -100
    </td>
-   <td>
+<td>
     0
    </td>
-   <td>
+<td>
     Priority 0 is the same as any other function, priority = -100 is the lowest relative priority
    </td>
-   <tr>
-   </tr>
-   <td>
+<tr>
+</tr>
+<td>
     Timeout
    </td>
-   <td>
+<td>
     Integer
    </td>
-   <td>
+<td>
     60
    </td>
-   <td>
+<td>
     -1
    </td>
-   <td>
+<td>
     3600
    </td>
-   <td>
+<td>
     Times out the initial http request and returns Error and http code event if no connection is made.
    </td>
-  </table>
-  <div class="section_heading">
-   <span class="toc_span" id="ports">
+</table>
+<div class="section_heading">
+<span class="toc_span" id="ports">
     Ports
    </span>
-   <span class="toc_span_items">
-    <a href="#toc_container">
-     Top &uarr;
+<span class="toc_span_items">
+<a href="#toc_container">
+     Top &#8593;
     </a>
-   </span>
-   <span class="toc_span_items">
-    <a href="#misc">
-     Misc &darr;
+</span>
+<span class="toc_span_items">
+<a href="#misc">
+     Misc &#8595;
     </a>
-   </span>
-   <span class="toc_span_items">
-    <a href="#parameters">
-     Params &uarr;
+</span>
+<span class="toc_span_items">
+<a href="#parameters">
+     Params &#8593;
     </a>
-   </span>
-  </div>
-  <table class="table">
-   <tr>
-    <th>
+</span>
+</div>
+<table class="table">
+<tr>
+<th>
      In Ev.
     </th>
-    <th>
-    </th>
-   </tr>
-      <tr>
-    <td>
-     <a name="[In]Get">
+<th>
+</th>
+</tr>
+<tr>
+<td>
+<a name="[In]Get">
       Get
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Input event, makes a request to the server.
     </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[In]Abort">
+</tr>
+<tr>
+<td>
+<a name="[In]Abort">
       Abort
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Input event, aborts the request to the server.
     </td>
-   </tr>
-   <tr>
-    <th>
+</tr>
+<tr>
+<th>
      Data In
     </th>
-    <th>
-    </th>
-   </tr>
-   <tr>
-    <td>
-     <a name="[In]URL">
+<th>
+</th>
+</tr>
+<tr>
+<td>
+<a name="[In]URL">
       URL
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	 Data input, the URL to request data from.
     </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[In]post data">
+</tr>
+<tr>
+<td>
+<a name="[In]post data">
       post data
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Data input, post data to be included in the request to the server.
     </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[In]local path">
+</tr>
+<tr>
+<td>
+<a name="[In]local path">
       local path
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Data input, the path in the host device to save the data to.
     </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[In]URLdirDump">
+</tr>
+<tr>
+<td>
+<a name="[In]URLdirDump">
       URLdirDump
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Data input, the number of levels of the URL to remove when constructing a path to save the data to.
     </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[In]Priority">
+</tr>
+<tr>
+<td>
+<a name="[In]Priority">
       Priority
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Data input, the priority level of the request.
     </td>
-   </tr>
-   <tr>
-   <tr>
-    <th>
+</tr>
+<tr>
+<tr>
+<th>
      Data Out
     </th>
-    <th>
-    </th>
-   </tr>
-    <tr>
-    <td>
-     <a name="[Out]Getting">
+<th>
+</th>
+</tr>
+<tr>
+<td>
+<a name="[Out]Getting">
       Getting
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Output event, triggered by the input event <a href="#[In]Get">[In]Get</a>.
     </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[Out]------------">
+</tr>
+<tr>
+<td>
+<a name="[Out]------------">
       ------------
      </a>
-    </td>
-    <td>
-    </td>
-   </tr>
-    <td>
-     <a name="[Out]Response">
+</td>
+<td>
+</td>
+</tr>
+<td>
+<a name="[Out]Response">
       Response
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	 Data output, the data returned by the server if not saved to disk.
     </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[Out]enum">
+</tr>
+<tr>
+<td>
+<a name="[Out]enum">
       enum
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Data output, the standard HTTP error code presented when the output event <a href="#[In]Error">[In]Error</a> is asserted.
     </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[Out]estring">
+</tr>
+<tr>
+<td>
+<a name="[Out]estring">
       estring
      </a>
-    </td>
-    <td>
+</td>
+<td>
 	Data output, the standard HTTP error message presented when the output event <a href="#[In]Error">[In]Error</a> is asserted.
     </td>
-   </tr>
-   <tr>
-    <th>
+</tr>
+<tr>
+<th>
      Out Ev.
     </th>
-    <th>
-    </th>
-   </tr>
-    <tr>
-    <td>
-     <a name="[Out]DataReady">
+<th>
+</th>
+</tr>
+<tr>
+<td>
+<a name="[Out]DataReady">
       DataReady
      </a>
-    </td>
-    <td>
-    </td>
-   </tr>
-   <tr>
-    <td>
-     <a name="[Out]Error">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<a name="[Out]Error">
       Error
      </a>
-    </td>
-    <td>
-    </td>
-   </tr>
-  </table>
-  <div class="section_heading">
-   <span class="toc_span" id="misc">
+</td>
+<td>
+</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">
     Misc
    </span>
-   <span class="toc_span_items">
-    <a href="#toc_container">
-     Top &uarr;
+<span class="toc_span_items">
+<a href="#toc_container">
+     Top &#8593;
     </a>
-   </span>
-   <span class="toc_span_items">
-    <a href="#ports">
-     Ports &uarr;
+</span>
+<span class="toc_span_items">
+<a href="#ports">
+     Ports &#8593;
     </a>
-   </span>
-   <span class="toc_span_items">
-    <a href="#parameters">
-     Params &uarr;
+</span>
+<span class="toc_span_items">
+<a href="#parameters">
+     Params &#8593;
     </a>
-   </span>
-  </div>
-  <table>
-   <tr class="fsm_row">
-    <td style="width:90px;">
-     <b>
+</span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;">
+<b>
       State Machine
      </b>
-    </td>
-    <td colspan="5">
+</td>
+<td colspan="5">
      Stateless.
     </td>
-   </tr>
-   <tr>
-    <td class="heading-cell">
-     <b>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>
       Toolbox
      </b>
-    </td>
-    <td>
+</td>
+<td>
      GUI/Level1.
     </td>
-    <td class="heading-cell">
-     <b>
+<td class="heading-cell">
+<b>
       Version
      </b>
-    </td>
-    <td>
+</td>
+<td>
      v2.1.
     </td>
-   </tr>
-   <tr>
-    <td class="heading-cell">
-     <b>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>
       Licence Type
      </b>
-    </td>
-    <td>
+</td>
+<td>
      MPL2.0
     </td>
-    <td class="heading-cell">
-     <b>
+<td class="heading-cell">
+<b>
       Component Supplier
      </b>
-    </td>
-    <td>
-     <a href="http://www.inx-systems.net" target="_blank">
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">
       inx ltd.
      </a>
-    </td>
-   </tr>
-   <tr>
-    <td class="heading-cell">
-     <b>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>
       Minumum DCC
      </b>
-    </td>
-    <td>
+</td>
+<td>
      A0000
     </td>
-    <td class="heading-cell">
-     <b>
+<td class="heading-cell">
+<b>
       Profiles
      </b>
-    </td>
-    <td>
-    </td>
-   </tr>
-  </table>
- </body>
+</td>
+<td>
+</td>
+</tr>
+</table>
+</body>
 </html>

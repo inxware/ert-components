@@ -51,7 +51,7 @@
 /* Define Exec function block */
 
 EHS_FB_FUNCTIONS_START(Exec)
-EHS_FB_FUNCTION_ENTRY("Run", 0x01, Exec)
+EHS_FB_FUNCTION_ENTRY("run", 0x01, Exec)
 EHS_FB_FUNCTIONS_END
 
 /**
@@ -88,9 +88,9 @@ EHS_FB_INIT_FUNCTION(Exec)
  */
 EHS_FB_THREAD_FUNCTION(Exec)
 {
-    char szData1[EHS_STRING_LENGTH_MAX*2] = {'\0'};
-    char szData2[EHS_STRING_LENGTH_MAX]= {'\0'};
-    char szStdout[EHS_STRING_LENGTH_MAX]= {'\0'};
+    char szData1[EHS_STRING_LENGTH_MAX*2] = {'\0'};//TODO:STRINGLENGTH!
+    char szData2[EHS_STRING_LENGTH_MAX]= {'\0'};//TODO:STRINGLENGTH!
+    char szStdout[EHS_STRING_LENGTH_MAX]= {'\0'};//TODO:STRINGLENGTH!
 
     Ehs_FB_ThreadStarted(); //shouldn't this be in the calling func!!
     EhsStrcpy(szData2,EHS_FB_IN_S(0));
@@ -104,7 +104,6 @@ EHS_FB_THREAD_FUNCTION(Exec)
     {
         EhsSprintf(szData1,"export LD_LIBRARY_PATH=; %s",(char*)EHS_FB_RUN_CONTEXT);
     }
-
     //EhsTP_shellExecute(szData1); //this has a hardwired use if /bin/sh ..
     if (EhsTP_shellExecuteStdout(szStdout,szData1,EHS_STRING_LENGTH_MAX) == EHS_TRUE)
     {

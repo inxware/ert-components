@@ -91,6 +91,10 @@ UploadDevmanAppUpdatesData(){
     else
         EHS_UPDATES_SERVER_DIR="$SERVER_SYSPATCH_DIR/update-android-${SYSTEM_VARIANT}-${EHS_PRODUCT_NAME}/"
     fi
+    if [ "$DEVMANUID" != "" ]; then
+        DEVMAN_UNAME="$DEVMANUID"
+        echo "Change devman username to $DEVMAN_UNAME"
+    fi
     echo "SSHKEY ======> $SSHKEY"
     echo "ADDRESS =====> $DEVMAN_UNAME@$DEVMAN_SERVER_DOMAIN"
     echo "LOCATION ====> $EHS_UPDATES_SERVER_DIR"
@@ -107,7 +111,10 @@ UploadDevmanSupervisorUpdatesData(){
     EHS_UPDATES_DATA=${TARGET_SYSPATCH_APPS}/dldata.tgz
     SERVER_SYSPATCH_DIR="/home/inx-devman/bin/dldata-scripts/system-patches"
     EHS_UPDATES_SERVER_DIR="$SERVER_SYSPATCH_DIR/update-android-supervisor-${SYSTEM_VARIANT}-${EHS_PRODUCT_NAME}/"
-
+    if [ "$DEVMANUID" != "" ]; then
+        DEVMAN_UNAME="$DEVMANUID"
+        echo "Change devman username to $DEVMAN_UNAME"
+    fi
     echo "SSHKEY ======> $SSHKEY"
     echo "ADDRESS =====> $DEVMAN_UNAME@$DEVMAN_SERVER_DOMAIN"
     echo "LOCATION ====> $EHS_UPDATES_SERVER_DIR"

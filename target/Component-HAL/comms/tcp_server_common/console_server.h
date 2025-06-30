@@ -18,7 +18,9 @@
 #define EHS_CONSOLE_SERVER_H
 
 #include "target_types.h"
-#include "target_tcp.h"
+
+// This is not needed in the header as the console should have any TCP 
+// #include "target_tcp.h"
 
 //@todo - remove use header type linger in socket.h
 typedef struct

@@ -251,10 +251,11 @@ EHS_FB_RUN_FUNCTION(gui_widget_create)
     EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
     EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_WID)	= pWidget->xCurRect.nWidth;
     EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_HT) 	= pWidget->xCurRect.nHeight;
-
+#ifndef EHS_GUI_SUPPORT_MODE_B
     /*Set number of mouseClick port*/
     pWidget->mouseClickPortNumber = 2;
     pWidget->mouseDownPortNumber = 3;
+#endif
     pWidget->bContentChanged = EHS_TRUE; /* This should be done in the common code */
 
     EHS_FB_FINISH(1);

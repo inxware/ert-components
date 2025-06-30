@@ -119,6 +119,16 @@
             <ListPlacement>8</ListPlacement>
             <ArgPlacement>8</ArgPlacement>
         </Parameter>
+        <Parameter>
+            <Name>Search Mode</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Search for a first string that matches the case string.</Description>
+            <ListPlacement>9</ListPlacement>
+            <ArgPlacement>9</ArgPlacement>
+        </Parameter>
     </Parameters>
     <Functions>
         <Function>

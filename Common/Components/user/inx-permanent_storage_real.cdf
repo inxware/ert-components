@@ -13,7 +13,7 @@
             File System
            <Menu>
                 NV Storage
-                 <Menu>Real</Menu>
+                 <Menu>real</Menu>
             </Menu>
         </Menu>
     </Description>

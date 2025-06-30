@@ -39,16 +39,9 @@ unsigned long gTimerCount;
 volatile static EhsTickType gTimeTest = EhsTgtTimer_usToTick(5000);
 
 /* This hould return the counter value in "tick time" */
-EhsTickType EhsTgtTimer_now() 
+EHS_MEMORY_ATTRIB EhsTickType EhsTgtTimer_now() 
 {
-    EhsTickType __time; 
-    int ret;
-    ret = timer_get_counter_value(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, &__time);
-    
-    if (ret != ESP_OK) {
-        EHSH_LOG_ERROR("timer_get_counter_time_sec failed");
-        ESP_LOGE(TAG, "timer_get_counter_time_sec failed");
-    }
+    EhsTickType __time = timer_group_get_counter_value_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER);
     
     return (EhsTickType)(__time);
 }
@@ -112,11 +105,11 @@ void EhsTgtTimer_set(EhsTickType tExpiryTime)
 #ifdef INX_TEST_INX_TEMP
     printf("DEBUG-V: EhsTgtTimer_set: tExpiryTime: %d\n", tExpiryTime);
 #endif
-    timer_group_set_counter_enable_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, 0);
-    timer_group_clr_intr_status_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER);
+    timer_group_set_counter_enable_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, 0); //todo2024 are we sure we need to set this every time?
+    timer_group_clr_intr_status_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER); // todo 2024- possibly not needed? Or should be set after a time is set? clears the interrupt before a new time is set.
     timer_group_set_alarm_value_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,tExpiryTime);
-    timer_group_enable_alarm_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER);
-    timer_group_set_counter_enable_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, 1);
+    timer_group_enable_alarm_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER);//todo2024 are we sure we need to set this every time?
+    timer_group_set_counter_enable_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER, 1);//todo2024 are we sure we need to set this every time?
 }
 
 /**

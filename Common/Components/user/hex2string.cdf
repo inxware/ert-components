@@ -20,6 +20,17 @@
             </Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>Data</Type>
+        <Height>65</Height>
+        <Text>Hex2Raw</Text>
+        <TextX>5</TextX>
+        <TextY>5</TextY>
+        <TextScale>0.75</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>HexString2String</Class>

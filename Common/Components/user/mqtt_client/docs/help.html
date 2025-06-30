@@ -1,273 +1,226 @@
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span">MQTT Client</span>
-        <!--these display in reverse order because they use float:right--> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
-            href="#ports">Ports &#8595;</a></span> </div>
-      <!--General Description-->
-      <p class="component"> MQTT Client connects to a MQTT Server. It supports
-        the TLS protocol, which could be toggled on or off. The client needs to
-        pass in the username and password in order to login. </p>
-      <p class="component"> Once the connect event is triggered, it will attempt
-        to connect using the provided details. If connected successfully, it
-        will trigger the connect output event [Out]--. Otherwise it will trigger
-        the Disconnected [Out]-- event. </p>
-      <!--Parameters - form - short desc: long desc-->
-      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-            <th style="width:60px;">name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>min.</th>
-            <th>max.</th>
-            <th>description</th>
-          </tr>
-          <tr>
-            <td style="height: 15.2px;">host<br>
-            </td>
-            <td>String<br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>port<br>
-            </td>
-            <td style="height: 15.2px;">integer<br>
-            </td>
-            <td>0<br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>clientid<br>
-            </td>
-            <td>String</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>username<br>
-            </td>
-            <td>String</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>password<br>
-            </td>
-            <td>String</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>tls<br>
-            </td>
-            <td>Boolean<br>
-            </td>
-            <td>False<br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>client cart<br>
-            </td>
-            <td>String</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>client key</td>
-            <td>String</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>server cert<br>
-            </td>
-            <td>String</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]connect">connect</a></td>
-            <td>Input Event. Connect to MQTT Server.</td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]disconnect">disconnect</a></td>
-            <td>Input Event. Disconnect from MQTT Server.</td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]host">host</a></td>
-            <td>String containing the hostname of the MQTT Serever.</td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]port">port</a></td>
-            <td>Integer specifying the server port.</td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]tls">tls</a></td>
-            <td>Boolean to indicate whether TLS needs to be enabled.</td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]clientid">clientid</a></td>
-            <td>String specifying the MQTT Client ID.</td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]username">username</a></td>
-            <td>String type username for logging into the MQTT Server.</td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]password">password</a></td>
-            <td>String type password for logging into the MQTT Server.</td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]--">--</a></td>
-            <td>Triggered if connected.</td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]--">--</a></td>
-            <td>Triggered if not connected.</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5">
-              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>
-          &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
-              None </td>
-            <td> <br>
-            </td>
-            <td> <br>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> Core </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v1.0. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">MQTT Client</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component"> 
+      The MQTT Client function block allows a connection to an MQTT broker, enabling the client to send and receive messages using the MQTT protocol. The client can be configured with various parameters, including the broker URL, port, client ID, username, and password. It also supports secure connections with TLS, providing the ability to specify certificates and keys for secure communication. The function block provides events for connecting and disconnecting from the broker and can handle errors during these operations.
+    </p>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+<tr>
+<td>host</td>
+<td>String</td><td>URL to MQTT broker.</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+<tr>
+<td>port</td>
+<td>Integer</td><td>MQTT broker port.</td>
+<td>0</td>
+<td>0</td>
+<td>65535</td>
+
+</tr>
+<tr>
+<td>clientId</td>
+<td>String</td><td>MQTT client ID.</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+<tr>
+<td>username</td>
+<td>String</td><td>Username for authentication.</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+<tr>
+<td>password</td>
+<td>String</td><td>Password for authentication.</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+<tr>
+<td>tls</td>
+<td>Boolean</td><td>Enable TLS for secure connection.</td>
+<td>0</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+<tr>
+<td>client cert</td>
+<td>String</td><td>Client TLS certificate (PEM format).</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+<tr>
+<td>client key</td>
+<td>String</td><td>Client TLS key (base64).</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+<tr>
+<td>server cert</td>
+<td>String</td><td>Server root authority certificate.</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+
+</tr>
+</tbody>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th>In Ev.</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]connect">connect</a></td>
+<td>Input Event. Triggers the client to connect to the MQTT server.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]disconnect">disconnect</a></td>
+<td>Input Event. Triggers the client to disconnect from the MQTT server.</td>
+</tr>
+<tr>
+<th>Data In</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]host">host</a></td>
+<td>Hostname or IP of the MQTT broker.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]port">port</a></td>
+<td>Port number to connect to the MQTT broker.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]tls">tls</a></td>
+<td>Boolean value to enable or disable TLS.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]clientid">clientid</a></td>
+<td>MQTT client identifier.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]username">username</a></td>
+<td>Username for MQTT authentication.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]password">password</a></td>
+<td>Password for MQTT authentication.</td>
+</tr>
+<tr>
+<th>Data Out</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]err_msg">err msg</a></td>
+<td>Error message output in case of connection failure.</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]finishconnect">finishconnect</a></td>
+<td>Event triggered when the connection is successfully established.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]err_connect">err_connect</a></td>
+<td>Event triggered when an error occurs during connection.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]finishdisconnect">finishdisconnect</a></td>
+<td>Event triggered when the client disconnects from the MQTT server.</td>
+</tr>
+</tbody>
+</table>
+<!-- Miscellaneous -->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b>State Machine</b> </td>
+<td colspan="5">None</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Toolbox</b> </td>
+<td>Core</td>
+<td class="heading-cell"> <b>Version</b> </td>
+<td>v1.0.</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Licence Type</b> </td>
+<td>MPL2.0</td>
+<td class="heading-cell"> <b>Component Supplier</b> </td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Minimum DCC</b> </td>
+<td>A0000</td>
+<td class="heading-cell"> <b>Profiles</b> </td>
+<td>All.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
 </html>

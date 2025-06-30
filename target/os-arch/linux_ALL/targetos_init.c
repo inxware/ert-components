@@ -27,6 +27,7 @@
 
 /*****************************************************************************/
 /* Included files */
+//#include "targetos_init_specific.h" - we don't need this after all
 #define EHS_TARGET_CODE /* Ensure header files include target-internal values */
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
@@ -68,6 +69,13 @@
 #include "sys/resource.h"
 #include "sys/sysinfo.h"
 #include "unistd.h"
+#include "hal_target_sys_stat.h"
+
+#ifdef EHS_PERIPHERALS_GPIO_SUPPORT
+#include "inx_gpio.h"
+#endif
+
+
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 
@@ -114,6 +122,10 @@ void EhsTOsSys_init(void)
     EhsTgtTimer_init();
 #endif
 
+#ifdef EHS_PERIPHERALS_GPIO_SUPPORT
+    EhsTOsInitGpio();
+#endif
+
  }
 
 #define EHS_BUGGY_LINUX_NETWORKING_API
@@ -132,14 +144,80 @@ union IPconverter
 
 #ifdef EHS_ANDROID /* we need our own implementation of this for Android as the NDK misses it out */
 #include "target_net.h"
-#define EHS_USE_WIFI_INTERFACE
 #endif
+
+/* function used for searching IP address */
+EHS_LOCAL ehs_bool EhsTOS_FindIp(const struct ifaddrs* ifa, const char* interface_name, ehs_char * bufIP)
+{
+    char addressBuffer[INET_ADDRSTRLEN];
+    char addressBuffer6[INET6_ADDRSTRLEN];
+    void * tmpAddrPtr;
+    struct ifaddrs * ifAddrStruct;
+    ehs_bool bSuccess = EHS_FALSE;
+
+    if (ifa != NULL && interface_name != NULL && getifaddrs(&ifAddrStruct) != -1)
+    {
+        for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
+        {
+            addressBuffer[0]='\0';/* avoid unititialised strcpy */
+            addressBuffer6[0]='\0';
+            //if (ifa->ifa_addr == NULL) continue; // do we want to skip unconnected ethernet ports? still would like MAC address
+            if (EhsStrcmp(ifa->ifa_name, interface_name) == 0)   /* Have we found the IP address we are using for the MAC address? */
+            {
+                if (ifa ->ifa_addr->sa_family == AF_INET)   // check it is IP4
+                {
+                    // is a valid IP4 Address
+                    tmpAddrPtr = &((struct sockaddr_in *) ifa->ifa_addr)->sin_addr;
+
+                    inet_ntop(AF_INET, tmpAddrPtr, addressBuffer,INET_ADDRSTRLEN);
+
+                    EHSH_LOG_INFO("%s IPv4 Address %s\n", ifa->ifa_name, addressBuffer);
+                    // EhsSprintf(bufIP,"%u.%u.%u.%u",IPaddr.b.c,IPaddr.b.d,IPaddr.b.a,IPaddr.b.b); //hack for buggy endian stuff in linux
+                    if (EhsStrlen(addressBuffer) > 0 )
+                        EhsStrcpy(bufIP, addressBuffer);
+                }
+                else if (ifa->ifa_addr->sa_family == AF_INET6)     // check it is IP6
+                {
+                    // is a valid IP6 Address
+                    tmpAddrPtr = &((struct sockaddr_in *) ifa->ifa_addr)->sin_addr;
+
+                    //addressBuffer6[0]='\0';
+                    inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer6,INET6_ADDRSTRLEN);
+                    EHSH_LOG_INFO("%s IPv6 Address %s\n", ifa->ifa_name, addressBuffer6);
+                    // EhsSprintf(bufIP,"%s",addressBuffer); /* todo IPV6 support */
+                }
+
+                /* Choose the IPV4 address as a preference*/
+                if (EhsStrlen(addressBuffer) == 0 )
+                {
+                    if (EhsStrlen(addressBuffer6) > 0 )
+                    {
+                        EhsStrcpy(bufIP, addressBuffer6);
+                        break;
+                    }
+                }
+                else break; // if we found our preferred interface then break
+
+            }
+
+        }
+        if (ifAddrStruct!=NULL){
+            freeifaddrs(ifAddrStruct);
+        }
+    }
+    else
+    {
+        //do nothing we put in n/A as a default
+    }
+
+    return bSuccess;
+}
 
 
 /*
  * @todo needs extending to add interface to be interogated
  */
-EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
+EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
 {
 #ifdef EHS_BUGGY_LINUX_NETWORKING_API
     union IPconverter IPaddr;
@@ -148,23 +226,19 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
 #endif
     struct ifreq buffer;
     ehs_char * ipbuf;
-
-    struct ifaddrs * ifAddrStruct;
     struct ifaddrs * ifa;
-    void * tmpAddrPtr;
-    char addressBuffer[INET_ADDRSTRLEN];
-    char addressBuffer6[INET6_ADDRSTRLEN];
 
     memset(&buffer, 0x00, sizeof(buffer));
-#ifdef EHS_USE_WIFI_INTERFACE
+#if defined(EHS_USE_WIFI_INTERFACE)
     strcpy(buffer.ifr_name, "wlan0");
+#elif defined(EHS_ANDROID)
+    // I guess this is because most of our android boards are using ethernet
+    strcpy(buffer.ifr_name, "eth0");
 #else
     strcpy(buffer.ifr_name, "enp2s0"); //This is the default one we try first, then we iterate other options below
 #endif
-#ifdef EHS_ANDROID
-    // @TODO - check other network interface for android
-    strcpy(buffer.ifr_name, "eth0");
-#else //EHS_ANDROID
+// @TODO - check other network interface for android ?
+#ifndef EHS_ANDROID
     int s = socket(PF_INET, SOCK_DGRAM, 0);
     EHSH_LOG_INFO("IFR NAME = %s",buffer.ifr_name);
     if (ioctl(s, SIOCGIFHWADDR, &buffer) != -1 )
@@ -249,61 +323,18 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf,ehs_char * bufIP)
 #define USE_MOST_GENERIC
 #if defined ( USE_MOST_GENERIC )
 
-    EhsStrcpy(bufIP, "NA"); // might not get it...
+    EhsStrcpy(bufIP, "N/A"); // might not get it...
 
-    if (getifaddrs(&ifAddrStruct) != -1)
-    {
-        for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
-        {
-            addressBuffer[0]='\0';/* avoid unititialised strcpy */
-            addressBuffer6[0]='\0';
-            //if (ifa->ifa_addr == NULL) continue; // do we want to skip unconnected ethernet ports? still would like MAC address
-            if (EhsStrcmp(ifa->ifa_name, buffer.ifr_name) == 0)   /* Have we found the IP address we are using for the MAC address? */
-            {
-                if (ifa ->ifa_addr->sa_family == AF_INET)   // check it is IP4
-                {
-                    // is a valid IP4 Address
-                    tmpAddrPtr = &((struct sockaddr_in *) ifa->ifa_addr)->sin_addr;
+    // find ip address for interface from which mac address was extracted
+    ehs_bool success = EhsTOS_FindIp(ifa, buffer.ifr_name, bufIP);
 
-                    inet_ntop(AF_INET, tmpAddrPtr, addressBuffer,INET_ADDRSTRLEN);
-
-                    EHSH_LOG_INFO("%s IPv4 Address %s\n", ifa->ifa_name, addressBuffer);
-                    // EhsSprintf(bufIP,"%u.%u.%u.%u",IPaddr.b.c,IPaddr.b.d,IPaddr.b.a,IPaddr.b.b); //hack for buggy endian stuff in linux
-                    if (EhsStrlen(addressBuffer) > 0 )
-                        EhsStrcpy(bufIP, addressBuffer);
-                }
-                else if (ifa->ifa_addr->sa_family == AF_INET6)     // check it is IP6
-                {
-                    // is a valid IP6 Address
-                    tmpAddrPtr
-                        = &((struct sockaddr_in *) ifa->ifa_addr)->sin_addr;
-
-                    //addressBuffer6[0]='\0';
-                    inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer6,INET6_ADDRSTRLEN);
-                    EHSH_LOG_INFO("%s IPv6 Address %s\n", ifa->ifa_name, addressBuffer6);
-                    // EhsSprintf(bufIP,"%s",addressBuffer); /* todo IPV6 support */
-                }
-
-                /* Choose the IPV4 address as a preference*/
-                if (EhsStrlen(addressBuffer) == 0 )
-                {
-                    if (EhsStrlen(addressBuffer6) > 0 )
-                    {
-                        EhsStrcpy(bufIP, addressBuffer6);
-                        break;
-                    }
-                }
-                else break; // if we found our preferred interface then break
-
-            }
-
-        }
-        if (ifAddrStruct!=NULL)
-            freeifaddrs(ifAddrStruct);
-    }
-    else
-    {
-        //do nothing we put in n/A as a default
+    if(success == EHS_FALSE){
+        // find ip from any availble interface
+        #ifdef EHS_USE_WIFI_INTERFACE // getting ip from wifi interface failed, try to get it from ethernet instead
+        EhsTOS_FindIp(ifa, "eth0", bufIP);
+        #else
+        EhsTOS_FindIp(ifa, "wlan0", bufIP);
+        #endif
     }
 
 #else
@@ -818,7 +849,6 @@ ehs_uint32  get_procid_from_procname(ehs_char * procname)
 ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_Used, ehs_uint32 procid)
 {
     ehs_char proc_path[EHS_STRING_LENGTH_MAX];
-    
     ehs_bool ret = EHS_FALSE;
     ehs_bool scanOK;
     static ehs_uint16 last_cpu_usage_percent=0; //remember the last one if we can't get a value.
@@ -876,7 +906,7 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
             if (New_userTimeUsed > 0 || New_sysTimeUsed > 0 ) {
                 cpu_usage = ((New_userTimeUsed - Last_userTimeUsed) + (New_sysTimeUsed - Last_sysTimeUsed )); // ms of CPU usage since last
             }
-            printf("[cpu time in ticks = %d (tick=%u)]",cpu_usage,sysconf(_SC_CLK_TCK));
+            EHSH_LOG_ERROR("[cpu time in ticks = %d (tick=%u)]",cpu_usage,sysconf(_SC_CLK_TCK));
             if (ms_elapsed > 100)
             {
                 *cpu_usage_percent = 
@@ -906,7 +936,7 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
  */
 
 ehs_bool get_dir_stats(ehs_uint32 * Size, ehs_uint32 * Used, ehs_uint32 * Free,
-                       ehs_char * path)
+                       /* todo make const */ ehs_char * path)
 {
 #ifndef EHS_ANDROID
     struct statvfs sbuf;
@@ -1000,16 +1030,27 @@ void getOSVersion(ehs_char * dst)
  * */
 ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 what)
 {
+    if(what == EHS_OS_ENV_NETWORK_ID){
+        // Update ip address
+        EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
+        // @TODO - Update network meta data using traget api, instead of using dummy values
+        pEhsMetaData->nDeviceNetworkMode = EHS_NET_DHCP_MODE_ID;
+        EhsStrcpy(pEhsMetaData->zDeviceGateway, "0.0.0.0");
+        EhsStrcpy(pEhsMetaData->zDeviceMask, "0.0.0.0");
+        EhsStrcpy(pEhsMetaData->zDeviceDNS1, "0.0.0.0");
+        return EHS_TRUE; // return here, we only update network specific os env
+    }
+
     ehs_uint32 tempint;
 
     if (what < 2) {
         #ifndef INX_SODL_IN_FLASH 
-        ehs_char szTemp[EHS_STRING_LENGTH_MAX]; //todo2024 why do we use a buffer here and not just use pEhsMetaData->zUserDirectory?
+        //ehs_char szTemp[EHS_STRING_LENGTH_MAX]; //todo2024 why do we use a buffer here and not just use pEhsMetaData->zUserDirectory?
         if (EhsStrlen(pEhsMetaData->zUserDirectory))
         {
             // get disk space in user directory
-            EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
-            get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,szTemp);
+            //EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
+            get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,&pEhsMetaData->zUserDirectory);
         }
         else
         {
@@ -1025,8 +1066,10 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
     }
     
     EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
+       
     get_cpu_ram_info(&(pEhsMetaData->CPUUsage), &(pEhsMetaData->RAMTotal_KB),&(pEhsMetaData->RAMUsed_KB),&(pEhsMetaData->RAMAvail_KB));
     get_cpu_ram_info_misc(&(pEhsMetaData->MiscAppCPUUsage),&(pEhsMetaData->MiscAppRAMUsed_KB),pEhsMetaData->MiscAppProcId);
+    pEhsMetaData->CPUTemp = EhsTGetCpuTemp();
     /* Get the Linux Distr version */
     getOSVersion(pEhsMetaData->OSVersion);
     return EHS_FALSE;
@@ -1038,6 +1081,9 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
 void EhsTOsSys_term(void)
 {
     // Leave the mutexes to the OS EhsTPMutex_term();
+    #ifdef EHS_PERIPHERALS_GPIO_SUPPORT
+    EhsTOsTermGpio();
+    #endif
 }
 
 /**

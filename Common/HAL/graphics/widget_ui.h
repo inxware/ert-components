@@ -43,7 +43,9 @@
 // enums must be defined in this order, as they represent iGB set IDs
 typedef enum {
     EHS_STRING_UI_WIDGET = 0,
-    EHS_STRING_UI_TEXT_FIELD,
+    EHS_STRING_UI_WIDGET_TEXT_FIELD,
+    EHS_STRING_UI_WIDGET_KEYPAD,
+    EHS_STRING_UI_WIDGET_LABEL_LIST,
     /* next string widget id */
     EHS_STRING_UI_WIDGET_COUNT
 } EhsStringTypeUiWigets;
@@ -62,7 +64,7 @@ typedef enum {
     EHS_INT_UI_WIDGET_SLIDER,
     EHS_INT_UI_WIDGET_PROGRESS_BAR,
     EHS_INT_UI_WIDGET_GAUGE,
-    EHS_INT_UI_WIDGET_LIST_BOX,
+    EHS_INT_UI_WIDGET_DROP_DOWN_LIST,
     /* next int widget id */
     EHS_INT_UI_WIDGET_COUNT
 } EhsIntTypeUiWigets;
@@ -73,6 +75,7 @@ typedef enum {
     EHS_FLOAT_UI_WIDGET_PROGRESS_BAR,
     EHS_FLOAT_UI_WIDGET_GAUGE,
     EHS_FLOAT_UI_WIDGET_ROLLER,
+    EHS_FLOAT_UI_WIDGET_NUMPAD,
     /* next float widget id */
     EHS_FLOAT_UI_WIDGET_COUNT
 } EhsFloatTypeUiWigets;
@@ -84,6 +87,7 @@ typedef enum {
     EHS_OTHER_UI_WIDGET_SPINNER,
     EHS_OTHER_UI_WIDGET_CHART,
     EHS_OTHER_UI_WIDGET_LIST,
+    EHS_OTHER_UI_WIDGET_VIEWPORT,
     /* next other widget id */
     EHS_OTHER_UI_WIDGET_COUNT
 } EhsOtherTypeUiWigets;
@@ -120,7 +124,7 @@ typedef struct
 {
     ehs_bool bLoadImageFromAppDir;
     ehs_bool bDynamicFilename;
-    ehs_char szFilename[EHS_STRING_LENGTH_MAX];
+    ehs_char szFilename[EHS_MAXPATHLENGTH];
 } EhsWidgetUiImage;
 
 // EHS_WIDGET_UI_SPINNER
@@ -134,15 +138,21 @@ typedef struct
 #define UI_CHART_TITLE_MAX_SIZE 20
 typedef struct
 {
-    ehs_char title[UI_CHART_TITLE_MAX_SIZE];
-    ehs_uint16 data1_size;   /**< chart size of data1 */
-    ehs_uint16 data2_size;   /**< chart size of data2 */
+    ehs_uint16 data_size;   /**< chart point count */
     ehs_sint16* data1; /**< chart data1 */
     ehs_sint16* data2; /**< chart data2 */
+    ehs_sint16* data3; /**< chart data3 */
     ehs_sint32 xmin;
     ehs_sint32 xmax;
     ehs_sint32 ymin;
     ehs_sint32 ymax;
+    ehs_sint32 hdiv;
+    ehs_sint32 vdiv;
+    ehs_sint32 nan_value; /* value used for NaN */
+    ehs_bool sett_changed; /* flag set to true when chart settings changed */
+    ehs_bool enable_data1;
+    ehs_bool enable_data2;
+    ehs_bool enable_data3;
 } EhsWidgetUiChart;
 
 typedef struct
@@ -167,23 +177,23 @@ typedef struct
  */
 typedef struct
 {
+    void* pUiObject; /* pointer to target specific graphics object */
+    const void* data; /**< data associated with this ui widget */
+    void (*event_callback)(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data);  /**< event callback associated with ui widget response */
+    //EhsGraphicsFontClass* pFont; /**< The font to display on the object */ // not used at the moment, so disable to save memory
+    EhsGraphicsColourClass xFgColour; /**< Foreground colour */
+    EhsGraphicsColourClass xBgColour; /**< Background colour */
     ehs_uint16 id; /**< ui type id */
     ehs_uint16 properties; /**< any custom properties id associated with the widget */
     ehs_uint16 curvature; /**< roundness of the object */
     ehs_uint16 parent_id; /**< the widget parent id */
-    const void* data; /**< data associated with this ui widget */
-    void (*event_callback)(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data);  /**< event callback associated with ui widget response */
-    EhsGraphicsFontClass* pFont; /**< The font to display on the object */
-    EhsGraphicsColourClass xFgColour; /**< Foreground colour */
-    EhsGraphicsColourClass xBgColour; /**< Background colour */
     ehs_uint16 nIndentLeft, nIndentRight, nIndentTop, nIndentBottom;
     /**< Records the indents for the text box */
     ehs_uint16 nLineSep;		/**< Distance between the tops of two lines */
     ehs_uint8 nFgBaseAlpha; /**< The starting alpha value for the foreground colour - this can be modified by the fade function */
     ehs_uint8 nBgBaseAlpha; /**< The starting alpha value for the background colour - this can be modified by the fade function */
-    void* pUiObject; /* pointer to target specific graphics object */
-    ehs_uint16 nUiState; /* used for controlling widget state in the rendering loop */
-    ehs_uint16 nNoOfDecPlaces; /* number of decimal places */
+    ehs_uint8 nUiState; /* used for controlling widget state in the rendering loop */
+    ehs_uint8 nNoOfDecPlaces; /* number of decimal places */
 } EhsWidgetUiSubclass;
 
 /**

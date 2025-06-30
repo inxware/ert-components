@@ -16,6 +16,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(ui_chart_destroy); //a function executed by a sta
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ui_chart_show); //a function executed by a start port
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ui_chart_hide); //a function executed by a start port
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ui_chart_update); //a function executed by a start port
+EHS_GLOBAL EHS_FB_RUN_FUNCTION(ui_chart_data_update); //a function executed by a start port
 EHS_GLOBAL EHS_FB_RUN_FUNCTION(ui_chart_data); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ui_chart)

@@ -35,17 +35,21 @@
 //todo2022 MINGW hs it's own ile now so presumable these conditioanl bits can be removed
 #ifndef EHS_MINGW
 #include <errno.h>
-#ifndef EHS_ANDROID
-#include <sys/dir.h>
-#include <ftw.h>
-#else //ANDROID
-//#include <dir.h>
-#endif
-#else//MINGW
 
-#include <dirent.h>
-#include <dir.h>
+/* Some MCU targets try to support many GNU OS/libc features (and include the GNU all build) but fail here: */
+#ifndef EHS_MCU_TARGET
+    #ifndef EHS_ANDROID
+        #include <sys/dir.h>
+            #include <ftw.h>
+        #else //ANDROID
+        //#include <dir.h>
+        #endif
+    #else//MINGW
+        #include <dirent.h>
+        #include <dir.h>
+    #endif
 #endif
+
 #include "dirent.h" // bit naughty - this should be in a linux target HAL layer
 #include "sys/types.h"
 
@@ -151,6 +155,8 @@ ehs_bool EhsTDFiles_listNext(EhsTDFilesClass* pFiles, ehs_char* szName);
 
 ehs_uint8 EhsTF_exists(const ehs_char* fname)
 {
+    if (fname == NULL) return 0; // Check NULL pointer
+    if (fname[0] == '\0') return 0; // Check the string is empty
     struct stat xFileInfo;
     ehs_uint8 nRet = 0;
 #ifdef EHS_MINGW

@@ -233,8 +233,6 @@ void android_main(struct android_app* state)
     //state->onInputEvent = engine_handle_input;
     engine.app = state;
 
-
-
     while (1)
     {
         // Read all pending events.

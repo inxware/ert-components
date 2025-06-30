@@ -122,6 +122,12 @@ typedef enum
 #define EHSH_LOG_CHECK(nLevel) 0
 #endif
 
+/**
+ * Returns EhsHLogger_Msg buffer
+ */
+EHS_GLOBAL ehs_char* EhsHLogger_Buffer();
+
+
 //#define EHSH_LOG_MESSAGEX(nLevel,...) {}
 /**
  * Writes debug standard out and any debug console that's listening.
@@ -134,7 +140,7 @@ typedef enum
   #define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){LOGE(__VA_ARGS__);}
  #else
   /* todo  consider another build option macro for not including the __FILE__ and  __LINE__ test on the log line to save code sizes of debug builds*/
-  #define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel)){EhsSprintf(EhsHLogger_Msg,__VA_ARGS__);EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
+  #define EHSH_LOG_MESSAGE(nLevel,...) if(EHSH_LOG_CHECK(nLevel) && EhsHLogger_Buffer()){EhsSnprintf(EhsHLogger_Buffer(),EHSH_LOG_MAX_MSG,__VA_ARGS__);EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Buffer());}
  #endif
 //else{EhsSprintf(EhsHLogger_Msg,__VA_ARGS__); EhsHLogger_log(EHSL_MODULE_ID,nLevel,__FILE__,__LINE__,EhsHLogger_Msg);}
 #else
@@ -247,7 +253,7 @@ EHS_GLOBAL ehs_uint32 EhsTraceFlags;
 /* Declare global variables */
 
 /**
- * Indicates the current log level for each moduel
+ * Indicates the current log level for each module
  */
 EHS_GLOBAL EhsHLoggerLogLevel EhsHLoggerModuleLogLevel[];
 

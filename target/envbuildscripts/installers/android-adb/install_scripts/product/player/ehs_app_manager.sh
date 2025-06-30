@@ -14,12 +14,17 @@ InitAppManger(){
     # clear locks
     UnlockSettings
     if [ -z "$INSTALLED" ]; then
-        WaitDir $APK_INSTALL_DIR 10
+        SupervisorLog "Package ($EHS_PACKAGE) not installed ..."
+        WaitDir $APK_INSTALL_DIR 60
 		APK_NAME="ehs.apk"
         APK_LOCATION="$APK_INSTALL_DIR/$APK_NAME"
-		InstallNewApk $APK_NAME $APK_LOCATION $EHS_PACKAGE
-        if [ -n "$( IsPackageInstalled $EHS_PACKAGE )" ]; then
-            REBOOT="Yes"
+        if [ -f "$APK_LOCATION" ]; then
+            SupervisorLog "Installing ($APK_LOCATION)  ..."
+            InstallNewApk $APK_NAME $APK_LOCATION $EHS_PACKAGE
+            CopyEhsDeviceID "$( ReadDeviceId )"
+            if [ -n "$( IsPackageInstalled $EHS_PACKAGE )" ]; then
+                REBOOT="Yes"
+            fi
         fi
     else
         WaitDir $SERVER_ADDRESS_URL_DIR 10  
@@ -40,7 +45,7 @@ InitAppManger(){
         StartHomeApp $EHS_PACKAGE ".EhsHomeNativeActivity"
         RebootDevice
     else
-    	# Launch the applications	
+    	# Launch the applications
     	SupervisorLog "Initialising EHS Player."
     	StartHomeApp $EHS_PACKAGE ".EhsHomeNativeActivity"
     fi

@@ -19,6 +19,13 @@
 #  VPATH - where to look for source code
 #  EHS_TARGET_OS_HW_PATH - path to the current directory (set by platform makefile)
 
+# Default OS Features Supported
+ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
+ifndef EHS_FILESYSTEM_SUPPORT
+	EHS_FILESYSTEM_SUPPORT=posix
+endif
+endif
+
 # include sourcecode from this dir in build
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/
@@ -29,17 +36,28 @@ EHS_COMMS_API_SUPPORT=lwip
 EHS_ESP32_SUPPORT=1
 
 #os-arch-wide platform component-HAL settings:
+ifndef EHS_PERIPHERALS_GPIO_SUPPORT
 EHS_PERIPHERALS_GPIO_SUPPORT=ESP32_IDF
-EHS_PERIPHERALS_ADC_DAC_SUPPORT=ESP32_IDF
+endif
+
+ifndef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+#EHS_PERIPHERALS_ADC_DAC_SUPPORT=ESP32_IDF
+EHS_PERIPHERALS_ADC_DAC_SUPPORT=stubbed
+endif
 
 #We always have MQTT support for ESP32, lets set it here for all esp32
-EHS_MQTT_SUPPORT=esp32
+ifndef EHS_MQTT_SUPPORT
+	EHS_MQTT_SUPPORT=esp_mqtt-441
+endif
 
 #Enable gdb debugging by default
+#todo2025 do we really want to do this???? Doesn't it make the code larger and slower and more buggy IRAM?
 ENABLE_GDB=1 
 
 # Use lwip
 DEFS += EHS_LWIP=1
+include TARGET.cfg
+DEFS += 'TARGET_OS_VERSION_STRING="$(shell head -c -1 ./Releases/version_strings | tr '\n' '.')\x20:$(TARGET)"'
 #INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/lwip/
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/Component-HAL/comms/lwip
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/hal/
@@ -65,7 +83,9 @@ OBJECTS += ping.$(OBJ)
 #OBJECTS += target_math.$(OBJ) 
 #OBJECTS += esp_main_example.$(OBJ) 
 #OBJECTS += certificate.$(OBJ)
-OBJECTS += mqtt.$(OBJ)
+#OBJECTS += mqtt.$(OBJ) - moved to HAL
+OBJECTS += target_display.$(OBJ)
+OBJECTS += target_sys_stat.$(OBJ)
 
 #expect we will need all of the lib*.a from ert-contrib-middleware/target_libs/..esp32 .. /build/lib/ here 
 # LIB += ....

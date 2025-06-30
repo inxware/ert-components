@@ -1,118 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?><Component>
-    <Module>usercomponents</Module>
-    <CDFInfo>
-        <Version>3</Version>
-        <CreationDate>2023-04-18T13:32:36Z</CreationDate>
-        <UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
-    </CDFInfo>
-    <Description>
+	<Module>usercomponents</Module>
+	<CDFInfo>
+		<Version>3</Version>
+		<CreationDate>2023-04-18T13:32:36Z</CreationDate>
+		<UpdatedDate>2023-04-18T13:32:36Z</UpdatedDate>
+	</CDFInfo>
+	<Description>
         <ShortDescription/>
-        <LongDescription>This function block runs the executable specified by the parameter with the arguments specified by the input. It outputs the output of the executable</LongDescription>
+		<LongDescription>This function block runs the executable specified by the parameter with the arguments specified by the input. It outputs the output of the executable</LongDescription>
         <UserName/>
-        <Menu>
-            System
-            <Menu>
-                Host OS
-                <Menu>Run Executable</Menu>
-            </Menu>
-        </Menu>
-    </Description>
-    <Block>
-        <Type>Data_Processor</Type>
-        <Width>65</Width>
-        <Height>60</Height>
-        <Text>Exec</Text>
-        <TextX>20</TextX>
-        <TextY>5</TextY>
-        <TextScale>1.25</TextScale>
-        <TextVertical>0</TextVertical>
-        <LocationX>0</LocationX>
-        <LocationY>-15</LocationY>
-    </Block>
-    <FBID>
-        <ERT1_ID>0</ERT1_ID>
-        <Class>Exec</Class>
-    </FBID>
-    <Hashes>
-        <NameHash_CRC16>0x6CFE</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>43565145</FbApiDescriptorHash_CRC32>
+		<Menu>
+			System
+			<Menu>
+				Host OS
+				<Menu>Run Executable</Menu>
+			</Menu>
+		</Menu>
+	</Description>
+	<Block>
+		<Type>Data_Processor</Type>
+		<Width>65</Width>
+		<Height>60</Height>
+		<Text>Exec</Text>
+		<TextX>20</TextX>
+		<TextY>5</TextY>
+		<TextScale>1.25</TextScale>
+		<TextVertical>0</TextVertical>
+		<LocationX>0</LocationX>
+		<LocationY>-15</LocationY>
+	</Block>
+	<FBID>
+		<ERT1_ID>0</ERT1_ID>
+		<Class>Exec</Class>
+	</FBID>
+	<Hashes>
+		<NameHash_CRC16>0x6CFE</NameHash_CRC16>
+		<FbApiDescriptorHash_CRC32>43565145</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
-    </Hashes>
-    <Parameters>
-        <Parameter>
-            <Name>Executable</Name>
-            <DataType>S</DataType>
+	</Hashes>
+	<Parameters>
+		<Parameter>
+			<Name>Executable</Name>
+			<DataType>S</DataType>
             <DefaultValue/>
-            <MinValue>0</MinValue>
-            <MaxValue>0</MaxValue>
-            <Description>The executable to run</Description>
-            <ListPlacement>1</ListPlacement>
-            <ArgPlacement>1</ArgPlacement>
-        </Parameter>
-    </Parameters>
-    <Functions>
-        <Function>
-            <name>run</name>
-            <ID>
-                <ERT1_ID>1</ERT1_ID>
-            </ID>
-        </Function>
-    </Functions>
-    <Ports>
-        <Port>
-            <DataType>S</DataType>
-            <Description>args</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>20</YCoordinate>
-            <CName>args</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>out</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>60</XCoordinate>
-            <YCoordinate>20</YCoordinate>
-            <CName>out</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
+			<MinValue>0</MinValue>
+			<MaxValue>0</MaxValue>
+			<Description>The executable to run</Description>
+			<ListPlacement>1</ListPlacement>
+			<ArgPlacement>1</ArgPlacement>
+		</Parameter>
+	</Parameters>
+	<Functions>
+		<Function>
+			<name>run</name>
+			<ID>
+				<ERT1_ID>1</ERT1_ID>
+			</ID>
+		</Function>
+	</Functions>
+	<Ports>
+		<Port>
+			<DataType>S</DataType>
+			<Description>args</Description>
+			<PortType>InputPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>20</YCoordinate>
+			<CName>args</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<DataType>S</DataType>
+			<Description>out</Description>
+			<PortType>OutputPort</PortType>
+			<XCoordinate>60</XCoordinate>
+			<YCoordinate>20</YCoordinate>
+			<CName>out</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
             <Description/>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>10</YCoordinate>
+			<PortType>StartPort</PortType>
+			<XCoordinate>0</XCoordinate>
+			<YCoordinate>10</YCoordinate>
             <CName/>
-            <Function argument="0">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-                <AtomicFlag>0</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
-            <Description>OK</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>60</XCoordinate>
-            <YCoordinate>10</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>OK</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <Description>Error</Description>
-            <PortType>FinishPort</PortType>
-            <XCoordinate>60</XCoordinate>
-            <YCoordinate>35</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>Error</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-    </Ports>
+			<Function argument="0">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+				<AtomicFlag>0</AtomicFlag>
+			</Function>
+		</Port>
+		<Port>
+			<Description>OK</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>60</XCoordinate>
+			<YCoordinate>10</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>OK</CName>
+			<Function argument="1">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+		<Port>
+			<Description>error</Description>
+			<PortType>FinishPort</PortType>
+			<XCoordinate>60</XCoordinate>
+			<YCoordinate>35</YCoordinate>
+			<Wcet>0</Wcet>
+			<CName>Error</CName>
+			<Function argument="2">
+				<Function_ERT1_ID>1</Function_ERT1_ID>
+			</Function>
+		</Port>
+	</Ports>
 </Component>

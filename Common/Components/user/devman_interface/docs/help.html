@@ -1,199 +1,184 @@
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-    <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-    <link rel="StyleSheet" href="iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../iabStyle.css" type="text/css">
-    <link rel="StyleSheet" href="../../../iabStyle.css" type="text/css">
-  </head>
-  <body>
-    <div class="page_container">
-      <div id="toc_container"> <span class="toc_span">devman_interface</span>
-        <!--these display in reverse order because they use float:right--> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a
-            href="#ports">Ports &#8595;</a></span> </div>
-      <p class="component"> This component can report various device management
-        status data to Devman server. The core device data can be augmented with
-        application specific data in JSON format and reported toDevman, where is
-        may be used to populate application specific device dashboards.</p>
-      <p class="component"> The Devman Interface block also allows capture of
-        data and commands sent by the Devman server using the “get all” and
-        “listen misc” event inputs. The "listen misc" request is typically used
-        for receiving streamed data and while the “get all” event requests more
-        static configuration data. </p>
-      <p class="component">The content is defined by the Devman server
-        configuration. </p>
-      <!--Parameters - form - short desc: long desc-->
-      <div class="section_heading"> <span id="parameters" class="toc_span">Parameters</span>
-        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
-        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
-        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
-      </div>
-      <table class="table_params">
-        <tbody>
-          <tr>
-            <th style="width:60px;">name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>min.</th>
-            <th>max.</th>
-            <th>description</th>
-          </tr>
-          <tr>
-            <td>App Name</td>
-            <td>String</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td>Process Name</td>
-            <td>String</td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-            <td><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <!--Ports - form - short desc: long desc-->
-      <div class="section_heading"> <span id="ports" class="toc_span">Ports</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>In Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]">send</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]">get Server URL</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]">get All</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]">listen Misc</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data In</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[In]">misc. info</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Data Out</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">server URL</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">JSON</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">new JSON</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <th>Out Ev.</th>
-            <th><br>
-            </th>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">----</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">----</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">---</a></td>
-            <td><br>
-            </td>
-          </tr>
-          <tr>
-            <td class="ports"><a name="[Out]">new</a></td>
-            <td><br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="section_heading"> <span id="misc" class="toc_span">Misc</span>
-        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span
-          class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a
-            href="#parameters">Params &#8593; </a></span> </div>
-      <table>
-        <tbody>
-          <tr class="fsm_row">
-            <td style="width:90px;"> <b>State Machine</b> </td>
-            <td colspan="5">
-              <!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]          <span class="fsm_blob">state2</span>          &otimes;&nbsp;          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]          <span class="fsm_blob">state3</span> [doh]&rarr;          <span class="fsm_blob">state5</span> -->
-              None </td>
-            <td> <br>
-            </td>
-            <td> <br>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Toolbox</b> </td>
-            <td> Core </td>
-            <td class="heading-cell"> <b>Version</b> </td>
-            <td> v1.0. </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Licence Type</b> </td>
-            <td> MPL2.0 </td>
-            <td class="heading-cell"> <b>Component Supplier</b> </td>
-            <td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="heading-cell"> <b>Minumum DCC</b> </td>
-            <td>A0000</td>
-            <td class="heading-cell"> <b>Profiles</b> </td>
-            <td> All. </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </body>
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Devman Interface</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">
+            The Devman IoT interface component serves as a gateway for device management functionality. It allows the reporting of various data points to an inxware Devman server and the retrieval of settings and configurations. It supports functions like sending data, retrieving the server URL, setting the server URL, listening for new configurations, OTA updates and getting miscellaneous data, providing a comprehensive interface for device management tasks.
+        </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+
+</tr>
+<tr>
+<td>App Name</td>
+<td>String</td><td>Identifies the data service channel.</td>
+<td></td>
+<td>0</td>
+<td>0</td>
+
+</tr>
+<tr>
+<td>Process Name</td>
+<td>String</td><td>Optional name of another process to monitor.</td>
+<td></td>
+<td>0</td>
+<td>0</td>
+
+</tr>
+</tbody>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tbody>
+<tr>
+<th>In Ev.</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]send">send</a></td>
+<td>Triggers sending data to the Devman server.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]setUrl">Set URL</a></td>
+<td>Sets the server URL for communication.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]getServerURL">get URL</a></td>
+<td>Retrieves the current server URL.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]listenMisc">listen Misc</a></td>
+<td>Starts listening for new configurations or data from the server.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]getAll">get All</a></td>
+<td>Requests all available data from the server.</td>
+</tr>
+<tr>
+<th>Data In</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]miscInfo">misc. info</a></td>
+<td>Miscellaneous information to be sent to the server.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]urlIn">URL</a></td>
+<td>Input for the server URL.</td>
+</tr>
+<tr>
+<th>Data Out</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]serverURL">server URL</a></td>
+<td>Current server URL.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]JSON">JSON</a></td>
+<td>JSON data retrieved from the server.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]newJSON">new JSON</a></td>
+<td>New JSON data received from the server.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]connected">connected</a></td>
+<td>Connection status of the server.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]net_error">error</a></td>
+<td>Error code for network status.</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]sendDone">----</a></td>
+<td>Indicates that data has been successfully sent.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]urlSet">---</a></td>
+<td>Indicates that the server URL has been successfully set.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]getAllDone">---</a></td>
+<td>Indicates that all data has been successfully retrieved.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]new">new</a></td>
+<td>Indicates new data or configuration has been received.</td>
+</tr>
+</tbody>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td>
+<td colspan="5">None</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td>
+<td>System/Remote</td>
+<td class="heading-cell"><b>Version</b></td>
+<td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td>
+<td>MPL2.0</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td>
+<td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td>
+<td>All.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
 </html>

@@ -268,6 +268,165 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputInt4)
     return;
 }
 
+/******************************************************************************/
+/* Define DemultiplexEightOutputInt function block */
+
+EHS_FB_FUNCTIONS_START(DemultiplexEightOutputInt)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexEightOutputInt1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexEightOutputInt2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexEightOutputInt3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x04, DemultiplexEightOutputInt4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output5", 0x05, DemultiplexEightOutputInt5)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output6", 0x06, DemultiplexEightOutputInt6)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output7", 0x07, DemultiplexEightOutputInt7)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output8", 0x08, DemultiplexEightOutputInt8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(DemultiplexEightOutputInt)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(DemultiplexEightOutputInt)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt1)
+{
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt2)
+{
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt3)
+{
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt4)
+{
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt5)
+{
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt6)
+{
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt7)
+{
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputInt8)
+{
+    EHS_FB_OUT_I(0) = EHS_FB_IN_I(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
 
 /******************************************************************************/
 /* Define DemultiplexTwoOutputBool function block */
@@ -500,6 +659,165 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool3)
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputBool4)
+{
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
+/* Define DemultiplexEightOutputBool function block */
+
+EHS_FB_FUNCTIONS_START(DemultiplexEightOutputBool)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexEightOutputBool1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexEightOutputBool2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexEightOutputBool3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x04, DemultiplexEightOutputBool4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output5", 0x05, DemultiplexEightOutputBool5)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output6", 0x06, DemultiplexEightOutputBool6)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output7", 0x07, DemultiplexEightOutputBool7)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output8", 0x08, DemultiplexEightOutputBool8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(DemultiplexEightOutputBool)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(DemultiplexEightOutputBool)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool1)
+{
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool2)
+{
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool3)
+{
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool4)
+{
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool5)
+{
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool6)
+{
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool7)
+{
+    EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputBool8)
 {
     EHS_FB_OUT_B(0) = EHS_FB_IN_B(0);
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
@@ -743,6 +1061,166 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString4)
     return;
 }
 
+/******************************************************************************/
+/* Define DemultiplexEightOutputString function block */
+
+EHS_FB_FUNCTIONS_START(DemultiplexEightOutputString)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexEightOutputString1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexEightOutputString2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexEightOutputString3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x04, DemultiplexEightOutputString4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output5", 0x05, DemultiplexEightOutputString5)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output6", 0x06, DemultiplexEightOutputString6)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output7", 0x07, DemultiplexEightOutputString7)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output8", 0x08, DemultiplexEightOutputString8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(DemultiplexEightOutputString)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(DemultiplexEightOutputString)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString1)
+{
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString2)
+{
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString3)
+{
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString4)
+{
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString5)
+{
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString6)
+{
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString7)
+{
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString8)
+{
+    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/******************************************************************************/
 
 /* common index demux initialisation functions */
 
@@ -956,6 +1434,7 @@ EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_Event)
 typedef struct
 {
     ehs_char * parmCases[8]; //allocated dynamically (auto deallocated) where entries are available
+    ehs_bool bSearchMode; // When set to 'true' we filer event if string exists in the text
 } EhsTextCaseDemultiplexerParms;
 /**
  * Identify the function block. Determine the memory required.
@@ -987,6 +1466,7 @@ EHS_FB_INIT_FUNCTION(TextCaseDemultiplexer_Event)
     const ehs_char * pParams = (ehs_char *) EHS_FB_INIT_PARAMETERS;
     ehs_char temp[EHS_STRING_LENGTH_MAX];
     EhsTextCaseDemultiplexerParms *pCtx = (EhsTextCaseDemultiplexerParms*) EHS_FB_INIT_CONTEXT;
+    pCtx->bSearchMode = EHS_FALSE;
     for (i = 0; i< 8 && pParams ; i++)
     {
         temp[0]='\0';
@@ -1007,11 +1487,15 @@ EHS_FB_INIT_FUNCTION(TextCaseDemultiplexer_Event)
                 pParams = EhsGetWordFromString(temp, pParams);
             }
 
-            if (EhsStrlen(temp) > 0)
+            const ehs_sint32 len = EhsStrlen(temp);
+
+            if (len > 0 && len < EHS_STRING_LENGTH_MAX)
             {
-                pCtx->parmCases[i] = EhsHMem_writeableAlloc(EHS_STRING_LENGTH_MAX);
-                if (pCtx->parmCases[i])
+                pCtx->parmCases[i] = EhsHMem_writeableAlloc(len + 1);
+                if (pCtx->parmCases[i]){
                     EhsStrcpy(pCtx->parmCases[i],temp);
+                    pCtx->parmCases[i][len] = '\0';
+                }
             }
             else
             {
@@ -1019,6 +1503,7 @@ EHS_FB_INIT_FUNCTION(TextCaseDemultiplexer_Event)
             }
         }
     }
+    pParams = EhsGetUint8FromString(&(pCtx->bSearchMode), pParams);
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -1070,11 +1555,23 @@ EHS_FB_RUN_FUNCTION(TextCaseDemultiplexer_Event)
         {
             if (psZcase[i])
             {
-                if (EhsStrcmp(psZcase[i],EHS_FB_IN_S_API2(EHS_PORTNUM_TextCaseDemultiplexer_Test)) == 0)
-                {
-                    EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventCase1+i);
-                    bDefault = EHS_FALSE;
-                    break; // we only fire the first one found
+                if(pCtx->bSearchMode == EHS_TRUE){
+                    char* s1; char* s2; char* s3;
+                    s1 = EHS_FB_IN_S_API2(EHS_PORTNUM_TextCaseDemultiplexer_Test);
+                    s2 = psZcase[i];
+                    s3 = EhsStrstr(s1, s2);
+                    if(s3){
+                        EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventCase1+i);
+                        bDefault = EHS_FALSE;
+                        break; // we only fire the first one found
+                    }
+                }else{
+                    if (EhsStrcmp(psZcase[i],EHS_FB_IN_S_API2(EHS_PORTNUM_TextCaseDemultiplexer_Test)) == 0)
+                    {
+                        EHS_FB_FINISH_API2(EHS_PORTNUM_TextCaseDemultiplexer_EventCase1+i);
+                        bDefault = EHS_FALSE;
+                        break; // we only fire the first one found
+                    }
                 }
             }
         }
@@ -1324,6 +1821,164 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputFloat4)
     return;
 }
 
+/******************************************************************************/
+/* Define DemultiplexFourOutputFloat function block */
+
+EHS_FB_FUNCTIONS_START(DemultiplexEightOutputFloat)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output1", 0x01, DemultiplexEightOutputFloat1)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output2", 0x02, DemultiplexEightOutputFloat2)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output3", 0x03, DemultiplexEightOutputFloat3)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output4", 0x04, DemultiplexEightOutputFloat4)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output5", 0x05, DemultiplexEightOutputFloat5)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output6", 0x06, DemultiplexEightOutputFloat6)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output7", 0x07, DemultiplexEightOutputFloat7)
+
+EHS_FB_FUNCTION_ENTRY("Run_Output8", 0x08, DemultiplexEightOutputFloat8)
+EHS_FB_FUNCTIONS_END
+
+/**
+ * Identify the function block. Determine the memory required.
+ *
+ * This function provides access to:
+ *  EHS_FB_IDENTIFY_PARAMETERS - string containing parameter text
+ *  EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this
+ *   function block's context
+ *
+ */
+EHS_FB_IDENTIFY_FUNCTION(DemultiplexEightOutputFloat)
+{
+}
+
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ *
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+EHS_FB_INIT_FUNCTION(DemultiplexEightOutputFloat)
+{
+    return EHS_TRUE; /* initialisation always succeeds */
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat1)
+{
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat2)
+{
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat3)
+{
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat4)
+{
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat5)
+{
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat6)
+{
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat7)
+{
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
+
+/**
+ * Run the function <more detail required>.
+ *
+ * This function provides access to:
+ *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
+ *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ */
+EHS_FB_RUN_FUNCTION(DemultiplexEightOutputFloat8)
+{
+    EHS_FB_OUT_F(0) = EHS_FB_IN_F(0);
+    SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
+    return;
+}
 /******************************************************************************/
 /* Define IndexedDemultiplexer_Float function block */
 //@todo - this code refers to function in Components sandbox, move/remove?

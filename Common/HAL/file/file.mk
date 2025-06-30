@@ -26,6 +26,17 @@
 
 include $(EHS_COMMON_HAL_PATH)/file/deps.mk
 
-OBJECTS+= hal_file.$(OBJ)
+ifeq ($(EHS_FILESYSTEM_SUPPORT),none)
+	DEFS += EHS_FILESYSTEM_SUPPORT__NONE
+endif
+ifeq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
+	OBJECTS += hal_file_stubbed.$(OBJ)
+	DEFS+=EHS_FILESYSTEM_SUPPORT__STUBBED
+else 
+	OBJECTS+= hal_file.$(OBJ)
+endif
+
+# TODO2025 the stubbed and micro file system should be alternative VPATHs for code. 
+# target-specific filesystem support for libc still the same but should only apply in the posix case? 
 VPATH+=: $(EHS_COMMON_HAL_PATH)/file
 

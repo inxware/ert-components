@@ -53,6 +53,11 @@
             android:enabled="true"
             android:exported="true" />
 
+        <receiver
+            android:name=".UtilsReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
         <service
             android:name=".DownloadService"
             android:enabled="true"

@@ -175,14 +175,17 @@ EHS_LOCAL struct
  * This is cleaned up after an application completes
  * @TODO this needs sorting desperately!
  */
-EHS_GLOBAL void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate, const char* fileName, ehs_uint32 lineNumber)
+void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate, const char* fileName, ehs_uint32 lineNumber)
 {
+#ifdef EHS_MEMORY_MANAGMENT__NOTRACE
+    return EhsTMem_alloc(nSizeToAllocate);
+#else
     EhsLMemSmallItemType* pItem;	/* contains new memory allocated */
     void* pRet = NULL;				/* points to the user part of the memory */
 #ifdef EHS_CONFIG_MEM_CHECK
     ehs_uint32 nAmount = nSizeToAllocate+sizeof(EhsLMemSmallItemType)-sizeof(ehs_uint32);		/* quantity of memory to allocates minus pattern??/ */
 #else
-    ehs_uint32 nAmount = nSizeToAllocate+sizeof(EhsLMemSmallItemType);//-sizeof(ehs_uint32);
+    ehs_uint32 nAmount = nSizeToAllocate+sizeof(EhsLMemSmallItemType)-sizeof(ehs_uint32);
 #endif
     //EHSH_LOG_ENTER("EhsHMem_tempAlloc(%d)",nSizeToAllocate);
     EhsTPMutex_lock(EhsTPMutex_mem);
@@ -224,6 +227,7 @@ EHS_GLOBAL void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate, const char* fileName,
     EhsTPMutex_unlock(EhsTPMutex_mem);
     //EHSH_LOG_EXIT("EhsHMem_tempAlloc() -> %x",pRet);
     return pRet;
+#endif // EHS_MEMORY_MANAGMENT__TRACE
 }
 
 /**
@@ -234,7 +238,9 @@ EHS_GLOBAL void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate, const char* fileName,
  */
 void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 lineNumber)
 {
-
+#ifdef EHS_MEMORY_MANAGMENT__NOTRACE
+    return EhsTMem_alloc(nSizeToAllocate);
+#else
     EhsLMemQuickItemType* pItem;	/* contains new memory allocated */
     void* pRet = NULL;				/* points to the user part of the memory */
     ehs_uint32 nAmount = nSizeToAllocate+sizeof(EhsLMemQuickItemType)-sizeof(ehs_uint32);
@@ -277,6 +283,7 @@ void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 line
     EhsTPMutex_unlock(EhsTPMutex_mem);
     //EHSH_LOG_EXIT("EhsHMem_tempAlloc() -> %x",pRet);
     return pRet;
+#endif // EHS_MEMORY_MANAGMENT__NOTRACE
 }
 
 /**
@@ -285,6 +292,9 @@ void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 line
  */
 void EhsHMem_tempFree(void* pData)
 {
+#ifdef EHS_MEMORY_MANAGMENT__NOTRACE
+    EhsTMem_free(pData);
+#else
     EhsLMemQuickItemType* pItem;
     //EHSH_LOG_ENTER("EhsHMem_tempFree(%x)",pData);
     EhsTPMutex_lock(EhsTPMutex_mem);
@@ -323,6 +333,7 @@ void EhsHMem_tempFree(void* pData)
     EhsTPMutex_unlock(EhsTPMutex_mem);
 
     //EHSH_LOG_EXIT("EhsHMem_tempFree");
+#endif // EHS_MEMORY_MANAGMENT__NOTRACE
 }
 
 /**
@@ -551,12 +562,24 @@ void EhsHMem_init(void)
     EhsLMem.pSystem = NULL;
     EhsLMem.pTempSodl = NULL;
     EhsLMem.pTempApp = NULL;
+
+#ifdef __cplusplus
     // todo2022 check for overflows of uint8 type with this and fail to start
+    
     // cppcheck-suppress comparePointers 
+    EhsLMem.nQuickOffset = (ehs_uint8)((char*)&(xQuick.nMem) - (char*)&xQuick);
+    
+    // cppcheck-suppress comparePointers 
+    EhsLMem.nSmallOffset = (ehs_uint8)((char*)&(xSmall.nMem) - (char*)&xSmall);
+#else 
     EhsLMem.nQuickOffset = (ehs_uint8)((void*)&(xQuick.nMem) - (void*)&xQuick);
     
     // cppcheck-suppress comparePointers 
     EhsLMem.nSmallOffset = (ehs_uint8)((void*)&(xSmall.nMem) - (void*)&xSmall);
+
+#endif
+
+
 #ifdef EHS_CONFIG_MEM_CHECK
     EhsLMem.nUsed = 0u;
 #endif

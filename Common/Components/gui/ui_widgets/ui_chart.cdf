@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2024-02-15T06:15:41Z</UpdatedDate>
+        <UpdatedDate>2024-08-15T08:35:41Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription/>
@@ -23,8 +23,8 @@
     <Block>
         <Type>IO</Type>
         <Text>Chart</Text>
-        <TextX>48</TextX>
-        <TextY>160</TextY>
+        <TextX>63</TextX>
+        <TextY>243</TextY>
         <TextScale>1.8</TextScale>
     </Block>
     <FBID>
@@ -33,7 +33,7 @@
     </FBID>
     <Hashes>
         <NameHash_CRC16>0x839F</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>b99d231</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>dfe9f572</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -58,34 +58,14 @@
             <ArgPlacement>2</ArgPlacement>
         </Parameter>
         <Parameter>
-            <Name>Title</Name>
-            <DataType>S</DataType>
-            <DefaultValue>Chart</DefaultValue>
-            <MinValue/>
-            <MaxValue/>
-            <Description/>
-            <ListPlacement>3</ListPlacement>
-            <ArgPlacement>3</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Data1 Size</Name>
+            <Name>Data Size</Name>
             <DataType>I</DataType>
             <DefaultValue>10</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>1000</MaxValue>
-            <Description>Size of data1</Description>
-            <ListPlacement>4</ListPlacement>
-            <ArgPlacement>4</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Data2 Size</Name>
-            <DataType>I</DataType>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>1000</MaxValue>
-            <Description>Size of data2</Description>
-            <ListPlacement>5</ListPlacement>
-            <ArgPlacement>5</ArgPlacement>
+            <Description>Number of data points</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>X Max</Name>
@@ -94,8 +74,8 @@
             <MinValue>-65536</MinValue>
             <MaxValue>65536</MaxValue>
             <Description>Maximum x-axis range value</Description>
-            <ListPlacement>6</ListPlacement>
-            <ArgPlacement>6</ArgPlacement>
+            <ListPlacement>4</ListPlacement>
+            <ArgPlacement>4</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>X Min</Name>
@@ -104,8 +84,8 @@
             <MinValue>-65536</MinValue>
             <MaxValue>65536</MaxValue>
             <Description>Minimum x-axis range value</Description>
-            <ListPlacement>7</ListPlacement>
-            <ArgPlacement>7</ArgPlacement>
+            <ListPlacement>5</ListPlacement>
+            <ArgPlacement>5</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>Y Max</Name>
@@ -114,8 +94,8 @@
             <MinValue>-65536</MinValue>
             <MaxValue>65536</MaxValue>
             <Description>Maximum y-axis range value</Description>
-            <ListPlacement>8</ListPlacement>
-            <ArgPlacement>8</ArgPlacement>
+            <ListPlacement>6</ListPlacement>
+            <ArgPlacement>6</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>Y Min</Name>
@@ -124,8 +104,78 @@
             <MinValue>-65536</MinValue>
             <MaxValue>65536</MaxValue>
             <Description>Minimum y-axis range value</Description>
+            <ListPlacement>7</ListPlacement>
+            <ArgPlacement>7</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Horizontal lines</Name>
+            <DataType>I</DataType>
+            <DefaultValue>5</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>20</MaxValue>
+            <Description>Number of horizontal division lines.</Description>
+            <ListPlacement>8</ListPlacement>
+            <ArgPlacement>8</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Vertical lines</Name>
+            <DataType>I</DataType>
+            <DefaultValue>9</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>20</MaxValue>
+            <Description>Number of vertical division lines.</Description>
             <ListPlacement>9</ListPlacement>
             <ArgPlacement>9</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Auto range</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Adjusts y-axis range based on data min max values of data</Description>
+            <ListPlacement>10</ListPlacement>
+            <ArgPlacement>10</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>NaN</Name>
+            <DataType>I</DataType>
+            <DefaultValue>-32768</DefaultValue>
+            <MinValue>-32768</MinValue>
+            <MaxValue>32768</MaxValue>
+            <Description>Number used for identifying NaN value</Description>
+            <ListPlacement>11</ListPlacement>
+            <ArgPlacement>11</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Enable Plot 1</Name>
+            <DataType>B</DataType>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Creates data series for plot 1</Description>
+            <ListPlacement>12</ListPlacement>
+            <ArgPlacement>12</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Enable Plot 2</Name>
+            <DataType>B</DataType>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Creates data series for plot 2</Description>
+            <ListPlacement>13</ListPlacement>
+            <ArgPlacement>13</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Enable Plot 3</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Creates data series for plot 3</Description>
+            <ListPlacement>14</ListPlacement>
+            <ArgPlacement>14</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>
@@ -160,9 +210,15 @@
             </ID>
         </Function>
         <Function>
-            <name>data</name>
+            <name>data_update</name>
             <ID>
                 <ERT1_ID>6</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>data</name>
+            <ID>
+                <ERT1_ID>7</ERT1_ID>
             </ID>
         </Function>
     </Functions>
@@ -228,7 +284,7 @@
             <Description>off.x</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>72</YCoordinate>
+            <YCoordinate>70</YCoordinate>
             <CName>off_x</CName>
             <Function argument="1">
                 <Function_ERT1_ID>5</Function_ERT1_ID>
@@ -239,7 +295,7 @@
             <Description>off.y</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>82</YCoordinate>
+            <YCoordinate>80</YCoordinate>
             <CName>off_y</CName>
             <Function argument="2">
                 <Function_ERT1_ID>5</Function_ERT1_ID>
@@ -250,7 +306,7 @@
             <Description>off.wid</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>92</YCoordinate>
+            <YCoordinate>90</YCoordinate>
             <CName>off_wid</CName>
             <Function argument="3">
                 <Function_ERT1_ID>5</Function_ERT1_ID>
@@ -261,7 +317,7 @@
             <Description>off.ht</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>102</YCoordinate>
+            <YCoordinate>100</YCoordinate>
             <CName>off_ht</CName>
             <Function argument="4">
                 <Function_ERT1_ID>5</Function_ERT1_ID>
@@ -272,7 +328,7 @@
             <Description>alpha</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>112</YCoordinate>
+            <YCoordinate>110</YCoordinate>
             <CName>alpha</CName>
             <Function argument="5">
                 <Function_ERT1_ID>5</Function_ERT1_ID>
@@ -282,8 +338,8 @@
             <DataType>I</DataType>
             <Description>abs x</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>100</XCoordinate>
-            <YCoordinate>77</YCoordinate>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>70</YCoordinate>
             <CName>abs_x</CName>
             <Function argument="1">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
@@ -296,8 +352,8 @@
             <DataType>I</DataType>
             <Description>abs y</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>100</XCoordinate>
-            <YCoordinate>87</YCoordinate>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>80</YCoordinate>
             <CName>abs_y</CName>
             <Function argument="2">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
@@ -310,8 +366,8 @@
             <DataType>I</DataType>
             <Description>wid</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>100</XCoordinate>
-            <YCoordinate>97</YCoordinate>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>90</YCoordinate>
             <CName>wid</CName>
             <Function argument="3">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
@@ -324,8 +380,8 @@
             <DataType>I</DataType>
             <Description>ht</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>100</XCoordinate>
-            <YCoordinate>107</YCoordinate>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>100</YCoordinate>
             <CName>ht</CName>
             <Function argument="4">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
@@ -337,7 +393,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>10</YCoordinate>
             <Wcet>0</Wcet>
             <CName>__</CName>
@@ -348,7 +404,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>20</YCoordinate>
             <Wcet>0</Wcet>
             <CName>__</CName>
@@ -359,7 +415,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>35</YCoordinate>
             <Wcet>0</Wcet>
             <CName>__</CName>
@@ -370,7 +426,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>45</YCoordinate>
             <Wcet>0</Wcet>
             <CName>__</CName>
@@ -379,10 +435,21 @@
             </Function>
         </Port>
         <Port>
+            <Description>update</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>122</YCoordinate>
+            <CName>data_update</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
-            <YCoordinate>62</YCoordinate>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>60</YCoordinate>
             <Wcet>0</Wcet>
             <CName>__</CName>
             <Function argument="1">
@@ -390,58 +457,134 @@
             </Function>
         </Port>
         <Port>
-            <Description>data</Description>
-            <PortType>StartPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>127</YCoordinate>
-            <CName>data</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>6</Function_ERT1_ID>
-                <AtomicFlag>1</AtomicFlag>
-            </Function>
-        </Port>
-        <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>100</XCoordinate>
-            <YCoordinate>130</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>___</CName>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>125</YCoordinate>
+            <CName>done</CName>
             <Function argument="1">
                 <Function_ERT1_ID>6</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
-            <DataType>S</DataType>
-            <Description>data1</Description>
+            <DataType>B</DataType>
+            <Description>auto</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>140</YCoordinate>
-            <CName>data1</CName>
+            <YCoordinate>172</YCoordinate>
+            <CName>auto_range</CName>
             <Function argument="1">
                 <Function_ERT1_ID>6</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
-            <DataType>S</DataType>
-            <Description>data2</Description>
+            <DataType>I</DataType>
+            <Description>maxy</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>150</YCoordinate>
-            <CName>data2</CName>
+            <YCoordinate>162</YCoordinate>
+            <CName>maxy</CName>
             <Function argument="2">
                 <Function_ERT1_ID>6</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
+            <DataType>I</DataType>
+            <Description>miny</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>152</YCoordinate>
+            <CName>miny</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>maxx</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>142</YCoordinate>
+            <CName>maxx</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>minx</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>132</YCoordinate>
+            <CName>minx</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>6</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>data</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>195</YCoordinate>
+            <CName>data</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>195</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>___</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>data1</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>205</YCoordinate>
+            <CName>data1</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>data2</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>215</YCoordinate>
+            <CName>data2</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>data3</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>225</YCoordinate>
+            <CName>data3</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
             <DataType>F</DataType>
             <Description>data1</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>162</YCoordinate>
+            <YCoordinate>235</YCoordinate>
             <CName>data1_sample</CName>
-            <Function argument="3">
-                <Function_ERT1_ID>6</Function_ERT1_ID>
+            <Function argument="4">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
@@ -449,10 +592,41 @@
             <Description>data2</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>172</YCoordinate>
+            <YCoordinate>245</YCoordinate>
             <CName>data2_sample</CName>
-            <Function argument="4">
-                <Function_ERT1_ID>6</Function_ERT1_ID>
+            <Function argument="5">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>data3</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>255</YCoordinate>
+            <CName>data3_sample</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>7</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>click</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>220</YCoordinate>
+            <CName>click</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>mouse down</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>110</XCoordinate>
+            <YCoordinate>230</YCoordinate>
+            <CName>mouse_down</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>
     </Ports>

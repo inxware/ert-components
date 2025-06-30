@@ -196,10 +196,11 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_create)
 
     /*Set pointer in widget structure to point at instance data. Used for mouse click.*/
     pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
+#ifndef EHS_GUI_SUPPORT_MODE_B
     /*Set number of mouseClick port*/
     pWidget->mouseClickPortNumber = 2;
     pWidget->mouseDownPortNumber  = 3;
-
+#endif
     /* set the output values for this widget */
     EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_X) 	= pWidget->xCurRect.nLeft;
     EHS_FB_OUT_I(EHS_FB_GUI_TEXT_OUT_Y) 	= pWidget->xCurRect.nTop;
@@ -258,10 +259,11 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_load)
 
             //NOTE - as pfiData is a static associated with each function have to reset pfiData to value set by create function
             pWidget->pFIData = iBeforeVal;
+#ifndef EHS_GUI_SUPPORT_MODE_B
             /*Set number of mouseClick port ~todo - this needs making nicer!*/
             pWidget->mouseClickPortNumber = 2;
             pWidget->mouseDownPortNumber = 3;
-
+#endif
             /* Use any dynamic offsets for the widget to position the new image to where eer it may have moved to */
             //pWidget->UpdatedOffsettRect;
 

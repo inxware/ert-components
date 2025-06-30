@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2023-04-18T13:32:37Z</CreationDate>
+        <UpdatedDate>2025-03-17T13:48:17Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Accelometer and Gyroscope</ShortDescription>
+        <LongDescription>Accelometer and Gyroscope</LongDescription>
+        <UserName/>
+        <Menu>
+            Peripherals
+            <Menu>Accelometer and Gyroscope</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>accel_gyro</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xF2AA</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>bad9e7af</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>EnableFunc</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>DisableFunc</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>ReadAccelFunc</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>ReadGyroFunc</name>
+            <ID>
+                <ERT1_ID>4</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>enable</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <CName>enable</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>disbale</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <CName>disbale</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>12</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>enabled</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>disabled</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>err id</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>32</YCoordinate>
+            <CName>error_id</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>accel</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>47</YCoordinate>
+            <CName>read_accel</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>accel_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>Ax</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <CName>Ax</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>Ay</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>65</YCoordinate>
+            <CName>Ay</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>Az</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>75</YCoordinate>
+            <CName>Az</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>gyro</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>87</YCoordinate>
+            <CName>read_gyro</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>87</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>gyro_done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>Gx</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>97</YCoordinate>
+            <CName>Gx</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>Gy</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>107</YCoordinate>
+            <CName>Gy</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>F</DataType>
+            <Description>Gz</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>75</XCoordinate>
+            <YCoordinate>117</YCoordinate>
+            <CName>Gz</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

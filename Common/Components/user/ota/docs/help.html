@@ -1,0 +1,186 @@
+<html>
+<head>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">OTA</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+      This will write to the inactive OTA section with the incoming data. The data could be written in the non-contiguous manner with offset.
+    </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr>
+<th style="width:60px;">Name</th>
+<th>Type</th><th>Description</th>
+<th>Default</th>
+<th>Min.</th>
+<th>Max.</th>
+
+</tr>
+<tr>
+<td>ota_partition_alt</td>
+<td>Boolean</td><td>Indicates whether to use the alternate OTA partition.</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+
+</tr>
+<tr>
+<td>partition_number</td>
+<td>Integer</td><td>The number of the inactive partition to be updated.</td>
+<td>0</td>
+<td>0</td>
+<td>9</td>
+
+</tr>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr>
+<th>In Ev.</th><th>Description</th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]begin">begin</a></td>
+<td>Event to begin the OTA process, initializing the OTA state.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]write">write</a></td>
+<td>Event to write OTA data to the specified partition.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]end">end</a></td>
+<td>Event to complete the OTA process, validating the written data.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[In]abort">abort</a></td>
+<td>Event to abort the OTA process.</td>
+</tr>
+<tr>
+<th>Data In</th><th>Description</th>
+</tr>
+<tr>
+<td class="portsStr"><a name="[In]SHA256">SHA256</a></td>
+<td>The SHA256 hash for validating the integrity of the OTA data.</td>
+</tr>
+<tr>
+<td class="portsStr"><a name="[In]data">data</a></td>
+<td>Raw OTA data to be written to the partition.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]size">size</a></td>
+<td>Size of the OTA data chunk to be written.</td>
+</tr>
+<tr>
+<td class="portsInt"><a name="[In]offset">offset</a></td>
+<td>Offset within the partition where the data should be written.</td>
+</tr>
+<tr>
+<th>Data Out</th><th>Description</th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]begin_errno">begin_errno</a></td>
+<td>Error number if the OTA begin operation fails.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]write_errno">write_errno</a></td>
+<td>Error number if the OTA write operation fails.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]end_errno">end_errno</a></td>
+<td>Error number if the OTA end operation fails.</td>
+</tr>
+<tr>
+<th>Out Ev.</th><th>Description</th>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]begin_OK">begin_OK</a></td>
+<td>Event triggered when the OTA process successfully begins.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]write_OK">write_OK</a></td>
+<td>Event triggered when the OTA data is successfully written.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]end_OK">end_OK</a></td>
+<td>Event triggered when the OTA process successfully ends.</td>
+</tr>
+<tr>
+<td class="portsEvent"><a name="[Out]abort_OK">abort_OK</a></td>
+<td>Event triggered when the OTA process is successfully aborted.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr>
+<td class="heading-cell">
+<b>Toolbox</b>
+</td>
+<td>
+          Core
+        </td>
+<td class="heading-cell">
+<b>Version</b>
+</td>
+<td>
+          v1.0
+        </td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Licence Type</b>
+</td>
+<td>
+          MPL2.0
+        </td>
+<td class="heading-cell">
+<b>Component Supplier</b>
+</td>
+<td>
+<a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell">
+<b>Minimum DCC</b>
+</td>
+<td>A0000</td>
+<td class="heading-cell">
+<b>Profiles</b>
+</td>
+<td>
+          All.
+        </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

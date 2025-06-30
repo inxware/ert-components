@@ -10,10 +10,24 @@
         <LongDescription>This function block gets the audio input amplitude. The sampling frequency, bit rate and output interval period can be defined.</LongDescription>
         <UserName/>
         <Menu>
-            Peripherals
-            <Menu>Audio Input Level</Menu>
+            AV
+            <Menu>
+                Sound
+                <Menu>Audio Input Level</Menu>
+            </Menu>
         </Menu>
     </Description>
+    <Block>
+        <Type>IO</Type>
+        <Height>95</Height>
+        <Text>Audio Level</Text>
+        <TextX>22</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.2</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
         <Class>audio_input_level</Class>
@@ -33,10 +47,6 @@
             <Description>Sampling rate in Hz</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
-            <DisplayOnWidget>
-                <x>25</x>
-                <y>15</y>
-            </DisplayOnWidget>
         </Parameter>
         <Parameter>
             <Name>bit_rate</Name>
@@ -47,10 +57,6 @@
             <Description>The bit length of each sample.</Description>
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
-            <DisplayOnWidget>
-                <x>25</x>
-                <y>30</y>
-            </DisplayOnWidget>
         </Parameter>
         <Parameter>
             <Name>output_period</Name>
@@ -61,10 +67,6 @@
             <Description>THe period of the data output in ms. Incremental step of 100 ms. Minimum 100 ms</Description>
             <ListPlacement>3</ListPlacement>
             <ArgPlacement>3</ArgPlacement>
-            <DisplayOnWidget>
-                <x>25</x>
-                <y>45</y>
-            </DisplayOnWidget>
         </Parameter>
     </Parameters>
     <Functions>
@@ -119,7 +121,7 @@
             <Description>destroyed</Description>
             <PortType>FinishPort</PortType>
             <XCoordinate>105</XCoordinate>
-            <YCoordinate>67</YCoordinate>
+            <YCoordinate>70</YCoordinate>
             <Wcet>0</Wcet>
             <CName>destroyed</CName>
             <Function argument="1">

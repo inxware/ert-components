@@ -1,6 +1,6 @@
 #!/bin/bash
 
-@TODO finish me
+@TODO finish me and move me to scripts/build-deploy/ or delete me.
 
 foreach ./target/platform
 
