@@ -120,6 +120,7 @@ volatile static ehs_uint32 gTimg1Config0 = 0;
 #define EHS_MAIN_ESP32_TASK_STACK_SIZE 10000
 #endif
 
+#define EHS_MCU_SLOW_HP_THR_STACKSIZE 3072
 
 #ifndef EHS_MCU_SLOW_LP_THR_SLEEP_MS
 #define EHS_MCU_SLOW_LP_THR_SLEEP_MS 10 /*ms*/
@@ -1085,7 +1086,7 @@ ota_data_write_jump:
     // create a command prompt task for interacting with the device over a console
     xTaskCreate(command_prompt_task, "CommandPrompt", 4096, NULL, EHS_PRI_SERIAL_CMD, NULL);
 #endif
-    xTaskCreate(MCU_SLOW_HP_THR, "MCU_SLOW_HP_THR", 3072, NULL, EHS_PRI_MCU_SLOW_HP_THR, NULL);
+    xTaskCreate(MCU_SLOW_HP_THR, "MCU_SLOW_HP_THR", EHS_MCU_SLOW_HP_THR_STACKSIZE, NULL, EHS_PRI_MCU_SLOW_HP_THR, NULL);
     MCU_SLOW_LP_THR(NULL);
     // vTaskDelete(NULL);
 }

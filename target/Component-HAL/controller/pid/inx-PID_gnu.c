@@ -1,7 +1,7 @@
 #include "hal_pid.h"
 //#include "hal_logger.h"
 #include "hal_string.h"
-#include "inx-PID_heatrod.h"
+#include "inx-PID_isr.h"
 
 /* THis is probably some kind of PID emulator for desktop ??? */
 

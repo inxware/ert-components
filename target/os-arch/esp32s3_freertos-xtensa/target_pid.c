@@ -1,5 +1,5 @@
 #include "hal_pid.h"
-#include "pid/inx-PID_heatrod.h"
+#include "pid/inx-PID_isr.h"
 
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_continuous.h"

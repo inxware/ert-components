@@ -149,6 +149,8 @@ endif
 ########################################################################################################
 ## Multi-Channel PID Controller
 ########################################################################################################
+
+##todo 2025 all thisshould go in a PID make file not here.
 ifdef EHS_PID_SUPPORT
 ifeq ($(EHS_PID_SUPPORT),stubbed)
 OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_stub.$(OBJ)
@@ -163,11 +165,11 @@ DEFS += EHS_THERMOCOUPLE_ADC_MAX_FP=1843200
 DEFS += EHS_PT100_AMP_GAIN_SCALE=7652
 DEFS += EHS_PT100_AMP_GAIN_DIVIDER=137
 OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_gnu.$(OBJ)
-OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_heatrod.$(OBJ)
+#OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_isr.$(OBJ)
 else ifeq ($(EHS_PID_SUPPORT),esp32)
 #VPATH += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller
 INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller
-OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_heatrod.$(OBJ)
+OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_isr.$(OBJ)
 OBJECTS += target_pid.$(OBJ)
 else
 # No objects added - might leave a hole in the toolbox and cause a build error.
