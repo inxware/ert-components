@@ -27,12 +27,16 @@
 //#define EHS_DEBUG_CERTS //- also needs EHS_DEBUG_URL enabling
 //#define EHS_DEBUG_URL
 #ifdef EHS_DEBUG_URL
+
 #define EhsDebugPrintf(...) do{}while(0)
 //#define EhsDebugPrintf(...) printf(__VA_ARGS__) // almost sensible general debug
-#define _printf(...) printf(__VA_ARGS__) // scriibly debug
+#define _printf(...) printf(__VA_ARGS__)
+
 #else
+
 #define EhsDebugPrintf(...) do{}while(0)
 #define _printf(...) do{}while(0)
+
 #endif
 
 
@@ -880,7 +884,7 @@ ehs_uint8 EhsHGetDevmanCaCertificatePath(ehs_char* pCertPath,const ehs_char * pS
     return 0;
 }
 
-/*  @brief searches for certicates in ./devman/core/certs/<DOMAIN>/* for certificates to use instead of defaults.
+/*  @brief searches for certicates in ./devman/core/certs/<DOMAIN> for certificates to use instead of defaults.
 
    Extracts the domain from a URL and produced a path to the certifiate (or the default certificate if not found)
    returns:
