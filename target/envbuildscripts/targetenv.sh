@@ -344,7 +344,12 @@ fi
 
 if [ -d ../apps ]; then
 	pushd ../apps
-	git checkout master || :
+
+	if [ -f COMMUNITY_RELEASE ]; then
+		git checkout main || :
+	else
+		git checkout master || :
+	fi
 fi
 
 echo    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
