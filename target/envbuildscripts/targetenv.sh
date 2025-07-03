@@ -106,7 +106,7 @@ echo "Checking out the latest PRODUCTION branch of your app repo..."
 		popd
 	else
 		pushd ..
-		git clone ssh:git@github.com:inxware/apps.git ./apps
+		git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/apps.git
 		cd apps/
 		git checkout RELEASE-PRODUCTION || exit 1
 		popd
@@ -132,9 +132,26 @@ else
 fi
 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 echo "XXXXXXXXXXXXXXXXXXXXX Configuring the IoT server service  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-
-	echo "WARNING!!! NOT Checking out the latest PRODUCTION branch of Devman Securiyu repo EHS_SKIP_REPO_PULL is set "
-	echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+if [ -f ./COMMUNITY_RELEASE ]; then
+	echo "No Certificate repo used"
+else
+	if [ "${EHS_SKIP_REPO_PULL}" = "" ];then
+		if [ -d ../DevmanSecurity/ ];then 
+			pushd ../DevmanSecurity/
+			git pull origin master
+			popd
+		else
+			pushd ..
+			git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/DevmanSecurity.git
+			cd DevmanSecurity/
+			git checkout master
+			popd
+		fi
+	else 
+		echo "WARNING!!! NOT Checking out the latest PRODUCTION branch of Devman Securiyu repo EHS_SKIP_REPO_PULL is set "
+		echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+	fi
+fi
 
 function SetDevmanServer(){
 
@@ -327,8 +344,7 @@ fi
 
 if [ -d ../apps ]; then
 	pushd ../apps
-	git checkout main || :
-        popd
+	git checkout master || :
 fi
 
 echo    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
