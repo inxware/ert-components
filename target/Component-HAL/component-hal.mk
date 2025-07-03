@@ -152,6 +152,7 @@ endif
 
 ##todo 2025 all thisshould go in a PID make file not here.
 ifdef EHS_PID_SUPPORT
+DEFS+=EHS_PID_SUPPORT=$(EHS_PID_SUPPORT)
 ifeq ($(EHS_PID_SUPPORT),stubbed)
 OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_stub.$(OBJ)
 else ifeq ($(EHS_PID_SUPPORT),gnu)
@@ -165,7 +166,6 @@ DEFS += EHS_THERMOCOUPLE_ADC_MAX_FP=1843200
 DEFS += EHS_PT100_AMP_GAIN_SCALE=7652
 DEFS += EHS_PT100_AMP_GAIN_DIVIDER=137
 OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_gnu.$(OBJ)
-#OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_isr.$(OBJ)
 else ifeq ($(EHS_PID_SUPPORT),esp32)
 #VPATH += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller
 INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller
