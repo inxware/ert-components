@@ -1,21 +1,19 @@
 #!/bin/bash
 
+# 'linux_x86_64-lucid-debian11'
+
 target_platform=( 
- 'linux_x86_64-lucid-debian11'
  'linux_amd64'
  'linux_amd64_gtk_gst'
  'linux_x86_64_clang'
  'linux_x86_64_clang_ehrt1'
  'linux_x86_64_clang_gtk'
- 'linux_x86_64_clang_gg_debian10'
  'linux_x86_64_clang_gg_debian11'
  'linux_x86_64_clang_gtk_gst_gg_debian11'
  'linux_x86_64_gtk_gst_debian11'
- 'linux_x86_64_gtk_gst_debian11-debug'
  'linux_x86_64_clang_lvgl_debian11'
  'linux_x86_gtk_vlc'
  'linux_armv7l_clang_debian10'
- 'linux_armv7l_clang_gtk_gst_debian10'
  'linux_armv7l_clang_gtk_gst_debian11'
  'linux_arm64_gtk_gst_gg_debian10'
  'linux_arm64_lvgl_gg_debian10'

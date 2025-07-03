@@ -176,7 +176,7 @@ int getTempFromSchedule(ehs_uint8* schedule, size_t size, ehs_sint32 weekday, eh
                 newTemperature = 0;
                 *isOn = EHS_FALSE;
             }else{ 
-                newTemperature = value * 5; // 5 C resolution
+                newTemperature = value;
                 *isOn = EHS_TRUE;
             }
         }
