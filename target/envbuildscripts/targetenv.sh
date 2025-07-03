@@ -345,7 +345,7 @@ fi
 if [ -d ../apps ]; then
 	pushd ../apps
 
-	if [ -f COMMUNITY_RELEASE ]; then
+	if [ -f ../ert-components/COMMUNITY_RELEASE ]; then
 		git checkout main || :
 	else
 		git checkout master || :

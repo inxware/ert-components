@@ -157,7 +157,7 @@ OBJECTS += inx-PID.$(OBJ)
 OBJECTS += inx-calibrate.$(OBJ)
 OBJECTS += inx-pid_relay_config.$(OBJ)
 OBJECTS += inx-pid_hdwr_config_int.$(OBJ)
-DEFS += EHS_PID_SUPPORT
+DEFS += EHS_PID_SUPPORT=$(EHS_PID_SUPPORT)
 endif
 ifndef EHS_OTA_SUPPORT
 EHS_OTA_SUPPORT=stubbed

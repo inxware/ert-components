@@ -7,7 +7,6 @@ target_platform=(
  'linux_amd64_gtk_gst'
  'linux_x86_64_clang'
  'linux_x86_64_clang_gtk'
- 'linux_x86_64_clang_gg_debian11'
  'linux_x86_64_clang_gtk_gst_gg_debian11'
  'linux_x86_64_gtk_gst_debian11'
  'linux_x86_64_clang_lvgl_debian11'
@@ -15,6 +14,7 @@ target_platform=(
  'linux_armv7l_clang_gtk_gst_debian11'
  'linux_arm64_gtk_gst_gg_debian10'
  'linux_arm64_lvgl_gg_debian10'
+ 'linux_arm64_lvgl_gg_debian11'
  'linux_arm64_gtk_gst_gg_debian11'
  'esp32_freertos-xtensor-base'
  'esp32s3_freertos-xtensa-base'
@@ -27,6 +27,7 @@ target_platform=(
 #Parked targets
 # 'linux_armv7l_clang_debian11'
 # 'linux_x86_gtk_vlc'
+# 'linux_x86_64_clang_gg_debian11'
 
 
 if [ "$1" = "--include-slow" ]; then
