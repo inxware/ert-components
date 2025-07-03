@@ -123,6 +123,7 @@ SUCH DAMAGE.
 #include "ehs_types.h"
 #include "widget.h"
 #include "hal_mem.h"
+#include "hal_file.h"
 #include "messages.h"
 #include "hal_string.h"
 #include "hal_viewport.h"
