@@ -134,7 +134,8 @@ EHS_FB_RUN_FUNCTION(adc_read_continuous_enable)
 	inx_adc_read_continuous_state_type* inx_adc_read_continuous_state = (inx_adc_read_continuous_state_type*)EHS_FB_RUN_CONTEXT;
 
 	// Your code here
-	EHS_SET_BIT_N(g_ehs_adc_continuous_enabled_bitmask[inx_adc_read_continuous_state->device_id], inx_adc_read_continuous_state->channel);
+	if (g_ehs_adc_continuous_enabled_bitmask)
+		EHS_SET_BIT_N(g_ehs_adc_continuous_enabled_bitmask[inx_adc_read_continuous_state->device_id], inx_adc_read_continuous_state->channel);
 	EHS_FB_FINISH(INX_adc_read_continuous_ARG_enable_en_done);
 }//ICB FUNCTION enable MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION disable MACRO START -- DO NOT ALTER
@@ -150,7 +151,8 @@ EHS_FB_RUN_FUNCTION(adc_read_continuous_disable)
 	inx_adc_read_continuous_state_type* inx_adc_read_continuous_state = (inx_adc_read_continuous_state_type*)EHS_FB_RUN_CONTEXT;
 
 	// Your code here
-	EHS_CLEAR_BIT_N(g_ehs_adc_continuous_enabled_bitmask[inx_adc_read_continuous_state->device_id], inx_adc_read_continuous_state->channel);
+	if (g_ehs_adc_continuous_enabled_bitmask)
+		EHS_CLEAR_BIT_N(g_ehs_adc_continuous_enabled_bitmask[inx_adc_read_continuous_state->device_id], inx_adc_read_continuous_state->channel);
 	EHS_FB_FINISH(INX_adc_read_continuous_ARG_disable_dis_done);
 }//ICB FUNCTION disable MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION convert MACRO START -- DO NOT ALTER

@@ -164,6 +164,8 @@ extern ehs_adc_config_t* g_ehs_adc_configs;
 
 // The Bitmask of all enabled channels of each ADC unit. EHS_TARGET_ADC_UNIT_NUMBER (max 10) Units with EHS_TARGET_ADC_CHANNEL_NUMBER (max 16) channels
 extern ehs_uint16* g_ehs_adc_continuous_enabled_bitmask;
+
+
 #define EHS_SET_BIT_N(x, n) x |= (ehs_uint16)1 << n
 #define EHS_CLEAR_BIT_N(x, n) x &= ~((ehs_uint16)1 << n)
 #define EHS_IS_BIT_N_SET(x, n) ((x & (1 << n)) != 0)

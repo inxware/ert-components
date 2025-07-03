@@ -33,7 +33,7 @@ EHS_DEBUGALL=true
 # Enable or disable non-compoent networking support (e.g. socket debugging or Devman or none)
 ################################################################################################################
 
-EHS_PERIPHERALS_ADC_DAC_SUPPORT=
+#EHS_PERIPHERALS_ADC_DAC_SUPPORT=
 
 ################################################################################################################
 # Select which source of contributed library dependencies are used to build the target

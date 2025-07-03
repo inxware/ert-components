@@ -9,6 +9,7 @@
 
 #ifndef EHS_TARGET_ADCCAD_H
 #define EHS_TARGET_ADCCAD_H
+
 #include "ehs_types.h"
 
 #ifndef EHS_TARGET_ADC_UNIT_NUMBER
@@ -17,6 +18,8 @@
 #ifndef EHS_TARGET_ADC_CHANNEL_NUMBER
 #define EHS_TARGET_ADC_CHANNEL_NUMBER 16
 #endif//EHS_TARGET_ADC_CHANNEL_NUMBER
+
+
 
 #if EHS_TARGET_ADC_UNIT_NUMBER == 1
 #define EHS_TARGET_ADC_UNIT_DEFAULT(x) {x}
@@ -120,11 +123,21 @@ struct ehs_adc_config_s {
 };
 
 
+#define EHS_SET_BIT_N(x, n) x |= (ehs_uint16)1 << n
+#define EHS_CLEAR_BIT_N(x, n) x &= ~((ehs_uint16)1 << n)
+#define EHS_IS_BIT_N_SET(x, n) ((x & (1 << n)) != 0)
+#define EHS_SHIFT_LEFT(x, n) x = n > 0 ? x << n : x >> (-n)
+
+
 typedef struct ehs_adc_config_s ehs_adc_config_t;
 
 #define EHS_DEFAULT_ADC_CONFIG(...) EHS_TARGET_ADC_UNIT_DEFAULT( {  .unit_config = EHS_DEFAULT_ADC_UNIT_CONFIG() EHS_TARGET_ADC_COMMA .channel_configs = EHS_TARGET_ADC_CHANNEL_DEFAULT(EHS_DEFAULT_ADC_CHANNEL_CONFIG()) } )
 
-extern ehs_adc_config_t g_ehs_adc_configs[EHS_TARGET_ADC_UNIT_NUMBER];
+extern ehs_adc_config_t* g_ehs_adc_configs;
+
+// The Bitmask of all enabled channels of each ADC unit. EHS_TARGET_ADC_UNIT_NUMBER (max 10) Units with EHS_TARGET_ADC_CHANNEL_NUMBER (max 16) channels
+extern ehs_uint16* g_ehs_adc_continuous_enabled_bitmask;
+
 
 
 //todo2022 do these need to be made public?

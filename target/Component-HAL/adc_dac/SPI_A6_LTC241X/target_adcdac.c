@@ -24,9 +24,11 @@ static volatile ehs_uint8 configured = 0;
 LTC241X_config_t configuration;
 static volatile float prev = 0;
 
-ehs_adc_config_t g_ehs_adc_configs[EHS_TARGET_ADC_UNIT_NUMBER];// = EHS_DEFAULT_ADC_CONFIG();
+ehs_adc_config_t * g_ehs_adc_configs = NULL;// = EHS_DEFAULT_ADC_CONFIG();
 
-ehs_uint16 g_ehs_adc_continuous_enabled_bitmask[EHS_TARGET_ADC_UNIT_NUMBER];// = EHS_TARGET_ADC_UNIT_DEFAULT(0);
+ehs_uint16 * g_ehs_adc_continuous_enabled_bitmask = NULL;// = EHS_TARGET_ADC_UNIT_DEFAULT(0);
+
+
 
 /*
 any globals needs for the esp ADC to work.

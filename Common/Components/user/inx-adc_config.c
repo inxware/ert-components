@@ -194,142 +194,148 @@ EHS_FB_RUN_FUNCTION(adc_config_config)
 
 	// Your code here
 	//TODO parse JSON and get the parameters
-	if (EHS_FB_IN_CONNECTED_API2(INX_adc_config_ARG_config_JSON))
-	{
-		// EHS_FB_IN_S_API2(INX_adc_config_ARG_config_JSON) ;
-		if (inx_adc_config_state->device_id >= EHS_TARGET_ADC_UNIT_NUMBER)
+	if (g_ehs_adc_configs) { /* Not all ADC support the config block so bypass everything if they do*/
+		if (EHS_FB_IN_CONNECTED_API2(INX_adc_config_ARG_config_JSON))
 		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
+			
+			// EHS_FB_IN_S_API2(INX_adc_config_ARG_config_JSON) ;
+			if (inx_adc_config_state->device_id >= EHS_TARGET_ADC_UNIT_NUMBER)
+			{
+				EHS_FB_FINISH(INX_adc_config_ARG_config_error);
+				return;
+			}
+			if (g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init != 0)
+			{
+				EHS_FB_FINISH(INX_adc_config_ARG_config_error);
+				return;
+			}
+			if (inx_adc_config_state->f_s_hz > EHS_TARGET_ADC_FREQ_MAX || inx_adc_config_state->f_s_hz < EHS_TARGET_ADC_FREQ_MIN)
+			{
+				EHS_FB_FINISH(INX_adc_config_ARG_config_error);
+				return;
+			}
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.f_s_hz = inx_adc_config_state->f_s_hz;
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.mode = inx_adc_config_state->mode;
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[0] = inx_adc_config_state->channel_0;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[1] = inx_adc_config_state->channel_1;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[2] = inx_adc_config_state->channel_2;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 4
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[3] = inx_adc_config_state->channel_3;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 5
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[4] = inx_adc_config_state->channel_4;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 6
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[5] = inx_adc_config_state->channel_5;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 7
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[6] = inx_adc_config_state->channel_6;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 8
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[7] = inx_adc_config_state->channel_7;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 9
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[8] = inx_adc_config_state->channel_8;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 10
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[9] = inx_adc_config_state->channel_9;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 11
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[10] = inx_adc_config_state->channel_10;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 12
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[11] = inx_adc_config_state->channel_11;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 13
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[12] = inx_adc_config_state->channel_12;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 14
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[13] = inx_adc_config_state->channel_13;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 15
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[14] = inx_adc_config_state->channel_14;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER == 16
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[15] = inx_adc_config_state->channel_15;
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 16
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 15
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 14
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 13
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 12
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 11
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 10
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 9
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 8
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 7
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 6
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 5
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 4
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
 		}
-		if (g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init != 0)
+		else
 		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
-		if (inx_adc_config_state->f_s_hz > EHS_TARGET_ADC_FREQ_MAX || inx_adc_config_state->f_s_hz < EHS_TARGET_ADC_FREQ_MIN)
-		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.f_s_hz = inx_adc_config_state->f_s_hz;
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.mode = inx_adc_config_state->mode;
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[0] = inx_adc_config_state->channel_0;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[1] = inx_adc_config_state->channel_1;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[2] = inx_adc_config_state->channel_2;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 4
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[3] = inx_adc_config_state->channel_3;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 5
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[4] = inx_adc_config_state->channel_4;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 6
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[5] = inx_adc_config_state->channel_5;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 7
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[6] = inx_adc_config_state->channel_6;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 8
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[7] = inx_adc_config_state->channel_7;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 9
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[8] = inx_adc_config_state->channel_8;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 10
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[9] = inx_adc_config_state->channel_9;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 11
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[10] = inx_adc_config_state->channel_10;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 12
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[11] = inx_adc_config_state->channel_11;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 13
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[12] = inx_adc_config_state->channel_12;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 14
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[13] = inx_adc_config_state->channel_13;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 15
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[14] = inx_adc_config_state->channel_14;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER == 16
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[15] = inx_adc_config_state->channel_15;
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 16
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 15
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 14
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 13
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 12
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 11
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 10
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 9
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 8
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 7
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 6
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 5
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 4
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
-	}
-	else
-	{
-		if (inx_adc_config_state->device_id >= EHS_TARGET_ADC_UNIT_NUMBER)
-		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
-		if (g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init != 0)
-		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
-		if (inx_adc_config_state->f_s_hz > EHS_TARGET_ADC_FREQ_MAX || inx_adc_config_state->f_s_hz < EHS_TARGET_ADC_FREQ_MIN)
-		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.f_s_hz = inx_adc_config_state->f_s_hz;
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.mode = inx_adc_config_state->mode;
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[0] = inx_adc_config_state->channel_0;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[1] = inx_adc_config_state->channel_1;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[2] = inx_adc_config_state->channel_2;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 4
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[3] = inx_adc_config_state->channel_3;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 5
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[4] = inx_adc_config_state->channel_4;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 6
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[5] = inx_adc_config_state->channel_5;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 7
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[6] = inx_adc_config_state->channel_6;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 8
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[7] = inx_adc_config_state->channel_7;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 9
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[8] = inx_adc_config_state->channel_8;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 10
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[9] = inx_adc_config_state->channel_9;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 11
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[10] = inx_adc_config_state->channel_10;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 12
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[11] = inx_adc_config_state->channel_11;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 13
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[12] = inx_adc_config_state->channel_12;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 14
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[13] = inx_adc_config_state->channel_13;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 15
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[14] = inx_adc_config_state->channel_14;
-		#if EHS_TARGET_ADC_CHANNEL_NUMBER == 16
-		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[15] = inx_adc_config_state->channel_15;
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 16
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 15
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 14
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 13
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 12
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 11
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 10
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 9
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 8
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 7
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 6
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 5
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 4
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
-		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
-	}
-
+			if (inx_adc_config_state->device_id >= EHS_TARGET_ADC_UNIT_NUMBER)
+			{
+				EHS_FB_FINISH(INX_adc_config_ARG_config_error);
+				return;
+			}
+			if (g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init != 0)
+			{
+				EHS_FB_FINISH(INX_adc_config_ARG_config_error);
+				return;
+			}
+			if (inx_adc_config_state->f_s_hz > EHS_TARGET_ADC_FREQ_MAX || inx_adc_config_state->f_s_hz < EHS_TARGET_ADC_FREQ_MIN)
+			{
+				EHS_FB_FINISH(INX_adc_config_ARG_config_error);
+				return;
+			}
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.f_s_hz = inx_adc_config_state->f_s_hz;
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.mode = inx_adc_config_state->mode;
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[0] = inx_adc_config_state->channel_0;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[1] = inx_adc_config_state->channel_1;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[2] = inx_adc_config_state->channel_2;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 4
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[3] = inx_adc_config_state->channel_3;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 5
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[4] = inx_adc_config_state->channel_4;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 6
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[5] = inx_adc_config_state->channel_5;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 7
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[6] = inx_adc_config_state->channel_6;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 8
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[7] = inx_adc_config_state->channel_7;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 9
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[8] = inx_adc_config_state->channel_8;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 10
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[9] = inx_adc_config_state->channel_9;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 11
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[10] = inx_adc_config_state->channel_10;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 12
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[11] = inx_adc_config_state->channel_11;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 13
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[12] = inx_adc_config_state->channel_12;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 14
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[13] = inx_adc_config_state->channel_13;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER >= 15
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[14] = inx_adc_config_state->channel_14;
+			#if EHS_TARGET_ADC_CHANNEL_NUMBER == 16
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[15] = inx_adc_config_state->channel_15;
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 16
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 15
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 14
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 13
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 12
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 11
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 10
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 9
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 8
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 7
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 6
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 5
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 4
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
+			#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
+		} 
 	//TODO configure the ADC according to the configuration here
 	EhsTAdcUnitConfigure(inx_adc_config_state->device_id);
 
 	EHS_FB_FINISH(INX_adc_config_ARG_config_finish);
+	} else {
+		EHS_FB_FINISH(INX_adc_config_ARG_config_error);
+		return;
+	}
+
 }//ICB FUNCTION config MACRO END -- DO NOT ALTER THIS LINE
