@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/RaspberryPi-OK-green) ![Static Badge](https://img.shields.io/badge/Arduino_nano_connect-OK-green) ![Static Badge](https://img.shields.io/badge/esp32-OK-green) ![Static Badge](https://img.shields.io/badge/esp32s3-OK-green) ![Static Badge](https://img.shields.io/badge/Windows-OK-green) ![Static Badge](https://img.shields.io/badge/Android-OK-green)
+![Static Badge](https://img.shields.io/badge/RaspberryPi-OK-green) ![Static Badge](https://img.shields.io/badge/Arduino_nano_connect-OK-green) ![Static Badge](https://img.shields.io/badge/esp32-OK-green) ![Static Badge](https://img.shields.io/badge/esp32s3-OK-green) ![Static Badge](https://img.shields.io/badge/x86_Windows-OK-green) ![Static Badge](https://img.shields.io/badge/Android-OK-green) ![Static Badge](https://img.shields.io/badge/x86_64_linux-OK-green) ![Static Badge](https://img.shields.io/badge/arm64-linux-RDK-TBC-amber) 
 
 What is eRT & eRT Components?
 ============
