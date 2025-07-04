@@ -1,4 +1,4 @@
-name: build-test-esp32-IDF4.4.1
+name: build-test-smoke-test
 
 on:
   push:
@@ -13,12 +13,12 @@ jobs:
     container:
       image: inxware/esp32_ubuntu22.04-build-essential
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         path: ert-components
 
     - name: Checkout ert build support repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: inxware/ert-build-support
         path: ert-build-support
@@ -26,7 +26,7 @@ jobs:
         lfs: true
 
     - name: Checkout ert-contrib-middleware
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
@@ -36,7 +36,7 @@ jobs:
     - name: configure
       run: |
            cd ert-components
-           ./configure esp32_freertos-xtensor-base
+           ./configure esp32s3_freertos-xtensor-base
     - name: make
       run: |
            cd ert-components

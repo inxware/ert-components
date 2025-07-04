@@ -1,8 +1,10 @@
-What is eRT?
+![Static Badge](https://img.shields.io/badge/RaspberryPi-OK-green) ![Static Badge](https://img.shields.io/badge/Arduino_nano_connect-OK-green) ![Static Badge](https://img.shields.io/badge/esp32-OK-green) ![Static Badge](https://img.shields.io/badge/esp32s3-OK-green) ![Static Badge](https://img.shields.io/badge/x86_Windows-OK-green) ![Static Badge](https://img.shields.io/badge/Android-OK-green) ![Static Badge](https://img.shields.io/badge/x86_64_linux-OK-green) ![Static Badge](https://img.shields.io/badge/arm64_linux_RDK-TBC-amber) 
+
+What is eRT & eRT Components?
 ============
-eRT provides the the runtime environment for inxware-lucid applications for embedded systems.
-Read more about inxware and download the nocode systems engineering IDE from 
-https://appland.inxware.io/
+eRT is  runtime environment for inxware-lucid applications for embedded systems.
+It comprises native C/C++ components, component interface descriptors and an event driven kernel that executes functions within the components.  
+The inxware lucid IDE is available from  https://appland.inxware.io/
 
 Device Support
 ==============
