@@ -150,13 +150,15 @@ endif
 ## Multi-Channel PID Controller
 ########################################################################################################
 
-##todo 2025 all thisshould go in a PID make file not here.
+##todo 2025 This shouldn't be done here - i should be done in the PID make files #
+## all this should go in a PID make file not here.
 ifdef EHS_PID_SUPPORT
 DEFS+=EHS_PID_SUPPORT=$(EHS_PID_SUPPORT)
 ifeq ($(EHS_PID_SUPPORT),stubbed)
 OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_stub.$(OBJ)
 else ifeq ($(EHS_PID_SUPPORT),gnu)
 ## Thermocouple circuit gain
+# TODO DOES ANY OF THIS MAKE ANY SENSE FOR A DESKTOP?? WHAT ODES IT ACTUALLY DO?
 ##  EHS_THERMOCOUPLE_AMP_GAIN_DIV_MULTIPLIER_CUSTOM has the bitlength of EHS_THERMOCOUPLE_GAIN_SHIFT_BITS
 ##  The calculation result involving the multiplier would be shifted right (or divided by one shifted left by) the shift bits.
 DEFS += EHS_THERMOCOUPLE_AMP_GAIN_DIV_MULTIPLIER_CUSTOM=748
@@ -166,11 +168,13 @@ DEFS += EHS_THERMOCOUPLE_ADC_MAX_FP=1843200
 DEFS += EHS_PT100_AMP_GAIN_SCALE=7652
 DEFS += EHS_PT100_AMP_GAIN_DIVIDER=137
 OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_gnu.$(OBJ)
+
 else ifeq ($(EHS_PID_SUPPORT),esp32)
 #VPATH += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller
 INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller
 OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_isr.$(OBJ)
 OBJECTS += target_pid.$(OBJ)
+
 else
 # No objects added - might leave a hole in the toolbox and cause a build error.
 endif

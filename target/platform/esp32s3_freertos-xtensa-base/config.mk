@@ -107,7 +107,6 @@ EHS_SCHEDULER_SUPPORT=1
 #Add Built-in Devman OTA SUPPORT (or is this a function block?)
 EHS_OTA_SUPPORT=yes
 
-
 #EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
 #EHS_OTA_SUPPORT=stubbed
 EHS_UART_SUPPORT=yes

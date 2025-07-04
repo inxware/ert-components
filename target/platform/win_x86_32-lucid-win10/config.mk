@@ -28,6 +28,7 @@ EHS_MV_SUPPORT=stubbed
 
 # enable eRT1 support
 ERT_SODL_VERSION=1
+EHS_PID_SUPPORT=stubbed
 
 include ./target/devman-configs/devman.inxware.io.mk
 
