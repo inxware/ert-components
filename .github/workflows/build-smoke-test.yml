@@ -20,6 +20,7 @@ jobs:
     - name: Checkout ert build support repo
       uses: actions/checkout@v4
       with:
+        sparse-checkout: toolchains/x86_64
         repository: inxware/ert-build-support
         path: ert-build-support
         ref: refs/heads/main
@@ -30,6 +31,7 @@ jobs:
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
+        sparse-checkout: target_libs
         ref: refs/heads/main
         lfs: true
 
