@@ -1,4 +1,4 @@
-name: build-test-esp32-IDF4.4.1
+name: build-test-smoke-test
 
 on:
   push:
