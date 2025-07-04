@@ -115,7 +115,7 @@
                 <td>None</td>
                 <td>Data Utilities</td>
                 <td>v1.0</td>
-                <td>MPL2.0</td>
+                <td>LGPLv3</td>
                 <td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
                 <td>A0000</td>
                 <td>All</td>

@@ -11,7 +11,6 @@ target_platform=(
  'linux_x86_64_gtk_gst_debian11'
  'linux_x86_64_clang_lvgl_debian11'
  'linux_armv7l_clang_debian10'
- 'linux_armv7l_clang_gtk_gst_debian11'
  'linux_arm64_gtk_gst_gg_debian10'
  'linux_arm64_lvgl_gg_debian10'
  'linux_arm64_lvgl_gg_debian11'
@@ -28,6 +27,7 @@ target_platform=(
 # 'linux_armv7l_clang_debian11'
 # 'linux_x86_gtk_vlc'
 # 'linux_x86_64_clang_gg_debian11'
+# 'linux_armv7l_clang_gtk_gst_debian11'
 
 
 if [ "$1" = "--include-slow" ]; then
