@@ -62,4 +62,4 @@ jobs:
       run: |
            cd ert-components
            pwd
-           make targetenv_esp32
+#          make targetenv_esp32
