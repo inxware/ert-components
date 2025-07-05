@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: inxware/esp32_ubuntu22.04-build-essential
+      options: --user root
     steps:
     - uses: actions/checkout@v4
       with:

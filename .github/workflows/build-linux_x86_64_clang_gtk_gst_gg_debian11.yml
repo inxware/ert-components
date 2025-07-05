@@ -12,11 +12,12 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: inxware/inx-debian11-clang11
+      options: --user root
     steps:
     - uses: actions/checkout@v4
       with:
         path: ert-components
-        
+
     - name: Checkout ert build support repo
       uses: actions/checkout@v4
       with:

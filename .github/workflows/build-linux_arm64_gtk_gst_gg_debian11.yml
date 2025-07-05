@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: inxware/inx-debian11-clang-arm
+      options: --user root
     steps:
     - uses: actions/checkout@v4
       with:
