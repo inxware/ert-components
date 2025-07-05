@@ -20,7 +20,9 @@ jobs:
     - name: Checkout ert build support repo
       uses: actions/checkout@v4
       with:
-        sparse-checkout: toolchains/x86_64
+        sparse-checkout: |
+            toolchains/x86_64
+            support_libs/target_libs
         repository: inxware/ert-build-support
         path: ert-build-support
         ref: refs/heads/main
