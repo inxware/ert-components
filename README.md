@@ -1,19 +1,13 @@
 ![Static Badge](https://img.shields.io/badge/RaspberryPi-OK-green) ![Static Badge](https://img.shields.io/badge/Arduino_nano_connect-OK-green) ![Static Badge](https://img.shields.io/badge/esp32-OK-green) ![Static Badge](https://img.shields.io/badge/esp32s3-OK-green) ![Static Badge](https://img.shields.io/badge/x86_Windows-OK-green) ![Static Badge](https://img.shields.io/badge/Android-OK-green) ![Static Badge](https://img.shields.io/badge/x86_64_linux-OK-green) ![Static Badge](https://img.shields.io/badge/arm64_linux_RDK-TBC-amber) 
 
-
 [![build-linux_arm64_lvgl_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
-
-[![build-esp32s3_freertos-xtensa-community](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml)
-
-[![build-linux_x86_64_clang_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml)
-
-[![build-win_x86_32-lucid-win10](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml)
-
-
+[![build-linux_arm64_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml)
 [![build-linux_android_arm64](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml)
-
+[![build-esp32s3_freertos-xtensa-community](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml)
+[![build-linux_x86_64_clang_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml)
+[![build-win_x86_32-lucid-win10](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml)
 [![.github/workflows/build-linux_x86_64-lucid-debian11.yml](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
-
+[![.github/workflows/build-linux_x86_64-lucid-debian11.yml](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
 
 What is eRT & eRT Components?
 ============
