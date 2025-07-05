@@ -22,7 +22,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         sparse-checkout: |
-#            toolchains/x86_64 we use the container's built in toolchnia
             support_libs/target_libs/arm64-linux-gnu-clang11_debian11
         repository: inxware/ert-build-support
         path: ert-build-support
