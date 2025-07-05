@@ -106,8 +106,9 @@ echo "Checking out the latest PRODUCTION branch of your app repo..."
 		popd
 	else
 		pushd ..
-		if [ -f ./ert-components/COMMUNITY_RELEASE ]; then
-			git clone git@github.com:inxware/apps.git
+		if [ -f ../ert-components/COMMUNITY_RELEASE ]; then
+			echo "Not getting the apps.git repo as the yaml action willdo this with credentials"
+		#	git clone git@github.com:inxware/apps.git
 		else
 			git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/apps.git
 		fi
