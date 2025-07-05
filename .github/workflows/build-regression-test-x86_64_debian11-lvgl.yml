@@ -1,0 +1,64 @@
+name: build-test-linux_x86_64_clang_gtk
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Using_Pulled_container:
+
+    runs-on: ubuntu-22.04
+    container:
+      image: inxware/inxware/inx-debian11-clang11-lvgl
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ert-components
+    - name: Checkout ert build support repo
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+#            toolchains/x86_64 we use the container's built in toolchnia
+            support_libs/target_libs/x86_64-linux-gnu-clang10_clang10
+        repository: inxware/ert-build-support
+        path: ert-build-support
+        ref: refs/heads/main
+        lfs: true
+
+    - name: Checkout ert-contrib-middleware
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-contrib-middleware
+        path: ert-contrib-middleware
+        sparse-checkout: target_libs/x86_64-linux-gnu-clang10_clang10
+        ref: refs/heads/main
+        lfs: true
+
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+        
+    - name: configure
+      run: |
+           cd ert-components
+           ./configure linux_x86_64_clang_lvgl_debian11
+    - name: make
+      run: |
+           cd ert-components
+           pwd
+           make -j 8
+    - name: make targetenv
+      run: |
+           cd ert-components
+           pwd
+           make targetenv
+    - name: make package
+      run: |
+           cd ert-components
+           pwd
+           make targetenv_deb

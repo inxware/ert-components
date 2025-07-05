@@ -1,4 +1,4 @@
-name: build-test-linux_x86_64_clang_gtk_gst_gg_debian11
+name: build-test-linux_arm64_lvgl_gg_debian11
 
 on:
   push:
@@ -10,8 +10,8 @@ jobs:
   Using_Pulled_container:
 
     runs-on: ubuntu-22.04
-      container:
-      image: inxware/inx-debian11-clang11
+    container:
+      image: inxware/inx-debian11-clang-arm
     steps:
     - uses: actions/checkout@v4
       with:
@@ -21,7 +21,7 @@ jobs:
       with:
         sparse-checkout: |
 #            toolchains/x86_64 we use the container's built in toolchnia
-            support_libs/target_libs/x86_64-linux-gnu-clang10_clang10_base
+            support_libs/target_libs/arm64-linux-gnu-clang11_debian11
         repository: inxware/ert-build-support
         path: ert-build-support
         ref: refs/heads/main
@@ -32,7 +32,7 @@ jobs:
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
-        sparse-checkout: target_libs/x86_64-linux-gnu-clang10_clang10
+        sparse-checkout: target_libs/arm64-linux-gnu-clang11_debian11_base
         ref: refs/heads/main
         lfs: true
 
@@ -46,12 +46,12 @@ jobs:
     - name: configure
       run: |
            cd ert-components
-           ./configure linux_x86_64_clang_gtk_gst_gg_debian11
+           ./configure linux_arm64_lvgl_gg_debian11
     - name: make
       run: |
            cd ert-components
            pwd
-           make -j 8     
+           make -j 8
     - name: make targetenv
       run: |
            cd ert-components
