@@ -1,4 +1,4 @@
-name: build-test-linux_arm64_gtk_gst_gg_debian11
+name: build-linux_arm64_gtk_gst_gg_debian11
 
 on:
   push:

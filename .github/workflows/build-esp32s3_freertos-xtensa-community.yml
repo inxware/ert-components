@@ -1,4 +1,4 @@
-name: build-esp32s3_freertos-xtensa-base
+name: build-esp32s3_freertos-xtensa-community
 
 on:
   push:

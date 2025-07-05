@@ -1,4 +1,4 @@
-name: build-test-linux_x86_64_clang_gtk
+name: build-arduino-mbed-nano-community
 
 on:
   push:
