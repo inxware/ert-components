@@ -48,16 +48,19 @@ jobs:
       run: |
            cd ert-components
            ./configure esp32s3_freertos-xtensa-base
+           
     - name: make
       run: |
            cd ert-components
            pwd
            make -j 8
+           
     - name: make targetenv
       run: |
            cd ert-components
            pwd
            make targetenv
+           
     - name: make package
       run: |
            cd ert-components
