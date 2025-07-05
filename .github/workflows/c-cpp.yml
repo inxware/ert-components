@@ -17,18 +17,19 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         path: ert-components
     - name: Checkout tools repo
-      uses: actions/checkout@v3 
+      uses: actions/checkout@v4 
       with:
         repository: inxware/ert-build-support
         path: ert-build-support
         ref: refs/heads/main
         lfs: true
+    
     - name: Checkout contrib middleware repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware

@@ -16,8 +16,9 @@ jobs:
     - uses: actions/checkout@v4
       with:
         path: ert-components
+
     - name: Checkout ert build support repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         sparse-checkout: |
             support_libs/target_libs/arm_mbednano-arduino
