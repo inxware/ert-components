@@ -26,5 +26,5 @@ jobs:
       run: | 
         docker build - < ./target/platform/linux_amd64/Dockerfile --tag zuhaibasgher/inxwaretesting
         echo "Configured inxwaretesting"
-        docker push zuhaibasgher/inxwaretesting
+        docker push inxware/inxwaretesting
        

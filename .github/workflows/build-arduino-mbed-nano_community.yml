@@ -11,34 +11,54 @@ jobs:
 
     runs-on: ubuntu-22.04
     container:
-      image: inxware/inx-debian10-clang10
+      image: inxware/inx-arduino
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         path: ert-components
-
     - name: Checkout ert build support repo
       uses: actions/checkout@v3
       with:
+        sparse-checkout: |
+            support_libs/target_libs/arm_mbednano-arduino
         repository: inxware/ert-build-support
         path: ert-build-support
         ref: refs/heads/main
         lfs: true
+# Arduino doesn't need middleware
+#    - name: Checkout ert-contrib-middleware
+#      uses: actions/checkout@v4
+#      with:
+#        repository: inxware/ert-contrib-middleware
+#        path: ert-contrib-middleware
+#        sparse-checkout: target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1
+#        ref: refs/heads/main
+#        lfs: true
 
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+        
     - name: configure
       run: |
            cd ert-components
-           ./configure linux_x86_64_clang
+           ./configure arduino_arduino-mbed-nano_community
+
     - name: make
       run: |
            cd ert-components
            pwd
            make -j 8
+           
     - name: make targetenv
       run: |
            cd ert-components
            pwd
            make targetenv
+           
     - name: make package
       run: |
            cd ert-components

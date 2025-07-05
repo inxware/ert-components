@@ -1,4 +1,4 @@
-name: build-test-esp32s3_freertos-xtensa-base
+name: build-win_x86_32-lucid-win10
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     container:
-      image: inxware/esp32_ubuntu22.04-build-essential
+      image: inxware/ubuntu22.04-build-essential-mingw
     steps:
     - uses: actions/checkout@v4
       with:
@@ -21,7 +21,7 @@ jobs:
       with:
         sparse-checkout: |
             toolchains/x86_64
-            support_libs/target_libs/xtensa-esp32s3_freertos
+            support_libs/target_libs/i686-mingw32posix
         repository: inxware/ert-build-support
         path: ert-build-support
         ref: refs/heads/main
@@ -32,7 +32,7 @@ jobs:
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
-        sparse-checkout: target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1
+        sparse-checkout: target_libs/i686-mingw32posix_sdl2-ffmpeg
         ref: refs/heads/main
         lfs: true
 
@@ -46,8 +46,8 @@ jobs:
     - name: configure
       run: |
            cd ert-components
-           ./configure esp32s3_freertos-xtensa-base
-           
+           ./configure linux_x86_64_clang
+
     - name: make
       run: |
            cd ert-components
@@ -64,4 +64,4 @@ jobs:
       run: |
            cd ert-components
            pwd
-#          make targetenv_esp32
+#          make targetenv_nsis

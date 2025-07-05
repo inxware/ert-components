@@ -1,4 +1,4 @@
-name: build-test-linux_x86_64_clang_gtk
+name: build-test-linux_x86_64_clang_gtk_gst_gg_debian11
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     container:
-      image: inxware/inxware/inx-debian11-clang11-lvgl
+      image: inxware/inx-debian11-clang11
     steps:
     - uses: actions/checkout@v4
       with:
@@ -42,11 +42,11 @@ jobs:
         repository: inxware/apps
         path: apps
         ref: refs/heads/RELEASE-PRODUCTION
-        
+
     - name: configure
       run: |
            cd ert-components
-           ./configure linux_x86_64_clang_lvgl_debian11
+           ./configure linux_x86_64_clang_gtk_gst_gg_debian11
     - name: make
       run: |
            cd ert-components
