@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     container:
-      image: inxware/inx-debian10-clang10
+      image: inxware/ubuntu22.04-build-essential
     steps:
     - uses: actions/checkout@v3
       with:
