@@ -3,7 +3,7 @@ RUN echo "Successfully entered and fetched debian:9"
 #RUN apt-get update --fix-missing
 RUN apt-get -y update
 RUN echo "installing build essential and git"
-RUN apt-get install -y build-essential libtinfo5 git \
+RUN apt-get install -y build-essential libtinfo5 git git-lfs \
              clang llvm binutils-arm-linux-gnueabi libc6-armhf-cross crossbuild-essential-armhf \
              sudo libidn2-0-dev 
 #libcurl4-openssl-dev libarchive-dev libexpat1-dev libexpat-dev libidn2-0-dev  zlib1g-dev git
