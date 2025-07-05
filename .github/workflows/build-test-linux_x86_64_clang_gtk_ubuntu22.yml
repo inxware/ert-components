@@ -1,4 +1,4 @@
-name: build-test-linux_x86_64_clang_gtk
+name: build-test-linux_x86_64_clang_gtk_gst_gg_debian11
 
 on:
   push:
@@ -11,30 +11,42 @@ jobs:
 
     runs-on: ubuntu-22.04
       container:
-      image: inxware/inx-debian10-clang10
+      image: inxware/inx-debian11-clang11
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         path: ert-components
-    - name: Checkout tools repo
-      uses: actions/checkout@v3
+    - name: Checkout ert build support repo
+      uses: actions/checkout@v4
       with:
+        sparse-checkout: |
+#            toolchains/x86_64 we use the container's built in toolchnia
+            support_libs/target_libs/x86_64-linux-gnu-clang10_clang10_base
         repository: inxware/ert-build-support
         path: ert-build-support
         ref: refs/heads/main
         lfs: true
-    - name: Checkout contrib middleware repo
-      uses: actions/checkout@v3
+
+    - name: Checkout ert-contrib-middleware
+      uses: actions/checkout@v4
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
+        sparse-checkout: target_libs/x86_64-linux-gnu-clang10_clang10
         ref: refs/heads/main
         lfs: true
 
-    - name: configure 
-      run: | 
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+        
+    - name: configure
+      run: |
            cd ert-components
-           ./configure linux_x86_64_clang_gtk
+           ./configure linux_x86_64_clang_gtk_gst_gg_debian11
     - name: make
       run: |
            cd ert-components
