@@ -48,7 +48,7 @@ jobs:
     - name: configure
       run: |
            cd ert-components
-           ./configure linux_x86_64_clang
+           ./configure build-win_x86_32-lucid-win10
 
     - name: make
       run: |
