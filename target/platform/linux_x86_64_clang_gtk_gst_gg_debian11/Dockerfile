@@ -3,7 +3,7 @@ RUN echo "Successfully entered and fetched debian:11"
 RUN apt-get update --fix-missing
 RUN echo "installing build essential and git (not git-lfs for debian 10)"
 RUN apt-get install -y \
-	build-essential automake cmake libtool libtinfo5 clang llvm lld\
+	build-essential automake cmake libtool libtinfo5 clang llvm lld git git-lfs\
 	libcurl4-openssl-dev libarchive-dev libexpat1-dev libexpat-dev libidn2-0-dev  zlib1g-dev libxml2-dev \
 	git sudo
 

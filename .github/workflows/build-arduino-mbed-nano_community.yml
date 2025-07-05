@@ -13,6 +13,7 @@ jobs:
     container:
       image: inxware/inx-arduino
       options: --user root
+# It might be better to choose paths in the user home directory if this can be done?
     steps:
     - uses: actions/checkout@v4
       with:
