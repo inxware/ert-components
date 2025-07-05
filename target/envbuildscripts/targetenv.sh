@@ -100,10 +100,14 @@ echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 echo "XXXXXXXXXXXXXXXXXXXXX Installing the default app  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 if [ "${EHS_SKIP_REPO_PULL}" = "" ];then
 echo "Checking out the latest PRODUCTION branch of your app repo..."
-	if [ -d ../apps/ ];then 
-		pushd ../apps/
-		git pull origin RELEASE-PRODUCTION || exit 1
-		popd
+	if [ -d ../apps/ ];then
+		if [ -f ../ert-components/COMMUNITY_RELEASE ]; then
+			echo "Don't need to pull in github build"
+		else  
+			pushd ../apps/
+			git pull origin RELEASE-PRODUCTION || exit 1
+			popd
+		fi
 	else
 		pushd ..
 		if [ -f ../ert-components/COMMUNITY_RELEASE ]; then

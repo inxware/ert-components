@@ -36,12 +36,13 @@ jobs:
         sparse-checkout: target_libs
         ref: refs/heads/main
         lfs: true
+
     - name: Checkout apps
       uses: actions/checkout@v4
       with:
         repository: inxware/apps
         path: apps
-        ref: refs/heads/main
+        ref: refs/heads/RELEASE_PRODUCTION
         
     - name: configure
       run: |
