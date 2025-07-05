@@ -42,7 +42,7 @@ jobs:
       with:
         repository: inxware/apps
         path: apps
-        ref: refs/heads/RELEASE_PRODUCTION
+        ref: refs/heads/RELEASE-PRODUCTION
         
     - name: configure
       run: |
