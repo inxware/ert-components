@@ -32,7 +32,7 @@ jobs:
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
-        sparse-checkout: target_libs/86_64-linux-gnu-clang10_clang10_base
+        sparse-checkout: target_libs/x86_64-linux-gnu-clang10_clang10_base
         ref: refs/heads/main
         lfs: true
 
