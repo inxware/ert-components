@@ -53,13 +53,16 @@ jobs:
            cd ert-components
            pwd
            make -j 8
-    - name: make targetenv
-      run: |
-           cd ert-components
-           pwd
-           make targetenv
-    - name: make package
-      run: |
-           cd ert-components
-           pwd
-           make targetenv_deb
+  # The following steps need the security certificate repo, which we are not currently providing.
+  #../DevmanSecurity/devman.inx-systems.com/certs/client/devman-ca-bundle.crt
+  # However we may provide one with public keys and demo site private keys soon
+  #  - name: make targetenv
+  #    run: |
+  #         cd ert-components
+  #         pwd
+  #         make targetenv
+  #  - name: make package
+  #    run: |
+  #         cd ert-components
+  #         pwd
+  #         make targetenv_deb
