@@ -52,13 +52,13 @@ jobs:
            cd ert-components
            pwd
            make -j 8
-    - name: make targetenv
-      run: |
-           cd ert-components
-           pwd
-           make targetenv
-    - name: make package
-      run: |
-           cd ert-components
-           pwd
-           make targetenv_deb
+#    - name: make targetenv
+#      run: |
+#           cd ert-components
+#           pwd
+#           make targetenv
+#    - name: make package
+#      run: |
+#           cd ert-components
+#           pwd
+#           make targetenv_deb

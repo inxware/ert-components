@@ -50,6 +50,12 @@ jobs:
       run: |
            cd ert-components
            ./configure arduino_arduino-mbed-nano_community
+    
+    - name: make chkconfig
+      run: |
+           cd ert-components
+           pwd
+           make chkconfig
 
     - name: make
       run: |

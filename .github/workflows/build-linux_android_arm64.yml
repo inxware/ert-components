@@ -61,8 +61,8 @@ jobs:
            pwd
            make targetenv
            
-    - name: make package
-      run: |
-           cd ert-components
-           pwd
-           make targetenv_apk
+#    - name: make package
+#      run: |
+#           cd ert-components
+#           pwd
+#           make targetenv_apk
