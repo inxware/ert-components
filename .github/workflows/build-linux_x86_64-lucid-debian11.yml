@@ -1,4 +1,4 @@
-name: build-linux_x86_64_lucid-debian11
+name: build-linux_x86_64_clang_lvgl_debian11
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
-        sparse-checkout: target_libs/x86_64-linux-gnu-clang10_clang10
+        sparse-checkout: target_libs/x86_64-linux-gnu-clang10_clang10_base
         ref: refs/heads/main
         lfs: true
 
@@ -48,7 +48,6 @@ jobs:
       run: |
            cd ert-components
            ./configure linux_x86_64_clang_lvgl_debian11
-#           ./configure linux_x86_64-lucid-debian11
     - name: make
       run: |
            cd ert-components
