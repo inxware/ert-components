@@ -1,4 +1,9 @@
-![Static Badge](https://img.shields.io/badge/RaspberryPi-OK-green) ![Static Badge](https://img.shields.io/badge/Arduino_nano_connect-OK-green) ![Static Badge](https://img.shields.io/badge/esp32-OK-green) ![Static Badge](https://img.shields.io/badge/esp32s3-OK-green) ![Static Badge](https://img.shields.io/badge/x86_Windows-OK-green) ![Static Badge](https://img.shields.io/badge/Android-OK-green) ![Static Badge](https://img.shields.io/badge/x86_64_linux-OK-green) ![Static Badge](https://img.shields.io/badge/arm64_linux_RDK-TBC-amber) 
+Device Types Suppported
+-----------------------
+![Static Badge](https://img.shields.io/badge/RaspberryPi-Y-green) ![Static Badge](https://img.shields.io/badge/Arduino-Y-green) ![Static Badge](https://img.shields.io/badge/esp32-Y-green) ![Static Badge](https://img.shields.io/badge/esp32s3-Y-green) ![Static Badge](https://img.shields.io/badge/Windows-Y-green) ![Static Badge](https://img.shields.io/badge/Android-Y-green) ![Static Badge](https://img.shields.io/badge/x86_linux-Y-green) ![Static Badge](https://img.shields.io/badge/arm64_linux-Y-green) ![Static Badge](https://img.shields.io/badge/RISCV-Y-green)
+
+Github Build Status
+------------------- 
 
 [![build-linux_arm64_lvgl_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
 [![build-linux_arm64_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml)
@@ -6,8 +11,8 @@
 [![build-esp32s3_freertos-xtensa-community](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml)
 [![build-linux_x86_64_clang_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml)
 [![build-win_x86_32-lucid-win10](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml)
-[![.github/workflows/build-linux_x86_64-lucid-debian11.yml](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
-[![.github/workflows/build-linux_x86_64-lucid-debian11.yml](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
+[![build-linux_x86_64-lucid-debian11.yml](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
+[![build-linux_x86_64-lucid-debian11.yml](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
 [![build-arduino-mbed-nano-community](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml)
 
 What is eRT & eRT Components?

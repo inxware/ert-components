@@ -13,7 +13,6 @@ jobs:
     container:
       image: inxware/inx-arduino
       options: --user root
-# It might be better to choose paths in the user home directory if this can be done?
     steps:
     - uses: actions/checkout@v4
       with:
@@ -29,15 +28,15 @@ jobs:
         path: ert-build-support
         ref: refs/heads/main
         lfs: true
-# Arduino doesn't need middleware
-#    - name: Checkout ert-contrib-middleware
-#      uses: actions/checkout@v4
-#      with:
-#        repository: inxware/ert-contrib-middleware
-#        path: ert-contrib-middleware
-#        sparse-checkout: target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1
-#        ref: refs/heads/main
-#        lfs: true
+
+    - name: Checkout ert-contrib-middleware
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-contrib-middleware
+        path: ert-contrib-middleware
+        sparse-checkout: target_libs/arm_mbednano-arduino-arm-none-eabi
+        ref: refs/heads/main
+        lfs: true
 
     - name: Checkout apps
       uses: actions/checkout@v4
