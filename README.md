@@ -11,19 +11,26 @@ Github Build Status
 [![build-esp32s3_freertos-xtensa-community](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml)
 [![build-linux_x86_64_clang_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml)
 [![build-win_x86_32-lucid-win10](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml)
-[![build-linux_x86_64-lucid-debian11.yml](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
-[![build-linux_x86_64-lucid-debian11.yml](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
+[![build-linux_x86_64-lucid-debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
+[![build-linux_x86_64-lucid-debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-lucid-debian11.yml)
 [![build-arduino-mbed-nano-community](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml)
 
-What is eRT & eRT Components?
+What is inxware?
 ============
-eRT is  runtime environment for inxware-lucid applications for embedded systems.
-It comprises native C/C++ components, component interface descriptors and an event driven kernel that executes functions within the components.  
-The inxware lucid IDE is available from  https://appland.inxware.io/
+inxware is for embedded software development. It comprises the following parts, including a no-code system engineering development environment:
+- ert-components: An open source library of pre-built software and IO-drive components.
+- [inxware Lucid](https://appland.inxware.io/)): is a free graphical IDE for developing real time data-intensive device applicartions.
+
+ert-components are implemented in open source C/C++ components that can be modified under the terms of the LGPLv3 license.   
+
+A free inxware lucid IDE for community users is available from [appland.inxware.io](https://appland.inxware.io/)
 
 Device Support
 ==============
-inxware eRT can run on any CPU architecture and use any OS or baremetal SDK.
+inxware can run on any CPU architecture and use any operating system. This repository includes some example builds for a represeantive set of targets and 100s more are available. New hardware support and software features can be user contributed using the [porting guide](https://github.com/inxware/ert-components/wiki/inxware-Porting-Guide).
+
+Builds can be carried out locally on linux or Windows+WSL, where containers are used in conjunction with SDK and open source middleware repositories to ensure builds work relieable out of the box.
+
 This repository can generate modifiable builds for the following SoCs, SoMs, Evaluation boards, servers and desktop systems:
 * ARM7
   - NXP Kenitis (FreeRTOS, MBED)
@@ -39,25 +46,16 @@ This repository can generate modifiable builds for the following SoCs, SoMs, Eva
   - Windows (7-11: VS, MINGW)
 
 
-Copying & Terms of Use
-======================
-
-eRT components are licenced under LGPLv3 license (See LICENSE.md) unless otherwise stated within sub modules from 3rd-parties. 
-
-Full firmware builds contain the inxware kernel library which is a 100% portable closed source element of inxware and is licensed for commercial and non-commercial use for up to 10 copies per user or organisation.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
-
-About this Repository
----------------------
+Build Environment Overview
+==========================
 The ```ert-components``` repository is the core repository needed to be the inxware eRT runtime. 
 This build system currently supports the following hardware architectures and operating systems: 
 
 The build system support fine-grained target configuration for particular hardware and user configurations, 
 including package management and direct installation. To see the full list type `./configure` in the root of this repository.
 
-The eRT runtime also contains various options for **System Supervisors**, which may take the form of scripts,deamons, apps or a sparate executable binary, These are typically applicable to multi-tasking operating systems such as Linux, Android, Windows where maintenance of the OS may be required via Devman. The System Supervisors are usually also responsble for providing eRt softare updates and disaster recovery as an independent process eRT binary itself.
-# Build System Requirements
+
+# Build Steps
 - The eRT build system ues docker to create some specific build environment, but needs a few linux packages installed first to get started.
 - The simplest way to check your system is to use the make prepdeps command. e.g. 
 ```
@@ -66,23 +64,35 @@ make prepdeps.
 ```
 
 This will install git build-essential (GNU make) and docker and two other large inxware repositories containing toolchains and prebuilts:
-ert-build-support - contains binary tolchains and uses git lfs.
-ert-contrib-middlware - is contains pre-built 3rd party dependencies and builts and scripts for re-creating or updating
+[ert-build-support](https://github.com/inxware/ert-build-support) - contains binary tolchains and uses git lfs (Large File Support).
+[ert-contrib-middleware](https://github.com/inxware/ert-contrib-middleware) - contains pre-built 3rd party dependencies and builts and scripts for re-creating or updating. This contains original source and library build scripts for maintenance. 
+[inxware/apps](https://github.com/inxware/apps) - contains demo and home apps, which may be pre-integrated defaults for product/serve/application specific.
 
-These repositories are cloned into adjascent directories to ert-components when make prepdeps os first ran on a target (see below).
+Typically these repos are cloned into adjascent directories to ert-components with --depth=1 to reduce disk requirements.
 
-40GB of space is required for the 3 repositories. A further few GBs is recommended for built binaries and installable packages.
+The ert-components repository build system creates deployable firmware or applications in the relevant package format. The build requires the inxwae-EHS (Event Handling System) library to be linked to the application to accept Lucid no-code applications. 
 
-eRT requires a proprietory event handling kernel library to be linked to the application. This binary can be copied and deployed for non-commercial applications without prior-agreement with inx limited. Before deploying commercial applications (i.e. copying the eRT kernel in commercial products and services you must first contact inxware@inx-systems.com). 
+Terms of Use
+============
+This resilting executable ert-component binaries can be copied and deployed under the terms of the [inxware license policy](https://www.inxware.io/pricing/), which are broadly:
 
-These repositories are cloned into adjascent directories to ert-components when make prepdeps os first ran on a target (see below).
+- Deployable to 10 devices (commercial & non-cpommercial)
+- Free perpetual use of the [Lucid Community IDE](https://appland.inxware.io/)
+- Free perpetual access to inxware Community Firmware source code.
+- Free perpetual access to inxware graphical component builder (eclipse).
+- No restrictions for connecting to any IoT Gateway or 3rd-party cloud services.
 
-40GB of space is required for the 3 repositories. A further few GBs is recommended for built binaries and installable packages.
+Upgrade access can be provided for free to inxware application or components developers by joining the inxware [developer partner](https://www.inxware.io/developer-partners/) scheme.
 
-Manifest
-========
 
-eRT runs application built with the inxware iAB tools, which can be downloaded from https://github.com/inxware/inxware-dev-tools
+Licensing
+---------
+
+eRT components are licenced under LGPLv3 license (See LICENSE.md) unless otherwise stated within sub modules from 3rd-parties. 
+
+Full firmware builds contain the inxware kernel library which is a 100% portable closed source element of inxware and is licensed for commercial and non-commercial use for up to 10 copies per user or organisation.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
 Source & Dependencies
 ---------------------

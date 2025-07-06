@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     container:
-      image: inxware/inxware/inx-debian11-clang11-lvgl
+      image: inxware/inx-debian11-clang11-lvgl
       options: --user root
     steps:
     - uses: actions/checkout@v4
