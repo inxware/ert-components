@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         path: ert-components
-  
+
     - name: Checkout ert build support repo
       uses: actions/checkout@v4
       with:
@@ -44,7 +44,7 @@ jobs:
         repository: inxware/apps
         path: apps
         ref: refs/heads/RELEASE-PRODUCTION
-        
+
     - name: configure
       run: |
            cd ert-components
@@ -55,13 +55,13 @@ jobs:
            cd ert-components
            pwd
            make -j 8
-           
+
     - name: make targetenv
       run: |
            cd ert-components
            pwd
            make targetenv
-           
+
     - name: make package
       run: |
            cd ert-components

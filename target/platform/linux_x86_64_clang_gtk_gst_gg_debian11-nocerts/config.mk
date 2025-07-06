@@ -119,8 +119,5 @@ EHS_MODBUS_SUPPORT=stubbed
 ################################################################################################################
 #HOST_OS_CONFIG_SCRIPTS+= \
 
-include ./target/devman-configs/inx-systems.com.mk
-DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
-DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=yes
 #Packager
 EHS_PACKAGER_TYPE=deb

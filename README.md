@@ -211,8 +211,8 @@ To update your development environment's Lucid tools install with new or altered
 make toolsenv_update
 ```
 
- Version Control
- ===============
+Version Control
+===============
 eRT 
 ---
 The following version information file is auto integrated by make targetenv_version
@@ -229,12 +229,6 @@ Containing
 System Supervisors
 ------------------
 
-### Android System Supervisor 
----
-```bash
-./target/envtree/android-ehs-tree/root-dir/system/etc/ehs_supervisor/version
-```
-
-### Gnu Linux 
-No version control for cron-based update scripts is currently supported
+Some platforms can include a system supervisor to perform OTA updates, System monitoring and connection diversity.
+ 
 
