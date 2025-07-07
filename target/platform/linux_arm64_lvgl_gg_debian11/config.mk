@@ -14,8 +14,8 @@
 # This is for Raspberry Pis - it is aimed at being used with inxware demo
 
 
-
-include ./target/platform/linux_arm64_gtk_gst_gg_debian11/config.mk
+# We will use the GTK build config and overwrite the GFX and Media middeware options.
+include ./target/platform/linux_arm64_gtk_gst_gg_debian11-no-certs/config.mk
 
 #################################################################################################################
 # Set general architecture and OS version 
