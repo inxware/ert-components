@@ -1,11 +1,11 @@
 Device Types Supported
 -----------------------
-![Static Badge](https://img.shields.io/badge/RaspberryPi-Y-green) ![Static Badge](https://img.shields.io/badge/Arduino-Y-green) ![Static Badge](https://img.shields.io/badge/esp32-Y-green) ![Static Badge](https://img.shields.io/badge/esp32s3-Y-green) ![Static Badge](https://img.shields.io/badge/Windows-Y-green) ![Static Badge](https://img.shields.io/badge/Android-Y-green) ![Static Badge](https://img.shields.io/badge/x86_linux-Y-green) ![Static Badge](https://img.shields.io/badge/arm-freeRTOS-Y-green) ![Static Badge](https://img.shields.io/badge/arm_linux-Y-green) ![Static Badge](https://img.shields.io/badge/RISCV-Y-green)
+![Static Badge](https://img.shields.io/badge/RaspberryPi-Y-green) ![Static Badge](https://img.shields.io/badge/Arduino-Y-green) ![Static Badge](https://img.shields.io/badge/esp32-Y-green) ![Static Badge](https://img.shields.io/badge/esp32s3-Y-green) ![Static Badge](https://img.shields.io/badge/Windows-Y-green) ![Static Badge](https://img.shields.io/badge/Android-Y-green) ![Static Badge](https://img.shields.io/badge/x86_linux-Y-green) ![Static Badge](https://img.shields.io/badge/arm_freeRTOS-Y-green) ![Static Badge](https://img.shields.io/badge/arm_linux-Y-green) ![Static Badge](https://img.shields.io/badge/RISCV-Y-green)
 
 Github Build Status
 ------------------- 
 
-[![build-linux_arm64_lvgl_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11-no-certs.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
+[![build-linux_arm64_lvgl_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
 
 [![build-linux_arm64_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml)
 

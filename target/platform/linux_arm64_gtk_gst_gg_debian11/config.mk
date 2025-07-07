@@ -18,7 +18,9 @@
 # Set general architecture and OS version 
 #################################################################################################################
 
-include ./target/platform/linux_arm64_gtk_gst_gg_debian11/config.mk
+include ./target/platform/linux_arm64_gtk_gst_gg_debian11-no-certs/config.mk
+
+
 
 #DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
 #DEVMAN_SERVER_PROTOCOL=https
@@ -26,4 +28,3 @@ include ./target/platform/linux_arm64_gtk_gst_gg_debian11/config.mk
 include ./target/devman-configs/inx-systems.com.mk
 DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
 
-#Packager
