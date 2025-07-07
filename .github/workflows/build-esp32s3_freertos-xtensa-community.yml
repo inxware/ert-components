@@ -34,7 +34,7 @@ jobs:
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
-        sparse-checkout: target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1
+        sparse-checkout: target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1-16k
         ref: refs/heads/main
         lfs: true
 
@@ -50,6 +50,11 @@ jobs:
            cd ert-components
            ./configure esp32s3_freertos-xtensa-no-certs
 
+    - name: make chkconfig
+      run: |
+           cd ert-components
+           pwd
+           make chkconfig
     - name: make
       run: |
            cd ert-components
