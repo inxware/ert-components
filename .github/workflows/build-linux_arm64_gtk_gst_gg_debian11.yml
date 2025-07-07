@@ -47,7 +47,7 @@ jobs:
     - name: configure
       run: |
            cd ert-components
-           ./configure linux_arm64_gtk_gst_gg_debian11
+           ./configure linux_arm64_gtk_gst_gg_debian11-no-certs
     - name: make
       run: |
            cd ert-components
