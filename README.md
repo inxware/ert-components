@@ -1,4 +1,4 @@
-Device Types Suppported
+Device Types Supported
 -----------------------
 ![Static Badge](https://img.shields.io/badge/RaspberryPi-Y-green) ![Static Badge](https://img.shields.io/badge/Arduino-Y-green) ![Static Badge](https://img.shields.io/badge/esp32-Y-green) ![Static Badge](https://img.shields.io/badge/esp32s3-Y-green) ![Static Badge](https://img.shields.io/badge/Windows-Y-green) ![Static Badge](https://img.shields.io/badge/Android-Y-green) ![Static Badge](https://img.shields.io/badge/x86_linux-Y-green) ![Static Badge](https://img.shields.io/badge/arm64_linux-Y-green) ![Static Badge](https://img.shields.io/badge/RISCV-Y-green)
 
@@ -17,19 +17,21 @@ Github Build Status
 
 What is inxware?
 ============
-inxware is for embedded software development. It comprises the following parts, including a no-code system engineering development environment:
+inxware streamlines embedded software development by separating software integration and application development. 
+
+It comprises the following key parts:
 - ert-components: An open source library of pre-built software and IO-drive components.
-- [inxware Lucid](https://appland.inxware.io/)): is a free graphical IDE for developing real time data-intensive device applicartions.
+- [inxware Lucid](https://appland.inxware.io/)): a free graphical IDE for developing real time data-intensive device applicartions.
 
-ert-components are implemented in open source C/C++ components that can be modified under the terms of the LGPLv3 license.   
+ert-components is open source C/C++ with a powerful cross-compiling build system, allowing any hardware porting and new components to be user-contributed.   
 
-A free inxware lucid IDE for community users is available from [appland.inxware.io](https://appland.inxware.io/)
+The lucid graphical IDE allows applications to be developed in a system engineering context and is available for free from [appland.inxware.io](https://appland.inxware.io/)
 
 Device Support
 ==============
-inxware can run on any CPU architecture and use any operating system. This repository includes some example builds for a represeantive set of targets and 100s more are available. New hardware support and software features can be user contributed using the [porting guide](https://github.com/inxware/ert-components/wiki/inxware-Porting-Guide).
+inxware can run on any CPU architecture and use any operating system. This repository includes some example builds for a represeantive set of targets and 100s more are available. New hardware support and software features can be user contributed with guidance on best practicces available from the [porting guide](https://github.com/inxware/ert-components/wiki/inxware-Porting-Guide).
 
-Builds can be carried out locally on linux or Windows+WSL, where containers are used in conjunction with SDK and open source middleware repositories to ensure builds work relieable out of the box.
+inxware builds can be carried out locally (on linux or Windows+WSL) and Docker containers to ensure repeatable builds with specific SDKs and 3rd-party middleware dependencies. The inxware ert-components build system is simple and ensures all build environments remain are consistent and trusted.
 
 This repository can generate modifiable builds for the following SoCs, SoMs, Evaluation boards, servers and desktop systems:
 * ARM7
@@ -44,6 +46,10 @@ This repository can generate modifiable builds for the following SoCs, SoMs, Eva
 * x86/x86_64
   - Linux (Debian 7-12, Ubuntu 14-24, Linux-Lite, Yocto, OpenEmbedded)
   - Windows (7-11: VS, MINGW)
+
+Device Certificate provisioning
+-------------------------------
+Provisioning devices with IoT service certificates requires an additional certificate repository (DevmanSecurity.git), which is not currently provided to community users. A safer version of this repository with public certificates will be released to allow non-client authenticated connections and the capability for contributors to add their own private keys when doing local builds. 
 
 
 Build Environment Overview
