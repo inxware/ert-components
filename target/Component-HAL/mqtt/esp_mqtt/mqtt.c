@@ -19,12 +19,11 @@
 #define INX_MQTT_MAX_PAYLOAD_SIZE (EHS_STRING_LENGTH_MAX)
 #define INX_MQTT_MAX_ERROR_MSG_BUFFER_SIZE (EHS_STRING_LENGTH_MAX)
 
-#ifdef EHS_DEBUGALL
-#define EHS_ESP32_MQTT_LOG(fmt, ...) printf(fmt, ##__VA_ARGS__)
-#else
+#if EHS_ESP32_DISABLE_LOGS == 1
 #define EHS_ESP32_MQTT_LOG(fmt, ...)
+#else
+#define EHS_ESP32_MQTT_LOG(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #endif
-
 
 static bool gSubscribe = false;
 static bool gPublish= false;

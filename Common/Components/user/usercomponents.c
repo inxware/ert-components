@@ -240,7 +240,7 @@ EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_OTA,INXWARE_FB_ID_OTA,OTA),
 EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_console_print,INXWARE_FB_ID_console_print,console_print),
 #endif
 
-#ifdef EHS_PERIPHERALS_SUPPORT
+//#ifdef EHS_PERIPHERALS_SUPPORT
     // @TODO - do not use any target specific implemenation here
     // fix how NXP target is structured !  DId we just create more junk here rather than fixing existing? 
     #ifdef EHS_NXP_SUPPORT
@@ -263,14 +263,15 @@ EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_console_print,INXWARE_FB_ID_cons
     #endif
 
     #ifdef EHS_PERIPHERALS_PWM_SUPPORT
-    EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_pwm,INXWARE_FB_ID_pwm ,pwm),// This is the NXP one perhaps?
+    //EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_pwm,INXWARE_FB_ID_pwm ,pwm),// This is the NXP one perhaps?
     EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_pwm_gen,INXWARE_FB_ID_pwm_gen,pwm_gen),
     #endif // EHS_PERIPHERALS_PWM_SUPPORT
+    
     #ifdef EHS_UART_SUPPORT
     EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_UART,INXWARE_FB_ID_UART,UART),
     EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_uart_config,INXWARE_FB_ID_uart_config,uart_config),
     #endif
-#endif // EHS_PERIPHERALS_SUPPORT
+//#endif // EHS_PERIPHERALS_SUPPORT
 
 {0}
 };

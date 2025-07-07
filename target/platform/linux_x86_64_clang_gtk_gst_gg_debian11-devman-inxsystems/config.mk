@@ -8,13 +8,14 @@
 #---------------------------------------------------------------#
 
 # @file config.mk 
-# inxware ERT configuration file for linux_x86_gtk_gst_debian11
+# inxware ERT configuration file for linux_x86_64_clang_gtk_gst_gg_debian11
 # @author: inx limited
 
-include ./target/platform/linux_x86_64_clang_lvgl_debian11-no-certs/config.mk
+include ./target/platform/linux_x86_64_clang_gtk_gst_gg_debian11-no-certs/config.mk
 
 include ./target/devman-configs/inx-systems.com.mk
 DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
 DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=yes
+
 #Packager
 EHS_PACKAGER_TYPE=deb

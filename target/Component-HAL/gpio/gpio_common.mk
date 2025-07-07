@@ -22,13 +22,13 @@ else
 # DONT SET 	DEFS+= EHS_PERIPHERALS_GPIO_SUPPORT=EHS_PERIPHERALS_GPIO_TYPE_UKNOWN
 endif
 
+EHS_COMMON_GPIO_HAL_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/gpio
+EHS_TARGET_GPIO_HAL_PATH=$(EHS_COMMON_GPIO_HAL_PATH)/$(EHS_PERIPHERALS_GPIO_SUPPORT)
+
 # if we have a gpio subsystem .mk file use it. otherwise include the usual files below.
 ifneq (,$(wildcard $(EHS_TARGET_GPIO_HAL_PATH)/target_gpio.mk))
 include $(EHS_TARGET_GPIO_HAL_PATH)/target_gpio.mk
 endif
-
-EHS_COMMON_GPIO_HAL_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/gpio
-EHS_TARGET_GPIO_HAL_PATH=$(EHS_COMMON_GPIO_HAL_PATH)/$(EHS_PERIPHERALS_GPIO_SUPPORT)
 INC_DIRS+=$(EHS_COMMON_GPIO_HAL_PATH)
 INC_DIRS+=$(EHS_TARGET_GPIO_HAL_PATH)
 VPATH+=$(EHS_COMMON_GPIO_HAL_PATH)
@@ -38,19 +38,14 @@ VPATH+=$(EHS_TARGET_GPIO_HAL_PATH)
 OBJECTS+=inx_gpio.$(OBJ)
 OBJECTS+=target_gpio.$(OBJ)
 
-# todo WE SHOULD USE THE FOLLOWING METHOD OF CREATING defS FOR GPIO too (and make sure the targets are enumerated??) Or do we need these DEFs at all?
-DEFS += EHS_PERIPHERALS_PWM_SUPPORT=$(EHS_PERIPHERALS_PWM_SUPPORT)
 
 
-
-# The PWM stuff is strangely implemented outsode of the other GPIO, but will assume it is always part of a GPIO config and not an indeondent PWM technology to GPIO
+# The PWM stuff is implemented outside of the other GPIO, but will assume it is always part of a GPIO config and not an indeondent PWM technology to GPIO
 # todo 2025 - we just ned to untangle all this stuff - we don't need a seperate PWM condif surely?
 ifdef EHS_PERIPHERALS_PWM_SUPPORT
 ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),none)
-#       OBJECTS+=$(EHS_COMMON_GPIO_HAL_PATH)/inx_pwm.$(OBJ)
-	OBJECTS+=inx_pwm.$(OBJ)
+    OBJECTS+=inx_pwm.$(OBJ)
 	ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),stubbed) # We don't need a target path for PWM as we stub the common HAL code to reduce code size.
-#			OBJECTS+=$(EHS_TARGET_GPIO_HAL_PATH)/target_pwm.$(OBJ)
 		OBJECTS+=target_pwm.$(OBJ)
 	endif
 	DEFS += EHS_PERIPHERALS_PWM_SUPPORT=$(EHS_PERIPHERALS_PWM_SUPPORT)

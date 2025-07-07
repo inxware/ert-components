@@ -94,10 +94,8 @@ EHS_PERIPHERAL_DEVICE_SUPPORT=all
 # To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
 # Set this to match one of the graphics types in EHS/target/graphics
 EHS_GUI_SUPPORT=gtk
-
 # To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
 EHS_AV_SUPPORT=gst
-
 # Set EHS_VIDEO_SUPPORT to "no" to disable video rndering support in the media payer (e.g. for audio only devies) 
 EHS_VIDEO_SUPPORT=yes
 # This  is set to include the rendering features in eRT. It is  nearly always set, so should be removed (default on) and specific platforme xceptionsset instead
@@ -107,8 +105,8 @@ EHS_COMPONENT_NETWORKING_SUPPORT=all
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
 
-include ./target/devman-configs/inx-systems.com.mk
-DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
-DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=yes
+
+# - we might need this? DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
+
 #Packager
 EHS_PACKAGER_TYPE=deb

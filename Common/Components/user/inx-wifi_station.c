@@ -175,7 +175,7 @@ eWifiStationConnectState getWifiStationConnectState()
 void setWifiStationConnectState(eWifiStationConnectState state)
 {
 	gEhsWifiStationConnectState = state;
-#ifdef EHS_DEBUGALL
+#if EHS_ESP32_DISABLE_LOGS != 1
 	printf("********* %s *********\n",WifiStationConnectStateString(state));
 #endif
 }

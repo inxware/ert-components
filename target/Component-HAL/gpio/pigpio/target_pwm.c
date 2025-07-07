@@ -29,14 +29,14 @@ inx_hw_pwm_port_errcode_t EhsTPortPwmGetFreq(ehs_sint32 channel, ehs_sint32 *fre
 inx_hw_pwm_port_errcode_t EhsTPortPwmGetDuty(ehs_sint32 channel, ehs_sint32 *duty);
 inx_hw_pwm_port_errcode_t EhsTPortPwmEnabled(ehs_sint32 channel, ehs_bool *enabled);
 
-// Detect whether more than one platforms are enabled at the same time
-#if defined(EHS_PLATFORM_RASPBERRYPI) && defined(EHS_PLATFORM_ESP32)
-    #error "Only one platform could be configured!"
-#endif
+//// Detect whether more than one platforms are enabled at the same time
+//#if defined(EHS_PLATFORM_RASPBERRYPI) && defined(EHS_PLATFORM_ESP32)
+//    #error "Only one platform could be configured!"
+//#endif
 
 ehs_bool gGPIOInitialised = EHS_FALSE;
 
-#ifdef  EHS_PLATFORM_RASPBERRYPI
+//#ifdef  EHS_PLATFORM_RASPBERRYPI
 #include <pigpio.h>
 // TODO left for daemon-based operations
 // #include <pigpiod_if2.h>
@@ -378,4 +378,4 @@ inx_hw_pwm_port_errcode_t EhsTPortPwmEnabled(ehs_sint32 channel, ehs_bool *enabl
     return INX_HW_PWM_PORT_EOK;
 }
 
-#endif//EHS_PLATFORM_RASPBERRYPI
+//#endif//EHS_PLATFORM_RASPBERRYPI

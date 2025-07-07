@@ -29,14 +29,23 @@ EHS_GNU_ARCH=arm64
 EHS_GNU_OS=linux-android
 TOOLCHAIN_NAME=arm-linux-android
 #we need to override the component path back the default it would be if we didn't specify a specific toolchain toolchain  
+
+#################################################################
+#todo most of the followinf should be in the os-arch/ configs :
+CC_SWITCHES+=-fpic
+
 COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm64-linux-android
 
-CC_SWITCHES+=-fpic
+
 EHS_ANDROID=yes
 DEFS += EHS_BSD EHS_ANDROID
 
 CC_OVERRIDE=aarch64-linux-android30-clang
 LINK_OVERRIDE=aarch64-linux-android30-clang
+
+#WTF is this for and why here?
+DEFS += EHS_BSD EHS_ANDROID
+################################################################
 
 ################################################################################################################
 # Configure debug/production levels
@@ -53,7 +62,7 @@ ERT_SODL_VERSION=1
 
 # There are some #ifdeferies in some general code specific to Android rather than duplicating code 
 EHS_ANDROID=yes
-DEFS += EHS_BSD EHS_ANDROID
+
 
 
 ################################################################################################################

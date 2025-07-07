@@ -8,7 +8,7 @@
 #---------------------------------------------------------------#
 
 # @file config.mk 
-# inxware ERT configuration file for linux_x86_64_clang_gtk_gst_gg_debian11
+# inxware ERT configuration file for linux_x86_gtk_gst_debian11
 # @author: inx limited
 
 #Target Platform Uses
@@ -20,8 +20,8 @@
 #################################################################################################################
 
 # MUST SET the following for any component config: 
-# EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
-# EHS Section 
+#EHS_ARCH, EHS_OS/ Use the GNU format and order that is created by the libraries etc.
+# EHS Section
 EHS_ARCH=x86
 EHS_OS=linux
 
@@ -45,8 +45,8 @@ EHS_DEBIAN_VERSION=11
 ################################################################################################################
 # Configure debug/production levels
 ################################################################################################################
-# Set ALL debug use this:
-#DEBUG OPTIONS
+# Set ALL debug use this: 
+#too2023 - we need to add this to everyting until we decide if we will have a debug and non-debug kernel. (I guess we ultimately wan the latter to mimise sizes.)
 EHS_DEBUGALL=yes
 
 ################################################################################################################
@@ -87,12 +87,12 @@ COMPONENT_VARIANT=base
 #This include RCUs, text displays, etc. We usually have this for arm linux so leaving this here
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
-# To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support for your target   #
+# To enable UI  support ("ui", DCC=4)  set  EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub, lvgl}, depending support for your target   #
 # Set this to match one of the graphics types in EHS/target/graphics
-EHS_GUI_SUPPORT=gtk
+EHS_GUI_SUPPORT=lvgl
 
 # To enable AV media  support ("media", DCC=5)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                                   #
-EHS_AV_SUPPORT=gst10
+EHS_AV_SUPPORT=ffmpeg
 
 # Set EHS_VIDEO_SUPPORT to "no" to disable video rndering support in the media payer (e.g. for audio only devies) 
 EHS_VIDEO_SUPPORT=yes
@@ -119,8 +119,5 @@ EHS_MODBUS_SUPPORT=stubbed
 ################################################################################################################
 #HOST_OS_CONFIG_SCRIPTS+= \
 
-include ./target/devman-configs/inx-systems.com.mk
-DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
-DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=yes
 #Packager
 EHS_PACKAGER_TYPE=deb

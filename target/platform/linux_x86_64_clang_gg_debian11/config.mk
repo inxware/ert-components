@@ -31,9 +31,9 @@ EHS_GNU_ARCH=x86_64
 EHS_GNU_OS=linux-gnu
 #use toolchain clib environment
 #EHS_GNU_OS_VERSION=-clang10_clang10
-#todo2025 - this will break this build but the build is not right!
-#we should build greengrass for Debian 12 soon! 
-EHS_GNU_OS_VERSION=-clang11_debian11
+#TODO we should build greengrass for Debian 11 and 12 soon - not sure why we are using  debian 10 built dependencies?
+#EHS_GNU_OS_VERSION=-clang11_debian11
+EHS_GNU_OS_VERSION=-clang10_clang10
 
 #LINK_OVERRIDE=clang
 TOOLCHAIN_NAME=HOST

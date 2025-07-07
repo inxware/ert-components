@@ -936,13 +936,14 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
  */
 // EhsTargetIntType main(int argc, ehs_char ** argv )
 
+
 /**
  * There’s already an api for setting the next app to be launched. Simply call this at any point before EhsMain
  * EhsHMetaSetNextAppToRun("default");  or EhsHMetaSetNextAppToRun("fallbacks"); etc.
  */
 void app_main(void)
 {
-#ifndef EHS_DEBUGALL
+#if EHS_ESP32_DISABLE_LOGS == 1
     esp_log_level_set("*", ESP_LOG_NONE);
 #endif
     // Set callback function for notifying about file systems status

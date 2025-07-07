@@ -21,7 +21,7 @@ EHS_GNU_ARCH=arm#this must map onto the component library
 EHS_GNU_OS=linux-gnu
 EHS_GNU_OS_VERSION=""#arm-none-linux-gnueabi-4.6.1
 #Optional if different clib build is required - dangerous!
-KERNEL_VERSION=linux/2.6.35.9
+#KERNEL_VERSION=linux/2.6.35.9
 
 # ehs is more generic
 EHS_ARCH=arm

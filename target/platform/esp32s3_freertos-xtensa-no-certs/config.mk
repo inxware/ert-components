@@ -27,6 +27,8 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1-16k
 
 # Enable the serial command prompt interface
 DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
+# Disable esp logger
+DEFS += EHS_ESP32_DISABLE_LOGS=1
 
 EHS_WIFI_SUPPORT=yes
 # Maximum wi-fi SSID records buffer size
@@ -43,11 +45,6 @@ EHS_DEFAULT_APP=tutorials/hello_world
 #include ./target/devman-configs/devman.inxware.io.mk
 
 # appland deployment config
-
-include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
-
-#Add Information for the appland presentation
-
 EHS_APPLAND_INST_SUPPORT=yes
 EHS_APPLAND_INST_DEPLOY_NAME=Xtensa-ESP32-S3-Community
 EHS_APPLAND_INST_OS_NAME=xtensa-esp32-s3
