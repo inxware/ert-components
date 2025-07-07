@@ -51,8 +51,6 @@ else
 	EHS_RUNTIME_LOGGER_ENABLED=yes
 endif
 	EHS_DEBUG_AV=yes
-# Assume we will always want to define this build as a debug build and upload and manage on Devamn accordingly 
-export 	BUILD_MODE=debug
 endif
 
 
