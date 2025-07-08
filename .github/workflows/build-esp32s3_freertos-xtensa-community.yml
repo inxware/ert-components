@@ -49,8 +49,7 @@ jobs:
     - name: configure
       run: |
            cd ert-components
-#           ./configure esp32s3_freertos-xtensa-no-certs
-           ./configure esp32s3_freertos-xtensa-base
+           ./configure esp32s3_freertos-xtensa-no-certs
 
     - name: make chkconfig
       run: |
