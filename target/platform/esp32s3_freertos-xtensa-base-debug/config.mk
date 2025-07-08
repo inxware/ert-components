@@ -8,7 +8,7 @@
 #---------------------------------------------------------------#
 
 # @file config.mk 
-# inxware ERT configuration file for esp32_freertos-xtensor-base
+# inxware ERT configuration file for esp32_freertos-xtensor-base-debug
 # @author: inx limited
 
 #################################################################################################################
@@ -20,10 +20,9 @@ include ./target/platform/esp32s3_freertos-xtensa-base/config.mk
 # blanket switch everything on.
 EHS_DEBUGALL=yes
 
-# Or more specifically:
-# EHS_DEBUG_TCPIP_CONSOLE=yes/no/
-# EHS_RUNTIME_LOGGER_ENABLED=yes/no/.
-# EHS_RUNTIME_LOGGER_ENABLED=yes/no/.
-# EHS_DEBUG_AV=yes/no/.
+EHS_RUNTIME_LOGGER_ENABLED=no
+
+# Enable linked-list based memory allocator managment in the hal_mem
+#EHS_MEMORY_MANAGMENT=yes
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################

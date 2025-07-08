@@ -18,7 +18,7 @@
 include ./target/platform/esp32s3_freertos-xtensa-base-debug/config.mk
 
 # libraries built with 16k cache
-TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1-16k
+#TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1-16k
 
 # Configure wifi interface for esp32s3 device
 # to set specific wifi credentials replace 'ssid' and 'password'
