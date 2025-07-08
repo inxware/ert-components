@@ -25,10 +25,11 @@ EHS_OS=esp32s3_freertos
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_ 
 #TOOLCHAIN_NAME=xtensa-esp32s3-elf-4.4.4
 # libraries built with 32k cache
-#TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
+TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 # libraries built with 16k cache
 # Default to using a smaller RAM cache to maximise meory availability over execution speed.
-TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1-16k
+#TODO2025 -XA - is this build now broken with the adc changes? Do we need to update the contrib middleware SDK
+#TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1-16k
 
 # apply esp32 specific hacks
 INXWARE_TARGETENV_HACKS=esp32
