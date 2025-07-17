@@ -27,7 +27,7 @@ inxware streamlines embedded software development by separating software integra
 
 It comprises the following key parts:
 - ert-components: An open source library of pre-built software and IO-drive components.
-- [inxware Lucid](https://appland.inxware.io/)): a free graphical IDE for developing real time data-intensive device applicartions.
+- [inxware Lucid](https://appland.inxware.io/): a free graphical IDE for developing real time data-intensive device applicartions.
 
 ert-components is open source C/C++ with a powerful cross-compiling build system, allowing any hardware porting and new components to be user-contributed.   
 
