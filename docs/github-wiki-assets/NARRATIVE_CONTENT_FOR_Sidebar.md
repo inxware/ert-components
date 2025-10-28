@@ -1,0 +1,75 @@
+
+
+# Components Toolboxes
+- Core
+   - Event Handling
+   - Boolean Logic
+   - State Machines
+   - Data flow
+   - Timers and clocks
+- Core Advanced
+   - Day of Week Scheduling
+   - Wall-clock time services 
+   - Device Status
+- Text
+   - Primitive string operations
+   - Basic JSON stream parsing
+- Text Advanced
+   - JSON object quering
+   - XML stream parsing
+- IO
+   - GPIO
+   - ADCs
+   - DACs
+   - Serial Communications
+- IO-Advanced
+   - PWM
+   - ISR real-time controllers
+   - MODBUS-RTU
+- Math
+   - Integer and floating point operators
+   - Standard calculator function
+   - Algebraic expression evaluation
+- Math Advanced
+   - Optimisers
+   - Vector processing (Linear Algebra)
+   - Tensor Operators
+- Networking 
+   - TCPIP socketclient and servers
+   - URL/HTTP client
+   - MQTT client 
+   - CoAP client
+- Networking Advanced
+   - Devman device management
+   - HTTP server
+- Graphics & UI
+   - Widget library
+   - Text and image rendering
+- Storage
+   - File systems
+   - Flash Storage
+   - Secure element secret storage
+- Media
+   - Audio playout
+   - Audio recording
+   - Video Playout
+- Media Advanced
+   - SMIL media scheduling
+   - Video transformations
+   - Audio effects
+- Device Platform
+   - Runtime information
+   - Lucid application management
+   - OTA update utities
+- Machine Learning
+   - Tensor flow lite models
+   - Adaptive systems
+- Machine Vision
+   - Camera data aquisition
+   - Camera data raw display
+   - April-tag recongition
+- Signal Processing
+   - FFT/DFT
+   - FIR filters
+   - IIR filters
+   - 
