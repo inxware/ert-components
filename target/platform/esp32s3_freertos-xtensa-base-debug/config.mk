@@ -19,10 +19,11 @@ include ./target/platform/esp32s3_freertos-xtensa-base/config.mk
 
 # blanket switch everything on.
 EHS_DEBUGALL=yes
+EHS_DEBUG_TCPIP_CONSOLE=yes
 
 EHS_RUNTIME_LOGGER_ENABLED=no
 
-# Enable linked-list based memory allocator managment in the hal_mem
-#EHS_MEMORY_MANAGMENT=yes
+# Disable Enable linked-list based memory allocator managment in the hal_mem
+#EHS_MEMORY_MANAGMENT=none
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################

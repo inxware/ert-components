@@ -29,14 +29,23 @@ EHS_GNU_ARCH=arm64
 EHS_GNU_OS=linux-android
 TOOLCHAIN_NAME=arm-linux-android
 #we need to override the component path back the default it would be if we didn't specify a specific toolchain toolchain  
+
+#################################################################
+#todo most of the followinf should be in the os-arch/ configs :
+CC_SWITCHES+=-fpic
+
 COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm64-linux-android
 
-CC_SWITCHES+=-fpic
+
 EHS_ANDROID=yes
 DEFS += EHS_BSD EHS_ANDROID
 
 CC_OVERRIDE=aarch64-linux-android30-clang
 LINK_OVERRIDE=aarch64-linux-android30-clang
+
+#WTF is this for and why here?
+DEFS += EHS_BSD EHS_ANDROID
+################################################################
 
 ################################################################################################################
 # Configure debug/production levels
@@ -62,10 +71,10 @@ DEFS += EHS_BSD EHS_ANDROID
 
 #tcpip debug is still enabled
 EHS_NETWORKING_SUPPORT=all
-#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-EHS_DEVMAN_SUPPORT=all
-#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-EHS_DEVMAN_MON_SUPPORT=yes
+
+
+#unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features 
+EHS_DEVMAN_SUPPORT=http
 
 ################################################################################################################
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)

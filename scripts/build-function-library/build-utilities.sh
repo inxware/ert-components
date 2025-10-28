@@ -1,5 +1,5 @@
 
-
+# find the root of the ert-components directory or fail
 function cdBuildTreeRoot() {
 
     if [ -f ./configure ] ; then 

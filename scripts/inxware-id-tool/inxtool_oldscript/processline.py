@@ -29,7 +29,7 @@ class ProcessLine(object):
             return new
         if new is not None and old is not None and \
            new != old:
-            text=b"#ifndef EHRT1\n"
+            text=b"#if ERT_SODL_VERSION == 0\n"
             text=text+old
             text=text+b"#else\n"
             text=text+new
@@ -109,7 +109,7 @@ class UpdateIdsFunctionsNewProcessLine(UpdateIdsFunctionsProcessLine):
         if new is not None and old is not None and \
            new != old:
             id_value=b'FUNCTION_NAME_ID_'+self.valuestring.upper()
-            text=b"#ifndef EHRT1\n"
+            text=b"#if ERT_SODL_VERSION == 0\n"
             text=text+b"#define "+id_value+b" "+b'"'+self.valuestring+b'"'
             text=text+b"\n#else\n"
             text=text+b"#define "+id_value+b" "+self.hashstring

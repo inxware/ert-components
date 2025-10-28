@@ -11,6 +11,11 @@
 ;--------------------------------
 ;Include Modern UI
 
+  !define MUI_ICON ".\ehs.ico"
+
+  ; Set the icon for the installer window (applies to all pages unless overridden)
+  Icon ".\ehs.ico"
+
   !include "MUI2.nsh"
 
 ;--------------------------------
@@ -21,8 +26,8 @@
   OutFile "inxware-ert-installer.exe"
   Unicode True
 
-  ;Default installation folder (inside inxware tools install dir)
-  InstallDir "$LOCALAPPDATA\inxware\dist\EHS"
+  ;Default installation folder (inside inxware-eRT)
+  InstallDir "$LOCALAPPDATA\inxware-eRT"
   
   ;Get installation folder from registry if available
   InstallDirRegKey HKCU "Software\inxware-eRT" ""
@@ -52,9 +57,15 @@
 ;--------------------------------
 ;Installer Sections
 
+!define APP_NAME "${ERT_NSIS_EXE_NAME}"
+!define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
+
 ;This section goes first in order to make the $INSTDIR variable available to
 ;other sections below.
 Section "inxware-eRT" SecInxwareEhs
+
+  ; @TODO - Kill the apps if the currently run, make user aware that it's happening!
+  ; ExecWait 'taskkill /F /IM "ehs.exe"'
   
   ;Store installation folder
   WriteRegStr HKCU "Software\inxware-eRT" "" $INSTDIR
@@ -62,15 +73,33 @@ Section "inxware-eRT" SecInxwareEhs
   ;Add files here (and subsequently also to the uninstall section)
   SetOutPath "$INSTDIR"
 
+  ; Clear the directory if already exists (needed?), people should do uninstall for this
+  ; RMDir /r "$INSTDIR\ehs_env-${ERT_TARGET}"
+
   File /r /x README /x .gitkeep /x .gitignore ..\ehs_env-${ERT_TARGET}
+
+  ; Add ico for the installer
+  SetOutPath "$INSTDIR\ehs_env-${ERT_TARGET}"
+  File ".\ehs.ico"
+
+  ; Go back to the root of install
+  SetOutPath "$INSTDIR"
+
+  ; Write uninstaller to registry
+  WriteRegStr HKLM "${UNINSTALL_KEY}" "DisplayName" "inxware ${ERT_NSIS_EXE_NAME}"
+  WriteRegStr HKLM "${UNINSTALL_KEY}" "UninstallString" "$INSTDIR\Uninstall-${ERT_NSIS_EXE_NAME}.exe"
+  WriteRegStr HKLM "${UNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\ehs_env-${ERT_TARGET}\ehs.ico"
+  WriteRegStr HKLM "${UNINSTALL_KEY}" "DisplayVersion" "${ERT_VERSION}"
+  WriteRegStr HKLM "${UNINSTALL_KEY}" "Publisher" "inx limited"
+  WriteRegStr HKLM "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
 
   WriteUninstaller "$INSTDIR\Uninstall-${ERT_NSIS_EXE_NAME}.exe"
   
   ;Create Start Program Shortcuts
   SetOutPath "$INSTDIR\ehs_env-${ERT_TARGET}\bin"
-  CreateDirectory "$SMPROGRAMS\inxware"
-  CreateShortcut "$SMPROGRAMS\inxware\${ERT_NSIS_EXE_NAME}.lnk" "$INSTDIR\ehs_env-${ERT_TARGET}\bin\${ERT_PACKAGE_NAME}.exe"
-  CreateShortcut "$SMPROGRAMS\inxware\Uninstall-${ERT_NSIS_EXE_NAME}.lnk" "$INSTDIR\Uninstall-${ERT_NSIS_EXE_NAME}.exe"
+  CreateDirectory "$SMPROGRAMS\inxware-eRT"
+  CreateShortcut "$SMPROGRAMS\inxware-eRT\${ERT_NSIS_EXE_NAME}.lnk" "$INSTDIR\ehs_env-${ERT_TARGET}\bin\${ERT_PACKAGE_NAME}.exe" "" "$INSTDIR\ehs_env-${ERT_TARGET}\ehs.ico"
+  CreateShortcut "$SMPROGRAMS\inxware-eRT\Uninstall-${ERT_NSIS_EXE_NAME}.lnk" "$INSTDIR\Uninstall-${ERT_NSIS_EXE_NAME}.exe"
 
 SectionEnd
 
@@ -79,7 +108,7 @@ SectionEnd
 
   ;Language strings
   LangString DESC_SecInxwareEhs ${LANG_ENGLISH} \
-  "Install inxware Unity eRT."
+  "Install inxware eRT."
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -91,18 +120,22 @@ SectionEnd
 
 Section "Uninstall"
 
-  Delete "$SMPROGRAMS\inxware\${ERT_NSIS_EXE_NAME}.lnk"
-  Delete "$SMPROGRAMS\inxware\Uninstall-${ERT_NSIS_EXE_NAME}.lnk"
+  Delete "$SMPROGRAMS\inxware-eRT\${ERT_NSIS_EXE_NAME}.lnk"
+  Delete "$SMPROGRAMS\inxware-eRT\Uninstall-${ERT_NSIS_EXE_NAME}.lnk"
   ;Remove only if empty
-  RMDir "$SMPROGRAMS\inxware"
+  RMDir "$SMPROGRAMS\inxware-eRT"
 
   RMDir /r "$INSTDIR\ehs_env-${ERT_TARGET}"
 
   ;Uninstaller itself should be the last file to be deleted.
   Delete "$INSTDIR\Uninstall-${ERT_NSIS_EXE_NAME}.exe"
-
+  
+  ;Remove only if empty
   RMDir "$INSTDIR"
   
   DeleteRegKey /ifempty HKCU "Software\inxware-eRT"
+
+  ; Remove uninstaller entry from the registry
+  DeleteRegKey HKLM "${UNINSTALL_KEY}"
 
 SectionEnd

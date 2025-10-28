@@ -17,7 +17,4 @@ function BuildDebian(){
     make targetenv_deb_docker || exit 1
 }
 
-function UploadDebian-ambifier(){
-    # todo2023 The default for the above may be encoded in the config.mk file
-    make upload_ehs_deb UPLOAD="ambifier@www.ambifier.com:/home/ambifier/deb-repo" || exit 1
-}
+
