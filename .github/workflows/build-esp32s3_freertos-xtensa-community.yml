@@ -22,7 +22,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         sparse-checkout: |
-            toolchains/x86_64/xtensa-esp32s3-elf-5.1-16k
             toolchains/x86_64/xtensa-esp32s3-elf-5.1
             support_libs/target_libs/xtensa-esp32s3_freertos
         repository: inxware/ert-build-support
@@ -35,7 +34,7 @@ jobs:
       with:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
-        sparse-checkout: target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1-16k
+        sparse-checkout: target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1
         ref: refs/heads/main
         lfs: true
 
