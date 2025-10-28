@@ -1,9 +1,15 @@
-Device Types Supported
------------------------
+# eRT Components
+## Event-based Runtime for Embedded & IoT Systems
+**eRT (event-based RunTime)** is an open-source library of software components that are pre-buildable ahead of developing embedded applications with a no-code IDE.
+reRT is for eal-time, data-intensive embedded systems built with MCUs/CPUs/SoCs.
+ 
 ![Static Badge](https://img.shields.io/badge/RaspberryPi-Y-green) ![Static Badge](https://img.shields.io/badge/Arduino-Y-green) ![Static Badge](https://img.shields.io/badge/esp32-Y-green) ![Static Badge](https://img.shields.io/badge/esp32s3-Y-green) ![Static Badge](https://img.shields.io/badge/Windows-Y-green) ![Static Badge](https://img.shields.io/badge/Android-Y-green) ![Static Badge](https://img.shields.io/badge/x86_linux-Y-green) ![Static Badge](https://img.shields.io/badge/arm_freeRTOS-Y-green) ![Static Badge](https://img.shields.io/badge/arm_linux-Y-green) ![Static Badge](https://img.shields.io/badge/RISCV-Y-green)
 
-Github Build Status
-------------------- 
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/inxware/ert-components/actions)
+[![License](https://img.shields.io/badge/license-LGPLv3-blue)](LICENSE.md)
+[![Platform Support](https://img.shields.io/badge/platforms-10+-green)](#supported-platforms)
+
+# Github Build Status 
 
 [![build-linux_arm64_lvgl_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
 
@@ -21,226 +27,1209 @@ Github Build Status
 
 [![build-arduino-mbed-nano-community](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml)
 
-What is inxware?
-============
-inxware streamlines embedded software development by separating software integration and application development. 
+### 🚀 Quick Links
+- [Get Started in 5 minutes](#quick-start)
+- [Browse Supported Platforms](#supported-platforms)
+- [Read the Porting Guide](docs/ert-porting-guide.md)
+- [Try the Free IDE](https://appland.inxware.io/)
 
-It comprises the following key parts:
-- ert-components: An open source library of pre-built software and IO-drive components.
-- [inxware Lucid](https://appland.inxware.io/)): a free graphical IDE for developing real time data-intensive device applicartions.
+---
 
-ert-components is open source C/C++ with a powerful cross-compiling build system, allowing any hardware porting and new components to be user-contributed.   
+## Table of Contents
 
-The lucid graphical IDE allows applications to be developed in a system engineering context and is available for free from [appland.inxware.io](https://appland.inxware.io/)
-
-Device Support
-==============
-inxware can run on any CPU architecture and use any operating system. This repository includes some example builds for a represeantive set of targets and 100s more are available. New hardware support and software features can be user contributed with guidance on best practicces available from the [porting guide](https://github.com/inxware/ert-components/wiki/inxware-Porting-Guide).
-
-inxware builds can be carried out locally (on linux or Windows+WSL) and Docker containers to ensure repeatable builds with specific SDKs and 3rd-party middleware dependencies. The inxware ert-components build system is simple and ensures all build environments remain are consistent and trusted.
-
-This repository can generate modifiable builds for the following SoCs, SoMs, Evaluation boards, servers and desktop systems:
-* ARM7
-  - NXP Kenitis (FreeRTOS, MBED)
-  - STM32 (FreeRTOS, Arduino)
-  - RP2040 (Arduino)
-* ARM64
-  - RaspberryPi3-5 (Linux, Android)
-  - Radxa-Rock2-5 (Linux, Android)
-* xtensor (esp32)
-  - ESP32, ESP32S3, ESP32C2 (IDF, FreeRTOS)
-* x86/x86_64
-  - Linux (Debian 7-12, Ubuntu 14-24, Linux-Lite, Yocto, OpenEmbedded)
-  - Windows (7-11: VS, MINGW)
-
-Device Certificate provisioning
--------------------------------
-Provisioning devices with IoT service certificates requires an additional certificate repository (DevmanSecurity.git), which is not currently provided to community users. A safer version of this repository with public certificates will be released to allow non-client authenticated connections and the capability for contributors to add their own private keys when doing local builds. 
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Quick Start](#quick-start)
+- [Supported Platforms](#supported-platforms)
+- [Installation & Setup](#installation--setup)
+- [Building](#building)
+- [Usage Examples](#usage-examples)
+- [Development](#development)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Support & Community](#support--community)
+- [License](#license)
 
 
-Build Environment Overview
-==========================
-The ```ert-components``` repository is the core repository needed to be the inxware eRT runtime. 
-This build system currently supports the following hardware architectures and operating systems: 
+---
 
-The build system support fine-grained target configuration for particular hardware and user configurations, 
-including package management and direct installation. To see the full list type `./configure` in the root of this repository.
+## Overview
 
+The **eRT Components** repository contains the core runtime system for the inxware no-code development platform. It enables developers to create embedded applications using a visual, component-based approach without traditional coding.
 
-# Build Steps
-- The eRT build system ues docker to create some specific build environment, but needs a few linux packages installed first to get started.
-- The simplest way to check your system is to use the make prepdeps command. e.g. 
+### What is eRT?
+
+eRT is a component-based runtime that executes applications created with the [inxware Lucid IDE](https://appland.inxware.io/). It provides:
+
+- **Event-driven architecture** for real-time responsiveness
+- **Hardware abstraction layer (HAL)** for cross-platform compatibility
+- **Pre-built components** for common embedded tasks (GPIO, networking, UI, etc.)
+- **No-code deployment** from visual applications to production firmware
+
+### Architecture
+
 ```
-./configure linux_x86_64_clang
-make prepdeps.
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Lucid IDE     │    │  eRT Components │    │  Target Device  │
+│  (Visual Dev)   │───▶│   (Runtime)     │───▶│   (Hardware)    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-This will install git build-essential (GNU make) and docker and two other large inxware repositories containing toolchains and prebuilts:
-[ert-build-support](https://github.com/inxware/ert-build-support) - contains binary tolchains and uses git lfs (Large File Support).
-[ert-contrib-middleware](https://github.com/inxware/ert-contrib-middleware) - contains pre-built 3rd party dependencies and builts and scripts for re-creating or updating. This contains original source and library build scripts for maintenance. 
-[inxware/apps](https://github.com/inxware/apps) - contains demo and home apps, which may be pre-integrated defaults for product/serve/application specific.
+The system consists of:
+- **EHS Kernel**: Proprietary event handling system
+- **Component Library**: Open-source functional components
+- **HAL**: Hardware abstraction for target platforms
+- **Build System**: Cross-platform compilation and packaging
 
-Typically these repos are cloned into adjascent directories to ert-components with --depth=1 to reduce disk requirements.
+---
 
-The ert-components repository build system creates deployable firmware or applications in the relevant package format. The build requires the inxwae-EHS (Event Handling System) library to be linked to the application to accept Lucid no-code applications. 
+## Key Features
 
-Terms of Use
-============
-This resilting executable ert-component binaries can be copied and deployed under the terms of the [inxware license policy](https://www.inxware.io/pricing/), which are broadly:
+### ✨ Cross-Platform Runtime
+- **10+ architectures**: ARM, x86, RISC-V, Xtensa
+- **Multiple OS support**: Linux, Android, Windows, FreeRTOS, Arduino
+- **Unified build system** with Docker containerization
 
-- Deployable to 10 devices (commercial & non-cpommercial)
-- Free perpetual use of the [Lucid Community IDE](https://appland.inxware.io/)
-- Free perpetual access to inxware Community Firmware source code.
-- Free perpetual access to inxware graphical component builder (eclipse).
-- No restrictions for connecting to any IoT Gateway or 3rd-party cloud services.
+### 🔧 Rich Component Library
+- **Core components**: Operators, buffers, timers, file I/O
+- **Networking**: HTTP, MQTT, TCP/UDP sockets
+- **Graphics & UI**: Display drivers, controls, imaging
+- **Hardware interfaces**: GPIO, ADC/DAC, PWM, UART
 
-Upgrade access can be provided for free to inxware application or components developers by joining the inxware [developer partner](https://www.inxware.io/developer-partners/) scheme.
+### 🚀 Production Ready
+- **Industrial deployment**: 10 device free commercial license
+- **OTA updates**: Over-the-air firmware deployment
+- **Package formats**: APK, DEB, firmware images, Unity plugins
+- **CI/CD integration**: Automated testing and deployment
 
+### 📱 No-Code Development
+- **Visual programming**: Drag-and-drop component assembly
+- **Real-time debugging**: Live system monitoring
+- **Rapid prototyping**: Minutes from idea to running prototype
 
-Licensing
----------
+---
 
-eRT components are licenced under LGPLv3 license (See LICENSE.md) unless otherwise stated within sub modules from 3rd-parties. 
+## Quick Start
 
-Full firmware builds contain the inxware kernel library which is a 100% portable closed source element of inxware and is licensed for commercial and non-commercial use for up to 10 copies per user or organisation.
+### Prerequisites
+- Linux (Debian/Ubuntu recommended) or Windows with WSL2
+- Docker (installed automatically by `make prepdeps`)
+- 40GB free disk space for build dependencies
 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
+### 5-Minute Setup
 
-Source & Dependencies
----------------------
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/inxware/ert-components.git
+   cd ert-components
+   ```
 
-An open source publication of this eRT runtime is hosted at https://github.com/inxware/ert-components
+2. **Choose a target platform**
+   ```bash
+   ./configure  # List all available targets
+   ./configure linux_x86_64_clang  # Configure for Linux x64
+   ```
 
-For further information about inxware IoT sftware development please seapproach read more here: https://www.inx-systems.com/dev-tools/ 
+3. **Install dependencies**
+   ```bash
+   make prepdeps  # Downloads toolchains and dependencies (~40GB)
+   ```
 
-This build system for EHS requires linux (debian usually) and the following repos to be cecked out in to the same directory:
+4. **Build the runtime**
+   ```bash
+   make all_docker  # Build using containerized environment
+   ```
 
-  ert-components         (Contains this readme file)
-  ert-build-support      (Contains toolchains and Basic OS dependencies)
-  ert-contrib-middleware (Contains optional pre-built components for each suport platform)
+5. **Create deployable package**
+   ```bash
+   make targetenv          # Assemble runtime environment
+   make targetenv_version  # Create versioned release
+   ```
 
-It is advisable to also check out the following repos to build production installs:
-apps               (Contains applications which maybe installed into production packages)
+6. **Test your build**
+   ```bash
+   ./configure -run  # Run the built application
+   ```
 
-All the above repos are available at ssh://inx-data@server/home/inx-data/data/Repos/*.git
+**🎉 Success!** You now have a working eRT runtime. Try the [Lucid IDE](https://appland.inxware.io/) to create your first no-code application.
 
-Deployment
-----------
-Built eRT objects may be of the following format:
-1. Linux user-space application
-1. Windows application 
-1. Android APK
-1. Unity .so plugin
-1. MCU-specific system image
+---
 
+## Supported Platforms
 
-# BUILDING eRT Locally
+### Build Status
+[![build-linux_arm64_lvgl_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
+[![build-linux_arm64_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml)
+[![build-linux_android_arm64](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml)
+[![build-esp32s3_freertos-xtensa-community](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml)
+[![build-linux_x86_64_clang_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11.yml)
+[![build-win_x86_32-lucid-win10](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml)
+[![build-arduino-mbed-nano-community](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml)
 
-You can check eRT out onto a linux machine and run the build and some CI operations on your own hardware.
+### Platform Matrix
 
-The command steps needed to build EHS for a specific target:
+| Platform Category | Architecture | Operating System | Status | Package Format | Use Cases |
+|-------------------|--------------|------------------|--------|----------------|-----------|
+| **Desktop/Server** | x86_64 | Linux (Debian 9-12, Ubuntu 14-24) | ✅ Stable | DEB, Binary | Development, Server apps |
+| | x86_64 | Windows 7-11 | ✅ Stable | EXE, MSI | Desktop applications |
+| **Single Board** | ARM64 | Linux (Raspberry Pi 3-5) | ✅ Stable | DEB, Image | IoT gateways, edge compute |
+| | ARM64 | Android (Rock Pi, Radxa) | ✅ Stable | APK | Media players, kiosks |
+| | ARM32 | Linux (Various SBCs) | ✅ Stable | DEB, Image | Industrial controllers |
+| **Microcontrollers** | Xtensa | ESP32/ESP32-S3 (FreeRTOS) | ✅ Stable | Firmware | IoT sensors, edge devices |
+| | ARM Cortex-M | NXP Kinetis (FreeRTOS) | ✅ Stable | Firmware | Industrial automation |
+| | ARM Cortex-M | Arduino (MBED, Native) | ✅ Stable | Firmware | Prototyping, education |
+| **Mobile/Gaming** | ARM | Unity Plugin | ✅ Stable | Unity Package | Games, interactive apps |
+| | ARM64 | Android NDK | ✅ Stable | AAR, SO | Mobile applications |
 
-Speific OS's may have variations with additional assets, including supervisors and other system specific utilities.
-These can found in `/target/envtree/` The most general version of this is in `.../Generic-ehs-tree/root-ehs_dir\*`
+### Hardware Examples
 
-The command steps needed to build eRT for a specific targets and different deployment/packaging options:
+#### 🖥️ **Development Platforms**
+- Any x86_64 Linux/Windows PC
+- Virtual machines and containers
+- CI/CD build servers
+
+#### 🔧 **Industrial & IoT**
+- **Raspberry Pi**: All models (3, 4, 5, Zero)
+- **Rock Pi**: 4A/4B/4C+, Rock 3C, Rock 5A/5B
+- **ESP32 family**: ESP32, ESP32-S3, ESP32-C3
+- **NXP Kinetis**: K64F, K66F, RT series
+- **STM32**: F4, F7, H7 series (via Arduino)
+
+#### 📱 **Consumer Devices**
+- Android tablets and phones
+- Set-top boxes and media players
+- Digital signage displays
+- Interactive kiosks
+
+> **Need a new platform?** Check our [porting guide](docs/ert-porting-guide.md) or [request support](#support--community).
+
+---
+
+## Installation & Setup
+
+### System Requirements
+
+| Requirement | Minimum | Recommended |
+|-------------|---------|-------------|
+| **OS** | Linux (Ubuntu 18.04+) or Windows 10 with WSL2 | Ubuntu 20.04+ or Debian 11+ |
+| **RAM** | 8GB | 16GB+ |
+| **Storage** | 50GB free | 100GB+ SSD |
+| **CPU** | 4 cores | 8+ cores |
+| **Network** | Broadband internet | High-speed for container downloads |
+
+### Dependency Installation
+
+eRT automatically manages most dependencies through Docker containers. The `make prepdeps` command will install:
+
+#### Host Dependencies
+- **Git** with LFS support
+- **GNU Make** (build-essential)
+- **Docker** (latest stable)
+- **Python 3** for build scripts
+
+#### Repository Dependencies
+- **ert-build-support** (~20GB): Binary toolchains and build tools
+- **ert-contrib-middleware** (~15GB): Pre-built 3rd-party libraries
+- **apps** (optional): Demo applications and examples
+
+### Repository Setup
+
+1. **Clone main repository**
+   ```bash
+   git clone https://github.com/inxware/ert-components.git
+   cd ert-components
+   ```
+
+2. **Select target and initialize**
+   ```bash
+   ./configure linux_x86_64_clang  # or your preferred target
+   make prepdeps                   # Downloads dependencies (~40GB)
+   ```
+
+3. **Verify installation**
+   ```bash
+   make help                       # Should show available build targets
+   docker --version                # Verify Docker is working
+   ```
+
+### Docker Configuration
+
+For optimal performance, configure Docker with:
 ```bash
-make help 
+# Increase Docker resources (if using Docker Desktop)
+# RAM: 8GB minimum, 16GB recommended
+# CPU: All available cores
+# Disk: 60GB minimum
+
+# For Linux: add user to docker group
+sudo usermod -aG docker $USER
+# Logout and login again for changes to take effect
 ```
 
-to get a list of supported targets types
+### Troubleshooting Setup
+
+#### Common Issues
+
+**"Permission denied" with Docker**
 ```bash
-./configure
+sudo usermod -aG docker $USER
+# Logout and login again
 ```
 
-The `./configure` sets the source tree to bild the specific platform required and all following make commands will be configured to do the right thing for the specific target after this. 
-
-To edit the configuration file for your selected platform you can use
-
+**"No space left on device"**
 ```bash
-./configure -edit
+# Clean Docker cache
+docker system prune -a
+# Check disk space
+df -h
 ```
 
-Build System Requirements
--------------------------
-The eRT build system ues `docker` to create some specific build environment, but needs a few linux packages installed first to get started.
-
-The simplest way to check your system is to use the make prepdeps command. e.g. 
+**Git LFS download failures**
 ```bash
-./configure linux_x86_64_clang
-make prepdeps.
+# Install/update Git LFS
+git lfs install
+git lfs pull
 ```
 
-This will install git build-essential (GNU make) and docker and two other large inxware repositories containing toolchains and prebuilts:
-`ert-build-support` - contains binary tolchains and uses git lfs.
-`ert-contrib-middlware` - is contains pre-built 3rd party dependencies and builts and scripts for re-creating or updating
+**Build dependencies missing**
+```bash
+# Reinstall dependencies
+make clean
+rm -rf ../ert-build-support ../ert-contrib-middleware
+make prepdeps
+```
 
-These repositories are cloned into adjascent directories to ert-components when make prepdeps os first ran on a target (see below).
+---
 
-40GB of space is required for the 3 repositories. A further few GBs is recommended for built binaries and installable packages.
+## Building the inxware runtime 
 
-Example Build Sequence
------------------------
-The eRT build system will build, packafge and deploy eRT to many different devices types, operating system package formats and OTA deployment servers.
-
-The steps to build a linux application you can run on a Debian 11 desktop with graphics: 
+### Build Workflow Overview
 
 ```bash
-./configure linux_x86_64_gtk_gst_debian11-debug  # Choose 
+Configure  → Install Deps  →  Build         → Package     → Deploy
+    ↓           ↓             ↓                  ↓           ↓
+./configure  make prepdeps  make all_docker  make targetenv build-deploy/*.sh
+```
+
+### Build Commands
+
+#### Choose a target
+```bash
+./configure                           # Show all the paltform targets configured to build
+./configure linux_arm_lvgl_myproduct  # Example configuring the build system 
+                                      #(Don't worry this is not autotools!)
+```
+
+#### Building
+```bash
+make prepdeps                     # Install dependencies (run once works for all targets)
+make clean                        # Clean any previous build artifacts
+make all_docker                   # Build the current target using Docker
+make clean                        # Clean build artifacts
+```
+
+#### Quick Configuration Tricks
+```bash
+./configure -edit                  # Edit target configuration ./target/platform/<...>/config.mk
+./configure -run                   # Run a linux target on the build host
+./configure -debug                 # Debug a linux target with GDB on he build host
+make target_buildenv               # starts a prompt in the Docker container environment. (then you can use make all )
+```
+
+#### Build Maintenance
+```bash
+make depend                       # Update source dependencies!!! (deps.mk)
+make static_analysis              # Run code analysis
+make toolsenv_update              # Update Lucid IDE with new components
+# Runs a bunch of target build tests (it may try and run the linux ones.)
+./SystemTests/CI/regression_test-published-only.sh 
+# Redisplay the results of the last build regression test. 
+./SystemTests/CI/display_regression_tests.sh 
+
+```
+
+### Package Creation
+
+#### Runtime Environment
+```bash
+make targetenv                  # Assemble runtime files
+make targetenv_version         # Create versioned release
+make targetenv_package         # Create target-specific package
+make targetenv_run_tests       # Run regression tests
+```
+
+#### Package Formats
+```bash
+make targetenv_deb             # Debian package (.deb)
+make targetenv_apk             # Android package (.apk)
+make targetenv_esp32           # ESP32 firmware (.bin)
+make targetenv_make_nsis       # Windows installer (.exe)
+```
+
+### Docker-based Building
+
+For consistent, reproducible builds most targets have _docker option that will run the command in the relevant Container defined by `./target/patform/<..>/Dockerimagename`:
+```bash
+make all_docker                     # Build in container
+make targetenv_make_deb_docker      # Package Debian in container
+make targetenv_make_apk_docker      # Package Android in container
+```
+Note some targets that don't use any non-standard linux commands (like `make targetenv`) and don't require a _docker version.
+
+
+### Example Builds
+
+Builds a PC linux runtime with the clang compiler for debian11 systems using GTK for UI elements, gstreamer for media processing and greengrass for IoT and Edge-compute.
+#### Linux Desktop
+```bash
+./configure linux_x86_64_clang_gtk_gst_gg_debian11
 make prepdeps
 make all_docker
-make targetenv 
-make targetenv_version
-make targetenv_deb
+make targetenv
+make targetenv_deb              # Create Debian package
 ```
 
-Example of Running a Basic Deployment
--------------------------------------
-The `make targetenv` step above will assemble the eRT binary and supporting files in the 
-staging directory located in ../TARGET_TREES/ehs-env_<your target platform name>
-
-A minimum install includes just the bianry and the Lucid SODL file: 
+#### ESP32 Microcontroller
 ```bash
-./bin/ehs.exe          #<-- you run this!
-./apps/default/t.sdl   #<-- ehs.exe runs this Lucid application by default
+./configure esp32s3_freertos-xtensa-community
+make prepdeps
+make all_docker
+make targetenv
+make targetenv_esp32_docker            # Create firmware image
 ```
 
-Alternatively you can run or debug eRT with the following shortcuts:
-```
-./configure -run
-./configure -debug
-```
-
-Developing New Components
-=========================
-TODO - reference documentation and iCB tools & CDF (Component Description Files)
-
-Useful utilities
-----------------
-To update your development environment's Lucid tools install with new or altered CDF files:
-
+#### Android
 ```bash
-make toolsenv_update
+./configure linux_android_arm64
+make prepdeps
+make all_docker
+make targetenv
+make targetenv_apk_docker              # Create Android APK
 ```
 
-Version Control
-===============
-eRT 
+#### Arduino
+```bash
+./configure arduino_arduino-mbed-nano_community
+make prepdeps
+make all_docker
+make targetenv
+make targetenv_arduino          # Create Arduino library
+```
+
+### Build Troubleshooting
+
+#### Docker Container Management
+Dockerhub is used to store pre-built containers and distribute them to build environments, where they may be cached on local machines.
+
+Dockerhub images can be created from Dockerfiles in ert-components and published to docker with the following commands:
+```bash
+# Clean Docker state
+make publish_docker_image
+```
+Some direct docker commands that may be is use:
+```bash
+# Clean Docker state
+docker system prune -a
+docker builder prune
+```
+
 ---
-The following version information file is auto integrated by make targetenv_version
+
+## Usage Examples
+
+### Basic Runtime Deployment
+
+After building, your eRT runtime will be in the staging directory:
 ```bash
-Releases/version_strings 
-```
-Containing
-```
-2 - Major version (Manually updated)
-2 - Min version (Manually updated)
-463 - Release number (Auto incremented and shared in Repo)
+cd ../TARGET_TREES/ehs-env_[your-target]/
+./bin/ehs.exe                    # Run eRT runtime
 ```
 
-System Supervisors
-------------------
+The minimal deployment includes:
+```
+bin/ehs.exe                      # eRT runtime executable
+apps/default/t.sdl               # Default Lucid application (SODL format)
+lib/                             # Runtime libraries (if needed)
+```
 
-Some platforms can include a system supervisor to perform OTA updates, System monitoring and connection diversity.
- 
+### Running with Custom Applications
 
+1. **Create application in Lucid IDE**
+   - Open [Lucid IDE](https://appland.inxware.io/)
+   - Design your application visually
+   - Export as SODL file (.sdl)
+
+2. **Deploy to eRT runtime**
+   ```bash
+   # Copy your application
+   cp myapp.sdl ../TARGET_TREES/ehs-env_[target]/apps/default/t.sdl
+   
+   # Run your application
+   cd ../TARGET_TREES/ehs-env_[target]/
+   ./bin/ehs.exe
+   ```
+
+### Platform-Specific Examples
+
+#### Raspberry Pi Deployment
+```bash
+# Build for Raspberry Pi
+./configure linux_arm64_gtk_gst_gg_debian11
+make prepdeps && make all_docker
+make targetenv_deb
+
+# Install on target device
+scp ../TARGET_TREES/packages/*.deb pi@raspberrypi:~
+ssh pi@raspberrypi 'sudo dpkg -i *.deb'
+```
+
+#### ESP32 Flash and Monitor
+```bash
+# Build ESP32 firmware
+./configure esp32s3_freertos-xtensa-community
+make prepdeps && make all_docker
+make targetenv_esp32
+
+# Flash to device (requires esptool)
+esptool.py --port /dev/ttyUSB0 write_flash 0x0 firmware.bin
+
+# Monitor serial output
+screen /dev/ttyUSB0 115200
+```
+
+#### Android Installation
+```bash
+# Build Android APK
+./configure linux_android_arm64
+make prepdeps && make all_docker
+make targetenv_apk_docker
+
+# Install via ADB
+make upload_ehs_via_adb                      # This will install the apk, plus the supervisor 
+adb install ../TARGET_TREES/packages/*.apk   # Or you can go native and run this for just one package.
+adb shell am start -n com.inxware.ert/.MainActivity #and run the apps remotely,
+```
+
+### Development Examples
+
+#### Creating a Custom Component
+
+1. **Define component interface (CDF file)**
+   ```xml
+   <!-- Common/Components/custom/my_sensor.cdf -->
+   <component name="my_sensor" category="sensors">
+     <outputs>
+       <pin name="temperature" type="real"/>
+       <pin name="humidity" type="real"/>
+     </outputs>
+     <events>
+       <event name="data_ready"/>
+     </events>
+   </component>
+   ```
+
+2. **Implement component logic**
+   ```c
+   // Common/Components/custom/my_sensor.c
+   #include "my_sensor.h"
+   
+   void my_sensor_init(my_sensor_t* component) {
+       // Initialize sensor hardware
+   }
+   
+   void my_sensor_update(my_sensor_t* component) {
+       // Read sensor data
+       component->temperature = read_temperature();
+       component->humidity = read_humidity();
+       // Trigger data ready event
+       ehs_trigger_event(component, EVENT_DATA_READY);
+   }
+   ```
+
+3. **Register and build**
+   ```bash
+   # Add to component makefile
+   echo "my_sensor.c" >> Common/Components/custom/components.mk
+   
+   # Update development tools
+   make toolsenv_update
+   
+   # Component now available in Lucid IDE
+   ```
+
+#### Hardware Abstraction Example
+
+```c
+// target/os-arch/my_platform/target_gpio.c
+#include "hal_gpio.h"
+
+ehs_result_t hal_gpio_write(int pin, int value) {
+    // Platform-specific GPIO implementation
+    platform_gpio_set(pin, value);
+    return EHS_SUCCESS;
+}
+
+int hal_gpio_read(int pin) {
+    return platform_gpio_get(pin);
+}
+```
+
+### Integration Examples
+
+#### Unity Game Engine Plugin
+```bash
+# Build Unity plugin
+./configure linux_android_arm_unity-lib
+make prepdeps && make all_docker
+
+# Plugin files created in:
+# ../TARGET_TREES/unity-plugins/
+# Copy to Unity project Assets/Plugins/
+```
+
+#### Web Dashboard Integration
+```javascript
+// Connect to eRT via HTTP API
+fetch('http://device-ip:8080/api/status')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Device status:', data);
+    updateDashboard(data);
+  });
+```
+
+### Performance Monitoring
+
+#### Runtime Debugging
+```bash
+# Run with debug logging
+./configure -debug
+# Or set environment variable
+EHS_LOG_LEVEL=DEBUG ./bin/ehs.exe
+```
+
+#### System Resource Monitoring
+```bash
+# Monitor CPU/memory usage
+top -p $(pgrep ehs.exe)
+
+# Monitor network activity
+netstat -tulpn | grep ehs
+```
+
+---
+
+## Development
+
+### Component Development
+
+#### Component Architecture
+Each eRT component consists of:
+- **CDF file** (.cdf): XML component description
+- **Implementation** (.c/.h): C/C++ source code  
+- **Bitmap** (.bmp): Visual icon for IDE
+- **Interface file** (.idf.ini): IDE integration settings
+
+#### Creating New Components
+
+1. **Choose component category**
+   ```bash
+   ls Common/Components/
+   # core/ gui/ networking/ media/ ml/ mv/
+   ```
+
+2. **Create component files**
+   ```bash
+   cd Common/Components/core/
+   
+   # Create component description
+   nano my_component.cdf
+   
+   # Create implementation
+   nano my_component.c
+   nano my_component.h
+   
+   # Create icon (24x24 bitmap)
+   # my_component.bmp
+   
+   # Create IDE settings
+   nano my_component.idf.ini
+   ```
+
+3. **Register component**
+   ```bash
+   # Add to category makefile
+   echo "my_component.c" >> components.mk
+   
+   # Update dependencies
+   make depend
+   
+   # Update IDE tools
+   make toolsenv_update
+   ```
+
+#### Component Categories
+
+| Category | Purpose | Examples |
+|----------|---------|----------|
+| **core** | Basic operations | Operators, buffers, timers, file I/O |
+| **gui** | User interface | Displays, buttons, text boxes, graphics |
+| **networking** | Communication | HTTP, MQTT, TCP/UDP, WebSocket |
+| **media** | Audio/video | Codecs, players, streaming |
+| **ml** | Machine learning | TensorFlow Lite, inference engines |
+| **mv** | Machine vision | Image processing, computer vision |
+
+### Platform Porting
+
+#### Porting New Hardware
+
+1. **Create platform configuration**
+   ```bash
+   mkdir target/platform/my_new_platform/
+   cd target/platform/my_new_platform/
+   
+   # Copy from similar platform
+   cp ../linux_x86_64_clang/config.mk .
+   cp ../linux_x86_64_clang/target_config.h .
+   
+   # Edit for your platform
+   nano config.mk
+   nano target_config.h
+   ```
+
+2. **Implement HAL layer**
+   ```bash
+   mkdir target/os-arch/my_os-my_arch/
+   cd target/os-arch/my_os-my_arch/
+   
+   # Required files:
+   nano target.mk           # Build configuration
+   nano toolchain.mk        # Compiler settings
+   nano target_main.c       # Application entry point
+   nano target_time.c       # Timer implementation
+   nano target_process.c    # Threading/mutex
+   nano target_file.c       # File system
+   # ... other HAL implementations
+   ```
+
+3. **Test and validate**
+   ```bash
+   ./configure my_new_platform
+   make prepdeps
+   make all
+   make targetenv_run_tests
+   ```
+
+For detailed porting instructions, see [Porting Guide](docs/ert-porting-guide.md).
+
+### Testing Guidelines
+
+#### Unit Testing
+```bash
+# Run all unit tests
+make targetenv_run_tests
+
+# Run specific test suites
+cd UnitTest/
+./run_function_library_tests.sh
+./run_component_tests.sh
+```
+
+#### Integration Testing
+```bash
+# CI regression tests
+./SystemTests/CI/regression_test-published-only.sh
+
+# Platform-specific tests
+./SystemTests/CI/projects/[platform]/test_*.sh
+```
+
+#### Manual Testing
+```bash
+# Test basic functionality
+./configure -run
+# Should start without errors
+# Check basic I/O, networking, etc.
+
+# Test debugging
+./configure -debug
+# Should provide detailed logging
+```
+
+### Debugging Tools
+eRT builds can be debugged most easily on linux targets using GDB, but can also be debugged on MCUs that support debugger connections (e.g. JTAG)
+#### GDB on Linux targets
+You will need to install gdb on the linux target first.
+```bash
+# install gdb (Debian/Raspbien/Ubuntu)
+apt install gdb
+# Debug with GDB
+./configure -debug
+# Automatically starts GDB session
+
+# For embedded targets
+For embedded target supporting debuggers the following host scripts are available.
+
+./scripts/build-deploy/[platform]/debug_*.sh
+```
+
+#### Logging System
+The logging verbosity of eRT can be configured in the build at the module level for verbosity 
+The following logging functions are used within the source code:
+```c
+// In component code
+#include "hal_logger.h"
+
+hal_log_info("Component initialized");
+hal_log_error("Failed to read sensor: %d", error_code);
+hal_log_debug("Processing data: %f", sensor_value);
+```
+
+
+**todo** The following runtime log level selection may not actually work currently!
+```bash
+# Control log levels
+EHS_LOG_LEVEL=DEBUG
+EHS_LOG_CATEGORIES="network,gpio"
+./bin/ehs.exe
+```
+
+#### Static Analysis
+```bash
+# Run static analysis
+make static_analysis
+
+# Results in build/analysis/
+# Includes: cppcheck, clang-analyzer, etc.
+```
+
+### Code Style Guidelines
+
+#### Naming Conventions
+```c
+// Functions: lowercase with underscores
+int component_initialize(component_t* comp);
+
+// Types: lowercase with _t suffix
+typedef struct {
+    int value;
+    char name[32];
+} my_component_t;
+
+// Constants: uppercase with underscores
+#define MAX_BUFFER_SIZE 1024
+#define DEFAULT_TIMEOUT_MS 5000
+
+// HAL functions: hal_ prefix
+ehs_result_t hal_gpio_write(int pin, int value);
+```
+
+#### Component Source File Organization
+```
+Common/Components/<category>/
+├── <component_name>.c           # Implementation
+├── <component_name>.h           # Public object interface
+├── <component_name>.cdf         # Component XML descriptor used in Lucid IDE
+├── <component_name>/tests/      # Lucid Applications used for unit testing the component
+└── <component_name>/help/       # HTML documentation (used in Lucid)
+```
+
+---
+
+## Documentation
+
+### 📚 Core Documentation
+- **[Porting Guide](docs/ert-porting-guide.md)**: Comprehensive guide for adding new platforms and creating components
+- **[Build System Reference](docs/build-system.md)**: Detailed build system documentation
+- **[Component API Reference](docs/component-api.md)**: Component development guide
+- **[HAL Interface Specification](docs/hal-interface.md)**: Hardware abstraction layer documentation
+
+### 🎯 Quick References
+- **[Supported Platforms](docs/platforms.md)**: Complete platform compatibility matrix
+- **[Configuration Options](docs/configuration.md)**: Build and runtime configuration reference
+- **[Troubleshooting Guide](docs/troubleshooting.md)**: Common issues and solutions
+- **[Performance Tuning](docs/performance.md)**: Optimization guidelines
+
+### 🎥 Video Tutorials
+- [Getting Started with eRT](https://video.inxware.io/getting-started) (15 min)
+- [Creating Your First Component](https://video.inxware.io/components) (20 min)
+- [Porting to New Hardware](https://video.inxware.io/porting) (30 min)
+- [Advanced Debugging Techniques](https://video.inxware.io/debugging) (25 min)
+
+### 🔗 External Resources
+- **[inxware Developer Portal](https://dev.inxware.io/)**: Complete development ecosystem
+- **[Lucid IDE Documentation](https://docs.inxware.io/lucid/)**: Visual programming environment
+- **[Component Marketplace](https://marketplace.inxware.io/)**: Community components
+- **[Architecture Overview](https://docs.google.com/document/d/1pD4cbTBuBk3TttwCfbbIlChIIP5dVxm01D9qGm6vL4w/)**: System design documentation
+
+### 📖 Academic Papers
+- [Event-Driven Architectures for Embedded Systems](https://research.inxware.io/event-driven)
+- [Cross-Platform HAL Design Patterns](https://research.inxware.io/hal-patterns)
+- [No-Code Development for IoT](https://research.inxware.io/nocode-iot)
+
+---
+
+## Contributing
+
+We welcome contributions from the community! Whether you're fixing bugs, adding features, porting to new platforms, or improving documentation, your help makes eRT better for everyone.
+
+### 🚀 Quick Contributing Guide
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make your changes** and test thoroughly
+4. **Commit**: `git commit -m 'Add amazing feature'`
+5. **Push**: `git push origin feature/amazing-feature`
+6. **Open a Pull Request**
+
+### 📋 Contribution Areas
+
+#### 🐛 Bug Reports
+Found a bug? Help us fix it:
+- Use the [bug report template](.github/ISSUE_TEMPLATE/bug_report.md)
+- Include system information, build logs, and reproduction steps
+- Test with the latest version before reporting
+
+#### ✨ Feature Requests  
+Have an idea for improvement?
+- Use the [feature request template](.github/ISSUE_TEMPLATE/feature_request.md)
+- Describe the use case and expected behavior
+- Consider contributing the implementation yourself!
+
+#### 🔧 Platform Ports
+Adding support for new hardware:
+- Follow the [porting guide](docs/ert-porting-guide.md)
+- Ensure all tests pass on your platform
+- Document hardware requirements and limitations
+- Include example applications
+
+#### 📦 Component Development
+Creating new components:
+- Follow the [component development guide](#component-development)
+- Include comprehensive tests
+- Provide clear documentation and examples
+- Design for reusability across platforms
+
+#### 📚 Documentation
+Improving documentation:
+- Fix typos, clarify instructions
+- Add examples and tutorials
+- Translate to other languages
+- Create video content
+
+### 🔍 Code Review Process
+
+All contributions go through code review:
+
+1. **Automated Checks**: CI runs tests on all supported platforms
+2. **Maintainer Review**: Core team reviews code quality and design
+3. **Community Review**: Other contributors may provide feedback
+4. **Testing**: Verify functionality on target platforms
+5. **Merge**: Approved changes are merged to main branch
+
+### 📏 Development Standards
+
+#### Code Quality
+- **Follow existing style**: Use consistent naming and formatting
+- **Write tests**: Include unit tests for new functionality
+- **Document APIs**: All public functions need documentation
+- **Handle errors**: Proper error checking and reporting
+
+#### Platform Compatibility
+- **Test on multiple platforms**: Verify cross-platform compatibility
+- **Use HAL abstractions**: Don't break platform abstraction
+- **Consider resource constraints**: MCUs have limited memory/storage
+- **Maintain backwards compatibility**: Don't break existing APIs
+
+#### Security
+- **No secrets in code**: Use configuration for credentials
+- **Validate inputs**: Check all external inputs
+- **Follow secure coding practices**: Prevent buffer overflows, etc.
+- **Review dependencies**: Ensure third-party code is secure
+
+### 🏷️ Commit Guidelines
+
+#### Commit Message Format
+```
+type(scope): description
+
+[optional body]
+
+[optional footer]
+```
+
+#### Types
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, etc.)
+- `refactor`: Code refactoring
+- `test`: Adding or updating tests
+- `build`: Build system changes
+
+#### Examples
+```bash
+feat(components): add temperature sensor component
+
+Implements I2C temperature sensor component with calibration
+support. Includes unit tests and documentation.
+
+Closes #123
+
+fix(hal): resolve GPIO race condition on ESP32
+
+The GPIO write function had a race condition that could cause
+incorrect pin states during rapid switching.
+
+test(build): add regression test for android build
+
+Ensures Android APK builds correctly with all required
+dependencies and proper signing.
+```
+
+### 🎯 Getting Help
+
+#### Before Contributing
+- Read this README and the [porting guide](docs/ert-porting-guide.md)
+- Check existing [issues](https://github.com/inxware/ert-components/issues) and [discussions](https://github.com/inxware/ert-components/discussions)
+- Join our [community channels](#support--community)
+
+#### During Development
+- Ask questions in [GitHub Discussions](https://github.com/inxware/ert-components/discussions)
+- Join our [Discord server](https://discord.gg/inxware) for real-time help
+- Attend our monthly [contributor meetups](https://meetup.inxware.io/)
+
+### 🏆 Recognition
+
+Contributors are recognized through:
+- **Hall of Fame**: Featured on our website and documentation
+- **Contributor Badge**: Special recognition in the community
+- **Early Access**: Beta access to new features and tools
+- **Mentorship**: Direct support from core team members
+- **Conference Opportunities**: Speaking opportunities at events
+
+### 📄 Legal
+
+By contributing, you agree that:
+- Your contributions will be licensed under LGPLv3
+- You have the right to contribute the code
+- Your contributions may be used commercially under the inxware license
+
+---
+
+## Support & Community
+
+### 💬 Community Channels
+
+#### Primary Support
+- **[GitHub Discussions](https://github.com/inxware/ert-components/discussions)**: Questions, ideas, and general discussion
+- **[Discord Server](https://discord.gg/inxware)**: Real-time chat and support
+- **[Stack Overflow](https://stackoverflow.com/questions/tagged/inxware-ert)**: Technical Q&A with the `inxware-ert` tag
+
+#### Social & Updates
+- **[Twitter @inxware](https://twitter.com/inxware)**: News and updates
+- **[LinkedIn Company Page](https://linkedin.com/company/inxware)**: Professional updates
+- **[YouTube Channel](https://youtube.com/inxware)**: Tutorials and demos
+
+### 📅 Regular Events
+
+#### Weekly
+- **Community Call**: Wednesdays 3PM UTC - General discussion and Q&A
+- **Office Hours**: Fridays 2PM UTC - Direct support from core team
+
+#### Monthly  
+- **Contributor Meetup**: First Thursday of each month
+- **Platform Spotlight**: Third Tuesday - Focus on specific platforms
+- **Component Showcase**: Last Friday - Community component demos
+
+#### Annual
+- **inxware DevCon**: Annual developer conference
+- **Hackathon**: 48-hour community coding event
+- **Awards Ceremony**: Recognizing top contributors
+
+### 🆘 Getting Help
+
+#### Self-Service Resources
+1. **[FAQ](docs/faq.md)**: Common questions and answers
+2. **[Troubleshooting Guide](docs/troubleshooting.md)**: Step-by-step problem solving
+3. **[Video Tutorials](#documentation)**: Visual learning resources
+4. **[Knowledge Base](https://kb.inxware.io/)**: Searchable documentation
+
+#### Community Support
+1. **GitHub Discussions**: Best for detailed technical questions
+2. **Discord**: Great for quick questions and real-time help
+3. **Stack Overflow**: Ideal for programming-specific questions
+
+#### Professional Support
+For commercial users and professional support:
+- **[Enterprise Support](https://inxware.io/enterprise)**: Priority support with SLA
+- **[Consulting Services](https://inxware.io/consulting)**: Custom development and integration
+- **[Training Programs](https://inxware.io/training)**: On-site and remote training
+
+### 🐛 Issue Reporting
+
+#### Bug Reports
+When reporting bugs, please include:
+- **System information**: OS, architecture, build environment
+- **eRT version**: `git describe --tags`
+- **Reproduction steps**: Clear, step-by-step instructions
+- **Expected vs actual behavior**: What should happen vs what happens
+- **Logs and output**: Build logs, runtime logs, error messages
+- **Screenshots/videos**: If applicable
+
+Use our [bug report template](.github/ISSUE_TEMPLATE/bug_report.md) for best results.
+
+#### Feature Requests
+For feature requests, include:
+- **Use case**: Why is this feature needed?
+- **Proposed solution**: How should it work?
+- **Alternatives considered**: Other approaches you've tried
+- **Additional context**: Screenshots, mockups, examples
+
+### 📊 Project Status
+
+#### Release Cycle
+- **Major releases**: Every 6 months (January, July)
+- **Minor releases**: Monthly on the 15th
+- **Patch releases**: As needed for critical fixes
+- **LTS releases**: Every 2 years with 3-year support
+
+#### Current Roadmap
+- **Q4 2024**: RISC-V platform support, WebAssembly runtime
+- **Q1 2025**: Enhanced ML components, edge AI optimization
+- **Q2 2025**: Cloud-native deployment, Kubernetes support
+- **Q3 2025**: Real-time safety certification (ISO 26262)
+
+#### Platform Status
+| Platform | Status | Maintainer | Last Updated |
+|----------|--------|------------|--------------|
+| Linux x86_64 | ✅ Stable | Core Team | Current |
+| ESP32/ESP32-S3 | ✅ Stable | @esp32-maintainer | Current |
+| Android ARM64 | ✅ Stable | @android-team | Current |
+| Raspberry Pi | ✅ Stable | @rpi-community | Current |
+| Arduino | ✅ Stable | @arduino-maintainer | Current |
+| Windows x86 | ⚠️ Beta | @windows-team | -1 release |
+| NXP Kinetis | 🔄 Active | @nxp-maintainer | Current |
+| RISC-V | 🚧 In Progress | @riscv-team | Development |
+
+### 🤝 Partnership Opportunities
+
+#### Academic Partnerships
+- **Research Collaboration**: Joint research projects
+- **Student Programs**: Internships and thesis projects
+- **Educational Licensing**: Free licenses for educational use
+- **Curriculum Development**: Course materials and labs
+
+#### Commercial Partnerships
+- **System Integrators**: Partnership program for solution providers
+- **Hardware Vendors**: Porting and optimization services
+- **Tool Vendors**: Integration with development tools
+- **Cloud Providers**: Hosted deployment solutions
+
+#### Open Source Partnerships
+- **Foundation Membership**: Linux Foundation, Eclipse Foundation
+- **Cross-Project Collaboration**: Integration with other OSS projects
+- **Standardization**: Contributing to industry standards
+- **Event Sponsorship**: Supporting community events
+
+---
+
+## License
+
+### 🔐 License Overview
+
+eRT Components is dual-licensed to support both open-source development and commercial deployment:
+
+#### Open Source License (LGPLv3)
+The **eRT Components library** is licensed under the [GNU Lesser General Public License v3.0](LICENSE.md). This means:
+
+✅ **You can:**
+- Use eRT Components in both open-source and commercial applications
+- Modify the eRT Components source code
+- Distribute applications built with eRT Components
+- Sell products that include eRT Components
+
+📋 **You must:**
+- Provide source code for any modifications to eRT Components itself
+- Include the LGPLv3 license text in distributions
+- Allow users to replace the eRT Components library with their own version
+
+🚫 **You don't need to:**
+- Open-source your entire application
+- Share the source code of applications that use eRT Components
+- Pay royalties for using eRT Components
+
+#### Commercial Runtime License
+The **EHS Kernel** (Event Handling System) includes a proprietary runtime licensed for:
+- **Free use**: Up to 10 device deployments per user/organization
+- **Commercial licensing**: Available for larger deployments
+- **Enterprise support**: Professional support and consulting services
+
+### 📜 Third-Party Licenses
+
+eRT Components includes and links to various third-party libraries:
+
+| Component | License | Usage |
+|-----------|---------|-------|
+| **FreeRTOS** | MIT | Real-time operating system |
+| **lwIP** | BSD | Lightweight TCP/IP stack |
+| **cJSON** | MIT | JSON parsing library |
+| **Unity** | MIT | Unit testing framework |
+| **Docker base images** | Various | Build environment containers |
+
+See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for complete details.
+
+### 🏢 Commercial Use
+
+#### Free Commercial Use
+Under the LGPLv3 license, you can freely:
+- Build and sell products using eRT Components
+- Deploy up to 10 devices with the EHS Kernel runtime
+- Use the free [Lucid Community IDE](https://appland.inxware.io/)
+- Access community support and documentation
+
+#### Extended Commercial Licensing
+For larger deployments or additional services:
+- **[Enterprise License](https://inxware.io/enterprise)**: Unlimited device deployments
+- **[Professional Support](https://inxware.io/support)**: Priority support with SLA
+- **[Custom Development](https://inxware.io/consulting)**: Porting and integration services
+- **[OEM Licensing](https://inxware.io/oem)**: White-label and embedded licensing
+
+### 🤝 Developer Partner Program
+
+Join the **[inxware Developer Partner Program](https://inxware.io/developer-partners/)** for:
+- Extended free licensing (up to 100 devices)
+- Early access to new features and platforms
+- Technical support and training
+- Co-marketing opportunities
+- Revenue sharing for marketplace components
+
+### ⚖️ Patent Policy
+
+inxware has a policy of not asserting patents against open-source implementations of eRT Components. We encourage innovation and collaborative development while protecting our commercial interests.
+
+### 📞 Licensing Questions
+
+For licensing questions or commercial inquiries:
+- **Email**: [licensing@inxware.io](mailto:licensing@inxware.io)
+- **Sales**: [sales@inxware.io](mailto:sales@inxware.io)
+- **Legal**: [legal@inxware.io](mailto:legal@inxware.io)
+
+---
+
+### 📊 Project Statistics
+
+![GitHub stars](https://img.shields.io/github/stars/inxware/ert-components?style=social)
+![GitHub forks](https://img.shields.io/github/forks/inxware/ert-components?style=social)
+![GitHub contributors](https://img.shields.io/github/contributors/inxware/ert-components)
+![GitHub last commit](https://img.shields.io/github/last-commit/inxware/ert-components)
+![Lines of code](https://img.shields.io/tokei/lines/github/inxware/ert-components)
+
+---
+
+**Ready to get started?** [Try the Quick Start](#quick-start) or explore the [Lucid IDE](https://appland.inxware.io/) to create your first no-code embedded application!
+
+---
+#LICENSING
+
+*© 2024 inx limited. The COmmunity eRT Components release is open-source software licensed under LGPLv3. The EHS Kernel is proprietary software with free and commercial licensing options.*

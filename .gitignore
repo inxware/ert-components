@@ -1,3 +1,4 @@
+*:Zone.Identifier
 .idea
 .vscode
 .settings
@@ -9,7 +10,7 @@
 *.so
 *.class
 *.exe
-#*.a
+*.a
 *.d
 *.elf
 
@@ -132,3 +133,16 @@ dkms.conf
 .vscode/dryrun.log
 .vscode/configurationCache.log
 /.metadata/
+
+# NSIS download cache directory
+/.cache
+/out.txt
+alllogs.log
+
+.git_renamed/*
+.git_renamed
+output.txt
+gdb.txt
+
+#build & deploy spam
+./output.txt
