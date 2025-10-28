@@ -9,7 +9,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-#include "target_types.h"
+#include "globals.h"
 
 // Define this to fully sandbox nanoprintf inside of a translation unit.
 #ifdef NANOPRINTF_VISIBILITY_STATIC

@@ -270,22 +270,22 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getInfo)
         while (EhsFgets(returndata,EHS_STRING_LENGTH_MAX,infofile) != NULL)
         {
 
-            if (element_start = Ehs_ReadXMLTag(returndata, EHS_SYS_APP_INFO_XMLTAG_NAME))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHS_SYS_APP_INFO_XMLTAG_NAME)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsStrcpy(cName,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHS_SYS_APP_INFO_XMLTAG_COMM_NAME))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHS_SYS_APP_INFO_XMLTAG_COMM_NAME)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsStrcpy(cCommercialName,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHS_SYS_APP_INFO_XMLTAG_VERSION))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHS_SYS_APP_INFO_XMLTAG_VERSION)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsStrcpy(cVersion,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(returndata, EHS_SYS_APP_INFO_XMLTAG_DESCRIPTION))
+            if ((element_start = Ehs_ReadXMLTag(returndata, EHS_SYS_APP_INFO_XMLTAG_DESCRIPTION)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsStrcpy(cDescription,element_cropped);
@@ -319,7 +319,7 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getInfo)
 EHS_FB_DESTROY_FUNCTION(application_info_getter)
 {
     inx_application_info_getter_state_type *inx_application_info_getter_state = (inx_application_info_getter_state_type*)EHS_FB_DESTROY_CONTEXT;
-    //Your code below here
+    return EHS_TRUE;
 }//ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION getList MACRO END -- DO NOT ALTER
 //ICB FUNCTION setDefault MACRO START -- DO NOT ALTER

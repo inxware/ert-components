@@ -14,15 +14,12 @@
  *
  */
 
-
 #ifndef _EHS_HAL_GPIO_H
 #define _EHS_HAL_GPIO_H
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
-
-
+#include "globals.h"
 
 /*Define types*/
 

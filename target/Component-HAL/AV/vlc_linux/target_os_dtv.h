@@ -11,6 +11,8 @@
 
 
 #include <X11/Xlib.h>
+
+#include "globals.h"
 #include "hal_dtv.h"
 
 #ifdef EHS_THIS_ISNTDONE_IN_COMMON

@@ -36,13 +36,12 @@
 #ifndef EHS_ANDROID
 #include "ifaddrs.h"
 #endif
-
+#include "globals.h"
 #include "targetos_init.h"
 #include "callback_queue.h"
 #include "blockref_table.h"
 #include "hal_process.h"
-//#include "console_server.h"
-#include "ehs_types.h"
+
 /* OS Headers */
 #include "unistd.h"
 
@@ -890,23 +889,23 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
             ehs_uint64 New_sysTimeUsed;// = Last_sysTimeUsed;
 #ifndef EHS_ANDROID
 // Debian seems to fit this format (not the above)
-            scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*ld %*ld %*llu %*lu %lu"
+            scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %llu %llu %*ld %*ld %*ld %*ld %*ld %*ld %*llu %*llu %llu"
                 ,&New_userTimeUsed,&New_sysTimeUsed,&ram_usage);
 #else 
 // as specification above
-            scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*llu %*lu %lu"
+            scanOK = EhsFscanf(procfile,"%*d %*s %*c %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %llu %llu %*ld %*ld %*ld %*ld %*llu %*llu %llu"
                 ,&New_userTimeUsed,&New_sysTimeUsed,&ram_usage);
 #endif
 
             EhsFclose(procfile);
-            printf("scanOK=%d=%d(EHS_EOF), CPU-U=%d, CPU-S=%d, RAM = %d:",
+            printf("scanOK=%d=%d(EHS_EOF), CPU-U=%llu, CPU-S=%llu, RAM = %llu:",
                 scanOK,EHS_EOF,Last_userTimeUsed,Last_sysTimeUsed,ram_usage);
             
             if (scanOK > 0) ret =EHS_TRUE;    
             if (New_userTimeUsed > 0 || New_sysTimeUsed > 0 ) {
                 cpu_usage = ((New_userTimeUsed - Last_userTimeUsed) + (New_sysTimeUsed - Last_sysTimeUsed )); // ms of CPU usage since last
             }
-            EHSH_LOG_ERROR("[cpu time in ticks = %d (tick=%u)]",cpu_usage,sysconf(_SC_CLK_TCK));
+            EHSH_LOG_ERROR("[cpu time in ticks = %ld (tick=%ld)]",cpu_usage,sysconf(_SC_CLK_TCK));
             if (ms_elapsed > 100)
             {
                 *cpu_usage_percent = 

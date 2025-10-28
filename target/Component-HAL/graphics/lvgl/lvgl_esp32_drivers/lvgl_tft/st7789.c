@@ -116,7 +116,7 @@ void st7789_init(void)
     st7789_send_cmd(ST7789_SWRESET);
 #endif
 
-    printf("ST7789 initialization.\n");
+    //printf("ST7789 initialization.\n");
 
     //Send all the commands
     uint16_t cmd = 0;

@@ -136,6 +136,7 @@ EHS_FB_DESTROY_FUNCTION(TFLM)
 	inx_TFLM_state_type* inx_TFLM_state = (inx_TFLM_state_type*)EHS_FB_DESTROY_CONTEXT;
 	EhsHMem_tempFree(inx_TFLM_state->K);
 	EhsHMem_tempFree(inx_TFLM_state->SV);
+	return EHS_TRUE;
 }
 // ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER
 

@@ -37,13 +37,13 @@ typedef struct
 #define EHS_FB_NAME_EventCounterVersatile "EventCounterVersatile"
 #define EHS_FB_ID_EventCounterVersatile 0x7203
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(EventCounterVersatile);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(EventCounterVersatile);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile_Reset);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile_Start);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile_Count);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile_Decrement);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile_Stop);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(EventCounterVersatile);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(EventCounterVersatile);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile_Reset);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile_Start);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile_Count);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile_Decrement);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile_Stop);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(EventCounterVersatile)

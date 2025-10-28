@@ -11,11 +11,12 @@
    e.g. used for desktop use to develop apps with GPIO before HW is available
 */
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal_logger.h"
 #include "hal_gpio.h"
 #include "guiparams.h"
 #include "widget.h"
+
 #ifdef EHS_GUI_SUPPORT_MODE_B
 
 #include "target_viewport_modeB.h"

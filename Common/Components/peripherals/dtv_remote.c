@@ -19,16 +19,15 @@
  */
 //#@todo this file must be made a common code function
 
-#include "target.h"
+#include "globals.h"
 
 #ifdef EHS_TOOLKIT_DEPRECATED
-#include "dtv_remote.h"
-#include "dtv_remote1.h"
+ #include "dtv_remote.h"
+ #include "dtv_remote1.h"
 #endif
 
 #include "ehs_fb_types.h"
 #include "dtv_remote2.h"
-#include "globals.h"
 #include "fid.h"
 #include "callback_queue.h"
 #include "keypress.h"

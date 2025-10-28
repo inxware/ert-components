@@ -18,8 +18,8 @@
 /*****************************************************************************/
 /* Included files */
 
-#include "target_config.h" /* special include required before macro definitions */
-#include "ehs_types.h"
+#include "globals.h" /* special include required before macro definitions */
+
 
 /*****************************************************************************/
 /* Define macros  */

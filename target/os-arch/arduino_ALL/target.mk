@@ -21,12 +21,7 @@
 #EHS_NETWORKING_MQTT_CLIENT=stub
 #EHS_COMMS_API=NONE
 
-#For now we will stubb all file systems on ardino by default.
-ifndef EHS_FILESYSTEM_SUPPORT
-#ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
-	EHS_FILESYSTEM_SUPPORT=stubbed
-#endif
-endif
+include $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/config.mk
 
 # This will be changed with Arduino specific build in the future
 #ifndef EHS_COMMS_API_SUPPORT
@@ -36,7 +31,7 @@ endif
 
 EHS_MCU_TARGET=1
 
-EHS_SYSTEMEXEC_SUPPORT=none
+EHS_COMPONENTS_SYSTEMEXEC_SUPPORT=none
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
 
@@ -58,6 +53,7 @@ OBJECTS += target_process.$(OBJ)
 OBJECTS += targetos_init.$(OBJ)
 OBJECTS += target_main.$(OBJ) 
 OBJECTS += target_time.$(OBJ)
+
 ifdef EHS_COMPONENT_NETWORKING_SUPPORT
 ifneq ($(EHS_COMPONENT_NETWORKING_SUPPORT),stubbed)
 OBJECTS += target_network.$(OBJ)
@@ -75,3 +71,4 @@ LIB += misc
 
 #TODO2025  - Move to the component HAL
 OBJECTS += target_accel_gyro.$(OBJ)
+OBJECTS += target_display.$(OBJ)

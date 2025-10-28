@@ -6,10 +6,9 @@
  * Copyright (c), inx limited, 2007. All rights reserved.
  */
 
-#include "target.h"
 
-#include "dtv_diag.h"
 #include "globals.h"
+#include "dtv_diag.h"
 #include "setCompletes.h"
 
 EHS_FB_FUNCTIONS_START(DtvDiagStr)

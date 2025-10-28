@@ -20,10 +20,9 @@
 
 #define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_PROCESS
 
+#include "globals.h"
 #include "ehs_fb_types.h"
 #include "utils.h"
-#include "target.h"
-#include "globals.h"
 
 #include "messages.h"
 #include "app_data.h"
@@ -227,7 +226,7 @@ EhsICalcTokenInfoType *EhsICalcTokenInfo[] =
 const char* EhsICalcGetToken(const char* szInput, EhsICalcTokenInfoType **peToken);
 EhsICalcInputStateEnum EhsICalcValidateToken(EhsICalcTokenInfoType* eToken, EhsICalcInputStateEnum eState, const char* szContext);
 ehs_uint16 EhsICalcCountInstr(const char* szInput);
-EHS_GLOBAL ehs_uint32 EhsICalcWriteInstructionQueue(const char* szInput, EhsICalcEngContext* pContext);
+ehs_uint32 EhsICalcWriteInstructionQueue(const char* szInput, EhsICalcEngContext* pContext);
 
 /******************************************************************************/
 /******************************************************************************/

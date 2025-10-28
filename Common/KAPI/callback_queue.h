@@ -18,6 +18,7 @@
 #ifndef EHS_CALLBACK_QUEUE_H
 #define EHS_CALLBACK_QUEUE_H
 
+#include "globals.h"
 #include "ehs_fb_types.h"
 #include "fid.h"
 

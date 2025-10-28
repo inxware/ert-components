@@ -28,14 +28,14 @@
 #define EHS_FB_ID_gui_viewport 0x882D
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(gui_viewport);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(gui_viewport);
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(gui_viewport);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_viewport_create);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_viewport_destroy);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_viewport_show);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_viewport_hide);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_viewport_update);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(gui_viewport);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_viewport);
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(gui_viewport);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_viewport_create);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_viewport_destroy);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_viewport_show);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_viewport_hide);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_viewport_update);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_viewport)

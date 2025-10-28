@@ -17,7 +17,7 @@
 */
 
 #include <math.h>
-#include "target.h"
+#include "globals.h"
 #include "file.h"
 #include "setCompletes.h"
 
@@ -1461,7 +1461,7 @@ EHS_FB_RUN_FUNCTION(FILE_WriteOnly_Int_Write)
             nWidth--;   // subtract 1 from width to allow space for the sign of the integer value
             if( nWriteInt < 0 )    // force preceding sign for fixed width reasons.
             {
-                nWriteInt = fabs(nWriteInt);
+                nWriteInt = abs(nWriteInt);
                 cSign = '-';
             }
             else

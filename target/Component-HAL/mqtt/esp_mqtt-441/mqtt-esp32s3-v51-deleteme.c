@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-//#include "ehs_types.h"
+//#include "globals.h"
 
 /* esp32 mqtt support*/
 #include "mqtt_client.h"
@@ -182,27 +182,27 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     switch ((esp_mqtt_event_id_t)event_id)
     {
     case MQTT_EVENT_CONNECTED:
-        printf("MQTT msgid= %d event: %d. MQTT_EVENT_CONNECTED to: %s\n", event->msg_id, event->event_id, host);
+        //printf("MQTT msgid= %d event: %d. MQTT_EVENT_CONNECTED to: %s\n", event->msg_id, event->event_id, host);
         mqttSetGlobalState(MQTT_STATE_CONNECTED);
         EhsMQTTConnectEvent(true);
         break;
     case MQTT_EVENT_DISCONNECTED:
-        printf("MQTT event: %d. MQTT_EVENT_DISCONNECTED\n", event->event_id);
+        //printf("MQTT event: %d. MQTT_EVENT_DISCONNECTED\n", event->event_id);
         if (*bNewSodlFlagRef == EHS_TRUE) mqttSetGlobalState(MQTT_STATE_DISCONNECTED_NEW);
         else mqttSetGlobalState(MQTT_STATE_DISCONNECTED);
         EhsMQTTConnectEvent(false);
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
-        printf("MQTT_EVENT_SUBSCRIBED, msg_id=%d\n", event->msg_id);
+        //printf("MQTT_EVENT_SUBSCRIBED, msg_id=%d\n", event->msg_id);
         //   msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
         //     printf("sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
-        printf("MQTT_EVENT_UNSUBSCRIBED, msg_id=%d\n", event->msg_id);
+        //printf("MQTT_EVENT_UNSUBSCRIBED, msg_id=%d\n", event->msg_id);
         break;
     case MQTT_EVENT_PUBLISHED:
-        printf("MQTT_EVENT_PUBLISHED, msg_id=%d\n", event->msg_id);
+        //printf("MQTT_EVENT_PUBLISHED, msg_id=%d\n", event->msg_id);
         break;
     case MQTT_EVENT_DATA:
         temp_topic = malloc(sizeof(char) * (event->topic_len + 1));
@@ -213,10 +213,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
         break;
     case MQTT_EVENT_ERROR:
-        printf("MQTT_EVENT_ERROR\n");
+        //printf("MQTT_EVENT_ERROR\n");
         if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
         {
-            printf("Last error code reported from esp-tls: 0x%x\n", event->error_handle->esp_tls_last_esp_err);
+            //printf("Last error code reported from esp-tls: 0x%x\n", event->error_handle->esp_tls_last_esp_err);
             EhsSprintf(mqtt_error_msg_buffer, "tcp transport error : 0x%x", event->error_handle->esp_tls_last_esp_err);
             EhsMQTTReportError(mqtt_error_msg_buffer);
 
@@ -226,13 +226,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         }
         else if (event->error_handle->error_type == MQTT_ERROR_TYPE_CONNECTION_REFUSED)
         {
-            printf("Connection refused error: 0x%x\n", event->error_handle->connect_return_code);
+            //printf("Connection refused error: 0x%x\n", event->error_handle->connect_return_code);
             EhsSprintf(mqtt_error_msg_buffer, "connection refused error : 0x%x", event->error_handle->connect_return_code);
             EhsMQTTReportError(mqtt_error_msg_buffer);
         }
         else
         {
-            printf("Unknown error type: 0x%x\n", event->error_handle->error_type);
+            //printf("Unknown error type: 0x%x\n", event->error_handle->error_type);
             EhsSprintf(mqtt_error_msg_buffer, "unknown error : 0x%x", event->error_handle->error_type);
             EhsMQTTReportError(mqtt_error_msg_buffer);
         }
@@ -256,14 +256,14 @@ ehs_bool readAppFileIntoString(const char *filename, char **output)
     tempFile = Ehs_AppFopen(filename, "r");
     if (tempFile == NULL)
     {
-        printf("readAppFileIntoString: File does not exist or FS corrupted!\n");
+        //printf("readAppFileIntoString: File does not exist or FS corrupted!\n");
         return EHS_FALSE;
     }
     int Ffileno = fileno(tempFile);
     ret = fstat(Ffileno, &FileStat);
     if (ret == -1) 
     {
-        printf("fstat failed! fp: %p\n");
+        //printf("fstat failed! fp: %p\n");
         EhsFclose(tempFile);
         return EHS_FALSE;
     }
@@ -271,9 +271,9 @@ ehs_bool readAppFileIntoString(const char *filename, char **output)
     {
         if ( (*output = malloc((FileStat.st_size + 1) * sizeof(char) )) == NULL)
         {
-            printf("readAppFileIntoString: no enough heap left!\n");
+           // printf("readAppFileIntoString: no enough heap left!\n");
             heap_free = heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
-            printf("Heap left:\t%15d\nWant to use:\t%15d\n", heap_free, (FileStat.st_size + 1) * sizeof(char));
+           // printf("Heap left:\t%15d\nWant to use:\t%15d\n", heap_free, (FileStat.st_size + 1) * sizeof(char));
             EhsFclose(tempFile);
             return EHS_FALSE;
         }
@@ -282,9 +282,9 @@ ehs_bool readAppFileIntoString(const char *filename, char **output)
     {
         if ((*output = realloc(*output, (FileStat.st_size + 1) * sizeof(char))) == NULL)
         {
-            printf("readAppFileIntoString: no enough heap left!\n");
+           // printf("readAppFileIntoString: no enough heap left!\n");
             heap_free = heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
-            printf("Heap left:\t%15d\nWant to use:\t%15d\n", heap_free, (FileStat.st_size + 1) * sizeof(char));
+          //  printf("Heap left:\t%15d\nWant to use:\t%15d\n", heap_free, (FileStat.st_size + 1) * sizeof(char));
             EhsFclose(tempFile);
             return EHS_FALSE;
         }
@@ -292,7 +292,7 @@ ehs_bool readAppFileIntoString(const char *filename, char **output)
     readLen = EhsFread(*output, sizeof(char), FileStat.st_size, tempFile);
     if (ferror(tempFile) != 0)
     {
-        printf("readAppFileIntoString: Error reading file\n");
+      //  printf("readAppFileIntoString: Error reading file\n");
         EhsFclose(tempFile);
         return EHS_FALSE;
     }
@@ -304,7 +304,7 @@ ehs_bool readAppFileIntoString(const char *filename, char **output)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL void* EhsMqttClientLoop(void*)
+void* EhsMqttClientLoop(void*)
 {
     //mbedtls_esp_enable_debug_log();
     //esp_tls_debug_calltimes += 1;
@@ -329,7 +329,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
     {
 
     case MQTT_STATE_IDLE:
-        printf("MQTT_STATE_IDLE\n");
+       // printf("MQTT_STATE_IDLE\n");
         if (*bNewSodlFlagRef != EHS_TRUE)
         {
             mqttSetGlobalState(MQTT_STATE_INIT);
@@ -346,7 +346,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
         EhsMQTTConnectPoll(&connect, &host, &port, &gUseTLS, &clientid, &username, &password, &clientCertFileName, &clientKeyFileName, &rootCAFileName);
         if (connect && gMqttConnectionAttempts == 0)
         {
-            printf("Init connection init %s %i\n", host, port);
+           // printf("Init connection init %s %i\n", host, port);
 #ifdef USE_ESP32S3_LEGACY_API
             mqtt_cfg.host = host;
             mqtt_cfg.port = port;
@@ -366,7 +366,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
 #endif
             //mqtt_cfg.event_handle = mqtt_event_handler;
             if(gUseTLS==1){
-                printf("using tls mqtt\n\n");
+              //  printf("using tls mqtt\n\n");
                 
                 #ifndef MQTT_CERT_TEST
                 if(rootCAFileName && rootCAFileName[0] != '\0'){
@@ -385,7 +385,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
                         EhsMQTTReportError("failed to open ca cert");
                     }
                 }else{
-                    printf("CA Cert not specified.\n");
+                  //  printf("CA Cert not specified.\n");
                 }
                 #else
                 {
@@ -415,7 +415,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
                         EhsMQTTReportError("failed to open client cert");
                     }
                 }else{
-                    printf("Client Cert not specified.\n");
+                  //  printf("Client Cert not specified.\n");
                 }
                 #else 
                 {
@@ -445,7 +445,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
                       EhsMQTTReportError("failed to open client key");
                     }
                 }else{
-                    printf("Client Key not specified.\n");
+                   // printf("Client Key not specified.\n");
                 }
                 #else
                 {
@@ -579,7 +579,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
         break;
 
     case MQTT_STATE_DO_DISCONNECT:
-        printf("MQTT_STATE_DO_DISCONNECT\n");
+       // printf("MQTT_STATE_DO_DISCONNECT\n");
         esp_mqtt_client_destroy(client);
         mqttSetGlobalState(MQTT_STATE_IDLE);
         if (*bNewSodlFlagRef == EHS_TRUE) mqttSetGlobalState(MQTT_STATE_DISCONNECTED_NEW);
@@ -590,7 +590,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
         break;
 
     case MQTT_STATE_DISCONNECTED:
-        printf("MQTT_STATE_DISCONNECTED\n");
+      //  printf("MQTT_STATE_DISCONNECTED\n");
         EhsMQTTConnectPoll(&connect, &host, &port, &gUseTLS, &clientid, &username, &password, &clientCertFileName, &clientKeyFileName, &rootCAFileName);
         if (connect)
         {
@@ -609,7 +609,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
                 }
             }
         
-            printf("topic: %p, QoS: %p\n", topic_list, gQoS_list);
+           // printf("topic: %p, QoS: %p\n", topic_list, gQoS_list);
             if (topic_list != NULL)
             {
                 free(topic_list);
@@ -646,7 +646,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
         break;
 
     case MQTT_STATE_DISCONNECTED_NEW:
-        printf("MQTT_STATE_DISCONNECTED_NEW\n");
+      //  printf("MQTT_STATE_DISCONNECTED_NEW\n");
         gSubsribeAgain = EHS_FALSE;
         for (i = 0; i < topic_count; i++)
         {
@@ -658,7 +658,7 @@ EHS_GLOBAL void* EhsMqttClientLoop(void*)
             }
         }
 
-        printf("topic: %p, QoS: %p\n", topic_list, gQoS_list);
+      //  printf("topic: %p, QoS: %p\n", topic_list, gQoS_list);
         if (topic_list != NULL)
         {
             free(topic_list);

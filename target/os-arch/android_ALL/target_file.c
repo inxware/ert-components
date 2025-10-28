@@ -8,7 +8,7 @@
 
 #include "../gnu_ALL/target_file.c"
 #include "hal_file.h"
-#include "target_file.h"
+//#include "target_file.h"
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_FILE
 

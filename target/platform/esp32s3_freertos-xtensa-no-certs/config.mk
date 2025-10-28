@@ -30,15 +30,15 @@ DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
 # Disable esp logger
 DEFS += EHS_ESP32_DISABLE_LOGS=1
 
-EHS_WIFI_SUPPORT=yes
+EHS_NETWORK_WIFI_SUPPORT=yes
 # Maximum wi-fi SSID records buffer size
 DEFS += ESP32_MAX_AP_RECORDS=40
 
 # OTA is not supported for the community at the moment
-EHS_OTA_SUPPORT=stubbed
+#EHS_OTA_SUPPORT=stubbed
 
-# Enable linked-list based memory allocator managment in the hal_mem
-#EHS_MEMORY_MANAGMENT=yes
+# Disable linked-list based memory allocator managment in the hal_mem
+#EHS_MEMORY_MANAGMENT=none
 
 EHS_DEFAULT_APP=tutorials/hello_world
 

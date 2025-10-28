@@ -17,6 +17,10 @@
 #ifndef EHS_TARGET_SPECIFIC_H
 #define EHS_TARGET_SPECIFIC_H
 
+#ifndef EHS_GLOBALS_H
+#error "This file should only be included by globals.h" 
+#endif
+
 #include <stdlib.h> /* required for malloc, exit */
 
 
@@ -46,7 +50,7 @@
  * @param nAngle angle to find (0 to 360)
  * @return nMult * sin(nAngle % 360)
  */
-EHS_GLOBAL ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
+ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
 /**
  * Performs cosine function using integers.
  *
@@ -54,10 +58,10 @@ EHS_GLOBAL ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
  * @param nAngle angle to find (0 to 360)
  * @return nMult * cos(nAngle % 360)
  */
-EHS_GLOBAL ehs_sint32 EhsTgtInt_cos(ehs_sint32 nMult, ehs_sint32 nAngle);
+ehs_sint32 EhsTgtInt_cos(ehs_sint32 nMult, ehs_sint32 nAngle);
 
-EHS_GLOBAL ehs_float EhsTgtFloat_log10(ehs_float);
-EHS_GLOBAL ehs_float EhsTgtFloat_loge(ehs_float);
+ehs_float EhsTgtFloat_log10(ehs_float);
+ehs_float EhsTgtFloat_loge(ehs_float);
 
 #ifdef EHS_TARGET_CODE
 /**
@@ -66,7 +70,7 @@ EHS_GLOBAL ehs_float EhsTgtFloat_loge(ehs_float);
  * @param[in] bUniqueCheck If true, check to ensure that this is the only instance that currently
  * holds the shared memory.
  */
-EHS_GLOBAL void EhsTargetInitSharedMemory(ehs_bool bUniqueCheck);
+void EhsTargetInitSharedMemory(ehs_bool bUniqueCheck);
 
 #endif /* EHS_TARGET_CODE */
 

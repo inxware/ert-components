@@ -43,11 +43,3 @@ ERT_FLASH_NUKE_FILE_DIR=../ert-build-support/toolchains/x86_64/rp2040tools
 test -f ${ERT_FLASH_NUKE_FILE_DIR}/flash_nuke.uf2 && cp ${ERT_FLASH_NUKE_FILE_DIR}/flash_nuke.uf2 ${ERT_ARDUINO_BIN}/flash_nuke.uf2
 
 fi
-
-if [ "${FLASH_BOARD}" = "1" ]; then
-echo "Flashing ..."
-arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:mbed_nano:nanorp2040connect --verbose ${ERT_ARDUINO_PROJECT_PATH}
-fi
-
-echo "---------------------------------------------------------------------------------------------------------------------------"
-echo "All Done!"

@@ -33,11 +33,10 @@
  * If the directory changes then the process starts from the first entry identified in the new directory.
  */
 
-#include "target.h"
-
-#include "fs_dir_create_remove.h"
 
 #include "globals.h"
+#include "fs_dir_create_remove.h"
+
 #include "setCompletes.h"
 #include "app_data.h"
 #include "hal-api.h"

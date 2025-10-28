@@ -30,7 +30,7 @@
 
 //#define EHSHL_MODULE_ID EHSH_LOG_MODULE_HAL_FILE
 
-
+#include "globals.h"
 #include "hal_configs.h"
 #include "hal-api.h"
 

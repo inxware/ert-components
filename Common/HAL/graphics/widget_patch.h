@@ -18,7 +18,6 @@
 #ifndef EHS_WIDGETPATCH_H
 #define EHS_WIDGETPATCH_H
 
-#include "ehs_types.h"
 #include "globals.h"
 #include "graphics.h"
 

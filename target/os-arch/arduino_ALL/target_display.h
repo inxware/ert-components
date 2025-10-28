@@ -1,7 +1,7 @@
 #ifndef _TARGET_DISPLAY_H_ 
 #define _TARGET_DISPLAY_H_ 
 
-#include "target_types.h"
+#include "globals.h"
 
 void target_setBacklight(ehs_sint32 intensity);
 

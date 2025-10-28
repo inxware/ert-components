@@ -37,12 +37,11 @@
 #include <stdio.h>
 #include "globals.h"
 //#include "target_config.h"
-//#include "target_types.h"
+//#include "globals.h"
 /*****************************************************************************/
 /* Define macros  */
 
 #define EHS_TARGET_FILE_SKIP_STAT yes
-
 
 
 /* If we want to use the super small flash file system durectory free files

@@ -23,14 +23,31 @@
 include $(EHS_COMMON_HAL_PATH)/devmanmon/deps.mk
 VPATH+=$(EHS_COMMON_HAL_PATH)/devmanmon
 
-ifeq ($(EHS_DEVMAN_MON_SUPPORT),mqtt)
-DEFS+=EHS_DEVMAN_MON_SUPPORT=EHS_DEVMAN_MON_MQTT
-OBJECTS += devman_mon_mqtt.$(OBJ)
-OBJECTS += devman_mon_ota.$(OBJ)
-else
-EHS_INCLUDE_XML_SUPPORT=yes
-DEFS+=EHS_DEVMAN_MON_SUPPORT=EHS_DEVMAN_MON_CURL
+# If devman mqtt client TLS enabled we need to set some different MQTT configs
+ifeq ($(DEVMAN_SERVER_PROTOCOL),mqtts)
+    DEFS += EHS_DEVMAN_MQTT_CLIENT_TLS=1
+endif
+ifeq ($(DEVMAN_SERVER_PROTOCOL),mqtt)
+    # #ifdef just look for TLS enabled with EHS_DEVMAN_MQTT_CLIENT_TLS
 endif
 
+# Set the devman mon type
+ifdef EHS_DEVMAN_SUPPORT
+export EHS_DEVMAN_SUPPORT
+endif
+
+# Set the devman mon type and set up dependencies.
+# Include MQTT components if using MQTT option and/or set XML format requirements for HTTP
+OBJECTS += inx-devman_interface.$(OBJ)
 OBJECTS += devman_mon.$(OBJ)
+ifeq ($(EHS_DEVMAN_SUPPORT),mqtt)
+    DEFS += EHS_DEVMAN_SUPPORT=EHS_DEVMAN_MQTT
+	OBJECTS += devman_mon_mqtt.$(OBJ)
+	OBJECTS += devman_mon_ota.$(OBJ)
+else ifeq ($(EHS_DEVMAN_SUPPORT),http)
+	DEFS += EHS_DEVMAN_SUPPORT=EHS_DEVMAN_HTTP
+	EHS_INCLUDE_XML_SUPPORT=yes
+else ifeq ($(EHS_DEVMAN_SUPPORT),stubbed)
+	DEFS += EHS_DEVMAN_SUPPORT=EHS_DEVMAN_STUBBED
+endif
 

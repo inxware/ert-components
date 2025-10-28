@@ -44,6 +44,8 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
+
+#include "globals.h"
 #include "hal_string.h"
 #include "hal_viewport.h"
 #include "hal_mem.h"

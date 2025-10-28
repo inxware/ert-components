@@ -107,6 +107,7 @@ EHS_FB_DESTROY_FUNCTION(FrameCrop)
 	inx_FrameCrop_state_type *inx_FrameCrop_state = (inx_FrameCrop_state_type*)EHS_FB_DESTROY_CONTEXT;
 	EhsCameraFrameRemove(&inx_FrameCrop_state->frame); // remove frame from global buffer
 	EhsCameraFrameDestroy(&inx_FrameCrop_state->frame);
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION run_cropping MACRO START -- DO NOT ALTER

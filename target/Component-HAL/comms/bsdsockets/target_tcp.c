@@ -44,9 +44,9 @@
 //#include <string.h> /* required for memset */
 #include <string.h> // todo2024 - needed for memset, but we should abstract this in the hal.
 
+#include "globals.h"
 #include "target_tcp.h"
 #include "hal.h"
-#include "target.h"
 #include "hal_string.h"
 #include "hal_logger.h"
 

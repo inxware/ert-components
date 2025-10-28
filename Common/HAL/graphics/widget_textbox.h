@@ -21,7 +21,7 @@
 
 
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "globals.h"
 #include "font.h"
 #include "html.h"

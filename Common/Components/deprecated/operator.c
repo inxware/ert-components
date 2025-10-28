@@ -23,7 +23,6 @@
 #include <math.h>
 
 #include "globals.h" /* required for trace */
-#include "target.h"
 #include "operator.h"
 #include "setCompletes.h"
 #include "hal-api.h" /* Needed for logging */

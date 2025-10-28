@@ -18,11 +18,15 @@
 #ifndef EHS_TARGET_TIME_H
 #define EHS_TARGET_TIME_H
 
-#include <time.h> //Needed for the tm struct used in time_hal.h
-
 #ifndef EHS_HAL_TIME_H
 #error "This file should only be included by hal_time.h"
 #endif
+
+#include <time.h> //Needed for the tm struct used in time_hal.h
+
+#include "globals.h"
+
+
 
 /*****************************************************************************/
 /* Included files */

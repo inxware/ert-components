@@ -2,7 +2,7 @@
 #define _TARGET_UART_H_
 
 #include "driver/uart.h"
-#include "target_types.h"
+#include "globals.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -190,7 +190,7 @@ static int gEhsUART_PARITY[UART_PARITY_COUNT] = {
  * 3 -> enable full flow control (Ready To Send & Clear To Send)
  *
  * */
-static int UART_HW_FLOWCTRL[UART_PARITY_COUNT] = {
+static int UART_HW_FLOWCTRL[UART_HW_FLOWCTRL_COUNT] = {
     UART_HW_FLOWCTRL_DISABLE,
     UART_HW_FLOWCTRL_RTS,
     UART_HW_FLOWCTRL_CTS,

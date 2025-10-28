@@ -12,7 +12,7 @@
  * Function Implementations for managing Application storage on disk, flash, etc.
  * */
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal-api.h" //include general HAL services
 #include "hal_devman.h"
 
@@ -404,7 +404,7 @@ do_rest: /* Finally check of there is a downloaded version  and do switch if so 
         if (app_installed != EHS_TRUE)
         {
             EHSH_LOG_ERROR("No default app found!");
-#if defined(EHS_DEVMAN_MON_SUPPORT) && !defined(EHS_ESP32_SUPPORT)
+#if (EHS_DEVMAN_SUPPORT == EHS_DEVMAN_HTTP)
             ehs_char szUrl[EHS_MAXDEVMANNAMELEN];// App URL/
             GetDevmanBASEURL(szUrl);
             EHSH_LOG_INFO("Downloading App!");
@@ -418,7 +418,7 @@ do_rest: /* Finally check of there is a downloaded version  and do switch if so 
                 EhsHMetaAppSetCurrent(EHS_SYS_DEFAULT_APP2RUN); // this sets the app to default if it wasn't the default already for some reason
 
             }
-#endif //EHS_DEVMAN_MON_SUPPORT
+#endif //EHS_DEVMAN_SUPPORT=CURL
         }
         break;
     default:

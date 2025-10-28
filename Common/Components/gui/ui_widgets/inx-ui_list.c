@@ -87,7 +87,7 @@ EHS_FB_INIT_FUNCTION(ui_list)
     const char* pParams;
 
 	pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-	if (guiParams) {
+	if (guiParams[0]) {
 		EhsParseGuiParameters(guiParams,&xParams);
 		
 		if (xParams.eClass == EHS_WIDGET_CLASS_PATCH) // extended ui widgets are generated as patches by iGB
@@ -110,7 +110,7 @@ EHS_FB_INIT_FUNCTION(ui_list)
 
 				inx_ui_list_state->list.state = EHS_UI_WIDGET_LIST_IDLE;
 				inx_ui_list_state->list.rgb = 0xFFFFFF;
-				pParams = EhsGetUint32FromString(&inx_ui_list_state->list.max_size, pParams);
+				pParams = EhsGetUint16FromString(&inx_ui_list_state->list.max_size, pParams);
 				pParams = EhsGetUint8FromString(&inx_ui_list_state->list.reversed, pParams);
 
 				bRet = EHS_TRUE;
@@ -129,6 +129,7 @@ EHS_FB_DESTROY_FUNCTION(ui_list)
 	if(inx_ui_list_state && inx_ui_list_state->pUiWidgetClass != NULL){
 		EhsWidget_destroy(inx_ui_list_state->pUiWidgetClass);
 	}
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION create MACRO START -- DO NOT ALTER

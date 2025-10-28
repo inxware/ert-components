@@ -27,11 +27,11 @@
 #define EHS_FB_NAME_RuntimeInfo "RuntimeInfo"
 #define EHS_FB_ID_RuntimeInfo 0x895B
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(runtimeinfo);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(runtimeinfo);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(runtimeinfo_updatestatic);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(runtimeinfo_updatedynamic);
-//EHS_GLOBAL EHS_FB_RUN_FUNCTION(runtimeinfo_request_pairing_id);	//@todo why is this only in .c ?
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(runtimeinfo);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(runtimeinfo);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(runtimeinfo_updatestatic);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(runtimeinfo_updatedynamic);
+//EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(runtimeinfo_request_pairing_id);	//@todo why is this only in .c ?
 
 
 

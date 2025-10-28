@@ -77,6 +77,7 @@ EHS_FB_DESTROY_FUNCTION(accel_gyro)
 	//inx_accel_gyro_state_type *inx_accel_gyro_state = (inx_accel_gyro_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
 	DisableAccelometerGyrosope();
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION EnableFunc MACRO START -- DO NOT ALTER

@@ -1,7 +1,7 @@
 #ifndef _PORT_CALLBACKS_H_ 
 #define _PORT_CALLBACKS_H_ 
 
-#include "target_types.h"
+#include "globals.h"
 
 // extern mbUSHORT gMBRegValues[EHS_CONFIG_FMB_CHANNEL_LIMIT];
 

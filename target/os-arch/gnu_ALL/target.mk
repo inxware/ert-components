@@ -9,26 +9,20 @@
 
 # HW independent linux build environment parameters 
 
-ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
-ifndef EHS_FILESYSTEM_SUPPORT
-	EHS_FILESYSTEM_SUPPORT=posix
-endif
-endif
-
-ifndef EHS_COMMS_API_SUPPORT
-	export  EHS_COMMS_API_SUPPORT=bsdsockets
-    DEFS += $(EHS_COMMS_API_SUPPORT)
-endif
+include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/config.mk
 
 #target types are always the same for all linux so just use one file
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/
 
 #These are the core mandatory target apecific porting components needed to run eRT. 
+ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
 OBJECTS += target_file.$(OBJ)
+endif
 OBJECTS += target_process.$(OBJ) 
 OBJECTS += target_main.$(OBJ)
 OBJECTS += target_math.$(OBJ) 
+
 
 # We nearly always need this for GNU targets
   LIB+=z

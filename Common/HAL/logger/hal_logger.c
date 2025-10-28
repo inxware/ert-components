@@ -29,8 +29,8 @@
 /* Included files */
 #define EHSL_MODULE_ID (EHSH_LOG_MODULE_LOGGER) /* define before hal_logger.h */
 
+#include "globals.h"
 #include "hal_logger.h"
-#include "target_config.h"
 #include "hal_file.h"
 #include "hal_time.h"
 #include "hal_string.h"

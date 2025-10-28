@@ -11,8 +11,7 @@
 // #define __USE_FATFS__
 #define __USE_LITTLEFS__
 
-#include "target_types.h"
-#include "target_file.h"
+#include "globals.h"
 #include "targetos_init.h"
 
 #ifndef EHS_USE_SIMPLE_FILESYSTEM
@@ -46,12 +45,14 @@
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
 #include "sdkconfig.h"
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/dirent.h>
 #include <unistd.h>
+
 #include "esp_idf_version.h"
 #include "esp_flash.h"
 #include "esp_littlefs.h"
@@ -63,7 +64,7 @@ static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
 #endif
 // Mount path for the partition
 const char *base_path = "/ehs";
-#ifdef __DEBUG__
+#ifdef EHS_RUNTIME_LOGGER_ENABLED
 #include "esp_log.h"
 #else
 #define ESP_LOGI(...)

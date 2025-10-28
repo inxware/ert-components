@@ -8,21 +8,22 @@
 ****************************************************************/
 
 
-#include "ehs_types.h"
+#include "globals.h"
+
 #include "hal_led.h"
 
 
-EHS_GLOBAL ehs_bool EhsEnableLED(ehs_uint8 id)
+ehs_bool EhsEnableLED(ehs_uint8 id)
 {
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsDisableLED(ehs_uint8 id)
+ehs_bool EhsDisableLED(ehs_uint8 id)
 {
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsSetLED(ehs_uint8 id, ehs_bool state, ehs_uint8 brightness)
+ehs_bool EhsSetLED(ehs_uint8 id, ehs_bool state, ehs_uint8 brightness)
 {
     return EHS_TRUE;
 }

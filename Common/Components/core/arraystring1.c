@@ -18,9 +18,9 @@
  */
 
 
-#include "globals.h"
 /** @todo check which includes are required here */
 //#include "types.h"
+#include "globals.h"
 #include "setCompletes.h"
 #include "hal-api.h" /* Required for logging */
 #include "arraystring1.h"

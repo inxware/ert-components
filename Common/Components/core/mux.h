@@ -17,7 +17,8 @@
  */
 #ifndef EHS_MULTIPLEXER_FUNCTIONS_H
 #define EHS_MULTIPLEXER_FUNCTIONS_H
-#include "target_config.h"
+
+#include "globals.h"
 #include "ehs_fb_types.h"
 
 /******************************************************************************/
@@ -26,9 +27,9 @@
 #define EHS_FB_NAME_MultiplexOneInputInt "MultiplexOneInputInt"
 #define EHS_FB_ID_MultiplexOneInputInt 0x7A6B
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexOneInputInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexOneInputInt1);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexOneInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexOneInputInt1);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexOneInputInt)
@@ -41,10 +42,10 @@ EHS_FB_FUNCTIONS(MultiplexOneInputInt)
 #define EHS_FB_NAME_MultiplexTwoInputInt "MultiplexTwoInputInt"
 #define EHS_FB_ID_MultiplexTwoInputInt 0x84B5
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexTwoInputInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexTwoInputInt1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexTwoInputInt2);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexTwoInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexTwoInputInt1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexTwoInputInt2);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexTwoInputInt)
@@ -54,11 +55,11 @@ EHS_FB_FUNCTIONS(MultiplexTwoInputInt)
 #define EHS_FB_NAME_MultiplexThreeInputInt "MultiplexThreeInputInt"
 #define EHS_FB_ID_MultiplexThreeInputInt 0x7CFD
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexThreeInputInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexThreeInputInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputInt1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputInt2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputInt3);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexThreeInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexThreeInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputInt1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputInt2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputInt3);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexThreeInputInt)
@@ -69,12 +70,12 @@ EHS_FB_FUNCTIONS(MultiplexThreeInputInt)
 #define EHS_FB_NAME_MultiplexFourInputInt "MultiplexFourInputInt"
 #define EHS_FB_ID_MultiplexFourInputInt 0x2133
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexFourInputInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexFourInputInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputInt1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputInt2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputInt3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputInt4);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexFourInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexFourInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputInt1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputInt2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputInt3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputInt4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexFourInputInt)
@@ -85,16 +86,16 @@ EHS_FB_FUNCTIONS(MultiplexFourInputInt)
 #define EHS_FB_NAME_MultiplexEightInputInt "MultiplexEightInputInt"
 #define EHS_FB_ID_MultiplexEightInputInt 0x0828
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexEightInputInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt4);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt5);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt6);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt7);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputInt8);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexEightInputInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputInt1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputInt2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputInt3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputInt4);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputInt5);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputInt6);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputInt7);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputInt8);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexEightInputInt)
@@ -105,9 +106,9 @@ EHS_FB_FUNCTIONS(MultiplexEightInputInt)
 #define EHS_FB_NAME_MultiplexOneInputBool "MultiplexOneInputBool"
 #define EHS_FB_ID_MultiplexOneInputBool 0xD662
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexOneInputBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexOneInputBool1);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexOneInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexOneInputBool1);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexOneInputBool)
@@ -118,10 +119,10 @@ EHS_FB_FUNCTIONS(MultiplexOneInputBool)
 #define EHS_FB_NAME_MultiplexTwoInputBool "MultiplexTwoInputBool"
 #define EHS_FB_ID_MultiplexTwoInputBool 0x8E1C
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexTwoInputBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexTwoInputBool1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexTwoInputBool2);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexTwoInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexTwoInputBool1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexTwoInputBool2);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexTwoInputBool)
@@ -131,11 +132,11 @@ EHS_FB_FUNCTIONS(MultiplexTwoInputBool)
 #define EHS_FB_NAME_MultiplexThreeInputBool "MultiplexThreeInputBool"
 #define EHS_FB_ID_MultiplexThreeInputBool 0xB8E4
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexThreeInputBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexThreeInputBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputBool1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputBool2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputBool3);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexThreeInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexThreeInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputBool1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputBool2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputBool3);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexThreeInputBool)
@@ -146,12 +147,12 @@ EHS_FB_FUNCTIONS(MultiplexThreeInputBool)
 #define EHS_FB_NAME_MultiplexFourInputBool "MultiplexFourInputBool"
 #define EHS_FB_ID_MultiplexFourInputBool 0x2C38
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexFourInputBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexFourInputBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputBool1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputBool2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputBool3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputBool4);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexFourInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexFourInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputBool1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputBool2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputBool3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputBool4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexFourInputBool)
@@ -162,16 +163,16 @@ EHS_FB_FUNCTIONS(MultiplexFourInputBool)
 #define EHS_FB_NAME_MultiplexEightInputBool "MultiplexEightInputBool"
 #define EHS_FB_ID_MultiplexEightInputBool 0x2751
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexEightInputBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool4);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool5);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool6);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool7);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputBool8);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexEightInputBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputBool1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputBool2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputBool3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputBool4);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputBool5);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputBool6);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputBool7);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputBool8);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexEightInputBool)
@@ -182,9 +183,9 @@ EHS_FB_FUNCTIONS(MultiplexEightInputBool)
 #define EHS_FB_NAME_MultiplexOneInputString "MultiplexOneInputString"
 #define EHS_FB_ID_MultiplexOneInputString 0x5AB4
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexOneInputString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexOneInputString1);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexOneInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexOneInputString1);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexOneInputString)
@@ -195,10 +196,10 @@ EHS_FB_FUNCTIONS(MultiplexOneInputString)
 #define EHS_FB_NAME_MultiplexTwoInputString "MultiplexTwoInputString"
 #define EHS_FB_ID_MultiplexTwoInputString 0x0094
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexTwoInputString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexTwoInputString1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexTwoInputString2);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexTwoInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexTwoInputString1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexTwoInputString2);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexTwoInputString)
@@ -209,11 +210,11 @@ EHS_FB_FUNCTIONS(MultiplexTwoInputString)
 #define EHS_FB_NAME_MultiplexThreeInputString "MultiplexThreeInputString"
 #define EHS_FB_ID_MultiplexThreeInputString 0xD657
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexThreeInputString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexThreeInputString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputString1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputString2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputString3);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexThreeInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexThreeInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputString1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputString2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputString3);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexThreeInputString)
@@ -224,12 +225,12 @@ EHS_FB_FUNCTIONS(MultiplexThreeInputString)
 #define EHS_FB_NAME_MultiplexFourInputString "MultiplexFourInputString"
 #define EHS_FB_ID_MultiplexFourInputString 0xB90E
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexFourInputString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexFourInputString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputString1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputString2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputString3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputString4);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexFourInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexFourInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputString1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputString2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputString3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputString4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexFourInputString)
@@ -240,16 +241,16 @@ EHS_FB_FUNCTIONS(MultiplexFourInputString)
 #define EHS_FB_NAME_MultiplexEightInputString "MultiplexEightInputString"
 #define EHS_FB_ID_MultiplexEightInputString 0x2E61
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexEightInputString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString4);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString5);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString6);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString7);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputString8);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexEightInputString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputString1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputString2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputString3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputString4);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputString5);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputString6);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputString7);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputString8);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexEightInputString)
@@ -260,9 +261,9 @@ EHS_FB_FUNCTIONS(MultiplexEightInputString)
 #define EHS_FB_NAME_MultiplexOneInputReal "MultiplexOneInputReal"
 #define EHS_FB_ID_MultiplexOneInputReal 0x7442
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputFloat);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexOneInputFloat);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexOneInputFloat1);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexOneInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexOneInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexOneInputFloat1);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexOneInputFloat)
@@ -272,10 +273,10 @@ EHS_FB_FUNCTIONS(MultiplexOneInputFloat)
 #define EHS_FB_NAME_MultiplexTwoInputReal "MultiplexTwoInputReal"
 #define EHS_FB_ID_MultiplexTwoInputReal 0x2C3C
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputFloat);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexTwoInputFloat);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexTwoInputFloat1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexTwoInputFloat2);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexTwoInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexTwoInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexTwoInputFloat1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexTwoInputFloat2);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexTwoInputFloat)
@@ -285,11 +286,11 @@ EHS_FB_FUNCTIONS(MultiplexTwoInputFloat)
 #define EHS_FB_NAME_MultiplexThreeInputReal "MultiplexThreeInputReal"
 #define EHS_FB_ID_MultiplexThreeInputReal 0x1AC4
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexThreeInputFloat);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexThreeInputFloat);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputFloat1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputFloat2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexThreeInputFloat3);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexThreeInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexThreeInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputFloat1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputFloat2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexThreeInputFloat3);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexThreeInputFloat)
@@ -300,12 +301,12 @@ EHS_FB_FUNCTIONS(MultiplexThreeInputFloat)
 #define EHS_FB_NAME_MultiplexFourInputReal "MultiplexFourInputReal"
 #define EHS_FB_ID_MultiplexFourInputReal 0x8E18
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexFourInputFloat);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexFourInputFloat);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat4);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexFourInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexFourInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexFourInputFloat4);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexFourInputFloat)
@@ -316,16 +317,16 @@ EHS_FB_FUNCTIONS(MultiplexFourInputFloat)
 #define EHS_FB_NAME_MultiplexEightInputReal "MultiplexEightInputReal"
 #define EHS_FB_ID_MultiplexEightInputReal 0x8571
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputFloat);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(MultiplexEightInputFloat);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat4);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat5);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat6);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat7);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat8);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(MultiplexEightInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(MultiplexEightInputFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat4);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat5);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat6);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat7);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(MultiplexEightInputFloat8);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(MultiplexEightInputFloat)
@@ -335,17 +336,17 @@ EHS_FB_FUNCTIONS(MultiplexEightInputFloat)
 #define EHS_FB_NAME_IndexedMultiplexer_Event "IndexedMultiplexer_Event"
 #define EHS_FB_ID_IndexedMultiplexer_Event 0x3B77
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(IndexedMultiplexer_Event);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(IndexedMultiplexer_Event);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_2);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_3);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_4);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_5);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_6);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_7);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_8);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_Reset);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(IndexedMultiplexer_Event);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(IndexedMultiplexer_Event);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_2);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_3);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_4);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_5);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_6);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_7);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_8);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(IndexedMultiplexer_Event_Reset);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(IndexedMultiplexer_Event)

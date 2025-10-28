@@ -18,7 +18,7 @@
 #ifndef COMMON_HAL_DEVMAN_MON_OTA_H_
 #define COMMON_HAL_DEVMAN_MON_OTA_H
 
-#include "ehs_types.h"
+#include "globals.h"
 
 #define DEVMAN_MON_OTA_CHUNK_SIZE 240
 #define DEVMAN_MON_OTA_SHA256_BUFF_SIZE (64 + 1)

@@ -27,7 +27,10 @@
 #define LV_COLOR_DEPTH     16
 
 /*Swap the 2 bytes of RGB565 color. Useful if the display has a 8 bit interface (e.g. SPI)*/
-#define LV_COLOR_16_SWAP   0
+#ifndef CONFIG_LV_COLOR_16_SWAP
+#define CONFIG_LV_COLOR_16_SWAP 0
+#endif//CONFIG_LV_COLOR_16_SWAP
+#define LV_COLOR_16_SWAP   CONFIG_LV_COLOR_16_SWAP
 
 /*Enable more complex drawing routines to manage screens transparency.
  *Can be used if the UI is above an other layer, e.g. an OSD menu or video player.
@@ -182,8 +185,11 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_USE_ASSERT_OBJ           0   /*Check the object's type and existence (e.g. not deleted). (Slow)*/
 
 /*Add a custom handler when assert happens e.g. to restart the MCU*/
-#define LV_ASSERT_HANDLER_INCLUDE   <stdint.h>
-#define LV_ASSERT_HANDLER   while(1);   /*Halt by default*/
+#define LV_ASSERT_HANDLER_INCLUDE   "hal_logger.h" //<stdint.h>
+#define LV_ASSERT_HANDLER   do { \
+    EHSH_LOG_ERROR("LVGL assert at %s:%d\nLocked now\n", __FILE__, __LINE__); \
+    while(1);   /*Halt by default*/ \
+} while(0);
 
 /*-------------
  * Others
@@ -245,7 +251,9 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_ATTRIBUTE_LARGE_CONST
 
 /*Complier prefix for a big array declaration in RAM*/
+#ifndef LV_ATTRIBUTE_LARGE_RAM_ARRAY
 #define LV_ATTRIBUTE_LARGE_RAM_ARRAY
+#endif//LV_ATTRIBUTE_LARGE_RAM_ARRAY
 
 /*Place performance critical functions into a faster memory (e.g RAM)*/
 #define LV_ATTRIBUTE_FAST_MEM

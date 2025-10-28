@@ -17,7 +17,13 @@
 #ifndef EHS_TARGET_SPECIFIC_H
 #define EHS_TARGET_SPECIFIC_H
 
-#include "target_specific_all.h"
+#ifndef EHS_GLOBALS_H
+#error "This file should only be included by globals.h" 
+#endif
+
+#include "target_arduino_all.h"
+
+
 #include <mbed_config.h>
 
 /**

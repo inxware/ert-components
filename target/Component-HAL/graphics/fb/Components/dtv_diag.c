@@ -12,10 +12,9 @@
  * @author: inx limited
  */
 
-#include "target.h"
 
-#include "dtv_diag.h"
 #include "globals.h"
+#include "dtv_diag.h"
 #include "fid.h"
 
 EHS_FB_FUNCTIONS_START(DtvDiagStr)

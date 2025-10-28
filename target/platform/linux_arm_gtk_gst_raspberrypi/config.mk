@@ -53,11 +53,11 @@ SYSTEM_VARIANT=RASPBERRYPI
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
 
-#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-EHS_DEVMAN_SUPPORT=all
-#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-EHS_DEVMAN_MON_SUPPORT=yes#@todo this should be the same as above?
-#todo there should be a better conversion of 'all' into each devman required - maybe scrap EHS_DEVMAN_SUPPORT?
+
+
+#unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features 
+EHS_DEVMAN_SUPPORT=http#@todo this should be the same as above?
+
 
 
 ################################################################################################################

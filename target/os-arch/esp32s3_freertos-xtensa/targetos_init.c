@@ -31,7 +31,7 @@
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal.h"
 #include "hal_file.h"
 #include "hal_string.h"
@@ -57,6 +57,8 @@
 #include <time.h>
 #include <sys/time.h>
 
+#include "hal_network.h"
+
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 #define HASH_MOD_ID 10000000000
@@ -72,11 +74,27 @@
 /*****************************************************************************/
 /* Variables defined with file-scope */
 
+static volatile ehs_bool gsNetifInitialised = EHS_FALSE;
+
 /*****************************************************************************/
 /* Variables defined with global-scope */
 
+
+
 /*****************************************************************************/
 /* Function definitions */
+void sfNetifStatusSet(ehs_bool status)
+{
+    gsNetifInitialised = status;
+}
+
+ehs_bool sfNetifStatusGet()
+{
+    return gsNetifInitialised;
+}
+
+
+
 
 // @TODO - move these to common code
 static ehs_uint64 EhsStringHash(const char *s, const ehs_uint64 length, const ehs_uint64 seed)
@@ -200,24 +218,20 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
                                         mac_addr[3], mac_addr[4], mac_addr[5]);
     // get ip address 
     esp_netif_ip_info_t ip_info;
-    #if TARGET_USE_WIFI
-    esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_STA_DEF"), &ip_info);
-    #elif TARGET_USE_ETHERNET
-    esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("ETH_DEF"), &ip_info);
-    #endif
+    if (EhsNetworkInterfaceWifiIsEnabled())
+        esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_STA_DEF"), &ip_info);
+    if (EhsNetworkInterfaceEthIsEnabled())
+        esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("ETH_DEF"), &ip_info);
     inet_ntoa_r(ip_info.ip.addr, (char*)bufIP, 16);
 }
 
 EHS_LOCAL esp_netif_t* EhsTOS_GetNetworkInterface()
 {
-    #if TARGET_USE_WIFI
-        const char* interface = "WIFI_STA_DEF";
-    #elif TARGET_USE_ETHERNET
-        const char* interface = "ETH_DEF";
-    #else
-        #error "No network interface defined for this target! "
-    #endif
-    return esp_netif_get_handle_from_ifkey(interface);
+    if (EhsNetworkInterfaceEthIsEnabled())
+        return esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (EhsNetworkInterfaceWifiIsEnabled())
+        return esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    return NULL;
 }
 
 EHS_LOCAL ehs_bool EhsTOS_GetNetworkInfo(ehs_sint16* mode, ehs_char* address, ehs_char* gateway, ehs_char* mask)
@@ -228,29 +242,43 @@ EHS_LOCAL ehs_bool EhsTOS_GetNetworkInfo(ehs_sint16* mode, ehs_char* address, eh
 
     esp_netif_ip_info_t ip_info;
     esp_netif_t* netif = EhsTOS_GetNetworkInterface();
-    esp_netif_get_ip_info(netif, &ip_info);
-    // get ip address
-    inet_ntoa_r(ip_info.ip.addr, (char*)address, 16);
-    inet_ntoa_r(ip_info.gw, (char*)gateway, 16);
-    inet_ntoa_r(ip_info.netmask, (char*)mask, 16);
+    if (netif == NULL) { /* set to safe null values */
+        mode = 0;
+        address[0]='\0';
+        gateway[0]='\0';
+        mask[0]='\0';
+    }
+    else {
+        esp_netif_get_ip_info(netif, &ip_info);
+        // get ip address
+        inet_ntoa_r(ip_info.ip.addr, (char*)address, 16);
+        inet_ntoa_r(ip_info.gw, (char*)gateway, 16);
+        inet_ntoa_r(ip_info.netmask, (char*)mask, 16);
 
-    esp_netif_dhcp_status_t status;
-    if (esp_netif_dhcpc_get_status(netif, &status) == ESP_OK) {
-        *mode = (status == ESP_NETIF_DHCP_INIT || status == ESP_NETIF_DHCP_STARTED) ? EHS_NET_DHCP_MODE_ID : EHS_NET_STATIC_MODE_ID;
-    }else{
-        return EHS_FALSE;
+        esp_netif_dhcp_status_t status;
+        if (esp_netif_dhcpc_get_status(netif, &status) == ESP_OK) {
+            *mode = (status == ESP_NETIF_DHCP_INIT || status == ESP_NETIF_DHCP_STARTED) ? EHS_NET_DHCP_MODE_ID : EHS_NET_STATIC_MODE_ID;
+        }else{
+            return EHS_FALSE;
+        }
     }
     return EHS_TRUE;
 }
 
+/* @brief Get the first DNS server */
 EHS_LOCAL ehs_bool EhsTOS_GetNetworkDNS1(ehs_char* address)
 {
     esp_netif_dns_info_t dns;
     esp_netif_t* netif = EhsTOS_GetNetworkInterface();
-    if(esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns) != ESP_OK){
-        return EHS_FALSE;
+    if (netif == NULL) { /* set to safe null values */
+        address[0]='\0';
     }
-    inet_ntoa_r(dns.ip.u_addr.ip4.addr, (char*)address, 16);
+    else {
+        if(esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns) != ESP_OK){
+            return EHS_FALSE;
+        }
+        inet_ntoa_r(dns.ip.u_addr.ip4.addr, (char*)address, 16);
+    }
     return EHS_TRUE;
 }
 

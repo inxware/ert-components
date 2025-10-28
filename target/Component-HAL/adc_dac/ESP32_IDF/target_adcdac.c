@@ -7,10 +7,9 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
+#include "globals.h"
 #include "target_adcdac.h"
 #include "driver/adc.h"
-#include "target.h"
-#include "target_config.h"
 #include "driver/dac_oneshot.h"
 
 /*
@@ -88,7 +87,7 @@ static ehs_bool configure_ADC2(ehs_uint8 channel)
 }
 
 // todo - what is the *config needed for in generic code?
-EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
+ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
                                   ehs_uint8 *config)
 {
     set_ADC_unit(configure);
@@ -107,7 +106,7 @@ EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_fl
 }
 
 /* polled adc read function */
-EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
+ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
         ehs_uint8 config)
 {
     /// todo2022 write the esp32 specific code to get a value and return and error

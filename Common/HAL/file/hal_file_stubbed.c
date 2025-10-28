@@ -18,7 +18,7 @@
  */
 
 #include "hal_file.h"
-#include "ehs_types.h"
+#include "globals.h"
 
 /* If these are not defined as a direct libc implementation then we use the inx 16 bit definitions (e.g. stubs or emulated)*/
  ehs_FILE *EhsFopen(const ehs_char* fname, const ehs_char* fmode) {
@@ -68,7 +68,7 @@ ehs_sint8 EhsFtell(ehs_FILE f) {
     return 0;
 }
 
-ehs_sint8 EhsFrewind(ehs_FILE) {
+ehs_sint8 EhsFrewind(ehs_FILE f) {
     return 0;
 }
 
@@ -277,6 +277,8 @@ ehs_bool Ehs_UserRmdir(char * szPathname)
     return EHS_FALSE;
 }
 
+//always skip this in stubbed file systems for now...
+//#define EHS_TARGET_FILE_SKIP_STAT
 #ifndef EHS_TARGET_FILE_SKIP_STAT
 ehs_bool Ehs_UserStat(char * szPathname, struct stat *statbuf)
 {
@@ -290,6 +292,7 @@ ehs_bool Ehs_UserUtime(char * szPathname, struct utimbuf *new_times)
         return EHS_FALSE;
 }
 #else
+
 #warning using stubbed stat and utime functions!
 ehs_bool Ehs_UserStat(char * szPathname, void *statbuf)
 {

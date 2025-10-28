@@ -1,4 +1,4 @@
-#include "ehs_types.h"
+#include "globals.h"
 
 static void httpServerRequestGet(char* reqName, char* data)
 {

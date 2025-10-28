@@ -1,6 +1,6 @@
 #ifndef __HAL_HTTPSERVER_H
 #define __HAL_HTTPSERVER_H
-#include "ehs_types.h"
+#include "globals.h"
 
 void httpServerRequestGet(char* reqName, char* data);
 void httpServerRequestPost(char* reqName, char* buffer, char* data, uint32_t dataSize, void (*callback)(void*, char*), void* respObj);

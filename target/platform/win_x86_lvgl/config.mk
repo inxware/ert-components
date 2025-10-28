@@ -45,10 +45,10 @@ EHS_DEBUG_TCPIP_CONSOLE=yes
 EHS_NETWORKING_SUPPORT=all# This needs to be enabled for the core EHS - there is a HAL dependency
 #@todo we need an entry here for the URL components etc.
 EHS_COMPONENT_NETWORKING_SUPPORT=all
-#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-EHS_DEVMAN_SUPPORT=all#@todo these conditions need to be used for module inclusion instead of just EHS_COMPONENT_NETWORKING_SUPPORT 
-#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-EHS_DEVMAN_MON_SUPPORT=yes
+
+
+#unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features 
+EHS_DEVMAN_SUPPORT=http
 
 EHS_MQTT_SUPPORT=aws_green_grass
 ################################################################################################################

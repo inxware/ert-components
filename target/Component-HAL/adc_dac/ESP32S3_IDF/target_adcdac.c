@@ -7,17 +7,17 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
-#include "target_adcdac.h"
 #include <stdio.h>
 #include <time.h>
+/* Needed for sqrt */
+#include "math.h"
+
 #ifdef USE_ESP32S3_LEGACY_API
 #include "driver/adc.h"
 #else
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_continuous.h"
 #endif
-#include "target.h"
-#include "target_config.h"
 
 #include "driver/sdm.h"
 
@@ -26,6 +26,12 @@
 
 #include "esp_err.h"
 #include "esp_check.h"
+
+
+#include "globals.h"
+#include "target_adcdac.h"
+
+#define TAG "ESP32"
 
 ehs_adc_config_t g_ehs_adc_configs[EHS_TARGET_ADC_UNIT_NUMBER] = EHS_DEFAULT_ADC_CONFIG();
 
@@ -250,7 +256,7 @@ static bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_att
 
 #if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
     if (!calibrated) {
-        ESP_LOGI(TAG, "calibration scheme version is %s", "Curve Fitting");
+        //ESP_LOGI(TAG, "calibration scheme version is %s", "Curve Fitting");
         adc_cali_curve_fitting_config_t cali_config = {
             .unit_id = unit,
             .chan = channel,
@@ -264,7 +270,7 @@ static bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_att
     }
 #elif ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED
     if (!calibrated) {
-        ESP_LOGI(TAG, "calibration scheme version is %s", "Line Fitting");
+        //ESP_LOGI(TAG, "calibration scheme version is %s", "Line Fitting");
         adc_cali_line_fitting_config_t cali_config = {
             .unit_id = unit,
             .atten = atten,
@@ -276,10 +282,9 @@ static bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_att
         }
     }
 #endif
-
     *out_handle = handle;
     if (ret == ESP_OK) {
-        ESP_LOGI(TAG, "Calibration Success");
+        //ESP_LOGI(TAG, "Calibration Success");
     } else if (ret == ESP_ERR_NOT_SUPPORTED || !calibrated) {
         ESP_LOGW(TAG, "eFuse not burnt, skip software calibration");
     } else {
@@ -292,11 +297,11 @@ static bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_att
 static void adc_calibration_deinit(adc_cali_handle_t handle)
 {
 #if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
-    ESP_LOGI(TAG, "deregister %s calibration scheme", "Curve Fitting");
+    //ESP_LOGI(TAG, "deregister %s calibration scheme", "Curve Fitting");
     ESP_ERROR_CHECK_WITHOUT_ABORT(adc_cali_delete_scheme_curve_fitting(handle));
 
 #elif ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED
-    ESP_LOGI(TAG, "deregister %s calibration scheme", "Line Fitting");
+    //ESP_LOGI(TAG, "deregister %s calibration scheme", "Line Fitting");
     ESP_ERROR_CHECK_WITHOUT_ABORT(adc_cali_delete_scheme_line_fitting(handle));
 #endif
 }
@@ -316,7 +321,7 @@ static void configure_adc_one_shot(adc_oneshot_unit_handle_t* adc_handle, adc_ch
         .atten = atten,
     };
     ESP_ERROR_CHECK_WITHOUT_ABORT(adc_oneshot_config_channel(*adc_handle, channel, &chan_config));
-    printf("channel %d bitwidth %d atten %d\n", channel, bitwidth, atten);
+   // printf("channel %d bitwidth %d atten %d\n", channel, bitwidth, atten);
 }
 
 static ehs_float read_adc_one_shot(adc_oneshot_unit_handle_t* adc_handle, ehs_uint8 channel)
@@ -555,6 +560,8 @@ ehs_bool destroy_adc(ehs_uint8 channel)
     return EHS_TRUE;
 }
 
+#ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
+
 static bool IRAM_ATTR ehs_s_conv_done_cb(adc_continuous_handle_t handle, const adc_continuous_evt_data_t *edata, void *user_data)
 {
     BaseType_t mustYield = pdFALSE;
@@ -604,6 +611,8 @@ static bool IRAM_ATTR ehs_s_conv_done_cb(adc_continuous_handle_t handle, const a
     return (mustYield == pdTRUE);
 }
 
+#endif
+
 static void IRAM_ATTR ehs_s_pool_ovf_cb(void *arg) {
     //ets_printf("[%s] DMA pool overflow occured!\n", __func__);
 }
@@ -640,6 +649,7 @@ ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit)
         }
         case 1: // Continuous
         {
+#ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
             // Continuous Configuration
             // ADC continuous mode on ADC unit 2 is not available
             if (unit == 1) return EHS_FALSE;
@@ -686,6 +696,7 @@ ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit)
             };
             ESP_ERROR_CHECK_WITHOUT_ABORT(adc_continuous_register_event_callbacks(adc1_continuous_handle[unit], &cbs, NULL));
             ESP_ERROR_CHECK_WITHOUT_ABORT(adc_continuous_start(adc1_continuous_handle[unit]));
+#endif
             break;
         }
         default:

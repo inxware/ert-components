@@ -7,11 +7,11 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
+#include "globals.h"
 #include "hal_ota_data_parser.h"
 #include "hal_string.h"
-#include "target_config.h"
 
-EHS_GLOBAL ehs_sint32 EhsOTAParser_ParseStartInfoPayload(inx_ota_data_parser_state_type* parser_state, const ehs_char* payload, ehs_char* ota_sha256)
+ehs_sint32 EhsOTAParser_ParseStartInfoPayload(inx_ota_data_parser_state_type* parser_state, const ehs_char* payload, ehs_char* ota_sha256)
 {
 	parser_state->crc16 = 0;
 	if(ota_sha256 != NULL){
@@ -37,8 +37,8 @@ EHS_GLOBAL ehs_sint32 EhsOTAParser_ParseStartInfoPayload(inx_ota_data_parser_sta
 	return OTA_PARSER_NO_ERROR;
 }
 
-EHS_GLOBAL ehs_sint32 EhsOTAParser_ParseRawData(inx_ota_data_parser_state_type* parser_state, const ehs_char* rawData, ehs_uint32 rawDataSize, 
-                                                ehs_char* otaData, ehs_sint32* otaDataSize, ehs_sint32* otaOffset, ehs_bool* isDone)
+ehs_sint32 EhsOTAParser_ParseRawData(inx_ota_data_parser_state_type* parser_state, const ehs_char* rawData, ehs_uint32 rawDataSize, 
+                                                ehs_char* otaData, ehs_sint32* otaDataSize, ehs_sint32* otaOffset, volatile ehs_bool* isDone)
 {
 	if(rawData == NULL || otaData == NULL || otaDataSize == NULL ||
 		otaOffset == NULL || parser_state == NULL || isDone == NULL)
@@ -82,7 +82,7 @@ EHS_GLOBAL ehs_sint32 EhsOTAParser_ParseRawData(inx_ota_data_parser_state_type* 
 	return OTA_PARSER_NO_ERROR;
 }
 
-EHS_GLOBAL ehs_bool EhsOTAParser_CreateNextChunkRequestPayload(inx_ota_data_parser_state_type* parser_state, ehs_char* payload)
+ehs_bool EhsOTAParser_CreateNextChunkRequestPayload(inx_ota_data_parser_state_type* parser_state, ehs_char* payload)
 {
 	if(payload == NULL || parser_state == NULL){
 		return EHS_FALSE;

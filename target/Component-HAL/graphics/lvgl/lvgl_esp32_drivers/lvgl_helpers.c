@@ -13,7 +13,6 @@
 #include "lvgl_tft/disp_spi.h"
 #include "lvgl_touch/tp_spi.h"
 
-#include "lvgl_spi_conf.h"
 
 #include "lvgl_i2c/i2c_manager.h"
 #include "esp_idf_version.h"
@@ -23,6 +22,9 @@
 #else
 #include "lvgl/lvgl.h"
 #endif
+
+#undef SHARED_SPI_BUS
+#include "lvgl_spi_conf.h"
 
 #if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5,0,0)
 #define SPI_HOST_MAX SOC_SPI_PERIPH_NUM
@@ -64,24 +66,6 @@ void lvgl_driver_init(void)
 
     ESP_LOGI(TAG, "Display buffer size: %d", DISP_BUF_SIZE);
 
-#if defined (CONFIG_LV_TFT_DISPLAY_CONTROLLER_FT81X)
-    ESP_LOGI(TAG, "Initializing SPI master for FT81X");
-
-    lvgl_spi_driver_init(TFT_SPI_HOST,
-        DISP_SPI_MISO, DISP_SPI_MOSI, DISP_SPI_CLK,
-        SPI_BUS_MAX_TRANSFER_SZ, 1,
-        DISP_SPI_IO2, DISP_SPI_IO3);
-
-    disp_spi_add_device(TFT_SPI_HOST);
-    disp_driver_init();
-
-#if defined (CONFIG_LV_TOUCH_CONTROLLER_FT81X)
-    touch_driver_init();
-#endif
-
-    return;
-#endif
-
 #if defined (SHARED_SPI_BUS)
     ESP_LOGI(TAG, "Initializing shared SPI master");
 
@@ -95,6 +79,22 @@ void lvgl_driver_init(void)
 
     disp_driver_init();
     touch_driver_init();
+
+    return;
+#else
+    ESP_LOGI(TAG, "Initializing SPI master for Display");
+
+    lvgl_spi_driver_init(TFT_SPI_HOST,
+        DISP_SPI_MISO, DISP_SPI_MOSI, DISP_SPI_CLK,
+        SPI_BUS_MAX_TRANSFER_SZ, 1,
+        DISP_SPI_IO2, DISP_SPI_IO3);
+
+    disp_spi_add_device(TFT_SPI_HOST);
+    disp_driver_init();
+
+#if defined (CONFIG_LV_TOUCH_CONTROLLER_FT81X)
+    touch_driver_init();
+#endif
 
     return;
 #endif

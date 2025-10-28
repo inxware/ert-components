@@ -8,7 +8,7 @@
  ***************************************************************/
 
 /** @file timer.h
- * Declarations for the timer functions
+ * Declarations for the timer functions used by EHH-Kernel to manage a list of timer objects (used by the kernel and function blocks)
  *
  * @author: inx limited
  *

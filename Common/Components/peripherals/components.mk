@@ -103,3 +103,58 @@ ifneq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),none)
 	DEFS += EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 endif
 endif
+
+# Components moved from user/ directory
+ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),none)
+ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),)
+	OBJECTS += inx-adc_read.$(OBJ)
+	OBJECTS += inx-adc_config.$(OBJ)
+	OBJECTS += inx-dac.$(OBJ)
+	ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
+	ifneq ($(EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT),none)
+		OBJECTS += inx-adc_read_continuous.$(OBJ)
+		DEFS += EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
+	endif
+	endif
+	OBJECTS += inx-adc_read_single.$(OBJ)
+endif
+endif
+endif
+
+ifdef EHS_PERIPHERALS_PWM_SUPPORT
+ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),none)
+ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),)
+#	OBJECTS += inx-pwm.$(OBJ)
+	OBJECTS += inx-pwm_gen.$(OBJ)
+	DEFS += EHS_PERIPHERALS_PWM_SUPPORT
+endif
+endif
+endif
+
+
+ifdef EHS_MODBUS_SUPPORT
+ifneq ($(EHS_MODBUS_SUPPORT),none)
+ifneq ($(EHS_MODBUS_SUPPORT),)
+	DEFS += EHS_MODBUS_SUPPORT
+	OBJECTS += inx-modbus_config.$(OBJ)
+	OBJECTS += inx-modbus_read.$(OBJ)
+	OBJECTS += inx-modbus_write.$(OBJ)
+	OBJECTS += inx-modbus_slave_register.$(OBJ)
+#make sure the UART is enabled (assumein MODBUS always has UART)
+ifndef HS_UART_SUPPORT
+ EHS_UART_SUPPORT=yes
+endif
+endif
+endif
+endif
+
+ifdef EHS_UART_SUPPORT
+ifneq ($(EHS_UART_SUPPORT),none)
+ifneq ($(EHS_UART_SUPPORT),)
+	OBJECTS += inx-uart.$(OBJ)
+	OBJECTS += inx-uart_config.$(OBJ)
+	DEFS += EHS_UART_SUPPORT
+endif
+endif
+endif

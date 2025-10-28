@@ -13,7 +13,7 @@
  * GPIO operations are physically NOPs in tis mode to allow for application compatability 
  * where GPIO functions are optional or for target specific purposes. 
  */
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal_gpio.h"
 
 /* todo2022-Intag-> Delete this block

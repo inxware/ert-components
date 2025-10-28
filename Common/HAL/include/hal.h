@@ -88,13 +88,22 @@
 
 /*****************************************************************************/
 /* Define types */
+typedef enum {
+    EHSTHREADNAME_MCU_FAST_HP_THR = 0,
+    EHSTHREADNAME_MCU_FAST_LP_THR,
+    EHSTHREADNAME_EHS_THR,
+    EHSTHREADNAME_MCU_SLOW_HP_THR,
+    EHSTHREADNAME_MCU_SLOW_LP_THR,
+    EHSTHREADNAME_EHS_CONSOLE_THR,
+    EHSTHREADNAME_MAX
+} ehs_threadname_t;
 
 /*****************************************************************************/
 /* Run state machine */
 typedef enum ehs_startupmode_enum {EHSMETADATA_NODEBUGONSTARTS=0,EHSMETADATA_DEBUGONRESTART,EHSMETADATA_DEBUGONSTART} ehs_startupmode_t;
 
 /* Target tree implemented */
-EHS_GLOBAL ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob) ;
+ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob) ;
 
 /*@todo this could HAL? - should be a new EHS object file.
 //todo2024 this is quite a lot of RAM with all these strings! Do we want this to be more dynamic just-enough allocations or just smaller allocations?
@@ -161,6 +170,10 @@ typedef struct EhsMetaDataType
     ehs_uint32 MiscAppProcId; // This isthe proc ID for the app to monitor - set to 0 if we are not monitoring
     ehs_uint32 MiscAppRAMUsed_KB;
     ehs_uint32 MiscAppCPUUsage;
+    /* Thread Loop Time */
+    ehs_uint32 ThreadLoopTimeMin[EHSTHREADNAME_MAX];
+    ehs_uint32 ThreadLoopTimeMax[EHSTHREADNAME_MAX];
+    ehs_uint32 ThreadLoopTimeAvg[EHSTHREADNAME_MAX];
 
     ehs_bool NewDevmanMiscDLData;
     ehs_bool NewDevmanMiscULData; // probably don't need this because we send everything always
@@ -192,7 +205,7 @@ typedef struct EhsMetaDataType
 /*****************************************************************************/
 /* Declare global variables */
 
-// Don't extern - we'll pass pointers EHS_GLOBAL /*extern*/ EhsMetaDataType EhsMetaData;
+// Don't extern - we'll pass pointers /*extern*/ EhsMetaDataType EhsMetaData;
 
 /*****************************************************************************/
 /* Declare function prototypes  */
@@ -203,120 +216,127 @@ typedef struct EhsMetaDataType
  * Sets a pointer to a function which gets called after the app has attempted to load.
  * An integer passed to a function represents app status IDs defined in hal.h
  */
-EHS_GLOBAL void EhsHSetAppLoadStatusCallback(void (*callback)(ehs_uint32));
+void EhsHSetAppLoadStatusCallback(void (*callback)(ehs_uint32));
 
 /**
  * Notifies about app loading status by passing app status IDs defined in hal.h
  */
-EHS_GLOBAL void EhsHAppLoadStatusNotify(ehs_uint32 status);
+void EhsHAppLoadStatusNotify(ehs_uint32 status);
 
 /**
  * EHS & App Meta data getter setter Functions
  *
  * @todo these should be moved to a hal_sysinfo.h file
  */
-EHS_GLOBAL void EhsHMetaUpdateStatic();
-EHS_GLOBAL void EhsHMetaUpdateDynamic();
-EHS_GLOBAL void EhsHMetaUpdateNetwork();
-EHS_GLOBAL const ehs_char* EhsHMetaGetToolboxHashes();
-EHS_GLOBAL const ehs_char* EhsHMetaGetInstPath(); /* Called to return the installation directory of EHS. */
-EHS_GLOBAL const ehs_char* EhsHMetaGetUserPath(); /* Called to return the user directory. */
-EHS_GLOBAL const ehs_char* EhsHMetaGetAppsPath(); /* Called to return a nonstandard Apps root path, return NULL if there isn't one set*/
-EHS_GLOBAL void EhsHMetaSetAppsPath(ehs_char* path); /* Set a non standard Apps path.*/
+void EhsHMetaUpdateStatic();
+void EhsHMetaUpdateDynamic();
+void EhsHMetaUpdateNetwork();
+const ehs_char* EhsHMetaGetToolboxHashes();
+const ehs_char* EhsHMetaGetInstPath(); /* Called to return the installation directory of EHS. */
+const ehs_char* EhsHMetaGetUserPath(); /* Called to return the user directory. */
+const ehs_char* EhsHMetaGetAppsPath(); /* Called to return a nonstandard Apps root path, return NULL if there isn't one set*/
+void EhsHMetaSetAppsPath(ehs_char* path); /* Set a non standard Apps path.*/
 
 /*
-EHS_GLOBAL const ehs_char* EhsHMetaAppLiveDefaultDir();
-EHS_GLOBAL const ehs_char* EhsHSetMetaAppLiveDefaultDir(ehs_uint8 which);
+const ehs_char* EhsHMetaAppLiveDefaultDir();
+const ehs_char* EhsHSetMetaAppLiveDefaultDir(ehs_uint8 which);
 */
-EHS_GLOBAL const ehs_char* EhsHMetaGetHWID(); /* Return the HW-based device ID */
-EHS_GLOBAL ehs_sint16 EhsHMetaGetNetworkMode(); /* Return the HW-based network mode id e.g. DHCP or Static */
-EHS_GLOBAL const ehs_char* EhsHMetaGetIPAddr(); /* Return the HW-based IP address */
-EHS_GLOBAL const ehs_char* EhsHMetaGetGateway(); /* Return the HW-based gateway */
-EHS_GLOBAL const ehs_char* EhsHMetaGetMask(); /* Return the HW-based mask */
-EHS_GLOBAL const ehs_char* EhsHMetaGetDNS1(); /* Return the HW-based DNS1 */
-EHS_GLOBAL void EhsHMetaSetHWID(const char * value); /* Set the HW-based device ID */
-EHS_GLOBAL void EhsHMetaSetIPAddr(const char * value); /* Set the HW-based ip address */
-EHS_GLOBAL void EhsHMetaSetInstPath(const char * value); /* Set the HW-based device ID */
-EHS_GLOBAL const ehs_char* EhsHMetaGetEHSVersion(); /* Return the HW-based device ID */
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMAvail();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMTotal();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMUsedEHS_kB();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorAvail();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorUsed();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorTotal();
-EHS_GLOBAL const ehs_uint16 EhsHMetaGetCPUUsage();
-EHS_GLOBAL const ehs_sint16 EhsHMetaGetCPUTemp();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysAvail();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysTotal();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysUsed();
-EHS_GLOBAL const ehs_char* EhsHMetaGetVersion();
-EHS_GLOBAL const ehs_char* EhsHMetaGetBuildDate();
-EHS_GLOBAL const ehs_char* EhsHMetaGetTargetVariant();
-EHS_GLOBAL const ehs_char* EhsHMetaGetEHSStartDate();
-EHS_GLOBAL const ehs_char * EhsHMetaGetOSVersion();
-EHS_GLOBAL  ehs_char * EhsHMetaGetMiscAppNamePtr(); // returns writeable pointer.
-EHS_GLOBAL const ehs_uint16 EhsHMetaGetMiscAppCPUUsage();
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetMiscAppRAMUsed_kB();
+const ehs_char* EhsHMetaGetHWID(); /* Return the HW-based device ID */
+ehs_sint16 EhsHMetaGetNetworkMode(); /* Return the HW-based network mode id e.g. DHCP or Static */
+const ehs_char* EhsHMetaGetIPAddr(); /* Return the HW-based IP address */
+const ehs_char* EhsHMetaGetGateway(); /* Return the HW-based gateway */
+const ehs_char* EhsHMetaGetMask(); /* Return the HW-based mask */
+const ehs_char* EhsHMetaGetDNS1(); /* Return the HW-based DNS1 */
+void EhsHMetaSetHWID(const char * value); /* Set the HW-based device ID */
+void EhsHMetaSetIPAddr(const char * value); /* Set the HW-based ip address */
+void EhsHMetaSetInstPath(const char * value); /* Set the HW-based device ID */
+const ehs_char* EhsHMetaGetEHSVersion(); /* Return the HW-based device ID */
+const ehs_uint32 EhsHMetaGetRAMAvail();
+const ehs_uint32 EhsHMetaGetRAMTotal();
+const ehs_uint32 EhsHMetaGetRAMUsedEHS_kB();
+const ehs_uint32 EhsHMetaGetStorAvail();
+const ehs_uint32 EhsHMetaGetStorUsed();
+const ehs_uint32 EhsHMetaGetStorTotal();
+const ehs_uint16 EhsHMetaGetCPUUsage();
+const ehs_sint16 EhsHMetaGetCPUTemp();
+const ehs_uint32 EhsHMetaGetSysAvail();
+const ehs_uint32 EhsHMetaGetSysTotal();
+const ehs_uint32 EhsHMetaGetSysUsed();
+const ehs_char* EhsHMetaGetVersion();
+const ehs_char* EhsHMetaGetBuildDate();
+const ehs_char* EhsHMetaGetTargetVariant();
+const ehs_char* EhsHMetaGetEHSStartDate();
+const ehs_char * EhsHMetaGetOSVersion();
+ ehs_char * EhsHMetaGetMiscAppNamePtr(); // returns writeable pointer.
+const ehs_uint16 EhsHMetaGetMiscAppCPUUsage();
+const ehs_uint32 EhsHMetaGetMiscAppRAMUsed_kB();
+const ehs_uint32 EhsHMetaGetThreadLoopTimeMin(ehs_threadname_t threadname);
+const ehs_uint32 EhsHMetaGetThreadLoopTimeMax(ehs_threadname_t threadname);
+const ehs_uint32 EhsHMetaGetThreadLoopTimeAvg(ehs_threadname_t threadname);
+
+void EhsHMetaUpdateThreadLoopTime(ehs_threadname_t threadname, ehs_uint32 time);
+void EhsHStatisticsLoopStart(ehs_threadname_t threadname);
+void EhsHStatisticsLoopEnd(ehs_threadname_t threadname);
 
 /* and the apps meta data */
 
-EHS_GLOBAL const ehs_uint32 EhsHAppMetaGetBuildNumber();
-EHS_GLOBAL const ehs_char * EhsHAppMetaGetVersionNumber();
-EHS_GLOBAL const ehs_char * EhsHAppMetaGetAppDate() ;
-EHS_GLOBAL const ehs_char * EhsHAppMetaGetAppName() ; /* @todo what is the difference of this and EhsHMetaAppSetCurrent? - one is sourced from parser and one from SODL?*/
-EHS_GLOBAL void EhsHMetaAppSetCurrent(ehs_char * App);
-EHS_GLOBAL const ehs_char* EhsHMetaAppGetCurrent();
-EHS_GLOBAL void EhsHMetaSetNextAppToRun(ehs_char * App);
-EHS_GLOBAL const ehs_char* EhsHMetaGetNextAppToRun();
+const ehs_uint32 EhsHAppMetaGetBuildNumber();
+const ehs_char * EhsHAppMetaGetVersionNumber();
+const ehs_char * EhsHAppMetaGetAppDate() ;
+const ehs_char * EhsHAppMetaGetAppName() ; /* @todo what is the difference of this and EhsHMetaAppSetCurrent? - one is sourced from parser and one from SODL?*/
+void EhsHMetaAppSetCurrent(ehs_char * App);
+const ehs_char* EhsHMetaAppGetCurrent();
+void EhsHMetaSetNextAppToRun(ehs_char * App);
+const ehs_char* EhsHMetaGetNextAppToRun();
 
-EHS_GLOBAL ehs_startupmode_t EhsHAppMetaGetDebugOnStartMode() ;
-EHS_GLOBAL ehs_bool EhsHMetaGetStartWithoutApp();
-EHS_GLOBAL void EhsHMetaSetStartWithoutApp(ehs_bool enable);
+ehs_startupmode_t EhsHAppMetaGetDebugOnStartMode() ;
+ehs_bool EhsHMetaGetStartWithoutApp();
+void EhsHMetaSetStartWithoutApp(ehs_bool enable);
 ehs_bool EhsHRequestEHSInterrupt(); /* return boolean if a command other than EHS_CONTINUE is present */
-EHS_GLOBAL Ehs_ConsoleCommand_Type EhsHFSMGetInternallyRequestedCommand();
-EHS_GLOBAL ehs_bool EhsHFSMSetInternallyRequestedCommand(Ehs_ConsoleCommand_Type state );
-EHS_GLOBAL void EhsHFSMForceInternallyRequestedCommand(Ehs_ConsoleCommand_Type state );
+Ehs_ConsoleCommand_Type EhsHFSMGetInternallyRequestedCommand();
+ehs_bool EhsHFSMSetInternallyRequestedCommand(Ehs_ConsoleCommand_Type state );
+void EhsHFSMForceInternallyRequestedCommand(Ehs_ConsoleCommand_Type state );
 
 /**
  * Called to initialise the HAL during system initialisation time
  */
-EHS_GLOBAL void EhsHSys_init();
-EHS_GLOBAL void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir);
-EHS_GLOBAL void EhsHWaitForTarget(Ehs_ConsoleCommand_Type (*target_loop_iteration)(void *),void * target_env_blob,ehs_sint16 timeout); /* blocks with 100ms poll for target to become ready */
+void EhsHSys_init();
+void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir);
+void EhsHWaitForTarget(Ehs_ConsoleCommand_Type (*target_loop_iteration)(void *),void * target_env_blob,ehs_sint16 timeout); /* blocks with 100ms poll for target to become ready */
 
 /**
  * Called to shutdown the HAL prior to shutting down EHS
  *
  */
-EHS_GLOBAL void EhsHSys_term(void);
+void EhsHSys_term(void);
 
 /**
  * Shut down everything
  */
 //@todo refact name to have an H in it!
-EHS_GLOBAL void EhsExit(ehs_uint16);
+void EhsExit(ehs_uint16);
 
 /**
  * Called to prepare the HAL for loading in a new application
  */
-EHS_GLOBAL void EhsHApp_init(void);
+void EhsHApp_init(void);
 
 /**
  * Called to prepare the HAL to start executing an application (or to reset
  * an existing application)
  */
-EHS_GLOBAL void EhsHApp_reset(void);
+void EhsHApp_reset(void);
 
 /**
  * Called to activate the thread to show the app
  */
-EHS_GLOBAL void EhsHApp_show(void);
+void EhsHApp_show(void);
 
 /**
  * Called to clean up after the execution of an application in order to make
  * sure everything has been stopped.
  */
-EHS_GLOBAL void EhsHApp_term(void);
+void EhsHApp_term(void);
 
 /* Date in W3c format */
 ehs_bool EhsHSysUpdateDate(ehs_char * datestring);
@@ -382,7 +402,7 @@ ehs_bool EhsHOsSys_UpdateEnvironment();
  * Get the version of CSound Daemon
  *
  */
-EHS_GLOBAL const ehs_char* EhsHCSoundGetVers();
+const ehs_char* EhsHCSoundGetVers();
 
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef _TARGET_MBCONFIG_H_ 
 #define _TARGET_MBCONFIG_H_ 
 
+/* @brief This is the target specific configuration for MODBUS if this enabled for a particular target */
+
 #define EHS_CONFIG_FMB_TCP_PORT_DEFAULT 502
 #define EHS_CONFIG_FMB_TCP_PORT_MAX_CONN 5
 #define EHS_CONFIG_FMB_TCP_CONNECTION_TOUT_SEC 20

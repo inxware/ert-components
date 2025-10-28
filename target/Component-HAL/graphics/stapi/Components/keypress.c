@@ -17,10 +17,9 @@
  * @author: inx limited
  */
 
-#include "target.h"
 
-#include "keypress.h"
 #include "globals.h"
+#include "keypress.h"
 #include <string.h>
 #include "setCompletes.h"
 

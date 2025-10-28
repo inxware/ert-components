@@ -7,7 +7,7 @@
 *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
-#include "ehs_types.h" // needed for function data struct types
+#include "globals.h"
 #include "hal_process.h" //needed for EhsHThread_execute()
 
 /*
@@ -16,7 +16,7 @@
  * It simply calls the target specific function EhsHThread_execute()
  * */
 
-EHS_GLOBAL ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize)
+ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize)
 {
     return EhsHThread_execute((EhsGeneralThreadFuncType)pfRun, (void *) context, priority, stackSize) ;
 }

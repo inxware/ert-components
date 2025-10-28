@@ -10,6 +10,10 @@
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/target.mk
 # HW independent linux build environment parameters 
 
+#We don't use the console for standard Arduino as we do it in the main loop/
+EHS_DEBUG_TCPIP_CONSOLE=target_specific
+EHS_COMMS_TASK=tcp_server_common
+
 #target types are always the same for all arduino targets so just use one file
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
@@ -53,11 +57,12 @@ INC_DIRS += /home/inxware/.arduino15/packages/arduino/hardware/mbed_nano/4.2.2/l
 INC_DIRS += /home/inxware/.arduino15/packages/arduino/hardware/mbed_nano/4.2.2/libraries/SPI
 endif
 
-ifndef EHS_PLUGIN_LIBRARY_DEPENDENCY
+ifndef EHS_BUILDAS_ARDUINO_PLUGIN_LIBRARY
 # this cannot be used when building as a static library
 LNKFLAGS += -Wl,--gc-sections -w -Wl,--as-needed @$(EHS_COMPONENT_SUPPORT_INCLUDE)/variants/NANO_RP2040_CONNECT/ldflags.txt 
 LNKFLAGS += -Wl,-Map,main.map --specs=nosys.specs
-LNKFLAGS += -Wl,--whole-archive $(EHS_COMPONENT_SUPPORT_LIBS)/libcore.a $(EHS_COMPONENT_SUPPORT_LIBS)/libmisc.a  $(EHS_COMPONENT_SUPPORT_LIBS)/libmbed.a -Wl,--no-whole-archive
+LNKFLAGS += -Wl,--whole-archive $(EHS_COMPONENT_SUPPORT_LIBS)/libcore.a  $(EHS_COMPONENT_SUPPORT_LIBS)/libmbed.a -Wl,--no-whole-archive
+#$(EHS_COMPONENT_SUPPORT_LIBS)/libmisc.a 
 LNKFLAGS += -Wl,--start-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys -Wl,--end-group
 endif
 
@@ -65,3 +70,10 @@ endif
 ifeq ($(EHS_PERIPHERALS_LED_SUPPORT),arduino_nina)
 OBJECTS += target_led_nina.$(OBJ)
 endif
+
+# Some MCU buffer size paramters
+# todo the following should be set in the small profile - or use proper config.mk file override methods?
+DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
+DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=2048
+DEFS += EHS_TGT_TCP_IN_BUFF_SIZE=256
+DEFS += EHS_TGT_TCP_OUT_BUFF_SIZE=256

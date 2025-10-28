@@ -96,6 +96,7 @@ EHS_FB_DESTROY_FUNCTION(FrameResize)
 	
 	EhsCameraFrameRemove(&inx_FrameResize_state->frame); // remove frame from global buffer
 	EhsCameraFrameDestroy(&inx_FrameResize_state->frame);
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION resize MACRO START -- DO NOT ALTER

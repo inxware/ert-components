@@ -12,7 +12,7 @@
  * Copyright (c), inx limited, 2007. All rights reserved.
  */
 
-#include "ehs_types.h"
+#include "globals.h"
 
 #include "console_queue.h"
 //#include "debug.h"

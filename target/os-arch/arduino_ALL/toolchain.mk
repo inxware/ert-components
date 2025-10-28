@@ -101,7 +101,7 @@ LIB_DIRS+=$(EHS_ROOT_PATH)
 # The following path is added for very specific platform support (if there are any).
 
 #setup linker flags / options
-ifndef EHS_PLUGIN_LIBRARY_DEPENDENCY
+ifndef EHS_BUILDAS_ARDUINO_PLUGIN_LIBRARY
 # this cannot be used when building as a static library
 LNKFLAGS+= -Wl,-o$(TARGET_NAME).$(EXE)
 LNKFLAGS+= -Wl,-E 

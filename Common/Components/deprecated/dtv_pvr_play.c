@@ -59,10 +59,9 @@
  * If any operation causes an error, the "err" event is asserted and an error number is passed to the errNo port.
  * The meaning of this value can be found with the "play error" block.
  */
-#include "target.h"
 
-#include "dtv_pvr_play.h"
 #include "globals.h"
+#include "dtv_pvr_play.h"
 #include "setCompletes.h"
 #include "callback_queue.h"
 #include "graphics.h"
@@ -162,7 +161,7 @@ EHS_FB_INIT_FUNCTION(DtvPvrPlay1)
 /**
  * Set filename and position. At this time, position is ignored.
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_set)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_set)
 {
     struct EhsFbDtvPvrPlayStruct* pPvrPlay = (struct EhsFbDtvPvrPlayStruct *)EHS_FB_RUN_CONTEXT;
     ehs_char filename[EHS_TD_FILES_MAX_FILENAME];
@@ -202,7 +201,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_set)
 /**
  * Get playback speed and position.
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_get)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_get)
 {
     EhsDataflowIntType nPosition, nSpeed;
     if (!EhsTDPlayback_getSpeed(EhsTDPlaybackRef,&nSpeed))
@@ -229,7 +228,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_get)
 /**
  * Play current file from current position
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_play)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_play)
 {
     struct EhsFbDtvPvrPlayStruct* pPvrPlay = (struct EhsFbDtvPvrPlayStruct *)EHS_FB_RUN_CONTEXT;
 
@@ -248,7 +247,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_play)
 /**
  * Pause playback
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_pause)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_pause)
 {
     struct EhsFbDtvPvrPlayStruct* pPvrPlay = (struct EhsFbDtvPvrPlayStruct *)EHS_FB_RUN_CONTEXT;
     ehs_sint32 nSpeed;
@@ -276,7 +275,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_pause)
 /**
  * Reverse direction of playback
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_rev)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_rev)
 {
     EhsDataflowIntType nSpeed;
 
@@ -303,7 +302,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_rev)
 /**
  * Increase playback speed in current direction (forward/backward)
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_faster)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_faster)
 {
     EhsDataflowIntType nSpeed;
 
@@ -329,7 +328,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_faster)
 /**
  * Decrease playback speed in current direction (forward/backward)
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_slower)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_slower)
 {
     EhsDataflowIntType nSpeed;
 
@@ -355,7 +354,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_slower)
 /**
  * Stop playback
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_stop)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_stop)
 {
     if (!EhsTDPlayback_stop(EhsTDPlaybackRef))
     {
@@ -367,7 +366,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_stop)
 /**
  * Callback to signify that playback has finished
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay1_end)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay1_end)
 {
     EHS_FB_FINISH(PORT_END_END);
 }

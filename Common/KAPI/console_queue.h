@@ -20,8 +20,7 @@
 
 #ifndef EHS_CONSOLE_QUEUE_H
 #define EHS_CONSOLE_QUEUE_H
-#include "ehs_types.h"
-#include "target_config.h"
+#include "globals.h"
 
 /**
  * Console queue type. This is implemented using the Mascot3 approach to queues
@@ -45,7 +44,7 @@ typedef struct
  */
 #define EHS_CONSOLE_QUEUE_INDEX(x) ((x) & (EhsConsoleQueue_maxSize()-1))
 
-EHS_GLOBAL ehs_uint32 EhsConsoleQueue_maxSize();
+ehs_uint32 EhsConsoleQueue_maxSize();
 
 /**
  * Add new data to the console queue.
@@ -54,7 +53,7 @@ EHS_GLOBAL ehs_uint32 EhsConsoleQueue_maxSize();
  * @param nSize amount of data to add to the queue.
  * @return Amount of data that was added to the queue (0 = unsuccessful)
  */
-EHS_GLOBAL ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize);
+ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize);
 
 /**
  * Remove data from the console queue
@@ -63,35 +62,35 @@ EHS_GLOBAL ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint
  * @param nSize amount of data to retrieve
  * @return amount of data that has been read during this pop
  */
-EHS_GLOBAL ehs_uint32 EhsConsoleQueue_pop(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize);
+ehs_uint32 EhsConsoleQueue_pop(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize);
 
 /**
  * Test whether the queue is empty
  * @param queue Queue to test
  * @return true if queue is empty
  */
-EHS_GLOBAL ehs_bool EhsConsoleQueue_isEmpty(const EhsConsoleQueueType* queue);
+ehs_bool EhsConsoleQueue_isEmpty(const EhsConsoleQueueType* queue);
 
 /**
  * Test whether the queue is full
  * @param queue Queue to test
  * @return true if queue is full
  */
-EHS_GLOBAL ehs_bool EhsConsoleQueue_isFull(const EhsConsoleQueueType* queue);
+ehs_bool EhsConsoleQueue_isFull(const EhsConsoleQueueType* queue);
 
 /**
  * Determine how many elements are in the queue
  * @param queue Queue to test
  * @return number of elements currently in the queue
  */
-EHS_GLOBAL ehs_uint32 EhsConsoleQueue_length(const EhsConsoleQueueType* queue);
+ehs_uint32 EhsConsoleQueue_length(const EhsConsoleQueueType* queue);
 
 /**
  * Determine how many elements can be written into the queue
  * @param queue Queue to test
  * @return number of elements that can be pushed
  */
-EHS_GLOBAL ehs_uint32 EhsConsoleQueue_space(const EhsConsoleQueueType* queue);
+ehs_uint32 EhsConsoleQueue_space(const EhsConsoleQueueType* queue);
 
 
 /**
@@ -103,13 +102,13 @@ EHS_GLOBAL ehs_uint32 EhsConsoleQueue_space(const EhsConsoleQueueType* queue);
  * @return how many characters need to be read to obtain the specified character
  * (0 if the character doesn't exist)
  */
-EHS_GLOBAL ehs_uint32 EhsConsoleQueue_peek(const EhsConsoleQueueType* xQueue, ehs_uint8 nChar);
+ehs_uint32 EhsConsoleQueue_peek(const EhsConsoleQueueType* xQueue, ehs_uint8 nChar);
 
 /**
  * Reset the queue - empty all items from the queue
  * @param queue Queue to reset
  */
-EHS_GLOBAL void EhsConsoleQueue_reset(EhsConsoleQueueType* queue);
+void EhsConsoleQueue_reset(EhsConsoleQueueType* queue);
 
 #endif /* EHS_CONSOLE_QUEUE_H */
 

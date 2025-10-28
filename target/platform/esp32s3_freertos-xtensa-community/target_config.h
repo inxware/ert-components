@@ -52,7 +52,8 @@
 #define CONFIG_LV_TOUCH_CONTROLLER_SPI3_HOST 1
 #define CONFIG_LV_I2C_TOUCH_PORT 0
 
-#define TARGET_USE_ETHERNET 0
-#define TARGET_USE_WIFI     1
+
+
+#include "../esp32s3_freertos-xtensa-base/target_config.h"
 
 #endif /* TARGET_CONFIG_H */

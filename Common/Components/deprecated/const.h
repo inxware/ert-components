@@ -25,9 +25,9 @@
 #define EHS_FB_NAME_Constant_Int ("Constant_Int")
 #define EHS_FB_ID_Constant_Int (0x46F9)
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConstantInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConstantInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConstantInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConstantInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConstantInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConstantInt);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConstantInt)
@@ -37,9 +37,9 @@ EHS_FB_FUNCTIONS(ConstantInt)
 #define EHS_FB_NAME_Constant_String "Constant_String"
 #define EHS_FB_ID_Constant_String 0xB704
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConstantString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConstantString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConstantString);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConstantString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConstantString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConstantString);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConstantString)
@@ -50,9 +50,9 @@ EHS_FB_FUNCTIONS(ConstantString)
 #define EHS_FB_NAME_Constant_Bool ("Constant_Bool")
 #define EHS_FB_ID_Constant_Bool (0x7BDF)
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConstantBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConstantBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConstantBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConstantBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConstantBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConstantBool);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConstantBool)
@@ -64,9 +64,9 @@ EHS_FB_FUNCTIONS(ConstantBool)
 #define EHS_FB_NAME_Constant_Real ("Constant_Real")
 #define EHS_FB_ID_Constant_Real (0xD9FF)
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConstantFloat);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConstantFloat);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConstantFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConstantFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConstantFloat);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConstantFloat);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConstantFloat)

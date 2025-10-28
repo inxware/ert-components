@@ -84,6 +84,7 @@ EHS_FB_DESTROY_FUNCTION(FrameReadFromFile)
 	inx_FrameReadFromFile_state_type *inx_FrameReadFromFile_state = (inx_FrameReadFromFile_state_type*)EHS_FB_DESTROY_CONTEXT;
 	EhsCameraFrameRemove(&inx_FrameReadFromFile_state->frame); // remove frame from global buffer
 	EhsCameraFrameDestroy(&inx_FrameReadFromFile_state->frame);
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION run_read_file MACRO START -- DO NOT ALTER

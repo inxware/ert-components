@@ -31,10 +31,14 @@
 /* Included files */
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_KERNEL /**< @todo define a special logger id here */
+
+#include "globals.h"
 #include "hal-api.h"
 #include "hal.h"
 
 #include "app_data.h" // Needed for the app meta data structure.
+#include "include/hal.h"
+#include "include/hal_time.h"
 #include "targetos_init.h"
 
 #ifdef EHS_COMMS_API_SUPPORT
@@ -60,7 +64,7 @@
 
 
 //@todo this probably doesn't need to be here when all the system calls are moved to their respective places.
-#ifdef EHS_DEVMAN_MON_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
 #include "hal_devman.h"
 #endif
 
@@ -191,7 +195,7 @@ EHS_LOCAL const ehs_char* ehsToolboxHashes = EHS_TOOLBOX_HASHES"0x0";
  * Sets a pointer to a function which gets called after the app has attempted to load.
  * An integer passed to a function represents app status IDs defined in hal.h
  */
-EHS_GLOBAL void EhsHSetAppLoadStatusCallback(void (*callback)(ehs_uint32))
+void EhsHSetAppLoadStatusCallback(void (*callback)(ehs_uint32))
 {
     EhsAppLoadedCallback = callback;
 }
@@ -199,7 +203,7 @@ EHS_GLOBAL void EhsHSetAppLoadStatusCallback(void (*callback)(ehs_uint32))
 /**
  * Notifies about app loading status by passing app status IDs defined in hal.h
  */
-EHS_GLOBAL void EhsHAppLoadStatusNotify(ehs_uint32 status)
+void EhsHAppLoadStatusNotify(ehs_uint32 status)
 {
     if(EhsAppLoadedCallback != NULL){
         EhsAppLoadedCallback(status);
@@ -415,7 +419,7 @@ void EhsHMetaUpdateNetwork()
     EhsTOsSys_UpdateEnvironment(&EhsMetaData,EHS_OS_ENV_NETWORK_ID);
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetInstPath()
+const ehs_char* EhsHMetaGetInstPath()
 {
 #ifndef INX_SODL_IN_FLASH
     return EhsMetaData.zInstallRootDirectory;
@@ -423,10 +427,10 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetInstPath()
     return NULL;
 #endif
 }
-EHS_GLOBAL const ehs_char* EhsHMetaGetToolboxHashes(){
+const ehs_char* EhsHMetaGetToolboxHashes(){
     return ehsToolboxHashes;
 }
-EHS_GLOBAL const ehs_char* EhsHMetaGetUserPath()
+const ehs_char* EhsHMetaGetUserPath()
 {
 #ifndef INX_SODL_IN_FLASH
     return EhsMetaData.zUserDirectory;
@@ -434,7 +438,7 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetUserPath()
     return NULL;
 #endif 
 }
-EHS_GLOBAL const ehs_char* EhsHMetaGetAppsPath()
+const ehs_char* EhsHMetaGetAppsPath()
 {
 #ifndef INX_SODL_IN_FLASH
     if ( EhsMetaData.zAppsDirectory[0] != '\0' )
@@ -446,146 +450,146 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetAppsPath()
 #endif
 }
 
-EHS_GLOBAL void EhsHMetaSetAppsPath(ehs_char* path)
+void EhsHMetaSetAppsPath(ehs_char* path)
 {
 #ifndef INX_SODL_IN_FLASH
     EhsStrcpy(EhsMetaData.zAppsDirectory,path);
 #endif
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetHWID()
+const ehs_char* EhsHMetaGetHWID()
 {
     return EhsMetaData.zDeviceID;
 }
 
-EHS_GLOBAL ehs_sint16 EhsHMetaGetNetworkMode()
+ehs_sint16 EhsHMetaGetNetworkMode()
 {
     return EhsMetaData.nDeviceNetworkMode;
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetIPAddr()
+const ehs_char* EhsHMetaGetIPAddr()
 {
     return EhsMetaData.zDeviceIPAddr;
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetGateway()
+const ehs_char* EhsHMetaGetGateway()
 {
     return EhsMetaData.zDeviceGateway;
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetMask()
+const ehs_char* EhsHMetaGetMask()
 {
     return EhsMetaData.zDeviceMask;
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetDNS1()
+const ehs_char* EhsHMetaGetDNS1()
 {
     return EhsMetaData.zDeviceDNS1;
 }
 
-EHS_GLOBAL void EhsHMetaSetHWID(const char * value)
+void EhsHMetaSetHWID(const char * value)
 {
     if (value) EhsStrcpy(EhsMetaData.zDeviceID,value);
 }
 
-EHS_GLOBAL void EhsHMetaSetInstPath(const char * value)
+void EhsHMetaSetInstPath(const char * value)
 {
 #ifndef INX_SODL_IN_FLASH
     if (value) EhsStrcpy(EhsMetaData.zInstallRootDirectory,value);
 #endif
 }
 
-EHS_GLOBAL void EhsHMetaSetIPAddr(const char * value)
+void EhsHMetaSetIPAddr(const char * value)
 {
     if (value) EhsStrcpy(EhsMetaData.zDeviceIPAddr,value);
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetEHSVersion()
+const ehs_char* EhsHMetaGetEHSVersion()
 {
 
     //printf("EhsMetaData.zVersion =%s\n",EhsMetaData.zVersion);
     return EhsMetaData.zVersion;
 }
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMAvail()
+const ehs_uint32 EhsHMetaGetRAMAvail()
 {
     //printf("hsMetaData.RAMAvail_KB =%s",hsMetaData.RAMAvail_KB);
     return EhsMetaData.RAMAvail_KB;
 }
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMUsedEHS_kB()
+const ehs_uint32 EhsHMetaGetRAMUsedEHS_kB()
 {
     //printf("EhsMetaData.RAMUsed_KB =%s\n",EhsMetaData.RAMUsed_KB);
     return EhsMetaData.RAMUsed_KB;
 }
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetRAMTotal()
+const ehs_uint32 EhsHMetaGetRAMTotal()
 {
     //printf("RAM Total get=%d\n",EhsMetaData.RAMTotal_KB);
     return EhsMetaData.RAMTotal_KB;
 }
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorAvail()
+const ehs_uint32 EhsHMetaGetStorAvail()
 {
     //printf("hsHMetaGetStorAvail =%s\n",);
     return (EhsMetaData.nUserSpaceTotal_KB-EhsMetaData.nUserSpaceUsed_KB);
 }
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorUsed()
+const ehs_uint32 EhsHMetaGetStorUsed()
 {
     //printf(" =%s\n",);
     return EhsMetaData.nUserSpaceUsed_KB;
 }
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetStorTotal()
+const ehs_uint32 EhsHMetaGetStorTotal()
 {
     //printf(" =%s\n",);
     return EhsMetaData.nUserSpaceTotal_KB;
 }
 
-EHS_GLOBAL const ehs_uint16 EhsHMetaGetCPUUsage()
+const ehs_uint16 EhsHMetaGetCPUUsage()
 {
 //	printf("CPU_usage get=%d\n",EhsMetaData.CPUUsage);
     return EhsMetaData.CPUUsage;
 }
 
-EHS_GLOBAL const ehs_sint16 EhsHMetaGetCPUTemp()
+const ehs_sint16 EhsHMetaGetCPUTemp()
 {
 //  printf("CPU temperature get=%d\n", EhsMetaData.CPUTemp);
     return EhsMetaData.CPUTemp;
 }
 
-EHS_GLOBAL const ehs_uint16 EhsHMetaGetMiscAppCPUUsage()
+const ehs_uint16 EhsHMetaGetMiscAppCPUUsage()
 {
     return EhsMetaData.MiscAppCPUUsage;
 }
 
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetMiscAppRAMUsed_kB()
+const ehs_uint32 EhsHMetaGetMiscAppRAMUsed_kB()
 {
     return EhsMetaData.MiscAppRAMUsed_KB;
 }
 
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysAvail()
+const ehs_uint32 EhsHMetaGetSysAvail()
 {
     return (EhsMetaData.nSysSpaceTotal_KB -EhsMetaData.nSysSpaceUsed_KB);
 }
 
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysTotal()
+const ehs_uint32 EhsHMetaGetSysTotal()
 {
     //printf(" =%s\n",);
     return EhsMetaData.nSysSpaceTotal_KB;
 }
 
-EHS_GLOBAL const ehs_uint32 EhsHMetaGetSysUsed()
+const ehs_uint32 EhsHMetaGetSysUsed()
 {
     //printf(" =%s\n",);
     return EhsMetaData.nSysSpaceUsed_KB;
 }
-EHS_GLOBAL const ehs_char * EhsHMetaGetVersion()
+const ehs_char * EhsHMetaGetVersion()
 {
     //printf("EhsMetaData.zVersion =%s\n",EhsMetaData.zVersion);
     return EhsMetaData.zVersion;
 }
-EHS_GLOBAL const ehs_char * EhsHMetaGetBuildDate()
+const ehs_char * EhsHMetaGetBuildDate()
 {
     //printf("EhsMetaData.zBuildDate =%s\n",EhsMetaData.zBuildDate);
     return EhsMetaData.zBuildDate;
 }
-EHS_GLOBAL const ehs_char * EhsHMetaGetTargetVariant()
+const ehs_char * EhsHMetaGetTargetVariant()
 {
     #ifdef EHS_ESP32_SUPPORT
     return "ehs-esp32";
@@ -593,27 +597,27 @@ EHS_GLOBAL const ehs_char * EhsHMetaGetTargetVariant()
     return EhsMetaData.zTargetVariant;
     #endif
 }
-EHS_GLOBAL const ehs_char * EhsHMetaGetEHSStartDate()
+const ehs_char * EhsHMetaGetEHSStartDate()
 {
     //printf("EhsMetaData.zEHSStartDate =%s\n",EhsMetaData.zEHSStartDate);
     return EhsMetaData.zEHSStartDate;
 }
-EHS_GLOBAL ehs_startupmode_t EhsHMetaGetDebugOnStartMode()
+ehs_startupmode_t EhsHMetaGetDebugOnStartMode()
 {
     return EhsMetaData.DebugOnStart;
 }
 
-EHS_GLOBAL ehs_bool EhsHMetaGetStartWithoutApp()
+ehs_bool EhsHMetaGetStartWithoutApp()
 {
     return EhsMetaData.bStartWithoutApp;
 }
 
-EHS_GLOBAL void EhsHMetaSetStartWithoutApp(ehs_bool enable)
+void EhsHMetaSetStartWithoutApp(ehs_bool enable)
 {
     EhsMetaData.bStartWithoutApp = enable;
 }
 
-EHS_GLOBAL void EhsHMetaAppSetCurrent(ehs_char * App)
+void EhsHMetaAppSetCurrent(ehs_char * App)
 {
     /* todo should check length and return an error */
 #ifndef INX_SODL_IN_FLASH
@@ -622,14 +626,14 @@ EHS_GLOBAL void EhsHMetaAppSetCurrent(ehs_char * App)
 }
 
 //@todo - needs renaming!
-EHS_GLOBAL const ehs_char* EhsHMetaAppGetCurrent()
+const ehs_char* EhsHMetaAppGetCurrent()
 {
 #ifndef INX_SODL_IN_FLASH
     return EhsMetaData.AppCurrentLive;
 #endif
 }
 
-EHS_GLOBAL void EhsHMetaSetNextAppToRun(ehs_char * App)
+void EhsHMetaSetNextAppToRun(ehs_char * App)
 {
     /* todo should check length and return an error */
 #ifndef INX_SODL_IN_FLASH
@@ -637,7 +641,7 @@ EHS_GLOBAL void EhsHMetaSetNextAppToRun(ehs_char * App)
 #endif
 }
 
-EHS_GLOBAL const ehs_char* EhsHMetaGetNextAppToRun()
+const ehs_char* EhsHMetaGetNextAppToRun()
 {
 #ifndef INX_SODL_IN_FLASH
     return EhsMetaData.NextAppToRun;
@@ -646,37 +650,101 @@ EHS_GLOBAL const ehs_char* EhsHMetaGetNextAppToRun()
 #endif
 }
 
+/* Get the Loop time according to which thread */
 
+const ehs_uint32 EhsHMetaGetThreadLoopTimeMin(ehs_threadname_t threadname)
+{
+    #ifdef EHS_STATISTICS_THREADLOOPTIME_ENABLED
+    if (threadname >= EHSTHREADNAME_MAX) return 0;
+    return EhsMetaData.ThreadLoopTimeMin[threadname];
+    #else
+    return 0;
+    #endif//EHS_STATISTICS_THREADLOOPTIME_ENABLED
+}
+const ehs_uint32 EhsHMetaGetThreadLoopTimeMax(ehs_threadname_t threadname)
+{
+    #ifdef EHS_STATISTICS_THREADLOOPTIME_ENABLED
+    if (threadname >= EHSTHREADNAME_MAX) return 0;
+    return EhsMetaData.ThreadLoopTimeMax[threadname];
+    #else
+    return 0;
+    #endif//EHS_STATISTICS_THREADLOOPTIME_ENABLED
+}
+const ehs_uint32 EhsHMetaGetThreadLoopTimeAvg(ehs_threadname_t threadname)
+{
+    #ifdef EHS_STATISTICS_THREADLOOPTIME_ENABLED
+    if (threadname >= EHSTHREADNAME_MAX) return 0;
+    return EhsMetaData.ThreadLoopTimeAvg[threadname];
+    #else
+    return 0;
+    #endif//EHS_STATISTICS_THREADLOOPTIME_ENABLED
+}
+
+/**
+ * @brief Update the thread loop time to the min, max and avg
+ * 
+ * @param threadname The enumeration of the related thread
+ * @param time The loop time to be updated
+ * @return none
+ */
+void EhsHMetaUpdateThreadLoopTime(ehs_threadname_t threadname, ehs_uint32 time)
+{
+    #ifdef EHS_STATISTICS_THREADLOOPTIME_ENABLED
+    if (threadname >= EHSTHREADNAME_MAX) return;
+    if (EhsMetaData.ThreadLoopTimeAvg[threadname] == 0) EhsMetaData.ThreadLoopTimeAvg[threadname] = time;
+    EhsMetaData.ThreadLoopTimeAvg[threadname] = (time + 15*EhsMetaData.ThreadLoopTimeAvg[threadname]) / 16;
+    if (EhsMetaData.ThreadLoopTimeMin[threadname] == 0) EhsMetaData.ThreadLoopTimeMin[threadname] = time;
+    if (time < EhsMetaData.ThreadLoopTimeMin[threadname]) EhsMetaData.ThreadLoopTimeMin[threadname] = time;
+    if (time > EhsMetaData.ThreadLoopTimeMax[threadname]) EhsMetaData.ThreadLoopTimeMax[threadname] = time;
+    #endif//EHS_STATISTICS_THREADLOOPTIME_ENABLED
+}
+
+static ehs_uint64 gThreadLoopTimeTemp[EHSTHREADNAME_MAX];
+void EhsHStatisticsLoopStart(ehs_threadname_t threadname)
+{
+    #ifdef EHS_STATISTICS_THREADLOOPTIME_ENABLED
+    if (threadname >= EHSTHREADNAME_MAX) return;
+    gThreadLoopTimeTemp[threadname] = /*esp_timer_get_time();*/EHS_CURRENT_TIME;
+    #endif//EHS_STATISTICS_THREADLOOPTIME_ENABLED
+}
+void EhsHStatisticsLoopEnd(ehs_threadname_t threadname)
+{
+    #ifdef EHS_STATISTICS_THREADLOOPTIME_ENABLED
+    if (threadname >= EHSTHREADNAME_MAX) return;
+    gThreadLoopTimeTemp[threadname] = EHS_CURRENT_TIME /*esp_timer_get_time()*/ - gThreadLoopTimeTemp[threadname];
+    EhsHMetaUpdateThreadLoopTime(threadname, (ehs_uint32) gThreadLoopTimeTemp[threadname]);
+    #endif//EHS_STATISTICS_THREADLOOPTIME_ENABLED
+}
 
 /* And the same for the app data. This structure is from the app_data. module */
 
-EHS_GLOBAL const ehs_uint32 EhsHAppMetaGetBuildNumber()
+const ehs_uint32 EhsHAppMetaGetBuildNumber()
 {
     //printf(" =%s\n",);
     return EhsApplicationMetaData.nSODLBuildNumber;
 }
 
-EHS_GLOBAL const ehs_char * EhsHAppMetaGetVersionNumber()
+const ehs_char * EhsHAppMetaGetVersionNumber()
 {
     //printf("hsApplicationMetaData.zVersion =%s\n",EhsApplicationMetaData.zVersion);
     return EhsApplicationMetaData.zVersion;
 }
 
-EHS_GLOBAL const ehs_char * EhsHAppMetaGetAppDate()
+const ehs_char * EhsHAppMetaGetAppDate()
 {
     //printf("EhsApplicationMetaData.zSODLdate =%s\n",EhsApplicationMetaData.zSODLdate);
     return EhsApplicationMetaData.zSODLdate;
 }
 
-EHS_GLOBAL const ehs_char * EhsHAppMetaGetAppName()
+const ehs_char * EhsHAppMetaGetAppName()
 {
     return EhsApplicationMetaData.zApplicationName;
 }
 
 /* The followiing for another process name (not an EHS app)*/
-EHS_GLOBAL  ehs_char * EhsHMetaGetMiscAppNamePtr()
+ ehs_char * EhsHMetaGetMiscAppNamePtr()
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     return EhsMetaData.MiscAppProcName;
 #else
     return NULL;
@@ -707,7 +775,7 @@ void EhsHMetaSetMissedPing()
 }
 
 /* The following are inter app related functions, but get data from the ES environment - not the app environment */
-EHS_GLOBAL const ehs_char * EhsHAppMetaGetLiveDir()
+const ehs_char * EhsHAppMetaGetLiveDir()
 {
 #ifndef INX_SODL_IN_FLASH
     return EhsMetaData.AppCurrentLive;
@@ -740,7 +808,7 @@ extern void EhsHMetaSetNewDevmanMiscDLDataNew(ehs_bool val)
 
 extern ehs_char* EhsHMetaGetPtrToDevmanMiscDLData()
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     return EhsMetaData.zDevmanMiscDLData;
 #else
     return NULL;
@@ -750,7 +818,7 @@ extern ehs_char* EhsHMetaGetPtrToDevmanMiscDLData()
 
 extern ehs_char* EhsHMetaGetPtrToDevmanMiscDLDataType()
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     return EhsMetaData.zDevmanMiscDLDataType;
 #else
     return NULL;
@@ -763,9 +831,9 @@ extern ehs_char* EhsHMetaGetPtrToDevmanMiscDLDataType()
  * needs to write data to file in changes
  * need  a new function for reading initial data from file.
  * */
-EHS_GLOBAL void EhsHMetaSetDevmanMiscDLDataType(const ehs_char* zMiscInfo)
+void EhsHMetaSetDevmanMiscDLDataType(const ehs_char* zMiscInfo)
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     EhsStrcpy(EhsMetaData.zDevmanMiscDLDataType, zMiscInfo);
     EhsTPMutex_unlock(EhsTPMutex_devmanMiscBuffers);
@@ -778,7 +846,7 @@ EHS_GLOBAL void EhsHMetaSetDevmanMiscDLDataType(const ehs_char* zMiscInfo)
 
 extern void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     EhsStrcpy(EhsMetaData.zDevmanMiscDLData, zMiscInfo); // * todo - this needs to merge JSON - Ideally not using  JSON library for portability
     EhsStrcpy(EhsMetaData.zDevmanNewMiscDLData, zMiscInfo);
@@ -803,9 +871,9 @@ extern EhsTPMutexClass EhsHMetaGetDevmanMiscDLDataMutex()
     return EhsMetaData.mutexDevmanNewMiscDLData;
 }
 
-EHS_GLOBAL void EhsHMetaGetCpyDevmanMiscDLData(ehs_char* zMiscInfo)
+void EhsHMetaGetCpyDevmanMiscDLData(ehs_char* zMiscInfo)
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     EhsStrcpy(zMiscInfo,EhsMetaData.zDevmanMiscDLDataType);
     EhsTPMutex_unlock(EhsTPMutex_devmanMiscBuffers);
@@ -815,7 +883,7 @@ EHS_GLOBAL void EhsHMetaGetCpyDevmanMiscDLData(ehs_char* zMiscInfo)
 /* this gets just the new part */
 extern void EhsHMetaGetCpyDevmanNewMiscDLData(ehs_char* zMiscInfo)
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     EhsStrcpy(zMiscInfo,EhsMetaData.zDevmanNewMiscDLData);
     EhsTPMutex_unlock(EhsTPMutex_devmanMiscBuffers);
@@ -825,7 +893,7 @@ extern void EhsHMetaGetCpyDevmanNewMiscDLData(ehs_char* zMiscInfo)
 /* this gets just the new part */
 extern ehs_char*  EhsHMetaGetDevmanNewMiscDLDataPtr()
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     return EhsMetaData.zDevmanNewMiscDLData;
 #else
     return NULL;
@@ -846,7 +914,7 @@ extern void EhsHMetaSetNewDevmanMiscULDataNew(ehs_bool val)
 
 extern ehs_char* EhsHMetaGetPtrToDevmanMiscULData()
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     return EhsMetaData.zDevmanMiscULData;
 #else
     return NULL;
@@ -856,7 +924,7 @@ extern ehs_char* EhsHMetaGetPtrToDevmanMiscULData()
 /********************************/
 extern void EhsHMetaSetDevmanMiscULData(const ehs_char* zMiscInfo)
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     EhsStrcpy(EhsMetaData.zDevmanMiscULData, zMiscInfo);
     EhsTPMutex_unlock(EhsTPMutex_devmanMiscBuffers);
@@ -865,7 +933,7 @@ extern void EhsHMetaSetDevmanMiscULData(const ehs_char* zMiscInfo)
 
 extern void EhsHMetaGetCpyDevmanMiscULData(ehs_char* zMiscInfo)
 {
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     //	printf("XXXX[%x] = %s\n",zMiscInfo,EhsMetaData.zDevmanMiscULData);
     EhsStrcpy(zMiscInfo,EhsMetaData.zDevmanMiscULData);
@@ -1051,7 +1119,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
 
 
         /* This returns the requested state and sets it back to the default "continue" command */
-        EHS_GLOBAL Ehs_ConsoleCommand_Type EhsHFSMGetInternallyRequestedCommand()
+        Ehs_ConsoleCommand_Type EhsHFSMGetInternallyRequestedCommand()
         {
             Ehs_ConsoleCommand_Type state = EhsMetaData.InternallyRequestedCommand;
             EhsMetaData.InternallyRequestedCommand=	EHS_CONTINUE;
@@ -1062,7 +1130,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
         /* Tell EHS to change state
          * This can bounce the request and return false if it thinks the current request is more important
          */
-        EHS_GLOBAL ehs_bool EhsHFSMSetInternallyRequestedCommand(Ehs_ConsoleCommand_Type state)
+        ehs_bool EhsHFSMSetInternallyRequestedCommand(Ehs_ConsoleCommand_Type state)
         {
             if (EhsMetaData.InternallyRequestedCommand == EHS_CONTINUE)   //Any other request is more important!
             {
@@ -1077,7 +1145,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
         }
 
         /* don't check the current state is not EHS_CONTINUE */
-        EHS_GLOBAL void EhsHFSMForceInternallyRequestedCommand(Ehs_ConsoleCommand_Type state )
+        void EhsHFSMForceInternallyRequestedCommand(Ehs_ConsoleCommand_Type state )
         {
 
             EhsMetaData.InternallyRequestedCommand = state;
@@ -1184,7 +1252,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             EhsHLogger_init(); /* initialise the system Logger */
             /* EHSH_LOG_LEVEL_ERROR|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO|EHSH_LOG_LEVEL_ENTER|EHSH_LOG_LEVEL_EXIT */
             EhsHSetLogLevels();
-            EhsHInitEhsMetaData(); //Make sure the pltform Meta data file is all blanked out
+            EhsHInitEhsMetaData(); //Make sure EHS_DEVMAN_SUPPORTthe pltform Meta data file is all blanked out
 #ifdef EHS_NETWORKING_SUPPORT
             EhsHURLGlobalInit();
 #endif
@@ -1206,7 +1274,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             EhsBinSearchPath(); /* Add a search path to bin (@todo Still needed?) */
 
             //@todo ALL THIS SHOULD BE MOVED TO THE MODULE INITIALISATION CODE
-#ifdef EHS_DEVMAN_MON_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
             DevmanMon_init(); // Non Component devman functions are considered part of the HAL
 #endif
 #ifdef EHS_LUA_SUPPORT
@@ -1227,7 +1295,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             /* set flag to indicate to other threads that EHS is now in business */
 
             EhsMetaData.PairedOrganisationIDRequested=0; //was 2 for some reason?
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_NONE)
             EhsHMetaSetNewDevmanMiscDLDataNew(EHS_FALSE);
             ehs_char* data = EhsHMetaGetPtrToDevmanMiscDLData();
             data[0]='\0';
@@ -1344,6 +1412,6 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             */
         }
 
-EHS_GLOBAL ehs_uint32 EhsConsoleQueue_maxSize(){
+ehs_uint32 EhsConsoleQueue_maxSize(){
     return EHS_DEBUG_CONSOLE_BUFFER_SIZE;
 }

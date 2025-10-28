@@ -1,5 +1,7 @@
 
 #include <jni.h>
+
+#include "globals.h"
 #include "hal-api.h"
 
 /* exposed JNI functions */

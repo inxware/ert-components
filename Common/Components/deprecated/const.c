@@ -18,7 +18,6 @@
  *
 */
 
-#include "target.h"
 #include "globals.h" /* required for trace */
 #include "const.h"
 #include "setCompletes.h"

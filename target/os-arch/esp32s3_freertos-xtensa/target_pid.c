@@ -1,3 +1,5 @@
+
+#include "globals.h"
 #include "hal_pid.h"
 #include "pid/inx-PID_isr.h"
 
@@ -144,7 +146,7 @@ static ehs_bool ehs_pid_configure_adc_continuous(adc_continuous_handle_t* adc_ha
 //static const int coeff_a_scaling = 65536;
 
 // determine if availble sensor is connected
-void inx_adc_check_sensor_state(int id, uint32_t data, adcRawConnected_t* pSensorConnected)
+void IRAM_ATTR inx_adc_check_sensor_state(int id, uint32_t data, adcRawConnected_t* pSensorConnected)
 {
     bool _connected = true;
     switch (id)
@@ -270,7 +272,6 @@ static bool IRAM_ATTR s_pid_ctrl_conv_done_cb(adc_continuous_handle_t handle, co
 
 EHS_GLOBAL ehs_bool EhsPIDCtrlInit(ehs_pid_ctrl_type* pid_ctrl)
 {
-    printf("EhsInitPIDCtrl\n");
     pid_ctrl->nError = PID_CTRL_NO_ERROR;
     if(samplerData.bSamplerCreated == EHS_FALSE) {
 
@@ -309,7 +310,6 @@ EHS_GLOBAL ehs_bool EhsPIDCtrlInit(ehs_pid_ctrl_type* pid_ctrl)
 
 EHS_GLOBAL ehs_bool EhsPIDCtrlDestroy(ehs_pid_ctrl_type* pid_ctrl)
 {
-    printf("EhsDestroyPIDCtrl\n");
 
     if(samplerData.bSamplerCreated == EHS_TRUE) {
         inx_pid_ctrl_gpio_destroy();
@@ -326,7 +326,7 @@ EHS_GLOBAL ehs_bool EhsPIDCtrlDestroy(ehs_pid_ctrl_type* pid_ctrl)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlSetMeasuredValue(ehs_pid_ctrl_type* pid_ctrl)
+EHS_GLOBAL ehs_bool IRAM_ATTR EhsPIDCtrlSetMeasuredValue(ehs_pid_ctrl_type* pid_ctrl)
 {
     //printf("EhsSetMeasuredValuePIDCtrl\n");
     // @TODO - for now esp32s3 only supports ISR mode

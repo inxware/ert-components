@@ -10,7 +10,7 @@
 #ifndef EHS_TARGET_ADCCAD_H
 #define EHS_TARGET_ADCCAD_H
 
-#include "ehs_types.h"
+#include "globals.h"
 
 #define EHS_TARGET_ADC_COMMA ,
 

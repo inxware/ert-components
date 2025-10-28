@@ -37,7 +37,7 @@
 #ifndef PORT_COMMON_H_
 #define PORT_COMMON_H_
 
-#include "target_types.h"
+#include "globals.h"
 #include "mbconfig.h"
 #include "target_mbconfig.h"
 #include "target_mbport_port.h"

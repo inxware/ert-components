@@ -16,9 +16,8 @@
  *
  */
 
-#include "arraystring.h"
 #include "globals.h"
-#include "target.h"
+#include "arraystring.h"
 /** @todo check which includes are required here */
 //#include "types.h"
 #include "setCompletes.h"

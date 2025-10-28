@@ -23,6 +23,8 @@
 #ifndef xEHS_GUI_SUPPORT
 /*****************************************************************************/
 /* Included files */
+
+#include "globals.h"
 #include "graphics_types.h"
 #include "target_viewport.h"
 #include "ehs_fb_types.h"
@@ -61,7 +63,7 @@ typedef struct EhsTVStruct EhsTVClass;
  * stage.
  */
 
-//EHS_GLOBAL
+//EHS_COMPONENT_API_EXPORT EHS_FB_
 extern EhsTVClass EhsTV;
 
 /*****************************************************************************/
@@ -73,13 +75,13 @@ extern EhsTVClass EhsTV;
  * Indicate to the target that the viewport needs updating.
  * This will eventually result in EhsTV_paint being called
  */
-EHS_GLOBAL void EhsTV_update(EhsTVClass* pViewport);
+void EhsTV_update(EhsTVClass* pViewport);
 
 /**
  * Indicate to the target that a rectangle on the viewport needs updating.
  * This will eventually result in EhsTV_paint being called
  */
-EHS_GLOBAL void EhsTV_updateRect(EhsTVClass* pViewport, ehs_sint32 nX, ehs_sint32 nY, ehs_sint32 nWidth, ehs_sint32 nHeight);
+void EhsTV_updateRect(EhsTVClass* pViewport, ehs_sint32 nX, ehs_sint32 nY, ehs_sint32 nWidth, ehs_sint32 nHeight);
 
 #ifndef EhsTV_blit
 /**
@@ -92,7 +94,7 @@ EHS_GLOBAL void EhsTV_updateRect(EhsTVClass* pViewport, ehs_sint32 nX, ehs_sint3
  * @param[in] nAlpha The global alpha level
  */
 #define EhsTV_blit_withlock EhsTV_blit //@todo make a with lock version
-EHS_GLOBAL void EhsTV_blit(EhsTVClass* pViewport,
+void EhsTV_blit(EhsTVClass* pViewport,
                            const EhsTVSurfaceClass* pSurface,
                            const EhsGraphicsRectangleClass* prDst,
                            const EhsGraphicsRectangleClass* prSrc,
@@ -107,26 +109,26 @@ EHS_GLOBAL void EhsTV_blit(EhsTVClass* pViewport,
  * @param[in] pRect position and size of rectangle to fill
  * @param[in] pColour Colour to use for filling rectangle (includes global alpha value)
  */
-EHS_GLOBAL void EhsTV_fillRect(EhsTVClass* pViewport,
+void EhsTV_fillRect(EhsTVClass* pViewport,
                                const EhsGraphicsRectangleClass* pRect, const EhsGraphicsColourClass* pColour);
 #endif
 
 /*Change alpha value of viewport*/
-EHS_GLOBAL void EhsTV_fade(EhsTVClass* pViewport, EhsGraphicsColourClass nColour);
+void EhsTV_fade(EhsTVClass* pViewport, EhsGraphicsColourClass nColour);
 
 /*
  * show a frame on the viewport
  * @todo implement EhsTV_showFrame for other targets, not just gtk
  */
-EHS_GLOBAL void EhsTV_showFrame(EhsTVClass* pViewport, ehs_bool bHasFrame);
+void EhsTV_showFrame(EhsTVClass* pViewport, ehs_bool bHasFrame);
 
-EHS_GLOBAL void EhsTV_hideViewport();
-
-/*Change size and position of viewport*/
-EHS_GLOBAL void EhsTV_move(EhsTVClass* pViewport, EhsDataflowIntType nX, EhsDataflowIntType nY, EhsDataflowIntType nDeltaWid, EhsDataflowIntType nDeltaHt);
+void EhsTV_hideViewport();
 
 /*Change size and position of viewport*/
-EHS_GLOBAL void EhsTV_setwindow(EhsTVClass* pViewport, ehs_bool isViewportDefined, EhsDataflowIntType nX, EhsDataflowIntType nY, EhsDataflowIntType nWid, EhsDataflowIntType nHt);
+void EhsTV_move(EhsTVClass* pViewport, EhsDataflowIntType nX, EhsDataflowIntType nY, EhsDataflowIntType nDeltaWid, EhsDataflowIntType nDeltaHt);
+
+/*Change size and position of viewport*/
+void EhsTV_setwindow(EhsTVClass* pViewport, ehs_bool isViewportDefined, EhsDataflowIntType nX, EhsDataflowIntType nY, EhsDataflowIntType nWid, EhsDataflowIntType nHt);
 
 /* reset the widget table - clears all stuff! */
 
@@ -135,31 +137,31 @@ EHS_GLOBAL void EhsTV_setwindow(EhsTVClass* pViewport, ehs_bool isViewportDefine
  *
  * @return true if initialisation was successful.
  */
-EHS_GLOBAL ehs_bool EhsTV_init(EhsTVClass* pViewport);
+ehs_bool EhsTV_init(EhsTVClass* pViewport);
 
 /**
  *  reset the use of the target viewport. This function is called between
  * applications. It releases application-specific resources occupied by the viewport.
  */
-EHS_GLOBAL void EhsTV_reset(EhsTVClass* pViewport);
+void EhsTV_reset(EhsTVClass* pViewport);
 
 /**
  * called after widgets are created
  * These are tasks that are delayed until after the widgets are created
  * This is specifically so that the viewport widget attributes can be applied to the window before it is shown
  */
-EHS_GLOBAL void EhsTV_show(EhsTVClass* pViewport);
+void EhsTV_show(EhsTVClass* pViewport);
 
 /**
  *  Terminate the use of the target viewport. This function is called as part of shutting
  * down EHS. It releases all resources occupied by the viewport.
  */
-EHS_GLOBAL void EhsTV_term(EhsTVClass* pViewport);
+void EhsTV_term(EhsTVClass* pViewport);
 
 /**
  * Clear the target viewport
  */
-EHS_GLOBAL void EhsTV_clear(EhsTVClass* pViewport);
+void EhsTV_clear(EhsTVClass* pViewport);
 
 
 /* The following function sets the viewport to the default value in case a viewport widget is not in the application
@@ -267,7 +269,7 @@ void EhsPrimaryViewportInfo_setZOrder(ehs_uint16 nZOrder);
  * @param[in] bTemporary Create using the temporary memory (allows it to be destroyed
  * @return pointer to the surface, or null if an error occured.
  */
-EHS_GLOBAL EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
+EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
         ehs_uint16 nWidth, ehs_uint16 nHeight, EhsGraphicsColourFormatEnum eFormat,
         EhsGraphicsColourClass* pPalette, ehs_uint16 nPaletteSize);//, ehs_bool bTemporary);
 
@@ -275,19 +277,19 @@ EHS_GLOBAL EhsTVSurfaceClass* EhsTVSurface_create(EhsTVClass* pViewport,
 /**
  * Free memory used by a surface
  */
-EHS_GLOBAL void EhsTVSurface_destroy(EhsTVClass* pViewport, EhsTVSurfaceClass *pSurface);
+void EhsTVSurface_destroy(EhsTVClass* pViewport, EhsTVSurfaceClass *pSurface);
 #endif
 
 #ifndef EhsTVSurface_pixels
 /**
  * Provide access to the array of pixels that makes up the surface, these might be any pixel format so return void *
  */
-EHS_GLOBAL void* EhsTVSurface_pixels(EhsTVSurfaceClass* pSurface);
+void* EhsTVSurface_pixels(EhsTVSurfaceClass* pSurface);
 #endif
 
 #ifndef EhsTVSurface_finalisePixels
 /* This will allow the graphics card to copy pixels into video memory or other GFX subsystem ready for blitting */
-EHS_GLOBAL void EhsTVSurface_finalisePixels(EhsTVSurfaceClass* pSurface);
+void EhsTVSurface_finalisePixels(EhsTVSurfaceClass* pSurface);
 #endif
 
 #ifndef EhsTVSurface_pitch
@@ -295,7 +297,7 @@ EHS_GLOBAL void EhsTVSurface_finalisePixels(EhsTVSurfaceClass* pSurface);
  * Return the number of pixels across (allows direct addressing in the array of pixels -
  * index = x + y * pitch
  */
-EHS_GLOBAL ehs_uint16 EhsTVSurface_pitch(EhsTVSurfaceClass* pSurface);
+ehs_uint16 EhsTVSurface_pitch(EhsTVSurfaceClass* pSurface);
 #endif
 
 //#ifndef EhsTVSurface_bitmap
@@ -304,13 +306,13 @@ EHS_GLOBAL ehs_uint16 EhsTVSurface_pitch(EhsTVSurfaceClass* pSurface);
  */
 
 // removed as pixels does this
-//EHS_GLOBAL void* EhsTVSurface_bitmap(EhsTVSurfaceClass* pSurface);
+//void* EhsTVSurface_bitmap(EhsTVSurfaceClass* pSurface);
 //#endif
 #ifndef EhsTVSurface_width
 /**
  * Return the width of a surface
  */
-EHS_GLOBAL ehs_uint16 EhsTVSurface_width(EhsTVSurfaceClass* pSurface);
+ehs_uint16 EhsTVSurface_width(EhsTVSurfaceClass* pSurface);
 #endif
 
 
@@ -318,7 +320,7 @@ EHS_GLOBAL ehs_uint16 EhsTVSurface_width(EhsTVSurfaceClass* pSurface);
 /**
  * Return the height of a surface
  */
-EHS_GLOBAL ehs_uint16 EhsTVSurface_height(EhsTVSurfaceClass* pSurface);
+ehs_uint16 EhsTVSurface_height(EhsTVSurfaceClass* pSurface);
 
 
 /**

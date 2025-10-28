@@ -11,6 +11,8 @@
 #include "port/port.h"
 #include "mbconfig.h"
 
+#include "globals.h"
+
 /* ----------------------- Defines ------------------------------------------*/
 
 #ifndef TRUE

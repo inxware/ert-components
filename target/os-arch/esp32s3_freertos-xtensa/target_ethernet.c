@@ -1,16 +1,15 @@
-#include "target_config.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-#if TARGET_USE_ETHERNET == 1
+#include "globals.h"
 #include "target_ethernet.h"
-#include "target_types.h"
 #include "esp_log.h"
 #include "esp_check.h"
 #include "esp_mac.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "driver/spi_master.h"
-#include <stdio.h>
-#include <stdlib.h>
+
 
 #define TAG "target_ethernet"
 
@@ -123,6 +122,21 @@ static esp_eth_handle_t eth_init_spi(spi_eth_module_config_t *spi_eth_module_con
     return ret;
 }
 
+static esp_err_t eth_deinit_spi(esp_eth_handle_t eth_handle, esp_eth_mac_t *mac, esp_eth_phy_t *phy)
+{
+    esp_err_t ret = ESP_OK;
+
+    if (eth_handle != NULL)
+    {
+        ESP_GOTO_ON_ERROR(esp_eth_driver_uninstall(eth_handle), err, TAG, "SPI Ethernet driver uninstall failed");
+        if (mac != NULL) mac->del(mac);
+        if (phy != NULL) phy->del(phy);
+    }
+    return ret;
+err:
+    return ret;
+}
+
 esp_err_t target_eth_init(esp_eth_handle_t *eth_handles_out)
 {
     esp_err_t ret = ESP_OK;
@@ -165,4 +179,14 @@ err:
     return ret;
 }
 
-#endif // TARGET_USE_ETHERNET == 1
+esp_err_t target_eth_deinit(esp_eth_handle_t eth_handle)
+{
+    esp_err_t ret = ESP_OK;
+
+    ESP_GOTO_ON_ERROR(eth_deinit_spi(eth_handle, NULL, NULL), err, TAG, "SPI Ethernet deinit failed");
+    ESP_GOTO_ON_ERROR(spi_bus_free(TARGET_ETH_SPI_NUM), err, TAG, "SPI bus free failed");
+
+    return ret;
+err:
+    return ret;
+}

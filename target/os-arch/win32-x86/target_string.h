@@ -70,6 +70,8 @@
 
 #define EhsMemcpy memcpy
 
+#define EhsMemchr memchr
+
 #define EhsStrIsSpace(c) (ehs_bool)isspace((ehs_uint8)(c))
 
 /*****************************************************************************/

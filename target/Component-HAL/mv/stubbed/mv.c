@@ -1,9 +1,30 @@
 
 #include "hal_mv.h"
 
+/* For MV hello world function */
+#ifdef EHS_CPPMV_SUPPORT_TEST
+#include "mv_hello.h"
+#endif
+
+/* This is used by clients of machine vision systems */
+/* todo move this to a cpmmon file as this is not target specific */
+ehs_uint8 gEhsCameraDataFormatChanLen[EHS_CAM_FMT_MAX] = {
+    1,      // EHS_CAM_FMT_DEF
+    1,      // EHS_CAM_FMT_8UC1
+    1,      // EHS_CAM_FMT_32FC1_NORM
+    3,      // EHS_CAM_FMT_32FC3_NORM
+    //3,      // EHS_CAM_FMT_8UC3
+    //3,      // EHS_CAM_FMT_32FC3
+    //1,      // EHS_CAM_FMT_32FC1
+};
 
 EhsCameraError EhsCameraStart(EhsCamera* camera, const ehs_char* id)
 {
+//Test C++ APIs in the stubbed version only
+#ifdef EHS_CPPMV_SUPPORT_TEST
+ hello_world();
+#endif
+
     return EHS_CAM_OK;
 }
 
@@ -15,7 +36,7 @@ void EhsCameraDestroy(EhsCamera* camera)
 {
 }
 
-ehs_bool EhsCameraGrabFrame(EhsCamera* camera, EhsCameraFrame* frame)
+ehs_bool EhsCameraGrabFrame(EhsCamera* camera, EhsCameraFrame* frame, ehs_bool show_image)
 {
     return EHS_TRUE;
 }

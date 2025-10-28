@@ -20,13 +20,13 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+#include "globals.h"
 
 
 // Handle GPIO input
-EHS_GLOBAL ehs_bool EhsEnableLED(ehs_uint8 id);
-EHS_GLOBAL ehs_bool EhsDisableLED(ehs_uint8 id);
-EHS_GLOBAL ehs_bool EhsSetLED(ehs_uint8 id, ehs_bool state, ehs_uint8 brightness);
+ehs_bool EhsEnableLED(ehs_uint8 id);
+ehs_bool EhsDisableLED(ehs_uint8 id);
+ehs_bool EhsSetLED(ehs_uint8 id, ehs_bool state, ehs_uint8 brightness);
 
 
 #endif /* _EHS_HAL_LED_H */

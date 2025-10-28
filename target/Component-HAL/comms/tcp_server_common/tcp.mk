@@ -32,6 +32,7 @@ else
 endif
 
 #Assume we don't need to check if console is selected by the time the make file is called.
+ifdef EHS_DEBUG_TCPIP_CONSOLE
 ifneq ($(EHS_DEBUG_TCPIP_CONSOLE),stubbed)
 	ifneq ($(EHS_DEBUG_TCPIP_CONSOLE),target_specific)
 	OBJECTS += console_server.$(OBJ)
@@ -41,6 +42,7 @@ ifneq ($(EHS_DEBUG_TCPIP_CONSOLE),stubbed)
 	DEFS += EHS_DEBUG_TCPIP_CONSOLE
 else
 	OBJECTS += stubbed_console.$(OBJ)
+endif
 endif
 
 VPATH+=: $(EHS_TARGET_SERVER_PATH)

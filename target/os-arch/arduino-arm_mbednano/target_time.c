@@ -9,7 +9,7 @@
 #include <Arduino.h>
 #include <mbed.h>
 
-#include "target_types.h"
+#include "globals.h"
 #include "timer.h"
 #include "hal_logger.h"
 

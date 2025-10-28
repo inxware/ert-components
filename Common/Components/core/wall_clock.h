@@ -25,11 +25,11 @@
 #define EHS_FB_ID_wall_clock 0xED30
 
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(wall_clock);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(wall_clock);
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(wall_clock); //this relates to C-file destroy function
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(wall_clock_get);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(wall_clock_set);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(wall_clock);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(wall_clock);
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(wall_clock); //this relates to C-file destroy function
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(wall_clock_get);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(wall_clock_set);
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(wall_clock)
 #endif /* EHS_TIME_CLOCK_H */

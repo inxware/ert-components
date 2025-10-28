@@ -10,7 +10,7 @@
 #ifndef EHS_COMP_API2_H
 #define EHS_COMP_API2_H
 
-#include "ehs_types.h"
+#include "globals.h"
 
 /** @file ehs_comp_api2.h
  * A redinition of some macros in ehs_fb_types.h

@@ -22,10 +22,10 @@
 
 #include <string.h> //PPP: This should probably be an OS specific include for HAL.
 
-#include "target.h"
+#include "globals.h"
 #include "convertor.h"
 #include "setCompletes.h"
-#include "globals.h"
+
 
 #include "hal-api.h" /* Required for logging */
 /******************************************************************************/

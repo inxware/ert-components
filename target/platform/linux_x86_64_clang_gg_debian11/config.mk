@@ -31,7 +31,7 @@ EHS_GNU_ARCH=x86_64
 EHS_GNU_OS=linux-gnu
 #use toolchain clib environment
 #EHS_GNU_OS_VERSION=-clang10_clang10
-#TODO we should build greengrass for Debian 11 and 12 soon - not sure why we are using  debian 10 built dependencies?
+#todo2025 - We whould be supporting debian11 and debian 12 - still using debian 10 built libraries?
 #EHS_GNU_OS_VERSION=-clang11_debian11
 EHS_GNU_OS_VERSION=-clang10_clang10
 
@@ -59,10 +59,10 @@ EHS_NETWORKING_SUPPORT=all
 # To enable full TCPIP networking toolbox ("netx" DCC=3)
 EHS_COMPONENT_NETWORKING_SUPPORT=all
 EHS_MQTT_SUPPORT=aws_green_grass
-#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-EHS_DEVMAN_SUPPORT=all
-#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-EHS_DEVMAN_MON_SUPPORT=yes 
+
+
+#unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features 
+EHS_DEVMAN_SUPPORT=http 
 
 ################################################################################################################
 # Select which source of contributed library dependencies are used to build the target

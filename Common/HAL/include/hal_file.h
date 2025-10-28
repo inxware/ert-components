@@ -32,19 +32,18 @@
 /*****************************************************************************/
 /* Included files */
 #include "globals.h"
+
 #ifndef EHS_FILESYSTEM_SUPPORT__STUBBED
     #include "target_file.h"
 #endif
 
 #include "hal.h" // needed for EhsMetaDataType
 
-
 /*****************************************************************************/
 /* Define macros  */
 
 /*****************************************************************************/
 /* Define types */
-
 
 /* This is used for selecting what kind of directory HAL file system commands will operate with */
 typedef enum
@@ -60,8 +59,11 @@ typedef enum
 
 /* If we are not including a target_file.h we need ot define a few defaults to */
 #ifdef EHS_FILESYSTEM_SUPPORT__STUBBED
+#ifndef FILE
 typedef int ehs_FILE;
-
+#else
+typedef FILE ehs_FILE;
+#endif
 /**
  * Longest possible path name (excluding filename, but including separators and
  * terminating zero).
@@ -176,7 +178,6 @@ These are inx abstractions for normal libc file operations
 
 /* This is for creating any directories that may or may not be crated by the installer */
 ehs_bool EhsFInitFileSystem();
-
 
 ehs_bool Ehs_AppMkdir(char * szPathname);
 ehs_FILE* Ehs_AppBaseFopen(const ehs_char * szFilename, const ehs_char * access);

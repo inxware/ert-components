@@ -30,9 +30,8 @@
 /* Included files */
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_STRING /**< required to be defined for hal_logger.h */
-
-#include "hal_string.h"
 #include "globals.h"
+#include "hal_string.h"
 #include "messages.h"
 #include "hal_logger.h"
 // Used for EhsHMem_writableAlloc
@@ -118,7 +117,7 @@ ehs_char* EhsStrTrimLR(ehs_char* pSrc)
 /**
  * Determine if character is a-z or A-Z
  */
-EHS_GLOBAL ehs_bool EhsIsAlpha(char c)
+ehs_bool EhsIsAlpha(char c)
 {
     return (EHS_TO_LOWER(c) >= 'a' && EHS_TO_LOWER(c) <= 'z');
 }
@@ -126,7 +125,7 @@ EHS_GLOBAL ehs_bool EhsIsAlpha(char c)
 /**
  * Determine if character is a-z or A-Z or 0-9
  */
-EHS_GLOBAL ehs_bool EhsIsAlNum(char c)
+ehs_bool EhsIsAlNum(char c)
 {
     return ((EHS_TO_LOWER(c) >= 'a' && EHS_TO_LOWER(c) <= 'z')||
             (c >= '0' && c <= '9'));
@@ -136,7 +135,7 @@ EHS_GLOBAL ehs_bool EhsIsAlNum(char c)
 /**
  * Determine if character is a-f or A-F or 0-9
  */
-EHS_GLOBAL ehs_bool EhsIsHexNum(char ch)
+ehs_bool EhsIsHexNum(char ch)
 {
     return (ch >= '0' && ch <= '9') ||
            (ch >= 'A' && ch <= 'F') ||
@@ -604,7 +603,7 @@ const ehs_char* EhsGetQuoteDelimFromString(ehs_char * output, const ehs_char* in
  * @endcode
  * 
  */
-EHS_GLOBAL ehs_uint8 EhsGetWordsFromString(ehs_char **outputs, const ehs_char* input, ehs_uint8 length)
+ehs_uint8 EhsGetWordsFromString(ehs_char **outputs, const ehs_char* input, ehs_uint8 length)
 {
     ehs_char in_temp[EHS_STRING_LENGTH_MAX];
     ehs_uint8 i = 0;

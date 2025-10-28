@@ -32,12 +32,10 @@
  * next time the start action is triggered, the collection will start reading from the beginning.
  */
 
-#include "target.h"
-
+#include "globals.h"
 #include "dtv_pvr_list.h"
 #include "hal_dtv.h"
 #include "hal_string.h"
-#include "globals.h"
 #include "setCompletes.h"
 #include "hal-api.h" /* Needed for logging */
 EHS_FB_FUNCTIONS_START(DtvPvrList)

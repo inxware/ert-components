@@ -39,11 +39,11 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "target.h"
+#include "globals.h"
+
 #ifdef   EHS_DEBUG_TCPIP_CONSOLE
 #include "console_server.h"
 #endif
-#include "globals.h"
 #include "ehs_main.h"
 #include "hal-api.h" // required for the meta data storage
 
@@ -77,6 +77,7 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_en
  * @return Integer representing exit code of application.
  *
  */
+
 EhsTargetIntType main(int argc, ehs_char ** argv )
 {
     pid_t pID;

@@ -1,3 +1,4 @@
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -5,9 +6,8 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "target.h"
-#include "target_config.h"
-#include "target_types.h"
+#include "globals.h"
+
 #include "target_uart.h"
 
 #include "freertos/FreeRTOS.h"
@@ -16,8 +16,9 @@
 #include "driver/uart.h"
 #include "esp_err.h"
 
-// Log
+// todo we shoiuld be using generic logging
 #include "esp_log.h"
+
 #define TAG "target_uart"
 
 #define NOTIFY_TgtUART_ISR_DELETE ( ( uint32_t ) 3 )

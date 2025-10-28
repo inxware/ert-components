@@ -25,7 +25,6 @@
 #include "ehs_fb_types.h"
 #include "system_exec.h"
 #include "setCompletes.h"
-#include "target.h"
 #include "app_data.h"
 
 #include "hal-api.h" /* Required for logging */
@@ -53,6 +52,7 @@
 EHS_FB_FUNCTIONS_START(Exec)
 EHS_FB_FUNCTION_ENTRY("run", 0x01, Exec)
 EHS_FB_FUNCTIONS_END
+
 
 /**
  * Identify the function block. Determine the memory required.

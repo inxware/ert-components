@@ -9,6 +9,7 @@
 #ifndef __target_os_dtv_h
 #define __target_os_dtv_h
 
+#include "globals.h"
 #include "hal_dtv.h"
 
 EHS_GLOBAL struct EhsTDPlaybackStruct

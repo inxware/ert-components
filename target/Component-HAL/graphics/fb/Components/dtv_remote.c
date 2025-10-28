@@ -16,10 +16,9 @@
  * @author: inx limited
  */
 
-#include "target.h"
 
-#include "dtv_remote.h"
 #include "globals.h"
+#include "dtv_remote.h"
 #include "fid.h"
 //#include "keypress.h"
 

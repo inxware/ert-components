@@ -3,8 +3,8 @@
 
 #include "globals.h"
 
-void sfWifiStationNetifSet(ehs_bool status);
+void sfNetifStatusSet(ehs_bool status);
 
-ehs_bool sfWifiStationNetifGet();
+ehs_bool sfNetifStatusGet();
 
 #endif

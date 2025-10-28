@@ -26,14 +26,16 @@
 
 include $(EHS_COMMON_HAL_PATH)/file/deps.mk
 
-ifeq ($(EHS_FILESYSTEM_SUPPORT),none)
-	DEFS += EHS_FILESYSTEM_SUPPORT__NONE
+ifdef EHS_FILESYSTEM_SUPPORT
+ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
+	ifeq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
+		OBJECTS += hal_file_stubbed.$(OBJ)
+		DEFS+=EHS_FILESYSTEM_SUPPORT__STUBBED
+	else 
+		OBJECTS+= hal_file.$(OBJ)
+	endif
+	DEFS += EHS_FILESYSTEM_SUPPORT
 endif
-ifeq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
-	OBJECTS += hal_file_stubbed.$(OBJ)
-	DEFS+=EHS_FILESYSTEM_SUPPORT__STUBBED
-else 
-	OBJECTS+= hal_file.$(OBJ)
 endif
 
 # TODO2025 the stubbed and micro file system should be alternative VPATHs for code. 

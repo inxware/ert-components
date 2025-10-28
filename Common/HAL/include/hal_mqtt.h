@@ -19,11 +19,10 @@
 /*****************************************************************************/
 /* Included files */
 #include "globals.h"
-#include "ehs_types.h"
-#include "target_config.h"
 
 #ifndef EHS_MQTT_CLIENT_INSTANCE_MAX
-#define EHS_MQTT_CLIENT_INSTANCE_MAX 1 // a default maximum number mqtt clinet instance/loop
+#define EHS_MQTT_CLIENT_INSTANCE_MAX 1
+// a default maximum number mqtt clinet instance/loop
 #endif
 
 #ifndef INX_MQTT_CERT_FILENAME_LENGTH
@@ -144,10 +143,12 @@ extern ehs_uint32 gMqttClientInstanceCount;
 
  ehs_bool EhsMQTTPublishWritePoll(ehs_char* topic, ehs_char* payload, ehs_uint8* qos);
 
+#if EHS_DEVMAN_SUPPORT == EHS_DEVMAN_MQTT
 /* API for the mqtt client used by devmon service */
  EhsMqttDevmanMon_t* EhsMqttDevmanMonSupport();
  inx_mqtt_subscribe_state_type* EhsMqttDevmanMonSubscribeNeedProcessing();
  inx_mqtt_subscribe_state_type* EhsMqttDevmanMonSubscribeGetWidgetById(const char* topic);
  inx_mqtt_publish_state_type* EhsMqttDevmanMonPublishNeedProcessing();
+ #endif
 
 #endif /* EHS_HAL_MQTT_H */

@@ -1,6 +1,6 @@
 #ifndef _LORAWAN_WIO_E5_H_
 #define _LORAWAN_WIO_E5_H_
-#include "target.h"
+#include "globals.h"
 #include "lorawan.h"
 
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_init( void );

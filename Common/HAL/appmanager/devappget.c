@@ -15,7 +15,7 @@
 
 /* @todo we need some global mutexing, at least on the default and temp file directories to avoid collisions of app downloads */
 
-#include "ehs_types.h"
+#include "globals.h"
 
 #include "hal-api.h" // for logger
 #include "hal_devman.h"

@@ -34,8 +34,8 @@
  * Provides access to the target-specific declarations of header files
  */
 
-#include "globals.h"
 #include <stdarg.h>	
+#include "globals.h"
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */

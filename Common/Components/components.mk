@@ -69,15 +69,6 @@ include $(EHS_COMMON_COMPONENTS_PATH)/user/usercomponents.mk
 ################ Networking Group - Keep together! ################################
 ########### Defines for sub components of the above modules ##########################
 #this is a subset of networking - we'll just add the compile flag
-#TODO this should all go into the network HAL make file.
-ifdef EHS_DEVMAN_SUPPORT
-ifneq ($(EHS_DEVMAN_SUPPORT), none)
-    DEFS+= EHS_DEVMAN_SUPPORT
-    #NOCODE
-    export EHS_DEVMAN_SUPPORT
-    #@ does the above mean that all components will be built?? Shouldn't but need to check
-endif
-endif
 
 #@todo this is repeated in the HAL-components - should all be here
 ifdef EHS_COMPONENT_NETWORKING_SUPPORT
@@ -100,6 +91,7 @@ endif
 # Machine Vision Support
 ifdef EHS_MV_SUPPORT
 export EHS_MV_SUPPORT
+DEFS+=EHS_MV_SUPPORT__$(EHS_MV_SUPPORT)
 include $(EHS_COMMON_COMPONENTS_PATH)/mv/components.mk
 endif
 

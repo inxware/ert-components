@@ -59,6 +59,7 @@ EHS_AUTO_START=--no-autostart
 
 DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=none
 DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=no
+EHS_DEVMAN_SUPPORT=http
 
 include ./target/devman-configs/devman.inxware.io.mk
 

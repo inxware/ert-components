@@ -15,7 +15,7 @@
 
 #ifndef TARGET_TEXTDISPLAYX_H_
 #define TARGET_TEXTDISPLAYX_H_
-#include "target_types.h"
+#include "globals.h"
 /*Declare global functions for working with textdisplay*/
 EHS_GLOBAL void EhsInitTextdisplay();
 EHS_GLOBAL void EhsWriteTextdisplay(ehs_sint32 row, ehs_sint32 col, char* text);

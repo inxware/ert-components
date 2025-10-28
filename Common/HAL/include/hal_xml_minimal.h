@@ -21,7 +21,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal_string.h"
 #include "hal_mem.h"
 

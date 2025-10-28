@@ -27,11 +27,11 @@
 #define EHS_FB_ID_gui_textdisplay 0x33A8
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(gui_textdisplay);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(gui_textdisplay);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_textdisplay_update);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_textdisplay_clear);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_textdisplay_poll);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(gui_textdisplay);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_textdisplay);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_textdisplay_update);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_textdisplay_clear);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_textdisplay_poll);
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_textdisplay)
 

@@ -62,9 +62,8 @@
  *
  */
 
-#include "target.h"
-#include "guileds.h"
 #include "globals.h"
+#include "guileds.h"
 /** @todo check which includes are required here */
 #include "setCompletes.h"
 #include "app_data.h"

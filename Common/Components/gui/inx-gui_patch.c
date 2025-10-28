@@ -123,6 +123,7 @@ EHS_FB_DESTROY_FUNCTION(gui_patch)
 	if(inx_gui_patch_state && inx_gui_patch_state->pUiWidgetClass != NULL){
 		EhsWidget_destroy(inx_gui_patch_state->pUiWidgetClass);
 	}
+	return EHS_TRUE;
 }
 
 static void gui_patch_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data)

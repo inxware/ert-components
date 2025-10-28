@@ -33,7 +33,6 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "target.h"
 #ifdef EHS_GUI_SUPPORT
 
 #include "guiparams.h"

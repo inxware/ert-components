@@ -20,13 +20,13 @@
 #define EHS_TARGET_CODE
 
 // #define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_NETWORK) /* define before hal_logger.h */
+#include "globals.h"
 #include "hal_logger.h"
 
 #include "target_types.h"
 #include "target_tcp.h"
 #include "console_server.h"
 #include "console.h" // needed for buffer status flag
-#include "globals.h"
 #include "hal_console.h"
 #include "hal-api.h"
 

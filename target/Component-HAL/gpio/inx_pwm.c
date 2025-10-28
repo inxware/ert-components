@@ -15,6 +15,7 @@
    - Does it only do this on init?  If not prolly needs re-writing / decomplicating 
 */
 
+/* todo: whY ON EARTH DO WE DO THINGS LIKE THIS? */
 #define INX_HWPWM_CHECK_RETURN(f) \
     ret = f; \
     if (ret != 0) return ret;
@@ -38,6 +39,7 @@ static inx_hw_pwm_t* searchHwPwmObj(ehs_sint32 channel)
         if (current->channel == channel) return current;
         current = current->pNext;
     }
+   return NULL;
 }
 
 static inx_hw_pwm_t* getLastHwPwmObj( void )
@@ -152,7 +154,7 @@ static void removeHwPwmObjFromList(inx_hw_pwm_t *obj)
 static void removeSearchHwPwmObjFromList(ehs_sint32 channel)
 {
     inx_hw_pwm_t *pSearch = searchHwPwmObj(channel);
-    removeHwPwmObjFromList(pSearch);
+    if (pSearch != NULL) removeHwPwmObjFromList(pSearch);
 }
 
 static void removeAllHwPwmObjList( void )
@@ -223,12 +225,12 @@ ehs_sint32 EhsTPwmSetDuty(inx_hw_pwm_t *obj, ehs_uint32 duty)
 ehs_sint32 EhsTPwmSetMaxRes(inx_hw_pwm_t *obj, ehs_uint32 duty)
 {
     int ret = 0;
-    ehs_uint32 max_val = 0;
-    ehs_uint32 real_duty = 0;
+    ehs_sint32 max_val = 0;
+    ehs_sint32 real_duty = 0;
     if (obj == NULL) return -1;
     // Cannot set the max value to be 0 or less than current duty
     if (duty == 0 || duty < obj->pStatus->duty) return -2;
-    INX_HWPWM_CHECK_RETURN(EhsTPortPwmSetMaxValue(obj->channel, obj->pStatus->freq, duty));
+    INX_HWPWM_CHECK_RETURN(EhsTPortPwmSetMaxValue(obj->channel, obj->pStatus->freq, (ehs_sint32)duty));
     INX_HWPWM_CHECK_RETURN(EhsTPortPwmGetMaxValue(obj->channel, &duty));
     obj->max_val = duty;
     return EhsTPwmSetDuty(obj, obj->pStatus->duty);

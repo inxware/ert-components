@@ -54,13 +54,12 @@
  *
  */
 
-#include "target.h"
 #ifndef XEHS_GUI_SUPPORT
 
+#include "globals.h"
 #include "guiviewport.h"
 #include "guiparams.h"
 #include "ehs_fb_types.h"
-#include "globals.h"
 #include "widget.h"
 #include "widget_viewport.h"
 /** @todo check which includes are required here */
@@ -149,7 +148,7 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
 
     //EHS_TRACE_FUNCTION(EHS_FB_INIT_NAME(GUI_ImageFile));
     pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-    if (guiParams) {
+    if (guiParams[0]) {
         /* parse coordinate block parameters */
         pParams = EhsGetUint8FromString(&nByte, pParams);
         /* Write the paramters from iAB function block */
@@ -220,6 +219,7 @@ EHS_FB_DESTROY_FUNCTION(gui_viewport)
         EhsWidgetViewport_cleanup(pWidget);
         EhsWidget_destroy(pWidget);
     }
+   return EHS_TRUE;	
 }
 
 static void gui_viewport_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data)
@@ -234,22 +234,22 @@ static void gui_viewport_event_callback(struct EhsWidgetStruct* pWidget, ehs_uin
             ehs_uint32 direction = (data) ? *((ehs_uint32*)data) : 0; // top : 1 , left : 2, right : 3, bottom : 4
             switch(direction) {
                 case 1:{ // TOP
-                    printf("*** TOP\n");
+                    //printf("*** TOP\n");
                     EHS_FB_FINISH(EHS_FB_GUI_VIEWPORT_create_drag_top);
                     break;
                 }
                 case 2:{ // LEFT
-                    printf("*** LEFT\n");
+                    //printf("*** LEFT\n");
                     EHS_FB_FINISH(EHS_FB_GUI_VIEWPORT_create_drag_left);
                     break;
                 }
                 case 3:{ // RIGHT
-                    printf("*** RIGHT\n");
+                    //printf("*** RIGHT\n");
                     EHS_FB_FINISH(EHS_FB_GUI_VIEWPORT_create_drag_right);
                     break;
                 }
                 case 4:{ // BOTTOM
-                    printf("*** BOTTOM\n");
+                    //printf("*** BOTTOM\n");
                     EHS_FB_FINISH(EHS_FB_GUI_VIEWPORT_create_drag_bottom);
                     break;
                 }

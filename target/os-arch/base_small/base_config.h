@@ -16,9 +16,6 @@
  */
 
 /* IMPORTANT THIS MUST THE SAME VALUES BETWEEEN EHS-KERNEL AND ert-components curently*/
-//todo2022 remove the need for this inEHS kernel so the config comes from ert-components.
-
-
 
 #ifndef BASE_CONFIG_H
 #define BASE_CONFIG_H
@@ -141,8 +138,6 @@
 #endif
 
 
-
-
 /* Warning! these must match the kernel values (until they can be published to the kernel */
 #ifdef EHS_TOOLKIT_DEPRECATED  //@todo careful that compiler doesn't calculate vales that are overriden
 #ifndef EHS_TOOLKIT_DEPRECATED_QTY
@@ -240,6 +235,7 @@
 #ifndef EHS_PRI_UART
 #define EHS_PRI_UART                       12
 #endif
+
 
 #ifndef EHS_PRI_MODBUS_MASTER_CTRL
 #define EHS_PRI_MODBUS_MASTER_CTRL          2

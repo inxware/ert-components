@@ -13,19 +13,19 @@
  *
  */
 
+#include "globals.h"
 
 #include "usblcd.h"
 #include "widgets.h"
 #include "usblcd_util.h"
 #include "target_textdisplay.h"
 #include "hal_process.h"
-#include "target_config.h"
 
 #ifdef USB_SUPPORT
 usblcd_operations* mylcd;
 #endif
 
-EHS_GLOBAL void EhsInitTextdisplay()
+void EhsInitTextdisplay()
 {
 #ifdef USB_SUPPORT
     /*Initialise usb panel*/
@@ -43,21 +43,21 @@ EHS_GLOBAL void EhsInitTextdisplay()
 #endif
 }
 
-EHS_GLOBAL void EhsWriteTextdisplay(ehs_sint32 row, ehs_sint32 col, char* text)
+void EhsWriteTextdisplay(ehs_sint32 row, ehs_sint32 col, char* text)
 {
 #ifdef USB_SUPPORT
     mylcd->settext(mylcd, row, col, text);
 #endif
 }
 
-EHS_GLOBAL void EhsClearTextdisplay()
+void EhsClearTextdisplay()
 {
 #ifdef USB_SUPPORT
     mylcd->clear(mylcd);
 #endif
 }
 
-EHS_GLOBAL unsigned char EhsReadKeysTextdisplay()
+unsigned char EhsReadKeysTextdisplay()
 {
 #ifdef USB_SUPPORT
     usblcd_event *event;
@@ -72,13 +72,13 @@ EHS_GLOBAL unsigned char EhsReadKeysTextdisplay()
     return 0xff;
 }
 #ifdef USB_SUPPORT
-EHS_GLOBAL usblcd_operations* getPanel()
+usblcd_operations* getPanel()
 {
     return mylcd;
 }
 #endif
 
-EHS_GLOBAL EhsTPThread pLcdThread;
+EhsTPThread pLcdThread;
 void lcdThreadCancel() //@todo this is targe specific but should go eith the create code really
 {
     if(pLcdThread != NULL) //@todo ??

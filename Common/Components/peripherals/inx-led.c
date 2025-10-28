@@ -80,6 +80,7 @@ EHS_FB_DESTROY_FUNCTION(led)
 	inx_led_state_type *inx_led_state = (inx_led_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
 	EhsDisableLED(inx_led_state->id);
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION EnableFunc MACRO START -- DO NOT ALTER

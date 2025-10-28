@@ -31,7 +31,6 @@ extern "C" {
 #if defined (CONFIG_LV_VER_RES_MAX)
 #define LV_VER_RES_MAX CONFIG_LV_VER_RES_MAX
 #endif
-#define CONFIG_LV_TFT_DISPLAY_CONTROLLER_FT81X 1
 /* DISP_BUF_SIZE value doesn't have an special meaning, but it's the size
  * of the buffer(s) passed to LVGL as display buffers. The default values used
  * were the values working for the contributor of the display controller.

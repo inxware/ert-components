@@ -1,2 +1,1 @@
 * * * * *   /root/ehs/devman/core/sys-timer.sh > /dev/null
-10 4 * * 0  /root/ehs/bin/restart.sh > /dev/null

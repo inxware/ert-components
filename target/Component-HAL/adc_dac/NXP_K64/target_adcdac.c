@@ -12,11 +12,8 @@ so there is no configuration passed in from the function blocks,
 nor are there 
 */
 
+#include "globals.h"
 #include "target_adcdac.h"
-
-#include "target.h"
-#include "target_config.h"
-
 
 ehs_uint8 unit = 0;
 
@@ -52,14 +49,14 @@ static ehs_bool configure_ADC2(ehs_uint8 channel)
 	return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
+ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
                                   ehs_uint8 *config)
 {
     *config=configure;// something random for now... not sure what this is supposed to do...
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
+ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
         ehs_uint8 config)
 {
     return EHS_TRUE;

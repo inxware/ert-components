@@ -1,7 +1,9 @@
 #ifndef HRX_PID_CONFIG_INX_H_
 #define HRX_PID_CONFIG_INX_H_
 
-#include "ehs_types.h"
+//TODO2025 - please remove all the crud out of this file that is not relevant to PID ISRs
+
+#include "globals.h"
 #include "hal_pid.h"
 
 #warning "What is this for? Why does it have so much irrelevant stuff in it? Is for PID for all targets?"

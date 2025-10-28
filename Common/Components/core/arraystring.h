@@ -25,10 +25,10 @@
 
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ArrayString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ArrayString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ArrayStringRead);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ArrayStringWrite);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ArrayString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ArrayString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ArrayStringRead);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ArrayStringWrite);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ArrayString)

@@ -22,7 +22,7 @@
 #include "hal_devman.h"
 #include "app_data.h"
 #include "globals.h"
-#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+#if EHS_DEVMAN_SUPPORT == EHS_DEVMAN_MQTT
 #include "devman_mon_mqtt.h"
 #include "devman_mon_ota.h"
 #endif
@@ -379,7 +379,7 @@ extern EhsApplicationMetaDataType EhsApplicationMetaData;
 
 /***************************************************************************************/
 
-#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+#if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_MQTT
 
 /* Devman mon mqtt subscription callback handler */
 ehs_bool EhsMqttDevmanMonSubscriptionCallback(struct inx_mqtt_subscribe_state* pState, char* payload, ehs_sint32 payloadSize)
@@ -416,10 +416,10 @@ void EhsOtaDevmanMonNext(const ehs_char* payload)
 }
 
 /* avoid blocking this function! It's a callback which gets called from mqtt clinet loop. */
-void* DevmanMonThread(void* arg)
+void* DevmanMonThreadMqtt(void* arg)
 {
     inx_mqtt_client_state_type_mine* pMqttClient = EhsMqttDevmanMonMqttClient();
-
+    //printf(" DEVMAN MON Thread ..\n");
     switch(EhsGetMqttDevmanMonState())
     {
         case MQTT_DEVMAN_MON_INIT:
@@ -443,17 +443,16 @@ void* DevmanMonThread(void* arg)
             if (EhsHDevmanGetURL(pMqttClient->password, "core/config/passw", EHS_MAXDEVMANNAMELEN, 0) == EHS_FALSE){
                 EHSH_LOG_ERROR("Failed to read password config file for Devman mon MQTT clinet. \n");
             }
-            #if EHS_DEVMAN_MQTT_CLIENT_TLS
-            printf("Devman mon mqtt clinet TLS enabled \n");
+            #ifdef EHS_DEVMAN_MQTT_CLIENT_TLS
+            //printf("Devman mon mqtt clinet TLS enabled \n");
             // set expected mqtt broker certificate file names
             EhsStrcpy(pMqttClient->clientCertFileName, "client.crt");
             EhsStrcpy(pMqttClient->clientKeyFileName, "client.key");
             EhsStrcpy(pMqttClient->rootCAFileName, "ca.crt");
-
             pMqttClient->tls = EHS_TRUE;
             pMqttClient->port = 8883;
             #else
-            printf("Devman mon mqtt clinet TLS disabled \n");
+            //printf("Devman mon mqtt clinet TLS disabled \n");
             pMqttClient->clientCertFileName[0]='\0';
             pMqttClient->clientKeyFileName[0]='\0';
             pMqttClient->rootCAFileName[0]='\0';
@@ -496,6 +495,7 @@ void* DevmanMonThread(void* arg)
         }
         case MQTT_DEVMAN_MON_RUNNING:
         {
+            //printf(" DEVMAN MON RUNNING\n");
             if(EhsGetMqttDevmanMonConnected()){
                 EhsMqttDevmanMonHandleConnected();
             }else{
@@ -515,7 +515,10 @@ void* DevmanMonThread(void* arg)
     return NULL;
 }
 
-#else // EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_CURL
+#endif// EHS_DEVMAN_SUPPORT == EHS_DEVMAN_HTTP
+
+#if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_HTTP
+
 /* Note this doesn't use an XML parser - to reduce core dependencies */
 
 ehs_bool ParseDevmanMonitorXML(ehs_char * returndata)
@@ -730,6 +733,7 @@ ehs_bool ParseDevmanMonitorXML(ehs_char * returndata)
         }
     return EHS_TRUE;
 }
+#endif
 
 #ifdef EHS_ENABLE_CURL_VERBOSE
 int ehs_curl_devman_mon_debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
@@ -759,7 +763,11 @@ int ehs_curl_devman_mon_debug_callback(CURL *handle, curl_infotype type, char *d
 }
 #endif
 
-void *DevmanMonThread(void *arg)
+
+#if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_HTTP
+/* Runs a loop process for submitting devman generic device information to Devman */
+
+void *DevmanMonThreadHttp(void *arg)
 {
     ehs_char * PostString;
     ehs_char sZtemp[EHS_STRING_LENGTH_MAX*2];// Max size of a date string //TODO:STRINGLENGTH!!!
@@ -998,7 +1006,7 @@ curl_init_error:
     } // end made the buffer OK.
     return NULL;
 }
-#endif // EHS_DEVMAN_MON_SUPPORT
+#endif // #if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_HTTP
 
 //#undef EHS_NODEVMAN
 void DevmanMon_init(void)
@@ -1006,16 +1014,16 @@ void DevmanMon_init(void)
 //#define EHS_DEBUG_DISABLE_DEVMON
 #ifndef EHS_DEBUG_DISABLE_DEVMON
 
-#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+#if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_MQTT
 #ifndef EHS_MQTT_SUPPORT
     #error "Cannot use Devman MQTT mon without 'EHS_MQTT_SUPPORT' in the target config"
 #endif
-    // init devman mon OTA handler
+// init devman mon OTA handler
     EhsOtaDevmanMonSupportInit(EhsOtaDevmanMonNext);
     // init devman mon mqtt handler
     EhsMqttDevmanMon_t* pEhsMqttDevmanMon = EhsMqttDevmanMonSupportInit();
     // set mqtt devman mon loop callback which gets called form matt clinet loop
-    pEhsMqttDevmanMon->pMqttDevmanMonLoop = DevmanMonThread;
+    pEhsMqttDevmanMon->pMqttDevmanMonLoop = DevmanMonThreadMqtt;
 
     #if EHS_MQTT_CLIENT_FB_THREAD
     // for targets which use function block thread for running a blocking mqtt clinet loop e.g. linux
@@ -1029,14 +1037,14 @@ void DevmanMon_init(void)
 
     gMqttClientInstanceCount++;
     EHSH_LOG_INFO("Increase MQTT clinet instace count (%d) \n", gMqttClientInstanceCount);
-    
-#else // EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_CURL
+#endif    
+#if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_HTTP
     pthread_t t1;
-    if (pthread_create(&t1, NULL, DevmanMonThread, NULL))
+    if (pthread_create(&t1, NULL, DevmanMonThreadHttp, NULL))
     {
         EHSH_LOG_ERROR("Error creating Devman monitor thread");
     }
-#endif // EHS_DEVMAN_MON_SUPPORT
+#endif // #if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_HTTP
 
 #endif // EHS_DEBUG_DISABLE_DEVMON
 }

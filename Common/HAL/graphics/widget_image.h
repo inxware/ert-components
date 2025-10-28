@@ -34,7 +34,6 @@
 /*****************************************************************************/
 /* Included files */
 
-#include "ehs_types.h"
 #include "globals.h"
 #include "graphics.h"
 #include "widget_image_gif.h"

@@ -136,7 +136,7 @@ EHS_FB_DESTROY_FUNCTION(GUI_Image_File)
 			EhsWidget_destroy(inx_GUI_Image_File_state->pUiWidgetClass);
 		}
 	}
-
+    return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 

@@ -15,7 +15,6 @@
  *
  */
 
-#include "globals.h"
 /*
 _WIN32_WINNT should be define in target_config.h, but just in case
 */
@@ -23,6 +22,7 @@ _WIN32_WINNT should be define in target_config.h, but just in case
 #define _WIN32_WINNT 0x0501
 #endif
 
+#include "globals.h"
 #include "hal_viewport.h"
 #include "hal_process.h"
 #include "widget.h"

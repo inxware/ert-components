@@ -5,6 +5,22 @@
 
 #include <opencv/opencv_wrapper.h>
 
+/* TODO WHAT DOES THIS ACTUALLY DO? WHAT ARE WE DEFINING HERE? */
+#ifndef EHS_CAMERA_DATAFORMAT_CHANLEN_DEF
+#define EHS_CAMERA_DATAFORMAT_CHANLEN_DEF 3
+#endif
+
+/* todo move this to a cpmmon file as this is not target specific */
+ehs_uint8 gEhsCameraDataFormatChanLen[EHS_CAM_FMT_MAX] = {
+    EHS_CAMERA_DATAFORMAT_CHANLEN_DEF,      // EHS_CAM_FMT_DEF
+    1,      // EHS_CAM_FMT_8UC1
+    1,      // EHS_CAM_FMT_32FC1_NORM
+    3,      // EHS_CAM_FMT_32FC3_NORM
+    //3,      // EHS_CAM_FMT_8UC3
+    //3,      // EHS_CAM_FMT_32FC3
+    //1,      // EHS_CAM_FMT_32FC1
+};
+
 // Machine Vision Algorithms
 
 void EhsCameraFrameCreate(EhsCameraFrame* frame)
@@ -60,7 +76,11 @@ ehs_bool EhsCameraFrameCrop(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32
     ehs_uint32 width = x2-x1, height = y2-y1;
     cv_mat_release((cv_mat*)dst->frameObj);
     if(CV_CAM_OK == cv_mat_crop((cv_mat*)src->frameObj, (cv_mat*)dst->frameObj, x1, y1, width, height)){
-#ifdef EHS_OPENCV_DEBUG_PREVIEW
+        dst->width = width;
+        dst->height = height;
+        dst->fmt = src->fmt;
+#ifdef EHS_OPENCV_CROP_DEBUG_PREVIEW
+EHS_MV_SUPPORT
  //      cv_mat_show("debug_crop", (cv_mat*)dst->frameObj, 1);
 #endif
         return EHS_TRUE;
@@ -73,13 +93,23 @@ ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint
     if(!src || !src->frameObj || !dst || !dst->frameObj) return EHS_FALSE;
     cv_mat_release((cv_mat*)dst->frameObj);
     if(CV_CAM_OK == cv_mat_resize((cv_mat*)src->frameObj, (cv_mat*)dst->frameObj, width, height)){
-#ifdef EHS_OPENCV_DEBUG_PREVIEW
-//       cv_mat_show("debug_resize", (cv_mat*)dst->frameObj, 1);
+        dst->width = width;
+        dst->height = height;
+        dst->fmt = src->fmt;
+#ifdef EHS_OPENCV_CROP_DEBUG_PREVIEW
+       cv_mat_show("debug_resize", (cv_mat*)dst->frameObj, 1);
 #endif
         return EHS_TRUE;
     }
     return EHS_FALSE;
 }
+
+/* @brief Pixel format converter.
+    * Converts the pixel format of the source frame to the specified format using OpenCV libraries..
+    * Supported formats: EHS_CAM_FMT_8UC1, EHS_CAM_FMT_32FC1_NORM, EHS_CAM_FMT_32FC3_NORM.
+    * Returns EHS_TRUE on success, EHS_FALSE on failure.
+    * NOTE: This is very slow! It oesn't use the GPU.
+*/
 
 ehs_bool EhsCameraFrameFormat(EhsCameraFrame* src, EhsCameraFrame* dst, EhsCameraDataFormat fmt)
 {
@@ -100,6 +130,15 @@ ehs_bool EhsCameraFrameFormat(EhsCameraFrame* src, EhsCameraFrame* dst, EhsCamer
     default:
         ret = EHS_FALSE;
         break;
+    }
+    if (ret)
+    {
+        dst->width = src->width;
+        dst->height = src->height;
+        dst->fmt = fmt;
+#ifdef EHS_OPENCV_CROP_DEBUG_PREVIEW
+       cv_mat_show("debug_format", (cv_mat*)dst->frameObj, 1);
+#endif
     }
     return ret;
 }

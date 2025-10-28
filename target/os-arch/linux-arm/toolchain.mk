@@ -26,6 +26,7 @@
 ifeq ($(EHS_TOOLCHAIN_TYPE),clang)
 	LNKFLAGS+= --target=arm-linux-gnueabihf
 	CFLAGS+= -v --target=arm-linux-gnueabihf
+	CPPFLAGS+= -v --target=arm-linux-gnueabihf
 endif
 #CFLAGS+=-Wl,-m,armelf_linux_eabi -v --target=armv7l-pc-linux-gnueabihf -mfloat-abi=hard 
 

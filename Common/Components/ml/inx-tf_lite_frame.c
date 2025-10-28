@@ -79,6 +79,7 @@ EHS_FB_INIT_FUNCTION(TF_Lite_from_frame)
 	if (pParams) {
 		pParams = EhsGetSint32FromString(&inx_TF_Lite_from_frame_state->model_type, pParams);
 		pParams = EhsGetDoubleFromString(&inx_TF_Lite_from_frame_state->conf_thres, pParams);
+		inx_TF_Lite_from_frame_state->ml_ctx.conf_thres = inx_TF_Lite_from_frame_state->conf_thres;
 		pParams = EhsGetSint32FromString(&inx_TF_Lite_from_frame_state->thread_count, pParams);
 		ehs_uint8 useFlatJsonFormat = 0;
 		pParams = EhsGetUint8FromString(&useFlatJsonFormat, pParams);
@@ -97,6 +98,7 @@ EHS_FB_DESTROY_FUNCTION(TF_Lite_from_frame)
 {
 	inx_TF_Lite_from_frame_state_type *inx_TF_Lite_from_frame_state = (inx_TF_Lite_from_frame_state_type*)EHS_FB_DESTROY_CONTEXT;
 	EhsML_Destroy(&inx_TF_Lite_from_frame_state->ml_ctx);
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION load_model MACRO START -- DO NOT ALTER

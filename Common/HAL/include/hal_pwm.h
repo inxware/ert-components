@@ -13,7 +13,7 @@
 #ifndef _HAL_PWM_H_ 
 #define _HAL_PWM_H_ 
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "timer.h"
 
 typedef struct {

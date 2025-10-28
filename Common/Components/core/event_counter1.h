@@ -26,13 +26,13 @@
 #define EHS_FB_NAME_EventCounterVersatile1 "EventCounterVersatile1"
 #define EHS_FB_ID_EventCounterVersatile1 0xD5F3
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(EventCounterVersatile1);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(EventCounterVersatile1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Reset);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Count);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Decrement);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Enable);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Disable);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(EventCounterVersatile1);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(EventCounterVersatile1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Reset);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Count);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Decrement);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Enable);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(EventCounterVersatile1_Disable);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(EventCounterVersatile1)

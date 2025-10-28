@@ -18,11 +18,11 @@
 #define INXWARE_FB_ID_permanent_storage_int 0xCDB8
 
 /* Declaring the functions used here as public interface for static linking into EHS builds */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(permanent_storage_int); // this relates to C file identify function
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(permanent_storage_int); // this relates to C-file init function
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(permanent_storage_int); //this relates to C-file destroy function
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(permanent_storage_int_write); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(permanent_storage_int_read); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(permanent_storage_int); // this relates to C file identify function
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(permanent_storage_int); // this relates to C-file init function
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(permanent_storage_int); //this relates to C-file destroy function
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(permanent_storage_int_write); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(permanent_storage_int_read); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(permanent_storage_int)
 
@@ -31,11 +31,11 @@ EHS_FB_FUNCTIONS(permanent_storage_int)
 #define INXWARE_FB_ID_permanent_storage_bool 0x4B94
 
 /* Declaring the functions used here as public interface for static linking into EHS builds */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(permanent_storage_bool); // this relates to C file identify function
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(permanent_storage_bool); // this relates to C-file init function
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(permanent_storage_bool); //this relates to C-file destroy function
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(permanent_storage_bool_write); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(permanent_storage_bool_read); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(permanent_storage_bool); // this relates to C file identify function
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(permanent_storage_bool); // this relates to C-file init function
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(permanent_storage_bool); //this relates to C-file destroy function
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(permanent_storage_bool_write); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(permanent_storage_bool_read); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(permanent_storage_bool)
 
@@ -44,11 +44,11 @@ EHS_FB_FUNCTIONS(permanent_storage_bool)
 #define INXWARE_FB_ID_permanent_storage_real 0xE9B4
 
 /* Declaring the functions used here as public interface for static linking into EHS builds */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(permanent_storage_real); // this relates to C file identify function
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(permanent_storage_real); // this relates to C-file init function
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(permanent_storage_real); //this relates to C-file destroy function
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(permanent_storage_real_write); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(permanent_storage_real_read); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(permanent_storage_real); // this relates to C file identify function
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(permanent_storage_real); // this relates to C-file init function
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(permanent_storage_real); //this relates to C-file destroy function
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(permanent_storage_real_write); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(permanent_storage_real_read); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(permanent_storage_real)
 
@@ -57,11 +57,11 @@ EHS_FB_FUNCTIONS(permanent_storage_real)
 #define INXWARE_FB_ID_permanent_storage_string 0x5332
 
 /* Declaring the functions used here as public interface for static linking into EHS builds */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(permanent_storage_string); // this relates to C file identify function
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(permanent_storage_string); // this relates to C-file init function
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(permanent_storage_string); //this relates to C-file destroy function
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(permanent_storage_string_write); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(permanent_storage_string_read); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(permanent_storage_string); // this relates to C file identify function
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(permanent_storage_string); // this relates to C-file init function
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(permanent_storage_string); //this relates to C-file destroy function
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(permanent_storage_string_write); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(permanent_storage_string_read); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(permanent_storage_string)
 

@@ -26,10 +26,10 @@
 
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(FileSystemDirCreateRemove);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(FileSystemDirCreateRemove);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(FileSystemDirCreateRemoveCreate);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(FileSystemDirCreateRemoveRemove);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(FileSystemDirCreateRemove);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(FileSystemDirCreateRemove);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(FileSystemDirCreateRemoveCreate);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(FileSystemDirCreateRemoveRemove);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(FileSystemDirCreateRemove)

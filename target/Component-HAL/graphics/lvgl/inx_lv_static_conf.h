@@ -1,7 +1,7 @@
 #ifndef _INX_LV_STATIC_CONF_H_
 #define _INX_LV_STATIC_CONF_H_
 
-#include "target_config.h"
+#include "globals.h"
 
 #define CONFIG_LV_HOR_RES_MAX EHS_CONFIG_DISPLAY_WIDTH
 #define CONFIG_LV_VER_RES_MAX EHS_CONFIG_DISPLAY_HEIGHT

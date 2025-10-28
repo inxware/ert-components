@@ -39,6 +39,7 @@
 #include <stdatomic.h>
 #include <stdlib.h>
 #include <string.h>
+#include "globals.h"
 
 /* ----------------------- Platform includes --------------------------------*/
 #include "port.h"
@@ -66,7 +67,6 @@
 #include "hal-api.h"
 #include "hal_process.h"
 #include "hal_hashmap.h"
-#include "target.h"
 #include "target_process.h"
 #include "portcallbacks.h"
 

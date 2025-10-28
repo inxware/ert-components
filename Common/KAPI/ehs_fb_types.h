@@ -24,7 +24,7 @@
 #ifndef EHS_FB_TYPES_H
 #define EHS_FB_TYPES_H
 
-#include "ehs_types.h"
+#include "globals.h"
 
 //#include "hal_process.h" //needed for reference to EhsTPThread_execute() for Function blocks
 

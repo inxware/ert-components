@@ -23,7 +23,8 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+
+#include "globals.h"
 #include "target_dtv.h"
 #include "callback_queue.h"
 #include "hal-api.h"
@@ -37,11 +38,11 @@
 
 
 typedef struct EhsTDPlaybackStruct EhsTDPlaybackClass;
-//EHS_GLOBAL EhsTDPlaybackClass* EhsTDPlaybackRef;
+//EhsTDPlaybackClass* EhsTDPlaybackRef;
 /**
  * Callback structure to indicate when playback finishes
  */
-EHS_GLOBAL EhsCallbackQueueType EhsTDPlayEndCallback;
+EHS_EXTERN EhsCallbackQueueType EhsTDPlayEndCallback;
 
 /* This is typically set by the target specific codecs in their target specific structs*/
 typedef enum
@@ -102,7 +103,7 @@ typedef struct EhsFbDtvPvrPlay2Struct EhsFbPvrPlayClass;
 /**
  * Start up DTV subsystem
  */
-EHS_GLOBAL void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay) ;
+void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay) ;
 
 #ifndef EhsTDPlayback_reset
 /**
@@ -110,7 +111,7 @@ EHS_GLOBAL void* EhsTDPlayback_init(EhsFbPvrPlayClass* pPvrPlay) ;
  * @param[in] pPlayback Playback structure
  * @return true if successful
  */
-EHS_GLOBAL ehs_bool EhsTDPlayback_reset(EhsTDPlaybackClass* pPlayback);
+ehs_bool EhsTDPlayback_reset(EhsTDPlaybackClass* pPlayback);
 #endif
 
 #ifndef EhsTDPlayback_loadFile
@@ -121,7 +122,7 @@ EHS_GLOBAL ehs_bool EhsTDPlayback_reset(EhsTDPlaybackClass* pPlayback);
  * @param[in] szFilename Name of file to play (including extension)
  * @return true if successful
  */
-EHS_GLOBAL ehs_bool EhsTDPlayback_loadFile(EhsFunctionInstanceDataType* pFIdata, const ehs_char* szFilename);
+ehs_bool EhsTDPlayback_loadFile(EhsFunctionInstanceDataType* pFIdata, const ehs_char* szFilename);
 #endif
 
 
@@ -132,10 +133,10 @@ EHS_GLOBAL ehs_bool EhsTDPlayback_loadFile(EhsFunctionInstanceDataType* pFIdata,
  * @param[in] nPos index into the file
  * @return true if the index has been set successfully
  */
-EHS_GLOBAL ehs_bool EhsTDPlayback_setPos(EhsTDPlaybackClass* pPlayback,ehs_sint32 nPos);
+ehs_bool EhsTDPlayback_setPos(EhsTDPlaybackClass* pPlayback,ehs_sint32 nPos);
 #endif
 
-EHS_GLOBAL ehs_bool EhsTDPlayback_setTime(EhsTDPlaybackClass* pPlayback,ehs_sint32 nTime); /* @TODO: are all these ifndefs really needed? */
+ehs_bool EhsTDPlayback_setTime(EhsTDPlaybackClass* pPlayback,ehs_sint32 nTime); /* @TODO: are all these ifndefs really needed? */
 
 #ifndef EhsTDPlayback_setSpeed
 /**
@@ -145,7 +146,7 @@ EHS_GLOBAL ehs_bool EhsTDPlayback_setTime(EhsTDPlaybackClass* pPlayback,ehs_sint
  * 100 is playing at normal speed, negative values indicate playing backwards
  * @return true if the speed has been set successfully
  */
-EHS_GLOBAL ehs_bool EhsTDPlayback_setSpeed(EhsTDPlaybackClass* pPlayback, ehs_sint32 nSpeed);
+ehs_bool EhsTDPlayback_setSpeed(EhsTDPlaybackClass* pPlayback, ehs_sint32 nSpeed);
 #endif
 
 #ifndef EhsTDPlayback_getPos
@@ -155,12 +156,12 @@ EHS_GLOBAL ehs_bool EhsTDPlayback_setSpeed(EhsTDPlaybackClass* pPlayback, ehs_si
  * @param[out] pnPos The current position of playback. 0 if no file is loaded, or playback hasn't started
  * @return true if the index has been read successfully
  */
-EHS_GLOBAL ehs_bool EhsTDPlayback_getPos(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnPos);
+ehs_bool EhsTDPlayback_getPos(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnPos);
 #endif
-EHS_GLOBAL ehs_bool EhsTDPlayback_getLength(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnLength);
-EHS_GLOBAL ehs_bool EhsTDPlayback_getInput(EhsTDPlaybackClass* pPlayback, EhsDataflowStringType ppnInput);
-EHS_GLOBAL ehs_bool EhsTDPlayback_getTime(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnTime);
-EHS_GLOBAL ehs_bool EhsTDPlayback_pause(EhsTDPlaybackClass* pPlayback);
+ehs_bool EhsTDPlayback_getLength(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnLength);
+ehs_bool EhsTDPlayback_getInput(EhsTDPlaybackClass* pPlayback, EhsDataflowStringType ppnInput);
+ehs_bool EhsTDPlayback_getTime(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnTime);
+ehs_bool EhsTDPlayback_pause(EhsTDPlaybackClass* pPlayback);
 #ifndef EhsTDPlayback_getSpeed
 /**
  * Get the playback speed for the currently loaded file.
@@ -169,7 +170,7 @@ EHS_GLOBAL ehs_bool EhsTDPlayback_pause(EhsTDPlaybackClass* pPlayback);
  * 100 is playing at normal speed, negative values indicate playing backwards
  * @return true if the index has been read successfully
  */
-EHS_GLOBAL ehs_bool EhsTDPlayback_getSpeed(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnSpeed);
+ehs_bool EhsTDPlayback_getSpeed(EhsTDPlaybackClass* pPlayback, ehs_sint32* pnSpeed);
 #endif
 
 #ifndef EhsTDPlayback_play
@@ -180,7 +181,7 @@ EHS_GLOBAL ehs_bool EhsTDPlayback_getSpeed(EhsTDPlaybackClass* pPlayback, ehs_si
  * @param[in] nSpeed The speed to play the file.
  * @return true if the video playback has started running at that speed
  */
-EHS_GLOBAL ehs_bool EhsTDPlayback_play(EhsFunctionInstanceDataType* pFIdata, ehs_sint32 nSpeed);
+ehs_bool EhsTDPlayback_play(EhsFunctionInstanceDataType* pFIdata, ehs_sint32 nSpeed);
 #endif
 
 #ifndef EhsTDPlayback_stop
@@ -189,21 +190,21 @@ EHS_GLOBAL ehs_bool EhsTDPlayback_play(EhsFunctionInstanceDataType* pFIdata, ehs
  * @param[in] pPlayback The item to stop
  * @return true if playback structure was valid, and video was stopped
  */
-EHS_GLOBAL ehs_bool EhsTDPlayback_stop(EhsFbPvrPlayClass* pPlayback);
+ehs_bool EhsTDPlayback_stop(EhsFbPvrPlayClass* pPlayback);
 #endif
 
 #ifndef EhsTDPlayback_stop
-EHS_GLOBAL void EhsTDSetVol(EhsTDPlaybackClass* pPlayback, ehs_sint32 nVol);
+void EhsTDSetVol(EhsTDPlaybackClass* pPlayback, ehs_sint32 nVol);
 #endif
 
 #ifndef EhsTDPlayback_closeWindow
-//EHS_GLOBAL void EhsTDPlayback_setWindow(EhsDataflowIntType windowX, EhsDataflowIntType windowY, EhsDataflowIntType windowW, EhsDataflowIntType windowH, ehs_uint8 zorder,EhsTDPlaybackClass* pPlayback);
-EHS_GLOBAL void EhsTDPlayback_closeWindow(EhsFbPvrPlayClass* pPvrPlay );
+//void EhsTDPlayback_setWindow(EhsDataflowIntType windowX, EhsDataflowIntType windowY, EhsDataflowIntType windowW, EhsDataflowIntType windowH, ehs_uint8 zorder,EhsTDPlaybackClass* pPlayback);
+void EhsTDPlayback_closeWindow(EhsFbPvrPlayClass* pPvrPlay );
 #endif
 
 #ifndef EhsTDPlayback_setWindow
-//EHS_GLOBAL void EhsTDPlayback_setWindow(EhsDataflowIntType windowX, EhsDataflowIntType windowY, EhsDataflowIntType windowW, EhsDataflowIntType windowH, ehs_uint8 zorder,EhsTDPlaybackClass* pPlayback);
-EHS_GLOBAL void EhsTDPlayback_setWindow(EhsFbPvrPlayClass* pPvrPlay );
+//void EhsTDPlayback_setWindow(EhsDataflowIntType windowX, EhsDataflowIntType windowY, EhsDataflowIntType windowW, EhsDataflowIntType windowH, ehs_uint8 zorder,EhsTDPlaybackClass* pPlayback);
+void EhsTDPlayback_setWindow(EhsFbPvrPlayClass* pPvrPlay );
 #endif
 
 

@@ -72,7 +72,7 @@ EHS_FB_INIT_FUNCTION(NumDemultiplexReal)
 EHS_FB_DESTROY_FUNCTION(NumDemultiplexReal)
 {
 	//inx_NumDemultiplexReal_state_type *inx_NumDemultiplexReal_state = (inx_NumDemultiplexReal_state_type*)EHS_FB_DESTROY_CONTEXT;
-	//Your code below here
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION Run_Output MACRO START -- DO NOT ALTER

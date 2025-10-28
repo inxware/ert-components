@@ -18,17 +18,22 @@
 #ifndef EHS_TARGET_SPECIFIC_H
 #define EHS_TARGET_SPECIFIC_H
 
+
+#ifndef EHS_GLOBALS_H
+#error "This file should only be included by globals.h" 
+#endif
+
 #include <stdlib.h> /* required for malloc, exit */
 #include <string.h>
-#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+
+//#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
-#ifdef TAG
-#undef TAG
+
+#ifndef TS_TAG
+#define TS_TAG "esp32_ehs"
 #endif
-#ifndef TAG
-#define TAG "esp32_ehs"
-#endif
-#include "target_types.h"
+
+#include "globals.h"
 
 /**
  * Forces the declared variable to be aligned in the way specified by
@@ -37,8 +42,8 @@
 #define EHS_TGT_MEMORY_ALIGNED(type, name) type name
 
 #ifndef EHSStdioPrintf
-  #define EhsStdioPrintf(x, y, z, ...) {if (strcmp(z,"Error") == 0) ESP_LOGE(TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Warning") == 0) ESP_LOGW(TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Info")) ESP_LOGI(TAG, x, y, z, __VA_ARGS__);else ESP_LOGD(TAG, x, y, z, __VA_ARGS__);}
-  #define EhsStdioSimplePrintf(...)  ESP_LOGD(TAG, __VA_ARGS__)
+  #define EhsStdioPrintf(x, y, z, ...) {if (strcmp(z,"Error") == 0) ESP_LOGE(TS_TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Warning") == 0) ESP_LOGW(TS_TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Info")) ESP_LOGI(TS_TAG, x, y, z, __VA_ARGS__);else ESP_LOGD(TS_TAG, x, y, z, __VA_ARGS__);}
+  #define EhsStdioSimplePrintf(...)  ESP_LOGD(TS_TAG, __VA_ARGS__)
 #endif
 
 /* math functions not implemented in Windows */
@@ -50,7 +55,7 @@
  * @param nAngle angle to find (0 to 360)
  * @return nMult * sin(nAngle % 360)
  */
-EHS_GLOBAL ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
+ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
 /**
  * Performs cosine function using integers.
  *
@@ -58,10 +63,10 @@ EHS_GLOBAL ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
  * @param nAngle angle to find (0 to 360)
  * @return nMult * cos(nAngle % 360)
  */
-EHS_GLOBAL ehs_sint32 EhsTgtInt_cos(ehs_sint32 nMult, ehs_sint32 nAngle);
+ehs_sint32 EhsTgtInt_cos(ehs_sint32 nMult, ehs_sint32 nAngle);
 
-EHS_GLOBAL ehs_float EhsTgtFloat_log10(ehs_float);
-EHS_GLOBAL ehs_float EhsTgtFloat_loge(ehs_float);
+ehs_float EhsTgtFloat_log10(ehs_float);
+ehs_float EhsTgtFloat_loge(ehs_float);
 
 #ifdef EHS_TARGET_CODE
 /**
@@ -70,7 +75,7 @@ EHS_GLOBAL ehs_float EhsTgtFloat_loge(ehs_float);
  * @param[in] bUniqueCheck If true, check to ensure that this is the only
  * instance that currently holds the shared memory.
  */
-EHS_GLOBAL void EhsTargetInitSharedMemory(ehs_bool bUniqueCheck);
+void EhsTargetInitSharedMemory(ehs_bool bUniqueCheck);
 
 #endif /* EHS_TARGET_CODE */
 

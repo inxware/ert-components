@@ -18,8 +18,9 @@
  * @author: inx limited
  *
  */
+
+#include "globals.h"
 #include "setCompletes.h"
-#include "target.h"
 #include "hal-api.h" /* Required for logging */
 #include "trigger.h"
 

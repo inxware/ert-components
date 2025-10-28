@@ -110,7 +110,7 @@ all: $(TARGET_NAME).$(FINAL) chkconfig
 
 %.$(OBJ): %.cpp 
 	@echo $(CPP) $(CC_SWITCHES) $(CPPFLAGS) $<
-	$(CPP) $(CC_SWITCHES) $(CPPFLAGS) $< -o $@
+	@$(CPP) $(CC_SWITCHES) $(CPPFLAGS) $< -o $@
 
 $(TARGET_NAME).$(FINAL) : $(OBJECTS)
 #	@echo $(PWD)
@@ -199,10 +199,8 @@ help:
 	@echo "* targetenv_apk_docker - Builds android APK and stores it in ../TARGET_TREES/ in an android arm configured docker image."
 	@echo "* targetenv_unity_export - Exports Unity 3D IDE (C#) based project to eRT compatible project/exe e.g. eRT Android Studio project or Windows app with eRT plugin."
 	@echo "* targetenv_unity_export_docker - Same as above but in docker."
-	@echo "* targetenv_esp32      - Builds an esp32 image for subsequent deployment via usb or OTA deployment"
-	@echo "* targetenv_esp32_docker    - runs make targetenv_esp32 in an esp32s3 configured docker image."
-	@echo "* targetenv_esp32s3     - Builds an esp32s3 image for subsequent deployment via usb or OTA deployment"
-	@echo "* targetenv_esp32s3_docker  - runs make targetenv_esp32s3 in an esp32s3 configured docker image."
+	@echo "* targetenv_esp32      - Builds an esp32 (or esp32s3,...) bootable image for deployment via usb or OTA"
+	@echo "* targetenv_esp32_docker    - runs make targetenv_esp32X in an esp32X configured docker image."
 	@echo "* targetenv_nsis_docker - Builds a windows installer using the NSIS installer"
 	@echo "* targetenv_upload_appland - Uploads target to the appland alongside all of its documentation. optional: ASSETS_ONLY=yes"
 	@echo "* targetenv_upload_ota - Uploads OTA package to Devman server. optional: SERVER_OVERRIDE=<user@url> server destination override"
@@ -258,10 +256,6 @@ targetenv_esp32: chkconfig
 	@./target/envbuildscripts/targetenv_esp32.sh $(TARGET) 
 targetenv_esp32_docker: chkconfig
 	@./target/envbuildscripts/targetenv_esp32_docker.sh $(TARGET) 
-targetenv_esp32s3: chkconfig
-	@./target/envbuildscripts/targetenv_esp32s3.sh $(TARGET) 
-targetenv_esp32s3_docker: chkconfig
-	@./target/envbuildscripts/targetenv_esp32s3_docker.sh $(TARGET) 
 targetenv_arduino: chkconfig
 	@./target/envbuildscripts/targetenv_arduino_docker.sh $(TARGET) 
 targetenv_apk_docker: chkconfig

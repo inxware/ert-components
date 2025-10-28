@@ -1153,7 +1153,7 @@ typedef png_fixed_point FAR * png_fixed_point_p;
 #if defined(_WIN32_WCE)
 typedef HANDLE                png_FILE_p;
 #elif defined(_TAP)
-#include "target.h"
+#include "globals.h"
 typedef ehs_FILE		    * png_FILE_p;
 #else
 typedef FILE                * png_FILE_p;

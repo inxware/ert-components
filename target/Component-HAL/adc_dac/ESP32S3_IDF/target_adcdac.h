@@ -9,7 +9,7 @@
 
 #ifndef EHS_TARGET_ADCCAD_H
 #define EHS_TARGET_ADCCAD_H
-#include "ehs_types.h"
+#include "globals.h"
 
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"

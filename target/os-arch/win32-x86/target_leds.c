@@ -12,7 +12,7 @@
  * @author: inx limited
  *
  */
- 
+#include "globals.h" 
 #include "target_textdisplay.h"
 //#include "usblcd.h"
 //#include "widgets.h"

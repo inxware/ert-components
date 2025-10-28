@@ -44,7 +44,7 @@
 /*****************************************************************************/
 /* Variables defined with global-scope */
 
-EhsBlockRefType EhsBlockRefTable_Dtv[];
+extern EhsBlockRefType EhsBlockRefTable_Dtv[];
 
 
 /*****************************************************************************/

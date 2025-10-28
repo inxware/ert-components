@@ -70,10 +70,10 @@ EHS_DEBUGALL=true
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
 EHS_MQTT_SUPPORT=aws_green_grass
-#set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-EHS_DEVMAN_SUPPORT=all
-#unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-EHS_DEVMAN_MON_SUPPORT=yes 
+
+
+#unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features 
+EHS_DEVMAN_SUPPORT=http 
 
 # we should try wifi by default in rpi devices
 DEFS+=EHS_USE_WIFI_INTERFACE=1
@@ -107,6 +107,9 @@ EHS_GUI_SUPPORT=gtk
 EHS_AV_SUPPORT=devmanonly
 # This  is set to include the rendering features in eRT. It is  nearly always set, so should be removed (default on) and specific platforme xceptionsset instead
 EHS_MEDIA_SUPPORT=all
+
+# Enable machine vision support for testing C++ integration
+EHS_MV_SUPPORT=stubbed
 
 # The following toolbox contains legacy components that are no longer supported in the main toolsboxes and can b relegacted here in case               #
 # backward compatability with previous apps  is required. Note this requires the toolbox hash checks to be  disabled                                                        #

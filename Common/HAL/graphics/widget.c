@@ -123,6 +123,8 @@ void EhsWidget_create(EhsWidgetClass* pWidget)
     {
         EHSH_LOG_WARNING(EHS_MSG_ERROR_WIDGET_NOT_INIT);
     }
+    EhsWidgetUI_update(pWidget);
+    Ehs_widget_commit(pWidget);
 }
 
 /* Call this before setting any widt type specific initialisation to set common parameters 
@@ -933,6 +935,7 @@ EhsWidgetClass* EhsWidgetTable_new(EhsWidgetTableClass* pTable)
     }
     else
     {
+        printf("The number of widgets exceeds maximum %d. Please increase \"EHS_MAX_WIDGET_INSTANCES\" in the platform config.\n", EHS_MAX_WIDGET_INSTANCES);
         EHSH_LOG_ERROR(EHS_MSG_ERROR_WIDGET_TOO_MANY);
     }
 

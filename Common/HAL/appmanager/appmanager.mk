@@ -21,9 +21,14 @@
 # include sourcecode from this dir in build
 include $(EHS_COMMON_HAL_PATH)/appmanager/deps.mk
 VPATH+=$(EHS_COMMON_HAL_PATH)/appmanager
-ifdef EHS_DEVMAN_MON_SUPPORT
-ifndef EHS_ESP32
-OBJECTS += devappget.$(OBJ) 
+
+#We can support Devman app get unless HTTP is used for 
+ifdef EHS_DEVMAN_SUPPORT
+ifneq ($(EHS_DEVMAN_SUPPORT), none)
+ifeq ($(EHS_DEVMAN_SUPPORT), http)
+	OBJECTS += devappget.$(OBJ) 
 endif
 endif
+endif
+
 OBJECTS += appstorage.$(OBJ) 

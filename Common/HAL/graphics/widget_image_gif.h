@@ -17,6 +17,8 @@
 #ifndef EHS_GRAPHICS_IMAGEGIF_H
 #define EHS_GRAPHICS_IMAGEGIF_H
 
+#include "globals.h"
+
 struct EhsWidgetImageGifScreenStruct;
 struct EhsWidgetImageGifBlockStruct;
 

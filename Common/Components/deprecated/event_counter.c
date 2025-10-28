@@ -35,7 +35,6 @@
 #include "globals.h"
 #include "event_counter.h"
 #include "fid.h"
-#include "target.h"
 #include "hal-api.h" /* Needed for logging */
 
 /******************************************************************************/

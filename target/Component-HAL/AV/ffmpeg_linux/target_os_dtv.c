@@ -7,10 +7,9 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
+#include "globals.h"
 #include "target_os_dtv.h"
-
 #include "target_dtv.h"
-
 #include "hal-api.h"
 
 void* EhsTDPlayback_init(EhsFbPvrPlayClass *pPvrPlay)

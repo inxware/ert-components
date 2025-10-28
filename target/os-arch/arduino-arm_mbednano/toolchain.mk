@@ -18,7 +18,7 @@
 CC_OVERRIDE=arm-none-eabi-g++
 CXX_OVERRIDE=arm-none-eabi-g++
 
-ifdef EHS_PLUGIN_LIBRARY_DEPENDENCY
+ifdef EHS_BUILDAS_ARDUINO_PLUGIN_LIBRARY
 # building as a static library
 LINK_OVERRIDE=arm-none-eabi-ar -rv ehs_${TARGET}.a
 else

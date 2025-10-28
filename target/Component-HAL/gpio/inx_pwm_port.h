@@ -13,7 +13,7 @@
 #ifndef _INX_PWM_PORT_H_ 
 #define _INX_PWM_PORT_H_ 
 
-#include "ehs_types.h"
+#include "globals.h"
 
 typedef enum {
     INX_HW_PWM_PORT_EOK = 0,
@@ -28,7 +28,8 @@ typedef enum {
     INX_HW_PWM_PORT_EDISABLE,
     INX_HW_PWM_PORT_EGET_FREQ,
     INX_HW_PWM_PORT_EGET_DUTY,
-    INX_HW_PWM_PORT_EGENRIC,
+    INX_HW_PWM_PORT_EGENRIC,        // Unknown error
+    EHS_HW_PWM_PORT_ENOT_SUPPORTED,
     INX_HW_PWM_PORT_EMAX
 } inx_hw_pwm_port_errcode_t;
 

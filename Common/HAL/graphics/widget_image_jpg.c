@@ -16,13 +16,13 @@
  */
 
 //#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
+#include <setjmp.h>
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "widget.h"
-#include "target.h"
+
 #include "graphics.h"
 #include "messages.h"
-#include <setjmp.h>
 #include "hal-api.h"
 
 /**

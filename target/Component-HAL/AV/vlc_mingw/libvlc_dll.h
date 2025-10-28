@@ -26,7 +26,7 @@
 //#define VLC_PUBLIC_API extern
 typedef short bool;
 #include <vlc/vlc.h> // angle brackets mean that the depends make file doesn't try and build this.
-
+#include "globals.h"
 //#include "vlcinc/vlc_block.h"
 
 /*****************************************************************************/

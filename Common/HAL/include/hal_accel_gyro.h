@@ -20,7 +20,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+#include "globals.h"
 
 ehs_bool EnableAccelometerGyrosope();
 void DisableAccelometerGyrosope();

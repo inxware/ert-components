@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "globals.h"
 #include "lorawan-wio_e5.h"
 #include "lorawan.h"
-#include "target.h"
 #include "target_uart.h"
 #include "lorawan_helper.h"
 
@@ -19,6 +19,7 @@
  * 
  */
 
+//#define EHS_LORAWAN_DEBUG
 #ifdef EHS_LORAWAN_DEBUG
 #define ehs_lorawan_debug(...) printf(__VA_ARGS__)
 #else
@@ -194,7 +195,7 @@ static char buffer[LW_BUFFER_SIZE] = {0};
 static int buffer_index = 0;
 
 // misc buffer
-#define LW_MISC_BUFFER_SIZE 64
+#define LW_MISC_BUFFER_SIZE 70
 static char lw_misc_buffer[LW_MISC_BUFFER_SIZE] = {0};
 
 #define _COPY_INTO_SEND_BUFFER(x, ...) do { \

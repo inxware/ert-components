@@ -43,10 +43,7 @@ INXWARE_TARGETENV_HACKS=arduino
 # # To enable full TCPIP networking toolbox ("netx" DCC=3)  set  EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target                                   #
 # EHS_COMPONENT_NETWORKING_SUPPORT=all
 # 
-# #set EHS_DEVMAN_SUPPORT to mkae the target environment build include credentials for inx  supported Devman servers
-# EHS_DEVMAN_SUPPORT=all
-# #unset EHS_DEVMAN_MON_SUPPORT to disable the OS-level Devman monitoring features 
-# EHS_DEVMAN_MON_SUPPORT=yes 
+
 # 
 # ################################### END OF TOOLBOX CONFIGURATION ###################################################
 # #DEVMAN_SERVER_DOMAIN=devman.inx-systems.com
@@ -77,7 +74,7 @@ EHS_FILESYSTEM_SUPPORT=yes
 #EHS_FILESYSTEM_SUPPORT=stubbed
 
 #We will build all of ehs as C++ so we don't have linking nightmares.
-
+#todo2026 change these to soemthing that fits our normal pattern for building/not building things..
 EHS_SKIP_APPLICATION_INFO_GETTER=1
 
 #todo the following should be changed to a ="none" intead like below
@@ -89,7 +86,7 @@ DEFS += EHS_NO_LIBXML2_SUPPORT=1
 EHS_NO_LIBXML2_SUPPORT=1 
 
 EHS_SKIP_GNULIBRARIES=yes
-DEFS += EHS_SKIP_GNULIBRARIES
+
 DEFS+=EHS_ARDUINO_SUPPORT=1
 
 # ehs_float as float, not as double

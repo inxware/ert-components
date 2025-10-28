@@ -3,8 +3,9 @@
 #include <string.h>
 #include <stddef.h>
 #include <limits.h>
-#include "hal_ota.h"
+
 #include "globals.h"
+#include "hal_ota.h"
 #include "target_types.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -39,7 +40,7 @@ static ehs_uint8 gData[EHS_STRING_LENGTH_MAX] = { 0 };
 static ehs_sint32 gSize = 0;
 static ehs_sint32 gOffset = 0;
 
-static esp_ota_handle_t gESP_OTA_handle = NULL;
+static esp_ota_handle_t gESP_OTA_handle = 0;
 
 static const esp_partition_t *update_partition = NULL;
 
@@ -173,7 +174,7 @@ ehs_bool thOTA_switch(ehs_bool alt_partition, ehs_sint32 partition_num)
 
 void thOTA_abort(void)
 {
-    if (ota_state == TARGET_OTA_IDLE || gESP_OTA_handle == NULL) return;
+    if (ota_state == TARGET_OTA_IDLE || gESP_OTA_handle == 0 ) return;
     // xTaskNotify(gOTA_task_handle, OTA_FLAG_ABORT, eSetValueWithOverwrite);
     gOtaTaskNotify = EHS_TRUE;
     gOtaTaskNotifyValue = OTA_FLAG_ABORT;
@@ -223,7 +224,7 @@ void target_OTA_task(void *pvParameters)
                 {
                     ESP_LOGE(TAG, "OTA write aborted, writing state failed.");
                     esp_ota_abort(gESP_OTA_handle);
-                    gESP_OTA_handle = NULL;
+                    gESP_OTA_handle = 0;
                     ota_state = TARGET_OTA_IDLE;
                     if(gOnAbortCallback != NULL) gOnAbortCallback();
                 }
@@ -232,12 +233,10 @@ void target_OTA_task(void *pvParameters)
                 Common_OTA_Write_ACK((ehs_uint8)err);
                 gsWriting = EHS_FALSE;
             }
-            if (gData != NULL)
-            {
-                // free(gData);
-                // gData = NULL;
+//            if (gData != NULL) - not needed according to compiler always true
+//            {
                 memset(gData, 0, EHS_STRING_LENGTH_MAX);
-            }
+//            }
         break;
         case TARGET_OTA_ENDED:
             // wait to complete

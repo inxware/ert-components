@@ -17,11 +17,10 @@
  *
  */
 
-#include "arraystring.h"
 #include "globals.h"
-//#include "target.h"
-/** @todo check which includes are required here */
-//#include "types.h"
+#include "arraystring.h"
+
+/* todo this should the more generic Kernel API header */
 #include "setCompletes.h"
 
 #include "hal-api.h" /* Required for logging */

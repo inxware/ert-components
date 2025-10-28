@@ -72,7 +72,7 @@ EHS_FB_INIT_FUNCTION(pid_hdwr_config_int)
 EHS_FB_DESTROY_FUNCTION(pid_hdwr_config_int)
 {
 	inx_pid_hdwr_config_int_state_type *inx_pid_hdwr_config_int_state = (inx_pid_hdwr_config_int_state_type*)EHS_FB_DESTROY_CONTEXT;
-	//Your code below here
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION configure MACRO START -- DO NOT ALTER

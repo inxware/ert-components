@@ -14,12 +14,11 @@
  *
  */
 
-#include "target.h"
 //#ifdef EHS_GUI_SUPPORT
 
+#include "globals.h"
 #include "guitextdisplay.h"
 #include "guiparams.h"
-#include "globals.h"
 #include "widget.h"
 #include "font.h"
 /** @todo check which includes are required here */

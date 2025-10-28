@@ -38,7 +38,7 @@ typedef struct
  * @param szFilename File to load image from
  * @return true if load was successful
  */
-EHS_GLOBAL ehs_bool EhsWidgetImagePng_load(EhsWidgetClass* pImage, const ehs_char* szFilename);
+ehs_bool EhsWidgetImagePng_load(EhsWidgetClass* pImage, const ehs_char* szFilename);
 
 /**
  * Display the gif onto the viewport (if it's ready to be shown)
@@ -47,14 +47,14 @@ EHS_GLOBAL ehs_bool EhsWidgetImagePng_load(EhsWidgetClass* pImage, const ehs_cha
  * @param pViewport Viewport to display image in
  * @param pClipRect Specifies the bounds for drawing the widget
  */
-EHS_GLOBAL void EhsWidgetImagePng_draw(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect);
+void EhsWidgetImagePng_draw(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect);
 
 /**
  * Destroy the image data for the current image file
  *
  * @param pWidget Widget to destroy
  */
-EHS_GLOBAL void EhsWidgetImagePng_destroy(EhsWidgetClass* pWidget);
+void EhsWidgetImagePng_destroy(EhsWidgetClass* pWidget);
 
 
 #endif /* EHS_GRAPHICS_IMAGEPNG_H */

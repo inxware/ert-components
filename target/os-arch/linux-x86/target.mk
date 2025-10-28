@@ -37,16 +37,6 @@ else
 #No special target paths here unless we are specific target as below	
 endif
 
-########################################################################
-#  Set some default toolbox/component librarues for this target type
-########################################################################
-
-# Default to stubbing this for targets that don't declare
-ifndef EHS_PERIPHERALS_GPIO_SUPPORT
-EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
-endif
-
-
 # include sourcecode from this dir in build
 
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/target.mk

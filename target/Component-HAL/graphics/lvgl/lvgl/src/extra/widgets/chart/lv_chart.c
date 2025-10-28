@@ -41,6 +41,7 @@ static void draw_axes(lv_obj_t * obj, lv_draw_ctx_t * draw_ctx);
 static uint32_t get_index_from_x(lv_obj_t * obj, lv_coord_t x);
 static void invalidate_point(lv_obj_t * obj, uint16_t i);
 static void new_points_alloc(lv_obj_t * obj, lv_chart_series_t * ser, uint32_t cnt, lv_coord_t ** a);
+//TODO-INX this should be in a public header
 lv_chart_tick_dsc_t * get_tick_gsc(lv_obj_t * obj, lv_chart_axis_t axis);
 
 /**********************

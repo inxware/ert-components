@@ -11,7 +11,7 @@
 #include "blockref_table.h"
 #include "keypress.h"
 
-EhsBlockRefType EhsBlockRefTable_gtk[] =
+EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_gtk[] =
 {
 
     {0}

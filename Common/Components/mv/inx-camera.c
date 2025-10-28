@@ -13,7 +13,7 @@ typedef struct inx_Camera_state
 	ehs_char camera_id[EHS_STRING_LENGTH_MAX];
 	EhsCamera camera;
 	EhsCameraFrame frame;
-
+	ehs_bool im_show;
 } inx_Camera_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
@@ -30,6 +30,7 @@ EHS_FB_FUNCTIONS_END
 #define INX_Camera_ARG_startCamera_start_errno 1
 #define INX_Camera_ARG_startCamera_start_ok 1
 #define INX_Camera_ARG_startCamera_start_error 2
+#define INX_Camera_ARG_grabFrame_im_show 1
 #define INX_Camera_ARG_grabFrame_frame_width 1
 #define INX_Camera_ARG_grabFrame_frame_height 2
 #define INX_Camera_ARG_grabFrame_frame_id 3
@@ -82,6 +83,8 @@ EHS_FB_INIT_FUNCTION(Camera)
 		pParams = EhsGetUint32FromString(&inx_Camera_state->camera.height, pParams);
 		ehs_uint8 isAsync = 0; // @TODO - implement this method (not doint anything atm)
 		pParams = EhsGetUint8FromString(&isAsync, pParams);
+		pParams = EhsGetUint8FromString(&(inx_Camera_state->im_show), pParams);
+		pParams = EhsGetUint8FromString(&(inx_Camera_state->camera.greyscale), pParams);
 		inx_Camera_state->camera.async = (isAsync) ? EHS_TRUE : EHS_FALSE;
 		if(inx_Camera_state->camera_id && EhsStrcmp(inx_Camera_state->camera_id, "NULL") == 0)
 		{
@@ -106,6 +109,7 @@ EHS_FB_DESTROY_FUNCTION(Camera)
 	EhsCameraDestroy(&inx_Camera_state->camera);
 	EhsCameraFrameRemove(&inx_Camera_state->frame); // remove frame from global buffer
 	EhsCameraFrameDestroy(&inx_Camera_state->frame);
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION startCamera MACRO START -- DO NOT ALTER
@@ -148,7 +152,10 @@ EHS_FB_RUN_FUNCTION(Camera_grabFrame)
 {
 	inx_Camera_state_type* inx_Camera_state = (inx_Camera_state_type*)EHS_FB_RUN_CONTEXT;
 
-	ehs_bool ret = EhsCameraGrabFrame(&inx_Camera_state->camera, &inx_Camera_state->frame);
+	if (EHS_FB_IN_CONNECTED_API2(INX_Camera_ARG_grabFrame_im_show))
+		inx_Camera_state->im_show = EHS_FB_IN_B_API2(INX_Camera_ARG_grabFrame_im_show) ;
+
+	ehs_bool ret = EhsCameraGrabFrame(&inx_Camera_state->camera, &inx_Camera_state->frame, inx_Camera_state->im_show);
 
 	if (EHS_FB_OUT_CONNECTED_API2(INX_Camera_ARG_grabFrame_frame_width)){
 		EHS_FB_OUT_I_API2(INX_Camera_ARG_grabFrame_frame_width) = inx_Camera_state->frame.width;

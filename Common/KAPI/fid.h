@@ -17,8 +17,7 @@
 #ifndef _FUNCTION_INSTANCE_DATA_H
 #define _FUNCTION_INSTANCE_DATA_H
 
-#include "ehs_defs.h"
-#include "target_types.h"
+#include "globals.h"
 #include "ehs_fb_types.h"
 
 /* debug masks */
@@ -108,9 +107,9 @@ typedef struct EhsFunctionInstanceClearEventsStruct
 #define SetCompletes8(p) EHS_FB_FINISH(8)
 /* default is to only reset one event - no multiple event */
 
-EHS_GLOBAL EHS_MEMORY_ATTRIB void EhsFunctionInstanceData_triggerEvent(EhsFunctionInstanceDataType* pByte, ehs_uint32 x);
+EHS_MEMORY_ATTRIB void EhsFunctionInstanceData_triggerEvent(EhsFunctionInstanceDataType* pByte, ehs_uint32 x);
 
-EHS_GLOBAL void EhsFunctionInstanceData_clearEvents(EhsFunctionInstanceClearEventsType* pClearEvents);
+void EhsFunctionInstanceData_clearEvents(EhsFunctionInstanceClearEventsType* pClearEvents);
 
 #endif /* _FUNCTION_INSTANCE_DATA_H */
 

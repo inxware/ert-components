@@ -19,7 +19,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+#include "globals.h"
 
 
 ehs_bool EhsPWMConfig(const ehs_uint8 pin, const ehs_uint32 periodHz);

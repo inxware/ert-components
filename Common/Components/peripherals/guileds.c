@@ -62,10 +62,9 @@
  *
  */
 
-#include "target.h"
+#include "globals.h"
 #include "guileds.h"
 #include "guiparams.h"
-#include "globals.h"
 #include "setCompletes.h"
 #include "app_data.h"
 #include "hal_string.h"

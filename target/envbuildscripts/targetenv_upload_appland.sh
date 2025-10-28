@@ -13,7 +13,7 @@ if [ -z "${EHS_APPLAND_INST_DEPLOY_NAME}" ]; then
 fi
 INST_OS_NAME=${EHS_APPLAND_INST_OS_NAME}
 INST_DEPLOY_FILE_NAME=${EHS_APPLAND_INST_DEPLOY_NAME}
-INST_SERVER_UNAME="root"
+INST_SERVER_UNAME="tech-data"
 INST_SERVER_URL="devport.inx-systems.com"
 INST_SERVER_PATH=/home/www/devport/docs/downloads/appland/runtimes/${INST_OS_NAME}
 
@@ -87,9 +87,9 @@ fi
 
 echo "Uploading to the appland server ..."
 # make sure the directory structure for the run-time exists
-ssh -p 8822  ${INST_SERVER_UNAME}@${INST_SERVER_URL} "mkdir -p \"$INST_SERVER_PATH\""
+ssh -p 3344  ${INST_SERVER_UNAME}@${INST_SERVER_URL} "mkdir -p \"$INST_SERVER_PATH\""
 # copy installer and all resource files
-scp -P 8822 ${EHS_TARGET_APPLAND}/* ${INST_SERVER_UNAME}@${INST_SERVER_URL}:${INST_SERVER_PATH}/
+scp -P 3344 ${EHS_TARGET_APPLAND}/* ${INST_SERVER_UNAME}@${INST_SERVER_URL}:${INST_SERVER_PATH}/
 
 echo "Done!"
 

@@ -20,7 +20,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+#include "globals.h"
 
 // Max number of frames that can be assigned to
 // an image processing or camera function block
@@ -45,9 +45,12 @@ typedef enum {
     //EHS_CAM_FMT_32FC3,       // 32-bit float, 3 channels
     //EHS_CAM_FMT_32FC1,       // 32-bit float, 1 channels
     // ...
+    EHS_CAM_FMT_MAX
 } EhsCameraDataFormat;
 
-typedef struct {
+extern ehs_uint8 gEhsCameraDataFormatChanLen[EHS_CAM_FMT_MAX];
+
+    typedef struct {
     void* frameObj;
     ehs_sint32 id; // or index
     ehs_uint32 width;
@@ -61,7 +64,7 @@ typedef struct {
     ehs_uint32 width;
     ehs_uint32 height;
     ehs_bool   async;
-    // ehs_bool monochrome; // needed?
+    ehs_bool greyscale;
     // ... other ?
 } EhsCamera;
 
@@ -70,51 +73,51 @@ typedef struct {
 
 // Starts the camera with a given ID (e.g., device path or index).
 // Returns an error code indicating success or failure.
-EHS_GLOBAL EhsCameraError EhsCameraStart(EhsCamera* camera, const ehs_char* id);
+EhsCameraError EhsCameraStart(EhsCamera* camera, const ehs_char* id);
 
 // Stops a running camera and releases internal resources.
-EHS_GLOBAL void EhsCameraStop(EhsCamera* camera);
+void EhsCameraStop(EhsCamera* camera);
 
 // Completely destroys and deallocates a camera instance.
-EHS_GLOBAL void EhsCameraDestroy(EhsCamera* camera);
+void EhsCameraDestroy(EhsCamera* camera);
 
 // Captures a new frame from the camera and stores it into the given frame object.
 // Returns true on success, false if no frame was captured.
-EHS_GLOBAL ehs_bool EhsCameraGrabFrame(EhsCamera* camera, EhsCameraFrame* frame);
+ehs_bool EhsCameraGrabFrame(EhsCamera* camera, EhsCameraFrame* frame, ehs_bool show_image);
 
 //////////////////////////////////////////////////////////////////////////////////
 // Camera Frame (Stream) functions
 
 // Initializes an empty camera frame structure (allocates buffers, sets defaults).
-EHS_GLOBAL void EhsCameraFrameCreate(EhsCameraFrame* frame);
+void EhsCameraFrameCreate(EhsCameraFrame* frame);
 
 // Destroys a frame structure, releasing any associated memory.
-EHS_GLOBAL void EhsCameraFrameDestroy(EhsCameraFrame* frame);
+void EhsCameraFrameDestroy(EhsCameraFrame* frame);
 
 // Adds a frame to a global buffer and returns a unique frame ID.
-EHS_GLOBAL ehs_sint32 EhsCameraFrameAdd(EhsCameraFrame* frame);
+ehs_sint32 EhsCameraFrameAdd(EhsCameraFrame* frame);
 
 // Removes a previously added frame (by ID or reference) from a global buffer.
-EHS_GLOBAL void EhsCameraFrameRemove(EhsCameraFrame* frame);
+void EhsCameraFrameRemove(EhsCameraFrame* frame);
 
 // Clears all managed frames from a global buffer.
-EHS_GLOBAL void EhsCameraFrameClearAll();
+void EhsCameraFrameClearAll();
 
 // Retrieves a frame by its ID from a global buffer.
 // Returns a pointer to the frame, or NULL if not found.
-EHS_GLOBAL EhsCameraFrame* EhsCameraFrameGetById(ehs_sint32 id);
+EhsCameraFrame* EhsCameraFrameGetById(ehs_sint32 id);
 
 // Retrieves the raw frame data buffer and its size from a frame.
 // Returns true on success, false if data is unavailable.
-EHS_GLOBAL ehs_bool EhsCameraFrameGetData(EhsCameraFrame* frame, void** frame_data, ehs_uint32* frame_size);
+ehs_bool EhsCameraFrameGetData(EhsCameraFrame* frame, void** frame_data, ehs_uint32* frame_size);
 
 // Reads file image into 'frame' object from a file , suports jpg, png ...
 // Returns true on success.
-EHS_GLOBAL ehs_bool EhsCameraFrameReadFromFile(EhsCameraFrame* frame, const ehs_char* filepath);
+ehs_bool EhsCameraFrameReadFromFile(EhsCameraFrame* frame, const ehs_char* filepath);
 
 // Writes 'frame' into an image file.
 // Returns true on success.
-EHS_GLOBAL ehs_bool EhsCameraFrameWriteToFile(EhsCameraFrame* frame, const ehs_char* filepath);
+ehs_bool EhsCameraFrameWriteToFile(EhsCameraFrame* frame, const ehs_char* filepath);
 
 //////////////////////////////////////////////////////////////////////////////////
 // Machine Vision Algorithm functions
@@ -122,15 +125,15 @@ EHS_GLOBAL ehs_bool EhsCameraFrameWriteToFile(EhsCameraFrame* frame, const ehs_c
 // Crops a rectangular region from the source frame into the destination frame.
 // Coordinates are inclusive: (x1, y1) to (x2, y2).
 // Returns true on success.
-EHS_GLOBAL ehs_bool EhsCameraFrameCrop(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 x1, ehs_uint32 y1, ehs_uint32 x2, ehs_uint32 y2);
+ehs_bool EhsCameraFrameCrop(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 x1, ehs_uint32 y1, ehs_uint32 x2, ehs_uint32 y2);
 
 // Resizes the source frame to the given width and height, storing result in destination frame.
 // Returns true on success.
-EHS_GLOBAL ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height);
+ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height);
 
 // Converts the frame format (e.g., RGB to grayscale) and stores result in destination frame.
 // Returns true on success.
-EHS_GLOBAL ehs_bool EhsCameraFrameFormat(EhsCameraFrame* src, EhsCameraFrame* dst, EhsCameraDataFormat fmt);
+ehs_bool EhsCameraFrameFormat(EhsCameraFrame* src, EhsCameraFrame* dst, EhsCameraDataFormat fmt);
 
 // @TODO - add filtering functions e.g. Sobel, Threshold, Gauss, Morph etc.
 

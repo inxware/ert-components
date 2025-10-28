@@ -33,7 +33,7 @@
 #include "blockref_table.h"
 #include "console_server.h"
 #include "hal-api.h"
-#include "ehs_types.h"
+#include "globals.h"
 /* OS Headers */
 #include <unistd.h>
 #include <windows.h>

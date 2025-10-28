@@ -43,8 +43,8 @@
 typedef struct EhsWidgetStruct EhsWidgetClass; /*lint !e961 Only preprocessor statements and comments before #include.
 											    Derogation necessary to allow declaration of a type that is defined in this file. */
 
+#include "globals.h"
 #include "hal_viewport.h"
-#include "target_config.h"
 #include "graphics.h"
 #include "widget_textbox.h"
 #include "widget_image.h"

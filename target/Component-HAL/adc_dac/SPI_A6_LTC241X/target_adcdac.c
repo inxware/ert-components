@@ -7,9 +7,9 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
+
+#include "globals.h"
 #include "target_adcdac.h"
-#include "target.h"
-#include "target_config.h"
 
 #include <sys/utsname.h>
 #include <stdlib.h>
@@ -82,7 +82,7 @@ static ehs_bool set_atten(ehs_uint8 channel, ehs_uint8 atten)
 }
 
 // todo - what is the *config needed for in generic code?
-EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
+ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
                                   ehs_uint8 *config)
 {
     ehs_bool ret = EHS_TRUE;
@@ -104,7 +104,7 @@ ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel) {
 
 
 /* Probably don't need this : */
-EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
+ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
         ehs_uint8 config)
 {
     /// todo2022 write the esp32 specific code to get a value and return and error
@@ -118,13 +118,13 @@ EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
     if (ret == -2)
     {
         *value = prev;
-        printf("The data received is not for the channel %d\n", channel);
+        //printf("The data received is not for the channel %d\n", channel);
         return EHS_FALSE;
     }
     else if (ret == -1)
     {
         *value = prev;
-        printf("Data parity check failed.\n");
+        //printf("Data parity check failed.\n");
         return EHS_FALSE;
     }
     else if (ret == 0)

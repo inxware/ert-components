@@ -22,7 +22,7 @@
 /* Included files */
 #include <stdio.h> /* required for malloc, exit */
 #include <sys/stat.h>
-#include "ehs_types.h"
+#include "globals.h"
 
 /*****************************************************************************/
 /* Define macros  */

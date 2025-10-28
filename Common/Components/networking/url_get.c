@@ -11,10 +11,10 @@
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
 
 
+#include "globals.h"
 #include "ehs_fb_types.h"
 #include "url_get.h"
 #include "setCompletes.h"
-#include "target.h"
 #include "hal_string.h"
 #include "app_data.h"
 //#include "callback_queue.h"

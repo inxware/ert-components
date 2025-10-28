@@ -16,8 +16,8 @@
 
 #define EHS_TARGET_CODE /* Ensure header files include target-internal values */
 
-#include "target.h"
 #include <math.h>
+#include "globals.h"
 
 /**
  * Implementation of asinh as VisualStudio doesn't provide one.

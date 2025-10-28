@@ -59,13 +59,12 @@
  *
  */
 
-#include "target.h"
 #ifdef EHS_GUI_SUPPORT
 
+#include "globals.h"
 #include "guipatch.h"
 #include "guiparams.h"
 #include "ehs_fb_types.h"
-#include "globals.h"
 #include "widget.h"
 /** @todo check which includes are required here */
 #include "setCompletes.h"

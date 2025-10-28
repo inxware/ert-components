@@ -10,8 +10,7 @@
 #ifndef EHS_GRAPHICS_TYPES_H
 #define EHS_GRAPHICS_TYPES_H
 
-#include "ehs_types.h"
-#include "target_config.h"
+#include "globals.h"
 
 /**
  * Colours

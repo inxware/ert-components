@@ -1,7 +1,7 @@
 #ifndef _TARGET_HAL_RTC_H_ 
 #define _TARGET_HAL_RTC_H_ 
 
-#include "ehs_types.h"
+#include "globals.h"
 
 void EhsTSetRtcSecond(ehs_uint32 time_sec);
 ehs_uint32 EhsTGetRtcSecond( void );

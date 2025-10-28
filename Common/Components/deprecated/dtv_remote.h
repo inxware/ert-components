@@ -27,9 +27,9 @@
 
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DtvRemote);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(DtvRemote);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvRemote);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(DtvRemote);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(DtvRemote);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DtvRemote);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(DtvRemote)

@@ -17,7 +17,7 @@
 #ifndef _HAL_OTA_H_
 #define _HAL_OTA_H_
 
-#include "target_types.h"
+#include "globals.h"
 
 typedef enum {
     TARGET_OTA_IDLE = 0,

@@ -4,7 +4,7 @@
 #include "esp_err.h"
 #include "esp_eth_driver.h"
 
-#include "target_types.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,6 +22,16 @@ extern "C" {
  *          - ESP_FAIL on any other failure
  */
 esp_err_t target_eth_init(esp_eth_handle_t *eth_handles_out);
+
+/**
+ * @brief Deinitialise Ethernet driver
+ * 
+ * @param[in] eth_handle Ethernet driver handle to deinitialise
+ *
+ * @return
+ *          - ESP_OK on success
+ */
+esp_err_t target_eth_deinit(esp_eth_handle_t eth_handle);
 
 #ifdef __cplusplus
 }

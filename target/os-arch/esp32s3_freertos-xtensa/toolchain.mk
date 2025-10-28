@@ -7,6 +7,9 @@
 #	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 #---------------------------------------------------------------#
 # default is using library built with 32k instruction cache
+
+CFLAGS += -c
+
 ifeq ($(TOOLCHAIN_NAME),xtensa-esp32s3-elf-5.1)
     ESP32_TOOLCHAIN_MATCH = 1
 endif

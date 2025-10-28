@@ -8,7 +8,7 @@
 #include "esp_timer.h"
 #include "driver/uart.h"            // for uart_event_t
 
-#include "target_types.h"
+#include "globals.h"
 
 #if __has_include("driver/gptimer.h")
 #include "driver/gptimer.h"

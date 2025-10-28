@@ -298,6 +298,7 @@ EHS_FB_DESTROY_FUNCTION(lorawan)
 	EhsCallbackQueue_clear(&xLorawanCallbackQueue);
 	ehs_uint8 _i;
 	for (_i = 0 ; _i < E_LORAWAN_API__MAX_VALUE ; _i++) EhsCallbackQueue_clear(&xLorawanApiCallbackQueue[_i]);
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION connect MACRO START -- DO NOT ALTER

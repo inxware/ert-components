@@ -15,7 +15,35 @@
 #include "inx-led.h"
 #include "inx-accel_gyro.h"
 
-extern const EhsBlockRefType EhsBlockRefTable_Peripherals[] =
+// Components moved from user directory
+#ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+#include "inx-adc_read.h"
+#include "inx-adc_config.h"
+#ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
+#include "inx-adc_read_continuous.h"
+#endif
+#include "inx-adc_read_single.h"
+#include "inx-dac.h"
+#endif
+
+#ifdef EHS_PERIPHERALS_PWM_SUPPORT
+//#include "inx-pwm.h"
+#include "inx-pwm_gen.h"
+#endif
+
+#ifdef EHS_UART_SUPPORT
+#include "inx-uart.h"
+#include "inx-uart_config.h"
+#endif
+
+#ifdef EHS_MODBUS_SUPPORT
+#include "inx-modbus_read.h"
+#include "inx-modbus_write.h"
+#include "inx-modbus_config.h"
+#include "inx-modbus_slave_register.h"
+#endif
+
+EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 {
 #ifdef EHS_PERIPHERALS_RCU
 		EHS_BLOCKREF_ENTRY(EHS_FB_NAME_DtvRemoteKey2,EHS_FB_ID_DtvRemoteKey2, DtvRemote2),
@@ -36,5 +64,34 @@ extern const EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 #ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_accel_gyro, INXWARE_FB_ID_accel_gyro, accel_gyro),
 #endif
+
+// Components moved from user directory
+#ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_adc_read,INXWARE_FB_ID_adc_read ,adc_read),
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_adc_config,INXWARE_FB_ID_adc_config,adc_config),
+#ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_adc_read_continuous,INXWARE_FB_ID_adc_read_continuous,adc_read_continuous),
+#endif
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_adc_read_single,INXWARE_FB_ID_adc_read_single,adc_read_single),
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_dac,INXWARE_FB_ID_dac,dac),
+#endif
+
+#ifdef EHS_PERIPHERALS_PWM_SUPPORT
+//		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_pwm,INXWARE_FB_ID_pwm ,pwm),
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_pwm_gen,INXWARE_FB_ID_pwm_gen,pwm_gen),
+#endif
+
+#ifdef EHS_UART_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_UART,INXWARE_FB_ID_UART,UART),
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_uart_config,INXWARE_FB_ID_uart_config,uart_config),
+#endif
+
+#ifdef EHS_MODBUS_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_modbus_config,INXWARE_FB_ID_modbus_config,modbus_config),
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_modbus_read,INXWARE_FB_ID_modbus_read ,modbus_read),
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_modbus_write,INXWARE_FB_ID_modbus_write ,modbus_write),
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_modbus_slave_register,INXWARE_FB_ID_modbus_slave_register,modbus_slave_register),
+#endif
+
     {0}
 };

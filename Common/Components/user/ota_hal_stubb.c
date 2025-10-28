@@ -12,7 +12,7 @@
  * OTA operations are NOPs in this mode to allow for application compatability 
  * where OTA functions are optional or for target specific purposes. 
  */
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal_ota.h"
 
 /**
@@ -131,6 +131,11 @@ void thOTA_on_abort_callback(target_ota_on_abort_t callback)
  * @brief Force the OTA process state to IDLE
  */
 void thOTA_idle(void)
+{
+    return;
+}
+
+void target_OTA_task(void *pvParameters)
 {
     return;
 }

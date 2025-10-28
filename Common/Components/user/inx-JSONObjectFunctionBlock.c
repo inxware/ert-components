@@ -183,6 +183,7 @@ EHS_FB_DESTROY_FUNCTION(JSONObject)
     //Your code below here
     inx_JSONObject_state_type* state = (inx_JSONObject_state_type*)EHS_FB_DESTROY_CONTEXT;
     cleanup(state);
+    return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION reset MACRO START -- DO NOT ALTER

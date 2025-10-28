@@ -1,0 +1,72 @@
+<LucidProject>
+<Version>1.4</Version>
+<ProjectName>Frame_Show</ProjectName>
+<Toolboxes>
+<Toolbox hash="0x1ab0">core</Toolbox>
+<Toolbox hash="0x1ab1">AV</Toolbox>
+<Toolbox hash="0x1ab3">peripherals</Toolbox>
+<Toolbox hash="0x1ab4">networking</Toolbox>
+<Toolbox hash="0x1ab5">gui</Toolbox>
+<Toolbox hash="0x1ab6">media</Toolbox>
+<Toolbox hash="0x1ab7">user</Toolbox>
+<Toolbox hash="0x1ab8">mv</Toolbox>
+<Toolbox hash="0x1a10">ml</Toolbox>
+</Toolboxes>
+<LastTransferToTarget>0000-00-00 00:00:00:000</LastTransferToTarget>
+<GroupSet>
+<Group>
+<ID>1</ID>
+<Name>Default</Name>
+<Period>100000</Period>
+<Allocation>90000</Allocation>
+</Group>
+</GroupSet>
+<ExternalFiles>
+<GuiFileSet>
+<GuiFile>
+<HostFileName>DEFAULT_LAYOUT_FOR_WIDGET_GROUP_default</HostFileName>
+<Description>Auto-generated default layout</Description>
+<Screen>default</Screen>
+</GuiFile>
+</GuiFileSet>
+<PngFileSet>
+<PngFile>
+<HostFileName>placeholder.png</HostFileName>
+<Description/>
+<TargetFileName>p0000000.png</TargetFileName>
+</PngFile>
+</PngFileSet>
+<BmpFileSet/>
+<DataFileSet/>
+<BdfFileSet/>
+<ResourceFileSet/>
+</ExternalFiles>
+<ScreenSet>
+<Screen>
+<Tag>default</Tag>
+<Description>Auto-generated default layout</Description>
+<TargetFileName>g0000001.gui</TargetFileName>
+<ActiveHostLayout>DEFAULT_LAYOUT_FOR_WIDGET_GROUP_default</ActiveHostLayout>
+</Screen>
+</ScreenSet>
+<WidgetSet/>
+<ExternalDataFileMetas>
+<NumberOfHighestGuiFile>10</NumberOfHighestGuiFile>
+<NumberOfHighestPngFile>1</NumberOfHighestPngFile>
+<NumberOfHighestBmpFile>0</NumberOfHighestBmpFile>
+<NumberOfHighestDatFile>0</NumberOfHighestDatFile>
+<NumberOfHighestBdfFile>0</NumberOfHighestBdfFile>
+</ExternalDataFileMetas>
+<Transferrables>
+<DataFileSet/>
+<ImageFileSet/>
+<LayoutFileSet>
+<Location>DEFAULT_LAYOUT_FOR_WIDGET_GROUP_default</Location>
+</LayoutFileSet>
+<ResourceFileSet/>
+<MiscFileSet>
+<Location>ert1.sdl</Location>
+</MiscFileSet>
+<FontFileSet/>
+</Transferrables>
+</LucidProject>

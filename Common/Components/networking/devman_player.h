@@ -23,24 +23,23 @@
 #define EHS_FB_NAME_DevmanPlayer "DevmanPlayer"
 #define EHS_FB_ID_DevmanPlayer 0xB0BC
 
-
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DevmanPlayer);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(DevmanPlayer);
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(DevmanPlayer);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_start_checking);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_stop_checking);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_change_url);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_reconfigure);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_track_changed);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_get_next);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_send_next);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_reset);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_info); //a function executed by a start port
-//EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_StartFromDisk);
-//EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_clearPlaylist);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(DevmanPlayer);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(DevmanPlayer);
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(DevmanPlayer);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_start_checking);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_stop_checking);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_change_url);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_reconfigure);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_track_changed);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_get_next);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_send_next);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_reset);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_out);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_info); //a function executed by a start port
+//EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_StartFromDisk);
+//EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DevmanPlayer_clearPlaylist);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(DevmanPlayer)

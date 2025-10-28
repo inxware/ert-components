@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+    <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container">
+        <span class="toc_span">Frame Show</span>
+        <!--these display in reverse order because they use float:right-->
+        <span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+      </div>
+      <!--General Description-->
+      <p class="component">
+      <strong>Frame Show</strong> shows the frame in a pop window with given frame ID input.
+          </p>
+      <!--Parameters-->
+      <div class="section_heading">
+        <span class="toc_span" id="parameters">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Min</th>
+          <th>Max</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><a name="[Param]window_title">window_title</a></td>
+          <td>S</td>
+          <td>frame</td>
+          <td></td>
+          <td></td>
+          <td>The title of the pop window. If this is blank, the title would be "frame". Only the first 255 characters of the title would be used if longer.</td>
+        </tr>
+      </table>
+      <!--Ports-->
+      <div class="section_heading">
+        <span class="toc_span" id="ports">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+      </div>
+      <table class="table">
+        <!-- Input Ports -->
+        <tr>
+          <th>In Ev.</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]show">show</a></td>
+          <td>Show the frame.</td>
+        </tr>
+        <tr>
+          <th>Data In</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]frame_id">frame_id</a></td>
+          <td>The ID of the frame to be shown.</td>
+        </tr>
+        <!-- Output Ports -->
+        <tr>
+          <th>Out Ev.</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]shown">--</a></td>
+          <td>Only triggerred when the frame is shown.</td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]error">error</a></td>
+          <td>Only triggerred when there is an error and the frame cannot be shown.</td>
+        </tr>
+        <tr>
+          <th>Data Out</th><th></th>
+        </tr>
+        <tr>
+        </tr>
+      </table>
+      <!--Miscellaneous-->
+      <div class="section_heading">
+        <span class="toc_span" id="misc">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+      </div>
+      <table>
+        <tr class="fsm_row">
+          <td style="width:90px;">
+            <b>State Machine</b>
+          </td>
+          <td colspan="5">
+                    N/A
+                  </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Toolbox</b>
+          </td>
+          <td>
+                    Machine Vision
+                  </td>
+          <td class="heading-cell">
+            <b>Version</b>
+          </td>
+          <td>
+                    v1.0
+                  </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Licence Type</b>
+          </td>
+          <td>
+                    LGPLv3
+                  </td>
+          <td class="heading-cell">
+            <b>Component Supplier</b>
+          </td>
+          <td>
+            <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Minimum DCC</b>
+          </td>
+          <td>A0000</td>
+            <td class="heading-cell">
+            <b>Profiles</b>
+          </td>
+          <td>
+                    All.
+                  </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

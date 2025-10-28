@@ -34,7 +34,7 @@
 #include <BlockDevice.h>
 
 //#define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_FILE)
-#include "target_file.h"
+#include "globals.h"
 #include "messages.h"
 #include "hal-api.h"
 

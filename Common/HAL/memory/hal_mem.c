@@ -28,15 +28,14 @@
 /*****************************************************************************/
 /* Included files */
 
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_MEMORY
 
+#include "globals.h"
+/* Set the Logger module information before including the logger to configure for this */
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_MEMORY
 #include "hal_logger.h"
 #include "hal_mem.h"
 #include "hal_process.h"
 #include "messages.h"
-#include "globals.h"
-#include "target_config.h"
-#include "target.h"
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -177,7 +176,10 @@ EHS_LOCAL struct
  */
 void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate, const char* fileName, ehs_uint32 lineNumber)
 {
-#ifdef EHS_MEMORY_MANAGMENT__NOTRACE
+/* Warning - this will create a memory leak when applications are restarted
+   This can be used for production builds that don't swap apps or have debugging enabled
+*/
+#ifdef EHS_MEMORY_MANAGMENT__NOMANAGEMENT
     return EhsTMem_alloc(nSizeToAllocate);
 #else
     EhsLMemSmallItemType* pItem;	/* contains new memory allocated */
@@ -227,7 +229,7 @@ void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate, const char* fileName, ehs_uint32
     EhsTPMutex_unlock(EhsTPMutex_mem);
     //EHSH_LOG_EXIT("EhsHMem_tempAlloc() -> %x",pRet);
     return pRet;
-#endif // EHS_MEMORY_MANAGMENT__TRACE
+#endif // EHS_MEMORY_MANAGMENT__NOMANAGEMENT
 }
 
 /**
@@ -238,7 +240,7 @@ void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate, const char* fileName, ehs_uint32
  */
 void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 lineNumber)
 {
-#ifdef EHS_MEMORY_MANAGMENT__NOTRACE
+#ifdef EHS_MEMORY_MANAGMENT__NOMANAGEMENT
     return EhsTMem_alloc(nSizeToAllocate);
 #else
     EhsLMemQuickItemType* pItem;	/* contains new memory allocated */
@@ -283,7 +285,7 @@ void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 line
     EhsTPMutex_unlock(EhsTPMutex_mem);
     //EHSH_LOG_EXIT("EhsHMem_tempAlloc() -> %x",pRet);
     return pRet;
-#endif // EHS_MEMORY_MANAGMENT__NOTRACE
+#endif // EHS_MEMORY_MANAGMENT__NOMANAGEMENT
 }
 
 /**
@@ -292,7 +294,7 @@ void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 line
  */
 void EhsHMem_tempFree(void* pData)
 {
-#ifdef EHS_MEMORY_MANAGMENT__NOTRACE
+#ifdef EHS_MEMORY_MANAGMENT__NOMANAGEMENT
     EhsTMem_free(pData);
 #else
     EhsLMemQuickItemType* pItem;
@@ -333,7 +335,7 @@ void EhsHMem_tempFree(void* pData)
     EhsTPMutex_unlock(EhsTPMutex_mem);
 
     //EHSH_LOG_EXIT("EhsHMem_tempFree");
-#endif // EHS_MEMORY_MANAGMENT__NOTRACE
+#endif // EHS_MEMORY_MANAGMENT__NOMANAGEMENT
 }
 
 /**

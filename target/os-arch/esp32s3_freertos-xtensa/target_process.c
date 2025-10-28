@@ -32,7 +32,7 @@
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_PROCESS
 
-#include "target.h"
+#include "globals.h"
 #include "hal-api.h"
 #include "target_process.h"
 #include "freertos/FreeRTOSConfig.h"
@@ -40,6 +40,7 @@
 
 #include <errno.h>
 #include <stdio.h>
+//#include <pthread.h>
 #include "esp_system.h"
 #include "esp_log.h"
 #ifdef TAG
@@ -133,7 +134,7 @@ EHS_LOCAL pthread_mutex_t EhsL_widgetTable;
 EHS_LOCAL pthread_mutex_t EhsL_viewport;
 #endif
 
-#ifdef EHS_DEVMAN_SUPPORT
+#ifdef EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER
 /**
  * Mutex resource used to control access to the devman player data
  */
@@ -248,7 +249,7 @@ EhsTPMutexClass EhsTPMutex_devmanPlayerData;
 EhsTPMutexClass  EhsTPMutex_devmanMiscBuffers;
 #endif
 
-#ifdef EHS_MEDIA_SUPPORT
+#ifdef EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER
 /**
  * Mutex resource used to control access to the playManager shared resources
  */
@@ -376,7 +377,7 @@ EHS_GLOBAL void EhsTPMutex_init(void)
     //memset(&EhsL_viewport,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_viewport,&attr);
 #endif
-#ifdef EHS_DEVMAN_SUPPORT
+#ifdef EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER
     EhsTPMutex_devmanPlayerData = (EhsTPMutexClass)&EhsL_devmanPlayerData;
     //memset(&EhsL_devmanPlayerData,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_devmanPlayerData,&attr);
@@ -384,7 +385,8 @@ EHS_GLOBAL void EhsTPMutex_init(void)
     EhsTPMutex_playManager = (EhsTPMutexClass)&EhsL_playManager;
     //memset(&EhsL_playManager,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_playManager,&attr);
-
+//#endif
+//#ifdef EHS_DEVMAN_SUPPORT
     EhsTPMutex_devmanMiscBuffers = (EhsTPMutexClass)&EhsL_devmanMiscBuffers; 
     //memset(&EhsL_devmanMiscBuffers,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_devmanMiscBuffers,&attr);

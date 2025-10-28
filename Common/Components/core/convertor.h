@@ -25,9 +25,9 @@
 #define EHS_FB_NAME_ConvertorBoolToTrigger "ConvertorBoolToTrigger"
 #define EHS_FB_ID_ConvertorBoolToTrigger 0x44CD
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToTrigger);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorBoolToTrigger);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorBoolToTrigger);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToTrigger);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorBoolToTrigger);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorBoolToTrigger);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorBoolToTrigger)
@@ -37,9 +37,9 @@ EHS_FB_FUNCTIONS(ConvertorBoolToTrigger)
 #define EHS_FB_NAME_ConvertorIntToBool "ConvertorIntToBool"
 #define EHS_FB_ID_ConvertorIntToBool 0x119A
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorIntToBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorIntToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorIntToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorIntToBool);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorIntToBool)
@@ -49,9 +49,9 @@ EHS_FB_FUNCTIONS(ConvertorIntToBool)
 #define EHS_FB_NAME_ConvertorStringToBool "ConvertorStringToBool"
 #define EHS_FB_ID_ConvertorStringToBool 0x63C9
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorStringToBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorStringToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorStringToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorStringToBool);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorStringToBool)
@@ -61,9 +61,9 @@ EHS_FB_FUNCTIONS(ConvertorStringToBool)
 #define EHS_FB_NAME_ConvertorStringToInt "ConvertorStringToInt"
 #define EHS_FB_ID_ConvertorStringToInt 0x90D8
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorStringToInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorStringToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorStringToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorStringToInt);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorStringToInt)
@@ -74,9 +74,9 @@ EHS_FB_FUNCTIONS(ConvertorStringToInt)
 #define EHS_FB_NAME_ConvertorBoolToInt "ConvertorBoolToInt"
 #define EHS_FB_ID_ConvertorBoolToInt 0xAC8B
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorBoolToInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorBoolToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorBoolToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorBoolToInt);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorBoolToInt)
@@ -86,9 +86,9 @@ EHS_FB_FUNCTIONS(ConvertorBoolToInt)
 #define EHS_FB_NAME_ConvertorBoolToString "ConvertorBoolToString"
 #define EHS_FB_ID_ConvertorBoolToString 0xCCEB
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorBoolToString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorBoolToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorBoolToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorBoolToString);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorBoolToString)
@@ -98,9 +98,9 @@ EHS_FB_FUNCTIONS(ConvertorBoolToString)
 #define EHS_FB_NAME_ConvertorIntToString "ConvertorIntToString"
 #define EHS_FB_ID_ConvertorIntToString 0x08B6
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorIntToString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorIntToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorIntToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorIntToString);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorIntToString)
@@ -111,9 +111,9 @@ EHS_FB_FUNCTIONS(ConvertorIntToString)
 #define EHS_FB_NAME_ConvertorRealToBool "ConvertorRealToBool"
 #define EHS_FB_ID_ConvertorRealToBool 0xE74B
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToBool);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorRealToBool);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorRealToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorRealToBool);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorRealToBool);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorRealToBool)
@@ -122,9 +122,9 @@ EHS_FB_FUNCTIONS(ConvertorRealToBool)
 /* Declare Float->Int convertor */
 #define EHS_FB_NAME_ConvertorRealToInt "ConvertorRealToInt"
 #define EHS_FB_ID_ConvertorRealToInt 0xD329
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToInt);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorRealToInt);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorRealToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorRealToInt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorRealToInt);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorRealToInt)
@@ -133,9 +133,9 @@ EHS_FB_FUNCTIONS(ConvertorRealToInt)
 /* Declare Bool->Float convertor */
 #define EHS_FB_NAME_ConvertorBoolToReal "ConvertorBoolToReal"
 #define EHS_FB_ID_ConvertorBoolToReal 0xFC95
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToReal);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorBoolToReal);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorBoolToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorBoolToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorBoolToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorBoolToReal);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorBoolToReal)
@@ -144,9 +144,9 @@ EHS_FB_FUNCTIONS(ConvertorBoolToReal)
 /* Declare Bool->Float convertor */
 #define EHS_FB_NAME_ConvertorIntToReal "ConvertorIntToReal"
 #define EHS_FB_ID_ConvertorIntToReal 0xB3BA
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToReal);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorIntToReal);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorIntToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorIntToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorIntToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorIntToReal);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorIntToReal)
@@ -156,9 +156,9 @@ EHS_FB_FUNCTIONS(ConvertorIntToReal)
 #define EHS_FB_NAME_ConvertorStringToReal "ConvertorStringToReal"
 #define EHS_FB_ID_ConvertorStringToReal 0xC1E9
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToReal);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorStringToReal);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorStringToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorStringToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorStringToReal);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorStringToReal);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorStringToReal)
@@ -168,9 +168,9 @@ EHS_FB_FUNCTIONS(ConvertorStringToReal)
 #define EHS_FB_NAME_ConvertorRealToString "ConvertorRealToString"
 #define EHS_FB_ID_ConvertorRealToString 0x1E6A
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToString);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(ConvertorRealToString);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(ConvertorRealToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ConvertorRealToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ConvertorRealToString);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ConvertorRealToString);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(ConvertorRealToString)

@@ -20,7 +20,7 @@
 /*****************************************************************************/
 /* Included files */
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "target_mem.h"
 
 /*****************************************************************************/
@@ -72,13 +72,13 @@ void* EhsHMem_Alloc(ehs_uint32 nSizeToAllocate,const char* fileName, ehs_uint32 
  * Request temporary memory - that is memory that we can individually free,
  * or allow it to be released by temporaryFreeAll()
  */
-EHS_GLOBAL void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 lineNumber);
+void* EhsHMem_tAlloc(ehs_uint32 nSizeToAllocate, char* fileName, ehs_uint32 lineNumber);
 
 /**
  * Free memory that's been allocated temporarily. More of an aspiration than an actual
  * request at the moment...
  */
-EHS_GLOBAL void EhsHMem_tempFree(void*);
+void EhsHMem_tempFree(void*);
 
 /**
  * Switch memory pool. - Of course nobody bothered to mention here that this freed memory as pools are changed:
@@ -88,18 +88,18 @@ EHS_GLOBAL void EhsHMem_tempFree(void*);
  *
  * Note this allocator should not be used for services that run in parallel with applications such as devman or any permenant features such as A/V systems
  */
-EHS_GLOBAL void EhsHMem_switchPool(EhsHMPoolType xPool);
+void EhsHMem_switchPool(EhsHMPoolType xPool);
 
 /**
  * Initialise memory system
  */
-EHS_GLOBAL void EhsHMem_init(void);
+void EhsHMem_init(void);
 
 /**
  * Return memory used so far
  * @return Total memory allocated
  */
-EHS_GLOBAL ehs_uint32 EhsHMem_used(void);
+ehs_uint32 EhsHMem_used(void);
 
 #ifndef EhsTMem_alloc
 /**

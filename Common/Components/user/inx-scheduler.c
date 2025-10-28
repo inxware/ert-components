@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <unistd.h>
 //#include "hal-api.h"
-#include "target_file.h"
+#include "hal_file.h"
 #include "target_string.h"
 #include <stdio.h>
 
@@ -80,9 +80,9 @@ ehs_uint8 target_readScheduleFromFile(inx_DevmanScheduler_state_type* state, ehs
     state->version = header[0];
     state->crc32 = ((ehs_uint16)(ehs_uint8)header[2] << 8) | (ehs_uint16)(ehs_uint8)header[1];
     ehs_uint8 header_id = header[3];
-    if(id != header_id){
-        printf("File contains incorrect scheduler id (%d) in the header (%d)\n",id,header_id);
-    }
+    //if(id != header_id){
+    //    printf("File contains incorrect scheduler id (%d) in the header (%d)\n",id,header_id);
+    //}
 
     file_size -= header_size;
     // Read all from file into the schedule buffer

@@ -16,9 +16,8 @@
 #ifndef EHS_GRAPHICS_H
 #define EHS_GRAPHICS_H
 
-#include "ehs_types.h"
-#include "target_config.h"
-#include "target_file.h"
+#include "globals.h"
+#include "hal_file.h"
 #include "graphics_types.h"
 //#include "font.h"
 #include "targetgfx_init.h"
@@ -27,18 +26,18 @@
 /**
  * Create a colour structure from individual red, green, blue components
  */
-EHS_GLOBAL EhsGraphicsColourClass EhsGraphicsColour_rgb(ehs_uint8 r, ehs_uint8 g, ehs_uint8 b);
+EhsGraphicsColourClass EhsGraphicsColour_rgb(ehs_uint8 r, ehs_uint8 g, ehs_uint8 b);
 
 /**
  * Create a colour structure from individual red, green, blue, alpha components
  */
-EHS_GLOBAL EhsGraphicsColourClass EhsGraphicsColour_argb(ehs_uint8 r, ehs_uint8 g, ehs_uint8 b, ehs_uint8 alpha);
+EhsGraphicsColourClass EhsGraphicsColour_argb(ehs_uint8 r, ehs_uint8 g, ehs_uint8 b, ehs_uint8 alpha);
 
 
 /**
  * True if two rectangles overlap
  */
-EHS_GLOBAL ehs_bool EhsGraphicsRectangle_overlap(const EhsGraphicsRectangleClass* r1, const EhsGraphicsRectangleClass* r2);
+ehs_bool EhsGraphicsRectangle_overlap(const EhsGraphicsRectangleClass* r1, const EhsGraphicsRectangleClass* r2);
 
 /**
  * Returns the intersection of two rectangles
@@ -48,7 +47,7 @@ EHS_GLOBAL ehs_bool EhsGraphicsRectangle_overlap(const EhsGraphicsRectangleClass
  * @param[in] r2 Second rectangle
  * @return false if no intersection exists
  */
-EHS_GLOBAL ehs_bool EhsGraphicsRectangle_intersect(EhsGraphicsRectangleClass* ret, const EhsGraphicsRectangleClass* r1, const EhsGraphicsRectangleClass* r2);
+ehs_bool EhsGraphicsRectangle_intersect(EhsGraphicsRectangleClass* ret, const EhsGraphicsRectangleClass* r1, const EhsGraphicsRectangleClass* r2);
 
 /**
  * Returns the union of two rectangles
@@ -57,7 +56,7 @@ EHS_GLOBAL ehs_bool EhsGraphicsRectangle_intersect(EhsGraphicsRectangleClass* re
  * @param[in] r1 First rectangle
  * @param[in] r2 Second rectangle
  */
-EHS_GLOBAL void EhsGraphicsRectangle_union(EhsGraphicsRectangleClass* ret, const EhsGraphicsRectangleClass* r1, const EhsGraphicsRectangleClass* r2);
+void EhsGraphicsRectangle_union(EhsGraphicsRectangleClass* ret, const EhsGraphicsRectangleClass* r1, const EhsGraphicsRectangleClass* r2);
 
 /**
  * Finds the rectangle that allows one rectangle to fit within another while keeping its original proportions
@@ -66,25 +65,25 @@ EHS_GLOBAL void EhsGraphicsRectangle_union(EhsGraphicsRectangleClass* ret, const
  * @param[in] prBounds Specifies the rectangle that prRet must fit into.
  * @param[in] prSrc Specifies the proportions that we wish to keep
  */
-EHS_GLOBAL void EhsGraphicsRectangle_proportionalScale(EhsGraphicsRectangleClass* prRet, const EhsGraphicsRectangleClass* prBounds, const EhsGraphicsSizeClass* prSrc);
+void EhsGraphicsRectangle_proportionalScale(EhsGraphicsRectangleClass* prRet, const EhsGraphicsRectangleClass* prBounds, const EhsGraphicsSizeClass* prSrc);
 
 /**
  * Perform setup before loading in a new application
  */
-EHS_GLOBAL void EhsTGfxSys_init();
+void EhsTGfxSys_init();
 /**
  * Perform necessary target setup per application execution
  */
-EHS_GLOBAL void EhsTGfxApp_reset(void);
+void EhsTGfxApp_reset(void);
 /**
  * Called to clean up after the execution of an application in order to make
  * sure everything has been stopped.
  */
-EHS_GLOBAL void EhsTGfxApp_term(void);
+void EhsTGfxApp_term(void);
 
 
 /* Call to initialise the global graphics system */
-EHS_GLOBAL void EhsTGfxApp_init(void);
+void EhsTGfxApp_init(void);
 
 
 /* File format handlers */

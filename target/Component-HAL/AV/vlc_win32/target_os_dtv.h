@@ -11,6 +11,7 @@
 
 
 #include <gst/gst.h>
+#include "globals.h"
 #include "hal_dtv.h"
 
 struct EhsTDPlaybackStruct

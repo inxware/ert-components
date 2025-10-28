@@ -17,7 +17,7 @@
 #ifndef EHS_CONSOLE
 #define EHS_CONSOLE
 
-#include "ehs_types.h"
+#include "globals.h"
 
 /* We normally change all file lengths to 8.3 file formats for all targets: */
 #define EHS_CONSOLE_MAX_FILENAME_LENGTH 32

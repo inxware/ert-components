@@ -27,43 +27,39 @@
  * - Rule 19.13 Use of #/## operator. This is used only in a debug build of EHS
  */
 
-#ifndef EHS_GLOBALS
-#define EHS_GLOBALS
+#ifndef EHS_GLOBALS_H
+#define EHS_GLOBALS_H
 
-/*****************************************************************************/
-/* Included files */
-#include "target.h"
-//includes in target.h #include "target_config.h" /* special include required before macro definitions */
+/* Globals need ehs types and we should preferentially #include globals.h*/
+#include "target_types.h"
 #include "ehs_types.h"
-/*****************************************************************************/
-/* Define macros  */
 
-/* Defines system-wide, target-independent limits */
-#ifdef EHS_UNITY3D_CONFIG
-/* todo2024 the following should be done in hte platform config.mk file (or something common to all unity apps */
-	#define EHS_STRING_LENGTH_MAX 2*2047
-	#warning "EHS_UNITY3D_CONFIG is configured for this platform using the default value of 2*2047" 
-#endif //EHS_UNITY3D_CONFIG
 
-#ifndef EHS_STRING_LENGTH_MAX
-#define EHS_STRING_LENGTH_MAX 2047 /*@todo This needs to be killed off and proper dynamic allocation used - at least for edges */
-/* Presumably the folloing is because the MSVC build doesn't build against a kernel library */
-/* We also don't need this check for the kernel that shouldn't care about strings */
-#if !defined(EHS_MSVC) && !defined(EHS_KERNEL_BUILD)
-   
-	#warning "EHS_STRING_LENGTH_MAX is not configured for this platform using the default value of 2047"
-#endif
-#endif //EHS_STRING_LENGTH_MAX
+/*********************** TARGET_INDEPENDENT TYPES FIRST AS THESE MAY BE USED IN TARGET SPECIFIC HEADERS ************************************************ */
 
-#ifndef MAX_FILENAME_LEN
-#define MAX_FILENAME_LEN EHS_STRING_LENGTH_MAX
-#endif
-
-#ifndef MAX_PARAM_STR_LEN
-// TODO2024: We are problably only doble this for low memory devices where.
-#define MAX_PARAM_STR_LEN (EHS_STRING_LENGTH_MAX*2)
+#ifdef __cplusplus
+ #define EHS_GLOBAL extern "C" /**< allows target-specific definition of global (i.e extern) types */
+//needed to export variables in C++ (not as C?)
+#define EHS_KERNEL_PROVIDED extern 
+/* This is for C to C external compatability */
+#define EHS_EXTERN extern   
+#define EHS_CPP_EXPORT export extern 
+//needed to import variables in C++ (clang C doesn't like extern for exported variables in C )
+ #define EHS_C_CPP_EXPORT extern
+ /* Most languages don't need anything to make function prototypes accessible, but theis macro allows 
+      for cases we may want to export compnent APIs (e.g. as DLLs)*/
+ #define EHS_COMPONENT_API_EXPORT  
+#else
+ /* In C if we want to import a global variable from another filewe use just extern */
+ #define EHS_GLOBAL extern
+ #define EHS_KERNEL_PROVIDED extern
+ #define EHS_EXTERN extern 
+ #define EHS_CPP_EXPORT
+ #define EHS_C_CPP_EXPORT
+ #define EHS_COMPONENT_API_EXPORT  
 #endif
 
+/* This is needed when compilig with C++ in combination with export */
 
 #define EHS_SINT32_MAX 2147483647
 #define EHS_SINT32_MIN -2147483648
@@ -100,6 +96,94 @@
 #define EHS_SODL_EXTENSION "sdl"
 #define EHS_SODL_EXT_SIZE 3
 
+/**
+ * Defines the states that the debugger can be in
+ * todo2022 - this shouldn't be in the debug headers
+ */
+typedef enum
+{
+	EHS_DEBUG_OFF, /**< No debug messages are generated */
+	EHS_DEBUG_ON, /**< Debug messages are generated for every trigger and every data flow */
+	EHS_DEBUG_MONITOR
+/**< Debug messages are generated only for monitored triggers and events */
+} EhsDebugModeType;
+
+/*****************************************************************************/
+/* Define types */
+
+/* ehs_FILE is defined in target_file.h */
+
+/*****************************************************************************/
+/* Declare global variables */
+
+/**
+ * Defines the global state for EHS.
+ */
+EHS_EXTERN EhsKEStateType EhsKEState;
+
+/**
+ * If true, indicates that the main scheduler engine is to run in single step mode.
+ */
+EHS_EXTERN ehs_bool EhsSingleStepFlag;
+
+/**
+ * If true, indicates that EHS is running in debug mode
+ */
+EHS_EXTERN EhsDebugModeType EhsDebugMode;
+
+/**
+ * Indicates the sequence number of the current debug message
+ */
+EHS_EXTERN ehs_uint32 EhsDebugSequenceNumber;
+
+/**
+ * Initialize all global variables to the correct state for startup
+ */
+/// These have moved to ehs_main.c  EHS_GLOBAL void EhsKSys_init(void);
+
+
+
+
+/******************************************************END OF COMMON GLOBALS ************************************************ */
+
+/*****************************************************************************/
+/* Included target specifics headers */
+
+#include "target.h"   /* Includes /platform/<TARGET>/target_config.h, target_types.h */
+
+/*****************************************************************************/
+/* Define macros for C/C++ types  */
+
+/**************************************************** OVERRIDABLE BY TARGETS GO BELOW ************************************** */
+
+
+/* Defines system-wide, target-independent limits */
+#ifdef EHS_UNITY3D_CONFIG
+/* todo2024 the following should be done in hte platform config.mk file (or something common to all unity apps */
+	#define EHS_STRING_LENGTH_MAX 2*2047
+	#warning "EHS_UNITY3D_CONFIG is configured for this platform using the default value of 2*2047" 
+#endif //EHS_UNITY3D_CONFIG
+
+#ifndef EHS_STRING_LENGTH_MAX
+#define EHS_STRING_LENGTH_MAX 2047 /*@todo This needs to be killed off and proper dynamic allocation used - at least for edges */
+/* Presumably the folloing is because the MSVC build doesn't build against a kernel library */
+/* We also don't need this check for the kernel that shouldn't care about strings */
+#if !defined(EHS_MSVC) && !defined(EHS_KERNEL_BUILD)
+   
+	#warning "EHS_STRING_LENGTH_MAX is not configured for this platform using the default value of 2047"
+#endif
+#endif //EHS_STRING_LENGTH_MAX
+
+#ifndef MAX_FILENAME_LEN
+#define MAX_FILENAME_LEN EHS_STRING_LENGTH_MAX
+#endif
+
+#ifndef MAX_PARAM_STR_LEN
+// TODO2024: We are problably only doble this for low memory devices where.
+#define MAX_PARAM_STR_LEN (EHS_STRING_LENGTH_MAX*2)
+#endif
+
+
 /* define file names and size limits */
 
 /* @todo These should move to FILE HAL code too */
@@ -118,6 +202,12 @@
 #endif
 /* General timing constants */
 
+#ifndef EHS_CONSOLE_BUFFER_CONTINUE_PAUSE_US
+#define EHS_CONSOLE_BUFFER_CONTINUE_PAUSE_US 5000u /**< How long to wait before trying to write more data to the console in micro seconds*/
+#endif
+
+#define EHS_CONSOLE_BUFFER_MAX_RETRIES 5u /**< How many times to try to write to the console before giving up and dropping all data */
+#define EHS_CONSOLE_BUFFER_MAX_TOTAL_TRIES 20u /**< How many times to try to contiue writing a before giving up and dropping remaing data */
 /**
  * How long to wait before polling console input (when no application is executing)
  */
@@ -129,8 +219,9 @@
  * nothing else is coming.
  * Note this may be used in the component code console ATM.
  */
+#ifndef EHS_TIMEOUT_READ_FILE
 #define EHS_TIMEOUT_READ_FILE EHS_TIME_s(10u)
-
+#endif
 /**
  * How long to wait where no event input is available (i.e. how long it takes
  * application to wake up after a new event first appears
@@ -172,52 +263,9 @@
 #endif
 
 #ifndef EHS_GROUP_DEFAULT_ALLOCATION
-
 /* This is the maxium amount of queue processing time for the groupd of event processes before the group stops processing */
 #define EHS_GROUP_DEFAULT_ALLOCATION	EHS_TIME_ms( 800)
 #endif
-
-
-/**
- * Defines the states that the debugger can be in
- * todo2022 - this shouldn't be inthe ert-component code.
- */
-typedef enum
-{
-	EHS_DEBUG_OFF, /**< No debug messages are generated */
-	EHS_DEBUG_ON, /**< Debug messages are generated for every trigger and every data flow */
-	EHS_DEBUG_MONITOR
-/**< Debug messages are generated only for monitored triggers and events */
-} EhsDebugModeType;
-
-/*****************************************************************************/
-/* Define types */
-
-/* ehs_FILE is defined in target_file.h */
-
-/*****************************************************************************/
-/* Declare global variables */
-
-/**
- * Defines the global state for EHS.
- */EHS_GLOBAL EhsKEStateType EhsKEState;
-
-/**
- * If true, indicates that the main scheduler engine is to run in single step mode.
- */EHS_GLOBAL ehs_bool EhsSingleStepFlag;
-
-/**
- * If true, indicates that EHS is running in debug mode
- */EHS_GLOBAL EhsDebugModeType EhsDebugMode;
-
-/**
- * Indicates the sequence number of the current debug message
- */EHS_GLOBAL ehs_uint32 EhsDebugSequenceNumber;
-
-/**
- * Initialize all global variables to the correct state for startup
- */
-/// These have moved to ehs_main.c  EHS_GLOBAL void EhsKSys_init(void);
 
 
 /*****************************************************************************/

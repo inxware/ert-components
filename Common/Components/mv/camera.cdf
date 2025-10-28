@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2024-08-14T10:46:06Z</CreationDate>
-        <UpdatedDate>2025-06-12T17:44:37Z</UpdatedDate>
+        <UpdatedDate>2025-07-31T09:59:55Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>Run machine learning camera</ShortDescription>
@@ -15,7 +15,7 @@
         </Menu>
     </Description>
     <Block>
-        <Type>Data</Type>
+        <Type>IO</Type>
         <Height>130</Height>
         <Text>Camera</Text>
         <TextX>25</TextX>
@@ -31,7 +31,7 @@
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xC05A</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>cf09c2cf</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>c840a4b3</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
@@ -50,7 +50,7 @@
             <DataType>I</DataType>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>100</MaxValue>
+            <MaxValue>1000</MaxValue>
             <Description>frame rate</Description>
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
@@ -84,6 +84,26 @@
             <Description>camera outputs frames without capture event</Description>
             <ListPlacement>5</ListPlacement>
             <ArgPlacement>5</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>show_frame</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Display the image with given frame</Description>
+            <ListPlacement>6</ListPlacement>
+            <ArgPlacement>6</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>greyscale</Name>
+            <DataType>B</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Make the camera output greyscale. Note that this has limited support on various devices. Devices with libcamera support generally support this feature.</Description>
+            <ListPlacement>7</ListPlacement>
+            <ArgPlacement>7</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>
@@ -237,6 +257,17 @@
             <CName>stopped</CName>
             <Function argument="1">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>show</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>65</YCoordinate>
+            <CName>im_show</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
             </Function>
         </Port>
     </Ports>

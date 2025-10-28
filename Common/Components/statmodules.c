@@ -21,12 +21,13 @@
 
 /* For the core toolkit */
 #include "timer.h"
+
 /**
  * Declares the block reference table containing all functions held within EHS
  */
 //extern EhsBlockRefTableType EhsBlockRefTable_core[];
 
-extern const struct EhsBlockRefType_struct EhsBlockRefTable_core[];
+extern const EhsBlockRefType EhsBlockRefTable_core[];
 
 /**
 * Declares the core GUI function block toolkit
@@ -34,7 +35,7 @@ extern const struct EhsBlockRefType_struct EhsBlockRefTable_core[];
 #ifdef EHS_GUI_SUPPORT
 #include "hal_viewport.h"
 #include "widget.h"
-extern EhsBlockRefType  EhsBlockRefTable_coreGui[];
+extern const   EhsBlockRefTable_coreGui[];
 #endif
 
 /**
@@ -49,11 +50,11 @@ extern EhsBlockRefType  EhsBlockRefTable_coreGui[];
 */
 
 #ifdef EHS_PERIPHERAL_DEVICE_SUPPORT
-extern const struct EhsBlockRefType_struct  EhsBlockRefTable_Peripherals[];
+extern const EhsBlockRefType  EhsBlockRefTable_Peripherals[];
 #endif
 
 #ifdef EHS_AV_SUPPORT
-extern EhsBlockRefType  EhsBlockRefTable_Media[];
+extern const EhsBlockRefType  EhsBlockRefTable_Media[];
 #endif
 
 /*****************************************************************************/
@@ -63,35 +64,35 @@ extern EhsBlockRefType  EhsBlockRefTable_Media[];
  * Declares a toolkit that is used to hold deprecated components
  */
 #ifdef EHS_TOOLKIT_DEPRECATED
-extern EhsBlockRefType EhsBlockRefTable_deprecated[];
+extern const EhsBlockRefType EhsBlockRefTable_deprecated[];
 #endif
 
 /**
  * Declares a toolkit that is used to hold experimental components
  */
 #ifdef EHS_TOOLKIT_SANDBOX
-extern EhsBlockRefType  EhsBlockRefTable_sandbox[];
+extern const EhsBlockRefType  EhsBlockRefTable_sandbox[];
 #endif
 
 /**
  * Declares a toolkit that is used to hold networking components
  */
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
-extern const struct EhsBlockRefType_struct  EhsBlockRefTable_networking[];
+extern const EhsBlockRefType  EhsBlockRefTable_networking[];
 #endif
 
 /**
  * Declares a toolkit that is used to hold camera components
  */
 #ifdef EHS_MV_SUPPORT
-extern const struct EhsBlockRefType_struct  EhsBlockRefTable_mv[];
+extern const EhsBlockRefType  EhsBlockRefTable_mv[];
 #endif
 
 /**
  * Declares a toolkit that is used to hold ml components
  */
 #ifdef EHS_ML_SUPPORT
-extern const struct EhsBlockRefType_struct  EhsBlockRefTable_ml[];
+extern const EhsBlockRefType EhsBlockRefTable_ml[];
 #endif
 
 /**
@@ -99,7 +100,7 @@ extern const struct EhsBlockRefType_struct  EhsBlockRefTable_ml[];
  */
 #define EHS_USER_COMPONENT_SUPPORT
 #ifdef EHS_USER_COMPONENT_SUPPORT
-extern const struct EhsBlockRefType_struct  EhsBlockRefTable_usercomponents[];
+extern const EhsBlockRefType  EhsBlockRefTable_usercomponents[];
 #endif
 
 
@@ -149,6 +150,7 @@ void EhsAddStaticModules()
 
 #ifdef EHS_MV_SUPPORT
     EhsToolkitTable_addTable(EhsBlockRefTable_mv);
+   
 #endif
 
 #ifdef EHS_ML_SUPPORT

@@ -68,7 +68,7 @@ EHS_FB_INIT_FUNCTION(console_print)
 EHS_FB_DESTROY_FUNCTION(console_print)
 {
 	inx_console_print_state_type *inx_console_print_state = (inx_console_print_state_type*)EHS_FB_DESTROY_CONTEXT;
-	//Your code below here
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION PrintFunc MACRO START -- DO NOT ALTER

@@ -16,6 +16,8 @@
 
 #ifndef EHS_GRAPHICS_IMAGEJPG_H
 #define EHS_GRAPHICS_IMAGEJPG_H
+
+#include "globals.h"
 #include "hal_viewport.h"
 
 /**

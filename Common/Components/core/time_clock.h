@@ -24,11 +24,11 @@
 #define EHS_FB_NAME_time_clock "time_clock"
 #define EHS_FB_ID_time_clock 0xEEFF
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(time_clock);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(time_clock);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(time_clock_start);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(time_clock_stop);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(time_clock_tick);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(time_clock);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(time_clock);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(time_clock_start);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(time_clock_stop);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(time_clock_tick);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(time_clock)

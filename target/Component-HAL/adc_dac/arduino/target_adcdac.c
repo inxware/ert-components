@@ -1,6 +1,6 @@
+
+#include "globals.h"
 #include "Arduino.h"
-#include "target.h"
-#include "target_config.h"
 #include "target_adcdac.h"
 #include "target_logger.h"
 

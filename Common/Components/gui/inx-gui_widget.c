@@ -127,7 +127,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
 	inx_gui_widget_state->pUiWidgetClass = NULL;
 	
 	pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-	if (guiParams) {
+	if (guiParams[0]) {
 		EhsParseGuiParameters(guiParams, &xParams);
 		
 		if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
@@ -225,6 +225,7 @@ EHS_FB_DESTROY_FUNCTION(gui_widget)
 	if(inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass != NULL){
 		EhsWidget_destroy(inx_gui_widget_state->pUiWidgetClass);
 	}
+	return EHS_TRUE;
 }
 
 /* Widget update callback */

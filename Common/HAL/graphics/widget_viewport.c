@@ -16,6 +16,7 @@
  */
 //#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
 
+#include "globals.h"
 #include "widget.h"
 #include "messages.h"
 

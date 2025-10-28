@@ -13,6 +13,7 @@
 #include "stdafx.h"
 
 #define EHS_TARGET_CODE
+#include "globals.h"
 #include "ehs_windows.h"
 #include "ehs_main.h"
 #include "console_queue.h"

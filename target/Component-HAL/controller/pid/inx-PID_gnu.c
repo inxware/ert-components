@@ -3,7 +3,7 @@
 #include "hal_string.h"
 #include "inx-PID_isr.h"
 
-/* THis is probably some kind of PID emulator for desktop ??? */
+/* This is probably some kind of PID emulator for desktop ??? */
 
 
 typedef struct

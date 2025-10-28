@@ -17,15 +17,14 @@
 */
 
 #include <math.h>
+
 #include "globals.h"
 #include "appinfo.h"
-#include "app_data.h" // IS_CONNECTED_IN()
-
+#include "app_data.h"  // IS_CONNECTED_IN()
 #include "setCompletes.h"
-
-
-#include "hal-api.h" //needed for  version info
+#include "hal-api.h"   //needed for  version info
 #include "hal_devman.h"
+
 #define CR '\r'
 #define LF '\n'
 
@@ -42,9 +41,9 @@ typedef struct
 /******************************************************************************/
 /* Define app info get function block */
 
-//EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(appinfo);
-//EHS_GLOBAL EHS_FB_INIT_FUNCTION(appinfo);
-//EHS_GLOBAL EHS_FB_RUN_FUNCTION(appinfo_getinfo);
+//EHS_FB_IDENTIFY_FUNCTION(appinfo);
+//EHS_FB_INIT_FUNCTION(appinfo);
+//EHS_FB_RUN_FUNCTION(appinfo_getinfo);
 
 EHS_FB_FUNCTIONS_START(appinfo)
 

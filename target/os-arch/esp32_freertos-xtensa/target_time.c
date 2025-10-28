@@ -7,11 +7,11 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
+#include "globals.h"
 #include "driver/timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-#include "target_types.h"
 #include "timer.h"
 #include "hal_logger.h"
 #include <errno.h>

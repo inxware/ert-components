@@ -27,14 +27,14 @@
 #define EHS_FB_ID_gui_text_string2 0x150B
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(gui_widget);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(gui_widget);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_widget_create);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_widget_destroy);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_widget_show);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_widget_hide);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_widget_update);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text_string2_data);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(gui_widget);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_widget);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_widget_create);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_widget_destroy);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_widget_show);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_widget_hide);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_widget_update);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text_string2_data);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_text_string2)
@@ -49,7 +49,7 @@ EHS_FB_FUNCTIONS(gui_text_string2)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text_float2_data);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text_float2_data);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_text_float2)
@@ -64,7 +64,7 @@ EHS_FB_FUNCTIONS(gui_text_float2)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text_int2_data);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text_int2_data);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_text_int2)
@@ -78,7 +78,7 @@ EHS_FB_FUNCTIONS(gui_text_int2)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text_bool2_data);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text_bool2_data);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_text_bool2)

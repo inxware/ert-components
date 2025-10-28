@@ -13,9 +13,9 @@
 // #include <aws/io/io.h>
 #include <aws/mqtt/mqtt.h>
 #include <aws/mqtt/client.h>
+#include "globals.h"
 
 #include "target_types.h"
-#include "globals.h"
 #include "hal-api.h"
 #include "hal_mqtt.h"
 
@@ -349,7 +349,6 @@ void* EhsMqttClientLoop(void* args)
                         EhsStrcat(canonicalClientCertFileName,clientCertFileName);
                         // check if certificate exists
                         if(EhsTF_exists(canonicalClientCertFileName) == 0){
-                            printf("File (%s) does NOT exist !\n", clientCertFileName);
                             EhsMQTTReportError("cannot find client cert");
                             break;
                         }
@@ -363,7 +362,6 @@ void* EhsMqttClientLoop(void* args)
                         EhsStrcat(canonicalClientKeyFileName,clientKeyFileName);
                         // check if certificate exists
                         if(EhsTF_exists(canonicalClientKeyFileName) == 0){
-                            printf("File (%s) does NOT exist !\n", clientKeyFileName);
                             EhsMQTTReportError("cannot find client key");
                             break;
                         }
@@ -377,7 +375,7 @@ void* EhsMqttClientLoop(void* args)
                         EhsStrcat(canonicalRootCAFileName,rootCAFileName);
                         // check if certificate exists
                         if(EhsTF_exists(canonicalRootCAFileName) == 0){
-                            printf("File (%s) does NOT exist !\n", rootCAFileName);
+                            //printf("File (%s) does NOT exist !\n", rootCAFileName);
                             EhsMQTTReportError("cannot find ca cert");
                             break;
                         }

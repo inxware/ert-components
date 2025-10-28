@@ -19,7 +19,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+#include "globals.h"
 #include "callback_queue.h"
 
 /*Define types*/
@@ -83,28 +83,28 @@ typedef struct
     ehs_pid_ctrl_error_id nError;
 } ehs_pid_ctrl_type;
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlInit(ehs_pid_ctrl_type* pid_ctrl);
+ehs_bool EhsPIDCtrlInit(ehs_pid_ctrl_type* pid_ctrl);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlDestroy(ehs_pid_ctrl_type* pid_ctrl);
+ehs_bool EhsPIDCtrlDestroy(ehs_pid_ctrl_type* pid_ctrl);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlConfigurePID(ehs_pid_ctrl_type* pid_ctrl);
+ehs_bool EhsPIDCtrlConfigurePID(ehs_pid_ctrl_type* pid_ctrl);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureIO(ehs_pid_ctrl_type* pid_ctrl);
+ehs_bool EhsPIDCtrlConfigureIO(ehs_pid_ctrl_type* pid_ctrl);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlSetSetpointValue(ehs_pid_ctrl_type* pid_ctrl);
+ehs_bool EhsPIDCtrlSetSetpointValue(ehs_pid_ctrl_type* pid_ctrl);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlSetMeasuredValue(ehs_pid_ctrl_type* pid_ctrl);
+ehs_bool EhsPIDCtrlSetMeasuredValue(ehs_pid_ctrl_type* pid_ctrl);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlUpdateOutputs(ehs_pid_ctrl_type* pid_ctrl);
+ehs_bool EhsPIDCtrlUpdateOutputs(ehs_pid_ctrl_type* pid_ctrl);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlDisable(ehs_pid_ctrl_type* pid_ctrl);
+ehs_bool EhsPIDCtrlDisable(ehs_pid_ctrl_type* pid_ctrl);
 
-EHS_GLOBAL ehs_float EhsPIDCtrlGetSensorValue(const ehs_pid_ctrl_type* pid_ctrl, ehs_bool* isConnected);
+ehs_float EhsPIDCtrlGetSensorValue(const ehs_pid_ctrl_type* pid_ctrl, ehs_bool* isConnected);
 
-EHS_GLOBAL ehs_sint32 EhsPIDCtrlCalibrate(ehs_sint32 id, ehs_bool bScale, float scale, ehs_bool bOffset, float offset);
+ehs_sint32 EhsPIDCtrlCalibrate(ehs_sint32 id, ehs_bool bScale, float scale, ehs_bool bOffset, float offset);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureRelays(ehs_pid_ctrl_relay_type_id id, ehs_sint32 idx, ehs_sint32 rel, ehs_float cyc_len);
+ehs_bool EhsPIDCtrlConfigureRelays(ehs_pid_ctrl_relay_type_id id, ehs_sint32 idx, ehs_sint32 rel, ehs_float cyc_len);
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureHardware(ehs_sint32 id, ehs_sint32 value, ehs_uint32* error_no);
+ehs_bool EhsPIDCtrlConfigureHardware(ehs_sint32 id, ehs_sint32 value, ehs_uint32* error_no);
 
 #endif /* EHS_HAL_PID_H */

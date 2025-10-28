@@ -63,7 +63,7 @@ static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
 #endif
 // Mount path for the partition
 const char *base_path = "/ehs";
-#ifdef __DEBUG__
+#ifdef EHS_RUNTIME_LOGGER_ENABLED
 #include "esp_log.h"
 #else
 #define ESP_LOGI(...)

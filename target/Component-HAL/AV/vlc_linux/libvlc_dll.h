@@ -28,6 +28,8 @@ typedef short bool;
 #include <vlc/vlc.h> // angle brackets mean that the depends make file doesn't try and build this.
 //#include "vlcinc/vlc_block.h"
 
+#include "globals.h"
+
 /*****************************************************************************/
 /* Define macros  */
 

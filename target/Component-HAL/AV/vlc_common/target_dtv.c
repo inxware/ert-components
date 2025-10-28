@@ -32,22 +32,21 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "hal_dtv.h"
-#include "hal_string.h"
-#include "messages.h"
-#include "ehs_types.h"
-#include "libvlc_dll.h"
-#include "hal_viewport.h"
-#include "widget.h"
-#include "widget.h"
 
-#include "hal-api.h"
-
-#include "dtv_pvr_play2.h"
 #include <sys/types.h>
 //#include <sys/dir.h> // this was only required when file stuff was in here ??
 #include <sys/param.h>
 
+#include "globals.h"
+#include "hal_dtv.h"
+#include "hal_string.h"
+#include "messages.h"
+#include "libvlc_dll.h"
+#include "dtv_pvr_play2.h"
+#include "hal_viewport.h"
+#include "widget.h"
+#include "widget.h"
+#include "hal-api.h"
 #include "target_os_dtv.h"
 
 #ifdef EHS_GUI_SUPPORT

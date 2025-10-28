@@ -26,9 +26,9 @@
 
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(DtvPvrList);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(DtvPvrList);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrList);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(DtvPvrList);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(DtvPvrList);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(DtvPvrList);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(DtvPvrList)

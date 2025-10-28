@@ -16,7 +16,8 @@
 */
 
 #include <math.h>
-#include "target.h"
+
+#include "globals.h"
 #include "rtinfo.h"
 #include "setCompletes.h"
 
@@ -39,11 +40,11 @@ typedef struct
 /* Define FILE_ReadOnly_Bool function block */
 //@todo These function blocks should include a method set the filename.
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(runtimeinfo);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(runtimeinfo);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(runtimeinfo_updatestatic);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(runtimeinfo_updatedynamic);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(runtimeinfo_request_pairing_id);
+EHS_FB_IDENTIFY_FUNCTION(runtimeinfo);
+EHS_FB_INIT_FUNCTION(runtimeinfo);
+EHS_FB_RUN_FUNCTION(runtimeinfo_updatestatic);
+EHS_FB_RUN_FUNCTION(runtimeinfo_updatedynamic);
+EHS_FB_RUN_FUNCTION(runtimeinfo_request_pairing_id);
 
 EHS_FB_FUNCTIONS_START(runtimeinfo)
 

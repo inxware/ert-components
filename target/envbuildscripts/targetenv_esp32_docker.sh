@@ -14,11 +14,11 @@ PATH_TO_TARGET_DOCKER_IMAGE="${PWD}/target/platform/${TARGET}/Dockerimagename"
 echo ${PATH_TO_TARGET_DOCKER_IMAGE}
 if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     read Dockerimagename <  ${PATH_TO_TARGET_DOCKER_IMAGE} || echo "Could not read ${PATH_TO_TARGET_DOCKER_IMAGE} "
-    echo "############################################ RUNNING ESP32 TARGETENV IN DOCKER ##########################################"
+    echo "############################################ RUNNING ESP32XXX TARGETENV IN DOCKER ##########################################"
     echo "Building ${TARGET} using Docker image: $Dockerimagename"
     echo "------------------------------------------------------------------------------------------------------------------------"
     ./target/envbuildscripts/target_buildenv_run_command.sh sh -c "./target/envbuildscripts/targetenv_esp32.sh ${TARGET}"
-    echo "############################################ COMPLETED ESP32 TARGETENV IN DOCKER ########################################"
+    echo "############################################ COMPLETED ESP32XXX TARGETENV IN DOCKER ########################################"
 else
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     echo " No Dockerimagename file at ${PATH_TO_TARGET_DOCKER_IMAGE}"

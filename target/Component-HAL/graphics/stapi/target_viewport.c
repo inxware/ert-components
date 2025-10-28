@@ -49,14 +49,16 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
+#include <stblit.h>
+#include <stlayer.h>
+#include <stvtg.h>
+
+#include "globals.h"
 #include "hal_string.h"
 #include "hal_viewport.h"
 #include "hal_mem.h"
 #include "widget.h"
 //#include "typedefs.h"
-#include <stblit.h>
-#include <stlayer.h>
-#include <stvtg.h>
 #include "messages.h"
 
 

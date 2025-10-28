@@ -17,7 +17,7 @@
 #ifndef EHS_TYPEDEFS_H
 #define EHS_TYPEDEFS_H
 
-#include "target_types.h"
+#include "globals.h"
 
 /*lint -efile(751, typedefs.h) */
 /*lint -efile(750, typedefs.h) */

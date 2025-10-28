@@ -17,12 +17,11 @@
  * @author: inx limited
  */
 
-#include "target.h"
 
+#include "globals.h"
 #include "dtv_remote.h"
 #include "dtv_remote1.h"
 #include "dtv_remote2.h"
-#include "globals.h"
 #include "fid.h"
 //#include "keypress.h"
 

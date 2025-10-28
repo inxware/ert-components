@@ -55,10 +55,9 @@ endif
 export 	BUILD_MODE=debug
 endif
 
-
 # Enable the TCPIP connection to tools for debugging and app upload 
-ifdef  EHS_DEBUG_TCPIP_CONSOLE
-	ifeq ($(EHS_DEBUG_TCPIP_CONSOLE), none)
+ifdef EHS_DEBUG_TCPIP_CONSOLE
+	ifeq ($(EHS_DEBUG_TCPIP_CONSOLE),none)
 		EHS_DEBUG_TCPIP_CONSOLE=stubbed
 	endif
 else
@@ -87,9 +86,12 @@ endif
 
 # This is the very verbose that you will not want to accidently build into anything you release.
 ifdef EHS_DEBUG_TRACE
-    DEFS += EHS_BUILDOPT_STDIO_MESSAGE_TRACE #this is for specific messages
-    DEFS += EHS_BUILDOPT_STDIO_ENABLE_FUNCTION_TRACING # this is the legacy tracing @todo remove the argument number specificity
-	DEFS += EHS_RUNTIME_LOGGER_ENABLED # This is needed for trace debugging.
+# For specific messages
+    DEFS += EHS_BUILDOPT_STDIO_MESSAGE_TRACE
+# For legacy tracing @todo remove the argument number specificity
+    DEFS += EHS_BUILDOPT_STDIO_ENABLE_FUNCTION_TRACING 
+# For trace debugging.
+	DEFS += EHS_RUNTIME_LOGGER_ENABLED 
 else 
 	ifdef EHS_RUNTIME_LOGGER_ENABLED
 		DEFS += EHS_RUNTIME_LOGGER_ENABLED
@@ -99,4 +101,9 @@ endif
 # for any traget that do not need to store arguments passed to the main
 ifdef EHS_TARGET_NO_MAIN_ARGS
 	DEFS+=EHS_TARGET_NO_MAIN_ARGS=1
+endif
+
+# Only reboot target while loading a new app
+ifeq ($(EHS_TARGET_APPLOAD_RESTARTING_REBOOT),yes)
+	DEFS += EHS_TARGET_APPLOAD_RESTARTING_REBOOT
 endif

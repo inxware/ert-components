@@ -5,7 +5,8 @@
 
 #include "lvgl_helpers.h"
 #include "esp_heap_caps.h"
-#include "target_config.h"
+
+#include "globals.h"
 
 #ifndef TARGET_LVGL_HORIZONTAL
 #define TARGET_LVGL_HORIZONTAL  EHS_CONFIG_DISPLAY_WIDTH

@@ -17,8 +17,6 @@
 #ifndef EHS_FIDT_H
 #define EHS_FIDT_H
 
-#include "target_config.h"
-#include "ehs_types.h"
 #include "globals.h"
 #include "fid.h"
 
@@ -32,18 +30,18 @@ typedef struct
 /**
  * Contains the function instances used in the current application
  */
-EHS_GLOBAL EhsFunctionInstanceDataTableType EhsFunctionInstanceDataTable;
+EHS_EXTERN EhsFunctionInstanceDataTableType EhsFunctionInstanceDataTable;
 
 /**
  * Contains the set of function instances for callbacks for the current application
  */
-EHS_GLOBAL EhsFunctionInstanceDataTableType EhsCallbackInstanceDataTable;
+EHS_EXTERN EhsFunctionInstanceDataTableType EhsCallbackInstanceDataTable;
 
 /**
  * Sets the specified function instance table to empty.
  * @param pFIDT data table to reset.
  */
-EHS_GLOBAL void EhsFunctionInstanceDataTable_reset(EhsFunctionInstanceDataTableType* pFIDT);
+void EhsFunctionInstanceDataTable_reset(EhsFunctionInstanceDataTableType* pFIDT);
 
 /**
  * Allocate memory for the function instance table
@@ -51,17 +49,17 @@ EHS_GLOBAL void EhsFunctionInstanceDataTable_reset(EhsFunctionInstanceDataTableT
  * @param[in] nSize number of entries to allocate to the table
  * @return true if allocations was successful
  */
-EHS_GLOBAL ehs_bool EhsFunctionInstanceDataTable_init(EhsFunctionInstanceDataTableType* pFIDT, ehs_uint32 nSize);
+ehs_bool EhsFunctionInstanceDataTable_init(EhsFunctionInstanceDataTableType* pFIDT, ehs_uint32 nSize);
 
 /**
  * Fire the initial event for an application
  */
-EHS_GLOBAL void EhsFunctionInstanceDataTable_triggerInitialEvent();
+void EhsFunctionInstanceDataTable_triggerInitialEvent();
 
 /**
  * Reset the debug monitor flags for the application. This should be called whenever entering debug mode
  */
-EHS_GLOBAL void EhsFunctionInstanceDataTable_resetMonitorFlags(void);
+void EhsFunctionInstanceDataTable_resetMonitorFlags(void);
 
 /**
  * Set the monitor flag for a specific data line of a specific data type
@@ -71,7 +69,7 @@ EHS_GLOBAL void EhsFunctionInstanceDataTable_resetMonitorFlags(void);
  * @param bSet set or not
  * @return true if nLine,eType is a valid combination
  */
-EHS_GLOBAL ehs_bool EhsFunctionInstanceDataTable_monitorDataLine(ehs_uint32 nLine, EhsDataTypeEnum eType, ehs_bool bSet);
+ehs_bool EhsFunctionInstanceDataTable_monitorDataLine(ehs_uint32 nLine, EhsDataTypeEnum eType, ehs_bool bSet);
 
 /**
  * Set the monitor flag for a specific event trigger
@@ -81,6 +79,6 @@ EHS_GLOBAL ehs_bool EhsFunctionInstanceDataTable_monitorDataLine(ehs_uint32 nLin
  * @param bClearBreakpoint clear the breakpoint
  * @return true if nLine is a valid event number
  */
-EHS_GLOBAL ehs_bool EhsFunctionInstanceDataTable_monitorEventLine(ehs_uint32 nLine, debug_type_byte monitorType, ehs_bool bClearBreakpoint);
+ehs_bool EhsFunctionInstanceDataTable_monitorEventLine(ehs_uint32 nLine, debug_type_byte monitorType, ehs_bool bClearBreakpoint);
 
 #endif /* EHS_FIDT_H */

@@ -115,6 +115,7 @@ EHS_FB_INIT_FUNCTION(key_value_real)
 jump_point:
         if (str_count > 0)
         {
+            // The memory allocated by `EhsHMem_writableAlloc` is freed after each app run
             temp_param[i] = EhsHMem_writeableAlloc(i != 0 ? str_count + 1 : str_count + 1 + EhsStrlen(INX_FB_key_value_real_domain_ext));
             if (temp_param[i] != NULL)
             {
@@ -143,7 +144,7 @@ jump_point:
 EHS_FB_DESTROY_FUNCTION(key_value_real)
 {
     inx_key_value_real_state_type *inx_key_value_real_state = (inx_key_value_real_state_type*)EHS_FB_DESTROY_CONTEXT;
-    //Your code below here
+    return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 static ehs_FILE *openKeyValuePairFile(const ehs_char *filename)
@@ -167,17 +168,21 @@ EHS_FB_RUN_FUNCTION(key_value_real_upsert)
     ehs_char *domain = (ehs_char *) inx_key_value_real_state->domain;
     ehs_char *key = (ehs_char *) inx_key_value_real_state->key;
     ehs_float value_temp = inx_key_value_real_state->default_value;
-    // Min value is "-2147483647.9999998". String length with NULL terminator is max 31.
+    // Min value is "-2147483647.9999998". String length with NULL terminator is max 22.
     ehs_char value[22];
     ehs_FILE *fp = NULL;
     ehs_char *content = NULL;
-    jsmntok_t *array = NULL;
+    EhsDataflowStringType json_slice_string = NULL;
+    jsmntok_t array[EHS_JSMN_JSON_ARRAY_BUFFER_SIZE + EHS_JSMN_PARENT_LAYER_LIMIT];
+    ehs_sint32 n_token_left = 0;
+    ehs_jsmn_parent_t parents[EHS_JSMN_PARENT_LAYER_LIMIT] = { 0 };
+    ehs_uint32 str_offset = 0;
+    ehs_bool parent_added = EHS_FALSE;
+    ehs_uint8 n_added_tokens = 0;
     ehs_sint32 item_size = 0;
     ehs_uint8 _err_code = 0;
     ehs_sint32 key_index = 0;
     ehs_sint32 value_index = 0;
-
-    ehs_char *buf_to_write = NULL;
 
     // Your code here
     // Open the config file within domain
@@ -200,6 +205,11 @@ EHS_FB_RUN_FUNCTION(key_value_real_upsert)
     /* Main code START */
 
     // Read from file
+    // Note that we do the dynamic memory allocation because the upsert operation might update the file in place,
+    //  which would either write to a second file, delete the original file and rename the second file to the original file name,
+    //  or rewrite the original file in place with additional buffers to store the data after the updated key-value pair.
+    // So dynamic memory allocation is the tradeoff between memory usage and meomry fragmentation.
+    // The dynamic memory allocation is done in EhsFreadDynamic function.
     content = EhsFreadDynamic(fp, &_err_code);
     if (_err_code != 0)
     {
@@ -207,108 +217,6 @@ EHS_FB_RUN_FUNCTION(key_value_real_upsert)
         err_no = 2;
         goto function_end;
     }
-
-    // Parse the string
-    array = parseKeyValuePair(content, &item_size, &_err_code);
-    if (_err_code != 0)
-    {
-        EHSH_LOG_ERROR("Failed to parse key-value pair! Error (%d)\n", _err_code);
-        err_no = 3;
-        goto function_end;
-    }
-
-    // Find the key
-    _err_code = findKeyValue(
-        array, item_size, content, key == NULL ? INX_FB_key_value_real_key : key, 
-        &key_index, &value_index, NULL);
-
-    // Upsert the key value
-    switch (_err_code)
-    {
-        case 0:
-        {
-            EHS_TRACE_MESSAGE("Key found! Key (%d) Value (%d)\n", key_index, value_index);
-            buf_to_write = (char *) EhsHMem_tempAlloc(
-                array[0].end - array[0].start + 1 +
-                EhsStrlen(value)
-            );
-            upsertKeyValuePair(
-                content, array, key_index, value_index, 
-                key != NULL ? key : INX_FB_key_value_real_key, 
-                value, 
-                buf_to_write
-            );
-            break;
-        }
-        case 1:case 2:case 3:
-        {
-            EHSH_LOG_ERROR("Find Key pointer error! Error (%d)\n", _err_code);
-            err_no = 4;
-            goto function_end;
-            break;
-        }
-        case 4:
-        {
-            EHSH_LOG_WARNING("Empty JSON! Error (%d)\n", _err_code);
-            if (item_size == 1)
-            {
-                buf_to_write = (char *) EhsHMem_tempAlloc(
-                    array[0].end - array[0].start + 6 + 
-                    EhsStrlen(value) + 
-                    EhsStrlen(key == NULL ? INX_FB_key_value_real_key : key)
-                );
-                upsertKeyValuePair(
-                    content, array, key_index, value_index, 
-                    key != NULL ? key : INX_FB_key_value_real_key, 
-                    value, 
-                    buf_to_write
-                );
-                break;
-            }
-            if (item_size == 0)
-            {
-                buf_to_write = (char *) EhsHMem_tempAlloc(
-                    8 + 
-                    EhsStrlen(value) + 
-                    EhsStrlen(key == NULL ? INX_FB_key_value_real_key : key)
-                );
-                EhsSprintf(
-                    buf_to_write, "{\"%s\":\"%s\"}",
-                    key == NULL ? INX_FB_key_value_real_key : key,
-                    value
-                );
-                break;
-            }
-            EHSH_LOG_ERROR("Empty JSON input error!");
-            goto function_end;
-            break;
-        }
-        case 5:
-        {
-            EHSH_LOG_WARNING("Key not found! Error (%d)\n", _err_code);
-            buf_to_write = (char *) EhsHMem_tempAlloc(
-                array[0].end - array[0].start + 6 + 
-                EhsStrlen(value) + 
-                EhsStrlen(key == NULL ? INX_FB_key_value_real_key : key)
-            );
-            upsertKeyValuePair(
-                content, array, key_index, value_index, 
-                key != NULL ? key : INX_FB_key_value_real_key, 
-                value, 
-                buf_to_write
-            );
-            break;
-        }
-        default:
-        {
-            EHSH_LOG_ERROR("Find Key unknown error! Error (%d)\n", _err_code);
-            err_no = 5;
-            goto function_end;
-            break;
-        }
-    }
-
-    // Write to file
     if (fp == NULL)
     {
         EHSH_LOG_ERROR("File object pointer is NULL!\n");
@@ -317,6 +225,8 @@ EHS_FB_RUN_FUNCTION(key_value_real_upsert)
     }
     EhsFclose(fp);
     fp = NULL;
+
+    // Re-open the file for writing
     if (domain == NULL)
         fp = Ehs_UserFopen(INX_FB_key_value_real_domain INX_FB_key_value_real_domain_ext, "w");
     else
@@ -329,7 +239,118 @@ EHS_FB_RUN_FUNCTION(key_value_real_upsert)
         err_no = 7;
         goto function_end;
     }
-    EhsFwrite(buf_to_write, sizeof(ehs_char), EhsStrlen(buf_to_write), fp);
+
+    // Parse the string
+    for (
+        n_token_left = parseKeyValuePair(content, array, EHS_JSMN_JSON_ARRAY_BUFFER_SIZE, &item_size, &_err_code);
+        n_token_left >= 0;
+        n_token_left = parseKeyValuePair(&content[str_offset], array, EHS_JSMN_JSON_ARRAY_BUFFER_SIZE, &item_size, &_err_code)
+    )
+    {
+        if (_err_code != 0)
+        {
+            EHSH_LOG_ERROR("Failed to parse key-value pair! Error (%d)\n", _err_code);
+            err_no = 3;
+            goto function_end;
+        }
+        // Organise the key-value pairs in the json_array and cache parents
+        organiseKeyValuePair(parents, array, item_size, str_offset, &parent_added, &n_added_tokens);
+
+        // Find the key
+        _err_code = findKeyValue(
+            array + EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens, 
+            item_size + n_added_tokens, 
+            content, key == NULL ? INX_FB_key_value_real_key : key, 
+            &key_index, &value_index, NULL);
+
+        // Upsert the key value
+        switch (_err_code)
+        {
+            case 0:
+            {
+                EHS_TRACE_MESSAGE("Key found! Key (%d) Value (%d)\n", key_index, value_index);
+                upsertKeyValuePair(
+                    content, array + EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens, key_index, value_index, 
+                    key != NULL ? key : INX_FB_key_value_real_key, 
+                    value, 
+                    NULL, fp
+                );
+                goto function_end;
+                break;
+            }
+            case 1:case 2:case 3:
+            {
+                // Treat as error only if there is no key left
+                if (n_token_left > 0) break;
+                EHSH_LOG_ERROR("Find Key pointer error! Error (%d)\n", _err_code);
+                err_no = 4;
+                goto function_end;
+                break;
+            }
+            case 4:
+            {
+                // If it's an empty JSON, this loop only run once
+                EHSH_LOG_WARNING("Empty JSON! Error (%d)\n", _err_code);
+                if (item_size == 1)
+                {
+                    upsertKeyValuePair(
+                        content, array + EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens, key_index, value_index, 
+                        key != NULL ? key : INX_FB_key_value_real_key, 
+                        value, 
+                        NULL, fp
+                    );
+                    goto function_end;
+                    break;
+                }
+                if (item_size == 0)
+                {
+                    EhsFprintf(fp,
+                        "{\"%s\":\"%s\"}",
+                        key == NULL ? INX_FB_key_value_real_key : key,
+                        value
+                    );
+                    goto function_end;
+                    break;
+                }
+                EHSH_LOG_ERROR("Empty JSON input error!");
+                goto function_end;
+                break;
+            }
+            case 5:
+            {
+                // Treat as error only if there is no key left
+                if (n_token_left > 0) break;
+                EHSH_LOG_WARNING("Key not found! Error (%d)\n", _err_code);
+                // Insert the new key-value pair
+                upsertKeyValuePair(
+                    content, array + EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens, -1, -1, 
+                    key != NULL ? key : INX_FB_key_value_real_key, 
+                    value, 
+                    NULL, fp
+                );
+                break;
+            }
+            default:
+            {
+                // Treat as error only if there is no key left
+                if (n_token_left > 0) break;
+                EHSH_LOG_ERROR("Find Key unknown error! Error (%d)\n", _err_code);
+                err_no = 5;
+                goto function_end;
+                break;
+            }
+        }
+
+        json_slice_string = (EhsDataflowStringType)(content + array[value_index + EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens].start);
+        str_offset = array[EHS_JSMN_PARENT_LAYER_LIMIT+item_size-1].end+1;
+        if (n_token_left == 0) break;
+    }
+
+    if (n_token_left < 0)
+    {
+        err_no = 8;
+        goto function_end;
+    }
 
     /* Main code ENDED */
 
@@ -343,16 +364,6 @@ function_end:
     {
         EhsHMem_tempFree(content);
         content = NULL;
-    }
-    if (array != NULL)
-    {
-        EhsHMem_tempFree(array);
-        array = NULL;
-    }
-    if (buf_to_write != NULL)
-    {
-        EhsHMem_tempFree(buf_to_write);
-        buf_to_write = NULL;
     }
     if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_upsert_err_no))
         EHS_FB_OUT_I_API2(INX_key_value_real_ARG_upsert_err_no) = err_no;
@@ -369,63 +380,129 @@ function_end:
 EHS_FB_RUN_FUNCTION(key_value_real_query)
 {
     inx_key_value_real_state_type* inx_key_value_real_state = (inx_key_value_real_state_type*)EHS_FB_RUN_CONTEXT;
+    ehs_char *key = (ehs_char *) inx_key_value_real_state->key;
     ehs_FILE *fp = NULL;
     ehs_char *content = NULL;
+    EhsDataflowStringType json_slice_string = NULL;
+    ehs_char *float_end = NULL;
     ehs_uint8 _err_code = 0;
     ehs_sint32 err_no = 0;
-    jsmntok_t *array = NULL;
+    jsmntok_t array[EHS_JSMN_JSON_ARRAY_BUFFER_SIZE + EHS_JSMN_PARENT_LAYER_LIMIT];
+    ehs_sint32 n_token_left = 0;
+    ehs_jsmn_parent_t parents[EHS_JSMN_PARENT_LAYER_LIMIT] = { 0 };
+    ehs_uint32 str_offset = 0;
+    ehs_bool parent_added = EHS_FALSE;
+    ehs_uint8 n_added_tokens = 0;
+    double float_double = 0;
     ehs_sint32 item_size = 0;
     ehs_sint32 key_index = 0;
     ehs_sint32 value_index = 0;
-    ehs_char *value = NULL;
-    ehs_bool no_output = EHS_FALSE;
+
+    // Prepare the output with default value
+    ehs_float value_output = inx_key_value_real_state->default_value;
 
     // Your code here
     if (inx_key_value_real_state->domain == NULL) fp = Ehs_UserFopen(INX_FB_key_value_real_domain INX_FB_key_value_real_domain_ext, "r");
     else fp = Ehs_UserFopen(inx_key_value_real_state->domain, "r");
+
     if (fp == NULL)
     {
         // Return default value if no file exists
-        if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_query_value_out))
-            EHS_FB_OUT_F_API2(INX_key_value_real_ARG_query_value_out) = inx_key_value_real_state->default_value;
-        if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_query_query_errno))
-            EHS_FB_OUT_I_API2(INX_key_value_real_ARG_query_query_errno) = -1;
-        EHS_FB_FINISH(INX_key_value_real_ARG_query_get_done);
-        return;
+        EHSH_LOG_WARNING("No key-value pair file exists, return default value!\n");
+        err_no = -1;
+        goto function_end;
     }
+
     content = EhsFreadDynamic(fp, &_err_code);
     if (_err_code != 0)
     {
         EHSH_LOG_ERROR("Failed to read key-value pair file! Error (%d)\n", _err_code);
-        if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_query_value_out))
-            EHS_FB_OUT_F_API2(INX_key_value_real_ARG_query_value_out) = inx_key_value_real_state->default_value;
-        no_output = EHS_TRUE;
         err_no = -2;
         goto function_end;
     }
 
     // Parse the string
-    array = parseKeyValuePair(content, &item_size, &_err_code);
-    if (_err_code != 0)
+    for (
+        n_token_left = parseKeyValuePair(content, array, EHS_JSMN_JSON_ARRAY_BUFFER_SIZE, &item_size, &_err_code);
+        n_token_left >= 0;
+        n_token_left = parseKeyValuePair(&content[str_offset], array, EHS_JSMN_JSON_ARRAY_BUFFER_SIZE, &item_size, &_err_code)
+    )
     {
-        EHSH_LOG_ERROR("Failed to parse key-value pair! Error (%d)\n", _err_code);
-        if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_query_value_out))
-            EHS_FB_OUT_F_API2(INX_key_value_real_ARG_query_value_out) = inx_key_value_real_state->default_value;
-        no_output = EHS_TRUE;
-        err_no = -3;
-        goto function_end;
+        if (_err_code != 0)
+        {
+            EHSH_LOG_ERROR("Failed to parse key-value pair! Error (%d)\n", _err_code);
+            err_no = -3;
+            goto function_end;
+        }
+        // Organise the key-value pairs in the json_array and cache parents
+        organiseKeyValuePair(parents, array, item_size, str_offset, &parent_added, &n_added_tokens);
+
+        // Find the key
+        _err_code = findKeyValue(
+            array + EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens, 
+            item_size + n_added_tokens, 
+            content, key == NULL ? INX_FB_key_value_real_key : key, &key_index, &value_index, NULL);
+        if (_err_code != 0)
+        {
+            EHSH_LOG_ERROR("Failed to find key-value pair! Error (%d)\n", _err_code);
+            goto for_end;
+        }
+        value_index += EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens;
+        json_slice_string = (EhsDataflowStringType)(content + array[value_index].start);
+        switch (array[value_index].type)
+        {
+            // All Key-Value pairs are stored as string
+            case JSMN_STRING:
+            {
+                // It could be integer, float or boolean (true/false)
+                // Determine whether it's boolean or something else
+                switch (json_slice_string[0])
+                {
+                    case 't':
+                    case 'f':
+                    case 'T':
+                    case 'F':
+                    case '\0':
+                    case ' ':
+                    case '\f':
+                    case '\n':
+                    case '\r':
+                    case '\v':
+                    case '\t':
+                    case '.': // Should we exclude the first dot?
+                    {
+                        goto for_end; // It is definitely not an integer value, continue to the next key
+                        break;
+                    }
+                    default:
+                    break;
+                }
+                // Convert the string to integer
+                float_double = strtod(json_slice_string, &float_end);
+                if ((int)(float_end - json_slice_string) != (int)(array[value_index].end - array[value_index].start))
+                {
+                    break;
+                }
+                value_output = (ehs_float) float_double;
+                EHSH_LOG_INFO("The float value found: " EHS_FL_FMT "\n", value_output);
+                err_no = 0;
+                // The first matching key found, no need to continue
+                goto function_end;
+            }
+            default:
+            {
+                // Not definitely not the integer value. Continue to the next key
+                break;
+            }
+        }
+for_end:
+        str_offset = array[EHS_JSMN_PARENT_LAYER_LIMIT+item_size-1].end+1;
+        if (n_token_left == 0) break;
     }
 
-    // Find the key
-    _err_code = findKeyValue(
-        array, item_size, content, inx_key_value_real_state->key, 
-        &key_index, &value_index, &value);
-    if (_err_code != 0)
+    if (n_token_left < 0)
     {
-        EHSH_LOG_ERROR("Failed to find key-value pair! Error (%d)\n", _err_code);
-        if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_query_value_out))
-            EHS_FB_OUT_F_API2(INX_key_value_real_ARG_query_value_out) = inx_key_value_real_state->default_value;
-        no_output = EHS_TRUE;
+        EHSH_LOG_ERROR("No key-value pair found!\n");
         err_no = -4;
         goto function_end;
     }
@@ -441,25 +518,8 @@ function_end:
         EhsHMem_tempFree(content);
         content = NULL;
     }
-    if (array != NULL)
-    {
-        EhsHMem_tempFree(array);
-        array = NULL;
-    }
-    if (no_output == EHS_FALSE && EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_query_value_out))
-    {
-        EHS_FB_OUT_F_API2(INX_key_value_real_ARG_query_value_out) = inx_key_value_real_state->default_value;
-        if (value != NULL)
-        {
-            if (EhsSscanf(value, EHS_FL_FMT, &EHS_FB_OUT_F_API2(INX_key_value_real_ARG_query_value_out)) == 0)
-                err_no = -5;
-        }
-    }
-    if (value != NULL)
-    {
-        EhsHMem_tempFree(value);
-        value = NULL;
-    }
+    if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_query_value_out))
+        EHS_FB_OUT_F_API2(INX_key_value_real_ARG_query_value_out) = value_output;
     if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_real_ARG_query_query_errno))
         EHS_FB_OUT_I_API2(INX_key_value_real_ARG_query_query_errno) = err_no;
     EHS_FB_FINISH(INX_key_value_real_ARG_query_get_done);

@@ -32,14 +32,15 @@
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_PROCESS
 
-#include "target.h"
+#include <errno.h>
+#include <stdio.h>
+
+#include "globals.h"
 #include "hal-api.h"
 #include "target_process.h"
 #include "FreeRTOSConfig.h"
 
 
-#include <errno.h>
-#include <stdio.h>
 #include "esp_log.h"
 #include "esp_system.h"
 #ifdef TAG
@@ -267,10 +268,10 @@ EhsTPMutexClass EhsTPMutex_subMQTT;
 EhsTPMutexClass EhsTPMutex_pubMQTT;
 
 /** Reference to PID of parent process */
-EHS_GLOBAL pid_t* EhsT_pidParent;
+pid_t* EhsT_pidParent;
 
 /** reference to PID of TCP/IP process */
-EHS_GLOBAL pid_t* EhsT_pidTcpIp;
+pid_t* EhsT_pidTcpIp;
 
 
 /*****************************************************************************/
@@ -290,7 +291,7 @@ void EhsTargetExit(ehs_uint16 exitCode)
  * Initialise the mutexes (Call this only once!)
  * @todo move all of the function block threads to their init functions and tear down function when implemented
  */
-EHS_GLOBAL void EhsTPMutex_init(void)
+void EhsTPMutex_init(void)
 {
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -473,7 +474,7 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
 
 /* FreeRTOS Method 
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_sint16 priority)
+ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_sint16 priority)
 {
     ESP_LOGI(TAG, "EhsHThread_execute");
     EhsTPThread thread;
@@ -483,7 +484,7 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
 */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
+ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
 {
     EhsTPThread thread;
     pthread_attr_t tattr_param;
@@ -546,7 +547,7 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
 }
 
 
-EHS_GLOBAL void EhsTPThread_exit()
+void EhsTPThread_exit()
 {
 
 }

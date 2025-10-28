@@ -68,7 +68,7 @@ EHS_FB_INIT_FUNCTION(CosineInt)
 EHS_FB_DESTROY_FUNCTION(CosineInt)
 {
 	inx_CosineInt_state_type *inx_CosineInt_state = (inx_CosineInt_state_type*)EHS_FB_DESTROY_CONTEXT;
-	//Your code below here
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION calc MACRO START -- DO NOT ALTER

@@ -32,7 +32,7 @@
 /*****************************************************************************/
 /* Included files */
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "ehs_fb_types.h" //needed for the pfRun type
 #include "target_process.h"
 
@@ -64,74 +64,74 @@ typedef struct EhsTPConditionStruct * EhsTPConditionClass;
  * This is declared as a pointer to allow shared memory systems to point to some kind of shared
  * memory.
  */
-EHS_GLOBAL ehs_bool* EhsHSys_initCompleteRef;
+EHS_EXTERN ehs_bool* EhsHSys_initCompleteRef;
 
 /**
  * Mutex resource used to control access to the function block inputs and outputs
  * Initialise this mutex
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_fbIO;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_fbIO;
 
 /* socket  client function block */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_socketClient;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_socketClient;
 
 /**
  * Mutex resource used to serialise devman url requests for curl and devman server happiness
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_devman_request;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_devman_request;
 
 /**
  * Mutex resource used to control access to viewport
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_viewport;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_viewport;
 
 /**
  * Mutex resource used to control access to memory allocation
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_mem;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_mem;
 
 /**
  * Mutex resource used to control access to the console queue
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_consoleQueue;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_consoleQueue;
 
 /**
  * Mutex resource used to control access to the console input queue
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_consoleInputQueue;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_consoleInputQueue;
 
 /**
  * Mutex resource used to control access to the event queue
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_eventQueue;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_eventQueue;
 
 /*The table of widgets*/
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_widgetTable;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_widgetTable;
 #ifdef EHS_DEVMAN_SUPPORT
-EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_devmanPlayerData;
-EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_devmanInterface;
-EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_devmanMiscBuffers;
+   EHS_EXTERN EhsTPMutexClass EhsTPMutex_devmanPlayerData;
+   EHS_EXTERN EhsTPMutexClass EhsTPMutex_devmanInterface;
+   EHS_EXTERN EhsTPMutexClass EhsTPMutex_devmanMiscBuffers;
 #endif //EHS_DEVMAN_SUPPORT
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
-EHS_GLOBAL    EhsTPMutexClass EhsTPMutex_UrlGet;
+   EHS_EXTERN EhsTPMutexClass EhsTPMutex_UrlGet;
 #endif //EHS_COMPONENT_NETWORKING_SUPPORT
 
 /**
  * Mutex resource used to control access to the playManager data
  */
 // why here? 
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_playManager;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_playManager;
 
 /**
  * Mutex resource used to control access to the Modbus Master shared resources
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_MBMaster;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_MBMaster;
 
 /**
  * Mutex resource used to control access to the MQTT shared resources
  */
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_subMQTT;
-EHS_GLOBAL EhsTPMutexClass EhsTPMutex_pubMQTT;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_subMQTT;
+EHS_EXTERN EhsTPMutexClass EhsTPMutex_pubMQTT;
 
 /*****************************************************************************/
 /* Declare function prototypes
@@ -145,17 +145,17 @@ void EhsSleepUs(ehs_uint32 tSleepTime);
 /**
  * Perform necessary target set-up
  */
-EHS_GLOBAL void EhsTargetInit(void);
+void EhsTargetInit(void);
 
 /**
  * Perform setup before loading in a new application
  */
-EHS_GLOBAL void EhsTargetApplicationInit(void);
+void EhsTargetApplicationInit(void);
 
 /**
  * Reset application-specific parts of target
  */
-EHS_GLOBAL void EhsTargetApplicationReset(void);
+void EhsTargetApplicationReset(void);
 
 /* Thread functions */
 
@@ -172,13 +172,13 @@ typedef EhsThreadFuncReturnType (*EhsGeneralThreadFuncType)(void* context);
 
 #define EHS_THREAD_USE_DEFAULT_STACK_SIZE -1 
 
-EHS_GLOBAL ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize);
+ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize);
 
 /**
  * Execute a function from a function block in a separate thread - generic
  */
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void * context, ehs_sint16 priority, ehs_sint32 stackSize);
-EHS_GLOBAL void EhsTPThread_exit();
+ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void * context, ehs_sint16 priority, ehs_sint32 stackSize);
+void EhsTPThread_exit();
 #define EhsHThread_yield() EhsTPThread_yield();	// Yield thread
 #define EhsHThread_exit() EhsTPThread_exit();return 0l	//< Value that can be safely used for returning from thread functions
 
@@ -208,7 +208,7 @@ ehs_bool EhsTPThread_ChangeThisPriority(ehs_sint16 priority);
  *
  * @param[in] pMutexRef Indicates the identity of the mutex we are locking
  */
-EHS_GLOBAL void EhsTPMutex_lock(EhsTPMutexClass pMutexRef);
+void EhsTPMutex_lock(EhsTPMutexClass pMutexRef);
 #endif
 
 #ifndef EhsTPMutex_unlock
@@ -217,7 +217,7 @@ EHS_GLOBAL void EhsTPMutex_lock(EhsTPMutexClass pMutexRef);
  *
  * @param[in] pMutexRef Indicates the identity of the mutex we are releasing
  */
-EHS_GLOBAL void EhsTPMutex_unlock(EhsTPMutexClass pMutexRef);
+void EhsTPMutex_unlock(EhsTPMutexClass pMutexRef);
 #endif
 
 #ifndef EhsTPMutex_init
@@ -225,7 +225,7 @@ EHS_GLOBAL void EhsTPMutex_unlock(EhsTPMutexClass pMutexRef);
  * Initialise the mutexes
  *
  */
-EHS_GLOBAL void EhsTPMutex_init(void);
+void EhsTPMutex_init(void);
 #endif
 
 #ifndef EhsTPMutex_term
@@ -246,7 +246,7 @@ void EhsTPMutex_term(void);
  * @return true if the current parent process Id is different to the original parent process id
  * and this process is the TCP/IP process
  */
-EHS_GLOBAL ehs_bool EhsTgtProcess_isOrphan(void);
+ehs_bool EhsTgtProcess_isOrphan(void);
 #endif
 
 #endif //
@@ -257,14 +257,14 @@ EHS_GLOBAL ehs_bool EhsTgtProcess_isOrphan(void);
  * completed.
  * @param[in] szCmd Command to execute
  */
-EHS_GLOBAL void EhsTP_shellExecute(const ehs_char* szCmd);
+void EhsTP_shellExecute(const ehs_char* szCmd);
 #endif
 
 #ifndef EhsExit
 /**
  * Exit from EHS. Exact behaviour of this function is target defined.
  */
-EHS_GLOBAL void EhsExit(ehs_uint16 exitCode);
+void EhsExit(ehs_uint16 exitCode);
 #endif //ifndef EHS_SKIP_COMPONENT_ONLY_HAL
 
 

@@ -28,6 +28,8 @@ typedef int socklen_t;
 #define EHS_NETWORK_CONFIG_FAILED_STATIC_ID 1
 #define EHS_NETWORK_CONFIG_FAILED_DHCP_ID 2
 #define EHS_NETWORK_CONFIG_FAILED_DNS1_ID 3
+#define EHS_NETWORK_CONFIG_FAILED_NOT_SUPPORTED_ID 3
+#define EHS_NETWORK_CONFIG_INVALID_PARAM_ID 4
 
 typedef struct EhsNetworkConfigData
 {
@@ -39,10 +41,27 @@ typedef struct EhsNetworkConfigData
     ehs_bool save;
 } EhsNetworkConfigDataType;
 
+#define EHS_NETWORK_INTERFACE_NAME_LENGTH 20
+typedef struct EhsNetworkInterfaceConfigData
+{
+    ehs_bool b_wifi_enable;
+    //ehs_char s_wifi_if_name[EHS_NETWORK_INTERFACE_NAME_LENGTH];
+    ehs_bool b_eth_enable;
+    //ehs_char s_eth_if_name[EHS_NETWORK_INTERFACE_NAME_LENGTH];
+    ehs_bool save;
+} EhsNetworkInterfaceConfigDataType;
+
 /* Returns true when the eRT target network is connected */
 ehs_bool EhsNetworkIsConnected();
 
-/* Configures the traget network interface. Returns error code ID. */
-ehs_sint32 EhsNetworkConfigureInterface(const EhsNetworkConfigDataType* config);
+/* Configures the target network. Returns error code ID. */
+ehs_sint32 EhsNetworkConfigure(const EhsNetworkConfigDataType* config);
+
+/* Configures the target network interface. Returns error code ID */
+ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType* config);
+
+ehs_bool EhsNetworkInterfaceWifiIsEnabled();
+
+ehs_bool EhsNetworkInterfaceEthIsEnabled();
 
 #endif

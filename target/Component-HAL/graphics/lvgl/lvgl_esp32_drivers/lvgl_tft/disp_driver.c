@@ -6,6 +6,7 @@
 #include "disp_spi.h"
 #include "esp_lcd_backlight.h"
 #include "inx_lv_static_conf.h"
+
 #include "sdkconfig.h"
 
 void *disp_driver_init(void)

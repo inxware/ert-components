@@ -34,31 +34,32 @@
  */
 
 #define EHS_TARGET_CODE
-
 /*****************************************************************************/
 /* Included files */
 // #include <sys/types.h>
 // #include <signal.h>
 #include <unistd.h>
 
-#include "target.h"
+#include "globals.h"
 #ifdef EHS_DEBUG_TCPIP_CONSOLE
 #include "console_server.h"
 #endif
 #include "ehs_main.h"
 #include "targetos_init.h"
-#include "globals.h"
 #include "hal-api.h" // required for the meta data storage
 
 #include "freertos/FreeRTOS.h"
 #include "sdkconfig.h"
+
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
 #include "esp_log.h"
+#define TAG "TARGET_MAIN"
 #else
 #define ESP_LOGI(...)
 #define ESP_LOGE(...)
 #define ESP_LOGW(...)
 #define ESP_LOGD(...)
+#define TAG "TARGET_MAIN"
 #endif
 #include <stdio.h>
 

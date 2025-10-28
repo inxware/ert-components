@@ -938,44 +938,44 @@ ehs_uint8 EhsHGetDevmanClientCertificateKeyPaths(ehs_char* pCertPath,ehs_char* p
     ehs_uint8 ret = 0;
     EhsStrcpy(szTemp,EHS_DEVMAN_CERTIFICATES_BASE);
     EhsGetHostAndPathFromURL(&szTemp[sizeof(EHS_DEVMAN_CERTIFICATES_BASE)-1], pServerUrl);// get the domain to check the path with the normal try method for Devman directories
-    printf("Looking for certs for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
+    //printf("Looking for certs for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
     EhsStrcat(szTemp,EHS_TD_FILES_SEPARATOR_STR EHS_DEVMAN_CLIENT_CERTIFICATE_FILENAME); // addd a trailing slash of course
     if (EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,szTemp, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0) { // check if we have Devman directory for this domain}
             EhsStrcpy(pCertPath,szTemp);
-            printf("Found dedicated ca certs (%s)\n",pCertPath);
+            //printf("Found dedicated ca certs (%s)\n",pCertPath);
             ret = 2;
     }else {
         if ( EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,EHS_DEVMAN_CLIENT_CERTIFICATE, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0)  // Do we have a default?
         {
             EhsStrcpy(pCertPath,EHS_DEVMAN_CLIENT_CERTIFICATE);
-            printf("Found default ca certs in (%s)\n",pCertPath);
+            //printf("Found default ca certs in (%s)\n",pCertPath);
             ret = 1;
         }
         else {
             EhsStrcpy(pCertPath,EHS_DEVMAN_CLIENT_CERTIFICATE);
-            printf("Not Found any ca certs for (%s)\n",pCertPath);
+            //printf("Not Found any ca certs for (%s)\n",pCertPath);
             ret = 0; //we'll still return the default path
         }
     }
     /* Now test for the Client Key */
     EhsStrcpy(szTemp,EHS_DEVMAN_CERTIFICATES_BASE);
     EhsGetHostAndPathFromURL(&szTemp[sizeof(EHS_DEVMAN_CERTIFICATES_BASE)-1], pServerUrl);// get the domain to check the path with the normal try method for Devman directories
-    printf("(Looking for client key for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
+    //printf("(Looking for client key for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
     EhsStrcat(szTemp,EHS_TD_FILES_SEPARATOR_STR EHS_DEVMAN_CLIENT_PRIVATEKEY_FILENAME); // addd a trailing slash of course
     if (EhsTF_tryCanonicPath(pKeyPath, EHS_RUNTIME_DEVMAN_DIR,szTemp, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pKeyPath) > 0) { // check if we have Devman directory for this domain}
             EhsStrcpy(pKeyPath, szTemp);
-            printf("Found dedicated client key (%s)\n",pKeyPath);
+            //printf("Found dedicated client key (%s)\n",pKeyPath);
             //ret += 12;
     }else {
         if ( EhsTF_tryCanonicPath(pKeyPath, EHS_RUNTIME_DEVMAN_DIR,EHS_DEVMAN_CLIENT_PRIVATEKEY, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pKeyPath) > 0)  // Do we have a default?
         {
             EhsStrcpy(pKeyPath, EHS_DEVMAN_CLIENT_PRIVATEKEY);
-            printf("Found default client key in (%s)\n",pKeyPath);
+            //printf("Found default client key in (%s)\n",pKeyPath);
             ret += 10;
         }
         else {
             EhsStrcpy(pKeyPath, EHS_DEVMAN_CLIENT_PRIVATEKEY);
-            printf("Not Found any client key for (%s)\n",pKeyPath);
+            //printf("Not Found any client key for (%s)\n",pKeyPath);
             ret += 11; //we'll still return the default path
         }
     }

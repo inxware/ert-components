@@ -19,7 +19,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "target_types.h"
+#include "globals.h"
 #include "target_time.h"
 #include <time.h> // todo 2024 - this should be in target_time.h not in the HAL.
 

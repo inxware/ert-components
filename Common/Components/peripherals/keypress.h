@@ -18,6 +18,7 @@
 #ifndef _EHS_KEYPRESS_H
 #define _EHS_KEYPRESS_H
 
+#include "globals.h"
 #include "ehs_fb_types.h"
 #include "callback_queue.h"
 
@@ -35,11 +36,11 @@ EHS_GLOBAL void EhsGUIKbClearCBs(void ); // used by some functions that share th
 EHS_GLOBAL void EhsGUIKbHit(ehs_uint32 nCharacter);
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(GUI_keypress);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(GUI_keypress);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_keypress_hit);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_keypress_Enable);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_keypress_Disable);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(GUI_keypress);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(GUI_keypress);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_keypress_hit);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_keypress_Enable);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_keypress_Disable);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(GUI_keypress);

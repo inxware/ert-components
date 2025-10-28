@@ -23,14 +23,18 @@
 #include "inx-frame_resize.h"
 #include "inx-frame_fmt.h"
 #include "inx-frame_read_file.h"
+#include "inx-apriltag.h"
+#include "inx-frame_show.h"
 
-extern const EhsBlockRefType EhsBlockRefTable_mv[] =
+EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_mv[] =
 {
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_Camera,INXWARE_FB_ID_Camera,Camera),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_FrameCrop,INXWARE_FB_ID_FrameCrop,FrameCrop),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_FrameResize,INXWARE_FB_ID_FrameResize,FrameResize),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_FrameFormatter,INXWARE_FB_ID_FrameFormatter,FrameFormatter),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_FrameReadFromFile,INXWARE_FB_ID_FrameReadFromFile,FrameReadFromFile),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_Camera,INXWARE_FB_ID_apriltag,apriltag),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_frame_show,INXWARE_FB_ID_frame_show,frame_show),
 	{0}
 };
 

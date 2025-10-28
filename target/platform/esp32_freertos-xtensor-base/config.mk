@@ -7,7 +7,7 @@
 #	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 #---------------------------------------------------------------#
 
-# @file config.mk 
+# @file config.mk
 # inxware ERT configuration file for esp32_freertos-xtensor-base
 # @author: inx limited
 
@@ -33,11 +33,14 @@ export EHS_ESP32=yes
 DEFS += EHS_ESP32
 EHS_DEBUGALL=yes
 
-
 ################################################################################################################
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
 ################################################################################################################
+#todo  why is the stubbed file system so difficult compared to others/ We should move the the Component HAL and yse that method as more consistent?
+EHS_FILESYSTEM_SUPPORT=stubbed
+DEFS += EHS_TARGET_FILE_SKIP_STAT
 
+EHS_COMPONENT_NETWORKING_SUPPORT=nocurl
 # Note the following might not remain lwip - we could use esp32's native mqtt component instead of ert#s lwip based one (TBC if this is difficult
 DEFS += EHS_NO_LIBXML2_SUPPORT=1
 EHS_MQTT_SUPPORT=esp_mqtt-441

@@ -34,13 +34,13 @@
 
 /*****************************************************************************/
 /* Included files */
+#include "globals.h"
 #include "hal_dtv.h"
 #include "hal_string.h"
 #include "messages.h"
-#include "target.h"
 #include "widget.h"
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal_viewport.h"
 
 #include <dirent.h>

@@ -47,3 +47,10 @@ OBJECTS += guiviewport.$(OBJ)
 OBJECTS += inx-ui_spinner.$(OBJ)
 OBJECTS += inx-ui_chart.$(OBJ)
 OBJECTS += inx-ui_list.$(OBJ)
+
+# Components moved from user/ directory
+ifdef EHS_WEBKIT_SUPPORT
+ifneq ($(EHS_WEBKIT_SUPPORT),none)
+	OBJECTS += inx-webkit.$(OBJ)
+endif
+endif

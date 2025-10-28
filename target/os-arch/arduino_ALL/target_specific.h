@@ -19,6 +19,10 @@
 
 #include <stdlib.h> /* required for malloc, exit */
 
+#ifndef EHS_GLOBALS_H
+#error "This file should only be included by globals.h" 
+#endif
+
 #include "target_logger.h"
 
 /**

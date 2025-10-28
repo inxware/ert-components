@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "target.h"
+#include "globals.h"
 #include "hal.h"
 #include "lorawan.h"
 

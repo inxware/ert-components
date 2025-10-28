@@ -1,3 +1,3 @@
 # configure machine learning (ml) component hal
 
-OBJECTS+=ml.$(OBJ) 
+OBJECTS+=stubbed_ml.$(OBJ) 

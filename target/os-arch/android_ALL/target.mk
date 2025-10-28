@@ -7,25 +7,13 @@
 #	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 #---------------------------------------------------------------#
 
-#HAL Features we always support in this OS
-
-ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
-ifndef EHS_FILESYSTEM_SUPPORT
-	EHS_FILESYSTEM_SUPPORT=posix
-endif
-endif
+#include the default cofiguration as this a base configuration.
+include $(EHS_TARGETS_ROOT_PATH)/os-arch/android_ALL/config.mk
 
 #target types are always the same for all linux so just use one file
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/android_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/android_ALL/
 
-
-ifneq ($(EHS_COMMS_API_SUPPORT),none)
-ifndef EHS_COMMS_API_SUPPORT
-	export  EHS_COMMS_API_SUPPORT=bsdsockets
-    DEFS += $(EHS_COMMS_API_SUPPORT)
-endif
-endif
 
 #Default to Android 9 if nothing else set.
 ifdef EHS_ANDROID_INSTALL_VERSION
@@ -55,7 +43,9 @@ endif
 LIB+=:libarchive.a
 
 # Generic target options we usually have
+ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
 OBJECTS += target_file.$(OBJ)
+endif
 OBJECTS += target_process.$(OBJ) 
 OBJECTS += target_main.$(OBJ)
 OBJECTS += target_math.$(OBJ) 
@@ -68,7 +58,7 @@ ifndef EHS_ANDROID_JNI
 	OBJECTS += android_native_app_glue.$(OBJ)
 endif
 
+# TODO This should be conditional?
 OBJECTS += target_audio.${OBJ}
 
-# OBJECTS += target_display.$(OBJ)
 # OBJECTS += target_sys_stat.$(OBJ)

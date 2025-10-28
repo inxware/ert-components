@@ -79,6 +79,8 @@
 
 #define EhsMemcpy memcpy
 
+#define EhsMemchr memchr
+
 #define EhsStrIsSpace(x) isspace(x)
 
 /*****************************************************************************/

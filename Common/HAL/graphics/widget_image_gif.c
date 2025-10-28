@@ -120,7 +120,7 @@ SUCH DAMAGE.
  */
 //#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "widget.h"
 #include "hal_mem.h"
 #include "hal_file.h"
@@ -170,8 +170,6 @@ typedef struct EhsWidgetImageGifBlockStruct
     GifExtension * ext;
 } EhsWidgetImageGifBlockType;
 
-
-#include "target.h"
 
 /*
  *  Gif internal definitions:

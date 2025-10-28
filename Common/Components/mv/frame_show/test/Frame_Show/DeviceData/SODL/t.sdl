@@ -1,0 +1,28 @@
+#V:2.0.0
+#B:3
+#D:Y2025M7d12h12m47s9
+#N:Frame_Show
+1
+1	100000	90000
+BEGIN Camera 0
+0 100 100 100 0 0 0 
+startCamera	1	1	1	1 S -1 	1 I -1 	2 3 -1 
+grabFrame	1	1	2	1 B -1 	3 I -1 I -1 I 1 	1 4 
+END
+BEGIN time_clock 0
+1000000 1 1 
+start	1	1	3	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 2 
+END
+BEGIN FrameCrop 0
+0 0 50 50 
+run_cropping	1	1	4	5 I 1 I -1 I -1 I -1 I -1 	2 I -1 I 2 	2 5 -1 
+END
+BEGIN frame_show 0
+frame_cropped 
+show	1	1	5	1 I 2 	0 	2 -1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

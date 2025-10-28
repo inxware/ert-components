@@ -1,4 +1,4 @@
-#include "ehs_types.h"
+#include "globals.h"
 #include "time_clock.h"
 #include "fid.h"
 #include "timer.h"
@@ -1163,7 +1163,7 @@ EHS_LOCAL void readSrcs(EhsPlayManagerType* pPlayManager,
  */
 
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(PlayManager_Next_Playlist) {
+EHS_FB_RUN_FUNCTION(PlayManager_Next_Playlist) {
 	xmlTextReaderPtr fileReader = NULL;
 	ehs_char* nextTag;
 	EhsTPMutex_lock(EhsTPMutex_playManager);

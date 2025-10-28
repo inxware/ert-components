@@ -182,7 +182,7 @@ EHS_FB_DESTROY_FUNCTION(DtvPvrPlay2)
 /**
  * Set filename and position. At this time, position is ignored.
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_input)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_input)
 {
     EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     ehs_bool URIOK = EHS_FALSE;
@@ -312,7 +312,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_input)
 }
 
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_pos)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_pos)
 {
     EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*) EHS_FB_RUN_CONTEXT;
     if (pPVR->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
@@ -326,7 +326,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_pos)
     EHS_FB_FINISH(PORT_FINISH_POS);
 }
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_time)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_time)
 {
     EhsFbPvrPlayClass* pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     if (pPVR->MediaPlayerState != EHS_FB_STATE_NOT_LOADED)
@@ -344,7 +344,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_time)
 /**
  *  information from the media player.
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_get)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_get)
 {
     EhsDataflowIntType nTime = 0;
     EhsDataflowIntType nSpeed = 0;
@@ -423,7 +423,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_get)
 /**
  * Play current file from current position
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_play)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_play)
 {
     EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     EhsTPMutex_lock(EhsTPMutex_fbIO);
@@ -453,7 +453,7 @@ error://@todo we should assert an error event here really
 /**
  * Pause playback
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_pause)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_pause)
 {
     EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     ehs_sint32 nSpeed;
@@ -478,7 +478,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_pause)
 /**
  * Reverse direction of playback
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_rev)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_rev)
 {
     /*@TODO: this function has been commented out due to causing problems and not really being needed 20081231*/
     EhsDataflowIntType nSpeed;
@@ -512,7 +512,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_rev)
 /**
  * Increase playback speed in current direction (forward/backward)
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_faster)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_faster)
 {
     EhsDataflowIntType nSpeed;
     EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
@@ -544,7 +544,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_faster)
 /**
  * Decrease playback speed in current direction (forward/backward)
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_slower)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_slower)
 {
     EhsDataflowIntType nSpeed;
     EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
@@ -576,7 +576,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_slower)
 /**
  * Stop playback
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_stop)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_stop)
 {
 
     EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
@@ -597,7 +597,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_stop)
 /**
  * Callback to signify that playback has finished
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_end)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_end)
 {
     EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     EhsTPMutex_lock(EhsTPMutex_fbIO);
@@ -610,7 +610,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_end)
     EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_volume)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_volume)
 {
     EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     EhsTPMutex_lock(EhsTPMutex_fbIO);
@@ -628,7 +628,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_volume)
 /**
  * Initializes and resizes the window for VLC's video
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_window)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_window)
 {
     EhsFbPvrPlayClass* pPvrPlay = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     EhsTPMutex_lock(EhsTPMutex_fbIO);
@@ -690,7 +690,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_window)
     EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_back)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_back)
 {
     EhsFbPvrPlayClass *pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     EhsTPMutex_lock(EhsTPMutex_fbIO);
@@ -701,7 +701,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_back)
     EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_front)
+EHS_FB_RUN_FUNCTION(DtvPvrPlay2_to_front)
 {
     EhsFbPvrPlayClass *pPVR = (EhsFbPvrPlayClass*)EHS_FB_RUN_CONTEXT;
     EhsTPMutex_lock(EhsTPMutex_fbIO);

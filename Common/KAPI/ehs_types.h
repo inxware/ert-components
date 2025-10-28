@@ -19,9 +19,7 @@
 #ifndef EHS_TYPES_H
 #define EHS_TYPES_H
 #include "ehs_defs.h"
-#include "target_types.h"
-
-
+#include "globals.h"
 
 /*********************************************************************************************/
 /**

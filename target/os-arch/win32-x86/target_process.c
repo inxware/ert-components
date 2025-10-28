@@ -28,21 +28,12 @@
 
 /*****************************************************************************/
 /* Included files */
-//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_MEMORY
-#include "hal_logger.h"
-#include "hal_process.h"
-#include "target.h"
-#include "globals.h"
 
 /* #define NTDDI_WINXP
+#define WINVER 0x0A00
 #define _WIN32_WINNT 0x0501
-
-is defined in target_config.h
+#define _WIN32_WINNT 0x0A00
 */
-
-//#define WINVER 0x0A00
-//#define _WIN32_WINNT 0x0A00
-
 
 #include <windows.h>
 #include <string.h>
@@ -50,6 +41,14 @@ is defined in target_config.h
 #include <stdlib.h>
 #include <shlwapi.h>
 #include <shellapi.h>
+
+
+//#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_MEMORY
+#include "globals.h"
+#include "hal_logger.h"
+#include "hal_process.h"
+
+
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */

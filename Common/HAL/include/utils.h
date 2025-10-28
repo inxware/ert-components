@@ -16,7 +16,7 @@
 
 #ifndef EHS_UTILS_H
 #define EHS_UTILS_H
-#include "ehs_types.h"
+#include "globals.h"
 
 #define EHS_TO_LOWER(x) (x | 0x20) /**< Simple conversion from either case to lower case */
 
@@ -28,27 +28,27 @@
 /**
  * Get current type from a string
  */
-EHS_GLOBAL const ehs_char * EhsGetType(EhsDataTypeEnum * output, const ehs_char* input);
+const ehs_char * EhsGetType(EhsDataTypeEnum * output, const ehs_char* input);
 
 /**
  * Get memory size of the string if defined in the input in a hex form
  */
-EHS_GLOBAL const ehs_char * EhsGetMemSize(ehs_uint32 * size, const char* input);
+const ehs_char * EhsGetMemSize(ehs_uint32 * size, const char* input);
 
 /**
  * Determine if character is a-z or A-Z
  */
-EHS_GLOBAL ehs_bool EhsIsAlpha(ehs_char ch);
+ehs_bool EhsIsAlpha(ehs_char ch);
 
 /**
  * Determine if character is a-z or A-Z or 0-9
  */
-EHS_GLOBAL ehs_bool EhsIsAlNum(ehs_char ch);
+ehs_bool EhsIsAlNum(ehs_char ch);
 
 /**
  * Determine if character is a-f or A-F or 0-9
  */
-EHS_GLOBAL ehs_bool EhsIsHexNum(ehs_char ch);
+ehs_bool EhsIsHexNum(ehs_char ch);
 
 // todo2022 the following seem to be duplICATES OF THINGS IN THE hal STRING.G
 /**

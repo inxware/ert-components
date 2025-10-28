@@ -1,8 +1,10 @@
-#include "target_specific.h"
+
 
 #include <stdio.h>
 #include "esp_err.h"
 #include "esp_log.h"
+
+#include "globals.h"
 
 #ifdef EHS_RTC_SUPPORT
 #include "target_hal_rtc.h"
@@ -11,7 +13,6 @@
 
 #ifdef EHS_I2C_SUPPORT
 #include "driver/i2c.h"
-#include "target_config.h"
 
 /*********** I2C configuration macros ***********/
 #ifndef INX_TARGET_I2C_MASTER_SCL_IO

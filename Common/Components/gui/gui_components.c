@@ -23,13 +23,17 @@
 #include "inx-gui_image_file.h"
 #include "inx-gui_patch.h"
 
+// Components moved from user directory
+#ifdef EHS_WEBKIT_SUPPORT
+#include "inx-webkit.h"
+#endif
+
 /* extended ui widgets support */
 #include "ui_widgets/inx-ui_spinner.h"
 #include "ui_widgets/inx-ui_chart.h"
 #include "ui_widgets/inx-ui_list.h"
 
-
-EhsBlockRefType EhsBlockRefTable_coreGui[] =
+EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_coreGui[] =
 {
 	/* inx-gui_patch.h */
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_gui_patch,EHS_FB_ID_gui_patch, gui_patch),
@@ -54,6 +58,11 @@ EhsBlockRefType EhsBlockRefTable_coreGui[] =
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ui_chart, INXWARE_FB_ID_ui_chart, ui_chart),
 	/* ui_widgets/inx-ui_list.h */
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ui_list, INXWARE_FB_ID_ui_list, ui_list),
+
+// Components moved from user directory
+#ifdef EHS_WEBKIT_SUPPORT
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_html_java,INXWARE_FB_ID_html_java ,html_java),
+#endif
 
     {0}
 };

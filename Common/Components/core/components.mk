@@ -33,17 +33,11 @@ ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
 #endif
 endif
 
-#TODO Neither of below should be in the core toolbox
-ifdef EHS_DEVMAN_SUPPORT
-ifneq ($(EHS_DEVMAN_SUPPORT),none)
-	OBJECTS +=  appget.$(OBJ) 
+ifdef EHS_COMPONENTS_SYSTEMEXEC_SUPPORT
+ifneq ($(EHS_COMPONENTS_SYSTEMEXEC_SUPPORT),none)
+	DEFS += EHS_COMPONENTS_SYSTEMEXEC_SUPPORT
+	OBJECTS += system_exec.$(OBJ)
 endif
-endif
-
-ifeq ($(EHS_SYSTEMEXEC_SUPPORT),none)
-	DEFS += EHS_COMPONENTS_SYSTEMEXEC_SUPPORT__NONE
-else
-   OBJECTS += system_exec.$(OBJ)
 endif
 
 #These are depricated, but should be removed completely now (hopeflly sfc is not the new state machine?)
@@ -51,9 +45,48 @@ OBJECTS += SFCBarGroup1.$(OBJ) SFCBarGroup1Event.$(OBJ) sfc.$(OBJ)
 
 OBJECTS += event_counter1.$(OBJ)  arraystring1.$(OBJ) buffer.$(OBJ) calc_i.$(OBJ) const1.$(OBJ) convertor.$(OBJ) core_components.$(OBJ) 
 OBJECTS += demux.$(OBJ) ehs_if.$(OBJ) logic.$(OBJ)  mux.$(OBJ) operator1.$(OBJ)  state_condition.$(OBJ) state_debug.$(OBJ) state_manager.$(OBJ) stringfn.$(OBJ) 
-OBJECTS += time_clock.$(OBJ) trigger.$(OBJ) rtinfo.$(OBJ) wall_clock.$(OBJ) appinfo.$(OBJ)
+OBJECTS += time_clock.$(OBJ) trigger.$(OBJ) rtinfo.$(OBJ) wall_clock.$(OBJ) appinfo.$(OBJ) inx-elapsed_timer.$(OBJ)
 OBJECTS += inx-rng.$(OBJ)
 
+# Components moved from user/ directory
+ifndef EHS_SKIP_GNULIBRARIES
+ifneq ($(EHS_SKIP_GNULIBRARIES),none)
+	OBJECTS += inx-json_stream.$(OBJ)
+	ifndef EHS_EXCLUDE_XML_PARSER
+	ifneq ($(EHS_EXCLUDE_XML_PARSER),none)
+		OBJECTS += inx-xml_stream.$(OBJ)
+	endif
+	endif
+endif
+endif
+
+# This should probably be stubbed as it is part of core, but we will trip apps that use it for now.
+ifdef EHS_DEVMAN_SUPPORT
+ifeq ($(EHS_DEVMAN_SUPPORT),http)
+  	OBJECTS +=  appget.$(OBJ) 
+endif
+endif
+
+
+
+# JSON parser components
+OBJECTS += inx-json_parser_int.$(OBJ)
+OBJECTS += inx-json_parser_bool.$(OBJ)
+OBJECTS += inx-json_parser_real.$(OBJ)
+OBJECTS += inx-json_parser_str.$(OBJ)
+
+# CGI to JSON converter
+OBJECTS += inx-cgi2json.$(OBJ)
+
+# Indexed multiplexer/demultiplexer components
+OBJECTS += inx-indexed_mux_int.$(OBJ)
+OBJECTS += inx-indexed_mux_str.$(OBJ)
+OBJECTS += inx-indexed_mux_bool.$(OBJ)
+OBJECTS += inx-indexed_mux_real.$(OBJ)
+OBJECTS += inx-indexed_demux_int.$(OBJ)
+OBJECTS += inx-indexed_demux_bool.$(OBJ)
+OBJECTS += inx-indexed_demux_real.$(OBJ)
+OBJECTS += inx-indexed_demux_str.$(OBJ)
 
 VPATH+=: $(EHS_COMMON_COMPONENTS_PATH)/core
 

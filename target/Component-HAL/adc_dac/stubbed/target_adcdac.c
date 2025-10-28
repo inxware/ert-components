@@ -6,7 +6,7 @@
  * not, please visit
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
-
+#include "globals.h"
 #include "target_adcdac.h"
 
 ehs_adc_config_t g_ehs_adc_configs[EHS_TARGET_ADC_UNIT_NUMBER] = EHS_DEFAULT_ADC_CONFIG();

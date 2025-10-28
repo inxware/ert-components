@@ -3,7 +3,7 @@
 #define _MQTT_CLIENT_H
 
 
-#include "ehs_types.h"
+#include "globals.h"
 /***************************************************************
  * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
  * You may use, distribute and modify this code under the terms

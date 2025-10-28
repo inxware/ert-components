@@ -14,7 +14,7 @@
 #include "inx-component.h"
 #include "inx-devman_interface.h"
 #include "hal_devman.h"
-#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+#if EHS_DEVMAN_SUPPORT == EHS_DEVMAN_MQTT
 #include "hal_mqtt.h"
 #endif
 
@@ -112,7 +112,7 @@ EHS_FB_INIT_FUNCTION(DevmanInterface)
 EHS_FB_DESTROY_FUNCTION(DevmanInterface)
 {
     inx_DevmanInterface_state_type *inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_DESTROY_CONTEXT;
-    //Your code below here
+    return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION send MACRO START -- DO NOT ALTER
@@ -135,7 +135,7 @@ EHS_FB_RUN_FUNCTION(DevmanInterface_send)
     EHS_FB_FINISH(INX_DevmanInterface_ARG_send_sendDone);
 }//ICB FUNCTION send MACRO END -- DO NOT ALTER THIS LINE
 
-#if EHS_DEVMAN_MON_SUPPORT != EHS_DEVMAN_MON_MQTT
+#if EHS_DEVMAN_SUPPORT == EHS_DEVMAN_HTTP
 
 extern EhsMetaDataType EhsMetaData;
 
@@ -214,6 +214,7 @@ EHS_FB_THREAD_FUNCTION(DevmanInterface_listen4New_thread)
             pthread_mutex_unlock((pthread_mutex_t *)semlock);
         }/* end of test for initialised sempahores */  
     }
+    return EHS_TRUE;
 }
 
 #endif
@@ -227,7 +228,7 @@ EHS_FB_THREAD_FUNCTION(DevmanInterface_listen4New_thread)
  */
 EHS_FB_RUN_FUNCTION(DevmanInterface_listen4New)
 {
-#if EHS_DEVMAN_MON_SUPPORT != EHS_DEVMAN_MON_MQTT
+#if EHS_DEVMAN_SUPPORT == EHS_DEVMAN_HTTP
     inx_DevmanInterface_state_type* inx_DevmanInterface_state = (inx_DevmanInterface_state_type*)EHS_FB_RUN_CONTEXT;
     if (inx_DevmanInterface_state->instance_running == EHS_FALSE) {
         EHS_FB_START_THREAD(DevmanInterface_listen4New_thread, -90);
@@ -317,7 +318,7 @@ EHS_FB_RUN_FUNCTION(DevmanInterface_getNetStatus)
     ehs_sint32 net_err_id = 0;
     ehs_bool devman_connected = EHS_FALSE;
 
-#if EHS_DEVMAN_MON_SUPPORT == EHS_DEVMAN_MON_MQTT
+#if EHS_DEVMAN_SUPPORT == EHS_DEVMAN_MQTT
     EhsMqttDevmanMon_t* pEhsMqttDevmanMon = EhsMqttDevmanMonSupport();
     if(pEhsMqttDevmanMon != NULL){
         devman_connected = pEhsMqttDevmanMon->mqtt_client_connected;

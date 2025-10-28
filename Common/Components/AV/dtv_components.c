@@ -20,7 +20,7 @@
 #include "dtv_pvr_play2.h"
 
 /* @todo remove this - moved to media toolkit */
-EhsBlockRefType EhsBlockRefTable_Dtv[] =
+EHS_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_Dtv[] =
 {
     /* dtv_pvr_play.h */
 //#error Checking!

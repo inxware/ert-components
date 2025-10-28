@@ -34,8 +34,10 @@ void EhsMqttDevmanMonHandlePing(ehs_bool enabled);
 /* Implement global functions defined in hal_mqtt.h */
 /****************************************************/
 
+/* Provide a pointer to the Devman mon clients if this is enabled */
 EhsMqttDevmanMon_t* EhsMqttDevmanMonSupport()
 {
+    //printf("DEVMAN SUPPORT_YES\n");
     return &EhsMqttDevmanMon;
 }
 
@@ -125,7 +127,7 @@ void EhsMqttDevmanMonHandleDisconnected()
 {
     // toggle connection state
     if(gMqttConnected == EHS_TRUE){
-        printf("* DEVMAN MON MQTT DISCONNECTED * \n");
+        EHSH_LOG_INFO("* DEVMAN MON MQTT DISCONNECTED * \n");
         gMqttConnected = EHS_FALSE;
     }
 }
@@ -140,7 +142,7 @@ void EhsMqttDevmanMonHandleConnected()
         EhsMqttDevmanMonConnectPayload(payload, EHS_STRING_LENGTH_MAX, gMqttConnectionsCounter);
         EhsMqttDevmanMonPublish(EHS_MQTT_PUB_TOPIC_DIDCONNECT_ID, payload);
         gMqttConnected = EHS_TRUE;
-        printf("* DEVMAN MON MQTT CONNECTED (%d) * \n", gMqttConnectionsCounter);
+        EHSH_LOG_INFO("* DEVMAN MON MQTT CONNECTED (%d) * \n", gMqttConnectionsCounter);
     }
     // run ping handler if enabled
     EhsMqttDevmanMonHandlePing(EHS_MQTT_DEVMAN_MON_PING_ENABLED);
@@ -233,6 +235,7 @@ void EhsMqttDevmanMonRegisterPub(inx_mqtt_publish_state_type* publish_state, con
     }
 }
 
+/* Send a hello messsage with some system data when first connecting toDevman */
 void EhsMqttDevmanMonConnectPayload(char* payload, ehs_uint32 max_size, ehs_uint32 nMqttConnections)
 {
     if(payload == NULL){
@@ -275,7 +278,7 @@ void EhsMqttDevmanMonHandlePing(ehs_bool enabled)
     }
     // check if it's time to ping server
     if(gEhsMqttDevmanMonPingTimer == 0 || ((EhsTgtTimer_tickTous(EHS_CURRENT_TIME)-EhsTgtTimer_tickTous(gEhsMqttDevmanMonPingTimer))/1000) > EHS_MQTT_DEVMAN_MON_PING_PERIOD_MS){
-        printf("* DEVMAN MON MQTT PING * \n");
+        EHSH_LOG_INFO("* DEVMAN MON MQTT PING * \n");
         // @TODO - what topic do we ping to ?
         //char payload[EHS_STRING_LENGTH_MAX] = { 0 };
         //EhsMqttDevmanMonPingPayload(payload, EHS_STRING_LENGTH_MAX, 1 /* todo - count disconnect */);

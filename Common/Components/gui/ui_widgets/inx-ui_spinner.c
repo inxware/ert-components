@@ -80,7 +80,7 @@ EHS_FB_INIT_FUNCTION(ui_spinner)
 	inx_ui_spinner_state_type* inx_ui_spinner_state = (inx_ui_spinner_state_type*)EHS_FB_INIT_CONTEXT;
 	inx_ui_spinner_state->pUiWidgetClass = NULL;
 	pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-	if (guiParams) {
+	if (guiParams[0]) {
 		EhsParseGuiParameters(guiParams,&xParams);
 		
 		if (xParams.eClass == EHS_WIDGET_CLASS_PATCH) // extended ui widgets are generated as patches by iGB
@@ -120,6 +120,7 @@ EHS_FB_DESTROY_FUNCTION(ui_spinner)
 	if(inx_ui_spinner_state && inx_ui_spinner_state->pUiWidgetClass != NULL){
 		EhsWidget_destroy(inx_ui_spinner_state->pUiWidgetClass);
 	}
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION create MACRO START -- DO NOT ALTER

@@ -26,9 +26,9 @@
 #define EHS_FB_NAME_string_format "string_format"
 #define EHS_FB_ID_string_format 0xDF0A
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_format);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_format);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_format);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_format);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_format);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_format)
@@ -39,9 +39,9 @@ EHS_FB_FUNCTIONS(string_format)
 #define EHS_FB_NAME_string_format8 "string_format8"
 #define EHS_FB_ID_string_format8 0xD55E
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_format8);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_format8);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format8);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_format8);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_format8);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_format8);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_format8)
@@ -50,9 +50,9 @@ EHS_FB_FUNCTIONS(string_format8)
 #define EHS_FB_NAME_string_format8_int "string_format8_int"
 #define EHS_FB_ID_string_format8_int 0x5FEC
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_format8_int);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_format8_int);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format8_int);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_format8_int);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_format8_int);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_format8_int);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_format8_int)
@@ -62,9 +62,9 @@ EHS_FB_FUNCTIONS(string_format8_int)
 #define EHS_FB_NAME_string_format8_real "string_format8_real"
 #define EHS_FB_ID_string_format8_real 0x1627
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_format8_real);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_format8_real);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_format8_real);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_format8_real);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_format8_real);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_format8_real);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_format8_real)
@@ -75,9 +75,9 @@ EHS_FB_FUNCTIONS(string_format8_real)
 #define EHS_FB_NAME_stringfn_scan8 "stringfn_scan8"
 #define EHS_FB_ID_stringfn_scan8 0xD325
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(stringfn_scanf8);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(stringfn_scanf8);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(stringfn_scanf8);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(stringfn_scanf8);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(stringfn_scanf8);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(stringfn_scanf8);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(stringfn_scanf8)
@@ -88,9 +88,9 @@ EHS_FB_FUNCTIONS(stringfn_scanf8)
 #define EHS_FB_NAME_CatString "CatString"
 #define EHS_FB_ID_CatString 0x56CC
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_cat);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_cat);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_cat);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_cat);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_cat);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_cat);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_cat)
@@ -101,9 +101,9 @@ EHS_FB_FUNCTIONS(string_cat)
 #define EHS_FB_NAME_CmpString "CmpString"
 #define EHS_FB_ID_CmpString 0xC389
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_cmp);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_cmp);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_cmp);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_cmp);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_cmp);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_cmp);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_cmp)
@@ -114,7 +114,7 @@ EHS_FB_FUNCTIONS(string_cmp)
 #define EHS_FB_NAME_LenString "LenString"
 #define EHS_FB_ID_LenString 0x9437
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_len);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_len);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_len)
@@ -125,9 +125,9 @@ EHS_FB_FUNCTIONS(string_len)
 #define EHS_FB_NAME_FindString "FindString"
 #define EHS_FB_ID_FindString 0x7D98
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_find);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_find);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_find);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_find);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_find);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_find);
 
 
 /* declare the table for use by the blockref table */
@@ -139,7 +139,7 @@ EHS_FB_FUNCTIONS(string_find)
 #define EHS_FB_NAME_ToUpperString "ToUpperString"
 #define EHS_FB_ID_ToUpperString 0xF2A3
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_toUpper);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_toUpper);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_toUpper)
@@ -150,7 +150,7 @@ EHS_FB_FUNCTIONS(string_toUpper)
 #define EHS_FB_NAME_ToLowerString "ToLowerString"
 #define EHS_FB_ID_ToLowerString 0x3BCE
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_toLower);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_toLower);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_toLower)
@@ -160,7 +160,7 @@ EHS_FB_FUNCTIONS(string_toLower)
 #define EHS_FB_NAME_CharAtString "CharAtString"
 #define EHS_FB_ID_CharAtString 0xFE14
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_charAt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_charAt);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_charAt)
@@ -171,7 +171,7 @@ EHS_FB_FUNCTIONS(string_charAt)
 #define EHS_FB_NAME_StrAtString "StrAtString"
 #define EHS_FB_ID_StrAtString 0x64DA
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_strAt);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_strAt);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_strAt)
@@ -182,9 +182,9 @@ EHS_FB_FUNCTIONS(string_strAt)
 #define EHS_FB_NAME_InsertString "InsertString"
 #define EHS_FB_ID_InsertString 0xC01A
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_insert);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_insert);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_insert);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_insert);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_insert);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_insert);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_insert)
@@ -195,9 +195,9 @@ EHS_FB_FUNCTIONS(string_insert)
 #define EHS_FB_NAME_SubString "SubString"
 #define EHS_FB_ID_SubString 0xA876
 
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(string_sub);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(string_sub);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(string_sub);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(string_sub);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(string_sub);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(string_sub);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(string_sub)

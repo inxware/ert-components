@@ -23,9 +23,7 @@
 
 # include sourcecode from this dir in build
 
-ifndef  EHS_COMMS_API_SUPPORT
-export EHS_COMMS_API_SUPPORT=winsock
-endif
+
 
 EHS_MINGW=yes
 DEFS += EHS_MINGW

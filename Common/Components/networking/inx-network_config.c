@@ -19,9 +19,9 @@ ehs_bool EhsNetworkIsConnected()
 }
 
 /* Configures the traget network interface */
-ehs_sint32 EhsNetworkConfigureInterface(const EhsNetworkConfigDataType* config)
+ehs_sint32 EhsNetworkConfigure(const EhsNetworkConfigDataType* config)
 {
-	printf("EhsNetworkConfigureInterface - Stubbed network config interface.\n");
+	//printf("EhsNetworkConfigure - Stubbed network config interface.\n");
 	return EHS_NETWORK_CONFIG_NO_ERROR_ID;
 }
 #endif
@@ -103,6 +103,7 @@ EHS_FB_DESTROY_FUNCTION(network_config)
 {
 	//inx_network_config_state_type *inx_network_config_state = (inx_network_config_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION get_status MACRO START -- DO NOT ALTER
@@ -197,7 +198,7 @@ EHS_FB_RUN_FUNCTION(network_config_set_config)
 		config.dns = EHS_FB_IN_S_API2(INX_network_config_ARG_set_config_set_dns);
 	}
 
-	nError = EhsNetworkConfigureInterface(&config);
+	nError = EhsNetworkConfigure(&config);
 
 	if (EHS_FB_OUT_CONNECTED_API2(INX_network_config_ARG_set_config_set_err)){
 		EHS_FB_OUT_I_API2(INX_network_config_ARG_set_config_set_err) = nError;

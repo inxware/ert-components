@@ -21,7 +21,7 @@
 
 /*****************************************************************************/
 /* Included files */
-//#include "target.h"
+//#include "globals.h"
 
 /*****************************************************************************/
 /* Define macros  */
@@ -96,7 +96,7 @@
 /**
  * Perform necessary Operating system setup upon system initialisation
  */
-EHS_GLOBAL void DevmanMon_init(void);
+void DevmanMon_init(void);
 
 /* shared devman failover URL utilities implemented in devman_mon.c*/
 ehs_bool EhsHDevmanRemoveHeadURLFromList(ehs_char * ehs_path);
@@ -106,5 +106,14 @@ ehs_bool EhsHDevmanAddURLtoHeadList(ehs_char * ehs_path, ehs_char * URL);
 ehs_bool EhsHDevmanGetURL(ehs_char * URL, ehs_char * list_file,ehs_uint16 maxlen, ehs_uint16 index);
 ehs_bool GetDevmanBASEURL(ehs_char * szUrl);
 void EhsHDevmanGetCoreURL(ehs_char * szUrl);
+
+
+/* Conditional Build Variables */
+
+
+#define EHS_DEVMAN_NONE 0
+#define EHS_DEVMAN_STUBBED 1
+#define EHS_DEVMAN_HTTP 2
+#define EHS_DEVMAN_MQTT 3
 
 #endif /* DEVMAN_MON_H */

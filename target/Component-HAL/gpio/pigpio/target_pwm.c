@@ -13,21 +13,7 @@
 
 #include "inx_pwm_port.h"
 #include "target_gpio.h"
-#include "ehs_types.h"
-
-inx_hw_pwm_port_errcode_t EhsTPortPwmSetup(ehs_sint32 channel, ehs_sint32 io_num, ehs_sint32 freq, ehs_sint32 max_val);
-inx_hw_pwm_port_errcode_t EhsTPortPwmDeinit(ehs_sint32 channel);
-inx_hw_pwm_port_errcode_t EhsTPortPwmSetFreq(ehs_sint32 channel, ehs_sint32 freq);
-inx_hw_pwm_port_errcode_t EhsTPortPwmSetDuty(ehs_sint32 channel, ehs_uint32 duty);
-inx_hw_pwm_port_errcode_t EhsTPortPwmSetMaxValue(ehs_sint32 channel, ehs_sint32 freq, ehs_sint32 max_val);
-inx_hw_pwm_port_errcode_t EhsTPortPwmEnable(ehs_sint32 channel);
-inx_hw_pwm_port_errcode_t EhsTPortPwmDisable(ehs_sint32 channel);
-
-inx_hw_pwm_port_errcode_t EhsTPortPwmGetMaxValue(ehs_sint32 channel, ehs_sint32 *max_val);
-
-inx_hw_pwm_port_errcode_t EhsTPortPwmGetFreq(ehs_sint32 channel, ehs_sint32 *freq);
-inx_hw_pwm_port_errcode_t EhsTPortPwmGetDuty(ehs_sint32 channel, ehs_sint32 *duty);
-inx_hw_pwm_port_errcode_t EhsTPortPwmEnabled(ehs_sint32 channel, ehs_bool *enabled);
+#include "globals.h"
 
 //// Detect whether more than one platforms are enabled at the same time
 //#if defined(EHS_PLATFORM_RASPBERRYPI) && defined(EHS_PLATFORM_ESP32)

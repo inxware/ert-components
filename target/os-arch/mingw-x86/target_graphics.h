@@ -6,7 +6,8 @@
 #include "lvgl/lvgl.h"
 #include "lv_drivers/sdl/sdl.h"
 #include "SDL2/SDL.h"
-#include "target_config.h"
+
+#include "globals.h"
 
 void sdl_init(void);
 void sdl_display_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);

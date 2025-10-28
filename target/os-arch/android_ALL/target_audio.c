@@ -1,17 +1,19 @@
-#include "target.h"
-#include "target_audio.h"
-
-#ifdef EHS_AUDIO_INPUT_LEVEL_SUPPORT
-#include "target_audio_input_level_common.h"
-#endif
 
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <SLES/OpenSLES_AndroidConfiguration.h>
 #include <stdio.h>
 #include <math.h>
-
 #include <android/log.h>
+
+#include "globals.h"
+#include "target_audio.h"
+
+#ifdef EHS_AUDIO_INPUT_LEVEL_SUPPORT
+#include "target_audio_input_level_common.h"
+#endif
+
+
 #if 1
 #define printf(...) __android_log_print(ANDROID_LOG_DEBUG, "target_audio", __VA_ARGS__)
 #else 

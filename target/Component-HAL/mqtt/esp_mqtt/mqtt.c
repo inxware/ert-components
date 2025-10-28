@@ -7,11 +7,11 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-//#include "ehs_types.h"
+//#include "globals.h"
 #include "mqtt_client.h"
 #include "hal-api.h"
 #include "esp_heap_caps.h"
-#include "target_file.h"
+//#include "hal_file.h"
 #include "targetos_init.h"
 
 
@@ -19,7 +19,9 @@
 #define INX_MQTT_MAX_PAYLOAD_SIZE (EHS_STRING_LENGTH_MAX)
 #define INX_MQTT_MAX_ERROR_MSG_BUFFER_SIZE (EHS_STRING_LENGTH_MAX)
 
-#if EHS_ESP32_DISABLE_LOGS == 1
+
+#if 1
+//EHS_ESP32_DISABLE_LOGS == 1
 #define EHS_ESP32_MQTT_LOG(fmt, ...)
 #else
 #define EHS_ESP32_MQTT_LOG(fmt, ...) printf(fmt, ##__VA_ARGS__)
@@ -157,7 +159,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
     char *temp_buf, *temp_topic;
-
+    EHS_ESP32_MQTT_LOG("MQTT event handler...");
     switch ((esp_mqtt_event_id_t)event_id)
     {
     case MQTT_EVENT_CONNECTED:
@@ -176,7 +178,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
-        EHS_ESP32_MQTT_LOG("MQTT_EVENT_SUBSCRIBED, msg_id=%d\n", event->msg_id);
+        //EHS_ESP32_MQTT_LOG("MQTT_EVENT_SUBSCRIBED, msg_id=%d\n", event->msg_id);
         //   msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
         //     EHS_ESP32_MQTT_LOG("sent publish successful, msg_id=%d", msg_id);
         break;
@@ -187,12 +189,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         EHS_ESP32_MQTT_LOG("MQTT_EVENT_PUBLISHED, msg_id=%d\n", event->msg_id);
         break;
     case MQTT_EVENT_DATA:
+        /* TODO2025 this needs to not use mallocs*/
         temp_topic = malloc(sizeof(char) * (event->topic_len + 1));
         memcpy(temp_topic, event->topic, event->topic_len * sizeof(char));
         memset(temp_topic + event->topic_len, 0, 1);
         EhsMQTTSubscribeEvent(temp_topic, event->data, event->data_len);
         free(temp_topic);
-
         break;
     case MQTT_EVENT_ERROR:
         EHS_ESP32_MQTT_LOG("MQTT_EVENT_ERROR\n");
@@ -220,7 +222,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         }
         break;
     default:
-//        EHS_ESP32_MQTT_LOG("Other event id:%d\n", event->event_id);
+      //  EHS_ESP32_MQTT_LOG("Other event id:%d\n", event->event_id);
 //        EHS_ESP32_MQTT_LOG("DATA=%.*s\r\n", event->data_len, event->data);
         break;
     }
@@ -239,21 +241,21 @@ ehs_bool readAppFileIntoString(ehs_bool isDevmanMon, const char *filename, char 
         ehs_char filePath[EHS_MAXPATHLENGTH] = { 0 };
         EhsStrcpy(filePath, "core/certs/" );
         EhsStrcat(filePath, filename);
-        EHS_ESP32_MQTT_LOG("Reading MQTT cert for Devman mon (%s) \n", filePath);
+        //EHS_ESP32_MQTT_LOG("Reading MQTT cert for Devman mon (%s) \n", filePath);
         tempFile = Ehs_DevmanFopen(filePath, "r");
     }else{
         tempFile = Ehs_AppFopen(filename, "r");
     }
     if (tempFile == NULL)
     {
-        EHS_ESP32_MQTT_LOG("readAppFileIntoString: File does not exist or FS corrupted!\n");
+        //EHS_ESP32_MQTT_LOG("readAppFileIntoString: File does not exist or FS corrupted!\n");
         return EHS_FALSE;
     }
     int Ffileno = fileno(tempFile);
     ret = fstat(Ffileno, &FileStat);
     if (ret == -1) 
     {
-        EHS_ESP32_MQTT_LOG("fstat failed! fp: %p\n");
+        //EHS_ESP32_MQTT_LOG("fstat failed! fp: %p\n");
         EhsFclose(tempFile);
         return EHS_FALSE;
     }
@@ -294,6 +296,8 @@ ehs_bool readAppFileIntoString(ehs_bool isDevmanMon, const char *filename, char 
     return EHS_TRUE;
 }
 
+
+/* Call this periodically (> 10ms?) to make MQTT work.. */
 void* EhsMqttClientLoop(void* args)
 {
     esp_err_t err;
@@ -303,7 +307,7 @@ void* EhsMqttClientLoop(void* args)
     char *clientCertFileName = NULL;
     char *clientKeyFileName = NULL;
     char *rootCAFileName = NULL;
-    ehs_bool connect = 0;
+    ehs_bool connect = EHS_FALSE;
     ehs_bool confirm_subscribe = 0, confirm_unsubscribe = 0;
     ehs_uint8 i;
     ehs_bool ret;
@@ -316,7 +320,7 @@ void* EhsMqttClientLoop(void* args)
     }
     gUsingDevmanMon = (pEhsMqttDevmanMon != NULL) ? EHS_TRUE : EHS_FALSE;
     
-    // EHS_ESP32_MQTT_LOG("%s", host);
+    //EHS_ESP32_MQTT_LOG("HOSY = %s", host);
     switch (MQTT_state)
     {
 
@@ -334,14 +338,18 @@ void* EhsMqttClientLoop(void* args)
         break;
 
     case MQTT_STATE_INIT:
+        //EHS_ESP32_MQTT_LOG("MQTT_STATE_INIT\n");
         if (gUsingDevmanMon == EHS_FALSE && *bNewSodlFlagRef == EHS_TRUE)
         {
+            /* If we are using Devman mon we want to keep the previous connection open (possibly?) not sure why we would be doingthis otherwise*/
+            EHS_ESP32_MQTT_LOG("MQTT_THINKS ITS DEVMAN\n");
             break;
         }
-
+        //EHS_ESP32_MQTT_LOG("MQTT_STATE_NOTDEMVNA_MON AND NOT GOT NEW SODL\n");
         EhsMQTTConnectPoll(&connect, &host, &port, &gUseTLS, &clientid, &username, &password, &clientCertFileName, &clientKeyFileName, &rootCAFileName);
         if (connect && gMqttConnectionAttempts == 0)
         {
+            EHS_ESP32_MQTT_LOG("MQTT_STATE_INIT_CONNECT\n");
             EHS_ESP32_MQTT_LOG("Init connection init %s %i\n", host, port);
 #ifdef USE_ESP32S3_LEGACY_API
             mqtt_cfg.host = host;
@@ -349,7 +357,7 @@ void* EhsMqttClientLoop(void* args)
 
             mqtt_cfg.username = username;
             mqtt_cfg.password = password;
-            mqtt_cfg.keepalive = 15;
+            mqtt_cfg.keepalive = 120;
 #else
             mqtt_cfg.broker.address.hostname = host;
             mqtt_cfg.broker.address.port = port;
@@ -358,11 +366,13 @@ void* EhsMqttClientLoop(void* args)
             mqtt_cfg.credentials.client_id = clientid;
             mqtt_cfg.credentials.username = username;
             mqtt_cfg.credentials.authentication.password = password;
-            mqtt_cfg.session.keepalive = 15;
+            mqtt_cfg.session.keepalive = 120;
+            mqtt_cfg.network.timeout_ms = 10000;
 #endif
             //mqtt_cfg.event_handle = mqtt_event_handler;
             if(gUseTLS==EHS_TRUE){
                 EHS_ESP32_MQTT_LOG("using tls mqtt\n\n");
+                
                 
                 #ifndef MQTT_CERT_TEST
                 if(rootCAFileName && rootCAFileName[0] != '\0'){
@@ -409,6 +419,7 @@ void* EhsMqttClientLoop(void* args)
 #endif
                     }else{
                         EhsMQTTReportError("failed to open client cert");
+                        EHS_ESP32_MQTT_LOG("failed to open client cert\n");
                     }
                 }else{
                     EHS_ESP32_MQTT_LOG("Client Cert not specified.\n");
@@ -454,17 +465,26 @@ void* EhsMqttClientLoop(void* args)
 #endif                    
                 }
                 #endif
+#ifdef EHS_DEVMAN_MQTT_CLIENT_TLS
 #ifdef USE_ESP32S3_LEGACY_API
                 mqtt_cfg.transport = MQTT_TRANSPORT_OVER_SSL;
 #else
                 mqtt_cfg.broker.address.transport = MQTT_TRANSPORT_OVER_SSL;
-#endif              
+#endif     
+#else 
+                
+#endif
                 //mbedtls_x509_crt_parse(&certificate, mqtt_cfg.cert_pem, mqtt_cfg.cert_len);
                 //EHS_ESP32_MQTT_LOG("mbedtls verify result: %d\n", mbedtls_ssl_get_verify_result());
                 //EHS_ESP32_MQTT_LOG("The issuer is: %.*s\n", (int)certificate.issuer.val.len, certificate.issuer.val.p);
             }
+            else {
+                mqtt_cfg.broker.address.transport = MQTT_TRANSPORT_OVER_TCP;
+                EHS_ESP32_MQTT_LOG("MQTT_NOT USING TLS");
+            }
             
             client = esp_mqtt_client_init(&mqtt_cfg);
+            //printf("MQTT_CLient = %d\n",client);
             
             esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
 
@@ -473,13 +493,17 @@ void* EhsMqttClientLoop(void* args)
         break;
 
     case MQTT_STATE_DO_CONNECT:
-//        EHS_ESP32_MQTT_LOG("MQTT_STATE_DO_CONNECT\n");
+        EHS_ESP32_MQTT_LOG("MQTT_STATE_DO_CONNECT\n");
         EhsMQTTConnectPoll(&connect, &host, &port, &gUseTLS, &clientid, &username, &password, &clientCertFileName, &clientKeyFileName, &rootCAFileName);
         mqttSetGlobalState(MQTT_STATE_WAIT_FOR_CONNECTION);
         if (connect && gMqttConnectionAttempts == 0)
         {
+            EHS_ESP32_MQTT_LOG("MQTT_STATE_DIDNT_CONNECT \n");
             err = esp_mqtt_client_start(client);
             gMqttConnectionAttempts++;
+
+        }
+        else {
 
         }
         //if (*bNewSodlFlagRef == EHS_TRUE) mqttSetGlobalState(MQTT_STATE_DO_DISCONNECT);
@@ -487,11 +511,11 @@ void* EhsMqttClientLoop(void* args)
         break;
 
     case MQTT_STATE_WAIT_FOR_CONNECTION:
-        //EHS_ESP32_MQTT_LOG("MQTT_STATE_WAIT_FOR_CONNECTION\n");
+        EHS_ESP32_MQTT_LOG("MQTT_STATE_WAIT_FOR_CONNECTION\n");
         break;
 
     case MQTT_STATE_CONNECTED:
-//        EHS_ESP32_MQTT_LOG("MQTT_STATE_CONNECTED\n");
+        //spammy message : EHS_ESP32_MQTT_LOG("MQTT_STATE_CONNECTED\n");
         EhsMQTTConnectPoll(&connect, &host, &port, &gUseTLS, &clientid, &username, &password, &clientCertFileName, &clientKeyFileName, &rootCAFileName);
         if ((gUsingDevmanMon == EHS_FALSE && (*bNewSodlFlagRef == EHS_TRUE || EhsMqttClientInstanceCount() < 1)) || connect == 0)
         {

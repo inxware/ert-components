@@ -42,6 +42,11 @@ include $(EHS_COMMON_HAL_PATH)/ota/ota.mk
 include $(EHS_COMMON_HAL_PATH)/hashmap/hashmap.mk
 
 #============================================================
+# Some #defines that are used broadly
+#============================================================
+
+
+#============================================================
 # OPTIONAL COMMON COMPONENT HAL SUPPORT
 #============================================================
 
@@ -98,12 +103,9 @@ ifneq ($(EHS_NETWORKING_SUPPORT), none)
 endif
 endif
 
-# Define devman mon type enum
-DEFS+=EHS_DEVMAN_MON_CURL=1
-DEFS+=EHS_DEVMAN_MON_MQTT=2
 # include devman mon support if enabled
-ifdef EHS_DEVMAN_MON_SUPPORT
-ifneq ($(EHS_DEVMAN_MON_SUPPORT), none)
+ifdef EHS_DEVMAN_SUPPORT
+ifneq ($(EHS_DEVMAN_SUPPORT), none)
 	include $(EHS_COMMON_HAL_PATH)/devmanmon/devmanmon.mk
 endif
 endif

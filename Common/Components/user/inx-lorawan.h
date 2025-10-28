@@ -8,24 +8,24 @@
 #define INXWARE_FB_ID_lorawan 0xC89A
 #define INXWARE_FB_NAME_lorawan "lorawan"
 /* Declaring the functions used here as public interface for static linking into EHS builds */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(lorawan); // this relates to C file identify function
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(lorawan); // this relates to C-file init function
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(lorawan); //this relates to C-file destroy function
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_reset); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_connect_cb); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_send_msg_cb); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_reset_cb); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_get_statusData_cb); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_set_datarate); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_set_datarate_cb); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_disable); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_connect); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_send_msg); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_get_statusData); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_get_payload_length); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_get_payload_length_cb); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_disable_cb); //a function executed by a start port
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(lorawan_on_receive_msg); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(lorawan); // this relates to C file identify function
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(lorawan); // this relates to C-file init function
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(lorawan); //this relates to C-file destroy function
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_reset); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_connect_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_send_msg_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_reset_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_get_statusData_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_set_datarate); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_set_datarate_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_disable); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_connect); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_send_msg); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_get_statusData); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_get_payload_length); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_get_payload_length_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_disable_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_on_receive_msg); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(lorawan)
 

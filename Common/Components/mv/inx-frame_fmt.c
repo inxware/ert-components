@@ -88,6 +88,7 @@ EHS_FB_DESTROY_FUNCTION(FrameFormatter)
 	inx_FrameFormatter_state_type *inx_FrameFormatter_state = (inx_FrameFormatter_state_type*)EHS_FB_DESTROY_CONTEXT;
 	EhsCameraFrameRemove(&inx_FrameFormatter_state->frame); // remove frame from global buffer
 	EhsCameraFrameDestroy(&inx_FrameFormatter_state->frame);
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION format MACRO START -- DO NOT ALTER

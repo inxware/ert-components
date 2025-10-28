@@ -20,7 +20,7 @@
 #endif
 #include "playManager.h"
 
-EhsBlockRefType EhsBlockRefTable_Media[] =
+EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_Media[] =
 {
 #ifdef EHS_VIDEO_SUPPORT
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_DtvPvrPlay2, EHS_FB_ID_DtvPvrPlay2,DtvPvrPlay2),

@@ -28,15 +28,16 @@
 /*****************************************************************************/
 /* Included files */
 
-
-#include "target.h"
-#include "hal-api.h"
-#include "target_process.h"
-
 #include <errno.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/time.h>
+
+#include "globals.h"
+#include "hal-api.h"
+#include "target_process.h"
+
+
 #ifndef EHS_MINGW
     // do we need to undef these?
     //#define _GNU_SOURCE

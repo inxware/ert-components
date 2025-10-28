@@ -18,7 +18,6 @@
 #ifndef EHS_WIDGETVIEWPORT_H
 #define EHS_WIDGETVIEWPORT_H
 
-#include "ehs_types.h"
 #include "globals.h"
 #include "graphics.h"
 

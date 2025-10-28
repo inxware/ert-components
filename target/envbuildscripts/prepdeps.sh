@@ -49,24 +49,24 @@ if  ! command -v docker &> /dev/null ; then
 else
     echo "Docker Already installed installed"
 fi
+
+# Check if we have docker-compose installed and install it if we don't
+echo "WARNING We're not checking the python environment for esp32 tools... find this line and enable if you want to know how..."
 if [ 1 = 0 ];then
 	# Check we have git lfs installed
 	if  ! command -v pip &> /dev/null ; then
 	    sudo apt-get install python3 python3-pip python3-venv
 	    pip install pyserial
 	    #export IDF_PYTHON_ENV_BASE="../../TARGET_TREES/esp32_venv"
-	    python3 -m venv "../TARGET_TREES/esp32_venv" > /dev/null
+	    #python3 -m venv "../TARGET_TREES/esp32_venv" > /dev/null - WE SEEM TO BE USING /opt these days.
+        python3 -m venv "/opt/python_env" > /dev/null
 	    pip install -r "../ert-contrib-middleware/inx_build_scripts/source-scripts/python-pip-requirements_inx-xbuilder-source-me-espidf.txt" > /dev/null
-	    
 	else
 	    echo "Python already installed."
 	fi
 fi
 
-
-
 # Check we have python and pip
-
 
 # Set up some hardwired paramters for the inxware dependency repos
 LOCAL_BASE="../"

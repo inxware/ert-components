@@ -6,7 +6,7 @@
 * not, please visit
 *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
-#include "target.h"
+#include "globals.h"
 #include "inx-parameters.h"
 #include "gpio_out.h"
 #if (EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_STUBBED) || (EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_GUI)

@@ -33,13 +33,13 @@
  */
 
 #include <stdio.h>
+#include "globals.h"
 #define EHS_TARGET_CODE
 
 /*****************************************************************************/
 /* Included files */
 
 //#include "target_viewport.h"
-#include "globals.h"
 #include "hal_string.h"
 #include "hal_viewport.h"
 #include "hal_process.h"
@@ -1190,6 +1190,7 @@ static void EhsTargetWidgetUi_slider_event_handler(lv_event_t* e)
 #define EHS_CHART_MESH_LINES_DASH_GAP 6
 #define EHS_CHART_MESH_LINES_DASH_WIDTH 2
 
+lv_chart_tick_dsc_t * get_tick_gsc(lv_obj_t * obj, lv_chart_axis_t axis);
 static void chart_draw_begin_event_cb(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -2074,6 +2075,8 @@ lv_obj_t* EhsTargetWidgetUi_factory(struct EhsWidgetStruct* pWidget){
             /* create a keyboard */
             lv_obj_t* kb = lv_keyboard_create(obj);
             lv_obj_set_size(kb, lv_pct(100), lv_pct(100-text_size_perc));
+            lv_obj_set_style_pad_row(kb, 1, LV_PART_MAIN);
+            lv_obj_set_style_pad_column(kb, 1, LV_PART_MAIN);
             lv_obj_set_style_pad_top(kb, 0, LV_PART_MAIN);
             lv_obj_set_style_pad_bottom(kb, 0, LV_PART_MAIN);
             lv_obj_set_style_pad_left(kb, 0, LV_PART_MAIN);

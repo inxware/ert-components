@@ -37,9 +37,8 @@
  * absolute paths using / are allowed ( & local:// secretly)
  */
 
-#include "target.h"
-#include "fs_dir_list1.h"
 #include "globals.h"
+#include "fs_dir_list1.h"
 #include "setCompletes.h"
 #include "app_data.h"
 #include "hal-api.h"

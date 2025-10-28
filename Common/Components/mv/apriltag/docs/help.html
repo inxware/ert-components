@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+    <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container">
+        <span class="toc_span">AprilTag</span>
+        <!--these display in reverse order because they use float:right-->
+        <span class="toc_span_items"><a href="#misc">Misc	&#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+      </div>
+      <!--General Description-->
+      <p class="component">
+      <strong>AprilTag</strong> detects various AprilTag families from a picture with available optimisation parameters. This can only take the grayscale input so the Frame Format function block must be used before this.
+          </p>
+      <!--Parameters-->
+      <div class="section_heading">
+        <span class="toc_span" id="parameters">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Min</th>
+          <th>Max</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><a name="[Param]apriltag_family">apriltag_family</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>0</td>
+          <td>7</td>
+          <td>The AprilTag family to be detected. The enumeration is: 
+            <table>
+              <thead>
+                <tr>
+                  <th>Enumeration</th>
+                  <th>ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>tag36h11</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>tag25h9</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>tag16h5</td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>tagCircle21h7</td>
+                  <td>3</td>
+                </tr>
+                <tr>
+                  <td>tagCircle49h12</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>tagStandard41h12</td>
+                  <td>5</td>
+                </tr>
+                <tr>
+                  <td>tagStandard52h13</td>
+                  <td>6</td>
+                </tr>
+                <tr>
+                  <td>tagCustom48h12</td>
+                  <td>7</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]quad_decimate">quad_decimate</a></td>
+          <td>F</td>
+          <td>2</td>
+          <td>1</td>
+          <td>25</td>
+          <td>Detection of quads can be done on a lower-resolution image, improving speed at the cost of pose accuracy and a slight decrease in detection rate. Decoding the binary payload is still done at full resolution.</td>
+        </tr>
+        <tr>
+          <td><a name="[Param]quad_sigma">quad_sigma</a></td>
+          <td>F</td>
+          <td>0</td>
+          <td>0</td>
+          <td>1</td>
+          <td>What Gaussian blur should be applied to the segmented image (used for quad detection?)  Parameter is the standard deviation in pixels.  Very noisy images benefit from non-zero values (e.g. 0.8).</td>
+        </tr>
+        <tr>
+          <td><a name="[Param]refine_edges">refine_edges</a></td>
+          <td>B</td>
+          <td>1</td>
+          <td>0</td>
+          <td>1</td>
+          <td>When true, the edges of each quad are adjusted to "snap to" strong gradients nearby. This is useful when decimation is employed, as it can increase the quality of the initial quad estimate substantially. Generally recommended to be on (true).</td>
+        </tr>
+        <tr>
+          <td><a name="[Param]decode_sharpening">decode_sharpening</a></td>
+          <td>F</td>
+          <td>0.25</td>
+          <td>0</td>
+          <td>1</td>
+          <td>How much sharpening should be done to decoded images? This can help decode small tags but may or may not help in odd lighting conditions or low light conditions.</td>
+        </tr>
+      </table>
+      <!--Ports-->
+      <div class="section_heading">
+        <span class="toc_span" id="ports">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+      </div>
+      <table class="table">
+        <!-- Input Ports -->
+        <tr>
+          <th>In Ev.</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]config">config</a></td>
+          <td>Configure the detector. The detector has been initialised and configured by the function block parameters but can be re-configured during operation.</td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]detect">detect</a></td>
+          <td>Detect the AprilTag from the frame.</td>
+        </tr>
+        <tr>
+          <th>Data In</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]family">family</a></td>
+          <td>This follows the same definition of <a href="#[Param]apriltag_family">apriltag_family</a> parameter. Out of range value will be default to 0 (i.e. tag36h11). If not connected, the parameter value is used.</td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]decimate">decimate</a></td>
+          <td>This follows the same definition of <a href="#[Param]quad_decimate">quad_decimate</a> parameter. Only the value that is greater than 0 is accepted, or it will be ignored. If not connected, the parameter value is used.</td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]sigma">sigma</a></td>
+          <td>This follows the same definition of <a href="#[Param]quad_sigma">quad_sigma</a> parameter. Only the value that is greater than or equal to 0 is accepted, or it will be ignored. If not connected, the parameter value is used.</td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]refine_edges">refine_edges</a></td>
+          <td>This follows the same definition of <a href="#[Param]refine_edges">refine_edges</a> parameter. If not connected, the parameter value is used.</td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]sharpen">sharpen</a></td>
+          <td>This follows the same definition of <a href="#[Param]decode_sharpening">decode_sharpening</a> parameter. Only the value that is greater than or equal to 0 is accepted, or it will be ignored. If not connected, the parameter value is used.</td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]stream_id">stream_id</a></td>
+          <td>The ID of the input stream for detection. The frame must be grayscale. This is a mandatory input.</td>
+        </tr>
+        <!-- Output Ports -->
+        <tr>
+          <th>Out Ev.</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]config_done">-- (after <a href="#[In]config">config</a>)</a></td>
+          <td>Configuration is finished.</td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]detect_OK">-- (after <a href="#[In]detect">detect</a>)</a></td>
+          <td>The detection is successful without any error. Note that this would still trigger when no AprilTag is detected but the detection process has no error!</td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]err">err</a></td>
+          <td>The detection process encounters an error.</td>
+        </tr>
+        <tr>
+          <th>Data Out</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]errno">errno</a></td>
+          <td>Error number of detection process. The enumeration is:
+            <table>
+              <thead>
+                <tr>
+                  <th>Enumeration</th>
+                  <th>Errno</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>OK</td>
+                  <td>0</td>
+                  <td>No error.</td>
+                </tr>
+                <tr>
+                  <td>NO_STREAM_ID</td>
+                  <td>1</td>
+                  <td>Stream ID is not given.</td>
+                </tr>
+                <tr>
+                  <td>INVALID_STREAM</td>
+                  <td>2</td>
+                  <td>Stream data/format is invalid.</td>
+                </tr>
+                <tr>
+                  <td>INSUFFICIENT_RESOURCE</td>
+                  <td>3</td>
+                  <td>Insufficient memory for detection process.</td>
+                </tr>
+                <tr>
+                  <td>NO_OUTPUT</td>
+                  <td>4</td>
+                  <td>JSON output port is not connected.</td>
+                </tr>
+                <tr>
+                  <td>INVALID_INPUT</td>
+                  <td>5</td>
+                  <td>Stream ID input is invalid.</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]JSON">JSON</a></td>
+          <td>The result of the detection in JSON. The format is: (Note that <code>&lt;<i>i</i>&gt;</code> means the placeholder of <code><i>i</i></code>. For example, <code>id&lt;<i>i</i>&gt;</code> will be <code>id0</code> if <code><i>i</i></code> is 0.)
+            <table>
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>n</td>
+                  <td>Integer</td>
+                  <td>Total Number of AprilTags detected. If 0, then there are no other keys in this JSON string.</td>
+                </tr>
+                <tr>
+                  <td>id<i>&lt;i&gt;</i></td>
+                  <td>Integer</td>
+                  <td>The AprilTag ID of the <i>i</i>-th detection. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+                <tr>
+                  <td>xlt<i>&lt;i&gt;</i></td>
+                  <td>Float</td>
+                  <td>X Coordinate of left-top corner of the <i>i</i>-th detected AprilTag. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+                <tr>
+                  <td>ylt<i>&lt;i&gt;</i></td>
+                  <td>Float</td>
+                  <td>Y Coordinate of left-top corner of the <i>i</i>-th detected AprilTag. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+                <tr>
+                  <td>xrt<i>&lt;i&gt;</i></td>
+                  <td>Float</td>
+                  <td>X Coordinate of right-top corner of the <i>i</i>-th detected AprilTag. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+                <tr>
+                  <td>yrt<i>&lt;i&gt;</i></td>
+                  <td>Float</td>
+                  <td>Y Coordinate of right-top corner of the <i>i</i>-th detected AprilTag. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+                <tr>
+                  <td>xrb<i>&lt;i&gt;</i></td>
+                  <td>Float</td>
+                  <td>X Coordinate of right-bottom corner of the <i>i</i>-th detected AprilTag. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+                <tr>
+                  <td>yrb<i>&lt;i&gt;</i></td>
+                  <td>Float</td>
+                  <td>Y Coordinate of right-bottom corner of the <i>i</i>-th detected AprilTag. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+                <tr>
+                  <td>xlb<i>&lt;i&gt;</i></td>
+                  <td>Float</td>
+                  <td>X Coordinate of left-bottom corner of the <i>i</i>-th detected AprilTag. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+                <tr>
+                  <td>ylb<i>&lt;i&gt;</i></td>
+                  <td>Float</td>
+                  <td>Y Coordinate of left-bottom corner of the <i>i</i>-th detected AprilTag. The <i>i</i> starts from <b>00</b>.</td>
+                </tr>
+              </tbody>
+            </table>
+            This port must be connected, or it would generate NO_OUTPUT error (see <a href="#[Out]err">err</a> and <a href="#[Out]errno">errno</a>).
+          </td>
+        </tr>
+      </table>
+      <!--Miscellaneous-->
+      <div class="section_heading">
+        <span class="toc_span" id="misc">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+      </div>
+      <table>
+        <tr class="fsm_row">
+          <td style="width:90px;">
+            <b>State Machine</b>
+          </td>
+          <td colspan="5">
+                    N/A
+                  </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Toolbox</b>
+          </td>
+          <td>
+                    Machine Vision
+                  </td>
+          <td class="heading-cell">
+            <b>Version</b>
+          </td>
+          <td>
+                    v1.0
+                  </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Licence Type</b>
+          </td>
+          <td>
+                    LGPLv3
+                  </td>
+          <td class="heading-cell">
+            <b>Component Supplier</b>
+          </td>
+          <td>
+            <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Minimum DCC</b>
+          </td>
+          <td>A0000</td>
+            <td class="heading-cell">
+            <b>Profiles</b>
+          </td>
+          <td>
+                    All.
+                  </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

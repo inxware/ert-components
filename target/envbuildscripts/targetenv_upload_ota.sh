@@ -41,4 +41,5 @@ echo "Uploading OTA file to the server ..."
 scp -P ${SSHPORT} ${EHS_OTA_PACKAGE_SRC} "$DEVMAN_SERVER_DST:$EHS_OTA_PACKAGE_DST"
 echo "Setting-up ownership for the OTA file ..."
 # make sure the OTA file has correct ownership
-ssh -p ${SSHPORT} "$DEVMAN_SERVER_DST" 'chown www-data:www-data "'${EHS_OTA_PACKAGE_DST}'"'
+# We don't do this now - we assume things are uploaded with the devman-admin user account.
+# ssh -p ${SSHPORT} "$DEVMAN_SERVER_DST" 'chown www-data:www-data "'${EHS_OTA_PACKAGE_DST}'"'

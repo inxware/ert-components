@@ -37,6 +37,8 @@
 
 /*****************************************************************************/
 /* Included files */
+#include "globals.h"
+
 #ifdef EHS_NANOPRINTF_SUPPORT
 /* @TODO - move implementation of functions in nanoprintf.h into nanoprintf.c so, 
  *         we can include nanoprintf.h header in the traget_string.h without circular 
@@ -46,12 +48,12 @@
  *         functions in nanoprintf.h are moved to .c file , leave this here!
  */
 #define NANOPRINTF_IMPLEMENTATION
+
 #include "nanoprintf/nanoprintf.h"
 #endif // EHS_NANOPRINTF_SUPPORT
 
-#include "target.h"
-#include "globals.h"
 #include <stdarg.h>
+
 #include "messages.h"
 #include "hal_string.h"
 #include "hal_process.h"
@@ -69,11 +71,6 @@
 /*****************************************************************************/
 /* Variables defined with global-scope */
 
-#define EHS_MSG_CONSOLE_BUFFER_TOO_SMALL "**Error: Console queue buffer too small\n"
-#define EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN (sizeof(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL)/sizeof(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL[0]))
-
-#define EHS_MSG_CONSOLE_BUFFER_OVERFLOW "**Warning: Console overflow!\n"
-#define EHS_MSG_CONSOLE_BUFFER_OVERFLOW_LEN (sizeof(EHS_MSG_CONSOLE_BUFFER_OVERFLOW)/sizeof(EHS_MSG_CONSOLE_BUFFER_OVERFLOW[0]))
 
 /**
  * Contains input from the console.
@@ -151,102 +148,109 @@ ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size)
 EHS_MEMORY_ATTRIB ehs_uint16 EhsConsolePrintf(const ehs_char *fmt, ...) /*lint !e960 Allowable derrogation to MISRA 16.1. Variable args permitted */
 {
     ehs_char szBuffer[EHS_STRING_LENGTH_MAX];
-   // ehs_uint16 nLen = EHS_STRING_LENGTH_MAX;
     ehs_char *pBuff;
     ehs_uint32 nBuff;
     ehs_uint32 nPushed;
-
+    ehs_uint32 nPushCounter = 0u;
     /* format the message into a chunk of memory allocated especially */
     va_list args;
     va_start(args, fmt);
     EhsVsnprintf(szBuffer, (size_t)EHS_STRING_LENGTH_MAX, fmt, args); /*lint !e534 Not interested in the return value */
     va_end(args);
-    // printf("PBB [%s]\n",szBuffer);
     /* keep pushing the message until it's all gone */
     nBuff = EhsStrlen(szBuffer);
     pBuff = szBuffer;
-#ifdef EHS_RUNTIME_LOGGER_ENABLED
-    //if (nBuff > 3)
-    { // don't print blanks, >\n ( commands )
-      //  EhsStdioSimplePrintf("CONSOLE MESSAGE:[%s]\n", szBuffer);
-    }
-#endif
-    // printf("target_console PBB 154 %d %s", nBuff, szBuffer);
-    //EhsStdioSimplePrintf("target_console size %d>%d %s", consoleSpace, nBuff, szBuffer);
-    //char messageV[EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN];    
-    //EhsSprintf(messageV,"**Error: NEW [%d]<[%d]",nBuff,consoleSpace);
-    //EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)messageV, EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN);
-#if !defined(EHS_ESP32_SUPPORT)
+    #if !defined(EHS_ESP32_SUPPORT)
         fflush(stdout); /*lint !e534 Safe to ignore return value here */
-#endif
+    #endif
 
-#define EHS_EHS_CONSOLE_HACKY_VERSION_THAT_MIGHT_WORK_BETTER_SOMETIMES_FOR_NXP
-#ifdef EHS_EHS_CONSOLE_HACKY_VERSION_THAT_MIGHT_WORK_BETTER_SOMETIMES_FOR_NXP
+//#define EHS_EHS_CONSOLE_HACKY_VERSION_THAT_MIGHT_WORK_BETTER_SOMETIMES_FOR_MCUS
+#ifdef EHS_EHS_CONSOLE_HACKY_VERSION_THAT_MIGHT_WORK_BETTER_SOMETIMES_FOR_MCUS
+    #warning "This is using a no-retry/concatenation console method!"
     ehs_uint32 consoleSpace = EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef);
     if (consoleSpace > nBuff)
     {
         nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)pBuff, nBuff);
         if (nPushed == -1)
         {
-            // queue is full so empty it so we can keep writing
+            /* queue is full so empty it so we can keep writing. */ 
             EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
-#ifndef EHS_MEMORY_ATTRIB // @TODO - THIS should you the logger when is fixed and we should add another flag for ISR context
+            #ifndef EHS_MEMORY_ATTRIB // @TODO - THIS should you the logger when is fixed and we should add another flag for ISR context
             EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_OVERFLOW);
-#endif
-            EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_OVERFLOW, EHS_MSG_CONSOLE_BUFFER_OVERFLOW_LEN);
+            #endif
+            /* This should issue a warning to Lucid that data has been lost, which would also work if 
+            the queue was partially through sending a debug string.
+            The debug strings and all other data are separated by '#' chars, so if we add one of these in the message 
+            that would make sure Lucid is aware of a warnings amongst strings.
+            */            
+            EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, 
+                (ehs_uint8 *)(EHS_MSG_END_OF_MESSAGE EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW EHS_MSG_END_OF_MESSAGE),
+                (sizeof(EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW) + 2 * sizeof(EHS_MSG_END_OF_MESSAGE))/sizeof(EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW[0]));
             nPushed = 0;
         }
         else {
             pBuff += nPushed;
             nBuff -= nPushed;
         }
-        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)"\n", 1);
-     //   char messageV[EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN];    
-     //   EhsSprintf(messageV,"**Error: AFTNEW [%d]<[%d]",nBuff,EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef));
-     //   EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)messageV, EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN);
-   
+        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)"\n", 1); /* Send end of record we couldn't push*/
     }
-    else
-    {
-        // queue is full so empty it so we can keep writing
+    else {
+        /* queue is full so empty it so we can keep writing */
         EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
-        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_OVERFLOW, EHS_MSG_CONSOLE_BUFFER_OVERFLOW_LEN); 
-#ifndef EHS_MEMORY_ATTRIB // @TODO - THIS should you the logger when is fixed and we should add another flag for ISR context
+        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)
+            (EHS_MSG_END_OF_MESSAGE EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW ), 
+             EHS_MSG_END_OF_MESSAGE_LEN + EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW_LEN ); 
+        #ifndef EHS_MEMORY_ATTRIB // @TODO - THIS should you the logger when is fixed and we should add another flag for ISR context
         EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL);
-#endif
-        //EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_TOO_SMALL, EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN);
-  //      EhsSprintf(messageV,"**Error:2Small: Size [%d][%d]",EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef),EhsConsoleQueue_maxSize());
-  //      EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)messageV, EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN);
-        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_TOO_SMALL, EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN);
+        #endif
+       /* We could send this if the message to Lucid is too long but will just send the above short message instead.
+            EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, 
+            (ehs_uint8 *)(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL EHS_MSG_END_OF_MESSAGE), 
+            EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN + EHS_MSG_END_OF_MESSAGE_LEN); 
+        */
     }
 #else /* Original console queue overrung handling we probably want to keep fix rather than coming up with something worse */        
-        
-        // PBB 2022-11-24 this is the old way of pushing stuff on to the console
-        // we have temporarily abandoned this because it breaks the debugger completely
-        // if too many lines are selected
+        /* you may want to temporarily abandoned this because it breaks the debugger completely if too many retries are needed */
     do
     {
-        //ehs_uint32 consoleSpace = EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef);
-        //EhsStdioSimplePrintf("XX[%d][%d]\n",consoleSpace,nBuff);
         nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef,(ehs_uint8*)pBuff,nBuff);
-        if (nPushed == 0u)
+        nPushCounter++;
+        if (nPushed == 0u && nPushCounter > EHS_CONSOLE_BUFFER_MAX_RETRIES)
         {
-            //queue is full so empty it so we can keep writing
+            /* queue is full so empty it so we can keep writing out an warning */
             EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
-            //EhsStdioSimplePrintf("EHS_MSG_CONSOLE_BUFFER_OVERFLOW");
-            nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)EHS_MSG_CONSOLE_BUFFER_OVERFLOW, EHS_MSG_CONSOLE_BUFFER_OVERFLOW_LEN);
+            #ifndef EHS_MEMORY_ATTRIB 
+            EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_OVERFLOW);
+            #endif
+            nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, 
+                (ehs_uint8 *) (EHS_MSG_END_OF_MESSAGE EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW), 
+                EHS_MSG_END_OF_MESSAGE_LEN + EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW_LEN);
         }
         else {
             pBuff += nPushed;
             nBuff -= nPushed;
         }
         /* if we need to loop then we also need to sleep to let other threads read things from the buffer */
-        if (nBuff > 0u) EhsSleepUs(5000);
+        if (nBuff > 0u) {
+            #if defined(EHS_MEMORY_ATTRIB) && defined(EHS_DEBUG_ALL) 
+            EhsStdioSimplePrintf("Info: Waiting to write more console data...\n");
+            #endif
+            EhsSleepUs(EHS_CONSOLE_BUFFER_CONTINUE_PAUSE_US); 
+        }
+    } while ( (nBuff > 0u ) && ( nPushCounter <= EHS_CONSOLE_BUFFER_MAX_TOTAL_TRIES ));
+    if (nBuff > 0u)
+    {
+        /* we have given up trying to write the entire buffer */
+        #ifndef EHS_MEMORY_ATTRIB 
+        EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL);
+        #endif
+        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, 
+            (ehs_uint8 *)(EHS_MSG_END_OF_MESSAGE EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW ), 
+            EHS_MSG_END_OF_MESSAGE_LEN + EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW_LEN); 
     }
-    while (nBuff > 0u);
     /* Always send a new line char at the end of a message */
     EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef,(ehs_uint8*)"\n",1);
-#endif
+#endif // end of #ifdef EHS_EHS_CONSOLE_HACKY_VERSION_THAT_MIGHT_WORK_BETTER_SOMETIMES_FOR_MCUs
     return 0;
 }
 
@@ -296,9 +300,9 @@ ehs_bool EhsConsoleToFile(ehs_uint32 nSize, const ehs_char *name)
     ehs_FILE *pOut;
     ehs_sint32 nSizeRemaining = nSize; /* size of the file remaining to write */
     EhsTickType tTimeOfLastRead = EhsCurrentTime();
-    // EhsTickType debugFirstTime = EhsCurrentTime();
     ehs_uint32 nRead = 0;     /* bytes to read or bytes that have been read */
     ehs_bool bRet = EHS_TRUE; /* assume success */
+
 #ifdef INX_SODL_IN_FLASH
  /* ignore doing any directory stuff as we are probably using the tiny file system (not littleFS) */
     pOut = Ehs_Fopen(name, "wb"); /* No Directories for SODL so just */
@@ -308,18 +312,14 @@ ehs_bool EhsConsoleToFile(ehs_uint32 nSize, const ehs_char *name)
     EhsStrcpy(appPath, "temp/"); /* We always write to this directory */
     EhsStrcat(appPath, name);
     pOut = Ehs_AppBaseFopen(appPath, "wb"); /* open the file temp - should create entire path...*/
-    //printf("POUT Write SODL to =%x\n",pOut);
 #endif
-    /* read data until:
+    /* Read data until:
        1. there is nothing left to read OR
        2. no data has happened for a while
-       */
+    */
     while (((EhsCurrentTime() - tTimeOfLastRead) < EHS_TIMEOUT_READ_FILE) && (nSizeRemaining > 0u))
     {
-
         // todo the delay here should just be a global default that can be overriden in platform config files.
-        //  we have no idea why these are here fi they are conlated with other paltform switches.
-
 #ifdef EHS_LWIP
         // @TODO - this may need to be reduced to improve speed of transfer for esp32
         EhsSleepUs(50000); // @Xiaosheng - is this for writing to file.
@@ -331,11 +331,7 @@ ehs_bool EhsConsoleToFile(ehs_uint32 nSize, const ehs_char *name)
         EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
         nRead = EhsConsoleQueue_pop(EhsTgtConsoleInputQueueRef, pInBuff, nRead);
         EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
-        // if (nRead >0) {
-        //	char printit[1025];
-        //	strncpy(printit,pInBuff,nRead);
-        //	printit[nRead]='\0';
-        // }
+
         if (nRead > 0)
         {
             tTimeOfLastRead = EhsCurrentTime();
@@ -361,15 +357,15 @@ ehs_bool EhsConsoleToFile(ehs_uint32 nSize, const ehs_char *name)
     {
         if (nSizeRemaining > 0)
         {
-            /* If we have a fragement of the last file we need to push this back on the queue so it can be joined with it's relevent data to parse */
+            /* If we have a fragement of the last file we need to push this back on the queue so it can be joined with 
+                it's relevent data to parse */
             // EhsConsoleQueue_push(EhsTgtConsoleInputQueueRef,(ehs_uint8*)buff,nLineSize);
         }
         if (EhsFclose(pOut) == 0)
         {
             if ((nSizeRemaining > 0u) && (nSize > 0u))
             {
-                /* timeout must have occ#ifdef INX_SODL_IN_FLASH
-ured */
+                /* timeout must have occured */
                 EHSH_LOG_ERROR(EHS_MSG_ERROR_FILE_TIMEOUT(name, nSizeRemaining, nSize));
                 bRet = EHS_FALSE;
             }

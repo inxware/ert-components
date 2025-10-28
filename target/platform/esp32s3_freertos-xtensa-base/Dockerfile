@@ -19,7 +19,10 @@ RUN python3 -m venv /opt/python_env
 ENV PATH="/opt/python_env/bin:$PATH"
 ENV IDF_PYTHON_ENV_PATH="/opt/python_env"
 ENV IDF_TOOLS_PATH="/opt"
-RUN pip install "setuptools>=21" "click>=7.0" "pyserial>=3.3" "future>=0.15.2" cryptography>=2.1.4 --only-binary cryptography "pyparsing>=2.0.3,<2.4.0" "pyelftools>=0.22" "idf-component-manager~=1.2" "urllib3<2" gdbgui==0.13.2.0 "pygdbmi<=0.9.0.2" "python-socketio<5" "jinja2<3.1" "itsdangerous<2.1" kconfiglib==13.7.1 "reedsolo>=1.5.3,<=1.5.4" "bitstring>=3.1.6,<4" "ecdsa>=0.16.0" construct==2.10.54 "littlefs-python>=0.9.1"
+RUN pip install "setuptools>=21" "click>=7.0" "pyserial>=3.3" "future>=0.15.2" "cryptography>=2.1.4 --only-binary cryptography" \
+    "pyparsing>=2.0.3,<2.4.0" "pyelftools>=0.22" "idf-component-manager~=1.2" "urllib3<2" "gdbgui==0.13.2.0" "pygdbmi<=0.9.0.2" \
+	"python-socketio<5" "jinja2<3.1" "itsdangerous<2.1" "kconfiglib==13.7.1" "reedsolo>=1.5.3,<=1.5.4" "bitstring>=3.1.6,<4" \
+	"ecdsa>=0.16.0" "construct==2.10.54" "littlefs-python>=0.9.1" "esptool>=4.0.0"
 RUN pip install -U -r /opt/espidf.constraints.v5.1.txt
 RUN addgroup --gid 1000 inxware && adduser --uid 1000 --gid 1000 inxware
 RUN apt-get install -y xxd

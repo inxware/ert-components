@@ -12,10 +12,10 @@ The mathematical operation is performed when the input event is triggered and th
 #define INXWARE_FB_ID_TanInt 0x6551
 #define INXWARE_FB_NAME_TanInt "TanInt"
 /* Declaring the functions used here as public interface for static linking into EHS builds */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(TanInt); // this relates to C file identify function
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(TanInt); // this relates to C-file init function
-EHS_GLOBAL EHS_FB_DESTROY_FUNCTION(TanInt); //this relates to C-file destroy function
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(TanInt_calc); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(TanInt); // this relates to C file identify function
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(TanInt); // this relates to C-file init function
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(TanInt); //this relates to C-file destroy function
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(TanInt_calc); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(TanInt)
 

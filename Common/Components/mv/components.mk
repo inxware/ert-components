@@ -38,4 +38,8 @@ OBJECTS += mv_components.$(OBJ)
 
 OBJECTS += inx-frame_read_file.$(OBJ)
 
+OBJECTS += inx-apriltag.$(OBJ)
+
+OBJECTS += inx-frame_show.$(OBJ)
+
 VPATH+= $(EHS_COMMON_COMPONENTS_PATH)/mv

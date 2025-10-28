@@ -53,12 +53,11 @@
  *
  */
 
-#include "target.h"
 #ifdef EHS_GUI_SUPPORT
 
+#include "globals.h"
 #include "guiimage1.h"
 #include "guiparams.h"
-#include "globals.h"
 #include "app_data.h"
 /** @todo check which includes are required here */
 #include <string.h>

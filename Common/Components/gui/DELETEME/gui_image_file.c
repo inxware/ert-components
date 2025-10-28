@@ -56,11 +56,10 @@
  *
  */
 
-#include "target.h"
 
+#include "globals.h"
 #include "gui_image_file.h"
 #include "guiparams.h"
-#include "globals.h"
 #include "app_data.h"
 /** @todo check which includes are required here */
 #include <string.h>

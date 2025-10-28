@@ -7,12 +7,11 @@
 *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
+#include <WiFiNINA.h>
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal-api.h"
 #include "hal_led.h"
-
-#include <WiFiNINA.h>
 
 #define NINA_LEDR 0
 #define NINA_LEDG 1
@@ -23,7 +22,7 @@ EHS_LOCAL ehs_bool gLedG_Enabled = EHS_FALSE;
 EHS_LOCAL ehs_bool gLedB_Enabled = EHS_FALSE;
 
 
-EHS_GLOBAL ehs_bool EhsEnableLED(ehs_uint8 id)
+ehs_bool EhsEnableLED(ehs_uint8 id)
 {
     if      (id == NINA_LEDR){
         if(gLedR_Enabled == EHS_FALSE){
@@ -48,7 +47,7 @@ EHS_GLOBAL ehs_bool EhsEnableLED(ehs_uint8 id)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsDisableLED(ehs_uint8 id)
+ehs_bool EhsDisableLED(ehs_uint8 id)
 {
     if      (id == NINA_LEDR){
         if(gLedR_Enabled == EHS_TRUE){
@@ -76,7 +75,7 @@ EHS_GLOBAL ehs_bool EhsDisableLED(ehs_uint8 id)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsSetLED(ehs_uint8 id, ehs_bool state, ehs_uint8 brightness)
+ehs_bool EhsSetLED(ehs_uint8 id, ehs_bool state, ehs_uint8 brightness)
 {
     // led nina brightness is inverted, so map (0-100)% => (255-0)
     int pwm = map(brightness, 0, 100, 255, 0);

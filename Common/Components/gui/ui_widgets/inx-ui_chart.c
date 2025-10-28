@@ -113,7 +113,7 @@ EHS_FB_INIT_FUNCTION(ui_chart)
 	inx_ui_chart_state_type* inx_ui_chart_state = (inx_ui_chart_state_type*)EHS_FB_INIT_CONTEXT;
 	inx_ui_chart_state->pUiWidgetClass = NULL;
 	pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-	if (guiParams) {
+	if (guiParams[0]) {
 		EhsParseGuiParameters(guiParams,&xParams);
 		
 		if (xParams.eClass == EHS_WIDGET_CLASS_PATCH) // extended ui widgets are generated as patches by iGB
@@ -138,7 +138,7 @@ EHS_FB_INIT_FUNCTION(ui_chart)
 				inx_ui_chart_state->chart.data1 = NULL;
 				inx_ui_chart_state->chart.data2 = NULL;
 				inx_ui_chart_state->chart.data3 = NULL;
-				pParams = EhsGetUint32FromString(&inx_ui_chart_state->chart.data_size, pParams);
+				pParams = EhsGetUint16FromString(&inx_ui_chart_state->chart.data_size, pParams);
 				
 				// min/max x-axis
 				inx_ui_chart_state->chart.xmax = 0;
@@ -193,6 +193,7 @@ EHS_FB_DESTROY_FUNCTION(ui_chart)
 	if(inx_ui_chart_state && inx_ui_chart_state->pUiWidgetClass != NULL){
 		EhsWidget_destroy(inx_ui_chart_state->pUiWidgetClass);
 	}
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 
@@ -442,7 +443,7 @@ EHS_FB_RUN_FUNCTION(ui_chart_data_update)
 			inx_ui_chart_state->bAutoRange = bAutoRange;
 			bAutoRangeUpdated = EHS_TRUE;
 			bSettingsUpdated = EHS_TRUE;
-			printf("auto range data = %d\n",inx_ui_chart_state->bAutoRange);
+			//printf("auto range data = %d\n",inx_ui_chart_state->bAutoRange);
 		}
 	}
 

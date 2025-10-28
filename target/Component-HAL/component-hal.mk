@@ -67,7 +67,7 @@ endif
 ########################################################################################################
 
 ifndef EHS_COMMS_TASK
-EHS_COMMS_TASK=tcp_server_common
+  EHS_COMMS_TASK=tcp_server_common
 endif
 
 #include files to use the TCP/IP interface as a server on this platform - Not in common??
@@ -128,8 +128,16 @@ endif
 ########################################################################################################
 ## Wi-Fi
 ########################################################################################################
-ifdef EHS_WIFI_SUPPORT
+ifdef EHS_NETWORK_WIFI_SUPPORT
+ifneq ($(EHS_NETWORK_WIFI_SUPPORT),none)
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/wifi/wifi.mk
+endif
+endif
+
+ifdef EHS_NETWORK_ETHERNET_SUPPORT
+ifneq ($(EHS_NETWORK_ETHERNET_SUPPORT),none)
+DEFS += EHS_NETWORK_ETHERNET_SUPPORT
+endif
 endif
 
 ########################################################################################################
@@ -153,50 +161,28 @@ endif
 ##todo 2025 This shouldn't be done here - i should be done in the PID make files #
 ## all this should go in a PID make file not here.
 ifdef EHS_PID_SUPPORT
-DEFS+=EHS_PID_SUPPORT=$(EHS_PID_SUPPORT)
-ifeq ($(EHS_PID_SUPPORT),stubbed)
-OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_stub.$(OBJ)
-else ifeq ($(EHS_PID_SUPPORT),gnu)
-## Thermocouple circuit gain
-# TODO DOES ANY OF THIS MAKE ANY SENSE FOR A DESKTOP?? WHAT ODES IT ACTUALLY DO?
-##  EHS_THERMOCOUPLE_AMP_GAIN_DIV_MULTIPLIER_CUSTOM has the bitlength of EHS_THERMOCOUPLE_GAIN_SHIFT_BITS
-##  The calculation result involving the multiplier would be shifted right (or divided by one shifted left by) the shift bits.
-DEFS += EHS_THERMOCOUPLE_AMP_GAIN_DIV_MULTIPLIER_CUSTOM=748
-DEFS += EHS_THERMOCOUPLE_GAIN_SHIFT_BITS=17
-## Maximum ADC reading in 10-bit fixed point. This is only used to check the thermocouple parameters during build time
-DEFS += EHS_THERMOCOUPLE_ADC_MAX_FP=1843200
-DEFS += EHS_PT100_AMP_GAIN_SCALE=7652
-DEFS += EHS_PT100_AMP_GAIN_DIVIDER=137
-OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_gnu.$(OBJ)
-
-else ifeq ($(EHS_PID_SUPPORT),esp32)
-#VPATH += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller
-INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller
-OBJECTS += $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/inx-PID_isr.$(OBJ)
-OBJECTS += target_pid.$(OBJ)
-
-else
-# No objects added - might leave a hole in the toolbox and cause a build error.
+ifneq ($(EHS_PID_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/controller/pid/pid_common.mk
 endif
 endif
 
 ########################################################################################################
 ## OTA
 ########################################################################################################
-ifdef EHS_MQTT_SUPPORT
-  ifeq ($(EHS_OTA_SUPPORT),stubbed)
-    DEFS+=EHS_OTA_SUPPORT=EHS_OTA_SUPPORT_STUBBED
-  else
-    DEFS+=EHS_OTA_SUPPORT=EHS_OTA_SUPPORT_SUPPORT
-    include $(EHS_TARGET_COMPONENT_HAL_PATH)/system/ota/target_hal_ota.mk
-  endif
+# This is usally only support for chunked OTA (e.g. MQTT or LoRaWAN) 
+ifdef EHS_OTA_SUPPORT
+ifneq ($(EHS_OTA_SUPPORT),none)
+  include $(EHS_TARGET_COMPONENT_HAL_PATH)/system/ota/target_hal_ota.mk
+endif
 endif
 
 ########################################################################################################
 ## MQTT
 ########################################################################################################
 ifdef EHS_MQTT_SUPPORT
+ifneq ($(EHS_MQTT_SUPPORT),none)  
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/mqtt/mqtt_common.mk
+endif
 endif
 
 ########################################################################################################
@@ -246,3 +232,17 @@ include $(EHS_TARGET_COMPONENT_HAL_PATH)/json/json_thal.mk
 ########################################################################################################
 #include $(EHS_TARGET_COMPONENT_HAL_PATH)/hash_alg/hash_alg.mk
 
+########################################################################################################
+## Image Processing
+########################################################################################################
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/image_processing/image_processing.mk
+
+########################################################################################################
+## Watchdog Timer
+########################################################################################################
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/watchdog/target_watchdog.mk
+
+########################################################################################################
+## Non-Volatile Storage (NVS)
+########################################################################################################
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/nvs/hal_nvs.mk

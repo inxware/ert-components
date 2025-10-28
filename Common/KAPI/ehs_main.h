@@ -17,7 +17,7 @@
 #ifndef EHS_MAIN_H
 #define EHS_MAIN_H
 
-#include "ehs_types.h"
+#include "globals.h"
 
 /**
  * @brief Initilised EHS (data tables, kernel console etc.). Call this before looping to intialise data strcuctures and hardware init 

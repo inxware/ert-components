@@ -15,10 +15,8 @@
 */
 
 
-//#include "types.h"
 #include "setCompletes.h"
 #include "if.h"
-//#include "EHSMacros.h"
 
 /******************************************************************************/
 /* Define xyzzy function block */

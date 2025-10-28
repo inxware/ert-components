@@ -18,7 +18,7 @@
 ifndef CC_OVERRIDE
    ifeq ($(EHS_TOOLCHAIN_TYPE),clang)
       export CC:=clang
-      export CPP:=clang      
+      export CPP:=clang++
    else 
       export CC:=gcc
       export CPP:=gcc
@@ -29,7 +29,15 @@ else
 endif
 
 ifndef LINK_OVERRIDE 
-   export LINK:=$(CC)
+   # Use C++ compiler for linking when there are C++ source files in the build
+   # This is necessary for proper C++ runtime initialization and library linking
+   CPP_SOURCES := $(wildcard *.cpp) $(wildcard */*.cpp) $(wildcard target/Component-HAL/*/*.cpp) $(wildcard target/Component-HAL/*/*/*.cpp)
+   ifneq ($(CPP_SOURCES),)
+      export LINK:=$(CPP)
+      LIB+=stdc++ 
+   else
+      export LINK:=$(CC)
+   endif
 else
    export LINK:=$(LINK_OVERRIDE)
 endif
@@ -47,7 +55,6 @@ ifneq ($(TOOLCHAIN_PATH),HOST)
 	AS:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(AS)
 	CPP:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(CPP)
 	LINK:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(LINK)
-	CFLAGS+=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/
 endif
 ifdef EHS_SYSROOT_ABS_PATH_OVERRIDE
       export EHS_BUILD_SYSROOT = $(EHS_SYSROOT_ABS_PATH_OVERRIDE)
@@ -123,7 +130,7 @@ CFLAGS+= -g -D_POSIX_C_SOURCE=199309
 CFLAGS+=-std=gnu99
 endif
 
-CPPFLAGS+= $(INC)
+CPPFLAGS+= -c $(INC)
 
 #setup linker paths
 LIB_DIRS+=$(EHS_ROOT_PATH)

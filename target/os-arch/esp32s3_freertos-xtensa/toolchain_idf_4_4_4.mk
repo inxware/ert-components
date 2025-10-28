@@ -34,7 +34,7 @@ endif
 CFLAGS+= -std=gnu99 -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall 
 #CFLAGS+= -Werror=all -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -Wno-error=deprecated-declarations -Wextra -Wno-unused-parameter -Wno-sign-compare 
 #CFLAGA+= -Wno-old-style-declaration 
-CFLAGS+= -DESP_PLATFORM -D IDF_VER=\"v4.4.4\" -MMD -MP 
+CFLAGS+= -DESP_PLATFORM -DIDF_VER=\"v4.4.4\" -MMD -MP 
 #CFLAGS+= -D_GNU_SOURCE 
 CFLAGS+= -DUNITY_INCLUDE_CONFIG_H -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DUNITY_INCLUDE_CONFIG_H
 

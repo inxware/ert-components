@@ -20,6 +20,8 @@
 #define EHS_BASE_FULL_TYPES_H
 /*lint -e(829) Project permitted derogation from the standard */
 #include <stdio.h>
+
+#include "globals.h"
 /*line +e(829) */
 
 /* standard types */
@@ -59,11 +61,6 @@ typedef int EhsTargetIntType;
 #define EHS_TRUE	1	/**< allows target-specific boolean types to be used */
 #define EHS_FALSE	0	/**< allows target-specific boolean types to be used */
 
-#ifdef __cplusplus
-#define EHS_GLOBAL extern "C" /**< allows target-specific definition of global (i.e extern) types */
-#else
-#define EHS_GLOBAL extern
-#endif
 
 #ifdef EHS_UNIT_TEST
 #ifndef EHS_LOCAL

@@ -6,6 +6,8 @@
 * not, please visit
 *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
+
+#include "globals.h"
 #include "hal-api.h" /* Needed for logging */
 #include "playManager.h"
 
@@ -3431,7 +3433,7 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
 }
 
 /* Defer this event to thread processing */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(PlayManager_Next_Playlist)
+EHS_FB_RUN_FUNCTION(PlayManager_Next_Playlist)
 {
 
     /* Only allow one operational instance - do this in the thread .... */

@@ -19,8 +19,6 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
-#include "target_config.h"
 #include "globals.h"
 #include "graphics_types.h"
 
@@ -84,7 +82,7 @@ typedef struct
 /**
  * Contains all fonts defined for application
  */
-EHS_GLOBAL EhsGraphicsFontTableClass EhsGraphicsFontTable;
+EHS_EXTERN EhsGraphicsFontTableClass EhsGraphicsFontTable;
 
 /*****************************************************************************/
 /* Declare function prototypes  */
@@ -103,7 +101,7 @@ EHS_GLOBAL EhsGraphicsFontTableClass EhsGraphicsFontTable;
  * @param[in,out] pnY Start drawing position of next character - bottom-most point(advanced after draw operation)
  * @return true if the character was successfully drawn in the bitmap, false if it would have overflowed.
  */
-EHS_GLOBAL ehs_bool EhsGraphicsFontGlyph_draw(const EhsGraphicsFontGlyphClass* pGlyph, ehs_uint8* pBitmap, ehs_uint32 nWid, ehs_uint32 nHt, ehs_uint32 nTxtWid, ehs_uint32 nTxtHt, ehs_uint32* pnX, ehs_uint32* pnY);
+ehs_bool EhsGraphicsFontGlyph_draw(const EhsGraphicsFontGlyphClass* pGlyph, ehs_uint8* pBitmap, ehs_uint32 nWid, ehs_uint32 nHt, ehs_uint32 nTxtWid, ehs_uint32 nTxtHt, ehs_uint32* pnX, ehs_uint32* pnY);
 
 /**
  * Finds a glyph from a character value. Characters are utf-32 (unicode) characters.
@@ -111,14 +109,14 @@ EHS_GLOBAL ehs_bool EhsGraphicsFontGlyph_draw(const EhsGraphicsFontGlyphClass* p
  * @param nChar Character to search for
  * @return Pointer to the glyph, or NULL if character cannot be found.
  */
-EHS_GLOBAL const EhsGraphicsFontGlyphClass* EhsGraphicsFont_findGlyph(EhsGraphicsFontClass* pFont, ehs_uint32 nChar);
+const EhsGraphicsFontGlyphClass* EhsGraphicsFont_findGlyph(EhsGraphicsFontClass* pFont, ehs_uint32 nChar);
 
 /**
  * Load a font from a BDF file.
  * @param[in] szFilename Name of the BDF font to load
  * @return pointer to the font that has been loaded. Null if loading failed
  */
-EHS_GLOBAL EhsGraphicsFontClass* EhsGraphicsFont_load(ehs_char* szFilename);
+EhsGraphicsFontClass* EhsGraphicsFont_load(ehs_char* szFilename);
 
 /**
  * Update the X and Y positions to reflect a line break
@@ -130,7 +128,7 @@ EHS_GLOBAL EhsGraphicsFontClass* EhsGraphicsFont_load(ehs_char* szFilename);
  * @param[in] nIndentLeft - Position of left-most character
  * @return true if we haven't gone off the bottom of the textbox
  */
-EHS_GLOBAL ehs_bool EhsGraphicsFont_newLine(const EhsGraphicsFontClass* pFont,
+ehs_bool EhsGraphicsFont_newLine(const EhsGraphicsFontClass* pFont,
         const EhsGraphicsRectangleClass* pTextBoxRect, ehs_uint16 nLineSep,
         ehs_uint32* pnX, ehs_uint32* pnY, ehs_uint16 nIndentLeft);
 
@@ -151,7 +149,7 @@ EHS_GLOBAL ehs_bool EhsGraphicsFont_newLine(const EhsGraphicsFontClass* pFont,
  * @param[in] szWord Word to write - utf8 string
  * @return true if word was drawn onto the bitmap
  */
-EHS_GLOBAL ehs_bool EhsGraphicsFont_drawWord(EhsGraphicsFontClass* pFont,
+ehs_bool EhsGraphicsFont_drawWord(EhsGraphicsFontClass* pFont,
         EhsTVSurfaceClass* pSurface,
         const EhsGraphicsRectangleClass* pSurfaceRect,
         const EhsGraphicsRectangleClass* pTextBoxRect,
@@ -161,6 +159,6 @@ EHS_GLOBAL ehs_bool EhsGraphicsFont_drawWord(EhsGraphicsFontClass* pFont,
 /**
  * Initialise the table of fonts
  */
-EHS_GLOBAL void EhsGraphicsFontTable_init();
+void EhsGraphicsFontTable_init();
 
 #endif /*EHS_GRAPHICS_FONT_H_*/

@@ -51,9 +51,9 @@
 #endif
 #include <errno.h>
 #include <time.h>
-#include "target.h"
-#include "timer.h"
 
+#include "globals.h"
+#include "timer.h"
 
 //#include <sys/time.h>
 

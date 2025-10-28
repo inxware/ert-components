@@ -34,6 +34,9 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 # apply esp32 specific hacks
 INXWARE_TARGETENV_HACKS=esp32
 
+#todo hacked for now - this needs to be done better for esp32
+DEFS += EHS_TARGET_FILE_SKIP_STAT
+
 ################################################################################################################
 # Configure debug/production levels
 ################################################################################################################
@@ -55,13 +58,21 @@ EHS_MQTT_SUPPORT=esp_mqtt
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
 EHS_GUI_SUPPORT=lvgl
 
+# Set LVGL related driver support
+EHS_LVGL_DISPLAY_DRIVER=ft81x
+EHS_LVGL_TOUCH_DRIVER=ft81x
+
 # Note the specifc Component-HAL support for IO is the same for allesp32 so is defined in the os-arch
 
 #TODO2024 All these need turning into make variables and not pre-processor ones:
 # we may also no use any lwip stuff sirectly in EHS
 DEFS += EHS_LWIP
 DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
-DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=2048
+
+#DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=2048
+#TODO we need to know if the console is creating buffers on the stack. 
+DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=4096
+
 # ehs_float as float, not as double
 DEFS += EHS_FLOAT_AS_FLOAT_TYPE=1
 # ehs_coord is using ehs_sint16 for graphics type e.g. EhsGraphicsRectangleClass
@@ -86,14 +97,14 @@ EHS_DEBUGALL=
 EHS_TARGET_NO_MAIN_ARGS=yes
 
 # Disable linked-list based memory allocator managment in the hal_mem
-EHS_MEMORY_MANAGMENT=notrace
+#EHS_MEMORY_MANAGMENT=none
 
 # LoRaWAN support
 EHS_LORAWAN_SUPPORT=yes
 
 # Wi-Fi Support
-# DEFS += EHS_WIFI_SUPPORT
-EHS_WIFI_SUPPORT=yes
+# DEFS += EHS_NETWORK_WIFI_SUPPORT
+#unset EHS_NETWORK_WIFI_SUPPORT
 
 # enable eRT1 support
 ERT_SODL_VERSION=1
@@ -107,7 +118,7 @@ EHS_PID_SUPPORT=esp32
 EHS_SCHEDULER_SUPPORT=1
 
 #Add Built-in Devman OTA SUPPORT (or is this a function block?)
-EHS_OTA_SUPPORT=yes
+#EHS_OTA_SUPPORT=none
 
 #EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
 #EHS_OTA_SUPPORT=stubbed
@@ -121,6 +132,12 @@ EHS_PERIPHERALS_PWM_SUPPORT=esp32
 
 # basic file system confing support todo2025 give this a name that indicates something about what its for
 EHS_CONFIGS_SUPPORT=yes
+
+EHS_WATCHDOG_SUPPORT = ESP32S3
+
+EHS_TARGET_APPLOAD_RESTARTING_REBOOT=yes
+
+EHS_INTERFACE_CONFIG_TYPE_SUPPORT=esp32
 
 #Application Selection
 EHS_DEFAULT_APP=tutorials/hello_world

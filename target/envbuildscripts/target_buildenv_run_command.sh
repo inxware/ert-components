@@ -40,7 +40,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
             -e EHS_DEBIAN_VERSION -e INXWARE_TARGETENV_HACKS -e ANDROID_STUDIO_JNILIBS_PATH -e EXE -e EHS_ANDROID_PACKAGE_SIGNING_PATH -e EHS_DEBIAN_VERSION \
             -e EHS_UNITY_PROJECT_EXPORT_SUPPORT -e DEBIAN_PACKAGE_NAME -e EHS_PLUGIN_LIBRARY_DEPENDENCY -e EHS_GUI_SUPPORT -e DEBIAN_PACKAGE_PLATFORM_EXTRA \
             -e DEBIAN_PACKAGE_EXTRA -e EHS_AUTO_START -e DEVMAN_SERVER_DOMAIN_1 -e DEVMAN_SERVER_DOMAIN_2 -e EHS_DEVMAN_SUPERVISOR_REQUIRED \
-            -e EHS_ML_SUPPORT -e EHS_MV_SUPPORT -e EHS_USE_LIBCAMERA \
+            -e EHS_ML_SUPPORT -e EHS_MV_SUPPORT -e EHS_USE_LIBCAMERA -e TOOLCHAIN_NAME -e COMPONENT_BASE_TECHNOLOGIES\
             -e FLASH_BOARD $DOCKER_EXTRA_ENVS"
 
     #echo -n "Found Docker image ${PATH_TO_TARGET_DOCKER_IMAGE} ... "
@@ -55,7 +55,7 @@ echo    ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}
         #echo "${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV --user $(id -u):$(id -g) --rm --privileged -it --device=/dev/ttyACM0 -v $(pwd)/../../../:/inxware  -w /inxware/ert-components/ ${DOCKER_IMAGE} $@"
 
         ${SUDO_COMMAND} docker run ${INX_ERTCOMPONENTS_BUILDENV}  \
-            --user $(id -u):$(id -g) --rm --privileged -it --device=/dev/ttyACM0 \
+            --user $(id -u):$(id -g) --rm --privileged -i --device=/dev/ttyACM0 \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             "$@"
@@ -71,7 +71,7 @@ echo    ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}
 	    ${SUDO_COMMAND} docker pull  ${DOCKER_IMAGE} || echo "Could not find ${DOCKER_IMAGE} in remote repository.  use make publishddockerimage to fix this if you have a Dockerfile" 
             echo "Current PWD = "$(pwd)
             ${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV  \
-            --user $(id -u):$(id -g) --rm --privileged -it --device=/dev/ttyACM0 \
+            --user $(id -u):$(id -g) --rm --privileged -i --device=/dev/ttyACM0 \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             "$@"

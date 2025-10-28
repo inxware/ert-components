@@ -15,11 +15,11 @@
  */
 
 #include "hal_lua.h"
-#include "ehs_types.h"
+#include "globals.h"
 #include "hal-api.h"
 #include <lua.h>
 
-/* set up the environement variables for LUA to find outs lbraries */
+/* set up the environement variables for LUA to find lbraries */
 ehs_bool EhsHLuaInit()
 {
     ehs_char buf[EHS_MAXPATHLENGTH];

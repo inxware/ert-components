@@ -11,14 +11,14 @@
 
 #include <string.h>
 #include <stdio.h>
-
 #include "globals.h"
+
 #include "mqtt.h"
 #include "hal_network.h"
 #include "hal_mqtt.h"
 //#include "inx-mqtt_publish.h"
 #include "mqtt_client.h"
-#include "target_file.h"
+#include "hal_file.h"
 
 /**
  * MQTT client connection states
@@ -161,7 +161,7 @@ void mqttSetGlobalState(const MQTT_State_t newState)
 
 static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 {
-    printf("mqtt_event_handler\n");
+  //  printf("mqtt_event_handler\n");
 
     /*ESP_LOGI ("TEST", "MQTT msgid= %d event: %d. MQTT_EVENT_CONNECTED", event->msg_id, event->event_id);
             esp_mqtt_client_subscribe (client, "test/hello", 0);
@@ -189,31 +189,31 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
     switch (event->event_id)
     {
     case MQTT_EVENT_CONNECTED:
-        printf("MQTT msgid= %d event: %d. MQTT_EVENT_CONNECTED to: %s\n", event->msg_id, event->event_id, host);
+       // printf("MQTT msgid= %d event: %d. MQTT_EVENT_CONNECTED to: %s\n", event->msg_id, event->event_id, host);
         mqttSetGlobalState(MQTT_STATE_CONNECTED);
         EhsMQTTConnectEvent(true);
         break;
     case MQTT_EVENT_DISCONNECTED:
-        printf("MQTT event: %d. MQTT_EVENT_DISCONNECTED", event->event_id);
+      //  printf("MQTT event: %d. MQTT_EVENT_DISCONNECTED", event->event_id);
         mqttSetGlobalState(MQTT_STATE_DISCONNECTED);
         EhsMQTTConnectEvent(false);
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
-        printf("MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+        //printf("MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
         //   msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
         //     printf("sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
-        printf("MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
+      //  printf("MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
         break;
     case MQTT_EVENT_PUBLISHED:
-        printf("MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+      //  printf("MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         break;
     case MQTT_EVENT_DATA:
-        printf("MQTT_EVENT_DATA");
-        printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-        printf("DATA=%.*s\r\n", event->data_len, event->data);
+      //  printf("MQTT_EVENT_DATA");
+      //  printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+      //  printf("DATA=%.*s\r\n", event->data_len, event->data);
         // if (strncmp(event->data, "send binary please", event->data_len) == 0)
         // {
         //     printf("Sending the binary");
@@ -221,26 +221,27 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
         // }
         break;
     case MQTT_EVENT_ERROR:
-        printf("MQTT_EVENT_ERROR");
+    //todo change all these prnitfs to use EHSH_LOG_ERROR so we enable and disable them
+        //printf("MQTT_EVENT_ERROR");
         if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
         {
-            printf("Last error code reported from esp-tls: 0x%x", event->error_handle->esp_tls_last_esp_err);
+           // printf("Last error code reported from esp-tls: 0x%x", event->error_handle->esp_tls_last_esp_err);
             // printf("Last tls stack error number: 0x%x", event->error_handle->esp_tls_stack_err);
             // printf("Last captured errno : %d (%s)", event->error_handle->esp_transport_sock_errno,
             //        strerror(event->error_handle->esp_transport_sock_errno));
         }
         else if (event->error_handle->error_type == MQTT_ERROR_TYPE_CONNECTION_REFUSED)
         {
-            printf("Connection refused error: 0x%x", event->error_handle->connect_return_code);
+            //printf("Connection refused error: 0x%x", event->error_handle->connect_return_code);
         }
         else
         {
-            printf("Unknown error type: 0x%x", event->error_handle->error_type);
+            //printf("Unknown error type: 0x%x", event->error_handle->error_type);
         }
         break;
     default:
-        printf("Other event id:%d", event->event_id);
-        printf("DATA=%.*s\r\n", event->data_len, event->data);
+        //printf("Other event id:%d", event->event_id);
+        //printf("DATA=%.*s\r\n", event->data_len, event->data);
         break;
     }
 }
@@ -264,14 +265,14 @@ void* EhsMqttClientLoop(void* arg)
     
     EhsMQTTConnectPoll(&connect, &host, &port, &gUseTLS, &clientid, &username, &password, &clientCertFileName, &clientKeyFileName, &rootCAFileName);
    
-    // printf("%s", host);
+    //printf("%s", host);
     switch (MQTT_state)
     {
     case MQTT_STATE_INIT:
 
         if (connect && gMqttConnectionAttempts == 0)
         {
-            printf("Init connection init %s %i\n", host, port);
+            //printf("Init connection init %s %i\n", host, port);
             mqtt_cfg.host = host;
             mqtt_cfg.port = port;
 
@@ -338,15 +339,16 @@ void* EhsMqttClientLoop(void* arg)
         }
         break;
     case MQTT_STATE_IDLE:
-
+      //  printf("MQTT_STATE_IDEL\n");
+       
         break;
 
     case MQTT_STATE_CONNECTED:
-       // printf("MQTT_STATE_CONNECTED\n");
+      // printf("MQTT_STATE_CONNECTED\n");
         break;
 
     case MQTT_STATE_DISCONNECTED:
-        printf("MQTT_STATE_DISCONNECTED\n");
+      //  printf("MQTT_STATE_DISCONNECTED\n");
 
         break;
     }

@@ -1,9 +1,9 @@
 /*
  * target_gpio.c
  */
-#include "target.h"
+
+#include "globals.h"
 #include "target_gpio.h"
-#include "target_config.h"
 #include "hal_file.h"
 #include "hal_logger.h"
 
@@ -63,7 +63,7 @@ static ehs_bool set_output_value_GPIO(ehs_sint32 io_num, ehs_bool value, ehs_boo
 }
 
 // Handle GPIO output
-EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     if (pGPIO->pin_id < 0 || pGPIO->pin_id >EHS_RASPBERRYPI_PWM_GPIO_NUM_MAX) return EHS_FALSE;
     // The GPIO is used by PWM driver
@@ -81,7 +81,7 @@ EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
     return ret;
 }
 
-EHS_GLOBAL ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     if (!gGPIOInitialised) return EHS_FALSE;
     if (pGPIO->pin_id < 0 || pGPIO->pin_id >EHS_RASPBERRYPI_PWM_GPIO_NUM_MAX) return EHS_FALSE;
@@ -94,7 +94,7 @@ EHS_GLOBAL ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
     return ret;
 }
 
-EHS_GLOBAL ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     if (!gGPIOInitialised) return EHS_FALSE;
     if (pGPIO->pin_id < 0 || pGPIO->pin_id >EHS_RASPBERRYPI_PWM_GPIO_NUM_MAX) return EHS_FALSE;
@@ -122,7 +122,7 @@ EHS_GLOBAL ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 }
 
 // Handle GPIO input
-EHS_GLOBAL ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     if (pGPIO->pin_id < 0 || pGPIO->pin_id >EHS_RASPBERRYPI_PWM_GPIO_NUM_MAX)
     // The GPIO is used by PWM driver
@@ -144,7 +144,7 @@ EHS_GLOBAL ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     if (!gGPIOInitialised) return EHS_FALSE;
     if (pGPIO->pin_id < 0 || pGPIO->pin_id >EHS_RASPBERRYPI_PWM_GPIO_NUM_MAX) return EHS_FALSE;
@@ -167,7 +167,7 @@ EHS_GLOBAL ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsDestroyInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsDestroyInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     ehs_gpio_out_state_type _pGPIO = {
         .pin_id = pGPIO->pin_id,

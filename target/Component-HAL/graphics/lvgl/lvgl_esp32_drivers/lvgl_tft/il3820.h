@@ -16,6 +16,7 @@ extern "C"
 #else
 #include "lvgl/lvgl.h"
 #endif
+
 #include "sdkconfig.h"
 
 /* Values for Waveshare 2.9inch e-Paper Module, this values shouldn't be

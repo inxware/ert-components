@@ -18,7 +18,7 @@
 #ifndef _EHS_KEYPRESS_H
 #define _EHS_KEYPRESS_H
 
-#include "ehs_types.h"
+#include "globals.h"
 #include "callback_queue.h"
 
 #define EHS_FB_NAME_gtk_keypress "gtk_keypress"
@@ -34,9 +34,9 @@ EHS_GLOBAL EhsCallbackQueueType EhsGtkKeypressCallback;
 
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(gtk_keypress);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(gtk_keypress);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gtk_keypress_hit);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(gtk_keypress);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gtk_keypress);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gtk_keypress_hit);
 
 /* declare the table for use by the blockref table */
 EHS_GLOBAL void EHS_FB_FUNCTIONS(gtk_keypress);

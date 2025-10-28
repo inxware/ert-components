@@ -13,11 +13,10 @@
  * @author: inx limited
  *
  */
-
-
 #ifndef EHS_TRIGGER_TABLE_H
 #define EHS_TRIGGER_TABLE_H
-#include "target_types.h"
+
+#include "globals.h"
 #include "ehs_fb_types.h"
 /**
  * A trigger table is an array of EhsTriggerType with a size parameter

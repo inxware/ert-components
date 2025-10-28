@@ -28,11 +28,11 @@
 
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(GUI_Textbox);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(GUI_Textbox);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_Textbox_create);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_Textbox_destroy);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_TextboxString_write);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(GUI_Textbox);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(GUI_Textbox);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_Textbox_create);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_Textbox_destroy);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_TextboxString_write);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(GUI_TextboxString)
@@ -47,7 +47,7 @@ EHS_FB_FUNCTIONS(GUI_TextboxString)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_TextboxFloat_write);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_TextboxFloat_write);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(GUI_TextboxFloat)
@@ -63,7 +63,7 @@ EHS_FB_FUNCTIONS(GUI_TextboxFloat)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_TextboxInt_write);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_TextboxInt_write);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(GUI_TextboxInt)
@@ -77,7 +77,7 @@ EHS_FB_FUNCTIONS(GUI_TextboxInt)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(GUI_TextboxBool_write);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(GUI_TextboxBool_write);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(GUI_TextboxBool)

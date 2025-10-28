@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2025-07-31T10:51:58Z</CreationDate>
+        <UpdatedDate>2025-07-31T10:52:27Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Get elapsed time (in microseconds) between two event triggers.</ShortDescription>
+        <LongDescription>This returns the elapsed time in microseconds between two event triggers.</LongDescription>
+        <UserName/>
+        <Menu>
+            Event
+            <Menu>Elapsed Timer</Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>Event_Processor</Type>
+        <Height>70</Height>
+        <Text>Elapsed</Text>
+        <TextX>15</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>elapsed_timer</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x90EC</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>da17ddb7</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters/>
+    <Functions>
+        <Function>
+            <name>count_elasped</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>stop_elapsed</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>start</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>start</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>stop</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>stop</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>started</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>stopped</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>elapsed</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>65</XCoordinate>
+            <YCoordinate>40</YCoordinate>
+            <CName>elasped</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

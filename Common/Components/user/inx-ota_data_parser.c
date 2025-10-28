@@ -3,7 +3,6 @@
 #include "inx-component.h"
 #include "inx-ota_data_parser.h"
 //ICB HEADER MACRO END -- DO NOT ALTER
-
 #include "hal_ota_data_parser.h"
 
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
@@ -164,7 +163,7 @@ EHS_FB_RUN_FUNCTION(ota_data_parser_parse_data)
 
 	if(inx_ota_data_parser_state->bStarted == EHS_FALSE){
 		/* attempting to parse data before ota info is obtained */
-		printf("cannot parse data ota data before ota start request!\n");
+		//printf("cannot parse data ota data before ota start request!\n");
 		return;
 	}
 

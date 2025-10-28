@@ -33,7 +33,7 @@
 #include <Arduino.h>
 #include <mbed.h>
 
-#include "target.h"
+#include "globals.h"
 #include "hal-api.h"
 #include "target_process.h"
 
@@ -242,7 +242,7 @@ EhsTPMutexClass  EhsTPMutex_devmanMiscBuffers;
 
 #endif
 
-#ifdef EHS_MEDIA_SUPPORT
+#ifdef EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER
 /**
  * Mutex resource used to control access to the playManager shared resources
  */
@@ -292,7 +292,7 @@ void EhsTargetExit(ehs_uint16 exitCode)
  * Initialise the mutexes (Call this only once!)
  * @todo move all of the function block threads to their init functions and tear down function when implemented
  */
-EHS_GLOBAL void EhsTPMutex_init(void)
+void EhsTPMutex_init(void)
 {
     EhsTPMutex_fbIO = (EhsTPMutexClass)&EhsL_fbIO; 
     EhsTPMutex_mem = (EhsTPMutexClass)&EhsL_mem;
@@ -314,7 +314,7 @@ EHS_GLOBAL void EhsTPMutex_init(void)
     EhsTPMutex_devmanPlayerData = (EhsTPMutexClass)&EhsL_devmanPlayerData;
     EhsTPMutex_devmanMiscBuffers = (EhsTPMutexClass)&EhsL_devmanMiscBuffers;
  #endif
- #ifdef EHS_MEDIA_SUPPORT   
+#ifdef EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER  
     EhsTPMutex_playManager = (EhsTPMutexClass)&EhsL_playManager;
 #endif
 
@@ -347,7 +347,7 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
 #ifdef EHS_DEVMAN_SUPPORT
     EhsTPMutex_devmanPlayerData = NULL;
 #endif
-#ifdef EHS_MEDIA_SUPPORT
+#ifdef EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER
     EhsTPMutex_playManager = NULL;
 #endif
 #ifdef EHS_NETWORKING_SUPPORT
@@ -362,7 +362,7 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
  */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
+ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
 {
     uint32_t ssize = ( stackSize > 0 ) ? (uint32_t)stackSize : OS_STACK_SIZE;
     EhsTPThread * t = new EhsTPThread((osPriority)priority, ssize, nullptr, nullptr);
@@ -379,7 +379,7 @@ unsigned int EhsTargetThreadID()
     return (unsigned int)rtos::ThisThread::get_id();
 }
 
-EHS_GLOBAL void EhsTPThread_exit()
+void EhsTPThread_exit()
 {
     osThreadId_t const current_thread_id = rtos::ThisThread::get_id();
     EhsStdioPrintf("EhsTPThread_exit (id=%d)\n", (int)current_thread_id);

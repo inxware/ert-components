@@ -6,6 +6,7 @@
  * not, please visit
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
+#include "globals.h"
 #include "driver/timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -13,8 +14,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <sys/types.h>
-
-#include "target_types.h"
 #include "timer.h"
 #include "hal_logger.h"
 
@@ -51,12 +50,12 @@ EHS_MEMORY_ATTRIB EhsTickType EhsTgtTimer_now()
  * /todo 2022 - rename this to init it is only called once by the kernel on
  * init.)
  */
-static bool IRAM_ATTR EhsEsp32TgtTimer_tick(void *args);
+static bool EhsEsp32TgtTimer_tick(void *args);
 
 /* Initialise the hardware timer */
 void EhsTgtTimer_reset()
 {
-    ESP_LOGI(TAG, "EhsTgtTimer_reset, MAX/2: %ld", EHS_TICKTYPE_MAX/2u);
+    ESP_LOGI(TAG, "EhsTgtTimer_reset, MAX/2: %llu", EHS_TICKTYPE_MAX/2u);
 
     // todo2022 we should set this to work at a specific frequency using  APB_CLK
     // instead of 80 to get to 1uS (or whatever we want the accuracy to be)

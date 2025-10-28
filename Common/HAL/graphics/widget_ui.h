@@ -18,7 +18,6 @@
 #ifndef EHS_WIDGETUI_H
 #define EHS_WIDGETUI_H
 
-#include "ehs_types.h"
 #include "globals.h"
 
 /*

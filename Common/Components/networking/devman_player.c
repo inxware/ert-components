@@ -45,25 +45,15 @@
 
 //#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK
 
-#include "ehs_fb_types.h"
-#include "devman_player.h"
-#include "setCompletes.h"
-#include "target.h"
-#include "hal_string.h"
-#include "hal_file.h"
-#include "app_data.h"
-#include "hal_time.h"
-#include "callback_queue.h"
-#include "hal-api.h"
+#include "ehs_fb_types.h" /* for some elements referred to in fid.h */
+#include "globals.h"
 #include "hal_linkedlist.h"
+#include "devman_player.h"
 #include "hal_jsonlist.h"
-
-
-#ifdef EHS_DEVMAN_PLAYER_USE_LUA
-#include "lua.h"
-#error "and some Laux bits that were deleted."
-#endif
-
+#include "inx-parameters.h"
+#include "inx-component.h"
+#include "inx-network_config.h"
+#include "hal-api.h"
 
 /*actual mapping of Functions to IDF names - depricate the MACROs!!!*/
 EHS_FB_FUNCTIONS_START(DevmanPlayer)
@@ -95,7 +85,7 @@ EHS_FB_FUNCTIONS_END
 #endif
 
 #ifndef EHS_DEVMAN_PLAYER_RETRY_TIMES_FIRSTURL
-#define EHS_DEVMAN_PLAYER_RETRY_TIMES_FIRSTURL 2 //EHS_DEVMAN_CORE_RETRY_TIMES_FIRSTURL
+#define EHS_DEVMAN_PLAYER_RETRY_TIMES_FIRSTURL 2
 #endif
 
 /* Set up some standard fail over paths */
@@ -105,11 +95,8 @@ EHS_FB_FUNCTIONS_END
 
 /* Set up some defaults if a URL file is not found */
 #ifndef EHS_DEVMAN_PLAYERDEFAULTURL_PATH
-// this ss the old version to be killed off: #define EHS_DEVMAN_PLAYERDEFAULTURL_PATH	"/cgi-bin/devman_player.cgi"
 #define EHS_DEVMAN_PLAYERDEFAULTURL_PATH	"/devmanPlayerCGI.php"
-// TODO - change this to /devmanPlayerCGI.php (no cgi-bin/)
 #endif
-
 
 #ifndef EHS_DEVMAN_PLAYERDEFAULTURL
 #define EHS_DEVMAN_PLAYERDEFAULTURL	"https://devman.inx-systems.com" EHS_DEVMAN_PLAYERDEFAULTURL_PATH
@@ -749,12 +736,13 @@ EHS_FB_DESTROY_FUNCTION(DevmanPlayer)
         (struct EhsFbDevmanPlayerStruct *) EHS_FB_RUN_CONTEXT;
     ehs_free_list(pDevmanPlayer->pIncomingJsonAppPassThruDataList);
     ehs_free_json_list(pDevmanPlayer->pOutgoingJsonAppPassThruDataList);
+    return EHS_TRUE;
 }
 
 /**
  * Starts timer for checking if not already started by the default static parameter
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_start_checking)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_start_checking)
 {
     struct EhsFbDevmanPlayerStruct* pDevmanPlayer =
         (struct EhsFbDevmanPlayerStruct *) EHS_FB_RUN_CONTEXT;
@@ -774,7 +762,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_start_checking)
 /**
  * Stops timer for checking
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_stop_checking)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_stop_checking)
 {
     EhsTPMutex_lock(EhsTPMutex_devmanPlayerData);
     struct EhsFbDevmanPlayerStruct* pDevmanPlayer =
@@ -789,7 +777,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_stop_checking)
  *
  */
 
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_change_url)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_change_url)
 {
     ehs_FILE * file;
     EhsTPMutex_lock(EhsTPMutex_devmanPlayerData);
@@ -825,7 +813,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_change_url)
  * It also write the configuration data to persistent storage so that any updates are remember at the next start.
  * - it required attention as comments below
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_reconfigure)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_reconfigure)
 {
     ehs_FILE * file;
     EhsTPMutex_lock(EhsTPMutex_devmanPlayerData);
@@ -865,7 +853,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_reconfigure)
 /**
  * Reset all media source data sent from the server and remove persistent memory of it
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_reset)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_reset)
 {
     struct EhsFbDevmanPlayerStruct* pDevmanPlayer =
         (struct EhsFbDevmanPlayerStruct *) EHS_FB_RUN_CONTEXT;
@@ -893,7 +881,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_reset)
 /**
  * Retrieves currently playing media (track) data from the app to send to the devman server
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_track_changed)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_track_changed)
 {
     EhsTPMutex_lock(EhsTPMutex_devmanPlayerData);
     struct EhsFbDevmanPlayerStruct* pDevmanPlayer =
@@ -941,7 +929,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_track_changed)
 /**
  *
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_get_next)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_get_next)
 {
     EhsTPMutex_lock(EhsTPMutex_devmanPlayerData);
     struct EhsFbDevmanPlayerStruct* pDevmanPlayer = (struct EhsFbDevmanPlayerStruct *) EHS_FB_RUN_CONTEXT;
@@ -967,7 +955,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_get_next)
 /**
  *
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_send_next)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_send_next)
 {
     EhsTPMutex_lock(EhsTPMutex_devmanPlayerData);
     struct EhsFbDevmanPlayerStruct* pDevmanPlayer = (struct EhsFbDevmanPlayerStruct *) EHS_FB_RUN_CONTEXT;
@@ -984,7 +972,7 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_send_next)
  * This is the internal function fired by the timer that reads devman data.
  * It is asserted data to ports and back to the devman server
  */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
+EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
 {
     ehs_FILE * file;
 

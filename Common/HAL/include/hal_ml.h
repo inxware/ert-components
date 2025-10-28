@@ -19,7 +19,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+#include "globals.h"
 
 // max number of the objects per detetction
 #ifndef EHS_ML_OBJ_DETECTIONS_MAX
@@ -30,15 +30,19 @@ typedef enum {
     EHS_ML_OK = 0,
     EHS_ML_FAILED,
     EHS_ML_MEMORY_ERR,
+    EHS_ML_INIT_ERR,
     EHS_ML_MODEL_LOAD_ERR,
     EHS_ML_MODEL_IN_USE, // model already loaded
-    EHS_ML_MODEL_PATH_ERR
+    EHS_ML_MODEL_PATH_ERR,
+    EHS_ML_INVALID_DEP  // Invalid Library dependency (e.g. mismatched Hailo library version)
 } EhsML_Err;
 
 typedef enum {
-    EHS_ML_OBJ_DETECTOR = 0,
-    EHS_ML_CLASSIFIER
+    EHS_ML_TFLITE_OBJ_DETECTOR = 0,
+    EHS_ML_TFLITE_CLASSIFIER,
+    EHS_ML_ACCELERATOR_HAILO,
     // ...
+    EHS_ML_TYPE_MAX
 } EhsML_Type;
 
 typedef struct {
@@ -58,27 +62,27 @@ typedef struct {
 // - conf_thres: confidence threshold for post-processing predictions.
 // - thread_count: number of threads used for processing the model
 // Returns an error code indicating success or failure.
-EHS_GLOBAL EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Type model_type, ehs_float conf_thres, ehs_sint32 thread_count);
+EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Type model_type, ehs_float conf_thres, ehs_sint32 thread_count);
 
 // Frees and cleans up all resources associated with the ML context.
-EHS_GLOBAL void EhsML_Destroy(EhsML_Context* ctx);
+void EhsML_Destroy(EhsML_Context* ctx);
 
 // Sets the input data for inference.
 // - data: raw input (e.g., image/frame/text/bin data).
 // - size: size of the input data in bytes.
 // Returns an error code indicating success or failure.
-EHS_GLOBAL EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 size);
+EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 size);
 
 // [TODO] Runs inference and outputs raw data into provided buffer.
 // This function is not yet implemented.
-// EHS_GLOBAL EhsML_Err EhsML_RunOutputData(EhsML_Context* ctx, void* data, ehs_uint32 size);
+// EhsML_Err EhsML_RunOutputData(EhsML_Context* ctx, void* data, ehs_uint32 size);
 
 // Runs inference and writes the results to a JSON-formatted string.
 // - json: output buffer for JSON result string (must be preallocated).
 // - size: maximum size of the buffer to avoid overflow.
 // Output format example: {"type":0, "res":[{"cls":0, "cnf":0.92, "x":...}, ...]}
 // Returns an error code indicating success or failure.
-EHS_GLOBAL EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 size);
+EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 size);
 
 
 #endif // _EHS_HAL_ML_H

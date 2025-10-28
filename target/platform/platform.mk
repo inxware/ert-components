@@ -30,8 +30,12 @@
 $(info $(EHS_PLATFORM_PATH))
 include $(EHS_PLATFORM_PATH)/config.mk
 
-# TOOLCHAIN_NAME is an override, should only be set by config.mk and not constructed
+ifdef TOOLCHAIN_NAME
+export TOOLCHAIN_NAME 
+endif
+
 #set the build host's machine's architecture (it is always linux so far...)
+
 export EHS_BUILD_MAC_ARCH=$(shell uname -m)
 
 ifdef EHS_GNU_OS
@@ -39,6 +43,7 @@ ifdef EHS_GNU_OS
 else
 	TOOLCHAIN_OS=$(EHS_OS)
 endif
+
 ifdef EHS_GNU_ARCH
 	TOOLCHAIN_ARCH=$(EHS_GNU_ARCH)
 else 
@@ -57,6 +62,7 @@ export EHS_GNU_ARCH
 ifndef ERT_SODL_VERSION
 ERT_SODL_VERSION=1
 endif
+
 export ERT_SODL_VERSION
 
 export DEBIAN_PACKAGE_NAME
@@ -187,18 +193,21 @@ endif
 # and apply to the compiler paths 
 export EHS_COMPONENT_SUPPORT_BUILD:=$(EHS_COMPONENT_SUPPORT_BASE)/target_libs/$(COMPONENT_BASE_TECHNOLOGIES)/build/
 export EHS_COMPONENT_SUPPORT_INCLUDE:=$(EHS_COMPONENT_SUPPORT_BUILD)/include/
-export EHS_COMPONENT_SUPPORT_LIBS:=$(EHS_COMPONENT_SUPPORT_BUILD)/lib/
+export EHS_COMPONENT_SUPPORT_LIBS:=$(EHS_COMPONENT_SUPPORT_BUILD)lib/
 
 ################## Build the core target specific support code #########################
 # include files to build the core EHS target specific for this platform + any special OS Compoents.
 
- # Required for EHS core stuff (What is the difference between the following?)
+# Setup default dependency and feature support for os-arch types so this doesn't need to be done for each platform.
+ifneq ("$(wildcard $(EHS_TARGET_OS_HW_PATH)/config.mk)","")
+  include $(EHS_TARGET_OS_HW_PATH)/config.mk
+endif
+
+# Set up any other build configurations.
 include $(EHS_TARGET_OS_HW_PATH)/target.mk
+# Check for a default configuration file fir this is-arch 
 
 ############## Set up some eRT Source level conditional build macros          ##########
-# If the platform as system variant, let the code use the macro for build configuration.
-DEFS += $(SYSTEM_VARIANT)
-#todo as above!
 
 # IF WE HAVE A NATIVE BUILD (e.g. docker) THEN MUCH OF THE ABOVE SHOULD PROBABLY BE REMOVED? 
 # Though it probably doesn't do any harm having linkes to resources in ert-* support repos if there's nothing in them.
@@ -254,6 +263,21 @@ endif
 #And just in case the code needs to know what the SODL type is
 DEFS += ERT_SODL_VERSION=$(ERT_SODL_VERSION)
 
+###########################################################################################
+# Function-specific components mostly
+##########################################################################################
+
+
+# Some components have GNU dependencies, This flag can be set to make sure these aren't built 
+# or included in builds.
+
+ifdef EHS_SKIP_GNULIBRARIES
+ifneq ($(EHS_SKIP_GNULIBRARIES),none)
+    DEFS += EHS_SKIP_GNULIBRARIES
+endif
+endif
+
+#TODO 2025. - this should go in the target component HAL make files
 ################ Select between render mode A and B ###############################
 ifdef EHS_GUI_SUPPORT
 # at the moment only mode B is only used for lvgl
@@ -306,34 +330,6 @@ endif
 # Important to inlcude the HAL last because it's build will depend on what subcomponents are included above.
 include $(EHS_COMMON_HAL_PATH)/HAL.mk
 
-#All config files should be included now
-   $(info ====================================================================)
-   $(info EHS_ARCH     =$(EHS_ARCH))
-   $(info EHS_GNU_ARCH =$(EHS_GNU_ARCH))
-   $(info EHS_OS       =$(EHS_OS))
-   $(info EHS_GNU_OS   =$(EHS_GNU_OS))
-   $(info -TOOLBOXES:)
-   $(info EHS_PERIPHERALS_GPIO_SUPPORT=$(EHS_PERIPHERALS_GPIO_SUPPORT))
-   $(info EHS_PERIPHERAL_DEVICE_SUPPORT=$(EHS_PERIPHERAL_DEVICE_SUPPORT))
-   $(info EHS_PERIPHERALS_ADC_DAC_SUPPORT=$(EHS_PERIPHERALS_ADC_DAC_SUPPORT))
-   $(info EHS_COMPONENT_NETWORKING_SUPPORT=$(EHS_COMPONENT_NETWORKING_SUPPORT=))
-   $(info EHS_PID_SUPPORT=$(EHS_PID_SUPPORT))
-   $(info EHS_SCHEDULER_SUPPORT=$(EHS_SCHEDULER_SUPPORT))
-   $(info EHS_MODBUS_SUPPORT=$(EHS_MODBUS_SUPPORT))
-   $(info EHS_GUI_SUPPORT=$(EHS_GUI_SUPPORT))
-   $(info EHS_AV_SUPPORT=$(EHS_AV_SUPPORT))
-   $(info EHS_VIDEO_SUPPORT=$(EHS_VIDEO_SUPPORT))
-   $(info EHS_MEDIA_SUPPORT=$(EHS_MEDIA_SUPPORT))
-   $(info EHS_TOOLKIT_DEPRECATED=$(EHS_TOOLKIT_DEPRECATED))
-
-   $(info DEBUG:)
-   $(info EHS_DEBUGALL            =$(EHS_DEBUGALL))
-   $(info EHS_DEBUG_AV            =$(EHS_DEBUG_AV))
-   $(info EHS_DEBUG_TCPIP_CONSOLE =$(EHS_DEBUG_TCPIP_CONSOLE))
-   $(info EHS_DEBUG_TRACE         =$(EHS_DEBUG_TRACE))
-   $(info ====================================================================)
-
-
 ############## Agregate OS configuration scripts from config.mk recipe and command line ###########
 export HOST_OS_CONFIG_SCRIPTS+=$(HOST_OS_CONFIG_SCRIPTS_EXTRA)
 
@@ -358,11 +354,6 @@ export EHS_PRODUCT_NAME
 #todo 2023: We should be able to dump this wen we get rid of the android installer script duplication
 export DEVMAN_SERVER_NAME
 
-# devman mqtt client TLS enabled. Need to do this here? Shouldn't this be in the HAL.mk file?
-ifeq ($(DEVMAN_SERVER_PROTOCOL),mqtts)
-    DEFS += EHS_DEVMAN_MQTT_CLIENT_TLS=1
-endif
-
 export NETWORK_NTP_SERVER
 export NETWORK_HARDWIRED_HOSTS
 
@@ -375,10 +366,12 @@ endif
 # Allow basic memory management with no clean up. Not recommended for apps that have 
 # console enabled or can receive new apps.
 ifdef EHS_MEMORY_MANAGMENT
-ifeq ($(EHS_MEMORY_MANAGMENT),notrace)
-    DEFS += EHS_MEMORY_MANAGMENT__NOTRACE
+ifeq ($(EHS_MEMORY_MANAGMENT),none)
+    DEFS += EHS_MEMORY_MANAGMENT__NOMANAGEMENT
 endif
 endif
+
+#TODO all of these should be idefed as they will be set to empty if previously unset
 
 # don't need this in bash: export EHS_MQTT_SUPPORT
 #we need to set this for cases where it needs to override an inheritted server config
@@ -417,3 +410,31 @@ export ERT_NSIS_EXE_NAME
 export EHS_APPLAND_INST_SUPPORT
 export EHS_APPLAND_INST_DEPLOY_NAME
 export EHS_APPLAND_INST_OS_NAME
+
+#####################################################################################
+# Display the config - please keep this up to date with all the platform options.
+#####################################################################################
+   $(info ====================================================================)
+   $(info EHS_ARCH     =$(EHS_ARCH))
+   $(info EHS_GNU_ARCH =$(EHS_GNU_ARCH))
+   $(info EHS_OS       =$(EHS_OS))
+   $(info EHS_GNU_OS   =$(EHS_GNU_OS))
+   $(info -TOOLBOXES:)
+   $(info EHS_PERIPHERALS_GPIO_SUPPORT=$(EHS_PERIPHERALS_GPIO_SUPPORT))
+   $(info EHS_PERIPHERAL_DEVICE_SUPPORT=$(EHS_PERIPHERAL_DEVICE_SUPPORT))
+   $(info EHS_PERIPHERALS_ADC_DAC_SUPPORT=$(EHS_PERIPHERALS_ADC_DAC_SUPPORT))
+   $(info EHS_COMPONENT_NETWORKING_SUPPORT=$(EHS_COMPONENT_NETWORKING_SUPPORT=))
+   $(info EHS_PID_SUPPORT=$(EHS_PID_SUPPORT))
+   $(info EHS_SCHEDULER_SUPPORT=$(EHS_SCHEDULER_SUPPORT))
+   $(info EHS_MODBUS_SUPPORT=$(EHS_MODBUS_SUPPORT))
+   $(info EHS_GUI_SUPPORT=$(EHS_GUI_SUPPORT))
+   $(info EHS_AV_SUPPORT=$(EHS_AV_SUPPORT))
+   $(info EHS_VIDEO_SUPPORT=$(EHS_VIDEO_SUPPORT))
+   $(info EHS_MEDIA_SUPPORT=$(EHS_MEDIA_SUPPORT))
+   $(info EHS_TOOLKIT_DEPRECATED=$(EHS_TOOLKIT_DEPRECATED))
+   $(info DEBUG:)
+   $(info EHS_DEBUGALL            =$(EHS_DEBUGALL))
+   $(info EHS_DEBUG_AV            =$(EHS_DEBUG_AV))
+   $(info EHS_DEBUG_TCPIP_CONSOLE =$(EHS_DEBUG_TCPIP_CONSOLE))
+   $(info EHS_DEBUG_TRACE         =$(EHS_DEBUG_TRACE))
+   $(info ====================================================================)

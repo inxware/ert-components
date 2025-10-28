@@ -28,7 +28,8 @@
 ifeq ($(EHS_TOOLCHAIN_TYPE),clang)
 	LIB_DIRS+=/lib/aarch64-linux-gnu/
 	LNKFLAGS+= --target=aarch64-linux-gnu
-	CFLAGS+= -v --target=aarch64-linux-gnu 
+	CFLAGS+= -v --target=aarch64-linux-gnu
+	CPPFLAGS+= -v --target=aarch64-linux-gnu 
 endif
 # We need the maths lib - todo2-022, why not just have these as LIB+=m?
 LIB+=m 

@@ -9,6 +9,8 @@
 
 # HW independent linux build environment parameters 
 
+include $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/config.mk
+
 
 #target types are always the same for all linux so just use one file
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/
@@ -17,6 +19,7 @@ KERNEL_HEADERS_RELPATH =$(KERNEL_VERSION)/headers/include/
 
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/linux_ALL/
 
+
 # todo we might want a common linux bin to be created
 # moves to specific linux: OBJECTS += targetos_init.$(OBJ) 
 
@@ -24,5 +27,3 @@ OBJECTS += target_time.$(OBJ)
 OBJECTS += targetos_init.$(OBJ)
 OBJECTS += target_display.$(OBJ)
 OBJECTS += target_sys_stat.$(OBJ)
-
-

@@ -19,6 +19,7 @@
 #ifndef _EHS_GUIPARAMS_H
 #define _EHS_GUIPARAMS_H
 
+#include "globals.h"
 #include "ehs_fb_types.h"
 #include "graphics.h"
 #include "globals.h"

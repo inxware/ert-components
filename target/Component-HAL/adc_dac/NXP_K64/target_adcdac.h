@@ -9,7 +9,7 @@
 
 #ifndef EHS_TARGET_ADCCAD_H
 #define EHS_TARGET_ADCCAD_H
-#include "ehs_types.h"
+#include "globals.h"
 
 /* Asynchrounously reads a sample from the specified channel (with no averaging)
     returns true on success

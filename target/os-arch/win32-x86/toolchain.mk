@@ -93,10 +93,6 @@ LNKFLAGS+=user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.li
 LNKFLAGS+=comctl32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib msimg32.lib
 
 
-#LNKFLAGS+=-o$(TARGET_NAME)
-#LNKFLAGS+=-mwindows
-# provide sockets support
-#PPP:LIB+=ws2_32
 
 
 todo the following $(INC) and $(LNKFLAGS) for the vpath part needs to be changed to swap the slashes from / to \ and possibly remove some cygdrive/ junk too.

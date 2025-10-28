@@ -20,8 +20,8 @@
 
 #include <string.h>
 #include <ctype.h>
-
 #include "globals.h"
+
 #include "ehs_fb_types.h"
 #include "stringfn.h"
 #include "fid.h"
@@ -359,7 +359,7 @@ EHS_FB_RUN_FUNCTION(string_format8)
     switch (fmt_count)
     {
     case 0 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped); /* no string insertions */
+        EhsSprintf(EHS_FB_OUT_S(0),"%s",escaped); /* no string insertions */
         break;
     case 1 :
         EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);
@@ -485,7 +485,7 @@ EHS_FB_RUN_FUNCTION(string_format8_int)
     switch (fmt_count)
     {
     case 0 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped); /* no string insertions */
+        EhsSprintf(EHS_FB_OUT_S(0),"%s",escaped); /* no string insertions */
         break;
     case 1 :
         EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);
@@ -604,7 +604,7 @@ EHS_FB_RUN_FUNCTION(string_format8_real)
     switch (fmt_count)
     {
     case 0 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped); /* no string insertions */
+        EhsSprintf(EHS_FB_OUT_S(0),""); /* no string insertions */
         break;
     case 1 :
         EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);

@@ -216,10 +216,11 @@ EHS_FB_RUN_FUNCTION(OTA_write_cb)
 	else EHS_FB_FINISH(INX_OTA_ARG_write_cb_write_error);
 }//ICB FUNCTION write_cb MACRO END -- DO NOT ALTER THIS LINE
 
+/* What is this for and why does the #if logix seem reversed to what you might expect? */
 void Common_OTA_Write_ACK(ehs_uint8 errno)
 {
 	write_errno = errno;
-#if !defined(EHS_DEVMAN_MON_SUPPORT) || (EHS_DEVMAN_MON_SUPPORT != EHS_DEVMAN_MON_MQTT) // @TODO - we may want to exclude this in a better way
+#if !defined(EHS_DEVMAN_SUPPORT) || (EHS_DEVMAN_SUPPORT != EHS_DEVMAN_MQTT) // @TODO - we may want to exclude this in a better way
 	EhsCallbackQueue_execute(&xOTACallbackQueue);
 #endif
 }

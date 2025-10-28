@@ -7,7 +7,9 @@
 
 // Enable this for displaying every grabbed frame in a preview window
 // NOTE ! - this works only with a single camera instance
-#define EHS_OPENCV_DEBUG_PREVIEW
+//#ifndef EHS_OPENCV_FRAMEGRAB_DEBUG_PREVIEW
+//#define EHS_OPENCV_FRAMEGRAB_DEBUG_PREVIEW
+//#endif
 
 // If set to '1' it uses a thread to capture frames, so EhsCameraGrabFrame captures without blocking.
 // This seems to make things much more stable, when grabbing frames from the EhsMain thread.
@@ -77,10 +79,10 @@ EhsCameraError EhsCameraStart(EhsCamera* camera, const ehs_char* id)
     int ret; unsigned int device_id;
     if(EhsCamera_is_opencv_device_id(id, &device_id)){
         ret = cv_cam_open((cv_camera*)camera->camera_ctx, device_id, 
-                camera->width, camera->height, camera->fps, EHS_OPENCV_CAMERA_BUFFER_COUNT, EHS_OPENCV_ASYNC_FRAME_CAP);
+                camera->width, camera->height, camera->fps, EHS_OPENCV_CAMERA_BUFFER_COUNT, camera->greyscale, EHS_OPENCV_ASYNC_FRAME_CAP);
     }else{
         ret = cv_cam_path((cv_camera*)camera->camera_ctx, id,
-                camera->width, camera->height, camera->fps, EHS_OPENCV_CAMERA_BUFFER_COUNT, EHS_OPENCV_ASYNC_FRAME_CAP);
+                camera->width, camera->height, camera->fps, EHS_OPENCV_CAMERA_BUFFER_COUNT, camera->greyscale, EHS_OPENCV_ASYNC_FRAME_CAP);
     }
     if(ret != CV_CAM_OK){
         err = EHS_CAM_OPEN_ERR;
@@ -109,12 +111,12 @@ void EhsCameraDestroy(EhsCamera* camera)
     EhsCameraStop(camera);
     EhsMemset(camera,0,sizeof(EhsCamera));
 
-#ifdef EHS_OPENCV_DEBUG_PREVIEW
+#ifdef EHS_OPENCV_FRAMEGRAB_DEBUG_PREVIEW
     cv_mat_destroy_all_windows();
 #endif
 }
 
-ehs_bool EhsCameraGrabFrame(EhsCamera* camera, EhsCameraFrame* frame)
+ehs_bool EhsCameraGrabFrame(EhsCamera* camera, EhsCameraFrame* frame, ehs_bool show_image)
 {
     if(!camera || !camera->camera_ctx || !frame || !frame->frameObj) return EHS_FALSE;
 
@@ -123,27 +125,32 @@ ehs_bool EhsCameraGrabFrame(EhsCamera* camera, EhsCameraFrame* frame)
     if(cv_cam_read((cv_camera*)camera->camera_ctx, cv_frameObj) == CV_CAM_OK){
         frame->width = cv_frameObj->width;
         frame->height = cv_frameObj->height;
-#ifdef EHS_OPENCV_DEBUG_PREVIEW
-        static char label[256];
-        static EhsTickType sFpsTimer = 0;
-        static float sAvrgFpsSample = 0, sAvrgFpsShow = 0; // avarage of a number of samples
-        static long sAvrgFpsCounter = 0;
-        EhsTickType curr = EHS_CURRENT_TIME;
-        float fps = 1000000.f/(float)(curr - sFpsTimer);
-        if(sAvrgFpsCounter > 10) { // set number of samples for avrage
-            sAvrgFpsShow = sAvrgFpsSample/(float)sAvrgFpsCounter;
-            sAvrgFpsSample = 0;
-            sAvrgFpsCounter = 0;
-        }else {
-            sAvrgFpsSample += fps;
-            sAvrgFpsCounter++;
-        }
-        sFpsTimer = curr;
-        if(snprintf(label, sizeof(label), "fps: %.2f (%.2f)", fps, sAvrgFpsShow)){
-            cv_mat_draw_text(cv_frameObj, label, 10, 20, 0.5, 255, 0, 0, 1);
-        }        
-        if(snprintf(label, sizeof(label), "debug_cam_%d", frame->id)){
-            cv_mat_show(label, cv_frameObj, 1);
+        frame->fmt = EHS_CAM_FMT_DEF;
+#ifdef EHS_OPENCV_FRAMEGRAB_DEBUG_PREVIEW
+//Note we don't want to do this usually unless we are debugging
+        if (show_image)
+        {
+            static char label[256];
+            static EhsTickType sFpsTimer = 0;
+            static float sAvrgFpsSample = 0, sAvrgFpsShow = 0; // avarage of a number of samples
+            static long sAvrgFpsCounter = 0;
+            EhsTickType curr = EHS_CURRENT_TIME;
+            float fps = 1000000.f/(float)(curr - sFpsTimer);
+            if(sAvrgFpsCounter > 10) { // set number of samples for avrage
+                sAvrgFpsShow = sAvrgFpsSample/(float)sAvrgFpsCounter;
+                sAvrgFpsSample = 0;
+                sAvrgFpsCounter = 0;
+            }else {
+                sAvrgFpsSample += fps;
+                sAvrgFpsCounter++;
+            }
+            sFpsTimer = curr;
+            if(snprintf(label, sizeof(label), "fps: %.2f (%.2f)", fps, sAvrgFpsShow)){
+                cv_mat_draw_text(cv_frameObj, label, 10, 20, 0.5, 255, 0, 0, 1);
+            }        
+            if(snprintf(label, sizeof(label), "debug_cam_%d", frame->id)){
+                cv_mat_show(label, cv_frameObj, 1);
+            }
         }
 #endif
         return EHS_TRUE;

@@ -114,7 +114,7 @@ EHS_FB_DESTROY_FUNCTION(audio_input_level)
 	inx_audio_input_level_state_type *inx_audio_input_level_state = (inx_audio_input_level_state_type*)EHS_FB_DESTROY_CONTEXT;
 	targetAudioRecord_destroy();
 	threadRun = EHS_FALSE;
-	//Your code below here
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION start MACRO START -- DO NOT ALTER

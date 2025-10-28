@@ -31,7 +31,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
+#include "globals.h"
 #include "target_string.h"
 
 /*****************************************************************************/
@@ -63,7 +63,7 @@
  * @param[in] pSrc Pointer to the string to trim
  * @return pointer to the trimmed string or NULL if error.
  */
-EHS_GLOBAL const ehs_char* EhsStrTrimL(const ehs_char* pSrc);
+EHS_EXTERN const ehs_char* EhsStrTrimL(const ehs_char* pSrc);
 #endif
 
 #ifndef EhsStrTrimR
@@ -73,7 +73,7 @@ EHS_GLOBAL const ehs_char* EhsStrTrimL(const ehs_char* pSrc);
  * @param[in] pSrc Pointer to the string to trim
  * @return pointer to the trimmed string (or NULL if error)
  */
-EHS_GLOBAL ehs_char* EhsStrTrimR(ehs_char* pSrc);
+EHS_EXTERN ehs_char* EhsStrTrimR(ehs_char* pSrc);
 #endif
 
 #ifndef EhsStrTrimLR
@@ -83,7 +83,7 @@ EHS_GLOBAL ehs_char* EhsStrTrimR(ehs_char* pSrc);
  * @param[in] pSrc Pointer to the string to trim
  * @return pointer to the trimmed string (or NULL if error)
  */
-EHS_GLOBAL ehs_char* EhsStrTrimLR(ehs_char* pSrc);
+EHS_EXTERN ehs_char* EhsStrTrimLR(ehs_char* pSrc);
 #endif
 
 #ifndef EhsStrIsSpace
@@ -92,7 +92,7 @@ EHS_GLOBAL ehs_char* EhsStrTrimLR(ehs_char* pSrc);
  * @param c Character to check
  * @return EHS_TRUE if it is a whitespace character
  */
-EHS_GLOBAL ehs_bool EhsStrIsSpace(ehs_char c);
+EHS_EXTERN ehs_bool EhsStrIsSpace(ehs_char c);
 #endif
 
 #if 0
@@ -113,14 +113,14 @@ ehs_char * EhsStrcpyUpTo( ehs_char * destination, const ehs_char * source, ehs_u
  * @todo rename to EhsStrIsAlpha
  * @todo check to see if ctype provides a default implementation (guard with ifndef)
  */
-EHS_GLOBAL ehs_bool EhsIsAlpha(ehs_char ch);
+EHS_EXTERN ehs_bool EhsIsAlpha(ehs_char ch);
 
 /**
  * Determine if character is a-z or A-Z or 0-9
  * @todo rename to EhsStrIsAlNum
  * @todo check to see if ctype provides a default implementation (guard with ifndef)
  */
-EHS_GLOBAL ehs_bool EhsIsAlNum(ehs_char ch);
+EHS_EXTERN ehs_bool EhsIsAlNum(ehs_char ch);
 
 /**
  * Read an unsigned 32-bit integer from a line of the SODL file.
@@ -135,7 +135,7 @@ EHS_GLOBAL ehs_bool EhsIsAlNum(ehs_char ch);
  * @param input String containing SODL input.
  * @return Pointer to updated input string (i.e. after reading the integer)
  */
-EHS_GLOBAL const ehs_char* EhsGetUint32FromString(ehs_uint32 * output, const ehs_char* input);
+EHS_EXTERN const ehs_char* EhsGetUint32FromString(ehs_uint32 * output, const ehs_char* input);
 
 /**
  * Read a signed 32-bit integer from a line of the SODL file.
@@ -215,7 +215,7 @@ extern const ehs_char* EhsGetWordFromString(ehs_char * output, const ehs_char* i
  * @endcode
  * 
  */
-EHS_GLOBAL ehs_uint8 EhsGetWordsFromString(ehs_char **outputs, const ehs_char* input, ehs_uint8 length);
+EHS_EXTERN ehs_uint8 EhsGetWordsFromString(ehs_char **outputs, const ehs_char* input, ehs_uint8 length);
 
 /**
  * Return a pointer to the character after the end of line character,
@@ -229,7 +229,7 @@ extern const ehs_char* EhsGetEol(const ehs_char* input);
  * @param[in] szSource Points to an entry within a string.
  * @return points to the next character in the string if the conversion succeeded, or null if it failed
  */
-EHS_GLOBAL const ehs_char* EhsHSUtil_getUtf32(ehs_uint32* pnUtf32, const ehs_char* szSource);
+EHS_EXTERN const ehs_char* EhsHSUtil_getUtf32(ehs_uint32* pnUtf32, const ehs_char* szSource);
 
 
 /**
@@ -237,13 +237,13 @@ EHS_GLOBAL const ehs_char* EhsHSUtil_getUtf32(ehs_uint32* pnUtf32, const ehs_cha
  * Trusted client! - no length checks are done on buffers.
  */
 
-EHS_GLOBAL ehs_bool EhsParseEscapeChars(ehs_char * output, const ehs_char* input);
+EHS_EXTERN ehs_bool EhsParseEscapeChars(ehs_char * output, const ehs_char* input);
 
 /**
  * \brief Returns a quote (") delimted string in output a pointer to the next char after in the input string.
  */
 
-EHS_GLOBAL const ehs_char* EhsGetQuoteDelimFromString(ehs_char * output, const ehs_char* input, ehs_uint16 max_length);
+EHS_EXTERN const ehs_char* EhsGetQuoteDelimFromString(ehs_char * output, const ehs_char* input, ehs_uint16 max_length);
 
 /* within target_file.h, file functions are normally #def'd to their stdio equivalents.
  * If the target cannot use the stdio version, the #define is removed from target_file,
@@ -252,43 +252,43 @@ EHS_GLOBAL const ehs_char* EhsGetQuoteDelimFromString(ehs_char * output, const e
  */
 
 #ifndef EhsSprintf
-EHS_GLOBAL ehs_uint16 EhsSprintf(ehs_char *pOutput, const ehs_char* pFmt, ...); /*lint !e960 Variable arguments required to support sprintf */
+EHS_EXTERN ehs_uint16 EhsSprintf(ehs_char *pOutput, const ehs_char* pFmt, ...); /*lint !e960 Variable arguments required to support sprintf */
 #endif
 
 #ifndef EhsSscanf
-EHS_GLOBAL ehs_uint16 EhsSscanf( const ehs_char *src, const ehs_char *format, ... ); /*lint !e960 Variable arguments required to support sscanf */
+EHS_EXTERN ehs_uint16 EhsSscanf( const ehs_char *src, const ehs_char *format, ... ); /*lint !e960 Variable arguments required to support sscanf */
 #endif
 
 #ifndef EhsStricmp
-EHS_GLOBAL ehs_sint16 EhsStricmp(const ehs_char* sz1, const ehs_char* sz2);
+EHS_EXTERN ehs_sint16 EhsStricmp(const ehs_char* sz1, const ehs_char* sz2);
 #endif
 
 #ifndef EhsStrnicmp
-EHS_GLOBAL ehs_sint16 EhsStrnicmp(const ehs_char* sz1, const ehs_char* sz2, ehs_uint16 len);
+EHS_EXTERN ehs_sint16 EhsStrnicmp(const ehs_char* sz1, const ehs_char* sz2, ehs_uint16 len);
 #endif
 
 #ifndef EhsStrcmp
-EHS_GLOBAL ehs_sint16 EhsStrcmp(const ehs_char* sz1, const ehs_char* sz2);
+EHS_EXTERN ehs_sint16 EhsStrcmp(const ehs_char* sz1, const ehs_char* sz2);
 #endif
 
 #ifndef EhsStrlen
-EHS_GLOBAL ehs_sint16 EhsStrlen(const ehs_char*sz);
+EHS_EXTERN ehs_sint16 EhsStrlen(const ehs_char*sz);
 #endif
 
 #ifndef EhsStrcat_s
-EHS_GLOBAL ehs_char* EhsStrcat_s(ehs_char* src, ehs_uint32 nNumElts, const ehs_char* dest);
+EHS_EXTERN ehs_char* EhsStrcat_s(ehs_char* src, ehs_uint32 nNumElts, const ehs_char* dest);
 #endif
 
 #ifndef EhsStrchr
-EHS_GLOBAL ehs_char* EhsStrchr(const ehs_char*, ehs_char);
+EHS_EXTERN ehs_char* EhsStrchr(const ehs_char*, ehs_char);
 #endif
 
 #ifndef EhsMemset
-EHS_GLOBAL void* EhsMemset(void*, ehs_sint32, ehs_uint32);
+EHS_EXTERN void* EhsMemset(void*, ehs_sint32, ehs_uint32);
 #endif
 
 #ifndef EhsMemcpy
-EHS_GLOBAL void* EhsMemcpy(void*, void*, ehs_uint32);
+EHS_EXTERN void* EhsMemcpy(void*, void*, ehs_uint32);
 #endif
 
 #ifndef EhsStrcpy_s

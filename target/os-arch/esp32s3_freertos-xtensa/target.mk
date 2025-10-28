@@ -58,7 +58,10 @@ ENABLE_GDB=1
 DEFS += EHS_LWIP=1
 #INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/lwip/
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/Component-HAL/comms/lwip
+ifdef EHS_NETWORK_WIFI_SUPPORT
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/Component-HAL/wifi
+INC_DIRS +=$(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32s3-xtensa/examples/wifi_test
+endif
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/hal/
 
 #IDF build has som specific subdirectories:
@@ -68,7 +71,7 @@ INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/esp_additions/
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/components/mqtt/esp-mqtt
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/apps/
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/apps/ping/
-INC_DIRS +=$(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32s3-xtensa/examples/wifi_test
+
 # include next folder
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/include_next
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/esp32s3/
@@ -88,12 +91,11 @@ OBJECTS += ping.$(OBJ)
 ifeq ($(EHS_UART_SUPPORT),yes)
 OBJECTS += target_uart.${OBJ}
 endif
+ifdef EHS_NETWORK_WIFI_SUPPORT
 OBJECTS += target_wifi.${OBJ}
-OBJECTS += target_ethernet.${OBJ}
-ifeq ($(EHS_OTA_SUPPORT),stubbed)
-else
-OBJECTS += target_ota.${OBJ}
 endif
+OBJECTS += target_ethernet.${OBJ}
+
 ifneq (,$(wildcard $(_TARGET_PATH)/target_data_bin.c))
 OBJECTS += target_data_bin.${OBJ}
 else

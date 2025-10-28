@@ -19,11 +19,9 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "ehs_types.h"
-#include "hal_string.h"
-#include "target_config.h"
-#include "target_specific.h"
 #include "globals.h"
+#include "hal_string.h"
+#include "hal_logger.h"
 /*****************************************************************************/
 /* Define macros  */
 /**
@@ -125,7 +123,7 @@ typedef enum
 /**
  * Returns EhsHLogger_Msg buffer
  */
-EHS_GLOBAL ehs_char* EhsHLogger_Buffer();
+ehs_char* EhsHLogger_Buffer();
 
 
 //#define EHSH_LOG_MESSAGEX(nLevel,...) {}
@@ -179,7 +177,7 @@ EHS_GLOBAL ehs_char* EhsHLogger_Buffer();
  * of the subsystems that are currently being traced. 0 means trace is disabled.
  */
 /* TOdo all these trasing functions - at elast the ernel ones, should go in the kernel code-base*/
-EHS_GLOBAL ehs_uint32 EhsTraceFlags;
+ehs_uint32 EhsTraceFlags;
 
 #define EHS_TRACE_FLAG_ATOM 0x8000 /**< Applies to functions that are called at the lowest level: bytes (file handling), tokens (parser), events (kernel) ... */
 #define EHS_TRACE_FLAG_ITEM 0x4000 /**< Applies to items at the next level: lines (file handling), statements (parser),...*/
@@ -255,13 +253,13 @@ EHS_GLOBAL ehs_uint32 EhsTraceFlags;
 /**
  * Indicates the current log level for each module
  */
-EHS_GLOBAL EhsHLoggerLogLevel EhsHLoggerModuleLogLevel[];
+EHS_EXTERN EhsHLoggerLogLevel EhsHLoggerModuleLogLevel[];
 
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
 /**
  * Temporary string used by EHSH_LOG_ macros to write message
  */
-EHS_GLOBAL ehs_char EhsHLogger_Msg[];
+EHS_EXTERN ehs_char EhsHLogger_Msg[];
 #endif
 /*****************************************************************************/
 /* Declare function prototypes  */
@@ -269,12 +267,12 @@ EHS_GLOBAL ehs_char EhsHLogger_Msg[];
 /**
  * Initialise the logger subsystem
  */
-EHS_GLOBAL void EhsHLogger_init();
+void EhsHLogger_init();
 
 /**
  * Record a log entry
  */
-EHS_GLOBAL void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel,
+void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel,
                                const ehs_char* szFilename, ehs_uint32 nLine, const ehs_char* szMsg);
 
 /**
@@ -282,6 +280,6 @@ EHS_GLOBAL void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nL
  * @param[in] szModule Name of the module to log
  * @param[in] nLevels Set of the levels we wish to log (or'd together)
  */
-EHS_GLOBAL ehs_bool EhsHLogger_setLogLevel(const ehs_char* szModule, EhsHLoggerLogLevel nLevels);
+ehs_bool EhsHLogger_setLogLevel(const ehs_char* szModule, EhsHLoggerLogLevel nLevels);
 
 #endif /* EHS_HAL_LOGGER_H */

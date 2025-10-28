@@ -9,6 +9,7 @@
 
 #include "../gst10_mingw/target_os_dtv.h"
 
+#include "globals.h"
 #include "target_dtv.h"
 
 #include "hal-api.h"

@@ -25,6 +25,8 @@
 
 #define VLC_PUBLIC_API extern
 typedef short bool;
+
+#include "globals.h"
 #include "vlcinc/vlc/libvlc.h"
 //#include "vlcinc/vlc_block.h"
 

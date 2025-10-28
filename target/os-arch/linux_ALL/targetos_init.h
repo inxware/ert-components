@@ -39,33 +39,33 @@
  * The what parameter can be used 0: get everything, 1 get just static 2 just dynamic
  */
 
-EHS_GLOBAL ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 what);
+ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 what);
 
 /**
  * Perform necessary Operating system setup upon system initialisation
  */
-EHS_GLOBAL void EhsTOsSys_init(void);
+void EhsTOsSys_init(void);
 
 /**
  * Called to shutdown the target prior to shutting down EHS
  */
-EHS_GLOBAL void EhsTOsSys_term(void);
+void EhsTOsSys_term(void);
 
 /**
  * Perform setup before loading in a new application
  */
-EHS_GLOBAL void EhsTOsApp_init(void);
+void EhsTOsApp_init(void);
 
 /**
  * Called to clean up after the execution of an application in order to make
  * sure everything has been stopped.
  */
-EHS_GLOBAL void EhsTOsApp_term(void);
+void EhsTOsApp_term(void);
 
 /**
  * Perform necessary target setup per application execution
  */
-EHS_GLOBAL void EhsTOsApp_reset(void);
+void EhsTOsApp_reset(void);
 
 /* Function to add EHS's canonical bin to the search path */
 void EhsBinSearchPath(void);

@@ -1,9 +1,10 @@
 #include "inx-PID_isr.h"
 
 #include "hal_gpio.h"
-#ifdef EHS_MAX31343_SUPPORT
-#include "target_specific.h"
-#endif//EHS_MAX31343_SUPPORT
+
+//#ifdef EHS_MAX31343_SUPPORT
+//#include "target_specific.h"
+//#endif//EHS_MAX31343_SUPPORT
 
 // isr friendly printf (needed especally for esp32 adc isr)
 #ifdef EHS_ESP32_SUPPORT
@@ -34,7 +35,7 @@
 // Note that this is signed 16-bit integer array. Pay attention to the 
 //  type conversion during the calculation!
 #define PID_PT100_TEMP_LUT_SIZE 129
-static const ehs_sint16 PT100_temperature_LUT[PID_PT100_TEMP_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB PT100_temperature_LUT[PID_PT100_TEMP_LUT_SIZE] = {
     -2012, -1943, -1873, -1802, -1732, -1661, -1589, -1517, -1445, -1373,
     -1300, -1227, -1154, -1080, -1006, -932, -858, -783, -708, -633, -558,
     -483, -407, -331, -255, -179, -102, -26, 51, 128, 205, 283, 360, 438,
@@ -64,7 +65,7 @@ static const ehs_sint16 PT100_temperature_LUT[PID_PT100_TEMP_LUT_SIZE] = {
 #define PID_TC_J_LUT_SCALE 2
 #define PID_TC_J_LUT_MV_LOW -8
 #define PID_TC_J_LUT_MV_HIGH 70
-static const ehs_sint16 TC_J_LUT[PID_TC_J_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_J_LUT[PID_TC_J_LUT_SIZE] = {
     -2052, -1355, -850, -408, 0, 389, 765, 1134, 1498, 1860, 2220, 2580, 2941,
     3303, 3665, 4028, 4390, 4750, 5108, 5462, 5811, 6153, 6488, 6817, 7139, 7456,
     7768, 8078, 8388, 8702, 9020, 9343, 9673, 10008, 10348, 10691, 11036, 11382,
@@ -76,7 +77,7 @@ static const ehs_sint16 TC_J_LUT[PID_TC_J_LUT_SIZE] = {
 //  , where T is the temperature of the cold junction
 // The coefficient is in 1024 fixed point. In order to convert it back,
 //  need to divide the result by 1024.
-static const ehs_sint16 TC_J_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_J_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
     49, 49, 50, 51, 52, 52, 53, 53, 54, 54, 54, 55, 55
 };
 // TC J temperature to millivolts Look Up Table
@@ -85,7 +86,7 @@ static const ehs_sint16 TC_J_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
 //  , where T is the temperature of the cold junction
 // The millivolt is in 1024 fixed point. In order to convert it back,
 //  need to divide the result by 1024.
-static const ehs_sint16 TC_J_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_J_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
     -2008, -1517, -1019,  -513,     0,   519,  1044,  1574,
         2108,  2647,  3190,  3737,  4287
 };
@@ -103,7 +104,7 @@ static const ehs_sint16 TC_J_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
 #define PID_TC_K_LUT_SCALE 2
 #define PID_TC_K_LUT_MV_LOW -6
 #define PID_TC_K_LUT_MV_HIGH 54
-static const ehs_sint16 TC_K_LUT[PID_TC_K_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_K_LUT[PID_TC_K_LUT_SIZE] = {
     -2075, -1151, -531, 0, 494, 977, 1466, 1965, 2462, 2950, 3430, 3906, 4379,
     4849, 5318, 5787, 6258, 6731, 7208, 7690, 8177, 8670, 9169, 9674, 10186,
     10706, 11234, 11771, 12320, 12883, 13460
@@ -114,7 +115,7 @@ static const ehs_sint16 TC_K_LUT[PID_TC_K_LUT_SIZE] = {
 //  , where T is the temperature of the cold junction
 // The coefficient is in 1024 fixed point. In order to convert it back,
 //  need to divide the result by 1024.
-static const ehs_sint16 TC_K_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_K_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
     38, 38, 39, 40, 40, 41, 41, 42, 42, 42, 42, 43, 43
 };
 // TC K temperature to millivolts Look Up Table
@@ -123,7 +124,7 @@ static const ehs_sint16 TC_K_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
 //  , where T is the temperature of the cold junction
 // The millivolt is in 1024 fixed point. In order to convert it back,
 //  need to divide the result by 1024.
-static const ehs_sint16 TC_K_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_K_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
     -1564, -1184,  -796,  -401,     0,   406,   817,  1232,
         1650,  2072,  2495,  2920,  3345
 };
@@ -141,7 +142,7 @@ static const ehs_sint16 TC_K_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
 #define PID_TC_N_LUT_SCALE 1
 #define PID_TC_N_LUT_MV_LOW -4
 #define PID_TC_N_LUT_MV_HIGH 46
-static const ehs_sint16 TC_N_LUT[PID_TC_N_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_N_LUT[PID_TC_N_LUT_SIZE] = {
     -2010, -1303, -812, -391, 0, 376, 734, 1076, 1403, 1720, 2026, 2325, 2617,
     2903, 3185, 3463, 3736, 4007, 4275, 4541, 4804, 5066, 5326, 5585, 5842, 6099,
     6355, 6611, 6866, 7121, 7394, 7630, 7884, 8139, 8394, 8649, 8905, 9256, 9418,
@@ -153,7 +154,7 @@ static const ehs_sint16 TC_N_LUT[PID_TC_N_LUT_SIZE] = {
 //  , where T is the temperature of the cold junction
 // The coefficient is in 1024 fixed point. In order to convert it back,
 //  need to divide the result by 1024.
-static const ehs_sint16 TC_N_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_N_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
     25, 26, 26, 27, 27, 27, 27, 28, 28, 28, 29, 29, 30
 };
 // TC N temperature to millivolts Look Up Table
@@ -162,7 +163,7 @@ static const ehs_sint16 TC_N_COEFF_LUT[PID_TC_COEFF_LUT_SIZE] = {
 //  , where T is the temperature of the cold junction
 // The millivolt is in 1024 fixed point. In order to convert it back,
 //  need to divide the result by 1024.
-static const ehs_sint16 TC_N_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
+static const ehs_sint16 EHS_DATA_MEMORY_ATTRIB TC_N_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
     -1047,  -791,  -530,  -267,    -0,   267,   538,   812,
         1090,  1372,  1658,  1948,  2241
 };
@@ -172,7 +173,7 @@ static const ehs_sint16 TC_N_MV_LUT[PID_TC_COEFF_LUT_SIZE] = {
 
 // ====================================================================
 
-int8_t inxIecControllerOutputModeToDutyCycleStateIndex(const inxControllerOutputMode_t com){
+int8_t EHS_MEMORY_ATTRIB inxIecControllerOutputModeToDutyCycleStateIndex(const inxControllerOutputMode_t com){
     int8_t index=-1;
     switch(com){
         case INX_CONTROLLER_OUTPUT_MODE_INTERNAL_1:
@@ -202,7 +203,7 @@ int8_t inxIecControllerOutputModeToDutyCycleStateIndex(const inxControllerOutput
 // ====================================================================
 
 #define INX_PID_GPIO_COUNT 6
-static volatile ehs_gpio_out_state_type g_inx_gpio[INX_PID_GPIO_COUNT] = {0};
+static volatile ehs_gpio_out_state_type EHS_DATA_MEMORY_ATTRIB g_inx_gpio[INX_PID_GPIO_COUNT] = {0};
 static bool g_inx_gpio_inverse[INX_PID_GPIO_COUNT] = {
     #ifdef CONFIG_GPIO_INVERSE_INTERNAL_RELAY_1
     CONFIG_GPIO_INVERSE_INTERNAL_RELAY_1,
@@ -236,7 +237,7 @@ static bool g_inx_gpio_inverse[INX_PID_GPIO_COUNT] = {
     #endif
 };
 
-static bool inx_pid_ctrl_gpio_update(ehs_sint32 pin_no, ehs_bool value){
+static bool EHS_MEMORY_ATTRIB inx_pid_ctrl_gpio_update(ehs_sint32 pin_no, ehs_bool value){
     for(ehs_uint8 i = 0; i < INX_PID_GPIO_COUNT; i++){
         if(g_inx_gpio[i].pin_id == pin_no){
             g_inx_gpio[i].pin_value = value;
@@ -316,7 +317,7 @@ uint32_t gLPTMRInterruptMilliseconds=CONFIG_LPTMR_DEFAULT_INTERRUPT_MILLISECONDS
 uint32_t gMinTicksSinceHeaterChange=0;
 //uint32_t gTicksSinceSettingsSave=0;
 
-volatile inxCalibration_t gCalibration={
+volatile inxCalibration_t EHS_DATA_MEMORY_ATTRIB gCalibration={
     // A thousands of millivolts (microvolts)
     .pt100Offset = 0,
     // Parts per million
@@ -333,7 +334,7 @@ volatile inxCalibration_t gCalibration={
     .thermocoupleTwoScale = 1
 };
 
-static bool isSensorConnected(ehs_sint32 nSensorID, const adcRawConnected_t const* pConnected)
+static bool EHS_MEMORY_ATTRIB isSensorConnected(ehs_sint32 nSensorID, const adcRawConnected_t const* pConnected)
 {
     ehs_bool isConnected = EHS_FALSE;
     if(nSensorID==INX_CONTROLLER_SENSORS_PT100_CHANNEL1){
@@ -373,7 +374,7 @@ static void inxLPTMRInit(){
 	//inxLPTMRInitTriggerSource();
 }
 
-bool inxIecOutputAlreadyInUse(const u8_t pidNum){
+bool EHS_MEMORY_ATTRIB inxIecOutputAlreadyInUse(const u8_t pidNum){
     //check the PIDs above me in priority
     for(u8_t outputNum=0;outputNum<CONFIG_PID_OUTPUTS_NUM;outputNum++){
         inxControllerOutputMode_t myMode=gPIDs[pidNum].controllerOutputMode[outputNum];
@@ -394,11 +395,11 @@ bool inxIecOutputAlreadyInUse(const u8_t pidNum){
     return false;
 }
 
-static void inxGPIOOff(uint32_t pin_no){
+static void EHS_MEMORY_ATTRIB inxGPIOOff(uint32_t pin_no){
     inx_pid_ctrl_gpio_update((ehs_sint32)pin_no, EHS_FALSE);
 }
 
-static bool inxGPIOOn(uint32_t pin_no){
+static bool EHS_MEMORY_ATTRIB inxGPIOOn(uint32_t pin_no){
     
     bool ok=false;
     // @TODO - review the watchdog bit
@@ -410,7 +411,7 @@ static bool inxGPIOOn(uint32_t pin_no){
     return ok;
 }
 
-static float dutyCycleStateGetLengthSeconds(volatile dutyCycleState_t* pState){
+static float EHS_MEMORY_ATTRIB dutyCycleStateGetLengthSeconds(volatile dutyCycleState_t* pState){
     if(pState->cycleInterruptLength<2){
         pState->cycleInterruptLength=2;
     }
@@ -449,7 +450,7 @@ static float dutyCycleStateGetLengthSeconds(volatile dutyCycleState_t* pState){
 
 /* Stateful Relay Control Layer functions */
 
-void dutyCycleStateOff(volatile dutyCycleState_t* pState){
+void EHS_MEMORY_ATTRIB dutyCycleStateOff(volatile dutyCycleState_t* pState){
     //pwmcalc_printf("\n====SWITCHING OFF (pstate=%d):\n",pState->on);
     if (pState->inverse_logic) inxGPIOOn(pState->gpioPin);
     else inxGPIOOff(pState->gpioPin);
@@ -485,7 +486,7 @@ static void inxPWMOff(volatile dutyCycleState_t* pState){
 }
 
 void dutyCycleStateOffForced(volatile dutyCycleState_t* pState){
-    isr_printf("!!!!!!!!!!!!!!!! FORCED RELAYS OFF!!!!!!!!!!!!\n");
+    //isr_printf("!!!!!!!!!!!!!!!! FORCED RELAYS OFF!!!!!!!!!!!!\n");
     pState->on = true; //if way we are on the dutyCycleStateOff will always turn us off
     dutyCycleStateOff(pState);
     inxPWMOff(pState);
@@ -493,19 +494,19 @@ void dutyCycleStateOffForced(volatile dutyCycleState_t* pState){
 
 /* todo EN60XXXX GPIO / relay tests should only be done in internal relay mode */
 static bool gFTM2Started=false;
-static void inxPWMDeinit(){
+static void EHS_MEMORY_ATTRIB inxPWMDeinit(){
     if(gFTM2Started){
         //FTM_StopTimer(FTM2); - nxp func
         gFTM2Started=false;
     }
 }
 
-static void inxPWMInit(const float lengthSeconds){
+static void EHS_MEMORY_ATTRIB inxPWMInit(const float lengthSeconds){
     // stub - hardware specific
     gFTM2Started=true;
 }
 
-static void inxPWMEnable(volatile dutyCycleState_t* pState){
+static void EHS_MEMORY_ATTRIB inxPWMEnable(volatile dutyCycleState_t* pState){
     const float lengthSeconds=dutyCycleStateGetLengthSeconds(pState);
     uint32_t periodHz=(1.0f/lengthSeconds);
     //round to nearest 1000 if appropriate
@@ -521,7 +522,7 @@ static void inxPWMEnable(volatile dutyCycleState_t* pState){
     pState->powerPercent=0;
 }
 
-void dutyCycleStateOn(volatile dutyCycleState_t* pState){
+void EHS_MEMORY_ATTRIB dutyCycleStateOn(volatile dutyCycleState_t* pState){
     bool ok=false;
     const bool prevState=pState->on;
     if(pState->ftmBase!=NULL && pState->ftmEnabled){
@@ -562,7 +563,7 @@ void inxIecShutOffRelay(const inxControllerOutputMode_t com){
     }
 }
 
-void inxIecShutOffAllRelays(const bool forever){
+void EHS_MEMORY_ATTRIB inxIecShutOffAllRelays(const bool forever){
     //turn everything off
     for(uint8_t i=0;i<CONFIG_DUTY_CYCLES_NUM;i++){
         dutyCycleStateOffForced(&dutyCycleStates[i]);
@@ -576,7 +577,7 @@ void inxIecShutOffAllRelays(const bool forever){
 
 // Not trusted client
 // staggerTicks tells us if the relay should shut off early so we can test the TCO
-void dutyCycleStateSetPowerPercent(volatile dutyCycleState_t* pState,int32_t powerPercent,const uint32_t staggerTicks){
+void EHS_MEMORY_ATTRIB dutyCycleStateSetPowerPercent(volatile dutyCycleState_t* pState,int32_t powerPercent,const uint32_t staggerTicks){
     powerPercent=(powerPercent<0)?0:powerPercent;
     powerPercent=(powerPercent>100)?100:powerPercent;
     if(pState->powerPercent==powerPercent){
@@ -601,7 +602,7 @@ void dutyCycleStateSetPowerPercent(volatile dutyCycleState_t* pState,int32_t pow
     //printf("PWM Duty info (from %d/%d)\n",pState->powerOffInterruptCount,pState->cycleInterruptLength,powerPercent);
 }
 
-void dutyCycleStateSetPowerPercentFromCOM(const inxControllerOutputMode_t com,const int32_t powerPercent,const uint32_t staggerTicks){
+void EHS_MEMORY_ATTRIB dutyCycleStateSetPowerPercentFromCOM(const inxControllerOutputMode_t com,const int32_t powerPercent,const uint32_t staggerTicks){
     int8_t index=inxIecControllerOutputModeToDutyCycleStateIndex(com);
     if(index>=0){
         dutyCycleStateSetPowerPercent(&dutyCycleStates[index],powerPercent,staggerTicks);
@@ -656,7 +657,7 @@ static void inxDutyCycleStateSetRelayType(const bool byUser,volatile dutyCycleSt
 }
 
 /*  PWM function */
-void dutyCycleStateTick(volatile dutyCycleState_t* pState){
+void EHS_MEMORY_ATTRIB dutyCycleStateTick(volatile dutyCycleState_t* pState){
     //printf("PBB 1563 %x %d %d\n",pState,pState->cycleInterruptLength,pState->powerOffInterruptCount);
     pState->numInterrupts++;
     pState->ticksSinceChange++;/*-Ints=%d,IntLen=%d*/
@@ -697,7 +698,7 @@ void dutyCycleStateTick(volatile dutyCycleState_t* pState){
 
 //input controller, output mode, relay set, set point
 //we can then call this method for each controller
-static void calculateRequiredPower(const u8_t pidNum,inxPID_t* pPID,const bool globalLimitReached){
+static void EHS_MEMORY_ATTRIB calculateRequiredPower(const u8_t pidNum,inxPID_t* pPID,const bool globalLimitReached){
     //SW_DIAG_printf("****** Desired temp =%f, current temp = %f \n",desiredTemp,currentTemp);
     //LWIP_PLATFORM_DIAG(("calculateRequiredPower"));
     uint32_t powerPercent = 0; //default to off
@@ -988,7 +989,7 @@ static bool pidValuesSafe(inxPID_t* pPID){
 #define PT100_CALI_OFFSET_DIVIDER_SCALE_FP_FP 40854 // round(3/(51+26)*1024*1024)
 
 /* converts 12 bit adc value to temperature for pt100 sensor using processor board pt100 input */
-int32_t convert_pt100_to_temperature_v2(const int32_t raw_value, const int32_t offset, const int32_t scale, bool calibrate) {
+int32_t EHS_MEMORY_ATTRIB convert_pt100_to_temperature_v2(const int32_t raw_value, const int32_t offset, const int32_t scale, bool calibrate) {
 
 //	float voltage     = ((float)(raw_value)/(float)ADC_FSD)*3.3f; // 12 bit ADC value with 3.3v reference
 //	float pt100_resistance = (-PT100_RREF*PT100_RBIAS*voltage)/(PT100_RREF*voltage-3.3f*PT100_RF-3.3f*PT100_RREF);
@@ -1066,7 +1067,7 @@ int32_t convert_pt100_3W_to_temperature(const int32_t raw_value, const int32_t o
 #define EHS_PID_10V_AMP_GAIN_CORRECTION_FACTOR FIXED_POINT_TO(1)
 #endif//EHS_PID_10V_AMP_GAIN_CORRECTION_FACTOR
 
-static int32_t convert10VToTemperature(const int32_t in, const int32_t offset, const int32_t scale, bool calibrate){
+static int32_t EHS_MEMORY_ATTRIB convert10VToTemperature(const int32_t in, const int32_t offset, const int32_t scale, bool calibrate){
     // NXP device conversion
     //float temp=(float)((((float)(in*100))/4096.0)*(XERO10V_HIGH_RESISTOR+XERO10V_LOW_RESISTOR)/(XERO10V_LOW_RESISTOR*3.3f));
     //float adjusted=(temp*(scale+1))+offset;
@@ -1100,7 +1101,7 @@ static int32_t convert10VToTemperature(const int32_t in, const int32_t offset, c
 #define EHS_REFERENCE_TEMP_DIFF FIXED_POINT_TO(0.875)
 #endif//EHS_REFERENCE_TEMP_DIFF
 
-static int32_t convert20MAToTemperature(const int32_t in, const int32_t offset, const int32_t scale, bool calibrate){
+static int32_t EHS_MEMORY_ATTRIB convert20MAToTemperature(const int32_t in, const int32_t offset, const int32_t scale, bool calibrate){
     // NXP device conversion
     //float temp=(float)(((float)((in-819)*100))/3277.0);
     //float adjusted=(temp*(scale+1))+offset;
@@ -1160,7 +1161,7 @@ static int32_t convertModbusToTemperature(const uint32_t in){
 // Reference Temperature in fixed point (*1024)
 ehs_sint32 gRefTemperature = FIXED_POINT_TO(23);
 // 1000/4.7 *2 * 0.0406 = 17.1277mV/C
-static int32_t convertThermocoupleToTemperature(const int32_t in, const inxThermoCoupleType_t tc_type, const int32_t offset, const int32_t scale, bool calibrate){
+static int32_t EHS_MEMORY_ATTRIB convertThermocoupleToTemperature(const int32_t in, const inxThermoCoupleType_t tc_type, const int32_t offset, const int32_t scale, bool calibrate){
     //float temp = (((float)in/4096.0f)*INX_HEATROD_HRC_THERMOCOUPLE_ADC_VREF_MV-INX_HEATROD_HRC_THERMOCOUPLE_AVG_OPAMP_OFFSET_MV)/INX_HEATROD_HRC_THERMOCOUPLE_MV_PER_C;
     //float adjusted = (temp*(scale+1))+offset;
     //printf ("ADC= %d, Thermocouple Temp (10mV/C) = %f\r\n",in, temperature);
@@ -1316,7 +1317,7 @@ calc_temperature:
 
 /* Returns the converted value of the sensor identified by sensor enum */
 
-int32_t getConvertedValue(const inxPID_t *pid_config, const inxSensorType_t* pSensorType, const adcRawValues_t* pRawValues){
+int32_t EHS_MEMORY_ATTRIB getConvertedValue(const inxPID_t *pid_config, const inxSensorType_t* pSensorType, const adcRawValues_t* pRawValues){
     int32_t value=0;
 
     switch(pid_config->sensors){
@@ -1348,12 +1349,12 @@ int32_t getConvertedValue(const inxPID_t *pid_config, const inxSensorType_t* pSe
     return value;
 }
 
-void copyGlobalADCValues(globalADCValues_t* pDst,globalADCValues_t* pSrc){
+void EHS_MEMORY_ATTRIB copyGlobalADCValues(globalADCValues_t* pDst,globalADCValues_t* pSrc){
     memcpy(pDst,pSrc,sizeof(globalADCValues_t));
 }
 
 volatile static bool gWriteToBufferZero=1;
-static void writeGlobalADCValues(globalADCValues_t* pNewValues){
+static void EHS_MEMORY_ATTRIB writeGlobalADCValues(globalADCValues_t* pNewValues){
     globalADCValues_t* pValues;
     //LWIP_PLATFORM_DIAG(("writeGlobalADCValues: gWriteToBufferZero=%d",gWriteToBufferZero));
     if(gWriteToBufferZero){
@@ -1379,7 +1380,7 @@ static globalADCValues_t readGlobalADCValues(){
 
 #define INX_MAX_CELSIUS_DEVIATION 10.0f
 /* todo - turn this into a few functions */
-void calculateAverageAndVariance(globalADCValues_t* pValues) {
+void EHS_MEMORY_ATTRIB calculateAverageAndVariance(globalADCValues_t* pValues) {
 #ifdef INX_USE_OUTLIER_DETECTION
     float _average_1 = 0.0f;
     float _average_2 = 0.0f;
@@ -1486,7 +1487,7 @@ static void inxWatchDogKick(inxWatchDogKickID_t id){
  *
  * NOTES: We only convert sensor values if they are used in PIDs, so we can't monitor anything in Devman or dashboards unless it's used in a PID controller.
  */
-static void convertADCValuesToRealValues(adcRawValues_t* pRawValues,adcConvertedValues_t* pConverted){
+static void EHS_MEMORY_ATTRIB convertADCValuesToRealValues(adcRawValues_t* pRawValues,adcConvertedValues_t* pConverted){
 
 
 pConverted->pid1=/*applyGlobalCalibrations(*/getConvertedValue(&gPIDs[0], &gSensorType, pRawValues)/*)*/; // only applu sur galibration to channeel 1
@@ -1519,7 +1520,7 @@ static volatile bool gADCBuffersReady=false;
 /* Warning This runs in an interrupt context
  * It calculated duty values and sets duty values (directly via GPIO presumably)
  * */
-static void adcSampleProcessing(){
+static void EHS_MEMORY_ATTRIB adcSampleProcessing(){
     //LWIP_PLATFORM_DIAG(("adcSampleProcessing %d %d %d %d",gAdc0Done,gAdc1Done,gInxIecInterruptData.doingTest,gInxIecInterruptData.interruptCount));
     if(gAdc0Done && gAdc1Done){
         gAdc0Done=0;
@@ -1739,7 +1740,7 @@ inxThermoCoupleType_t inx_get_controller_sensor_type(ehs_sint32 adc_ctrl_sensor_
 }
 
 /* function returns an index for a specifc PID controller */
-EHS_GLOBAL ehs_bool inx_get_pid_index(const ehs_pid_ctrl_type* pid_ctrl, ehs_sint32* ppid_ctrl_index)
+ehs_bool inx_get_pid_index(const ehs_pid_ctrl_type* pid_ctrl, ehs_sint32* ppid_ctrl_index)
 {
     if(!pid_ctrl || !ppid_ctrl_index){
         return EHS_FALSE;
@@ -1752,7 +1753,7 @@ EHS_GLOBAL ehs_bool inx_get_pid_index(const ehs_pid_ctrl_type* pid_ctrl, ehs_sin
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_pid_ctrl_error_id inx_pid_ctrl_init()
+ehs_pid_ctrl_error_id inx_pid_ctrl_init()
 {
     ehs_pid_ctrl_error_id nError = PID_CTRL_NO_ERROR;
     for(u8_t i=0; i < CONFIG_DUTY_CYCLES_NUM; i++){
@@ -1779,7 +1780,7 @@ EHS_GLOBAL ehs_pid_ctrl_error_id inx_pid_ctrl_init()
     return nError;
 }
 
-EHS_GLOBAL ehs_pid_ctrl_error_id inx_pid_ctrl_channel_init(const ehs_pid_ctrl_type* pid_ctrl)
+ehs_pid_ctrl_error_id inx_pid_ctrl_channel_init(const ehs_pid_ctrl_type* pid_ctrl)
 {
     ehs_sint32 pid_ctrl_index;
     if(!inx_get_pid_index(pid_ctrl, &pid_ctrl_index)){
@@ -1790,7 +1791,7 @@ EHS_GLOBAL ehs_pid_ctrl_error_id inx_pid_ctrl_channel_init(const ehs_pid_ctrl_ty
     return PID_CTRL_NO_ERROR;
 }
 
-EHS_GLOBAL ehs_pid_ctrl_error_id inx_pid_ctrl_gpio_init()
+ehs_pid_ctrl_error_id inx_pid_ctrl_gpio_init()
 {
     ehs_pid_ctrl_error_id nError = PID_CTRL_NO_ERROR;
 
@@ -1817,7 +1818,7 @@ EHS_GLOBAL ehs_pid_ctrl_error_id inx_pid_ctrl_gpio_init()
     return nError;
 }
 
-EHS_GLOBAL ehs_pid_ctrl_error_id inx_pid_ctrl_gpio_destroy()
+ehs_pid_ctrl_error_id inx_pid_ctrl_gpio_destroy()
 {
     ehs_pid_ctrl_error_id nError = PID_CTRL_NO_ERROR;
 
@@ -1830,7 +1831,7 @@ EHS_GLOBAL ehs_pid_ctrl_error_id inx_pid_ctrl_gpio_destroy()
     return nError;
 }
 
-EHS_GLOBAL ehs_pid_ctrl_error_id inx_set_setpoint_value(const ehs_pid_ctrl_type* pid_ctrl)
+ehs_pid_ctrl_error_id inx_set_setpoint_value(const ehs_pid_ctrl_type* pid_ctrl)
 {
     ehs_sint32 pid_ctrl_index;
     if(!inx_get_pid_index(pid_ctrl, &pid_ctrl_index)){
@@ -1840,21 +1841,20 @@ EHS_GLOBAL ehs_pid_ctrl_error_id inx_set_setpoint_value(const ehs_pid_ctrl_type*
     ehs_sint32 setpoint = FIXED_POINT_TO(pid_ctrl->setpointValue);
     if(gPIDs[pid_ctrl_index].desiredTemp != setpoint){
         gPIDs[pid_ctrl_index].desiredTemp = setpoint;
-        printf("setpoint=%d\n", setpoint);
+        //printf("setpoint=%d\n", setpoint);
     }
     return PID_CTRL_NO_ERROR;
 }
 
-EHS_GLOBAL ehs_pid_ctrl_error_id inx_set_pid_config(const ehs_pid_ctrl_type* pid_ctrl)
+ehs_pid_ctrl_error_id inx_set_pid_config(const ehs_pid_ctrl_type* pid_ctrl)
 {
     ehs_sint32 pid_ctrl_index;
     if(!inx_get_pid_index(pid_ctrl, &pid_ctrl_index)){
         return PID_CTRL_BAD_PID_INDEX;
     }
-
-    printf("id=%d, cs=%d, kp=%f, ki=%f, kd=%f, gl=%f, il=%f\n",pid_ctrl->pid_no,pid_ctrl->nSensorID,pid_ctrl->P,pid_ctrl->I,
+    /*printf("id=%d, cs=%d, kp=%f, ki=%f, kd=%f, gl=%f, il=%f\n",pid_ctrl->pid_no,pid_ctrl->nSensorID,pid_ctrl->P,pid_ctrl->I,
                                                                pid_ctrl->D,pid_ctrl->maxGlobalValue,pid_ctrl->maxIValue);
-
+                                                               */
     gPIDs[pid_ctrl_index].nPIDUpperLimit = FIXED_POINT_TO(pid_ctrl->maxGlobalValue);
     gPIDs[pid_ctrl_index].nIMax = FIXED_POINT_TO(pid_ctrl->maxIValue);
 
@@ -1866,7 +1866,7 @@ EHS_GLOBAL ehs_pid_ctrl_error_id inx_set_pid_config(const ehs_pid_ctrl_type* pid
     return PID_CTRL_NO_ERROR;
 }
 
-EHS_GLOBAL ehs_pid_ctrl_error_id inx_set_io_config(const ehs_pid_ctrl_type* pid_ctrl)
+ehs_pid_ctrl_error_id inx_set_io_config(const ehs_pid_ctrl_type* pid_ctrl)
 {
     ehs_sint32 pid_ctrl_index;
     if(!inx_get_pid_index(pid_ctrl, &pid_ctrl_index)){
@@ -1895,7 +1895,7 @@ EHS_GLOBAL ehs_pid_ctrl_error_id inx_set_io_config(const ehs_pid_ctrl_type* pid_
 
     if(pid_ctrl->nOutputMode >= ELEMENT_MODE_SINGLE && pid_ctrl->nOutputMode <= ELEMENT_MODE_SINGLE_TWO_POLE){
         gPIDs[pid_ctrl_index].elementMode = pid_ctrl->nOutputMode;
-        printf("id=%d, element mode=%d\n", pid_ctrl->pid_no, pid_ctrl->nOutputMode);
+        //printf("id=%d, element mode=%d\n", pid_ctrl->pid_no, pid_ctrl->nOutputMode);
     }else{
         return PID_CTRL_INVALID_ELEMENT_MODE;
     }	
@@ -1903,7 +1903,7 @@ EHS_GLOBAL ehs_pid_ctrl_error_id inx_set_io_config(const ehs_pid_ctrl_type* pid_
     return PID_CTRL_NO_ERROR;
 }
 
-EHS_GLOBAL void inx_set_calibration_offset(ehs_sint32 id, float offset)
+void inx_set_calibration_offset(ehs_sint32 id, float offset)
 {
     if(id < SENSOR_ID_PT100 || id >= SENSOR_ID_COUNT){
         return;
@@ -1933,7 +1933,7 @@ EHS_GLOBAL void inx_set_calibration_offset(ehs_sint32 id, float offset)
     }
 }
 
-EHS_GLOBAL void inx_set_calibration_scale(ehs_sint32 id, float scale)
+void inx_set_calibration_scale(ehs_sint32 id, float scale)
 {
     if(id < SENSOR_ID_PT100 || id >= SENSOR_ID_COUNT){
         return;
@@ -1963,7 +1963,7 @@ EHS_GLOBAL void inx_set_calibration_scale(ehs_sint32 id, float scale)
     }
 }
 
-EHS_GLOBAL ehs_float inx_get_adc_converted_value(const ehs_pid_ctrl_type* pid_ctrl)
+ehs_float inx_get_adc_converted_value(const ehs_pid_ctrl_type* pid_ctrl)
 {
     ehs_sint32 pid_ctrl_index;
     if(!inx_get_pid_index(pid_ctrl, &pid_ctrl_index)){
@@ -1972,7 +1972,7 @@ EHS_GLOBAL ehs_float inx_get_adc_converted_value(const ehs_pid_ctrl_type* pid_ct
     return FLOATING_FIXED_POINT_FROM(gPIDs[pid_ctrl_index].currentValue);
 }
 
-EHS_GLOBAL ehs_bool inx_get_pid_output_index_for_pin(const ehs_sint32 pin, ehs_sint32* pid_index, ehs_sint32* pid_out_index)
+ehs_bool inx_get_pid_output_index_for_pin(const ehs_sint32 pin, ehs_sint32* pid_index, ehs_sint32* pid_out_index)
 {
     uint8_t dutyCycleIndex = -1;
     for(uint8_t i=0;i<CONFIG_DUTY_CYCLES_NUM;i++){
@@ -1997,7 +1997,7 @@ EHS_GLOBAL ehs_bool inx_get_pid_output_index_for_pin(const ehs_sint32 pin, ehs_s
     return EHS_FALSE;
 }
 
-EHS_GLOBAL void inx_run_adc_pid(adcRawValues_t* adc_raw)
+void EHS_MEMORY_ATTRIB inx_run_adc_pid(adcRawValues_t* adc_raw)
 {	
     gAdc0Done = 1;
     gAdc1Done = 1;
@@ -2112,25 +2112,25 @@ EHS_GLOBAL void inx_run_adc_pid(adcRawValues_t* adc_raw)
 /**************** Implement 'hal_pid.h' functions ****************/
 /*****************************************************************/
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlConfigurePID(ehs_pid_ctrl_type* pid_ctrl)
+ehs_bool EhsPIDCtrlConfigurePID(ehs_pid_ctrl_type* pid_ctrl)
 {
     pid_ctrl->nError = inx_set_pid_config(pid_ctrl);
     return (pid_ctrl->nError == PID_CTRL_NO_ERROR) ? EHS_TRUE : EHS_FALSE;
 }
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureIO(ehs_pid_ctrl_type* pid_ctrl)
+ehs_bool EhsPIDCtrlConfigureIO(ehs_pid_ctrl_type* pid_ctrl)
 {
     pid_ctrl->nError = inx_set_io_config(pid_ctrl);
     return (pid_ctrl->nError == PID_CTRL_NO_ERROR) ? EHS_TRUE : EHS_FALSE;
 }
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlSetSetpointValue(ehs_pid_ctrl_type* pid_ctrl)
+ehs_bool EhsPIDCtrlSetSetpointValue(ehs_pid_ctrl_type* pid_ctrl)
 {
     pid_ctrl->nError = inx_set_setpoint_value(pid_ctrl);
     return (pid_ctrl->nError == PID_CTRL_NO_ERROR) ? EHS_TRUE : EHS_FALSE;
 }
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlUpdateOutputs(ehs_pid_ctrl_type* pid_ctrl)
+ehs_bool EhsPIDCtrlUpdateOutputs(ehs_pid_ctrl_type* pid_ctrl)
 {
     ehs_sint32 pid_ctrl_index;
     if(!inx_get_pid_index(pid_ctrl, &pid_ctrl_index)){
@@ -2162,7 +2162,7 @@ EHS_GLOBAL ehs_bool EhsPIDCtrlUpdateOutputs(ehs_pid_ctrl_type* pid_ctrl)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlDisable(ehs_pid_ctrl_type* pid_ctrl)
+ehs_bool EhsPIDCtrlDisable(ehs_pid_ctrl_type* pid_ctrl)
 {
     ehs_sint32 pid_ctrl_index;
     if(!inx_get_pid_index(pid_ctrl, &pid_ctrl_index)){
@@ -2171,7 +2171,7 @@ EHS_GLOBAL ehs_bool EhsPIDCtrlDisable(ehs_pid_ctrl_type* pid_ctrl)
     }
     if(pid_ctrl->bDisableControl == EHS_TRUE){
         gPIDs[pid_ctrl_index].scheduleMode = SCHEDULE_MODE_DISABLED;
-        printf("id=%d, disabled mode\n", pid_ctrl->pid_no);
+        //printf("id=%d, disabled mode\n", pid_ctrl->pid_no);
     }else{
         // we set to manual control if not disabled, as setpoint (manula, schedule etc.) is controlled in the app
         gPIDs[pid_ctrl_index].scheduleMode = SCHEDULE_MODE_MANUAL;
@@ -2179,7 +2179,7 @@ EHS_GLOBAL ehs_bool EhsPIDCtrlDisable(ehs_pid_ctrl_type* pid_ctrl)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool inx_get_adc_calibration_state(const ehs_pid_ctrl_type* pid_ctrl)
+ehs_bool inx_get_adc_calibration_state(const ehs_pid_ctrl_type* pid_ctrl)
 {
     ehs_sint32 pid_ctrl_index;
     if(!inx_get_pid_index(pid_ctrl, &pid_ctrl_index)){
@@ -2188,7 +2188,7 @@ EHS_GLOBAL ehs_bool inx_get_adc_calibration_state(const ehs_pid_ctrl_type* pid_c
     return gPIDs[pid_ctrl_index].calibrate;
 }
 
-EHS_GLOBAL ehs_float EhsPIDCtrlGetSensorValue(const ehs_pid_ctrl_type* pid_ctrl, ehs_bool* isConnected)
+ehs_float EhsPIDCtrlGetSensorValue(const ehs_pid_ctrl_type* pid_ctrl, ehs_bool* isConnected)
 {
     if (inx_get_adc_calibration_state(pid_ctrl)) return inx_get_adc_converted_value(pid_ctrl);
     *isConnected = isSensorConnected(pid_ctrl->nSensorID, &(gADCRawValues.connected));
@@ -2197,10 +2197,9 @@ EHS_GLOBAL ehs_float EhsPIDCtrlGetSensorValue(const ehs_pid_ctrl_type* pid_ctrl,
 }
 
 /* This comes from the calibration block */
-EHS_GLOBAL ehs_sint32 EhsPIDCtrlCalibrate(ehs_sint32 id, ehs_bool bScale, float scale, ehs_bool bOffset, float offset)
+ehs_sint32 EhsPIDCtrlCalibrate(ehs_sint32 id, ehs_bool bScale, float scale, ehs_bool bOffset, float offset)
 {
-    printf("EhsCalibratePIDCtrl id=%d scale=%.2f offset=%.2f\n", id, scale, offset);
-
+    //printf("EhsCalibratePIDCtrl id=%d scale=%.2f offset=%.2f\n", id, scale, offset);
     if(bScale == EHS_TRUE){
         inx_set_calibration_scale(id, scale);
     }
@@ -2212,7 +2211,7 @@ EHS_GLOBAL ehs_sint32 EhsPIDCtrlCalibrate(ehs_sint32 id, ehs_bool bScale, float 
 
 #define INX_RELAY_TYPE_EXTERNAL_INDEX 3
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureRelays(ehs_pid_ctrl_relay_type_id id, ehs_sint32 idx, ehs_sint32 rel, ehs_float cyc_len)
+ehs_bool EhsPIDCtrlConfigureRelays(ehs_pid_ctrl_relay_type_id id, ehs_sint32 idx, ehs_sint32 rel, ehs_float cyc_len)
 {
     ehs_bool success = EHS_FALSE;
     if(rel >= INX_CONTROLLER_CONTACTOR_MODE_EMR && rel <= INX_CONTROLLER_CONTACTOR_MODE_SSR){
@@ -2221,7 +2220,7 @@ EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureRelays(ehs_pid_ctrl_relay_type_id id, ehs
             case PID_CTRL_RELAY_TYPE_INTERNAL:
             {
                 ehs_sint32 index = idx;
-                printf("EhsPIDCtrlConfigureRelays (internal) index=%d, rel=%d, len=%.3f  \n", index, rel, cyc_len);
+                //printf("EhsPIDCtrlConfigureRelays (internal) index=%d, rel=%d, len=%.3f  \n", index, rel, cyc_len);
                 if(idx >= 0  && idx < INX_RELAY_TYPE_EXTERNAL_INDEX){
                     inxDutyCycleStateSetRelayType(false, &dutyCycleStates[index], (inxRelayType_t)rel);
                     inxDutyCycleStateSetCycleLengthSeconds(false, &dutyCycleStates[index], (const float)cyc_len);
@@ -2232,7 +2231,7 @@ EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureRelays(ehs_pid_ctrl_relay_type_id id, ehs
             case PID_CTRL_RELAY_TYPE_EXTERNAL:
             {
                 ehs_sint32 index = idx + INX_RELAY_TYPE_EXTERNAL_INDEX;
-                printf("EhsPIDCtrlConfigureRelays (external) index=%d, rel=%d, len=%.3f  \n", index, rel, cyc_len);
+                //printf("EhsPIDCtrlConfigureRelays (external) index=%d, rel=%d, len=%.3f  \n", index, rel, cyc_len);
                 if(idx >= 0  && idx < CONFIG_DUTY_CYCLES_NUM){
                     inxDutyCycleStateSetRelayType(false, &dutyCycleStates[index], (inxRelayType_t)rel);
                     inxDutyCycleStateSetCycleLengthSeconds(false, &dutyCycleStates[index], (const float)cyc_len);
@@ -2247,13 +2246,13 @@ EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureRelays(ehs_pid_ctrl_relay_type_id id, ehs
     return success;
 }
 
-EHS_GLOBAL ehs_bool EhsPIDCtrlConfigureHardware(ehs_sint32 id, ehs_sint32 value, ehs_uint32* error_no)
+ehs_bool EhsPIDCtrlConfigureHardware(ehs_sint32 id, ehs_sint32 value, ehs_uint32* error_no)
 {
     ehs_bool success = (id > INX_HDWR_CONF_UNKNOWN && id < INX_HDWR_CONF_COUNT) ? EHS_TRUE : EHS_FALSE;
     ehs_uint32 err = PID_CTRL_INVALID_HDWR_CONFIG_ID;
     if(success == EHS_TRUE) {
         err = PID_CTRL_NO_ERROR;
-        printf("EhsPIDCtrlConfigureHardware id = %d, value = %d \n", id, value);
+        //printf("EhsPIDCtrlConfigureHardware id = %d, value = %d \n", id, value);
         switch ((inxHardwareConfigType_t)id)
         {
             case INX_HDWR_CONF_SENSOR_TYPE_TC_1:{

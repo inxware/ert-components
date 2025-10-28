@@ -3,7 +3,13 @@
 
 #include "globals.h"
 
-#define COMPONENT_HAL_WIFI_STATION_MAX_RETRY	5
+#define EHS_NVS_WIFI_NAMESPACE "wifi_station"
+#define EHS_NVS_WIFI_KEY_SSID "ssid"
+#define EHS_NVS_WIFI_KEY_PASS "pass"
+#define EHS_NVS_WIFI_KEY_ONSTARTUP "startup"
+#define EHS_NVS_WIFI_KEY_RECONNECTPERIOD "p_reconn"
+#define EHS_NVS_WIFI_KEY_TRYRECONNECT "b_reconn_try"
+#define EHS_NVS_WIFI_KEY_RETRY "retry"
 
 typedef enum {
 	WifiStation_Connected = 0,
@@ -21,6 +27,7 @@ typedef enum {
 	WifiStation_InternalError,
 	WifiStation_NotImplemented,
 	WifiStation_Connecting,
+	WifiStation_NotConfigured,
 	WifiStation_MAX
 } eWifiStationStatus;
 
@@ -63,6 +70,17 @@ typedef enum {
 	WifiStationConnectState_MAX
 } eWifiStationConnectState;
 
+enum eWifiStationCallbackSource {
+	eWifiStationCallbackSource_Connect = 0,
+	eWifiStationCallbackSource_Scan,
+	eWifiStationCallbackSource_ScanResult,
+	eWifiStationCallbackSource_Reconnect,
+	eWifiStationCallbackSource_Internal,
+	eWifiStationCallbackSource_Connected,
+	eWifiStationCallbackSource_Disconnect,
+	eWifiStationCallbackSource_MAX
+};
+
 /*
  * Internally defined function. Do not re-implement this in the target code!
  * Pass the status and information when the devce as a Wi-Fi station is disconnected from the AP
@@ -74,7 +92,9 @@ void Common_WifiStation_onDisconnected(ehs_bool disconnected, ehs_uint8 reason, 
 ehs_bool doWifiStationNetifInit(const ehs_char* host_name);
 void doWifiStationNetifDestroy();
 
-eWifiStationStatus doWifiStationConnect(
+void doWifiStationScan(ehs_char *ssid);
+
+eWifiStationStatus doWifiStationStart(
 	ehs_char*	ssid,
 	ehs_uint8	type,
 	ehs_char*	PSKPass,
@@ -92,6 +112,19 @@ eWifiStationStatus doWifiStationConnect(
 	ehs_char*	mac_address,
 	ehs_sint8*	rssi
 );
+
+/**
+ * @brief Connect to an existing Wi-Fi network using previously saved settings
+ *
+ * @param bssid Optional BSSID to connect to a specific access point. NULL to ignore.
+ * @param channel Optional channel to connect on. 0 to ignore.
+ * 
+ * @return eWifiStationStatus 
+ *			WifiStation_Connecting - Connection in progress
+ *			WifiStation_NotConfigured - No saved settings found
+ *			Other error codes as defined in eWifiStationStatus
+ */
+eWifiStationStatus doWifiStationConnect(ehs_uint8 *bssid, ehs_uint8 channel);
 
 void doWifiStationDisconnect();
 
@@ -114,13 +147,23 @@ return - function returns EHS_FALSE once nothing availble for the index
 ehs_bool WifiStationScanResult(ehs_uint32 index, ehs_char* ssid, ehs_uint16 ssid_size, ehs_char* bssid, ehs_uint16 bssid_size, 
                                ehs_sint32* channel, ehs_sint32* rssi);
 
+/**
+ * @brief Return the number of Wi-Fi access points found in the last scan
+ * 
+ * @return ehs_sint32 Number of access points found
+ */
+ehs_sint32 WifiStationScanResultCount();
+
 const ehs_char* WifiStationIpAddress();
 
 ehs_bool isWifiStationInitalised();
 
 ehs_bool isWifiStationConnected();
 
-void configWifiStationSetReconnect(ehs_bool reconnect, ehs_sint32 retry);
+ehs_bool isEhsWiFiManagedByComponent();
 
+void EhsWifiStationSetCBSource(enum eWifiStationCallbackSource source);
+
+void EhsStartWifiStationThread();
 
 #endif

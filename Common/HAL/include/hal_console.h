@@ -20,8 +20,8 @@
 /*****************************************************************************/
 /* Included files */
 
+#include "globals.h"
 #include "console_queue.h"
-#include "target_types.h"
 #ifdef EHS_COMMS_TASK
 #ifdef EHS_DEBUG_TCPIP_CONSOLE
 #include "target_console.h"
@@ -92,12 +92,12 @@ ehs_bool EhsConsoleToFile(ehs_uint32 size, const ehs_char* name);
  * Contains input from the console.
  * Initialised by EhsHSys_init
  */
-EHS_GLOBAL EhsConsoleQueueType* EhsTgtConsoleInputQueueRef;
+EHS_EXTERN EhsConsoleQueueType* EhsTgtConsoleInputQueueRef;
 
 /**
  * Contains output to the console
  * Initialised by EhsHSys_init
  */
-EHS_GLOBAL EhsConsoleQueueType* EhsTgtConsoleOutputQueueRef;
+EHS_EXTERN EhsConsoleQueueType* EhsTgtConsoleOutputQueueRef;
 
 #endif /* EHS_HAL_CONSOLE_H */

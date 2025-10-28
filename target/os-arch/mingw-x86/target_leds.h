@@ -15,8 +15,12 @@
 
 #ifndef TARGET_LEDS_H_
 #define TARGET_LEDS_H_
-#include "target_types.h"
+
+
+#include "globals.h"
+
 /*Declare global functions for working with textdisplay*/
 EHS_GLOBAL void EhsInitLeds();
 EHS_GLOBAL void EhsSetLed(ehs_sint led, ehs_bool state);
+
 #endif /* TARGET_TEXTDISPLAY_H_ */

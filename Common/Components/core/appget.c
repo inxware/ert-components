@@ -18,8 +18,8 @@
 
 //#include <math.h>
 //EHS- API
-#include "globals.h"
 
+#include "globals.h"
 #include "ehs_fb_types.h"
 #include "setCompletes.h"
 #include "callback_queue.h"
@@ -138,7 +138,7 @@ void nout()
 /* This thread reads data from the URL using libcurl */
 EHS_FB_THREAD_FUNCTION(appget_read_data)
 {
-
+#if EHS_DEVMAN_SUPPORT == EHS_DEVMAN_HTTP
     appgetObj *ObjData = (appgetObj*) EHS_FB_RUN_CONTEXT;
     Ehs_FB_ThreadStarted();
     if (HAL_AppGetRead_data(ObjData))
@@ -151,6 +151,7 @@ EHS_FB_THREAD_FUNCTION(appget_read_data)
     }
     Ehs_FB_ThreadComplete();
     EhsHThread_exit();
+#endif
 }
 
 /* Kick off our thread to retrieve an app, setting the busy flag and tidying up */
@@ -243,7 +244,6 @@ EHS_FB_RUN_FUNCTION(appget_getapp)
  *   function block's context
  *
  */
-
 EHS_FB_IDENTIFY_FUNCTION(appget)
 {
     EHS_FB_IDENTIFY_MEMORY = sizeof(appgetObj);

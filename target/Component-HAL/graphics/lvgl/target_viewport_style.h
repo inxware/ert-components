@@ -19,7 +19,7 @@
 #define EHS_TARGET_VIEWPORT_STYLE_H
 
 #include "lvgl/lvgl.h"
-#include "ehs_types.h"
+#include "globals.h"
 
 #define EHS_CUSTOM_STYLE_8_ID 8
 #define EHS_CUSTOM_STYLE_9_ID 9

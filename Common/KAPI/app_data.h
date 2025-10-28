@@ -20,7 +20,6 @@
 #ifndef EHS_APP_DATA_H
 #define EHS_APP_DATA_H
 
-#include "ehs_types.h"
 #include "globals.h"
 //#include "group_table.h"
 #include "trigger_table.h"
@@ -63,12 +62,12 @@ typedef struct
 /**
  * Flag to indicate loading of new sodl so that threads MUST be terminated
  */
-EHS_GLOBAL ehs_bool* bNewSodlFlagRef;
+EHS_EXTERN ehs_bool* bNewSodlFlagRef;
 
 /**
  * Flag to indicate the runtime tables are ready - no port activity untill this is true
  */
-EHS_GLOBAL ehs_bool* bRuntablesReadyRef;
+EHS_EXTERN ehs_bool* bRuntablesReadyRef;
 
 /* Lower level function for application environment */
 

@@ -17,11 +17,12 @@ if ! [ -d "../inxware-installer" ]; then
     fi
 fi
 
+mkdir -p ${DIST_PATH}
 if [ -d "../inxware-installer" ] && [ -d "$DIST_PATH" ]; then
     CURRENT_PATH=$( pwd )
     cd "../inxware-installer"
     ./scripts/utils/copy_feature_profiles.sh ${DIST_PATH} ${FEATURE_PROFILES}
     cd ${CURRENT_PATH}
 else
-    echo "Failed to update CDFs"
+    echo "Failed to update CDFs. ./inxware-installer/ directoy does not exist"
 fi

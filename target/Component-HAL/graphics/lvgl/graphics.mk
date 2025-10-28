@@ -79,18 +79,112 @@ endif
 LIB+=m
 
 ifdef EHS_ESP32
-OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_helpers.$(OBJ)
+# Display drivers
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),gc9a01)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/GC9A01.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_GC9A01
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),ft81x)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/EVE_commands.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/FT81x.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_FT81X
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),ili9341)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/ili9341.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9341
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),st7789)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/st7789.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_ST7789
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),ssd1306)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/ssd1306.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_SSD1306
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),sh1107)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/sh1107.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_SH1107
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),ili9488)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/ili9488.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),ili9486)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/ili9486.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9486
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),ili9481)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/ili9481.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9481
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),st7735s)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/st7735s.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_ST7735S
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),st7796s)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/st7796s.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_ST7796S
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),hx8357)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/hx8357.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_HX8357
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),il3820)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/il3820.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_IL3820
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),jd79653a)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/jd79653a.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_JD79653A
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),uc8151d)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/uc8151d.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_UC8151D
+endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),ra8875)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/ra8875.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_RA8875
+endif
+# Touch drivers
+ifeq ($(EHS_LVGL_TOUCH_DRIVER),ft81x)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/FT81x.$(OBJ)
+DEFS += CONFIG_LV_TOUCH_CONTROLLER_FT81X
+endif
+ifeq ($(EHS_LVGL_TOUCH_DRIVER),xpt2046)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/xpt2046.$(OBJ)
+DEFS += CONFIG_LV_TOUCH_CONTROLLER_XPT2046
+endif
+ifeq ($(EHS_LVGL_TOUCH_DRIVER),ft6x06)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/ft6x36.$(OBJ)
+DEFS += LVGL_USE_FT6X06
+endif
+ifeq ($(EHS_LVGL_TOUCH_DRIVER),stmpe610)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/stmpe610.$(OBJ)
+DEFS += LVGL_USE_STMPE610
+endif
+ifeq ($(EHS_LVGL_TOUCH_DRIVER),adcraw)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/adcraw.$(OBJ)
+DEFS += LVGL_USE_ADC_RAW
+endif
+ifeq ($(EHS_LVGL_TOUCH_DRIVER),ra8875)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/ra8875_touch.$(OBJ)
+DEFS += LVGL_USE_RA8875_TOUCH
+endif
+# Common files
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_helpers.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/disp_driver.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/disp_spi.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/esp_lcd_backlight.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/touch_driver.$(OBJ)
-OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/FT81x.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/tp_spi.$(OBJ)
 INC_DIRS+=$(LVGL_DIR)/lvgl_esp32_drivers/
 else
 # asuming linux or windows (give it at least 1G)
 DEFS += LV_MEM_SIZE=1000000000
-DEFS += _GNU_SOURCE # this is required for compiling LV_USE_FS_STDIO used by image decoders
+# this is required for compiling LV_USE_FS_STDIO used by image decoders
+DEFS += _GNU_SOURCE
+endif
+
+ifeq ($(SDL_FULLSCREEN),yes)
+DEFS += SDL_FULLSCREEN=1
 endif

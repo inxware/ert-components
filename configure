@@ -30,7 +30,8 @@ fi
 if [ "$1" = "-help" -o "$1" = "help" ]; then
   echo " Utilities to help build eRT for your target: "
   echo "./configure                        : show the list of targets available"
-  echo "./configure your_target            : choose a target to build for (this is sticky configuration)"
+  echo "./configure <your_target>          : choose a target to build for (this is sticky configuration)"
+  echo "./configure -new <your_target>     : create a new target and configure"
   echo "./configure -edit                  : edit ./target/platform/${TARGET} (exit to return here!) with nano" 
   echo "./configure -debug                 : run the target on this host with GDB (if the host supports it!)" 
   echo "./configure -run                   : run the target on this host (if the host supports it!)"  
@@ -49,6 +50,24 @@ if [ "$1" = "-edit" ];then
 	source ./TARGET.cfg
 	nano ./target/platform/${TARGET}/config.mk
 	exit
+fi
+if [ "$1" = "-new" ];then
+        if [ !-d ./target/platform/${2}/config.mk ]; then
+	    if [ "${2}" = "" ]; then
+                 echo "Please provide a target name. (see ./configure -help )"
+                 exit 1
+            fi
+	    mkdir ./target/platform/${2} || exit 1
+            cp ./target/platform/TEMPLATE/* ./target/platform/${2}/
+            # set TARGET.cfg
+	   ./configure ${2}
+            # prompt the user to edit it!
+           ./configure -edit
+        else 
+            echo "./target/platform/${2}/config.mk already exists. Please choose again".
+            exit 1
+        fi
+        exit
 fi
 if [ "$1" = "-edit-dockerfile" ]; then
 	source ./TARGET.cfg

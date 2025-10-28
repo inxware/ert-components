@@ -1,4 +1,4 @@
-#include "ehs_types.h"
+#include "globals.h"
 
 #include "port.h"
 #include "stdio.h"

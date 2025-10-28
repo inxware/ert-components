@@ -10,9 +10,9 @@
 /*
  * target_gpio.c
  */
-#include "target.h"
+
+#include "globals.h"
 #include "target_gpio.h"
-#include "target_config.h"
 #include "inxware_hrx_config.h"
 #include "fsl_port.h"
 #include "inx_buttons.h"
@@ -172,7 +172,7 @@ static ehs_bool get_value_GPIO(ehs_sint32 gpio, ehs_bool* value)
 }
 
 
-EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     ehs_bool ret = set_output_GPIO(pGPIO->pin_id, pGPIO->initial_state, pGPIO->open_drain_mode);
     if(ret == EHS_TRUE)
@@ -186,7 +186,7 @@ EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
     return ret;
 }
 
-EHS_GLOBAL ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     ehs_bool ret = set_value_GPIO(pGPIO->pin_id, pGPIO->pin_value, pGPIO->open_drain_mode);
     if(ret == EHS_TRUE)
@@ -200,13 +200,13 @@ EHS_GLOBAL ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
     return ret;
 }
 
-EHS_GLOBAL ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     EHSH_LOG_INFO("Destroy GPIO output pin (%d)", pGPIO->pin_id);
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     ehs_bool ret = set_input_GPIO(pGPIO->pin_id);
     if(ret == EHS_TRUE)
@@ -220,7 +220,7 @@ EHS_GLOBAL ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
     return ret;
 }
 
-EHS_GLOBAL ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     ehs_bool ret = get_value_GPIO(pGPIO->pin_id, &pGPIO->pin_value);
     if(ret == EHS_TRUE)
@@ -234,7 +234,7 @@ EHS_GLOBAL ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
     return ret;
 }
 
-EHS_GLOBAL ehs_bool EhsDestroyInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsDestroyInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     EHSH_LOG_INFO("Destroy GPIO input pin (%d)", pGPIO->pin_id);
     return EHS_TRUE;

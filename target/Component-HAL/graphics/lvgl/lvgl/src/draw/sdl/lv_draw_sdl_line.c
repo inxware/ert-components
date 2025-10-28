@@ -8,6 +8,10 @@
  *********************/
 #include "../../lv_conf_internal.h"
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 #if LV_USE_GPU_SDL
 
 #include "lv_draw_sdl.h"

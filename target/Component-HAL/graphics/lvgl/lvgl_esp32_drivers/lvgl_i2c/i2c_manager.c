@@ -31,12 +31,13 @@ SOFTWARE.
 
 #include <esp_log.h>
 
+#include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include <driver/i2c.h>
 
-#include "sdkconfig.h"
+
 
 #include "i2c_manager.h"
 

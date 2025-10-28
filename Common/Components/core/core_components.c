@@ -14,7 +14,7 @@
  *
  */
 
-
+#include "globals.h"
 #include "blockref_table.h"
 #include "hal.h" /* Required for logging */
 #include "fid.h"  /* for the Function Instance data types */
@@ -48,9 +48,30 @@
 #include "appinfo.h"
 #include "appget.h"
 #include "inx-rng.h"
+#include "inx-elapsed_timer.h"
+
+// Components moved from user directory
+#ifndef EHS_SKIP_GNULIBRARIES
+#include "inx-json_stream.h"
+#include "inx-JSONObjectFunctionBlock.h"
+#include "inx-xml_stream.h"
+#endif
+
+#include "inx-json_parser_int.h"
+#include "inx-json_parser_bool.h"
+#include "inx-json_parser_real.h"
+#include "inx-json_parser_str.h"
+#include "inx-indexed_mux_int.h"
+#include "inx-indexed_mux_str.h"
+#include "inx-indexed_mux_bool.h"
+#include "inx-indexed_mux_real.h"
+#include "inx-indexed_demux_int.h"
+#include "inx-indexed_demux_bool.h"
+#include "inx-indexed_demux_real.h"
+#include "inx-indexed_demux_str.h"
 
 // Use this way in other EhsBlockRefType arrays that are being used in other places (statmodules.c) as well.
-extern const EhsBlockRefType EhsBlockRefTable_core[] =
+EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_core[] =
 {
 #ifdef EHS_TARGET_FP_SUPPORT
 	/* from buffer.h */
@@ -289,8 +310,9 @@ extern const EhsBlockRefType EhsBlockRefTable_core[] =
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_RuntimeInfo,EHS_FB_ID_RuntimeInfo, runtimeinfo),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_AppInfo,EHS_FB_ID_AppInfo, appinfo),
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_wall_clock,EHS_FB_ID_wall_clock, wall_clock),
+	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_wall_clock,INXWARE_FB_ID_elapsed_timer, elapsed_timer),
 /* Default to include file system support*/
-#ifndef EHS_FILESYSTEM_SUPPORT__NONE
+#ifdef EHS_FILESYSTEM_SUPPORT
 	/* file.h */
 		/* fileFunctions.h */
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_FILE_ReadOnly_Int,EHS_FB_ID_FILE_ReadOnly_Int, FILE_ReadOnly_Int),
@@ -307,13 +329,36 @@ extern const EhsBlockRefType EhsBlockRefTable_core[] =
 #endif
 #endif
 	/* default is to incuude system_exec as this may be stubbed on some targets.*/
-#ifndef EHS_COMPONENTS_SYSTEMEXEC_SUPPORT__NONE
+#ifdef EHS_COMPONENTS_SYSTEMEXEC_SUPPORT
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_Exec,EHS_FB_ID_Exec, Exec),
 #endif
 
-#ifdef EHS_DEVMAN_SUPPORT
+#if defined(EHS_DEVMAN_SUPPORT) && defined(EHS_COMPONENTS_NETWORK_URL_GET)
 		EHS_BLOCKREF_ENTRY(EHS_FB_NAME_AppGet,EHS_FB_ID_AppGet, appget),
 #endif
+
+// Components moved from user directory
+#ifndef EHS_SKIP_GNULIBRARIES
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_json_stream_parser,INXWARE_FB_ID_json_stream_parser ,json_stream_parser),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_JSONObject,INXWARE_FB_ID_JSONObject ,JSONObject),
+#ifndef EHS_EXCLUDE_XML_PARSER
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_xml_stream_parser,INXWARE_FB_ID_xml_stream_parser ,xml_stream_parser),
+#endif
+#endif
+
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_json_parser_int,INXWARE_FB_ID_json_parser_int,json_parser_int),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_json_parser_bool,INXWARE_FB_ID_json_parser_bool,json_parser_bool),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_json_parser_real,INXWARE_FB_ID_json_parser_real,json_parser_real),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_json_parser_str,INXWARE_FB_ID_json_parser_str,json_parser_str),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_indexed_mux_int,INXWARE_FB_ID_indexed_mux_int,indexed_mux_int),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_indexed_mux_str,INXWARE_FB_ID_indexed_mux_str,indexed_mux_str),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_indexed_mux_bool,INXWARE_FB_ID_indexed_mux_bool,indexed_mux_bool),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_indexed_mux_real,INXWARE_FB_ID_indexed_mux_real,indexed_mux_real),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_indexed_demux_int,INXWARE_FB_ID_indexed_demux_int,indexed_demux_int),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_indexed_demux_bool,INXWARE_FB_ID_indexed_demux_bool,indexed_demux_bool),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_indexed_demux_real,INXWARE_FB_ID_indexed_demux_real,indexed_demux_real),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_indexed_demux_str,INXWARE_FB_ID_indexed_demux_str,indexed_demux_str),
+
     {0}
 };
 

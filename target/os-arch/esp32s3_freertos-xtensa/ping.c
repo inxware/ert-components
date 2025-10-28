@@ -41,12 +41,12 @@ void cmd_ping_on_ping_success(esp_ping_handle_t hdl, void *args)
                          sizeof(elapsed_time));
 
 #if 1
-    ESP_LOGI(TAG, "%d bytes from %s icmp_seq=%d ttl=%d time=%d ms", recv_len,
+    ESP_LOGI(TAG, "%" PRIu32 " bytes from %s icmp_seq=%d ttl=%d time=%" PRIu32 " ms", recv_len,
              inet_ntoa(target_addr.u_addr.ip4), seqno, ttl, elapsed_time);
 #else
     wifi_ap_record_t wifidata;
     esp_wifi_sta_get_ap_info(&wifidata);
-    ESP_LOGI(TAG, "%d bytes from %s icmp_seq=%d ttl=%d time=%d ms RSSI=%d",
+    ESP_LOGI(TAG, "%" PRIu32 " bytes from %s icmp_seq=%d ttl=%d time=%" PRIu32 " ms RSSI=%d",
              recv_len, inet_ntoa(target_addr.u_addr.ip4), seqno, ttl,
              elapsed_time, wifidata.rssi);
 #endif
@@ -88,7 +88,7 @@ void cmd_ping_on_ping_end(esp_ping_handle_t hdl, void *args)
                  inet6_ntoa(*ip_2_ip6(&target_addr)));
     }
     ESP_LOGI(TAG,
-             "%d packets transmitted, %d received, %d%% packet loss, time %dms",
+             "%" PRIu32 " packets transmitted, %" PRIu32 " received, %" PRIu32 "%% packet loss, time %" PRIu32 "ms",
              transmitted, received, loss, total_time_ms);
     // delete the ping sessions, so that we clean up all resources and can create
     // a new ping session we don't have to call delete function in the callback,

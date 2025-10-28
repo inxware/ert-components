@@ -33,9 +33,8 @@
 
 #include <unistd.h>
 
-#include "target.h"
-#include "console_server.h"
 #include "globals.h"
+#include "console_server.h"
 #include "ehs_main.h"
 #include "hal-api.h" // required for the meta data storage
 #include "keypress.h" /* todo kbdhit should be available in hal.h? */
@@ -52,6 +51,7 @@
 #endif
 
 #include "target_main.h"
+//TODO2025 this should hal_file.h
 #include "target_file.h"
 /* Androgid bits */
 #include <jni.h>

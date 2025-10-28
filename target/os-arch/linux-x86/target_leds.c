@@ -12,23 +12,25 @@
  * @author: inx limited
  *
  */
+#include "globals.h"
+
 #include "target_textdisplay.h"
 #include "usblcd.h"
 #include "widgets.h"
 #include "usblcd_util.h"
-#include "target_config.h"
+
 #ifdef USB_SUPPORT
 usblcd_operations* mylcd;
 #endif
 
-EHS_GLOBAL void EhsInitLeds()
+void EhsInitLeds()
 {
 #ifdef USB_SUPPORT
     mylcd = getPanel();
 #endif
 }
 
-EHS_GLOBAL void EhsSetLed(int led, ehs_bool state)
+void EhsSetLed(int led, ehs_bool state)
 {
 #ifdef USB_SUPPORT
     if(led == 6)

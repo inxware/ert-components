@@ -28,7 +28,7 @@
 /* Included files */
 #define EHS_TARGET_CODE /* Ensure header files include target-internal values */
 
-#include "target.h"
+#include "globals.h"
 #include <math.h>
 
 /*****************************************************************************/

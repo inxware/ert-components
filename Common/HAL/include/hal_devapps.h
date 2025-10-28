@@ -18,7 +18,7 @@
 #define EHS_HAL_DEVAPPS_H
 
 #include "globals.h" // this includes the macros, and ehs types
-#if defined(EHS_COMPONENT_NETWORKING_SUPPORT) && !defined(EHS_COMPONENTS_NETWORK_URL_GET__NONE)
+#if defined(EHS_COMPONENT_NETWORKING_SUPPORT) && defined(EHS_COMPONENTS_NETWORK_URL_GET)
 #include "hal_url.h" // need thearchive and libcurl structs
 #endif //EHS_COMPONENT_NETWORKING_SUPPORT
 #include "hal_devman.h"
@@ -52,13 +52,13 @@ typedef struct
     ehs_bool bRunWhenDone; /* Flag to run the app when it has been downloaded */
     ehs_bool bSetAsDefaultApp; /* Flag to set this as the default app */
     ehs_sint32 nInstallMode; /* 0 install standard app, 1 install as home app, 2 as temp app */
-#if defined(EHS_COMPONENT_NETWORKING_SUPPORT) && !defined(EHS_COMPONENTS_NETWORK_URL_GET__NONE)
+#if defined(EHS_COMPONENT_NETWORKING_SUPPORT) && defined(EHS_COMPONENTS_NETWORK_URL_GET)
     AppGet_URL_data_buffer_Type AppGet_write_data_buffer_struct; // this is for the standard URL get/post e.g. for info gets
     EhsH_URLwrite_data_bufferType * URL_write_data_buffer_struct; // this is the special buffer struct for the un archiver into which data is pumped from URL read to libarchive
     EhsNetworkServerInfo_t server_info; //@todo this should be updated from a central repository for the interface. Need a new function block to populate it.
 #endif //EHS_COMPONENT_NETWORKING_SUPPORT
     ehs_bool bFreeWhenDone; //Set this to True if you want the downloader thread to remove this struct when it's finished (not used for function blocks
-#if defined(EHS_COMPONENT_NETWORKING_SUPPORT) && !defined(EHS_COMPONENTS_NETWORK_URL_GET__NONE)
+#if defined(EHS_COMPONENT_NETWORKING_SUPPORT) && defined(EHS_COMPONENTS_NETWORK_URL_GET)
     CURL * curl; //use a global handle
 #endif //EHS_COMPONENT_NETWORKING_SUPPORT
     ehs_char szID[EHS_STRING_LENGTH_MAX];  /* Key the server may require to make the download*/

@@ -28,13 +28,13 @@
 
 
 /* declare functions provided by this function block */
-EHS_GLOBAL EHS_FB_IDENTIFY_FUNCTION(gui_text1);
-EHS_GLOBAL EHS_FB_INIT_FUNCTION(gui_text1);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text1_create);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text1_destroy);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text1_show);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text1_hide);
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text_string1_update);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(gui_text1);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_text1);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text1_create);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text1_destroy);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text1_show);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text1_hide);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text_string1_update);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_text_string1)
@@ -49,7 +49,7 @@ EHS_FB_FUNCTIONS(gui_text_string1)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text_float1_update);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text_float1_update);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_text_float1)
@@ -64,7 +64,7 @@ EHS_FB_FUNCTIONS(gui_text_float1)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text_int1_update);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text_int1_update);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_text_int1)
@@ -78,7 +78,7 @@ EHS_FB_FUNCTIONS(gui_text_int1)
 /* declare functions provided by this function block */
 /* identify function, create function and destroy functions are common
    to all textbox functions */
-EHS_GLOBAL EHS_FB_RUN_FUNCTION(gui_text_bool1_update);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_text_bool1_update);
 
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(gui_text_bool1)

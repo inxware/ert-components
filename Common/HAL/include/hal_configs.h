@@ -34,13 +34,13 @@ typedef struct EhsConfig {
  * 
  * @return Pointer to EhsConfig
  */
-EHS_GLOBAL EhsConfig* EhsConfigCreate();
+EhsConfig* EhsConfigCreate();
 
 /**
  * @brief Free config struct
  * 
  */
-EHS_GLOBAL void EhsConfigFree(EhsConfig *config);
+void EhsConfigFree(EhsConfig *config);
 
 /**
  * @brief Loads a configuration file and returns configuration struct with all configuration
@@ -48,7 +48,7 @@ EHS_GLOBAL void EhsConfigFree(EhsConfig *config);
  * @param filename
  * @return Pointer to EhsConfig
  */
-EHS_GLOBAL EhsConfig* EhsConfigLoad(const ehs_char* filename);
+EhsConfig* EhsConfigLoad(const ehs_char* filename);
 
 /**
  * @brief Save the configuration to a file
@@ -57,7 +57,7 @@ EHS_GLOBAL EhsConfig* EhsConfigLoad(const ehs_char* filename);
  * @param filename 
  * @return EHS_TRUE on success 
  */
-EHS_GLOBAL ehs_bool EhsConfigSave(EhsConfig* config, const ehs_char* filename);
+ehs_bool EhsConfigSave(EhsConfig* config, const ehs_char* filename);
 
 /**
  * @brief Getter for configuration value
@@ -66,7 +66,7 @@ EHS_GLOBAL ehs_bool EhsConfigSave(EhsConfig* config, const ehs_char* filename);
  * @param key 
  * @return Returns const ehs_char* value for a given key
  */
-EHS_GLOBAL const ehs_char* EhsConfigGetValue(EhsConfig* config, const ehs_char* key);
+const ehs_char* EhsConfigGetValue(EhsConfig* config, const ehs_char* key);
 
 /**
  * @brief Function for setting a key-value pair
@@ -75,7 +75,7 @@ EHS_GLOBAL const ehs_char* EhsConfigGetValue(EhsConfig* config, const ehs_char* 
  * @param key 
  * @param value 
  */
-EHS_GLOBAL void EhsConfigSetValue(EhsConfig* config, const ehs_char* key, const ehs_char* value);
+void EhsConfigSetValue(EhsConfig* config, const ehs_char* key, const ehs_char* value);
 
 
 #endif // _HAL_CONFIGS_H_

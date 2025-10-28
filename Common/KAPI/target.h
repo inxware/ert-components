@@ -17,25 +17,21 @@
 #ifndef EHS_TARGET_H
 #define EHS_TARGET_H
 
-/* target specific details -- include these first */
+/* 
+Include target types first so that overrides can be avoided 
+*/
 #include "target_types.h"
+/* 
+Include anything defined for each platform/<TARGET>/target_config.h 
+*/
 #include "target_config.h"
-#include "target_specific.h"
-
-//#include "hal-api.h"
-
-//#include "hal_time.h"
-//#include "hal_file.h"
-//#include "hal_console.h"
-//#include "hal_process.h"
-
-
-
-/* generic stuff */
+/* 
+Include the general inxware ert/kernel types 
+*/
 #include "ehs_types.h"
-//@todo PPP: is this legacy:
-#ifdef EHS_GUI_SUPPORT
-//#include "graphics.h"
-#endif
+/*
+ Include functions that are only available in some targets or implemented differently.
+*/
+#include "target_specific.h"
 
 #endif

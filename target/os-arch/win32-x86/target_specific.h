@@ -18,6 +18,10 @@
 #ifndef EHS_TARGET_SPECIFIC_H
 #define EHS_TARGET_SPECIFIC_H
 
+#ifndef EHS_GLOBALS_H
+#error "This file should only be included by globals.h" 
+#endif
+
 #include <stdlib.h> /* required for malloc, exit */
 
 /**
@@ -42,7 +46,7 @@
  * @param nAngle angle to find (0 to 360)
  * @return nMult * sin(nAngle % 360)
  */
-EHS_GLOBAL ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
+ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
 /**
  * Performs cosine function using integers.
  *
@@ -50,16 +54,16 @@ EHS_GLOBAL ehs_sint32 EhsTgtInt_sin(ehs_sint32 nMult, ehs_sint32 nAngle);
  * @param nAngle angle to find (0 to 360)
  * @return nMult * cos(nAngle % 360)
  */
-EHS_GLOBAL ehs_sint32 EhsTgtInt_cos(ehs_sint32 nMult, ehs_sint32 nAngle);
+ehs_sint32 EhsTgtInt_cos(ehs_sint32 nMult, ehs_sint32 nAngle);
 
 /* The following functions are also onlu used by function blocks and should be seperated into another target support header
  * designed for FB development
  */
 
 /* math functions not implemented in Windows */
-EHS_GLOBAL ehs_float asinh(ehs_float x);
-EHS_GLOBAL ehs_float acosh(ehs_float x);
-EHS_GLOBAL ehs_float atanh(ehs_float x);
+ehs_float asinh(ehs_float x);
+ehs_float acosh(ehs_float x);
+ehs_float atanh(ehs_float x);
 
 /*****************************************************************************/
 /* Internal implementation-specific functions. These functions are only used
@@ -70,7 +74,7 @@ EHS_GLOBAL ehs_float atanh(ehs_float x);
 /**
  * Main function handling TCP/IP for this implementation
  */
-EHS_GLOBAL ehs_uint32 EhsTgtTcp(void);
+ehs_uint32 EhsTgtTcp(void);
 
 
 #endif /* EHS_TARGET_SPECIFIC_H */

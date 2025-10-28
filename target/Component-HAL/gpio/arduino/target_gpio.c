@@ -12,11 +12,12 @@
  */
 
 
-#include "target.h"
-#include "target_config.h"
+
+#include "globals.h"
 #include "target_gpio.h"
 #include "hal_logger.h"
 
+#include "inx_pwm_port.h"
 #include <Arduino.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -40,17 +41,17 @@ static ehs_bool set_output_GPIO(ehs_sint32 gpio, ehs_bool initialValue, ehs_bool
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     return set_output_GPIO(pGPIO->pin_id, pGPIO->initial_state, pGPIO->open_drain_mode);
 }
 
-EHS_GLOBAL ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsWriteOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     return set_value_GPIO(pGPIO->pin_id, pGPIO->pin_value, pGPIO->open_drain_mode);
 }
 
-EHS_GLOBAL ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
+ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 {
     return EHS_TRUE;
 }
@@ -75,17 +76,54 @@ static ehs_bool get_value_GPIO(ehs_sint32 gpio, ehs_bool *value)
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     return set_input_GPIO(pGPIO->pin_id);
 }
 
-EHS_GLOBAL ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsReadInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     return get_value_GPIO(pGPIO->pin_id, &pGPIO->pin_value);
 }
 
-EHS_GLOBAL ehs_bool EhsDestroyInputGPIO(ehs_gpio_in_state_type* pGPIO)
+ehs_bool EhsDestroyInputGPIO(ehs_gpio_in_state_type* pGPIO)
 {
     return EHS_TRUE;
+}
+
+
+inx_hw_pwm_port_errcode_t EhsTPortPwmSetup(ehs_sint32 channel, ehs_sint32 io_num, ehs_sint32 freq, ehs_sint32 max_val){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+inx_hw_pwm_port_errcode_t EhsTPortPwmDeinit(ehs_sint32 channel){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+inx_hw_pwm_port_errcode_t EhsTPortPwmSetFreq(ehs_sint32 channel, ehs_sint32 freq){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+inx_hw_pwm_port_errcode_t EhsTPortPwmSetDuty(ehs_sint32 channel, ehs_uint32 duty){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+inx_hw_pwm_port_errcode_t EhsTPortPwmSetMaxValue(ehs_sint32 channel, ehs_sint32 freq, ehs_sint32 max_val){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+inx_hw_pwm_port_errcode_t EhsTPortPwmEnable(ehs_sint32 channel){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+inx_hw_pwm_port_errcode_t EhsTPortPwmDisable(ehs_sint32 channel){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+
+inx_hw_pwm_port_errcode_t EhsTPortPwmGetMaxValue(ehs_sint32 channel, ehs_sint32 *max_val){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+
+inx_hw_pwm_port_errcode_t EhsTPortPwmGetFreq(ehs_sint32 channel, ehs_sint32 *freq){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+inx_hw_pwm_port_errcode_t EhsTPortPwmGetDuty(ehs_sint32 channel, ehs_sint32 *duty){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
+}
+inx_hw_pwm_port_errcode_t EhsTPortPwmEnabled(ehs_sint32 channel, ehs_bool *enabled){
+    return EHS_HW_PWM_PORT_ENOT_SUPPORTED;
 }

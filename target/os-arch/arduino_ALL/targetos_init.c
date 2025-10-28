@@ -30,9 +30,10 @@
 #define EHS_TARGET_CODE /* Ensure header files include target-internal values */
 #include <mbed.h>
 #include <mbed_stats.h>
+
+#include "globals.h"
 #include "targetos_init.h"
 #include "target_network.h"
-#include "ehs_types.h"
 #include "callback_queue.h"
 #include "hal_process.h"
 

@@ -20,7 +20,6 @@
 #include "setCompletes.h"
 #include "ehs_if.h"
 #include "hal-api.h" /* Required for logging */
-//#include "EHSMacros.h"
 
 /******************************************************************************/
 /* Define xyzzy function block */

@@ -4,10 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include "globals.h"
 
-#include "target.h"
-#include "target_config.h"
-#include "target_types.h"
+
 #include "target_uart.h"
 
 static int esp_ret;

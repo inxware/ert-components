@@ -18,11 +18,9 @@
  *
 */
 
-#include "target.h"
 #include "globals.h" /* required for trace */
 #include "const1.h"
 #include "setCompletes.h"
-
 #include "hal-api.h" /* Required for logging */
 
 

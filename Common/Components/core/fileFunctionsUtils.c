@@ -16,8 +16,8 @@
  *
 */
 
-#include "target.h"
 
+#include "globals.h"
 #include "ehs_fb_types.h"
 #include "file.h"
 
