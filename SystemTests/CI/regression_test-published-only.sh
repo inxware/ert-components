@@ -2,7 +2,30 @@
 
 # 'linux_x86_64-lucid-debian11'
 
+
+# Community Tragets exported (2025-10-20)
+#arduino_arduino-mbed-nano_base		   esp32s3_freertos-xtensa-base_n8r2  linux_arm64_gtk_gst_gg_debian10		linux_armv7l_clang_debian10	 linux_x86_64_clang_gg_debian11				   linux_x86_64_lvgl_debian11-debug  nxp_arm_inx_hri_ehs_debug
+#arduino_arduino-mbed-nano-image_community  esp32s3_freertos-xtensa-community  linux_arm64_gtk_gst_gg_debian11		linux_armv7l_clang_debian9	 linux_x86_64_clang_gtk					   linux_x86_debian11		     OS_ARCH_PLATFORM-TEMPLATES
+#arduino_arduino-mbed-nano_lib		   esp32s3_freertos-xtensa-no-certs   linux_arm64_gtk_gst_gg_debian11-no-certs	linux_armv7l_clang_gtk_debian10  linux_x86_64_clang_gtk_gst_gg_debian11-devman-inxsystems  linux_x86_gtk		     win_x86
+#arduino_arduino-mbed-nano-lib_community    linux_amd64_debian9		      linux_arm64_lvgl_gg_debian10		linux_armv7l_clang_gtk_debian9	 linux_x86_64_clang_gtk_gst_gg_debian11-no-certs	   linux_x86_gtk_gst_deb	     win_x86_32-lucid-win10
+#esp32_freertos-xtensor-base		   linux_amd64_gtk_gst_debian9	      linux_arm64_lvgl_gg_debian11		linux_x86			 linux_x86_64_clang_lvgl_debian11			   linux_x86_gtk_gst_deb_withtools   win_x86_gtk_gst
+#esp32s3_freertos-xtensa-base		   linux_android_arm		      linux_arm_gtk_gst				linux_x86_64_clang		 linux_x86_64_clang_lvgl_debian11-no-certs		   linux_x86_gtk_vlc		     win_x86_gtk_vlc
+#esp32s3_freertos-xtensa-base-debug	   linux_android_arm64		      linux_arm_gtk_gst_raspberrypi		linux_x86_64_clang_gg_debian10	 linux_x86_64_gtk_gst_debian11				   nxp_arm			     win_x86_lvgl
+#linux_x86_64_clang_g
+
+
 target_platform=( 
+ 'linux_x86_64_clang_gtk_gst_gg_debian11-no-certs'
+ 'linux_x86_64_clang_lvgl_debian11-no-certs'
+ 'linux_arm64_gtk_gst_gg_debian11'
+ 'linux_arm64_lvgl_gg_debian11'
+ 'esp32s3_freertos-xtensa-community'
+ 'arduino_arduino-mbed-nano-community'
+ 'arduino_arduino-mbed-nano_lib-community'
+ 'win_x86_32-lucid-win10'
+)
+
+target_platform_medium=( 
  'linux_amd64'
  'linux_amd64_gtk_gst'
  'linux_x86_64_clang'
@@ -21,6 +44,11 @@ target_platform=(
  'win_x86_32-lucid-win10'
  'linux_android_arm'
 )
+
+echo "Testing the following:" 
+
+#target_platform=( "${taregt_platform_github_ci[*]}" )
+echo  "${taregt_platform[@]}"
 
 
 #Parked targets
