@@ -1,12 +1,12 @@
 #---------------------------------------------------------------
-# Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
-# You may use, distribute and modify this code under the terms 
-# of the LGPLv3 license. You should have received a copy of the 
-# LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If 
-# not, please visit 
-#	<https://www.gnu.org/licenses/lgpl-3.0.txt>
-#---------------------------------------------------------------#
-
+# Copyright (C) 2008-2025, inx limited, UK.
+# All Rights Reserved.
+# You may use, distribute and modify this code under the terms
+# of the LGPLv3 license. You should have received a copy of the
+# LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+# with this file. If not, please visit
+# <https://www.gnu.org/licenses/lgpl-3.0.txt>
+#---------------------------------------------------------------
 #
 #  eRT components platform build configuration
 #
@@ -27,11 +27,14 @@
 #  EHS_PLATFORM_PATH - path to the current directory (set by platform makefile)
 
 ################## Get the platform parameters from the platform config.mk file #######
-$(info $(EHS_PLATFORM_PATH))
+$(info )
+$(info $(TXT_FG_BLUE)Starting platform.mk with platform:)
+$(info $(TXT_FG_WHITE)  '$(EHS_PLATFORM_PATH)')
+$(info )
 include $(EHS_PLATFORM_PATH)/config.mk
 
 ifdef TOOLCHAIN_NAME
-export TOOLCHAIN_NAME 
+    export TOOLCHAIN_NAME
 endif
 
 #set the build host's machine's architecture (it is always linux so far...)
@@ -39,15 +42,15 @@ endif
 export EHS_BUILD_MAC_ARCH=$(shell uname -m)
 
 ifdef EHS_GNU_OS
-	TOOLCHAIN_OS=$(EHS_GNU_OS)
+    TOOLCHAIN_OS=$(EHS_GNU_OS)
 else
-	TOOLCHAIN_OS=$(EHS_OS)
+    TOOLCHAIN_OS=$(EHS_OS)
 endif
 
 ifdef EHS_GNU_ARCH
-	TOOLCHAIN_ARCH=$(EHS_GNU_ARCH)
-else 
-	TOOLCHAIN_ARCH=$(EHS_ARCH)
+    TOOLCHAIN_ARCH=$(EHS_GNU_ARCH)
+else
+    TOOLCHAIN_ARCH=$(EHS_ARCH)
 endif
 
 #These paramters are used in the targetenv shell scripts so need to be exported
@@ -60,7 +63,7 @@ export EHS_GNU_ARCH
 
 # default to eRT1 binary SODL 
 ifndef ERT_SODL_VERSION
-ERT_SODL_VERSION=1
+    ERT_SODL_VERSION=1
 endif
 
 export ERT_SODL_VERSION
@@ -76,8 +79,8 @@ export EHS_AUTO_START
 
 #if the platform doesn't specify a specific libc/middleware version with EHS_GNU_OS_VERSION then set it to the same as the toolchain
 ifdef EHS_GNU_OS_VERSION
-	EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)$(EHS_GNU_OS_VERSION)
-else 
+    EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)$(EHS_GNU_OS_VERSION)
+else
     EHS_GNU_OS_ARCH=$(TOOLCHAIN_ARCH)-$(TOOLCHAIN_OS)
 endif
 export EHS_GNU_OS_ARCH
@@ -114,28 +117,27 @@ ifdef TOOLCHAIN_NAME
 else
     ifndef TOOLCHAIN_PATH
         ifneq ($(TOOLCHAIN_PATH),HOST)
-        # check for an arch and OS specific one first. Otherwise try an arch only (which is rarely/never used so far):
-                ifneq ($wildcard $($(EHS_CORE_SUPPORT_BASE)/toolchains/$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)),)
-                        export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)
-                else
-                        export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_ARCH)
-                endif
+            # check for an arch and OS specific one first. Otherwise try an arch only (which is rarely/never used so far):
+            ifneq ($wildcard $($(EHS_CORE_SUPPORT_BASE)/toolchains/$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)),)
+                export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(EHS_GNU_OS_ARCH)
+            else
+                export TOOLCHAIN_PATH=$(EHS_BUILD_MAC_ARCH)/$(TOOLCHAIN_ARCH)
+            endif
         endif
     else
-    #There is an explicit Toolchain path (relative to ert-build-support/toolchains/) specificed, so let this be used.
-
+    # There is an explicit Toolchain path (relative to ert-build-support/toolchains/) specificed, so let this be used.
     endif
 endif
 
 # Shall we remove the following CC, CPP, LINK and AS related lines? They seems like dup of the toolchain.mk
 
 ifdef CXX_OVERRIDE
-CPP:=$(CXX_OVERRIDE)
+    CPP:=$(CXX_OVERRIDE)
 endif
 
 ifdef CC_OVERRIDE
-CC:=$(CC_OVERRIDE)
-LINK:=$(CC_OVERRIDE)
+    CC:=$(CC_OVERRIDE)
+    LINK:=$(CC_OVERRIDE)
 endif
 
 ifdef AS_OVERRIDE
@@ -155,30 +157,30 @@ export AS
 # Note : gnu sysroot might use this so do it before including toolchain.mk
 
 ifdef COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH
-#if you want component support from a path defined by the toolchain name or something else specific then use this override method 
-	export COMPONENT_BASE_TECHNOLOGIES:=$(COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH)
+    # if you want component support from a path defined by the toolchain name or something else specific then use this override method 
+    export COMPONENT_BASE_TECHNOLOGIES:=$(COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH)
 else
-	ifdef COMPONENT_VARIANT
-	    ifdef TOOLCHAIN_NAME
+    ifdef COMPONENT_VARIANT
+        ifdef TOOLCHAIN_NAME
             ifeq ($(TOOLCHAIN_NAME),HOST)
                 export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)
             else
                 export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)-$(TOOLCHAIN_NAME)
             endif
-	    else
-	    	export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)
-	    endif
         else
-	    #If no overrdies to the component base technology we use the toolchain path that the libs are built wtih
-	        ifdef TOOLCHAIN_NAME
-	     	    export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)-$(TOOLCHAIN_NAME)
-	        else
-	    	    export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)
-	        endif
+            export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)_$(COMPONENT_VARIANT)
         endif
+    else
+        # If no overrdies to the component base technology we use the toolchain path that the libs are built wtih
+        ifdef TOOLCHAIN_NAME
+            export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)-$(TOOLCHAIN_NAME)
+        else
+            export COMPONENT_BASE_TECHNOLOGIES:=$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)
+        endif
+    endif
 endif
 
-####################   Configure the arch-os-specific toolchain parameters ############################## 
+#################### Configure the arch-os-specific toolchain parameters ##############################
 include $(EHS_TARGET_OS_HW_PATH)/toolchain.mk
 
 export EHS_TARGET_COMPONENT_HAL_PATH=$(EHS_TARGETS_ROOT_PATH)/Component-HAL
@@ -186,8 +188,9 @@ export EHS_TARGET_COMPONENT_HAL_PATH=$(EHS_TARGETS_ROOT_PATH)/Component-HAL
 ifndef COMPONENT_BASE_TECHNOLOGIES
     $(error == COMPONENT_BASE_TECHNOLOGIES is not defined)
 else
-    $(info == Your Build target is using the following ert-contrib_middleware:) 
-    $(info == [$(COMPONENT_BASE_TECHNOLOGIES)] )
+    $(info $(TXT_FG_BLUE)Your Build target is using ert-contrib_middleware:)
+    $(info $(TXT_FG_WHITE)  [$(COMPONENT_BASE_TECHNOLOGIES)])
+    $(info )
 endif
 
 # and apply to the compiler paths 
@@ -200,14 +203,15 @@ export EHS_COMPONENT_SUPPORT_LIBS:=$(EHS_COMPONENT_SUPPORT_BUILD)lib/
 
 # Setup default dependency and feature support for os-arch types so this doesn't need to be done for each platform.
 ifneq ("$(wildcard $(EHS_TARGET_OS_HW_PATH)/config.mk)","")
-  include $(EHS_TARGET_OS_HW_PATH)/config.mk
+    include $(EHS_TARGET_OS_HW_PATH)/config.mk
 endif
+
 
 # Set up any other build configurations.
 include $(EHS_TARGET_OS_HW_PATH)/target.mk
 # Check for a default configuration file fir this is-arch 
 
-############## Set up some eRT Source level conditional build macros          ##########
+############## Set up some eRT Source level conditional build macros ##########
 
 # IF WE HAVE A NATIVE BUILD (e.g. docker) THEN MUCH OF THE ABOVE SHOULD PROBABLY BE REMOVED? 
 # Though it probably doesn't do any harm having linkes to resources in ert-* support repos if there's nothing in them.
@@ -216,45 +220,52 @@ include $(EHS_TARGET_OS_HW_PATH)/target.mk
 
 #This doesn't seem to be useful (build OK without) but seems to be more target specific than should be done here? 
 ifneq ($(EHS_HOST_DEBIAN_BUILD),)
-#    $(info HOST_BUILD is set, using the host's /usr/ directory for core and component dependencies")
-    LIB_DIRS += $(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
-#    # We might still hav some middleware dependecies for a host build 
+    # $(info HOST_BUILD is set, using the host's /usr/ directory for core and component dependencies")
+    _KNL = $(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
+    LIB_DIRS += $(_KNL)
+    # We might still hav some middleware dependecies for a host build 
     INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)
     LIB_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)
-    $(info == Using EHS kernel from:)
-    $(info == [$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/])
-    $(info == Also including the default ert-contrib middleware include path:)
-    $(info == [$(EHS_COMPONENT_SUPPORT_INCLUDE)])
-    $(info == Also including the default ert-contrib middleware library path:)
-    $(info == [$(EHS_COMPONENT_SUPPORT_LIBS)])
+    $(info $(TXT_FG_BLUE)Using EHS kernel from:)
+    $(info $(TXT_FG_WHITE)  [$(_KNL)])
+    $(info )
+    $(info $(TXT_FG_BLUE)Also including the default ert-contrib middleware include path:)
+    $(info $(TXT_FG_WHITE)  [$(EHS_COMPONENT_SUPPORT_INCLUDE)])
+    $(info )
+    $(info $(TXT_FG_BLUE)Also including the default ert-contrib middleware library path:)
+    $(info $(TXT_FG_WHITE)  [$(EHS_COMPONENT_SUPPORT_LIBS)])
+    $(info )
 else
-  # Add paths the ert-build-support's LIBC
-   ifdef EHS_CLIB_OVERRIDE_PATH
-       $(info == EHS_CLIB_OVERRIDE_PATH is set, using the override path:)
-       $(info == [../ert-build-support/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/])
-       INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/include/
-       LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
-       LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/kernel/
-      # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/lib/
-   else
-  #Note the following is usally handled with the gcc --sysroot, but we'll add INC and LIB paths explicitly too.
-       $(info == Using the default ert-build-support path:)
-       $(info ==[../ert-build-support/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/])
-       INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/include/
-       LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/lib/
-       LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
-      # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/lib/
-   endif
-    $(info == Using the default ert-contrib middleware include path:)
-    $(info == [$(EHS_COMPONENT_SUPPORT_INCLUDE)])
-    $(info == Using the default ert-contrib middleware library path:)
-    $(info == [$(EHS_COMPONENT_SUPPORT_LIBS)])
+    # Add paths the ert-build-support's LIBC
+    ifdef EHS_CLIB_OVERRIDE_PATH
+        $(info $(TXT_FG_BLUE)EHS_CLIB_OVERRIDE_PATH is set, using the override path:)
+        $(info $(TXT_FG_WHITE)  [../ert-build-support/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/])
+        $(info )
+        INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/include/
+        LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
+        LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/kernel/
+        # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/lib/
+    else
+        # Note the following is usally handled with the gcc --sysroot, but we'll add INC and LIB paths explicitly too.
+        $(info $(TXT_FG_BLUE)Using the default ert-build-support path:)
+        $(info $(TXT_FG_WHITE)  [../ert-build-support/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/])
+        $(info )
+        INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/include/
+        LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/lib/
+        LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
+        # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/lib/
+    endif
+    $(info $(TXT_FG_BLUE)Using the default ert-contrib middleware include path:)
+    $(info $(TXT_FG_WHITE)  [$(EHS_COMPONENT_SUPPORT_INCLUDE)])
+    $(info )
+    $(info $(TXT_FG_BLUE)Using the default ert-contrib middleware library path:)
+    $(info $(TXT_FG_WHITE)  [$(EHS_COMPONENT_SUPPORT_LIBS)])
     # Add the component paths (Names distilled above) 
     INC_DIRS+=$(EHS_COMPONENT_SUPPORT_INCLUDE)
     LIB_DIRS+=$(EHS_COMPONENT_SUPPORT_LIBS)
 endif
 
-################ Choose which type of EHS kernel to link to   #########################
+################ Choose which type of EHS kernel to link to #########################
 ifeq ($(ERT_SODL_VERSION),1)
     LIB+=:libehs_ehrt1.a
 else
@@ -317,13 +328,13 @@ ifndef EXCLUDE_EHS_COMMON
         include $(EHS_COMMON_KERNEL_PATH)/kernel.mk
     endif
 
-    #define the component HAL first because this can affect the components selected for the toolboxes'
+    # define the component HAL first because this can affect the components selected for the toolboxes'
     include $(EHS_TARGET_COMPONENT_HAL_PATH)/component-hal.mk
 
-    #Configure the Components Code used
-    #build the common Layer (The common components.mk file will conditionally compile depending on Component Options
+    # Configure the Components Code used
+    # build the common Layer (The common components.mk file will conditionally compile depending on Component Options
     include $(EHS_COMMON_COMPONENTS_PATH)/components.mk
-    #All target stuff is done from the platform.mk file (indirectly) relative target specific layer
+    # All target stuff is done from the platform.mk file (indirectly) relative target specific layer
     include $(EHS_COMMON_EHS_PATH)/ehs.mk
 endif
 
@@ -341,7 +352,8 @@ export EHS_PLUGIN_LIBRARY_DEPENDENCY
 export EHS_DEFAULT_APP
 
 ############ Pick up any Devman URLs and credentials and pass these on to the build and packaing environments #####
-#This is the URL the CORE devman services will use to connect
+
+# This is the URL the CORE devman services will use to connect
 export DEVMAN_SERVER_DOMAIN
 export DEVMAN_SERVER_DOMAIN_1
 export DEVMAN_SERVER_DOMAIN_2
@@ -366,9 +378,9 @@ endif
 # Allow basic memory management with no clean up. Not recommended for apps that have 
 # console enabled or can receive new apps.
 ifdef EHS_MEMORY_MANAGMENT
-ifeq ($(EHS_MEMORY_MANAGMENT),none)
-    DEFS += EHS_MEMORY_MANAGMENT__NOMANAGEMENT
-endif
+    ifeq ($(EHS_MEMORY_MANAGMENT),none)
+        DEFS += EHS_MEMORY_MANAGMENT__NOMANAGEMENT
+    endif
 endif
 
 #TODO all of these should be idefed as they will be set to empty if previously unset
@@ -414,27 +426,33 @@ export EHS_APPLAND_INST_OS_NAME
 #####################################################################################
 # Display the config - please keep this up to date with all the platform options.
 #####################################################################################
-   $(info ====================================================================)
-   $(info EHS_ARCH     =$(EHS_ARCH))
-   $(info EHS_GNU_ARCH =$(EHS_GNU_ARCH))
-   $(info EHS_OS       =$(EHS_OS))
-   $(info EHS_GNU_OS   =$(EHS_GNU_OS))
-   $(info -TOOLBOXES:)
-   $(info EHS_PERIPHERALS_GPIO_SUPPORT=$(EHS_PERIPHERALS_GPIO_SUPPORT))
-   $(info EHS_PERIPHERAL_DEVICE_SUPPORT=$(EHS_PERIPHERAL_DEVICE_SUPPORT))
-   $(info EHS_PERIPHERALS_ADC_DAC_SUPPORT=$(EHS_PERIPHERALS_ADC_DAC_SUPPORT))
-   $(info EHS_COMPONENT_NETWORKING_SUPPORT=$(EHS_COMPONENT_NETWORKING_SUPPORT=))
-   $(info EHS_PID_SUPPORT=$(EHS_PID_SUPPORT))
-   $(info EHS_SCHEDULER_SUPPORT=$(EHS_SCHEDULER_SUPPORT))
-   $(info EHS_MODBUS_SUPPORT=$(EHS_MODBUS_SUPPORT))
-   $(info EHS_GUI_SUPPORT=$(EHS_GUI_SUPPORT))
-   $(info EHS_AV_SUPPORT=$(EHS_AV_SUPPORT))
-   $(info EHS_VIDEO_SUPPORT=$(EHS_VIDEO_SUPPORT))
-   $(info EHS_MEDIA_SUPPORT=$(EHS_MEDIA_SUPPORT))
-   $(info EHS_TOOLKIT_DEPRECATED=$(EHS_TOOLKIT_DEPRECATED))
-   $(info DEBUG:)
-   $(info EHS_DEBUGALL            =$(EHS_DEBUGALL))
-   $(info EHS_DEBUG_AV            =$(EHS_DEBUG_AV))
-   $(info EHS_DEBUG_TCPIP_CONSOLE =$(EHS_DEBUG_TCPIP_CONSOLE))
-   $(info EHS_DEBUG_TRACE         =$(EHS_DEBUG_TRACE))
-   $(info ====================================================================)
+$(info )
+$(info $(TXT_FG_GREY)--------------------------------------------------------------------)
+$(info )
+$(info $(TXT_FG_BLUE)Build host architecture:)
+$(info $(TXT_FG_GREEN)EHS_ARCH                         = '$(TXT_FG_WHITE)$(EHS_ARCH)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_GNU_ARCH                     = '$(TXT_FG_WHITE)$(EHS_GNU_ARCH)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_OS                           = '$(TXT_FG_WHITE)$(EHS_OS)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_GNU_OS                       = '$(TXT_FG_WHITE)$(EHS_GNU_OS)$(TXT_FG_GREEN)')
+$(info )
+$(info $(TXT_FG_BLUE)Toolboxes:)
+$(info $(TXT_FG_GREEN)EHS_PERIPHERALS_GPIO_SUPPORT     = '$(TXT_FG_WHITE)$(EHS_PERIPHERALS_GPIO_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_PERIPHERAL_DEVICE_SUPPORT    = '$(TXT_FG_WHITE)$(EHS_PERIPHERAL_DEVICE_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_PERIPHERALS_ADC_DAC_SUPPORT  = '$(TXT_FG_WHITE)$(EHS_PERIPHERALS_ADC_DAC_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_COMPONENT_NETWORKING_SUPPORT = '$(TXT_FG_WHITE)$(EHS_COMPONENT_NETWORKING_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_PID_SUPPORT                  = '$(TXT_FG_WHITE)$(EHS_PID_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_SCHEDULER_SUPPORT            = '$(TXT_FG_WHITE)$(EHS_SCHEDULER_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_MODBUS_SUPPORT               = '$(TXT_FG_WHITE)$(EHS_MODBUS_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_GUI_SUPPORT                  = '$(TXT_FG_WHITE)$(EHS_GUI_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_AV_SUPPORT                   = '$(TXT_FG_WHITE)$(EHS_AV_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_VIDEO_SUPPORT                = '$(TXT_FG_WHITE)$(EHS_VIDEO_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_MEDIA_SUPPORT                = '$(TXT_FG_WHITE)$(EHS_MEDIA_SUPPORT)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_TOOLKIT_DEPRECATED           = '$(TXT_FG_WHITE)$(EHS_TOOLKIT_DEPRECATED)$(TXT_FG_GREEN)')
+$(info )
+$(info $(TXT_FG_BLUE)Debug:)
+$(info $(TXT_FG_GREEN)EHS_DEBUGALL                     = '$(TXT_FG_WHITE)$(EHS_DEBUGALL)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_DEBUG_AV                     = '$(TXT_FG_WHITE)$(EHS_DEBUG_AV)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_DEBUG_TCPIP_CONSOLE          = '$(TXT_FG_WHITE)$(EHS_DEBUG_TCPIP_CONSOLE)$(TXT_FG_GREEN)')
+$(info $(TXT_FG_GREEN)EHS_DEBUG_TRACE                  = '$(TXT_FG_WHITE)$(EHS_DEBUG_TRACE)$(TXT_FG_GREEN)')
+$(info )
+$(info $(TXT_FG_GREY)--------------------------------------------------------------------)

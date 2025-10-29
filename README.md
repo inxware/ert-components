@@ -1,7 +1,6 @@
 # eRT Components
 ## Event-based Runtime for Embedded & IoT Systems
-**eRT (event-based RunTime)** is an open-source library of software components that are pre-buildable ahead of developing embedded applications with a no-code IDE.
-reRT is for eal-time, data-intensive embedded systems built with MCUs/CPUs/SoCs.
+**eRT (event-based RunTime)** is an open-source library of software components that are pre-buildable ahead of developing embedded applications using a no-code IDE called [Lucid IDE](https://appland.inxware.io/). eRT is intended for use in real-time, data-intensive embedded systems built with MCUs/CPUs/SoCs.
  
 ![Static Badge](https://img.shields.io/badge/RaspberryPi-Y-green) ![Static Badge](https://img.shields.io/badge/Arduino-Y-green) ![Static Badge](https://img.shields.io/badge/esp32-Y-green) ![Static Badge](https://img.shields.io/badge/esp32s3-Y-green) ![Static Badge](https://img.shields.io/badge/Windows-Y-green) ![Static Badge](https://img.shields.io/badge/Android-Y-green) ![Static Badge](https://img.shields.io/badge/x86_linux-Y-green) ![Static Badge](https://img.shields.io/badge/arm_freeRTOS-Y-green) ![Static Badge](https://img.shields.io/badge/arm_linux-Y-green) ![Static Badge](https://img.shields.io/badge/RISCV-Y-green)
 

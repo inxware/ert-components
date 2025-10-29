@@ -1,29 +1,39 @@
 #!/bin/bash
-####################################################################################################
-# This file script will create docker image for the target platform and run the arguemnt string 
-# as a command and then exit.  
-####################################################################################################
+#---------------------------------------------------------------
+# Copyright (C) 2025, inx limited, UK.
+# All Rights Reserved.
+# You may use, distribute and modify this code under the terms
+# of the LGPLv3 license. You should have received a copy of the
+# LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+# with this file. If not, please visit
+#	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+#---------------------------------------------------------------
+#
+# This file script will create docker image for the target platform and run the arguemnt string
+# as a command and then exit.
+
 set -e
-#set -x 
+#set -x
 
 if [ "$1" = "" ]; then
     echo "You must provide at least one arguemnt for the command to run"
     exit 1
 fi
 
-SUDO_COMMAND= # Dont do this. Use the docker group for the user instead:
+SUDO_COMMAND= # Dont do this. Use the docker group for the user instead
 
 PATH_TO_TARGET_DOCKER_IMAGE="${PWD}/target/platform/${TARGET}/Dockerimagename"
-read DOCKER_IMAGE <  ${PATH_TO_TARGET_DOCKER_IMAGE} || echo "Could not read ${PATH_TO_TARGET_DOCKER_IMAGE} "
+read DOCKER_IMAGE < "${PATH_TO_TARGET_DOCKER_IMAGE}" || { err "Could not read ${PATH_TO_TARGET_DOCKER_IMAGE}"; exit 1; }
+
 #echo "|${PATH_TO_TARGET_DOCKER_IMAGE}|"
 if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
-    echo  "---------------------------------------------------------------------------------------------------------"
+    echo  "--------------------------------------------------------------------"
     echo "--- INFO: Running in Docker Container..."
     echo "--- If you get access errors then you probably don't belong to the docker group - please fix this with"
     echo -e "   \$sudo groupadd docker"
     echo -e "   \$sudo usermod -aG docker \$USER"
     echo -e "   \$newgrp docker"
-    echo  "---------------------------------------------------------------------------------------------------------"
+    echo  "--------------------------------------------------------------------"
 
     DOCKER_EXTRA_ENVS=""
     KEYWORD="EHS_TARGETENV_PREBUILD_"
@@ -36,20 +46,21 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     done < <(compgen -A variable | grep "$KEYWORD")
 
     INX_ERTCOMPONENTS_BUILDENV="-e EHS_OS -e  EHS_ARCH -e  EHS_GNU_OS -e EHS_GNU_ARCH -e SYSTEM_VARIANT -e SPECIFIC_TARGET -e DEVMAN_SERVER_NAME \
-            -e DEVMAN_SERVER_DOMAIN -e DEVMAN_SERVER_PROTOCOL -e TARGET -e EHS_PRODUCT_NAME -e TARGET_PATH -e TARGET_SYSPATCH -e EHS_HOST_DEBIAN_BUILD\
-            -e EHS_DEBIAN_VERSION -e INXWARE_TARGETENV_HACKS -e ANDROID_STUDIO_JNILIBS_PATH -e EXE -e EHS_ANDROID_PACKAGE_SIGNING_PATH -e EHS_DEBIAN_VERSION \
-            -e EHS_UNITY_PROJECT_EXPORT_SUPPORT -e DEBIAN_PACKAGE_NAME -e EHS_PLUGIN_LIBRARY_DEPENDENCY -e EHS_GUI_SUPPORT -e DEBIAN_PACKAGE_PLATFORM_EXTRA \
-            -e DEBIAN_PACKAGE_EXTRA -e EHS_AUTO_START -e DEVMAN_SERVER_DOMAIN_1 -e DEVMAN_SERVER_DOMAIN_2 -e EHS_DEVMAN_SUPERVISOR_REQUIRED \
-            -e EHS_ML_SUPPORT -e EHS_MV_SUPPORT -e EHS_USE_LIBCAMERA -e TOOLCHAIN_NAME -e COMPONENT_BASE_TECHNOLOGIES\
-            -e FLASH_BOARD $DOCKER_EXTRA_ENVS"
+        -e DEVMAN_SERVER_DOMAIN -e DEVMAN_SERVER_PROTOCOL -e TARGET -e EHS_PRODUCT_NAME -e TARGET_PATH -e TARGET_SYSPATCH -e EHS_HOST_DEBIAN_BUILD\
+        -e EHS_DEBIAN_VERSION -e INXWARE_TARGETENV_HACKS -e ANDROID_STUDIO_JNILIBS_PATH -e EXE -e EHS_ANDROID_PACKAGE_SIGNING_PATH -e EHS_DEBIAN_VERSION \
+        -e EHS_UNITY_PROJECT_EXPORT_SUPPORT -e DEBIAN_PACKAGE_NAME -e EHS_PLUGIN_LIBRARY_DEPENDENCY -e EHS_GUI_SUPPORT -e DEBIAN_PACKAGE_PLATFORM_EXTRA \
+        -e DEBIAN_PACKAGE_EXTRA -e EHS_AUTO_START -e DEVMAN_SERVER_DOMAIN_1 -e DEVMAN_SERVER_DOMAIN_2 -e EHS_DEVMAN_SUPERVISOR_REQUIRED \
+        -e EHS_ML_SUPPORT -e EHS_MV_SUPPORT -e EHS_USE_LIBCAMERA -e TOOLCHAIN_NAME -e COMPONENT_BASE_TECHNOLOGIES -e FLASH_BOARD $DOCKER_EXTRA_ENVS"
 
     #echo -n "Found Docker image ${PATH_TO_TARGET_DOCKER_IMAGE} ... "
     DOCKER_STAGING_DIR="${PWD}/../TARGET_TREES/DOCKER/cachespace"
-    mkdir -p  ${DOCKER_STAGING_DIR} ||exit
-    pushd ${DOCKER_STAGING_DIR} || exit
+    mkdir -p  ${DOCKER_STAGING_DIR} || { err ""; exit 1; }
+    pushd ${DOCKER_STAGING_DIR} || { err ""; exit 1; }
+
     echo " Setting up ${DOCKER_IMAGE}"
-#    ${SUDO_COMMAND} docker pull  ${DOCKER_IMAGE} ||:
-echo    ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}
+    #${SUDO_COMMAND} docker pull  ${DOCKER_IMAGE} ||:
+
+    echo "${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}"
     if ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}  &> /dev/null ; then
         echo "Using existing Docker image"
         #echo "${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV --user $(id -u):$(id -g) --rm --privileged -it --device=/dev/ttyACM0 -v $(pwd)/../../../:/inxware  -w /inxware/ert-components/ ${DOCKER_IMAGE} $@"
@@ -60,17 +71,18 @@ echo    ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}
             ${DOCKER_IMAGE}\
             "$@"
 
-              #These are not needed for bash initiated docker -e EHS_DEBUGALL -e DEFS
-          
-    else 
-        echo "Trying to pull "
-            echo "found Dockerfile.."
-            #Get the Image Name we want to run (and possibly build)
-            #todo we should  check if the imagei is already available? Or needs a force update
-            echo "Attempting to pull docker pull ${DOCKER_IMAGE}"
-	    ${SUDO_COMMAND} docker pull  ${DOCKER_IMAGE} || echo "Could not find ${DOCKER_IMAGE} in remote repository.  use make publishddockerimage to fix this if you have a Dockerfile" 
-            echo "Current PWD = "$(pwd)
-            ${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV  \
+        #These are not needed for bash initiated docker -e EHS_DEBUGALL -e DEFS
+    else
+        #echo "Trying to pull "
+        #echo "found Dockerfile.."
+        #Get the Image Name we want to run (and possibly build)
+        #todo we should  check if the imagei is already available? Or needs a force update
+
+        echo "Attempting to pull docker pull ${DOCKER_IMAGE}"
+        ${SUDO_COMMAND} docker pull  ${DOCKER_IMAGE} || echo "Could not find ${DOCKER_IMAGE} in remote repository. Use make publishddockerimage to fix this if you have a Dockerfile"
+
+        echo "Current PWD = $(pwd)"
+        ${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV  \
             --user $(id -u):$(id -g) --rm --privileged -i --device=/dev/ttyACM0 \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
@@ -78,9 +90,9 @@ echo    ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}
     fi
     popd
 else
-    echo "---------------------------------------------------------------------------------------------------------"
-    echo "--- ERROR: No Docker Image found." 
+    echo "--------------------------------------------------------------------"
+    echo "--- ERROR: No Docker Image found."
     echo "Perhaps you want to build this on your host with make -j 8?"
-    echo "---------------------------------------------------------------------------------------------------------"
+    echo "--------------------------------------------------------------------"
     exit 1
 fi
