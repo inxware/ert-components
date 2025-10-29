@@ -276,7 +276,7 @@ if [ "${DEVMAN_SERVER_DOMAIN}" != "" ]; then
 	mkdir -p ../TARGET_TREES/ehs_env-$TARGET/devman/core/config
 	if [ "${DEVMAN_SERVER_PROTOCOL}" = "" ]; then
 		echo "WARNING DEVMAN_SERVER_PROTOCOL is not set. Setting to https"
-		DEVMAN_SERVER_PROTOCOL = "https"
+		DEVMAN_SERVER_PROTOCOL="https"
 	fi
 	#configure the devman URLs:
 	if [ "${DEVMAN_SERVER_PROTOCOL}" = "mqtts" ]; then
