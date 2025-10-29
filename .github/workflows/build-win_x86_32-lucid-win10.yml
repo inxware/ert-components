@@ -22,7 +22,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         sparse-checkout: |
-            toolchains/x86_64
             support_libs/target_libs/i686-mingw32posix
         repository: inxware/ert-build-support
         path: ert-build-support
