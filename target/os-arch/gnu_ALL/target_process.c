@@ -373,13 +373,13 @@ EHS_GLOBAL void EhsTPMutex_init(void)
     EhsTPMutex_devmanMiscBuffers = (EhsTPMutexClass)&EhsL_devmanMiscBuffers; 
     //memset(&EhsL_devmanMiscBuffers,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_devmanMiscBuffers,&attr);
- #endif
  #ifdef EHS_MEDIA_SUPPORT   
     EhsTPMutex_playManager = (EhsTPMutexClass)&EhsL_playManager;
     //memset(&EhsL_playManager,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_playManager,&attr);
 #endif
-
+#endif
+ 
     EhsTPMutex_MBMaster = (EhsTPMutexClass)&EhsL_MBMaster;
     //memset(&EhsL_MBMaster,0,sizeof(pthread_mutex_t));
     pthread_mutex_init(&EhsL_MBMaster,&attr);
