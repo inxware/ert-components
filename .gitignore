@@ -146,3 +146,6 @@ gdb.txt
 
 #build & deploy spam
 ./output.txt
+
+#AI agent config
+CLAUDE.md
