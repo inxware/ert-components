@@ -41,7 +41,7 @@ Within a Linux bash shell, enter the following commands:
    mkdir inxware && cd inxware
 
    # Clone the main `ert-components` repository
-   git clone https://github.com/inxware/ert-components.git
+   git clone --depth 1 https://github.com/inxware/ert-components.git
    cd ert-components
 
    # Configure the build for your chosen target platform
@@ -115,7 +115,7 @@ eRT automatically manages most dependencies through Docker containers. The `make
    ```bash
    mkdir inxware && cd inxware
 
-   git clone https://github.com/inxware/ert-components.git
+   git clone --depth 1 https://github.com/inxware/ert-components.git
    cd ert-components
    ```
 

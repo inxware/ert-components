@@ -139,7 +139,7 @@ if [ "${EHS_SKIP_REPO_PULL}" = "" ]; then
         pushd ..
         if [ -f ${LOCAL_BASE}/COMMUNITY_RELEASE ]; then
             # TODO: should the yaml action do this with credentials?
-            git clone git@github.com:inxware/apps.git
+            git clone --depth 1 git@github.com:inxware/apps.git
         else
             git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/apps.git
         fi
@@ -184,7 +184,7 @@ else
             popd
         else
             pushd ..
-            git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/DevmanSecurity.git
+            git clone --depth 1 ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/DevmanSecurity.git
             cd DevmanSecurity/
             git checkout master
             popd

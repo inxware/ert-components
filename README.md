@@ -26,7 +26,7 @@ inxware encompasses an ecosystem of software, including:
 * A event-driven runtime application called "eRT" (which includes a proprietary runtime kernel, called EHS Kernel) and Hardware Abstraction Layer (HAL).
 * A broad range of 'components' providing all of the functionality you would expect in an embedded system.
 * Your applications, these run within the eRT environment.
-* An IoT administration platform called [Devman](https://www.inxware.io/devman/), which can be used to monitor and manage devices running your deployed inxware apps.
+* An Optional IoT administration platform called [Devman](https://www.inxware.io/devman/), can be used to monitor, manage and update devices running your deployed inxware apps.
 
 ![inxware diagram](docs/inxware.png)
 
@@ -108,7 +108,7 @@ Within a Linux bash shell, enter the following commands:
 mkdir inxware && cd inxware
 
 # Clone the main `ert-components` repository
-git clone https://github.com/inxware/ert-components.git
+git clone --depth 1 https://github.com/inxware/ert-components.git
 cd ert-components
 
 # Configure the build for your chosen target platform

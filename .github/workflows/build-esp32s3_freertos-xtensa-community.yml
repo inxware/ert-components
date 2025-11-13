@@ -26,6 +26,7 @@ jobs:
             support_libs/target_libs/xtensa-esp32s3_freertos
         repository: inxware/ert-build-support
         path: ert-build-support
+        fetch-depth: 1
         ref: refs/heads/main
         lfs: true
 
@@ -35,6 +36,7 @@ jobs:
         repository: inxware/ert-contrib-middleware
         path: ert-contrib-middleware
         sparse-checkout: target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1
+        fetch-depth: 1
         ref: refs/heads/main
         lfs: true
 
@@ -43,6 +45,7 @@ jobs:
       with:
         repository: inxware/apps
         path: apps
+        fetch-depth: 1
         ref: refs/heads/RELEASE-PRODUCTION
         
     - name: configure

@@ -136,7 +136,7 @@ EHS_KERNEL_LOCAL_PATH="${LOCAL_BASE}/${EHS_KERNEL_REPO}"
 # COMPONENT SUPPORT LIBRARIES FOR PLATFORM
 #
 EHS_COMPONENT_LIB_SUPPORT_DIR="ert-contrib-middleware"
-EHS_COMPOENT_SUPPORT_REPO="comp-lib-support.git"
+EHS_COMPOENT_SUPPORT_REPO="${EHS_COMPONENT_LIB_SUPPORT_DIR}.git"
 EHS_COMPONENT_SUPPORT_LOCAL_PATH="${LOCAL_BASE}/${EHS_COMPONENT_LIB_SUPPORT_DIR}/"
 EHS_COMPONENT_SUPPORT_SERVER_PATH="${REPOSITORY_BASE}/${EHS_COMPOENT_SUPPORT_REPO}"
 
@@ -155,7 +155,7 @@ if [ ! -n "${SKIP_REPOS}" ]; then
         echo "No local repo found at '${EHS_CORE_SUPPORT_LOCAL_PATH}'."
         echo "Cloning the ert-build-support repository $EHS_CORE_SUPPORT_SERVER_PATH to $EHS_CORE_SUPPORT_LOCAL_PATH"
         warn "This may take some time!"
-        git clone $EHS_CORE_SUPPORT_SERVER_PATH $EHS_CORE_SUPPORT_LOCAL_PATH
+        git clone --depth 1 $EHS_CORE_SUPPORT_SERVER_PATH $EHS_CORE_SUPPORT_LOCAL_PATH
     fi
 
     echo "Retrieving latest ERT contrib middleware for ${EHS_GNU_OS_ARCH} from ${EHS_COMPONENT_SUPPORT_SERVER_PATH} ..."
@@ -169,7 +169,7 @@ if [ ! -n "${SKIP_REPOS}" ]; then
         echo "No local repo found at '${EHS_COMPONENT_SUPPORT_LOCAL_PATH}'."
         echo "Cloning the ert-contrib-middleware repository $EHS_COMPONENT_SUPPORT_SERVER_PATH to $EHS_COMPONENT_SUPPORT_LOCAL_PATH"
         warn "This may take some time!"
-        git clone $EHS_COMPONENT_SUPPORT_SERVER_PATH $EHS_COMPONENT_SUPPORT_LOCAL_PATH
+        git clone --depth 1 $EHS_COMPONENT_SUPPORT_SERVER_PATH $EHS_COMPONENT_SUPPORT_LOCAL_PATH
     fi
 
     if [ "$IS_PUBLIC" = "no" ]; then
@@ -184,7 +184,7 @@ if [ ! -n "${SKIP_REPOS}" ]; then
             echo "No local repo found at '${EHS_KERNEL_LOCAL_PATH}'."
             echo "Cloning the ehs-kernel-server repository $EHS_KERNEL_SERVER_PATH to $EHS_KERNEL_LOCAL_PATH"
             warn "This may take some time!"
-            git clone $EHS_KERNEL_SERVER_PATH $EHS_KERNEL_LOCAL_PATH
+            git clone --depth 1 $EHS_KERNEL_SERVER_PATH $EHS_KERNEL_LOCAL_PATH
         fi
     fi
 
