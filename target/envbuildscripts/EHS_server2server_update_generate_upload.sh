@@ -26,7 +26,7 @@ if [[ "$SPECIFIC_TARGET" == *"android"* ]]; then
 	if [[ -n ${DEVMAN_INTERMEDIATE_SSHPORT} ]]; then 
 		export SSHPORT=${DEVMAN_INTERMEDIATE_SSHPORT}
 	else
-		export SSHPORT=8822
+		export SSHPORT=22
 	fi
 	
 	TARGET_ENV_NAME="ehs_env-$TARGET"

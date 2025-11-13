@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#TODO2025 THIS FILE SHOULD BE REMOVED FROM THE COMMUNITY VERSION.
+
 set -e
 
 DIST_PATH="../dist"
@@ -10,7 +12,8 @@ if ! [ -d "../inxware-installer" ]; then
     echo "Would you like to clone this repository? (y/n)"
     read -n 1 WHAT
     if [ "${WHAT}" = "y" ]; then
-        git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/inxware-installer.git ../inxware-installer
+        #TODO2025 - this needs to use a url from repo_config.mk a mentioned elsewhere for the build system
+        git clone ssh://git@github.com:inxware/inxware-installer.git ../inxware-installer
     else
         echo "make sure 'inxware-installer' is cloned next to this repository."
         exit 1

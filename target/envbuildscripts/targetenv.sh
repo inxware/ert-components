@@ -137,7 +137,7 @@ if [ "${EHS_SKIP_REPO_PULL}" = "" ]; then
         popd
     else
         pushd ..
-        if [ -f ./ert-components/COMMUNITY_RELEASE ]; then
+        if [ -f ${LOCAL_BASE}/COMMUNITY_RELEASE ]; then
             # TODO: should the yaml action do this with credentials?
             git clone git@github.com:inxware/apps.git
         else

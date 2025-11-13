@@ -97,7 +97,9 @@ if [ 1 = 0 ];then
 fi
 
 # Set up some hardwired paramters for the inxware dependency repos
+# TODO2025: THIS SHOULD BE A BASE MAKE SYSTEM VARIABLE THAT IS EXPORTED TO HERE AND OTHER SCRIPTS
 LOCAL_BASE="../"
+
 if [ "$IS_PUBLIC" = "yes" ]; then
     REPOSITORY_BASE="$(dirname -- ${REPO_URL})"
 else
@@ -108,7 +110,7 @@ fi
 # CORE PLATFORM SUPPORT FOR ERT-COMPONENTS & KERNEL BUILD
 #
 EHS_CORE_SUPPORT_DIR="ert-build-support"
-EHS_CORE_SUPPORT_REPO="EHS-build-support.git"
+EHS_CORE_SUPPORT_REPO="ert-build-support.git"
 
 if [ ! -n ${EHS_CLIB_OVERRIDE_PATH} ];then
     EHS_CORE_SUPPORT_PATH_FROM_BASE="${EHS_CORE_SUPPORT_DIR}/target_libs/$(EHS_GNU_OS_ARCH)${EHS_SPECIAL_CLIB_EXT}"
@@ -228,7 +230,7 @@ if  [ -f ${PWD}/target/platform/${1}/Vagrantfile ]; then
 else
     :
     #echo "NO Vagrant VM image found for this target"
-    # This script doesnt do much for a build-hosted cross-compilation toolchain
+    # This script doesn't do much for a build-hosted cross-compilation toolchain
     #echo "TARGET=$1" > ./TARGET.cfg // already done..
 fi
 
