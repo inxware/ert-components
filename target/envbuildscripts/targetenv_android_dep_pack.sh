@@ -59,7 +59,7 @@ else
 fi
 
 if [ "${SSHPORT}" = "" ]; then
-    export SSHPORT=8822
+    export SSHPORT=22
     echo "SSHPORT is not set. Setting it to default ($SSHPORT)."
 fi
 echo "======================================================================================"
@@ -152,7 +152,7 @@ CreateDevmanAppUpdatesData(){
 }
 
 # Example Arguments:
-# (1) ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/Ambifier.git
+# (1) ssh://tech-data@dev.inx-systems.net:22/home/inx-data/data/Repos/Ambifier.git
 # (2) Ambifier/Ambifier2/builds/Android/ambifier.apk
 SetupTargetEnv_AddSupplementaryApps(){
     if [ "$1" = "" -o "$2" = "" ]; then

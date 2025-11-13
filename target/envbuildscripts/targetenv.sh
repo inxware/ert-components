@@ -106,11 +106,12 @@ echo "Checking out the latest PRODUCTION branch of your app repo..."
 		popd
 	else
 		pushd ..
+		#TODO2025 _THIS SHOULS USE A BASE REPO URL IN A GLOBAL repo-config.mk file"
 		if [ -f ../ert-components/COMMUNITY_RELEASE ]; then
 			echo "Not getting the apps.git repo as the yaml action willdo this with credentials"
-		#	git clone git@github.com:inxware/apps.git
+			git clone ssh://git@github.com:inxware/apps.git
 		else
-			git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/apps.git
+			git clone ssh://git@github.com:inxware/apps.git
 		fi
 		cd apps/
 		git checkout RELEASE-PRODUCTION || exit 1

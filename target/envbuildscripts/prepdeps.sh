@@ -69,13 +69,14 @@ fi
 # Check we have python and pip
 
 # Set up some hardwired paramters for the inxware dependency repos
+# TODO2025: THIS SHOULD BE A BASE MAKE SYSTEM VARIABLE THAT IS EXPORTED TO HERE AND OTHER SCRIPTS
 LOCAL_BASE="../"
-REPOSITORY_BASE="ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/"
+REPOSITORY_BASE="ssh://git@github.com:inxware/"
 #
 # CORE PLATFORM SUPPORT FOR ERT-COMPONENTS & KERNEL BUILD
 #
 EHS_CORE_SUPPORT_DIR="ert-build-support"
-EHS_CORE_SUPPORT_REPO="EHS-build-support.git"
+EHS_CORE_SUPPORT_REPO="ert-build-support.git"
 
 if [ ! -n ${EHS_CLIB_OVERRIDE_PATH} ];then
     EHS_CORE_SUPPORT_PATH_FROM_BASE="${EHS_CORE_SUPPORT_DIR}/target_libs/$(EHS_GNU_OS_ARCH)${EHS_SPECIAL_CLIB_EXT}"

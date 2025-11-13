@@ -51,28 +51,8 @@ function CancelFailed(){
 }
 
 function PrepareUnityToolchain(){
-    # @TODO - move Unity toolchain to ert-contrib-middleware
-
-    # check if the unity build tools are available
-    if [ -d "$UNITY_BUILD_TOOLS" ]; then
-        echo "Unity3d build support tools are present."
-    else
-        echo "Unity3d build support tools are NOT present on this machine."
-        echo "Downloading Unity3d build support tools ..."
-        mkdir "$UNITY_BUILD_TOOLS_ROOT"
-        DATA_SERVER="tech-data@dev.inx-systems.net"
-        DATA_FILE="unity3d-build-support.tar.gz"
-        scp -P 8822 ${DATA_SERVER}":/home/inx-data/data/Unity/unity3d-build-support.tar.gz" ${UNITY_BUILD_TOOLS_ROOT}
-        pushd ${UNITY_BUILD_TOOLS_ROOT}
-        tar xfvz ${DATA_FILE}
-        rm ${DATA_FILE}
-        popd
-    fi
-
-    if ! [ -d "$UNITY_BUILD_TOOLS" ]; then
-        echo "Unable to continue. Unity3d build support tools are NOT present ($UNITY_BUILD_TOOLS)."
-        exit 1
-    fi
+    # @TODO2025 - move Unity toolchain to ert-contrib-middleware
+    # This was a really bad idea
 }
 
 function ExportUnityAndroidStudio() {

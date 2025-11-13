@@ -1,4 +1,7 @@
 
+# Building inxware event-based Runt-Time (eRT)
+==WARNING THIS README IS WORK IN PROGRESS AND CONTAINS GUIDES FOR PROCESSES OUTSIDE THE COMMUNITY VERSION==
+
 # Build Machine & System Requirements
 
 In general inxware runtimes are built  using Ubuntu 22.04 machines or a machine that can support the following packages
@@ -818,50 +821,9 @@ Reboot Updatable
 
 ---
 ```
-# eRT Operating System Support (Supervisors)
-
-## Unity & eRT Supervisor {#unity-&-ert-supervisor}
-
-## How to Build the Application (taken from Signage notes)
-
-The application can be built using either the Unity IDE or command-line. For a full build, including build of the scheduler plugins, the command line method should be used.
-
-### Linux Command-Line Build
-
-1. Setup source repository. Clone following repositories and make sure that all of them are located in the same directory.  
-   * ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/ert-components.git  
-   * ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/ert-contrib-middleware.git  
-   * ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/ert-build-support.git  
-   * ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/DevmanSecurity.git  
-     1. For this repository (DevmanSecurity) you must also switch your branch to ‘master’ (git checkout ‘master’)  
-2. Install Unity3d Hub  
-   * Install following dependencies  
-     1. sudo apt-get install gconf2  
-   * Download the Unity Hub from  [https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)  
-   * chmod \+x ./UnityHub.AppImage  
-   * Run the hub, login and setup your licence (use inx developer account ) [developer@inx-systems.com](mailto:developer@inx-systems.com):HelloUnity101  
-   * Press the activate new license button if there’s no licenses shown (Choose personal use if this is the case).  
-3.  Navigate to EHS project and run ./makeEhs-unity.sh   
-   * NOTE : it takes a long time to build it when you do it for the first time, so allow at least \~30min for the first build.  
-   * You can track the long progress of unity build by tailing a log file e.g.  
-     1. tail \-f EHS/../TARGET\_TREE/ehs\_\<your target\>/log
-
-  
-
-# Archive (Old Instructions to cherry pick from\! And delete)
-
-\[ This needs updating but is a good format and has some good pictures\! it is roughly right but we have all the elements now documented better elsewhere that needs bringing in\]
-
-Name changes (new name :as found in this document)  
-Ert-components : EHS  
-Ert-build-support : EHS-build-support  
-Ert-contrib-middleware : ert-contrib-middleware 
-
-Feel free to update the text below as above and add any new structures for bare metal OS builds e.g. esp32,nxp-arm , etc.  that we discover.
 
 # **Multi-Target Build System**
 
-## 
 
 ### **EHS Code Structure**
 
