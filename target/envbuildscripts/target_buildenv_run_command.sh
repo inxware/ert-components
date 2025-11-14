@@ -63,8 +63,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     echo "${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}"
     if ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}  &> /dev/null ; then
         echo "Using existing Docker image"
-        #echo "${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV --user $(id -u):$(id -g) --rm --privileged -it --device=/dev/ttyACM0 -v $(pwd)/../../../:/inxware  -w /inxware/ert-components/ ${DOCKER_IMAGE} $@"
-
+        
         ${SUDO_COMMAND} docker run ${INX_ERTCOMPONENTS_BUILDENV}  \
             --user $(id -u):$(id -g) --rm --privileged -i --device=/dev/ttyACM0 \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
