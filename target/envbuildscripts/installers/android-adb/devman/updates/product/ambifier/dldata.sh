@@ -22,15 +22,11 @@ InstallUpdate(){
 
 # check if the data zip is present
 if [ -f "$DATA_ZIP" ]; then
-	AMBIFIER_PACKAGE="com.TheSoundAgency.Ambifier2"
 	EHS_PACKAGE="com.inx.ehs"
 	DATA_FOLDER="$UPDATE_DATA_FOLDER/data"
 	mkdir $DATA_FOLDER
-	AMBIFIER_APK="$DATA_FOLDER/ambifier.apk"
 	EHS_APK="$DATA_FOLDER/ehs.apk"
 	Untar "$DATA_ZIP" "$DATA_FOLDER"
-	InstallUpdate $AMBIFIER_APK
-	sleep 1
 	InstallUpdate $EHS_APK
 	RestartApp
 else

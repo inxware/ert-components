@@ -22,7 +22,6 @@ fi
 
 source TARGET.cfg
 
-#make targetenv_deb UPLOAD="ambifier@www.ambifier.com:/home/ambifier/deb-repo"
 if [ "$DO_EXE" == "1" ]; then
 
    ssh root@${TARGETADDR} service run_ehs stop

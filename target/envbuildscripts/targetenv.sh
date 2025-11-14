@@ -141,7 +141,7 @@ if [ "${EHS_SKIP_REPO_PULL}" = "" ]; then
             # TODO: should the yaml action do this with credentials?
             git clone git@github.com:inxware/apps.git
         else
-            git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/apps.git
+            git clone git@github.com:inxware/apps.git
         fi
         cd apps/
         git checkout RELEASE-PRODUCTION || exit 1
@@ -184,9 +184,11 @@ else
             popd
         else
             pushd ..
-            git clone ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/DevmanSecurity.git
-            cd DevmanSecurity/
-            git checkout master
+            echo "WARNING! You need to create a security folder adjascent to ert-components."
+            echo "or check one out using something like"
+            echo "git clone git@github.com:/<Your Secure Repo>.git"
+            cd DevmanSecurity/ ||
+            git checkout master ||
             popd
         fi
     else

@@ -103,7 +103,7 @@ LOCAL_BASE="../"
 if [ "$IS_PUBLIC" = "yes" ]; then
     REPOSITORY_BASE="$(dirname -- ${REPO_URL})"
 else
-    REPOSITORY_BASE="ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/"
+    REPOSITORY_BASE="git@github.com:inxware/"
 fi
 
 #

@@ -46,7 +46,7 @@ else
     fi
 fi 
 if [ -z "$EHS_PRODUCT_NAME" ]; then
-    echo "EHS product name e.g ambifier, adnoc, tellisign etc. must be specified in the hack file."
+    echo "EHS product name e.g tellisign etc. must be specified in the hack file."
     exit 1
 fi
 if [ -z "$SYSTEM_VARIANT" ]; then

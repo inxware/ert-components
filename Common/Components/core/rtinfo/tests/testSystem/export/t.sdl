@@ -102,7 +102,7 @@ BEGIN ConvertorIntToString 0
 Run_ConvertorIntToString	1	1	5	1 I 1 	1 S 4 	1 4 
 END
 BEGIN Constant_String1 0
-com.TheSoundAgency.Ambifier2 
+com.android.appx
 Run_ConstantString	1	1	-1	0 	1 S 1 	0 
 END
 BEGIN gui_text_int2 0

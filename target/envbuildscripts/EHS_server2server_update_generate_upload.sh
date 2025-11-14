@@ -12,7 +12,7 @@ if [[ "$SPECIFIC_TARGET" == *"android"* ]]; then
 	
 	#create a device update file for the devman server with devman scripts.
 	if [ -z $DEVMAN_INTERMEDIATE_SERVER ] ; then
-		DEVMAN_INTERMEDIATE_SERVER="devman.ambifier.com"
+		DEVMAN_INTERMEDIATE_SERVER="devport.inx-systems.net"
 	fi
 	
 	# Do some sanity checks
@@ -21,7 +21,7 @@ if [[ "$SPECIFIC_TARGET" == *"android"* ]]; then
 	fi
 	#create default server login names
 	if [ -z $DEVMAN_INTERMEDIATE_UNAME ] ; then
-		DEVMAN_INTERMEDIATE_UNAME="ambifier"
+		DEVMAN_INTERMEDIATE_UNAME="no-user-set"
 	fi
 	if [[ -n ${DEVMAN_INTERMEDIATE_SSHPORT} ]]; then 
 		export SSHPORT=${DEVMAN_INTERMEDIATE_SSHPORT}

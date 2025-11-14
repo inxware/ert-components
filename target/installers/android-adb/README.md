@@ -26,9 +26,7 @@ THere seems to be other installer scripts scattered around the repo, but will tr
 │       │   ├── README.md
 │       │   └── rockPi4
 │       │       └── update-supervisor.sh
-│       └── product       :Contains product-specific scripts to upload to Devman as dladata.sh (WTF is this for?)
-│           ├── ambifier
-│           │   └── dldata.sh
+│       └── product       :Contains product-specific scripts to upload to Devman as dladata.sh 
 │           ├── ehs
 │           │   └── dldata.sh
 │           ├── player

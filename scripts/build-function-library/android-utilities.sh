@@ -17,12 +17,6 @@ function BuildAndroid(){
     #Add any other pacakges that get bundled with eRT
 }
 
-function UploadApk-ambifier() {
-    make targetenv_android_dep_pack || exit
-    # The default for the upload url/path may be encoded in the config.mk file
-    make upload_ehs_sys_patch || exit 1
-}
-
 function InstallToDevice() {
     make upload_ehs_via_adb  || exit
     # OR make upload_ehs_via_adb  ADB_IP=192.168.1.1 || exit 

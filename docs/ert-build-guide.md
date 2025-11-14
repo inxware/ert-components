@@ -46,15 +46,16 @@ This section should provide only necessary information for an internal inx techn
 
 ### Starting from Scratch
 
-System requirements: Ubuntu 22.04 Recommended (64 bit essential) 
-
-| Warning\! Check your \~/.ssh/ for the xxxx.pub file. If it is rsa256 you can either remove it (if not already in use) or configure an additional key for the url below.  The new key can be generated with ssh-keygen \-t ed25519  |
-| :---- |
+System requirements: Ubuntu 22.04 or later is Recommended (64 bit almost essential) 
 
 The initial system preparation involves the following steps:
-
-| mkdir inxware  cd inxware sudo apt-get install git build-essential git clone ssh://[tech-data@dev.inx-systems.net](mailto:tech-data@dev.inx-systems.net):8822/home/inx-data/data/Repos/ert-components.git cd ert-components make prepdeps |
-| :---- |
+```bash
+mkdir inxware  cd inxware 
+sudo apt install git build-essential 
+git clone ssh://git@github.com:inxware/ert-components.git
+cd ert-components
+make prepdeps # downloads two other LFS repostitories for dependencies 
+```
 
 The final step will checkout two other (large) git-lfs enabled repos in the inxware directory. It may take 10 minutes or more and requires \>20GB storage.
 
@@ -95,7 +96,7 @@ The directories under TARGET\_TREES are staging directories that usually contain
 
 Target types with special environment initialisations:
 
-* Unity (e.g. tellisign \- not needed for Ambifier2) \- see [Unity & eRT Supervisor](#unity-&-ert-supervisor) section below. Unity needs to be run interactively to set up the license. (A personal license is OK for now?)  
+* Unity (e.g. tellisign \- ) \- see [Unity & eRT Supervisor](#unity-&-ert-supervisor) section below. Unity needs to be run interactively to set up the license. (A personal license is OK for now?)  
   - [ ] Can we create a license Unity tools Docker image?
 
 # Production Builds {#production-builds}
@@ -103,18 +104,14 @@ Target types with special environment initialisations:
 See relevant directory in **scripts/build-deploy/.** These scripts will typically build all variants of the product and optionally upload these to the relevant deployment Devman server instance.
 
 # Build Types (from Scratch)
-
-\=============================================================
-
-## Android Builds e.g Ambifier2
+## Android Builds
 
 Note: These steps are usually done in the following scripts for **specific products**:  
-e.g.  
-**./scripts/build-deploy**/moodsonic-tsa/makeEhs-android-ambifier-server-upload.sh
 
-The steps needed to build/upload a specific android platform e.g. ambifier for A6 board
+The steps needed to build/upload a specific android platform 
 
-**./configure linux\_android\_arm\_p64\_a6\_ambifier \#use ./configure for options**  
+```bash
+**./configure <linux\_android\_arm\_p64\_a6\tellisign> \#use ./configure for options**  
 **make prepdeps   \# pull from all dependencies repos**  
 **make clean**  
 **make all\_docker \# Build the source code in docker so we know the toolchain runs**  
@@ -130,16 +127,15 @@ The steps needed to build/upload a specific android platform e.g. ambifier for A
 **make upload\_ehs\_sys\_patch** 
 
 Use ‘**make help**’ for details on what each step means.
-
-\======================================================================
+```
 
 The above Android target build gets built in following stages:
-
+```bash
 1. **make all\_docker \-** This builds NDK **ehs.so** plugin  
 2. **make targetenv \-** This aggregates eRT file system structure, Lucid apps and the above plugin into TARGET\_TREES/ehs\_env-\<target\>  
 3. **make targetenv\_apk\_docker \-** This copies the Android Studio template project (**ert-components/target/os-arch/android\_ALL/android\_studio\_ehs**) into TARGET\_TREES/ehs\_env-\<target\> and by using gradle creates deployable .apk file.  
 4. **make targetenv\_android\_dep\_pack \-** This aggregates all supervisor scripts and creates a deployable package (with APKs) for this target in TARGET\_TREES/ehs\_env-\<target\> 
-
+```bash 
 ## Unity (e.g. signage) Android Builds
 
 #### **Setup UnityHub and Licence (Skip this\!\!\! Only do it if this fails, which probably means you have installed it and signed the license).**
@@ -250,19 +246,7 @@ We need to do the following steps so that we are issuing a command to do an upda
 1. Copy the devman deployed script functions from ./target/envbuildscripts/installers/android-adb/\* to things that go into the supervisor scripts and get run in a simple way   
 2. Then we need to do a migration release to all devices (or save one on Devman if some devices are offline).  
 3. … Then remove ./target/envbuildscripts/installers/android-adb/  
-4. 
 
-For ambifier updates we download two apks in the dldata.tgz and download them both and the ambifier installer that unpacks the installs both.
-
-It also has a zip file for the supervisor scripts, which get downloaded as separate.
-
-1. Propose new more generic method:  
-   Supervisor & Downloader & optional ambifier are all in one zip file and the respective installer on the device will do the right thing.  
-2. ONLY LATEST VERSION FOR Each variant needs to be on the server and should have the same path/URL.
-
-Update script unzip the dldata.tgz  and look for specific apk’s in it \- if they’re there it will install them including  
-
-The product is EHS/Ambifier/Telesign \- this will be consumed in the above generic method.
 
 ### **make install\_via\_adb**
 
@@ -330,7 +314,6 @@ export DEVMAN\_SERVER\_PROTOCOL\=http
 
 export DEVMAN\_UNAME\="inx"
 
-\#export EHS\_PRODUCT\_NAME="ambifier"
 
 export DEVMAN\_SERVER\_NAME\=sandbox
 
@@ -417,12 +400,10 @@ A list of currently active (regression tested) targets is maintained in the foll
 | esp32\_freertos-xtensor-base | xtensor-esp32\_freertos |  |  |
 | linux\_android\_arm64\_unity-lib | linux\_android\_arm64 |  |  |
 | linux\_android\_arm | linux\_android\_arm64 |  |  |
-| linux\_android\_arm\_p64\_a6\_ambifier | linux\_android\_arm64 |  |  |
 | linux\_android\_arm\_p64\_h6\_player-sandbox | linux\_android\_arm64 |  |  |
 | linux\_android\_arm\_p64\_h6\_player-sandbox-debug | linux\_android\_arm\_p64\_h6\_player-sandbox-debug |  |  |
 | linux\_android\_arm\_p64\_h6\_unity-tellisign | linux\_android\_arm (32/64bit) |  |  |
 | linux\_x86\_64\_clang\_gtk | linux\_x86 (64 bit) |  |  |
-| linux\_x86\_gtk\_gst\_ambifier2\_debian11 | linux\_x86 (64 bit) |  |  |
 | win\_x86\_gtk\_gst | win\_x86 (32 bit) |  |  |
 |  |  |  |  |
 
