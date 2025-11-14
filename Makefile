@@ -6,8 +6,8 @@
 # LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
 # with this file. If not, please visit 
 #	<https://www.gnu.org/licenses/lgpl-3.0.txt>
-#---------------------------------------------------------------
-#
+#---------------------------------------------------------------#
+
 # Makefile for ert-components
 
 # Overrides from command line:
