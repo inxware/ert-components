@@ -15,8 +15,7 @@
 # Toolset specific 
 
 
-#Setup the toolchain path
-#defaulting to HOST gcc
+# Setup the toolchain path
 ifndef CC_OVERRIDE
    CC_OVERRIDE:=xtensa-esp32-elf-gcc
 endif
@@ -29,6 +28,7 @@ ifndef LINK_OVERRIDE
     LINK_OVERRIDE:=xtensa-esp32-elf-gcc
 endif
 
+#ASFLAGS+= 
 #The following are only needed for buildig the contributed esp32 libraries in the ert-contrib-middleware context. Presume we don't need them here for now.
 # TODO remove this when we know that everything works
 CFLAGS+= -std=gnu99 -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall 
@@ -40,7 +40,6 @@ CFLAGS+= -DUNITY_INCLUDE_CONFIG_H -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"'
 
 # Temporary test, may not need it later.
 #CFLAGS+= -std=gnu99 -I /home/inx/fast-workspace/INX/inxware/ert-contrib-middleware/contrib/esp-idf/esp-idf-4.4.1/components/newlib/platform_include -I /home/inx/fast-workspace/INX/inxware/ert-contrib-middleware/contrib/esp-idf/esp-idf-4.4.1/build/include
-
 #LNKFLAGS+= -nostdlib -Wl,--gc-sections -Wl,-static -Wl,--start-group -T esp32.rom.ld -T esp32.rom.libgcc.ld -T esp32.rom.syscalls.ld -T esp32.rom.newlib-data.ld -T esp32.rom.api.ld -T esp32.rom.newlib-funcs.ld -T esp32.rom.newlib-time.ld -Wl,--wrap=longjmp -lesp_rom  -lnewlib -lm -u newlib_include_heap_impl -u newlib_include_syscalls_impl -u newlib_include_pthread_impl -u newlib_include_assert_impl -lgcc -lstdc++ -lgcov -Wl,--end-group -Wl,-EL
 #todo2022 the following link  command uses start group to avoid using -Wl on each link. 
 #We may want ocosiderthis approach generally for handling libraries included via the normal LIB+= method, but for now we'll do it explcitly here and remove the LIB+ stuff that duplicates this in the target.mk file.

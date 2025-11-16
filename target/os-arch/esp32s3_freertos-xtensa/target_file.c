@@ -345,13 +345,13 @@ static void esp_get_fatfs_usage(size_t* out_total_bytes, size_t* out_free_bytes)
 #endif
 
 #ifdef __USE_LITTLEFS__
-void listdir(char *dir)
+void listdir(const char *dir)
 {
     DIR *dp;
     struct dirent *entry;
     struct stat statbuf;
     char *subdir;
-    char temp[100] = "";
+    char temp[EHS_DEVMAN_FILE_PATH_LENGTH] = "";
 
     if((dp = opendir(dir)) == NULL) 
     {
@@ -360,7 +360,7 @@ void listdir(char *dir)
     }
     while((entry = readdir(dp)) != NULL) 
     {
-        sprintf(temp, "%s/%s", dir, entry->d_name);
+        EhsSnprintf(temp,EHS_DEVMAN_FILE_PATH_LENGTH, "%s/%s", dir, entry->d_name);
         if(stat(temp, &statbuf) == 0)
         {
             if(statbuf.st_mode & S_IFDIR)

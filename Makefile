@@ -78,8 +78,7 @@ DEFS = MAKE_TARGET=$(TARGET)
 VPATH+=./
 #$(OBJDIRECTORY)
 
-#Get OS specfic HAL code
-
+# Get OS specfic build configurations and target-specific toolchain settings 
 ifdef TARGET
 include $(EHS_PLATFORM_PATH)/../platform.mk
 endif
@@ -101,15 +100,15 @@ all: $(TARGET_NAME).$(FINAL)
 # Can't use predefined implicit rules here - we might need to generate .obj, rather than .o
 # therefore create custom implicit rules.
 %.$(OBJ): %.s
-	@$(ECHO) $(AS) $(ASFLAGS) $<
+#	@$(ECHO) $(AS) $(ASFLAGS) $<
 	@$(AS) $(ASFLAGS) $< -o $@
 
 %.$(OBJ): %.c
-	@$(ECHO) $(CC) $(CC_SWITCHES) $(CFLAGS) $<
+#	@$(ECHO) $(CC) $(CC_SWITCHES) $(CFLAGS) $<
 	@$(CC) $(CC_SWITCHES) $(CFLAGS) $< -o $@
 
 %.$(OBJ): %.cpp 
-	@$(ECHO) $(CPP) $(CC_SWITCHES) $(CPPFLAGS) $<
+#	@$(ECHO) $(CPP) $(CC_SWITCHES) $(CPPFLAGS) $<
 	@$(CPP) $(CC_SWITCHES) $(CPPFLAGS) $< -o $@
 
 $(TARGET_NAME).$(FINAL) : $(OBJECTS)

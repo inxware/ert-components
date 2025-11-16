@@ -29,9 +29,12 @@ ifndef LINK_OVERRIDE
     LINK_OVERRIDE:=xtensa-esp32s3-elf-gcc
 endif
 
-#The following are only needed for buildig the contributed esp32 libraries in the ert-contrib-middleware context. Presume we don't need them here for now.
+# The following are only needed for buildig the contributed esp32 libraries in the ert-contrib-middleware context. Presume we don't need them here for now.
 # TODO remove this when we know that everything works
 CFLAGS+= -std=gnu99 -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall 
+#CFLAGS+= -std=gnu99 -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall 
+
+
 #CFLAGS+= -Werror=all -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -Wno-error=deprecated-declarations -Wextra -Wno-unused-parameter -Wno-sign-compare 
 #CFLAGA+= -Wno-old-style-declaration 
 CFLAGS+= -DESP_PLATFORM -DIDF_VER=\"v4.4.4\" -MMD -MP 

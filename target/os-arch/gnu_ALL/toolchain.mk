@@ -42,11 +42,11 @@ else
    export LINK:=$(LINK_OVERRIDE)
 endif
 
-ifndef AS_OVERRIDE 
-   AS:=as
-else
-   AS:=$(AS_OVERRIDE)
-endif
+#ifndef AS_OVERRIDE 
+#   AS:=as
+#else
+#   AS:=$(AS_OVERRIDE)
+#endif
 
 # Set the sysroot of the compiler and an absolute path to the binary if it is not an installed one.
 ifdef TOOLCHAIN_PATH

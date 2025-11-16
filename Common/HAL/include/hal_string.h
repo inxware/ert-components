@@ -251,6 +251,10 @@ EHS_EXTERN const ehs_char* EhsGetQuoteDelimFromString(ehs_char * output, const e
  * purpose - they show the prototype of the function in question.
  */
 
+#ifndef EhsSnprintf
+EHS_EXTERN ehs_uint16 EhsSnprintf(ehs_char *pOutput, const ehs_char* pFmt, ...); /*lint !e960 Variable arguments required to support sprintf */
+#endif
+
 #ifndef EhsSprintf
 EHS_EXTERN ehs_uint16 EhsSprintf(ehs_char *pOutput, const ehs_char* pFmt, ...); /*lint !e960 Variable arguments required to support sprintf */
 #endif

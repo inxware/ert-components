@@ -1,4 +1,4 @@
-﻿Shader "Custom/MaintainImageTextureRatio"
+Shader "Custom/MaintainImageTextureRatio"
 {
     Properties
     {

@@ -27,6 +27,8 @@
 #  EHS_PLATFORM_PATH - path to the current directory (set by platform makefile)
 
 ################## Get the platform parameters from the platform config.mk file #######
+
+
 $(info )
 $(info $(TXT_FG_BLUE)Starting platform.mk with platform:)
 $(info $(TXT_FG_WHITE)  '$(EHS_PLATFORM_PATH)')
@@ -41,17 +43,17 @@ endif
 
 export EHS_BUILD_MAC_ARCH=$(shell uname -m)
 
-ifdef EHS_GNU_OS
-    TOOLCHAIN_OS=$(EHS_GNU_OS)
-else
-    TOOLCHAIN_OS=$(EHS_OS)
+#If the ./target/os-arch/ config doesn't set a GNU (GCC/Clang) canonical OS then use the basic one
+ifndef EHS_GNU_OS
+    EHS_GNU_OS=$(EHS_OS)
 endif
+TOOLCHAIN_OS=$(EHS_GNU_OS)
 
-ifdef EHS_GNU_ARCH
-    TOOLCHAIN_ARCH=$(EHS_GNU_ARCH)
-else
-    TOOLCHAIN_ARCH=$(EHS_ARCH)
+#If the ./target/os-arch/ build config doesn't set a GNU (GCC/Clang) canonical OS then use the basic one
+ifndef EHS_GNU_ARCH
+    EHS_GNU_ARCH=$(EHS_ARCH)
 endif
+TOOLCHAIN_ARCH=$(EHS_GNU_ARCH)
 
 #These paramters are used in the targetenv shell scripts so need to be exported
 export EHS_OS
@@ -130,28 +132,36 @@ else
 endif
 
 # Shall we remove the following CC, CPP, LINK and AS related lines? They seems like dup of the toolchain.mk
+# This sgould be done in toochain.mk
+#ifdef CXX_OVERRIDE
+#    CPP:=$(CXX_OVERRIDE)
+#endif
 
-ifdef CXX_OVERRIDE
-    CPP:=$(CXX_OVERRIDE)
-endif
+#ifdef CC_OVERRIDE
+#    CC:=$(CC_OVERRIDE)
+#    LINK:=$(CC_OVERRIDE)
+#endif
 
-ifdef CC_OVERRIDE
-    CC:=$(CC_OVERRIDE)
-    LINK:=$(CC_OVERRIDE)
-endif
-
-ifdef AS_OVERRIDE
-    AS:=$(AS_OVERRIDE)
-endif
+#ifdef AS_OVERRIDE
+#    AS:=$(AS_OVERRIDE)
+#endif
 
 ifdef LINK_OVERRIDE
     LINK:=$(LINK_OVERRIDE)
 endif
 
+ifdef CC
 export CC
+endif
+ifdef CPP
 export CPP
+endif
+ifdef
 export LINK
+endif
+ifdef AS
 export AS
+endif
 
 ################# Set up the Component Library Support Paths ####################################
 # Note : gnu sysroot might use this so do it before including toolchain.mk

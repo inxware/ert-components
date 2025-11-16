@@ -21,7 +21,7 @@ mandir = $(prefix)/man/man$(manext)
 
 # The name of your C compiler:
 CC= gcc
-
+ASFLAGS= -I$(srcdir)
 # You may need to adjust these cc options:
 CFLAGS= -O2  -I$(srcdir)
 # Generally, we recommend defining any configuration symbols in jconfig.h,

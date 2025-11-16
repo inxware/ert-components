@@ -22,7 +22,7 @@ ifndef CC_OVERRIDE
 endif
 
 ifndef AS_OVERRIDE
-   AS_OVERRIDE:=xtensa-esp32s3-elf-gcc
+   AS_OVERRIDE:=xtensa-esp32s3-elf-as
 endif
 
 ifndef LINK_OVERRIDE
@@ -33,9 +33,11 @@ endif
 CFLAGS += -I$(EHS_ROOT_PATH)/../ert-contrib-middleware/target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1/build/include/deprecated
 ifndef ESP32S3_DEBUG_BUILD # non-debug - optimise for size
 CFLAGS += -std=gnu17 -Os -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
+##CFLAGS += -std=gnu17 -Os -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
 CFLAGS += -DNDEBUG
 else
 CFLAGS += -std=gnu17 -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
+##CFLAGS += -std=gnu17 -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
 endif
 CFLAGS += -DESP_PLATFORM -DIDF_VER=\"v5.1.2\" -MMD -MP
 CFLAGS += -DUNITY_INCLUDE_CONFIG_H -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DUNITY_INCLUDE_CONFIG_H

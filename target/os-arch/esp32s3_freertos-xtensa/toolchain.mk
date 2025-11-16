@@ -8,7 +8,7 @@
 #---------------------------------------------------------------#
 # default is using library built with 32k instruction cache
 
-CFLAGS += -c
+# This is already done for all GNU/Clang based toolchains CFLAGS += -c
 
 ifeq ($(TOOLCHAIN_NAME),xtensa-esp32s3-elf-5.1)
     ESP32_TOOLCHAIN_MATCH = 1
