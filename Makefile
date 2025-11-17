@@ -100,15 +100,15 @@ all: $(TARGET_NAME).$(FINAL)
 # Can't use predefined implicit rules here - we might need to generate .obj, rather than .o
 # therefore create custom implicit rules.
 %.$(OBJ): %.s
-	@$(ECHO) $(AS) $(ASFLAGS) $<
+	@$(ECHO) $(AS) $<
 	@$(AS) $(ASFLAGS) $< -o $@
 
 %.$(OBJ): %.c
-	@$(ECHO) $(CC) $(CC_SWITCHES) $(CFLAGS) $<
+	@$(ECHO) $(CC) $<
 	@$(CC) $(CC_SWITCHES) $(CFLAGS) $< -o $@
 
 %.$(OBJ): %.cpp 
-	@$(ECHO) $(CPP) $(CC_SWITCHES) $(CPPFLAGS) $<
+	@$(ECHO) $(CPP) $<
 	@$(CPP) $(CC_SWITCHES) $(CPPFLAGS) $< -o $@
 
 $(TARGET_NAME).$(FINAL) : $(OBJECTS)
