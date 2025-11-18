@@ -29,7 +29,10 @@ ifndef LINK_OVERRIDE
     LINK_OVERRIDE:=xtensa-esp32s3-elf-gcc
 endif
 
-#The following shouldn't be hardwwired - we at least should use the base path
+#export GCC_EXEC_PREFIX:=xtensa-esp32s3-elf-
+
+
+#The following shouldn't be hardwired - we at least should use the base path
 CFLAGS += -I$(EHS_ROOT_PATH)/../ert-contrib-middleware/target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1/build/include/deprecated
 ifndef ESP32S3_DEBUG_BUILD # non-debug - optimise for size
 CFLAGS += -std=gnu17 -Os -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall

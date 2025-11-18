@@ -35,7 +35,7 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 INXWARE_TARGETENV_HACKS=esp32
 
 #todo hacked for now - this needs to be done better for esp32
-DEFS += EHS_TARGET_FILE_SKIP_STAT
+#DEFS += EHS_TARGET_FILE_SKIP_STAT
 
 ################################################################################################################
 # Configure debug/production levels

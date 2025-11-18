@@ -38,7 +38,7 @@ EHS_DEBUGALL=yes
 ################################################################################################################
 #todo  why is the stubbed file system so difficult compared to others/ We should move the the Component HAL and yse that method as more consistent?
 EHS_FILESYSTEM_SUPPORT=stubbed
-DEFS += EHS_TARGET_FILE_SKIP_STAT
+#DEFS += EHS_TARGET_FILE_SKIP_STAT
 
 EHS_COMPONENT_NETWORKING_SUPPORT=nocurl
 # Note the following might not remain lwip - we could use esp32's native mqtt component instead of ert#s lwip based one (TBC if this is difficult

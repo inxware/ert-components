@@ -26,6 +26,7 @@ ifndef CC_OVERRIDE
 else 
    export CC:=$(CC_OVERRIDE)
    export CPP:=$(CC_OVERRIDE)
+   GCC_EXEC_PREFIX:=
 endif
 
 ifndef LINK_OVERRIDE 
@@ -42,15 +43,19 @@ else
    export LINK:=$(LINK_OVERRIDE)
 endif
 
-#ifndef AS_OVERRIDE 
-#   AS:=as
-#else
-#   AS:=$(AS_OVERRIDE)
-#endif
+ifndef AS_OVERRIDE 
+   AS:=as
+else
+   AS:=$(AS_OVERRIDE)
+endif
 
 # Set the sysroot of the compiler and an absolute path to the binary if it is not an installed one.
 ifdef TOOLCHAIN_PATH
 ifneq ($(TOOLCHAIN_PATH),HOST)
+   #set gcc's override path for the compiler (otherwise gcc just wants to make code and doesn't really care what it is.
+   export COMPILER_PATH=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/
+   CFLAGS+= -B$(COMPILER_PATH)
+
 	CC:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(CC)
 	AS:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(AS)
 	CPP:=$(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/$(CPP)

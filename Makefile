@@ -105,7 +105,7 @@ all: $(TARGET_NAME).$(FINAL)
 
 %.$(OBJ): %.c
 	@$(ECHO) $(CC) $<
-	@$(CC) $(CC_SWITCHES) $(CFLAGS) $< -o $@
+	@$(CC) -v $(CC_SWITCHES) $(CFLAGS) $< -o $@
 
 %.$(OBJ): %.cpp 
 	@$(ECHO) $(CPP) $<

@@ -21,7 +21,7 @@ ifndef CC_OVERRIDE
 endif
 
 ifndef AS_OVERRIDE
-   AS_OVERRIDE:=xtensa-esp32-elf-gcc
+   AS_OVERRIDE:=xtensa-esp32-elf-as
 endif
 
 ifndef LINK_OVERRIDE

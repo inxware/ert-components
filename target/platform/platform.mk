@@ -89,9 +89,10 @@ export EHS_GNU_OS_ARCH
 
 ## Set upvariables first 
 ################# Some components might need kernel headers e.g. sizes.h       ###################
-export KERNEL_HEADERS_BASE_DIR=$(EHS_CORE_SUPPORT_BASE)/kernel-dependencies/
-export KERNEL_HEADERS_RELPATH 
-export INC_DIRS += ${KERNEL_HEADERS_BASE_DIR}/$(KERNEL_HEADERS_RELPATH)
+# Deprecated
+#export KERNEL_HEADERS_BASE_DIR=$(EHS_CORE_SUPPORT_BASE)/kernel-dependencies/
+#export KERNEL_HEADERS_RELPATH 
+#export INC_DIRS += ${KERNEL_HEADERS_BASE_DIR}/$(KERNEL_HEADERS_RELPATH)
 
 ############## Define the OS_HW PATH for dependencies within the eRT-componnents source tree ######
 
