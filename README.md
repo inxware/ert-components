@@ -108,7 +108,13 @@ Within a Linux bash shell, enter the following commands:
 mkdir inxware && cd inxware
 
 # Clone the main `ert-components` repository
-git clone https://github.com/inxware/ert-components.git
+#
+# If you prefer HTTPS:
+# git clone https://github.com/inxware/ert-components.git
+#
+# If you prefer SSH:
+git clone git@github.com:inxware/ert-components.git
+
 cd ert-components
 
 # Configure the build for your chosen target platform
