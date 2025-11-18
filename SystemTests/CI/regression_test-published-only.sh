@@ -100,8 +100,8 @@ function display_target {
 }
 
 function display_log_tail {
-    echo ">>>>>> START LOG TAIL >>>>>>"
-    tail -n 15 $1
+    echo ">>>>>> START LOG TAIL ($1) >>>>>>"
+    tail -n 20 $1
     echo "<<<<<< END LOG TAIL <<<<<<"
 }
 

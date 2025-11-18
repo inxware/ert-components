@@ -70,5 +70,8 @@ LIB += misc
 
 
 #TODO2025  - Move to the component HAL
+# Include Arduino LSM6DS3 library source
+VPATH += /home/inxware/Arduino/libraries/Arduino_LSM6DS3/src
 OBJECTS += target_accel_gyro.$(OBJ)
+OBJECTS += LSM6DS3.$(OBJ)
 OBJECTS += target_display.$(OBJ)

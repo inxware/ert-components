@@ -128,13 +128,30 @@ echo "${TXT_FG_GREY}------------------------------------------------------------
 echo
 echo "Installing the default app"
 
-if [ "${EHS_SKIP_REPO_PULL}" = "" ]; then
+if [ -z "${EHS_SKIP_REPO_PULL}" ]; then
     echo "Checking out the latest PRODUCTION branch of your app repo..."
     if [ -d ../apps ]; then
-        pushd ../apps
-        warn "About to git pull in '$(pwd)'"
-        git pull origin RELEASE-PRODUCTION || exit 1
-        popd
+        pushd ../apps || exit 1
+
+        # Ensure we are on the right branch
+        if ! git rev-parse --abbrev-ref HEAD | grep -qx "RELEASE-PRODUCTION"; then
+            err "../apps is on branch '$(git rev-parse --abbrev-ref HEAD)'," >&2
+            err "but the build expects RELEASE-PRODUCTION. Please switch branches or set EHS_SKIP_REPO_PULL=1." >&2
+            exit 1
+        fi
+
+        # Refuse to pull if it would require a merge
+        git fetch origin RELEASE-PRODUCTION || exit 1
+        if ! git merge-base --is-ancestor HEAD origin/RELEASE-PRODUCTION; then
+            err "local RELEASE-PRODUCTION has diverged from origin/RELEASE-PRODUCTION." >&2
+            echo "Please run 'git reset --hard origin/RELEASE-PRODUCTION' or push your changes," >&2
+            echo "or set EHS_SKIP_REPO_PULL=1 to use your local state." >&2
+            exit 1
+        fi
+
+        git pull --ff-only origin RELEASE-PRODUCTION || exit 1
+
+        popd || exit 1
     else
         pushd ..
         if [ -f ${LOCAL_BASE}/COMMUNITY_RELEASE ]; then
