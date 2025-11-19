@@ -102,7 +102,7 @@ To create an inxware firmware image for your device, you will just need these th
 | **CPU**     | 4 cores                                       | 8+ cores                           |
 | **Network** | Broadband internet                            | High-speed for container downloads |
 
-Within a Linux bash shell, enter the following commands:
+Within a Linux bash shell, enter the following commands to check your build environment is working:
 
 ```bash
 mkdir inxware && cd inxware
@@ -125,14 +125,10 @@ cd ert-components
 make prepdeps       # Downloads toolchains and dependencies (~40GB) 
 
 # Build the runtime binary
-make all_docker # Build using containerised environment
+make all_docker     # Build using containerised environment
 
-# Create a deployable package
-make targetenv                  # Assemble the runtime environment
-make targetenv_version     # Create versioned release (binary/package)
-
-#Test your build
-./configure -run  # Run the built application
+# Create a staging directory for later packaging
+make targetenv      # Assemble the runtime environment
 ```
 
 **Success!** You now have a working eRT runtime. Try the [Lucid IDE](https://appland.inxware.io/) to create your first no-code application.

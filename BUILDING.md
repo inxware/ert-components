@@ -3,7 +3,7 @@
 Below are some detailed instructions on how to use the eRT Components configuration and build system.
 
 - [Prerequisites](#prerequisites)
-- [Quick start](#quick-start)
+- [Smoke test](#smoke-test)
 - [Build status](#build-status)
 - [Host pre-requisites](#host-pre-requisites)
 - [Repository pre-requisites](#repository-pre-requisites)
@@ -33,15 +33,19 @@ Below are some detailed instructions on how to use the eRT Components configurat
 | **CPU**     | 4 cores                                       | 8+ cores                           |
 | **Network** | Broadband internet                            | High-speed for container downloads |
 
-## Quick start
+## Smoke test
 
-Within a Linux bash shell, enter the following commands:
+The instructions below will allow you to get a clean build environment set up and then run a single test build to ensure everything is working. Within a Linux bash shell, enter the following commands:
 
    ```bash
    mkdir inxware && cd inxware
 
    # Clone the main `ert-components` repository
-   git clone https://github.com/inxware/ert-components.git
+   # If you prefer HTTPS:
+   # git clone https://github.com/inxware/ert-components.git
+   #
+   # If you prefer SSH:
+   git clone git@github.com:inxware/ert-components.git
    cd ert-components
 
    # Configure the build for your chosen target platform
@@ -52,14 +56,10 @@ Within a Linux bash shell, enter the following commands:
    make prepdeps                   # Downloads toolchains and dependencies (~40GB) 
 
    # Build the runtime binary
-   make all_docker # Build using containerised environment
+   make all_docker                 # Build using containerised environment
 
-   # Create a deployable package
+   # Create a staging directory for later packaging
    make targetenv                  # Assemble the runtime environment
-   make targetenv_version          # Create versioned release (binary/package)
-
-   #Test your build
-   ./configure -run  # Run the built application
    ```
 
 **Success!** You now have a working eRT runtime. Try the [Lucid IDE](https://appland.inxware.io/) to create your first no-code application.
