@@ -58,8 +58,9 @@ System requirements: Ubuntu 22.04 or later is Recommended (64 bit almost essenti
 
 The initial system preparation involves the following steps:
 ```bash
-mkdir inxware  cd inxware
-sudo apt install git build-essential
+sudo apt install git build-essential docker
+mkdir inxware  
+cd inxware
 git clone ssh://git@github.com:inxware/ert-components.git
 cd ert-components
 make prepdeps # downloads two other LFS repostitories for dependencies
