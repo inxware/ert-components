@@ -6,27 +6,35 @@
 
 In general inxware runtimes are built  using Ubuntu 22.04 machines or a machine that can support the following packages
 
-* **build-essentials\*** (GNU Make)  
-* **Git\*** & Git-LFS  
-* **Docker** (Standard that can mount host with synched permission groups)
+* **build-essentials*** (GNU Make)
+* **Git*** & Git-LFS
+* **Docker** (Standard that can mount host with synced permission groups)
 
-*Other dependencies and tools should be installed using specific methods e.g. the ert-runtime environment is created by running* **make prepdeps** *in the ert-components repo (see below). This will install the remaining requirements on a debian machine, though we aim to use docker images as much as possible to contain tools (BUT NOT CODE\!).  There may be other dependencies needed for building the tools etc. on windows.*
+*Other dependencies and tools should be installed using specific methods e.g. the ert-runtime environment is created by running* **make prepdeps** *in the ert-components repo (see below). This will install the remaining requirements on a debian machine, though we aim to use docker images as much as possible to contain tools (BUT NOT CODE!).  There may be other dependencies needed for building the tools etc. on windows.*
 
 # eRT Build Overview
 
-If you are looking to build an existing production target go to this [section](#production-builds). Other wise to build a target from scratch, understanding each step please read on.  
-A typical sequence of building a complete and configured eRT package consists of the following steps:
+If you are looking to build an existing production target go to this [section](#production-builds). Other wise to build a target from scratch, understanding each step please read on.
+A full sequence of building a complete and configured eRT package and deploying it to an IoT OTA service consists of the following steps:
 
-| ./configure \<TARGET\> make prepdeps          (Optional: Downloads dependencies needed for some targets) make all\_docker        (Compiles & linkers eRT C/C++-code to exe or dll.) make targetenv         (Aggregates all deployed files to a staging directory) make targetenv\_version (Optional: only after QA and mandatory for release). make targetenv\_package (Optional: calls relevant packager as platform config)   make upload\_xxxx       (Optional: deployment to a server for OTA update) make install\_via\_xxxx (Optional Deployment directly to a device) |
-| :---- |
+```bash
+./configure <TARGET>
+make prepdeps          # Optional: Downloads dependencies needed for some targets
+make all_docker        # Compiles & linkers eRT C/C++-code to exe or dll
+make targetenv         # Aggregates all deployed files to a staging directory
+make targetenv_version # Optional: only after QA and mandatory for release
+make targetenv_package # Optional: calls relevant packager as platform config
+make upload_xxxx       # Optional: deployment to a server for OTA update
+make install_via_xxxx  # Optional Deployment directly to a device
+```
 
 ## Software Dependency Locations
 
 | Purpose | Repo | Path | Notes |
 | :---- | :---- | :---- | :---- |
 | eRT source |  |  |  |
-| eRT porting |  | /target/ |  |
-| eRT build |  | ./Makefile \+ specific .mks |  |
+| eRT porting |  | `/target/` |  |
+| eRT build |  | `./Makefile` + specific `.mks` |  |
 |  |  |  |  |
 |  |  |  |  |
 
@@ -46,23 +54,28 @@ This section should provide only necessary information for an internal inx techn
 
 ### Starting from Scratch
 
-System requirements: Ubuntu 22.04 or later is Recommended (64 bit almost essential) 
+System requirements: Ubuntu 22.04 or later is Recommended (64 bit almost essential)
 
 The initial system preparation involves the following steps:
 ```bash
-mkdir inxware  cd inxware 
-sudo apt install git build-essential 
+mkdir inxware  cd inxware
+sudo apt install git build-essential
 git clone ssh://git@github.com:inxware/ert-components.git
 cd ert-components
-make prepdeps # downloads two other LFS repostitories for dependencies 
+make prepdeps # downloads two other LFS repostitories for dependencies
 ```
 
-The final step will checkout two other (large) git-lfs enabled repos in the inxware directory. It may take 10 minutes or more and requires \>20GB storage.
+The final step will checkout two other (large) git-lfs enabled repos in the inxware directory. It may take 10 minutes or more and requires >20GB storage.
 
-Once your environment is setup you can test a build for your development environment (e.g. Debian 11/Ubuntu 22 example) using 
+Once your environment is setup you can test a build for your development environment (e.g. Debian 11/Ubuntu 22 example) using
 
-| ./configure linux\_x86\_64\_gtk\_gst\_debian11 make all\_docker               \# Build source and create binaries make targtenv                 \# Add misc resources to staging directory cd ../TARGET\_TREES/ehs-env\_linux\_x86\_64\_gtk\_gst\_debian11/bin ./ehs.exe  |
-| :---- |
+```bash
+./configure linux_x86_64_gtk_gst_debian11
+make all_docker               # Build source and create binaries
+make targtenv                 # Add misc resources to staging directory
+cd ../TARGET_TREES/ehs-env_linux_x86_64_gtk_gst_debian11/bin
+./ehs.exe
+```
 
 The final step will run eRT on a Debian/Ubuntu host and wait to accept an application from the inxware tools. See here to build and run the [tools](https://docs.google.com/document/u/0/d/16p4iZMkgj_46SH9fl4PSG2FGREKYv0jCDF66OfWDnoM/edit) on  linux.
 
@@ -70,10 +83,10 @@ The final step will run eRT on a Debian/Ubuntu host and wait to accept an applic
 
 To compile an ert executable for any of the hardware targets eRT supports the ert-components repository contains the core build system needed to create deployable executables and system images. The eRT build system does not support building operating system images such as linux or android, but will build full “flash” images for targets where runtime installable packages are not supported (e.g. FreeRTOS or bare metal).
 
-TO build for a particular target the first step is to configure the build system from those available. The list of supported targets can be identified using the **./configure help** command.   
+TO build for a particular target the first step is to configure the build system from those available. The list of supported targets can be identified using the **./configure help** command.
 Once you have identified your target the build tree is configured as follows
 
-| ./configure \<your chosen target platform\> |
+| ./configure <your chosen target platform> |
 | :---- |
 
 Retrieve dependencies by checking out toolchains & library dependencies (including C-lib) from github/or inx internal git-lfs repos. (**Note** this typically only needs to be run once on a particular machine, but it will pick up updates from github if repeated.)
@@ -83,20 +96,20 @@ Retrieve dependencies by checking out toolchains & library dependencies (includi
 
 The next step is to build the eRT source code, which is typically done within a docker environment. The docker environment may be needed only to support running a particular toolchain or it may contain the toolchain and all dependencies itself.
 
-| make all\_docker |
+| make all_docker |
 | :---- |
 
-**Developer Tip:** If your host linux environment already supports the toolchains required for your target or you are running in an interactive docker environment (e.g. after running **make target\_buildenv**) then you can use the default “all” target e.g. by running **make \-j 8**  directly.
+**Developer Tip:** If your host linux environment already supports the toolchains required for your target or you are running in an interactive docker environment (e.g. after running **make target_buildenv**) then you can use the default “all” target e.g. by running **make -j 8**  directly.
 
-Finally you will typically need to build a runtime directory structure for eRT and assemble any other runtime files needed during execution or for device management  in a staging direction found at ../TARGET\_TREES/\<your chosen target platform\>/…to run-within using the following command:
+Finally you will typically need to build a runtime directory structure for eRT and assemble any other runtime files needed during execution or for device management  in a staging direction found at ../TARGET_TREES/<your chosen target platform>/…to run-within using the following command:
 
-**make targetenv** 
+**make targetenv**
 
-The directories under TARGET\_TREES are staging directories that usually contain software artifacts in the format required in a runtime deployment. The structure of this is defined in the directories under ert-components/target/envtree/\*\*\*/
+The directories under TARGET_TREES are staging directories that usually contain software artifacts in the format required in a runtime deployment. The structure of this is defined in the directories under ert-components/target/envtree/***/
 
 Target types with special environment initialisations:
 
-* Unity (e.g. tellisign \- ) \- see [Unity & eRT Supervisor](#unity-&-ert-supervisor) section below. Unity needs to be run interactively to set up the license. (A personal license is OK for now?)  
+* Unity (e.g. tellisign - ) - see [Unity & eRT Supervisor](#unity-&-ert-supervisor) section below. Unity needs to be run interactively to set up the license. (A personal license is OK for now?)
   - [ ] Can we create a license Unity tools Docker image?
 
 # Production Builds {#production-builds}
@@ -106,345 +119,359 @@ See relevant directory in **scripts/build-deploy/.** These scripts will typicall
 # Build Types (from Scratch)
 ## Android Builds
 
-Note: These steps are usually done in the following scripts for **specific products**:  
+Note: These steps are usually done in the following scripts for **specific products**:
 
-The steps needed to build/upload a specific android platform 
+The steps needed to build/upload a specific android platform
 
 ```bash
-**./configure <linux\_android\_arm\_p64\_a6\tellisign> \#use ./configure for options**  
-**make prepdeps   \# pull from all dependencies repos**  
-**make clean**  
-**make all\_docker \# Build the source code in docker so we know the toolchain runs**  
-**make targetenv  \# Assemble the various files into the staging directory**  
-**make targetenv\_version \# optionally update the global release version number**  
-**make targetenv\_apk\_docker \#Create the main app APK from the staging directory.**  
-**make targetenv\_android\_dep\_pack \# Package bits not included in the APK. e.g. device supervisor scripts and APK.**  
-**\# Now we can either flash a device running Android locally or upload to Devman**  
-**\# upload to device via adb (optionally setenv ADB\_IP=\<device ip\>)**  
-**make upload\_ehs\_via\_adb** 
+./configure <linux_android_arm_p64_a6tellisign>    # Use ./configure for options
+make prepdeps                            # Pull from all dependencies repos
+make clean
+make all_docker                          # Build the source code in docker so we know the toolchain runs
+make targetenv                           # Assemble the various files into the staging directory
+make targetenv_version                   # Optionally update the global release version number
+make targetenv_apk_docker                # Create the main app APK from the staging directory.
+make targetenv_android_dep_pack          # Package bits not included in the APK. e.g. device supervisor scripts and APK.
+# Now we can either flash a device running Android locally or upload to Devman
+# upload to device via adb (optionally setenv ADB_IP=<device ip>)
+make upload_ehs_via_adb
 
-**\# AND/OR deploy to Devman distribution server**  
-**make upload\_ehs\_sys\_patch** 
+# AND/OR deploy to Devman distribution server
+make upload_ehs_sys_patch
 
-Use ‘**make help**’ for details on what each step means.
+Use 'make help' for details on what each step means.
 ```
 
 The above Android target build gets built in following stages:
-```bash
-1. **make all\_docker \-** This builds NDK **ehs.so** plugin  
-2. **make targetenv \-** This aggregates eRT file system structure, Lucid apps and the above plugin into TARGET\_TREES/ehs\_env-\<target\>  
-3. **make targetenv\_apk\_docker \-** This copies the Android Studio template project (**ert-components/target/os-arch/android\_ALL/android\_studio\_ehs**) into TARGET\_TREES/ehs\_env-\<target\> and by using gradle creates deployable .apk file.  
-4. **make targetenv\_android\_dep\_pack \-** This aggregates all supervisor scripts and creates a deployable package (with APKs) for this target in TARGET\_TREES/ehs\_env-\<target\> 
-```bash 
+
+1. **make all_docker -** This builds NDK **ehs.so** plugin
+2. **make targetenv -** This aggregates eRT file system structure, Lucid apps and the above plugin into TARGET_TREES/ehs_env-<target>
+3. **make targetenv_apk_docker -** This copies the Android Studio template project (**ert-components/target/os-arch/android_ALL/android_studio_ehs**) into TARGET_TREES/ehs_env-<target> and by using gradle creates deployable .apk file.
+4. **make targetenv_android_dep_pack -** This aggregates all supervisor scripts and creates a deployable package (with APKs) for this target in TARGET_TREES/ehs_env-<target>
+
 ## Unity (e.g. signage) Android Builds
 
-#### **Setup UnityHub and Licence (Skip this\!\!\! Only do it if this fails, which probably means you have installed it and signed the license).**
+#### **Setup UnityHub and Licence (Skip this!!! Only do it if this fails, which probably means you have installed it and signed the license).**
 
-####  **make targetenv\_unity\_export )**
+####  **make targetenv_unity_export**
 
-**(needs to be done only once. if not present on your machine \!\!\!)**
+**(needs to be done only once. if not present on your machine!)**
 
-1. Install Unity3d Hub (Todo we prolly want to do this in docker)  
-   * Install following dependencies  
-     1. sudo apt-get install gconf2  
-   * Download the Unity Hub from  [https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)  
-   * chmod \+x ./UnityHub.AppImage  
-   * Run the hub, login and setup your licence (use inx developer account ) [developer@inx-systems.com](mailto:developer@inx-systems.com):HelloUnity101  
+1. Install Unity3d Hub (We don'tprovide this in docker for licensing reasons)
+   * Install following dependencies
+      1. sudo apt-get install gconf2
+   * Download the Unity Hub from  [https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)
+   * chmod +x ./UnityHub.AppImage
+   * Run the hub, login and setup your licence (use inx developer account ) [developer@inx-systems.com](mailto:developer@inx-systems.com):HelloUnity101
    * Press the activate new license button if there’s no licenses shown (Choose personal use if this is the case).
 
 ## Build Entire Platform (including Supervisor)
 
 Commands for building Android Unity targets with supervisor and updates.
 
-**\# build 64-bit eRT plugin required by all Unity targets**  
-**./configure linux\_android\_arm64\_unity-lib**  
-**make clean**  
-**make all\_docker**  
-**make targetenv**
+```bash
+# build 64-bit eRT plugin required by all Unity targets
+./configure linux_android_arm64_unity-lib
+make clean
+make all_docker
+make targetenv
 
-**\# build 32-bit eRT plugin and apk**  
-**./configure linux\_android\_arm\_unity-tellisign**  
-**make clean**  
-**make targetenv\_cleanall          \# needed ONLY when Unity C\# project needs updating**  
-**make all\_docker**  
-**make targetenv**  
-**make targetenv\_unity\_export**  
-**make targetenv\_apk (targetenv\_apk\_docker doesn’t seem to work for some reason??)**
+# build 32-bit eRT plugin and apk
+./configure linux_android_arm_unity-tellisign
+make clean
+make targetenv_cleanall       # needed ONLY when Unity C# project needs updating
+make all_docker
+make targetenv
+make targetenv_unity_export
+make targetenv_apk            # targetenv_apk_docker doesn’t seem to work for some reason?
 
-**\# bundles supervisor and updates for deployment (only used for managed devices)**  
-**make targetenv\_android\_dep\_pack**
+# bundles supervisor and updates for deployment (only used for managed devices)
+make targetenv_android_dep_pack
 
-**\# deploying to server**  
-**make upload\_ehs\_sys\_patch**
+# deploying to server
+make upload_ehs_sys_patch
+```
 
 Note the above seems to be broken when building with docker.
 
-\============================================================  
+============================================================
 Notes:
 
-1. Make libraries (e.g. 64 bit)  
-2. Make base .so (usually 32 bit)  
-3. Make (do unity thing) \-\> We need a new **make targetenv\_unity\_export**  
-   1. Exports a unity IDE project containing all (compiles c\# code to mono binary) \-\> ….xxx.so. (**Potentially these could be stored in an ert-contrib-middleware).**   
-   2. Exports this as an android studio project.  
-   3. We then add JNI / Java script to the android studio project.  
-4. Make targetenv\_apk
+1. Make libraries (e.g. 64 bit)
+2. Make base .so (usually 32 bit)
+3. Make (do unity thing) -> We need a new **make targetenv_unity_export**
+   1. Exports a unity IDE project containing all (compiles c# code to mono binary) -> ….xxx.so. (**Potentially these could be stored in an ert-contrib-middleware).**
+   2. Exports this as an android studio project.
+   3. We then add JNI / Java script to the android studio project.
+4. Make targetenv_apk
 
-Tellisign \- needs both 32 and 64 bit versions.
+Tellisign - needs both 32 and 64 bit versions.
 
-1. Prior step to build 64 bit plugin \- should be in ../TARGET-TREE/…plugins/… libehs.so (e.g.).  
-   1. This is checked during make targetenv \- but not used \- just a warning is issues before targetnv\_version etc. is called.  
-2. Why do we get Android Studio differently  \- Should be the same or docker.  
-   1. E.g. to avoid the gradle version problem.  
-3. We need to export Unity’s project to our own android studio so we can add more code to it when it is built.  
-   1. Potentially this should be in ert-build-support?  
-   2. Unzipped to ../ next to ert-components.   
-4. Unity has android gcc & gradle toolchains (all of Android SDK) in the zip file and we need to use this.  
-5. Things we copy into the Vanilla Unity project (where are the follows):  
-   1. Knows about the ehs plugins  
-   2.  Adds certificates 		  
-6. Uses mono to build the unity app code.  
-7. Updated the build version stuff.  
-8. Android has JNI stuff and Java \- which is not needed for windows below.
+1. Prior step to build 64 bit plugin - should be in ../TARGET-TREE/…plugins/… libehs.so (e.g.).
+   1. This is checked during make targetenv - but not used - just a warning is issues before targetnv_version etc. is called.
+2. Why do we get Android Studio differently  - Should be the same or docker.
+   1. E.g. to avoid the gradle version problem.
+3. We need to export Unity’s project to our own android studio so we can add more code to it when it is built.
+   1. Potentially this should be in ert-build-support?
+   2. Unzipped to ../ next to ert-components.
+4. Unity has android gcc & gradle toolchains (all of Android SDK) in the zip file and we need to use this.
+5. Things we copy into the Vanilla Unity project (where are the follows):
+   1. Knows about the ehs plugins
+   2.  Adds certificates
+6. Uses mono to build the unity app code.
+7. Updated the build version stuff.
+8. Android has JNI stuff and Java - which is not needed for windows below.
 
 ## Windows Unity Builds
 
 Example of creating installer for Windows Unity running on Sandbox server
 
-**./configure win\_x86\_unity\_sandbox**  
-**make all\_docker**  
-**make targetenv**  
-**make targetenv\_nsis\_docker**
+```bash
+./configure win_x86_unity_sandbox
+make all_docker
+make targetenv
+make targetenv_nsis_docker
+```
 
 #### **Updating Windows 32-bit Unity 3d Template**
 
-At the moment Windows Unity needs to be built using IDE and added as a template to 
+At the moment Windows Unity needs to be built using IDE and added as a template to
 
 ***ert-contrib-middleware/contrib/Unity3D/SignageWindowsBuild***
 
 ### **Building Win32 Unity 3d Template**
 
-Make sure you have Unity Hub with a license and **Unity 2019.4.40 (LTS)** installed on your windows device. 
+Make sure you have Unity Hub with a license and **Unity 2019.4.40 (LTS)** installed on your windows device.
 
-Next, from the Unity Hub open this project “EHS/target/os-arch/android\_ALL/Unity\_EHS”
+Next, from the Unity Hub open this project “EHS/target/os-arch/android_ALL/Unity_EHS”
 
-Open build setting dialog from **File-\>Build Settings…** Next make sure that you set the **Target Platform** to **Windows,** and **Architecture** to **x86** . (Do not use x86 64-bit, as plugin dll is built for windows 32-bit for now)  See screenshot below for reference.  
-![][image2]  
+Open build setting dialogue from **File->Build Settings…** Next make sure that you set the **Target Platform** to **Windows,** and **Architecture** to **x86** . (Do not use x86 64-bit, as plugin dll is built for windows 32-bit for now)
+
+See screenshot below for reference:
+
+![][image2]
+
 Click build and navigate to the folder where you’d like the project to be built (e.g create SignageWindowsBuild folder somewhere in your file system).
 
 ## Unity build roadmap ideas
 
-- [ ] Unity toolchain move form tarball to ert-build-support  
-- [ ] C\# remain in ert-components (or possibly contrib middleware would make more sense from the following step PoV).  
-- [ ] Generated prebuilt dependencies and output Android Studio Project should go into ert-contrib-middleware.  
-- [ ] Windows version \- [Kamil Wieczorek](mailto:k.wieczorek@inx-systems.com)\- this is manual ATM, see how it would fit into the above.
+- [ ] Unity toolchain move form tarball to ert-build-support
+- [ ] C# remain in ert-components (or possibly contrib middleware would make more sense from the following step PoV).
+- [ ] Generated prebuilt dependencies and output Android Studio Project should go into `ert-contrib-middleware`.
+- [ ] Windows version - [Kamil Wieczorek](mailto:k.wieczorek@inx-systems.com)- this is manual ATM, see how it would fit into the above.
 
 ## Plain Android
 
 We need to do the following steps so that we are issuing a command to do an update  (not how to todo the update):
 
-1. Copy the devman deployed script functions from ./target/envbuildscripts/installers/android-adb/\* to things that go into the supervisor scripts and get run in a simple way   
-2. Then we need to do a migration release to all devices (or save one on Devman if some devices are offline).  
-3. … Then remove ./target/envbuildscripts/installers/android-adb/  
+1. Copy the devman deployed script functions from `./target/envbuildscripts/installers/android-adb/*` to things that go into the supervisor scripts and get run in a simple way
+2. Then we need to do a migration release to all devices (or save one on Devman if some devices are offline).
 
-
-### **make install\_via\_adb**
+### **make install_via_adb**
 
 This make target may modify the target’s init scripts and install the supervisor code also.
 
 Things we do now as root:
 
-* H6 \- set a new MAC address  
-* Rock64 \- creates MAC address for a new hardware device, doesn’t work once  
-  * Can we change the initscripts on the vanilla image? Possibly need to res-gn / CRC.  
-* Volume? Some need root some don’t (may also depend on SE Linux)  
-* Install?  
-* …/  
+* H6 - set a new MAC address
+* Rock64 - creates MAC address for a new hardware device, doesn’t work once
+  * Can we change the initscripts on the vanilla image? Possibly need to res-gn / CRC.
+* Volume? Some need root some don’t (may also depend on SE Linux)
+* Install?
+* …/
 * Adb is needed for automatically granting permission to apps to avoid user.
 
-AOSP \- option 
+AOSP - option
 
-1. ADB as root install initscript and downloader to connect to Devman to do updates.  
-   1. This needs to know what kind of image to download (i.e. we want some permanent file installed via the ert-component make upload\_via\_adb script.. I.e. ${TARGET} value from ert-components would be the type identifier.  
-2. Ideal way installing an APK \- e.g. Supervisor \+downloader.  
-   1. 
+1. ADB as root, install initscript and downloader to connect to Devman to do updates.
+   1. This needs to know what kind of image to download (we want some permanent file installed via the `ert-components` make upload_via_adb script.. I.e. `${TARGET}` value from `ert-components` would be the type identifier.)
+2. Ideal way installing an APK - e.g. `Supervisor +downloader`.
 
 # Uploading eRT to Appland
 
 There are a couple of targets which can be uploaded to the appland after building. The following structure needs to be used for the target to support appland upload.
 
-**./target/platform/\<platform\>/appland**  
-info    
-INSTALLER.html  
-**res** \- directory with resources e.g. images, html etc.
+```
+./target/platform/<platform>/appland
+info
+INSTALLER.html
+res - directory with resources e.g. images, html etc.
+```
 
-To upload target package and the above to the appload, you need to do the following
+To upload target package and the above to the appland, you need to do the following:
 
-**make targetenv\_upload\_appland**
+```bash
+make targetenv_upload_appland
+```
 
-Make sure you fully build the target before uploading to appland e.g. tragetenv, targetenv\_apk\_docker, targetenv\_esp32s3\_docker etc. (depending on the target)
+Make sure you fully build the target before uploading to appland e.g. `tragetenv`, `targetenv_apk_docker`, `targetenv_esp32s3_docker` etc. (depending on the target)
 
 This script can be used for building and uploading all targets which are placed in the appland,
 
-**./scripts/build-deploy/appland/build\_upload\_all.sh**
+```bash
+./scripts/build-deploy/appland/build_upload_all.sh
+```
 
 # Merge ‘master’ into ‘Release’ branch
 
-cd apps/  
-'master uptodate' (in sync with remote)  
-git checkout RELEASE-PRODUCTION  
-git pull (in case behind)  
-git merge master  
-git push  
+```bash
+cd apps/
+'master uptodate' (in sync with remote)
+git checkout RELEASE-PRODUCTION
+git pull (in case behind)
+git merge master
+git push
 git checkout master (back to master so we don't accidentally modify RELEASE-PRODUCTION)
+```
 
 # Configuring eRT Build Targets
 
-## Configuring Devman IoT Server Connections  
+## Configuring Devman IoT Server Connections
 
 **./target/devman-config/**
 
-export DEVMAN\_SERVER\_DOMAIN\=devman.inx-systems.net
+```bash
+export DEVMAN_SERVER_DOMAIN=devman.inx-systems.net
+export DEVMAN_SERVER_PROTOCOL=http
+#export DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=yes
+#Server config & credentials for uplading OTA updates
+export DEVMAN_UNAME="inx"
 
-export DEVMAN\_SERVER\_PROTOCOL\=http
-
-\#export DEVMAN\_SERVER\_CERTS\_FULL\_CA\_BUNDLE=yes
-
-\#Server config & credentials for uplading OTA updates
-
-export DEVMAN\_UNAME\="inx"
-
-
-export DEVMAN\_SERVER\_NAME\=sandbox
-
-DevmanSecurity 
-
-./certs/client/  
-Notes  
-Broken builds  
-linux\_arm64\_gtk\_gst\_gg\_debian10  
-linux\_arm64\_gtk\_gst\_gg\_debian11  
-linux\_x86\_64\_clang\_gg\_debian10  
-linux\_x86\_64\_clang\_gg\_debian11  
-linux\_x86\_64\_clang\_gtk\_gst\_gg\_debian11  
-TARGET=linux\_x86\_64\_clang\_gtk\_gst\_gg\_debian11
+export DEVMAN_SERVER_NAME=sandbox
+```
 
 # eRT Software Structure Overview
 
-Software module rationale
+The inxware ert-components Source-tree modularity and rationale is split between platform independnt code and target dependent code, where 3rd party middleware dependencies are also managed.
+
 
 ## Common
 
-* Most Components should be implemented here unless they are target specific.  
-  * These should only reference all library code (including clib) via the HAL prefixed API. There are exceptions here such as the YAJL json parser I think.  
-* All the business logic of the kernel/framework should be implemented here  
-  * These should only reference all library code (including clib) via the HAL prefixed API .  
-* HAL   
-  * **Provides** all the header (API) prototypes and code that Components and the Kernel reference.  
-  * Should **USE** (and should check for) EHS Target prefixed versions of all 3rd-party libraries   
-    * Note this probably hasn’t been done for  some complex libraries, such as Libcurl, which are referenced directly, largely because there is little likelihood of using an alternative library for the features (though this is subjective).
-
-## Kernel
-
-* Prebuilt kernels are found in ert-build-support repo.  
-* The source (inx only)  shared the same build system script structures  (duplicated) and a platform for each os-arch is required as the kernel SHOULD be only dependent on the host OS and ARCH and not any middleware or other IO dependencies.
+* Most Components should be implemented here unless they are target specific.
+   * These should only reference all library code (including clib) via the HAL prefixed API. There are exceptions here such as the YAJL json parser I think.
+* All the business logic of the kernel/framework should be implemented here
+   * These should only reference all library code (including clib) via the HAL prefixed API .
+* HAL
+   * **Provides** all the header (API) prototypes and code that Components and the Kernel reference.
+   * Should **USE** (and should check for) EHS Target prefixed versions of all 3rd-party libraries
+      * Note this probably hasn’t been done for some complex libraries, such as Libcurl, which are referenced directly, largely because there is little likelihood of using an alternative library for the features (though this is subjective).
 
 ## Target
 
-Todo  
-Describe the rationale for when we use different HAL prefixes:
+Contains target (Operating systems ang CPU architecture) -specific code and abstractions.
+## Core Dependencies
 
-* EhsT\_XXXXX  
-  * EhsH\_XXXXX
+- Toolchains may be from the host, docker image, or from `ert-build-support`
+-  Prebuilt kernels are found in `ert-build-support` repo.
+-  The source (inx only)  shared the same build system script structures  (duplicated) and a platform for each os-arch is required as the kernel SHOULD be only dependent on the host OS and ARCH and not any middleware or other IO dependencies.
 
-# eRT Build Dependencies 
 
-## Ert-build-support
+## 3rd-party Dependencies
 
-This is tool chains, libc and basic 
+There are two further repostiroies that contain 3rd-party toolchains, SDKs and middleware components that are pre-built or built withing the contriutors own build systems.
 
-See above
+The ert-components build system will reference the artefacts from these repositories, but will not rebuild any of these artefacts. 
+
+## ert-build-support
+
+Contains toolchains, libc and basic operating system dependencies.
+This also contains pre-built EHS kernels for each OS/ARCH type supported.
+
+The intention of the ehs-build-support binary structure is that the HOST identifier should be selected when doing an EHS build on a supported build machine architecture
+
+Target output architecture is selected automatically from the canonical names given in the target directory platform and os-arch make scripts (e.f. OS type, CPU architecture and any SDK-specific bits, optionally). These are typically the tail end of the directory name structures.**
+
 
 ## ert-contrib-middleware
 
-Some eRT components have 3rd-party library dependencies. There are a limited number of contributed library sources within the ert-components repository, but the vast majority are contained in git large-file-support repos ert-build-support (toolchains, libc & optional kernel headers) and the remaining middleware libraries are maintained in ert-contrib-middleware (e.g. networking, media or ML libraries)..
+Some eRT components have 3rd-party library dependencies. There are a limited number of contributed library sources within the `ert-components` repository, but the vast majority are contained in git large-file-support repos `ert-build-support` (toolchains, libc & optional kernel headers) and the remaining middleware libraries are maintained in `ert-contrib-middleware` (e.g. networking, media or ML libraries)..
 
-More details of this can be found below and reference manuals in the documented below:
 
-[CI System - Design & Implementation Notes \[Archive\]](https://docs.google.com/document/d/1sFktCxBcCHgBxjGzdZvwYfoNrB9K5VymTeg5oxYVM64/edit#heading=h.xmq4cany0dy6)  
-[inxware Software Build Release (Products )](https://docs.google.com/document/d/1UXMSBRWBSyAun8D2ndP9ghKR51nwI7omBsLV4nAsGyg)
+###Key Directories:
+TODO
 
-The intention of the EHS-build-support binary structure is that the HOST identifier should be selected when doing an EHS build on a supported build machine architecture
+## Platform `config.mk` build parameters
+`config.mk` is the highest resolution confiuration available in inxware and defined the build configurations for speociic products and variants of products. It is imilar to a "boards"-level configuration often used in other embedded systems build environments.
 
-**Target output architecture is selected automatically from the canonical names given in the target directory platform and os-arch make scripts (e.f. OS type, CPU architecture and any SDK-specific bits, optionally). These are typically the tail end of the directory name structures.** 
+`config.mk` variables typically override defaults set in `./target/os-arch/<XXX>/config.mk and allow specific deployment and bundling options to be set in addition to code build configuration overrides.
 
-## Overview of Key config.mk build parameters
 
 The details of the remaining build  this are provided below and a curated list of build parameters is maintained here: [eRT Build System Parameters](https://docs.google.com/spreadsheets/d/1iLa3ac19vAp6ZYZzBp0nRdMIfbQVcbHgvP6oHVGF95U).
 
 A list of currently active (regression tested) targets is maintained in the following spreadsheet : [inxware-ert target status](https://docs.google.com/spreadsheets/d/1GhCxv2CQzBMFypJ9X54-AcerGu48goKubdTyHEQ3H3g).
 
+### Platform Naming Conventions and Examples
+
 | Platform Name | OS / Arch | Onprem Repos | Public (github) Repos |
 | :---- | :---- | :---- | :---- |
-| linux\_amd64 | linux amd64 (64 bit) | working | Working (\*generic docker) |
-| linux\_amd64\_gtk\_gst | linux\_amd64 (64 bit) | working | Working (\*generic docker) |
-| linux\_x86\_gtk\_gst | linux/ x86 (32 bit) | working | No \- Needs Docker file |
-| linux\_x86\_64\_clang | linux\_x86\_64 (64 bit) |  |  |
-| linux\_armv7l\_clang | linux\_armv7l | working |  |
-| linux\_armv7l\_gtk\_gst | linux\_armv7l | Not checked since refactor |  |
-| nxp\_arm\_inx\_hrcdispv1\_ehs\_debug | FreeRTOS\_arm | working |  |
-| android | linux-android\_arm |  |  |
+| linux_amd64 | linux amd64 (64 bit) | working | Working (*generic docker) |
+| linux_amd64_gtk_gst | linux_amd64 (64 bit) | working | Working (*generic docker) |
+| linux_x86_gtk_gst | linux/ x86 (32 bit) | working | No - Needs Docker file |
+| linux_x86_64_clang | linux_x86_64 (64 bit) |  |  |
+| linux_armv7l_clang | linux_armv7l | working |  |
+| linux_armv7l_gtk_gst | linux_armv7l | Not checked since refactor |  |
+| nxp_arm_inx_hrcdispv1_ehs_debug | FreeRTOS_arm | working |  |
+| android | linux-android_arm |  |  |
 | unity | unity |  |  |
-| linux\_armv7l\_clang\_gtk | linux\_armv7l | Working |  |
-| linux\_x86\_64\_clang-host | linux\_x86\_64\_clang-host | Not working |  |
-| esp32\_freertos-xtensor-base | xtensor-esp32\_freertos |  |  |
-| linux\_android\_arm64\_unity-lib | linux\_android\_arm64 |  |  |
-| linux\_android\_arm | linux\_android\_arm64 |  |  |
-| linux\_android\_arm\_p64\_h6\_player-sandbox | linux\_android\_arm64 |  |  |
-| linux\_android\_arm\_p64\_h6\_player-sandbox-debug | linux\_android\_arm\_p64\_h6\_player-sandbox-debug |  |  |
-| linux\_android\_arm\_p64\_h6\_unity-tellisign | linux\_android\_arm (32/64bit) |  |  |
-| linux\_x86\_64\_clang\_gtk | linux\_x86 (64 bit) |  |  |
-| win\_x86\_gtk\_gst | win\_x86 (32 bit) |  |  |
-|  |  |  |  |
+| linux_armv7l_clang_gtk | linux_armv7l | Working |  |
+| linux_x86_64_clang-host | linux_x86_64_clang-host | Not working |  |
+| esp32_freertos-xtensor-base | xtensor-esp32_freertos |  |  |
+| linux_android_arm64_unity-lib | linux_android_arm64 |  |  |
+| linux_android_arm | linux_android_arm64 |  |  |
+| linux_android_arm_p64_h6_player-sandbox | linux_android_arm64 |  |  |
+| linux_android_arm_p64_h6_player-sandbox-debug | linux_android_arm_p64_h6_player-sandbox-debug |  |  |
+| linux_android_arm_p64_h6_unity-tellisign | linux_android_arm (32/64bit) |  |  |
+| linux_x86_64_clang_gtk | linux_x86 (64 bit) |  |  |
+| win_x86_gtk_gst | win_x86 (32 bit) |  |  |
 
-(NOTE THIS TABLE NEEDS POPULATING\!\!)
+(NOTE THIS TABLE NEEDS POPULATING!!)
 
-# Configuring Debug Levels
+# Configuring Debug Builds
 
-### **eRT-components**
+Deug builds may provide additional console output or reduce the availability of Lucid-network based debugging (e.g. for production releases)
 
-The following variables can be set in **config.mk**:
 
-The debugger console is required for targets that will be used with the Lucid tools for local connection app updates and debugging.  
-**EHS\_DEBUG\_TCPIP\_CONSOLE=yes**  
-See [EHS Console Specification](https://docs.google.com/document/d/1plJ9_A_l35WiEq0_b4RlH6JW9414tpNpgVTUDavutLg/edit#)for more information on the Lucid-console logging system.  
-To enable local logging on the device the following should be set to log to stdio or to a local file.  
+The following variables can be set in `config.mk`:
+
+The debugger console is required for targets that will be used with the Lucid tools for local connection app updates and debugging.
+**EHS_DEBUG_TCPIP_CONSOLE=yes**
+See [EHS Console Specification](https://docs.google.com/document/d/1plJ9_A_l35WiEq0_b4RlH6JW9414tpNpgVTUDavutLg/edit#)for more information on the Lucid-console logging system.
+To enable local logging on the device the following should be set to log to stdio or to a local file.
 Todo:  We need an additional setting to enable disable file logging as we don’t want this left on accidentally on
 
-**EHS\_RUNTIME\_LOGGER\_ENABLED=yes**
+```
+EHS_RUNTIME_LOGGER_ENABLED=yes
+```
 
-THe AV systems can be debugged with  
-**EHS\_DEBUG\_AV=yes**
+THe AV systems can be debugged with
+```
+EHS_DEBUG_AV=yes
+```
 
-### **EHS-Kernel**
 
-All functions entry exist tracing in the kernel and some in the eRT HAL can be enabled with   
-EHS\_DEBUG\_TRACE=y  
-This enables all logging functions EhsError()
+# Adding New Platform Target
 
-#### **Adding New Target**
+For adding a new target to EHS-kenel, one needs to create a platform and potentially also a new  os-arch combination (if not defined for this target).
 
-For adding a new target to EHS-kenel, one needs to create a platform and os-arch (if not defined for this target). 
+```
+target/platform/<target specific>/
+```
 
-target/platform/\<target specific\>/
-
-target/os-arch/\<target specific\>
+These will typically reference an exiting more general `os-arch` configuration from
+```
+target/os-arch/<target specific>
+```
 
 Note that there can be multiple variants of the os-arch specified in the platform.
 
-# Configuring New eRT Platforms
+The platform will define the following two variables to reference  particular OS-ARCH combination:
+```
+EHS_OS   # The operating system type found in ./target/os-arch/*
+EHS_ARCH # The CPU architecture type found in ./target/os-arch/*
+```
 
-eRT porting can often be achieved using existing target support largely by configuring the ert-build system as described in the document.To support new target architectures, peripherals and operating systems it may be necessary to “Port” the eRT’s source code using the porting layer (HAL) as described in this document : [eRT Architecture & Porting Guide  - Public](https://docs.google.com/document/d/1cD-U7T4-0Wmf99GcKDhZS0xlJb0kGqrtDSc0TjGL9D8) 
+
+eRT porting can often be achieved using existing target support largely by configuring the ert-build system as described in the document.To support new target architectures, peripherals and operating systems it may be necessary to “Port” the eRT’s source code using the porting layer (HAL) as described in this document : [eRT Architecture & Porting Guide  - Public](https://docs.google.com/document/d/1cD-U7T4-0Wmf99GcKDhZS0xlJb0kGqrtDSc0TjGL9D8)
 
 Each platform supported by ert has a directory under **./ert-components/target/platforms/**
 
@@ -452,8 +479,8 @@ Each directory contains a few configuration files, but the most important is the
 
 The parameters defined here not only provide conditional build directives in the ert source code, but also help the build system identify the correct toolchain and libraries that the build should be carried out with.
 
-* The goals of any level of build configuration is to achieve “Orthogonality” i.e. we avoid conflating configuration parameters with other happenstance factors by making configuration items very specific to their particular variant, especially for conditional build C-processor macros.  
-* A second goal is to minimise the complexity which can be in conflict with the above orthogonality by making configurations more detailed than necessary. We attempt to reduce configuration complexity by aggregating 
+* The goals of any level of build configuration is to achieve “Orthogonality” i.e. we avoid conflating configuration parameters with other happenstance factors by making configuration items very specific to their particular variant, especially for conditional build C-processor macros.
+* A second goal is to minimise the complexity which can be in conflict with the above orthogonality by making configurations more detailed than necessary. We attempt to reduce configuration complexity by aggregating
 
 - [ ] NOTE: The build paths constructed from the config.mk file parameters have often been overridden which often hides the underlying automatic methods that were initially intended. We should try and revert back to the “preferred” automatic method in this project.
 
@@ -465,77 +492,47 @@ A detailed description of all eRT build configuration parameters is (should”) 
 
 - [ ] We need to review the above in both presentation, content and to identify any anomalies in our build system configurations.
 
-The most generic conditional build configuration in the eRT source code is controlled by the OS and Architecture parameters EHS\_OS and EHS\_ARCH, which may have the following values:
+The most generic conditional build configuration in the eRT source code is controlled by the OS and Architecture parameters EHS_OS and EHS_ARCH, which may have the following values:
 
-$**EHS\_ARCH**\-$**EHS\_OS** : Selects the ./target/**os-arch**/ resources.   
-                  : Provides default path for the toolchain (ert-build-support)  
+$**EHS_ARCH**-$**EHS_OS** : Selects the ./target/**os-arch**/ resources.
+                  : Provides default path for the toolchain (ert-build-support)
                   : Provides default path for middleware (ert-contrib-middleware)
 
-Some possible values:  
-**EHS\_ARCH=x86,amd64,arm,arm7*x***  
-**EHS\_OS=none,freertos,nxp,linux,win32**
+Some possible values:
+```
+EHS_ARCH=x86,amd64,arm,arm7,...
+EHS_OS=none,freertos,nxp,linux,win32
+```
 
-Because gcc and many open source middleware libraries are build and identified using slightly more specific CPU and OS designators the parameters EHS\_GNU\_ARCH and EHS\_GNU\_OS can be used to be more selective within the set of toolchains and middleware options available. 
+Because gcc and many open source middleware libraries are build and identified using slightly more specific CPU and OS designators the parameters EHS_GNU_ARCH and EHS_GNU_OS can be used to be more selective within the set of toolchains and middleware options available.
 
-$**EHS\_GNU\_ARCH**\-$**EHS\_GNU\_OS** : overrides the toolchain and middleware paths if a  
-                            a specific GNU naming convention path is used. 
+$**EHS_GNU_ARCH**-$**EHS_GNU_OS** : overrides the toolchain and middleware paths if a
+                            a specific GNU naming convention path is used.
 
 E.g. the conventions of this on linux platforms can be found using the following:
 
-**EHS\_GNU\_ARCH (see uname \-m)**  
-**EHS\_GNU\_OS (see uname \-i)**
+**EHS_GNU_ARCH (see uname -m)**
+**EHS_GNU_OS (see uname -i)**
 
 However the GNU arch conventions are also used for gcc, clang and mingw and libc for non-linux targets too.
 
-It is also possible to select a different contributed middleware libraries to build against with furter config.mk override parameters, which will be discussed in more details below. 
+It is also possible to select a different contributed middleware libraries to build against with furter config.mk override parameters, which will be discussed in more details below.
 
-### Toolchain Selection
-
-As mentioned above the default toolchains are selected on the basis of the target OS, but are also arranged by which host they can run on.  \<HOST\_OS\> is the build systems architecture string as defined by **uname \-i** on the build host**.** 
-
-#### Default Toolchain
-
-If **TOOLCHAIN\_NAME, CC\_OVERRIDE,  or EHS\_GNU\_\*** options are not set the following base toolchain will be used:
-
-**../ert-build-support/toolchains/**\<HOST\_OS\>/*\<EHS\_ARCH\>***\_***\<EHS\_OS\>***/**
-
-The base toolchain may be soft-linked in the toolchains directory to a more specific version so that the default can be easily changed to more up to date compilers if required (**TODO in ert-build-support**).
-
-If either **EHS\_GNU\_OS** or **EHS\_GNU\_ARCH** are set then these will override the respective **EHS\_OS** or **EHS\_ARCH** parameters for the toolchain path. This is to allow matching of toolchains to GNU specific GNU formats that are used by compilers and also when building middleware packages with autotools for example.
-
-#### Overriding Toolchains
-
-There are cases where a specific toolchain is used for a target, which can be selected using the  
-
-Some toolchains use different naming conventions to the standard gcc format, particularly for cross-compilation.
-
-The path to the toolchain binaries within **ert-build-support/toolchains/**  can be explicitly set using by setting the variable **TOOLCHAIN\_NAME** to the path.  
-E.g. 
-
-TOOLCHAIN\_NAME\=arm-none-linux-gnueabi-4.4.6
-
-If the build is to take place in a specific Docker or vagrant environment and the default host toolchain in the PATH should be used then set TOOLCHAIN\_NAME  to “HOST”.  
-TOOLCHAIN\_NAME\=HOST
-
-The filename of the compiler and linker can also be explicitly set using CC\_OVERRIDE if this is not gcc  
-CC\_OVERRIDE\=arm-none-linux-gnueabi-gcc
 
 ### libc Selection
 
-Libc default to using the sysroot directory of the toolchain, hover for toolchains without this support a specific directory can be defined for the libc headers and libraries.
+Libc default to using the sysroot directory of the toolchain, hover for toolchains without this support or linking to a different libc is desired a specific directory can be defined for the libc headers and libraries.
 
-**EHS\_CLIB\_OVERRIDE\_PATH** can be used to choose a different sysroot for a target under the  **./ert-build-support/support\_libs/target\_libs/${EHS\_CLIB\_OVERRIDE\_PATH}** path.
+**EHS_CLIB_OVERRIDE_PATH** can be used to choose a different sysroot for a target under the  **./ert-build-support/support_libs/target_libs/${EHS_CLIB_OVERRIDE_PATH}** path.
 
-E.g.   
-EHS\_CLIB\_OVERRIDE\_PATH\=arm-linux-gnu-glibc-2.12.1-ti-blaze-ubuntu-10\_10
+E.g.
+EHS_CLIB_OVERRIDE_PATH=arm-linux-gnu-glibc-2.12.1-ti-blaze-ubuntu-10_10
 
 Which may for example be copied from a 3rd-party distro’s target’s filesystem to build against if build headers and libraries cannot be reproduced any other way.
 
-EHS\_SPECIAL\_CLIB\_EXT (This should start with  a delimiter e.g. \-v2. TODO \- this is for special extensions to middleware build libraries \- TODO add these if needed). This applies to both libc in ert-build-support  and the ert-contrib-middleware.
-
-TODO add flag in platform.mk to not get the targetenv scripts to add the target libraries to core lib and/or cslib/ ). 
-
-# Feature Selection
+EHS_SPECIAL_CLIB_EXT (This should start with  a delimiter e.g. -v2. 
+This applies to both libc in ert-build-support  and the ert-contrib-middleware
+### Feature Selection
 
 See eRT Build Variant Management section in [eRT Porting Guide  - Public](https://docs.google.com/document/d/1cD-U7T4-0Wmf99GcKDhZS0xlJb0kGqrtDSc0TjGL9D8/edit?tab=t.0) for more details.
 
@@ -545,680 +542,668 @@ During porting certain features and function blocks can be included as “Stubbe
 
 Make files such as os-arch/target.mk and platforms/../config.mk files will typically use the following method for different features:
 
-EHS\_**\<FEATURE\>**\_SUPPORT \= {\<specific technology\>,none,stubbed}
+EHS_**<FEATURE>**_SUPPORT = {<specific technology>,none,stubbed}
 
 The ehs.mk, components.mk  files should generate C preprocessor macros accordingly with the format.
 
-EHS\_**\<FEATURE\>**\_SUPPORT\_\_{\<specific technology\>,NONE,STUBBED}
+EHS_**<FEATURE>**_SUPPORT__{<specific technology>,NONE,STUBBED}
 
-### **Examples**
+### Examples
 
 #### Graphics
 
-**EHS\_GUI\_SUPPORT=gtk/gdi/OpenGLE2/OpenGLE1\_1/android\_stub/fb**
+**EHS_GUI_SUPPORT=gtk/gdi/OpenGLE2/OpenGLE1_1/android_stub/fb**
 
 #### Audio Visual
 
-**EHS\_AV\_SUPPORT=gst,vlc**  
-**EHS\_VIDEO\_SUPPORT=yes** (If you only want audio then unset this.)  
-**EHS\_MEDIA\_SUPPORT=all** (enables the media content handling toolbox such as devman media and SMIL parser. TODO is to decide to combine this with the AV toolbox. In which case this can be removed from the config.mk files and the EHS\_AV\_SUPPORT variable tested instead.
+**EHS_AV_SUPPORT=gst,vlc**
+**EHS_VIDEO_SUPPORT=yes** (If you only want audio then unset this.)
+**EHS_MEDIA_SUPPORT=all** (enables the media content handling toolbox such as devman media and SMIL parser. TODO is to decide to combine this with the AV toolbox. In which case this can be removed from the config.mk files and the EHS_AV_SUPPORT variable tested instead.
 
 
 #### Networking
 
-**EHS\_NETWORKING\_SUPPORT=all** (Enables system networking, not toolbox).    
-**EHS\_COMPONENT\_NETWORKING\_SUPPORT=all** (enables the networking toolbox).
+**EHS_NETWORKING_SUPPORT=all** (Enables system networking, not toolbox).
+**EHS_COMPONENT_NETWORKING_SUPPORT=all** (enables the networking toolbox).
 
-**EHS\_DEVMAN\_SUPPORT=all**   (enables the core devman code)   
-**EHS\_DEVMAN\_MON\_SUPPORT=yes** (enables the core device management system)
+**EHS_DEVMAN_SUPPORT=all**   (enables the core devman code)
+**EHS_DEVMAN_MON_SUPPORT=yes** (enables the core device management system)
 
-**EHS\_COMMS\_API\_SUPPORT=bsdsockets/winsock/lwip**  (Chooses the type of socket library. **TODO this should be moved into the os-arch/\*/target.mk, where it is implicitly set for all platforms** )
-
-**EHS\_COMMS\_TASK=tcp\_server\_common** (Always set this if you want debug capability)
+**EHS_COMMS_API_SUPPORT=bsdsockets/winsock/lwip**  (Chooses the type of socket library. 
+**EHS_COMMS_TASK=tcp_server_common** (Always set this if you want debug capability)
 
 #### Miscellaneous
 
-**EHS\_TOOLKIT\_DEPRECATED=yes** (enables non-current component versions in case you want to deploy old apps to new devices without updating the app’s components.
+``EHS_TOOLKIT_DEPRECATED=yes` (enables non-current component versions in case you want to deploy old apps to new devices without updating the app’s components.
 
-EHS\_PERIPHERAL\_DEVICE\_SUPPORT=all
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
 
-### A Typical config.mk File
+### A Typical `config.mk` File
 
-\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#  
-\# Target: x86 Linux Media Enabled Device  
-\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#   
-\#MUST SET the following for any component config:  
-EHS\_ARCH\=x86  
-EHS\_OS\=linux  
-\#Optional Settings:  
-EHS\_GNU\_ARCH\=i686  
-EHS\_GNU\_OS\=linux-gnu  
-\#use a specific legacy toolchain and kernel headers  
-KERNEL\_VERSION\=linux/2.6.35.9  
-TOOLCHAIN\_NAME\=i686-pc-linux-gnu-4.4.6  
-CC\_OVERRIDE\=i686-pc-linux-gnu-gcc  
-\# Component Toolbox Options:  
-EHS\_GUI\_SUPPORT\=gtk  
-EHS\_AV\_SUPPORT\=gst  
-EHS\_VIDEO\_SUPPORT\=yes  
-EHS\_MEDIA\_SUPPORT\=none  
-EHS\_NETWORKING\_SUPPORT\=stubbed  
-EHS\_COMPONENT\_NETWORKING\_SUPPORT\=stubbed  
-EHS\_DEVMAN\_SUPPORT\=all  
-EHS\_DEVMAN\_MON\_SUPPORT\=yes  
-EHS\_TOOLKIT\_DEPRECATED\=yes  
-EHS\_COMMS\_API\_SUPPORT\=bsdsockets  
-EHS\_COMMS\_TASK\=tcp\_server\_common  
-EHS\_PERIPHERAL\_DEVICE\_SUPPORT\=all  
-\# Optional Logging Settings:  
-EHS\_DEBUGALL\=true
+########################################################################################
+# Target: x86 Linux Media Enabled Device
 
-To compile specific target\_platform libraries **ert-contrib-middleware/target\_libs/** should be present in the directory. Otherwise the program will not be compiled.
+```make
+# MUST SET the following for any component config:
+EHS_ARCH=x86
+EHS_OS=linux
+
+#Optional Settings referencing external artefacts (usually GNU naming conventions):
+EHS_GNU_ARCH=i686
+EHS_GNU_OS=linux-gnu
+
+# Optional use a specific legacy toolchain and kernel headers
+TOOLCHAIN_NAME=i686-pc-linux-gnu-4.4.6
+CC_OVERRIDE=i686-pc-linux-gnu-gcc
+
+# Component Toolbox Options:
+
+EHS_GUI_SUPPORT=gtk
+EHS_AV_SUPPORT=gst
+EHS_VIDEO_SUPPORT=yes
+EHS_MEDIA_SUPPORT=none
+EHS_NETWORKING_SUPPORT=stubbed
+EHS_COMPONENT_NETWORKING_SUPPORT=stubbed
+EHS_DEVMAN_SUPPORT=all
+EHS_DEVMAN_MON_SUPPORT=yes
+EHS_TOOLKIT_DEPRECATED=yes
+EHS_COMMS_API_SUPPORT=bsdsockets
+EHS_COMMS_TASK=tcp_server_common
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
+
+# Optional Logging Settings:
+EHS_DEBUGALL=true
+
+```
+
+To compile specific target_platform libraries `ert-contrib-middleware/target_libs/` should be present in the directory. Otherwise the program will not be compiled.
 
 ## Contributed Middleware Selection
 
 FOr features that depend on contributed software that is built with it’s own build system and provides a C header & library stored in ert-contrib-middleware/target/libs/ the default path to the dependencies can be modified using additional make file variables as follows:
 
-**COMPONENT\_VARIANT** \- MUST be set if there are middleware dependencies. It can usually be set to component library sources that have more features than needed. (TODO works out a way that if we package DLLs into cslib/corelib that this can be a subset of all those possible for some targets. At the moment this is done by having different variants in ert-contrib-middleware/ with specific /target\_libs, but soft links to a common ./build/ directory (The build directory is where the compiler looks for headers and libs to link against.). 
+`COMPONENT_VARIANT` - MUST be set if there are middleware dependencies. It can usually be set to component library sources that have more features than needed. (TODO works out a way that if we package DLLs into cslib/corelib that this can be a subset of all those possible for some targets. At the moment this is done by having different variants in ert-contrib-middleware/ with specific /target_libs, but soft links to a common ./build/ directory (The build directory is where the compiler looks for headers and libs to link against.).
 
 # **Building with Docker**
 
-Each platform can (and should) be provided with a docker image identified in   
-**./target/platform/\<platform name\>/Dockerimagename** 
+Each platform can (and should) be provided with a docker image identified in
+**./target/platform/<platform name>/Dockerimagename**
 
 This file contains a name of a dockerhub hosted docker image that should be used when running certain ert-component make commands such as:
 
-make all\_docker 				\# same as make \-j 8 all but in docker  
-make targetenv\_\<package type\>\_docker 	\# uses the packager found in the dockerimage  
-\# Or  
-make target\_buildenv      			\# Start DOCKER environment shell in pwd.
+make all_docker 				# same as make -j 8 all but in docker
+make targetenv_<package type>_docker 	# uses the packager found in the dockerimage
+# Or
+make target_buildenv      			# Start DOCKER environment shell in pwd.
 
-If a new Dockerimage (or updated Dockerimage) needs to be created then the platform must have a “Dockerfile'' also located in the platform directory. These can be published to Dockerhub to share them with other platform targets and other users to ensure consistency across builds systems and also to reduce build times using Docker's local caching. Working from dockerhub published images also avoids uncertainties of building Dockerfiles at different times and geographical locations where differences can be observed.  
+If a new Dockerimage (or updated Dockerimage) needs to be created then the platform must have a “Dockerfile'' also located in the platform directory. These can be published to Dockerhub to share them with other platform targets and other users to ensure consistency across builds systems and also to reduce build times using Docker's local caching. Working from dockerhub published images also avoids uncertainties of building Dockerfiles at different times and geographical locations where differences can be observed.
 
-make publish\_docker\_image 		\# Build new docker image and publish to github
+make publish_docker_image 		# Build new docker image and publish to github
 
-The script will publish to Dockerhub using inx’s dockerhub account (TBC checked\!) and hence can only be published by inx. The pushed images are however public AND SHOULD NOT CONTAIN ANY CODE\!  
-Naming conventions for inxware Dockerhub files are 
+The script will publish to Dockerhub using inx’s dockerhub account (TBC checked!) and hence can only be published by inx. The pushed images are however public AND SHOULD NOT CONTAIN ANY CODE!
+Naming conventions for inxware Dockerhub files are
 
-**inxware/\<target arch-os\>\_\<hosted distribution version\>-\<added packages\>**
+```
+inxware/<target arch-os>_<hosted distribution version>-<added packages>
+```
 
-# **eRT Initialisation Sequence**
+# eRT Initialisation Sequence
 
-- [ ] \[See porting guide information and notes from Xiaosheng )
+- [ ] [See porting guide information and notes from Xiaosheng )
 
-1. Ehs-Main()  
-   1. Init KernelHAL \[EhsHSys\_Init()\] \- IO only  \- files, tcpip devman,    
-   2. Init Kernel \[EhsKSys\_Init()\] \- Initialise data tables, memory management, timers.  
-   3. Load Version Information \[\];  
-   4. \----- Identifiy Components Available  
-      1. **Add Component Modules** \[ EhsAddStaticModules() & EhsAddDynamicModules()  \] Iterates through the static and dynamic modules modules   
-      2. **Initialise Modules** \[EhsInitStaticModules() & EhsInitDynamicModules()\] These functions are currently hardwired to specific toolbox init functions. Future Implementations should allow for anonymous module iteration.  
-   5. **\--- Initialise Application Runtime Environment**  
-      1. **Initialise Application Tables (app\_data::EhsDataConnectionTable\_init())**  
-      2. **CD to App Directory (Default Working Directory)**  
-      3. **EhsDataConnectionTable\_resetMonitorFlags(void) (If debugging)**  
-   6. Load SODL (parse\_sodl.c::???) \- populated the runtime tables  
-   7. \-- Execute Application  
-      1. If new base app \- Application::start(Curently do always \- aggregate apps un-implemented)  
-      2. Start main execution Loop  \- (exits on new app?)   
-   8. **Case Exiting for new app start (redo v. from this state) :**    
-      1. **(Possibly in the future re-iterate the component library for new dynamically linked  components. \- Will require Close of components.**  
-      2. **Reset Modules to state 1.iv.b.**   
-      3. **Wait for tear down to complete EhsApplicationWaitForTearDown()(for Components that create their own threads)**   
-      4. **Reset the Application Runtime Environment: app\_data::EhsApplicationReset():**  
-         1. **Ehs\_cdTOaPP()**  
-         2. **Start Groups ( Looped in here \!\!\!\!)**  
-         3. **Create an initial event::EhsFunctionInstanceDataTable\_triggerInitialEvent();**  
-         4. **Function Instance data should be resert here??**  
-      5. **app\_data::EEhsApplicationResethsDataConnectionTable\_applicationReset();**  
+1. Ehs-Main()
+   1. Init KernelHAL [EhsHSys_Init()] - IO only  - files, tcpip devman,
+   2. Init Kernel [EhsKSys_Init()] - Initialise data tables, memory management, timers.
+   3. Load Version Information [];
+   4. ----- Identifiy Components Available
+      1. **Add Component Modules** [ EhsAddStaticModules() & EhsAddDynamicModules()  ] Iterates through the static and dynamic modules modules
+      2. **Initialise Modules** [EhsInitStaticModules() & EhsInitDynamicModules()] These functions are currently hardwired to specific toolbox init functions. Future Implementations should allow for anonymous module iteration.
+   5. **--- Initialise Application Runtime Environment**
+      1. **Initialise Application Tables (app_data::EhsDataConnectionTable_init())**
+      2. **CD to App Directory (Default Working Directory)**
+      3. **EhsDataConnectionTable_resetMonitorFlags(void) (If debugging)**
+   6. Load SODL (parse_sodl.c::???) - populated the runtime tables
+   7. -- Execute Application
+      1. If new base app - Application::start(Curently do always - aggregate apps un-implemented)
+      2. Start main execution Loop  - (exits on new app?)
+   8. **Case Exiting for new app start (redo v. from this state) :**
+      1. **(Possibly in the future re-iterate the component library for new dynamically linked  components. - Will require Close of components.**
+      2. **Reset Modules to state 1.iv.b.**
+      3. **Wait for tear down to complete EhsApplicationWaitForTearDown()(for Components that create their own threads)**
+      4. **Reset the Application Runtime Environment: app_data::EhsApplicationReset():**
+         1. **Ehs_cdTOaPP()**
+         2. **Start Groups ( Looped in here !!!!)**
+         3. **Create an initial event::EhsFunctionInstanceDataTable_triggerInitialEvent();**
+         4. **Function Instance data should be resert here??**
+      5. **app_data::EEhsApplicationResethsDataConnectionTable_applicationReset();**
       6. **Loop to 1.v.**
 
-# **EHS Runtime File & Asset Structure**
+# eRT Deployment File & Asset Structure**
 
-### **EHS bin**
+For windows, linux, bsd or devices suported a file system like littlefs, the following directory structure is used. (Note for devices using inx's simple flat FS then the filenames rename the same, but there is no directory strcuture.) 
 
----
+## ./bin
 
 This is the main container for ehs executable code. This contains subdirectories listed below plus the following files:
 
-#### **Entry**
+### .bbin/run_ehs.sh
 
-ehs/bin
+```bash
+run_ehs.sh or run_ehs.bat # sarts ehs.exe with any env and os intialisation required.
+``` 
+Arguements may include
+```bash 
+./run_ehs.sh NO_RESTART           # stops the restart mechanism if ehs.exe crashes
+./run_ehs.sh YES_RESTART LIB_HOST # uses the hosts clib dlls rather than those in corelib
+./run_ehs.sh NO_RESTART DEBUG     # starts ehs with logging to disk or GDB. respectively.
+```
 
-#### **Contents**
+### ./bin/ehs.exe ehs.exe
 
-##### [**run\_ehs.sh**](http://run_ehs.sh) **(or run\_ehs.bat)** 
+This is the ehs core executable (user space kernel) this should be run as root in which case it will gain high thread priority and will run as a linux REAL_TIME_THREAD_PRIOIRITY if ran as root.
 
-This is the start script that sets up the OS environment and starts ehs and also starts aggressive OS level devman update system.
 
-###### **Arguments**
+### ./bin/cslib/ 
+DLLs (e.g. so) loaded dynamically by EHS that are not available in the OS.
 
-\#1 NO\_RESTART \- stops the restart mechanism if ehs.exe crashes  
-\#2 LIB\_HOST \- uses the hosts clib dlls rather than those in corelib   
-\#3DEBUG or GDB \- starts ehs with logging to disk or GDB. respectively.
+These are located in run_ehs.sh where LD_LIBRARY_PATH is set to find them.
+Files in here may only be required conditionally during runtime (e.g. dynamically loaded gstreamer plugins, but essential .so files may also belocate       here )
 
-##### **ehs.exe**
+The contentof this directory (and ./bin/cscore) is copied during `make targetenv` from
+`ert-contrib-middleware**/target-Libs/<target contrib middleware path> target-packages/`
 
-This is the ehs core executable (user space kernel) this should be run as root in which case it will gain high thread priority (in fact it may run as a linux REAL\_TIME\_THREAD\_PRIOIRITY. 
-
-###### **Arguments**
-
-DEBUG (see run\_ehs.sh)  
-SODL\_PATH \- path to new SODL directory (TBD \- shouldn’t be in a different level to appdata?  
----
-
-Modules loaded dynamically by EHS \- TBC  
-EHS will reject applications with incorrect Module dependencies .
-
-#### **Entry**
-
-ehs/bin/cscore/  
-eRT-build-support files such as any libc overrides. Very seldomly used these days\!
-
-### **Component Support Directories (Required on load)**
-
-### ---
-
-#### **Entry**
-
-ehs/bin/cslib/  
-content s are copied (on make targetenv) from   
-**ert-contrib-middleware**/target-Libs/\<target contrib middleware path\> target-packages/\*
-
-runtime libraries including for example plugin directories for middleware such as gstreamer. Dynamic libs are the typical 3rd party Module support components  
-These are typically standalone [.so]() or .dll files required for EHS components   
+runtime libraries including for example plugin directories for middleware such as gstreamer. Dynamic libs are the typical 3rd party Module support components
+These are typically standalone [.so]() or .dll files required for EHS components
 EHS core should not be dependent on these libs.
+
+### ./bin/cscore/ 
+
+Rarely used additional DLL location for core eRT runtime dependencies.  files such as any libc.so can be deployed here, whcih are needed at initial loading of ehs.
+
 
 ### **Component Support Directories (Plugins)**
 
 ---
 
-Many 3rd party support libraries require directories to contain plugin libs, extensions, meta data or scripting to run. Examples include VLC, LUA.   
+Many 3rd party support libraries require directories to contain plugin libs, extensions, meta data or scripting to run. Examples include VLC, LUA.
 THis may not be used at all any more. Plugsin are usually included as subdirectories to cslib
 
 #### **Entry**
 
 ehs/bin/csdir
 
-## eRT **Runtime Tree \- Linux example**
+## eRT **Runtime 
 
-Degrees of persistence:
+Degrees of pmemory ersistence:
 
-Runtime Dynamic   
-Restart Application  
-Restart ehs.exe  
-Reboot Updatable
+1. Runtime Dynamic
+1. Restart Application
+1. Restart ehs.exe
+1. Reboot Updatable
+
+
 ```
-|-- **appdata/**  
-|   |-- default/  
-|   |   |-- t.sdl			\[default application if no other has been selected  
-|   |   \`-- XXXX.XX		\[Other application meta data files and resources e.g. gui files  
-|   |-- temp/			\[ like default but where debugger applications are installed and run  
-|-- **bin/**  
-|   |-- runehs.sh		\[ launch script with setting up for  eRT (ehs.exe)\]  
-|   |-- restartehs		\[ OS level script that should restart ehs\]  
-|   |-- reboot			\[ OS level script for rebooting\]  
-|   |-- sys.crons			\[ obsolete here?\]  
-|   |-- ehs.exe  
-|   |-- **inxlib/**  
-|   |   |--custom\_module1.inx	\[ Future option for toolbox plugin DLLs \- not currently used   
-|   |   |--custom\_module2.inx	\[ Future option for toolbox plugin DLLs \- not currently used   
-|   |-- **cslib/** 			**\[ ert-contrib middleware ./target\_support/ for linux .so’s**	  
-|   |-- **csdir/			\[ ert-build-support libraries \- Ideally this is empty\]**  
-|-- devman/			\[ Devman configuration and OD-level management scripts  
-|   |-- core/			\[ This needs updating with the config, certs etc. structure  
-|   |   |-- HWID\_NETIP.inx  
-|   |   |-- devman\_update.inx  
-|   |   |-- download  
-|   |   |-- getHWID-NETIP.sh  
-|   |   |-- run\_dldata  
-|   |   |-- sys-timer.sh  
-|   |   \`-- update.sh  
-|   \`-- plugins/			\[ These aren’t really used any more TBC\]  
-|   	|-- 0  
-|   	|   |-- devman\_mon.inx  
-|   	|   \`-- download  
-|   	|-- 1  
-|   	|   |-- dev-x.sh  
-|   	|   |-- devman\_player.inx  
-|   	|   \`-- download  
-|   	|-- 2  
-|   	|   |-- dev-x.sh  
-|   	|   \`-- download  
-.  
-.  
-.  
-|--sysdata/  
-|-  |-- EHSVersion.nfo		\[ This has been renamed version.nfo now?\]  
-|   |-- devman.crons 		\[ This doesn’t seem to be used any more? \]  
-|   |-- ehs\_tcpip.log		\[ A log file that may be delete now TBC\]  
-|   |-- platform			\[ A platform type identifier like x86/linux/\<somethingspecific\> \]  
-|   |-- sys.crons			\[ We shouldn’t use this any more\! \]  
-|   \`-- version.nfo		\[ Version info createt at build that is reported in various ways\]  
-\`-- userdata/  
-	|-- configs/  
-	|   \`-- devman-player/  
-	\`-- media/
+|-- **appdata/**
+|   |-- default/
+|   |   |-- t.sdl			[default application if no other has been selected
+|   |   `-- XXXX.XX		[Other application meta data files and resources e.g. gui files
+|   |-- temp/			[ like default but where debugger applications are installed and run
+|-- **bin/**
+|   |-- runehs.sh		[ launch script with setting up for  eRT (ehs.exe)]
+|   |-- restartehs		[ OS level script that should restart ehs]
+|   |-- reboot			[ OS level script for rebooting]
+|   |-- ehs.exe
+|   |-- **inxlib/**
+|   |   |--custom_module1.inx	[ Future option for toolbox plugin DLLs - not currently used
+|   |   |--custom_module2.inx	[ Future option for toolbox plugin DLLs - not currently used
+|   |-- **cslib/** 			**[ ert-contrib middleware ./target_support/ for linux .so’s**
+|   |-- **csdir/			[ ert-build-support libraries - Ideally this is empty]**
+|-- devman/			[ Devman configuration and OD-level management scripts
+|   |-- core/			[ This needs updating with the config, certs etc. structure
+|   |   |-- HWID_NETIP.inx
+|   |   |-- devman_update.inx
+|   |   |-- download
+|   |   |-- getHWID-NETIP.sh
+|   |   |-- run_dldata
+|   |   |-- sys-timer.sh
+|   |   `-- update.sh
+|   `-- plugins/			[ These aren’t really used any more TBC]
+|   	|-- 0
+|   	|   |-- devman_mon.inx
+|   	|   `-- download
+|   	|-- 1
+|   	|   |-- dev-x.sh
+|   	|   |-- devman_player.inx
+|   	|   `-- download
+|   	|-- 2
+|   	|   |-- dev-x.sh
+|   	|   `-- download
+|--sysdata/
+|-  |-- EHSVersion.nfo		[ This has been renamed version.nfo now?]
+|   |-- devman.crons 		[ This doesn’t seem to be used any more? ]
+|   |-- ehs_tcpip.log		[ A log file that may be delete now TBC]
+|   |-- platform			[ A platform type identifier like x86/linux/<somethingspecific> ]
+|   |-- sys.crons			[ We shouldn’t use this any more! ]
+|   `-- version.nfo		[ Version info createt at build that is reported in various ways]
+`-- userdata/
+	|-- configs/
+	|   `-- devman-player/
+	`-- media/
 
----
 ```
 
-# **Multi-Target Build System**
+
+### ert-components Multi-target Code Structure**
+
+```bash
+./Common/            # HW independent
+./target/            # HW/library dependent
+./target/platform/*  # deployment-specific Configs
+```
 
 
-### **EHS Code Structure**
 
-**./Common/** \- HW independent   
-**./target/**      \- HW/library dependent  
-**./target/platform/** Config. Managnt. is in target\_build\_scripts (bash) and target\_platform (make configs) \- largely **config.mk** 
+### Toolchain Selection
 
-#### **Build Tools**
+the default toolchains are selected on the basis of the target OS, but are also arranged by which host they can run on.  <HOST_OS> is the build systems architecture string as defined by **uname -i** on the build host**.**
 
-**./ert-contrib-middleware**
+The `../ert-contrib-middleware` repo contains toolchains that are not installed with a host (dockerhub host) tree contains toolchains 
 
-Contains toolchains and some core libraries such as libc \- this should be sufficient to built eRT where there are no specific components dependencies required (e.g. stubbed or excluded from the build.
+** To use a host installed toolchain ** use
+```make
+TOOLCHAIN_NAME=HOST
+```
+in your `config.mk` you would normally only do this combined with builds in a docker environment, though you can depend on assuming the toolchain is installed and in the search path of a real host linux environment. 
 
-#### **3rd-party Source and Libraries**
+Which toolchain that is used is defined by the `EHS_OS` and `EHS_ARCH` make variables in `config.mk`, which can be modified with variats and alternatives using the  EHS_GNU_OS` and EHS_GNU_ARCH` variables combined with 
 
-Git repo located as
 
-**./ert-contrib-middleware/**
+#### Default Toolchain
 
-Build against pre-built libraries in relevant directory in **target\_libraries**
+If **TOOLCHAIN_NAME, CC_OVERRIDE,  or EHS_GNU_*** options are not set the following base toolchain will be used:
+
+**../ert-build-support/toolchains/**<HOST_OS>/*<EHS_ARCH>***_***<EHS_OS>***/**
+
+The base toolchain may be soft-linked in the toolchains directory to a more specific version so that the default can be easily changed to more up to date compilers if required (**TODO in ert-build-support**).
+
+If either **EHS_GNU_OS** or **EHS_GNU_ARCH** are set then these will override the respective **EHS_OS** or **EHS_ARCH** parameters for the toolchain path. This is to allow matching of toolchains to GNU specific GNU formats that are used by compilers and also when building middleware packages with autotools for example.
+
+#### Overriding Toolchains
+
+There are cases where a specific toolchain is used for a target, which can be selected using the
+
+Some toolchains use different naming conventions to the standard gcc format, particularly for cross-compilation.
+
+The path to the toolchain binaries within **ert-build-support/toolchains/**  can be explicitly set using by setting the variable **TOOLCHAIN_NAME** to the path.
+E.g.
+
+TOOLCHAIN_NAME=arm-none-linux-gnueabi-4.4.6
+
+If the build is to take place in a specific Docker or vagrant environment and the default host toolchain in the PATH should be used then set TOOLCHAIN_NAME  to “HOST”.
+TOOLCHAIN_NAME=HOST
+
+The filename of the compiler and linker can also be explicitly set using CC_OVERRIDE if this is not gcc
+CC_OVERRIDE=arm-none-linux-gnueabi-gcc
+
+
+
+# Contributed Middleware Source and Libraries
+
+Git repo located in`./ert-contrib-middleware/` contains source and contributors build system + built artefacts located in a canononical location fo each target architecture and operating systems under `target_libraries`
 
 These are typically built with a script for each component that will bring in any specific libs required. However binary dependencies may also be added to this repository under the canonically named path:
 
-The eRT build system should generate a **library path** to the prebuilds from the information in config.mk and os-arch make files such as:
+The eRT build system should generate a library path to the prebuilds from the information in `config.mk` and os-arch make files such as:
 
-ert-contrib-middleware/target\_libs/**arm-linux-androideabi-9-arm-none-linux-android-9-headless**/build/
+`ert-contrib-middleware/target_libs/arm-linux-androideabi-9-arm-none-linux-android-9-headless/build/`
 
-This may be included as a sysroot or separate \-H and \-L compiler instructions (See build config report with
+This may be included as a sysroot or separate -H and -L compiler instructions (See build config report with
 
 | make chkconfig  |
 | :---- |
 
-### **Building Dependencies in the ert-contrib-middleware**
+## Building Dependencies in the ert-contrib-middleware
 
-The scripts are canonically named:  
-**./inx\_build\_scripts/build\_all\_pkgs.sh**   
-called manually when a new target or code change occurs (rarely).  
-This is given two parameters: HW OS and options such as 
+The scripts are canonically named:
+`./inx_build_scripts/build_all_pkgs.sh`
+called manually when a new target or code change occurs (rarely).
+This is given two parameters: HW OS and options such as
 
-./inx\_build\_scripts/create\_cs\_rt.sh  \- called (this maybe more specific than  
-./inx\_build\_scripts/commit\_cs\_pkg.sh  \- which is called manually after verification.
+./inx_build_scripts/create_cs_rt.sh  - called (this maybe more specific than
+./inx_build_scripts/commit_cs_pkg.sh  - which is called manually after verification.
 
-and produce the 
+and produce the
 
-Generally gnu autools  
-./configure \--prefix=\[abs staging directory\] \- located ../target\_lib\_buiilds/$TARGETs  
-./make  
-./make install 
+Generally gnu autools
+./configure --prefix=[abs staging directory] - located ../target_lib_buiilds/$TARGETs
+./make
+./make install
 
-### **Target Library Binaries**
+# Core Target Library Binaries
 
-### ../ert-built-support/\[$CSPACKAGE\]/
+`../ert-built-support/[$CSPACKAGE]/`
 
-**Figure:** Process options to identify and create dependencies when building a new ert-components platform.
 
-The EHS build system in (EHS.git) usually requires the support of 2 other repos: EHS-build-support and ert-contrib-middleware, except if the host’s installed compiler is used or a suitably pre-configured cross-compiler is in the search path. These repos are very large and will be downloaded automatically when certain build commands are executed as described in the following sections. 
 
-## Build Configuration
 
-Each target Type defines a variant. To produce a build variant a platform file must be created in EHS/target/platform/config.mk using the following format: 
+
+## eRT Build Configuration Deep Dive
+
+Each target Type defines a variant. To produce a build variant a platform file must be created in EHS/target/platform/config.mk using the following format:
 
 Targets variants have the following configuration fields, defined as environment variables in the
+```
+EHS make environment:
+EHS_HW=(x86|SH4|PPC,..)
+EHS_OS=(linux|win32,mingw,..)
+EHS_RFSSIZE=(KBs)
+EHS_RAM=(kBs)
+EHS_COMMS_API={NONE,bsdsockets,winsock,serial}
+```
+### eRT HAL
 
-EHS make environment:  
-EHS\_HW=(x86|SH4|PPC,..)  
-EHS\_OS=(linux|win32,mingw,..)  
-EHS\_RFSSIZE=(KBs)  
-EHS\_RAM=(kBs)  
-EHS\_COMMS\_API={NONE,bsdsockets,winsock,serial}
+Currently we have EHS_NETWORKING_SUPPORT=all this is quite broad and limiting and doesn’t allow us to to be fine-grained about what networking services are supported and what type of target technology is used to make it work.
 
-### **General HAL**
 
-Currently we have EHS\_NETWORKING\_SUPPORT=all this is quite broad and limiting and doesn’t allow us to to be fine-grained about what networking services are supported and what type of target technology is used to make it work.
+`EHS_NETWORKING_SUPPORT=(all|none`, or something specific) - this will remove all code and dependencies on networking and no networking support of any kind will be provided (probably just limit IP networking for now, but might include LoRaWAN, Thread/Matter,....
 
-**What we should move to:**
+**note** We don’t currently support “none” for no networking, which we probably should do. We only support not defined.
 
-- [ ] **Start to implement this as a ticket \- hopefully less than a couple of hours work**
+We also Need to review the following and refer only to the spread sheet:
+[eRT Build System Parameters](https://docs.google.com/spreadsheets/d/1iLa3ac19vAp6ZYZzBp0nRdMIfbQVcbHgvP6oHVGF95U/edit?gid=505500840#gid=505500840) rather the an these probably wrong duplicates/
+```make
+EHS_NETWORKING_HTTP_SOCKET=(bsd,winsock,lwip,stub,none)
+EHS_NETWORKING_HTTP_CLIENT=(libcurl,stub,none)
+EHS_NETWORKING_HTTP_SERVER=(lwip,stub,none)
+EHS_NETWORKING_MQTT_CLIENT=(lwip,stub,none)
+```
+If any of these are set when EHS_NETWORKING_SUPPORT is disabled we should generate a #error build fail to avoid a spammy compile error.
 
-EHS\_NETWORKING\_SUPPORT=(all|none, or something specific) \- this will remove all code and dependencies on networking and no networking support of any kind will be provided (probably just limit IP networking for now, but might include LoRaWAN, Thread/Matter possibly.
-
-We don’t currently support “none” for no networking, which we probably should do. We only support not defined.
-
-We also Need to review the following and refer only to the spread sheet:  
-[eRT Build System Parameters](https://docs.google.com/spreadsheets/d/1iLa3ac19vAp6ZYZzBp0nRdMIfbQVcbHgvP6oHVGF95U/edit?gid=505500840#gid=505500840) rather the an these probably wrong duplicates/  
-EHS\_NETWORKING\_HTTP\_SOCKET=(bsd,winsock,lwip,stub,none)  
-EHS\_NETWORKING\_HTTP\_CLIENT=(libcurl,stub,none)  
-EHS\_NETWORKING\_HTTP\_SERVER=(lwip,stub,none)  
-EHS\_NETWORKING\_MQTT\_CLIENT=(lwip,stub,none)
-
-If any of these are set when EHS\_NETWORKING\_SUPPORT is disabled we should generate a \#error build fail to avoid a spammy compile error.
-
-Other notes the curl specific code **(to be done at a later date\!)** in Common/HAL/curl/ should be moved to /target/Component-HAL/url/curl/ and a stub version made available for completeness. The /Common/HAL/url/ code should provide the same API as it does now (perhaps the CURL object needs to be abstracted as class type def so it is build-time polymorphic or a void\*?).
+Other notes the curl specific code **(to be done at a later date!)** in Common/HAL/curl/ should be moved to /target/Component-HAL/url/curl/ and a stub version made available for completeness. The /Common/HAL/url/ code should provide the same API as it does now (perhaps the CURL object needs to be abstracted as class type def so it is build-time polymorphic or a void*?).
 
 ### **Component HAL**
 
-EHS\_GRAPHICS\_SUPPORT \= {NONE,GTK,GDI,STAPI,DIRECTFB,SDL,LVGL}  
-EHS\_AV\_SUPPORT={NONE,VLC,GSTREAMER,STAPI}  
-EHS\_VECTORGRAPH\_SUPPORT={NONE,SVG}  
-EHS\_DATABASE\_SUPPORT={NONE,SQLITE,  
-EHS\_DEVMAN\_SUPPORT={NONE,DEVUPDATE, DEVMANMON,ALL,}  
-EHS\_MEDIA\_SUPPORT={NONE,all,smil,dlna}  
-and as configuration strings for dependency builds:
+```make
+EHS_GRAPHICS_SUPPORT = {NONE,GTK,GDI,STAPI,DIRECTFB,SDL,LVGL}
+EHS_AV_SUPPORT={NONE,VLC,GSTREAMER,STAPI}
+EHS_VECTORGRAPH_SUPPORT={NONE,SVG}
+EHS_DATABASE_SUPPORT={NONE,SQLITE,
+EHS_DEVMAN_SUPPORT={NONE,DEVUPDATE, DEVMANMON,ALL,}
+EHS_MEDIA_SUPPORT={NONE,all,smil,dlna}
+```
 
-OS\_HW\_GRAPHICS
+and as configuration strings for dependency builds:
+```make
+OS_HW_GRAPHICS
+```
 
 dependencies on components are required for dependency builds.
 
-These strings are typically identified in platform descriptors also e.g.:  
-OS\_HW\_GRAPHICS\_NETWORK \- the order of these is not critical and missing entries should be equivalent to none.
+These strings are typically identified in platform descriptors also e.g.:
+OS_HW_GRAPHICS_NETWORK - the order of these is not critical and missing entries should be equivalent to none.
 
-## Build Outputs
+# Build Outputs
 
-### **Linux & WIndows**
+# **Linux & WIndows**
 
-**ehs.exe**
+`ehs.exe` executable elf file in target architecture.
 
-##### **Build steps**
+# C-code Module Responsibilities
 
-Make all . male all\_docker  
-prepdeps  
-targetenv  
-all
+## `./app_data/`
 
-Variables: $TARGET defines the target type
-
-upload\_sypatch\_devman\_server
-
-### **Target ehs tree**
-
-### **Boot Image**
-
-TARGETENVTREE
-
-## **Legacy & Migration**
-
-### **C-code Module Responsibilities**
-
-##### **app\_data**
-
-Data (Component) Connection Table  (EhsDataConnectionTable)  creating, initialising, resetting.  
-Group Processing Table (EhsKEGroupTable) \- Scheduling Spec for the Application  
+Data (Component) Connection Table  (EhsDataConnectionTable)  creating, initialising, resetting.
+Group Processing Table (EhsKEGroupTable) - Scheduling Spec for the Application
 Ehs Trigger Table (EhsTriggerTable) initialise the FIFO buffers
 
-parsesld does not call the init function any more  
+parsesld does not call the init function any more
 Component generated threads. (Indexing start and stop and Tear down).
 
 # Target Platform Packaging
 
 ## Android APK
+see `scripts/build-deploy/android/`
 
-TODO \- the following need to be moved somewhere else?
-
-  │   └── system  
-│   └── utils  
-│       ├── downloader  
-│       ├── downloader.apk  
-│       ├── downloader.jks  
-│       └── password.txt
 
 ## Debian .deb
+see `scripts/build-deploy/debian/`
 
 ## ESP32 IDF
 
 ESP32 and esp32S3 builds are for the following target environments
 
-# 
+Espressif series (i.e. esp32, esp32s3) software is based on `FreeRTOS`. The filesystem is based on `littlefs`.
 
-Espressif series (i.e. esp32, esp32s3) software is based on \`FreeRTOS\`. The filesystem is based on `littlefs`.
+see see `scripts/build-deploy/esp32`
 
-### **ESP32**
+example to upload image to Devman for deployment
+```bash
+./configure esp32s3_freertos-xtensa-base # Or any other esp32 target
+make clean                     # Remove any previous artefacts
+make targetenv_prebuild        # Optional: gathers any assets (like default apps in littlefs
+make targetenv_littlefs        # Optional: BUilds a prepopulated file system partition.
+make all_docker                # Builds the code with IDF SDK.
+make targetenv_esp32s3_docker  # Builds a deployable/flashable image
+make targetenv_upload_ota      # Optionally Upload to Devman server
+```
 
-#### **build**
+See also  the scripts in `./scripts/build-deploy/esp32/` for recipes using the above steps for different purposes.
 
-./configure esp32\_freertos-xtensor-base  
-Make
+### Flashing
+Flashing images can be done with the espressif wwe utility or on your host using the IDF (python based) utilities.
 
-#### **Flashing**
+Connect the Micro-USB cable to the connector labelled as “USB”. Your device node should be /dev/ttyACM0
 
-1. In the EHS-kerne and ert-components repos, set the target to `esp32_freertos-xtensor-base`.  
-2. Run `./build-esp32-freertos-ehs.sh` under the “ert-contrib-middleware/inx\_build\_scripts” directory  
-3. Under the “ert-components” repo, run `make clean; make && make targetenv_esp32_docker`  
-4. Then you can flash the built image to the esp32 with `sudo ./esp32_flsh.sh`.
 
-### 
+```
+./scripts/build-deploy/esp32s3/esp32_flash.sh && screen -L -Logfile logfile /dev/ttyACM0 115200
+```
 
-### **ESP32S3**
+under the hood this is using the following:
 
-#### **Build**
+1. Under `ert-contrib-middleware/contrib/esp-idf/esp-idf-4.4.4/`, run `. export.sh`.
+   (If you do it for the first time, make sure to run ‘./install.sh’ first.)
+2. Under `TARGET_TREES/ehs_env-esp32s3_freertos-xtensa-base/bin`, runs
 
-**\# configure and build esp32s3 base target**
-
-**./configure esp32s3\_freertos-xtensa-base**  
-**make clean**  
-**make targetenv\_prebuild**  
-**make targetenv\_littlefs**  
-**make all\_docker**  
-**make targetenv\_esp32s3\_docker**
-
-./configure esp32s3\_freertos-xtensa-hrdcv2B-ehs-caravan-Willerbys-inx-devman-debug  
-make prepdeps (optional)  
-make targetenv\_version (optional)  
-make clean ; make targetenv\_prebuild && make targetenv\_littlefs && make all\_docker && make targetenv\_esp32s3\_docker  
-make targetenv\_upload\_ota \# upload to the server
-
-\# flash and log to file  
-./scripts/build-deploy/esp32s3/esp32\_flash.sh && screen \-L \-Logfile logfile /dev/ttyACM0 115200
-
-#### **Flashing**
-
-1. Pull the latest changes into `ert-components` and `ert-contrib-middleware`.  
-2. Under the `ert-components` repo, run `./configure esp32s3_freertos-xtensa-base`.  
-3. Under the `ert-components` repo, run `make clean ; make all_docker ; make targetenv`.  
-4. Connect the Micro-USB cable to the connector labelled as “USB”. Your device node should be /dev/ttyACM0  
-5. Under `ert-contrib-middleware/contrib/esp-idf/esp-idf-4.4.4/`, run `. export.sh`.  
-   (If you do it for the first time, make sure to run ‘./install.sh’ first.)  
-6. Under `TARGET_TREES/ehs_env-esp32s3_freertos-xtensa-base/bin`, run 
-
-| esptool.py \--chip esp32s3 elf2image \--min-rev-full 0 \--max-rev-full 9999 \-ff 80m \-fm qio \-fs 8MB \-o ehs.bin ehs.exe; esptool.py \--chip esp32s3 \--port /dev/ttyACM0 \-b 460800 \--before default\_reset \--after hard\_reset write\_flash \-fm dio \-fs 8MB \-ff 80m 0x0 /path/to//ert-contrib-middleware/target\_libs/xtensa-esp32s3\_freertos-xtensa-esp32s3-elf-4.4.4/build/lib/bootloader.bin 0x9000 /path/to/ert-contrib-middleware/target\_libs/xtensa-esp32s3\_freertos-xtensa-esp32s3-elf-4.4.4/build/lib/partition-table.bin 0x10000 ehs.bin && screen /dev/ttyACM0 115200 |
-| :---- |
+| esptool.py --chip esp32s3 elf2image --min-rev-full 0 --max-rev-full 9999 -ff 80m -fm qio -fs 8MB -o ehs.bin ehs.exe; esptool.py --chip esp32s3 --port /dev/ttyACM0 -b 460800 --before default_reset --after hard_reset write_flash -fm dio -fs 8MB -ff 80m 0x0 /path/to//ert-contrib-middleware/target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-4.4.4/build/lib/bootloader.bin 0x9000 /path/to/ert-contrib-middleware/target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-4.4.4/build/lib/partition-table.bin 0x10000 ehs.bin && screen /dev/ttyACM0 115200 |
 
 (If it fails to flash, press “BOOT” button and “RESET” button, then release “RESET” button, finally release “BOOT” button to enter the bootloader mode. After the flashing success, click “RESET” to reset the board.)
 
-\# add this to screen command in order to log to a file  
-screen \-L \-Logfile logfile /dev/ttyACM0 115200
+# add this to screen command in order to log to a file
+screen -L -Logfile logfile /dev/ttyACM0 115200
 
-#### Erase flash memory
+### Erasing flash memory
 
-esptool.py \--chip esp32s3 \--port /dev/ttyACM0 erase\_flash
+esptool.py --chip esp32s3 --port /dev/ttyACM0 erase_flash
 
-#### Debugging crashes
+### Debugging crashes
 
-xtensa-esp32s3-elf-addr2line \-pfiaC \-e ehs.exe ADDRESS \# e.g 0x4200b062
+xtensa-esp32s3-elf-addr2line -pfiaC -e ehs.exe ADDRESS # e.g 0x4200b062
 
-see:  
+see:
 https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/tools/idf-monitor.html
 
-#### Config info
+### ESP Memoery Config info
 
 | Description | Memory allocated | location |
 | :---- | :---- | :---- |
 | Main Loop | 3584 | contrib/esp…/ert…/sdkconfig |
 | System Event | 2304 | contrib/esp…/ert…/sdkconfig |
 | Timer Task (Optional) | 3584 | contrib/esp…/ert…/sdkconfig |
-| EHS MAIN | 20000 | target\_main.c |
-| TCPIP | 4096 | target\_main.c |
+| EHS MAIN | 20000 | target_main.c |
+| TCPIP | 4096 | target_main.c |
 
-in `ert-contrib-middleware/contrib/esp-idf/esp-idf-4.4.4/ert_config_files/esp32s3_freertos`:  
-CONFIG\_ESP\_INT\_WDT\_TIMEOUT\_MS=300  
-[ESP32-S3 Series Datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf) 
+in `ert-contrib-middleware/contrib/esp-idf/esp-idf-4.4.4/ert_config_files/esp32s3_freertos`:
+CONFIG_ESP_INT_WDT_TIMEOUT_MS=300
+[ESP32-S3 Series Datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf)
 
 ## Windows 10/11
 
-## Windows Unity Build (this is the old way\! New way is described at the start of this doc)
+## Windows Unity Build (this is the old way! New way is described at the start of this doc)
 
-### **Build Windows Unity EHS plug-in**
-
-./configure win\_x86\_unity  
-make prepdeps  
-make all  
+### Build Windows Unity EHS plug-in
+```bash
+./configure win_x86_unity
+make prepdeps
+make all
 make targetenv
-
+```
 This makes a file the .so that gets renamed later.
 
-If you have changes to the C\# Unity code you will need to rebuild the Unity project.
+If you have changes to the C# Unity code you will need to rebuild the Unity project.
 
-We currently configure server and certificates manually \- not in ert-components.
+We currently configure server and certificates manually - not in ert-components.
 
-### **Add EHS DLL plug-in to Unity 3d Project**
+### Add EHS DLL plug-in to Unity 3d Project
 
-Make sure you have Unity Hub with a license and Unity 2019.4.40 (LTS) installed on your windows device. 
+Make sure you have Unity Hub with a license and Unity 2019.4.40 (LTS) installed on your windows device.
 
-Next, from the Unity Hub open this project “EHS/target/os-arch/android\_ALL/Unity\_EHS”
+Next, from the Unity Hub open this project “EHS/target/os-arch/android_ALL/Unity_EHS”
 
-To replace the ehs plugin simply make sure it’s renamed from ***./TARGET\_TREES/ehs\_env-win\_x86\_unity/bin/ehs.exe*** to ***libnative-activity.dll*** , then drag and drop dll file to ***Assets/Libs/win\_x86*** as shown in the image below.  
-   
+To replace the ehs plugin simply make sure it’s renamed from ***./TARGET_TREES/ehs_env-win_x86_unity/bin/ehs.exe*** to ***libnative-activity.dll*** , then drag and drop dll file to ***Assets/Libs/win_x86*** as shown in the image below.
+
 ![][image3]
 
-### **Build Unity 3d Project Windows**
+### Build Unity 3d Project Windows
 
 Before doing the following do this you need:
 
-1. Download a example windows [https://drive.google.com/drive/folders/1T-BRbE6N3U7zZbWF6IBFOygUGugPicXM](https://drive.google.com/drive/folders/1T-BRbE6N3U7zZbWF6IBFOygUGugPicXM) 
+1. Download a example windows [https://drive.google.com/drive/folders/1T-BRbE6N3U7zZbWF6IBFOygUGugPicXM](https://drive.google.com/drive/folders/1T-BRbE6N3U7zZbWF6IBFOygUGugPicXM)
 
-Packaging the unity build  
-Open build setting dialog from **File-\>Build Settings…** Next make sure that you set the **Target Platform** to **Windows,** and **Architecture** to **x86** . (Do not use x86 64-bit, as plugin dll is built for windows 32-bit for now)  See screenshot below for reference.
+Packaging the unity build
+Open build setting dialog from **File->Build Settings…** Next make sure that you set the **Target Platform** to **Windows,** and **Architecture** to **x86** . (Do not use x86 64-bit, as plugin dll is built for windows 32-bit for now)  See screenshot below for reference.
 
 ![][image4]
 
 Click build and navigate to the folder where you’d like the project to be built (e.g create SignageWindowsBuild folder somewhere in your file system).
 
-### **Copy DLLs and EHS Resources to the project folder**
+Copying DLLs and EHS Resources to the project folder
 
 After building windows Unity your project folder will contain following files and folders
 
 ![][image5]
 
-Make sure you copy all DLLs required by EHS plugin from ***./TARGET\_TREES/ehs\_env-win\_x86\_unity/bin/*** to the root of your app folder (e.g. SignageWindowsBuild)
+Make sure you copy all DLLs required by EHS plugin from `./TARGET_TREES/ehs_env-win_x86_unity/bin/` to the root of your app folder (e.g. SignageWindowsBuild)
 
 Assuming that your EHS plugin is configured to work from any directory, create this folder in the root folder (e.g. SignageWindowsBuild)
 
-***ehs\_data***
+`ehs_data`
 
 Next copy following directories
 
-***appdata  devman  sysdata  userdata***
+`appdata  devman  sysdata  userdata`
 
-from ***./TARGET\_TREES/ehs\_env-win\_x86\_unity/***  to ***ehs\_data/***  in your build root directory. 
+from `./TARGET_TREES/ehs_env-win_x86_unity/`  to `ehs_data/***`  in your build root directory.
 
-Next, copy Signage app from   
-***apps/customer-apps/SimpleSignOn/sso-unity-v1.0.0/export***  
-to  
-***SignageWindowsBuild/ehs\_data/appdata/default***
+Next, copy Signage app from
+`apps/customer-apps/SimpleSignOn/sso-unity-v1.0.0/export`
+to
+`SignageWindowsBuild/ehs_data/appdata/default`
 
-Next, copy certs from DevmanSecurity repo to ***SignageWindowsBuild/ehs\_data/devman/core/certs***
+Next, copy certs (if required)  to `SignageWindowsBuild/ehs_data/devman/core/certs`
 
 In theory you should now be able to run ***TELLISIGN.exe*** and upload playlists from devman to it.
 
-### **Issues that may need to be fixed**
+Issues that may need to be fixed
+Make sure the URL is ***https*** , are not ***http*** in
+`SignageWindowsBuild/ehs_data/devman/core/config/DEVMANURL.000`
 
-Make sure the URL is ***https*** , not ***http*** in   
-***SignageWindowsBuild/ehs\_data/devman/core/config/DEVMANURL.000***
-
-\=======================================================  
+=======================================================
 Other info on the signage should be specified in this document
 
-[https://docs.google.com/document/d/1pdd-2uhXRIFGtSfz114ihcWe4u\_1\_dZaxC08jW3iOno/edit\#heading=h.bqhjzp48ygz9](https://docs.google.com/document/d/1pdd-2uhXRIFGtSfz114ihcWe4u_1_dZaxC08jW3iOno/edit#heading=h.bqhjzp48ygz9)
+[https://docs.google.com/document/d/1pdd-2uhXRIFGtSfz114ihcWe4u_1_dZaxC08jW3iOno/edit#heading=h.bqhjzp48ygz9](https://docs.google.com/document/d/1pdd-2uhXRIFGtSfz114ihcWe4u_1_dZaxC08jW3iOno/edit#heading=h.bqhjzp48ygz9)
 
-\=======================================================
+=======================================================
 
 # Target Flashing
 
-[Xiaosheng An](mailto:x.an@inx-systems.com)\- please see this section and improve it for flashing code on to the NXP devices.
+[Xiaosheng An](mailto:x.an@inx-systems.com)- please see this section and improve it for flashing code on to the NXP devices.
 
 ## NXP-Kinesis
 
-NXP stuff can be built with NXPs IDE (eclipse thing), but we also have a full set of command line flashing and building options in eRT (and the HRDCv1’s monolithic firmware).
+NXP can be built with NXPs IDE or the ert-components build systems
+There is a full set of command line flashing and building options in eRT (and the HRDCv1’s monolithic firmware).
 
 [Unit QA & calibration Guide HRDx](https://docs.google.com/presentation/d/1HTV-dHJEesui9uUNseXK_fMKOm2k0D4yiw1yCWPAvzY/edit#slide=id.p)
 
-Other background information (We should extract any relevant informationvfor flashing binaries here:  
+Other background information (We should extract any relevant informationvfor flashing binaries here:
 [HRDx Test and Production Software Setup](https://docs.google.com/document/d/1jv5WtCB9TNM53Ei1bA5pWDUrV25D9-Z37Xx6nxzKf2Q/edit#heading=h.cwzb7d5p1bmf)
 
-### **Windows MINGW32 remote debug using Linux Visual Code**
+# Debugging Tips
+## Windows MINGW32 remote debug using Linux Visual Code
 
-1) Install Linux WLS on your Windows machine then install following packages  
-   sudo apt install gdbserver  
- 
+1) Install Linux WLS on your Windows machine then install following packages
+   sudo apt install gdbserver
 
-
-# eRT Regression Testing
-
-## TODO
+# eRT Regression Tests
+eRT contains both platform build smoke test scripts and component unit test scripts.
 
 See also [eRT Component Test System](https://docs.google.com/document/d/1SfMc0sSg_HMddXJK0WqKrK9S98owZaQ2VCPb6wmN1u0/edit#heading=h.79ler92qcb4p) which was written up in parallel when below was being implemented. THe file-based method below is along the same lines and we may migrate it to a function block method that will allow more reporting and less complex applications in the future.
 
-- [ ] Make the regression testing scripts more uniform:  
-      - [ ] Multi-platform build tests are run as a script from ./SystemTests/CI/ \- should any bash scripts we use for per-target runtime testing on Linux also be in here (not sure where they are currently \- it’s not really a targetenv process \- so shouldn’t be in there really.  
-      - [ ] make **targetenv\_run\_tests** should be called **make test\_run\_components**  
-      - [ ] Create a new make target as a place holder for now for running a single profile-specific smoke test that includes some level of stress and testing a full app, including kernel and platform features. **make test\_run\_smoke**   
-      - [ ] Move the function blocks specific tests apps in ./tests/root/ to the function block’s test directories  
-- [ ] Should we implement the test reporting function block as above before creating too many more regression test apps? The main advantage of the above proposed approach is that is can run on any target type and we can get it to report the status to Devman as ready flags off files on targets will not generally be possible or likely to succeed in most cases.  
+Documentation is wor in progress!
+
+- [ ] Make the regression testing scripts more uniform:
+      - [ ] Multi-platform build tests are run as a script from ./SystemTests/CI/ - should any bash scripts we use for per-target runtime testing on Linux also be in here (not sure where they are currently - it’s not really a targetenv process - so shouldn’t be in there really.
+      - [ ] make **targetenv_run_tests** should be called **make test_run_components**
+      - [ ] Create a new make target as a place holder for now for running a single profile-specific smoke test that includes some level of stress and testing a full app, including kernel and platform features. **make test_run_smoke**
+      - [ ] Move the function blocks specific tests apps in ./tests/root/ to the function block’s test directories
+- [ ] Should we implement the test reporting function block as above before creating too many more regression test apps? The main advantage of the above proposed approach is that is can run on any target type and we can get it to report the status to Devman as ready flags off files on targets will not generally be possible or likely to succeed in most cases.
       - [ ] Same applies to the multi-target build regression system. This should also build all the test targets with a multi-functional smoke test app that runs as many function blocks as possible (test cases for each target profile), which can also report the results to Devman if we can find a good way of deploying the new builds to test devices (e.g. using their OTA update methods).
 
----
-
+## Platform build regression testing
 eRT Regression testing is carried out in up to 3 stages:
 
 * Multi-target build regression tests (relatively quic test to run during development and refactoring.
+`./SystemTests/CI/regression_test-published-only.sh` 
+we will change this to accept a profile argument 
+for the targets to run instead of the “published only”.
 
-./SystemTests/CI/regression\_test-published-only.sh \# we will change this to accept a profile argument for the targets to run instead of the “published only”.
 
-* Single target component regression tests \- runs all the component tests
 
-./make targetenv\_run\_tests \#(see proposed change of name above\!)
+## Single target component regression Tests
 
-* Single target component regression tests \- runs all the component tests
+ Single target component regression tests - runs all the component tests runs all the component tests fr the given target.
 
-./make targetenv\_run\_tests (see proposed change of name above\!)
+`./make targetenv_run_tests` (see proposed change of name above!)
 
-## Run Tests
 
 At the moment the test can only be run for the linux ert build host targets.
 
-./configure linux\_x86\_64-lucid-debian11  
-make clean; make all\_docker  
-make targetenv\_run\_tests
+```
+./configure linux_x86_64-lucid-debian11
+make clean; make all_docker
+make targetenv_run_tests
+```
 
-The tests in the terminal should look like this  
+The tests in the terminal should look like this
 ![][image6]
 
-## Check Results
+Check Results
 
 All test results get saved to this directory with following structure
 
-**../TARGET\_TREES/TEST\_RESULTS/results/**
+`../TARGET_TREES/TEST_RESULTS/results/`
 
-|-- \<test name\>  
-    |-- expected\_result.txt (contains pre-generated expected results of the test)  
-    |-- test\_result.txt (result generated by the test, provided eRT runs OK)  
-    |-- test\_stdout.txt (eRT stdout logs)  
-    |-- passed (this flag gets created when expected and generated test results match)  
+```
+|-- <test name>
+    |-- expected_result.txt (contains pre-generated expected results of the test)
+    |-- test_result.txt (result generated by the test, provided eRT runs OK)
+    |-- test_stdout.txt (eRT stdout logs)
+    |-- passed (this flag gets created when expected and generated test results match)
     |-- timeout (test has timeout before any results were available)
+```
 
 ## Create New Test
 
-1. Using Lucid open a template project located in **ert-components/tests/TEST-TEMPLATE**  
-2. Use ‘Save Project As’ to create a new test with a unique name from this template. For now store it in **ert-components/tests/root/core** or any other category e.g. **network**. WARNING\! \- this is a temporary location and all tests will be moved to Common/Components (once all old tests placed in there are sorted out)  
-3. Close the TEST-TEMPLATE project and now you can add function blocks to your new test project. Make sure the following events are fired for start,write and end of your test.![][image7]  
-4. To generate your project results. Make sure this directory is present **\~/inxware/inx-tests/** (it gets created when running targetenv\_run\_tests or it can be added manually) and **empty** (clear it if it has some old data). Next ‘Run’ project in Lucid and once successful check results file content and copy it to the root of your new project e.g **\~/inxware/inx-tests/results/test\_result.txt \-\> ./ert-components/tests/root/core/NewTest/test\_result.txt**  
-5. This should be it. Run tests using targetenv\_run\_tests to see if your new test is passing.
+1. Using Lucid open a template project located in **ert-components/tests/TEST-TEMPLATE**
+2. Use ‘Save Project As’ to create a new test with a unique name from this template. For now store it in **ert-components/tests/root/core** or any other category e.g. **network**. WARNING! - this is a temporary location and all tests will be moved to Common/Components (once all old tests placed in there are sorted out)
+3. Close the TEST-TEMPLATE project and now you can add function blocks to your new test project. Make sure the following events are fired for start,write and end of your test.![][image7]
+4. To generate your project results. Make sure this directory is present **~/inxware/inx-tests/** (it gets created when running targetenv_run_tests or it can be added manually) and **empty** (clear it if it has some old data). Next ‘Run’ project in Lucid and once successful check results file content and copy it to the root of your new project e.g **~/inxware/inx-tests/results/test_result.txt -> ./ert-components/tests/root/core/NewTest/test_result.txt**
+5. This should be it. Run tests using targetenv_run_tests to see if your new test is passing.
 
 ## Example of a working test
 
-![][image8]  
+![][image8]
 
 
 [image1]: <data:image/png;base64,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>
