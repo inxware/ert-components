@@ -680,15 +680,16 @@ inxware/<target arch-os>_<hosted distribution version>-<added packages>
       5. **app_data::EEhsApplicationResethsDataConnectionTable_applicationReset();**
       6. **Loop to 1.v.**
 
-# eRT Deployment File & Asset Structure**
+# eRT Deployment Files & Assets Structure**
 
 For windows, linux, bsd or devices suported a file system like littlefs, the following directory structure is used. (Note for devices using inx's simple flat FS then the filenames rename the same, but there is no directory strcuture.) 
 
-## ./bin
+## Windows & Linux
+### ./bin
 
 This is the main container for ehs executable code. This contains subdirectories listed below plus the following files:
 
-### .bbin/run_ehs.sh
+#### .bbin/run_ehs.sh
 
 ```bash
 run_ehs.sh or run_ehs.bat # sarts ehs.exe with any env and os intialisation required.
@@ -700,12 +701,12 @@ Arguements may include
 ./run_ehs.sh NO_RESTART DEBUG     # starts ehs with logging to disk or GDB. respectively.
 ```
 
-### ./bin/ehs.exe ehs.exe
+#### `./bin/ehs.exe ehs.exe`
 
 This is the ehs core executable (user space kernel) this should be run as root in which case it will gain high thread priority and will run as a linux REAL_TIME_THREAD_PRIOIRITY if ran as root.
 
 
-### ./bin/cslib/ 
+#### `./bin/cslib/` 
 DLLs (e.g. so) loaded dynamically by EHS that are not available in the OS.
 
 These are located in run_ehs.sh where LD_LIBRARY_PATH is set to find them.
@@ -718,25 +719,21 @@ runtime libraries including for example plugin directories for middleware such a
 These are typically standalone [.so]() or .dll files required for EHS components
 EHS core should not be dependent on these libs.
 
-### ./bin/cscore/ 
-
+#### `./bin/cscore/` 
 Rarely used additional DLL location for core eRT runtime dependencies.  files such as any libc.so can be deployed here, whcih are needed at initial loading of ehs.
+S
+
+### `./appdata/`
+contains default temporary and named Lucid applications (SODL files)
+### `./sysdata/`
+OS scripts and data used by supivisor processes and OS level initialisation scripts.
+### `./devman`
+Included on builds tha supper Devman. This contains subfolder that identify the server configuration and reference credentials and certificate requirements
+
+### Example Linux runtime files
 
 
-### **Component Support Directories (Plugins)**
-
----
-
-Many 3rd party support libraries require directories to contain plugin libs, extensions, meta data or scripting to run. Examples include VLC, LUA.
-THis may not be used at all any more. Plugsin are usually included as subdirectories to cslib
-
-#### **Entry**
-
-ehs/bin/csdir
-
-## eRT **Runtime 
-
-Degrees of pmemory ersistence:
+Degrees of memory persistence:
 
 1. Runtime Dynamic
 1. Restart Application
@@ -794,8 +791,18 @@ Degrees of pmemory ersistence:
 
 ```
 
+## Android
+The Android file system for applicaitons (typically) `/sdcard/Android/data/com.inx.ehs/files` contains the same as a Windows Linux file system, but does not include a `./bin` directory.
 
-### ert-components Multi-target Code Structure**
+## MCUs with Littlefs
+These als follow the general scheme of Windows and Linux, but without a ./bin directory.
+Zephyr builds may include libraries in this directory.
+
+
+
+# Source Tree Layout
+
+## ert-components Multi-target Code Structure**
 
 ```bash
 ./Common/            # HW independent
@@ -804,14 +811,14 @@ Degrees of pmemory ersistence:
 ```
 
 
-
-### Toolchain Selection
+# SDK Configuration
+## Toolchain Selection
 
 the default toolchains are selected on the basis of the target OS, but are also arranged by which host they can run on.  <HOST_OS> is the build systems architecture string as defined by **uname -i** on the build host**.**
 
 The `../ert-contrib-middleware` repo contains toolchains that are not installed with a host (dockerhub host) tree contains toolchains 
 
-** To use a host installed toolchain ** use
+To use a host installed toolchain use
 ```make
 TOOLCHAIN_NAME=HOST
 ```
@@ -824,11 +831,11 @@ Which toolchain that is used is defined by the `EHS_OS` and `EHS_ARCH` make vari
 
 If **TOOLCHAIN_NAME, CC_OVERRIDE,  or EHS_GNU_*** options are not set the following base toolchain will be used:
 
-**../ert-build-support/toolchains/**<HOST_OS>/*<EHS_ARCH>***_***<EHS_OS>***/**
+`../ert-build-support/toolchains/**<HOST_OS>/*<EHS_ARCH>***_***<EHS_OS>***/**`
 
-The base toolchain may be soft-linked in the toolchains directory to a more specific version so that the default can be easily changed to more up to date compilers if required (**TODO in ert-build-support**).
+The base toolchain may be soft-linked in the toolchains directory to a more specific version so that the default can be easily changed to more up to date compilers if required.
 
-If either **EHS_GNU_OS** or **EHS_GNU_ARCH** are set then these will override the respective **EHS_OS** or **EHS_ARCH** parameters for the toolchain path. This is to allow matching of toolchains to GNU specific GNU formats that are used by compilers and also when building middleware packages with autotools for example.
+If either `EHS_GNU_OS` or `EHS_GNU_ARCH` are set then these will override the respective `EHS_OS` or `EHS_ARCH` parameters for the toolchain path. This is to allow matching of toolchains to GNU specific GNU formats that are used by compilers and also when building middleware packages with autotools for example.
 
 #### Overriding Toolchains
 
@@ -836,7 +843,7 @@ There are cases where a specific toolchain is used for a target, which can be se
 
 Some toolchains use different naming conventions to the standard gcc format, particularly for cross-compilation.
 
-The path to the toolchain binaries within **ert-build-support/toolchains/**  can be explicitly set using by setting the variable **TOOLCHAIN_NAME** to the path.
+The path to the toolchain binaries within `ert-build-support/toolchains/`  can be explicitly set using by setting the variable `TOOLCHAIN_NAME` to the path.
 E.g.
 
 TOOLCHAIN_NAME=arm-none-linux-gnueabi-4.4.6
