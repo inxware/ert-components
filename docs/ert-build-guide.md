@@ -112,7 +112,7 @@ Target types with special environment initialisations:
 * Unity (e.g. tellisign - ) - see [Unity & eRT Supervisor](#unity-&-ert-supervisor) section below. Unity needs to be run interactively to set up the license. (A personal license is OK for now?)
   - [ ] Can we create a license Unity tools Docker image?
 
-# Production Builds {#production-builds}
+# Production Builds
 
 See relevant directory in **scripts/build-deploy/.** These scripts will typically build all variants of the product and optionally upload these to the relevant deployment Devman server instance.
 
@@ -624,19 +624,21 @@ FOr features that depend on contributed software that is built with it’s own b
 
 `COMPONENT_VARIANT` - MUST be set if there are middleware dependencies. It can usually be set to component library sources that have more features than needed. (TODO works out a way that if we package DLLs into cslib/corelib that this can be a subset of all those possible for some targets. At the moment this is done by having different variants in ert-contrib-middleware/ with specific /target_libs, but soft links to a common ./build/ directory (The build directory is where the compiler looks for headers and libs to link against.).
 
-# **Building with Docker**
+# Building with Docker
+Docker must be installed on your linux or SWL host to run most builds, but direct host builds are still possible in many cases.
 
-Each platform can (and should) be provided with a docker image identified in
-**./target/platform/<platform name>/Dockerimagename**
+Each platform can (and should) be provided with a docker image identified in `./target/platform/<platform name>/Dockerimagename`. These images are available from DockerHub and are freely distributed by this service. The ert-components build system does all the image pulling and can also be used to create & modify these images and push to Dockerhub, without any dkills in Docker commands. The docker images are built from Dockerfiles that are usually stored in a base platform (e.g. `./target/platform/<platform name>/Dockerfile` ). COmpiled images can be pushed from builds configured with a Dockefile and Dockerfilename file.
 
-This file contains a name of a dockerhub hosted docker image that should be used when running certain ert-component make commands such as:
 
+This Dockerimagename contains a name of a dockerhub hosted docker image that should be used when running certain ert-component make commands such as:
+```bash
 make all_docker 				# same as make -j 8 all but in docker
 make targetenv_<package type>_docker 	# uses the packager found in the dockerimage
 # Or
 make target_buildenv      			# Start DOCKER environment shell in pwd.
+```
 
-If a new Dockerimage (or updated Dockerimage) needs to be created then the platform must have a “Dockerfile'' also located in the platform directory. These can be published to Dockerhub to share them with other platform targets and other users to ensure consistency across builds systems and also to reduce build times using Docker's local caching. Working from dockerhub published images also avoids uncertainties of building Dockerfiles at different times and geographical locations where differences can be observed.
+If a new Dockerimage (or updated Dockerimage) needs to be created then the platform's “Dockerfile'' is used to build it from the specified base dockerimage. These can be published to Dockerhub to share them with other platform targets and other users to ensure consistency across builds systems and also to reduce build times using Docker's local caching. Working from dockerhub published images also avoids uncertainties of building Dockerfiles at different times and geographical locations where differences can be observed.
 
 make publish_docker_image 		# Build new docker image and publish to github
 
@@ -932,44 +934,27 @@ EHS_DEVMAN_SUPPORT={NONE,DEVUPDATE, DEVMANMON,ALL,}
 EHS_MEDIA_SUPPORT={NONE,all,smil,dlna}
 ```
 
-and as configuration strings for dependency builds:
-```make
-OS_HW_GRAPHICS
-```
-
-dependencies on components are required for dependency builds.
-
-These strings are typically identified in platform descriptors also e.g.:
-OS_HW_GRAPHICS_NETWORK - the order of these is not critical and missing entries should be equivalent to none.
 
 # Build Outputs
 
-# **Linux & WIndows**
+## Linux & WIndows
 
 `ehs.exe` executable elf file in target architecture.
 
-# C-code Module Responsibilities
-
-## `./app_data/`
-
-Data (Component) Connection Table  (EhsDataConnectionTable)  creating, initialising, resetting.
-Group Processing Table (EhsKEGroupTable) - Scheduling Spec for the Application
-Ehs Trigger Table (EhsTriggerTable) initialise the FIFO buffers
-
-parsesld does not call the init function any more
-Component generated threads. (Indexing start and stop and Tear down).
 
 # Target Platform Packaging
 
 ## Android APK
+libens.so
 see `scripts/build-deploy/android/`
 
 
 ## Debian .deb
+ehs.deb
 see `scripts/build-deploy/debian/`
 
 ## ESP32 IDF
-
+ehs.bin
 ESP32 and esp32S3 builds are for the following target environments
 
 Espressif series (i.e. esp32, esp32s3) software is based on `FreeRTOS`. The filesystem is based on `littlefs`.
