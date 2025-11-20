@@ -12,11 +12,11 @@
 
 ## Why use inxware?
 
-inxware is a powerful solution helping you to rapidly develop real-time and data-intensive firmware for embedded devices. It is in active use across [many sectors](https://www.inx-systems.com/sectors/{target=_blank}), including industrial IoT, smart buildings, smart domestic energy products, edge-AI applications and advanced control systems.
+inxware is a powerful solution helping you to rapidly develop real-time and data-intensive firmware for embedded devices. It is in active use across [many sectors](https://www.inx-systems.com/sectors/), including industrial IoT, smart buildings, smart domestic energy products, edge-AI applications and advanced control systems.
 
 It supports [devices](#supported-platforms) ranging from basic microcontrollers (e.g. NXP Kinetis, STM32, ESP32, etc.) through Arduino, Raspberry Pi, and Android tablets, all the way to full Windows/Linux PCs and containerised environments, allowing you to build products of any complexity.
 
-The inxware development suite includes a powerful no-code IDE called [Lucid](https://appland.inxware.io//{target=_blank}), to help you to assemble the exact components you require for your application - potentially without ever needing to write any code. Our related [Appland](https://appland.inxware.io/appLand/index.php/{target=_blank}) community gallery helps inxware users to share their applications. It is not essential to use Lucid with inxware, but it can provide significant development acceleration for many typical cases.
+The inxware development suite includes a powerful no-code IDE called [Lucid](https://appland.inxware.io//), to help you to assemble the exact components you require for your application - potentially without ever needing to write any code. Our related [Appland](https://appland.inxware.io/appLand/index.php/) community gallery helps inxware users to share their applications. It is not essential to use Lucid with inxware, but it can provide significant development acceleration for many typical cases.
 
 ## What is inxware?
 
