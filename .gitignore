@@ -78,8 +78,8 @@ dkms.conf
 
 # android #
 ###########
-*.apk
-*.dex
+#*.apk
+#*.dex
 
 # vs project files #
 ####################
@@ -146,6 +146,3 @@ gdb.txt
 
 #build & deploy spam
 ./output.txt
-
-#AI agent config
-CLAUDE.md

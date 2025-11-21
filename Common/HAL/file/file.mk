@@ -25,6 +25,7 @@
 #  VPATH - where to look for source code
 
 include $(EHS_COMMON_HAL_PATH)/file/deps.mk
+
 ifdef EHS_FILESYSTEM_SUPPORT
 ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
 	ifeq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
