@@ -51,8 +51,10 @@ include $(EHS_COMMON_HAL_PATH)/hashmap/hashmap.mk
 #============================================================
 
 #Default we include FILE SYSTEM SUPPORT
-ifneq ($(EHS_FILESYSTEM_SUPPORTNONE),none)
+ifdef EHS_FILESYSTEM_SUPPORT
+ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
 include $(EHS_COMMON_HAL_PATH)/file/file.mk
+endif
 endif
 
 ifdef EHS_CONFIGS_SUPPORT

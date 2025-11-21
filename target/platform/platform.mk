@@ -213,10 +213,13 @@ export EHS_COMPONENT_SUPPORT_LIBS:=$(EHS_COMPONENT_SUPPORT_BUILD)lib/
 # include files to build the core EHS target specific for this platform + any special OS Compoents.
 
 # Setup default dependency and feature support for os-arch types so this doesn't need to be done for each platform.
-ifneq ("$(wildcard $(EHS_TARGET_OS_HW_PATH)/config.mk)","")
-    include $(EHS_TARGET_OS_HW_PATH)/config.mk
-endif
 
+ifneq ($(wildcard $(EHS_TARGET_OS_HW_PATH)/config.mk),)
+	include $(EHS_TARGET_OS_HW_PATH)/config.mk
+else 
+#$(info $(TXT_FG_TELLO) Warning, Could not find a os-arch level config.mk file at:)
+#$(info $(TXT_FG_YELLOW) '$(EHS_TARGET_OS_HW_PATH)')
+endif
 
 # Set up any other build configurations.
 include $(EHS_TARGET_OS_HW_PATH)/target.mk

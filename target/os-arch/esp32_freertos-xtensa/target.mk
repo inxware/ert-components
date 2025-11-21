@@ -23,7 +23,6 @@
 
 # (auto included) include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/config.mk
 
-
 # include sourcecode from this dir in build
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/
@@ -70,6 +69,7 @@ INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/apps/ping/
 INC_DIRS +=$(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/examples/wifi_test
 
 # The following will probably need to be ported eventually to support ert components and main build
+
 ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
 OBJECTS += target_file.$(OBJ)
 endif

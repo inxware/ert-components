@@ -37,8 +37,13 @@ EHS_DEBUGALL=yes
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
 ################################################################################################################
 #todo  why is the stubbed file system so difficult compared to others/ We should move the the Component HAL and yse that method as more consistent?
-EHS_FILESYSTEM_SUPPORT=stubbed
-#DEFS += EHS_TARGET_FILE_SKIP_STAT
+EHS_FILESYSTEM_SUPPORT=posix
+#Current hack for ESP32 (not S3) because feof is linkedin the 4.4.1.  libraries
+DEFS+=EHS_FEOF_MISSING_WORKAROUND
+#EHS_FILESYSTEM_SUPPORT=stubbed
+
+#TODO Seems we still need this for stubbed, but it should be changed to a proper make variable.
+DEFS += EHS_TARGET_FILE_SKIP_STAT
 
 EHS_COMPONENT_NETWORKING_SUPPORT=nocurl
 # Note the following might not remain lwip - we could use esp32's native mqtt component instead of ert#s lwip based one (TBC if this is difficult

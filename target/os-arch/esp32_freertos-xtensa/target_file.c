@@ -76,6 +76,16 @@ const char *base_path = "/ehs";
 #define INX_EHS_NXP_TSDL_POINT 1
 #define INX_EHS_NXP_TSDL_NULL 2
 
+/*
+esp32 (not s3) build doesn't find this in libcxx.a for some reason. 
+Only used in the Kenel parser, which only uses feof() as a backup if FEOF file char is not received. So stubbing this for the time being as esp32 is in legacy support mode 
+*/
+
+#ifdef  EHS_FEOF_MISSING_WORKAROUND
+int feof(FILE *f) {
+return 0;
+}
+#endif
 
 ehs_bool EhsTF_cd(const ehs_char * dir)
 {

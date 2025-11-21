@@ -16,8 +16,15 @@ INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/
 
 #These are the core mandatory target apecific porting components needed to run eRT. 
+
+ifdef EHS_FILESYSTEM_SUPPORT
 ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
-OBJECTS += target_file.$(OBJ)
+  OBJECTS += target_file.$(OBJ)
+endif
+else
+   # All GNU platforms will default have linux support unless it is set to none or stubbed 
+   OBJECTS += target_file.$(OBJ)
+   EHS_FILESYSTEM_SUPPORT=yes
 endif
 OBJECTS += target_process.$(OBJ) 
 OBJECTS += target_main.$(OBJ)
