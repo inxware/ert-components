@@ -109,9 +109,16 @@ echo " Location of the elf file:"
 echo " ehs_esp32s3_freertos-xtensa-base.elf # or use this: $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.exe"
 echo "---------------------------------------------------------------------------------------------------------------------------"                                              
 # what was this?? e --flash_mode "dio" --flash_freq "40m" --flash_size "4MB" --elf-sha256-offset 0xb0 ehs_esp32s3_freertos-xtensor-base.elf -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin
+# Older toolchains don't support all arguements 
+if [ "${TOOLCHAIN_NAME}" = "xtensa-esp32-elf-4.4.1" ] ; then
+EXTRA_ESPTOOL_ARGS=
+else
+EXTRA_ESPTOOL_ARGS=-min-rev-full 0 --max-rev-full 9999 
+fi
 
 #if python3 ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip esp32 elf2imag
-if python3  ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip esp32s3 elf2image --min-rev-full 0 --max-rev-full 9999 -ff 80m -fm qio -fs 8MB -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.exe 
+
+if python3  ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip esp32s3 elf2image ${EXTRA_ESPTOOL_ARGS} -ff 80m -fm qio -fs 8MB -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.exe 
 then
     echo "### Copied ehs.bin file generated in $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/"
 else

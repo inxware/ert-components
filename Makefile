@@ -48,6 +48,7 @@ EHS_COMMON_COMPONENTS_PATH=$(EHS_COMMON_PATH)/Components
 EHS_COMMON_TOOLKIT_CORE_PATH=$(EHS_COMMON_COMPONENTS_PATH)/core
 
 # Enable colourised output within this makefile
+# todo colour.nk should go in the scripts folder or be optional. It is breaking a lot of things as is.
 include $(EHS_COMMON_EHS_PATH)/colour.mk
 
 ################################################################################
