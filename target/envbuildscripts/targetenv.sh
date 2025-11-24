@@ -119,10 +119,12 @@ else
     warn "No component libraries found in '${CMPT_LIBS}'"
 fi
 
-echo
-echo "Setting the internal version information file for the build"
-./target/envbuildscripts/targetenv_create_version_info.sh $SPECIFIC_TARGET
+# We Only do this explicityly for release builds with `make targetenv_version`
+#echo
+#echo "Setting the internal version information file for the build"
+#./target/envbuildscripts/targetenv_create_version_info.sh $SPECIFIC_TARGET
 
+if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then
 echo
 echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
 echo
@@ -134,22 +136,22 @@ if [ -z "${EHS_SKIP_REPO_PULL}" ]; then
         pushd ../apps || exit 1
 
         # Ensure we are on the right branch
-        if ! git rev-parse --abbrev-ref HEAD | grep -qx "RELEASE-PRODUCTION"; then
-            err "../apps is on branch '$(git rev-parse --abbrev-ref HEAD)'," >&2
-            err "but the build expects RELEASE-PRODUCTION. Please switch branches or set EHS_SKIP_REPO_PULL=1." >&2
-            exit 1
-        fi
+        #if ! git rev-parse --abbrev-ref HEAD | grep -qx "RELEASE-PRODUCTION"; then
+        #    err "../apps is on branch '$(git rev-parse --abbrev-ref HEAD)'," >&2
+        #    err "but the build expects RELEASE-PRODUCTION. Please switch branches or set EHS_SKIP_REPO_PULL=1." >&2
+        #    exit 1
+        #fi
 
         # Refuse to pull if it would require a merge
-        git fetch origin RELEASE-PRODUCTION || exit 1
-        if ! git merge-base --is-ancestor HEAD origin/RELEASE-PRODUCTION; then
-            err "local RELEASE-PRODUCTION has diverged from origin/RELEASE-PRODUCTION." >&2
-            echo "Please run 'git reset --hard origin/RELEASE-PRODUCTION' or push your changes," >&2
-            echo "or set EHS_SKIP_REPO_PULL=1 to use your local state." >&2
-            exit 1
-        fi
-
-        git pull --ff-only origin RELEASE-PRODUCTION || exit 1
+        #git fetch origin RELEASE-PRODUCTION || exit 1
+        #if ! git merge-base --is-ancestor HEAD origin/RELEASE-PRODUCTION; then
+        #    err "local RELEASE-PRODUCTION has diverged from origin/RELEASE-PRODUCTION." >&2
+        #    echo "Please run 'git reset --hard origin/RELEASE-PRODUCTION' or push your changes," >&2
+        #    echo "or set EHS_SKIP_REPO_PULL=1 to use your local state." >&2
+        #    exit 1
+        #fi
+        git checkout RELEASE-PRODUCTION || exit 1
+        #git pull --ff-only origin RELEASE-PRODUCTION || exit 1
 
         popd || exit 1
     else
@@ -170,6 +172,12 @@ fi
 echo
 echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
 echo
+else 
+echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+echo "${TXT_FG_YELLOW} NOT Installing a default app"
+echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+
+fi #if [ "${EHS_DEFAULT_APP}" = "NONE" ];
 
 EHS_APP_EXPORT_DIR=export-ert${ERT_SODL_VERSION}
 
