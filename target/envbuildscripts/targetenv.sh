@@ -119,10 +119,10 @@ else
     warn "No component libraries found in '${CMPT_LIBS}'"
 fi
 
-# We Only do this explicityly for release builds with `make targetenv_version`
-#echo
-#echo "Setting the internal version information file for the build"
-#./target/envbuildscripts/targetenv_create_version_info.sh $SPECIFIC_TARGET
+# Create a versionn information file in the taretenv tree (doesn't increment)
+echo
+echo "Setting the internal version information file for the build"
+./target/envbuildscripts/targetenv_create_version_info.sh $SPECIFIC_TARGET
 
 if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then
 echo
