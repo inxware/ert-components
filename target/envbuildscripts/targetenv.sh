@@ -13,6 +13,7 @@ set -e
 export SPECIFIC_TARGET=$1
 
 source ./scripts/build-function-library/colour.sh
+
 TXT_FG=${TXT_FG_BLUE}
 
 echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
@@ -125,12 +126,12 @@ echo "Setting the internal version information file for the build"
 ./target/envbuildscripts/targetenv_create_version_info.sh $SPECIFIC_TARGET
 
 if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then
-echo
-echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
-echo
-echo "Installing the default app"
+  echo
+  echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+  echo
+  echo "Installing the default app"
 
-if [ -z "${EHS_SKIP_REPO_PULL}" ]; then
+  if [ -z "${EHS_SKIP_REPO_PULL}" ]; then
     echo "Checking out the latest PRODUCTION branch of your app repo..."
     if [ -d ../apps ]; then
         pushd ../apps || exit 1
@@ -166,17 +167,16 @@ if [ -z "${EHS_SKIP_REPO_PULL}" ]; then
         git checkout RELEASE-PRODUCTION || exit 1
         popd
     fi
-else
+  else
     warn "Not checking out the latest 'PRODUCTION' branch of your app repo - 'EHS_SKIP_REPO_PULL' is set"
-fi
-echo
-echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
-echo
+  fi
+  echo
+  echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+  echo
 else 
-echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
-echo "${TXT_FG_YELLOW} NOT Installing a default app"
-echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
-
+  echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+  echo "${TXT_FG_YELLOW} NOT Installing a default app"
+  echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
 fi #if [ "${EHS_DEFAULT_APP}" = "NONE" ];
 
 EHS_APP_EXPORT_DIR=export-ert${ERT_SODL_VERSION}
@@ -223,6 +223,9 @@ fi
 echo
 echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
 echo
+
+# This function populated the Devman Server information if the patform is using Devman
+# We probably want to put this in it's own utility script rather than having in the general targetenv script in the future.
 
 function SetDevmanServer() {
     local DEVMAN_SERVER_DOMAIN=$1
@@ -302,7 +305,6 @@ function SetDevmanServer() {
                 else
                     warn "You have specified DEVMAN_SERVER_PROTOCOL = mqtts, but a CLIENT cert is not found at '${CLIENT_CERT_FILE}'"
                 fi
-
                 CLIENT_KEY_FILE=../DevmanSecurity/${DEVMAN_SERVER_DOMAIN}/mqtt_broker/client.key
                 if [ -f "${CLIENT_KEY_FILE}" ]; then
                     cp -f ${CLIENT_KEY_FILE} ${TGT_CERT_DIR}/client.key
@@ -375,7 +377,6 @@ function SetDevmanServer() {
 if [ "$DEVMAN_SERVER_DOMAIN" != "" ]; then
     echo "Setting 'DEVMAN_SERVER_DOMAIN' (default)"
     SetDevmanServer ${DEVMAN_SERVER_DOMAIN} "default"
-
     # check the second certificate domain
     if [ "$DEVMAN_SERVER_DOMAIN_1" != "" ]; then
         echo "Setting 'DEVMAN_SERVER_DOMAIN_1'"

@@ -7,6 +7,10 @@
 # the host's make system.
 ####################################################################################################
 
+# TODO 2026 have esp tools run from both the venv and then sometimes also directly. This is just a mess of course.
+# We should check for a python venv and use this preferentially as teh esp tool path and if it's not there we can fall back 
+# to the host pythoin environment (assuming this has been setu) and use the tools in the ert-build-support.   
+
 set -e
 
 #If this is called as a docker command we wont have the exported environment variables, so read them from the paramaters
@@ -54,19 +58,37 @@ export EHS_ROOT=`pwd` # assuming we're in the ehs project root
 pushd ${EHS_ROOT}/..
 export REPOSITORY_ROOT=`pwd`
 popd
-#Check if we are alr
+
+# Note we can use the ates esptool for all versions of esp,buyt allowing for an override
+if [ "${EHS_ESPTOOL_VERSION_OVERRIDE}" = "5.1.0" ] ; then
+#These are probably not necessary for any IDF version, but is not supported in 4.4.1.
+    EXTRA_ESPTOOL_ARGS="-min-rev-full 0 --max-rev-full 9999 "
+    export TOOLCHAIN_VERSION="xtensa-esp32-elf-5.1.0"
+else
+    #default for anything else
+    EXTRA_ESPTOOL_ARGS=
+    export TOOLCHAIN_VERSION="xtensa-esp32-elf-4.4.1"
+fi
+
+# These tools haven't changed, so we can just use the 4.4.4 for all versions of IDF apparently
+
+export TEMP_PWD=${PWD}
+INX_HOST_ARCH=$(uname -m)
+TOOLCHAIN_PATH="${TEMP_PWD}/../ert-build-support/toolchains/${INX_HOST_ARCH}/${TOOLCHAIN_VERSION}"
+
+export IDF_PYTHON_ENV_BASE="../../TARGET_TREES/esp32_venv/"
+export IDF_ESPTOOL_BASE="${TOOLCHAIN_PATH}/${TOOLCHAIN_FLASHING_VERSION}/tools"
+
+#Check if we are in docker sowe don't try to install IDF's grim python tools again
 if [ -f /.dockerenv ]; then
     echo "Already running in Docker continuing"
     export PATH="/opt/python_env/bin:$PATH"
 else
-    #todo Do we need to do this really?
-    # Presumably this is attempting to create the python environment on the host?
+    # If for some reason we don't have a python venv environment we can try and run the host 
+    # TODO see above note on this being an agregation of of mind-farts.
+
     # The following would be better picked from config.mk rather than hardwired, but would need to passed in for Docker builds.
 
-    export TOOLCHAIN_VERSION="xtensa-esp32-elf-4.4.4"
-    export TEMP_PWD=${PWD}
-    INX_HOST_ARCH=$(uname -m)
-    TOOLCHAIN_PATH="${TEMP_PWD}/../ert-build-support/toolchains/${INX_HOST_ARCH}/${TOOLCHAIN_VERSION}"
     _PATH="${TOOLCHAIN_PATH}/bin"
     
     ## Create python virtual environment, install requirements and export it to PATH
@@ -76,19 +98,18 @@ else
     # todo-we should consider if we need a nother temporary directory for tools that are built per host machine (TARHGET_TREES is not very descriptive)
     # Note there is also a venv that might be built into /opt/python_env - this is typically only generated for workstaions that flash devices. 
 
-    export IDF_PYTHON_ENV_BASE="../../TARGET_TREES/esp32_venv/"
     python3 -m venv ${IDF_PYTHON_ENV_BASE} > /dev/null
     export IDF_PYTHON_ENV_PATH="${IDF_PYTHON_ENV_BASE}/bin"
-    
+
     #Set path to the python and toolchain.
     _PATH="${TOOLCHAIN_PATH}/bin"
-    _PATH="${_PATH:+${_PATH}:}${TOOLCHAIN_PATH}/${TOOLCHAIN_FLASHING_VERSION}/tools/openocd-esp32/v0.11.0-esp32-20211220/openocd-esp32/bin"
+    _PATH="${_PATH:+${_PATH}:}${IDF_ESPTOOL_BASE}/openocd-esp32/v0.11.0-esp32-20211220/openocd-esp32/bin"
     _PATH="${_PATH:+${_PATH}:}${IDF_PYTHON_ENV_PATH}"
-    _PATH="${_PATH:+${_PATH}:}${TOOLCHAIN_PATH}/${TOOLCHAIN_FLASHING_VERSION}/tools/esptool_py/esptool"
-    _PATH="${_PATH:+${_PATH}:}${TOOLCHAIN_PATH}/${TOOLCHAIN_FLASHING_VERSION}/tools/espcoredump"
-    _PATH="${_PATH:+${_PATH}:}${TOOLCHAIN_PATH}/${TOOLCHAIN_FLASHING_VERSION}/tools/partition_table"
-    _PATH="${_PATH:+${_PATH}:}${TOOLCHAIN_PATH}/${TOOLCHAIN_FLASHING_VERSION}/tools/app_update"
-    _PATH="${_PATH:+${_PATH}:}${TOOLCHAIN_PATH}/${TOOLCHAIN_FLASHING_VERSION}/tools/additional_tools"
+    _PATH="${_PATH:+${_PATH}:}${IDF_ESPTOOL_BASE}/esptool_py/esptool"
+    _PATH="${_PATH:+${_PATH}:}${IDF_ESPTOOL_BASE}/espcoredump"
+    _PATH="${_PATH:+${_PATH}:}${IDF_ESPTOOL_BASE}/partition_table"
+    _PATH="${_PATH:+${_PATH}:}${IDF_ESPTOOL_BASE}/app_update"
+    _PATH="${_PATH:+${_PATH}:}${IDF_ESPTOOL_BASE}/additional_tools"
     export PATH="${_PATH}${PATH:+:${PATH}}"
     # Start the python virutal environment.
     sudo python3 -m venv /opt/python_env
@@ -108,25 +129,24 @@ echo "### Building .bin file for esp32 from .elf file        "
 echo " Location of the elf file:"
 echo " ehs_esp32s3_freertos-xtensa-base.elf # or use this: $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.exe"
 echo "---------------------------------------------------------------------------------------------------------------------------"                                              
-# what was this?? e --flash_mode "dio" --flash_freq "40m" --flash_size "4MB" --elf-sha256-offset 0xb0 ehs_esp32s3_freertos-xtensor-base.elf -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin
-# Older toolchains don't support all arguements 
-if [ "${TOOLCHAIN_NAME}" = "xtensa-esp32-elf-4.4.1" ] ; then
-EXTRA_ESPTOOL_ARGS=
-else
-EXTRA_ESPTOOL_ARGS=-min-rev-full 0 --max-rev-full 9999 
-fi
 
-#if python3 ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip esp32 elf2imag
 
-if python3  ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip esp32s3 elf2image ${EXTRA_ESPTOOL_ARGS} -ff 80m -fm qio -fs 8MB -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.exe 
+
+# Building the bootable binary from ehs.exe elf file 
+
+if python3  ${IDF_ESPTOOL_BASE}/esptool_py/esptool/esptool.py --chip esp32s3 elf2image ${EXTRA_ESPTOOL_ARGS} -ff 80m -fm qio -fs 8MB -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.exe 
 then
     echo "### Copied ehs.bin file generated in $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/"
 else
-    echo "!!! ERROR: COULD NOT GENERATE ehs.bin                                                                               !!!"
+    echo "!!! ERROR: COULD NOT GENERATE ehs.bin                                                                                !!!"
+     exit 1
 fi
+
 echo "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+echo "Building the full flashable image from bootloader.bin, partition_table and any other partitions (file sytems and OTA etc)"
 ls -l "$PWD/../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/build/lib/"
 echo "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+
 if test -f "$PWD/../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/build/lib/bootloader.bin"
 then
     echo "### Copied the pre build bootloader binary (bootloader.bin) into TARGET_TREES ###"
@@ -135,7 +155,7 @@ else
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     echo "!!!  ERROR: COuld not find bootloader.bin in $PWD/../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/build/lib/bootloader.bin         !!!"
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    exit
+    exit 1
 fi
 
 # previously know as? "$PWD/../ert-contrib-middleware/contrib/esp-idf/esp-idf-4.4.1/build/partitions.bin"
@@ -147,7 +167,7 @@ else
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     echo "!!!  ERROR: COuld not find partition table (partition-table.bin)) in $PWD/../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/build/lib/ !!!"
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    exit
+    exit 1
 fi
 
 # Convert the application folder to binary image
@@ -165,12 +185,14 @@ fi
 fi
 done
 
-/opt/python_env/bin/littlefs-python create -v --block-size 4096 --fs-size 1572864 --name-max 64 --image $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/data_partition/
+# TODO See comments in head of this document, why we are using the venv scripts here
+#todo Presumably we wantthe hardwired sies etc in here to be paramterised so they can be set for speciic platform builds
+/opt/python_env/bin/littlefs-python create -v --block-size 4096 --fs-size 1572864 --name-max 64 --image $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/data_partition/ || exit
 
 #Lets build the binary (todo2023 - we should do this in a packer target in the future?? )
 echo "Converting the elf file to binary image.... (This is usually done by make targetenv_esp32s3)"
 #python3 ../ert-contrib-middleware/contrib/esp-idf/CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION/components/esptool_py/esptool/esptool.py --chip esp32s3 merge_bin -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img --flash_mode dio --flash_size 8MB 0x0 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin  0x9000 ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin 0x10000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin 0x410000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin
-python3 ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip esp32s3 merge_bin -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img --flash_mode dio --flash_size 8MB 0x0 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin  0x9000 ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin 0x20000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin 0x67c000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin 0x5ff000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/app_data.bin
+python3 ${IDF_ESPTOOL_BASE}/esptool_py/esptool/esptool.py --chip esp32s3 merge_bin -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img --flash_mode dio --flash_size 8MB 0x0 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin  0x9000 ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin 0x20000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin 0x67c000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin 0x5ff000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/app_data.bin ||exit 1
 
 echo "---------------------------------------------------------------------------------------------------------------------------"
 echo "All Done!"

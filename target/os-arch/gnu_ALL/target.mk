@@ -19,7 +19,7 @@ VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/
 
 ifdef EHS_FILESYSTEM_SUPPORT
 ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
-  OBJECTS += target_file.$(OBJ)
+    OBJECTS += target_file.$(OBJ)
 endif
 else
    # All GNU platforms will default have linux support unless it is set to none or stubbed 

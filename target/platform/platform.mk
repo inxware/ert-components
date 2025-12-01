@@ -133,7 +133,7 @@ else
 endif
 
 # Shall we remove the following CC, CPP, LINK and AS related lines? They seems like dup of the toolchain.mk
-# This sgould be done in toochain.mk
+# This should be done in toochain.mk
 #ifdef CXX_OVERRIDE
 #    CPP:=$(CXX_OVERRIDE)
 #endif
@@ -147,9 +147,9 @@ endif
 #    AS:=$(AS_OVERRIDE)
 #endif
 
-ifdef LINK_OVERRIDE
-    LINK:=$(LINK_OVERRIDE)
-endif
+#ifdef LINK_OVERRIDE
+#    LINK:=$(LINK_OVERRIDE)
+#endif
 
 ifdef CC
 export CC

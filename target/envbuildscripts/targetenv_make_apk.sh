@@ -7,6 +7,7 @@ set -e
 echo "**************************************************************************************"
 echo "**  Making Android APK - _* option - not standalone **"
 echo "**************************************************************************************"
+echo " Using Android Studio Project ${ANDROID_STUDIO_EHS_PROJECT}"
 
 #For badly configured JAVA environments
 unset JAVA_HOME
@@ -50,18 +51,31 @@ else
 fi
 
 export TARGET_PATH=${TARGET_TREES}/ehs_env-${SPECIFIC_TARGET}
-
+# This is the path where this script will download the Android SDK to an adjascent directory to this repo.
 export ANDROID_ROOT="$EHS_ROOT/../inx_android_build"
 export ANDROID_SDK=${ANDROID_ROOT}"/SDK"
+# Do we still need this for android studio?
 export JDK_PATH="/usr/lib/jvm/java-8-openjdk-amd64"
-
+# Location in the staging directory where the selected reference project is copied to for running the build in
 export ANDROID_STUDIO_ROOT="${TARGET_PATH}/android_studio_project"
 export ANDROID_STUDIO_BUILD_RELEASE_APK_NAME="app-release.apk"
 export ANDROID_STUDIO_BUILD_BUNDLE_OUTPUT=""
 export ANDROID_STUDIO_SRC_ROOT="${ANDROID_STUDIO_ROOT}/app"
 export ANDROID_STUDIO_BUILD_APK_OUTPUT="${ANDROID_STUDIO_SRC_ROOT}/build/outputs/apk"
+
+# If a specific android version is not specified then use this default. Careful changing this for legacy platforms!!
+if [ "${ANDROID_STUDIO_EHS_PROJECT}" = "" ]; then
+    ANDROID_STUDIO_EHS_PROJECT="android_studio_ehs"
+fi
+
+# This is the apk name that the Android studio projects will generate and shouldn't be changed.
+export ANDROID_STUDIO_BUILD_RELEASE_APK_NAME="app-release.apk"
+#If we want to have different deployed package names - then this where you get your chance
+if [ ${ANDROID_TARGET_APK_NAME}="" ]; then
 export ANDROID_TARGET_APK_NAME="ehs.apk" # @TODO - this name should probably be changed to eRT? Just beware that renaming will afect supervisor and updates scripts !
-export REPOSITORY_ANDROID_STUDIO_ROOT="$EHS_ROOT/target/os-arch/android_ALL/android_studio_ehs"
+fi
+
+export REPOSITORY_ANDROID_STUDIO_ROOT="${EHS_ROOT}/target/os-arch/android_ALL/${ANDROID_STUDIO_EHS_PROJECT}"
 
 if [ "${EHS_ARCH}" = "arm64" ]; then 
     echo "Using 64 bit eRT Android plug-in for this target."
@@ -75,7 +89,8 @@ fi
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "EHS_UNITY_PROJECT_EXPORT_SUPPORT=${EHS_UNITY_PROJECT_EXPORT_SUPPORT}"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-################# SET-UP UNITY ENV #################
+################# SET-UP UNITY ENV if we going to copy Native libs to the relevant Unity Project#################
+## TODO THis following block should be followed by an else of all the above, rather than messily overwriting some (possibly all?) of the above.
 if [ "${EHS_UNITY_PROJECT_EXPORT_SUPPORT}" != "" ]; then
     echo "* Building apk from exported Unity project *"
     # set Unity android env defined in export script
@@ -89,6 +104,7 @@ if [ "${EHS_UNITY_PROJECT_EXPORT_SUPPORT}" != "" ]; then
     export ANDROID_STUDIO_BUILD_BUNDLE_OUTPUT="${ANDROID_STUDIO_ROOT}/launcher/build/outputs/bundle"
     export ANDROID_STUDIO_SRC_ROOT="${ANDROID_STUDIO_ROOT}/launcher"
     export ANDROID_STUDIO_BUILD_APK_OUTPUT="${ANDROID_STUDIO_SRC_ROOT}/build/outputs/apk"
+    #This is the final name of the package (copied from )
     export ANDROID_TARGET_APK_NAME="tellisign.apk"
     # unset env that should not be used when building Unity target
     # @TODO - we may want to overwrite both 32-bit and 64-bit for Unity platforms so that 'make targetenv_unity_export' is not needed when only eRT changes
@@ -113,10 +129,10 @@ if [ "${REPOSITORY_ANDROID_STUDIO_ROOT}" = "" ]; then
     echo "e.g. Unity does it while exporting project. 'make targetenv_unity_export'"
 else
     echo "Copying Android Studio project from repository ($REPOSITORY_ANDROID_STUDIO_ROOT) to a staging directory."
-    if [ -d "${REPOSITORY_ANDROID_STUDIO_ROOT}" ]; then
+   if [ -d "${REPOSITORY_ANDROID_STUDIO_ROOT}" ]; then
         cp -Rf $REPOSITORY_ANDROID_STUDIO_ROOT/* $ANDROID_STUDIO_ROOT/
     else
-        echo "Failed to copy the default eRT App app!"
+        echo "Failed to copy the default eRT App!"
         echo "Have you ran make targetenv? Does the staging directory exist?"
         exit 1   
     fi
@@ -144,7 +160,7 @@ echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 # override version
 VERSION_DIR=${TARGET_PATH}/sysdata
 if [ -d "$VERSION_DIR" ]; then
-    cp -r ${VERSION_DIR} ${ANDROID_STUDIO_USERDATA_PATH}/ || echo "XX" || exit 1
+    cp -r ${VERSION_DIR} ${ANDROID_STUDIO_USERDATA_PATH}/ || echo "Couldn't copy sysdata/versioning info... Exiting " || exit 1
     NEW_VERSION=$( cat $ANDROID_STUDIO_USERDATA_PATH/sysdata/version.nfo )
     echo "Packaging EHS version : $NEW_VERSION"
 else
