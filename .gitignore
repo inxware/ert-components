@@ -146,3 +146,7 @@ gdb.txt
 
 #build & deploy spam
 ./output.txt
+
+# Other items
+CLAUDE.md
+
