@@ -28,13 +28,12 @@ if [ ! -n "${1}" ] ; then
 
     if [ -e ./TARGET.cfg ]; then
         echo
-        echo "--------------------------------------------------------------------"
-        echo
+        echo "${TXT_FG_WHITE}--------------------------------------------------------------------"
         echo "Your build tree is currently configured for"
         echo
-        echo "  $(< ./TARGET.cfg)"
-        echo
-        echo "--------------------------------------------------------------------"
+        echo "${TXT_FG_WHITE}  $(< ./TARGET.cfg)"
+        echo "${TXT_FG_WHITE}--------------------------------------------------------------------"
+        echo "${TXT_FG}"
     fi
     exit 1
 fi
