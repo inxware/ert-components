@@ -174,9 +174,37 @@
  * Maximum console queue size. This *must* be a power of 2 and less than 2<<31.
  */
 #ifndef EHS_DEBUG_CONSOLE_BUFFER_SIZE
-#define EHS_DEBUG_CONSOLE_BUFFER_SIZE (1u<<9)  //512 bytes 256 - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
+#define EHS_DEBUG_CONSOLE_BUFFER_SIZE (1u<<9) 
+// 512 bytes 256 - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
 #endif
 
+#ifndef EHS_LWIP
+#define EHS_LWIP 1 /**< Defined if the target is using lwip */
+#endif
+
+/* For MCU that use a separate thread fo the console queue */
+#ifndef EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE
+#define EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE 2048
+#endif
+
+/*
+ Use float as float type instead of double
+ */
+#ifndef EHS_FLOAT_AS_FLOAT_TYPE
+#define EHS_FLOAT_AS_FLOAT_TYPE 1
+#endif
+
+/*
+ Switches to 16 bit graphcs coordinates from default of 32
+ */
+#ifndef EHS_COORD_16_ENABLED
+#define  EHS_COORD_16_ENABLED
+#endif
+
+
+/*
+Default Graphics Configuration for devices with a UI
+*/
 #ifndef EHS_CONFIG_DISPLAY_HEIGHT
 #define EHS_CONFIG_DISPLAY_HEIGHT 0	/**< Height for the OSD part of the display */
 #endif
