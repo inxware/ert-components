@@ -114,7 +114,7 @@ typedef enum
  */
 
 #ifdef EHSL_MODULE_ID
-#define EHSH_LOG_CHECK(nLevel) (((nLevel) && EhsHLoggerModuleLogLevel[EHSL_MODULE_ID]) & (nLevel)) //(1) /* bit check against module for the requested log level */
+#define EHSH_LOG_CHECK(nLevel) (((nLevel) & EhsHLoggerModuleLogLevel[EHSL_MODULE_ID])) //(1) /* bit check against module for the requested log level */
 #else
 #define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
 #define EHSH_LOG_CHECK(nLevel) 0
@@ -149,10 +149,10 @@ ehs_char* EhsHLogger_Buffer();
  */
 
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
-#define EHSH_LOG_ERROR(...) 		EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_ERROR,__VA_ARGS__)
+#define EHSH_LOG_ERROR(...) 	EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_ERROR,__VA_ARGS__)
 #define EHSH_LOG_WARNING(...) 	EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_WARNING,__VA_ARGS__)
 #define EHSH_LOG_INFO(...) 		EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_INFO,__VA_ARGS__)
-#define EHSH_LOG_ENTER(...) 		EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_ENTER,__VA_ARGS__)
+#define EHSH_LOG_ENTER(...) 	EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_ENTER,__VA_ARGS__)
 #define EHSH_LOG_EXIT(...) 		EHSH_LOG_MESSAGE(EHSH_LOG_LEVEL_EXIT,__VA_ARGS__)
 #else
 #define EHSH_LOG_ERROR(...)

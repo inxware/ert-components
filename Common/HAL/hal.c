@@ -74,38 +74,38 @@
 
 /* Use this to set the log level of each component */
 /* todo we should have  this overridden for different tarets? */
-#ifndef EHS_LOGLEVEL_VERBOSE
-void EhsHSetLogLevels()
-{
-    EhsHLogger_setLogLevel("Kernel",EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("HalProcess",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-    EhsHLogger_setLogLevel("Devman",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-    EhsHLogger_setLogLevel("Undefined",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-    EhsHLogger_setLogLevel("Logger", EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("Graphics", EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("HalMemory", EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("HalProcess",EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("HalString",EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("TgtViewport",EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO);
-    EhsHLogger_setLogLevel("file",EHSH_LOG_LEVEL_ERROR);//|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO);
-}
+#ifdef EHS_LOG_LEVEL_VERBOSE
+    // Verbose mode...
+    void EhsHSetLogLevels()
+    {
+        EhsHLogger_setLogLevel("Undefined", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Kernel", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Graphics",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Logger",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("HalMemory",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("HalProcess", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("HalString", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("TgtViewport", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO);
+        EhsHLogger_setLogLevel("Devman", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("file", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+    }
 #else
-void EhsHSetLogLevels()
-{
-    EhsHLogger_setLogLevel("Kernel",EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("HalProcess",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-    EhsHLogger_setLogLevel("Devman",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-    EhsHLogger_setLogLevel("Undefined",EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-    EhsHLogger_setLogLevel("Logger", EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("Graphics", EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("HalMemory", EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("HalProcess",EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("HalString",EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("TgtViewport",EHSH_LOG_LEVEL_ERROR);
-    EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO);
-    EhsHLogger_setLogLevel("file",EHSH_LOG_LEVEL_ERROR);//|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO);
-}
+    // Not verbose mode...
+    void EhsHSetLogLevels()
+    {
+        EhsHLogger_setLogLevel("Undefined", EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
+        EhsHLogger_setLogLevel("Kernel", EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Graphics",  EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Logger",  EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("HalMemory",  EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("HalProcess", EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
+        EhsHLogger_setLogLevel("HalString", EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("TgtViewport", EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO);
+        EhsHLogger_setLogLevel("Devman", EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
+        EhsHLogger_setLogLevel("file", EHSH_LOG_LEVEL_ERROR);//|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO);
+    }
 #endif
 
 /* Log Levels
