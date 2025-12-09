@@ -60,7 +60,7 @@ if [ "$1" = "help" -o "$1" = "-h" -o "$1" = "-help" -o "$1" = "--help" ]; then
 fi
 
 if [ "$1" = "-new" ]; then
-    if [ !-d ./target/platform/${2}/config.mk ]; then
+    if [ ! -d ./target/platform/${2}/config.mk ]; then
         if [ "${2}" = "" ]; then
             err "Please provide a target name. (see ./configure -help )"
             exit 1
