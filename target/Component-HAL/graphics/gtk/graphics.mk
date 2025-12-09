@@ -31,12 +31,14 @@ EHS_PERIPHERALS_RCU=yes
 # We get the GTK library headers and binaries from different places depending on the platform...
 
 ifneq ($(EHS_HOST_DEBIAN_BUILD),)
-  ifeq ($(EHS_DEBIAN_VERSION),11)
-  	EHS_PNG_LIB_DEFAULT = png16
-  else ifeq ($(EHS_DEBIAN_VERSION),10)
-	EHS_PNG_LIB_DEFAULT = png16
-  else ifeq ($(EHS_DEBIAN_VERSION),9)
-	EHS_PNG_LIB_DEFAULT = png16
+  ifneq ($(filter 9 10 11 12,$(EHS_DEBIAN_VERSION)),)
+    EHS_PNG_LIB_DEFAULT = png16
+#   else ifeq ($(EHS_DEBIAN_VERSION),11)
+#     EHS_PNG_LIB_DEFAULT = png16
+#   else ifeq ($(EHS_DEBIAN_VERSION),10)
+#     EHS_PNG_LIB_DEFAULT = png16
+#   else ifeq ($(EHS_DEBIAN_VERSION),9)
+#     EHS_PNG_LIB_DEFAULT = png16
   else
   #Still use GTK-2 or do we still need to build for GTK-1 for 32 bit debian targets?
 	EHS_PNG_LIB_DEFAULT = png14
