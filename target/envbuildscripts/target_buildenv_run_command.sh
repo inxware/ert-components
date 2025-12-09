@@ -79,7 +79,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
         #todo we should  check if the imagei is already available? Or needs a force update
 
         echo "Attempting to pull docker pull ${DOCKER_IMAGE}"
-        ${SUDO_COMMAND} docker pull  ${DOCKER_IMAGE} || echo "Could not find ${DOCKER_IMAGE} in remote repository. Use make publishddockerimage to fix this if you have a Dockerfile"
+        ${SUDO_COMMAND} docker pull  ${DOCKER_IMAGE} || echo "Could not find ${DOCKER_IMAGE} in remote repository. Use 'make publish_docker_image' to fix this if you have a Dockerfile"
 
         echo "Current PWD = $(pwd)"
         ${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV  \

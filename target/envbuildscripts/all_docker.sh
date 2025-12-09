@@ -38,19 +38,20 @@ else
     echo
     echo "--------------------------------------------------------------------"
     echo
-    warn "Building using the host make because there is no Dockerimage specificed for this target."
+    warn "Building using the host make because there is no Dockerimage specified for this target."
     warn "Use plain ${TXT_FG_WHITE}make${TXT_FG_YELLOW} to do this if you don't want to see this message."
     echo
     echo "--------------------------------------------------------------------"
     echo
 
-    #We need to run this from a clean normal login shell environment, because we have already run make , which polutes the environment
+    # We need to run this from a clean normal login shell environment, because we have already run make,
+    # which pollutes the environment
     env -i bash -l -c make -j 8
 
     echo
     echo "--------------------------------------------------------------------"
     echo
-    warn "Built using the host make because there is no Dockerimage specificed for this target."
+    warn "Built using the host make because there is no Dockerimage specified for this target."
     warn "Expected to find the image at ${TXT_FG_WHITE}'${PATH_TO_TARGET_DOCKER_IMAGE}'"
     warn "Use plain ${TXT_FG_WHITE}make${TXT_FG_YELLOW} to do this if you don't want to see this message."
     echo
