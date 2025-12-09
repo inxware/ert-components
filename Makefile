@@ -1,10 +1,10 @@
 #---------------------------------------------------------------
 # Copyright (C) 2008-2025, inx limited, UK.
 # All Rights Reserved.
-# You may use, distribute and modify this code under the terms 
-# of the LGPLv3 license. You should have received a copy of the 
+# You may use, distribute and modify this code under the terms
+# of the LGPLv3 license. You should have received a copy of the
 # LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
-# with this file. If not, please visit 
+# with this file. If not, please visit
 #	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 #---------------------------------------------------------------#
 
@@ -53,7 +53,7 @@ include $(EHS_COMMON_EHS_PATH)/colour.mk
 
 ################################################################################
 # Standard include paths
-# 
+#
 INC_DIRS+=$(EHS_COMMON_KAPI_PATH) $(EHS_COMMON_EHS_PATH) $(EHS_COMMON_COMPONENTS_PATH)
 INC_DIRS+=$(EHS_COMMON_TOOLKIT_CORE_PATH)
 
@@ -65,10 +65,10 @@ export EXE
 #This is the binary output filename extension
 export FINAL
 # standard definitions for Csource
-DEFS = MAKE_TARGET=$(TARGET) 
+DEFS = MAKE_TARGET=$(TARGET)
 
 ################## Target-specific tool definitions ##############################################################
-#  
+#
 #  Uses $(INC_DIRS)
 #  Defines $(CC), $(LINK), $(CFLAGS), $(LNKFLAGS), $(INC), $(LIB), $(EXE), $(OBJ), $(FINAL)
 #
@@ -79,7 +79,7 @@ DEFS = MAKE_TARGET=$(TARGET)
 VPATH+=./
 #$(OBJDIRECTORY)
 
-# Get OS specfic build configurations and target-specific toolchain settings 
+# Get OS specfic build configurations and target-specific toolchain settings
 ifdef TARGET
 include $(EHS_PLATFORM_PATH)/../platform.mk
 endif
@@ -108,17 +108,17 @@ all: $(TARGET_NAME).$(FINAL)
 	@$(ECHO) $(CC) $<
 	@$(CC) -v $(CC_SWITCHES) $(CFLAGS) $< -o $@
 
-%.$(OBJ): %.cpp 
+%.$(OBJ): %.cpp
 	@$(ECHO) $(CPP) $<
 	@$(CPP) $(CC_SWITCHES) $(CPPFLAGS) $< -o $@
 
 $(TARGET_NAME).$(FINAL) : $(OBJECTS)
 # @$(ECHO) $(PWD)
 # @$(ECHO) Linking with Flags: $(LINK) $(LNKFLAGS) $<
-	$(LINK) $(LD_SWITCHES) $(OBJECTS) $(LNKFLAGS) 
+	$(LINK) $(LD_SWITCHES) $(OBJECTS) $(LNKFLAGS)
 # -Wl,-Bdynamic -- if dynamic needs forcing?
 # echo will try copying ehs binary to canonical location for debug - Will fail if link from /root/ehs to TARGET env has not been created
-# @mkdir -p ./objects_$(TARGET) 
+# @mkdir -p ./objects_$(TARGET)
 ifdef EHS_ANDROID
 ifdef EHS_ANDROID_JNI
 # todo remove this if we no longer support JNI meandroid builds or change it to use the staging directory if we do
@@ -171,7 +171,7 @@ endif
 
 help:
 	@$(ECHO)
-	@$(HEADING) "Make help for inxware runtime software" 
+	@$(HEADING) "Make help for inxware runtime software"
 	@$(ECHO)
 	@$(ECHO) "--------------------------------------------------------------------"
 	@$(ECHO)
@@ -226,8 +226,8 @@ help:
 	@$(ECHO) "  $(TXT_FG_GREEN)                                 + If the patch requires a server reboot (i.e. because it has a new start-upo script) then"
 	@$(ECHO) "  $(TXT_FG_GREEN)                                   set an additional variable SYSPATCH_NEED_REBOOT=yes on the command line."
 	@$(ECHO) "  $(TXT_FG_GREEN)                                   (KEEP_USERCONFIG=yes & KEEP_APPLICATION=yes can also be used here as described above)."
-	@$(ECHO) "  $(TXT_FG_GREEN)                                 + No arguments are required for ANDROID builds. These are deployed to devices using update-to-latest-xxxxx-android" 
-	@$(ECHO) "  $(TXT_FG_WHITE)upload_server2server_OS_Update$(TXT_FG_BRIGHT_GREEN) - This will install an update to the host server DEVMAN_INTERMEDIATE_SERVER=[your.url.com]" 
+	@$(ECHO) "  $(TXT_FG_GREEN)                                 + No arguments are required for ANDROID builds. These are deployed to devices using update-to-latest-xxxxx-android"
+	@$(ECHO) "  $(TXT_FG_WHITE)upload_server2server_OS_Update$(TXT_FG_BRIGHT_GREEN) - This will install an update to the host server DEVMAN_INTERMEDIATE_SERVER=[your.url.com]"
 	@$(ECHO) "  $(TXT_FG_GREEN)                                 + This can be deployed to a slave(e.g. fire-walled) devman instance. One deployed from the host server the packages will become"
 	@$(ECHO) "  $(TXT_FG_GREEN)                                   the OS update patches on the final distation. You may also set DEVMAN_INTERMEDIATE_UNAME & DEVMAN_INTERMEDIATE_SSHPORT"
 	@$(ECHO) "  $(TXT_FG_WHITE)toolsenv_update$(TXT_FG_BRIGHT_GREEN)                - Updates the dist directory's IDF and CDF directories with this EHS's version component description files."
@@ -258,7 +258,7 @@ all_docker: chkconfig
 	@./target/envbuildscripts/all_docker.sh $(TARGET)
 
 targetenv: chkconfig
-	@./target/envbuildscripts/targetenv.sh $(TARGET) 
+	@./target/envbuildscripts/targetenv.sh $(TARGET)
 
 targetenv_prebuild: chkconfig
 	@./target/envbuildscripts/targetenv_prebuild.sh $(TARGET)
@@ -267,7 +267,7 @@ targetenv_littlefs: chkconfig
 	@./target/envbuildscripts/targetenv_littlefs_docker.sh $(TARGET)
 
 targetenv_package: chkconfig
-	@./target/envbuildscripts/targetenv_make_package.sh $(TARGET) 
+	@./target/envbuildscripts/targetenv_make_package.sh $(TARGET)
 
 targetenv_nsis: chkconfig
 	@./target/envbuildscripts/targetenv_make_nsis.sh $(TARGET)
@@ -276,13 +276,13 @@ targetenv_nsis_docker: chkconfig
 	@./target/envbuildscripts/targetenv_make_nsis_docker.sh $(TARGET)
 
 targetenv_esp32: chkconfig
-	@./target/envbuildscripts/targetenv_esp32.sh $(TARGET) 
+	@./target/envbuildscripts/targetenv_esp32.sh $(TARGET)
 
 targetenv_esp32_docker: chkconfig
-	@./target/envbuildscripts/targetenv_esp32_docker.sh $(TARGET) 
+	@./target/envbuildscripts/targetenv_esp32_docker.sh $(TARGET)
 
 targetenv_arduino: chkconfig
-	@./target/envbuildscripts/targetenv_arduino_docker.sh $(TARGET) 
+	@./target/envbuildscripts/targetenv_arduino_docker.sh $(TARGET)
 
 targetenv_apk_docker: chkconfig
 	@./target/envbuildscripts/targetenv_make_apk_docker.sh $(TARGET)
@@ -291,7 +291,7 @@ targetenv_version: chkconfig
 	@./target/envbuildscripts/targetenv_create_version_info.sh $(TARGET) INC_VERSION
 
 targetenv_makeprod: chkconfig
-	@./target/envbuildscripts/targetenv_makeprod.sh $(TARGET) 
+	@./target/envbuildscripts/targetenv_makeprod.sh $(TARGET)
 
 targetenv_deb: chkconfig
 	@./target/envbuildscripts/targetenv_make_deb.sh $(TARGET) $(AUTO_START)
@@ -300,7 +300,7 @@ targetenv_deb_docker: chkconfig
 	@./target/envbuildscripts/targetenv_make_deb_docker.sh $(TARGET)
 
 targetenv_apk: chkconfig
-	@./target/envbuildscripts/targetenv_make_apk.sh $(TARGET) 	
+	@./target/envbuildscripts/targetenv_make_apk.sh $(TARGET)
 
 targetenv_android_dep_pack: chkconfig
 	@./target/envbuildscripts/targetenv_android_dep_pack.sh $(TARGET)
@@ -336,21 +336,21 @@ upload_server2server_OS_Update: chkconfig #
 	@./target/envbuildscripts/EHS_server2server_update_generate_upload.sh $(TARGET)
 
 upload_ehs_via_adb: chkconfig #
-	@./target/envbuildscripts/upload_ehs_via_adb.sh $(TARGET)	
+	@./target/envbuildscripts/upload_ehs_via_adb.sh $(TARGET)
 
 #upload_devmanpatch: chkconfig # this doesn't seem to exist anymore
 #	@./target/envbuildscripts/devmanserver_syspatch_devman.sh $(DEVMANSERVER)
 
-toolsenv_update: 
+toolsenv_update:
 	@./target/envbuildscripts/toolsenv_update_cdf.sh
 
-static_analysis: 
+static_analysis:
 	@./target/envbuildscripts/static_analysis.sh
 
-publish_docker_image: 
+publish_docker_image:
 	@./target/envbuildscripts/publish_docker_image.sh
 
-target_buildenv: 
+target_buildenv:
 	@./target/envbuildscripts/target_buildenv.sh
 
 clean:
@@ -365,5 +365,5 @@ clean:
 	find -name "*.d" -delete
 	rm -f $(TARGET_NAME).$(FINAL) $(CLEAN_FILES)
 	@$(ECHO) "$(TXT_FG_WHITE)Target '$(TARGET_NAME)' cleaned"
-	
+
 .DEFAULT_GOAL := all
