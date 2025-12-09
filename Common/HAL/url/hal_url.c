@@ -1079,7 +1079,7 @@ ehs_bool EhsHURLConfigPostGet(CURL *curl,EhsH_URLwrite_data_bufferType * buffer_
 
         if (CURLE_OK != success)
         {
-            EHSH_LOG_ERROR("CURLOPT_URL failed for URL=[%x] post=%s",(unsigned int) curl, URL);
+            EHSH_LOG_ERROR("CURLOPT_URL failed for URL=[%p] post=%s",(void *)curl, URL);
             ret = EHS_FALSE;
         }
         else
