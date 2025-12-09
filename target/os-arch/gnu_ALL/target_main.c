@@ -1,5 +1,5 @@
 /***************************************************************
- * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
  * You may use, distribute and modify this code under the terms
  * of the LGPLv3 license. You should have received a copy of the
  * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
@@ -47,6 +47,12 @@
 #include "ehs_main.h"
 #include "hal-api.h" // required for the meta data storage
 
+/*****************************************************************************/
+/* Optional for Qt builds */
+/*****************************************************************************/
+#ifdef EHS_GUI_SUPPORT_MODE_B_QT
+#include "qt_main_integration.h"
+#endif
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -88,20 +94,52 @@ EhsTargetIntType main(int argc, ehs_char ** argv )
     ehs_char buf[EHS_MAXPATHLENGTH];
     getcwd(buf,EHS_MAXPATHLENGTH); // Note this must be implemented for mingw
     EhsHStoreArgInfo(argc,argv,buf);
-    EHSH_LOG_INFO("EHS starting up\n");
+
+    // Early initialise the logger, so we can see messages from before the EhsInit() call...
+    EhsHLogger_init();
+
     signal(SIGTERM,EhsTargetHandleTerm);
     signal(SIGINT, EhsTargetHandleTerm);
 #ifdef EHS_CATCH_SIG_IGN_TO_NULL
-    /* BAcking out - this is handled in libcurl (possibly) -
+    /* Backing out - this is handled in libcurl (possibly) -
      * It doesn't seem to help when the devman server is busy as things go off line. Perhaps they would be killed otherwise?
-     *  -- a kill would probably be better than the current behaviour of going off line permenantly */
+     *  -- a kill would probably be better than the current behaviour of going off line permanently */
     sigaction(SIGPIPE, &(struct sigaction)
     {
         SIG_IGN
     }, NULL);
 #endif
+
+#ifdef EHS_GUI_SUPPORT_MODE_B_QT
+    int result;
+
+    // Qt owns the event loop - use timer callback pattern to progress the EHS side
+    EHSH_LOG_INFO("Using Qt event loop integration\n");
+
+    // Initialise Qt and load the QML file
+    if (!EhsTV_initQt(argc, argv)) {
+        EHSH_LOG_ERROR("Qt initialisation failed\n");
+        EhsExit(1);
+        return 1;
+    }
+
+    // Initialise the EHS kernel and load the application
+    EHSH_LOG_INFO("EHS starting up\n");
+    EhsInit();
+    EhsAppLoadingStateMachine(NULL, NULL);
+
+    // Register the main EHS tick callback with a Qt timer
+    EhsTV_registerTickCallback();
+
+    // Enter the core Qt event loop (blocks until quit)
+    result = EhsTV_runQt();
+
+    EhsExit(result);
+#else
     EhsMain(NULL,NULL); /* doesn't return in this version */
     EhsExit(0);
+#endif
+
     return 0;
 }
 
@@ -110,6 +148,6 @@ EhsTargetIntType main(int argc, ehs_char ** argv )
  */
 void EhsTargetHandleTerm(int sig)
 {
-    /* Tod we should call some HAL tear down functions here libxml , libcurl etc.*/
+    /* Tod we should call some HAL tear down functions here libxml, libcurl etc.*/
     EhsExit(0);
 }

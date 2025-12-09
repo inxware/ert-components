@@ -1,5 +1,5 @@
 /***************************************************************
- * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved
  * You may use, distribute and modify this code under the terms
  * of the LGPLv3 license. You should have received a copy of the
  * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
@@ -54,6 +54,10 @@ typedef struct EhsWidgetStruct EhsWidgetClass; /*lint !e961 Only preprocessor st
 //#include "widget_video_port.h"
 #include "ehs_fb_types.h"
 
+#ifdef EHS_GUI_SUPPORT_MODE_B_QT
+#include "ertqt.h"
+#endif
+
 /*****************************************************************************/
 /* Define macros  @ todo put a description of the semantics of this bit array*/
 #define EHS_WIDGET_STATE_EMPTY		0x00 /**< No image is ready */
@@ -81,11 +85,11 @@ typedef struct EhsWidgetStruct EhsWidgetClass; /*lint !e961 Only preprocessor st
  * Type of widget defined in the widget structure
  */
 typedef enum { EHS_WIDGET_KIND_IMAGE,
-               EHS_WIDGET_KIND_TEXTBOX, 
-               EHS_WIDGET_KIND_PATCH, 
-               EHS_WIDGET_KIND_VIEWPORT, 
+               EHS_WIDGET_KIND_TEXTBOX,
+               EHS_WIDGET_KIND_PATCH,
+               EHS_WIDGET_KIND_VIEWPORT,
                EHS_WIDGET_KIND_VIDEO_PORT,
-               EHS_WIDGET_KIND_UI 
+               EHS_WIDGET_KIND_UI
              } EhsWidgetKindEnum;
 
 /**
@@ -152,7 +156,7 @@ struct EhsWidgetStruct
     //ehs_bool bRelativeCoordinates;		    /** The widget's parameters and input coordinates are in % screen width and these are converted to absolute pixels when updated (but not the screen width)*/
     ehs_bool bContentChanged;	/* this flag is set if the content (text box only) is changed so that renderers such as text don't need to reblit such as in the case for OpenGL textures */
     /*************************************************************************************************************************************/
-    /* MODE B widget rendering changed flags - thesea re used to pass new position, maeta data and colour info to the widget library 
+    /* MODE B widget rendering changed flags - thesea re used to pass new position, maeta data and colour info to the widget library
     * These are tested by pfDrawFunc (as implemented in the target) and checks the following flags to minimise unnecessary updated of its own widget list.
     * These are set (typically) by a function block's update port and therefore will probably have to set all 3 values depending in the FB! */
     ehs_bool bContentUpdated ;    // e.g. text
@@ -172,6 +176,9 @@ struct EhsWidgetStruct
     ehs_sint8 mouseDragOffsetYPortNumber; /*Needed so gtk knows which finish port to fire*/
     ehs_bool bRegisteredMouseDown;		/** records a mouse down event in this widget */
     ehs_bool bOptimiseForSpeed;		/**< Do we want this widget to be time-, or memory-efficient? */
+#endif
+#ifdef EHS_GUI_SUPPORT_MODE_B_QT
+    ertqt_object_handle qt_handle;  /**< Required for Qt integration to associate EHS widgets with Qt QObjects */
 #endif
     ehs_bool bCaptureClicksIgnoringZOrder;		/** capture clicks on this widget regardless of its zorder */
 }
