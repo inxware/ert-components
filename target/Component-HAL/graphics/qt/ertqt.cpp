@@ -59,12 +59,11 @@ static bool g_initialised = false;
 //
 static QObject * handle_to_qobject(ertqt_object_handle h)
 {
-    std::lock_guard<std::mutex> lock(g_objects_mutex);
-    if (h < 0 || static_cast<size_t>(h) >= g_objects.size())
+    if (h == 0)  // Basic null check
     {
         return nullptr;
     }
-    return g_objects[static_cast<size_t>(h)].ptr;
+    return reinterpret_cast<QObject*>(h);
 }
 
 /* Rebuild the object table from the engine's root objects */
@@ -361,7 +360,7 @@ ertqt_object_handle ertqt_get_object_by_name(const char * name)
         }
         if (rec.name == name)
         {
-            return static_cast<ertqt_object_handle>(i);
+            return reinterpret_cast<ertqt_object_handle>(rec.ptr);
         }
     }
 
@@ -841,10 +840,15 @@ ertqt_status ertqt_get_property_string(ertqt_object_handle h, const char * prop_
 //
 ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
 {
+    printf("bind_clicked: h=%p cb=%p user_data=%p\n", h, cb, user_data);
+
     if (!h || !cb)
         return ERTQT_ERR_INVALID_ARGUMENT;
 
     QObject *obj = reinterpret_cast<QObject*>(h);
+
+    printf("bind_clicked: obj className=%s\n", obj->metaObject()->className());
+    printf("bind_clicked: g_app=%p\n", g_app);
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     // Qt5-compatible bridge:
@@ -854,18 +858,25 @@ ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, v
     auto *mapper = new QSignalMapper(obj); // parented to obj for lifetime safety
     mapper->setMapping(obj, obj);
 
+    printf("bind_clicked: mapping set\n");
+
     if (!QObject::connect(obj, SIGNAL(clicked()), mapper, SLOT(map())))
         return ERTQT_ERR_BACKEND_FAILURE;
 
+    printf("bind_clicked: connected clicked signal\n");
+
     // QSignalMapper::mapped(QObject*) is overloaded in some Qt versions; disambiguate:
-    auto mappedObj =
-        static_cast<void (QSignalMapper::*)(QObject*)>(&QSignalMapper::mapped);
+    auto mappedObj = static_cast<void (QSignalMapper::*)(QObject*)>(&QSignalMapper::mapped);
+
+    printf("bind_clicked: created mapped object\n");
 
     QObject::connect(mapper, mappedObj, g_app,
                      [cb, user_data](QObject*)
                      {
                          cb(user_data);
                      });
+
+    printf("bind_clicked: connected callback\n");
 
     return ERTQT_OK;
 
@@ -919,8 +930,6 @@ ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, v
 
 //     return ok ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
 // }
-
-
 
 // ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
 // {

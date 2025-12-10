@@ -45,21 +45,20 @@
 #include "console_server.h"
 #endif
 #include "ehs_main.h"
-#include "hal-api.h" // required for the meta data storage
+#include "hal-api.h" // required for the metadata storage
 
 /*****************************************************************************/
 /* Optional for Qt builds */
 /*****************************************************************************/
-#ifdef EHS_GUI_SUPPORT_MODE_B_QT
+#ifdef EHS_MAIN_LOOP_ITERATIVE
 #include "qt_main_integration.h"
+
+// Comment out this debug hack...
+//
+// #include "ertqt_button.h"
+// static ertqt_object_handle button;
 #endif
 
-/*****************************************************************************/
-/* Declare macros and local typedefs used by this file */
-/*****************************************************************************/
-/* Declare prototypes of local functions */
-/*****************************************************************************/
-/* Variables defined with file-scope */
 
 /**
  * Handle the SIGTERM signal
@@ -78,13 +77,52 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_en
     return EHS_TRUE;
 }
 
+
+#ifdef EHS_MAIN_LOOP_ITERATIVE
+
+/* eRT appliaction loading status callback invoked inside the eRT kernel */
+void app_load_status_handler(ehs_uint32 status)
+{
+    switch(status)
+    {
+        case EHS_APP_LOAD_STARTED:
+            EHSH_LOG_INFO("-- App loading started --\n");
+            break;
+        case EHS_APP_LOAD_SUCCESFULL:
+            EHSH_LOG_INFO("-- App loaded sucessfully --\n");
+            break;
+        case EHS_APP_LOAD_RESTARTING:
+            EHSH_LOG_INFO("-- App restarting --\n");
+            break;
+        case EHS_APP_LOAD_FAILED:
+            EHSH_LOG_INFO("-- App loading failed --\n");
+            break;
+        default:
+            EHSH_LOG_INFO("-- Unknow app loading status! --\n");
+            break;
+    }
+}
+
+#endif
+
+// Comment out this debug hack...
+//
+// static void button_click_callback(void * user_data)
+// {
+//     ertqt_object_handle button = *(ertqt_object_handle *)user_data;
+//     EHSH_LOG_INFO("click on '%d'\n", button);
+//
+//     ertqt_status status = ertqt_button_set_text(button, "I've been clicked!");
+//     EHSH_LOG_INFO("status %d\n", status);
+// }
+
 /**
  * Main entry point to the application.
  * @return Integer representing exit code of application.
  *
  */
 
-EhsTargetIntType main(int argc, ehs_char ** argv )
+EhsTargetIntType main(int argc, ehs_char ** argv)
 {
     pid_t pID;
 //#define EHS_DONT_BUF_STDOUT
@@ -110,7 +148,7 @@ EhsTargetIntType main(int argc, ehs_char ** argv )
     }, NULL);
 #endif
 
-#ifdef EHS_GUI_SUPPORT_MODE_B_QT
+#ifdef EHS_MAIN_LOOP_ITERATIVE
     int result;
 
     // Qt owns the event loop - use timer callback pattern to progress the EHS side
@@ -125,7 +163,32 @@ EhsTargetIntType main(int argc, ehs_char ** argv )
 
     // Initialise the EHS kernel and load the application
     EHSH_LOG_INFO("EHS starting up\n");
+
+    // Register an app loading callback
+    EhsHSetAppLoadStatusCallback(app_load_status_handler);
+
+// #ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+//     EhsTgtAdcDacInit();
+// #endif
+
+// #ifdef EHS_COMPONENT_NETWORKING_SUPPORT
+//     EhsTgtNetworkInit();
+// #endif
+
+    // Initialise the EHS kernel and load the application
     EhsInit();
+
+    // Comment out this debug hack...
+    //
+    // EHSH_LOG_INFO("Find button QObject...\n");
+    // button = ertqt_button_by_name("user_interface");
+    // EHSH_LOG_INFO("Got handle %d\n", button);
+    //
+    // EHSH_LOG_INFO("Attach button click handler...\n");
+    // ertqt_status status = ertqt_button_on_clicked(button, button_click_callback, &button);
+    // EHSH_LOG_INFO("Got status %d\n", status);
+
+    // Initialise the application state machine
     EhsAppLoadingStateMachine(NULL, NULL);
 
     // Register the main EHS tick callback with a Qt timer

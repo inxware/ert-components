@@ -40,6 +40,7 @@ EHS_GLOBAL void EhsMain( Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*)
 EHS_GLOBAL Ehs_ConsoleCommand_Type EhsMainLoop( Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),void * target_env_blob );
 
 Ehs_ConsoleCommand_Type EhsCheckInternalCommands(Ehs_ConsoleCommand_Type Command);
+
 ehs_bool SetupApplication();
 
 EHS_GLOBAL void EhsAppLoadingStateMachine( Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),void * target_env_blob );

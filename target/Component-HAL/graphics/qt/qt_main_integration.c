@@ -4,16 +4,28 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 
+#include "globals.h"
 #include "ertqt.h"
 #include "ehs_main.h"
 #include "hal_logger.h"
 
+
+static Ehs_ConsoleCommand_Type cmd;
+
+static long int count = 0;
+
 // EHS tick callback - called from a Qt timer
 static void ehs_tick_callback(void *user_data)
 {
+    // EHSH_LOG_INFO("tick callback entry %d\n", count++);
+
+    // Force the kernel into single-stepping mode
+    EhsSingleStepFlag = EHS_TRUE;
+
     // Progress the EHS state machine
-    Ehs_ConsoleCommand_Type cmd = EhsMainLoop(NULL, NULL);
+    cmd = EhsMainLoop(NULL, NULL);
     cmd = EhsProcessInAppStateMachine(cmd);
     cmd = EhsProcessExAppStateMachine(cmd);
 

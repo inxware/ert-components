@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 /* ------------------------------------------------------------------------- */
@@ -43,7 +44,7 @@ typedef enum ertqt_status
 // - The concrete representation is an integer index into an internal table.
 // - Callers must treat handle values as opaque and not make assumptions
 //   about their structure or lifetime.
-typedef int ertqt_object_handle;
+typedef intptr_t ertqt_object_handle;
 
 /* ------------------------------------------------------------------------- */
 /* Initialisation and event loop                                             */

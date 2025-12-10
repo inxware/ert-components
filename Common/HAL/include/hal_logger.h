@@ -114,7 +114,7 @@ typedef enum
  */
 
 #ifdef EHSL_MODULE_ID
-#define EHSH_LOG_CHECK(nLevel) (((nLevel) & EhsHLoggerModuleLogLevel[EHSL_MODULE_ID])) //(1) /* bit check against module for the requested log level */
+#define EHSH_LOG_CHECK(nLevel) (((nLevel) && EhsHLoggerModuleLogLevel[EHSL_MODULE_ID] & (nLevel))) //(1) /* bit check against module for the requested log level */
 #else
 #define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
 #define EHSH_LOG_CHECK(nLevel) 0
