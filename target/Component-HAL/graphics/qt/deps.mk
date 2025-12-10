@@ -9,7 +9,7 @@
 # Dependencies for Qt graphics HAL
 #---------------------------------------------------------------
 
-stddefs.h : stlite.h
+# stddefs.h : stlite.h
 
 targetgfx_init.h : target.h
 
