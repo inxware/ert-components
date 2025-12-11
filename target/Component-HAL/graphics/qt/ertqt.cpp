@@ -3,14 +3,20 @@
 #include "ertqt.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QString>
 #include <QtGui/QGuiApplication>
 #include <QtQml/QQmlApplicationEngine>
+#include <QtQuick/QQuickItem>
 #include <QtCore/QTimer>
 #include <QtCore/QVariant>
 #include <QtCore/QMetaObject>
+#include <QtCore/QMetaMethod>
 #include <QtCore/QDebug>
 #include <QtCore/qglobal.h>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QtCore/QSignalMapper>
+#endif
 
 #include <vector>
 #include <string>
@@ -809,6 +815,50 @@ ertqt_status ertqt_get_property_string(ertqt_object_handle h, const char * prop_
 }
 
 /* ------------------------------------------------------------------------- */
+/* Widget update                                                             */
+/* ------------------------------------------------------------------------- */
+
+// Public interface for requesting a visual update of a Qt widget.
+//
+// This function requests that the target QObject schedules a repaint by calling
+// its update() method if available. This is used when widget properties have
+// changed and a visual refresh is needed.
+//
+// Parameters:
+// - h: Opaque handle referencing the target QObject.
+//
+// Returns:
+// - ERTQT_OK if the update was requested successfully.
+// - ERTQT_ERR_INVALID_HANDLE if h does not resolve to a valid QObject.
+// - ERTQT_ERR_BACKEND_FAILURE if the object does not support the update() method.
+//
+// Notes:
+// - This schedules a repaint; actual painting happens asynchronously when Qt
+//   processes its event loop.
+// - For QML items (QQuickItem), this calls QQuickItem::update().
+// - Not all QObject types support updating; for non-visual items this may fail.
+//
+ertqt_status ertqt_update_widget(ertqt_object_handle h)
+{
+    QObject * obj = handle_to_qobject(h);
+    if (!obj)
+    {
+        return ERTQT_ERR_INVALID_HANDLE;
+    }
+
+    // Try to cast to QQuickItem (QML visual items)
+    QQuickItem * item = qobject_cast<QQuickItem*>(obj);
+    if (item)
+    {
+        item->update();
+        return ERTQT_OK;
+    }
+
+    // Object doesn't support visual updates
+    return ERTQT_ERR_BACKEND_FAILURE;
+}
+
+/* ------------------------------------------------------------------------- */
 /* Signal binding                                                            */
 /* ------------------------------------------------------------------------- */
 
@@ -838,56 +888,75 @@ ertqt_status ertqt_get_property_string(ertqt_object_handle h, const char * prop_
 // - The callback is invoked on the Qt application's thread. The implementation
 //   must therefore remain quick and non blocking to avoid impacting the UI.
 //
+// Helper: Connect a parameterless signal by name using metaobject introspection.
+// Works for both Qt5 and Qt6, handles QML-declared signals properly.
+static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name,
+                                           ertqt_void_callback cb, void * user_data)
+{
+    if (!obj || !signal_name || !cb)
+        return ERTQT_ERR_INVALID_ARGUMENT;
+
+    const QMetaObject *mo = obj->metaObject();
+    if (!mo)
+        return ERTQT_ERR_BACKEND_FAILURE;
+
+    // Build signal signature with normalized format
+    // Try signal with no parameters first
+    QString sig_str = QString("%1()").arg(signal_name);
+    int signal_idx = mo->indexOfSignal(QMetaObject::normalizedSignature(sig_str.toUtf8().constData()));
+
+    // If not found, try with common parameter variations
+    if (signal_idx < 0)
+    {
+        // Some signals have parameters (e.g., clicked(bool) for checkable buttons)
+        sig_str = QString("%1(bool)").arg(signal_name);
+        signal_idx = mo->indexOfSignal(QMetaObject::normalizedSignature(sig_str.toUtf8().constData()));
+    }
+
+    if (signal_idx < 0)
+    {
+        // Signal not found in metaobject
+        return ERTQT_ERR_BACKEND_FAILURE;
+    }
+
+    // Get the signal method signature
+    QMetaMethod signal = mo->method(signal_idx);
+    QString sig_string = QString("%1").arg(signal.methodSignature().constData());
+
+    // Build SIGNAL string with "2" prefix (Qt's internal encoding)
+    QByteArray normalized_sig = QMetaObject::normalizedSignature(sig_string.toLatin1().constData());
+    QByteArray signal_sig = QByteArray::number(2) + normalized_sig;  // "2" = SIGNAL
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    // Qt5: Use QSignalMapper as bridge to connect string signal to lambda
+    // (Qt5 string-based connect doesn't support lambdas directly)
+    auto *mapper = new QSignalMapper(obj);  // Parent to signal sender for cleanup
+    mapper->setMapping(obj, 0);
+
+    // Connect: signal -> mapper.map()
+    bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");  // "1" = SLOT
+    if (!connected)
+        return ERTQT_ERR_BACKEND_FAILURE;
+
+    // Connect: mapper.mapped(int) -> lambda
+    QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+                    g_app, [cb, user_data](int) { cb(user_data); });
+    return ERTQT_OK;
+#else
+    // Qt6: Can connect string signals to lambdas directly
+    bool connected = QObject::connect(obj, signal_sig.constData(),
+                                     g_app, [cb, user_data]() { cb(user_data); });
+    return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
+#endif
+}
+
 ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
 {
-    printf("bind_clicked: h=%p cb=%p user_data=%p\n", h, cb, user_data);
-
     if (!h || !cb)
         return ERTQT_ERR_INVALID_ARGUMENT;
 
     QObject *obj = reinterpret_cast<QObject*>(h);
-
-    printf("bind_clicked: obj className=%s\n", obj->metaObject()->className());
-    printf("bind_clicked: g_app=%p\n", g_app);
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // Qt5-compatible bridge:
-    // 1) Use old-style SIGNAL() to connect unknown QObject* to QSignalMapper::map()
-    // 2) Use new-style connect from QSignalMapper's typed signal to a lambda
-
-    auto *mapper = new QSignalMapper(obj); // parented to obj for lifetime safety
-    mapper->setMapping(obj, obj);
-
-    printf("bind_clicked: mapping set\n");
-
-    if (!QObject::connect(obj, SIGNAL(clicked()), mapper, SLOT(map())))
-        return ERTQT_ERR_BACKEND_FAILURE;
-
-    printf("bind_clicked: connected clicked signal\n");
-
-    // QSignalMapper::mapped(QObject*) is overloaded in some Qt versions; disambiguate:
-    auto mappedObj = static_cast<void (QSignalMapper::*)(QObject*)>(&QSignalMapper::mapped);
-
-    printf("bind_clicked: created mapped object\n");
-
-    QObject::connect(mapper, mappedObj, g_app,
-                     [cb, user_data](QObject*)
-                     {
-                         cb(user_data);
-                     });
-
-    printf("bind_clicked: connected callback\n");
-
-    return ERTQT_OK;
-
-#else
-    // Qt6 path (your original approach may be OK here)
-    QObject::connect(obj, SIGNAL(clicked()), g_app, [cb, user_data]()
-    {
-        cb(user_data);
-    });
-    return ERTQT_OK;
-#endif
+    return connect_signal_by_name(obj, "clicked", cb, user_data);
 }
 
 ertqt_status ertqt_bind_pressed(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
@@ -896,33 +965,7 @@ ertqt_status ertqt_bind_pressed(ertqt_object_handle h, ertqt_void_callback cb, v
         return ERTQT_ERR_INVALID_ARGUMENT;
 
     QObject *obj = reinterpret_cast<QObject*>(h);
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // Qt5-compatible bridge using QSignalMapper
-    auto *mapper = new QSignalMapper(obj);
-    mapper->setMapping(obj, obj);
-
-    if (!QObject::connect(obj, SIGNAL(pressed()), mapper, SLOT(map())))
-        return ERTQT_ERR_BACKEND_FAILURE;
-
-    auto mappedObj = static_cast<void (QSignalMapper::*)(QObject*)>(&QSignalMapper::mapped);
-
-    QObject::connect(mapper, mappedObj, g_app,
-                     [cb, user_data](QObject*)
-                     {
-                         cb(user_data);
-                     });
-
-    return ERTQT_OK;
-
-#else
-    // Qt6 path
-    QObject::connect(obj, SIGNAL(pressed()), g_app, [cb, user_data]()
-    {
-        cb(user_data);
-    });
-    return ERTQT_OK;
-#endif
+    return connect_signal_by_name(obj, "pressed", cb, user_data);
 }
 
 ertqt_status ertqt_bind_released(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
@@ -931,104 +974,133 @@ ertqt_status ertqt_bind_released(ertqt_object_handle h, ertqt_void_callback cb, 
         return ERTQT_ERR_INVALID_ARGUMENT;
 
     QObject *obj = reinterpret_cast<QObject*>(h);
+    return connect_signal_by_name(obj, "released", cb, user_data);
+}
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // Qt5-compatible bridge using QSignalMapper
-    auto *mapper = new QSignalMapper(obj);
-    mapper->setMapping(obj, obj);
+// Helper: Connect a text signal by name using metaobject introspection.
+// Text signals typically emit the current text value as a QString or string.
+static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal_name,
+                                                ertqt_text_callback cb, void * user_data)
+{
+    if (!obj || !signal_name || !cb)
+        return ERTQT_ERR_INVALID_ARGUMENT;
 
-    if (!QObject::connect(obj, SIGNAL(released()), mapper, SLOT(map())))
+    const QMetaObject *mo = obj->metaObject();
+    if (!mo)
         return ERTQT_ERR_BACKEND_FAILURE;
 
-    auto mappedObj = static_cast<void (QSignalMapper::*)(QObject*)>(&QSignalMapper::mapped);
+    // Build signal signature - try parameterless first
+    QString sig_str = QString("%1()").arg(signal_name);
+    int signal_idx = mo->indexOfSignal(QMetaObject::normalizedSignature(sig_str.toUtf8().constData()));
 
-    QObject::connect(mapper, mappedObj, g_app,
-                     [cb, user_data](QObject*)
-                     {
-                         cb(user_data);
-                     });
+    bool is_parameterless = true;
 
-    return ERTQT_OK;
-
-#else
-    // Qt6 path
-    QObject::connect(obj, SIGNAL(released()), g_app, [cb, user_data]()
+    // If not found, try with QString parameter (common for text signals)
+    if (signal_idx < 0)
     {
-        cb(user_data);
-    });
+        sig_str = QString("%1(QString)").arg(signal_name);
+        signal_idx = mo->indexOfSignal(QMetaObject::normalizedSignature(sig_str.toUtf8().constData()));
+        is_parameterless = false;
+    }
+
+    if (signal_idx < 0)
+    {
+        // Signal not found
+        return ERTQT_ERR_BACKEND_FAILURE;
+    }
+
+    // Get the signal method signature
+    QMetaMethod signal = mo->method(signal_idx);
+    QString sig_string = QString("%1").arg(signal.methodSignature().constData());
+
+    // Build SIGNAL string
+    QByteArray normalized_sig = QMetaObject::normalizedSignature(sig_string.toLatin1().constData());
+    QByteArray signal_sig = QByteArray::number(2) + normalized_sig;
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    // Qt5: Use QSignalMapper bridge
+    auto *mapper = new QSignalMapper(obj);
+    mapper->setMapping(obj, 0);
+
+    bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");
+    if (!connected)
+        return ERTQT_ERR_BACKEND_FAILURE;
+
+    // Connect mapper to lambda that handles text
+    if (is_parameterless)
+    {
+        // Read property when signal fires
+        QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+                        g_app, [obj, cb, user_data](int) {
+                            QString text = obj->property("text").toString();
+                            QByteArray utf8 = text.toUtf8();
+                            cb(utf8.constData(), user_data);
+                        });
+    }
+    else
+    {
+        // For parametrized signal, we lose the parameter through QSignalMapper
+        // Fall back to reading property
+        QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+                        g_app, [obj, cb, user_data](int) {
+                            QString text = obj->property("text").toString();
+                            QByteArray utf8 = text.toUtf8();
+                            cb(utf8.constData(), user_data);
+                        });
+    }
     return ERTQT_OK;
+#else
+    // Qt6: Direct lambda connection
+    if (is_parameterless)
+    {
+        bool connected = QObject::connect(obj, signal_sig.constData(), g_app,
+            [obj, cb, user_data]()
+            {
+                QString text = obj->property("text").toString();
+                QByteArray utf8 = text.toUtf8();
+                cb(utf8.constData(), user_data);
+            });
+        return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
+    }
+    else
+    {
+        bool connected = QObject::connect(obj, signal_sig.constData(), g_app,
+            [cb, user_data](const QString& text)
+            {
+                QByteArray utf8 = text.toUtf8();
+                cb(utf8.constData(), user_data);
+            });
+        return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
+    }
 #endif
 }
 
-// ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void *user_data)
-// {
-//     if (!h || !cb)
-//         return ERTQT_ERR_INVALID_ARGUMENT;
+ertqt_status ertqt_bind_text_changed(ertqt_object_handle h, ertqt_text_callback cb, void * user_data)
+{
+    if (!h || !cb)
+        return ERTQT_ERR_INVALID_ARGUMENT;
 
-//     auto *obj = reinterpret_cast<QObject*>(h);
-//     if (!obj)
-//         return ERTQT_ERR_INVALID_HANDLE;
+    QObject *obj = reinterpret_cast<QObject*>(h);
+    return connect_text_signal_by_name(obj, "textChanged", cb, user_data);
+}
 
-//     const QMetaObject *mo = obj->metaObject();
-//     if (!mo)
-//         return ERTQT_ERR_BACKEND_FAILURE;
+ertqt_status ertqt_bind_editing_finished(ertqt_object_handle h, ertqt_text_callback cb, void * user_data)
+{
+    if (!h || !cb)
+        return ERTQT_ERR_INVALID_ARGUMENT;
 
-//     int idx = mo->indexOfSignal("clicked()");
-//     bool takesBool = false;
+    QObject *obj = reinterpret_cast<QObject*>(h);
 
-//     if (idx < 0) {
-//         idx = mo->indexOfSignal("clicked(bool)");
-//         takesBool = (idx >= 0);
-//     }
-
-//     if (idx < 0)
-//         return ERTQT_ERR_BACKEND_FAILURE;
-
-//     QMetaMethod sig = mo->method(idx);
-
-//     // QMetaMethod + functor works in supported 5.x releases and above
-//     bool ok = false;
-//     if (!takesBool) {
-//         ok = QObject::connect(obj, sig, g_app, [cb, user_data]() {
-//             cb(user_data);
-//         });
-//     } else {
-//         ok = QObject::connect(obj, sig, g_app, [cb, user_data](bool) {
-//             cb(user_data);
-//         });
-//     }
-
-//     return ok ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
-// }
-
-// ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
-// {
-//     if (!cb)
-//     {
-//         return ERTQT_ERR_INVALID_ARGUMENT;
-//     }
-
-//     QObject *obj = handle_to_qobject(h);
-//     if (!obj)
-//     {
-//         return ERTQT_ERR_INVALID_HANDLE;
-//     }
-
-//     // Very simple approach: expect a signal "clicked()" on the object
-//     const QMetaObject *mo = obj->metaObject();
-//     const int idx = mo->indexOfSignal("clicked()");
-//     if (idx < 0)
-//     {
-//         return ERTQT_ERR_BACKEND_FAILURE;
-//     }
-
-//     // Use a lambda that captures cb and user_data
-//     QObject::connect(obj, SIGNAL(clicked()), g_app, [cb, user_data]()
-//     {
-//         cb(user_data);
-//     });
-//     return ERTQT_OK;
-// }
+    // QML TextField/TextInput uses "accepted" signal for editing finished
+    // Try "accepted" first, fall back to "editingFinished"
+    ertqt_status status = connect_text_signal_by_name(obj, "accepted", cb, user_data);
+    if (status == ERTQT_ERR_BACKEND_FAILURE)
+    {
+        // Try alternative signal name
+        status = connect_text_signal_by_name(obj, "editingFinished", cb, user_data);
+    }
+    return status;
+}
 
 /* ------------------------------------------------------------------------- */
 /* Tick callback                                                             */

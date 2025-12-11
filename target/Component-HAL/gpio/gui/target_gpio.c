@@ -17,7 +17,7 @@
 #include "guiparams.h"
 #include "widget.h"
 
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
 
 #include "target_viewport_modeB.h"
 
@@ -67,7 +67,7 @@ typedef struct
     ehs_bool inputValue;
 } gpio_in_gui_widget;
 
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
 
 typedef struct
 {
@@ -241,7 +241,7 @@ gpio_out_gui_widget* init_gpio_out_gui_widget(ehs_gpio_out_state_type* pGPIO)
 
 void create_gpio_out_gui_widget(gpio_out_gui_widget* pWidget, const ehs_gpio_out_state_type* pGPIO) {
     if (pWidget) {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
         if (pWidget->pWidgetLed) {
             EHS_WIDGET_UI(pWidget->pWidgetLed).data = (void*) pGPIO;
             EHS_WIDGET_UI(pWidget->pWidgetLed).properties = (pGPIO->pin_id < 0) ? 0 : pGPIO->pin_id;
@@ -271,10 +271,10 @@ void create_gpio_out_gui_widget(gpio_out_gui_widget* pWidget, const ehs_gpio_out
     }
 }
 
-void destroy_gpio_out_gui_widget(gpio_out_gui_widget* pWidget) 
+void destroy_gpio_out_gui_widget(gpio_out_gui_widget* pWidget)
 {
     if (pWidget) {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
         if (pWidget->pWidgetLed) {
             EhsWidget_destroy(pWidget->pWidgetLed);
         }
@@ -295,7 +295,7 @@ void destroy_gpio_out_gui_widget(gpio_out_gui_widget* pWidget)
 
 void set_gpio_out_value(gpio_out_gui_widget* pWidget, ehs_bool value)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
     EhsWidgetUI_update(pWidget->pWidgetLed);
     Ehs_widget_commit(pWidget->pWidgetLed);
 #else
@@ -354,7 +354,7 @@ EHS_GLOBAL ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 
 /************************************** GPIO INPUT **************************************/
 
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
 /* Widget update callback */
 static void gui_widget_event_callback(struct EhsWidgetStruct* pWidgetSwitch, ehs_uint16 event_id, const char* label, void* data)
 {
@@ -432,7 +432,7 @@ gpio_in_gui_widget* init_gpio_in_gui_widget(ehs_gpio_in_state_type* pGPIO)
 
 void create_gpio_in_gui_widget(gpio_in_gui_widget* pWidget, const ehs_gpio_in_state_type* pGPIO) {
     if (pWidget) {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
         if (pWidget->pWidgetSwitch) {
             EHS_WIDGET_UI(pWidget->pWidgetSwitch).data = (void*) pWidget;
             EHS_WIDGET_UI(pWidget->pWidgetSwitch).properties = (pGPIO->pin_id < 0) ? 0 : pGPIO->pin_id;
@@ -477,7 +477,7 @@ void create_gpio_in_gui_widget(gpio_in_gui_widget* pWidget, const ehs_gpio_in_st
 void destroy_gpio_in_gui_widget(gpio_in_gui_widget* pWidget)
 {
     if (pWidget) {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
         if (pWidget->pWidgetSwitch) {
             EhsWidget_destroy(pWidget->pWidgetSwitch);
         }

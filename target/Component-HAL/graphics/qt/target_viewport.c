@@ -134,8 +134,8 @@ static void register_qt_signals(EhsWidgetClass * pWidget)
     ertqt_bind_pressed(h, qt_on_button_pressed, pWidget);
     ertqt_bind_released(h, qt_on_button_released, pWidget);
 
-    // Note: ertqt_bind_text_changed() not yet implemented in ertqt.cpp
-    // ertqt_bind_text_changed(h, qt_on_text_changed, pWidget);
+    // Register text field change signal
+    ertqt_bind_text_changed(h, qt_on_text_changed, pWidget);
 
     // Register checkbox clicked signal
     ertqt_checkbox_on_clicked(h, qt_on_checkbox_clicked, pWidget);
@@ -178,10 +178,24 @@ void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
 }
 
 // Draw Qt widget
-// Called by EhsWidgetUi_draw()
+// Called by EhsWidgetUi_draw() and Ehs_widget_commit()
 void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
 {
-    // Stub.
+    if (!pWidget || pWidget->qt_handle == 0)
+    {
+        return;
+    }
+
+    // Request Qt to update/repaint the widget
+    // Note: In most cases Qt automatically updates when properties change,
+    // but this ensures updates happen when explicitly requested
+    ertqt_status status = ertqt_update_widget(pWidget->qt_handle);
+
+    if (status != ERTQT_OK && status != ERTQT_ERR_BACKEND_FAILURE)
+    {
+        // Only warn if it's not a backend failure (some objects don't support update())
+        EHSH_LOG_WARNING("Failed to update Qt widget (status %d)\n", status);
+    }
 }
 
 // Destroy Qt widget
@@ -198,6 +212,31 @@ void EhsTargetWidgetUi_destroy(EhsWidgetClass * pWidget)
     pWidget->qt_handle = 0;
 
     EHSH_LOG_INFO("Destroyed Qt widget UI\n");
+}
+
+// Show/hide Qt widget based on EHS widget state
+// Called by EhsWidget_setState() when visibility changes
+void EhsTargetWidget_show(EhsWidgetClass * pWidget, ehs_uint8 nState)
+{
+    if (!pWidget || pWidget->qt_handle == 0)
+    {
+        return;
+    }
+
+    // Check if widget should be visible based on state flags
+    ehs_bool bVisible = EHS_WIDGET_STATE_SHOWN(nState);
+
+    // Set Qt "visible" property via abstraction layer
+    ertqt_status status = ertqt_set_property_bool(pWidget->qt_handle, "visible", bVisible);
+
+    if (status != ERTQT_OK)
+    {
+        EHSH_LOG_WARNING("Failed to set Qt widget visibility (status %d)\n", status);
+    }
+    else
+    {
+        EHSH_LOG_INFO("Qt widget visibility set to %d\n", bVisible);
+    }
 }
 
 //=============================================================================

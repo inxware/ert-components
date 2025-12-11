@@ -324,7 +324,7 @@ void Ehs_widget_position_update(EhsWidgetClass* pWidget, ehs_bool bAlphaConnecte
 void Ehs_widget_commit(EhsWidgetClass* pWidget)
 {
 // this only applies EHS_GUI_SUPPORT_MODE_B
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     pWidget->pfDrawFunc(pWidget, NULL, NULL);
 #endif
 }
@@ -372,7 +372,7 @@ EHS_LOCAL void EhsWidget_setState(EhsWidgetClass* pWidget, ehs_uint8 nNewState)
         if (EHS_WIDGET_STATE_SHOWN(nNewState) != EHS_WIDGET_STATE_SHOWN(pWidget->nState))
         {
             pWidget->nState = nNewState; /* update the state before calling _updateRect */
-    #ifdef EHS_GUI_SUPPORT_MODE_B
+    #if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
             EhsTargetWidget_show(pWidget, pWidget->nState);
     #endif
             EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);

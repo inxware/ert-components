@@ -381,6 +381,33 @@ ertqt_status ertqt_set_property_string(ertqt_object_handle h, const char * prop_
 ertqt_status ertqt_get_property_string(ertqt_object_handle h, const char * prop_name, char * buffer, size_t buffer_size, size_t * required_size);
 
 /* ------------------------------------------------------------------------- */
+/* Widget update                                                             */
+/* ------------------------------------------------------------------------- */
+
+// Public interface for requesting a visual update of a Qt widget.
+//
+// This function requests that the target QObject schedules a repaint by
+// calling its `update()` method (if available). This is typically used to
+// force a refresh when widget properties have changed but Qt has not
+// automatically detected the need for a repaint.
+//
+// Parameters:
+// - h: Opaque handle referencing the target QObject.
+//
+// Returns:
+// - `ERTQT_OK` if the update was requested successfully.
+// - `ERTQT_ERR_INVALID_HANDLE` if `h` does not resolve to a valid QObject.
+// - `ERTQT_ERR_BACKEND_FAILURE` if the object does not support the `update()`
+//   method or the call failed.
+//
+// Notes:
+// - This schedules a repaint; the actual painting happens asynchronously when
+//   Qt processes its event loop.
+// - For QML items (QQuickItem), this calls QQuickItem::update().
+// - Not all QObject types support updating; for non visual items this may fail.
+ertqt_status ertqt_update_widget(ertqt_object_handle h);
+
+/* ------------------------------------------------------------------------- */
 /* Signal binding                                                            */
 /* ------------------------------------------------------------------------- */
 

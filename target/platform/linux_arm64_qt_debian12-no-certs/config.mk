@@ -87,6 +87,12 @@ DEFS += EHS_GUI_SUPPORT_MODE_B_QT
 # EHS_GUI_SUPPORT_MODE_B=yes
 # DEFS += EHS_GUI_SUPPORT_MODE_B
 
+# Mock GPIO widgets in Qt UI - enables desktop development of GPIO apps before hardware is available.
+# Uncomment to enable virtual GPIO LED/switch widgets rendered in the Qt window.
+#
+# EHS_MOCK_GPIO_QT=yes
+# DEFS += EHS_MOCK_GPIO_QT
+
 # In the Arduino targets, they have their own `target_network.c` implementation which moves networking into a separate
 # thread, so it doesn't block the main thread. For our Qt PoC, we simply disable the TCPIP console.
 #
