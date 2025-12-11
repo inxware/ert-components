@@ -890,6 +890,76 @@ ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, v
 #endif
 }
 
+ertqt_status ertqt_bind_pressed(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
+{
+    if (!h || !cb)
+        return ERTQT_ERR_INVALID_ARGUMENT;
+
+    QObject *obj = reinterpret_cast<QObject*>(h);
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    // Qt5-compatible bridge using QSignalMapper
+    auto *mapper = new QSignalMapper(obj);
+    mapper->setMapping(obj, obj);
+
+    if (!QObject::connect(obj, SIGNAL(pressed()), mapper, SLOT(map())))
+        return ERTQT_ERR_BACKEND_FAILURE;
+
+    auto mappedObj = static_cast<void (QSignalMapper::*)(QObject*)>(&QSignalMapper::mapped);
+
+    QObject::connect(mapper, mappedObj, g_app,
+                     [cb, user_data](QObject*)
+                     {
+                         cb(user_data);
+                     });
+
+    return ERTQT_OK;
+
+#else
+    // Qt6 path
+    QObject::connect(obj, SIGNAL(pressed()), g_app, [cb, user_data]()
+    {
+        cb(user_data);
+    });
+    return ERTQT_OK;
+#endif
+}
+
+ertqt_status ertqt_bind_released(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
+{
+    if (!h || !cb)
+        return ERTQT_ERR_INVALID_ARGUMENT;
+
+    QObject *obj = reinterpret_cast<QObject*>(h);
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    // Qt5-compatible bridge using QSignalMapper
+    auto *mapper = new QSignalMapper(obj);
+    mapper->setMapping(obj, obj);
+
+    if (!QObject::connect(obj, SIGNAL(released()), mapper, SLOT(map())))
+        return ERTQT_ERR_BACKEND_FAILURE;
+
+    auto mappedObj = static_cast<void (QSignalMapper::*)(QObject*)>(&QSignalMapper::mapped);
+
+    QObject::connect(mapper, mappedObj, g_app,
+                     [cb, user_data](QObject*)
+                     {
+                         cb(user_data);
+                     });
+
+    return ERTQT_OK;
+
+#else
+    // Qt6 path
+    QObject::connect(obj, SIGNAL(released()), g_app, [cb, user_data]()
+    {
+        cb(user_data);
+    });
+    return ERTQT_OK;
+#endif
+}
+
 // ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void *user_data)
 // {
 //     if (!h || !cb)
@@ -1003,6 +1073,56 @@ ertqt_status ertqt_set_tick_callback(unsigned int interval_ms, ertqt_tick_callba
         // Start the chain
         QTimer::singleShot(static_cast<int>(g_tick_interval_ms), &tick_timer_fired);
     }
+
+    return ERTQT_OK;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Window management                                                         */
+/* ------------------------------------------------------------------------- */
+
+ertqt_status ertqt_get_window_size(int * out_width, int * out_height)
+{
+    if (!out_width || !out_height)
+    {
+        return ERTQT_ERR_INVALID_ARGUMENT;
+    }
+
+    if (!g_engine)
+    {
+        return ERTQT_ERR_GENERIC;
+    }
+
+    // Get the first root object (the main window)
+    QList<QObject *> roots = g_engine->rootObjects();
+    if (roots.isEmpty())
+    {
+        return ERTQT_ERR_GENERIC;
+    }
+
+    QObject * root = roots.first();
+
+    // Query width and height properties
+    QVariant width_var = root->property("width");
+    QVariant height_var = root->property("height");
+
+    if (!width_var.isValid() || !height_var.isValid())
+    {
+        return ERTQT_ERR_BACKEND_FAILURE;
+    }
+
+    bool width_ok = false;
+    bool height_ok = false;
+    int width = width_var.toInt(&width_ok);
+    int height = height_var.toInt(&height_ok);
+
+    if (!width_ok || !height_ok)
+    {
+        return ERTQT_ERR_TYPE_MISMATCH;
+    }
+
+    *out_width = width;
+    *out_height = height;
 
     return ERTQT_OK;
 }

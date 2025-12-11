@@ -24,7 +24,7 @@
 #include "hal_process.h"
 #include "hal_viewport.h"
 
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 #include "target_viewport_modeB.h"
 #endif
 
@@ -154,7 +154,8 @@ EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint1
  */
 ehs_bool EhsWidgetUi_create(EhsWidgetClass* pWidget)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+    EHSH_LOG_INFO("Create a MODE_B UI widget");
     EhsTargetWidgetUi_create(pWidget, &EhsTV);
 #endif
     return EHS_TRUE;
@@ -167,7 +168,8 @@ ehs_bool EhsWidgetUi_create(EhsWidgetClass* pWidget)
  */
 void EhsWidgetUi_destroy(EhsWidgetClass* pWidget)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+    EHSH_LOG_INFO("Destroy a MODE_B UI widget");
     EhsTargetWidgetUi_destroy(pWidget);
 #endif
     EHS_WIDGET_UI(pWidget).event_callback = NULL;
@@ -190,7 +192,7 @@ void EhsWidgetUi_destroy(EhsWidgetClass* pWidget)
 
 void EhsWidgetUi_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsTargetWidgetUi_draw(pWidget);
 #endif
 }
@@ -203,7 +205,7 @@ void EhsWidgetUi_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, Eh
  */
 void EhsWidgetUI_update(struct EhsWidgetStruct* pWidget)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsTPMutex_lock(EhsTPMutex_viewport);
     pWidget->bContentUpdated = EHS_TRUE;
     EhsTPMutex_unlock(EhsTPMutex_viewport);

@@ -303,10 +303,68 @@ static inline ertqt_status ertqt_button_get_checked(ertqt_object_handle button, 
 //   blocking operations.
 // - Multiple callbacks may be registered for the same button by calling this
 //   function multiple times.
+// - Note: Qt's clicked() signal is emitted on button release, not press.
 //
 static inline ertqt_status ertqt_button_on_clicked(ertqt_object_handle button, ertqt_void_callback cb, void * user_data)
 {
     return ertqt_bind_clicked(button, cb, user_data);
+}
+
+// Public interface for registering a press callback on a button.
+//
+// This function registers a C callback that will be invoked whenever the
+// button's "pressed()" signal is emitted. It is a thin wrapper around
+// ertqt_bind_pressed() that is specialised for buttons.
+//
+// Parameters:
+// - button: Opaque handle referencing the target button QObject.
+// - cb: Function pointer to the callback to invoke when the button is pressed down.
+//       Must not be NULL.
+// - user_data: Opaque pointer passed back to the callback on each invocation.
+//
+// Returns:
+// - ERTQT_OK if the binding was set up successfully.
+// - ERTQT_ERR_INVALID_ARGUMENT if cb is NULL.
+// - ERTQT_ERR_INVALID_HANDLE if button does not resolve to a valid QObject.
+// - ERTQT_ERR_BACKEND_FAILURE if the object has no compatible "pressed()"
+//   signal or the connection could not be created.
+//
+// Notes:
+// - The pressed() signal fires when the button is pressed down (mouse/touch down).
+// - This is useful for EHS mouse_down event handling.
+//
+static inline ertqt_status ertqt_button_on_pressed(ertqt_object_handle button, ertqt_void_callback cb, void * user_data)
+{
+    return ertqt_bind_pressed(button, cb, user_data);
+}
+
+// Public interface for registering a release callback on a button.
+//
+// This function registers a C callback that will be invoked whenever the
+// button's "released()" signal is emitted. It is a thin wrapper around
+// ertqt_bind_released() that is specialised for buttons.
+//
+// Parameters:
+// - button: Opaque handle referencing the target button QObject.
+// - cb: Function pointer to the callback to invoke when the button is released.
+//       Must not be NULL.
+// - user_data: Opaque pointer passed back to the callback on each invocation.
+//
+// Returns:
+// - ERTQT_OK if the binding was set up successfully.
+// - ERTQT_ERR_INVALID_ARGUMENT if cb is NULL.
+// - ERTQT_ERR_INVALID_HANDLE if button does not resolve to a valid QObject.
+// - ERTQT_ERR_BACKEND_FAILURE if the object has no compatible "released()"
+//   signal or the connection could not be created.
+//
+// Notes:
+// - The released() signal fires when the button is released (mouse/touch up).
+// - EHS treats button release as the actual "click" event, so this is often
+//   the most appropriate signal to use for standard button click handling.
+//
+static inline ertqt_status ertqt_button_on_released(ertqt_object_handle button, ertqt_void_callback cb, void * user_data)
+{
+    return ertqt_bind_released(button, cb, user_data);
 }
 
 #ifdef __cplusplus

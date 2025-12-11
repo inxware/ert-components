@@ -65,7 +65,7 @@ ERT_SODL_VERSION=1
 EHS_DEBUGALL=true
 DEFS += EHS_LOG_LEVEL_VERBOSE
 DEFS += EHS_LOG_TO_STDIO
-DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
+# DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
 
 # To enable UI support ("ui", DCC=4) set EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support
 # for your target:
@@ -83,7 +83,9 @@ DEFS += EHS_MAIN_LOOP_ITERATIVE
 # respective QObject (from '*.qml'. This requres the EHS widget name (string) to match the `objectName` in the QML.
 #
 EHS_GUI_SUPPORT_MODE_B_QT=yes
-DEFS += EHS_GUI_SUPPORT_MODE_B_QT=yes
+DEFS += EHS_GUI_SUPPORT_MODE_B_QT
+# EHS_GUI_SUPPORT_MODE_B=yes
+# DEFS += EHS_GUI_SUPPORT_MODE_B
 
 # In the Arduino targets, they have their own `target_network.c` implementation which moves networking into a separate
 # thread, so it doesn't block the main thread. For our Qt PoC, we simply disable the TCPIP console.

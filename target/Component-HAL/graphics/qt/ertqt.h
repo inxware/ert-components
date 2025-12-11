@@ -418,7 +418,57 @@ typedef void (*ertqt_void_callback)(void * user_data);
 //   function multiple times. Each call adds another connection.
 // - The callback is invoked on the Qt application's thread. Implementations
 //   should avoid long blocking operations.
+// - Note: Qt's clicked() signal is emitted on button release, not press.
 ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data);
+
+// Public interface for binding a C callback to a `pressed()` style signal.
+//
+// This function connects a parameterless `pressed()` signal on the target
+// QObject, if present, to a C callback. It is intended for use with button like
+// controls that expose a `pressed()` signal in their metaobject.
+//
+// Parameters:
+// - h: Opaque handle referencing the target QObject, typically a button type.
+// - cb: Function pointer to the callback to invoke when the signal fires. Must
+//   not be `NULL`.
+// - user_data: Opaque pointer passed back to the callback on each invocation.
+//
+// Returns:
+// - `ERTQT_OK` if a compatible signal was found and the connection was created.
+// - `ERTQT_ERR_INVALID_ARGUMENT` if `cb` is `NULL`.
+// - `ERTQT_ERR_INVALID_HANDLE` if `h` does not resolve to a valid QObject.
+// - `ERTQT_ERR_BACKEND_FAILURE` if the object has no signal named `pressed()`
+//   or the connection could not be created.
+//
+// Notes:
+// - The pressed() signal is emitted when the button is pressed down.
+// - For standard Qt Quick Controls Button, pressed() fires on mouse/touch down.
+ertqt_status ertqt_bind_pressed(ertqt_object_handle h, ertqt_void_callback cb, void * user_data);
+
+// Public interface for binding a C callback to a `released()` style signal.
+//
+// This function connects a parameterless `released()` signal on the target
+// QObject, if present, to a C callback. It is intended for use with button like
+// controls that expose a `released()` signal in their metaobject.
+//
+// Parameters:
+// - h: Opaque handle referencing the target QObject, typically a button type.
+// - cb: Function pointer to the callback to invoke when the signal fires. Must
+//   not be `NULL`.
+// - user_data: Opaque pointer passed back to the callback on each invocation.
+//
+// Returns:
+// - `ERTQT_OK` if a compatible signal was found and the connection was created.
+// - `ERTQT_ERR_INVALID_ARGUMENT` if `cb` is `NULL`.
+// - `ERTQT_ERR_INVALID_HANDLE` if `h` does not resolve to a valid QObject.
+// - `ERTQT_ERR_BACKEND_FAILURE` if the object has no signal named `released()`
+//   or the connection could not be created.
+//
+// Notes:
+// - The released() signal is emitted when the button is released.
+// - For standard Qt Quick Controls Button, released() fires on mouse/touch up.
+// - EHS treats button release as the actual "click" event.
+ertqt_status ertqt_bind_released(ertqt_object_handle h, ertqt_void_callback cb, void * user_data);
 
 /* ------------------------------------------------------------------------- */
 /* Optional tick integration                                                 */
@@ -529,6 +579,32 @@ ertqt_status ertqt_bind_editing_finished(ertqt_object_handle h, ertqt_text_callb
 // - The callback is invoked on the Qt application's thread. It should perform
 //   only light work and return promptly.
 ertqt_status ertqt_set_tick_callback(unsigned int interval_ms, ertqt_tick_callback cb, void * user_data);
+
+/* ------------------------------------------------------------------------- */
+/* Window management                                                         */
+/* ------------------------------------------------------------------------- */
+
+// Public interface for querying the Qt window dimensions.
+//
+// This function retrieves the width and height of the main Qt window (the root
+// QML object). This is typically used by the EHS graphics system to determine
+// the available screen space.
+//
+// Parameters:
+// - out_width: Pointer that receives the window width in pixels. Must not be
+//   `NULL`.
+// - out_height: Pointer that receives the window height in pixels. Must not be
+//   `NULL`.
+//
+// Returns:
+// - `ERTQT_OK` if the dimensions were retrieved successfully.
+// - `ERTQT_ERR_INVALID_ARGUMENT` if `out_width` or `out_height` is `NULL`.
+// - `ERTQT_ERR_GENERIC` if Qt has not been initialized or no root object exists.
+//
+// Notes:
+// - Returns the dimensions of the first root object from the QML engine.
+// - If the window is resizable, these dimensions may change over time.
+ertqt_status ertqt_get_window_size(int * out_width, int * out_height);
 
 #ifdef __cplusplus
 } /* extern "C" */

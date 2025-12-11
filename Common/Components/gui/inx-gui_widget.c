@@ -132,7 +132,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
 		
 		if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
 		{
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 			inx_gui_widget_state->gui.data = NULL;
 			inx_gui_widget_state->gui.label = NULL;
 			ehs_uint16 nId = EHS_STRING_UI_WIDGET;
@@ -199,7 +199,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
 				inx_gui_widget_state->pUiWidgetClass->bMaintainAspectRatio = (ehs_bool)nByte;
 				pParams = EhsGetUint8FromString(&nByte, pParams);
 				inx_gui_widget_state->pUiWidgetClass->bCaptureClicksIgnoringZOrder = (ehs_bool)nByte;
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 				if(EhsWidgetUI_is_float_type(inx_gui_widget_state->pUiWidgetClass)){
 					ehs_sint32 nNoOfDecPlaces = 0;
 					pParams = EhsGetSint32FromString(&nNoOfDecPlaces, pParams);
@@ -295,7 +295,7 @@ EHS_FB_RUN_FUNCTION(gui_widget_create)
 	if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
 		EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
 		if (pWidget) {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 			/* set up event callback */
 			EHS_WIDGET_UI(pWidget).event_callback = gui_widget_event_callback;
 			/* setup widget data */
@@ -450,7 +450,7 @@ EHS_FB_RUN_FUNCTION(gui_text_string2_data)
 	inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_RUN_CONTEXT;
 	if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
 		EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 		ehs_bool bCommit = EHS_FALSE;
 
 		if (EHS_FB_IN_CONNECTED_API2(INX_gui_text_string2_ARG_data_data)){
@@ -485,7 +485,7 @@ EHS_FB_RUN_FUNCTION(gui_text_float2_data)
 	inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_RUN_CONTEXT;
 	if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
 		EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 		ehs_bool bCommit = EHS_FALSE;
 
 		if (EHS_FB_IN_CONNECTED_API2(INX_gui_text_float2_ARG_data_data)){
@@ -521,7 +521,7 @@ EHS_FB_RUN_FUNCTION(gui_text_int2_data)
 	inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_RUN_CONTEXT;
 	if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
 		EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 		ehs_bool bCommit = EHS_FALSE;
 
 		if (EHS_FB_IN_CONNECTED_API2(INX_gui_text_int2_ARG_data_data)){
@@ -557,7 +557,7 @@ EHS_FB_RUN_FUNCTION(gui_text_bool2_data)
 	inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_RUN_CONTEXT;
 	if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
 		EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 		ehs_bool bCommit = EHS_FALSE;
 
 		if (EHS_FB_IN_CONNECTED_API2(INX_gui_text_bool2_ARG_data_data)){
