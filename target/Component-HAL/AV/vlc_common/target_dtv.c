@@ -1235,7 +1235,7 @@ void EhsTV_stop(libvlc_media_player_t* pMP)
             }
             if ((playing != libvlc_Stopped) && (playing != libvlc_Ended))   //@todo should add a flag to allow some kind of forced stop of VLC next operation rather than leek the memory
             {
-                EHSH_LOG_ERROR("Coouldn't stop VLC - memory leek likely playing = %d\n", playing);
+                EHSH_LOG_ERROR("Coouldn't stop VLC - memory leek likely playing = %d", playing);
             }
         } // end of were we already stopped test.
 

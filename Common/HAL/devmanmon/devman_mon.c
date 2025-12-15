@@ -437,11 +437,11 @@ void* DevmanMonThreadMqtt(void* arg)
             // read and set username and password
             pMqttClient->username[0]='\0';
             if (EhsHDevmanGetURL(pMqttClient->username, "core/config/uname", EHS_MAXDEVMANNAMELEN, 0) == EHS_FALSE){
-                EHSH_LOG_ERROR("Failed to read user name config file for Devman mon MQTT clinet. \n");
+                EHSH_LOG_ERROR("Failed to read user name config file for Devman mon MQTT clinet. ");
             }
             pMqttClient->password[0]='\0';
             if (EhsHDevmanGetURL(pMqttClient->password, "core/config/passw", EHS_MAXDEVMANNAMELEN, 0) == EHS_FALSE){
-                EHSH_LOG_ERROR("Failed to read password config file for Devman mon MQTT clinet. \n");
+                EHSH_LOG_ERROR("Failed to read password config file for Devman mon MQTT clinet. ");
             }
             #ifdef EHS_DEVMAN_MQTT_CLIENT_TLS
             //printf("Devman mon mqtt clinet TLS enabled \n");
@@ -489,7 +489,7 @@ void* DevmanMonThreadMqtt(void* arg)
 
                 EhsSetMqttDevmanMonState(MQTT_DEVMAN_MON_RUNNING);
             }else{
-                EHSH_LOG_ERROR("MQTT clinet is not connected in MQTT_DEVMAN_MON_SUBSCIBE state \n");
+                EHSH_LOG_ERROR("MQTT clinet is not connected in MQTT_DEVMAN_MON_SUBSCIBE state ");
             }
             break;
         }
@@ -644,7 +644,7 @@ ehs_bool ParseDevmanMonitorXML(ehs_char * returndata)
 
             /* todo this is a bit repetitive - should use another plugin perhaps?? */
             Ehs_CopyXMLTagElement(element_cropped, element_start,EHS_STRING_LENGTH_MAX, EHS_TRUE);
-            EHSH_LOG_INFO("Downloading application %s from %s\n",element_cropped,szUrl);
+            EHSH_LOG_INFO("Downloading application %s from %s",element_cropped,szUrl);
             if (start_appget_getapp(element_cropped, EHS_SYS_APP_DEFAULT_NAME,szUrl, EHS_TRUE, runFlag, defaultAppFlag))
             {
                 EHSH_LOG_INFO("Downloaded application %s from %s",element_cropped,szUrl);
@@ -720,7 +720,7 @@ ehs_bool ParseDevmanMonitorXML(ehs_char * returndata)
             }
 
             Ehs_CopyXMLTagElement(element_cropped, element_start,	EHS_STRING_LENGTH_MAX, EHS_TRUE);
-            EHSH_LOG_INFO("Downloading application %s from %s\n",element_cropped,szUrl);
+            EHSH_LOG_INFO("Downloading application %s from %s",element_cropped,szUrl);
             if (start_appget_getapp(element_cropped, EHS_SYS_APP_TEMP_NAME, szUrl,
                                     EHS_TRUE, runFlag, defaultAppFlag))
             {
@@ -958,7 +958,7 @@ void *DevmanMonThreadHttp(void *arg)
                 EhsHMetaSetMissedPing();
                 status = EHS_FALSE;
                 trynext=EHS_TRUE;
-                EHSH_LOG_WARNING("No response from [%s]\n",szUrl);
+                EHSH_LOG_WARNING("No response from [%s]",szUrl);
                 
                 if (CurrentURLindex == 0 )   /* try a bit harder with the first on the list - only skip to next after a few tries */
                 {
@@ -1036,7 +1036,7 @@ void DevmanMon_init(void)
     #endif
 
     gMqttClientInstanceCount++;
-    EHSH_LOG_INFO("Increase MQTT clinet instace count (%d) \n", gMqttClientInstanceCount);
+    EHSH_LOG_INFO("Increase MQTT clinet instace count (%d) ", gMqttClientInstanceCount);
 #endif    
 #if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_HTTP
     pthread_t t1;

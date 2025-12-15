@@ -185,7 +185,7 @@ EHS_FB_INIT_FUNCTION(mqtt_client)
     inx_mqtt_client_state->always_read = EHS_FALSE; // don't allow for reading data in EhsMQTTConnectPoll if pFIdata is NULL
 
     if(gMqttClientInstanceCount >= EHS_MQTT_CLIENT_INSTANCE_MAX){
-        EHSH_LOG_ERROR("Exceeded number of allowed MQTT clinet instance (%d)\n", EHS_MQTT_CLIENT_INSTANCE_MAX);
+        EHSH_LOG_ERROR("Exceeded number of allowed MQTT clinet instance (%d)", EHS_MQTT_CLIENT_INSTANCE_MAX);
         return EHS_FALSE;
     }
 
@@ -224,7 +224,7 @@ EHS_FB_INIT_FUNCTION(mqtt_client)
     if(bRet){
         inx_mqtt_client_state->initialised=EHS_TRUE;
         gMqttClientInstanceCount++;
-        EHSH_LOG_INFO("Increase MQTT clinet instace count (%d) \n", gMqttClientInstanceCount);
+        EHSH_LOG_INFO("Increase MQTT clinet instace count (%d) ", gMqttClientInstanceCount);
     }
     
     return bRet; /* initialisation always succeeds */
@@ -241,9 +241,9 @@ EHS_FB_DESTROY_FUNCTION(mqtt_client)
     if(inx_mqtt_client_state && inx_mqtt_client_state->initialised==EHS_TRUE){
         if(gMqttClientInstanceCount > 0){
             gMqttClientInstanceCount--;
-            EHSH_LOG_INFO("Decrease MQTT clinet instace count (%d) \n", gMqttClientInstanceCount);
+            EHSH_LOG_INFO("Decrease MQTT clinet instace count (%d) ", gMqttClientInstanceCount);
         }else{
-            EHSH_LOG_ERROR("Attempting to decrease MQTT clinet count from 0 \n");    
+            EHSH_LOG_ERROR("Attempting to decrease MQTT clinet count from 0 ");    
         }
     }
 

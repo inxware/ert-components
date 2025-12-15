@@ -89,7 +89,7 @@ GstBusSyncReply EhsTDPlayback_bus_sync_handler (GstBus * bus, GstMessage * messa
         }
         else
         {
-            EHSH_LOG_ERROR("function instance data is null, can't fire end of play event\n");
+            EHSH_LOG_ERROR("function instance data is null, can't fire end of play event");
         }
         break;
     case GST_MESSAGE_BUFFERING:
@@ -280,7 +280,7 @@ ehs_bool EhsTDPlayback_getTime(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnTime)
                   GST_ELEMENT(pPlayback->playbin), &fmt, &time);
         if (ret == EHS_FALSE)
         {
-            EHSH_LOG_WARNING("Could not get time from gstreamer playbin.\n");
+            EHSH_LOG_WARNING("Could not get time from gstreamer playbin.");
             return EHS_FALSE;
         }
         //if we are here then getting the position worked
@@ -299,7 +299,7 @@ ehs_bool EhsTDPlayback_getLength(EhsTDPlaybackClass* pPlayback,ehs_sint32* pnLen
     ret=(ehs_bool)gst_element_query_duration(GST_ELEMENT(pPlayback->playbin),&fmt,&len);
     if(ret==EHS_FALSE)
     {
-        EHSH_LOG_WARNING("Could not get duration from gstreamer playbin.\n");
+        EHSH_LOG_WARNING("Could not get duration from gstreamer playbin.");
         return ret;
     }
     //if we are here then getting the duration worked

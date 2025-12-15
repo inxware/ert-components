@@ -458,7 +458,7 @@ ehs_uint8 EhsTDFiles_listNext(EhsTDFilesClass* pFiles, ehs_char* szName)
                 break;
             }
         }
-        //EHSH_LOG_WARNING("Not reporting dirs/files properly in windows mingw\n");
+        //EHSH_LOG_WARNING("Not reporting dirs/files properly in windows mingw");
 #endif
     }
     return bRet;

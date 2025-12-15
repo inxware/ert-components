@@ -267,7 +267,7 @@ ehs_bool EhsHLogger_setLogLevel(const ehs_char* szModule, EhsHLoggerLogLevel nLe
         if (EhsStrcmp(szModule, EhsLModuleNames[nId]))
         {
             EhsHLoggerModuleLogLevel[nId] = nLevels;
-            EHSH_LOG_INFO("Setting Log level %s to %d\n",szModule,nLevels);
+            EHSH_LOG_INFO("Setting Log level %s to %d",szModule,nLevels);
             bRet = EHS_TRUE;
             break;
         }

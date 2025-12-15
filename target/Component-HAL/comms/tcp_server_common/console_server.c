@@ -503,7 +503,7 @@ ehs_bool EhsSvcTcp_send()
             ehs_sint32 nDataSize;
 
             /* send one bufferful of data. This prevents EHS from monopolising a conversation. */
-            // EHSH_LOG_INFO("QPop: in = %d, out = %d\n", EhsTgtConsoleOutputQueueRef->uInIdx, EhsTgtConsoleOutputQueueRef->uOutIdx);
+            // EHSH_LOG_INFO("QPop: in = %d, out = %d", EhsTgtConsoleOutputQueueRef->uInIdx, EhsTgtConsoleOutputQueueRef->uOutIdx);
             nDataSize = (ehs_sint32)EhsConsoleQueue_pop(EhsTgtConsoleOutputQueueRef, bBuffOut, EHS_TGT_TCP_OUT_BUFF_SIZE);
             EhsSvcTcp_log("***Sent %d bytes\n", nDataSize);
             // printf("***Sent %d bytes\n", nDataSize);

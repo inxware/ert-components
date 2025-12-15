@@ -76,7 +76,7 @@ static thread_return_type write_to_device(void *args)
         status = hailo_vstream_write_raw_buffer(gInputVStream[(int)args], gInputBuffer, gInputBufferSize[(int)args]);
         if (status != HAILO_SUCCESS)
         {
-            EHSH_LOG_ERROR("hailo_vstream_write_raw_buffer failed: %d\n", status);
+            EHSH_LOG_ERROR("hailo_vstream_write_raw_buffer failed: %d", status);
             return (thread_return_type)status;
         }
     }
@@ -85,7 +85,7 @@ static thread_return_type write_to_device(void *args)
     // status = hailo_flush_input_vstream(gInputVStream);
     // if (status != HAILO_SUCCESS)
     // {
-    //     EHSH_LOG_ERROR("hailo_flush_input_vstreams failed: %d\n", status);
+    //     EHSH_LOG_ERROR("hailo_flush_input_vstreams failed: %d", status);
     //     return (thread_return_type)status;
     // }
 
@@ -302,7 +302,7 @@ static thread_return_type read_from_device(void *args)
     status = hailo_vstream_read_raw_buffer(gOutputVStream[thread_args->index], gOutputBuffer, gOutputBufferSize[thread_args->index]);
     if (status != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_vstream_read_raw_buffer failed: %d\n", status);
+        EHSH_LOG_ERROR("hailo_vstream_read_raw_buffer failed: %d", status);
         printf("hailo_vstream_read_raw_buffer failed: %d\n", status);
         return (thread_return_type)status;
     }
@@ -310,14 +310,14 @@ static thread_return_type read_from_device(void *args)
     // EhsML_Err err = EhsInternal_PostProcess_TFLite_YoloV5(&detections, (float32_t*)gOutputBuffer, gOutputBufferSize[thread_args->index], 640, 480, 0.25f);
     // if (err != EHS_ML_OK)
     // {
-    //     EHSH_LOG_ERROR("EhsInternal_PostProcess_TFLite_YoloV5 failed: %d\n", err);
+    //     EHSH_LOG_ERROR("EhsInternal_PostProcess_TFLite_YoloV5 failed: %d", err);
     //     printf("EhsInternal_PostProcess_TFLite_YoloV5 failed: %d\n", err);
     //     return (thread_return_type)EHS_ML_FAILED;
     // }
 
     // if (TfLiteFlatJsonObjectDetection(EHS_ML_ACCELERATOR_HAILO, &detections, thread_args->json, thread_args->json_size) == EHS_FALSE)
     // {
-    //     EHSH_LOG_ERROR("TfLiteFlatJsonObjectDetection failed\n");
+    //     EHSH_LOG_ERROR("TfLiteFlatJsonObjectDetection failed");
     //     printf("TfLiteFlatJsonObjectDetection failed\n");
     //     return (thread_return_type)EHS_ML_FAILED;
     // }
@@ -397,7 +397,7 @@ static hailo_status infer(ehs_char *json_output_buffer, ehs_uint32 json_output_b
         status = hailo_create_thread(read_from_device, &read_thread_args, &read_threads[output_threads_index]);
         if (status != HAILO_SUCCESS)
         {
-            EHSH_LOG_ERROR("hailo_create_thread failed: %d\n", status);
+            EHSH_LOG_ERROR("hailo_create_thread failed: %d", status);
             goto l_cleanup;
         }
     }
@@ -406,7 +406,7 @@ static hailo_status infer(ehs_char *json_output_buffer, ehs_uint32 json_output_b
         status = hailo_create_thread(write_to_device, input_threads_index, &write_threads[input_threads_index]);
         if (status != HAILO_SUCCESS)
         {
-            EHSH_LOG_ERROR("hailo_create_thread failed: %d\n", status);
+            EHSH_LOG_ERROR("hailo_create_thread failed: %d", status);
             goto l_cleanup;
         }
     }
@@ -417,7 +417,7 @@ l_cleanup:
         write_thread_status = hailo_join_thread(&write_threads[i]);
         if (write_thread_status != HAILO_SUCCESS)
         {
-            EHSH_LOG_ERROR("hailo_join_thread failed: %d\n", write_thread_status);
+            EHSH_LOG_ERROR("hailo_join_thread failed: %d", write_thread_status);
             status = write_thread_status;
         }
     }
@@ -427,7 +427,7 @@ l_cleanup:
         read_thread_status = hailo_join_thread(&read_threads[i]);
         if (read_thread_status != HAILO_SUCCESS)
         {
-            EHSH_LOG_ERROR("hailo_join_thread failed: %d\n", read_thread_status);
+            EHSH_LOG_ERROR("hailo_join_thread failed: %d", read_thread_status);
             status = read_thread_status;
         }
     }
@@ -441,7 +441,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
 
     if (ctx == NULL || model_path == NULL)
     {
-        EHSH_LOG_ERROR("Invalid argument: ctx or model_path is NULL\n");
+        EHSH_LOG_ERROR("Invalid argument: ctx or model_path is NULL");
         return EHS_ML_INIT_ERR;
     }
 
@@ -458,7 +458,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_create_pcie_device(&pcie_device_info[0], &gHailoDevice);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_create_pcie_device failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_create_pcie_device failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_error_exit;
     }
@@ -466,7 +466,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_create_hef_file(&gHailoHef, model_path);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_read_hef_from_file failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_read_hef_from_file failed: %d", gHailoStatus);
         _error = EHS_ML_MODEL_LOAD_ERR;
         goto l_release_vdevice;
     }
@@ -474,7 +474,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_init_configure_params(gHailoHef, HAILO_STREAM_INTERFACE_PCIE, &config_params);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_init_configure_params failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_init_configure_params failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_hef;
     }
@@ -482,13 +482,13 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_configure_device(gHailoDevice, gHailoHef, &config_params, &gHailoConfiguredNNG, &network_group_size);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_configure_device failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_configure_device failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_hef;
     }
     if (network_group_size != 1)
     {
-        EHSH_LOG_ERROR("Invalid network group size %zu\n", network_group_size);
+        EHSH_LOG_ERROR("Invalid network group size %zu", network_group_size);
         gHailoStatus = HAILO_INVALID_ARGUMENT;
         _error = EHS_ML_INIT_ERR;
         goto l_release_hef;
@@ -498,7 +498,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_make_input_vstream_params(gHailoConfiguredNNG, unused, HAILO_FORMAT_TYPE_AUTO, gHailoInputVStreamParams, &gInputVStreamsSize);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_make_input_vstream_params failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_make_input_vstream_params failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_hef;
     }
@@ -513,14 +513,14 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_make_output_vstream_params(gHailoConfiguredNNG, unused, HAILO_FORMAT_TYPE_AUTO, gHailoOutputVStreamParams, &gOutputVStreamsSize);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_make_output_vstream_params failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_make_output_vstream_params failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_hef;
     }
 
     if (gInputVStreamsSize > HAILO_MAX_EDGE_LAYERS || gOutputVStreamsSize > HAILO_MAX_EDGE_LAYERS)
     {
-        EHSH_LOG_ERROR("Trying to infer network with too many input/output virtual streams, Maximum amount is %d, (either change HEF or change the definition of HAILO_MAX_EDGE_LAYERS)\n", HAILO_MAX_EDGE_LAYERS);
+        EHSH_LOG_ERROR("Trying to infer network with too many input/output virtual streams, Maximum amount is %d, (either change HEF or change the definition of HAILO_MAX_EDGE_LAYERS)", HAILO_MAX_EDGE_LAYERS);
         gHailoStatus = HAILO_INVALID_OPERATION;
         _error = EHS_ML_INIT_ERR;
         goto l_release_hef;
@@ -529,7 +529,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_create_input_vstreams(gHailoConfiguredNNG, gHailoInputVStreamParams, gInputVStreamsSize, gInputVStream);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_create_input_vstreams failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_create_input_vstreams failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_input_vstream;
     }
@@ -537,7 +537,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_create_output_vstreams(gHailoConfiguredNNG, gHailoOutputVStreamParams, gOutputVStreamsSize, gOutputVStream);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_create_output_vstreams failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_create_output_vstreams failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_output_vstream;
     }
@@ -545,14 +545,14 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_get_input_vstream_frame_size(gInputVStream[0], &gInputBufferSize[0]);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_get_input_vstream_frame_size failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_get_input_vstream_frame_size failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_output_vstream;
     }
     if (gInputBuffer == NULL) gInputBuffer = (ehs_uint8 *)EhsHMem_tempAlloc(gInputBufferSize[0] * sizeof(ehs_uint8));
     if (gInputBuffer == NULL)
     {
-        EHSH_LOG_ERROR("EhsHMem_tempAlloc failed to allocate input buffer\n");
+        EHSH_LOG_ERROR("EhsHMem_tempAlloc failed to allocate input buffer");
         gHailoStatus = HAILO_OUT_OF_HOST_MEMORY;
         _error = EHS_ML_MEMORY_ERR;
         goto l_release_output_vstream;
@@ -561,7 +561,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_get_output_vstream_frame_size(gOutputVStream[0], &gOutputBufferSize[0]);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_get_output_vstream_frame_size failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_get_output_vstream_frame_size failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_buffers;
     }
@@ -569,7 +569,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     if (gOutputBuffer == NULL) gOutputBuffer = (float32_t *)EhsHMem_tempAlloc(gOutputBufferSize[0] * sizeof(float32_t));
     if (gOutputBuffer == NULL)
     {
-        EHSH_LOG_ERROR("EhsHMem_tempAlloc failed to allocate output buffer\n");
+        EHSH_LOG_ERROR("EhsHMem_tempAlloc failed to allocate output buffer");
         gHailoStatus = HAILO_OUT_OF_HOST_MEMORY;
         _error = EHS_ML_MEMORY_ERR;
         goto l_release_buffers;
@@ -578,7 +578,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     gHailoStatus = hailo_activate_network_group(gHailoConfiguredNNG, NULL, &gActivatedNetworkGroup);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("hailo_activate_network_group failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("hailo_activate_network_group failed: %d", gHailoStatus);
         _error = EHS_ML_INIT_ERR;
         goto l_release_buffers;
     }
@@ -674,12 +674,12 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
 {
     if (data == NULL || size == 0)
     {
-        EHSH_LOG_ERROR("Invalid argument: data is NULL or size is 0\n");
+        EHSH_LOG_ERROR("Invalid argument: data is NULL or size is 0");
         return EHS_ML_MEMORY_ERR;
     }
     if (size > gInputBufferSize[0])
     {
-        EHSH_LOG_ERROR("Input data size %u exceeds maximum allowed size %d\n", size, gInputBufferSize[0]);
+        EHSH_LOG_ERROR("Input data size %u exceeds maximum allowed size %d", size, gInputBufferSize[0]);
         return EHS_ML_MEMORY_ERR;
     }
     if (!check_hailo_version()) return EHS_ML_INVALID_DEP;
@@ -691,14 +691,14 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 siz
 {
     if (json == NULL || size == 0)
     {
-        EHSH_LOG_ERROR("Invalid argument: json is NULL or size is 0\n");
+        EHSH_LOG_ERROR("Invalid argument: json is NULL or size is 0");
         return EHS_ML_MEMORY_ERR;
     }
     if (!check_hailo_version()) return EHS_ML_INVALID_DEP;
     gHailoStatus = infer(json, size, ctx->conf_thres);
     if (gHailoStatus != HAILO_SUCCESS)
     {
-        EHSH_LOG_ERROR("infer failed: %d\n", gHailoStatus);
+        EHSH_LOG_ERROR("infer failed: %d", gHailoStatus);
         return EHS_ML_FAILED;
     }
     return EHS_ML_OK;

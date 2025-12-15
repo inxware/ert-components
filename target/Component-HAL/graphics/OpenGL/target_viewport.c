@@ -592,7 +592,7 @@ void EhsTV_move(EhsTVClass* pViewport, EhsDataflowIntType nX, EhsDataflowIntType
 
 
     LEAVE(EhsTV_move);
-    //EHSH_LOG_INFO("EhsTV_move:windowMoved=[%i]repositionWindow=[%i]\n",windowMoved,repositionWindow);
+    //EHSH_LOG_INFO("EhsTV_move:windowMoved=[%i]repositionWindow=[%i]",windowMoved,repositionWindow);
 }
 
 

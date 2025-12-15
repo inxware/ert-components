@@ -31,6 +31,7 @@
 /**
  * Provides access to the target-specific declarations of header files
  */
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_LOGGER)
 #define EHS_TARGET_CODE
 
 /*****************************************************************************/
@@ -86,19 +87,19 @@ void app_load_status_handler(ehs_uint32 status)
     switch(status)
     {
         case EHS_APP_LOAD_STARTED:
-            EHSH_LOG_INFO("-- App loading started --\n");
+            EHSH_LOG_INFO("-- App loading started --");
             break;
         case EHS_APP_LOAD_SUCCESFULL:
-            EHSH_LOG_INFO("-- App loaded sucessfully --\n");
+            EHSH_LOG_INFO("-- App loaded sucessfully --");
             break;
         case EHS_APP_LOAD_RESTARTING:
-            EHSH_LOG_INFO("-- App restarting --\n");
+            EHSH_LOG_INFO("-- App restarting --");
             break;
         case EHS_APP_LOAD_FAILED:
-            EHSH_LOG_INFO("-- App loading failed --\n");
+            EHSH_LOG_INFO("-- App loading failed --");
             break;
         default:
-            EHSH_LOG_INFO("-- Unknow app loading status! --\n");
+            EHSH_LOG_INFO("-- Unknow app loading status! --");
             break;
     }
 }
@@ -110,10 +111,10 @@ void app_load_status_handler(ehs_uint32 status)
 // static void button_click_callback(void * user_data)
 // {
 //     ertqt_object_handle button = *(ertqt_object_handle *)user_data;
-//     EHSH_LOG_INFO("click on '%d'\n", button);
+//     EHSH_LOG_INFO("click on '%d'", button);
 //
 //     ertqt_status status = ertqt_button_set_text(button, "I've been clicked!");
-//     EHSH_LOG_INFO("status %d\n", status);
+//     EHSH_LOG_INFO("status %d", status);
 // }
 
 /**
@@ -152,17 +153,17 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
     int result;
 
     // Qt owns the event loop - use timer callback pattern to progress the EHS side
-    EHSH_LOG_INFO("Using Qt event loop integration\n");
+    EHSH_LOG_INFO("Using Qt event loop integration");
 
     // Initialise Qt and load the QML file
     if (!EhsTV_initQt(argc, argv)) {
-        EHSH_LOG_ERROR("Qt initialisation failed\n");
+        EHSH_LOG_ERROR("Qt initialisation failed");
         EhsExit(1);
         return 1;
     }
 
     // Initialise the EHS kernel and load the application
-    EHSH_LOG_INFO("EHS starting up\n");
+    EHSH_LOG_INFO("EHS starting up");
 
     // Register an app loading callback
     EhsHSetAppLoadStatusCallback(app_load_status_handler);
@@ -180,13 +181,13 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
 
     // Comment out this debug hack...
     //
-    // EHSH_LOG_INFO("Find button QObject...\n");
+    // EHSH_LOG_INFO("Find button QObject...");
     // button = ertqt_button_by_name("user_interface");
-    // EHSH_LOG_INFO("Got handle %d\n", button);
+    // EHSH_LOG_INFO("Got handle %d", button);
     //
-    // EHSH_LOG_INFO("Attach button click handler...\n");
+    // EHSH_LOG_INFO("Attach button click handler...");
     // ertqt_status status = ertqt_button_on_clicked(button, button_click_callback, &button);
-    // EHSH_LOG_INFO("Got status %d\n", status);
+    // EHSH_LOG_INFO("Got status %d", status);
 
     // Initialise the application state machine
     EhsAppLoadingStateMachine(NULL, NULL);

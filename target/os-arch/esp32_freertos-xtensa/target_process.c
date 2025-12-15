@@ -531,10 +531,10 @@ ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_s
     case	0 : // this is good
         break;
     case 	EAGAIN :
-        EHSH_LOG_ERROR("ERROR Could not create thread: no resources\n");
+        EHSH_LOG_ERROR("ERROR Could not create thread: no resources");
         break;
     case	EINVAL :
-        EHSH_LOG_ERROR("ERROR Could not create thread: attribute information invalid\n");
+        EHSH_LOG_ERROR("ERROR Could not create thread: attribute information invalid");
         break;
     case	EPERM  :
         EHSH_LOG_ERROR("ERROR Could not create thread: Client does not have necessary permissions");

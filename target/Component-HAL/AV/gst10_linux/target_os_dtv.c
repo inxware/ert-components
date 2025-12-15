@@ -20,7 +20,7 @@ void* EhsTDPlayback_init(EhsFbPvrPlayClass *pPvrPlay)
     struct EhsTDPlaybackStruct* pPlayback =(struct EhsTDPlaybackStruct*) EhsHMem_tempAlloc(sizeof(struct EhsTDPlaybackStruct));
     if (!pPlayback)
     {
-        EHSH_LOG_ERROR("Failed to allocate memory for dtv\n");
+        EHSH_LOG_ERROR("Failed to allocate memory for dtv");
         return NULL;
     }
     //create a gstreamer playbin and see if we can get it doing something

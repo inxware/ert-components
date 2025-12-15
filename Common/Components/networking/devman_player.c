@@ -275,7 +275,7 @@ void EhsGetDevmanPlayerURL(struct EhsFbDevmanPlayerStruct* pDevmanPlayer)
     {
         pDevmanPlayer->CurrentURLindex=-2; /* start from the top again, but wait to loop around - results in two loops before -2 option is actualy tried */
     }
-    EHSH_LOG_INFO("Using Devman Player URL:%s (index %d)\n", pDevmanPlayer->szUrl,pDevmanPlayer->CurrentURLindex);
+    EHSH_LOG_INFO("Using Devman Player URL:%s (index %d)", pDevmanPlayer->szUrl,pDevmanPlayer->CurrentURLindex);
 }
 
 
@@ -403,7 +403,7 @@ EHS_FB_THREAD_FUNCTION(DevmanPlayer_thread)
                 EHSH_LOG_INFO("PASSTHROUGH: %s",json_array_string->data);
                 if(!EhsHCreateQueryString(curl_temp, PostString, "jsonAppPassThruData", json_array_string->data, EHS_POST_STRING_LENGTH_MAX))
                 {
-                    EHSH_LOG_ERROR("JSON pass thru data size (%d) exceeds the post message size limit (%d).\n", json_array_string->size, EHS_POST_STRING_LENGTH_MAX);
+                    EHSH_LOG_ERROR("JSON pass thru data size (%d) exceeds the post message size limit (%d).", json_array_string->size, EHS_POST_STRING_LENGTH_MAX);
                 }
                 ehs_free_json_array_string(json_array_string);
             }
@@ -523,7 +523,7 @@ EHS_FB_THREAD_FUNCTION(DevmanPlayer_thread)
             }
             if (!pDevmanPlayer->EhsDevmanPlayerOutCallback)
             {
-                EHSH_LOG_ERROR("Callback function has disappeared while restarting probably\n");
+                EHSH_LOG_ERROR("Callback function has disappeared while restarting probably");
                 exit(0);
             }
 
@@ -731,7 +731,7 @@ EHS_FB_INIT_FUNCTION(DevmanPlayer)
 
 EHS_FB_DESTROY_FUNCTION(DevmanPlayer)
 {
-    EHSH_LOG_INFO("DevmanPlayer-DESTROY\n");
+    EHSH_LOG_INFO("DevmanPlayer-DESTROY");
     struct EhsFbDevmanPlayerStruct* pDevmanPlayer =
         (struct EhsFbDevmanPlayerStruct *) EHS_FB_RUN_CONTEXT;
     ehs_free_list(pDevmanPlayer->pIncomingJsonAppPassThruDataList);
@@ -946,7 +946,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_get_next)
         }
         else
         {
-            EHSH_LOG_ERROR("JSON pass thru data size exceeds the EHS_STRING_LENGTH_MAX size limit (%d).\n", EHS_STRING_LENGTH_MAX);
+            EHSH_LOG_ERROR("JSON pass thru data size exceeds the EHS_STRING_LENGTH_MAX size limit (%d).", EHS_STRING_LENGTH_MAX);
         }
     }
     EhsTPMutex_unlock(EhsTPMutex_devmanPlayerData);
@@ -1105,7 +1105,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
         }
         if ((zTempStr2 = strstr(pDevmanPlayer->szXml,"Override_Content_Directory")))
         {
-            EHSH_LOG_INFO("Received Override Signal %s\n",zTempStr2);
+            EHSH_LOG_INFO("Received Override Signal %s",zTempStr2);
             if ((0 == getAttributeValue("path=", zTempStr2, pTempStr)))
             {
                 /* Override is not persistent - If needed the logic of undoing override needs to be defined (e.g. stop overriding on any  next new Playlist).
@@ -1208,7 +1208,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                         }
                         else
                         {
-                            EHSH_LOG_ERROR("JSON pass thru data size exceeds the EHS_STRING_LENGTH_MAX size limit (%d).\n", EHS_STRING_LENGTH_MAX);
+                            EHSH_LOG_ERROR("JSON pass thru data size exceeds the EHS_STRING_LENGTH_MAX size limit (%d).", EHS_STRING_LENGTH_MAX);
                         }
                     }
                 }
@@ -1269,7 +1269,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
     }
     /* this is only for read from file stuff - which we don't do with the JSON player commands any more
     if (pDevmanPlayer->bMediaParmChange) { //@todo needs a tidy with the changed flags
-    	//EHSH_LOG_INFO("Start At Init\n");
+    	//EHSH_LOG_INFO("Start At Init");
     	if (!bPlayerParmsChanged) { // make sure we don't do twice if we get new data at init..
     		EHS_FB_OUT_I(5) = pDevmanPlayer->nChannels; // Should deprecate this and use the JSON instead
     		EhsStrcpy(EHS_FB_OUT_S(4), pDevmanPlayer->jsonPlayerParameters);

@@ -463,7 +463,7 @@ JNIEXPORT void JNICALL Java_com_inx_ehs_media_av_EhsMediaHandler_jniCallback(JNI
         }
         else
         {
-            EHSH_LOG_ERROR("function instance data is null, can't fire end of play event\n");
+            EHSH_LOG_ERROR("function instance data is null, can't fire end of play event");
         }
     }// else if(***) handle other callbacks
     //EHSH_LOG_INFO("JNI CALLBACK =======> id=%s, event=%s, data=%s", id, event, (*env)->GetStringUTFChars(env, j_data, &iscopy));

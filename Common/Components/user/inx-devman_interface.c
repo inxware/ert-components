@@ -208,7 +208,7 @@ EHS_FB_THREAD_FUNCTION(DevmanInterface_listen4New_thread)
             }
             if (error != 0 && error != ETIMEDOUT)
             {
-                EHSH_LOG_ERROR("Bad mutex for JSON checks\n");
+                EHSH_LOG_ERROR("Bad mutex for JSON checks");
                 break;
             }
             pthread_mutex_unlock((pthread_mutex_t *)semlock);

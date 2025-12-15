@@ -280,7 +280,7 @@ EHS_FB_RUN_FUNCTION(DtvPvrPlay2_set_input)
         if (EhsTF_exists(&filename[prefixlen]) != 1 )
         {
             URIOK = EHS_FALSE;
-            EHSH_LOG_ERROR("Media file [%s] not found\n",&filename[prefixlen]);
+            EHSH_LOG_ERROR("Media file [%s] not found",&filename[prefixlen]);
         }
     }
     if (URIOK)

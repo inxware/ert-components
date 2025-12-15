@@ -965,7 +965,7 @@ void * ehs_android_main(Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),
     getcwd(buf,EHS_MAXPATHLENGTH); // Note this must be implemented for mingw
     EHSH_LOG_ERROR("Storing info");
     EhsHStoreArgInfo(1,argv,buf);  //@todo argv this is a bit clumsy - should extract the userdata path etc..
-    //EHSH_LOG_INFO("EHS startup\n");
+    //EHSH_LOG_INFO("EHS startup");
 
     /* set the exit functions */
     //signal(SIGTERM,EhsTargetHandleTerm);

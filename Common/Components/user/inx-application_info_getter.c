@@ -121,7 +121,7 @@ EHS_FB_INIT_FUNCTION(application_info_getter)
     inx_application_info_getter_state_type *state=inx_application_info_getter_state;
     if(!EhsTF_tryCanonicPath(state->appdataPath,EHS_RUNTIME_APPDATA_DIR,"",EHS_FALSE))
     {
-        EHSH_LOG_ERROR("Could not get appdata directory\n");
+        EHSH_LOG_ERROR("Could not get appdata directory");
     }
     /* Add any further intialisation code here */
     return bRet; /* initialisation always succeeds */
@@ -191,7 +191,7 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getList)
     //close the directory assuming we finished with it
     if(closedir(appdir)!=0)
     {
-        EHSH_LOG_ERROR("Failed to close appdata directory with path:%s\n",appdatapath);
+        EHSH_LOG_ERROR("Failed to close appdata directory with path:%s",appdatapath);
     }
     if (EHS_FB_OUT_CONNECTED_API2(INX_application_info_getter_ARG_getList_list_DO))
     {
@@ -258,7 +258,7 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getInfo)
         infofile=EhsFopen(infopath,"r");
         if(infofile==NULL)
         {
-            EHSH_LOG_WARNING("Could not open:%s\n",infopath);
+            EHSH_LOG_WARNING("Could not open:%s",infopath);
             EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getInfo_errors_DO), "Failed to open info.xml.");
             EHS_FB_FINISH(INX_application_info_getter_ARG_getInfo_errorinfo_EO);
             return;

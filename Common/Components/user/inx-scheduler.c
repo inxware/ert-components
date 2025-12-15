@@ -289,7 +289,7 @@ EHS_FB_RUN_FUNCTION(DevmanScheduler_init_schedule)
     {
         EhsMemset(inx_DevmanScheduler_state->data, 0, CONFIG_MAX_SCHEDULE_SIZE_BYTES);
         inx_DevmanScheduler_state->written = EHS_FALSE;
-        EHSH_LOG_ERROR("Scheduler - failed to initalised (%d)\n", read_errno);
+        EHSH_LOG_ERROR("Scheduler - failed to initalised (%d)", read_errno);
     }
     else
     {

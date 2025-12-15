@@ -508,10 +508,10 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
     case	0 : // this is good
         break;
     case 	EAGAIN :
-        EHSH_LOG_ERROR("ERROR Could not create thread: no resources\n");
+        EHSH_LOG_ERROR("ERROR Could not create thread: no resources");
         break;
     case	EINVAL :
-        EHSH_LOG_ERROR("ERROR Could not create thread: attribute information invalid\n");
+        EHSH_LOG_ERROR("ERROR Could not create thread: attribute information invalid");
         break;
     case	EPERM  :
         EHSH_LOG_ERROR("ERROR Could not create thread: Client does not have necessary permissions");
@@ -582,7 +582,7 @@ ehs_bool EhsTPThread_ChangeThisPriority(ehs_sint16 priority)
     ret = pthread_setschedparam(thread,SCHED_RR,&param);
     if (ret !=0)
     {
-        EHSH_LOG_WARNING("WARNING: Could not set ehs.exe to real-time. Running as SCHED_OTHER. Run ehs as root to use SCHED_RR\n");
+        EHSH_LOG_WARNING("WARNING: Could not set ehs.exe to real-time. Running as SCHED_OTHER. Run ehs as root to use SCHED_RR");
     }
     return (ret == 0);
 //#else
