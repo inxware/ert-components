@@ -14,6 +14,9 @@
  */
 
 #include "blockref_table.h"
+#include "hal_logger.h" /* EHSH_LOG_INFO */
+#include <stdio.h>
+
 #ifdef EHS_GUI_SUPPORT
 #include "guiviewport.h"
 //#include "guitextdisplay.h"
@@ -32,6 +35,11 @@
 #include "ui_widgets/inx-ui_spinner.h"
 #include "ui_widgets/inx-ui_chart.h"
 #include "ui_widgets/inx-ui_list.h"
+
+static void __attribute__((constructor)) dump_gui_components(void) {
+    printf("*** QT DEBUG: GUI component table being initialised ***\n");
+    fflush(stdout);
+}
 
 EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_coreGui[] =
 {

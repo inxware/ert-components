@@ -18,6 +18,7 @@
 #include "statmodules.h"
 #include "blockref_table.h"
 //#include "hal-api.h"
+#include "hal_logger.h" /* EHSH_LOG_INFO */
 
 /* For the core toolkit */
 #include "timer.h"
@@ -111,23 +112,41 @@ extern const EhsBlockRefType  EhsBlockRefTable_usercomponents[];
  */
 void EhsAddStaticModules()
 {
+    printf("*** QT DEBUG: EhsAddStaticModules CALLED ***\n");
+    fflush(stdout);
+    EHSH_LOG_INFO("=== EhsAddStaticModules: ENTRY - Registering component tables ===");
     /* now add the toolkits */
+    printf("*** QT DEBUG: Registering core table ***\n");
+    fflush(stdout);
+    EHSH_LOG_INFO("  Registering EhsBlockRefTable_core");
     EhsToolkitTable_addTable(EhsBlockRefTable_core);
 #ifdef EHS_TOOLKIT_DEPRECATED
+    printf("*** QT DEBUG: Registering deprecated table ***\n");
+    fflush(stdout);
+    EHSH_LOG_INFO("  Registering EhsBlockRefTable_deprecated");
     EhsToolkitTable_addTable(EhsBlockRefTable_deprecated);
 #endif
 
 #ifdef EHS_TOOLKIT_SANDBOX
+    printf("*** QT DEBUG: Registering sandbox table ***\n");
+    fflush(stdout);
+    EHSH_LOG_INFO("  Registering EhsBlockRefTable_sandbox");
     EhsToolkitTable_addTable(EhsBlockRefTable_sandbox);
 #endif
 
 #ifdef EHS_GUI_SUPPORT
+    printf("*** QT DEBUG: EHS_GUI_SUPPORT is DEFINED, registering GUI table ***\n");
+    fflush(stdout);
+    EHSH_LOG_INFO("  Registering EhsBlockRefTable_coreGui (GUI components)");
     EhsToolkitTable_addTable(EhsBlockRefTable_coreGui);
     //@todo the following should really be renamed to Keyboard Support and made a generic component.
     //@todo Also there is no header construct for cases where we do have HW specific components
     //Badidea:extern EhsBlockRefType EhsBlockRefTable_gtk[]; //@todo This should be declared in the same way as the above...
     //Badidea:EhsToolkitTable_addTable(EhsBlockRefTable_gtk);
 
+#else
+    printf("*** QT DEBUG: EHS_GUI_SUPPORT is NOT DEFINED ***\n");
+    fflush(stdout);
 #endif /* EHS_GUI_SUPPORT */
 
 #ifdef EHS_PERIPHERAL_DEVICE_SUPPORT
@@ -158,8 +177,14 @@ void EhsAddStaticModules()
 #endif
 
 #ifdef EHS_USER_COMPONENT_SUPPORT
+    printf("*** QT DEBUG: Registering user components table ***\n");
+    fflush(stdout);
+    EHSH_LOG_INFO("  Registering EhsBlockRefTable_usercomponents");
     EhsToolkitTable_addTable(EhsBlockRefTable_usercomponents);
 #endif
+    printf("*** QT DEBUG: EhsAddStaticModules COMPLETED ***\n");
+    fflush(stdout);
+    EHSH_LOG_INFO("=== EhsAddStaticModules: EXIT - All component tables registered ===");
 }
 
 ehs_bool EhsInitStaticModules()

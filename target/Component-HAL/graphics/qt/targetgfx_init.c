@@ -7,7 +7,9 @@
  *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
 #define EHS_TARGET_CODE /* Ensure header files include target-internal values */
+
 #include "targetgfx_init.h"
 #include "hal_viewport.h"
 #include "messages.h"
@@ -16,11 +18,11 @@
 
 void EhsTGfxSys_init(void)
 {
-    EHSH_LOG_INFO("Qt Graphics System Init\n");
+    EHSH_LOG_INFO("Qt Graphics System Init");
 
     if (!EhsTV_init(&EhsTV))
     {
-        EHSH_LOG_ERROR("Qt viewport init failed\n");
+        EHSH_LOG_ERROR("Qt viewport init failed");
         exit(1);
     }
 }

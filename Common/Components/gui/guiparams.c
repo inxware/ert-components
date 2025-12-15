@@ -35,10 +35,13 @@
 /* Included files */
 #ifdef EHS_GUI_SUPPORT
 
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
+
 #include "guiparams.h"
 #include "globals.h" /* EHS_STRING_LENGTH_MAX */
 #include "hal_string.h"
 #include "font.h"
+#include "hal_logger.h" /* EHSH_LOG_INFO, EHSH_LOG_WARNING */
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -382,6 +385,14 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
     ehs_bool bRet = EHS_FALSE; /* Assume the function fails */
     char *pTmp; /* used to terminate strings */
 
+    printf("*** QT DEBUG: EhsParseGuiParameters CALLED ***\n");
+    fflush(stdout);
+    printf("*** QT DEBUG: szParamsText=%p, first 100 chars: '%.100s'\n",
+           (void*)szParamsText, szParamsText ? szParamsText : "(null)");
+    fflush(stdout);
+    EHSH_LOG_INFO("EhsParseGuiParameters: ENTRY - parsing widget parameters");
+    EHSH_LOG_INFO("  Raw params text (first 100 chars): %.100s", szParamsText ? szParamsText : "(null)");
+
     /* split the params text into the params structure */
     nParamsRead = 0;
     pParam[nParamsRead++] = szParamsText;
@@ -397,8 +408,14 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         }
     }
 
+    printf("*** QT DEBUG: Parameters split into %u tokens\n", nParamsRead);
+    fflush(stdout);
+    EHSH_LOG_INFO("  Parameters split into %u tokens", nParamsRead);
+
     if (nParamsRead > 1)
     {
+        printf("*** QT DEBUG: nParamsRead > 1, proceeding with parsing\n");
+        fflush(stdout);
         /* determine version number */
         nParam = 0;
         if (EhsStrnicmp("1.0.0",pParam[nParam],5) == 0)
@@ -415,6 +432,10 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         }
         nParam++;
 
+        printf("*** QT DEBUG: GUI file format version: %u\n", nVersion);
+        fflush(stdout);
+        EHSH_LOG_INFO("  GUI file format version: %u", nVersion);
+
         /* identify widget type & load params */
         EhsGetWordFromString(szObjectType,pParam[nParam++]);
         pTmp = strchr(szObjectType,EHS_PARAM_SEPARATOR);
@@ -423,49 +444,105 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
             *pTmp = '\0';
         }
 
+        printf("*** QT DEBUG: Widget type: '%s'\n", szObjectType);
+        fflush(stdout);
+        EHSH_LOG_INFO("  Widget type: '%s'", szObjectType);
+
         pParams->eClass = EHS_WIDGET_CLASS_INVALID;
         if ((0 == EhsStricmp(szObjectType,"gui_bitmap")) ||
                 (0 == EhsStricmp(szObjectType,"gui_image1")))
         {
+            printf("*** QT DEBUG: Matched BITMAP widget type\n");
+            fflush(stdout);
+            EHSH_LOG_INFO("  -> Parsing as BITMAP widget");
             if (EhsParseGuiParameters_bitmap(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam))
             {
                 pParams->eClass = EHS_WIDGET_CLASS_BITMAP;
-            } /* else class is invalid */
+                EHSH_LOG_INFO("  (ok) bitmap parsing succeeded");
+            }
+            else
+            {
+                EHSH_LOG_WARNING("  (fail) BITMAP parsing FAILED");
+            }
         }
         else if ((0 == EhsStricmp(szObjectType,"gui_textbox")) ||
                  EhsParseGuiParametersTextBox2Type(szObjectType, &pParams->nTextBoxType))
         {
+            printf("*** QT DEBUG: Matched TEXTBOX widget type\n");
+            fflush(stdout);
+            EHSH_LOG_INFO("  -> Parsing as TEXTBOX widget");
             if (EhsParseGuiParameters_textbox(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam))
             {
                 pParams->eClass = EHS_WIDGET_CLASS_TEXTBOX;
-            } /* else class is invalid */
+                EHSH_LOG_INFO("  (ok) textbox parsing succeeded");
+            }
+            else
+            {
+                EHSH_LOG_WARNING("  (fail) TEXTBOX parsing FAILED");
+            }
         }
         else if (0 == EhsStricmp(szObjectType,"gui_patch")) //We use this for the viewport types also
         {
+            EHSH_LOG_INFO("  -> Parsing as PATCH widget");
             if (EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
             {
                 pParams->eClass = EHS_WIDGET_CLASS_PATCH;
-            } /* else class is invalid */
+                EHSH_LOG_INFO("  (ok) patch parsing succeeded");
+            }
+            else
+            {
+                EHSH_LOG_WARNING("  (fail) PATCH parsing FAILED");
+            }
         }
         else if (0 == EhsStricmp(szObjectType,"gui_viewport"))
         {
+            EHSH_LOG_INFO("  -> Parsing as VIEWPORT widget");
             if (EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
             {
                 pParams->eClass = EHS_WIDGET_CLASS_VIEWPORT;
-            } /* else class is invalid */
+                EHSH_LOG_INFO("  (ok) viewport parsing succeeded");
+            }
+            else
+            {
+                EHSH_LOG_WARNING("  (fail) VIEWPORT parsing FAILED");
+            }
         }
         else if (0 == EhsStricmp(szObjectType,"gui_video_port"))
         {
+            EHSH_LOG_INFO("  -> Parsing as VIDEO_PORT widget");
             if(EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam))
             {
                 pParams->eClass = EHS_WIDGET_CLASS_VIDEO_PORT;
+                EHSH_LOG_INFO("  (ok) video_port parsing succeeded");
             }
-        }/* else class is invalid */
+            else
+            {
+                EHSH_LOG_WARNING("  (fail) VIDEO_PORT parsing FAILED");
+            }
+        }
+        else
+        {
+            printf("*** QT DEBUG: NO MATCH for widget type '%s'\n", szObjectType);
+            fflush(stdout);
+            EHSH_LOG_WARNING("  (fail) Unknown widget type '%s' - class remains INVALID", szObjectType);
+        }
 
         /* convert sint32 to uint32 by adding 2^31 - means min(sint32) => 0, max(sint32) > max(uint32)
          * preserves monotonicity of zOrdering */
         pParams->nZorder = (0x80000000 ^ pParams->nZorder);
+
+        printf("*** QT DEBUG: EhsParseGuiParameters EXIT - eClass=%d, nZorder=%u\n", pParams->eClass, pParams->nZorder);
+        fflush(stdout);
+        EHSH_LOG_INFO("EhsParseGuiParameters: EXIT - eClass=%d, nZorder=%u", pParams->eClass, pParams->nZorder);
     }
+    else
+    {
+        printf("*** QT DEBUG: nParamsRead=%u (too few parameters)\n", nParamsRead);
+        fflush(stdout);
+        EHSH_LOG_WARNING("EhsParseGuiParameters: EXIT - insufficient parameters (nParamsRead=%u)", nParamsRead);
+    }
+    printf("*** QT DEBUG: EhsParseGuiParameters COMPLETE\n");
+    fflush(stdout);
 }
 
 #endif /* EHS_GUI_SUPPORT */

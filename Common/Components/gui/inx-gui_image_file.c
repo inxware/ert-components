@@ -1,3 +1,12 @@
+/***************************************************************
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
+ *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
+****************************************************************/
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -97,7 +106,7 @@ EHS_FB_INIT_FUNCTION(GUI_Image_File)
 		bCaptureClicks = (ehs_bool)nByte;
 		pParams = EhsGetUint8FromString(&nByte, pParams);
 		bLoadImageFromAppDir = (ehs_bool)nByte;
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 		/* Set the image widget specific parameters too */
 		inx_GUI_Image_File_state->image.bLoadImageFromAppDir = bLoadImageFromAppDir;
 		inx_GUI_Image_File_state->image.bDynamicFilename = EHS_FALSE;
@@ -150,11 +159,11 @@ static void GUI_Image_File_event_callback(struct EhsWidgetStruct* pWidget, ehs_u
 			return;
 		}
 
-		if(event_id & EHS_WIDGET_UI_EVENT_MOUSE_CLICKED){	
+		if(event_id & EHS_WIDGET_UI_EVENT_MOUSE_CLICKED){
 			EHS_FB_FINISH(INX_GUI_Image_File_ARG_create_click);
 		}
 
-		if(event_id & EHS_WIDGET_UI_EVENT_MOUSE_DOWN){	
+		if(event_id & EHS_WIDGET_UI_EVENT_MOUSE_DOWN){
 			EHS_FB_FINISH(INX_GUI_Image_File_ARG_create_mouse_down);
 		}
 	}
@@ -178,7 +187,7 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_create)
 		if(!pWidget){
 			return;
 		}
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 		/* set up on click callback */
 		EHS_WIDGET_UI(pWidget).event_callback = GUI_Image_File_event_callback;
 		/* setup widget data */
@@ -210,7 +219,7 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_create)
 		}
 
 		EhsWidget_create(pWidget);
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if !defined(EHS_GUI_SUPPORT_MODE_B)
 		/*Set number of mouseClick port*/
 		pWidget->mouseClickPortNumber = INX_GUI_Image_File_ARG_create_click;
 		pWidget->mouseDownPortNumber = INX_GUI_Image_File_ARG_create_mouse_down;
@@ -253,7 +262,7 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_load)
 
 		if (pWidget && pWidget->nState && EHS_FB_IN_CONNECTED_API2(INX_GUI_Image_File_ARG_load_file))   /* if a string is connected then get a dynamic variable for the filename. */
 		{
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 			EhsStrcpy(inx_GUI_Image_File_state->image.szFilename, EHS_FB_IN_S_API2(INX_GUI_Image_File_ARG_load_file) );
 #else
 			EhsWidgetImage_setFilename(pWidget, EHS_FB_IN_S_API2(INX_GUI_Image_File_ARG_load_file), EHS_TRUE);
@@ -265,9 +274,9 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_load)
 			{
 				// implicit destroy and recreate
 				iBeforeVal = pWidget->pFIData;
-				
+
 				EhsWidget_destroy(pWidget);
-#ifdef EHS_GUI_SUPPORT_MODE_B				
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 				inx_GUI_Image_File_state->image.bDynamicFilename = EHS_TRUE;
 				/* set up on click callback */
 				EHS_WIDGET_UI(pWidget).event_callback = GUI_Image_File_event_callback;
@@ -275,7 +284,7 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_load)
 				EHS_WIDGET_UI(pWidget).data = (void*) &inx_GUI_Image_File_state->image;
 #endif
 				EhsWidget_create(pWidget);
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if !defined(EHS_GUI_SUPPORT_MODE_B)
 				/*Set number of mouseClick port ~todo - this needs making nicer!*/
 				pWidget->mouseClickPortNumber = INX_GUI_Image_File_ARG_create_click;
 				pWidget->mouseDownPortNumber = INX_GUI_Image_File_ARG_create_mouse_down;
@@ -298,7 +307,7 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_load)
 		}
 
 		EHS_FB_FINISH(INX_GUI_Image_File_ARG_load___);
-	}	
+	}
 }//ICB FUNCTION load MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION show MACRO START -- DO NOT ALTER
 /**

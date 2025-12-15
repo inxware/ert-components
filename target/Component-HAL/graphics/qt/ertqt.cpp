@@ -1,4 +1,11 @@
-// ertqt.cpp
+/***************************************************************
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
+ *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
+****************************************************************/
 
 #include "ertqt.h"
 
@@ -935,17 +942,25 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
 
     // Connect: signal -> mapper.map()
     bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");  // "1" = SLOT
-    if (!connected)
+    if (!connected) {
+        qDebug() << "ertqt: Failed to connect signal" << signal_name << "to QSignalMapper";
         return ERTQT_ERR_BACKEND_FAILURE;
+    }
 
     // Connect: mapper.mapped(int) -> lambda
     QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
                     g_app, [cb, user_data](int) { cb(user_data); });
+    qDebug() << "ertqt: Connected signal" << signal_name << "via QSignalMapper (Qt5)";
     return ERTQT_OK;
 #else
     // Qt6: Can connect string signals to lambdas directly
     bool connected = QObject::connect(obj, signal_sig.constData(),
                                      g_app, [cb, user_data]() { cb(user_data); });
+    if (connected) {
+        qDebug() << "ertqt: Connected signal" << signal_name << "directly (Qt6)";
+    } else {
+        qDebug() << "ertqt: Failed to connect signal" << signal_name;
+    }
     return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
 #endif
 }
@@ -1023,8 +1038,10 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
     mapper->setMapping(obj, 0);
 
     bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");
-    if (!connected)
+    if (!connected) {
+        qDebug() << "ertqt: Failed to connect text signal" << signal_name << "to QSignalMapper";
         return ERTQT_ERR_BACKEND_FAILURE;
+    }
 
     // Connect mapper to lambda that handles text
     if (is_parameterless)
@@ -1048,6 +1065,7 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
                             cb(utf8.constData(), user_data);
                         });
     }
+    qDebug() << "ertqt: Connected text signal" << signal_name << "via QSignalMapper (Qt5)";
     return ERTQT_OK;
 #else
     // Qt6: Direct lambda connection
@@ -1060,6 +1078,11 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
                 QByteArray utf8 = text.toUtf8();
                 cb(utf8.constData(), user_data);
             });
+        if (connected) {
+            qDebug() << "ertqt: Connected text signal" << signal_name << "(parameterless) directly (Qt6)";
+        } else {
+            qDebug() << "ertqt: Failed to connect text signal" << signal_name;
+        }
         return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
     }
     else
@@ -1070,6 +1093,11 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
                 QByteArray utf8 = text.toUtf8();
                 cb(utf8.constData(), user_data);
             });
+        if (connected) {
+            qDebug() << "ertqt: Connected text signal" << signal_name << "(with QString param) directly (Qt6)";
+        } else {
+            qDebug() << "ertqt: Failed to connect text signal" << signal_name;
+        }
         return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
     }
 #endif

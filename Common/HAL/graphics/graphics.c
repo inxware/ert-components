@@ -1,10 +1,10 @@
 /***************************************************************
-* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
-* You may use, distribute and modify this code under the terms
-* of the LGPLv3 license. You should have received a copy of the
-* LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
-* not, please visit
-*	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
+ *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
 /** @file graphics.c
@@ -14,11 +14,13 @@
  *
  */
 
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
+
 #include "graphics.h"
 #include "hal-api.h"
 
 /*  @todo move file stuff somewhere else */
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
 #include "png.h"
 #endif
 /**
@@ -402,11 +404,11 @@ error:
 ehs_bool doCheckFileHeader(const char* Path, ehs_bool bLoadImageFromAppDir, EhsGfxFileType filetypecheck, EhsGfxFileOrientation * orientation)
 {
     int result = -1; // assume failure, 0 is a match
-    
-    #ifndef EHS_GUI_SUPPORT_MODE_B
+
+#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
     const int nread = 8;
     unsigned char buffer[8];
-    #endif
+#endif
 
     *orientation = 0;
 
@@ -434,7 +436,7 @@ ehs_bool doCheckFileHeader(const char* Path, ehs_bool bLoadImageFromAppDir, EhsG
             break;
         case EHS_GFXFILETYPE_PNG:   // PNG header check
             result = 0;
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
             if (EhsFread(buffer, 1, nread, file) == nread)	result = png_sig_cmp(buffer, 0, nread);
 #endif
             break;

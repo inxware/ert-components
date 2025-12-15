@@ -6,6 +6,8 @@
 #define EHS_TARGET_CODE
 
 #include <stdio.h>
+#include <inttypes.h>
+
 #include "globals.h"
 #include "hal_viewport.h"  // this in turn includes `target_viewport.h`
 #include "hal_process.h"
@@ -32,7 +34,7 @@ EhsTVClass EhsTV;
 static ehs_bool g_qt_initialised = EHS_FALSE;
 
 //=============================================================================
-// Qt Signal Handlers → EHS Events
+// Qt Signal Handlers -> EHS Events
 //=============================================================================
 
 // Button pressed (mouse down)
@@ -42,16 +44,23 @@ static void qt_on_button_pressed(void * user_data)
 
     if (!pWidget)
     {
+        EHSH_LOG_WARNING("Qt button pressed: pWidget is NULL!");
         return;
     }
 
-    EHSH_LOG_INFO("Qt button pressed\n");
+    EHSH_LOG_INFO("Qt button pressed - pWidget=%p, event_callback=%p",
+                  (void*)pWidget, (void*)EHS_WIDGET_UI(pWidget).event_callback);
 
     // Trigger EHS mouse_down event via the widget's event callback
     if (EHS_WIDGET_UI(pWidget).event_callback)
     {
+        EHSH_LOG_INFO("  -> Calling event_callback for MOUSE_DOWN");
         ehs_bool value = EHS_TRUE;
         EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_DOWN | EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &value);
+    }
+    else
+    {
+        EHSH_LOG_WARNING("  (fail) event_callback is NULL - cannot trigger EHS event!");
     }
 }
 
@@ -62,17 +71,24 @@ static void qt_on_button_released(void * user_data)
 
     if (!pWidget)
     {
+        EHSH_LOG_WARNING("Qt button released: pWidget is NULL!");
         return;
     }
 
-    EHSH_LOG_INFO("Qt button released (click)\n");
+    EHSH_LOG_INFO("Qt button released (click) - pWidget=%p, event_callback=%p",
+                  (void*)pWidget, (void*)EHS_WIDGET_UI(pWidget).event_callback);
 
     // Trigger EHS click event via the widget's event callback
     // EHS treats button release as the actual click event
     if (EHS_WIDGET_UI(pWidget).event_callback)
     {
+        EHSH_LOG_INFO("  -> Calling event_callback for MOUSE_CLICKED");
         ehs_bool value = EHS_FALSE;
         EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_CLICKED | EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &value);
+    }
+    else
+    {
+        EHSH_LOG_WARNING("  (fail) event_callback is NULL - cannot trigger EHS event!");
     }
 }
 
@@ -86,7 +102,7 @@ static void qt_on_text_changed(const char * utf8_text, void * user_data)
         return;
     }
 
-    EHSH_LOG_INFO("Qt text changed: '%s'\n", utf8_text ? utf8_text : "(null)");
+    EHSH_LOG_INFO("Qt text changed: '%s'", utf8_text ? utf8_text : "(null)");
 
     // Trigger EHS data changed event via the widget's event callback
     if (EHS_WIDGET_UI(pWidget).event_callback)
@@ -109,7 +125,7 @@ static void qt_on_checkbox_clicked(void * user_data)
     // Read checkbox state from Qt
     ertqt_checkbox_get_checked(pWidget->qt_handle, &checked);
 
-    EHSH_LOG_INFO("Qt checkbox clicked: checked = %d\n", checked);
+    EHSH_LOG_INFO("Qt checkbox clicked: checked = %d", checked);
 
     // Trigger EHS data changed event via the widget's event callback
     if (EHS_WIDGET_UI(pWidget).event_callback)
@@ -127,11 +143,16 @@ static void register_qt_signals(EhsWidgetClass * pWidget)
 {
     ertqt_object_handle h = pWidget->qt_handle;
 
+    EHSH_LOG_INFO("Registering Qt signals for handle %"PRIdPTR", pWidget=%p, event_callback=%p",
+                  h, (void*)pWidget, (void*)EHS_WIDGET_UI(pWidget).event_callback);
+
     // Determine widget type from UI subclass ID
     // For PoC, register all possible signals - Qt will only connect the ones that exist
 
     // Register button pressed/released signals (EHS treats release as the actual click)
+    EHSH_LOG_INFO("  Binding pressed signal with pWidget=%p as user_data", (void*)pWidget);
     ertqt_bind_pressed(h, qt_on_button_pressed, pWidget);
+    EHSH_LOG_INFO("  Binding released signal with pWidget=%p as user_data", (void*)pWidget);
     ertqt_bind_released(h, qt_on_button_released, pWidget);
 
     // Register text field change signal
@@ -140,7 +161,6 @@ static void register_qt_signals(EhsWidgetClass * pWidget)
     // Register checkbox clicked signal
     ertqt_checkbox_on_clicked(h, qt_on_checkbox_clicked, pWidget);
 
-    EHSH_LOG_INFO("Registered Qt signals for handle %ld\n", h);
 }
 
 //=============================================================================
@@ -148,22 +168,23 @@ static void register_qt_signals(EhsWidgetClass * pWidget)
 //=============================================================================
 
 // Create Qt widget and register event handlers
-// Called by EhsWidgetUi_create() -> this is where Qt widgets get connected to EHS
+// Called by Common/HAL/graphics/widget_ui.c:EhsWidgetUi_create() -> this is where Qt widgets get connected to EHS
 void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
 {
     if (!pWidget)
     {
-        EHSH_LOG_ERROR("NULL widget pointer in EhsTargetWidgetUi_create\n");
+        EHSH_LOG_ERROR("NULL widget pointer in EhsTargetWidgetUi_create");
         return;
     }
 
     // Look up Qt object by name
     char * name_hack = "user_interface";
+    EHSH_LOG_INFO("EhsTargetWidgetUi_create() looking up '%s'", name_hack);
     ertqt_object_handle h = ertqt_get_object_by_name(name_hack);    // @TODO: get the widget name string from `pWidget`
 
     if (h < 0)
     {
-        EHSH_LOG_WARNING("Failed to find Qt object '%s', trying default names\n", name_hack);
+        EHSH_LOG_WARNING("Failed to find Qt object '%s', trying default names", name_hack);
         // @TODO: Try alternate naming strategies or create widget dynamically
         return;
     }
@@ -174,7 +195,7 @@ void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
     // Register Qt signal handlers
     register_qt_signals(pWidget);
 
-    EHSH_LOG_INFO("Created Qt widget UI for handle %ld\n", h);
+    EHSH_LOG_INFO("Created Qt widget UI for handle %"PRIdPTR"", h);
 }
 
 // Draw Qt widget
@@ -189,12 +210,15 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
     // Request Qt to update/repaint the widget
     // Note: In most cases Qt automatically updates when properties change,
     // but this ensures updates happen when explicitly requested
-    ertqt_status status = ertqt_update_widget(pWidget->qt_handle);
+    ertqt_object_handle h = pWidget->qt_handle;
+    ertqt_status status = ertqt_update_widget(h);
+
+    EHSH_LOG_INFO("Draw widget %"PRIdPTR"", h);
 
     if (status != ERTQT_OK && status != ERTQT_ERR_BACKEND_FAILURE)
     {
         // Only warn if it's not a backend failure (some objects don't support update())
-        EHSH_LOG_WARNING("Failed to update Qt widget (status %d)\n", status);
+        EHSH_LOG_WARNING("Failed to update Qt widget (status %d)", status);
     }
 }
 
@@ -209,9 +233,9 @@ void EhsTargetWidgetUi_destroy(EhsWidgetClass * pWidget)
 
     // In Mode B Qt, widgets are owned by QML - we don't destroy them
     // Just clear our handle
+    EHSH_LOG_INFO("Destroying Qt widget UI %"PRIdPTR"", pWidget->qt_handle);
     pWidget->qt_handle = 0;
 
-    EHSH_LOG_INFO("Destroyed Qt widget UI\n");
 }
 
 // Show/hide Qt widget based on EHS widget state
@@ -226,16 +250,18 @@ void EhsTargetWidget_show(EhsWidgetClass * pWidget, ehs_uint8 nState)
     // Check if widget should be visible based on state flags
     ehs_bool bVisible = EHS_WIDGET_STATE_SHOWN(nState);
 
+    ertqt_object_handle h = pWidget->qt_handle;
+
     // Set Qt "visible" property via abstraction layer
-    ertqt_status status = ertqt_set_property_bool(pWidget->qt_handle, "visible", bVisible);
+    ertqt_status status = ertqt_set_property_bool(h, "visible", bVisible);
 
     if (status != ERTQT_OK)
     {
-        EHSH_LOG_WARNING("Failed to set Qt widget visibility (status %d)\n", status);
+        EHSH_LOG_WARNING("Failed to set Qt widget visibility (status %d)", status);
     }
     else
     {
-        EHSH_LOG_INFO("Qt widget visibility set to %d\n", bVisible);
+        EHSH_LOG_INFO("Qt widget %"PRIdPTR" visibility set to %d", h, bVisible);
     }
 }
 
@@ -250,7 +276,7 @@ ehs_bool EhsTV_init(EhsTVClass * pViewport)
         return EHS_TRUE;
     }
 
-    EHSH_LOG_INFO("Qt Graphics HAL initialised\n");
+    EHSH_LOG_INFO("Qt Graphics HAL initialised");
 
     g_qt_initialised = EHS_TRUE;
     return EHS_TRUE;
@@ -271,7 +297,7 @@ void EhsTV_reset(EhsTVClass * pViewport)
     EhsTPMutex_unlock(EhsTPMutex_widgetTable);
 
     // In Qt, no additional viewport clearing needed - widgets managed by QML
-    EHSH_LOG_INFO("Qt viewport reset\n");
+    EHSH_LOG_INFO("Qt viewport reset");
 }
 
 // Viewport update functions (Qt renders automatically)
@@ -398,7 +424,7 @@ ehs_bool EhsTV_getScreenSize(ehs_sint32 * nScreenWidth, ehs_sint32 * nScreenHeig
     // Query Qt window size via ertqt abstraction layer
     if (ertqt_get_window_size(&width, &height) != ERTQT_OK)
     {
-        EHSH_LOG_WARNING("Failed to get Qt window size, using defaults\n");
+        EHSH_LOG_WARNING("Failed to get Qt window size, using defaults");
         // Default fallback values
         *nScreenWidth = 800;
         *nScreenHeight = 600;
@@ -408,7 +434,7 @@ ehs_bool EhsTV_getScreenSize(ehs_sint32 * nScreenWidth, ehs_sint32 * nScreenHeig
     *nScreenWidth = (ehs_sint32)width;
     *nScreenHeight = (ehs_sint32)height;
 
-    EHSH_LOG_INFO("Screen size: %dx%d\n", *nScreenWidth, *nScreenHeight);
+    EHSH_LOG_INFO("Screen size: %dx%d", *nScreenWidth, *nScreenHeight);
 
     return EHS_TRUE;
 }

@@ -38,7 +38,7 @@
 
 EHS_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_deprecated[] =
 {
-#if defined(EHS_GUI_SUPPORT) && !defined(EHS_GUI_SUPPORT_MODE_B)
+#if defined(EHS_GUI_SUPPORT) && !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
 	/* guiimage.h */
 	/* EHS_BLOCKREF_ENTRY(EHS_FB_NAME_GUIIMAGE_NAME, GUI_Image), // compile error */
 	/* guiimage1.h */

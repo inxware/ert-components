@@ -49,7 +49,7 @@ static ehs_uint16 g_GpioCount = 0;
 
 typedef struct
 {
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsWidgetClass* pWidgetBackground;
     EhsWidgetClass* pWidgetLabel;
 #endif
@@ -58,7 +58,7 @@ typedef struct
 
 typedef struct
 {
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsWidgetClass* pWidgetBackground;
     EhsWidgetClass* pWidgetLabel;
     EhsWidgetClass* pWidgetSwitchBackground;
@@ -138,7 +138,8 @@ void destroy_gpio_panel_widget()
     }
 }
 
-#else
+#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
+
 /* these are gui widgets for mode A */
 
 EhsWidgetClass* create_patch_widget(ehs_sint32 x, ehs_sint32 y, ehs_sint32 w, ehs_sint32 h, ehs_uint32 z,
@@ -203,7 +204,7 @@ EhsWidgetClass* create_text_widget(ehs_sint32 x, ehs_sint32 y, ehs_sint32 w, ehs
     return pWidget;
 }
 
-#endif
+#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
 
 /************************************** GPIO OUTPUT **************************************/
 
@@ -216,7 +217,7 @@ gpio_out_gui_widget* init_gpio_out_gui_widget(ehs_gpio_out_state_type* pGPIO)
             ehs_uint8 r, g, b, a;
             ehs_sint32 width = GPIO_UI_WIDTH, height = GPIO_UI_HEIGHT;
             ehs_sint32 x = GPIO_UI_X_POS + (GPIO_UI_SEP*width * g_GpioCount), y = GPIO_UI_Y_POS;
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
             // create a led widget
             r = 255; g = 0; b = 0; a = 255;
             ehs_uint8 fr = 200, fg = 200, fb = 200, fa = 255;
@@ -278,7 +279,7 @@ void destroy_gpio_out_gui_widget(gpio_out_gui_widget* pWidget)
         if (pWidget->pWidgetLed) {
             EhsWidget_destroy(pWidget->pWidgetLed);
         }
-#else
+#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
         if (pWidget->pWidgetBackground) {
             EhsWidget_destroy(pWidget->pWidgetBackground);
         }
@@ -288,7 +289,7 @@ void destroy_gpio_out_gui_widget(gpio_out_gui_widget* pWidget)
         if (pWidget->pWidgetLed) {
             EhsWidget_destroy(pWidget->pWidgetLed);
         }
-#endif
+#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
         free(pWidget);
     }
 }
@@ -298,13 +299,13 @@ void set_gpio_out_value(gpio_out_gui_widget* pWidget, ehs_bool value)
 #if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
     EhsWidgetUI_update(pWidget->pWidgetLed);
     Ehs_widget_commit(pWidget->pWidgetLed);
-#else
+#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
     if (value == EHS_TRUE) {
         EhsWidget_fade(pWidget->pWidgetLed, (ehs_uint8)255);
     } else {
         EhsWidget_fade(pWidget->pWidgetLed, (ehs_uint8)50);
     }
-#endif
+#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
 }
 
 EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO)
@@ -366,7 +367,7 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidgetSwitch, ehs
         }
 	}
 }
-#else
+#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
 void OnMouseDownEvent(EhsWidgetClass* pWidget)
 {
     if (pWidget && pWidget->pMouseDownEventData) {
@@ -385,7 +386,7 @@ void OnMouseDownEvent(EhsWidgetClass* pWidget)
         }
     }
 }
-#endif
+#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
 
 gpio_in_gui_widget* init_gpio_in_gui_widget(ehs_gpio_in_state_type* pGPIO)
 {
@@ -398,12 +399,12 @@ gpio_in_gui_widget* init_gpio_in_gui_widget(ehs_gpio_in_state_type* pGPIO)
             ehs_sint32 width = GPIO_UI_WIDTH, height = GPIO_UI_HEIGHT;
             ehs_sint32 x = GPIO_UI_X_POS + (GPIO_UI_SEP*width * g_GpioCount), y = GPIO_UI_Y_POS;
             ehs_uint8 r, g, b, a;
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
             // create a led widget
             r = 255; g = 0; b = 0; a = 255;
             ehs_uint8 fr = 100, fg = 100, fb = 100, fa = 255;
             pWidget->pWidgetSwitch = create_ui_widget(EHS_SPECIAL_UI_GPIO_IN, x, y, width, height, 0, 0, 0, 0, 0, r, g, b, a, fr, fg, fb, fa);
-#else
+#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
             int width_offset = (width - width * 0.9f);
             int height_offset = (height - height * 0.95f);
             // create a background patch
@@ -424,7 +425,7 @@ gpio_in_gui_widget* init_gpio_in_gui_widget(ehs_gpio_in_state_type* pGPIO)
             // create switch item patch
             r = 50; g = 50; b = 50; a = 255;
             pWidget->pWidgetSwitch = create_patch_widget(x + width_offset, y + height * 0.25 + 2 * height_offset, width * 0.9f - width_offset, height * 0.25 - 3 * height_offset, 1, r, g, b, a);
-#endif
+#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
         }
     }
     return pWidget;
@@ -440,7 +441,7 @@ void create_gpio_in_gui_widget(gpio_in_gui_widget* pWidget, const ehs_gpio_in_st
             EhsWidget_create(pWidget->pWidgetSwitch);
             EhsWidget_show(pWidget->pWidgetSwitch);
         }
-#else
+#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
         // show background widget
         if (pWidget->pWidgetBackground) {
             EhsWidget_create(pWidget->pWidgetBackground);
@@ -470,7 +471,7 @@ void create_gpio_in_gui_widget(gpio_in_gui_widget* pWidget, const ehs_gpio_in_st
             EhsWidget_create(pWidget->pWidgetSwitch);
             EhsWidget_show(pWidget->pWidgetSwitch);
         }
-#endif
+#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
     }
 }
 
@@ -481,7 +482,7 @@ void destroy_gpio_in_gui_widget(gpio_in_gui_widget* pWidget)
         if (pWidget->pWidgetSwitch) {
             EhsWidget_destroy(pWidget->pWidgetSwitch);
         }
-#else
+#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
         if (pWidget->pWidgetBackground) {
             EhsWidget_destroy(pWidget->pWidgetBackground);
         }
@@ -494,7 +495,7 @@ void destroy_gpio_in_gui_widget(gpio_in_gui_widget* pWidget)
         if (pWidget->pWidgetSwitch) {
             EhsWidget_destroy(pWidget->pWidgetSwitch);
         }
-#endif
+#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
         free(pWidget);
     }
 }

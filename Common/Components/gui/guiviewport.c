@@ -1,10 +1,10 @@
 /***************************************************************
-* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
-* You may use, distribute and modify this code under the terms
-* of the LGPLv3 license. You should have received a copy of the
-* LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
-* not, please visit
-*	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
+ *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
 /**
@@ -174,7 +174,7 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
         //{@todo reinstate this when the new types are recognised and specified properly in the tools etc.
         bRet = EHS_TRUE;
         //}
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
         *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetUI_init(EHS_OTHER_UI_WIDGET_VIEWPORT, 0, 0, 0, &(xParams.xRect), xParams.nZorder,
 																 0, 0, 0, 0, 0,
 																 xParams.uClass.xPatch,
@@ -275,7 +275,7 @@ EHS_FB_RUN_FUNCTION(gui_viewport_create)
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
     if (pWidget) {
 
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 		/* set up on click callback */
 		EHS_WIDGET_UI(pWidget).event_callback = gui_viewport_event_callback;
 		/* setup widget data */
@@ -287,7 +287,7 @@ EHS_FB_RUN_FUNCTION(gui_viewport_create)
         /*Set pointer in widget structure to point at instance data. Used for mouse click.*/
         pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
 
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
         /*Set number of mouseClick, mouseUp, mouseDrag ports*/
         pWidget->mouseDownPortNumber = 2;
         pWidget->mouseUpPortNumber = 3;

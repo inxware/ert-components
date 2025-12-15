@@ -65,7 +65,9 @@ ERT_SODL_VERSION=1
 EHS_DEBUGALL=true
 DEFS += EHS_LOG_LEVEL_VERBOSE
 DEFS += EHS_LOG_TO_STDIO
-# DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
+
+# Force 'unknown' source files to output logging at the logger's logging level
+DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
 
 # To enable UI support ("ui", DCC=4) set EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support
 # for your target:

@@ -27,6 +27,9 @@
  */
 
 /*****************************************************************************/
+
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
+
 /* Included files */
 #include "widget.h"
 #include "messages.h"
@@ -34,7 +37,7 @@
 
 #include "hal_string.h"
 #include "hal_process.h"
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
 #include "target_viewport_modeB.h"
 #endif
 
@@ -70,13 +73,15 @@ EhsWidgetTableClass EhsWidgetTable= {0};
 
 /**
  * Create the widget. This is a necessary step prior to showing the widget
- * 
+ *
  * Works in both render MODE_A anad MODE_B
  */
 void EhsWidget_create(EhsWidgetClass* pWidget)
 {
+    EHSH_LOG_INFO("EhsWidget_create starting initialisation...");
+
     ehs_bool bIsInit = EHS_WIDGET_STATE_INITIALIZED(pWidget->nState);
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) //|| defined(EHS_GUI_SUPPORT_MODE_B_QT)
     /** @todo - refactor - it is only for convenience that viewport is using the widget struct  */
     pWidget->mouseClickPortNumber = -1; // default value
     pWidget->mouseDownPortNumber = -1; // default value
@@ -103,17 +108,23 @@ void EhsWidget_create(EhsWidgetClass* pWidget)
         /* @todo is this efficient? should recreate do nothing? */
         if ((pWidget->nState & EHS_WIDGET_STATE_CREATED) == EHS_WIDGET_STATE_CREATED)
         {
+            EHSH_LOG_INFO("Reinitialise widget - don't call pfCreateFunc()");
+
             //@todo - should this be in or out?
             pWidget->pfDestroyFunc(pWidget);
             /* clear create flag to ensure that setState displays the new image */
             pWidget->nState = pWidget->nState & (~EHS_WIDGET_STATE_CREATED);
         }
         /* widget specific creation */
-        else if (pWidget->pfCreateFunc(pWidget))
+        else
         {
-            EhsWidget_setState(pWidget, pWidget->nState | EHS_WIDGET_STATE_CREATED);
-        }
+            EHSH_LOG_INFO("Call widget pfCreateFunc()");
 
+            if (pWidget->pfCreateFunc(pWidget))
+            {
+                EhsWidget_setState(pWidget, pWidget->nState | EHS_WIDGET_STATE_CREATED);
+            }
+        }
         EhsTPMutex_unlock(EhsTPMutex_viewport);
 
     }
@@ -127,7 +138,7 @@ void EhsWidget_create(EhsWidgetClass* pWidget)
     Ehs_widget_commit(pWidget);
 }
 
-/* Call this before setting any widt type specific initialisation to set common parameters 
+/* Call this before setting any widt type specific initialisation to set common parameters
     Works in both render MODE_A anad MODE_B
 */
 
@@ -148,7 +159,7 @@ void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pR
     pWidget->pfDestroyFunc = NULL;
     pWidget->pfDrawFunc = NULL;
     pWidget->pfFadeFunc = NULL;
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) //|| defined(EHS_GUI_SUPPORT_MODE_B_QT)
     pWidget->bOptimiseForSpeed = EHS_FALSE;
     EHS_WIDGET_IMAGE(pWidget).szFilename = NULL;
     pWidget->pfMouseDownEventFunc = NULL;
@@ -160,7 +171,7 @@ void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pR
 /**
  * Destroy the widget. Required after the widget has been finished with.
  * Destroy does not hide the widget.
- * 
+ *
  * Works in both render MODE_A anad MODE_B
  * In Render Mode B we need to call the target specfici widget deleete function - this is done in target code.
  */
@@ -192,7 +203,7 @@ void EhsWidget_destroy(EhsWidgetClass* pWidget)
 
 /** @brief This function changes the original coordinates size of a widget depending on the relative value and if the new values are valid.
  *  Used by Target Viewport, but could be used in any widget though (untested!)
- * 
+ *
  *  Should work in Works in both render MODE_A anad MODE_B - TBC!!
  * */
 void EhsWidget_AdjustCoordinates(EhsWidgetClass* pWidget, ehs_bool bRelative, ehs_sint32 nLeft, ehs_sint32 nWidth, ehs_sint32 nTop, ehs_sint32 nHeight )
@@ -325,6 +336,8 @@ void Ehs_widget_commit(EhsWidgetClass* pWidget)
 {
 // this only applies EHS_GUI_SUPPORT_MODE_B
 #if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+    EHSH_LOG_INFO("Ehs_widget_commit: pWidget=%p, calling pfDrawFunc=%p",
+                  (void*)pWidget, (void*)pWidget->pfDrawFunc);
     pWidget->pfDrawFunc(pWidget, NULL, NULL);
 #endif
 }
@@ -372,9 +385,9 @@ EHS_LOCAL void EhsWidget_setState(EhsWidgetClass* pWidget, ehs_uint8 nNewState)
         if (EHS_WIDGET_STATE_SHOWN(nNewState) != EHS_WIDGET_STATE_SHOWN(pWidget->nState))
         {
             pWidget->nState = nNewState; /* update the state before calling _updateRect */
-    #if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
             EhsTargetWidget_show(pWidget, pWidget->nState);
-    #endif
+#endif
             EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
         }
         else
@@ -396,7 +409,7 @@ EHS_LOCAL void EhsWidget_setState(EhsWidgetClass* pWidget, ehs_uint8 nNewState)
  * @param[in] nY new relative Y position to move widget to
  * @param[in] nWid Change in width for the widget
  * @param[in] nHt change in height for the widget
- * 
+ *
  * todo2023 - the OpenGL/Android version of this function seems to call rendering functions directly, byt better models like GTK don't - ut sjust updates coords etc.?
  */
 
@@ -450,8 +463,8 @@ void EhsWidget_move(EhsWidgetClass* pWidget, EhsDataflowIntType nX, EhsDataflowI
             /*  todo XA - Mode B rndering doesn't need any of the EhsTV_updateRect() function #if def this out.
                 e.g. #ifndef MODE_B
             */
-            
-            
+
+
                 /* do we do two updates (clear previous position of widget, set new position of widget)
                 * or one update (single rectangle containing new and old position)?
                 * That depends if we have an overlap
@@ -483,7 +496,7 @@ void EhsWidget_move(EhsWidgetClass* pWidget, EhsDataflowIntType nX, EhsDataflowI
  * Fade the image in or out by scaling its global alpha level by the specified amount
  *
  * @param nOpacity amount of opacity for image. 0 = minimum opacity, 255 maximum opacity.
- * 
+ *
  * todo XA - Mode B rndering doesn't need any of the EhsTV_updateRect() function #if def this out.
  */
 void EhsWidget_fade(EhsWidgetClass* pWidget, ehs_uint8 nOpacity)
@@ -661,7 +674,7 @@ void EhsWidgetTable_dirty(const EhsWidgetTableClass* pWidgetTable)
  */
 void EhsWidgetTable_triggerViewportMouseDown(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsFunctionInstanceDataType *pFIdata;
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
@@ -701,7 +714,7 @@ void EhsWidgetTable_triggerViewportMouseDown(const EhsWidgetTableClass* pWidgetT
  */
 void EhsWidgetTable_triggerViewportMouseUp(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsFunctionInstanceDataType *pFIdata;
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
@@ -739,7 +752,7 @@ void EhsWidgetTable_triggerViewportMouseUp(const EhsWidgetTableClass* pWidgetTab
  */
 void EhsWidgetTable_triggerViewportMouseDrag(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsWidgetClass* pWidget;
     EhsFunctionInstanceDataType *pFIdata;
     ehs_sint16 nIndex;
@@ -777,7 +790,7 @@ void EhsWidgetTable_triggerViewportMouseDrag(const EhsWidgetTableClass* pWidgetT
  */
 void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
     ehs_bool bClickProcessed = EHS_FALSE;
@@ -809,7 +822,7 @@ void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableCla
                             bClickProcessed = EHS_TRUE;
                         }
                     }
-                    else 
+                    else
                     {
                         /* this is used for widgets created without pFIData e.g. GPIO widget */
                         if (pWidget->pfMouseDownEventFunc != NULL) {
@@ -833,7 +846,7 @@ void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableCla
  */
 void EhsWidgetTable_registerMouseUpOnWidgetMatchCoords(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
     ehs_bool bClickProcessed = EHS_FALSE;

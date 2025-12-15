@@ -54,7 +54,7 @@ typedef struct EhsWidgetStruct EhsWidgetClass; /*lint !e961 Only preprocessor st
 //#include "widget_video_port.h"
 #include "ehs_fb_types.h"
 
-#ifdef EHS_GUI_SUPPORT_MODE_B_QT
+#if defined(EHS_GUI_SUPPORT_MODE_B_QT)
 #include "ertqt.h"
 #endif
 
@@ -119,17 +119,18 @@ struct EhsWidgetStruct
     EhsGraphicsRectangleClass xOrigRect;	/**< Initial bounding rectangle (as defined in LAB's properties file - Used to distinguish relative sizes and viewport - Otherwise the same as DesignRectangle*/
     EhsGraphicsRectangleClass xCurRect;	    /**< current bounding rectangle for the widget */
     EhsGraphicsRectangleClass UpdatedOffsettRect;	/**< This is the last updated offset in case we need to re-apply it to new media. */
-#ifndef EHS_GUI_SUPPORT_MODE_B
-    EhsGraphicsRectangleClass MediaRect; /**< pixel dimensions of the original media */
-#else
+#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
     EhsGraphicsSizeClass MediaRect;	/**< pixel dimensions of the original media */
+#else
+    EhsGraphicsRectangleClass MediaRect; /**< pixel dimensions of the original media */
 #endif
     ehs_uint16 nZ;                          /**< Z order */
     ehs_bool (*pfFadeFunc) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity);	/**< Implementation of method "fade" */
     ehs_bool (*pfCreateFunc)(EhsWidgetClass* pWidget); /**< Implementation of method "create" */
     void (*pfDestroyFunc)(EhsWidgetClass* pWidget); /**< Implementation of method "destroy" */
     void (*pfDrawFunc)(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass *pClipRect); /**< Implementation of method "draw" */
-#ifndef EHS_GUI_SUPPORT_MODE_B // in mode B (lvgl) mouse event callbacks are defined in the library
+#if !defined(EHS_GUI_SUPPORT_MODE_B) //&& !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+    // in mode B (lvgl) mouse event callbacks are defined in the library
     void (*pfMouseDownEventFunc)(EhsWidgetClass* pWidget); /* Callback for the mouse down event, only applies to widgets with pFIData=NULL e.g. GPIO widget */
     void* pMouseDownEventData;
     ehs_uint32 nMouseDownX;
@@ -142,7 +143,8 @@ struct EhsWidgetStruct
     /*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eWidgetKind shows which union member to use */
     union
     {
-#ifndef EHS_GUI_SUPPORT_MODE_B // in mode B (lvgl) textbox, image is defined as a label in EhsWidgetUiSubclass
+#if !defined(EHS_GUI_SUPPORT_MODE_B) //&& !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+        // in mode B (lvgl) textbox, image is defined as a label in EhsWidgetUiSubclass
         EhsWidgetImageSubclass image;		/**< Image specific attributes */
         EhsWidgetTextboxSubclass textbox; 	/**< textbox specific attributes */
 #endif
@@ -164,7 +166,7 @@ struct EhsWidgetStruct
     ehs_bool bColourUpdated;     // including alpha
     /************************************************************************************************************************************/
     ehs_uint8 nState; /**< Widget state defined by EHS_WIDGET_STATE_ macros */
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if !defined(EHS_GUI_SUPPORT_MODE_B) //&& !defined(EHS_GUI_SUPPORT_MODE_B_QT)
     //@todo the following should be removed when a call back function (with a known port number) is used to fire the port
     ehs_sint8 mouseClickPortNumber; /*Needed so gtk knows which finish port to fire*/
     ehs_sint8 mouseDownPortNumber; /*Needed so gtk knows which finish port to fire*/
