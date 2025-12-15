@@ -331,7 +331,7 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint1
 	if(pWidget){
 		EhsFunctionInstanceDataType* pFIdata = pWidget->pFIData;
 		if(pFIdata == NULL){
-			EHSH_LOG_WARNING("pFIdata is NULL - no nothing");
+			EHSH_LOG_WARNING("pFIdata is NULL - do nothing");
 			return;
 		}
 
