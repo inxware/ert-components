@@ -37,7 +37,7 @@
 #include "ui_widgets/inx-ui_list.h"
 
 static void __attribute__((constructor)) dump_gui_components(void) {
-    printf("*** QT DEBUG: GUI component table being initialised ***\n");
+    printf("\n*** QT DEBUG: GUI component table being initialised ***\n");
     fflush(stdout);
 }
 

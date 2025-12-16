@@ -55,8 +55,7 @@ static void qt_on_button_pressed(void * user_data)
     if (EHS_WIDGET_UI(pWidget).event_callback)
     {
         EHSH_LOG_INFO("  -> Calling event_callback for MOUSE_DOWN");
-        ehs_bool value = EHS_TRUE;
-        EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_DOWN | EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &value);
+        EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_DOWN, NULL, NULL);
     }
     else
     {
@@ -83,8 +82,7 @@ static void qt_on_button_released(void * user_data)
     if (EHS_WIDGET_UI(pWidget).event_callback)
     {
         EHSH_LOG_INFO("  -> Calling event_callback for MOUSE_CLICKED");
-        ehs_bool value = EHS_FALSE;
-        EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_CLICKED | EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &value);
+        EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_CLICKED, NULL, NULL);
     }
     else
     {
@@ -207,14 +205,64 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
         return;
     }
 
-    // Request Qt to update/repaint the widget
-    // Note: In most cases Qt automatically updates when properties change,
-    // but this ensures updates happen when explicitly requested
     ertqt_object_handle h = pWidget->qt_handle;
+
+    // If content was updated, push the new data to the Qt widget
+    if (pWidget->bContentUpdated)
+    {
+        EHSH_LOG_INFO("Draw widget %"PRIdPTR" - content updated, syncing to Qt", h);
+
+        // EHS_WIDGET_UI(pWidget).data points to an EhsWidgetUi structure
+        // The actual widget data (string/bool/int/float) is in the .data field of that structure
+        EhsWidgetUi* gui = (EhsWidgetUi*)EHS_WIDGET_UI(pWidget).data;
+        if (!gui)
+        {
+            EHSH_LOG_WARNING("  gui pointer is NULL!");
+            pWidget->bContentUpdated = EHS_FALSE;
+            return;
+        }
+
+        // For string widgets (TextBox), set the text property
+        if (EhsWidgetUI_is_string_type(pWidget))
+        {
+            const char* text = (const char*)gui->data;
+            EHSH_LOG_INFO("  gui->data=%p, text='%s'", gui->data, text ? text : "(null)");
+            if (text && text[0] != '\0')
+            {
+                EHSH_LOG_INFO("  Setting Qt 'text' property to: '%s'", text);
+                ertqt_status status = ertqt_set_property_string(h, "text", text);
+                if (status != ERTQT_OK)
+                {
+                    EHSH_LOG_WARNING("  Failed to set Qt text property (status %d)", status);
+                }
+            }
+        }
+        // For boolean widgets (Checkbox), set the checked property
+        else if (EhsWidgetUI_is_bool_type(pWidget))
+        {
+            ehs_bool* value = (ehs_bool*)gui->data;
+            if (value)
+            {
+                EHSH_LOG_INFO("  Setting Qt 'checked' property to: %d", *value);
+                ertqt_status status = ertqt_set_property_bool(h, "checked", *value);
+                if (status != ERTQT_OK)
+                {
+                    EHSH_LOG_WARNING("  Failed to set Qt checked property (status %d)", status);
+                }
+            }
+        }
+        // Add support for int/float widgets as needed
+
+        // Clear the updated flag
+        pWidget->bContentUpdated = EHS_FALSE;
+    }
+    else
+    {
+        EHSH_LOG_INFO("Draw widget %"PRIdPTR" - no content update", h);
+    }
+
+    // Request Qt to update/repaint the widget
     ertqt_status status = ertqt_update_widget(h);
-
-    EHSH_LOG_INFO("Draw widget %"PRIdPTR"", h);
-
     if (status != ERTQT_OK && status != ERTQT_ERR_BACKEND_FAILURE)
     {
         // Only warn if it's not a backend failure (some objects don't support update())

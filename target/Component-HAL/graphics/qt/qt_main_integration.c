@@ -40,7 +40,25 @@ extern EhsWidgetTableClass EhsWidgetTable;
 // EHS tick callback - called from a Qt timer
 static void ehs_tick_callback(void * user_data)
 {
+    extern EhsKEStateType EhsKEState;  // Declare external
+
     count++;
+
+    // Force the kernel into single-stepping mode
+    EhsSingleStepFlag = EHS_TRUE;
+
+    // Transition READY -> RUNNING (like console commands do)
+    if (EhsKEState == EHSKE_STATE_READY)
+    {
+        EhsKEState = EHSKE_STATE_RUNNING;
+    }
+
+    // Log state every few iterations
+    if ((count & 0xFu) == 0)
+    {
+        EHSH_LOG_INFO("tick callback #%ld, EhsKEState=%d, SingleStepFlag=%d",
+        count, (int)EhsKEState, (int)EhsSingleStepFlag);
+    }
 
     // // Only output this occasionally, as it's very spammy!
     // if ((count & 0xFu) == 0)
@@ -49,53 +67,63 @@ static void ehs_tick_callback(void * user_data)
     // }
 
     // Force the kernel into single-stepping mode
-    EhsSingleStepFlag = EHS_TRUE;
+    //EhsSingleStepFlag = EHS_TRUE;
+
+    // EHSH_LOG_INFO("About to call `EhsMainLoop()`...");
 
     // Progress the EHS state machine
     cmd = EhsMainLoop(NULL, NULL);
+
+    // EHSH_LOG_INFO("About to call `EhsProcessInAppStateMachine()`...");
+
     cmd = EhsProcessInAppStateMachine(cmd);
+
+    // EHSH_LOG_INFO("About to call `EhsProcessExAppStateMachine()`...");
+
     cmd = EhsProcessExAppStateMachine(cmd);
 
-#ifdef EHS_GUI_SUPPORT_MODE_B_QT
-    // After a few ticks, manually trigger widget creation for any widgets
-    // that are initialized but not created. This is necessary because in Mode B Qt,
-    // widgets don't auto-create - they rely on the application to trigger create events.
-    // But if the application doesn't have that wiring, we need to do it manually.
-    if (!widgets_auto_created && count == 10)
-    {
-        EHSH_LOG_INFO("Auto-creating widgets after EHS initialization period");
+    // EHSH_LOG_INFO("Finishing `ehs_tick_callback`...");
 
-        // Iterate through widget table and create any initialized-but-not-created widgets
-        for (ehs_uint16 i = 0; i < EHS_MAX_WIDGET_INSTANCES; i++)
-        {
-            EhsWidgetClass * pWidget = &EhsWidgetTable.xWidget[i];
+// #ifdef EHS_GUI_SUPPORT_MODE_B_QT
+//     // After a few ticks, manually trigger widget creation for any widgets
+//     // that are initialized but not created. This is necessary because in Mode B Qt,
+//     // widgets don't auto-create - they rely on the application to trigger create events.
+//     // But if the application doesn't have that wiring, we need to do it manually.
+//     if (!widgets_auto_created && count == 10)
+//     {
+//         EHSH_LOG_INFO("Auto-creating widgets after EHS initialization period");
 
-            // Check if widget is initialized but not created
-            if ((pWidget->nState & EHS_WIDGET_STATE_INIT) &&
-                !(pWidget->nState & EHS_WIDGET_STATE_CREATED))
-            {
-                EHSH_LOG_INFO("  Auto-creating widget %d (nState=0x%02x, pFIData=%p)",
-                              i, pWidget->nState, (void*)pWidget->pFIData);
+//         // Iterate through widget table and create any initialized-but-not-created widgets
+//         for (ehs_uint16 i = 0; i < EHS_MAX_WIDGET_INSTANCES; i++)
+//         {
+//             EhsWidgetClass * pWidget = &EhsWidgetTable.xWidget[i];
 
-                // pFIData currently contains inx_gui_widget_state pointer (stored in INIT as a hack)
-                // We'll keep it as is - it will be used as the function instance pointer
-                // The event callback will receive this pointer and use it to trigger events
+//             // Check if widget is initialized but not created
+//             if ((pWidget->nState & EHS_WIDGET_STATE_INIT) &&
+//                 !(pWidget->nState & EHS_WIDGET_STATE_CREATED))
+//             {
+//                 EHSH_LOG_INFO("  Auto-creating widget %d (nState=0x%02x, pFIData=%p)",
+//                               i, pWidget->nState, (void*)pWidget->pFIData);
 
-                // Call the widget's create function
-                if (pWidget->pfCreateFunc)
-                {
-                    EHSH_LOG_INFO("    Calling pfCreateFunc=%p (pFIData will remain=%p)",
-                                  (void*)pWidget->pfCreateFunc, (void*)pWidget->pFIData);
-                    pWidget->pfCreateFunc(pWidget);
-                    EHSH_LOG_INFO("    Widget created, new nState=0x%02x, event_callback=%p",
-                                  pWidget->nState, (void*)EHS_WIDGET_UI(pWidget).event_callback);
-                }
-            }
-        }
+//                 // pFIData currently contains inx_gui_widget_state pointer (stored in INIT as a hack)
+//                 // We'll keep it as is - it will be used as the function instance pointer
+//                 // The event callback will receive this pointer and use it to trigger events
 
-        widgets_auto_created = EHS_TRUE;
-    }
-#endif
+//                 // Call the widget's create function
+//                 if (pWidget->pfCreateFunc)
+//                 {
+//                     EHSH_LOG_INFO("    Calling pfCreateFunc=%p (pFIData will remain=%p)",
+//                                   (void*)pWidget->pfCreateFunc, (void*)pWidget->pFIData);
+//                     pWidget->pfCreateFunc(pWidget);
+//                     EHSH_LOG_INFO("    Widget created, new nState=0x%02x, event_callback=%p",
+//                                   pWidget->nState, (void*)EHS_WIDGET_UI(pWidget).event_callback);
+//                 }
+//             }
+//         }
+
+//         widgets_auto_created = EHS_TRUE;
+//     }
+// #endif
 
     if (EhsCheckAppExitLoop(cmd) == EHS_TRUE)
     {
