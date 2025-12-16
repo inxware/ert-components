@@ -118,16 +118,16 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint1
 
 EHS_FB_IDENTIFY_FUNCTION(gui_widget)
 {
-    printf("\n*** QT DEBUG: gui_widget IDENTIFY called, size=%zu ***\n", sizeof(inx_gui_widget_state_type));
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: gui_widget IDENTIFY called, size=%zu ***\n", sizeof(inx_gui_widget_state_type));
+    // fflush(stdout);
     EHSH_LOG_INFO("=== gui_widget IDENTIFY FUNCTION CALLED (memory size=%zu) ===", sizeof(inx_gui_widget_state_type));
     EHS_FB_IDENTIFY_MEMORY = sizeof(inx_gui_widget_state_type);
 }
 
 EHS_FB_INIT_FUNCTION(gui_widget)
 {
-    printf("\n*** QT DEBUG: gui_widget INIT called ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: gui_widget INIT called ***\n");
+    // fflush(stdout);
     EHSH_LOG_INFO("=== gui_widget INIT FUNCTION CALLED ===");
     ehs_bool bRet = EHS_TRUE;
 
@@ -143,20 +143,20 @@ EHS_FB_INIT_FUNCTION(gui_widget)
     inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_INIT_CONTEXT;
     inx_gui_widget_state->pUiWidgetClass = NULL;
 
-    printf("\n*** QT DEBUG: About to call ReadParmFile, EHS_FB_INIT_PARAMETERS=%p\n", (void*)EHS_FB_INIT_PARAMETERS);
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: About to call ReadParmFile, EHS_FB_INIT_PARAMETERS=%p\n", (void*)EHS_FB_INIT_PARAMETERS);
+    // fflush(stdout);
     EHSH_LOG_INFO("  About to call ReadParmFile, EHS_FB_INIT_PARAMETERS=%p", (void*)EHS_FB_INIT_PARAMETERS);
     pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-    printf("\n*** QT DEBUG: ReadParmFile returned, guiParams[0]=0x%02x ('%c'), strlen=%zu\n",
-           (unsigned char)guiParams[0], guiParams[0] >= 32 && guiParams[0] < 127 ? guiParams[0] : '.', strlen(guiParams));
-    fflush(stdout);
-    printf("\n*** QT DEBUG: First 80 chars of guiParams: '%.80s'\n", guiParams);
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: ReadParmFile returned, guiParams[0]=0x%02x ('%c'), strlen=%zu\n",
+    //       (unsigned char)guiParams[0], guiParams[0] >= 32 && guiParams[0] < 127 ? guiParams[0] : '.', strlen(guiParams));
+    // fflush(stdout);
+    // printf("\n*** QT DEBUG: First 80 chars of guiParams: '%.80s'\n", guiParams);
+    // fflush(stdout);
     EHSH_LOG_INFO("  ReadParmFile returned, guiParams[0]='%c' (0x%02x), first 50 chars: '%.50s'",
                   guiParams[0] ? guiParams[0] : '?', (unsigned char)guiParams[0], guiParams);
     if (guiParams[0]) {
-        printf("\n*** QT DEBUG: guiParams[0] is NOT empty, proceeding to parse\n");
-        fflush(stdout);
+        // printf("\n*** QT DEBUG: guiParams[0] is NOT empty, proceeding to parse\n");
+        // fflush(stdout);
         EHSH_LOG_INFO("gui_widget INIT: Read GUI parameters, calling EhsParseGuiParameters");
         EhsParseGuiParameters(guiParams, &xParams);
 
@@ -268,15 +268,15 @@ EHS_FB_INIT_FUNCTION(gui_widget)
         }
         else
         {
-            printf("\n*** QT DEBUG: Widget class is NOT TEXTBOX (eClass=%d)\n", xParams.eClass);
-            fflush(stdout);
+            // printf("\n*** QT DEBUG: Widget class is NOT TEXTBOX (eClass=%d)\n", xParams.eClass);
+            // fflush(stdout);
             EHSH_LOG_WARNING("gui_widget INIT: Parsed widget class is NOT TEXTBOX (eClass=%d), widget not created", xParams.eClass);
         }
     }
     else
     {
-        printf("\n*** QT DEBUG: guiParams[0] IS EMPTY - no parameters to parse!\n");
-        fflush(stdout);
+        // printf("\n*** QT DEBUG: guiParams[0] IS EMPTY - no parameters to parse!\n");
+        // fflush(stdout);
         EHSH_LOG_WARNING("gui_widget INIT: No GUI parameters to parse (guiParams is empty)");
     }
 
@@ -309,8 +309,8 @@ EHS_FB_INIT_FUNCTION(gui_widget)
     }
 #endif
 
-    printf("\n*** QT DEBUG: gui_widget INIT: EXIT - bRet=%d\n", bRet);
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: gui_widget INIT: EXIT - bRet=%d\n", bRet);
+    // fflush(stdout);
     EHSH_LOG_INFO("gui_widget INIT: EXIT - returning bRet=%d", bRet);
     return bRet; /* initialisation always succeeds */
 }
@@ -328,8 +328,8 @@ EHS_FB_DESTROY_FUNCTION(gui_widget)
 /* Widget update callback */
 static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data)
 {
-    printf("\ngui_widget_event_callback - entry...\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: gui_widget_event_callback - entry...\n");
+    // fflush(stdout);
 
     if(pWidget){
         EhsFunctionInstanceDataType* pFIdata = pWidget->pFIData;
@@ -358,28 +358,28 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint1
         }
         if(data && (event_id & EHS_WIDGET_UI_EVENT_DATA_UPDATED || event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) && EHS_FB_OUT_CONNECTED_API2(INX_gui_widget_ARG_create_data_out)){
             if(EhsWidgetUI_is_string_type(pWidget)){
-                printf("\nEhsWidgetUI_is_string_type\n");
-                fflush(stdout);
+                // printf("\n*** QT DEBUG: EhsWidgetUI_is_string_type\n");
+                // fflush(stdout);
                 const char* str = (const char*)data;
                 static const ehs_uint32 UI_OUTPUT_STR_LEN = EHS_STRING_LENGTH_MAX-1;
                 (EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_data_out))[UI_OUTPUT_STR_LEN] = '\0';
                 EhsStrncpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_data_out), str, UI_OUTPUT_STR_LEN);
                 bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;
             }else if(EhsWidgetUI_is_bool_type(pWidget)){
-                printf("\nEhsWidgetUI_is_bool_type\n");
-                fflush(stdout);
+                // printf("\n*** QT DEBUG: EhsWidgetUI_is_bool_type\n");
+                // fflush(stdout);
                 const ehs_bool* bool_val = (const ehs_bool*)data;
                 EHS_FB_OUT_B_API2(INX_gui_widget_ARG_create_data_out) = *bool_val;
                 bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;
             }else if(EhsWidgetUI_is_int_type(pWidget)){
-                printf("\nEhsWidgetUI_is_int_type\n");
-                fflush(stdout);
+                // printf("\n*** QT DEBUG: EhsWidgetUI_is_int_type\n");
+                // fflush(stdout);
                 const ehs_sint32* int_val = (const ehs_sint32*)data;
                 EHS_FB_OUT_I_API2(INX_gui_widget_ARG_create_data_out) = *int_val;
                 bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;
             }else if(EhsWidgetUI_is_float_type(pWidget)){
-                printf("\nEhsWidgetUI_is_float_type\n");
-                fflush(stdout);
+                // printf("\n*** QT DEBUG: EhsWidgetUI_is_float_type\n");
+                // fflush(stdout);
                 const float float_val = *(const float*)data;
                 EHS_FB_OUT_F_API2(INX_gui_widget_ARG_create_data_out) = float_val;
                 bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;

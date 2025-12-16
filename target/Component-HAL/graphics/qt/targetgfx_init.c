@@ -34,15 +34,15 @@ void EhsTGfxSys_term(void)
 
 void EhsTGfxApp_init(void)
 {
-    // Per-application init (if needed)
+    /* Per-application init (if needed) */
 }
 
 void EhsTGfxApp_term(void)
 {
-    // Per-application cleanup
+    /* Per-application cleanup */
 }
 
 void EhsTGfxApp_reset(void)
 {
-    // Per-application reset
+    /* Per-application reset */
 }

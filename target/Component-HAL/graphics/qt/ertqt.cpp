@@ -51,7 +51,6 @@ static unsigned int g_tick_interval_ms = 0;
 
 static bool g_initialised = false;
 
-/* Helper to translate a handle to QObject * safely */
 // Internal helper for resolving an ertqt_object_handle into a QObject pointer.
 //
 // This function validates the supplied handle against the current object table,
@@ -79,7 +78,6 @@ static QObject * handle_to_qobject(ertqt_object_handle h)
     return reinterpret_cast<QObject*>(h);
 }
 
-/* Rebuild the object table from the engine's root objects */
 // Internal helper for rebuilding the global object handle table from the QML engine.
 //
 // This function clears the current g_objects table and repopulates it using the
@@ -140,7 +138,6 @@ static void rebuild_object_table()
     }
 }
 
-/* Tick driver: called by a QTimer when enabled */
 // Internal helper used as the QTimer callback for driving the registered tick callback.
 //
 // This function is scheduled by ertqt_set_tick_callback() using QTimer::singleShot
@@ -168,7 +165,7 @@ static void tick_timer_fired()
         g_tick_cb(g_tick_user_data);
     }
 
-    // Re arm timer if interval is non zero
+    // Re-arm timer if interval is non-zero
     if (g_tick_interval_ms > 0)
     {
         QTimer::singleShot(static_cast<int>(g_tick_interval_ms), &tick_timer_fired);

@@ -160,7 +160,7 @@ ehs_bool EhsWidgetUi_create(EhsWidgetClass* pWidget)
     EHSH_LOG_INFO("Create a MODE_B UI widget");
     EhsTargetWidgetUi_create(pWidget, &EhsTV);
 #else
-    printf("*** QT DEBUG: EhsWidgetUi_create() was compiled-out\n");
+    // printf("\n*** QT DEBUG: EhsWidgetUi_create() was compiled-out\n");
 #endif
     return EHS_TRUE;
 }
@@ -176,7 +176,7 @@ void EhsWidgetUi_destroy(EhsWidgetClass* pWidget)
     EHSH_LOG_INFO("Destroy a MODE_B UI widget");
     EhsTargetWidgetUi_destroy(pWidget);
 #else
-    printf("*** QT DEBUG: EhsWidgetUi_destroy() was compiled-out\n");
+    // printf("\n*** QT DEBUG: EhsWidgetUi_destroy() was compiled-out\n");
 #endif
     EHS_WIDGET_UI(pWidget).event_callback = NULL;
     EHS_WIDGET_UI(pWidget).data = NULL;
@@ -202,7 +202,7 @@ void EhsWidgetUi_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, Eh
     EHSH_LOG_INFO("EhsWidgetUi_draw: pWidget=%p, calling EhsTargetWidgetUi_draw", (void*)pWidget);
     EhsTargetWidgetUi_draw(pWidget);
 #else
-    printf("*** QT DEBUG: EhsWidgetUi_draw() was compiled-out\n");
+    // printf("\n*** QT DEBUG: EhsWidgetUi_draw() was compiled-out\n");
 #endif
 }
 
@@ -220,7 +220,7 @@ void EhsWidgetUI_update(struct EhsWidgetStruct* pWidget)
     pWidget->bContentUpdated = EHS_TRUE;
     EhsTPMutex_unlock(EhsTPMutex_viewport);
 #else
-    printf("*** QT DEBUG: EhsWidgetUI_update() was compiled-out\n");
+    // printf("\n*** QT DEBUG: EhsWidgetUI_update() was compiled-out\n");
 #endif
 }
 

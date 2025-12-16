@@ -1,9 +1,9 @@
 /***************************************************************
-* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+* Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
 * You may use, distribute and modify this code under the terms
 * of the LGPLv3 license. You should have received a copy of the
-* LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
-* not, please visit
+* LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+* with this file. If not, please visit:
 *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
@@ -112,31 +112,31 @@ extern const EhsBlockRefType  EhsBlockRefTable_usercomponents[];
  */
 void EhsAddStaticModules()
 {
-    printf("\n*** QT DEBUG: EhsAddStaticModules CALLED ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: EhsAddStaticModules CALLED ***\n");
+    // fflush(stdout);
     EHSH_LOG_INFO("=== EhsAddStaticModules: ENTRY - Registering component tables ===");
     /* now add the toolkits */
-    printf("\n*** QT DEBUG: Registering core table ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: Registering core table ***\n");
+    // fflush(stdout);
     EHSH_LOG_INFO("  Registering EhsBlockRefTable_core");
     EhsToolkitTable_addTable(EhsBlockRefTable_core);
 #ifdef EHS_TOOLKIT_DEPRECATED
-    printf("\n*** QT DEBUG: Registering deprecated table ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: Registering deprecated table ***\n");
+    // fflush(stdout);
     EHSH_LOG_INFO("  Registering EhsBlockRefTable_deprecated");
     EhsToolkitTable_addTable(EhsBlockRefTable_deprecated);
 #endif
 
 #ifdef EHS_TOOLKIT_SANDBOX
-    printf("\n*** QT DEBUG: Registering sandbox table ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: Registering sandbox table ***\n");
+    // fflush(stdout);
     EHSH_LOG_INFO("  Registering EhsBlockRefTable_sandbox");
     EhsToolkitTable_addTable(EhsBlockRefTable_sandbox);
 #endif
 
 #ifdef EHS_GUI_SUPPORT
-    printf("\n*** QT DEBUG: EHS_GUI_SUPPORT is DEFINED, registering GUI table ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: EHS_GUI_SUPPORT is DEFINED, registering GUI table ***\n");
+    // fflush(stdout);
     EHSH_LOG_INFO("  Registering EhsBlockRefTable_coreGui (GUI components)");
     EhsToolkitTable_addTable(EhsBlockRefTable_coreGui);
     //@todo the following should really be renamed to Keyboard Support and made a generic component.
@@ -145,8 +145,8 @@ void EhsAddStaticModules()
     //Badidea:EhsToolkitTable_addTable(EhsBlockRefTable_gtk);
 
 #else
-    printf("\n*** QT DEBUG: EHS_GUI_SUPPORT is NOT DEFINED ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: EHS_GUI_SUPPORT is NOT DEFINED ***\n");
+    // fflush(stdout);
 #endif /* EHS_GUI_SUPPORT */
 
 #ifdef EHS_PERIPHERAL_DEVICE_SUPPORT
@@ -169,7 +169,6 @@ void EhsAddStaticModules()
 
 #ifdef EHS_MV_SUPPORT
     EhsToolkitTable_addTable(EhsBlockRefTable_mv);
-   
 #endif
 
 #ifdef EHS_ML_SUPPORT
@@ -177,13 +176,13 @@ void EhsAddStaticModules()
 #endif
 
 #ifdef EHS_USER_COMPONENT_SUPPORT
-    printf("\n*** QT DEBUG: Registering user components table ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: Registering user components table ***\n");
+    // fflush(stdout);
     EHSH_LOG_INFO("  Registering EhsBlockRefTable_usercomponents");
     EhsToolkitTable_addTable(EhsBlockRefTable_usercomponents);
 #endif
-    printf("\n*** QT DEBUG: EhsAddStaticModules COMPLETED ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: EhsAddStaticModules COMPLETED ***\n");
+    // fflush(stdout);
     EHSH_LOG_INFO("=== EhsAddStaticModules: EXIT - All component tables registered ===");
 }
 

@@ -37,8 +37,8 @@
 #include "ui_widgets/inx-ui_list.h"
 
 static void __attribute__((constructor)) dump_gui_components(void) {
-    printf("\n*** QT DEBUG: GUI component table being initialised ***\n");
-    fflush(stdout);
+    // printf("\n*** QT DEBUG: GUI component table being initialised ***\n");
+    // fflush(stdout);
 }
 
 EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_coreGui[] =

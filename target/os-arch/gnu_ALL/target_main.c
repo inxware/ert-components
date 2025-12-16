@@ -2,8 +2,8 @@
  * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
  * You may use, distribute and modify this code under the terms
  * of the LGPLv3 license. You should have received a copy of the
- * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
- * not, please visit
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
@@ -16,26 +16,11 @@
  */
 
 /**
- * @page Verification Verification report
- * @section target_main
- * @anchor target_main
- * @subsection misra MISRA compliance:
- * test.c demonstrated MISRA compliant on 2007-10-12
- * Last modified on $Date$
- *
- * This file contained no derogations to the MISRA standard.
- *
- * Note it is necessary to replace <sys/types.h> with <types.h> to lint this file successfully.
- */
-
-/**
  * Provides access to the target-specific declarations of header files
  */
 #define EHSL_MODULE_ID (EHSH_LOG_MODULE_LOGGER)
 #define EHS_TARGET_CODE
 
-/*****************************************************************************/
-/* Included files */
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
@@ -48,40 +33,30 @@
 #include "ehs_main.h"
 #include "hal-api.h" // required for the metadata storage
 
-/*****************************************************************************/
 /* Optional for Qt builds */
-/*****************************************************************************/
 #ifdef EHS_MAIN_LOOP_ITERATIVE
 #include "qt_main_integration.h"
-
-// Comment out this debug hack...
-//
-// #include "ertqt_button.h"
-// static ertqt_object_handle button;
 #endif
-
 
 /**
  * Handle the SIGTERM signal
  */
 EHS_LOCAL void EhsTargetHandleTerm(int);
 
-/*****************************************************************************/
-/* Variables defined with global-scope */
-/*****************************************************************************/
-/* Function definitions */
 
-
-/* linux (and gnu) is always ready as soon as main is run */
+/**
+ * Linux (and gnu) is always ready as soon as main is run
+ */
 ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_env_blob)
 {
     return EHS_TRUE;
 }
 
-
 #ifdef EHS_MAIN_LOOP_ITERATIVE
 
-/* eRT appliaction loading status callback invoked inside the eRT kernel */
+/**
+ * eRT appliaction loading status callback invoked inside the eRT kernel
+ */
 void app_load_status_handler(ehs_uint32 status)
 {
     switch(status)
@@ -106,23 +81,11 @@ void app_load_status_handler(ehs_uint32 status)
 
 #endif
 
-// Comment out this debug hack...
-//
-// static void button_click_callback(void * user_data)
-// {
-//     ertqt_object_handle button = *(ertqt_object_handle *)user_data;
-//     EHSH_LOG_INFO("click on '%d'", button);
-//
-//     ertqt_status status = ertqt_button_set_text(button, "I've been clicked!");
-//     EHSH_LOG_INFO("status %d", status);
-// }
-
 /**
  * Main entry point to the application.
  * @return Integer representing exit code of application.
  *
  */
-
 EhsTargetIntType main(int argc, ehs_char ** argv)
 {
     pid_t pID;
@@ -179,16 +142,6 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
     // Initialise the EHS kernel and load the application
     EhsInit();
 
-    // Comment out this debug hack...
-    //
-    // EHSH_LOG_INFO("Find button QObject...");
-    // button = ertqt_button_by_name("user_interface");
-    // EHSH_LOG_INFO("Got handle %d", button);
-    //
-    // EHSH_LOG_INFO("Attach button click handler...");
-    // ertqt_status status = ertqt_button_on_clicked(button, button_click_callback, &button);
-    // EHSH_LOG_INFO("Got status %d", status);
-
     // Initialise the application state machine
     EhsAppLoadingStateMachine(NULL, NULL);
 
@@ -199,10 +152,10 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
     result = EhsTV_runQt();
 
     EhsExit(result);
-#else
+#else // EHS_MAIN_LOOP_ITERATIVE
     EhsMain(NULL,NULL); /* doesn't return in this version */
     EhsExit(0);
-#endif
+#endif // EHS_MAIN_LOOP_ITERATIVE
 
     return 0;
 }
@@ -212,6 +165,6 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
  */
 void EhsTargetHandleTerm(int sig)
 {
-    /* Tod we should call some HAL tear down functions here libxml, libcurl etc.*/
+    /* @todo: we should call some HAL tear down functions here: libxml, libcurl etc.*/
     EhsExit(0);
 }

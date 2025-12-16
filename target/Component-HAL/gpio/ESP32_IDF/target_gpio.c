@@ -174,7 +174,8 @@ ehs_bool EhsPWMDuty(const ehs_uint8 pin, const ehs_uint8 powerPercent)
 }
 
 
-/* Test Code for the GPIO hardware 
+/* Test Code for the GPIO hardware
+
 #include "target_time.h"
 #define BLINK_GPIO GPIO_NUM_2
 
@@ -206,4 +207,6 @@ void app_main(void)
         s_led_state = !s_led_state;
         EhsSleepUs(10000);
     }
-}*/
+}
+
+*/
