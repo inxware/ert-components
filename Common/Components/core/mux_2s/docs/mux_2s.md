@@ -1,0 +1,20 @@
+MultiplexTwoInputString
+This is a 2-input string multiplexer.
+Menu: 
+            Data Utilities
+             > Selector > Mux2 > string
+Type: Data_Processor | Width: 30 | Height: 70
+
+            ┌─────────────────────────┐
+          ►─┤                         ├►─ 
+        i1──┤                         ├── (S)
+            │           Mux           │
+          ►─┤                         │
+        i2──┤                         │
+            └─────────────────────────┘
+
+Legend: ── Data | ►─ Event
+
+**Port Summary:**
+- **Left:**  4 ports (2 events, 2 data)
+- **Right:** 2 ports (1 events, 1 data)

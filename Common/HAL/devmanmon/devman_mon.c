@@ -393,12 +393,20 @@ ehs_bool EhsMqttDevmanMonSubscriptionCallback(struct inx_mqtt_subscribe_state* p
     switch(topic_id){
         /* handle ota subscriptions */
         case EHS_MQTT_SUB_TOPIC_START_OTA_ID:{
+#ifdef EHS_OTA_SUPPORT
             payload[payloadSize] = '\0'; // make sure payload is NULL terminated
             EhsOtaDevmanMonStart(payload, payloadSize);
+#else
+            EHSH_LOG_ERROR("OTA not supported but received start OTA MQTT message");
+#endif
             break;
         }
         case EHS_MQTT_SUB_TOPIC_POST_CHUNK_OTA_ID:{
+#ifdef EHS_OTA_SUPPORT
             EhsOtaDevmanMonWrite(payload, payloadSize);
+#else
+            EHSH_LOG_ERROR("OTA not supported but received OTA MQTT chunk");
+#endif
             break;
         }
         default:
@@ -502,8 +510,10 @@ void* DevmanMonThreadMqtt(void* arg)
                 EhsMqttDevmanMonHandleDisconnected();
                 // @TODO - change state, if needed ? Seems to be handled by mqtt state.
             }
+#ifdef EHS_OTA_SUPPORT
             // process any pending states of the OTA
             EhsOtaDevmanMonProcess();
+#endif
             break;
         }
         default:
@@ -1019,7 +1029,9 @@ void DevmanMon_init(void)
     #error "Cannot use Devman MQTT mon without 'EHS_MQTT_SUPPORT' in the target config"
 #endif
 // init devman mon OTA handler
+#ifdef EHS_OTA_SUPPORT
     EhsOtaDevmanMonSupportInit(EhsOtaDevmanMonNext);
+#endif
     // init devman mon mqtt handler
     EhsMqttDevmanMon_t* pEhsMqttDevmanMon = EhsMqttDevmanMonSupportInit();
     // set mqtt devman mon loop callback which gets called form matt clinet loop

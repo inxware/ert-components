@@ -17,4 +17,8 @@ function BuildDebian(){
     make targetenv_deb_docker || exit 1
 }
 
-
+# Upload the package in staging directory to the approp server.
+# The config.mk will read the devman server config files with all that is needed to do this to the right place
+function UploadDebian-Devman() {
+    make upload_ehs_deb
+}

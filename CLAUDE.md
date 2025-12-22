@@ -4,214 +4,446 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the **ert-components** repository - the core runtime components for the inxware eRT (event-based RunTime) system. eRT executes no-code applications created in the Lucid IDE on 10+ platforms from bare-metal microcontrollers (ESP32) to Linux servers.
+This is the **ert-components** repository, which contains the core components needed for the inxware eRT (event-based RunTime) system. eRT is designed to run no-code applications on embedded devices and various computing systems including servers, edge compute, and desktop platforms.
 
-### What is inxware?
+## Build System
 
-inxware is a complete no-code embedded development ecosystem:
-- **Lucid IDE** (https://appland.inxware.io/) - Visual programming environment for creating applications
-- **eRT Runtime** - Event-driven runtime (this repository) consisting of:
-  - EHS Kernel (proprietary binary, free up to 10 devices)
-  - Component library (open source LGPLv3, this repo)
-  - HAL implementations for each platform
-- **Applications** - SODL files (.sdl) created in Lucid, executed by eRT
-- **Devman** - Optional IoT device management platform
+The project uses a sophisticated Make-based build system with Docker support for cross-platform compilation.
 
-## Essential Build Commands
+### Key Commands
 
-The build system uses Make + Docker with a "sticky" target configuration stored in `TARGET.cfg`.
+**Configuration:**
+- `./configure` - List available build targets
+- `./configure [target]` - Configure for specific platform (e.g., `linux_x86_64_clang`)
+- `./configure -edit` - Edit current target configuration
+- `./configure -run` - Run the target on current host
+- `./configure -debug` - Debug the target with GDB
 
-### Initial Setup & Configuration
+**Building:**
+- `make help` - Show all available build targets and options
+- `make prepdeps` - Install dependencies and checkout required repositories
+- `make all` - Build the eRT binary (ehs_[TARGET].exe)
+- `make all_docker` - Build using Docker environment
+- `make clean` - Clean build artifacts
 
-```bash
-./configure                           # List all available targets
-./configure linux_x86_64_clang        # Select target (saves to TARGET.cfg)
-make prepdeps                         # Clone dependencies (~40GB, run once for all targets)
-```
+**Runtime Environment:**
+- `make targetenv` - Create runtime file structure in staging directory
+- `make targetenv_version` - Create new version and tag commit
+- `make targetenv_package` - Create target-specific package
+- `make targetenv_deb` - Create Debian package (Linux targets)
+- `make targetenv_apk` - Create Android APK
+- `make targetenv_esp32` - Build ESP32 firmware image
 
-### Building
+**Testing:**
+- `make targetenv_run_tests` - Run regression tests
+- `make static_analysis` - Run static analysis suite
 
-```bash
-make all_docker                       # Build in Docker (recommended)
-make all                              # Build on host (requires toolchain)
-make clean                            # Clean build artifacts
-```
+**Development:**
+- `make depend` - Update source dependencies (WARNING: modifies deps.mk files)
+- `make toolsenv_update` - Update development tools with new component descriptions
 
-### Creating Runtime Packages
+### Build Dependencies
 
-```bash
-make targetenv                        # Assemble runtime in ../TARGET_TREES/ehs_env-[TARGET]/
-make targetenv_deb                    # Create Debian package
-make targetenv_apk_docker             # Create Android APK
-make targetenv_esp32_docker           # Create ESP32 firmware
-make targetenv_make_nsis              # Create Windows installer
-```
+The build system requires several adjacent repositories:
+- `ert-build-support` - Binary toolchains and build dependencies
+- `ert-contrib-middleware` - Pre-built 3rd party dependencies
 
-### Testing & Development
+These are automatically cloned by `make prepdeps` and require ~40GB of disk space.
 
-```bash
-make targetenv_run_tests              # Run unit tests on assembled runtime
-./SystemTests/CI/regression_test-published-only.sh  # Full regression suite
-make static_analysis                  # Static code analysis
-make depend                           # Update deps.mk (run after modifying components)
-make toolsenv_update                  # Update Lucid IDE with new/modified components
-```
-
-### Configuration Utilities
-
-```bash
-./configure -edit                     # Edit target/platform/[TARGET]/config.mk
-./configure -run                      # Run Linux target on build host
-./configure -debug                    # Debug with GDB
-./configure -pushd                    # cd to ../TARGET_TREES/ehs_env-[TARGET]/
-./configure -pushd-config             # cd to target/platform/[TARGET]/
-make target_buildenv                  # Interactive shell in Docker build container
-```
-
-### External Dependencies (Auto-managed)
-
-`make prepdeps` clones two large repositories into parent directory:
-- **ert-build-support/** (~20GB) - Binary toolchains from https://github.com/inxware/ert-build-support
-- **ert-contrib-middleware/** (~15GB) - Pre-built libraries from https://github.com/inxware/ert-contrib-middleware
-- **apps/** (optional) - Demo applications from https://github.com/inxware/apps
-
-## Architecture Overview
-
-### How eRT Works
-
-1. **Application Creation**: User creates visual program in Lucid IDE
-2. **Export**: Lucid exports application as SODL file (.sdl)
-3. **Deployment**: SODL file placed in `apps/default/t.sdl` alongside eRT runtime
-4. **Execution**: `ehs.exe` loads SODL, instantiates components, runs event loop
-5. **Component Library**: Components (in this repo) provide all functionality
+## Architecture
 
 ### Directory Structure
 
-```
-Common/                              # Core runtime code
-├── Components/                      # Component implementations by category
-│   ├── core/                        # Operators, buffers, timers, file I/O, type conversion
-│   ├── gui/                         # Display drivers, buttons, text boxes, graphics
-│   ├── networking/                  # HTTP, MQTT, TCP/UDP, WebSocket, SSL
-│   ├── media/                       # Audio/video codecs, GStreamer integration
-│   ├── ml/                          # TensorFlow Lite, neural networks
-│   ├── mv/                          # Image processing, AprilTag detection
-│   ├── peripherals/                 # GPIO, ADC/DAC, UART, I2C, SPI, PWM
-│   ├── AV/                          # Audio/Video (legacy, platform-specific)
-│   └── deprecated/                  # Backward compatibility components
-├── HAL/                             # Hardware abstraction interface definitions
-├── KAPI/                            # Kernel API headers
-└── Ehs/                             # Event handling system integration code
+- **Common/** - Core eRT components and libraries
+  - **Components/** - Reusable functional components organized by category
+    - **core/** - Essential components (operators, buffers, converters, etc.)
+    - **gui/** - Graphics and UI components  
+    - **networking/** - Network communication components
+    - **media/** - Audio/video processing components
+    - **ml/** - Machine learning components
+    - **mv/** - Machine vision components
+  - **HAL/** - Hardware Abstraction Layer
+  - **KAPI/** - Kernel API headers and interfaces
+  - **Ehs/** - Event handling system core
 
-target/                              # Platform-specific implementations
-├── platform/[target_name]/          # Complete target configurations (~40 platforms)
-│   ├── config.mk                    # Build configuration variables
-│   ├── Dockerfile                   # Container definition for reproducible builds
-│   └── Dockerimagename              # DockerHub reference for pre-built image
-└── os-arch/[os]-[arch]/             # HAL implementations per OS/architecture
-    ├── target.mk                    # Build rules
-    ├── toolchain.mk                 # Compiler/linker configuration
-    ├── target_main.c                # Application entry point
-    ├── target_time.c                # Timer/clock HAL implementation
-    ├── target_process.c             # Threading/mutex primitives
-    ├── target_file.c                # File system operations
-    └── target_gpio.c                # GPIO HAL (if applicable)
-
-scripts/                             # Build utilities and deployment tools
-├── build-deploy/                    # Platform-specific deployment scripts
-│   ├── esp32/                       # Flash, monitor, debug for ESP32
-│   ├── linux-general/               # SSH deployment for Linux devices
-│   └── packagers/                   # DEB, RPM, NSIS packaging tools
-├── build-function-library/          # Reusable shell functions for builds
-└── software-utilities/              # CDF validation, SODL conversion
-
-../TARGET_TREES/ehs_env-[TARGET]/    # Build output (created by make targetenv)
-├── bin/ehs.exe                      # Runtime executable
-├── apps/default/t.sdl               # Default application (or your app)
-└── lib/                             # Runtime libraries (if needed)
-```
+- **target/** - Platform-specific build configurations
+  - **platform/** - Target configuration files (config.mk per platform)
+  - **os-arch/** - OS and architecture specific code
+  - **envtree/** - Runtime environment templates
+  - **Component-HAL/** - Hardware abstraction components
 
 ### Component System
 
-Each component consists of:
-- **`.cdf`** - XML descriptor defining inputs/outputs/events for Lucid IDE
-- **`.c/.h`** - C/C++ implementation
-- **`.bmp`** - 24x24 icon for Lucid IDE
-- **`.idf.ini`** - IDE interface settings
-- **`tests/`** - Lucid application test cases (SODL files)
-- **`help/`** - HTML documentation shown in IDE
+eRT uses a component-based architecture where functionality is provided through:
+- **CDF files** (Component Description Files) - XML-based component interface definitions
+- **C/C++ implementations** - Actual component logic with state management and port handlers
+- **Documentation** - Markdown files with ASCII diagrams (generated from CDF)
 
-To add a component to `Common/Components/[category]/`, add the `.c` file to `components.mk` in that directory, run `make depend`, then `make toolsenv_update` to publish to Lucid IDE.
+**Note:** Bitmap files are no longer used for visual representation.
 
-## Build System Details
+Components are categorized into functional groups (core, networking, gui, etc.) and can be combined to create applications.
 
-### Key Make Variables
+#### CDF File Format
 
-These variables are set by `target/platform/[TARGET]/config.mk` and used throughout the build:
+CDF (Component Description File) files are XML-based descriptions located in `Common/Components/`. They define:
 
-- **`TARGET`** - Platform name (from `./configure`, stored in `TARGET.cfg`)
-- **`TARGET_NAME`** - Binary name: `ehs_${TARGET}`
-- **`EHS_ARCH`** - Architecture: `x86`, `arm64`, `xtensa`, etc.
-- **`EHS_OS`** - Operating system: `linux`, `freertos`, `windows`, etc.
-- **`EHS_GNU_ARCH`** - GNU triplet architecture: `x86_64`, `arm64`, etc.
-- **`EHS_GNU_OS`** - GNU triplet OS: `linux-gnu`, etc.
-- **`EHS_ROOT_PATH`** - This repository root
-- **`EHS_PLATFORM_PATH`** - Current platform config: `target/platform/${TARGET}/`
-- **`EHS_COMPONENT_SUPPORT_BASE`** - Path to `ert-contrib-middleware`
-- **`EHS_CORE_SUPPORT_BASE`** - Path to `ert-build-support`
+**Schema Location:** `Common/Components/cdf-schema.xsd`
 
-Feature flags configured per platform:
-- **`EHS_GUI_SUPPORT`** - `gtk`, `lvgl`, `qt`, `none`
-- **`EHS_COMPONENT_NETWORKING_SUPPORT`** - `all`, `minimal`, `none`
-- **`EHS_MEDIA_SUPPORT`** - `all`, `gstreamer`, `none`
-- **`EHS_PERIPHERALS_GPIO_SUPPORT`** - HAL implementation: `sysfs_linux_arm`, `esp32`, etc.
-- **`EHS_DEBUGALL`** - `true` for debug builds
+**Key Elements:**
+- **Module** - Component module name (typically "usercomponents")
+- **CDFInfo** - Version and timestamp metadata
+- **Description** - Component description and menu categorization
+- **Block** - Visual representation (type, dimensions, text, position)
+- **FBID** - Functional block identifier (ERT1_ID, Class)
+- **Hashes** - CRC checksums for component identification
+- **Parameters** - Configurable values with types, defaults, min/max ranges
+- **Functions** - Named operations the component performs
+- **Ports** - Connection points for data and events
 
-### Docker Workflow
+**Data Types:**
+- `I` - Integer (32-bit signed)
+- `R` - Real/Float
+- `B` - Boolean
+- `S` - String
 
-Most targets use Docker for reproducible builds:
-- `Dockerfile` in each platform directory defines build environment
-- `Dockerimagename` specifies pre-built image from DockerHub
-- Commands with `_docker` suffix run in container (e.g., `make all_docker`)
-- `make target_buildenv` starts interactive shell in container
+**Port Types:**
+- `InputPort` - Data inputs (left side of block)
+- `OutputPort` - Data outputs (right side of block)
+- `StartPort` - Event triggers to start function execution (left side)
+- `FinishPort` - Event completions when function finishes (right side)
+- `InternalPort` - Internal event handlers callable from ISR/threads
+  - **Convention:** InternalPorts use coordinates `<XCoordinate>-1</XCoordinate><YCoordinate>-1</YCoordinate>`
+  - These ports are not shown visually in the block diagram
+  - Used for callbacks from hardware/stack layers (e.g., BLE connection events, interrupts)
 
-### Code Style & Conventions
+**Block Types:**
+- `Data_Processor` - Data processing components
+- `Event_Processor` - Event handling components
+- `IO` - Input/output peripheral components
+- `Computation` - Mathematical/computational components
+- `Communication` - Network communication components
 
-**C/C++ Naming:**
-- Functions: `lowercase_with_underscores`
-- Types: `lowercase_t` (suffix)
-- Constants: `UPPERCASE_WITH_UNDERSCORES`
-- HAL functions: `hal_` prefix (e.g., `hal_gpio_write`, `hal_log_error`)
+**Generating CDF Files:**
+New CDF files can be generated from natural language specifications by following the XML schema structure. The schema validates component structure and ensures compatibility with the eRT IDE and runtime system.
 
-**Indentation:** 4 spaces, K&R style braces
+#### Component Implementation Structure
 
-**Adding New Components:**
+Each component consists of three files in `Common/Components/[category]/`:
 
-1. Create files in `Common/Components/[category]/`:
-   - `my_component.cdf` - XML descriptor
-   - `my_component.c/.h` - Implementation
-   - `my_component.bmp` - 24x24 icon
-   - `my_component.idf.ini` - IDE settings
-2. Add `.c` file to `components.mk` in that directory
-3. Run `make depend` to update dependencies
-4. Run `make toolsenv_update` to push to Lucid IDE
-5. Test: `make all_docker && make targetenv && make targetenv_run_tests`
+1. **`inx-[component].cdf`** - XML component definition (interface specification)
+2. **`inx-[component].h`** - C header with function declarations
+3. **`inx-[component].c`** - C implementation with:
+   - State structure (`inx_[component]_state_type`) containing parameters and internal state
+   - Function table mapping function names to ERT1_IDs
+   - Friendly label macros for port access (`INX_[component]_ARG_[function]__[DI|DO|EO]`)
+   - Lifecycle functions: `IDENTIFY`, `INIT`, `DESTROY`
+   - Run functions: One per CDF Function element
+   - Port access via API2 macros: `EHS_FB_IN_I_API2()`, `EHS_FB_OUT_S_API2()`, etc.
+   - Event triggering via `EHS_FB_FINISH(port_label)`
 
-**Porting to New Platform:**
+**Component Documentation:**
+- Location: `Common/Components/[category]/[component]/docs/[component].md`
+- Generated using: `python3 scripts/software-utilities/cdf_to_ascii.py [cdf_file] > [output.md]`
+- Contains ASCII block diagram showing ports, parameters, and port-to-function mappings
 
-1. Create `target/platform/my_new_platform/` with `config.mk`
-2. Implement HAL in `target/os-arch/my_os-my_arch/`:
-   - `target.mk`, `toolchain.mk` - Build configuration
-   - `target_main.c` - Entry point
-   - `target_time.c`, `target_process.c`, `target_file.c`, `target_gpio.c` - HAL implementations
-3. Configure: `./configure my_new_platform`
-4. Test: `make prepdeps && make all && make targetenv_run_tests`
+**Example C Implementation Pattern:**
+```c
+// State structure with parameters
+typedef struct {
+    ehs_char* param_name;
+    ehs_sint32 param_value;
+    // Internal state variables
+} inx_component_state_type;
+
+// Function table
+EHS_FB_FUNCTIONS_START(component)
+EHS_FB_FUNCTION_ENTRY("init", 0x1, component_init)
+EHS_FB_FUNCTION_ENTRY("process", 0x2, component_process)
+EHS_FB_FUNCTIONS_END
+
+// Run function implementation
+EHS_FB_RUN_FUNCTION(component_process)
+{
+    inx_component_state_type* state = (inx_component_state_type*)EHS_FB_RUN_CONTEXT;
+
+    // Read input port
+    if (EHS_FB_IN_CONNECTED_API2(INX_component_ARG_process__DI))
+    {
+        ehs_sint32 input = EHS_FB_IN_I_API2(INX_component_ARG_process__DI);
+        // Process input...
+    }
+
+    // Write output port
+    if (EHS_FB_OUT_CONNECTED_API2(INX_component_ARG_process__DO))
+    {
+        EHS_FB_OUT_I_API2(INX_component_ARG_process__DO) = result;
+    }
+
+    // Trigger finish event
+    EHS_FB_FINISH(INX_component_ARG_process__EO);
+}
+```
+
+### Build Targets
+
+The system supports numerous build targets including:
+- Linux (x86, ARM, x86_64) with various GUI toolkits
+- Android (ARM, ARM64) 
+- Windows (x86)
+- ESP32/ESP32-S3 (FreeRTOS)
+- Arduino platforms
+- Bare metal embedded systems
+
+Each target has its own configuration in `target/platform/[target_name]/`.
+
+## Development Workflow
+
+### Creating New Components
+
+1. **Design:** Define component interface (functions, ports, parameters)
+2. **Generate CDF:** Create XML component definition following schema
+3. **Generate Documentation:** Run `python3 scripts/software-utilities/cdf_to_ascii.py Component.cdf > docs/component.md`
+4. **Create Header:** Define function declarations in `inx-component.h`
+5. **Implement:** Write component logic in `inx-component.c`
+6. **Test Compilation:** Run `make Common/Components/[category]/inx-component.o`
+7. **Integration Test:** Build full runtime and test with target application
+
+### Building and Testing
+
+1. **Setup:** Run `./configure [target]` and `make prepdeps`
+2. **Build:** Use `make all` or `make all_docker`
+3. **Test:** Create runtime with `make targetenv`, then `make targetenv_run_tests`
+4. **Package:** Use target-specific packaging commands (`make targetenv_deb`, etc.)
+
+### Development Tools
+
+**`scripts/software-utilities/cdf_to_ascii.py`** - CDF visualization and documentation generator
+- Generates ASCII block diagrams from CDF files
+- Shows port layout, parameters, and function mappings
+- Handles InternalPorts (coordinates -1,-1) by listing them below the block diagram
+- Usage: `python3 cdf_to_ascii.py <cdf_file> [> output.md]`
+
+## Hardware Abstraction Layer (HAL) Components
+
+The eRT HAL system provides platform-independent component interfaces with platform-specific implementations. This enables components to work across different hardware platforms (ESP32, Linux, Windows, etc.) without code changes.
+
+### HAL Architecture Layers
+
+HAL components use a three-layer architecture:
+
+1. **Component Layer** (`Common/Components/`)
+   - Platform-independent function block implementation
+   - Handles ports, events, and state management
+   - Uses EHS API macros for port access
+
+2. **Glue Layer** (`Common/Components/[category]/inx-[component]_hal_glue.c`)
+   - Platform-independent bridge between component and HAL
+   - Translates component state to HAL configuration
+   - Handles callbacks from HAL to component InternalPorts
+   - Stores callback data in component state before triggering internal port functions
+
+3. **HAL Layer** (`target/Component-HAL/[subsystem]/[implementation]/`)
+   - Platform-specific hardware/SDK integration
+   - Multiple implementations per subsystem (e.g., `nimble`, `stubbed`)
+   - Provides uniform API regardless of underlying platform
+
+### Creating HAL-Dependent Components
+
+#### 1. Define HAL Support Variable
+
+In `target/platform/[target]/config.mk`, set the implementation type:
+
+```makefile
+# BLE Support - specify implementation
+EHS_NETWORK_BLE_SUPPORT=nimble     # For ESP32 with NimBLE
+# EHS_NETWORK_BLE_SUPPORT=stubbed  # For platforms without BLE
+```
+
+**Naming Convention:**
+- Use `EHS_NETWORK_[SUBSYSTEM]_SUPPORT` for networking features
+- Use `EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT` for peripherals
+- Use `EHS_[SUBSYSTEM]_SUPPORT` for other features
+- Value should be the implementation name (e.g., `nimble`, `stubbed`, `esp32`, `linux`)
+
+#### 2. Create HAL Directory Structure
+
+```
+target/Component-HAL/[subsystem]/
+├── [subsystem].mk                    # Main HAL makefile
+├── [implementation1]/                # First implementation (e.g., nimble)
+│   ├── target_[subsystem].mk        # Implementation-specific makefile
+│   ├── [subsystem]_[impl].c         # Implementation source
+│   └── [subsystem]_[impl].h         # Implementation header
+└── stubbed/                          # Stub for unsupported platforms
+    ├── target_[subsystem].mk        # Stubbed makefile
+    ├── [subsystem]_stubbed.c        # Stub returning errors
+    └── [subsystem]_stubbed.h        # Stub header
+```
+
+#### 3. Create Main HAL Makefile
+
+`target/Component-HAL/[subsystem]/[subsystem].mk`:
+
+```makefile
+# [Subsystem] HAL Makefile
+
+# Determine which implementation to use based on platform variable
+ifdef EHS_NETWORK_[SUBSYSTEM]_SUPPORT
+ifneq ($(EHS_NETWORK_[SUBSYSTEM]_SUPPORT),none)
+
+    # Define paths based on implementation type
+    EHS_COMMON_[SUBSYSTEM]_HAL_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]
+    EHS_TARGET_[SUBSYSTEM]_HAL_PATH=$(EHS_COMMON_[SUBSYSTEM]_HAL_PATH)/$(EHS_NETWORK_[SUBSYSTEM]_SUPPORT)
+
+    # Include implementation-specific makefile
+    include $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)/target_[subsystem].mk
+
+    # Add include paths
+    INC_DIRS += $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)
+
+    # Add to VPATH so make can find sources
+    VPATH += $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)
+
+endif
+endif
+```
+
+**Key Points:**
+- Use conditional includes (`include $(EHS_TARGET_..._HAL_PATH)/target_[subsystem].mk`)
+- Let each implementation's makefile specify its own `OBJECTS +=` entries
+- This keeps implementation-specific build logic in implementation directories
+- Avoids complex conditionals in the main HAL makefile
+
+#### 4. Create Implementation Makefiles
+
+`target/Component-HAL/[subsystem]/[implementation]/target_[subsystem].mk`:
+
+```makefile
+# [Implementation] [Subsystem] HAL Makefile
+
+# Add implementation-specific source files
+OBJECTS += [subsystem]_[implementation].$(OBJ)
+
+# Add glue layer (shared across implementations)
+OBJECTS += inx-[subsystem]_hal_glue.$(OBJ)
+
+# Add any implementation-specific includes or defines
+# INC_DIRS += $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)/lib
+# DEFS += [IMPLEMENTATION]_SPECIFIC_FLAG
+```
+
+#### 5. Integrate into Component-HAL
+
+In `target/Component-HAL/component-hal.mk`, add a section:
+
+```makefile
+########################################################################################################
+## [Subsystem Description]
+########################################################################################################
+ifdef EHS_NETWORK_[SUBSYSTEM]_SUPPORT
+ifneq ($(EHS_NETWORK_[SUBSYSTEM]_SUPPORT),none)
+DEFS += EHS_NETWORK_[SUBSYSTEM]_SUPPORT
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]/[subsystem].mk
+endif
+endif
+```
+
+#### 6. Add Component to Networking/Component Makefile
+
+In `Common/Components/networking/components.mk` (or appropriate category):
+
+```makefile
+# [Subsystem] support
+ifdef EHS_NETWORK_[SUBSYSTEM]_SUPPORT
+ifneq ($(EHS_NETWORK_[SUBSYSTEM]_SUPPORT),none)
+ifneq ($(EHS_NETWORK_[SUBSYSTEM]_SUPPORT),)
+	DEFS += EHS_NETWORK_[SUBSYSTEM]_SUPPORT
+	OBJECTS += inx-[component].$(OBJ)
+	# Add HAL include path for glue layer
+	INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]/$(EHS_NETWORK_[SUBSYSTEM]_SUPPORT)
+endif
+endif
+endif
+```
+
+### HAL Interface Best Practices
+
+#### Data Types
+- **Always use ehs_ types in Common/ code:** `ehs_uint8`, `ehs_uint16`, `ehs_uint32`, `ehs_bool`, `ehs_char`
+- **Use ehs_ types in HAL headers:** Ensures cross-platform compatibility
+- **Platform-specific types only in .c files:** OK to use SDK types internally, but interface must use ehs_ types
+
+#### Callback Pattern
+HAL implementations often need to trigger component InternalPorts from interrupts or threads:
+
+1. **HAL receives async event** (ISR, thread callback)
+2. **HAL calls glue layer callback** with event data
+3. **Glue layer stores data in component state**
+   ```c
+   state->cb_char_idx = char_idx;
+   state->cb_data_len = length;
+   memcpy(state->cb_data, data, length);
+   ```
+4. **Glue layer calls InternalPort function**
+   ```c
+   EhsRunble_service_on_client_write(pFIdata);
+   ```
+5. **InternalPort function populates outputs from state**
+   ```c
+   EHS_FB_OUT_I_API2(port_idx) = state->cb_char_idx;
+   ```
+6. **InternalPort triggers finish event**
+   ```c
+   EHS_FB_FINISH(event_idx);
+   ```
+
+#### Stubbed Implementations
+Always provide a stubbed implementation for platforms without hardware support:
+
+- All functions return `-1` (error)
+- Read functions set output length to `0`
+- Deinit function does nothing
+- Allows components to compile on all platforms
+- Enables cross-platform build checks
+
+### Example: BLE Service Component
+
+See the BLE service component for a complete HAL implementation example:
+- **Component:** `Common/Components/networking/inx-ble_service.c`
+- **Glue Layer:** `Common/Components/networking/inx-ble_service_hal_glue.c`
+- **NimBLE HAL:** `target/Component-HAL/ble/nimble/ble_service_nimble.c`
+- **Stubbed HAL:** `target/Component-HAL/ble/stubbed/ble_service_stubbed.c`
+- **Build Integration:** `target/Component-HAL/ble/ble.mk`
 
 ## Important Notes
 
-- **Target selection is "sticky"** - `./configure [target]` saves to `TARGET.cfg`, persists across make invocations
-- **Always use `_docker` variants** for reproducible builds (e.g., `make all_docker` not `make all`)
-- **Run `make depend` after modifying components** - Updates `deps.mk` files with source dependencies
-- **Run `make toolsenv_update` to publish components** - Syncs CDF files to Lucid IDE development environment
-- **EHS Kernel is proprietary binary** - Located in `ert-build-support`, linked during build, not source code
-- **Version strings** - Managed in `Releases/version_strings`, updated by `make targetenv_version`
+- The project requires a proprietary event handling kernel library
+- Docker is used extensively for reproducible cross-platform builds
+- Version information is managed in `Releases/version_strings`
+- Component definitions can be updated in development tools with `make toolsenv_update`
+- Always run `make prepdeps` when switching to a new target platform
+- **Bitmap files are deprecated** - No longer used for component visual representation
+- Components now use markdown documentation with ASCII diagrams generated from CDF files
+
+### CDF Schema Conventions (Updated)
+
+**Function Naming:**
+- Use imperative verbs for StartPort functions (e.g., `init`, `read_char`, `notify`)
+- Use past tense or noun forms for InternalPort callbacks (e.g., `on_connect`, `client_wrote`)
+- Function names should be concise and describe the action performed
+
+**Port Placement:**
+- Left side: StartPort (event triggers), InputPort (data inputs), InternalPort (if visualized)
+- Right side: FinishPort (event completions), OutputPort (data outputs)
+- Y-coordinate spacing: Use gaps (60-80 units) between functional groups for readability
+- InternalPorts: Always use coordinates `(-1, -1)` to exclude from visual diagram
+
+**Function IDs:**
+- ERT1_ID values are sequential starting from 1
+- Each Function element must have unique ID within component
+- IDs map to function table entries in C implementation
+
+**Port-to-Function Mapping:**
+- Each Port must reference a Function via `<Function_ERT1_ID>` element
+- The `argument` attribute on Function element specifies port evaluation order
+- Multiple ports can reference the same Function (grouped as inputs/outputs for that operation)

@@ -231,6 +231,7 @@ help:
 	@$(ECHO) "  $(TXT_FG_GREEN)                                 + This can be deployed to a slave(e.g. fire-walled) devman instance. One deployed from the host server the packages will become"
 	@$(ECHO) "  $(TXT_FG_GREEN)                                   the OS update patches on the final distation. You may also set DEVMAN_INTERMEDIATE_UNAME & DEVMAN_INTERMEDIATE_SSHPORT"
 	@$(ECHO) "  $(TXT_FG_WHITE)toolsenv_update$(TXT_FG_BRIGHT_GREEN)                - Updates the dist directory's IDF and CDF directories with this EHS's version component description files."
+	@$(ECHO) "  $(TXT_FG_WHITE)components_gendocs$(TXT_FG_BRIGHT_GREEN)             - Generates markdown documentation for all CDF files in component docs directories."
 	@$(ECHO) "  $(TXT_FG_WHITE)static_analysis$(TXT_FG_BRIGHT_GREEN)                - Runs rhe static analyser suite on the full source code tree for all configurations."
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_run_tests$(TXT_FG_BRIGHT_GREEN)            - Runs all regression tests."
 	@$(ECHO)
@@ -344,7 +345,26 @@ upload_ehs_via_adb: chkconfig #
 toolsenv_update:
 	@./target/envbuildscripts/toolsenv_update_cdf.sh
 
-static_analysis:
+components_gendocs:
+	@$(ECHO) "$(TXT_FG_CYAN)Generating markdown documentation for all CDF files...$(TXT_RESET)"
+	@for cdf in $$(find Common/Components -name "*.cdf" -type f); do \
+		dir=$$(dirname "$$cdf"); \
+		base=$$(basename "$$cdf" .cdf); \
+		docdir="$$dir/$$base/docs"; \
+		mdfile="$$docdir/$$base.md"; \
+		mkdir -p "$$docdir"; \
+		$(ECHO) "  Generating: $$mdfile"; \
+		python3 scripts/software-utilities/cdf_to_ascii.py "$$cdf" > "$$mdfile"; \
+	done
+	@$(ECHO) "$(TXT_FG_GREEN)Component documentation generation complete.$(TXT_RESET)"
+
+# Pattern rule: .md files depend on their corresponding .cdf files
+%.md: %.cdf
+	@mkdir -p $(dir $@)
+	@$(ECHO) "$(TXT_FG_CYAN)Regenerating: $@$(TXT_RESET)"
+	@python3 scripts/software-utilities/cdf_to_ascii.py $< > $@
+
+static_analysis: 
 	@./target/envbuildscripts/static_analysis.sh
 
 publish_docker_image:
