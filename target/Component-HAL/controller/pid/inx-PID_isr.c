@@ -1,6 +1,6 @@
 #include "inx-PID_isr.h"
 
-#include "hal_gpio.h"
+#include "ehs_hal_gpio.h"
 
 //#ifdef EHS_MAX31343_SUPPORT
 //#include "target_specific.h"

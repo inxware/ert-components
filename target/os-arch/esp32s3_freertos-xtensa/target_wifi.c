@@ -63,6 +63,10 @@ static volatile ehs_bool gTargetWifiStationConnected = EHS_FALSE;
 static volatile ehs_bool gWifiStationInitalised = EHS_FALSE;
 static volatile ehs_bool gWifiStationConfigured = EHS_FALSE;
 static volatile ehs_bool gsWifiNetifInitialised = EHS_FALSE;
+static volatile ehs_bool gWifiStationScanning = EHS_FALSE;
+static volatile ehs_bool gWifiStationScanResultPrint = EHS_FALSE;
+
+static volatile ehs_bool gEhsWifiStationConnecting = EHS_FALSE;
 
 /*
  * This function read the file into an allocated buffer and return
@@ -95,10 +99,13 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         }else{
             ESP_LOGW(TAG, "SSID of interest is NOT configured!");
         }
+        if (gWifiStationScanning) esp_wifi_scan_stop();
         EhsWifiStationSetCBSource(eWifiStationCallbackSource_Scan);
+        gWifiStationScanning = EHS_TRUE;
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_SCAN_DONE){
         EhsWifiStationSetCBSource(eWifiStationCallbackSource_Internal);
+        gWifiStationScanning = EHS_FALSE;
         wifi_config_t wifi_config = {0};
         wifi_event_sta_scan_done_t* scan_event = (wifi_event_sta_scan_done_t *)event_data;
         bool ssid_found = false;
@@ -118,6 +125,24 @@ static void event_handler(void* arg, esp_event_base_t event_base,
             s_ap_count = ap_count;
         }
         EhsWifiStationSetCBSource(eWifiStationCallbackSource_ScanResult);
+        if (gWifiStationScanResultPrint)
+        {
+            ehs_char _ssid[33] = {0};
+            ehs_char _bssid[6] = {0};
+            ehs_sint32 _channel = 0, _rssi = 0;
+            ehs_uint32 _index = 0;
+            gWifiStationScanResultPrint = EHS_FALSE;
+            while(WifiStationScanResult(_index, _ssid, 33, _bssid, 6, &_channel, &_rssi) == EHS_TRUE)
+            {
+                //
+                printf("SSID=%s, BSSID(MAC)=%02x:%02x:%02x:%02x:%02x:%02x, Channel=%d, RSSI=%d dBm\n",
+                        _ssid, _bssid[0], _bssid[1], _bssid[2], _bssid[3], _bssid[4], _bssid[5], _channel, _rssi);
+                _index++;
+            }
+            if(_index == 0){
+                printf("No SSID found!\n");
+            }
+        }
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
@@ -138,9 +163,11 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         EhsWifiStationSetCBSource(eWifiStationCallbackSource_Reconnect);
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
+        gEhsWifiStationConnecting = EHS_FALSE;
         EhsWifiStationSetCBSource(eWifiStationCallbackSource_Connected);
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        gEhsWifiStationConnecting = EHS_FALSE;
         EhsWifiStationSetCBSource(eWifiStationCallbackSource_Connected);
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
@@ -154,7 +181,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 ehs_bool WifiStationScanResult(ehs_uint32 index, ehs_char* ssid, ehs_uint16 ssid_size, ehs_char* bssid, ehs_uint16 bssid_size,
                                ehs_sint32* channel, ehs_sint32* rssi)
 {
-    if(ssid_size < 33 || bssid < 6){
+    if(ssid_size < 33 || bssid_size < 6){
         return EHS_FALSE;
     }
     if (s_ap_records == NULL) esp_wifi_scan_get_ap_records(&s_ap_count, s_ap_records);
@@ -377,13 +404,13 @@ eWifiStationStatus doWifiStationStart(
                 // Minimum required authmode for connecting to AP
                 wifi_config.sta.threshold.authmode = WIFI_AUTH_WEP;
                 wifi_config.sta.pmf_cfg.required = false;
-                ESP_LOGV(TAG, "PSK SSID: [%s], password: [%s]", wifi_config.sta.ssid, wifi_config.sta.password);
+                ESP_LOGI(TAG, "PSK SSID: [%s], password: [%s]", wifi_config.sta.ssid, wifi_config.sta.password);
                 break;
             case Type_WifiStation_Open:
                 EhsStrcpy(wifi_config.sta.ssid, ssid);
                 wifi_config.sta.threshold.authmode = WIFI_AUTH_OPEN;
                 wifi_config.sta.pmf_cfg.required = false;
-                ESP_LOGV(TAG, "Open SSID: [%s]", wifi_config.sta.ssid);
+                ESP_LOGI(TAG, "Open SSID: [%s]", wifi_config.sta.ssid);
                 break;
             case Type_WifiStation_Enterprise:
                 switch (EnterpriseType) {
@@ -551,6 +578,7 @@ eWifiStationStatus doWifiStationConnect(ehs_uint8 *bssid, ehs_uint8 channel)
     }
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_connect());
+    gEhsWifiStationConnecting = EHS_TRUE;
     return WifiStation_Connecting;
 }
 
@@ -617,4 +645,43 @@ ehs_bool isWifiStationConnected()
     return gTargetWifiStationConnected;
 }
 
+ehs_bool isWifiStationScanning()
+{
+    return gWifiStationScanning;
+}
 
+ehs_bool doWifiStationFullScan(ehs_bool print)
+{
+    if (gWifiStationScanning) return EHS_FALSE;
+    gWifiStationScanning = EHS_TRUE;
+    gWifiStationScanResultPrint = EHS_TRUE;
+
+    s_p_ap_record = NULL; // reset the currect record
+    // make these configurable
+    wifi_active_scan_time_t active_scan_time = {
+        .min = 100, // Set active scan min timeout to 100ms per channel.   (default=0ms)
+        .max = 500  // Set active scan max timeout to 500ms per channel.   (default=300ms)
+    };
+    wifi_scan_config_t scan_config = {
+        .channel = 0,              // set '0' to scan all channels 
+        .show_hidden = true,           // 'false' by default
+        // Active Scan  : It sends probe requests to access points (APs) and waits for their responses. This is typically quicker than passive scanning.
+        .scan_type = WIFI_SCAN_TYPE_ACTIVE,     // active (default)
+        // Passive Scan : It waits for APs to send responses without actively probing them.
+        //.scan_type = WIFI_SCAN_TYPE_PASSIVE,  // passive
+        .scan_time = {
+            .active =  active_scan_time,
+            .passive = 1000                     // Set passive scan timeout to 1000ms per channel. (default=250ms)
+        }
+    };
+    // Start scanning for networks
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_scan_start(&scan_config, false));
+
+
+    return EHS_TRUE;
+}
+
+ehs_bool isWifiStationConnecting()
+{
+	return gEhsWifiStationConnecting;
+}

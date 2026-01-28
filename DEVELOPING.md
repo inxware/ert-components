@@ -292,7 +292,7 @@ Below is a trivial example of how to implement some of the Hardware Abstraction 
 
    ```c
    // target/os-arch/my_platform/target_gpio.c
-   #include "hal_gpio.h"
+   #include "ehs_hal_gpio.h"
 
    ehs_result_t hal_gpio_write(int pin, int value) {
        // Platform-specific GPIO implementation

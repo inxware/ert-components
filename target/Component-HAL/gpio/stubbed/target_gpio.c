@@ -14,7 +14,7 @@
  * where GPIO functions are optional or for target specific purposes. 
  */
 #include "globals.h"
-#include "hal_gpio.h"
+#include "ehs_hal_gpio.h"
 
 /* todo2022-Intag-> Delete this block
 ehs_char gpio_path_buffer[GPIO_PATH_BUFFER_SIZE];

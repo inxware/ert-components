@@ -1,0 +1,61 @@
+/***************************************************************
+* Copyright (C) 2008-2025 inx limited - All Rights Reserved
+* You may use, distribute and modify this code under the terms
+* of the LGPLv3 license. You should have received a copy of the
+* LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
+* not, please visit
+*	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+****************************************************************/
+
+/** @file ml_model_template.c
+ * Model implementation template file.
+ *
+ * @author: inx limited
+ */
+
+
+/**
+ * @page Verification Verification report
+ * @section hal_graphics_font
+ * @anchor hal_graphics_font
+ * @subsection misra MISRA compliance:
+ * test.c demonstrated MISRA compliant on
+ * Last modified on $Date:$
+ *
+ * This file contained no derogations to the MISRA standard.
+ */
+
+/*****************************************************************************/
+/* Included files */
+#include "ml_model_template.h"
+
+/*****************************************************************************/
+/* Declare macros and local typedefs used by this file */
+
+
+/*****************************************************************************/
+/* Declare prototypes of local functions */
+
+/*****************************************************************************/
+/* Variables defined with file-scope */
+
+/*****************************************************************************/
+/* Variables defined with global-scope */
+
+/*****************************************************************************/
+/* Function definitions */
+/***** The Create, Destroy and SetInputData functions can be implemented here 
+ ***** if they are unique from the boilerplate code
+ *****/
+
+EhsML_Err EhsML_Template_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
+{
+    EhsML_Err err = EhsML_Model_Boilerplate_RunOutputJson(ctx, json_output, output_size);
+    if (err != EHS_ML_OK)
+    {
+        return err;
+    }
+
+    // Your code here
+    return EHS_ML_OK;
+}

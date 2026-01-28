@@ -35,7 +35,7 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 INXWARE_TARGETENV_HACKS=esp32
 
 #todo hacked for now - this needs to be done better for esp32
-#DEFS += EHS_TARGET_FILE_SKIP_STAT
+DEFS += EHS_TARGET_FILE_SKIP_STAT
 
 ################################################################################################################
 # Configure debug/production levels
@@ -86,6 +86,9 @@ EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER=none
 # include tcp/ip clinet & server socket fb components
 EHS_COMPONENTS_NETWORK_TCPIP_SOCKET=yes
 
+#default for esp32 is to use nimble.
+#EHS_NETWORK_BLE_SUPPORT=nimble
+
 # This should be dine int the base_xxx.h file now: DEFS += EHS_TARGET_FP_SUPPORT=1
 #DEFS += EHS_STRING_LENGTH_MAX=256
 
@@ -105,6 +108,8 @@ EHS_LORAWAN_SUPPORT=yes
 # Wi-Fi Support
 # DEFS += EHS_NETWORK_WIFI_SUPPORT
 #unset EHS_NETWORK_WIFI_SUPPORT
+
+# or nimble
 
 # enable eRT1 support
 ERT_SODL_VERSION=1

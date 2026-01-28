@@ -42,7 +42,8 @@ EHS_OTA_SUPPORT=stubbed
 # Disable linked-list based memory allocator managment in the hal_mem
 #EHS_MEMORY_MANAGMENT=none
 
-EHS_DEFAULT_APP=tutorials/hello_world
+EHS_DEFAULT_APP=demos/UI_for_Waveshare
+#EHS_DEFAULT_APP=tutorials/hello_world
 
 include ./target/devman-configs/devman.inxware.io.mk
 

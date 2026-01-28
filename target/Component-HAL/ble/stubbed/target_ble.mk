@@ -5,4 +5,4 @@
 OBJECTS += ble_service_stubbed.$(OBJ)
 
 # Add glue layer
-OBJECTS += inx-ble_service_hal_glue.$(OBJ)
+#OBJECTS += inx-ble_service_hal_glue.$(OBJ)

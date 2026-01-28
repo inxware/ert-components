@@ -20,7 +20,7 @@
  * Parse UUID string to ble_uuid_any_t structure
  * Supports both 16-bit and 128-bit UUIDs
  */
-//static int parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
+//static ehs_sint32 parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
 //{
 //    return -1;//
 //}
@@ -29,7 +29,7 @@
  * GATT characteristic access callback
  * Called when a client reads or writes a characteristic
  */
-//static int ble_gatt_char_access_cb(ehs_uint16 conn_handle, ehs_uint16 attr_handle,
+//static ehs_sint32 ble_gatt_char_access_cb(ehs_uint16 conn_handle, ehs_uint16 attr_handle,
 //                                    struct ble_gatt_access_ctxt *ctxt, void *arg)
 //{
  //           return 0   ;
@@ -39,7 +39,7 @@
  * GAP event handler
  * Handles connection, disconnection, and advertising events
  */
-static int ble_gap_event_handler(struct ble_gap_event *event, void *arg)
+static ehs_sint32 ble_gap_event_handler(struct ble_gap_event *event, void *arg)
 {
    
     return 0;
@@ -57,7 +57,7 @@ static void ble_host_task(void *param)
 /**
  * Initialize BLE service with configuration
  */
-int inx_ble_service_hal_init(   const char* service_uuid,
+ehs_sint32 inx_ble_service_hal_init(   const char* service_uuid,
     const char* service_name,
     ehs_uint8 num_chars,
     ehs_uint32 adv_interval_ms,
@@ -72,7 +72,7 @@ int inx_ble_service_hal_init(   const char* service_uuid,
 /**
  * Register GATT service and characteristics
  */
-int inx_ble_service_hal_register_gatt(void)
+ehs_sint32 inx_ble_service_hal_register_gatt(void)
 {
    
     return 0;

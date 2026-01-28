@@ -1,0 +1,7 @@
+# configure machine learning (ml) component hal
+EHS_TARGET_ML_FRAMEWORK_HAILO_PATH=$(EHS_TARGET_ML_FRAMEWORK_PATH)/hailo
+VPATH+=$(EHS_TARGET_ML_FRAMEWORK_HAILO_PATH)
+INC_DIRS+=$(EHS_TARGET_ML_FRAMEWORK_HAILO_PATH)
+LIB+=hailort
+
+OBJECTS += ert_hal_hailo.$(OBJ)

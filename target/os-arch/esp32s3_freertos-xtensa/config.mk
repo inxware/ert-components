@@ -6,7 +6,9 @@ ifndef EHS_FILESYSTEM_SUPPORT
 endif
 endif
 
-ifneq ($(EHS_NETWORKING_SUPPORT),none)
+# We don't want to enable Ethernet support by default if no other networking is enabled usually, but leaving this in for now untill all ethernet targets are checked without it.
+
+ifneq ($(EHS_NETWORK_ETHERNET_SUPPORT),none)
 ifndef EHS_NETWORK_ETHERNET_SUPPORT
 ifndef EHS_NETWORK_WIFI_SUPPORT
 	EHS_NETWORK_ETHERNET_SUPPORT=yes
@@ -18,7 +20,6 @@ endif
 ifneq ($(EHS_MQTT_SUPPORT),none)
 ifndef EHS_MQTT_SUPPORT
     EHS_MQTT_SUPPORT=esp_mqtt
-	dddd
 endif
 endif	
 

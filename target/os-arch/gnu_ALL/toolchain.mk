@@ -127,12 +127,12 @@ INC+=$(foreach i,$(INC_DIRS),-I$i)
 CFLAGS+=$(foreach i,$(DEFS),-D$i )
 CPPFLAGS+=$(foreach i,$(DEFS),-D$i )
 CFLAGS+= -c $(INC)
-ifndef EHS_ESP32
-CFLAGS+= -g -D_POSIX_C_SOURCE=199309
 
-# provide support for long long constants
-#CFLAGS+=-std=c99
-CFLAGS+=-std=gnu99
+ifndef EHS_ESP32
+   CFLAGS+= -g -D_POSIX_C_SOURCE=199309 
+   # provide support for long long constants
+   #CFLAGS+=-std=c99
+   CFLAGS+=-std=gnu99
 endif
 
 CPPFLAGS+= -c $(INC)

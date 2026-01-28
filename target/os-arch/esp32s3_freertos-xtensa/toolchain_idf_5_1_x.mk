@@ -31,6 +31,8 @@ endif
 
 #export GCC_EXEC_PREFIX:=xtensa-esp32s3-elf-
 
+TODO 2026  : there are many component specific libraries included globally here that should be done in the target/COmponent HAL make files instead (e.g. BLE)
+
 
 #The following shouldn't be hardwired - we at least should use the base path
 CFLAGS += -I$(EHS_ROOT_PATH)/../ert-contrib-middleware/target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1/build/include/deprecated
@@ -51,7 +53,7 @@ CFLAGS += -DSOC_MMU_PAGE_SIZE=CONFIG_MMU_PAGE_SIZE -DUNITY_INCLUDE_CONFIG_H -D_G
 LNKFLAGS += -mlongcalls  -Wl,--cref -Wl,--defsym=IDF_TARGET_ESP32S3=0 -Wl,--Map=$(EHS_ROOT_PATH)/main.map -Wl,--no-warn-rwx-segments -fno-rtti -fno-lto -Wl,--gc-sections -Wl,--warn-common -T esp32s3.peripherals.ld -T esp32s3.rom.ld -T esp32s3.rom.api.ld -T esp32s3.rom.libgcc.ld -T esp32s3.rom.newlib.ld -T esp32s3.rom.version.ld 
 LNKFLAGS += -T memory.ld -T sections.ld -lxtensa -lesp_ringbuf -lefuse -ldriver -lesp_pm -lmbedtls -lesp_app_format -lbootloader_support -lesp_partition -lapp_update -lesp_mm -lspi_flash  
 LNKFLAGS += -lpthread -lesp_system -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lapp_trace -lesp_event  
-LNKFLAGS += -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lesp_coex -lesp_wifi -lunity -lcmock -lconsole -lhttp_parser -lesp-tls -lesp_adc -lesp_eth  
+LNKFLAGS += -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lbt -lesp_coex -lbtdm_app -lcoexist -lesp_wifi -lunity -lcmock -lconsole -lhttp_parser -lesp-tls -lesp_adc -lesp_eth  
 LNKFLAGS += -lesp_gdbstub -lesp_hid -ltcp_transport -lesp_http_client -lesp_http_server -lesp_https_ota
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram
@@ -64,7 +66,7 @@ endif
 LNKFLAGS += -lapp_trace -lapp_trace -lcmock -lunity -lesp_hid -lesp_lcd -lesp_local_ctrl -lespcoredump -lfatfs -lwear_levelling -lsdmmc -lmqtt -lperfmon -lspiffs  
 LNKFLAGS += -ltouch_element -lusb -lwifi_provisioning -lprotocomm -lconsole -lprotobuf-c -ljson -lexpat -llittlefs -lxtensa -lesp_ringbuf -lefuse -ldriver -lesp_pm -lmbedtls  
 LNKFLAGS += -lesp_app_format -lbootloader_support -lesp_partition -lapp_update -lesp_mm -lspi_flash -lpthread -lesp_system -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lesp_event
-LNKFLAGS += -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lesp_coex -lesp_wifi -lhttp_parser -lesp-tls -lesp_adc -lesp_eth -lesp_gdbstub -ltcp_transport -lesp_http_client -lesp_http_server -lesp_https_ota
+LNKFLAGS += -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lbt -lesp_coex -lbtdm_app -lcoexist -lesp_wifi -lhttp_parser -lesp-tls -lesp_adc -lesp_eth -lesp_gdbstub -ltcp_transport -lesp_http_client -lesp_http_server -lesp_https_ota
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram
 endif
@@ -74,7 +76,7 @@ LNKFLAGS += -lulp
 LNKFLAGS += -lmbedtls #-leverest -lp256m
 
 LNKFLAGS += -lcore -lespnow -lmesh -lnet80211 -lpp -lsmartconfig -lwapi -lxtensa -lesp_ringbuf -lefuse -ldriver -lesp_pm -lmbedtls -lesp_app_format -lbootloader_support -lesp_partition -lapp_update -lesp_mm -lspi_flash -lpthread -lesp_system
-LNKFLAGS += -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lesp_event -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lesp_coex -lesp_wifi -lhttp_parser -lesp-tls  
+LNKFLAGS += -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lesp_event -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lbt -lesp_coex -lbtdm_app -lcoexist -lesp_wifi -lhttp_parser -lesp-tls  
 LNKFLAGS += -lesp_adc -lesp_eth -lesp_gdbstub -ltcp_transport -lesp_http_client -lesp_http_server -lesp_https_ota
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram
@@ -85,7 +87,7 @@ LNKFLAGS += -lulp
 LNKFLAGS += -lmbedtls #-leverest -lp256m
 
 LNKFLAGS += -lcore -lespnow -lmesh -lnet80211 -lpp -lsmartconfig -lwapi -lxtensa -lesp_ringbuf -lefuse -ldriver -lesp_pm -lmbedtls -lesp_app_format -lbootloader_support -lesp_partition -lapp_update -lesp_mm -lspi_flash -lpthread -lesp_system  
-LNKFLAGS += -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lesp_event -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lesp_coex -lesp_wifi -lhttp_parser -lesp-tls  
+LNKFLAGS += -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lesp_event -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lbt -lesp_coex -lbtdm_app -lcoexist -lesp_wifi -lhttp_parser -lesp-tls  
 LNKFLAGS += -lesp_adc -lesp_eth -lesp_gdbstub -ltcp_transport -lesp_http_client -lesp_http_server -lesp_https_ota
 LNKFLAGS += -lulp  
 

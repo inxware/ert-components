@@ -303,8 +303,8 @@ static void app_load_status_handler(ehs_uint32 status)
             break;
         }
         default:
-            ESP_LOGW(TAG, "Unknow app loading status!");
-            EhsHWatchdogEnable();
+            ESP_LOGW(TAG, "Unknown app loading status!");
+            //EhsHWatchdogEnable();
             break;
     }
 }
@@ -374,7 +374,8 @@ void command_prompt_wifi_conf()
         command_prompt_println("Saving above WiFi credentials.");
         EhsWifiStationSaveSettings(ssid, pass);
         command_prompt_println("Connecting to WiFi, please wait...");
-        setWifiStationConnectState(WifiStationConnectState_INIT);
+        //setWifiStationConnectState(WifiStationConnectState_INIT);
+        WifiStationSetSSIDPSK(ssid, EhsStrlen(ssid), pass, EhsStrlen(pass));
     }else{
         command_prompt_println("WiFi NOT configured. Type 'w' to try again.");
     }
@@ -388,7 +389,9 @@ void command_prompt_wifi_reconnect()
         return;
     }
     command_prompt_println("wifi re-connect");
-    setWifiStationConnectState(WifiStationConnectState_INIT);
+	setWifiStationConnectState(WifiStationConnectState_CONNECT);
+    EhsWifiStationSetCBSource(eWifiStationCallbackSource_Connect);
+    EhsStartWifiStationThread();
 }
 
 void command_prompt_wifi_ssid()
@@ -400,10 +403,9 @@ void command_prompt_wifi_ssid()
     }
     char ssid[EHS_PROMPT_READ_MAX] = {0};
     char pass[EHS_PROMPT_READ_MAX] = {0};
-    if(EhsWifiStationLoadSettings(ssid, pass) == EHS_TRUE){
-        ehs_bool connected = isWifiStationConnected();
-        printf("SSID: %s  (%s)\n", ssid, (connected) ? "connected" : "not connected");
-    }
+    WifiStationGetCurrentSsid(ssid);
+    ehs_bool connected = isWifiStationConnected();
+    printf("SSID: %s  (%s)\n", ssid, (connected) ? "connected" : "not connected");
 }
 #endif // #ifdef EHS_NETWORK_WIFI_SUPPORT
 
@@ -412,8 +414,10 @@ void command_prompt_ip_addr()
     const ehs_char* ip = NULL;
     #ifdef EHS_NETWORK_WIFI_SUPPORT
     if (EhsNetworkInterfaceWifiIsEnabled) {ip = isWifiStationConnected() ? WifiStationIpAddress() : NULL; printf("WiFi "); }
-    #endif//#ifdef EHS_NETWORK_ETHERNET_SUPPORT
+    #endif//#ifdef EHS_NETWORK_WIFI_SUPPORT
+    #ifdef EHS_NETWORK_ETHERNET_SUPPORT
     if (EhsNetworkInterfaceEthIsEnabled && ip != NULL) {ip = gNetworkConnected ? EhsHMetaGetIPAddr() : NULL; printf("Ethernet "); }
+    #endif//#ifdef EHS_NETWORK_ETHERNET_SUPPORT
     printf("IP: %s\n", (ip && EhsStrlen(ip) > 0) ? ip : "N/A");
 }
 
@@ -423,7 +427,12 @@ void command_prompt_list_ssid_bssid()
 {
     if (isWifiStationInitalised() == EHS_FALSE)
     {
-        command_prompt_println("WiFi is not initalised yet.");
+        command_prompt_println("WiFi is not initalised yet. You can connect to a dummy SSID first.");
+        return;
+    }
+    if (isWifiStationConnecting() == EHS_TRUE)
+    {
+        command_prompt_println("Wi-Fi Connection in process. Please try again later.");
         return;
     }
     if (g_cmd_list_ssid_bssid)
@@ -439,14 +448,21 @@ void command_prompt_list_ssid_bssid()
     vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
     int _rssi = 0;
     if (esp_wifi_sta_get_rssi(&_rssi) == ESP_OK) printf("Current connected AP RSSI: %d dBm\n", _rssi);
-    while(WifiStationScanResult(index, ssid, 33, bssid, 6, &channel, &rssi) == EHS_TRUE){
-        printf("SSID=%s, BSSID(MAC)=%02x:%02x:%02x:%02x:%02x:%02x, Channel=%d, RSSI=%d dBm\n",
-                ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5], channel, rssi);
-        index++;
-        vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
+    //while(WifiStationScanResult(index, ssid, 33, bssid, 6, &channel, &rssi) == EHS_TRUE){
+    //    printf("SSID=%s, BSSID(MAC)=%02x:%02x:%02x:%02x:%02x:%02x, Channel=%d, RSSI=%d dBm\n",
+    //            ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5], channel, rssi);
+    //    index++;
+    //    vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
+    //}
+    //if(index == 0){
+    //    printf("No SSID found!\n");
+    //}
+    if (doWifiStationFullScan(EHS_TRUE) == EHS_TRUE)
+    {
+        printf("Scanning...\n");
     }
-    if(index == 0){
-        printf("No SSID found!\n");
+    else {
+        printf("Already scanning, please wait...\n");
     }
     g_cmd_list_ssid_bssid = false;
 }
@@ -925,7 +941,7 @@ ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType 
             {
                 if (config->b_wifi_enable == EHS_TRUE)
                 {
-                    setWifiStationConnectState(WifiStationConnectState_INIT);
+                    setWifiStationConnectState(WifiStationConnectState_CONNECT);
                 }
                 else
                 {
@@ -1011,7 +1027,7 @@ void MCU_SLOW_LP_THR(void *pvParameters)
     ehs_char wifi_ssid[EHS_WIFI_SSID_BUFF_MAX] = { 0 };
     ehs_char wifi_pass[EHS_WIFI_SSID_BUFF_MAX] = { 0 };
     if (gEhsNetworkInterfaceWifiEnable == EHS_TRUE && isEhsWiFiManagedByComponent() == EHS_FALSE)
-        setWifiStationConnectState(WifiStationConnectState_INIT);
+        setWifiStationConnectState(WifiStationConnectState_CONNECT);
 #endif
     for (;;)
     {
@@ -1285,6 +1301,7 @@ ota_data_write_jump:
     }
     if (gEhsNetworkInterfaceEthEnable)
     {
+#ifdef EHS_NETWORK_ETHERNET_SUPPORT
         if (eth_init() == ESP_OK)
         {
             ESP_LOGI(TAG, "Connection success");
@@ -1293,6 +1310,7 @@ ota_data_write_jump:
         {
             ESP_LOGE(TAG, "Connection failed");
         }
+#endif
     }
  
 

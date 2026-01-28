@@ -55,8 +55,8 @@ typedef struct {
 
     /* Connection state */
     uint16_t conn_handle;
-    bool connected;
-    bool advertising;
+    ehs_bool connected;
+    ehs_bool advertising;
 
     /* GATT service handle */
     uint16_t service_handle;
@@ -72,15 +72,15 @@ typedef struct {
 static ble_service_context_t g_ble_ctx = {0};
 
 /* Forward declarations */
-static int ble_gap_event_handler(struct ble_gap_event *event, void *arg);
-static int ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_handle,
+static ehs_sint32 ble_gap_event_handler(struct ble_gap_event *event, void *arg);
+static ehs_sint32 ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_handle,
                                     struct ble_gatt_access_ctxt *ctxt, void *arg);
 
 /**
  * Parse UUID string to ble_uuid_any_t structure
  * Supports both 16-bit and 128-bit UUIDs
  */
-static int parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
+static ehs_sint32 parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
 {
     if (strlen(uuid_str) == 4) {
         /* 16-bit UUID (e.g., "180A") */
@@ -88,15 +88,21 @@ static int parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
         if (sscanf(uuid_str, "%04hx", &uuid16) != 1) {
             return -1;
         }
-        uuid->u16.u.type = BLE_UUID_TYPE_16;
+        uuid->u.type = BLE_UUID_TYPE_16;
         uuid->u16.value = uuid16;
         return 0;
     } else if (strlen(uuid_str) == 36) {
         /* 128-bit UUID (e.g., "0000180A-0000-1000-8000-00805F9B34FB") */
-        uint8_t uuid128[16];
-        if (ble_uuid_from_str(uuid_str, &uuid->u128.u) != 0) {
+        uint8_t uuid128[16] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+                            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
+        if (ble_uuid_init_from_buf(uuid, uuid128, 16) != 0) {
             return -1;
         }
+        //TODO: non-existant function for esp-idf version 5.1
+        //  Need to come up with a custom function to convert the UUID string to the UUID object
+        // if (ble_uuid_from_str(uuid_str, &uuid->u128.u) != 0) {
+        //     return -1;
+        // }
         return 0;
     }
 
@@ -107,10 +113,10 @@ static int parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
  * GATT characteristic access callback
  * Called when a client reads or writes a characteristic
  */
-static int ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_handle,
+static ehs_sint32 ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_handle,
                                     struct ble_gatt_access_ctxt *ctxt, void *arg)
 {
-    int char_idx = (int)(intptr_t)arg;
+    ehs_sint32 char_idx = (ehs_sint32)(intptr_t)arg;
 
     if (char_idx < 0 || char_idx >= g_ble_ctx.num_chars) {
         ESP_LOGE(TAG, "Invalid characteristic index: %d", char_idx);
@@ -124,7 +130,7 @@ static int ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_handle,
         case BLE_GATT_ACCESS_OP_READ_CHR:
             /* Client is reading the characteristic */
             if (g_ble_ctx.chars[char_idx].properties & 0x01) { /* Read property */
-                int rc = os_mbuf_append(ctxt->om,
+                ehs_sint32 rc = os_mbuf_append(ctxt->om,
                                        g_ble_ctx.chars[char_idx].value,
                                        g_ble_ctx.chars[char_idx].value_len);
                 return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
@@ -140,7 +146,7 @@ static int ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_handle,
                 }
 
                 /* Copy the data */
-                int rc = ble_hs_mbuf_to_flat(ctxt->om,
+                ehs_sint32 rc = ble_hs_mbuf_to_flat(ctxt->om,
                                             g_ble_ctx.chars[char_idx].value,
                                             g_ble_ctx.chars[char_idx].max_len,
                                             &g_ble_ctx.chars[char_idx].value_len);
@@ -170,7 +176,7 @@ static int ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_handle,
  * GAP event handler
  * Handles connection, disconnection, and advertising events
  */
-static int ble_gap_event_handler(struct ble_gap_event *event, void *arg)
+static ehs_sint32 ble_gap_event_handler(struct ble_gap_event *event, void *arg)
 {
     switch (event->type) {
         case BLE_GAP_EVENT_CONNECT:
@@ -250,7 +256,7 @@ static void ble_host_task(void *param)
 /**
  * Initialize BLE service with configuration
  */
-int inx_ble_service_hal_init(
+ehs_sint32 inx_ble_service_hal_init(
     const char* service_uuid,
     const char* service_name,
     ehs_uint8 num_chars,
@@ -287,7 +293,7 @@ int inx_ble_service_hal_init(
     }
 
     /* Store characteristic configurations */
-    for (int i = 0; i < num_chars; i++) {
+    for (ehs_sint32 i = 0; i < num_chars; i++) {
         if (parse_uuid(char_configs[i].uuid, &g_ble_ctx.chars[i].uuid) != 0) {
             ESP_LOGE(TAG, "Failed to parse char UUID: %s", char_configs[i].uuid);
             return -1;
@@ -301,11 +307,11 @@ int inx_ble_service_hal_init(
     }
 
     /* Initialize NimBLE */
-    esp_err_t ret = esp_nimble_hci_and_controller_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize controller: %d", ret);
-        return -1;
-    }
+    // esp_err_t ret = esp_nimble_hci_and_controller_init();
+    // if (ret != ESP_OK) {
+    //     ESP_LOGE(TAG, "Failed to initialize controller: %d", ret);
+    //     return -1;
+    // }
 
     nimble_port_init();
 
@@ -323,11 +329,11 @@ int inx_ble_service_hal_init(
 /**
  * Register GATT service and characteristics
  */
-int inx_ble_service_hal_register_gatt(void)
+ehs_sint32 inx_ble_service_hal_register_gatt(void)
 {
     struct ble_gatt_svc_def *gatt_svcs;
     struct ble_gatt_chr_def *gatt_chrs;
-    int rc;
+    ehs_sint32 rc;
 
     /* Allocate memory for service and characteristic definitions */
     gatt_svcs = calloc(2, sizeof(struct ble_gatt_svc_def)); /* Service + NULL terminator */
@@ -342,7 +348,7 @@ int inx_ble_service_hal_register_gatt(void)
     }
 
     /* Build characteristic definitions */
-    for (int i = 0; i < g_ble_ctx.num_chars; i++) {
+    for (ehs_sint32 i = 0; i < g_ble_ctx.num_chars; i++) {
         gatt_chrs[i].uuid = &g_ble_ctx.chars[i].uuid.u;
         gatt_chrs[i].access_cb = ble_gatt_char_access_cb;
         gatt_chrs[i].arg = (void*)(intptr_t)i;
@@ -400,7 +406,7 @@ int inx_ble_service_hal_register_gatt(void)
 /**
  * Start BLE advertising
  */
-int inx_ble_service_hal_start_adv(void)
+ehs_sint32 inx_ble_service_hal_start_adv(void)
 {
     if (g_ble_ctx.advertising) {
         ESP_LOGW(TAG, "Already advertising");
@@ -409,7 +415,7 @@ int inx_ble_service_hal_start_adv(void)
 
     struct ble_gap_adv_params adv_params;
     struct ble_hs_adv_fields fields;
-    int rc;
+    ehs_sint32 rc;
 
     /* Set advertising data */
     memset(&fields, 0, sizeof(fields));
@@ -446,14 +452,14 @@ int inx_ble_service_hal_start_adv(void)
 /**
  * Stop BLE advertising
  */
-int inx_ble_service_hal_stop_adv(void)
+ehs_sint32 inx_ble_service_hal_stop_adv(void)
 {
     if (!g_ble_ctx.advertising) {
         ESP_LOGW(TAG, "Not advertising");
         return -1;
     }
 
-    int rc = ble_gap_adv_stop();
+    ehs_sint32 rc = ble_gap_adv_stop();
     if (rc != 0) {
         ESP_LOGE(TAG, "Failed to stop advertising: %d", rc);
         return -1;
@@ -467,7 +473,7 @@ int inx_ble_service_hal_stop_adv(void)
 /**
  * Write value to a characteristic (local write, not notification)
  */
-int inx_ble_service_hal_write_char(uint8_t char_idx, const char* data, uint16_t length)
+ehs_sint32 inx_ble_service_hal_write_char(uint8_t char_idx, const char* data, uint16_t length)
 {
     if (char_idx >= g_ble_ctx.num_chars) {
         ESP_LOGE(TAG, "Invalid characteristic index: %d", char_idx);
@@ -490,7 +496,7 @@ int inx_ble_service_hal_write_char(uint8_t char_idx, const char* data, uint16_t 
 /**
  * Read value from a characteristic
  */
-int inx_ble_service_hal_read_char(uint8_t char_idx, char* data,
+ehs_sint32 inx_ble_service_hal_read_char(uint8_t char_idx, char* data,
                                    uint16_t* length, uint16_t max_len)
 {
     if (char_idx >= g_ble_ctx.num_chars) {
@@ -513,7 +519,7 @@ int inx_ble_service_hal_read_char(uint8_t char_idx, char* data,
 /**
  * Send notification to connected client
  */
-int inx_ble_service_hal_notify(uint8_t char_idx, const char* data, uint16_t length)
+ehs_sint32 inx_ble_service_hal_notify(uint8_t char_idx, const char* data, uint16_t length)
 {
     if (!g_ble_ctx.connected) {
         ESP_LOGW(TAG, "Cannot notify: not connected");
@@ -545,7 +551,7 @@ int inx_ble_service_hal_notify(uint8_t char_idx, const char* data, uint16_t leng
     }
 
     /* Send notification */
-    int rc = ble_gattc_notify_custom(g_ble_ctx.conn_handle,
+    ehs_sint32 rc = ble_gattc_notify_custom(g_ble_ctx.conn_handle,
                                      g_ble_ctx.chars[char_idx].value_handle, om);
     if (rc != 0) {
         ESP_LOGE(TAG, "Failed to send notification: %d", rc);
@@ -559,7 +565,7 @@ int inx_ble_service_hal_notify(uint8_t char_idx, const char* data, uint16_t leng
 /**
  * Check if a client is connected
  */
-bool inx_ble_service_hal_is_connected(void)
+ehs_bool inx_ble_service_hal_is_connected(void)
 {
     return g_ble_ctx.connected;
 }
@@ -567,7 +573,7 @@ bool inx_ble_service_hal_is_connected(void)
 /**
  * Check if advertising
  */
-bool inx_ble_service_hal_is_advertising(void)
+ehs_bool inx_ble_service_hal_is_advertising(void)
 {
     return g_ble_ctx.advertising;
 }
@@ -586,7 +592,7 @@ void inx_ble_service_hal_deinit(void)
     }
 
     nimble_port_stop();
-    esp_nimble_hci_and_controller_deinit();
+    // esp_nimble_hci_and_controller_deinit();
 
     memset(&g_ble_ctx, 0, sizeof(g_ble_ctx));
     ESP_LOGI(TAG, "BLE service deinitialized");

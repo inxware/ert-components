@@ -7,7 +7,7 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
-/** @file hal_gpio.h
+/** @file ehs_hal_gpio.h
  * In this file, all of the hardware abstraction layer functions relating to GPIO are given.
  *
  * @author: inx limited

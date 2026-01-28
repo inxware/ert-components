@@ -15,9 +15,9 @@
 
 
 #if 1
-#define printf(...) __android_log_print(ANDROID_LOG_DEBUG, "target_audio", __VA_ARGS__)
+   #define printf(...) __android_log_print(ANDROID_LOG_DEBUG, "target_audio", __VA_ARGS__)
 #else 
-#define printf(...)
+   #define printf(...)
 #endif
 
 #define RECORD_DEVICE_KICKSTART_BUF_COUNT 2

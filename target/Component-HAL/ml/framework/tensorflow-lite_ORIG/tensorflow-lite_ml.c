@@ -136,7 +136,7 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 siz
 
     switch (ctx->type)
     { 
-    case EHS_ML_TFLITE_OBJ_DETECTOR:{
+    case EHS_ML_YOLOV5_OBJ_DETECTOR:{
         ////////////////////////////////////////////////////////////////////////
         //* Object Detector *  e.g YOLOv5, YOLOv8, SSD MobileNet, CenterNet
         // Output:
@@ -159,6 +159,7 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 siz
     /////////////////////////////////////////
     // @TODO - handle other model types
     default:
+        return EHS_ML_FAILED; // No supported model type
         break;
     }
 

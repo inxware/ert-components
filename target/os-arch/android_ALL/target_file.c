@@ -37,7 +37,7 @@ void EhsTInitFileSystem(struct android_app* app)
     LOGI("Removing app2run");
     Ehs_SysRm("app2run.nfo");
     Ehs_AppRm("temp/t.sdl");
- //   Ehs_AppRm("tdefault/t.sdk");
+    //Ehs_AppRm("tdefault/t.sdk");
     #warning "Production build will remove any temp apps on each run"
 #endif
 

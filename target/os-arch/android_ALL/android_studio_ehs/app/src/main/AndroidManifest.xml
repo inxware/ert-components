@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.inx.ehs" android:installLocation="preferExternal">
+    package="com.inx.ehs" 
+    android:installLocation="preferExternal">
 
     <!-- Actually this .apk Java has code ! Set hasCode to true. Else your NativeDebug
         class will not be inserted in the final apk and your app will crash failing to find it. -->
@@ -8,7 +9,7 @@
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="EHS"
-        android:hasCode="true">
+        android:hasCode="true" >
 
         <!-- Our activity is the built-in NativeActivity framework class.
              This will take care of integrating with our NDK code. -->

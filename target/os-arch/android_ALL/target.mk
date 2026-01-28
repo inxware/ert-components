@@ -15,7 +15,8 @@ INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/android_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/android_ALL/
 
 
-#Default to Android 9 if nothing else set.
+# Default to Android 9 if nothing else set.
+# These Definitions are mainly for conditional code rather than Android Studio project targetting.
 ifdef EHS_ANDROID_INSTALL_VERSION
 	export EHS_ANDROID_INSTALL_VERSION
 	ifeq ($(EHS_ANDROID_INSTALL_VERSION) , 7.1)
@@ -26,11 +27,20 @@ else
 	DEFS+=EHS_ANDROID_INSTALL_VERSION=9
 endif
 
-# Targe speciic libraries needed.
+# Note We should never see the EHS set to none for an Android build.
+ifneq ($(ANDROID_STUDIO_EHS_PROJECT),none)
+ifndef ANDROID_STUDIO_EHS_PROJECT
+	ANDROID_STUDIO_EHS_PROJECT=android_studio_ehs
+endif
+export ANDROID_STUDIO_EHS_PROJECT
+endif
 
-#OpenGl2.0
+####################################################################################################
+# Targe speciic libraries needed.
+####################################################################################################
+
 LIB += log 
-#todo get rid of the EHS_ANDROID_JNI label and use system variant instead
+#TODO2025 get rid of the EHS_ANDROID_JNI label and use system variant instead
 ifdef EHS_ANDROID_JNI
 	LIB += GLESv2
 else
@@ -42,6 +52,11 @@ else
 endif
 LIB+=:libarchive.a
 
+####################################################################################################
+# os-arch porting code 
+####################################################################################################
+
+
 # Generic target options we usually have
 ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
 OBJECTS += target_file.$(OBJ)
@@ -52,13 +67,11 @@ OBJECTS += target_math.$(OBJ)
 OBJECTS += target_net.$(OBJ) 
 OBJECTS += JNISysInfoInterface.$(OBJ) 
 
-
-#This is needed ifwe are using a pure native NDK app.
+# This is needed only if we are using a pure native NDK app rather than JNI launched.
 ifndef EHS_ANDROID_JNI
 	OBJECTS += android_native_app_glue.$(OBJ)
 endif
 
 # TODO This should be conditional?
 OBJECTS += target_audio.${OBJ}
-
 # OBJECTS += target_sys_stat.$(OBJ)

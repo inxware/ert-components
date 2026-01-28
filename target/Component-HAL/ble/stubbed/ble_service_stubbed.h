@@ -52,7 +52,7 @@ typedef struct {
  * @param component_context Component context pointer (passed to callbacks)
  * @return 0 on success, negative on error
  */
-int inx_ble_service_hal_init(
+ehs_sint32 inx_ble_service_hal_init(
     const char* service_uuid,
     const char* service_name,
     ehs_uint8 num_chars,
@@ -68,21 +68,21 @@ int inx_ble_service_hal_init(
  *
  * @return 0 on success, negative on error
  */
-int inx_ble_service_hal_register_gatt(void);
+ehs_sint32 inx_ble_service_hal_register_gatt(void);
 
 /**
  * Start BLE advertising
  *
  * @return 0 on success, negative on error
  */
-int inx_ble_service_hal_start_adv(void);
+ehs_sint32 inx_ble_service_hal_start_adv(void);
 
 /**
  * Stop BLE advertising
  *
  * @return 0 on success, negative on error
  */
-int inx_ble_service_hal_stop_adv(void);
+ehs_sint32 inx_ble_service_hal_stop_adv(void);
 
 /**
  * Write value to a characteristic (local write)
@@ -92,7 +92,7 @@ int inx_ble_service_hal_stop_adv(void);
  * @param length Data length
  * @return 0 on success, negative on error
  */
-int inx_ble_service_hal_write_char(ehs_uint8 char_idx, const char* data, ehs_uint16 length);
+ehs_sint32 inx_ble_service_hal_write_char(ehs_uint8 char_idx, const char* data, ehs_uint16 length);
 
 /**
  * Read value from a characteristic
@@ -103,7 +103,7 @@ int inx_ble_service_hal_write_char(ehs_uint8 char_idx, const char* data, ehs_uin
  * @param max_len Maximum buffer size
  * @return 0 on success, negative on error
  */
-int inx_ble_service_hal_read_char(ehs_uint8 char_idx, char* data,
+ehs_sint32 inx_ble_service_hal_read_char(ehs_uint8 char_idx, char* data,
                                    ehs_uint16* length, ehs_uint16 max_len);
 
 /**
@@ -114,7 +114,7 @@ int inx_ble_service_hal_read_char(ehs_uint8 char_idx, char* data,
  * @param length Data length
  * @return 0 on success, negative on error
  */
-int inx_ble_service_hal_notify(ehs_uint8 char_idx, const char* data, ehs_uint16 length);
+ehs_sint32 inx_ble_service_hal_notify(ehs_uint8 char_idx, const char* data, ehs_uint16 length);
 
 /**
  * Check if a client is connected

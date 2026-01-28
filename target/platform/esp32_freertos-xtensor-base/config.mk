@@ -37,7 +37,7 @@ EHS_DEBUGALL=yes
 # Select which toolboxes and supporting middleware options should be used (this guides the conditional build or ert-component porting layers)
 ################################################################################################################
 #todo  why is the stubbed file system so difficult compared to others/ We should move the the Component HAL and yse that method as more consistent?
-EHS_FILESYSTEM_SUPPORT=none
+EHS_FILESYSTEM_SUPPORT=posix
 #Current hack for ESP32 (not S3) because feof is linkedin the 4.4.1.  libraries
 DEFS+=EHS_FEOF_MISSING_WORKAROUND
 #EHS_FILESYSTEM_SUPPORT=stubbed

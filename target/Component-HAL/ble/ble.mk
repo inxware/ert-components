@@ -1,7 +1,5 @@
 # BLE Service HAL Makefile
 
-
-
 # Determine which BLE stack to use based on platform
 ifdef EHS_NETWORK_BLE_SUPPORT
 ifneq ($(EHS_NETWORK_BLE_SUPPORT),none)

@@ -65,7 +65,7 @@ endif
 endif
 
 # These are Arduino dependencies
-# This includes the MQTT library
+
 LIB += libs
 # Not sure what is in here..
 LIB += misc

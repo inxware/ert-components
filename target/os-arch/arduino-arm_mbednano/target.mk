@@ -73,6 +73,7 @@ endif
 
 # Some MCU buffer size paramters
 # todo the following should be set in the small profile - or use proper config.mk file override methods?
+
 DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
 DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=2048
 DEFS += EHS_TGT_TCP_IN_BUFF_SIZE=256

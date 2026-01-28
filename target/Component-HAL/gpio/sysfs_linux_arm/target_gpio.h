@@ -6,7 +6,7 @@
 #define TARGET_GPIO_H_
 
 #include "globals.h"
-#include "hal_gpio.h"
+#include "ehs_hal_gpio.h"
 
 
 #endif /* TARGET_GPIO_H_ */

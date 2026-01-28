@@ -57,7 +57,7 @@ The NimBLE implementation provides full BLE GATT server functionality for ESP32-
 
 #### Initialization
 ```c
-int inx_ble_service_hal_init(
+ehs_sint32 inx_ble_service_hal_init(
     const char* service_uuid,
     const char* service_name,
     uint8_t num_chars,
@@ -72,24 +72,24 @@ Initializes the BLE service with the specified configuration.
 
 #### GATT Registration
 ```c
-int inx_ble_service_hal_register_gatt(void);
+ehs_sint32 inx_ble_service_hal_register_gatt(void);
 ```
 
 Registers the GATT service and characteristics with the BLE stack.
 
 #### Advertising Control
 ```c
-int inx_ble_service_hal_start_adv(void);
-int inx_ble_service_hal_stop_adv(void);
+ehs_sint32 inx_ble_service_hal_start_adv(void);
+ehs_sint32 inx_ble_service_hal_stop_adv(void);
 ```
 
 Start and stop BLE advertising.
 
 #### Characteristic Operations
 ```c
-int inx_ble_service_hal_write_char(uint8_t char_idx, const char* data, uint16_t length);
-int inx_ble_service_hal_read_char(uint8_t char_idx, char* data, uint16_t* length, uint16_t max_len);
-int inx_ble_service_hal_notify(uint8_t char_idx, const char* data, uint16_t length);
+ehs_sint32 inx_ble_service_hal_write_char(uint8_t char_idx, const char* data, uint16_t length);
+ehs_sint32 inx_ble_service_hal_read_char(uint8_t char_idx, char* data, uint16_t* length, uint16_t max_len);
+ehs_sint32 inx_ble_service_hal_notify(uint8_t char_idx, const char* data, uint16_t length);
 ```
 
 Read, write, and notify operations for characteristics.

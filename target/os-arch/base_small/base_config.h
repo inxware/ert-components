@@ -174,8 +174,7 @@
  * Maximum console queue size. This *must* be a power of 2 and less than 2<<31.
  */
 #ifndef EHS_DEBUG_CONSOLE_BUFFER_SIZE
-#define EHS_DEBUG_CONSOLE_BUFFER_SIZE (1u<<9) 
-// 512 bytes 256 - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
+#define EHS_DEBUG_CONSOLE_BUFFER_SIZE (1u<<9)  //512 bytes 256 - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
 #endif
 
 #ifndef EHS_LWIP
