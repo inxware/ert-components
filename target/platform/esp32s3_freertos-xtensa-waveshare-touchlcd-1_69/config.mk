@@ -71,8 +71,8 @@ DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
 # WIFI
 EHS_NETWORK_WIFI_SUPPORT=yes
 # TODO2025 We need to know if this clobbers saved files are are defaults if none are saved.
-DEFS += EHS_CONFIG_WIFI_SSID="\"Wireless-INX\""
-DEFS += EHS_CONFIG_WIFI_PASSWORD="\"HelloInx101\""
+DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""
+DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""
 # Maximum wi-fi SSID records buffer size
 DEFS += ESP32_MAX_AP_RECORDS=20
 

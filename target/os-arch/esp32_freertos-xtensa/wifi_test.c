@@ -21,6 +21,7 @@
 #include "freertos/task.h"
 #include "mdns.h"
 #include "nvs_flash.h"
+// TODO why not include our hal and use ehs strings lke everywwhere else?
 #include <string.h>
 
 #include "ping.h"

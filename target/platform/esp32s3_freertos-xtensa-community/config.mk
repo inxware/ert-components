@@ -24,8 +24,8 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 
 # Configure wifi interface for esp32s3 device
 # to set specific wifi credentials replace 'ssid' and 'password'
-#DEFS += EHS_CONFIG_WIFI_SSID="\"Wireless-INX\""
-#DEFS += EHS_CONFIG_WIFI_PASSWORD="\"HelloInx101\""
+#DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""
+#DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""
 
 # Enable the serial command prompt interface
 DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT

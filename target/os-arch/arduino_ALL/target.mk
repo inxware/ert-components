@@ -23,26 +23,16 @@
 
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/config.mk
 
-# This will be changed with Arduino specific build in the future
-#ifndef EHS_COMMS_API_SUPPORT
-#	export  EHS_COMMS_API_SUPPORT=bsdsockets
-#    DEFS += $(EHS_COMMS_API_SUPPORT)
-#endif
-
+# Make sure we build the MCU Profile and include the standard MCU threads for peripheral support
 EHS_MCU_TARGET=1
 
 EHS_COMPONENTS_SYSTEMEXEC_SUPPORT=none
-INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
-VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
 
-#VPATH += $(EHS_TARGET_OS_HW_PATH)/HAL
-#VPATH += $(EHS_TARGET_OS_HW_PATH)/Components
-
-INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/HAL
-DEFS += JSMN_PARENT_LINKS
 #These are the core mandatory target apecific porting components needed to run eRT. 
 OBJECTS += target_logger.$(OBJ)
 OBJECTS += target_math.$(OBJ) 
+
+
 ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
 OBJECTS += target_file.$(OBJ)
 else
@@ -65,15 +55,23 @@ endif
 endif
 
 # These are Arduino dependencies
-
 LIB += libs
 # Not sure what is in here..
 LIB += misc
 
 
-#TODO2025  - Move to the component HAL
-# Include Arduino LSM6DS3 library source
+# Add this path explicitly so that any derived osarches will find things in here if needed.
+INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
+VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
+
+# TODO2025  - Move to the component HAL!!!!
+# Does this only work in docker?? Does it woork at all?
+# Include Arduino LSM6DS3 library source 
+)
 VPATH += /home/inxware/Arduino/libraries/Arduino_LSM6DS3/src
 OBJECTS += target_accel_gyro.$(OBJ)
 OBJECTS += LSM6DS3.$(OBJ)
 OBJECTS += target_display.$(OBJ)
+
+
+

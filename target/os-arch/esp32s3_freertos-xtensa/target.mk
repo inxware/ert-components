@@ -51,7 +51,8 @@ DEFS += EHS_ESP32_SUPPORT=1
 include TARGET.cfg
 DEFS += 'TARGET_OS_VERSION_STRING="$(shell head -c -1 ./Releases/version_strings | tr '\n' '.')\x20:$(TARGET)"'
 
-#Enable gdb debugging by default
+# Enable gdb debugging by default
+# TODO2026 do we want this as a default? Does it add memory or CPU overhead?
 ENABLE_GDB=1 
 
 # Use lwip
@@ -76,7 +77,7 @@ INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/apps/ping/
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/include_next
 INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)/esp32s3/
 
-# The following will probably need to be ported eventually to support ert components and main build
+# Always needed Objects doe esp32s
 OBJECTS += target_file.$(OBJ)
 OBJECTS += target_math.$(OBJ)
 OBJECTS += targetos_init.$(OBJ)
@@ -84,54 +85,54 @@ OBJECTS += target_process.$(OBJ)
 OBJECTS += target_main.$(OBJ)
 OBJECTS += target_time.$(OBJ)
 OBJECTS += ping.$(OBJ)
-#OBJECTS += wifi_test.$(OBJ)
-#OBJECTS += target_math.$(OBJ) 
-#OBJECTS += esp_main_example.$(OBJ) 
-#OBJECTS += certificate.$(OBJ)
-ifeq ($(EHS_UART_SUPPORT),yes)
+OBJECTS += target_sys_stat.$(OBJ)
+
+# Optionally needed, depening on platform build
+ifdef EHS_UART_SUPPORT
+ifneq ($(EHS_UART_SUPPORT),none)
 OBJECTS += target_uart.${OBJ}
 endif
+endif
+
 ifdef EHS_NETWORK_WIFI_SUPPORT
+ifneq EHS_NETWORK_WIFI_SUPPORT
 OBJECTS += target_wifi.${OBJ}
 endif
+endif
+ifdef EHS_NETWORK_WIFI_SUPPORT
+ifneq ($(EHS_NETWORK_WIFI_SUPPORT),none)
 OBJECTS += target_ethernet.${OBJ}
+endif
+endif
+# We deal with MODBUS specifically for ESP32 IDF because it has a native implementation.
+# otherwise this should have gone in the target/Component-HAL/ under the appropriate directory.
+ifdef EHS_MODBUS_SUPPORT
+ifneq (EHS_MODBUS_SUPPORT,none)
+OBJECTS += target_mbport.$(OBJ)
+endif
+endif
 
+# IF there are some data partition sources present then add them too 
 ifneq (,$(wildcard $(_TARGET_PATH)/target_data_bin.c))
 OBJECTS += target_data_bin.${OBJ}
 else
 OBJECTS += target_data_bin_default.$(OBJ)
 endif
-OBJECTS += target_display.$(OBJ)
-OBJECTS += target_sys_stat.$(OBJ)
 
-#todo 2025 This probably shouldn't be here either? COmponent HAL??
-ifdef EHS_MODBUS_SUPPORT
-OBJECTS += target_mbport.$(OBJ)
-endif
+OBJECTS += target_display.$(OBJ)
+
+
 
 ifdef EHS_I2C_SUPPORT
+ifneq ($(EHS_I2C_SUPPORT),none)	
 DEFS += EHS_I2C_SUPPORT
 OBJECTS += target_specific.$(OBJ)
+endif
 endif
 
 #todo2025 - still not sure how we should be doing this:
 EHS_PERIPHERALS_BACKLIGHT_SUPPORT=esp32s3
 
-#expect we will need all of the lib*.a from ert-contrib-middleware/target_libs/..esp32s3 .. /build/lib/ here 
-# LIB += ....
-
-
-
-#LNKFLAGS+= -lcoexist -lespnow -lmesh -lnet80211 -lphy -lpp -lrtc -lsmartconfig -lwapi -lxt_hal -lapp_trace -lapp_update -lbootloader_support -lbt -lcoap -lconsole -ldriver 
-#LNKFLAGS+= -lefuse -lesp32 -lesp_adc_cal -lesp_common -lesp_eth 
-
-#LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa
-
-
-
-
-#LNKFLAGS+= -lcoexist -lespnow -lmesh -lnet80211 -lphy -lpp -lrtc -lsmartconfig -lwapi -lxt_hal -lapp_trace -lapp_update -lbootloader_support -lbt -lcoap -lconsole -ldriver -lefuse -lesp32s3 -lesp_adc_cal -lesp_common 
-#LNKFLAGS+= -lesp_eth -lesp_event -lesp_gdbstub -lesp_hid -lesp_http_client -lesp_http_server -lesp_https_ota -lesp_hw_support -lesp_ipc -lesp_lcd -lesp_local_ctrl -lesp_netif -lesp_phy -lesp_pm -lesp_ringbuf -lesp_rom 
 
 ifdef FIXED_ESP32_LINKLINE_USING_STARTGROUP
 LIB += coexist

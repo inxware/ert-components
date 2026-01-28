@@ -151,5 +151,5 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################
 
-DEFS += EHS_CONFIG_WIFI_SSID="\"Wireless-INX\""
-DEFS += EHS_CONFIG_WIFI_PASSWORD="\"HelloInx101\""
+DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""
+DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""
