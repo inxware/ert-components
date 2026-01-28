@@ -40,14 +40,6 @@
 
 </tr>
 <tr>
-<td>SSID</td>
-<td>S</td><td>The SSID of the Wi-Fi Access Point to connect to.</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-
-</tr>
-<tr>
 <td>onStartup</td>
 <td>B</td><td>Connect to the Wi-Fi AP on startup before the app loads.</td>
 <td>1</td>
@@ -87,86 +79,6 @@
 <td>9999999</td>
 
 </tr>
-<tr>
-<td>EntType</td>
-<td>I</td><td>Enterprise Network authentication type.0 for WPA2-Enterprise, 1 for WPA3-Enterprise, 2 for WPA3-192bit-Enterprise.</td>
-<td>0</td>
-<td>0</td>
-<td>2</td>
-
-</tr>
-<tr>
-<td>EAP</td>
-<td>I</td><td>The Extensible Authentication Protocol to be used to pass the authentication information. Only valid if type=2. 0 for TLS, 1 for PEAP, 2 for TTLS.</td>
-<td>0</td>
-<td>0</td>
-<td>2</td>
-
-</tr>
-<tr>
-<td>TTLS2</td>
-<td>I</td><td>EAP's TTLS second stage connection method. Only valid if type=2 and EAP=2. 1 for MSCHAPV2, 2 fo MSCHAP, 3 for PAP and 4 for CHAP.</td>
-<td>1</td>
-<td>1</td>
-<td>4</td>
-
-</tr>
-<tr>
-<td>needServerCert</td>
-<td>B</td><td>Whether to validate the servers' certificate using CA cert. Only Valid if type=2.</td>
-<td>0</td>
-<td>None</td>
-<td>None</td>
-
-</tr>
-<tr>
-<td>serverCert</td>
-<td>S</td><td>The CA cert to validate the servers' certificate. Only valid if type=2 and needServerCert=1.</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-
-</tr>
-<tr>
-<td>tlsCert</td>
-<td>S</td><td>TLS client certificate. Only valid if type=2 and EAP=0.</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-
-</tr>
-<tr>
-<td>tlsKey</td>
-<td>S</td><td>TLS client key if EAP method is TLS. Only valid if type=2 and EAP=0.</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-
-</tr>
-<tr>
-<td>eapID</td>
-<td>S</td><td>ID for EAP authentication. Most of time, it is email address. Only valid if type=2.</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-
-</tr>
-<tr>
-<td>eapUser</td>
-<td>S</td><td>Username for EAP authentication. Only valid if type=2.</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-
-</tr>
-<tr>
-<td>eapPass</td>
-<td>S</td><td>Password for EAP authentication. Only valid if type=2.</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-
-</tr>
 </table>
 <!--Ports - form - short desc: long desc-->
 <div class="section_heading">
@@ -182,6 +94,10 @@
 <tr>
 <td class="ports"><a name="[In]Connect">Connect</a></td>
 <td>Connect to Wi-Fi Access Point.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]Set">Set</a></td>
+<td>Set the parameters and credentials of the Wi-Fi Access Point.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]Disconnect"></a>Disconnect</td>

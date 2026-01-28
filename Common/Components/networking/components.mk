@@ -120,4 +120,16 @@ endif
 endif
 endif
 
+# BLE service support
+ifdef EHS_NETWORK_BLE_SUPPORT
+ifneq ($(EHS_NETWORK_BLE_SUPPORT),none)
+ifneq ($(EHS_NETWORK_BLE_SUPPORT),)
+	DEFS += EHS_NETWORK_BLE_SUPPORT
+	OBJECTS += inx-ble_service.$(OBJ)
+	# Add BLE HAL include path for glue layer
+	INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/ble/$(EHS_NETWORK_BLE_SUPPORT)
+endif
+endif
+endif
+
 VPATH+= $(EHS_COMMON_COMPONENTS_PATH)/networking
