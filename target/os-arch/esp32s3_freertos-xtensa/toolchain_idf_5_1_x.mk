@@ -67,6 +67,11 @@ LNKFLAGS += -lapp_trace -lapp_trace -lcmock -lunity -lesp_hid -lesp_lcd -lesp_lo
 LNKFLAGS += -ltouch_element -lusb -lwifi_provisioning -lprotocomm -lconsole -lprotobuf-c -ljson -lexpat -llittlefs -lxtensa -lesp_ringbuf -lefuse -ldriver -lesp_pm -lmbedtls  
 LNKFLAGS += -lesp_app_format -lbootloader_support -lesp_partition -lapp_update -lesp_mm -lspi_flash -lpthread -lesp_system -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lesp_event
 LNKFLAGS += -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lbt -lesp_coex -lbtdm_app -lcoexist -lesp_wifi -lhttp_parser -lesp-tls -lesp_adc -lesp_eth -lesp_gdbstub -ltcp_transport -lesp_http_client -lesp_http_server -lesp_https_ota
+#TOD for the LoG can we get rid of all the duplications and use LIBS += like below  job for Claude I expect.
+LIBS += coexist 
+LIBS += esp_coex 
+
+
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram
 endif

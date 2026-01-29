@@ -528,7 +528,6 @@ void app_main(void)
     // xTaskCreate(app_test_main, "app_test_main", stack_depth, ( void * ) 1, 1, NULL);
     // EhsMain(NULL, NULL); /* doesn't return in this version */;
 
-
 #endif
     // todo2024 - why is this call _test_ ?? is it not a real main?
     mqtt_test_main();

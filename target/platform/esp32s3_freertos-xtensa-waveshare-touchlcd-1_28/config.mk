@@ -31,60 +31,62 @@ COMPONENT_VARIANT=uartusb-n16r2
 # SYSTEM_VARIANT is primarilly for conditional compilation for very specific features 
 # SYSTEM_VARIANT optionally indicates specific target environment confgurations.
 # See target/envbuildscripts/targetenv_hacks_*.sh scripts).
-SYSTEM_VARIANT=esp32s3-hrdcv2
+#SYSTEM_VARIANT=esp32s3-hrdcv2
 
 #todo we need to change the defaults to the os-arch so we don't undu base stuff and get a multi-def warning/
 EHS_WATCHDOG_SUPPORT=stubbed
 
-# HRDCV2 product config
-## "2" means Rev. B
-DEFS += EHS_PLATFORM_ESP32S3_HRDCV2=2
 
-# make sure to use libraries built with 32k cache for this target
-TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
+# make sure to use libraries built with 32k cache for this target (DO WE REALLY NEED THIS?)
+#TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 
 # Enable debug mode
 EHS_DEBUGALL=yes
 
 EHS_RUNTIME_LOGGER_ENABLED=no
-DEFS += EHS_NANOPRINTF_SUPPORT=1
 
 # Disable linked-list based memory allocator managment in the hal_mem
 #EHS_MEMORY_MANAGMENT=none
 EHS_NETWORK_ETHERNET_SUPPORT=none
+EHS_NETWORK_BLE_SUPPORT=none
 
 #We shouldn't need this here - we know it's an ESP32 already from the os arch
 EHS_NETWORK_CONFIG_TYPE_SUPPORT=esp32
 # this target connects to inx-systems mqtt broker
 include ./target/devman-configs/esp32s3-hrdcv2-inx-systems.com.mk
 
-# Enable the serial command prompt interface
-DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
-# Disable esp logger
-DEFS += EHS_ESP32_DISABLE_LOGS=1
 
-# App to run
-#EHS_DEFAULT_APP=tutorials/hello_world
-EHS_DEFAULT_APP=demos/UI_for_Waveshare
-
-#This was 1200 
-#DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=12000
-DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
-
-# WIFI
 EHS_NETWORK_WIFI_SUPPORT=yes
-# TODO2025 We need to know if this clobbers saved files are are defaults if none are saved.
-DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""
-DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""
-# Maximum wi-fi SSID records buffer size
-DEFS += ESP32_MAX_AP_RECORDS=20
-
 EHS_DEVMAN_SUPPORT=mqtt
 
 EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
 
 EHS_LVGL_DISPLAY_DRIVER=gc9a01
+#What does leaving this blank mean???
 EHS_LVGL_TOUCH_DRIVER=
+# App to run
+#EHS_DEFAULT_APP=tutorials/hello_world
+EHS_DEFAULT_APP=demos/UI_for_Waveshare
+
+#Hacks that need to be removed or moved to targetconfig.h
+################################################################################################
+# Enable the serial command prompt interface
+DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
+# Disable esp logger  why???
+DEFS += EHS_ESP32_DISABLE_LOGS=1
+DEFS += EHS_CONFIG_WIFI_SSID="\"Wireless-XXX\""
+DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXX""
+# Maximum wi-fi SSID records buffer size
+DEFS += ESP32_MAX_AP_RECORDS=20
+#This needs to be done properly and say what it actually does not how it does something
+DEFS += EHS_NANOPRINTF_SUPPORT=1
+#The following should be done using the TARGETVARIANT config variable.
+# HRDCV2 product config
+## "2" means Rev. B
+DEFS += EHS_PLATFORM_ESP32S3_HRDCV2=2
+#This was 1200 
+#DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=12000
+DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
 
 
 ################################### END OF TOOLBOX CONFIGURATION ###################################################

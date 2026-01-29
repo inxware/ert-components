@@ -95,7 +95,7 @@ endif
 endif
 
 ifdef EHS_NETWORK_WIFI_SUPPORT
-ifneq EHS_NETWORK_WIFI_SUPPORT
+ifneq ($(EHS_NETWORK_WIFI_SUPPORT),none)
 OBJECTS += target_wifi.${OBJ}
 endif
 endif
@@ -112,16 +112,17 @@ OBJECTS += target_mbport.$(OBJ)
 endif
 endif
 
+ifdef EHS_GUI_SUPPORT
+ifneq ($(EHS_GUI_SUPPORT),none)
+OBJECTS += target_display.$(OBJ)
+endif
+endif
 # IF there are some data partition sources present then add them too 
 ifneq (,$(wildcard $(_TARGET_PATH)/target_data_bin.c))
 OBJECTS += target_data_bin.${OBJ}
 else
 OBJECTS += target_data_bin_default.$(OBJ)
 endif
-
-OBJECTS += target_display.$(OBJ)
-
-
 
 ifdef EHS_I2C_SUPPORT
 ifneq ($(EHS_I2C_SUPPORT),none)	
@@ -132,7 +133,6 @@ endif
 
 #todo2025 - still not sure how we should be doing this:
 EHS_PERIPHERALS_BACKLIGHT_SUPPORT=esp32s3
-
 
 ifdef FIXED_ESP32_LINKLINE_USING_STARTGROUP
 LIB += coexist

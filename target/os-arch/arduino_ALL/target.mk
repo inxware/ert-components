@@ -32,7 +32,6 @@ EHS_COMPONENTS_SYSTEMEXEC_SUPPORT=none
 OBJECTS += target_logger.$(OBJ)
 OBJECTS += target_math.$(OBJ) 
 
-
 ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
 OBJECTS += target_file.$(OBJ)
 else
@@ -64,10 +63,14 @@ LIB += misc
 INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
 VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/arduino_ALL/
 
+# TODO Should be done properly
+DEFS += JSMN_PARENT_LINKS
+
 # TODO2025  - Move to the component HAL!!!!
 # Does this only work in docker?? Does it woork at all?
 # Include Arduino LSM6DS3 library source 
-)
+
+
 VPATH += /home/inxware/Arduino/libraries/Arduino_LSM6DS3/src
 OBJECTS += target_accel_gyro.$(OBJ)
 OBJECTS += LSM6DS3.$(OBJ)
