@@ -80,6 +80,15 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void*),void * target_en
 
 EhsTargetIntType main(int argc, ehs_char ** argv )
 {
+#if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
+    // Bare metal mode: Run test immediately and exit
+    extern void EHS_TEST_FUNC_NAME(void);
+    //EHSH_LOG_INFO("EHS Bare Metal Test: Running %s\n", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    EHSH_LOG_INFO("Test completed\n");
+    return 0;
+#endif
+
     pid_t pID;
 //#define EHS_DONT_BUF_STDOUT
 #ifdef EHS_DONT_BUF_STDOUT
@@ -100,7 +109,18 @@ EhsTargetIntType main(int argc, ehs_char ** argv )
         SIG_IGN
     }, NULL);
 #endif
+
+#ifdef EHS_TEST_FUNC_OVERRIDE
+    // Test mode with full init: Run test instead of EhsMain
+    extern void EHS_TEST_FUNC_NAME(void);
+    //EHSH_LOG_INFO("EHS Test Mode: Running %s\n", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    EHSH_LOG_INFO("Test completed\n");
+#else
+    // Normal production mode
     EhsMain(NULL,NULL); /* doesn't return in this version */
+#endif
+
     EhsExit(0);
     return 0;
 }

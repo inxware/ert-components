@@ -67,6 +67,17 @@ export FINAL
 # standard definitions for Csource
 DEFS = MAKE_TARGET=$(TARGET)
 
+# Test function override support
+ifdef TEST_FUNC
+    DEFS += EHS_TEST_FUNC_OVERRIDE
+    DEFS += EHS_TEST_FUNC_NAME=$(TEST_FUNC)
+
+    # Optional: Skip all eRT initialization
+    ifeq ($(ERT_INIT),none)
+        DEFS += EHS_TEST_FUNC_NO_ERT_INIT
+    endif
+endif
+
 ################## Target-specific tool definitions ##############################################################
 #
 #  Uses $(INC_DIRS)

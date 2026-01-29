@@ -1165,18 +1165,27 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
 
 /**
  * Main entry point to the application.
- * @return Integer representing exit code of application.
+ * @return void
  *
- */
-// EhsTargetIntType main(int argc, ehs_char ** argv )
-
-
-/**
+ * eRT's Entry point for esp32 platform.
+ * Note: esp32's freertos calls appmain  you don't use normal main.
+ * 
  * There’s already an api for setting the next app to be launched. Simply call this at any point before EhsMain
  * EhsHMetaSetNextAppToRun("default");  or EhsHMetaSetNextAppToRun("fallbacks"); etc.
  */
 void app_main(void)
 {
+#if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
+    // Bare metal mode: Run test immediately and hang
+    extern void EHS_TEST_FUNC_NAME(void);
+    ESP_LOGI(TAG, "EHS Bare Metal Test: Running %s", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    ESP_LOGI(TAG, "Test completed");
+    while(1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+#endif
+
     esp_task_wdt_deinit();
 #if EHS_ESP32_DISABLE_LOGS == 1
     esp_log_level_set("*", ESP_LOG_NONE);
@@ -1331,8 +1340,17 @@ ota_data_write_jump:
     EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = ESP32S3_TIMG_WDT_WRITEPROTECT_MAGIC_VALUE;
     EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_CONFIG0_OFFSET) = 0;
     EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = 0;
+
+#ifdef EHS_TEST_FUNC_OVERRIDE
+    // Test mode with full init: Run test instead of EhsMain
+    extern void EHS_TEST_FUNC_NAME(void);
+    ESP_LOGI(TAG, "EHS Test Mode: Running %s", #EHS_TEST_FUNC_NAME);
+    xTaskCreate(EHS_TEST_FUNC_NAME, #EHS_TEST_FUNC_NAME, EHS_MAIN_ESP32_TASK_STACK_SIZE, NULL, EHS_PRI_EHS_MAIN, NULL);
+#else
+    // Normal production mode
     xTaskCreate(EhsMain, "EhsMain", EHS_MAIN_ESP32_TASK_STACK_SIZE, NULL, EHS_PRI_EHS_MAIN, NULL/* see above should be xHandle*/); // tskIDLE_PRIORITY + 5
- 
+#endif
+
  #endif
  #ifdef EHS_ESP32_CMD_PROMPT_SUPPORT
     // TODO - shell we use this in MCU_SLOW_LP_THR ?

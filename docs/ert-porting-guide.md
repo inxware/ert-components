@@ -861,7 +861,7 @@ See `CLAUDE.md` section "Hardware Abstraction Layer (HAL) Components" for compre
    - Create glue layer in `Common/Components/[category]/`
 
 
-### MAndatory HAL Functions
+### Mandatory HAL Functions
 All os-arch and platforms must provide an implement of the following target-specific HAL functions:
 - Timer management
 - Memory allocation
@@ -873,10 +873,116 @@ All os-arch and platforms must provide an implement of the following target-spec
 Create component implementations that bridge the generic component API to platform-specific capabilities. Use the HAL three-layer architecture to keep platform-specific code isolated in `target/Component-HAL/`.
 
 
-### Validation & Testing
-- Run unit tests
-- Verify component functionality
-- Test build and deployment pipeline
+
+## Developing HAL Components from the ground up
+
+When developing HAL implementations or target-specific components when there are no components or clients to test it in eRT or you want to isolate just one function and run that without any other distrations, the you can use a special build modifier:
+
+```bash
+make TEST_FUNC=yourTestFunction all_docker
+```
+
+The TESTFUNC option let's you select any function that will be built for a target and run that instead of ehsMain.
+
+This is particularly useful for:
+
+- **HAL component testing** - Test hardware abstraction layers in isolation
+- **Driver verification**   - Validate low-level drivers without application overhead
+- **Hardware bring-up**     - Quick testing of new platform integrations
+- **Component debugging**   - Isolate and debug specific components
+- **Component debugging**   - Excluding other dependencies
+
+The build system provides two modes for running your test code via Makefile parameters.
+
+**Test with Normal Initialization**:
+```
+make TEST_FUNC=my_test_function all_docker
+```
+This mode:
+- Runs all normal platform initialization (network, filesystem, threads, etc.)
+- Replaces `EhsMain()` with your test function
+
+**Bare Metal Test Mode** (minimal initialization):
+```bash
+make TEST_FUNC=my_test_function ERT_INIT=none all_docker
+```
+This mode:
+- Runs test function immediately from OS entry point (usually `main`)
+- Doesn't run any nonessential eRT initialization in target_main.c
+- Avoids the most dependencies and syste conflicts
+
+**Example Test Function** (in `target/Component-HAL/[subsystem]/[implementation]/test.c`):
+```c
+#include "globals.h"
+#include "my_hal_component.h"
+
+// ...
+// ...
+// ... the function can be placed in any file that will build 
+// ...
+// ...
+
+
+#ifdef EHS_TEST_FUNC_OVERRIDE//optional but advisable
+
+// Test function with full initialization
+void my_hal_test(void)
+{
+    TEST_LOG("HAL Test (with eRT init) starting");
+
+    // Can use eRT services
+    const ehs_char* inst_path = EhsHMetaGetInstPath();
+    TEST_LOG("Installation path: %s", inst_path);
+
+    // Test HAL component
+    ehs_sint32 result = my_hal_component_init();
+    TEST_LOG("Component init result: %d", result);
+
+    // Run tests
+    for (int i = 0; i < 10; i++) {
+        TEST_LOG("Test iteration %d", i);
+        TEST_DELAY_MS(1000);
+    }
+
+    my_hal_component_deinit();
+    TEST_LOG("Test completed");
+
+    #ifdef EHS_ESP32_SUPPORT
+    while(1) { TEST_DELAY_MS(1000); }
+    #endif
+}
+#endif // EHS_TEST_FUNC_OVERRIDE
+```
+
+**Build Examples:**
+```bash
+# MCU target (8MB/2MB esp32s3)
+./configure esp32s3_freertos-xtensa-base_n8r2
+# Allow full initialization test
+make TEST_FUNC=test_bsdsockets_hal all_docker
+
+# Dissallow intialisation and bare metal test
+make TEST_FUNC=test_bsdsockets_hal ERT_INIT=none all_docker
+
+```
+For MCU targets you may use a tty terminal like minicom to see the debug output. Ssee `/scripts/build-deploy`/ for examples
+
+For functions that will run on linux you can debug on your build host. e.g.
+```bash
+# Linux target
+./configure linux_x86_64_clang_gtk_gst_gg_debian11-no-certs
+make TEST_FUNC=test_bsdsockets_hal all
+./configure run # quick way of running your executable on the build host
+
+```
+
+### Implementation Notes:
+- Test functions should  be defined with `#ifdef EHS_TEST_FUNC_OVERRIDE` guards
+- For MCU targets the test function will run as a threaded taskwhen init is allowed.
+   - Otherwise the no init opption runs as the bare metal process 
+ - Linux/Android test functions run as the main process thread in both cases.
+- Test functions on MCUs should loop forever at the end 
+
 
 ## Component (Function Block) Development
 
@@ -1141,7 +1247,7 @@ make targetenv_littlefs         # Build the file system (which we)
 # ...make all_docker as above  
 ```
 
-### Typical ESP32 flash Partitiosn
+### Typical ESP32 flash Partitions
 Builds including Espressif's IDF OTA support are typically partitioned as follows:
 - `firmware partiion (active)` - inxware-firmware -currently booted application ( flipped to inactive after OTA update)
 - `firmware partiion (in active)` - incoming OTA firmware partition (flipped to active after OTA updatee)
