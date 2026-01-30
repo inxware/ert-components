@@ -62,7 +62,7 @@ ERT_SODL_VERSION=1
 
 # There are some #ifdeferies in some general code specific to Android rather than duplicating code 
 EHS_ANDROID=yes
-DEFS += EHS_BSD EHS_ANDROID
+
 
 
 ################################################################################################################

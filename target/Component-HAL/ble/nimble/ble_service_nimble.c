@@ -82,12 +82,15 @@ static ehs_sint32 ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_ha
  */
 static ehs_sint32 parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
 {
-    if (strlen(uuid_str) == 4) {
+    //TODO2026 Check this out properly
+    if (1/*strlen(uuid_str) == 4*/) {
         /* 16-bit UUID (e.g., "180A") */
-        uint16_t uuid16;
-        if (sscanf(uuid_str, "%04hx", &uuid16) != 1) {
-            return -1;
-        }
+        uint16_t uuid16 = 6154;
+        //printf("[%s] string length 4\n", __func__);
+        printf("1\n");
+        //if (sscanf(uuid_str, "%04hx", &uuid16) != 1) {
+        //    return -1;
+        //}
         uuid->u.type = BLE_UUID_TYPE_16;
         uuid->u16.value = uuid16;
         return 0;
@@ -266,13 +269,15 @@ ehs_sint32 inx_ble_service_hal_init(
     inx_ble_service_callbacks_t* callbacks,
     void* component_context)
 {
+    esp_log_level_set(TAG, ESP_LOG_DEBUG);
+    esp_log_level_set("BLE_INIT", ESP_LOG_DEBUG);
     if (num_chars > MAX_CHARACTERISTICS) {
         ESP_LOGE(TAG, "Too many characteristics: %d (max %d)",
                  num_chars, MAX_CHARACTERISTICS);
         return -1;
     }
 
-    ESP_LOGI(TAG, "Initializing BLE service: %s", service_name);
+    //ESP_LOGI(TAG, "Initializing BLE service: %s", service_name);
 
     /* Store configuration */
     memset(&g_ble_ctx, 0, sizeof(g_ble_ctx));
@@ -282,7 +287,7 @@ ehs_sint32 inx_ble_service_hal_init(
         return -1;
     }
 
-    strncpy(g_ble_ctx.service_name, service_name, sizeof(g_ble_ctx.service_name) - 1);
+    //strncpy(g_ble_ctx.service_name, service_name, sizeof(g_ble_ctx.service_name) - 1);
     g_ble_ctx.num_chars = num_chars;
     g_ble_ctx.adv_interval_ms = adv_interval_ms;
     g_ble_ctx.mtu_size = mtu_size;
@@ -299,8 +304,8 @@ ehs_sint32 inx_ble_service_hal_init(
             return -1;
         }
 
-        strncpy(g_ble_ctx.chars[i].name, char_configs[i].name,
-                sizeof(g_ble_ctx.chars[i].name) - 1);
+        //strncpy(g_ble_ctx.chars[i].name, char_configs[i].name,
+        //        sizeof(g_ble_ctx.chars[i].name) - 1);
         g_ble_ctx.chars[i].properties = char_configs[i].properties;
         g_ble_ctx.chars[i].max_len = char_configs[i].max_len;
         g_ble_ctx.chars[i].value_len = 0;
@@ -313,7 +318,10 @@ ehs_sint32 inx_ble_service_hal_init(
     //     return -1;
     // }
 
-    nimble_port_init();
+    esp_err_t err = nimble_port_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Init failed @%d", err);
+    }
 
     /* Initialize the NimBLE host configuration */
     ble_hs_cfg.sync_cb = NULL;

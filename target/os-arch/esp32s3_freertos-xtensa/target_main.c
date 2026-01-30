@@ -78,6 +78,9 @@
 //"freertos/task.h"
 
 #include "esp_event.h"
+
+#include "esp_netif_types.h"
+
 #ifdef EHS_NETWORK_WIFI_SUPPORT
 #include "esp_wifi.h"
 #include "target_wifi.h"
@@ -309,7 +312,7 @@ static void app_load_status_handler(ehs_uint32 status)
     }
 }
 
-#ifdef EHS_ESP32_CMD_PROMPT_SUPPORT
+#ifdef EHS_SERIAL_CONSOLE_SUPPORT
 
 #define EHS_PROMPT_READ_MAX 64 // if changed make sure to update "%Ns" in command_prompt_read "%(max_value-1)s"
 #define EHS_PROMPT_READ_SLEEP 1000
@@ -527,7 +530,7 @@ void command_prompt_task(void* params) {
     vTaskDelete(NULL);
 }
 
-#endif // EHS_ESP32_CMD_PROMPT_SUPPORT
+#endif // EHS_SERIAL_CONSOLE_SUPPORT
 
 #ifdef EHS_NETWORK_ETHERNET_SUPPORT
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -577,6 +580,10 @@ static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t
 
 static esp_eth_handle_t eth_handle = NULL;
 static esp_netif_t *eth_netif = NULL;
+
+/* Initi8alise an Ethernet MAC (if one is fitted)
+   Currently this is hardwired to call initialisation of only W5500 ethernet MAC via a specific SPI line)
+*/
 
 static esp_err_t eth_init()
 {
@@ -722,11 +729,14 @@ eWifiStationStatus EhsWifiStationConnect(const ehs_char* ssid, const ehs_char* p
 
 #endif // #ifdef EHS_NETWORK_WIFI_SUPPORT
 
+/* 
+ Loads the TCPIP configuration file (from user file systemand applies to the currently enabled interface 
+*/
 void EhsLoadNetworkConfig()
 {
     EhsConfig* config = EhsConfigLoad(EHS_NET_CONFIG_FILE);
     if(config){
-        ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
+        //ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
         EhsNetworkConfigDataType net_config = { 0 };
         net_config.save = EHS_FALSE; // we're loading settings, so no need to save them
         net_config.mode = EHS_NET_DHCP_MODE_ID;
@@ -739,10 +749,12 @@ void EhsLoadNetworkConfig()
             net_config.dns = EhsConfigGetValue(config, "net_dns");
         }
         EhsNetworkConfigure(&net_config);
-        EhsConfigFree(config);
+        EhsConfigFree(config); //TODO 2027  Can't we just create a config struct at the beginning of this and pass it into EhsCOnfigLoad to be populated?
     }
 }
-
+/* 
+ Saves the TCPIP configuration from the currently enabled interface 
+*/
 void EhsSaveNetworkConfig(const EhsNetworkConfigDataType* net_config)
 {
     if(net_config == NULL){
@@ -773,9 +785,13 @@ void EhsSaveNetworkConfig(const EhsNetworkConfigDataType* net_config)
     EhsConfigFree(config);
 }
 
+
+/* todo this should really go in a targetnetworking file?*/
 // Override functions for esp32 network config
-// todo this is all in the wrong place.
-#if EHS_NETWORK_CONFIG_SUPPORT==EHS_NETWORK_CONFIG_TYPE_ESP32
+#ifdef EHS_HAL_NETWORK_CONFIG_SUPPORT
+#if EHS_HAL_NETWORK_CONFIG_SUPPORT != EHS_HAL_NETWORK_CONFIG_STUBBED
+//#ifdef EHS_HAL_NETWORK_CONFIG_SUPPORT
+
 /* Returns true when the eRT target network is connected */
 ehs_bool EhsNetworkIsConnected()
 {
@@ -878,9 +894,18 @@ static void EhsSaveNetworkInterfaceConfig(const EhsNetworkInterfaceConfigDataTyp
     }
     nvs_close(nvs_handle);
 }
+#endif // EHS_HAL_NETWORK_CONFIG_SUPPORT
+#endif
+
+#ifdef EHS_HAL_INTERFACE_CONFIG_SUPPORT
+#if EHS_HAL_INTERFACE_CONFIG_SUPPORT != EHS_HAL_INTERFACE_CONFIG_STUBBED
+
+/* Configures the target network interface (Ethernet/Wi-Fi) 
+   THis does not set up the IP settings. It only enables/disables the Ethernet or Wi-Fi interface.
+*/
 
 ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType *config)
-{
+{   
     if(config == NULL){
         return EHS_NETWORK_CONFIG_INVALID_PARAM_ID;
     }
@@ -960,6 +985,10 @@ ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType 
     return EHS_NETWORK_CONFIG_NO_ERROR_ID;
 }
 
+/* Loads the network interface config from NV RAM for Ethernet and WIFI
+ Currently just saves enabling and disabling interfaces 
+ */
+
 static void EhsLoadNetworkInterfaceConfig()
 {
     esp_err_t err;
@@ -979,8 +1008,8 @@ static void EhsLoadNetworkInterfaceConfig()
     if (err == ESP_OK) gEhsNetworkInterfaceWifiEnable = (wifi_enable == 1) ? EHS_TRUE : EHS_FALSE;
     nvs_close(nvs_handle);
 }
-
-#endif
+#endif // EHS_HAL_INTERFACE_CONFIG_SUPPORT
+#endif // EHS_INTERFACE_CONFIGSUPPORT != stubed
 
 void EhsFilesystemInitalised()
 {
@@ -1285,8 +1314,11 @@ ota_data_write_jump:
             }
         }
     }
-#if EHS_NETWORK_CONFIG_SUPPORT==EHS_NETWORK_CONFIG_TYPE_ESP32
+
+#ifdef EHS_HAL_INTERFACE_CONFIG_SUPPORT
+#if EHS_HAL_INTERFACE_CONFIG_SUPPORT != EHS_HAL_INTERFACE_CONFIG_STUBBED
     EhsLoadNetworkInterfaceConfig();
+#endif
 #endif
     if (gEhsNetworkInterfaceWifiEnable)
     {
@@ -1310,7 +1342,8 @@ ota_data_write_jump:
     }
     if (gEhsNetworkInterfaceEthEnable)
     {
-#ifdef EHS_NETWORK_ETHERNET_SUPPORT
+        
+#ifdef EHS_NETWORK_ETHERNET_SUPPORT 
         if (eth_init() == ESP_OK)
         {
             ESP_LOGI(TAG, "Connection success");
@@ -1352,7 +1385,7 @@ ota_data_write_jump:
 #endif
 
  #endif
- #ifdef EHS_ESP32_CMD_PROMPT_SUPPORT
+ #ifdef EHS_SERIAL_CONSOLE_SUPPORT
     // TODO - shell we use this in MCU_SLOW_LP_THR ?
     // create a command prompt task for interacting with the device over a console
     xTaskCreate(command_prompt_task, "CommandPrompt", 4096, NULL, EHS_PRI_SERIAL_CMD, NULL);

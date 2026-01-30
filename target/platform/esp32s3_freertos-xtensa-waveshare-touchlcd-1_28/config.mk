@@ -50,8 +50,6 @@ EHS_RUNTIME_LOGGER_ENABLED=no
 EHS_NETWORK_ETHERNET_SUPPORT=none
 EHS_NETWORK_BLE_SUPPORT=none
 
-#We shouldn't need this here - we know it's an ESP32 already from the os arch
-EHS_NETWORK_CONFIG_TYPE_SUPPORT=esp32
 # this target connects to inx-systems mqtt broker
 include ./target/devman-configs/esp32s3-hrdcv2-inx-systems.com.mk
 

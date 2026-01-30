@@ -52,6 +52,7 @@ EHS_FB_INIT_FUNCTION(gpio_out)
     return EHS_TRUE; /* Note we don't want to return an error here as this crashes out the whole of the SODL and we ant to handle errros in the app */
 }
 
+// Execute an event request to assert the GPIO pin value.
 EHS_FB_RUN_FUNCTION(gpio_out_write)
 {
     ehs_gpio_out_state_type* gpio_out_state = (ehs_gpio_out_state_type*)EHS_FB_RUN_CONTEXT;

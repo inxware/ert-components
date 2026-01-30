@@ -26,7 +26,7 @@ include ./target/platform/esp32s3_freertos-xtensa-base-debug/config.mk
 #DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""
 
 # Enable the serial command prompt interface
-DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
+EHS_SERIAL_CONSOLE_SUPPORT=yes
 # Disable esp logger
 DEFS += EHS_ESP32_DISABLE_LOGS=1
 

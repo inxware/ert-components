@@ -52,7 +52,6 @@ DEFS += EHS_NANOPRINTF_SUPPORT=1
 # Disable linked-list based memory allocator managment in the hal_mem
 #EHS_MEMORY_MANAGMENT=none
 
-EHS_NETWORK_CONFIG_TYPE_SUPPORT=esp32
 # this target connects to inx-systems mqtt broker
 include ./target/devman-configs/esp32s3-hrdcv2-inx-systems.com.mk
 

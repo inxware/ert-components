@@ -1139,8 +1139,134 @@ make targetenv_run_tests     # Run regression tests
 
 
 # Key Platform Techologies
-Platform technologies are typically supported either as POSIC/Linux user space libraries or MCU SDKs. 
+Platform technologies are typically supported either as POSIX/Linux user space libraries or MCU SDKs. 
 
+## TCPIP Networking
+
+The network Hardware Abstraction Layer (HAL) provides a unified interface for TCP/IP configuration across different platforms (MCUs, linux, ...).
+
+### Function Blocks and Network Relationship
+
+Network configuration can be managed either through function blocks (application-level) or via the serial console (system-level). The HAL checks `isEhsWiFiManagedByComponent()` to determine which mode is active.
+
+Note: Currently the serial console terminal may not be usable whie an application with a Network Interface setting block is active. (Note this is not intended or porbably not necessary)
+
+**Networking Function Blocks:**
+
+| Function Block | FB ID | Description |
+|----------------|-------|-------------|
+| `network_config` | 0x6B0B | Get/set TCP/IP configuration (mode, IP, gateway, mask, DNS) |
+| `interface_manager` | 0xF2F0 | Switch between WiFi and Ethernet interfaces |
+| `wifi_station` | 0xED92 | WiFi connection management (connect, disconnect, credentials) |
+| `mqtt_client` | 0x4F38 | MQTT messaging |
+| `url_get` | - | HTTP GET requests |
+| `netsocket` | - | Raw TCP/UDP socket communication |
+
+**Configuration Persistence:**
+- WiFi credentials: Stored in NVS under `if_config` namespace
+- Network config: Stored in `/ehs/userdata/config/net_config`
+- Interface config: Stored in `/ehs/userdata/config/if_config`
+
+
+### Configuration HAL
+Netowrk configuration can be read and applied from applications using function blocks, but also globally on platforms supporting serial connections. Global access to network set (WiFi & Ethernet) is useful for deveopers using Lucid for example.
+
+**Key HAL Header:** `Common/HAL/include/hal_network.h`
+
+The HAL defines configuration structures for TCPIP, Interface Control and WiFi.
+
+#### TCPIP
+```c
+/* TCP/IP configuration */
+typedef struct EhsNetworkConfigData {
+    ehs_uint16 mode;           /* 0=DHCP, 1=Static */
+    const ehs_char* address;   /* IP address (static mode) */
+    const ehs_char* gateway;   /* Gateway address */
+    const ehs_char* mask;      /* Subnet mask */
+    const ehs_char* dns;       /* DNS server */
+    ehs_bool save;             /* Persist to NVS */
+} EhsNetworkConfigDataType;
+```
+#### Netowrk Interfaces
+
+```c
+/* Interface selection (WiFi/Ethernet) */
+typedef struct EhsNetworkInterfaceConfigData {
+    ehs_bool b_wifi_enable;    /* Enable WiFi interface */
+    ehs_bool b_eth_enable;     /* Enable Ethernet interface */
+    ehs_bool save;             /* Persist to NVS */
+} EhsNetworkInterfaceConfigDataType;
+```
+
+#### WiFi Configuration
+
+TODO
+
+#### Build COnfiguration
+Not all platforms support the same level of networking and sometimes capabilites may be removed for memory or security reasons. 
+
+
+The following `config.mk` variables control networking support on ESP32 targets:
+
+| Variable                                | Default Value                    | Description |
+|----------                               |---------------                   |-------------|
+| `EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT` | `yes`                            | Enables network configuration function blocks |
+| `EHS_HAL_INTERFACE_CONFIG_SUPPORT`      | `EHS_HAL_INTERFACE_CONFIG_ESP32` | Enables WiFi SSID/password configuration via serial TTY |
+| `EHS_HAL_NETWORK_CONFIG_SUPPORT`        | `EHS_HAL_NETWORK_CONFIG_ESP32`   | Enables TCP/IP configuration via serial TTY |
+| `EHS_NVS_SUPPORT`                       | `ESP32S3`                        | Enables NVS storage for WiFi credentials |
+| `EHS_MQTT_SUPPORT`                      | `esp_mqtt`                       | MQTT client implementation (use `esp_mqtt` for ESP32) |
+| `EHS_COMMS_API_SUPPORT`                 | `lwip`                           | Communications API (LwIP for TCP/IP) |
+
+**Additional build flags in `target.mk`:**
+
+NOTE: THe following should probably be in the osarch config.mk rather than target.mk
+```makefile
+EHS_NETWORK_WIFI_SUPPORT=1      # Enable WiFi driver
+EHS_NETWORK_ETHERNET_SUPPORT=1  # Enable Ethernet driver (W5500 SPI)
+EHS_SERIAL_CONSOLE_SUPPORT=1    # Enable serial console commands
+```
+
+
+#### Net Config HAL API
+
+| Function                             | Description |
+|----------                            |-------------|
+| `EhsNetworkIsConnected()`            | Returns true when network is connected |
+| `EhsNetworkConfigure()`              | Configures TCP/IP settings, returns error code |
+| `EhsNetworkInterfaceConfigure()`     | Switches between WiFi/Ethernet interfaces |
+| `EhsNetworkInterfaceWifiIsEnabled()` | Check if WiFi is enabled |
+| `EhsNetworkInterfaceEthIsEnabled()`  | Check if Ethernet is enabled |
+
+**Error Codes:**
+| Code | ID | Description |
+|------|-----|-------------|
+| 0 | `EHS_NETWORK_CONFIG_NO_ERROR_ID`      | Success |
+| 1 | `EHS_NETWORK_CONFIG_FAILED_STATIC_ID` | Static IP configuration failed |
+| 2 | `EHS_NETWORK_CONFIG_FAILED_DHCP_ID`   | DHCP configuration failed |
+| 3 | `EHS_NETWORK_CONFIG_FAILED_DNS1_ID`   | DNS configuration failed |
+| 4 | `EHS_NETWORK_CONFIG_INVALID_PARAM_ID` | Invalid parameter |
+
+
+
+#### Network Management Entities:
+```
+Application Layer (Function Blocks)
+├── network_config (TCP/IP settings)
+├── interface_manager (WiFi/Ethernet selection)
+├── wifi_station (WiFi connection)
+└── mqtt_client, url_get, netsocket
+
+HAL Layer
+├── hal_network.h (interface definitions)
+├── target_wifi.c (WiFi driver)
+├── target_ethernet.c (Ethernet W5500 SPI)
+└── target_uart.c (serial console)
+
+Protocol Layer
+├── TCPIP (bsdsockets, LwIP, curl)
+├── TLS/SSL (mbedTLS, openSSL/linux)
+└── Hardware Interfaces (linux, esp_wifi, esp_eth )
+```
 
 ## GPIO
 

@@ -1,5 +1,8 @@
 #include "ml_model_common.h"
 
+
+/* Returns with EHS_ML_NOT_SUPPORTED if th ctx model passed in is not supported in the hardware */
+
 EhsML_Err EhsML_Model_Boilerplate_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Type model_type, ehs_float conf_thres, ehs_sint32 thread_count)
 {
     // Your code here
@@ -24,7 +27,11 @@ EhsML_Err EhsML_Model_Boilerplate_Create(EhsML_Context* ctx, const ehs_char* mod
     {
         case EHS_ML_HWACCEL_HAILO:
         {
+        #ifdef EHS_ML_HWACCEL_SUPPORT_HAILO
             return EhsML_FW_Hailo_Create(ctx, model_path, conf_thres, thread_count);
+        #else
+            return EHS_ML_NOT_SUPPORTED;
+        #endif//EHS_ML_HWACCEL_SUPPORT_HAILO
             break;
         }
         case EHS_ML_HWACCEL_NVIDIA:
@@ -59,8 +66,10 @@ EhsML_Err EhsML_Model_Boilerplate_Create(EhsML_Context* ctx, const ehs_char* mod
 ml_fail:
     return err;
 
+//TODO  I don't think we can fall back to tflite for any model we are parsed  I think this needs to return an error? 
+      // Or can we detect if the model is tflit compatible and do this connditionally 
 ml_hw_fallback:
-    // Fallback to software only framework (i.e. Tensorflow Lite)
+    // Fallback to software only framework (i.e. Tensorflow Lite)  really? just like that?
     ctx->hw_accel = EHS_ML_HWACCEL_NONE;
     return EhsML_FW_TFLite_Create(ctx, model_path, conf_thres, thread_count);
 }
@@ -72,7 +81,9 @@ void EhsML_Model_Boilerplate_Destroy(EhsML_Context* ctx)
     switch (ctx->hw_accel) {
         case EHS_ML_HWACCEL_HAILO:
         {
+            #ifdef EHS_ML_HWACCEL_SUPPORT_HAILO
             EhsML_FW_Hailo_Destroy(ctx);
+            #endif
             break;
         }
         case EHS_ML_HWACCEL_NVIDIA:
@@ -107,25 +118,35 @@ EhsML_Err EhsML_Model_Boilerplate_SetInputData(EhsML_Context* ctx, const void* i
     {
         case EHS_ML_HWACCEL_HAILO:
         {
+            #ifdef EHS_ML_HWACCEL_SUPPORT_HAILO
             return EhsML_FW_Hailo_SetInputData(ctx, input_data, data_size);
+            #else
+            return EHS_ML_NOT_SUPPORTED;
+            #endif
+            break;
         }
         case EHS_ML_HWACCEL_NVIDIA:
         {
             //TODO add support later. Now just fallback to tensorflow lite
             return EHS_ML_NOT_SUPPORTED;
+            break;
         }
         case EHS_ML_HWACCEL_AMD:
         {
             //TODO add support later. Now just fallback to tensorflow lite
             return EHS_ML_NOT_SUPPORTED;
+            break;
         }
         case EHS_ML_HWACCEL_CUSTOM_NPU:
         {
             //TODO add support later. Now just fallback to tensorflow lite
+            return EHS_ML_NOT_SUPPORTED;
+            break;
         }
         case EHS_ML_HWACCEL_NONE:
         default:
         {
+            /* Are we sure we can just fall back to tflite for any model type?*/
             return EhsML_FW_TFLite_SetInputData(ctx, input_data, data_size);
         }
     }
@@ -142,7 +163,12 @@ EhsML_Err EhsML_Model_Boilerplate_RunOutputJson(EhsML_Context* ctx, ehs_char* js
     {
         case EHS_ML_HWACCEL_HAILO:
         {
+            #ifdef EHS_ML_HWACCEL_SUPPORT_HAILO
             err = EhsML_FW_Hailo_GetOutputData(ctx);
+            #else
+            err = EHS_ML_NOT_SUPPORTED;
+            #endif
+            break;
         }
         case EHS_ML_HWACCEL_NVIDIA:
         {

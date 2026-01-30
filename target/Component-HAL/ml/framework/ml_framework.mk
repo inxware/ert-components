@@ -29,5 +29,13 @@ endif
 # Check EHS_ML_HARDWARE_ACCELERATION to include additional framework
 ifeq ($(EHS_ML_HARDWARE_ACCELERATION),hailo)
 include $(EHS_TARGET_ML_FRAMEWORK_PATH)/hailo/ml_fw_hailo.mk
-DEFS += EHS_ML_HARDWARE_ACCELERATION=EHS_ML_HWACCEL_HAILO
+#TODO 2026  Revieww that we will probably want to supportmore than one acceleratoron a build (either because it is a swappable or because theere may be both.
+# In addition we probably don't need to disinguish betweenhardware acceleration and not  these are just engines from deifferent vendors.
+
+# Propose we don't use this because it will get assigned multiple values potentially:
+DEFS += EHS_ML_HARDWARE_ACCELERATION=EHS_ML_HWACCEL_SUPPORT_HAILO
+
+# and just define this instead for conditional build and validation whether potentially supported on a target or not
+DEFS += EHS_ML_HWACCEL_SUPPORT_HAILO
+
 endif #EHS_ML_HARDWARE_ACCELERATION

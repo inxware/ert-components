@@ -17,5 +17,5 @@ else ifeq ($(EHS_ARCH), esp32c3_freertos-xtensa)
 	LIBS += bt 
 	LIBS += btdm_app 
 else
-	$(error "NimBLE BLE HAL not supported for architecture $(EHS_ARCH)")
+#$(error "NimBLE BLE HAL not supported for architecture $(EHS_ARCH)")
 endif

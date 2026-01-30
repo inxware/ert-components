@@ -9,7 +9,8 @@
 #include "hal-api.h"
 #include "hal_network.h"
 
-#if EHS_NETWORK_CONFIG_SUPPORT==EHS_NETWORK_CONFIG_TYPE_STUBBED
+/**  Stubb the HAL calls direct to the to the target implementation.**/
+#if EHS_HAL_NETWORK_CONFIG_SUPPORT == EHS_HAL_NETWORK_CONFIG_STUBBED
 
 /* Returns true when the eRT target network is connected */
 ehs_bool EhsNetworkIsConnected()
@@ -25,11 +26,13 @@ ehs_sint32 EhsNetworkConfigure(const EhsNetworkConfigDataType* config)
 	return EHS_NETWORK_CONFIG_NO_ERROR_ID;
 }
 #endif
+/**********************************************************************/
 
 //ICB STATE VAR MACRO START -- DO NOT ALTER
 /* My Component state data structure. - Use this in your code! */
 typedef struct inx_network_config_state
 {
+	/* We don't have any state informationfor this! */
 } inx_network_config_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER

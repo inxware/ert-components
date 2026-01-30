@@ -69,12 +69,15 @@ EHS_FB_DESTROY_FUNCTION(interface_manager)
 	//Your code below here
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
-#if EHS_INTERFACE_CONFIG_SUPPORT == EHS_INTERFACE_CONFIG_TYPE_STUBBED
+
+// THe following should go in the target/Component-HAL/ files
+#if EHS_HAL_INTERFACE_CONFIG_SUPPORT == EHS_HAL_INTERFACE_CONFIG_STUBBED
 ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType* config)
 {
 	return 0;
 }
 #endif
+
 //ICB FUNCTION configure MACRO START -- DO NOT ALTER
 /**
  * Definition of interface_manager_configure.
@@ -96,7 +99,7 @@ EHS_FB_RUN_FUNCTION(interface_manager_configure)
 	if (EHS_FB_IN_CONNECTED_API2(INX_interface_manager_ARG_configure_eth_enable))
 		config.b_eth_enable = EHS_FB_IN_B_API2(INX_interface_manager_ARG_configure_eth_enable) ;
 	//todo2026 - we need to add this to more target types and remove this conditional
-#if EHS_NETWORK_CONFIG_SUPPORT==EHS_NETWORK_CONFIG_TYPE_ESP32 || EHS_INTERFACE_CONFIG_SUPPORT==EHS_INTERFACE_CONFIG_TYPE_STUBBED
+#ifdef EHS_HAL_INTERFACE_CONFIG_SUPPORT
 	err = EhsNetworkInterfaceConfigure(&config);
 #endif
 	if (EHS_FB_OUT_CONNECTED_API2(INX_interface_manager_ARG_configure_errorCode))

@@ -29,7 +29,6 @@ SYSTEM_VARIANT=esp32s3-hrdcv2
 # unset EHS_NETWORK_WIFI_SUPPORT
 
 #This should be in the os-arch make file for esp32? Or is it more specific for Ethernet? If so lets say so.
-EHS_NETWORK_CONFIG_TYPE_SUPPORT=esp32
 
 EHS_DEFAULT_APP=events/microelectronics-uk-2025/lorawan-demo
 EHS_DEVMAN_SUPPORT=mqtt
@@ -38,7 +37,7 @@ EHS_DEVMAN_SUPPORT=mqtt
 include ./target/devman-configs/esp32s3-hrdcv2-inx-systems.com.mk
 
 # Enable the serial command prompt interface
-DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
+EHS_SERIAL_CONSOLE_SUPPORT=yes
 # Disable esp logger
 DEFS += EHS_ESP32_DISABLE_LOGS=1
 

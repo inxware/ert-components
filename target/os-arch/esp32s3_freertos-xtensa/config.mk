@@ -6,17 +6,6 @@ ifndef EHS_FILESYSTEM_SUPPORT
 endif
 endif
 
-# We don't want to enable Ethernet support by default if no other networking is enabled usually, but leaving this in for now untill all ethernet targets are checked without it.
-
-ifneq ($(EHS_NETWORK_ETHERNET_SUPPORT),none)
-ifndef EHS_NETWORK_ETHERNET_SUPPORT
-ifndef EHS_NETWORK_WIFI_SUPPORT
-	EHS_NETWORK_ETHERNET_SUPPORT=yes
-	DEFS += EHS_NETWORK_ETHERNET_SUPPORT
-endif
-endif
-endif
-
 ifneq ($(EHS_MQTT_SUPPORT),none)
 ifndef EHS_MQTT_SUPPORT
     EHS_MQTT_SUPPORT=esp_mqtt
@@ -41,4 +30,12 @@ ifndef EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT
 	EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT=yes
 endif
 
+#Use NVRAM (for WiFi crenedtials to reduce clobbering risk of flash updates)
 EHS_NVS_SUPPORT=ESP32S3
+
+#default to allowing SSID for WiFi to be configured using serial tty interface
+EHS_HAL_INTERFACE_CONFIG_SUPPORT=EHS_HAL_INTERFACE_CONFIG_ESP32
+#default to allowing TCPIP to be configured using serial tty interface
+EHS_HAL_NETWORK_CONFIG_SUPPORT=EHS_HAL_NETWORK_CONFIG_ESP32
+#Always have the configu function block as a default
+EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT=yes

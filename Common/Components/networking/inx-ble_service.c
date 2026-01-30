@@ -55,17 +55,15 @@ typedef struct
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
 EHS_FB_FUNCTIONS_START(ble_service)
-
-EHS_FB_FUNCTION_ENTRY("init", 0x1, ble_service_init)
-EHS_FB_FUNCTION_ENTRY("start_adv", 0x2, ble_service_start_adv)
-EHS_FB_FUNCTION_ENTRY("stop_adv", 0x3, ble_service_stop_adv)
-EHS_FB_FUNCTION_ENTRY("write_char", 0x4, ble_service_write_char)
-EHS_FB_FUNCTION_ENTRY("read_char", 0x5, ble_service_read_char)
-EHS_FB_FUNCTION_ENTRY("notify_char", 0x6, ble_service_notify_char)
-EHS_FB_FUNCTION_ENTRY("on_client_write", 0x7, ble_service_on_client_write) // Internal event
-EHS_FB_FUNCTION_ENTRY("on_connect", 0x8, ble_service_on_connect) // Internal event
-EHS_FB_FUNCTION_ENTRY("on_disconnect", 0x9, ble_service_on_disconnect) // Internal event
-
+EHS_FB_FUNCTION_ENTRY("init", 0x01, ble_service_init)
+EHS_FB_FUNCTION_ENTRY("start_adv", 0x02, ble_service_start_adv)
+EHS_FB_FUNCTION_ENTRY("stop_adv", 0x03, ble_service_stop_adv)
+EHS_FB_FUNCTION_ENTRY("write_char", 0x04, ble_service_write_char)
+EHS_FB_FUNCTION_ENTRY("read_char", 0x05, ble_service_read_char)
+EHS_FB_FUNCTION_ENTRY("notify_char", 0x06, ble_service_notify_char)
+EHS_FB_FUNCTION_ENTRY("on_client_write", 0x07, ble_service_on_client_write)
+EHS_FB_FUNCTION_ENTRY("on_connect", 0x08, ble_service_on_connect)
+EHS_FB_FUNCTION_ENTRY("on_disconnect", 0x09, ble_service_on_disconnect)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 

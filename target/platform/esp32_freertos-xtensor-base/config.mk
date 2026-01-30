@@ -45,7 +45,20 @@ DEFS+=EHS_FEOF_MISSING_WORKAROUND
 #TODO Seems we still need this for stubbed, but it should be changed to a proper make variable.
 DEFS += EHS_TARGET_FILE_SKIP_STAT
 
+#TBC if the following nocurl is actually used/valid?
 EHS_COMPONENT_NETWORKING_SUPPORT=nocurl
+
+#default to allowing SSID for WiFi to be configured using serial tty interface
+#EHS_HAL_INTERFACE_CONFIG_SUPPORT=EHS_HAL_INTERFACE_CONFIG_ESP32
+EHS_HAL_INTERFACE_CONFIG_SUPPORT=EHS_HAL_INTERFACE_CONFIG_STUBBED
+
+#default to allowing TCPIP to be configured using serial tty interface
+#EHS_HAL_NETWORK_CONFIG_SUPPORT=EHS_HAL_NETWORK_CONFIG_ESP32
+EHS_HAL_NETWORK_CONFIG_SUPPORT=EHS_HAL_NETWORK_CONFIG_STUBBED
+#Always have the configu function block as a default
+EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT=yes
+
+
 # Note the following might not remain lwip - we could use esp32's native mqtt component instead of ert#s lwip based one (TBC if this is difficult
 DEFS += EHS_NO_LIBXML2_SUPPORT=1
 EHS_MQTT_SUPPORT=esp_mqtt-441
