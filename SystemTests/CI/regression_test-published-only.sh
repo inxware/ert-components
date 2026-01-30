@@ -26,6 +26,19 @@ TXT_FG=${TXT_FG_CYAN}
 #linux_x86_64_clang_g
 
 target_platform=(
+'esp32_freertos-xtensor-base'
+'esp32s3_freertos-xtensa-base'
+'esp32s3_freertos-xtensa-base-debug'
+'esp32s3_freertos-xtensa-base_n8r2'
+'esp32s3_freertos-xtensa-community'
+'esp32s3_freertos-xtensa-demo-loradisp'
+'esp32s3_freertos-xtensa-n8r2_waveshare_wearable'
+'esp32s3_freertos-xtensa-no-certs'
+'esp32s3_freertos-xtensa-waveshare-touchlcd-1_28'
+'esp32s3_freertos-xtensa-waveshare-touchlcd-1_69'
+)
+
+target_platforXm=(
     'linux_x86_64_clang_gtk_gst_gg_debian11-no-certs'
     'linux_x86_64_clang_lvgl_debian11-no-certs'
     'linux_arm64_gtk_gst_gg_debian11'
