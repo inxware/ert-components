@@ -27,13 +27,12 @@ The project uses a sophisticated Make-based build system with Docker support for
 **Configuration:**
 - `./configure` - List available build targets
 - `./configure [target]` - Configure for specific platform (e.g., `linux_x86_64_clang`)
-- `./configure -edit` - Edit current target configuration
 - `./configure -run` - Run the target on current host
 - `./configure -debug` - Debug the target with GDB
 
 **Building:**
 - `make help` - Show all available build targets and options
-- `make prepdeps` - Install dependencies and checkout required repositories
+- `make prepdeps` - Install dependencies and checkout required repositories - don't run this for normal build cycles
 - `make all` - Build the eRT binary (ehs_[TARGET].exe)
 - `make all_docker` - Build using Docker environment
 - `make clean` - Clean build artifacts
@@ -59,7 +58,7 @@ The project uses a sophisticated Make-based build system with Docker support for
 The build system requires several adjacent repositories:
 - `ert-build-support` - Binary toolchains and build dependencies
 - `ert-contrib-middleware` - Pre-built 3rd party dependencies
-
+- `apps` - is optional and contains Lucid app projects that might be pre-installed in the build.
 These are automatically cloned by `make prepdeps` and require ~40GB of disk space.
 
 ## Architecture
@@ -248,13 +247,16 @@ HAL components use a three-layer architecture:
    - Handles ports, events, and state management
    - Uses EHS API macros for port access
 
-2. **Glue Layer** (`Common/Components/[category]/inx-[component]_hal_glue.c`)
+2. **Common HAL API  Layer** (`Common/HAL/[category]/inx_[name].c`)
+   - API Headers should go in `./Common/HAL/include/inx_[name].h`)
    - Platform-independent bridge between component and HAL
-   - Translates component state to HAL configuration
-   - Handles callbacks from HAL to component InternalPorts
-   - Stores callback data in component state before triggering internal port functions
+   - The HAL also contains common utility and processing functions that may not have a hardware or target-specific implementation.
+   - For cases of bridging to `./target/Component-HAL/` the common code may 
+   - - translates component state to HAL configuration
+   - - Handles callbacks from HAL to component InternalPorts
+   - - Stores callback data in component state before triggering internal port functions
 
-3. **HAL Layer** (`target/Component-HAL/[subsystem]/[implementation]/`)
+3. **target HAL Layer** (`target/Component-HAL/[subsystem]/[implementation]/`)
    - Platform-specific hardware/SDK integration
    - Multiple implementations per subsystem (e.g., `nimble`, `stubbed`)
    - Provides uniform API regardless of underlying platform
@@ -275,7 +277,7 @@ EHS_NETWORK_BLE_SUPPORT=nimble     # For ESP32 with NimBLE
 - Use `EHS_NETWORK_[SUBSYSTEM]_SUPPORT` for networking features
 - Use `EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT` for peripherals
 - Use `EHS_[SUBSYSTEM]_SUPPORT` for other features
-- Value should be the implementation name (e.g., `nimble`, `stubbed`, `esp32`, `linux`)
+- Value should be the implementation name (e.g., `lvgl`, `gtk`,`nimble`, `stubbed`, `esp32`, `linux`)
 
 #### 2. Create HAL Directory Structure
 
