@@ -1,6 +1,10 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+if [ "${TOOLCHAIN_NAME}" = "" ]; then
+TOOLCHAIN_NAME=xtensa-esp32s3-elf-4.4.1
+fi
+
 source "${SCRIPT_DIR}/../../../target/envbuildscripts/targetenv_esp32_sdk-packager_paths.sh"
 # TOOLCHAIN_FLASHING_VERSION
 # CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION
