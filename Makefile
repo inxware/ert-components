@@ -111,15 +111,16 @@ all: $(TARGET_NAME).$(FINAL)
 
 # Can't use predefined implicit rules here - we might need to generate .obj, rather than .o
 # therefore create custom implicit rules.
-%.$(OBJ): %.s
+# All object files depend on all included makefiles - changes to .mk files trigger rebuild
+%.$(OBJ): %.s $(MAKEFILE_LIST)
 	@$(ECHO) $(AS) $<
 	@$(AS) $(ASFLAGS) $< -o $@
 
-%.$(OBJ): %.c
+%.$(OBJ): %.c $(MAKEFILE_LIST)
 	@$(ECHO) $(CC) $<
 	@$(CC) -v $(CC_SWITCHES) $(CFLAGS) $< -o $@
 
-%.$(OBJ): %.cpp
+%.$(OBJ): %.cpp $(MAKEFILE_LIST)
 	@$(ECHO) $(CPP) $<
 	@$(CPP) $(CC_SWITCHES) $(CPPFLAGS) $< -o $@
 
