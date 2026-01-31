@@ -41,7 +41,6 @@ target_platform=(
     'linux_amd64_debian9'
     'linux_amd64_gtk_gst_debian9'
     'linux_x86_64_clang'
-    'linux_x86_64_clang_gtk'
     'linux_x86_64_clang_gtk_gst_gg_debian11-no-certs'
     'linux_x86_64_gtk_gst_debian11'
     'linux_x86_64_clang_lvgl_debian11'
