@@ -32,16 +32,18 @@ EHS_OS=linux
 EHS_GNU_ARCH=amd64
 EHS_GNU_OS=linux
 
-# TOOLCHAIN_NAME is an optional alternative location to find the toolchain.
+#Select a specific version of contrib libraries and build support
+EHS_GNU_OS_VERSION=-debian-9.4
+
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_
 TOOLCHAIN_NAME=HOST
 
 # SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies
 EHS_HOST_DEBIAN_BUILD=x86
+EHS_DEBIAN_VERSION=9
 
 # Contributed library dependencies variant
 COMPONENT_VARIANT=gtk_gst
-
 
 #################################################################################################################
 # Debug and Startup Modifiers
@@ -63,14 +65,6 @@ EHS_COMPONENT_NETWORKING_SUPPORT=all
 
 #unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features
 EHS_DEVMAN_SUPPORT=http
-
-#We don't have GPIO on any amd64 devices I don't think?
-#If we want GPIO then we need the peripherals toolbox
-#EHS_PERIPHERAL_DEVICE_SUPPORT=all
-# Assume these generic devices don't have GPIO (#ifndef in case we use this as a base for other builds)
-#ifndef EHS_PERIPHERALS_GPIO_SUPPORT
-#EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
-#endif
 
 
 #################################################################################################################

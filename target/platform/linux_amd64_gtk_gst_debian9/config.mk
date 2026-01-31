@@ -39,25 +39,13 @@ EHS_GNU_OS_VERSION=-debian-9.4
 
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_
 TOOLCHAIN_NAME=HOST
-#OR target a specific toolchain: This target is using the same compiler as for the 32bit vlang build:
-#TOOLCHAIN_PATH=./x86_64/XXXX
 
 # SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies
 EHS_HOST_DEBIAN_BUILD=x86
 EHS_DEBIAN_VERSION=9
 
-# SYSTEM_VARIANT optionally indicates specific target environment confgurations.
-# See target/envbuildscripts/targetenv_hacks_*.sh scripts).
-# SYSTEM_VARIANT is primarilly for conditional compilation for very specific features
-# SYSTEM_VARIANT=
-
 # Contributed library dependencies variant
 COMPONENT_VARIANT=gtk_gst
-
-# For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms rather than built in ert-contrib-middleware):
-# COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
-
 
 #################################################################################################################
 # Debug and Startup Modifiers
