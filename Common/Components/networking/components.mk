@@ -74,7 +74,7 @@ ifneq ($(EHS_HAL_NETWORK_CONFIG_SUPPORT),none)
 	DEFS+=EHS_HAL_NETWORK_CONFIG_SUPPORT=$(EHS_HAL_NETWORK_CONFIG_SUPPORT)
 # No object for this is as it is implemented in target_main.c currently?
 endif
-endif	
+endif
 
 # Enable the Interface (e.g. enable/disable WiFI credentials or Ethernet baud) configuration HAL
 ifdef EHS_HAL_INTERFACE_CONFIG_SUPPORT

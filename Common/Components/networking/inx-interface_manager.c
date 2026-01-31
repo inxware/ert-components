@@ -70,7 +70,7 @@ EHS_FB_DESTROY_FUNCTION(interface_manager)
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 
-// THe following should go in the target/Component-HAL/ files
+// The following should go in the target/Component-HAL/ files
 #if EHS_HAL_INTERFACE_CONFIG_SUPPORT == EHS_HAL_INTERFACE_CONFIG_STUBBED
 ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType* config)
 {

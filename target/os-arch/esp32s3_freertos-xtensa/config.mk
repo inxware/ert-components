@@ -26,16 +26,32 @@ endif
 endif
 
 # Network config should be default on
-ifndef EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT
-	EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT=yes
+ifneq ($(EHS_COMPONENT_NETWORKING_SUPPORT),none)
+ifndef EHS_COMPONENT_NETWORKING_SUPPORT
+#Always have the configu function block as a default
+EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT=yes
+endif
 endif
 
 #Use NVRAM (for WiFi crenedtials to reduce clobbering risk of flash updates)
+ifneq ($(EHS_NVS_SUPPORT),none)
+ifndef EHS_NVS_SUPPORT
 EHS_NVS_SUPPORT=ESP32S3
+endif
+endif
 
-#default to allowing SSID for WiFi to be configured using serial tty interface
+ifneq ($(EHS_HAL_INTERFACE_CONFIG_SUPPORT),none)
+ifndef EHS_HAL_INTERFACE_CONFIG_SUPPORT
+#default to allowing SSID for WiFi to be configured using serial tty interface would be nice but needs backporting from s3
 EHS_HAL_INTERFACE_CONFIG_SUPPORT=EHS_HAL_INTERFACE_CONFIG_ESP32
+#EHS_HAL_INTERFACE_CONFIG_SUPPORT=EHS_HAL_INTERFACE_CONFIG_ESP32
+endif
+endif
+
+ifneq ($(EHS_HAL_NETWORK_CONFIG_SUPPORT),none)
+ifndef EHS_HAL_NETWORK_CONFIG_SUPPORT
 #default to allowing TCPIP to be configured using serial tty interface
 EHS_HAL_NETWORK_CONFIG_SUPPORT=EHS_HAL_NETWORK_CONFIG_ESP32
-#Always have the configu function block as a default
-EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT=yes
+endif
+endif
+

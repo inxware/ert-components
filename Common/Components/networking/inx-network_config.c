@@ -9,9 +9,9 @@
 #include "hal-api.h"
 #include "hal_network.h"
 
-/**  Stubb the HAL calls direct to the to the target implementation.**/
+/**  Stub the HAL calls when not using a real implementation. */
+ /**********************************************************************/
 #if EHS_HAL_NETWORK_CONFIG_SUPPORT == EHS_HAL_NETWORK_CONFIG_STUBBED
-
 /* Returns true when the eRT target network is connected */
 ehs_bool EhsNetworkIsConnected()
 {
