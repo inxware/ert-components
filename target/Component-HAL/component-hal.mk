@@ -170,7 +170,7 @@ endif
 ## Machine Learning and AI
 ########################################################################################################
 ifdef EHS_ML_SUPPORT
-ifneq
+ifneq ($(EHS_ML_SUPPORT),none)
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/ml/ml_common.mk
 endif
 endif
