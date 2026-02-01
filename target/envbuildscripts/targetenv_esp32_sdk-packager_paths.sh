@@ -42,7 +42,7 @@ if [ "$TOOLCHAIN_NAME" = "xtensa-esp32s3-elf-5.1" ]; then
    # We only have one version of the flashing tools that we use for esp SDK versions currently from IDF version 4.4.1 in the ert-build-support repo.
    TOOLCHAIN_FLASHING_VERSION=espressif-4.4.1
    CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION=esp-idf-5.1
-   ESP32_CHIP_VERSION=esp32s3   
+   ESP32_CHIP_VERSION=esp32s3
 elif [ "$TOOLCHAIN_NAME" = "xtensa-esp32s3-elf-4.4.4" ]; then
     TOOLCHAIN_FLASHING_VERSION=espressif-4.4.4
     CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION=esp-idf-4.4.4

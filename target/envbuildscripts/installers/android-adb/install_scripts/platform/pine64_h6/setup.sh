@@ -1,4 +1,6 @@
 #!/bin/bash
+#TODO All these ehs_settings.sh ecript's system file pushes should be done in targetenv, like everythign else.
+
 
 source ${EHS_ROOT}/target/envbuildscripts/installers/android-adb/install_scripts/install_utils.sh || exit 1
 

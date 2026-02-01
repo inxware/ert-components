@@ -89,7 +89,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START){
         EhsWifiStationSetCBSource(eWifiStationCallbackSource_Internal);
-        ESP_LOGI(TAG, "Wi-Fi started, scanning for available networks...");
+        //ESP_LOGI(TAG, "Wi-Fi started, scanning for available networks...");
         const char* ssid = NULL;
         wifi_config_t wifi_config = {0};
         esp_err_t err = esp_wifi_get_config(WIFI_IF_STA, &wifi_config);
@@ -112,7 +112,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         uint16_t ap_count = 0;
         esp_err_t err = esp_wifi_get_config(WIFI_IF_STA, &wifi_config);
         if (err == ESP_OK && (scan_event && scan_event->status == 0)) {
-            ESP_LOGI(TAG, "Scan done, looking for SSID %s", wifi_config.sta.ssid);
+            ESP_LOGI(TAG, "Scan done.", wifi_config.sta.ssid);
         }else{
             ESP_LOGE(TAG, "Failed to do WiFi scan ...");
         }
@@ -134,7 +134,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
             gWifiStationScanResultPrint = EHS_FALSE;
             while(WifiStationScanResult(_index, _ssid, 33, _bssid, 6, &_channel, &_rssi) == EHS_TRUE)
             {
-                //
+                // todo why sometimes printf, sometimes ESP_LOGI ... ? Why not just use ert's logging and configure this for serial console?
                 printf("SSID=%s, BSSID(MAC)=%02x:%02x:%02x:%02x:%02x:%02x, Channel=%d, RSSI=%d dBm\n",
                         _ssid, _bssid[0], _bssid[1], _bssid[2], _bssid[3], _bssid[4], _bssid[5], _channel, _rssi);
                 _index++;
@@ -150,6 +150,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         gTargetWifiStationConnected = EHS_FALSE;
         wifi_event_sta_disconnected_t* event = (wifi_event_sta_disconnected_t*) event_data;
         Common_WifiStation_onDisconnected(EHS_TRUE, event->reason, event->rssi);
+        /**/
         ESP_LOGE(TAG, "SSID: %s, BSSID: %02x:%02x:%02x:%02x:%02x:%02x, reason: %d, rssi: %d", 
             ((wifi_event_sta_disconnected_t *)event_data)->ssid, 
             ((wifi_event_sta_disconnected_t *)event_data)->bssid[0],
@@ -648,6 +649,19 @@ ehs_bool isWifiStationConnected()
 ehs_bool isWifiStationScanning()
 {
     return gWifiStationScanning;
+}
+
+ehs_bool doWifiStationScanStop()
+{
+    if (gWifiStationScanning == EHS_FALSE) return EHS_FALSE;
+    ESP_LOGI(TAG, "Stopping WiFi scan...");
+    esp_err_t err = esp_wifi_scan_stop();
+    if (err == ESP_OK) {
+        gWifiStationScanning = EHS_FALSE;
+        return EHS_TRUE;
+    }
+    ESP_LOGW(TAG, "Failed to stop scan: %s", esp_err_to_name(err));
+    return EHS_FALSE;
 }
 
 ehs_bool doWifiStationFullScan(ehs_bool print)

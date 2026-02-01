@@ -99,8 +99,9 @@ ifneq ($(EHS_NETWORK_WIFI_SUPPORT),none)
 OBJECTS += target_wifi.${OBJ}
 endif
 endif
-ifdef EHS_NETWORK_WIFI_SUPPORT
-ifneq ($(EHS_NETWORK_WIFI_SUPPORT),none)
+
+ifdef EHS_NETWORK_ETHERNET_SUPPORT
+ifneq ($(EHS_NETWORK_ETHERNET_SUPPORT),none)
 OBJECTS += target_ethernet.${OBJ}
 endif
 endif

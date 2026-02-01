@@ -94,6 +94,9 @@ static inx_wifi_station_state_type gDefaultWifiStationState =
 #endif
 
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
+/* TODO: Add "do_stop_scan" function (ERT1_ID=0x05) to allow stopping WiFi scans from the function block.
+ *       The HAL function doWifiStationScanStop() is already implemented in target_wifi.c.
+ *       This requires updating the CDF file with new Function and Port definitions. */
 EHS_FB_FUNCTIONS_START(wifi_station)
 EHS_FB_FUNCTION_ENTRY("do_connect", 0x01, wifi_station_do_connect)
 EHS_FB_FUNCTION_ENTRY("do_disconnect", 0x02, wifi_station_do_disconnect)
@@ -226,7 +229,7 @@ void setWifiStationConnectState(eWifiStationConnectState state)
 ehs_bool isEhsWiFiManagedByComponent()
 {
 	return EHS_FALSE;
-//TODO2026  check if the following supposed to be removed or is the above a temporary thing?
+    // TODO We allow any other method of managing WiFi in addition to the app - the above is a hack and should be not be called at all instead.
 //	return gEhsWiFiManagedByComponent;
 }
 

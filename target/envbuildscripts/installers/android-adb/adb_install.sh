@@ -1,6 +1,9 @@
 #!/bin/bash
 
-#This script is for installing all the magical things in magical ways
+# This script is for installing all the magical things in magical ways
+# TODO - this script should be replaced by features in targetenv for assembling runtime environment OS support
+# in the TARGET_TREE staging directory and the installers etc. then just need to write this blindly to to the device 
+# rather then repeating all the conditional trickery that targetenv is supposed to do.
 
 
 PLATFORM=""
@@ -164,7 +167,10 @@ fi
 if ! [ -d $SET_UP_PLATFORM_DIR ]; then
 	echo "Platform directory ($SET_UP_PLATFORM_DIR) doesn\'t exist. $PLATFORM is not a valid platform."
 	FAILED=true
+else
+    echo "Found Android installer Platform directory ($SET_UP_PLATFORM_DIR)"
 fi
+
 if ! [ -d $ANDROID_VERSION_DIR ]; then
 	echo "Android version directory ($ANDROID_VERSION_DIR) doesn\'t exist. $ANDROID_VERSION is not a supported android version."
 	FAILED=true
@@ -174,7 +180,7 @@ if [ $FAILED == true ]; then
 	exit 1
 fi
 
-# Devman Server and target network configuration it purely paramtersized in /target/devman-configs/<Domain name>.mk
+# Devman Server and target network configuration is purely paramtersized in /target/devman-configs/<Domain name>.mk
 INSTALL_SERVER_DIR=${ANDROID_INSTALLER_DIR}/install_scripts/server/
 
 #if [ -n "$SERVER_NAME" ]; then

@@ -177,13 +177,13 @@ ehs_bool EhsTF_rmdir(ehs_char* szPath)
         {
             ret=remove(szPath);
         }
-        EHSH_LOG_INFO("EhsTF_rmdir ret=%d",ret);
+        //EHSH_LOG_INFO("EhsTF_rmdir ret=%d",ret);
     }
     else
     {
         ret=-1;
     }
-    EHSH_LOG_INFO("EhsTF_rmdir ret=%d szPath=%s",ret,szPath);
+    //EHSH_LOG_INFO("EhsTF_rmdir ret=%d szPath=%s",ret,szPath);
     return (ret == 0);
 }
 

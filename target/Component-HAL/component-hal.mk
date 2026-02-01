@@ -123,8 +123,6 @@ include $(EHS_TARGET_COMPONENT_HAL_PATH)/lorawan/lorawan.mk
 endif
 endif
 
-#TODO2025 - make the ifneq (..., none) consistent here for everything
-
 ########################################################################################################
 ## Wi-Fi
 ########################################################################################################
@@ -136,7 +134,16 @@ endif
 
 ifdef EHS_NETWORK_ETHERNET_SUPPORT
 ifneq ($(EHS_NETWORK_ETHERNET_SUPPORT),none)
-DEFS += EHS_NETWORK_ETHERNET_SUPPORT
+DEFS += EHS_NETWORK_ETHERNET_SUPPORT=$(EHS_NETWORK_ETHERNET_SUPPORT)
+endif
+endif
+
+########################################################################################################
+## Serial Console (Used to configure networks etc)
+########################################################################################################
+ifdef EHS_SERIAL_CONSOLE_SUPPORT
+ifneq ($(EHS_SERIAL_CONSOLE_SUPPORT),none)
+DEFS += EHS_SERIAL_CONSOLE_SUPPORT
 endif
 endif
 
@@ -154,14 +161,18 @@ endif
 ## Machine Vision
 ########################################################################################################
 ifdef EHS_MV_SUPPORT
+ifneq ($(EHS_MV_SUPPORT),none)
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/mv/mv_common.mk
+endif
 endif
 
 ########################################################################################################
 ## Machine Learning and AI
 ########################################################################################################
 ifdef EHS_ML_SUPPORT
+ifneq
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/ml/ml_common.mk
+endif
 endif
 
 ########################################################################################################
@@ -213,17 +224,20 @@ include $(EHS_TARGET_COMPONENT_HAL_PATH)/system/sys_stat/target_hal_sys_stat.mk
 ## MODBUS
 ########################################################################################################
 ifdef EHS_MODBUS_SUPPORT
+ifneq ($(EHS_MODBUS_SUPPORT),none)
   include $(EHS_TARGET_COMPONENT_HAL_PATH)/modbus/modbus_common.mk
+endif
 endif
 
 ########################################################################################################
 ## RTC
 ########################################################################################################
 ifdef EHS_RTC_SUPPORT
+ifneq ($(EHS_RTC_SUPPORT),none)
 DEFS += EHS_RTC_SUPPORT
   include $(EHS_TARGET_COMPONENT_HAL_PATH)/system/rtc/target_hal_rtc.mk
 endif
-
+endif
 
 ########################################################################################################
 ## UART Stub

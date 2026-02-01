@@ -36,6 +36,8 @@
 #define EHS_ML_LAYER_TENSORS_MAX 128
 #endif//EHS_ML_LAYER_TENSORS_MAX
 
+
+/* General inference engine errors */
 typedef enum {
     EHS_ML_OK = 0,
     EHS_ML_FAILED,
@@ -131,10 +133,13 @@ typedef enum {
 
 typedef enum {
     EHS_ML_HWACCEL_NONE = 0,
-    EHS_ML_HWACCEL_HAILO,
-    EHS_ML_HWACCEL_NVIDIA,
-    EHS_ML_HWACCEL_AMD,
-    EHS_ML_HWACCEL_CUSTOM_NPU,
+    EHS_ML_HWACCEL_HAILO = 1,
+    EHS_ML_HWACCEL_NVIDIA = 2,
+    EHS_ML_HWACCEL_AMD = 3,
+    EHS_ML_HWACCEL_EIQ = 4,
+    EHS_ML_HWACCEL_DEEPX = 5,
+    EHS_ML_HWACCEL_GEMMA = 6,
+    EHS_ML_HWACCEL_CUSTOM_NPU=7,
     // ...
     EHS_ML_HWACCEL_MAX
 } EhsML_HWAccel_t;
