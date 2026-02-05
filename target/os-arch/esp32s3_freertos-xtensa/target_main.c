@@ -1573,7 +1573,7 @@ void app_main(void)
 #endif
 
     esp_task_wdt_deinit();
-#if EHS_ESP32_DISABLE_LOGS == 1
+#if EHS_ESP32_ENABLE_LOGS != 1
     esp_log_level_set("*", ESP_LOG_NONE);
 #endif
     // Set callback function for notifying about file systems status
