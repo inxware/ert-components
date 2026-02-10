@@ -92,7 +92,7 @@ include ./target/devman-configs/inx-systems.com.mk
 #################################################################################################################
 
 # Platform identification
-DEFS += EHS_ESP32
+#DEFS += EHS_ESP32
 
 # File system workarounds for ESP32 (not S3) - feof linked in 4.4.1 libraries
 DEFS += EHS_FEOF_MISSING_WORKAROUND

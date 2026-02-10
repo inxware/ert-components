@@ -31,7 +31,7 @@ endif
 
 #export GCC_EXEC_PREFIX:=xtensa-esp32s3-elf-
 
-TODO 2026  : there are many component specific libraries included globally here that should be done in the target/COmponent HAL make files instead (e.g. BLE)
+#TODO 2026  : there are many component specific libraries included globally here that should be done in the target/COmponent HAL make files instead (e.g. BLE)
 
 
 #The following shouldn't be hardwired - we at least should use the base path
