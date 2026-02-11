@@ -815,9 +815,9 @@ void command_prompt_task(void* params) {
 
     ehs_threadname_t threadname = EHSTHREADNAME_EHS_CONSOLE_THR;
 
-    // Uncomment these to disable stdio buffering if prompts don't appear before input
-    // setvbuf(stdout, NULL, _IONBF, 0);
-    // setvbuf(stdin, NULL, _IONBF, 0);
+    // Disable stdio buffering so single-character writes (echo) reach the UART immediately
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stdin, NULL, _IONBF, 0);
 
     if (gEhsNetworkInterfaceWifiEnable == EHS_TRUE) command_prompt_println("Type 'w' to configure WiFi or 'h' for help.");
     else command_prompt_println("Type 'h' for help.");
@@ -1482,7 +1482,9 @@ void MCU_SLOW_LP_THR(void *pvParameters)
 #endif //EHS_OTA_SUPPORT
 
             // @TODO - This is used by Uart function block - needs to review and potentially moved or Wifi connect needs to be done non-blockig (prefered)
+#ifdef EHS_SERIAL_CONSOLE_SUPPORT
             console_flush_tx();
+#endif
             for (i = 0; i < UART_COUNT; i++){
                 TgtUART_SendInThread(i);
             }
