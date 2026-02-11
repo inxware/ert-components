@@ -36,8 +36,8 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 #TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1-16k
 
 # COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory
-# N8R2 = 8 MB Flash (N8) and 2 MB PSRAM (R2)
-COMPONENT_VARIANT=n8r2
+# N8R8 = 8 MB Flash (N8) and 8 MB PSRAM (R8) or more (R16)
+COMPONENT_VARIANT=n8r8
 
 # Apply esp32 specific targetenv hacks
 INXWARE_TARGETENV_HACKS=esp32
@@ -93,7 +93,7 @@ EHS_LORAWAN_SUPPORT=yes
 #EHS_NETWORK_WIFI_SUPPORT=yes
 
 # BLE support (uncomment to enable)
-EHS_NETWORK_BLE_SUPPORT=nimble
+#EHS_NETWORK_BLE_SUPPORT=nimble
 
 #----- GUI Features -----
 EHS_GUI_SUPPORT=lvgl
@@ -165,7 +165,7 @@ DEFS += EHS_COORD_16_ENABLED
 
 # UART configuration
 DEFS += EHS_TARGET_UART_COUNT=3
-DEFS += EHS_SERIAL_CONSOLE_SUPPORT
+
 
 
 ################################### END OF CONFIGURATION ###################################################
