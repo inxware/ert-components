@@ -121,6 +121,8 @@ EHS_CONFIGS_SUPPORT=yes
 # OTA support
 EHS_OTA_SUPPORT=yes
 
+# Serial Console Support
+EHS_SERIAL_CONSOLE_SUPPORT=yes
 
 #################################################################################################################
 # Application and Packaging
