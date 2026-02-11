@@ -14,28 +14,30 @@
 /* My Component state data structure. - Use this in your code! */
 #ifndef INX_BLE_SERVICE_STATE_TYPE_DEFINED
 #define INX_BLE_SERVICE_STATE_TYPE_DEFINED
+#define INX_BLE_SERVICE_NAME_LENGTH_MAX 248
+#define INX_BLE_SERVICE_UUID_LENGTH_MAX 36
 typedef struct
 {
     /* Parameters */
-    ehs_char* service_uuid; // 128-bit UUID for the BLE service (format: XXXXXXXX
-    ehs_char* service_name; // Human-readable name for the service
+    ehs_char service_uuid[INX_BLE_SERVICE_UUID_LENGTH_MAX + 1]; // 128-bit UUID for the BLE service (format: XXXXXXXX
+    ehs_char service_name[INX_BLE_SERVICE_NAME_LENGTH_MAX + 1]; // Human-readable name for the service
     ehs_sint32 num_chars; // Number of characteristics in this service (1-16)
     ehs_sint32 adv_interval_ms; // Advertising interval in milliseconds (20-10240ms).
     ehs_sint32 mtu_size; // Maximum Transmission Unit size in bytes (23-512).
-    ehs_char* char_0_uuid; // UUID for characteristic 0
-    ehs_char* char_0_name; // Name for characteristic 0
+    ehs_char char_0_uuid[INX_BLE_SERVICE_UUID_LENGTH_MAX + 1]; // UUID for characteristic 0
+    ehs_char char_0_name[INX_BLE_SERVICE_NAME_LENGTH_MAX + 1]; // Name for characteristic 0
     ehs_sint32 char_0_props; // Properties for char 0: 1=Read, 2=Write, 4=Notify,
     ehs_sint32 char_0_max_len; // Maximum data length for characteristic 0
-    ehs_char* char_1_uuid; // UUID for characteristic 1
-    ehs_char* char_1_name; // Name for characteristic 1
+    ehs_char char_1_uuid[INX_BLE_SERVICE_UUID_LENGTH_MAX + 1]; // UUID for characteristic 1
+    ehs_char char_1_name[INX_BLE_SERVICE_NAME_LENGTH_MAX + 1]; // Name for characteristic 1
     ehs_sint32 char_1_props; // Properties for char 1: 1=Read, 2=Write, 4=Notify,
     ehs_sint32 char_1_max_len; // Maximum data length for characteristic 1
-    ehs_char* char_2_uuid; // UUID for characteristic 2
-    ehs_char* char_2_name; // Name for characteristic 2
+    ehs_char char_2_uuid[INX_BLE_SERVICE_UUID_LENGTH_MAX + 1]; // UUID for characteristic 2
+    ehs_char char_2_name[INX_BLE_SERVICE_NAME_LENGTH_MAX + 1]; // Name for characteristic 2
     ehs_sint32 char_2_props; // Properties for char 2: 1=Read, 2=Write, 4=Notify,
     ehs_sint32 char_2_max_len; // Maximum data length for characteristic 2
-    ehs_char* char_3_uuid; // UUID for characteristic 3
-    ehs_char* char_3_name; // Name for characteristic 3
+    ehs_char char_3_uuid[INX_BLE_SERVICE_UUID_LENGTH_MAX + 1]; // UUID for characteristic 3
+    ehs_char char_3_name[INX_BLE_SERVICE_NAME_LENGTH_MAX + 1]; // Name for characteristic 3
     ehs_sint32 char_3_props; // Properties for char 3: 1=Read, 2=Write, 4=Notify,
     ehs_sint32 char_3_max_len; // Maximum data length for characteristic 3
 

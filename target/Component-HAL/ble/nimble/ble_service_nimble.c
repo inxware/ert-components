@@ -277,7 +277,7 @@ ehs_sint32 inx_ble_service_hal_init(
         return -1;
     }
 
-    //ESP_LOGI(TAG, "Initializing BLE service: %s", service_name);
+    ESP_LOGI(TAG, "Initializing BLE service: %s", service_name);
 
     /* Store configuration */
     memset(&g_ble_ctx, 0, sizeof(g_ble_ctx));
@@ -287,7 +287,7 @@ ehs_sint32 inx_ble_service_hal_init(
         return -1;
     }
 
-    //strncpy(g_ble_ctx.service_name, service_name, sizeof(g_ble_ctx.service_name) - 1);
+    strncpy(g_ble_ctx.service_name, service_name, sizeof(g_ble_ctx.service_name) - 1);
     g_ble_ctx.num_chars = num_chars;
     g_ble_ctx.adv_interval_ms = adv_interval_ms;
     g_ble_ctx.mtu_size = mtu_size;
@@ -304,8 +304,8 @@ ehs_sint32 inx_ble_service_hal_init(
             return -1;
         }
 
-        //strncpy(g_ble_ctx.chars[i].name, char_configs[i].name,
-        //        sizeof(g_ble_ctx.chars[i].name) - 1);
+        strncpy(g_ble_ctx.chars[i].name, char_configs[i].name,
+                sizeof(g_ble_ctx.chars[i].name) - 1);
         g_ble_ctx.chars[i].properties = char_configs[i].properties;
         g_ble_ctx.chars[i].max_len = char_configs[i].max_len;
         g_ble_ctx.chars[i].value_len = 0;
@@ -434,6 +434,13 @@ ehs_sint32 inx_ble_service_hal_start_adv(void)
     
     fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
     fields.tx_pwr_lvl_is_present = 1;
+
+    rc = ble_hs_start();
+    if (rc != 0)
+    {
+        ESP_LOGE(TAG, "Failed to start host controller: %d", rc);
+        //return -1;
+    }
 
     rc = ble_gap_adv_set_fields(&fields);
     if (rc != 0) {

@@ -1761,15 +1761,31 @@ ota_data_write_jump:
  #endif
  
   #ifdef EHS_NETWORK_BLE_SUPPORT
+  inx_ble_char_config_t qwepoi[2] = {
+        {
+            "0x4321",
+            "char1",
+            1,
+            50
+        },
+        {
+            "0x3241",
+            "char2",
+            2,
+            30
+        }
+    };
     inx_ble_service_hal_init("0x1234",
     "BT",
-    0,
+    2,
     100,
     23,
-    (inx_ble_char_config_t*) NULL,
+    qwepoi,//(inx_ble_char_config_t*) NULL,
     (inx_ble_service_callbacks_t*) NULL,
     (void*) NULL);
     
+    inx_ble_service_hal_register_gatt();
+
     inx_ble_service_hal_start_adv();    	
  #endif
 
