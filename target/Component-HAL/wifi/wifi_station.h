@@ -154,6 +154,8 @@ ehs_bool WifiStationScanResult(ehs_uint32 index, ehs_char* ssid, ehs_uint16 ssid
  */
 ehs_sint32 WifiStationScanResultCount();
 
+ehs_sint32 WifiStationSetSSIDPSK(ehs_char* ssid, ehs_uint16 ssid_size, ehs_char* psk, ehs_uint16 psk_size);
+
 const ehs_char* WifiStationIpAddress();
 
 ehs_bool isWifiStationInitalised();
@@ -165,5 +167,20 @@ ehs_bool isEhsWiFiManagedByComponent();
 void EhsWifiStationSetCBSource(enum eWifiStationCallbackSource source);
 
 void EhsStartWifiStationThread();
+
+void WifiStationGetCurrentSsid(ehs_char *ssid);
+
+ehs_bool isWifiStationScanning();
+
+/**
+ * @brief Stop any ongoing WiFi scan
+ *
+ * @return ehs_bool EHS_TRUE if scan was stopped, EHS_FALSE if no scan was running
+ */
+ehs_bool doWifiStationScanStop();
+
+ehs_bool doWifiStationFullScan(ehs_bool print);
+
+ehs_bool isWifiStationConnecting();
 
 #endif

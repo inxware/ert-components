@@ -43,7 +43,9 @@ OBJECTS += devman_mon.$(OBJ)
 ifeq ($(EHS_DEVMAN_SUPPORT),mqtt)
     DEFS += EHS_DEVMAN_SUPPORT=EHS_DEVMAN_MQTT
 	OBJECTS += devman_mon_mqtt.$(OBJ)
-	OBJECTS += devman_mon_ota.$(OBJ)
+	ifdef EHS_OTA_SUPPORT
+	    OBJECTS += devman_mon_ota.$(OBJ)
+	endif
 else ifeq ($(EHS_DEVMAN_SUPPORT),http)
 	DEFS += EHS_DEVMAN_SUPPORT=EHS_DEVMAN_HTTP
 	EHS_INCLUDE_XML_SUPPORT=yes

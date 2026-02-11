@@ -19,6 +19,9 @@
 #  VPATH - where to look for source code
 #  EHS_TARGET_OS_HW_PATH - path to the current directory (set by platform makefile)
 
+# This is used for some build conditionals - it shouldn't really be neeeded, be because, where it has it's been based on "this code was written on Tuesday" conventions. 
+EHS_ESP32=yes
+
 # Default OS Features Supported
 
 # (auto included) include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/config.mk

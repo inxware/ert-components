@@ -12,6 +12,8 @@
 # todo all the utilities in here are a munge of versions and all should use t=something like the below (as a library function) 
 # to find the right versions.
 
+#TODO This file tries to fix up a rediculouse splurge of different ways of running esptool.py (sometimes in the contrib-MW, sometimes from the build support.
+#     This needs turing into something sensible. presumably we only want to use the build support, but not sure this has all the tools for all IDF variants.
 
 
 # If we have this set then we know we are running ffrom the make sytem. Otherwise we can set the envivariables from a command line switch
@@ -41,7 +43,6 @@ if [ "$TOOLCHAIN_NAME" = "xtensa-esp32s3-elf-5.1" ]; then
    TOOLCHAIN_FLASHING_VERSION=espressif-4.4.1
    CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION=esp-idf-5.1
    ESP32_CHIP_VERSION=esp32s3
-   
 elif [ "$TOOLCHAIN_NAME" = "xtensa-esp32s3-elf-4.4.4" ]; then
     TOOLCHAIN_FLASHING_VERSION=espressif-4.4.4
     CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION=esp-idf-4.4.4

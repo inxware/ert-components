@@ -230,6 +230,73 @@ make prepdeps
 - Digital signage displays
 - Interactive kiosks
 
+## Serial TTY Console Commands
+
+Many targets support an interactive serial console for network configuration and diagnostics. This feature is enabled when `EHS_SERIAL_CONSOLE_SUPPORT=1` is set in the build configuration.
+
+> **Note:** Serial console commands are currently supported on ESP32 and ESP32-S3 targets only. Other platforms may have limited or no console support.
+
+### Command Reference
+
+| Command | Function | Description |
+|---------|----------|-------------|
+| `h` | Help | Display available commands |
+| `w` | WiFi Config | Interactive WiFi SSID and password configuration |
+| `c` | Reconnect | Reconnect to WiFi using stored credentials |
+| `d` | Disconnect | Disconnect from current WiFi network |
+| `f` | Forget | Clear stored WiFi credentials |
+| `s` | Get SSID | Display current WiFi SSID and connection status |
+| `i` | Get IP | Display current IP address (WiFi or Ethernet) |
+| `l` | List SSIDs | Scan and list available WiFi networks with RSSI |
+| `x` | Stop Scan | Stop any in-progress WiFi scan |
+| `r` | Reboot | Reboot the device |
+
+### WiFi Configuration Example
+
+```
+Type 'w' to configure WiFi or 'h' for help.
+w
+**** WiFi config ****
+Enter SSID:
+MyNetwork
+Enter Password:
+MyPassword123
+Are these correct? (y/n)
+y
+Saving above WiFi credentials.
+Connecting to WiFi, please wait...
+```
+
+### Scanning for Networks
+** Note: ** some platforms may not be able to scan all SSIDs while connected. You may need to disconnect first.
+
+Use `l` to scan for available WiFi networks:
+```
+l
+Scanning...
+SSID=MyNetwork, BSSID(MAC)=aa:bb:cc:dd:ee:ff, Channel=6, RSSI=-45 dBm
+SSID=Neighbor_WiFi, BSSID(MAC)=11:22:33:44:55:66, Channel=11, RSSI=-72 dBm
+SSID=Office_5G, BSSID(MAC)=77:88:99:aa:bb:cc, Channel=36, RSSI=-58 dBm
+```
+
+### Function Block vs Console Control
+
+When WiFi is managed by the `wifi_station` function block in your application, the `w` and `c` commands are disabled. The console will display:
+```
+WiFi is managed by function block. Please configure WiFi there.
+```
+
+This prevents conflicts between application-level and console-level WiFi management.
+
+### Accessing the Console
+
+Use the ESP32 monitor script to connect:
+```bash
+./scripts/build-deploy/esp32/esp32_monitor_console.sh esp32s3-5.1
+```
+
+Or use any serial terminal at 115200 baud on the device's USB/UART port.
+
 ## Further reading
 
 The following documents contain more information about inxware, eRT Components, and related topics:

@@ -401,41 +401,74 @@ endif
 
 # don't need this in bash: export EHS_MQTT_SUPPORT
 #we need to set this for cases where it needs to override an inheritted server config
+ifdef
 export DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE
+endif
+ifdef DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED
 export DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED
+endif
 
 # The following will install the additional platform processes (e.g. android downloader or linux cron). 
+ifdef EHS_INSTALL_SUPERVISOR
 export EHS_INSTALL_SUPERVISOR
+endif
 
 # The following is used mostly for supervisor and downloader configuration. 
+ifdef
 export EHS_ANDROID_INSTALL_VERSION
-
+endif
 ## This is used for the uploader to a package server
+ifdef SSHPORT
 export SSHPORT 
+endif
 
 ## This is used for exporting of Unity 3D IDE (C#) based project to eRT compatible project/exe 
 # e.g. eRT Android Studio project or Windows app with eRT plugin.
+ifdef
 export EHS_UNITY_PROJECT_EXPORT_SUPPORT
-
+endif
 # Path to a direcory with items used for signing android apk and aab files
+ifdef
 export EHS_ANDROID_PACKAGE_SIGNING_PATH
+endif
 
 # Used to indicate wherther android traget is built with supervisor
+ifdef
 export BUILD_WITH_ANDROID_SUPERVISOR
+endif
 
 # Used for specifying any android supplementary apps that needs to be added to target e.g. Amabifier.apk
+ifdef
 export ANDROID_SUPPLEMENTARY_APP_REPO
+endif
+
+ifdef
 export ANDROID_SUPPLEMENTARY_APP_PATH
+endif
 
 # Used for specifing name of the eRT package/executable
+ifdef
 export ERT_PACKAGE_NAME
+endif
+
 # Used for specifing user facing name of installed application (windows installer)
+
+ifdef  ERT_NSIS_EXE_NAME
 export ERT_NSIS_EXE_NAME
+endif
 
 # Used for the appland deployment
+ifdef EHS_APPLAND_INST_SUPPORT
 export EHS_APPLAND_INST_SUPPORT
+endif
+
+ifdef
 export EHS_APPLAND_INST_DEPLOY_NAME
+endif
+
+ifdef EHS_APPLAND_INST_OS_NAME
 export EHS_APPLAND_INST_OS_NAME
+endif
 
 #####################################################################################
 # Display the config - please keep this up to date with all the platform options.

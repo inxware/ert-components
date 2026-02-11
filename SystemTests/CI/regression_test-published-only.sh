@@ -25,7 +25,8 @@ TXT_FG=${TXT_FG_CYAN}
 #esp32s3_freertos-xtensa-base-debug       linux_android_arm64              linux_arm_gtk_gst_raspberrypi        linux_x86_64_clang_gg_debian10     linux_x86_64_gtk_gst_debian11                   nxp_arm                 win_x86_lvgl
 #linux_x86_64_clang_g
 
-target_platform=(
+
+target_platforX_small=(
     'linux_x86_64_clang_gtk_gst_gg_debian11-no-certs'
     'linux_x86_64_clang_lvgl_debian11-no-certs'
     'linux_arm64_gtk_gst_gg_debian11'
@@ -36,12 +37,11 @@ target_platform=(
     'win_x86_32-lucid-win10'
 )
 
-target_platform_medium=(
-    'linux_amd64'
-    'linux_amd64_gtk_gst'
+target_platform=(
+    'linux_amd64_debian9'
+    'linux_amd64_gtk_gst_debian9'
     'linux_x86_64_clang'
-    'linux_x86_64_clang_gtk'
-    'linux_x86_64_clang_gtk_gst_gg_debian11'
+    'linux_x86_64_clang_gtk_gst_gg_debian11-no-certs'
     'linux_x86_64_gtk_gst_debian11'
     'linux_x86_64_clang_lvgl_debian11'
     'linux_armv7l_clang_debian10'
@@ -49,11 +49,13 @@ target_platform_medium=(
     'linux_arm64_lvgl_gg_debian10'
     'linux_arm64_lvgl_gg_debian11'
     'linux_arm64_gtk_gst_gg_debian11'
+    'linux_android_arm'
     'esp32_freertos-xtensor-base'
     'esp32s3_freertos-xtensa-base'
+    'arduino_arduino-mbed-nano-image_community'
+    'arduino_arduino-mbed-nano-lib_community'
     'win_x86_gtk_gst'
     'win_x86_32-lucid-win10'
-    'linux_android_arm'
 )
 
 echo "Testing the following platforms:"
@@ -77,6 +79,9 @@ if [ "$1" = "--include-slow" ]; then
 elif [ "$1" = "--compile-only" ]; then
     COMPILE_ONLY=yes
 fi
+#####################################################
+#Set up paths
+#####################################################
 
 #set -e
 

@@ -202,7 +202,7 @@ TXT_BG_GRAY=${TXT_BG_GREY}
 : "${TXT_FG:=${TXT_FG_GREY}}"
 
 # Helper functions (auto-reset the text style and colour)
-echo() {
+echo-display() {
     # Don't add color codes in places where we shouldn't (e.g. when redirecting output)
     local pre="" post=""
 

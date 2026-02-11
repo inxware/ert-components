@@ -157,6 +157,8 @@ EHS_FB_RUN_FUNCTION(pwm_config)
  */
 EHS_FB_RUN_FUNCTION(pwm_enable)
 {
+
+    // TODO2025!!! - The CDF doesn't have an enable inout. This is legacy and could crash systems!! See auto generated (_gen.* created with the CDF2C.py script.).
 #ifdef EHS_NXP_SUPPORT
     // @TODO - do not use any target specific implemenation here
     // fix how NXP target is structured ! 

@@ -6,20 +6,40 @@
 
 In general inxware runtimes are built  using Ubuntu 22.04 machines or a machine that can support the following packages
 
-* **build-essentials*** (GNU Make)
-* **Git*** & Git-LFS
-* **Docker** (Standard that can mount host with synced permission groups)
+* **build-essentials** (GNU Make and host Toolchains)
+* **Git & Git-LFS** (For downloading this Repo and the dependency repos )
+* **Docker** (Used for building in dependency specific environments )
 
-*Other dependencies and tools should be installed using specific methods e.g. the ert-runtime environment is created by running* **make prepdeps** *in the ert-components repo (see below). This will install the remaining requirements on a debian machine, though we aim to use docker images as much as possible to contain tools (BUT NOT CODE!).  There may be other dependencies needed for building the tools etc. on windows.*
+Other dependencies and tools should be installed using specific methods e.g. the ert-runtime environment is created by running `make prepdeps` in the `ert-components` repo (see below). This will install the remaining requirements on a debian machine, though we aim to use docker images as much as possible to contain tools (BUT NOT CODE!).  There may be other dependencies needed for building the tools etc. on windows.
 
 # eRT Build Overview
 
-If you are looking to build an existing production target go to this [section](#production-builds). Other wise to build a target from scratch, understanding each step please read on.
+If you are looking to build an existing production target go to the [production builds section](#production-builds). Otherwise to build a target from scratch, understanding each step please read on...
+
 A full sequence of building a complete and configured eRT package and deploying it to an IoT OTA service consists of the following steps:
 
+## First Build
+Some preperations first. You can get a list of targets (or specific boards) with
+```bash
+./configure
+```
+which will generate a list of targets that you can choose from
+```
+....
+
+arduino_arduino-mbed-nano-image_community        linux_armv7l_clang_debian9
+arduino_arduino-mbed-nano-lib_community          linux_armv7l_clang_gtk_debian9
+arduino_arduino-mbed-nano_base                   linux_x86
+arduino_arduino-mbed-nano_lib                    linux_x86_64_clang
+esp32_freertos-xtensor-base                      linux_x86_64_clang_gg_debian10
+esp32s3_freertos-xtensa-base                     linux_x86_64_clang_gg_debian11
+...
+```
+
+Choose the `<TARGET>` you want to build and use this in the first step of the build
 ```bash
 ./configure <TARGET>
-make prepdeps          # Optional: Downloads dependencies needed for some targets
+make prepdeps          # First Time Only: Downloads dependencies needed for some targets
 make all_docker        # Compiles & linkers eRT C/C++-code to exe or dll
 make targetenv         # Aggregates all deployed files to a staging directory
 make targetenv_version # Optional: only after QA and mandatory for release
@@ -29,20 +49,19 @@ make install_via_xxxx  # Optional Deployment directly to a device
 ```
 
 ## Software Dependency Locations
+The `make prepdeps` commands will assemble the following dependency repos adjascent to `../ert-components/` with the following purposes:
 
-| Purpose | Repo | Path | Notes |
-| :---- | :---- | :---- | :---- |
-| eRT source |  |  |  |
-| eRT porting |  | `/target/` |  |
-| eRT build |  | `./Makefile` + specific `.mks` |  |
-|  |  |  |  |
-|  |  |  |  |
+| Repo                       | Prupose                                                  |
+| :------------------------- | :-----------------------------------------------------   |
+| ../ert-build-support/      | toolchains (e.g. gcc/clang, libc/c++ & eRT kernels)      |
+| ../ert-contrib-middleware/ | Open source components (e.g. curl, gstreamer, tflite, ...)  |
+| ../apps/ | Optional application repo used if pre-installing default applications |
 
 ![][image1]￼
 
 Also See the following documents for more details in eRT’s architecture:
 
-[eRT Architecture & Porting Guide  - Public](https://docs.google.com/document/d/1cD-U7T4-0Wmf99GcKDhZS0xlJb0kGqrtDSc0TjGL9D8/edit#)
+[eRT Architecture & Porting Guide  - Public]
 
 # Inxware Build Processes
 
@@ -934,7 +953,7 @@ Other notes the curl specific code **(to be done at a later date!)** in Common/H
 ### **Component HAL**
 
 ```make
-EHS_GRAPHICS_SUPPORT = {NONE,GTK,GDI,STAPI,DIRECTFB,SDL,LVGL}
+EHS_GUI_SUPPORT = {NONE,GTK,GDI,STAPI,DIRECTFB,SDL,LVGL}
 EHS_AV_SUPPORT={NONE,VLC,GSTREAMER,STAPI}
 EHS_VECTORGRAPH_SUPPORT={NONE,SVG}
 EHS_DATABASE_SUPPORT={NONE,SQLITE,

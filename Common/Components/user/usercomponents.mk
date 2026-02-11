@@ -79,17 +79,22 @@ OBJECTS += inx-pid_hdwr_config_int.$(OBJ)
 endif
 endif
 
-# We always provide the OTA parser
-OBJECTS += inx-ota_data_parser.$(OBJ)
-# OTA HAL component forn writing to flash?
+
+
+# Manage the component parts of OTA support (not the HAL)
+# Presumable thhis is the OTA writer component, though the name doesn't suggest this.
 ifdef EHS_OTA_SUPPORT
 	ifneq ($(EHS_OTA_SUPPORT),none)
-	OBJECTS += inx-ota.$(OBJ)
+	        OBJECTS += inx-ota.$(OBJ)
+		DEFS+=EHS_OTA_SUPPORT
 	else 
-      #Temporarrilly doing this to make builds work
+# Temporarrilly doing this to make builds work
 	    EHS_OTA_SUPPORT=stubbed
 	endif
 endif
+
+# We always provide the OTA parser
+OBJECTS += inx-ota_data_parser.$(OBJ)
 
 
 OBJECTS += inx-reboot.$(OBJ)

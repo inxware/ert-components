@@ -462,6 +462,17 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
 */
 void app_main(void)
 {
+#if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
+    // Bare metal mode: Run test immediately and hang
+    extern void EHS_TEST_FUNC_NAME(void);
+    ESP_LOGI(TAG, "EHS Bare Metal Test: Running %s", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    ESP_LOGI(TAG, "Test completed");
+    while(1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+#endif
+
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
@@ -503,11 +514,20 @@ void app_main(void)
     xTaskCreate(tcp_server_task, "tcp_server", 4096, (void *)AF_INET6, 5, NULL);
 #endif
 #endif
+
+#ifdef EHS_TEST_FUNC_OVERRIDE
+    // Test mode with full init: Run test instead of EhsMain
+    extern void EHS_TEST_FUNC_NAME(void);
+    ESP_LOGI(TAG, "EHS Test Mode: Running %s", #EHS_TEST_FUNC_NAME);
+    xTaskCreate(EHS_TEST_FUNC_NAME, #EHS_TEST_FUNC_NAME, stack_depth, NULL, ESP_TASK_TCPIP_PRIO + 1, xHandle);
+#else
+    // Normal production mode
     xTaskCreate(EhsMain, "EhsMain", stack_depth, NULL, ESP_TASK_TCPIP_PRIO + 1, xHandle); // tskIDLE_PRIORITY + 5
+#endif
+
     // xTaskCreate(app_test_main, "app_test_main", stack_depth, ( void * ) 1, 1, NULL);
     // EhsMain(NULL, NULL); /* doesn't return in this version */;
 
-   
 #endif
     // todo2024 - why is this call _test_ ?? is it not a real main?
     mqtt_test_main();

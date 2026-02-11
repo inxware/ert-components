@@ -16,11 +16,26 @@
  */
 
 /**
+ * @page Verification Verification report
+ * @section target_main
+ * @anchor target_main
+ * @subsection misra MISRA compliance:
+ * test.c demonstrated MISRA compliant on 2007-10-12
+ * Last modified on $Date$
+ *
+ * This file contained no derogations to the MISRA standard.
+ *
+ * Note it is necessary to replace <sys/types.h> with <types.h> to lint this file successfully.
+ */
+
+/**
  * Provides access to the target-specific declarations of header files
  */
 #define EHSL_MODULE_ID (EHSH_LOG_MODULE_LOGGER)
 #define EHS_TARGET_CODE
 
+/*****************************************************************************/
+/* Included files */
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
@@ -33,10 +48,17 @@
 #include "ehs_main.h"
 #include "hal-api.h" // required for the metadata storage
 
-/* Optional for Qt builds */
+/* Temporary QT headers */
 #ifdef EHS_MAIN_LOOP_ITERATIVE
 #include "qt_main_integration.h"
 #endif
+
+/*****************************************************************************/
+/* Declare macros and local typedefs used by this file */
+/*****************************************************************************/
+/* Declare prototypes of local functions */
+/*****************************************************************************/
+/* Variables defined with file-scope */
 
 /**
  * Handle the SIGTERM signal
@@ -88,6 +110,15 @@ void app_load_status_handler(ehs_uint32 status)
  */
 EhsTargetIntType main(int argc, ehs_char ** argv)
 {
+#if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
+    // Bare metal mode: Run test immediately and exit
+    extern void EHS_TEST_FUNC_NAME(void);
+    //EHSH_LOG_INFO("EHS Bare Metal Test: Running %s\n", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    EHSH_LOG_INFO("Test completed\n");
+    return 0;
+#endif
+
     pid_t pID;
 //#define EHS_DONT_BUF_STDOUT
 #ifdef EHS_DONT_BUF_STDOUT
@@ -111,7 +142,13 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
         SIG_IGN
     }, NULL);
 #endif
-
+#ifdef EHS_TEST_FUNC_OVERRIDE
+    // Test mode with full init: Run test instead of EhsMain
+    extern void EHS_TEST_FUNC_NAME(void);
+    //EHSH_LOG_INFO("EHS Test Mode: Running %s\n", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    EHSH_LOG_INFO("Test completed\n");
+#else
 #ifdef EHS_MAIN_LOOP_ITERATIVE
     int result;
 
@@ -153,7 +190,10 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
 
     EhsExit(result);
 #else // EHS_MAIN_LOOP_ITERATIVE
-    EhsMain(NULL,NULL); /* doesn't return in this version */
+    
+EhsMain(NULL,NULL); /* doesn't return in this version */
+#endif
+
     EhsExit(0);
 #endif // EHS_MAIN_LOOP_ITERATIVE
 

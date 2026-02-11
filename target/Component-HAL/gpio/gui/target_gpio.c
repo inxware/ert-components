@@ -13,7 +13,7 @@
 
 #include "globals.h"
 #include "hal_logger.h"
-#include "hal_gpio.h"
+#include "ehs_hal_gpio.h"
 #include "guiparams.h"
 #include "widget.h"
 

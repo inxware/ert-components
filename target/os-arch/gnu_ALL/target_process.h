@@ -37,19 +37,22 @@
 #endif
 
 #include <pthread.h>
-#if defined(EHS_DEBIAN_VERSION) && (EHS_DEBIAN_VERSION > 11)
-    #include <sched.h>
-#endif
+// todo 2026 review if thisis needed or not...
+//#if defined(EHS_DEBIAN_VERSION) && (EHS_DEBIAN_VERSION > 11)
+//    #include <sched.h>
+//#endif
 
 /******************************** storage class specified for parameter     *********************************************/
 /* Define macros  */
 
 #ifndef EHS_MINGW
-    #if defined(EHS_DEBIAN_VERSION) && (EHS_DEBIAN_VERSION > 11)
-        #define EhsTPThread_yield() sched_yield();	/* Yield thread - pthread_yield() was removed in Debian 12 */
-    #else
-        #define EhsTPThread_yield() pthread_yield();	/* Yield thread (prior to Debian 12) */
-    #endif
+    #define EhsTPThread_yield() pthread_yield();	/* Yield thread */
+    // todo 2026 review if thisis needed or not...
+    //#if defined(EHS_DEBIAN_VERSION) && (EHS_DEBIAN_VERSION > 11)
+    //    #define EhsTPThread_yield() sched_yield();	/* Yield thread - pthread_yield() was removed in Debian 12 */
+    //#else
+    //    #define EhsTPThread_yield() pthread_yield();	/* Yield thread (prior to Debian 12) */
+    //#endif
 #else
 //#define EhsTPThread_yield() Sleep(0);	/* Yield thread? */
     #define EhsTPThread_yield() //don't need this for windows?

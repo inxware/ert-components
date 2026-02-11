@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-07-25T15:55:36Z</CreationDate>
-        <UpdatedDate>2025-10-16T12:21:45Z</UpdatedDate>
+        <UpdatedDate>2026-01-26T15:24:40Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>Connect to a Wi-Fi access point</ShortDescription>
@@ -20,9 +20,9 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
     </Description>
     <Block>
         <Type>IO</Type>
-        <Height>255</Height>
+        <Height>290</Height>
         <Text>Wi-Fi Station</Text>
-        <TextX>35</TextX>
+        <TextX>20</TextX>
         <TextY>5</TextY>
         <TextScale>1.25</TextScale>
         <TextVertical>0</TextVertical>
@@ -35,24 +35,10 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xED92</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>57f6e622</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>292e4aee</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
-        <Parameter>
-            <Name>SSID</Name>
-            <DataType>S</DataType>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <Description>Wi-Fi SSID</Description>
-            <ListPlacement>1</ListPlacement>
-            <ArgPlacement>1</ArgPlacement>
-            <DisplayOnWidget>
-                <x>35</x>
-                <y>30</y>
-            </DisplayOnWidget>
-        </Parameter>
         <Parameter>
             <Name>onStartup</Name>
             <DataType>B</DataType>
@@ -60,8 +46,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <MinValue>0</MinValue>
             <MaxValue>1</MaxValue>
             <Description>Connect the Wi-Fi on startup before the app is loaded.</Description>
-            <ListPlacement>2</ListPlacement>
-            <ArgPlacement>2</ArgPlacement>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>type</Name>
@@ -70,8 +56,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <MinValue>0</MinValue>
             <MaxValue>2</MaxValue>
             <Description>Wi-Fi authentication type. 0 for Password authentication, 1 for open network, 2 for WPA2/3-Enterprise network.</Description>
-            <ListPlacement>3</ListPlacement>
-            <ArgPlacement>3</ArgPlacement>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>tryReconnect</Name>
@@ -80,8 +66,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <MinValue/>
             <MaxValue/>
             <Description>It will try to reconnect to the AP when it is disconnected after connected. It will retry maximum time defined by retry parameter. If failed connection after maximum number of retries, it will issue Disconnected output event and clear Wi-Fi interface. The Connect event input should be used again for connection.</Description>
-            <ListPlacement>4</ListPlacement>
-            <ArgPlacement>4</ArgPlacement>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>retry</Name>
@@ -90,8 +76,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <MinValue>1</MinValue>
             <MaxValue>100</MaxValue>
             <Description>The maximum number of retries to re-connect to the AP. Minimum 1.</Description>
-            <ListPlacement>5</ListPlacement>
-            <ArgPlacement>5</ArgPlacement>
+            <ListPlacement>4</ListPlacement>
+            <ArgPlacement>4</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>reconnectPeriod</Name>
@@ -100,108 +86,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <MinValue>1</MinValue>
             <MaxValue>9999999</MaxValue>
             <Description>The period in seconds between the re-connection after the Wi-Fi connection is lost.</Description>
-            <ListPlacement>6</ListPlacement>
-            <ArgPlacement>6</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>EntType</Name>
-            <DataType>I</DataType>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>2</MaxValue>
-            <Description>Enterprise Network authentication type.0 for WPA2-Enterprise, 1 for WPA3-Enterprise, 2 for WPA3-192bit-Enterprise.</Description>
-            <ListPlacement>7</ListPlacement>
-            <ArgPlacement>7</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>EAP</Name>
-            <DataType>I</DataType>
-            <DefaultValue>1</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>2</MaxValue>
-            <Description>The Extensible Authentication Protocol to be used to pass the authentication information. Only valid if type=2. 0 for TLS, 1 for PEAP, 2 for TTLS.</Description>
-            <ListPlacement>8</ListPlacement>
-            <ArgPlacement>8</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>TTLS2</Name>
-            <DataType>I</DataType>
-            <DefaultValue>1</DefaultValue>
-            <MinValue>1</MinValue>
-            <MaxValue>4</MaxValue>
-            <Description>EAP's TTLS second stage connection method. Only valid if type=2 and EAP=2. 1 for MSCHAPV2, 2 fo MSCHAP, 3 for PAP and 4 for CHAP.</Description>
-            <ListPlacement>9</ListPlacement>
-            <ArgPlacement>9</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>needServerCert</Name>
-            <DataType>B</DataType>
-            <DefaultValue>0</DefaultValue>
-            <MinValue/>
-            <MaxValue/>
-            <Description>Weather to validate the servers' certificate using CA cert.</Description>
-            <ListPlacement>10</ListPlacement>
-            <ArgPlacement>10</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>serverCert</Name>
-            <DataType>S</DataType>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <Description>Path to the CA cert to vlidate the servers' certificate. Only valid if type=2 and needServerCert=1.</Description>
-            <ListPlacement>11</ListPlacement>
-            <ArgPlacement>11</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>tlsCert</Name>
-            <DataType>S</DataType>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <Description>Path to TLS client certificate. Only valid if type=2 and EAP=0</Description>
-            <ListPlacement>12</ListPlacement>
-            <ArgPlacement>12</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>tlsKey</Name>
-            <DataType>S</DataType>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <Description>Path to TLS client key if EApP method is TLS. Only valid if type=2 and EAP=0</Description>
-            <ListPlacement>13</ListPlacement>
-            <ArgPlacement>13</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>eapID</Name>
-            <DataType>S</DataType>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <Description>ID for EAP authentication. Most of time, it is email address. Only valid if type=2.</Description>
-            <ListPlacement>14</ListPlacement>
-            <ArgPlacement>14</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>eapUser</Name>
-            <DataType>S</DataType>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <Description>Username for EAP authentication. Only valid if type=2.</Description>
-            <ListPlacement>15</ListPlacement>
-            <ArgPlacement>15</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>eapPass</Name>
-            <DataType>S</DataType>
-            <DefaultValue/>
-            <MinValue/>
-            <MaxValue/>
-            <Description>Password for EAP authentication. Only valid if type=2.</Description>
-            <ListPlacement>16</ListPlacement>
-            <ArgPlacement>16</ArgPlacement>
+            <ListPlacement>5</ListPlacement>
+            <ArgPlacement>5</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>
@@ -223,157 +109,20 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
                 <ERT1_ID>3</ERT1_ID>
             </ID>
         </Function>
+        <Function>
+            <name>do_set</name>
+            <ID>
+                <ERT1_ID>4</ERT1_ID>
+            </ID>
+        </Function>
     </Functions>
     <Ports>
         <Port>
             <DataType>I</DataType>
-            <Description>type</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>47</YCoordinate>
-            <CName>auth_type</CName>
-            <Function argument="1">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>SSID</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>30</YCoordinate>
-            <CName>ssid</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>PSKPass</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>67</YCoordinate>
-            <CName>PSKPass</CName>
-            <Function argument="3">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>EAP</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>100</YCoordinate>
-            <CName>EAP</CName>
-            <Function argument="4">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>EntType</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>87</YCoordinate>
-            <CName>Enterprise_type</CName>
-            <Function argument="5">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>TTLS2</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>112</YCoordinate>
-            <CName>ttls_phase2</CName>
-            <Function argument="6">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>B</DataType>
-            <Description>needCert</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>125</YCoordinate>
-            <CName>needCert</CName>
-            <Function argument="7">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>serverCert</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>137</YCoordinate>
-            <CName>serverCert</CName>
-            <Function argument="8">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>tlsCert</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>150</YCoordinate>
-            <CName>tlsCert</CName>
-            <Function argument="9">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>tlsKey</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>162</YCoordinate>
-            <CName>tlsKey</CName>
-            <Function argument="10">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>eapID</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>180</YCoordinate>
-            <CName>eapID</CName>
-            <Function argument="11">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>eapUser</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>192</YCoordinate>
-            <CName>eapUser</CName>
-            <Function argument="12">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>S</DataType>
-            <Description>eapPass</Description>
-            <PortType>InputPort</PortType>
-            <XCoordinate>0</XCoordinate>
-            <YCoordinate>205</YCoordinate>
-            <CName>eapPass</CName>
-            <Function argument="13">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
             <Description>errCode</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>102</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>75</YCoordinate>
             <CName>errCode</CName>
             <Function argument="1">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -382,8 +131,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
         <Port>
             <Description>Fail</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>90</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>65</YCoordinate>
             <Wcet>0</Wcet>
             <CName>connectFail</CName>
             <Function argument="1">
@@ -393,8 +142,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
         <Port>
             <Description>OK</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>32</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>25</YCoordinate>
             <Wcet>0</Wcet>
             <CName>connect_OK</CName>
             <Function argument="2">
@@ -405,7 +154,7 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <Description>Connect</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>17</YCoordinate>
+            <YCoordinate>15</YCoordinate>
             <CName>connect</CName>
             <Function argument="0">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
@@ -416,7 +165,7 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <Description>Disconnect</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>230</YCoordinate>
+            <YCoordinate>240</YCoordinate>
             <CName>disconnect</CName>
             <Function argument="0">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -426,8 +175,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
         <Port>
             <Description>Disconnected</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>220</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>250</YCoordinate>
             <Wcet>0</Wcet>
             <CName>disconnected</CName>
             <Function argument="3">
@@ -437,8 +186,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
         <Port>
             <Description>DDone</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>207</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>240</YCoordinate>
             <Wcet>0</Wcet>
             <CName>do_disconnect_OK</CName>
             <Function argument="1">
@@ -448,7 +197,7 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
         <Port>
             <Description>CDone</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>145</XCoordinate>
+            <XCoordinate>105</XCoordinate>
             <YCoordinate>15</YCoordinate>
             <Wcet>0</Wcet>
             <CName>do_connect_OK</CName>
@@ -460,8 +209,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <DataType>I</DataType>
             <Description>Reason</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>232</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>260</YCoordinate>
             <CName>disconnect_reason</CName>
             <Function argument="2">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -471,8 +220,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <DataType>S</DataType>
             <Description>ipAddr</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>45</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>35</YCoordinate>
             <CName>ip_address</CName>
             <Function argument="3">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -482,8 +231,8 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <DataType>I</DataType>
             <Description>RSSI</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>57</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>45</YCoordinate>
             <CName>rssi</CName>
             <Function argument="4">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -493,10 +242,185 @@ This function block supports WPA2-PSK, open network and WPA2/3-Enterprise.</Long
             <DataType>S</DataType>
             <Description>AP_MAC</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>145</XCoordinate>
-            <YCoordinate>70</YCoordinate>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>55</YCoordinate>
             <CName>ap_mac_address</CName>
             <Function argument="5">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Set</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>92</YCoordinate>
+            <CName>set</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>OK</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>105</XCoordinate>
+            <YCoordinate>92</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>set_ok</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>SSID</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>102</YCoordinate>
+            <CName>ssid</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>type</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>112</YCoordinate>
+            <CName>auth_type</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>PSKPass</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>122</YCoordinate>
+            <CName>PSKPass</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>EntType</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>132</YCoordinate>
+            <CName>Enterprise_type</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>EAP</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>142</YCoordinate>
+            <CName>EAP</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>TTLS2</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>152</YCoordinate>
+            <CName>ttls_phase2</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>needCert</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>162</YCoordinate>
+            <CName>needCert</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>serverCert</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>172</YCoordinate>
+            <CName>serverCert</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>tlsCert</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>182</YCoordinate>
+            <CName>tlsCert</CName>
+            <Function argument="9">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>tlsKey</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>192</YCoordinate>
+            <CName>tlsKey</CName>
+            <Function argument="10">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>eapID</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>202</YCoordinate>
+            <CName>eapID</CName>
+            <Function argument="11">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>eapUser</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>212</YCoordinate>
+            <CName>eapUser</CName>
+            <Function argument="12">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>eapPass</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>222</YCoordinate>
+            <CName>eapPass</CName>
+            <Function argument="13">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>do_int</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>do_int</CName>
+            <Function argument="0">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
             </Function>
         </Port>

@@ -47,37 +47,43 @@ endif
 endif
 
 
+# NEnumeratiosn for different platform's networking and interface configuration options
+# Stubbed means network config and functions may exist but will not do anything
+DEFS += EHS_HAL_NETWORK_CONFIG_STUBBED=1
+#This currently implies the W5500 chip vai SPI 1.
+DEFS += EHS_HAL_NETWORK_CONFIG_ESP32=2
 
-# Network config interface target - this is not really how we want to do it lets 
-DEFS+=EHS_NETWORK_CONFIG_TYPE_STUBBED=1
-DEFS+=EHS_NETWORK_CONFIG_TYPE_ESP32=2
-DEFS+=EHS_INTERFACE_CONFIG_TYPE_STUBBED=1
-DEFS+=EHS_INTERFACE_CONFIG_TYPE_ESP32=2
+# Stubbed means interface config and functions may exist but will not do anything
+DEFS += EHS_HAL_INTERFACE_CONFIG_STUBBED=1
+#This would for example onfigure the WiFiSSID and credentials or allow enable/disable of interfaces.
+DEFS += EHS_HAL_INTERFACE_CONFIG_ESP32=2
+
+
 ifdef EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT
-ifneq ($(EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT),none)
-	# Setup some types for the config support? Do we really need this, shouldn't this be done by the target_XXXX.c support for the os-arch automatically
-	# We will default to a stubbed build
-	ifeq ($(EHS_NETWORK_CONFIG_TYPE_SUPPORT),esp32)
-		DEFS+=EHS_NETWORK_CONFIG_SUPPORT=EHS_NETWORK_CONFIG_TYPE_ESP32
-	else
-		DEFS+=EHS_NETWORK_CONFIG_SUPPORT=EHS_NETWORK_CONFIG_TYPE_STUBBED
+	ifneq ($(EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT),none)
+		DEFS += EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT
+		OBJECTS += inx-network_config.$(OBJ)	
+		# Note this object might get included again because we also use it in the interface config console
 	endif
-	ifeq ($(EHS_INTERFACE_CONFIG_TYPE_SUPPORT),esp32)
-		DEFS += EHS_INTERFACE_CONFIG_SUPPORT=EHS_INTERFACE_CONFIG_TYPE_ESP32
-	else
-		DEFS += EHS_INTERFACE_CONFIG_SUPPORT=EHS_INTERFACE_CONFIG_TYPE_STUBBED
-	endif
-	DEFS += EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT
-	OBJECTS += inx-network_config.$(OBJ)
-	OBJECTS += inx-interface_manager.$(OBJ)
 endif
-else
-# default to stubbing this function if not defined so need to add object
-	DEFS += EHS_NETWORK_CONFIG_SUPPORT=EHS_NETWORK_CONFIG_TYPE_STUBBED
-	OBJECTS += inx-network_config.$(OBJ)
-	DEFS += EHS_INTERFACE_CONFIG_SUPPORT=EHS_INTERFACE_CONFIG_TYPE_STUBBED
-	OBJECTS += inx-interface_manager.$(OBJ)
+
+
+# Enable the TCPIP configuration HAL
+ifdef EHS_HAL_NETWORK_CONFIG_SUPPORT
+ifneq ($(EHS_HAL_NETWORK_CONFIG_SUPPORT),none)
+	DEFS+=EHS_HAL_NETWORK_CONFIG_SUPPORT=$(EHS_HAL_NETWORK_CONFIG_SUPPORT)
+# No object for this is as it is implemented in target_main.c currently?
 endif
+endif
+
+# Enable the Interface (e.g. enable/disable WiFI credentials or Ethernet baud) configuration HAL
+ifdef EHS_HAL_INTERFACE_CONFIG_SUPPORT
+ifneq ($(EHS_HAL_INTERFACE_CONFIG_SUPPORT),none)	
+    OBJECTS += inx-interface_manager.$(OBJ)
+    DEFS += EHS_HAL_INTERFACE_CONFIG_SUPPORT=$(EHS_HAL_INTERFACE_CONFIG_SUPPORT)
+endif
+endif
+
 
 
 ifdef EHS_COMPONENTS_NETWORK_URL_GET
@@ -116,6 +122,18 @@ ifdef EHS_NETWORK_WIFI_SUPPORT
 ifneq ($(EHS_NETWORK_WIFI_SUPPORT),none)
 ifneq ($(EHS_NETWORK_WIFI_SUPPORT),)
 	OBJECTS += inx-wifi_station.$(OBJ)
+endif
+endif
+endif
+
+# BLE service support
+ifdef EHS_NETWORK_BLE_SUPPORT
+ifneq ($(EHS_NETWORK_BLE_SUPPORT),none)
+ifneq ($(EHS_NETWORK_BLE_SUPPORT),)
+	DEFS += EHS_NETWORK_BLE_SUPPORT
+	OBJECTS += inx-ble_service.$(OBJ)
+	# Add BLE HAL include path for glue layer
+	INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/ble/$(EHS_NETWORK_BLE_SUPPORT)
 endif
 endif
 endif

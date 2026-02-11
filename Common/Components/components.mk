@@ -27,7 +27,6 @@
 #  VPATH - where to look for source code
 #  INC_DIRS - for includes
 #  EFS -for source switches
-#  EHS_GRAPHICS_SUPPORT - defined if this target supports graphics
 
 #Compile the modules loader
 OBJECTS+= statmodules.$(OBJ)

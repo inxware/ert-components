@@ -137,6 +137,13 @@ err:
     return ret;
 }
 
+
+/*
+Initialise the Ethernet MAC chip
+This implementation is Specific to W5500 Ehternet MAC chip (Module or chipdown connected to SPI bus 1)
+returns ESPRESSIF#s errornumber 
+*/
+
 esp_err_t target_eth_init(esp_eth_handle_t *eth_handles_out)
 {
     esp_err_t ret = ESP_OK;

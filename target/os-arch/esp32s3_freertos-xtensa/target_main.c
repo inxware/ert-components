@@ -78,6 +78,9 @@
 //"freertos/task.h"
 
 #include "esp_event.h"
+
+#include "esp_netif_types.h"
+
 #ifdef EHS_NETWORK_WIFI_SUPPORT
 #include "esp_wifi.h"
 #include "target_wifi.h"
@@ -103,6 +106,8 @@
 
 #include "target_uart.h"
 #include "target_ota.h"
+
+#include "esp_rom_uart.h"  /* for esp_rom_uart_tx_wait_idle - console TX flush */
 
 #include "target_data_bin.h"
 
@@ -243,8 +248,9 @@ volatile ehs_bool gNetworkConnected = EHS_FALSE;
    e.g. free mqtt stack (if previously allocated) when the app fails to load, so there's enough resources for re-parsing */
 volatile ehs_bool gAppLoadingDone = EHS_FALSE;
 
+/* Returns if the build has WiFI Enabled */
 static ehs_bool gEhsNetworkInterfaceWifiEnable
-#if (!defined(EHS_NETWORK_ETHERNET_SUPPORT) && defined(EHS_NETWORK_WIFI_SUPPORT))
+#if (defined(EHS_NETWORK_WIFI_SUPPORT))
 = EHS_TRUE; // only wifi
 #else
 = EHS_FALSE; // ethernet only or both
@@ -303,16 +309,18 @@ static void app_load_status_handler(ehs_uint32 status)
             break;
         }
         default:
-            ESP_LOGW(TAG, "Unknow app loading status!");
-            EhsHWatchdogEnable();
+            ESP_LOGW(TAG, "Unknown app loading status!");
+            //EhsHWatchdogEnable();
             break;
     }
 }
 
-#ifdef EHS_ESP32_CMD_PROMPT_SUPPORT
+/* TODO2026 - this is all pretty much common code (?) except we haven'y bothered to use the abstracted delays ...*/
+#ifdef EHS_SERIAL_CONSOLE_SUPPORT
 
 #define EHS_PROMPT_READ_MAX 64 // if changed make sure to update "%Ns" in command_prompt_read "%(max_value-1)s"
-#define EHS_PROMPT_READ_SLEEP 1000
+#define EHS_PROMPT_READ_SLEEP 100 // wait 100ms before printing prompt?
+#define EHS_PROMPT_CHAR_POLL_MS 10 // check for chars every 10ms
 
 #ifdef EHS_WIFI_SSID_BUFF_MAX
 #if EHS_PROMPT_READ_MAX != EHS_WIFI_SSID_BUFF_MAX
@@ -320,33 +328,234 @@ static void app_load_status_handler(ehs_uint32 status)
 #endif
 #endif
 
-void command_prompt_println(const char* text)
+/**
+ * Flush stdout and wait for the console UART TX hardware FIFO to fully drain.
+ * This prevents the issue where a subsequent blocking read (fscanf/stdin)
+ * occurs before the UART has finished physically transmitting all bytes,
+ * causing output to be lost or corrupted.
+ *
+ * Must be called instead of bare fflush(stdout) before any blocking read.
+ */
+static void console_flush_tx(void)
 {
-    vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
-    printf("%s\n",text);
+    fflush(stdout);
+    /* Wait for UART TX FIFO to fully drain at hardware level.
+     * CONFIG_ESP_CONSOLE_UART_NUM is defined by sdkconfig and defaults to 0. */
+    esp_rom_uart_tx_wait_idle(CONFIG_ESP_CONSOLE_UART_NUM);
 }
 
+/* Prints a whole line with newline and ensures it's flushed immediately */
+void command_prompt_println(const char* text)
+{
+    printf("%s\n", text);
+    console_flush_tx();
+    vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP)); // Brief delay after printing for readability
+}
+
+/**
+ * Print text without newline - flushes and waits for UART TX to complete
+ * before any subsequent blocking read.
+ */
+void command_prompt_print(const char* text)
+{
+    printf("%s", text);
+    console_flush_tx();
+}
+
+/**
+ * Echo mode for input reading
+ */
+typedef enum {
+    ECHO_NORMAL,    // Echo characters as typed
+    ECHO_PASSWORD,  // Echo asterisks for each character
+    ECHO_HIDDEN     // No echo at all
+} command_prompt_echo_mode_t;
+
+//TODO These functions should go into a common HAL file.
+
+/**  REad a single char (with or without echo) 
+ * Read a line of input from stdin, handling character-at-a-time terminals.
+ * Buffers input until Enter (CR or LF) is pressed.
+ * Supports backspace for basic line editing.
+ *
+ * @param buffer Buffer to store the input (must be at least EHS_PROMPT_READ_MAX bytes)
+ * @param echo_mode How to echo characters (ECHO_NORMAL, ECHO_PASSWORD, ECHO_HIDDEN)
+ * @return Length of the input string (excluding null terminator)
+ */
+ehs_bool command_prompt_read_char(char * ch, command_prompt_echo_mode_t echo_mode)
+{
+    // Skip any leftover newlines/carriage returns from previous input
+    do {
+        fscanf(stdin, "%c", ch);
+    } while (*ch == '\n' || *ch == '\r');
+
+    switch (echo_mode) {
+        case ECHO_NORMAL:
+            printf("%c\n", *ch);
+            console_flush_tx();
+            break;
+        case ECHO_PASSWORD:
+            printf("*\n");
+            console_flush_tx();
+            break;
+        case ECHO_HIDDEN:
+            // No echo
+            break;
+    }
+    return EHS_TRUE;
+}
+
+/**
+ * Read a line of input from stdin, handling character-at-a-time terminals.
+ * Buffers input until Enter (CR or LF) is pressed.
+ * Supports backspace for basic line editing.
+ *
+ * @param buffer Buffer to store the input (must be at least EHS_PROMPT_READ_MAX bytes)
+ * @param echo_mode How to echo characters (ECHO_NORMAL, ECHO_PASSWORD, ECHO_HIDDEN)
+ * @return Length of the input string (excluding null terminator)
+ */
+ehs_uint32 command_prompt_read_with_echo(char* buffer, command_prompt_echo_mode_t echo_mode)
+{
+    ehs_uint32 pos = 0;
+    char ch;
+
+    // Clear the buffer
+    buffer[0] = '\0';
+
+    while (1) {
+        // Try to read a single character
+        if (fscanf(stdin, "%c", &ch) == 1) {
+            // Check for Enter key (CR or LF)
+            if (ch == '\n' || ch == '\r') {
+                printf("\n");  // Echo newline
+                console_flush_tx();
+                buffer[pos] = '\0';
+                return pos;
+            }
+            // Handle backspace (ASCII 8 or DEL 127)
+            else if (ch == '\b' || ch == 127) {
+                if (pos > 0) {
+                    pos--;
+                    buffer[pos] = '\0';
+                    // Erase character on terminal: backspace, space, backspace
+                    if (echo_mode != ECHO_HIDDEN) {
+                        printf("\b \b");
+                        console_flush_tx();
+                    }
+                }
+            }
+            // Handle Ctrl+C (cancel input)
+            else if (ch == 3) {
+                printf(" ^C\n");
+                console_flush_tx();
+                buffer[0] = '\0';
+                return 0;
+            }
+            // Handle Ctrl+U (clear line)
+            else if (ch == 21) {
+                // Erase all characters on the line
+                while (pos > 0) {
+                    pos--;
+                    if (echo_mode != ECHO_HIDDEN) {
+                        printf("\b \b");
+                    }
+                }
+                buffer[0] = '\0';
+                console_flush_tx();
+            }
+            // Handle Escape key (cancel input)
+            else if (ch == 27) {
+                printf(" [ESC]\n");
+                console_flush_tx();
+                buffer[0] = '\0';
+                return 0;
+            }
+            // Handle printable characters
+            else if (ch >= 32 && ch < 127) {
+                // Only add if we have room (leave space for null terminator)
+                if (pos < EHS_PROMPT_READ_MAX - 1) {
+                    buffer[pos++] = ch;
+                    buffer[pos] = '\0';
+                    // Echo based on mode
+                    switch (echo_mode) {
+                        case ECHO_NORMAL:
+                            printf("%c", ch);
+                            break;
+                        case ECHO_PASSWORD:
+                            printf("*");
+                            break;
+                        case ECHO_HIDDEN:
+                            // No echo
+                            break;
+                    }
+                    console_flush_tx();
+                } else {
+                    // Buffer full - beep (bell character)
+                    printf("\a");
+                    console_flush_tx();
+                }
+            }
+            // Ignore other control characters
+        }
+        // Small delay to avoid CPU overload when polling
+        vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_CHAR_POLL_MS));
+    }
+}
+
+/**
+ * Read a line of input with normal echo (convenience wrapper)
+ *
+ * @param buffer Buffer to store the input (must be at least EHS_PROMPT_READ_MAX bytes)
+ * @return Length of the input string (excluding null terminator)
+ */
 ehs_uint32 command_prompt_read(char* buffer)
 {
-    while (1) {
-        if (fscanf(stdin, "%63s", buffer) > 0) { // EHS_PROMPT_READ_MAX 64
-            // Check for and remove the trailing newline, if it exists
-            ehs_uint32 len = EhsStrlen(buffer);  // Find the length of the string
-            if (len > 0 && buffer[len - 1] == '\n') {
-                buffer[len - 1] = '\0';
-            }
-            return len;
-        }
-        vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP)); // Please use Ehs functions for tthis stufff
-    }
+    return command_prompt_read_with_echo(buffer, ECHO_NORMAL);
+}
+
+/**
+ * Read a password with masked echo (shows asterisks)
+ *
+ * @param buffer Buffer to store the password (must be at least EHS_PROMPT_READ_MAX bytes)
+ * @return Length of the password string (excluding null terminator)
+ */
+ehs_uint32 command_prompt_read_password(char* buffer)
+{
+    return command_prompt_read_with_echo(buffer, ECHO_PASSWORD);
 }
 
 ehs_bool command_prompt_ask_yes_no(const char* question)
 {
+    char ch = 0;
+
     command_prompt_println(question);
-    char anws[EHS_PROMPT_READ_MAX] = {0};
-    if(command_prompt_read(anws) > 0){
-        return (EhsStrcmp(anws,"y")==0) || (EhsStrcmp(anws,"Y")==0) || (EhsStrcmp(anws,"yes")==0) || (EhsStrcmp(anws,"YES")==0) || (EhsStrcmp(anws,"Yes")==0);
+
+    while (1) {
+        // Read a character
+        if (fscanf(stdin, "%c", &ch) == 1) {
+            // Skip whitespace (newlines, spaces, etc)
+            if (ch == '\n' || ch == '\r' || ch == ' ' || ch == '\t') {
+                continue;
+            }
+
+            // Check for valid y/n response
+            if (ch == 'y' || ch == 'Y') {
+                printf("%c\n", ch);
+                console_flush_tx();
+                return EHS_TRUE;
+            }
+            else if (ch == 'n' || ch == 'N') {
+                printf("%c\n", ch);
+                console_flush_tx();
+                return EHS_FALSE;
+            }
+            else {
+                // Invalid input - echo it and ask again
+                printf("%c - please enter 'y' or 'n': ", ch);
+                console_flush_tx();
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
     return EHS_FALSE;
 }
@@ -362,19 +571,39 @@ void command_prompt_wifi_conf()
     char ssid[EHS_PROMPT_READ_MAX] = {0};
     char pass[EHS_PROMPT_READ_MAX] = {0};
     ehs_bool yes = EHS_FALSE;
+    ehs_uint32 ssid_len, pass_len;
+
     command_prompt_println("**** WiFi config ****");
     command_prompt_println("Enter SSID:");
-    command_prompt_read(ssid);
-    command_prompt_println(ssid);
+    ssid_len = command_prompt_read(ssid);
+    if (ssid_len == 0) {
+        command_prompt_println("Cancelled.");
+        return;
+    }
+
     command_prompt_println("Enter Password:");
-    command_prompt_read(pass);
-    command_prompt_println(pass);
+    pass_len = command_prompt_read_password(pass);
+    if (pass_len == 0) {
+        command_prompt_println("Cancelled.");
+        return;
+    }
+
+    // Show confirmation (password masked)
+    printf("SSID: %s\n", ssid);
+    printf("Password: ");
+    for (ehs_uint32 i = 0; i < pass_len; i++) {
+        printf("*");
+    }
+    printf(" (%d chars)\n", (int)pass_len);
+    console_flush_tx();
+
     yes = command_prompt_ask_yes_no("Are these correct? (y/n)");
     if(yes==EHS_TRUE){
-        command_prompt_println("Saving above WiFi credentials.");
+        command_prompt_println("Saving WiFi credentials...");
         EhsWifiStationSaveSettings(ssid, pass);
         command_prompt_println("Connecting to WiFi, please wait...");
-        setWifiStationConnectState(WifiStationConnectState_INIT);
+        //setWifiStationConnectState(WifiStationConnectState_INIT);
+        WifiStationSetSSIDPSK(ssid, EhsStrlen(ssid), pass, EhsStrlen(pass));
     }else{
         command_prompt_println("WiFi NOT configured. Type 'w' to try again.");
     }
@@ -388,7 +617,9 @@ void command_prompt_wifi_reconnect()
         return;
     }
     command_prompt_println("wifi re-connect");
-    setWifiStationConnectState(WifiStationConnectState_INIT);
+	setWifiStationConnectState(WifiStationConnectState_CONNECT);
+    EhsWifiStationSetCBSource(eWifiStationCallbackSource_Connect);
+    EhsStartWifiStationThread();
 }
 
 void command_prompt_wifi_ssid()
@@ -400,9 +631,51 @@ void command_prompt_wifi_ssid()
     }
     char ssid[EHS_PROMPT_READ_MAX] = {0};
     char pass[EHS_PROMPT_READ_MAX] = {0};
-    if(EhsWifiStationLoadSettings(ssid, pass) == EHS_TRUE){
-        ehs_bool connected = isWifiStationConnected();
-        printf("SSID: %s  (%s)\n", ssid, (connected) ? "connected" : "not connected");
+    WifiStationGetCurrentSsid(ssid);
+    ehs_bool connected = isWifiStationConnected();
+    printf("SSID: %s  (%s)\n", ssid, (connected) ? "connected" : "not connected");
+}
+
+void command_prompt_wifi_disconnect()
+{
+    if (isEhsWiFiManagedByComponent() == EHS_TRUE)
+    {
+        command_prompt_println("WiFi is managed by function block. Please disconnect WiFi there.");
+        return;
+    }
+    if (isWifiStationConnected() == EHS_FALSE)
+    {
+        command_prompt_println("WiFi is not connected.");
+        return;
+    }
+    command_prompt_println("Disconnecting from WiFi...");
+    doWifiStationDisconnect();
+    command_prompt_println("WiFi disconnected.");
+}
+
+void command_prompt_wifi_forget()
+{
+    if (isEhsWiFiManagedByComponent() == EHS_TRUE)
+    {
+        command_prompt_println("WiFi is managed by function block. Please manage credentials there.");
+        return;
+    }
+    ehs_bool yes = command_prompt_ask_yes_no("Are you sure you want to forget saved WiFi credentials? (y/n)");
+    if (yes == EHS_TRUE)
+    {
+        // Disconnect if currently connected
+        if (isWifiStationConnected() == EHS_TRUE)
+        {
+            command_prompt_println("Disconnecting from WiFi...");
+            doWifiStationDisconnect();
+        }
+        // Clear saved credentials by saving empty strings
+        EhsWifiStationSaveSettings("", "");
+        command_prompt_println("WiFi credentials forgotten.");
+    }
+    else
+    {
+        command_prompt_println("Credentials NOT forgotten.");
     }
 }
 #endif // #ifdef EHS_NETWORK_WIFI_SUPPORT
@@ -412,8 +685,10 @@ void command_prompt_ip_addr()
     const ehs_char* ip = NULL;
     #ifdef EHS_NETWORK_WIFI_SUPPORT
     if (EhsNetworkInterfaceWifiIsEnabled) {ip = isWifiStationConnected() ? WifiStationIpAddress() : NULL; printf("WiFi "); }
-    #endif//#ifdef EHS_NETWORK_ETHERNET_SUPPORT
+    #endif//#ifdef EHS_NETWORK_WIFI_SUPPORT
+    #ifdef EHS_NETWORK_ETHERNET_SUPPORT
     if (EhsNetworkInterfaceEthIsEnabled && ip != NULL) {ip = gNetworkConnected ? EhsHMetaGetIPAddr() : NULL; printf("Ethernet "); }
+    #endif//#ifdef EHS_NETWORK_ETHERNET_SUPPORT
     printf("IP: %s\n", (ip && EhsStrlen(ip) > 0) ? ip : "N/A");
 }
 
@@ -423,7 +698,12 @@ void command_prompt_list_ssid_bssid()
 {
     if (isWifiStationInitalised() == EHS_FALSE)
     {
-        command_prompt_println("WiFi is not initalised yet.");
+        command_prompt_println("WiFi is not initalised yet. You can connect to a dummy SSID first.");
+        return;
+    }
+    if (isWifiStationConnecting() == EHS_TRUE)
+    {
+        command_prompt_println("Wi-Fi Connection in process. Please try again later.");
         return;
     }
     if (g_cmd_list_ssid_bssid)
@@ -439,22 +719,48 @@ void command_prompt_list_ssid_bssid()
     vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
     int _rssi = 0;
     if (esp_wifi_sta_get_rssi(&_rssi) == ESP_OK) printf("Current connected AP RSSI: %d dBm\n", _rssi);
-    while(WifiStationScanResult(index, ssid, 33, bssid, 6, &channel, &rssi) == EHS_TRUE){
-        printf("SSID=%s, BSSID(MAC)=%02x:%02x:%02x:%02x:%02x:%02x, Channel=%d, RSSI=%d dBm\n",
-                ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5], channel, rssi);
-        index++;
-        vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
+    //while(WifiStationScanResult(index, ssid, 33, bssid, 6, &channel, &rssi) == EHS_TRUE){
+    //    printf("SSID=%s, BSSID(MAC)=%02x:%02x:%02x:%02x:%02x:%02x, Channel=%d, RSSI=%d dBm\n",
+    //            ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5], channel, rssi);
+    //    index++;
+    //    vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP));
+    //}
+    //if(index == 0){
+    //    printf("No SSID found!\n");
+    //}
+    if (doWifiStationFullScan(EHS_TRUE) == EHS_TRUE)
+    {
+        printf("Scanning...\n");
     }
-    if(index == 0){
-        printf("No SSID found!\n");
+    else {
+        printf("Already scanning, please wait...\n");
     }
     g_cmd_list_ssid_bssid = false;
+}
+
+void command_prompt_wifi_stop_scan()
+{
+    if (isWifiStationScanning() == EHS_TRUE)
+    {
+        if (doWifiStationScanStop() == EHS_TRUE)
+        {
+            command_prompt_println("WiFi scan stopped.");
+        }
+        else
+        {
+            command_prompt_println("Failed to stop WiFi scan.");
+        }
+    }
+    else
+    {
+        command_prompt_println("No WiFi scan in progress.");
+    }
 }
 #endif // #ifdef EHS_NETWORK_WIFI_SUPPORT
 
 void command_prompt_reboot()
 {
-    command_prompt_println("reboot");
+    command_prompt_println("rebooting...");
     EhsTargetReboot();
 }
 
@@ -462,24 +768,85 @@ void command_prompt_help()
 {
     if (gEhsNetworkInterfaceWifiEnable == EHS_TRUE)
     {
+#ifdef EHS_NETWORK_WIFI_SUPPORT
         if (isEhsWiFiManagedByComponent() == EHS_TRUE)
         {
-            command_prompt_println("help:\n's' - get WiFi SSID \n'i' - get IP Address \n'l' - list SSIDs\n'h' - help");
+             command_prompt_println("Commands:\n's' - get WiFi SSID\n'i' - get IP Address\n'l' - list SSIDs\n'x' - stop WiFi scan\n'r' - reboot device\n'h' - help\n(WiFi is managed by function block)");
         }
-        else command_prompt_println("help:\n'w' - WiFi config \n'c' - reconnect WiFi \n's' - get WiFi SSID \n'i' - get IP Address \n'l' - list SSIDs\n'h' - help");
+        else command_prompt_println("Commands:\n'w' - WiFi config\n'c' - reconnect WiFi\n'd' - disconnect WiFi\n'f' - forget credentials\n's' - get WiFi SSID\n'i' - get IP Address\n'l' - list SSIDs\n'x' - stop WiFi scan\n'r' - reboot device\n'h' - help");
+#else
+        command_prompt_println("Commands:\n'i' - get IP Address\n'r' - reboot device\n'h' - help\n(WiFi Disabled)");
+#endif
     }
-    else command_prompt_println("help:\n'i' - get IP Address \n'h' - help");
+    else command_prompt_println("Commands:\n'i' - get IP Address\n'r' - reboot device\n'h' - help");
+}
+
+/**
+ * Display the command prompt
+ */
+void command_prompt_show_prompt(void)
+{
+    printf("> ");
+    console_flush_tx();
+}
+
+/**
+ * Echo a command character and print newline
+ * Shows the user what command was received
+ */
+void command_prompt_echo_command(char cmd)
+{
+    // Echo printable characters with newline
+    if (cmd >= 32 && cmd < 127) {
+        printf("%c\n", cmd);
+    } else if (cmd == '\n' || cmd == '\r') {
+        // Just echo newline for enter key
+        printf("\n");
+    }
+    // Don't echo other control characters
+    console_flush_tx();
 }
 
 void command_prompt_task(void* params) {
-    
+
     ehs_threadname_t threadname = EHSTHREADNAME_EHS_CONSOLE_THR;
+
+    // Disable stdio buffering so single-character writes (echo) reach the UART immediately
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stdin, NULL, _IONBF, 0);
+
     if (gEhsNetworkInterfaceWifiEnable == EHS_TRUE) command_prompt_println("Type 'w' to configure WiFi or 'h' for help.");
     else command_prompt_println("Type 'h' for help.");
     char command;
+    ehs_bool show_prompt = EHS_TRUE;
+
     while (1) {
+
         EhsHStatisticsLoopStart(threadname);
-        if (fscanf(stdin, "%c", &command) == 1) {  // Read a single character for command
+
+        // Show prompt when ready for input
+        if (show_prompt) {
+            //command_prompt_show_prompt();
+            show_prompt = EHS_FALSE;
+        }
+
+        if (fscanf(stdin, "%c", &command) == 1) {
+            // Skip whitespace characters (newline, carriage return, space, tab)
+            if (command == '\n' || command == '\r' || command == ' ' || command == '\t') {
+                // Just show a new prompt on enter
+                if (command == '\n' || command == '\r') {
+                    printf("\n");
+                    show_prompt = EHS_TRUE;
+                }
+                EhsHStatisticsLoopEnd(threadname);
+                vTaskDelay(pdMS_TO_TICKS(10));
+                continue;
+            }
+
+            // Echo the command character
+            command_prompt_echo_command(command);
+            show_prompt = EHS_TRUE;  // Show prompt after command completes
+
             if(command == 'h'){
                 command_prompt_help();
             }
@@ -490,28 +857,48 @@ void command_prompt_task(void* params) {
             else if(command == 'c'){
                 if (gEhsNetworkInterfaceWifiEnable && isEhsWiFiManagedByComponent() == EHS_FALSE) command_prompt_wifi_reconnect();
             }
+            else if(command == 'd'){
+                if (gEhsNetworkInterfaceWifiEnable && isEhsWiFiManagedByComponent() == EHS_FALSE) command_prompt_wifi_disconnect();
+            }
+            else if(command == 'f'){
+                if (gEhsNetworkInterfaceWifiEnable && isEhsWiFiManagedByComponent() == EHS_FALSE) command_prompt_wifi_forget();
+            }
             else if(command == 's'){
                 if (gEhsNetworkInterfaceWifiEnable) command_prompt_wifi_ssid();
             }
             else if(command == 'l'){
                 if (gEhsNetworkInterfaceWifiEnable) command_prompt_list_ssid_bssid();
             }
+            else if(command == 'x'){
+                if (gEhsNetworkInterfaceWifiEnable) command_prompt_wifi_stop_scan();
+            }
             #endif // #if EHS_NETWORK_WIFI_SUPPORT
-            //else if(command == 'r'){
-            //    command_prompt_reboot();
-            //}
+            else if(command == 'r'){
+                command_prompt_reboot();
+            }
             else if(command == 'i'){
                 command_prompt_ip_addr();
             }
+            else if(command == '?'){
+                // Alternative help command
+                command_prompt_help();
+            }
+            else {
+                // Echo unknown command feedback
+                printf("Unknown command '%c'. Type 'h' for help.\n", command);
+            }
         }
         EhsHStatisticsLoopEnd(threadname);
-        vTaskDelay(pdMS_TO_TICKS(100)); // Small delay to avoid CPU overload
+        vTaskDelay(pdMS_TO_TICKS(50)); // Reduced delay for more responsive input
     }
     command_prompt_println("quit command prompt");
     vTaskDelete(NULL);
 }
 
-#endif // EHS_ESP32_CMD_PROMPT_SUPPORT
+#endif // EHS_SERIAL_CONSOLE_SUPPORT
+
+
+// TODO this should be in the target_ethernet.c file
 
 #ifdef EHS_NETWORK_ETHERNET_SUPPORT
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -561,6 +948,10 @@ static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t
 
 static esp_eth_handle_t eth_handle = NULL;
 static esp_netif_t *eth_netif = NULL;
+
+/* Initi8alise an Ethernet MAC (if one is fitted)
+   Currently this is hardwired to call initialisation of only W5500 ethernet MAC via a specific SPI line)
+*/
 
 static esp_err_t eth_init()
 {
@@ -706,11 +1097,14 @@ eWifiStationStatus EhsWifiStationConnect(const ehs_char* ssid, const ehs_char* p
 
 #endif // #ifdef EHS_NETWORK_WIFI_SUPPORT
 
+/* 
+ Loads the TCPIP configuration file (from user file systemand applies to the currently enabled interface 
+*/
 void EhsLoadNetworkConfig()
 {
     EhsConfig* config = EhsConfigLoad(EHS_NET_CONFIG_FILE);
     if(config){
-        ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
+        //ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
         EhsNetworkConfigDataType net_config = { 0 };
         net_config.save = EHS_FALSE; // we're loading settings, so no need to save them
         net_config.mode = EHS_NET_DHCP_MODE_ID;
@@ -723,10 +1117,12 @@ void EhsLoadNetworkConfig()
             net_config.dns = EhsConfigGetValue(config, "net_dns");
         }
         EhsNetworkConfigure(&net_config);
-        EhsConfigFree(config);
+        EhsConfigFree(config); //TODO 2027  Can't we just create a config struct at the beginning of this and pass it into EhsCOnfigLoad to be populated?
     }
 }
-
+/* 
+ Saves the TCPIP configuration from the currently enabled interface 
+*/
 void EhsSaveNetworkConfig(const EhsNetworkConfigDataType* net_config)
 {
     if(net_config == NULL){
@@ -757,9 +1153,13 @@ void EhsSaveNetworkConfig(const EhsNetworkConfigDataType* net_config)
     EhsConfigFree(config);
 }
 
+
+/* todo this should really go in a targetnetworking file?*/
 // Override functions for esp32 network config
-// todo this is all in the wrong place.
-#if EHS_NETWORK_CONFIG_SUPPORT==EHS_NETWORK_CONFIG_TYPE_ESP32
+#ifdef EHS_HAL_NETWORK_CONFIG_SUPPORT
+#if EHS_HAL_NETWORK_CONFIG_SUPPORT != EHS_HAL_NETWORK_CONFIG_STUBBED
+//#ifdef EHS_HAL_NETWORK_CONFIG_SUPPORT
+
 /* Returns true when the eRT target network is connected */
 ehs_bool EhsNetworkIsConnected()
 {
@@ -862,9 +1262,18 @@ static void EhsSaveNetworkInterfaceConfig(const EhsNetworkInterfaceConfigDataTyp
     }
     nvs_close(nvs_handle);
 }
+#endif // EHS_HAL_NETWORK_CONFIG_SUPPORT
+#endif
+
+#ifdef EHS_HAL_INTERFACE_CONFIG_SUPPORT
+#if EHS_HAL_INTERFACE_CONFIG_SUPPORT != EHS_HAL_INTERFACE_CONFIG_STUBBED
+
+/* Configures the target network interface (Ethernet/Wi-Fi) 
+   THis does not set up the IP settings. It only enables/disables the Ethernet or Wi-Fi interface.
+*/
 
 ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType *config)
-{
+{   
     if(config == NULL){
         return EHS_NETWORK_CONFIG_INVALID_PARAM_ID;
     }
@@ -925,7 +1334,7 @@ ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType 
             {
                 if (config->b_wifi_enable == EHS_TRUE)
                 {
-                    setWifiStationConnectState(WifiStationConnectState_INIT);
+                    setWifiStationConnectState(WifiStationConnectState_CONNECT);
                 }
                 else
                 {
@@ -943,6 +1352,10 @@ ehs_sint32 EhsNetworkInterfaceConfigure(const EhsNetworkInterfaceConfigDataType 
 
     return EHS_NETWORK_CONFIG_NO_ERROR_ID;
 }
+
+/* Loads the network interface config from NV RAM for Ethernet and WIFI
+ Currently just saves enabling and disabling interfaces 
+ */
 
 static void EhsLoadNetworkInterfaceConfig()
 {
@@ -963,8 +1376,8 @@ static void EhsLoadNetworkInterfaceConfig()
     if (err == ESP_OK) gEhsNetworkInterfaceWifiEnable = (wifi_enable == 1) ? EHS_TRUE : EHS_FALSE;
     nvs_close(nvs_handle);
 }
-
-#endif
+#endif // EHS_HAL_INTERFACE_CONFIG_SUPPORT
+#endif // EHS_INTERFACE_CONFIGSUPPORT != stubed
 
 void EhsFilesystemInitalised()
 {
@@ -1011,7 +1424,7 @@ void MCU_SLOW_LP_THR(void *pvParameters)
     ehs_char wifi_ssid[EHS_WIFI_SSID_BUFF_MAX] = { 0 };
     ehs_char wifi_pass[EHS_WIFI_SSID_BUFF_MAX] = { 0 };
     if (gEhsNetworkInterfaceWifiEnable == EHS_TRUE && isEhsWiFiManagedByComponent() == EHS_FALSE)
-        setWifiStationConnectState(WifiStationConnectState_INIT);
+        setWifiStationConnectState(WifiStationConnectState_CONNECT);
 #endif
     for (;;)
     {
@@ -1065,7 +1478,9 @@ void MCU_SLOW_LP_THR(void *pvParameters)
 #endif //EHS_OTA_SUPPORT
 
             // @TODO - This is used by Uart function block - needs to review and potentially moved or Wifi connect needs to be done non-blockig (prefered)
-            fflush(stdout);
+#ifdef EHS_SERIAL_CONSOLE_SUPPORT
+            console_flush_tx();
+#endif
             for (i = 0; i < UART_COUNT; i++){
                 TgtUART_SendInThread(i);
             }
@@ -1149,20 +1564,29 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
 
 /**
  * Main entry point to the application.
- * @return Integer representing exit code of application.
+ * @return void
  *
- */
-// EhsTargetIntType main(int argc, ehs_char ** argv )
-
-
-/**
+ * eRT's Entry point for esp32 platform.
+ * Note: esp32's freertos calls appmain  you don't use normal main.
+ * 
  * There’s already an api for setting the next app to be launched. Simply call this at any point before EhsMain
  * EhsHMetaSetNextAppToRun("default");  or EhsHMetaSetNextAppToRun("fallbacks"); etc.
  */
 void app_main(void)
 {
+#if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
+    // Bare metal mode: Run test immediately and hang
+    extern void EHS_TEST_FUNC_NAME(void);
+    ESP_LOGI(TAG, "EHS Bare Metal Test: Running %s", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    ESP_LOGI(TAG, "Test completed");
+    while(1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+#endif
+
     esp_task_wdt_deinit();
-#if EHS_ESP32_DISABLE_LOGS == 1
+#if EHS_ESP32_ENABLE_LOGS != 1
     esp_log_level_set("*", ESP_LOG_NONE);
 #endif
     // Set callback function for notifying about file systems status
@@ -1260,8 +1684,11 @@ ota_data_write_jump:
             }
         }
     }
-#if EHS_NETWORK_CONFIG_SUPPORT==EHS_NETWORK_CONFIG_TYPE_ESP32
+
+#ifdef EHS_HAL_INTERFACE_CONFIG_SUPPORT
+#if EHS_HAL_INTERFACE_CONFIG_SUPPORT != EHS_HAL_INTERFACE_CONFIG_STUBBED
     EhsLoadNetworkInterfaceConfig();
+#endif
 #endif
     if (gEhsNetworkInterfaceWifiEnable)
     {
@@ -1285,6 +1712,8 @@ ota_data_write_jump:
     }
     if (gEhsNetworkInterfaceEthEnable)
     {
+        
+#ifdef EHS_NETWORK_ETHERNET_SUPPORT 
         if (eth_init() == ESP_OK)
         {
             ESP_LOGI(TAG, "Connection success");
@@ -1293,6 +1722,7 @@ ota_data_write_jump:
         {
             ESP_LOGE(TAG, "Connection failed");
         }
+#endif
     }
  
 
@@ -1313,10 +1743,19 @@ ota_data_write_jump:
     EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = ESP32S3_TIMG_WDT_WRITEPROTECT_MAGIC_VALUE;
     EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_CONFIG0_OFFSET) = 0;
     EHS_REG32(ESP32S3_TIMG1_BASE + ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = 0;
+
+#ifdef EHS_TEST_FUNC_OVERRIDE
+    // Test mode with full init: Run test instead of EhsMain
+    extern void EHS_TEST_FUNC_NAME(void);
+    ESP_LOGI(TAG, "EHS Test Mode: Running %s", #EHS_TEST_FUNC_NAME);
+    xTaskCreate(EHS_TEST_FUNC_NAME, #EHS_TEST_FUNC_NAME, EHS_MAIN_ESP32_TASK_STACK_SIZE, NULL, EHS_PRI_EHS_MAIN, NULL);
+#else
+    // Normal production mode
     xTaskCreate(EhsMain, "EhsMain", EHS_MAIN_ESP32_TASK_STACK_SIZE, NULL, EHS_PRI_EHS_MAIN, NULL/* see above should be xHandle*/); // tskIDLE_PRIORITY + 5
- 
+#endif
+
  #endif
- #ifdef EHS_ESP32_CMD_PROMPT_SUPPORT
+ #ifdef EHS_SERIAL_CONSOLE_SUPPORT
     // TODO - shell we use this in MCU_SLOW_LP_THR ?
     // create a command prompt task for interacting with the device over a console
     xTaskCreate(command_prompt_task, "CommandPrompt", 4096, NULL, EHS_PRI_SERIAL_CMD, NULL);

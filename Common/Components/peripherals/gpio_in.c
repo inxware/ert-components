@@ -10,7 +10,7 @@
 #include "inx-parameters.h"
 #include "gpio_in.h"
 #if (EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_STUBBED) || (EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_GUI)
-#include "hal_gpio.h"
+#include "ehs_hal_gpio.h"
 #ifndef EHS_MSVC
 #warning "Using Stubbed/GUI GPIO"
 #endif

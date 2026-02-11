@@ -50,7 +50,7 @@
 #include "keypress.h" 
 
 #if EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_GUI
-#include "hal_gpio.h"
+#include "ehs_hal_gpio.h"
 #endif
 
 #include "lvgl/lvgl.h"
@@ -504,6 +504,7 @@ static void EhsTV_LVGL_handle_ui_calls(lv_timer_t* timer)
         EhsTPMutex_lock(EhsTPMutex_widgetTable);
         if (EhsWidgetTable.initialised == EHS_MAGIC_NUMBER) // check if table is initalised 
         {
+            ehs_bool local_widget_table_changed = EHS_FALSE;
             for(int i = 0; i < EhsWidgetTable.nSize; i++)
             {
                 struct EhsWidgetStruct* pWidget = EhsWidgetTable.pZOrderedWidget[i];
@@ -518,12 +519,14 @@ static void EhsTV_LVGL_handle_ui_calls(lv_timer_t* timer)
                             EHS_WIDGET_UI(pWidget).pUiObject = NULL;
                         }
                         EHS_WIDGET_UI(pWidget).nUiState = EHS_WIDGET_UI(pWidget).nUiState & (~EHS_WIDGET_UI_STATE_DESTROY);
+                        local_widget_table_changed = EHS_TRUE;
                     }
                     /* Check flag for creating widget */
                     if(EHS_WIDGET_UI(pWidget).nUiState & EHS_WIDGET_UI_STATE_CREATE)
                     {
                         EhsTargetWidgetUi_create_lvgl(pWidget);
                         EHS_WIDGET_UI(pWidget).nUiState = EHS_WIDGET_UI(pWidget).nUiState & (~EHS_WIDGET_UI_STATE_CREATE);
+                        local_widget_table_changed = EHS_TRUE;
                     }
                     /* Check flag for chaning show state of widget */
                     if(EHS_WIDGET_UI(pWidget).nUiState & EHS_WIDGET_UI_STATE_SHOW)
@@ -543,6 +546,18 @@ static void EhsTV_LVGL_handle_ui_calls(lv_timer_t* timer)
                         EhsTargetWidgetUi_draw_lvgl(pWidget);
                         // event notifies about ui changes in a different callback
                         EHS_WIDGET_UI(pWidget).nUiState = EHS_WIDGET_UI(pWidget).nUiState & (~EHS_WIDGET_UI_STATE_UPDATE);
+                    }
+                }
+            }
+            if (local_widget_table_changed == EHS_TRUE)
+            {
+                // Re-order the widget according to the list order if there were any changes
+                for (int i = 0; i < EhsWidgetTable.nSize; i++)
+                {
+                    struct EhsWidgetStruct* pWidget = EhsWidgetTable.pZOrderedWidget[i];
+                    if (pWidget && EHS_WIDGET_UI(pWidget).pUiObject)
+                    {
+                        lv_obj_move_foreground((lv_obj_t*) EHS_WIDGET_UI(pWidget).pUiObject);
                     }
                 }
             }

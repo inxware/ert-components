@@ -14,9 +14,8 @@
 #define EHS_CONFIG_DISPLAY_HEIGHT 900	/**< Height for the OSD part of the display */
 #define EHS_CONFIG_DISPLAY_WIDTH 1100	/**< Width for the OSD part of the display */
 #define EHS_TIME_BETWEEN_FRAMES 100
-#define EHS_TARGET_DEFAULT_ID "(native/Linux)"
+#define EHS_TARGET_DEFAULT_ID "(x86/Linux)"
 
 #include "../base_full/base_config.h"
-
 
 #endif /* TARGET_CONFIG_H */

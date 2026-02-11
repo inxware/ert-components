@@ -32,6 +32,10 @@
 #include "inx-wifi_station.h"
 #endif
 
+#ifdef EHS_NETWORK_BLE_SUPPORT
+#include "inx-ble_service.h"
+#endif//EHS_NETWORK_BLE_SUPPORT
+
 #include "devman_player.h"
 #include "url_get.h"
 #include "inx-network_config.h"
@@ -75,6 +79,9 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_networking[] =
 #endif
 #ifdef EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_interface_manager,INXWARE_FB_ID_interface_manager,interface_manager),
+#endif
+#ifdef EHS_NETWORK_BLE_SUPPORT
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ble_service,INXWARE_FB_ID_ble_service,ble_service),
 #endif
 	{0}
 };

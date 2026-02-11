@@ -90,3 +90,32 @@ void EhsTCommsApp_term(void)
 void EhsTCommsApp_reset(void)
 {
 }
+
+/*****************************************************************************/
+/* Test Functions */
+/*****************************************************************************/
+
+#ifdef EHS_TEST_FUNC_OVERRIDE
+/**
+ * Test function for bare metal mode (no eRT initialization)
+ * 
+ * This function can be run instead of the ful main to est the TCP interface on the tty console
+ * THis is useful for buildding HAL code when theere are no components or clients for it yet.
+ * Or you just want to remove everything elese that might be happening on the device.
+ * 
+ * TO build and run this function use
+ * make TEST_FUNC=test_hello_world_bare ERT_INIT=none all_docker # will do nothing at all accept run this function
+ * or
+ * make TEST_FUNC=test_hello_world_bare ERT_INIT=none all_docker # will run the normal init and start other threads and servies, but run this function instead of ehsMain().
+ * 
+ * ./configure -run  # will run this this on the build machine (ONLY if the HAL can run on your host and you have configured it with ./configure <linxuxtargetthatworksonbuildhost>)
+ */
+
+void test_bsdsockets_hal(void)
+{
+    printf("Hello World test!\n");
+    // We should put some kind of socket test code here....
+    printf("Test completed successfully.\n");
+}
+
+#endif // EHS_TEST_FUNC_OVERRIDE

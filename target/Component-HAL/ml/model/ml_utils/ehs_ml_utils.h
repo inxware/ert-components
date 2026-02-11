@@ -1,0 +1,7 @@
+#ifndef _C_HEADER_EHS_TARGET_HAL_ML_MODEL_ML_UTILS_EHS_ML_UTILS_H
+#define _C_HEADER_EHS_TARGET_HAL_ML_MODEL_ML_UTILS_EHS_ML_UTILS_H
+
+// Returns time now in ms
+unsigned long TfLiteTimeNow_ms();
+
+#endif // _C_HEADER_EHS_TARGET_HAL_ML_MODEL_ML_UTILS_EHS_ML_UTILS_H

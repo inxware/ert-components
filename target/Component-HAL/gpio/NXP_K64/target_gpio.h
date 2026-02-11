@@ -18,7 +18,7 @@
 #include "hal_gpio.h"
 
 #if 0 
-// these are defined in hal_gpio.h of course todo2023 - remove these
+// these are defined in ehs_hal_gpio.h of course todo2023 - remove these
 // Handle GPIO output
 EHS_GLOBAL ehs_bool EhsInitOutputGPIO(ehs_gpio_out_state_type* pGPIO);
 

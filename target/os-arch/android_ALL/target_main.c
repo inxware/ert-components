@@ -958,6 +958,15 @@ void android_main(struct android_app* state)
  * */
 void * ehs_android_main(Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),void * target_env_blob)
 {
+#if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
+    // Bare metal mode: Run test immediately and exit
+    extern void EHS_TEST_FUNC_NAME(void);
+    EHSH_LOG_INFO("EHS Bare Metal Test: Running %s\n", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    EHSH_LOG_INFO("Test completed\n");
+    return 0;
+#endif
+
     pid_t pID;
     //EHSH_LOG_INFO("-------EHS:Android_main v54-------");
     ehs_char *argv[]= {"/sdcard/bin/ehs.exe",""}; /* @todo this make the user app data in the root of the sdcard -might want something else here... */
@@ -970,7 +979,18 @@ void * ehs_android_main(Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),
     /* set the exit functions */
     //signal(SIGTERM,EhsTargetHandleTerm);
     //signal(SIGINT, EhsTargetHandleTerm);
+
+#ifdef EHS_TEST_FUNC_OVERRIDE
+    // Test mode with full init: Run test instead of EhsMain
+    extern void EHS_TEST_FUNC_NAME(void);
+    EHSH_LOG_INFO("EHS Test Mode: Running %s\n", #EHS_TEST_FUNC_NAME);
+    EHS_TEST_FUNC_NAME();
+    EHSH_LOG_INFO("Test completed\n");
+#else
+    // Normal production mode
     EhsMain( target_loop_iteration,target_env_blob); /* Blocking - doesn't return in this version */
+#endif
+
     //EHSH_LOG_INFO("EHS Exiting Android Thread...");
     EhsExit(0);
     return 0;

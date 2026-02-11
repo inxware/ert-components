@@ -28,7 +28,11 @@
 include $(EHS_COMMON_HAL_PATH)/url/deps.mk
 
 # Tell the code we are in business 
-DEFS+=EHS_NETWORKING_SUPPORT 
+DEFS+=EHS_NETWORKING_SUPPORT
+
+ifeq ($(EHS_HTTP_TLS_PEER_AUTHENTICATION),none)
+DEFS+=EHS_TLS_DISABLE_SERVER_AUTH
+endif
 
 # need this for win32 & mingw builds - stops trying to link to __imp_ prefixed functions pointing at the dyanamic dll version.
 
