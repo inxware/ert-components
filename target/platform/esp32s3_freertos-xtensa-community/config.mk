@@ -83,9 +83,6 @@ include ./target/devman-configs/devman.inxware.io.mk
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# Disable esp logger
-DEFS += EHS_ESP32_DISABLE_LOGS=1
-
 # Maximum wi-fi SSID records buffer size
 DEFS += ESP32_MAX_AP_RECORDS=40
 

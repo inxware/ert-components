@@ -121,6 +121,8 @@ EHS_CONFIGS_SUPPORT=yes
 # OTA support
 EHS_OTA_SUPPORT=yes
 
+# Serial Console Support
+EHS_SERIAL_CONSOLE_SUPPORT=yes
 
 #################################################################################################################
 # Application and Packaging
@@ -145,7 +147,7 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 #################################################################################################################
 
 # Platform identification
-DEFS += EHS_ESP32
+#DEFS += EHS_ESP32
 
 # XML/libxml2 disabled
 DEFS += EHS_NO_LIBXML2_SUPPORT=1

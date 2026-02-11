@@ -21,7 +21,7 @@
 
 
 #if 1
-//EHS_ESP32_DISABLE_LOGS == 1
+//EHS_ESP32_ENABLE_LOGS != 1
 #define EHS_ESP32_MQTT_LOG(fmt, ...)
 #else
 #define EHS_ESP32_MQTT_LOG(fmt, ...) printf(fmt, ##__VA_ARGS__)

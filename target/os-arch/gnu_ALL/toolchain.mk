@@ -128,6 +128,7 @@ CFLAGS+=$(foreach i,$(DEFS),-D$i )
 CPPFLAGS+=$(foreach i,$(DEFS),-D$i )
 CFLAGS+= -c $(INC)
 
+#todo - This should be a specific macro to not use c99 that is set in the esp32's toolchain.mk file -
 ifndef EHS_ESP32
    CFLAGS+= -g -D_POSIX_C_SOURCE=199309 
    # provide support for long long constants

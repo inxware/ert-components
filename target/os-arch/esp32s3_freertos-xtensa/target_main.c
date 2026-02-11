@@ -107,6 +107,8 @@
 #include "target_uart.h"
 #include "target_ota.h"
 
+#include "esp_rom_uart.h"  /* for esp_rom_uart_tx_wait_idle - console TX flush */
+
 #include "target_data_bin.h"
 
 #ifdef EHS_RTC_SUPPORT
@@ -326,23 +328,38 @@ static void app_load_status_handler(ehs_uint32 status)
 #endif
 #endif
 
+/**
+ * Flush stdout and wait for the console UART TX hardware FIFO to fully drain.
+ * This prevents the issue where a subsequent blocking read (fscanf/stdin)
+ * occurs before the UART has finished physically transmitting all bytes,
+ * causing output to be lost or corrupted.
+ *
+ * Must be called instead of bare fflush(stdout) before any blocking read.
+ */
+static void console_flush_tx(void)
+{
+    fflush(stdout);
+    /* Wait for UART TX FIFO to fully drain at hardware level.
+     * CONFIG_ESP_CONSOLE_UART_NUM is defined by sdkconfig and defaults to 0. */
+    esp_rom_uart_tx_wait_idle(CONFIG_ESP_CONSOLE_UART_NUM);
+}
+
 /* Prints a whole line with newline and ensures it's flushed immediately */
 void command_prompt_println(const char* text)
 {
     printf("%s\n", text);
-    fflush(stdout);
+    console_flush_tx();
     vTaskDelay(pdMS_TO_TICKS(EHS_PROMPT_READ_SLEEP)); // Brief delay after printing for readability
 }
 
 /**
- * Print text without newline - flushes immediately with delay
- * to ensure UART transmits output before any subsequent blocking read
+ * Print text without newline - flushes and waits for UART TX to complete
+ * before any subsequent blocking read.
  */
 void command_prompt_print(const char* text)
 {
     printf("%s", text);
-    fflush(stdout);
-    vTaskDelay(pdMS_TO_TICKS(50)); // Delay to allow UART to transmit before blocking read
+    console_flush_tx();
 }
 
 /**
@@ -375,11 +392,11 @@ ehs_bool command_prompt_read_char(char * ch, command_prompt_echo_mode_t echo_mod
     switch (echo_mode) {
         case ECHO_NORMAL:
             printf("%c\n", *ch);
-            fflush(stdout);
+            console_flush_tx();
             break;
         case ECHO_PASSWORD:
             printf("*\n");
-            fflush(stdout);
+            console_flush_tx();
             break;
         case ECHO_HIDDEN:
             // No echo
@@ -405,16 +422,13 @@ ehs_uint32 command_prompt_read_with_echo(char* buffer, command_prompt_echo_mode_
     // Clear the buffer
     buffer[0] = '\0';
 
-    // Small delay to ensure any previous output is transmitted before blocking on input
-    vTaskDelay(pdMS_TO_TICKS(20));
-
     while (1) {
         // Try to read a single character
         if (fscanf(stdin, "%c", &ch) == 1) {
             // Check for Enter key (CR or LF)
             if (ch == '\n' || ch == '\r') {
                 printf("\n");  // Echo newline
-                fflush(stdout);
+                console_flush_tx();
                 buffer[pos] = '\0';
                 return pos;
             }
@@ -426,14 +440,14 @@ ehs_uint32 command_prompt_read_with_echo(char* buffer, command_prompt_echo_mode_
                     // Erase character on terminal: backspace, space, backspace
                     if (echo_mode != ECHO_HIDDEN) {
                         printf("\b \b");
-                        fflush(stdout);
+                        console_flush_tx();
                     }
                 }
             }
             // Handle Ctrl+C (cancel input)
             else if (ch == 3) {
                 printf(" ^C\n");
-                fflush(stdout);
+                console_flush_tx();
                 buffer[0] = '\0';
                 return 0;
             }
@@ -447,12 +461,12 @@ ehs_uint32 command_prompt_read_with_echo(char* buffer, command_prompt_echo_mode_
                     }
                 }
                 buffer[0] = '\0';
-                fflush(stdout);
+                console_flush_tx();
             }
             // Handle Escape key (cancel input)
             else if (ch == 27) {
                 printf(" [ESC]\n");
-                fflush(stdout);
+                console_flush_tx();
                 buffer[0] = '\0';
                 return 0;
             }
@@ -474,11 +488,11 @@ ehs_uint32 command_prompt_read_with_echo(char* buffer, command_prompt_echo_mode_
                             // No echo
                             break;
                     }
-                    fflush(stdout);
+                    console_flush_tx();
                 } else {
                     // Buffer full - beep (bell character)
                     printf("\a");
-                    fflush(stdout);
+                    console_flush_tx();
                 }
             }
             // Ignore other control characters
@@ -517,9 +531,6 @@ ehs_bool command_prompt_ask_yes_no(const char* question)
     command_prompt_println(question);
 
     while (1) {
-        // Wait a moment for any output to flush
-        vTaskDelay(pdMS_TO_TICKS(20));
-
         // Read a character
         if (fscanf(stdin, "%c", &ch) == 1) {
             // Skip whitespace (newlines, spaces, etc)
@@ -530,18 +541,18 @@ ehs_bool command_prompt_ask_yes_no(const char* question)
             // Check for valid y/n response
             if (ch == 'y' || ch == 'Y') {
                 printf("%c\n", ch);
-                fflush(stdout);
+                console_flush_tx();
                 return EHS_TRUE;
             }
             else if (ch == 'n' || ch == 'N') {
                 printf("%c\n", ch);
-                fflush(stdout);
+                console_flush_tx();
                 return EHS_FALSE;
             }
             else {
                 // Invalid input - echo it and ask again
                 printf("%c - please enter 'y' or 'n': ", ch);
-                fflush(stdout);
+                console_flush_tx();
             }
         }
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -584,7 +595,7 @@ void command_prompt_wifi_conf()
         printf("*");
     }
     printf(" (%d chars)\n", (int)pass_len);
-    fflush(stdout);
+    console_flush_tx();
 
     yes = command_prompt_ask_yes_no("Are these correct? (y/n)");
     if(yes==EHS_TRUE){
@@ -776,7 +787,7 @@ void command_prompt_help()
 void command_prompt_show_prompt(void)
 {
     printf("> ");
-    fflush(stdout);
+    console_flush_tx();
 }
 
 /**
@@ -793,16 +804,16 @@ void command_prompt_echo_command(char cmd)
         printf("\n");
     }
     // Don't echo other control characters
-    fflush(stdout);
+    console_flush_tx();
 }
 
 void command_prompt_task(void* params) {
 
     ehs_threadname_t threadname = EHSTHREADNAME_EHS_CONSOLE_THR;
 
-    // Uncomment these to disable stdio buffering if prompts don't appear before input
-    // setvbuf(stdout, NULL, _IONBF, 0);
-    // setvbuf(stdin, NULL, _IONBF, 0);
+    // Disable stdio buffering so single-character writes (echo) reach the UART immediately
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stdin, NULL, _IONBF, 0);
 
     if (gEhsNetworkInterfaceWifiEnable == EHS_TRUE) command_prompt_println("Type 'w' to configure WiFi or 'h' for help.");
     else command_prompt_println("Type 'h' for help.");
@@ -1467,7 +1478,9 @@ void MCU_SLOW_LP_THR(void *pvParameters)
 #endif //EHS_OTA_SUPPORT
 
             // @TODO - This is used by Uart function block - needs to review and potentially moved or Wifi connect needs to be done non-blockig (prefered)
-            fflush(stdout);
+#ifdef EHS_SERIAL_CONSOLE_SUPPORT
+            console_flush_tx();
+#endif
             for (i = 0; i < UART_COUNT; i++){
                 TgtUART_SendInThread(i);
             }
@@ -1573,7 +1586,7 @@ void app_main(void)
 #endif
 
     esp_task_wdt_deinit();
-#if EHS_ESP32_DISABLE_LOGS == 1
+#if EHS_ESP32_ENABLE_LOGS != 1
     esp_log_level_set("*", ESP_LOG_NONE);
 #endif
     // Set callback function for notifying about file systems status

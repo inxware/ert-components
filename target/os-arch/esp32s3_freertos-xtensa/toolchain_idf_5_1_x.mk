@@ -31,7 +31,7 @@ endif
 
 #export GCC_EXEC_PREFIX:=xtensa-esp32s3-elf-
 
-TODO 2026  : there are many component specific libraries included globally here that should be done in the target/COmponent HAL make files instead (e.g. BLE)
+#TODO 2026  : there are many component specific libraries included globally here that should be done in the target/COmponent HAL make files instead (e.g. BLE)
 
 
 #The following shouldn't be hardwired - we at least should use the base path
@@ -58,9 +58,15 @@ LNKFLAGS += -lesp_gdbstub -lesp_hid -ltcp_transport -lesp_http_client -lesp_http
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram
 endif
+ifneq (,$(findstring r8,$(COMPONENT_VARIANT)))
+LNKFLAGS += -lesp_psram
+endif
 LNKFLAGS += -lesp_lcd -lprotobuf-c -lprotocomm -lesp_local_ctrl -lespcoredump -lwear_levelling
 LNKFLAGS += -lsdmmc -lfatfs -ljson -lmqtt -lperfmon -lspiffs -ltouch_element -lulp -lusb -lwifi_provisioning -lexpat -llittlefs
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
+LNKFLAGS += -lesp_psram
+endif
+ifneq (,$(findstring r8,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram
 endif
 LNKFLAGS += -lapp_trace -lapp_trace -lcmock -lunity -lesp_hid -lesp_lcd -lesp_local_ctrl -lespcoredump -lfatfs -lwear_levelling -lsdmmc -lmqtt -lperfmon -lspiffs  
@@ -75,6 +81,9 @@ LIBS += esp_coex
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram
 endif
+ifneq (,$(findstring r8,$(COMPONENT_VARIANT)))
+LNKFLAGS += -lesp_psram
+endif
 LNKFLAGS += -lulp  
 
 #LNKFLAGS += mbedtls/library/libmbedtls  mbedtls/library/libmbedcrypto  mbedtls/library/libmbedx509  mbedtls/3rdparty/everest/libeverest  mbedtls/3rdparty/p256-m/libp256m  
@@ -84,6 +93,9 @@ LNKFLAGS += -lcore -lespnow -lmesh -lnet80211 -lpp -lsmartconfig -lwapi -lxtensa
 LNKFLAGS += -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lesp_event -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lbt -lesp_coex -lbtdm_app -lcoexist -lesp_wifi -lhttp_parser -lesp-tls  
 LNKFLAGS += -lesp_adc -lesp_eth -lesp_gdbstub -ltcp_transport -lesp_http_client -lesp_http_server -lesp_https_ota
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
+LNKFLAGS += -lesp_psram
+endif
+ifneq (,$(findstring r8,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram
 endif
 LNKFLAGS += -lulp  
@@ -100,6 +112,9 @@ LNKFLAGS += -lulp
 LNKFLAGS += -lmbedtls #-leverest -lp256m
 
 ifneq (,$(findstring r2,$(COMPONENT_VARIANT)))
+LNKFLAGS += -lesp_psram -lesp_psram -lesp_psram
+endif
+ifneq (,$(findstring r8,$(COMPONENT_VARIANT)))
 LNKFLAGS += -lesp_psram -lesp_psram -lesp_psram
 endif
 

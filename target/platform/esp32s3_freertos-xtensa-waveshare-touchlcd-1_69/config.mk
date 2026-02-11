@@ -104,9 +104,6 @@ DEFS += EHS_NANOPRINTF_SUPPORT=1
 # Enable the serial command prompt interface
 DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
 
-# Disable esp logger
-DEFS += EHS_ESP32_DISABLE_LOGS=1
-
 # Main task stack size
 DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
 

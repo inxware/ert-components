@@ -12,6 +12,9 @@
 
 #  OBJ - File extension for object files
 
+# This is used for some build conditionals - it shouldn't really be neeeded, be because, where it has it's been based on "this code was written on Tuesday" conventions. 
+EHS_ESP32=yes
+
 #os-arch-wide platform component-HAL settings:
 ifndef EHS_PERIPHERALS_GPIO_SUPPORT
 EHS_PERIPHERALS_GPIO_SUPPORT=ESP32S3_IDF

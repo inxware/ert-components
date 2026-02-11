@@ -76,9 +76,6 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# Disable esp logger
-DEFS += EHS_ESP32_DISABLE_LOGS=1
-
 # Main task stack size
 DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
 
