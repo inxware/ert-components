@@ -165,7 +165,5 @@ DEFS += EHS_COORD_16_ENABLED
 
 # UART configuration
 DEFS += EHS_TARGET_UART_COUNT=3
-DEFS += EHS_SERIAL_CONSOLE_SUPPORT
-
 
 ################################### END OF CONFIGURATION ###################################################
