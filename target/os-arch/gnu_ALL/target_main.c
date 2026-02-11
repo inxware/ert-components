@@ -190,12 +190,13 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
 
     EhsExit(result);
 #else // EHS_MAIN_LOOP_ITERATIVE
-    
-EhsMain(NULL,NULL); /* doesn't return in this version */
-#endif
+        // Normal production mode
+    EhsMain(NULL,NULL); /* doesn't return in this version */
+
+#endif // EHS_MAIN_LOOP_ITERATIVE
 
     EhsExit(0);
-#endif // EHS_MAIN_LOOP_ITERATIVE
+#endif // END TEST_FUNC_OVERRIDE
 
     return 0;
 }

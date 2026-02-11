@@ -93,7 +93,7 @@ EHS_LORAWAN_SUPPORT=yes
 #EHS_NETWORK_WIFI_SUPPORT=yes
 
 # BLE support (uncomment to enable)
-#EHS_NETWORK_BLE_SUPPORT=nimble
+EHS_NETWORK_BLE_SUPPORT=nimble
 
 #----- GUI Features -----
 EHS_GUI_SUPPORT=lvgl

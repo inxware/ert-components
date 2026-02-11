@@ -87,6 +87,10 @@
 #include "wifi_station.h"
 #endif
 
+#ifdef EHS_NETWORK_BLE_SUPPORT
+#include "ble_service_nimble.h"
+#endif
+
 //todo need to change this to a normal config method
 #ifdef EHS_NETWORK_ETHERNET_SUPPORT
 #include "esp_wifi.h"
@@ -1755,6 +1759,36 @@ ota_data_write_jump:
 #endif
 
  #endif
+ 
+  #ifdef EHS_NETWORK_BLE_SUPPORT
+  inx_ble_char_config_t qwepoi[2] = {
+        {
+            "0x4321",
+            "char1",
+            1,
+            50
+        },
+        {
+            "0x3241",
+            "char2",
+            2,
+            30
+        }
+    };
+    inx_ble_service_hal_init("0x1234",
+    "BT",
+    2,
+    100,
+    23,
+    qwepoi,//(inx_ble_char_config_t*) NULL,
+    (inx_ble_service_callbacks_t*) NULL,
+    (void*) NULL);
+    
+    inx_ble_service_hal_register_gatt();
+
+    inx_ble_service_hal_start_adv();    	
+ #endif
+
  #ifdef EHS_SERIAL_CONSOLE_SUPPORT
     // TODO - shell we use this in MCU_SLOW_LP_THR ?
     // create a command prompt task for interacting with the device over a console
