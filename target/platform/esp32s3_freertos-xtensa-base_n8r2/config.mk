@@ -42,9 +42,7 @@ COMPONENT_VARIANT=n8r2
 # Apply esp32 specific targetenv hacks
 INXWARE_TARGETENV_HACKS=esp32
 
-# Export ESP32 platform flag
-export EHS_ESP32=yes
-export EHS_NO_LIBXML2_SUPPORT=1
+eEHS_NO_LIBXML2_SUPPORT=1
 
 
 #################################################################################################################
@@ -145,7 +143,7 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 #################################################################################################################
 
 # Platform identification
-DEFS += EHS_ESP32
+#DEFS += EHS_ESP32
 
 # XML/libxml2 disabled
 DEFS += EHS_NO_LIBXML2_SUPPORT=1

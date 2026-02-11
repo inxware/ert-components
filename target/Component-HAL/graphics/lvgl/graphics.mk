@@ -78,6 +78,7 @@ endif
 
 LIB+=m
 
+#TODO - this #if should be on the GRAPHICS_SUPPORT=lvgl?
 ifdef EHS_ESP32
 # Display drivers
 ifeq ($(EHS_LVGL_DISPLAY_DRIVER),gc9a01)
