@@ -93,7 +93,7 @@ EHS_LORAWAN_SUPPORT=yes
 #EHS_NETWORK_WIFI_SUPPORT=yes
 
 # BLE support (uncomment to enable)
-#EHS_NETWORK_BLE_SUPPORT=nimble
+EHS_NETWORK_BLE_SUPPORT=nimble
 
 #----- GUI Features -----
 EHS_GUI_SUPPORT=lvgl
@@ -163,7 +163,7 @@ DEFS += EHS_COORD_16_ENABLED
 
 # UART configuration
 DEFS += EHS_TARGET_UART_COUNT=3
-
+DEFS += EHS_SERIAL_CONSOLE_SUPPORT
 
 
 ################################### END OF CONFIGURATION ###################################################

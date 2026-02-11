@@ -431,6 +431,9 @@ ehs_sint32 inx_ble_service_hal_start_adv(void)
     fields.name = (uint8_t *)g_ble_ctx.service_name;
     fields.name_len = strlen(g_ble_ctx.service_name);
     fields.name_is_complete = 1;
+    
+    fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
+    fields.tx_pwr_lvl_is_present = 1;
 
     rc = ble_gap_adv_set_fields(&fields);
     if (rc != 0) {
