@@ -811,9 +811,9 @@ void command_prompt_task(void* params) {
 
     ehs_threadname_t threadname = EHSTHREADNAME_EHS_CONSOLE_THR;
 
-    // Uncomment these to disable stdio buffering if prompts don't appear before input
-    // setvbuf(stdout, NULL, _IONBF, 0);
-    // setvbuf(stdin, NULL, _IONBF, 0);
+    // Disable stdio buffering so single-character writes (echo) reach the UART immediately
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stdin, NULL, _IONBF, 0);
 
     if (gEhsNetworkInterfaceWifiEnable == EHS_TRUE) command_prompt_println("Type 'w' to configure WiFi or 'h' for help.");
     else command_prompt_println("Type 'h' for help.");
