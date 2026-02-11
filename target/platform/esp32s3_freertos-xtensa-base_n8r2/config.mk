@@ -42,7 +42,9 @@ COMPONENT_VARIANT=n8r2
 # Apply esp32 specific targetenv hacks
 INXWARE_TARGETENV_HACKS=esp32
 
-eEHS_NO_LIBXML2_SUPPORT=1
+# Export ESP32 platform flag
+export EHS_ESP32=yes
+export EHS_NO_LIBXML2_SUPPORT=1
 
 
 #################################################################################################################

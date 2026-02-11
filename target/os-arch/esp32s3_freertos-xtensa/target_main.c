@@ -1478,7 +1478,9 @@ void MCU_SLOW_LP_THR(void *pvParameters)
 #endif //EHS_OTA_SUPPORT
 
             // @TODO - This is used by Uart function block - needs to review and potentially moved or Wifi connect needs to be done non-blockig (prefered)
+#ifdef EHS_SERIAL_CONSOLE_SUPPORT
             console_flush_tx();
+#endif
             for (i = 0; i < UART_COUNT; i++){
                 TgtUART_SendInThread(i);
             }
