@@ -1342,7 +1342,82 @@ inxware builds as a binary executable application (`ehs.exe`) for standard linux
 │   ├── var
 │   └── version.nfo
 └── userdata
-```   
+```
+
+### Qt GUI Support (Linux)
+
+Qt5 is supported as an alternative GUI backend to GTK for Linux targets. Qt provides better support for modern UI features and QML-based interfaces.
+
+#### Platform Targets
+
+- `linux_x86_64_qt_debian12-no-certs` - x86_64 host build with Qt5
+- `linux_arm64_qt_debian12-no-certs` - ARM64 (e.g., Raspberry Pi) with Qt5
+
+#### Build Dependencies
+
+For **Docker builds** (recommended), each Qt platform includes a Dockerfile with all required dependencies. Use:
+```bash
+make all_docker
+```
+
+For **host machine builds** on Debian 12 / Ubuntu 24.04, install the following packages:
+
+**Build dependencies:**
+```bash
+sudo apt install build-essential cmake git clang llvm \
+    libarchive-dev libcurl4-openssl-dev zlib1g-dev \
+    libexpat-dev libidn2-dev libxml2-dev
+```
+
+**Qt5 development packages:**
+```bash
+sudo apt install qtbase5-dev qtdeclarative5-dev \
+    qtbase5-dev-tools qtdeclarative5-dev-tools
+```
+
+**GTK2 and graphics dependencies** (required for image handling):
+```bash
+sudo apt install libgtk2.0-dev libgdk-pixbuf2.0-dev \
+    libcairo2-dev libpango1.0-dev libatk1.0-dev libglib2.0-dev
+```
+
+**X11 dependencies:**
+```bash
+sudo apt install libx11-dev libxext-dev libxrender-dev \
+    libxcomposite-dev libxfixes-dev libfontconfig1-dev libfreetype6-dev
+```
+
+#### Runtime Dependencies
+
+To run Qt-based eRT applications on a target machine, install the Qt5 runtime libraries:
+
+```bash
+# Core Qt5 libraries
+sudo apt install libqt5core5a libqt5gui5 libqt5qml5 libqt5quick5 \
+    libqt5quickcontrols2-5 libqt5quicktemplates2-5
+
+# QML modules (required for QML imports to work)
+sudo apt install qml-module-qtquick2 qml-module-qtquick-window2 \
+    qml-module-qtquick-controls qml-module-qtquick-controls2 \
+    qml-module-qtquick-layouts qml-module-qtquick-templates2
+```
+
+**Note:** The `qml-module-qtquick-controls2` package is essential - without it you will get the error: "Cannot protect module QtQuick.Controls 2 as it was never registered"
+
+#### Qt Platform Configuration
+
+Key `config.mk` settings for Qt platforms:
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `EHS_GUI_SUPPORT` | `qt` | Select Qt as the GUI backend |
+| `EHS_MAIN_LOOP_ITERATIVE` | `yes` | Required for Qt event loop integration |
+| `EHS_GUI_SUPPORT_MODE_B_QT` | `yes` | Enable Qt widget/QML bridge |
+| `EHS_DEBUG_TCPIP_CONSOLE` | `stubbed` | Disable TCPIP console (conflicts with Qt event loop) |
+
+#### QML Application Structure
+
+Qt platforms load a QML file as the main UI. The default location is `apps/default/app.qml`. The QML file should define the main window and can reference eRT widgets by their `objectName` property matching the widget names in the `.gui` file.
 
 ## Xtensa-ESP32
 

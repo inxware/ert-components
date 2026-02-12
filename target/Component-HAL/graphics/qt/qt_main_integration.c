@@ -66,7 +66,7 @@ ehs_bool EhsTV_initQt(int argc, char ** argv)
     qml_path = getenv("EHS_QML_FILE");
     if (!qml_path || qml_path[0] == '\0')
     {
-        qml_path = "apps/default/app.qml";
+        qml_path = "../appdata/default/app.qml";
     }
 
     EHSH_LOG_INFO("Loading QML file: %s", qml_path);

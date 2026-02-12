@@ -91,15 +91,16 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 	LIB += Qt5Qml
 	LIB += Qt5Quick
 
-	# Qt5 include paths (Debian 11 layout)
-	# ifeq ($(EHS_HOST_DEBIAN_BUILD),x86_64)
-	#     QT5_INCLUDE_BASE = /usr/include/x86_64-linux-gnu/qt6
-	# else ifeq ($(EHS_HOST_DEBIAN_BUILD),x86)
-	#     QT5_INCLUDE_BASE = /usr/include/i386-linux-gnu/qt6
-	# else
-	# endif
-
-	QT5_INCLUDE_BASE = /usr/include/aarch64-linux-gnu/qt5/
+	# Qt5 include paths (Debian 11/12 layout)
+	ifeq ($(EHS_ARCH),arm64)
+	    QT5_INCLUDE_BASE = /usr/include/aarch64-linux-gnu/qt5
+	else ifeq ($(EHS_GNU_ARCH),x86_64)
+	    QT5_INCLUDE_BASE = /usr/include/x86_64-linux-gnu/qt5
+	else ifeq ($(EHS_HOST_DEBIAN_BUILD),x86)
+	    QT5_INCLUDE_BASE = /usr/include/i386-linux-gnu/qt5
+	else
+	    QT5_INCLUDE_BASE = /usr/include/qt5
+	endif
 	INC_DIRS += $(QT5_INCLUDE_BASE)
 	INC_DIRS += $(QT5_INCLUDE_BASE)/QtCore
 	INC_DIRS += $(QT5_INCLUDE_BASE)/QtGui
@@ -247,6 +248,12 @@ else
 endif
 
 # THINGS WE DO FOR ALL PLATFORMS:
+
+# Qt5 requires position-independent code
+CPPFLAGS += -fPIC
+
+# Disable PIE for linking (kernel library may not be compiled with -fPIE)
+LD_SWITCHES += -no-pie
 
 # ert-component objects that need building and linking:
 OBJECTS += target_viewport.$(OBJ)

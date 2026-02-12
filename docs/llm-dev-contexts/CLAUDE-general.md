@@ -61,6 +61,27 @@ The build system requires several adjacent repositories:
 - `apps` - is optional and contains Lucid app projects that might be pre-installed in the build.
 These are automatically cloned by `make prepdeps` and require ~40GB of disk space.
 
+### Running the Build Product
+
+After building with `make all`, the runtime environment must be created before running:
+
+**1. Create Runtime Environment:**
+```bash
+make targetenv    # Creates ../TARGET_TREES/ehs_env-[target]/ with apps and assets
+```
+
+**2. Run the Application:**
+```bash
+cd ../TARGET_TREES/ehs_env-[target]/bin/
+./ehs.exe
+# Or use: ./configure -run
+```
+
+**Additional Useful Make Targets:**
+- `make chkconfig` - Show current platform configuration
+- `make chk_ext_deps` - Check external dependencies status
+- `make target_buildenv` - Start Docker shell for build debugging
+
 ## Architecture
 
 ### Directory Structure
