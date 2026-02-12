@@ -222,16 +222,23 @@ ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv)
         return ERTQT_ERR_BACKEND_FAILURE;
     }
 
-    int local_argc = argc;
-    char ** local_argv = argv;
+    // QGuiApplication stores references to argc and argv, so they must remain
+    // valid for the lifetime of the application. Using static storage ensures this.
+    static int local_argc = 0;
+    static char ** local_argv = nullptr;
+    static char app_name[] = "ertqt_app";
+    static char * dummy_argv[] = { app_name, nullptr };
 
-    if (local_argc == 0 || !local_argv)
+    if (argc == 0 || !argv)
     {
         // Provide a dummy argv if caller did not
-        static char app_name[] = "ertqt_app";
-        static char * dummy_argv[] = { app_name, nullptr };
         local_argc = 1;
         local_argv = dummy_argv;
+    }
+    else
+    {
+        local_argc = argc;
+        local_argv = argv;
     }
 
     try
