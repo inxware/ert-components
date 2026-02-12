@@ -159,7 +159,7 @@ if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then
         pushd ..
         if [ -f ${LOCAL_BASE}/COMMUNITY_RELEASE ]; then
             # TODO: should the yaml action do this with credentials?
-            git clone git@github.com:inxware/apps.git
+            git clone --depth 1 git@github.com:inxware/apps.git
         else
             git clone git@github.com:inxware/apps.git
         fi
@@ -212,8 +212,8 @@ else
             echo "WARNING! You need to create a security folder adjascent to ert-components."
             echo "or check one out using something like"
             echo "git clone git@github.com:/<Your Secure Repo>.git"
-            cd DevmanSecurity/ ||
-            git checkout master ||
+            #cd DevmanSecurity/ ||
+            #git checkout master ||
             popd
         fi
     else

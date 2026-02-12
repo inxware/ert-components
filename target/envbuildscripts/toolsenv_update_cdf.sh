@@ -13,7 +13,7 @@ if ! [ -d "../inxware-installer" ]; then
     read -n 1 WHAT
     if [ "${WHAT}" = "y" ]; then
         #TODO2025 - this needs to use a url from repo_config.mk a mentioned elsewhere for the build system
-        git clone ssh://git@github.com:inxware/inxware-installer.git ../inxware-installer
+        git clone --depth 1 ssh://git@github.com:inxware/inxware-installer.git ../inxware-installer
     else
         echo "make sure 'inxware-installer' is cloned next to this repository."
         exit 1
