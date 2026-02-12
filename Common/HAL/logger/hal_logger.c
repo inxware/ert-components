@@ -56,6 +56,7 @@
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
 ehs_FILE* EhsLLogFile=NULL;
 //ehs_bool bLogToFile = EHS_TRUE; //we will just use the file handle status
+
 /* set to max logging before the init function is called */
 EhsHLoggerLogLevel nLogLevel = EHSH_LOG_ALL_LEVEL;//EHSH_LOG_DEFAULT_LEVEL; @todo this should be set somehwre sensible.
 
@@ -149,8 +150,6 @@ void EhsHLogger_init()
 #else
     EhsLLogFile = NULL;
 #endif//FILE LOGGER
-
-
 
     /* Continue anyway and reset log levels */
     for (nId = 0; nId < EHS_LOG_MODULE_QUANTITY; nId++)
