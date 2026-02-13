@@ -92,7 +92,8 @@ void lvgl_driver_init(void)
     disp_spi_add_device(TFT_SPI_HOST);
     disp_driver_init();
 
-#if defined (CONFIG_LV_TOUCH_CONTROLLER_FT81X)
+#if defined (CONFIG_LV_TOUCH_CONTROLLER_FT81X) \
+    || defined(CONFIG_LV_TOUCH_CONTROLLER_CST816T)
     touch_driver_init();
 #endif
 

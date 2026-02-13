@@ -70,7 +70,8 @@ EHS_DEVMAN_SUPPORT=mqtt
 
 #----- GUI Features -----
 EHS_LVGL_DISPLAY_DRIVER=st7789
-EHS_LVGL_TOUCH_DRIVER=
+EHS_LVGL_TOUCH_DRIVER=cst816t
+CONFIG_LV_I2C=1
 
 
 #################################################################################################################
@@ -79,7 +80,7 @@ EHS_LVGL_TOUCH_DRIVER=
 #################################################################################################################
 
 # Default application to run
-EHS_DEFAULT_APP=xiaosheng/display
+EHS_DEFAULT_APP=tutorials/hello_world
 
 
 #################################################################################################################
