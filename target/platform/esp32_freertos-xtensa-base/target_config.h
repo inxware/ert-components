@@ -10,9 +10,17 @@
 #define TARGET_CONFIG_H
 
 /* Overrides go here */
+#ifndef EHS_CONFIG_DISPLAY_HEIGHT
 #define EHS_CONFIG_DISPLAY_HEIGHT 1024	/**< Height for the OSD part of the display */
+#endif
+
+#ifndef EHS_CONFIG_DISPLAY_WIDTH
 #define EHS_CONFIG_DISPLAY_WIDTH 780	/**< Width for the OSD part of the display */
-#define EHS_TARGET_DEFAULT_ID "(arm/Linux)"
+#endif
+
+#ifndef EHS_TARGET_DEFAULT_ID
+#define EHS_TARGET_DEFAULT_ID "(xtensa/esp32)"
+#endif
 
 #include "../base_small/base_config.h"
 

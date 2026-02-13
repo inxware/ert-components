@@ -86,7 +86,7 @@ if [ "${ESP32_CHIP_VERSION}" = "esp32s3" ]; then
    python ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip ${ESP32_CHIP_VERSION} --port ${DEVICE_TTY_PATH} -b 460800 --before default_reset --after hard_reset write_flash -fm dio -fs 8MB -ff 80m 0x0 $PATH_TO_BINARIES/ehs.img
 else
 #esp32 still used seperate partition and boot.bin files
-   python ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py -p $(DEVICE_TTY_PATH) -b 460800 --before default_reset --after hard_reset --chip ${ESP32_CHIP_VERSION}  write_flash -z --flash_mode "dio" --flash_size detect --flash_freq 40m 0x1000 ../TARGET_TREES/${PATH_TO_BINARIES}/bin/bootloader.bin 0x8000 ${PATH_TO_BINARIES}/partitions.bin 0x10000 ../TARGET_TREES/ehs_env-${TARGET}/bin/ehs.bin
+   python ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py -p ${DEVICE_TTY_PATH} -b 460800 --before default_reset --after hard_reset --chip ${ESP32_CHIP_VERSION}  write_flash -z --flash_mode "dio" --flash_size detect --flash_freq 40m 0x1000 ${PATH_TO_BINARIES}/bootloader.bin 0x8000 ${PATH_TO_BINARIES}/partition-table.bin 0x10000 ${PATH_TO_BINARIES}/ehs.bin 0x2ff000 ${PATH_TO_BINARIES}/app_data.bin
   echo "Flashing ESP32 (not S3)"
 fi
 # From the esp32 (not S3) versions
