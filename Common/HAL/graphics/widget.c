@@ -81,7 +81,7 @@ void EhsWidget_create(EhsWidgetClass* pWidget)
     EHSH_LOG_INFO("EhsWidget_create starting initialisation...");
 
     ehs_bool bIsInit = EHS_WIDGET_STATE_INITIALIZED(pWidget->nState);
-#if !defined(EHS_GUI_SUPPORT_MODE_B) 
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
     /** @todo - refactor - it is only for convenience that viewport is using the widget struct  */
     pWidget->mouseClickPortNumber = -1; // default value
     pWidget->mouseDownPortNumber = -1; // default value
@@ -160,7 +160,7 @@ void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pR
     pWidget->pfDrawFunc = NULL;
     pWidget->pfFadeFunc = NULL;
 
-#if !defined(EHS_GUI_SUPPORT_MODE_B) 
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
     EHS_WIDGET_IMAGE(pWidget).szFilename = NULL;
     //asign call-back functions for render mode B librariies
     pWidget->pfMouseDownEventFunc = NULL;

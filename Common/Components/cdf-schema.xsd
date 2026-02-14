@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+  <!-- Root Element -->
+  <xs:element name="Component">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Module" type="xs:string"/>
+        <xs:element name="CDFInfo" type="CDFInfoType"/>
+        <xs:element name="Description" type="DescriptionType"/>
+        <xs:element name="Block" type="BlockType"/>
+        <xs:element name="FBID" type="FBIDType"/>
+        <xs:element name="Hashes" type="HashesType"/>
+        <xs:element name="Parameters" type="ParametersType" minOccurs="0"/>
+        <xs:element name="Functions" type="FunctionsType"/>
+        <xs:element name="Ports" type="PortsType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- CDFInfo Type -->
+  <xs:complexType name="CDFInfoType">
+    <xs:sequence>
+      <xs:element name="Version" type="xs:integer"/>
+      <xs:element name="CreationDate" type="xs:dateTime"/>
+      <xs:element name="UpdatedDate" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Description Type -->
+  <xs:complexType name="DescriptionType">
+    <xs:sequence>
+      <xs:element name="ShortDescription" type="xs:string"/>
+      <xs:element name="LongDescription" type="xs:string"/>
+      <xs:element name="UserName" type="xs:string"/>
+      <xs:element name="Menu" type="MenuType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Menu Type - Recursive to support nested menus -->
+  <xs:complexType name="MenuType" mixed="true">
+    <xs:sequence>
+      <xs:element name="Menu" type="MenuType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Block Type -->
+  <xs:complexType name="BlockType">
+    <xs:sequence>
+      <xs:element name="Type" type="BlockTypeEnum"/>
+      <xs:element name="Width" type="xs:integer" minOccurs="0"/>
+      <xs:element name="Height" type="xs:integer"/>
+      <xs:element name="Text" type="xs:string" minOccurs="0"/>
+      <xs:element name="TextX" type="xs:integer" minOccurs="0"/>
+      <xs:element name="TextY" type="xs:integer" minOccurs="0"/>
+      <xs:element name="TextScale" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="TextVertical" type="xs:integer" minOccurs="0"/>
+      <xs:element name="LocationX" type="xs:integer"/>
+      <xs:element name="LocationY" type="xs:integer"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Block Type Enumeration -->
+  <xs:simpleType name="BlockTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Data_Processor"/>
+      <xs:enumeration value="Event_Processor"/>
+      <xs:enumeration value="IO"/>
+      <xs:enumeration value="Computation"/>
+      <xs:enumeration value="Communication"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- FBID Type -->
+  <xs:complexType name="FBIDType">
+    <xs:sequence>
+      <xs:element name="ERT1_ID" type="xs:integer"/>
+      <xs:element name="Class" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Hashes Type -->
+  <xs:complexType name="HashesType">
+    <xs:sequence>
+      <xs:element name="NameHash_CRC16" type="xs:string"/>
+      <xs:element name="FbApiDescriptorHash_CRC32" type="xs:string"/>
+      <xs:element name="FbApiDescriptorHash" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Parameters Type -->
+  <xs:complexType name="ParametersType">
+    <xs:sequence>
+      <xs:element name="Parameter" type="ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Parameter Type -->
+  <xs:complexType name="ParameterType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string"/>
+      <xs:element name="DataType" type="DataTypeEnum"/>
+      <xs:element name="DefaultValue" type="xs:string"/>
+      <xs:element name="MinValue" type="xs:string" minOccurs="0"/>
+      <xs:element name="MaxValue" type="xs:string" minOccurs="0"/>
+      <xs:element name="Description" type="xs:string"/>
+      <xs:element name="ListPlacement" type="xs:integer"/>
+      <xs:element name="ArgPlacement" type="xs:integer"/>
+      <xs:element name="DisplayOnWidget" type="DisplayOnWidgetType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- DisplayOnWidget Type -->
+  <xs:complexType name="DisplayOnWidgetType">
+    <xs:sequence>
+      <xs:element name="x" type="xs:integer"/>
+      <xs:element name="y" type="xs:integer"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Data Type Enumeration -->
+  <xs:simpleType name="DataTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="I"/>  <!-- Integer -->
+      <xs:enumeration value="R"/>  <!-- Real/Float -->
+      <xs:enumeration value="B"/>  <!-- Boolean -->
+      <xs:enumeration value="S"/>  <!-- String -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Functions Type -->
+  <xs:complexType name="FunctionsType">
+    <xs:sequence>
+      <xs:element name="Function" type="FunctionType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Function Type -->
+  <xs:complexType name="FunctionType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="ID" type="FunctionIDType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Function ID Type -->
+  <xs:complexType name="FunctionIDType">
+    <xs:sequence>
+      <xs:element name="ERT1_ID" type="xs:integer"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Ports Type -->
+  <xs:complexType name="PortsType">
+    <xs:sequence>
+      <xs:element name="Port" type="PortType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Port Type -->
+  <xs:complexType name="PortType">
+    <xs:sequence>
+      <xs:element name="DataType" type="DataTypeEnum" minOccurs="0"/>
+      <xs:element name="Description" type="xs:string"/>
+      <xs:element name="PortType" type="PortTypeEnum"/>
+      <xs:element name="XCoordinate" type="xs:integer"/>
+      <xs:element name="YCoordinate" type="xs:integer"/>
+      <xs:element name="Wcet" type="xs:integer" minOccurs="0"/>
+      <xs:element name="MandatoryFlag" type="xs:integer" minOccurs="0"/>
+      <xs:element name="CName" type="xs:string"/>
+      <xs:element name="Function" type="PortFunctionType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Port Type Enumeration -->
+  <xs:simpleType name="PortTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InputPort"/>
+      <xs:enumeration value="OutputPort"/>
+      <xs:enumeration value="StartPort"/>
+      <xs:enumeration value="FinishPort"/>
+      <xs:enumeration value="InternalPort"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Port Function Type -->
+  <xs:complexType name="PortFunctionType">
+    <xs:sequence>
+      <xs:element name="Function_ERT1_ID" type="xs:integer"/>
+      <xs:element name="AtomicFlag" type="xs:integer" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="argument" type="xs:integer" use="required"/>
+  </xs:complexType>
+
+</xs:schema>

@@ -27,7 +27,7 @@
 
 include $(EHS_COMMON_HAL_PATH)/graphics/deps.mk
 
-ifneq ($(EHS_RENDER_MODE),B)
+ifeq ($(EHS_RENDER_MODE),A)
 	include $(EHS_COMMON_HAL_PATH)/graphics/png/png.mk
 	include $(EHS_COMMON_HAL_PATH)/graphics/jpeg/jpg.mk
 

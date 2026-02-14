@@ -182,7 +182,7 @@ void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpor
 #else
 void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
-#if !defined(EHS_GUI_SUPPORT_MODE_B)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     EhsTVSurfaceClass* pSurface;
     ehs_bool bOk = EHS_TRUE; /* true so long as we can continue drawing to the surface */
     if (EhsStrlen(EHS_WIDGET_TEXTBOX(pWidget).xText.szHtml) > EHS_STRING_LENGTH_MAX) EHS_WIDGET_TEXTBOX(pWidget).xText.szHtml[EHS_STRING_LENGTH_MAX] = '\0'; //truncate to avoid crashes

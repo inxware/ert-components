@@ -622,7 +622,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
 
         curl_easy_setopt(PURLLGET_CURL, CURLOPT_FILETIME, 1); // we set this for al cases of potentially writing a file
 
-        EHSH_LOG_ERROR("1 --");
+   
         pUrlGet->write_data_buffer_struct->filehandle=NULL;/* make sure we don't try to write anything for getting a header */
 
         if (!pUrlGet->bOverwriteAll && !pUrlGet->bDataPortConnected )   /* if only overvwrite new flag is not set or we have to push data out (we don't cache in this case */

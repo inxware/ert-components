@@ -28,7 +28,7 @@ include $(EHS_COMMON_COMPONENTS_PATH)/deprecated/deps.mk
 ifdef EHS_GUI_SUPPORT
 ifneq ($(EHS_GUI_SUPPORT),none)
 # disable depricated gui widgets for mode B
-	ifneq ($(EHS_RENDER_MODE),B)
+	ifeq ($(EHS_RENDER_MODE),A)
 	OBJECTS += guitextbox_orig.$(OBJ) 
 	OBJECTS += guitextbox.$(OBJ) 
 	OBJECTS += guitextbox1.$(OBJ)

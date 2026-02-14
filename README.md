@@ -195,8 +195,8 @@ make prepdeps
 
 ## Supported platforms
 
-| Platform Category    | Architecture | Operating System                  | Status   | Package Format | Use Cases                  |
-| -------------------- | ------------ | --------------------------------- | -------- | -------------- | -------------------------- |
+| Platform Category    | Architecture | Operating System                  | Status    | Package Format | Use Cases                  |
+| -------------------- | ------------ | --------------------------------- | --------- | -------------- | ---------------------------|
 | **Desktop/server**   | x86_64       | Linux (Debian 9-12, Ubuntu 14-24) | ✅ Stable | DEB, Binary    | Development, Server apps   |
 |                      | x86_64       | Windows 7-11                      | ✅ Stable | EXE, MSI       | Desktop applications       |
 | **Single board**     | ARM64        | Linux (Raspberry Pi 3-5)          | ✅ Stable | DEB, Image     | IoT gateways, edge compute |

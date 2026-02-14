@@ -15,7 +15,7 @@
 
 #include "blockref_table.h"
 #include "hal_logger.h" /* EHSH_LOG_INFO */
-#include <stdio.h>
+//#include <stdio.h>
 
 #ifdef EHS_GUI_SUPPORT
 #include "guiviewport.h"
