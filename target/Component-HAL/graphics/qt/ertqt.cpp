@@ -953,13 +953,23 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
 
     // Connect: mapper.mapped(int) -> lambda
     QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
-                    g_app, [cb, user_data](int) { cb(user_data); });
+                    g_app, [cb, user_data, signal_name](int) {
+                        printf("[TRACE] ertqt: Qt5 signal '%s' fired -> invoking C callback %p (user_data=%p)\n",
+                               signal_name, (void*)(intptr_t)cb, user_data);
+                        fflush(stdout);
+                        cb(user_data);
+                    });
     qDebug() << "ertqt: Connected signal" << signal_name << "via QSignalMapper (Qt5)";
     return ERTQT_OK;
 #else
     // Qt6: Can connect string signals to lambdas directly
     bool connected = QObject::connect(obj, signal_sig.constData(),
-                                     g_app, [cb, user_data]() { cb(user_data); });
+                                     g_app, [cb, user_data, signal_name]() {
+                                         printf("[TRACE] ertqt: Qt6 signal '%s' fired -> invoking C callback %p (user_data=%p)\n",
+                                                signal_name, (void*)(intptr_t)cb, user_data);
+                                         fflush(stdout);
+                                         cb(user_data);
+                                     });
     if (connected) {
         qDebug() << "ertqt: Connected signal" << signal_name << "directly (Qt6)";
     } else {
@@ -975,7 +985,11 @@ ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, v
         return ERTQT_ERR_INVALID_ARGUMENT;
 
     QObject *obj = reinterpret_cast<QObject*>(h);
-    return connect_signal_by_name(obj, "clicked", cb, user_data);
+    ertqt_status st = connect_signal_by_name(obj, "clicked", cb, user_data);
+    printf("[TRACE] ertqt_bind_clicked: handle=%p, cb=%p, user_data=%p -> %s\n",
+           (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
+    fflush(stdout);
+    return st;
 }
 
 ertqt_status ertqt_bind_pressed(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
@@ -984,7 +998,11 @@ ertqt_status ertqt_bind_pressed(ertqt_object_handle h, ertqt_void_callback cb, v
         return ERTQT_ERR_INVALID_ARGUMENT;
 
     QObject *obj = reinterpret_cast<QObject*>(h);
-    return connect_signal_by_name(obj, "pressed", cb, user_data);
+    ertqt_status st = connect_signal_by_name(obj, "pressed", cb, user_data);
+    printf("[TRACE] ertqt_bind_pressed: handle=%p, cb=%p, user_data=%p -> %s\n",
+           (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
+    fflush(stdout);
+    return st;
 }
 
 ertqt_status ertqt_bind_released(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
@@ -993,7 +1011,11 @@ ertqt_status ertqt_bind_released(ertqt_object_handle h, ertqt_void_callback cb, 
         return ERTQT_ERR_INVALID_ARGUMENT;
 
     QObject *obj = reinterpret_cast<QObject*>(h);
-    return connect_signal_by_name(obj, "released", cb, user_data);
+    ertqt_status st = connect_signal_by_name(obj, "released", cb, user_data);
+    printf("[TRACE] ertqt_bind_released: handle=%p, cb=%p, user_data=%p -> %s\n",
+           (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
+    fflush(stdout);
+    return st;
 }
 
 // Helper: Connect a text signal by name using metaobject introspection.

@@ -106,8 +106,11 @@ EHS_FB_INIT_FUNCTION(GUI_Image_File)
 		bCaptureClicks = (ehs_bool)nByte;
 		pParams = EhsGetUint8FromString(&nByte, pParams);
 		bLoadImageFromAppDir = (ehs_bool)nByte;
-#if defined(EHS_GUI_SUPPORT_MODE_B)
-		/* Set the image widget specific parameters too */
+#if defined(EHS_GUI_SUPPORT_MODE_A)
+       /* Create and Initialise the image surfaces for rendering for MODE A rendering */
+       inx_GUI_Image_File_state->pUiWidgetClass = EhsWidgetImage_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xBitmap.nImageAlpha,xParams.uClass.xBitmap.szBitmapName, bLoadImageFromAppDir);
+#else
+		/* Set the image widget specific parameters for a widget library to render */
 		inx_GUI_Image_File_state->image.bLoadImageFromAppDir = bLoadImageFromAppDir;
 		inx_GUI_Image_File_state->image.bDynamicFilename = EHS_FALSE;
 		EhsStrcpy(inx_GUI_Image_File_state->image.szFilename, xParams.uClass.xBitmap.szBitmapName);
@@ -118,8 +121,6 @@ EHS_FB_INIT_FUNCTION(GUI_Image_File)
 															xParams.uClass.xPatch,
 															xParams.uClass.xPatch,
 															/*pFont*/NULL);
-#else
-		inx_GUI_Image_File_state->pUiWidgetClass = EhsWidgetImage_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xBitmap.nImageAlpha,xParams.uClass.xBitmap.szBitmapName, bLoadImageFromAppDir);
 #endif
 		if ((inx_GUI_Image_File_state->pUiWidgetClass == NULL) || (inx_GUI_Image_File_state->pUiWidgetClass->nState == EHS_WIDGET_STATE_EMPTY))
 		{
@@ -219,7 +220,7 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_create)
 		}
 
 		EhsWidget_create(pWidget);
-#if !defined(EHS_GUI_SUPPORT_MODE_B)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
 		/*Set number of mouseClick port*/
 		pWidget->mouseClickPortNumber = INX_GUI_Image_File_ARG_create_click;
 		pWidget->mouseDownPortNumber = INX_GUI_Image_File_ARG_create_mouse_down;
@@ -284,7 +285,7 @@ EHS_FB_RUN_FUNCTION(GUI_Image_File_load)
 				EHS_WIDGET_UI(pWidget).data = (void*) &inx_GUI_Image_File_state->image;
 #endif
 				EhsWidget_create(pWidget);
-#if !defined(EHS_GUI_SUPPORT_MODE_B)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
 				/*Set number of mouseClick port ~todo - this needs making nicer!*/
 				pWidget->mouseClickPortNumber = INX_GUI_Image_File_ARG_create_click;
 				pWidget->mouseDownPortNumber = INX_GUI_Image_File_ARG_create_mouse_down;

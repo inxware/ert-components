@@ -33,8 +33,8 @@ The project uses a sophisticated Make-based build system with Docker support for
 **Building:**
 - `make help` - Show all available build targets and options
 - `make prepdeps` - Install dependencies and checkout required repositories - don't run this for normal build cycles
-- `make all` - Build the eRT binary (ehs_[TARGET].exe)
-- `make all_docker` - Build using Docker environment
+- `make all` - Build the eRT binary directly on the host. Note: this only works if the host has all required dependencies installed; it may fail on some systems.
+- `make all_docker` - Build using Docker environment. This is the reliable option and will always work once a Docker environment is established.
 - `make clean` - Clean build artifacts
 
 **Runtime Environment:**
@@ -63,19 +63,17 @@ These are automatically cloned by `make prepdeps` and require ~40GB of disk spac
 
 ### Running the Build Product
 
-After building with `make all`, the runtime environment must be created before running:
+After building, use `./configure -run` to create the runtime environment and launch the application in one step:
 
-**1. Create Runtime Environment:**
 ```bash
-make targetenv    # Creates ../TARGET_TREES/ehs_env-[target]/ with apps and assets
+make all              # Build on host (may not work on all systems)
+# OR
+make all_docker       # Build in Docker (always works once Docker env is set up)
+
+./configure -run      # Create targetenv and run the application
 ```
 
-**2. Run the Application:**
-```bash
-cd ../TARGET_TREES/ehs_env-[target]/bin/
-./ehs.exe
-# Or use: ./configure -run
-```
+`./configure -run` is the preferred way to run. It handles `make targetenv` and launching `ehs.exe` from the correct working directory automatically. Do NOT attempt to run `ehs.exe` directly without `./configure -run`.
 
 **Additional Useful Make Targets:**
 - `make chkconfig` - Show current platform configuration

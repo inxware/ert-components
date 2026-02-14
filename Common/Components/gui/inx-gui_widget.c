@@ -143,15 +143,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
     inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_INIT_CONTEXT;
     inx_gui_widget_state->pUiWidgetClass = NULL;
 
-    // printf("\n*** QT DEBUG: About to call ReadParmFile, EHS_FB_INIT_PARAMETERS=%p\n", (void*)EHS_FB_INIT_PARAMETERS);
-    // fflush(stdout);
-    EHSH_LOG_INFO("  About to call ReadParmFile, EHS_FB_INIT_PARAMETERS=%p", (void*)EHS_FB_INIT_PARAMETERS);
     pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-    // printf("\n*** QT DEBUG: ReadParmFile returned, guiParams[0]=0x%02x ('%c'), strlen=%zu\n",
-    //       (unsigned char)guiParams[0], guiParams[0] >= 32 && guiParams[0] < 127 ? guiParams[0] : '.', strlen(guiParams));
-    // fflush(stdout);
-    // printf("\n*** QT DEBUG: First 80 chars of guiParams: '%.80s'\n", guiParams);
-    // fflush(stdout);
     EHSH_LOG_INFO("  ReadParmFile returned, guiParams[0]='%c' (0x%02x), first 50 chars: '%.50s'",
                   guiParams[0] ? guiParams[0] : '?', (unsigned char)guiParams[0], guiParams);
     if (guiParams[0]) {
@@ -168,9 +160,8 @@ EHS_FB_INIT_FUNCTION(gui_widget)
         {
             EHSH_LOG_INFO("gui_widget INIT: Creating TEXTBOX widget (nTextBoxType=%d)", xParams.nTextBoxType);
 
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
 
-            EHSH_LOG_INFO("  Using Mode B/Qt widget creation path");
             inx_gui_widget_state->gui.data = NULL;
             inx_gui_widget_state->gui.label = NULL;
             ehs_uint16 nId = EHS_STRING_UI_WIDGET;
@@ -196,7 +187,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                     break;
                 }
             }
-            EHSH_LOG_INFO("  Calling EhsWidgetUI_init with nId=%u", nId);
+            /* Initialising a render Mode B widget struct */
             inx_gui_widget_state->pUiWidgetClass = EhsWidgetUI_init(nId, xParams.uClass.xTextbox.nProp,
                                                                     xParams.uClass.xTextbox.nCurve,
                                                                     xParams.uClass.xTextbox.nParent,
@@ -211,26 +202,25 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                                                                     /*pFont*/NULL);
             EHSH_LOG_INFO("  EhsWidgetUI_init returned: %p", (void*)inx_gui_widget_state->pUiWidgetClass);
 
-#else // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#else // EHS_GUI_SUPPORT_MODE_B 
 
             EhsGraphicsFontClass* pFont = NULL;
 
-#ifndef EHS_DONT_USE_BASIC_FONTS
+    #ifndef EHS_DONT_USE_BASIC_FONTS
             pFont = EhsGraphicsFont_load(xParams.uClass.xTextbox.szFontName);
-#endif // EHS_DONT_USE_BASIC_FONTS
+    #endif // EHS_DONT_USE_BASIC_FONTS
+                
+            inx_gui_widget_state->pUiWidgetClass = EhsWidgetTextbox_init(&(xParams.xRect),xParams.nZorder,
+                                                                    xParams.uClass.xTextbox.nIndentL,
+                                                                    xParams.uClass.xTextbox.nIndentT,
+                                                                    xParams.uClass.xTextbox.nIndentR,
+                                                                    xParams.uClass.xTextbox.nIndentB,
+                                                                    xParams.uClass.xTextbox.nLineSep,
+                                                                    xParams.uClass.xTextbox.xFgColour,
+                                                                    xParams.uClass.xTextbox.xBgColour,
+                                                                    pFont);
 
-            inx_gui_widget_state->pUiWidgetClass =
-                                                    EhsWidgetTextbox_init(&(xParams.xRect),xParams.nZorder,
-                                                    xParams.uClass.xTextbox.nIndentL,
-                                                    xParams.uClass.xTextbox.nIndentT,
-                                                    xParams.uClass.xTextbox.nIndentR,
-                                                    xParams.uClass.xTextbox.nIndentB,
-                                                    xParams.uClass.xTextbox.nLineSep,
-                                                    xParams.uClass.xTextbox.xFgColour,
-                                                    xParams.uClass.xTextbox.xBgColour,
-                                                    pFont);
-
-#endif // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#endif // EHS_GUI_SUPPORT_MODE_B 
 
             if ((inx_gui_widget_state->pUiWidgetClass == NULL) || (inx_gui_widget_state->pUiWidgetClass->nState == EHS_WIDGET_STATE_EMPTY))
             {
@@ -250,7 +240,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                 pParams = EhsGetUint8FromString(&nByte, pParams);
                 inx_gui_widget_state->pUiWidgetClass->bCaptureClicksIgnoringZOrder = (ehs_bool)nByte;
 
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 
                 if(EhsWidgetUI_is_float_type(inx_gui_widget_state->pUiWidgetClass)){
                     ehs_sint32 nNoOfDecPlaces = 0;
@@ -260,7 +250,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                     }
                 }
 
-#endif // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#endif // EHS_GUI_SUPPORT_MODE_B
 
                 inx_gui_widget_state->pUiWidgetClass->bContentChanged = EHS_TRUE; /* This should be done in the common code */
                 bRet = EHS_TRUE;
@@ -422,7 +412,7 @@ EHS_FB_RUN_FUNCTION(gui_widget_create)
         EHSH_LOG_INFO("  Widget state and pUiWidgetClass are valid (%p)", (void*)inx_gui_widget_state->pUiWidgetClass);
         EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
         if (pWidget) {
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B)
             /* set up event callback */
             EHS_WIDGET_UI(pWidget).event_callback = gui_widget_event_callback;
             /* setup widget data */
@@ -447,7 +437,7 @@ EHS_FB_RUN_FUNCTION(gui_widget_create)
             EHSH_LOG_INFO("  Calling EhsWidget_create(pWidget=%p)", (void*)pWidget);
             EhsWidget_create(pWidget);
             EHSH_LOG_INFO("  EhsWidget_create completed, nState=%d", pWidget->nState);
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
             /*Set number of mouseClick port*/
             pWidget->mouseClickPortNumber = INX_gui_widget_ARG_create_click;
             pWidget->mouseDownPortNumber = INX_gui_widget_ARG_create_mouse_down;
@@ -562,7 +552,7 @@ EHS_FB_RUN_FUNCTION(gui_widget_update)
     }
 }
 
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
 /**
  * General purpose update function, contains the common code for all of the text update functions.
  *
@@ -578,7 +568,7 @@ void Ehs_gui_text2_write(EhsWidgetClass* pWidget, const ehs_char* szString)
 
     Ehs_widget_commit(pWidget);
 }
-#endif // ! EHS_GUI_SUPPORT_MODE_B && ! EHS_GUI_SUPPORT_MODE_B_QT
+#endif //  EHS_GUI_SUPPORT_MODE_A
 
 EHS_FB_RUN_FUNCTION(gui_text_string2_data)
 {
@@ -586,7 +576,7 @@ EHS_FB_RUN_FUNCTION(gui_text_string2_data)
     inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_RUN_CONTEXT;
     if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
         EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
         ehs_bool bCommit = EHS_FALSE;
 
         if (EHS_FB_IN_CONNECTED_API2(INX_gui_text_string2_ARG_data_data)){
@@ -619,7 +609,7 @@ EHS_FB_RUN_FUNCTION(gui_text_string2_data)
             Ehs_gui_text2_write(pWidget, str);
         }
         EHS_FB_FINISH(INX_gui_text_string2_ARG_data____);
-#endif // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#endif // EHS_GUI_SUPPORT_MODE_B
     }
 }
 
@@ -628,7 +618,7 @@ EHS_FB_RUN_FUNCTION(gui_text_float2_data)
     inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_RUN_CONTEXT;
     if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
         EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
         ehs_bool bCommit = EHS_FALSE;
 
         if (EHS_FB_IN_CONNECTED_API2(INX_gui_text_float2_ARG_data_data)){
@@ -655,7 +645,7 @@ EHS_FB_RUN_FUNCTION(gui_text_float2_data)
             Ehs_gui_text2_write(pWidget, str);
         }
         EHS_FB_FINISH(INX_gui_text_float2_ARG_data____);
-#endif // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#endif // EHS_GUI_SUPPORT_MODE_B 
     }
 }
 
@@ -664,7 +654,7 @@ EHS_FB_RUN_FUNCTION(gui_text_int2_data)
     inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_RUN_CONTEXT;
     if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
         EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
         ehs_bool bCommit = EHS_FALSE;
 
         if (EHS_FB_IN_CONNECTED_API2(INX_gui_text_int2_ARG_data_data)){
@@ -684,14 +674,14 @@ EHS_FB_RUN_FUNCTION(gui_text_int2_data)
         }else{
             EHS_FB_FINISH(INX_gui_text_int2_ARG_data____);
         }
-#else // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#else // EHS_GUI_SUPPORT_MODE_B
         if(EHS_FB_IN_CONNECTED_API2(INX_gui_text_int2_ARG_data_data)){
             char str[EHS_STRING_LENGTH_MAX];
             EhsSprintf(str,"%d",EHS_FB_IN_I_API2(INX_gui_text_int2_ARG_data_data));
             Ehs_gui_text2_write(pWidget, str);
         }
         EHS_FB_FINISH(INX_gui_text_int2_ARG_data____);
-#endif // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#endif // EHS_GUI_SUPPORT_MODE_B
     }
 }
 
@@ -700,7 +690,7 @@ EHS_FB_RUN_FUNCTION(gui_text_bool2_data)
     inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_RUN_CONTEXT;
     if (inx_gui_widget_state && inx_gui_widget_state->pUiWidgetClass) {
         EhsWidgetClass* pWidget = inx_gui_widget_state->pUiWidgetClass;
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B)
         ehs_bool bCommit = EHS_FALSE;
 
         if (EHS_FB_IN_CONNECTED_API2(INX_gui_text_bool2_ARG_data_data)){
@@ -720,7 +710,7 @@ EHS_FB_RUN_FUNCTION(gui_text_bool2_data)
         }else{
             EHS_FB_FINISH(INX_gui_text_bool2_ARG_data____);
         }
-#else // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#else // EHS_GUI_SUPPORT_MODE_B
         if(EHS_FB_IN_CONNECTED_API2(INX_gui_text_bool2_ARG_data_data)){
             char str[EHS_STRING_LENGTH_MAX];
             str[0] = (EHS_FB_IN_B_API2(INX_gui_text_bool2_ARG_data_data))?'T':'F';
@@ -728,6 +718,6 @@ EHS_FB_RUN_FUNCTION(gui_text_bool2_data)
             Ehs_gui_text2_write(pWidget, str);
         }
         EHS_FB_FINISH(INX_gui_text_bool2_ARG_data____);
-#endif // EHS_GUI_SUPPORT_MODE_B || EHS_GUI_SUPPORT_MODE_B_QT
+#endif // EHS_GUI_SUPPORT_MODE_B
     }
 }

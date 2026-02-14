@@ -20,7 +20,7 @@
 #include "hal-api.h"
 
 /*  @todo move file stuff somewhere else */
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
 #include "png.h"
 #endif
 /**
@@ -405,7 +405,7 @@ ehs_bool doCheckFileHeader(const char* Path, ehs_bool bLoadImageFromAppDir, EhsG
 {
     int result = -1; // assume failure, 0 is a match
 
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     const int nread = 8;
     unsigned char buffer[8];
 #endif
@@ -436,7 +436,8 @@ ehs_bool doCheckFileHeader(const char* Path, ehs_bool bLoadImageFromAppDir, EhsG
             break;
         case EHS_GFXFILETYPE_PNG:   // PNG header check
             result = 0;
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
+            //todo 2026 change to limitted read.
             if (EhsFread(buffer, 1, nread, file) == nread)	result = png_sig_cmp(buffer, 0, nread);
 #endif
             break;

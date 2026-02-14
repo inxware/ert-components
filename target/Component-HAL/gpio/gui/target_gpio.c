@@ -19,27 +19,25 @@
 
 #if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
 
-#include "target_viewport_modeB.h"
+    #include "target_viewport_modeB.h"
 
-/* Position of the first GPIO widget */
-#define GPIO_UI_X_POS 10
-#define GPIO_UI_Y_POS 10
-/* GPIO single widget size */
-#define GPIO_UI_WIDTH 40
-#define GPIO_UI_HEIGHT 40
-
-#define GPIO_UI_SEP 1.1f
+    /* Position of the first GPIO widget */
+    #define GPIO_UI_X_POS 10
+    #define GPIO_UI_Y_POS 10
+    /* GPIO single widget size */
+    #define GPIO_UI_WIDTH 40
+    #define GPIO_UI_HEIGHT 40
+    #define GPIO_UI_SEP 1.1f
 
 #else
 
-/* Position of the first GPIO widget */
-#define GPIO_UI_X_POS 50
-#define GPIO_UI_Y_POS 150
-/* GPIO single widget size */
-#define GPIO_UI_WIDTH 50
-#define GPIO_UI_HEIGHT 100
-
-#define GPIO_UI_SEP 1.1f
+    /* Position of the first GPIO widget */
+    #define GPIO_UI_X_POS 50
+    #define GPIO_UI_Y_POS 150
+    /* GPIO single widget size */
+    #define GPIO_UI_WIDTH 50
+    #define GPIO_UI_HEIGHT 100
+    #define GPIO_UI_SEP 1.1f
 
 #endif
 
@@ -49,7 +47,7 @@ static ehs_uint16 g_GpioCount = 0;
 
 typedef struct
 {
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     EhsWidgetClass* pWidgetBackground;
     EhsWidgetClass* pWidgetLabel;
 #endif
@@ -58,7 +56,7 @@ typedef struct
 
 typedef struct
 {
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     EhsWidgetClass* pWidgetBackground;
     EhsWidgetClass* pWidgetLabel;
     EhsWidgetClass* pWidgetSwitchBackground;
@@ -67,7 +65,7 @@ typedef struct
     ehs_bool inputValue;
 } gpio_in_gui_widget;
 
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 
 typedef struct
 {
@@ -138,7 +136,7 @@ void destroy_gpio_panel_widget()
     }
 }
 
-#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
+#else // EHS_GUI_SUPPORT_MODE_B 
 
 /* these are gui widgets for mode A */
 
@@ -357,6 +355,8 @@ EHS_GLOBAL ehs_bool EhsDestroyOutputGPIO(ehs_gpio_out_state_type* pGPIO)
 
 #if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_MOCK_GPIO_QT)
 /* Widget update callback */
+
+// This is awfull -What is it doing?- doesn't it clash with other UI gui_widget_event_callback() implementations.
 static void gui_widget_event_callback(struct EhsWidgetStruct* pWidgetSwitch, ehs_uint16 event_id, const char* label, void* data)
 {
 	if(pWidgetSwitch && data){
@@ -367,7 +367,8 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidgetSwitch, ehs
         }
 	}
 }
-#else // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
+    #endif - this is awfull
+
 void OnMouseDownEvent(EhsWidgetClass* pWidget)
 {
     if (pWidget && pWidget->pMouseDownEventData) {

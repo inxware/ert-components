@@ -37,7 +37,7 @@
 
 #include "hal_string.h"
 #include "hal_process.h"
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
 #include "target_viewport_modeB.h"
 #endif
 
@@ -81,7 +81,7 @@ void EhsWidget_create(EhsWidgetClass* pWidget)
     EHSH_LOG_INFO("EhsWidget_create starting initialisation...");
 
     ehs_bool bIsInit = EHS_WIDGET_STATE_INITIALIZED(pWidget->nState);
-#if defined(EHS_GUI_SUPPORT_MODE_B) //|| defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if !defined(EHS_GUI_SUPPORT_MODE_B) 
     /** @todo - refactor - it is only for convenience that viewport is using the widget struct  */
     pWidget->mouseClickPortNumber = -1; // default value
     pWidget->mouseDownPortNumber = -1; // default value
@@ -159,11 +159,23 @@ void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pR
     pWidget->pfDestroyFunc = NULL;
     pWidget->pfDrawFunc = NULL;
     pWidget->pfFadeFunc = NULL;
-#if defined(EHS_GUI_SUPPORT_MODE_B) //|| defined(EHS_GUI_SUPPORT_MODE_B_QT)
-    pWidget->bOptimiseForSpeed = EHS_FALSE;
+
+#if !defined(EHS_GUI_SUPPORT_MODE_B) 
     EHS_WIDGET_IMAGE(pWidget).szFilename = NULL;
+    //asign call-back functions for render mode B librariies
     pWidget->pfMouseDownEventFunc = NULL;
     pWidget->pMouseDownEventData = NULL;
+    pWidget->pfMouseDownEventFunc = NULL;
+    pWidget->pMouseDownEventData = NULL;
+    pWidget->mouseClickPortNumber = -1; // default value
+    pWidget->mouseDownPortNumber = -1; // default value
+    pWidget->mouseUpPortNumber = -1; // default value
+    pWidget->mouseDragPortNumber = -1; // default value as only currently implemented on viewport
+    pWidget->mouseUpDownAbsXPortNumber = -1; // default value as only currently implemented on viewport
+    pWidget->mouseUpDownAbsYPortNumber = -1; // default value as only currently implemented on viewport
+    pWidget->mouseDragOffsetXPortNumber = -1; // default value as only currently implemented on viewport
+    pWidget->mouseDragOffsetYPortNumber = -1; // default value as only currently implemented on viewport
+    pWidget->bOptimiseForSpeed = EHS_FALSE; // we only support this in non render mode B cases to sav memory in Redner mode B, which is usually more constraineed.
 #endif
 }
 
@@ -335,7 +347,7 @@ void Ehs_widget_position_update(EhsWidgetClass* pWidget, ehs_bool bAlphaConnecte
 void Ehs_widget_commit(EhsWidgetClass* pWidget)
 {
 // this only applies EHS_GUI_SUPPORT_MODE_B
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
     EHSH_LOG_INFO("Ehs_widget_commit: pWidget=%p, calling pfDrawFunc=%p",
                   (void*)pWidget, (void*)pWidget->pfDrawFunc);
     pWidget->pfDrawFunc(pWidget, NULL, NULL);
@@ -385,7 +397,7 @@ EHS_LOCAL void EhsWidget_setState(EhsWidgetClass* pWidget, ehs_uint8 nNewState)
         if (EHS_WIDGET_STATE_SHOWN(nNewState) != EHS_WIDGET_STATE_SHOWN(pWidget->nState))
         {
             pWidget->nState = nNewState; /* update the state before calling _updateRect */
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
             EhsTargetWidget_show(pWidget, pWidget->nState);
 #endif
             EhsTV_updateRect(&EhsTV, pWidget->xCurRect.nLeft, pWidget->xCurRect.nTop, pWidget->xCurRect.nWidth, pWidget->xCurRect.nHeight);
@@ -674,7 +686,7 @@ void EhsWidgetTable_dirty(const EhsWidgetTableClass* pWidgetTable)
  */
 void EhsWidgetTable_triggerViewportMouseDown(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
     EhsFunctionInstanceDataType *pFIdata;
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
@@ -714,7 +726,7 @@ void EhsWidgetTable_triggerViewportMouseDown(const EhsWidgetTableClass* pWidgetT
  */
 void EhsWidgetTable_triggerViewportMouseUp(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     EhsFunctionInstanceDataType *pFIdata;
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
@@ -752,7 +764,8 @@ void EhsWidgetTable_triggerViewportMouseUp(const EhsWidgetTableClass* pWidgetTab
  */
 void EhsWidgetTable_triggerViewportMouseDrag(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+    // todo change all the following to #ifdef EHS_GUI_SUPPORT_MODE_A
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     EhsWidgetClass* pWidget;
     EhsFunctionInstanceDataType *pFIdata;
     ehs_sint16 nIndex;
@@ -790,7 +803,7 @@ void EhsWidgetTable_triggerViewportMouseDrag(const EhsWidgetTableClass* pWidgetT
  */
 void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
     ehs_bool bClickProcessed = EHS_FALSE;
@@ -846,7 +859,7 @@ void EhsWidgetTable_registerMouseDownOnWidgetMatchCoords(const EhsWidgetTableCla
  */
 void EhsWidgetTable_registerMouseUpOnWidgetMatchCoords(const EhsWidgetTableClass* pWidgetTable, int x, int y)
 {
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     EhsWidgetClass* pWidget;
     ehs_sint16 nIndex;
     ehs_bool bClickProcessed = EHS_FALSE;

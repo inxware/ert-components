@@ -307,6 +307,7 @@ static inline ertqt_status ertqt_button_get_checked(ertqt_object_handle button, 
 //
 static inline ertqt_status ertqt_button_on_clicked(ertqt_object_handle button, ertqt_void_callback cb, void * user_data)
 {
+    printf("[TRACE] ertqt_button_on_clicked: handle=%p\n", (void*)(intptr_t)button); fflush(stdout);
     return ertqt_bind_clicked(button, cb, user_data);
 }
 

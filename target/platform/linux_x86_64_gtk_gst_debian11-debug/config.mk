@@ -53,6 +53,8 @@ EHS_DEBUGALL=true
 # Default application, system variant, and packaging/deployment options
 #################################################################################################################
 
+EHS_DEFAULT_APP=tutorials/hello_world
+#EHS_DEFAULT_APP=demos/UI_for_Waveshare
 EHS_PACKAGER_TYPE=deb
 
 
@@ -62,7 +64,6 @@ EHS_PACKAGER_TYPE=deb
 #################################################################################################################
 
 include ./target/devman-configs/inx-systems.com.mk
-
 
 #################################################################################################################
 # Legacy Preprocessor Definitions (DEFS)

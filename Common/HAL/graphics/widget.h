@@ -115,74 +115,191 @@ typedef ehs_bool (*fadeFunc_t) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity)  ;
  */
 struct EhsWidgetStruct
 {
-    EhsGraphicsRectangleClass xDesignRect;	/**< widget size as specified at design time (i.e. by LGB-based on original image size*/
-    EhsGraphicsRectangleClass xOrigRect;	/**< Initial bounding rectangle (as defined in LAB's properties file - Used to distinguish relative sizes and viewport - Otherwise the same as DesignRectangle*/
-    EhsGraphicsRectangleClass xCurRect;	    /**< current bounding rectangle for the widget */
-    EhsGraphicsRectangleClass UpdatedOffsettRect;	/**< This is the last updated offset in case we need to re-apply it to new media. */
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
-    EhsGraphicsSizeClass MediaRect;	/**< pixel dimensions of the original media */
+    /* ── Geometry rectangles (shared: Mode A and Mode B) ───────────────── */
+
+    EhsGraphicsRectangleClass xDesignRect;	/**< Widget size as specified at design time by the LGB tool,
+                                                 based on original image/media dimensions. Used as a
+                                                 reference when scaling or repositioning. (Shared) */
+    EhsGraphicsRectangleClass xOrigRect;	/**< Initial bounding rectangle from LAB's properties file.
+                                                 Used to distinguish relative sizes from viewport-absolute
+                                                 sizes. Usually identical to xDesignRect unless the widget
+                                                 uses relative coordinates. (Shared) */
+    EhsGraphicsRectangleClass xCurRect;	    /**< Current bounding rectangle - the live position and size
+                                                 of the widget after any runtime moves or resizes. This is
+                                                 what the draw/render path uses. (Shared) */
+    EhsGraphicsRectangleClass UpdatedOffsettRect;	/**< Last applied position offset. Cached so it can be
+                                                         re-applied when new media is loaded into the widget
+                                                         (e.g. image swap). (Shared) */
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
+    EhsGraphicsSizeClass MediaRect;	/**< Pixel dimensions (width, height) of the original media
+                                         content. Mode B only stores size (no x,y) because the
+                                         external library owns positioning. (Mode B / Mode B Qt) */
 #else
-    EhsGraphicsRectangleClass MediaRect; /**< pixel dimensions of the original media */
+    EhsGraphicsRectangleClass MediaRect; /**< Full rectangle (x, y, width, height) of the original
+                                              media. Mode A needs position for coordinate-based
+                                              hit-testing and blitting. (Mode A only) */
 #endif
-    ehs_uint16 nZ;                          /**< Z order */
-    ehs_bool (*pfFadeFunc) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity);	/**< Implementation of method "fade" */
-    ehs_bool (*pfCreateFunc)(EhsWidgetClass* pWidget); /**< Implementation of method "create" */
-    void (*pfDestroyFunc)(EhsWidgetClass* pWidget); /**< Implementation of method "destroy" */
-    void (*pfDrawFunc)(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass *pClipRect); /**< Implementation of method "draw" */
-#if !defined(EHS_GUI_SUPPORT_MODE_B) //&& !defined(EHS_GUI_SUPPORT_MODE_B_QT)
-    // in mode B (lvgl) mouse event callbacks are defined in the library
-    void (*pfMouseDownEventFunc)(EhsWidgetClass* pWidget); /* Callback for the mouse down event, only applies to widgets with pFIData=NULL e.g. GPIO widget */
-    void* pMouseDownEventData;
-    ehs_uint32 nMouseDownX;
-    ehs_uint32 nMouseDownY;
-    EhsWidgetKindEnum eWidgetKind; /**< Type of graphic object contained within this widget */
+
+    /* ── Z-order (shared) ──────────────────────────────────────────────── */
+
+    ehs_uint16 nZ;                          /**< Z-order value controlling draw/overlap priority.
+                                                 Higher values are drawn on top. In Mode A this
+                                                 determines hit-test priority for mouse events.
+                                                 In Mode B the external library may also use its own
+                                                 z-ordering, but this value is still tracked. (Shared) */
+
+    /* ── Virtual method table (shared) ─────────────────────────────────── */
+
+    ehs_bool (*pfFadeFunc) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity);	/**< Virtual method: fade/opacity change.
+                                                                                 Mode A: manipulates pixel alpha.
+                                                                                 Mode B: pushes opacity to external library. (Shared) */
+    ehs_bool (*pfCreateFunc)(EhsWidgetClass* pWidget); /**< Virtual method: widget creation/initialisation.
+                                                            Called once when the widget is first instantiated.
+                                                            Mode A: allocates pixel buffers, loads images.
+                                                            Mode B: creates library widget (LVGL obj / Qt QObject). (Shared) */
+    void (*pfDestroyFunc)(EhsWidgetClass* pWidget); /**< Virtual method: widget teardown/cleanup.
+                                                         Mode A: frees pixel buffers.
+                                                         Mode B: destroys the external library widget. (Shared) */
+    void (*pfDrawFunc)(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass *pClipRect); /**< Virtual method: draw/render.
+                                                         Mode A: blits pixels to the viewport framebuffer.
+                                                         Mode B: pushes changed properties (position, text,
+                                                         colour) to the external library using the
+                                                         bContentUpdated/bPositionUpdated/bColourUpdated flags. (Shared) */
+
+    /* ── Widget type discriminator (shared) ────────────────────────────── */
+
+    EhsWidgetKindEnum eWidgetKind; /**< Discriminator for the specificWidgetType union below.
+                                        Values: image, textbox, patch, ui, etc. (Shared) */
+
+    /* ── Mode A mouse event handling ───────────────────────────────────── */
+
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
+    /* Mode A only: eRT owns pixel buffers and performs coordinate-based
+     * hit-testing. These fields track mouse state per widget. In Mode B the
+     * external library (LVGL/Qt) handles hit-testing and fires events via
+     * the event_callback in EhsWidgetUiSubclass instead. */
+    void (*pfMouseDownEventFunc)(EhsWidgetClass* pWidget); /**< Callback for mouse-down on widgets with no
+                                                                pFIData (e.g. GPIO widget). (Mode A only) */
+    void* pMouseDownEventData;  /**< Opaque data pointer passed to pfMouseDownEventFunc. (Mode A only) */
+    ehs_uint32 nMouseDownX;     /**< X coordinate of last mouse-down event, used for drag
+                                     offset calculation. (Mode A only) */
+    ehs_uint32 nMouseDownY;     /**< Y coordinate of last mouse-down event. (Mode A only) */
+
 //	EhsBlitMethodEnum eBlitMethod; /**< Blit method used to draw widget */
 #endif
-    EhsFunctionInstanceDataType* pFIData; /*Needed so gtk thread can fire mouse click events @todo this could be a call back structure*/
+
+    /* ── Function instance back-pointer (shared) ───────────────────────── */
+
+    EhsFunctionInstanceDataType* pFIData; /**< Back-pointer to the owning function block instance.
+                                               Allows the graphics/event layer to fire EHS finish ports
+                                               when user interaction occurs (clicks, drags, etc.).
+                                               NULL for widgets not owned by a function block (e.g. GPIO).
+                                               (Shared - used by both Mode A and Mode B) */
+
+    /* ── Type-specific subclass union (discriminated by eWidgetKind) ──── */
 
     /*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eWidgetKind shows which union member to use */
     union
     {
-#if !defined(EHS_GUI_SUPPORT_MODE_B) //&& !defined(EHS_GUI_SUPPORT_MODE_B_QT)
-        // in mode B (lvgl) textbox, image is defined as a label in EhsWidgetUiSubclass
-        EhsWidgetImageSubclass image;		/**< Image specific attributes */
-        EhsWidgetTextboxSubclass textbox; 	/**< textbox specific attributes */
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
+        /* Mode A only: eRT manages image/textbox rendering directly.
+         * In Mode B the external library owns these widget types and
+         * they are represented by EhsWidgetUiSubclass instead. */
+        EhsWidgetImageSubclass image;		/**< Image-specific attributes (Mode A only) */
+        EhsWidgetTextboxSubclass textbox; 	/**< Textbox-specific attributes (Mode A only) */
 #endif
-        EhsWidgetPatchSubclass patch; 		/**< Patch specific attributes */
-        EhsWidgetUiSubclass ui;             /**< UI specific attributes */
+        EhsWidgetPatchSubclass patch; 		/**< 9-patch specific attributes (Shared) */
+        EhsWidgetUiSubclass ui;             /**< UI widget attributes for Mode B.
+                                                 Contains event_callback for receiving
+                                                 click/press/release events from the
+                                                 external library. (Mode B / Mode B Qt) */
         //EhsWidgetVideoPortSubclass video_port; /*Video port specific attributes */
     } specificWidgetType;
     /*line +e960 */
-    ehs_uint8 nAlpha; 						/* Stored value of alpha - if changed */
-    ehs_bool bMaintainAspectRatio;		    /** Maintain the aspect ratio by only processing changes in width and setting height accordingly */
+
+    /* ── Appearance state (shared) ─────────────────────────────────────── */
+
+    ehs_uint8 nAlpha; 						/**< Current alpha/opacity value (0-255). Tracked here so
+                                                 the render path can detect changes. (Shared) */
+    ehs_bool bMaintainAspectRatio;		    /**< When true, width changes auto-calculate height to
+                                                 preserve the original aspect ratio. (Shared) */
     //ehs_bool bRelativeCoordinates;		    /** The widget's parameters and input coordinates are in % screen width and these are converted to absolute pixels when updated (but not the screen width)*/
-    ehs_bool bContentChanged;	/* this flag is set if the content (text box only) is changed so that renderers such as text don't need to reblit such as in the case for OpenGL textures */
+    ehs_bool bContentChanged;	/**< Set when text/image content changes. Allows renderers
+                                     (e.g. OpenGL texture-based text) to skip re-blitting when
+                                     only position changed. (Shared, primarily Mode A) */
+
+    /* ── Mode B dirty flags ────────────────────────────────────────────── */
+
     /*************************************************************************************************************************************/
-    /* MODE B widget rendering changed flags - thesea re used to pass new position, maeta data and colour info to the widget library
-    * These are tested by pfDrawFunc (as implemented in the target) and checks the following flags to minimise unnecessary updated of its own widget list.
-    * These are set (typically) by a function block's update port and therefore will probably have to set all 3 values depending in the FB! */
-    ehs_bool bContentUpdated ;    // e.g. text
-    ehs_bool bPositionUpdated;   // including size
-    ehs_bool bColourUpdated;     // including alpha
+    /* MODE B widget rendering changed flags - used to pass new position,
+     * metadata and colour info to the external widget library. Tested by
+     * pfDrawFunc (target implementation) to minimise unnecessary updates.
+     * Typically set by a function block's update port handler. */
+    ehs_bool bContentUpdated ;    /**< Content changed (e.g. new text string). (Mode B) */
+    ehs_bool bPositionUpdated;   /**< Position or size changed. (Mode B) */
+    ehs_bool bColourUpdated;     /**< Colour or alpha changed. (Mode B) */
     /************************************************************************************************************************************/
-    ehs_uint8 nState; /**< Widget state defined by EHS_WIDGET_STATE_ macros */
-#if !defined(EHS_GUI_SUPPORT_MODE_B) //&& !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+
+    /* ── Widget lifecycle state (shared) ───────────────────────────────── */
+
+    ehs_uint8 nState; /**< Widget lifecycle state, defined by EHS_WIDGET_STATE_ macros
+                           (e.g. CREATED, VISIBLE, HIDDEN). (Shared) */
+
+    /* ── Mode A per-widget port numbers for mouse events ───────────────── */
+
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
+    /* Mode A only: In render Mode A, eRT owns the framebuffer and there is
+     * no external widget library to define widget GFX. The HAL receives raw
+     * mouse/touch coordinates from the OS and must perform its own
+     * coordinate-based hit-testing against widget bounding rectangles
+     * (xCurRect) and z-order (nZ) to determine which widget was touched.
+     *
+     * Once hit-testing identifies the target widget, the HAL needs to know
+     * which EHS kernel finish port to fire for each type of mouse event.
+     * These per-widget port numbers provide that mapping — they are set
+     * during widget creation from the CDF/function-block definition and
+     * allow the HAL to directly fire the correct port without needing to
+     * understand the function block's internal wiring.
+     *
+     * In render Mode B (LVGL, Qt), none of this is needed because the
+     * external widget library owns hit-testing — it knows which of its
+     * own widgets was clicked. Events arrive via the event_callback
+     * function pointer in EhsWidgetUiSubclass, which carries a generic
+     * event ID (e.g. EHS_WIDGET_UI_EVENT_MOUSE_CLICKED). The Mode B
+     * event handler then fires the appropriate finish port using the
+     * function block's own port definitions, rather than stored port
+     * numbers on the widget struct. This is a cleaner separation of
+     * concerns: the widget struct doesn't need to know about port wiring. */
     //@todo the following should be removed when a call back function (with a known port number) is used to fire the port
-    ehs_sint8 mouseClickPortNumber; /*Needed so gtk knows which finish port to fire*/
-    ehs_sint8 mouseDownPortNumber; /*Needed so gtk knows which finish port to fire*/
-    ehs_sint8 mouseUpPortNumber; /*Needed so gtk knows which finish port to fire*/
-    ehs_sint8 mouseDragPortNumber; /*Needed so gtk knows which finish port to fire*/
-    ehs_sint8 mouseUpDownAbsXPortNumber; /*Needed so gtk knows which finish port to fire*/
-    ehs_sint8 mouseUpDownAbsYPortNumber; /*Needed so gtk knows which finish port to fire*/
-    ehs_sint8 mouseDragOffsetXPortNumber; /*Needed so gtk knows which finish port to fire*/
-    ehs_sint8 mouseDragOffsetYPortNumber; /*Needed so gtk knows which finish port to fire*/
-    ehs_bool bRegisteredMouseDown;		/** records a mouse down event in this widget */
-    ehs_bool bOptimiseForSpeed;		/**< Do we want this widget to be time-, or memory-efficient? */
+    ehs_sint8 mouseClickPortNumber;         /**< Finish port index fired on mouse click. (Mode A only) */
+    ehs_sint8 mouseDownPortNumber;          /**< Finish port index fired on mouse down. (Mode A only) */
+    ehs_sint8 mouseUpPortNumber;            /**< Finish port index fired on mouse up. (Mode A only) */
+    ehs_sint8 mouseDragPortNumber;          /**< Finish port index fired on mouse drag. (Mode A only) */
+    ehs_sint8 mouseUpDownAbsXPortNumber;    /**< Finish port for absolute X on mouse up/down. (Mode A only) */
+    ehs_sint8 mouseUpDownAbsYPortNumber;    /**< Finish port for absolute Y on mouse up/down. (Mode A only) */
+    ehs_sint8 mouseDragOffsetXPortNumber;   /**< Finish port for drag offset X delta. (Mode A only) */
+    ehs_sint8 mouseDragOffsetYPortNumber;   /**< Finish port for drag offset Y delta. (Mode A only) */
+    ehs_bool bRegisteredMouseDown;		/**< True while a mouse-down is active on this widget,
+                                             used to pair down/up events correctly. (Mode A only) */
+    ehs_bool bOptimiseForSpeed;		/**< Hint: prefer speed over memory for this widget's
+                                         rendering (e.g. cache decoded images). (Mode A only) */
 #endif
+
+    /* ── Qt-specific handle (Mode B Qt only) ───────────────────────────── */
+
 #ifdef EHS_GUI_SUPPORT_MODE_B_QT
-    ertqt_object_handle qt_handle;  /**< Required for Qt integration to associate EHS widgets with Qt QObjects */
+    ertqt_object_handle qt_handle;  /**< Opaque handle associating this EHS widget with a Qt
+                                         QObject in the QML scene. Used by the Qt HAL to look up
+                                         the QObject for property changes and signal binding.
+                                         (Mode B Qt only) */
 #endif
-    ehs_bool bCaptureClicksIgnoringZOrder;		/** capture clicks on this widget regardless of its zorder */
+
+    /* ── Click capture override (shared) ───────────────────────────────── */
+
+    ehs_bool bCaptureClicksIgnoringZOrder;		/**< When true, this widget captures click events
+                                                     regardless of z-order overlap. Used for widgets
+                                                     that must always respond to input (e.g. modal
+                                                     overlays). (Shared) */
 }
 #ifdef EHS_OPTIMIZE_WIDGET_MEM
 __attribute__((packed))

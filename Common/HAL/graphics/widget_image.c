@@ -264,7 +264,9 @@ ehs_bool EhsWidgetImage_loadImage(EhsWidgetClass* pWidget)
         if (EhsStricmp(".gif",szExtension) == 0)
         {
             EHS_WIDGET_IMAGE(pWidget).eImageFormat = EHS_WIDGET_IMAGE_FORMAT_GIF;
+        #ifdef EHS_GUI_SUPPORT_MODE_A
             pWidget->pfDrawFunc = EhsWidgetImageGif_draw;
+        #endif
             bRet = EhsWidgetImageGif_load(pWidget,szFilename);
         }
         else if (EhsStricmp(".png",szExtension) == 0)

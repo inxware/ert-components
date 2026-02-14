@@ -26,34 +26,22 @@
 #include "widget.h"
 #endif
 
-static Ehs_ConsoleCommand_Type cmd;
-
-
 // EHS tick callback - called from a Qt timer
 static void ehs_tick_callback(void * user_data)
 {
-    extern EhsKEStateType EhsKEState;  // Declare external
-
-    // Force the kernel into single-stepping mode - all of this needs a proper kernel API...
-    EhsSingleStepFlag = EHS_TRUE;
-
-    // Transition READY -> RUNNING (like console commands do)
-    if (EhsKEState == EHSKE_STATE_READY)
-    {
-        EhsKEState = EHSKE_STATE_RUNNING;
-    }
-
-    // Progress the EHS state machine
-    cmd = EhsMainLoop(NULL, NULL);
-    cmd = EhsProcessInAppStateMachine(cmd);
-    cmd = EhsProcessExAppStateMachine(cmd);
-
+    Ehs_ConsoleCommand_Type cmd;
+    EhsTimer_tick(); // Run any timer events  that might have expired.
+    // Single-step the kernel; returns any unhandled commands, but QT wont be interested (unless perhaps it was an exit request)
+    cmd = EhsMainLoopSingle(NULL, NULL);
+    
     if (EhsCheckAppExitLoop(cmd) == EHS_TRUE)
     {
         EHSH_LOG_INFO("EHS requesting quit");
         ertqt_quit();
     }
+    //printf(".");fflush(stdout); // debug
 }
+
 
 
 // Initialise Qt and load the QML file
@@ -87,7 +75,7 @@ void EhsTV_registerTickCallback(void)
 {
     unsigned int interval_ms = 10;  // 100 Hz - @TODO: define this in central configuration somewhere
     ertqt_status st;
-
+printf("\n¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬Registering EHS tick callback with Qt timer, interval %u ms\n", interval_ms);
     st = ertqt_set_tick_callback(interval_ms, ehs_tick_callback, NULL);
     if (st != ERTQT_OK)
     {
@@ -102,6 +90,7 @@ void EhsTV_registerTickCallback(void)
 int EhsTV_runQt(void)
 {
     ertqt_status st;
+    //printf("Entering Qt event loop\n");fflush(stdout);
 
     EHSH_LOG_INFO("Entering Qt event loop");
 

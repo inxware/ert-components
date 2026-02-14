@@ -178,16 +178,16 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
 
     // Initialise the EHS kernel and load the application
     EhsInit();
+    EhsAppLoadingStateMachine(NULL,NULL); // we need to kick the loading state machine here in iterative mode, as we don't have the normal tick callback pattern to drive it from yet. In non-iterative mode, the loading state machine is driven from the tick callback, so we don't call it here.
 
     // Initialise the application state machine
-    EhsAppLoadingStateMachine(NULL, NULL);
+    //EhsAppLoadingStateMachine(NULL, NULL);
 
     // Register the main EHS tick callback with a Qt timer
     EhsTV_registerTickCallback();
 
     // Enter the core Qt event loop (blocks until quit)
     result = EhsTV_runQt();
-
     EhsExit(result);
 #else // EHS_MAIN_LOOP_ITERATIVE
         // Normal production mode

@@ -23,7 +23,7 @@
 #include "hal_viewport.h"
 #include "hal-api.h"
 
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
 #include "target_viewport_modeB.h"
 #endif
 
@@ -425,7 +425,7 @@ EhsWidgetClass* EhsWidgetViewport_init(const EhsGraphicsRectangleClass* pBounds,
 
     if (pWidget)
     {
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
         pWidget->eWidgetKind = EHS_WIDGET_KIND_VIEWPORT; //this stops it being composited onto itself
 #endif
         pWidget->nState = EHS_WIDGET_STATE_INIT;
@@ -609,7 +609,7 @@ EHS_GLOBAL ehs_bool EhsWidgetViewport_cleanup(struct EhsWidgetStruct* pWidget)
 {
     if(pWidget)
     {
-#if defined(EHS_GUI_SUPPORT_MODE_B) //|| defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
         EhsTargetWidgetUi_viewport_cleanup(pWidget);
 #endif
         return EHS_TRUE;

@@ -94,7 +94,7 @@ EHS_FB_INIT_FUNCTION(gui_patch)
 		EhsParseGuiParameters(guiParams,&xParams);
 		if (xParams.eClass == EHS_WIDGET_CLASS_PATCH)
 		{
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 			inx_gui_patch_state->pUiWidgetClass = EhsWidgetUI_init(EHS_OTHER_UI_WIDGET_PANEL, 0, xParams.uClass.xTextbox.nCurve, 0,
 			                                                    &(xParams.xRect),xParams.nZorder,
 																0, 0, 0, 0, 0,
@@ -171,7 +171,7 @@ EHS_FB_RUN_FUNCTION(gui_patch_create)
 		if(!pWidget){
 			return;
 		}
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
 		/* set up on click callback */
 		EHS_WIDGET_UI(pWidget).event_callback = gui_patch_event_callback;
 		/* setup widget data */
@@ -194,7 +194,7 @@ EHS_FB_RUN_FUNCTION(gui_patch_create)
 		}
 
 		EhsWidget_create(pWidget);
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
 		/*Set number of mouseClick port*/
 		pWidget->mouseClickPortNumber = INX_gui_patch_ARG_create_click;
 		pWidget->mouseDownPortNumber = INX_gui_patch_ARG_create_mouse_down;

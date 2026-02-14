@@ -127,9 +127,8 @@ EHS_OTA_SUPPORT=yes
 #################################################################################################################
 
 # Default application to run
-EHS_DEFAULT_APP=demos/UI_for_Waveshare
+EHS_DEFAULT_APP=tutorials/UI_for_Waveshare
 #EHS_DEFAULT_APP=tutorials/hello_world
-
 
 #################################################################################################################
 # Device Management Credentials

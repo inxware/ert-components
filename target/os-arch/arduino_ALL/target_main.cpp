@@ -47,7 +47,7 @@ void app_load_status_handler(ehs_uint32 status)
 #endif
 }
 
-/* Is this the same as targetos_init.c????/ */
+/* TODO2026 Is this the same as targetos_init.c????/ */
 void eRT_setup()
 {
     EhsStdioPrintf("EHS Init\n");
@@ -63,6 +63,7 @@ void eRT_setup()
     EhsAppLoadingStateMachine(NULL, NULL);
 }
 
+/* TODO2026 replace this with EhsMainLoopSingle()*/
 void eRT_loop()
 {
     Command = EhsMainLoop(NULL, NULL);
@@ -71,6 +72,7 @@ void eRT_loop()
     if (EhsCheckAppExitLoop(Command) == EHS_TRUE)
         EhsExit(0);
 }
+
 
 bool eRT_wifi(const char* ssid, const char* password)
 {

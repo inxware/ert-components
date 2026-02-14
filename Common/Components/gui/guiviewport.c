@@ -174,15 +174,16 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
         //{@todo reinstate this when the new types are recognised and specified properly in the tools etc.
         bRet = EHS_TRUE;
         //}
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_A)
+        /* Create a widget struct for rendering using the parameters from the LGB generated block */
+        *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetViewport_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xPatch);
+#else
+        /* create a widget object to link to a 3rd-party widget rendering systems(MODE B) */
         *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetUI_init(EHS_OTHER_UI_WIDGET_VIEWPORT, 0, 0, 0, &(xParams.xRect), xParams.nZorder,
 																 0, 0, 0, 0, 0,
 																 xParams.uClass.xPatch,
 																 xParams.uClass.xPatch,
 																 /*pFont*/NULL);
-#else
-        /* Create a widget struct using the parameters from the LGB generated block */
-        *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT =	EhsWidgetViewport_init(&xParams.xRect, xParams.nZorder, xParams.uClass.xPatch);//@todo this should be params
 #endif
         pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
 
@@ -275,7 +276,7 @@ EHS_FB_RUN_FUNCTION(gui_viewport_create)
     EhsWidgetClass *pWidget = *(EhsWidgetClass**)EHS_FB_RUN_CONTEXT;
     if (pWidget) {
 
-#if defined(EHS_GUI_SUPPORT_MODE_B) || defined(EHS_GUI_SUPPORT_MODE_B_QT)
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 		/* set up on click callback */
 		EHS_WIDGET_UI(pWidget).event_callback = gui_viewport_event_callback;
 		/* setup widget data */
@@ -287,8 +288,8 @@ EHS_FB_RUN_FUNCTION(gui_viewport_create)
         /*Set pointer in widget structure to point at instance data. Used for mouse click.*/
         pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
 
-#if !defined(EHS_GUI_SUPPORT_MODE_B) && !defined(EHS_GUI_SUPPORT_MODE_B_QT)
-        /*Set number of mouseClick, mouseUp, mouseDrag ports*/
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
+        /*Set number of mouseClick, mouseUp, mouseDrag ports for render mode A callbacks to call*/
         pWidget->mouseDownPortNumber = 2;
         pWidget->mouseUpPortNumber = 3;
         pWidget->mouseDragPortNumber = 4;

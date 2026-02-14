@@ -28,15 +28,12 @@
 include $(EHS_COMMON_HAL_PATH)/graphics/deps.mk
 
 ifneq ($(EHS_RENDER_MODE),B)
+	include $(EHS_COMMON_HAL_PATH)/graphics/png/png.mk
+	include $(EHS_COMMON_HAL_PATH)/graphics/jpeg/jpg.mk
 
-include $(EHS_COMMON_HAL_PATH)/graphics/png/png.mk
-
-include $(EHS_COMMON_HAL_PATH)/graphics/jpeg/jpg.mk
-
-ifdef EHS_GRAPHICS_SVG
-include $(EHS_COMMON_HAL_PATH)/graphics/svg/svg.mk
-endif
-
+	ifdef EHS_GRAPHICS_SVG
+	include $(EHS_COMMON_HAL_PATH)/graphics/svg/svg.mk
+	endif
 endif #($(EHS_RENDER_MODE),B)
 
 #tell the code we are in business

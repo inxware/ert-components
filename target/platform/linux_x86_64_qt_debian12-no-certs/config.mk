@@ -74,15 +74,7 @@ EHS_GUI_SUPPORT=qt
 # to progress its state, rather than the more traditional (blocking) call into `EhsLoop()`.
 #
 EHS_MAIN_LOOP_ITERATIVE=yes
-DEFS += EHS_MAIN_LOOP_ITERATIVE
 
-# Graphics configuration - delegate all rendering to Qt and automatically plumb between the widgets in '*.gui' and their
-# respective QObject (from '*.qml'. This requres the EHS widget name (string) to match the `objectName` in the QML.
-#
-EHS_GUI_SUPPORT_MODE_B_QT=yes
-DEFS += EHS_GUI_SUPPORT_MODE_B_QT
-# EHS_GUI_SUPPORT_MODE_B=yes
-# DEFS += EHS_GUI_SUPPORT_MODE_B
 
 # Mock GPIO widgets in Qt UI - enables desktop development of GPIO apps before hardware is available.
 # Uncomment to enable virtual GPIO LED/switch widgets rendered in the Qt window.

@@ -50,25 +50,29 @@ static ehs_bool g_qt_initialised = EHS_FALSE;
 static void qt_on_button_pressed(void * user_data)
 {
     EhsWidgetClass * pWidget = (EhsWidgetClass *)user_data;
+    printf("[TRACE] qt_on_button_pressed: ENTERED, user_data=%p\n", user_data);
+    fflush(stdout);
 
     if (!pWidget)
     {
-        EHSH_LOG_WARNING("Qt button pressed: pWidget is NULL!");
+        printf("[TRACE] qt_on_button_pressed: pWidget is NULL!\n"); fflush(stdout);
         return;
     }
 
-    EHSH_LOG_INFO("Qt button pressed - pWidget=%p, event_callback=%p",
-                  (void *)pWidget, (void *)EHS_WIDGET_UI(pWidget).event_callback);
+    printf("[TRACE] qt_on_button_pressed: pWidget=%p, event_callback=%p, pFIData=%p\n",
+           (void *)pWidget, (void *)EHS_WIDGET_UI(pWidget).event_callback, (void *)pWidget->pFIData);
+    fflush(stdout);
 
     /* Trigger EHS mouse_down event via the widget's event callback */
     if (EHS_WIDGET_UI(pWidget).event_callback)
     {
-        EHSH_LOG_INFO("  -> Calling event_callback for MOUSE_DOWN");
+        printf("[TRACE] qt_on_button_pressed: -> calling event_callback(MOUSE_DOWN)\n"); fflush(stdout);
         EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_DOWN, NULL, NULL);
+        printf("[TRACE] qt_on_button_pressed: <- event_callback returned\n"); fflush(stdout);
     }
     else
     {
-        EHSH_LOG_WARNING("  (fail) event_callback is NULL - cannot trigger EHS event!");
+        printf("[TRACE] qt_on_button_pressed: event_callback is NULL!\n"); fflush(stdout);
     }
 }
 
@@ -76,26 +80,29 @@ static void qt_on_button_pressed(void * user_data)
 static void qt_on_button_released(void * user_data)
 {
     EhsWidgetClass * pWidget = (EhsWidgetClass *)user_data;
+    printf("[TRACE] qt_on_button_released: ENTERED, user_data=%p\n", user_data);
+    fflush(stdout);
 
     if (!pWidget)
     {
-        EHSH_LOG_WARNING("Qt button released: pWidget is NULL!");
+        printf("[TRACE] qt_on_button_released: pWidget is NULL!\n"); fflush(stdout);
         return;
     }
 
-    EHSH_LOG_INFO("Qt button released (click) - pWidget=%p, event_callback=%p",
-                  (void *)pWidget, (void *)EHS_WIDGET_UI(pWidget).event_callback);
+    printf("[TRACE] qt_on_button_released: pWidget=%p, event_callback=%p, pFIData=%p\n",
+           (void *)pWidget, (void *)EHS_WIDGET_UI(pWidget).event_callback, (void *)pWidget->pFIData);
+    fflush(stdout);
 
     /* Trigger EHS click event via the widget's event callback */
-    /* EHS treats button release as the actual click event */
     if (EHS_WIDGET_UI(pWidget).event_callback)
     {
-        EHSH_LOG_INFO("  -> Calling event_callback for MOUSE_CLICKED");
+        printf("[TRACE] qt_on_button_released: -> calling event_callback(MOUSE_CLICKED)\n"); fflush(stdout);
         EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_MOUSE_CLICKED, NULL, NULL);
+        printf("[TRACE] qt_on_button_released: <- event_callback returned\n"); fflush(stdout);
     }
     else
     {
-        EHSH_LOG_WARNING("  (fail) event_callback is NULL - cannot trigger EHS event!");
+        printf("[TRACE] qt_on_button_released: event_callback is NULL!\n"); fflush(stdout);
     }
 }
 
@@ -150,16 +157,12 @@ static void register_qt_signals(EhsWidgetClass * pWidget)
 {
     ertqt_object_handle h = pWidget->qt_handle;
 
-    EHSH_LOG_INFO("Registering Qt signals for handle %"PRIdPTR", pWidget=%p, event_callback=%p",
-                  h, (void *)pWidget, (void *)EHS_WIDGET_UI(pWidget).event_callback);
-
-    /* Determine widget type from UI subclass ID */
-    /* For PoC, register all possible signals - Qt will only connect the ones that exist */
+    printf("[TRACE] register_qt_signals: handle=%p, pWidget=%p, event_callback=%p\n",
+           (void *)(intptr_t)h, (void *)pWidget, (void *)EHS_WIDGET_UI(pWidget).event_callback);
+    fflush(stdout);
 
     /* Register button pressed/released signals (EHS treats release as the actual click) */
-    EHSH_LOG_INFO("  Binding pressed signal with pWidget=%p as user_data", (void *)pWidget);
     ertqt_bind_pressed(h, qt_on_button_pressed, pWidget);
-    EHSH_LOG_INFO("  Binding released signal with pWidget=%p as user_data", (void *)pWidget);
     ertqt_bind_released(h, qt_on_button_released, pWidget);
 
     /* Register text field change signal */
@@ -168,6 +171,7 @@ static void register_qt_signals(EhsWidgetClass * pWidget)
     /* Register checkbox clicked signal */
     ertqt_checkbox_on_clicked(h, qt_on_checkbox_clicked, pWidget);
 
+    printf("[TRACE] register_qt_signals: done\n"); fflush(stdout);
 }
 
 //=============================================================================
@@ -182,21 +186,29 @@ static void register_qt_signals(EhsWidgetClass * pWidget)
  */
 void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
 {
+    printf("[TRACE] EhsTargetWidgetUi_create: ENTERED, pWidget=%p\n", (void *)pWidget);
+    fflush(stdout);
+
     if (!pWidget)
     {
-        EHSH_LOG_ERROR("NULL widget pointer in EhsTargetWidgetUi_create");
+        printf("[TRACE] EhsTargetWidgetUi_create: pWidget is NULL!\n"); fflush(stdout);
         return;
     }
 
     /* Look up Qt object by name */
     char * name_hack = "user_interface";
-    EHSH_LOG_INFO("EhsTargetWidgetUi_create() looking up '%s'", name_hack);
+    printf("[TRACE] EhsTargetWidgetUi_create: looking up Qt object '%s'\n", name_hack);
+    fflush(stdout);
     ertqt_object_handle h = ertqt_get_object_by_name(name_hack);    // @TODO: get the widget name string from `pWidget`
+
+    printf("[TRACE] EhsTargetWidgetUi_create: ertqt_get_object_by_name('%s') -> handle=%p\n",
+           name_hack, (void *)(intptr_t)h);
+    fflush(stdout);
 
     if (h < 0)
     {
-        EHSH_LOG_WARNING("Failed to find Qt object '%s', trying default names", name_hack);
-        // @TODO: Try alternate naming strategies or create widget dynamically
+        printf("[TRACE] EhsTargetWidgetUi_create: FAILED to find Qt object '%s'\n", name_hack);
+        fflush(stdout);
         return;
     }
 
@@ -206,7 +218,9 @@ void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
     /* Register Qt signal handlers */
     register_qt_signals(pWidget);
 
-    EHSH_LOG_INFO("Created Qt widget UI for handle %"PRIdPTR"", h);
+    printf("[TRACE] EhsTargetWidgetUi_create: DONE, qt_handle=%p, event_callback=%p\n",
+           (void *)(intptr_t)h, (void *)EHS_WIDGET_UI(pWidget).event_callback);
+    fflush(stdout);
 }
 
 /**
