@@ -59,6 +59,7 @@
 #include "hal_configs.h"
 
 #include "sdkconfig.h"
+#include "driver/uart.h"
 #include "freertos/FreeRTOS.h"
 #include <freertos/task.h>
 
@@ -892,6 +893,8 @@ void command_prompt_task(void* params) {
                 printf("Unknown command '%c'. Type 'h' for help.\n", command);
             }
         }
+        fflush(stdout);
+        uart_wait_tx_done(CONFIG_ESP_CONSOLE_UART_NUM, pdMS_TO_TICKS(100));
         EhsHStatisticsLoopEnd(threadname);
         vTaskDelay(pdMS_TO_TICKS(50)); // Reduced delay for more responsive input
     }
@@ -1108,7 +1111,7 @@ void EhsLoadNetworkConfig()
 {
     EhsConfig* config = EhsConfigLoad(EHS_NET_CONFIG_FILE);
     if(config){
-        //ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
+        ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
         EhsNetworkConfigDataType net_config = { 0 };
         net_config.save = EHS_FALSE; // we're loading settings, so no need to save them
         net_config.mode = EHS_NET_DHCP_MODE_ID;

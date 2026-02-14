@@ -207,6 +207,5 @@ void app_main(void)
         s_led_state = !s_led_state;
         EhsSleepUs(10000);
     }
-}
 
 */

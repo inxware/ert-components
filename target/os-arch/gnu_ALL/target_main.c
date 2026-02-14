@@ -65,6 +65,10 @@
  */
 EHS_LOCAL void EhsTargetHandleTerm(int);
 
+/*****************************************************************************/
+/* Variables defined with global-scope */
+/*****************************************************************************/
+/* Function definitions */
 
 /**
  * Linux (and gnu) is always ready as soon as main is run
@@ -141,6 +145,7 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
         SIG_IGN
     }, NULL);
 #endif
+
 #ifdef EHS_TEST_FUNC_OVERRIDE
     // Test mode with full init: Run test instead of EhsMain
     extern void EHS_TEST_FUNC_NAME(void);

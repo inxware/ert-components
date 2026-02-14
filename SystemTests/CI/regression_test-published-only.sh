@@ -269,3 +269,4 @@ LS_COLORS=${LS_COLORS}"*.fail=10;31:*.pass=00;32:" ls -l --color=always ${CI_RES
 
 # Exit with a suitable return code
 ls -- "${CI_RESULT_DIR%/}"/*/*.fail >/dev/null 2>&1 && exit 1 || exit 0
+

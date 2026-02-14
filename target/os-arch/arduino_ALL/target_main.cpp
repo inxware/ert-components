@@ -73,7 +73,6 @@ void eRT_loop()
         EhsExit(0);
 }
 
-
 bool eRT_wifi(const char* ssid, const char* password)
 {
 #ifdef EHS_COMPONENT_NETWORKING_SUPPORT

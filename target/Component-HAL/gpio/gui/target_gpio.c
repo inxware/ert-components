@@ -367,7 +367,7 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidgetSwitch, ehs
         }
 	}
 }
-    #endif - this is awfull
+#endif
 
 void OnMouseDownEvent(EhsWidgetClass* pWidget)
 {
@@ -387,7 +387,7 @@ void OnMouseDownEvent(EhsWidgetClass* pWidget)
         }
     }
 }
-#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
+//#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
 
 gpio_in_gui_widget* init_gpio_in_gui_widget(ehs_gpio_in_state_type* pGPIO)
 {
