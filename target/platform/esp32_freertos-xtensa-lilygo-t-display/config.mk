@@ -8,7 +8,7 @@
 #---------------------------------------------------------------#
 
 # @file config.mk
-# inxware ERT configuration file for esp32s3_freertos-xtensa-waveshare-touchlcd-1_69
+# inxware ERT configuration file for esp32s3_freertos-xtensa-community
 # @author: inx limited
 
 
@@ -17,7 +17,7 @@
 # Include parent configuration files that this target extends
 #################################################################################################################
 
-include ./target/platform/esp32s3_freertos-xtensa-base/config.mk
+include ./target/platform/esp32_freertos-xtensa-base/config.mk
 
 
 #################################################################################################################
@@ -25,33 +25,16 @@ include ./target/platform/esp32s3_freertos-xtensa-base/config.mk
 # CPU architecture, operating system, toolchain selection, and middleware dependencies
 #################################################################################################################
 
-# COMPONENT_VARIANT - uartusb-N16R2 (16 MB Flash, 2 MB PSRAM, UART console on)
-COMPONENT_VARIANT=uartusb-n16r2
-
-# SYSTEM_VARIANT optionally indicates specific target environment configurations
-# See target/envbuildscripts/targetenv_hacks_*.sh scripts
-SYSTEM_VARIANT=esp32s3-hrdcv2
-
-# make sure to use libraries built with 32k cache for this target
-TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
-
-# Watchdog (override base - use stubbed for this target)
-EHS_WATCHDOG_SUPPORT=stubbed
-
-
 #################################################################################################################
 # Debug and Startup Modifiers
 # Debug levels, logging, console settings, and startup behavior
 #################################################################################################################
 
-# Enable debug mode
-EHS_DEBUGALL=yes
+# Enable the serial command prompt interface
+#EHS_SERIAL_CONSOLE_SUPPORT=yes
 
-# Runtime logger
-EHS_RUNTIME_LOGGER_ENABLED=no
-
-# Reboot after app load
-EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
+# Memory management (uncomment to disable linked-list based allocator)
+#EHS_MEMORY_MANAGMENT=none
 
 
 #################################################################################################################
@@ -60,19 +43,14 @@ EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
 #################################################################################################################
 
 # Wi-Fi Support
-EHS_NETWORK_WIFI_SUPPORT=yes
+#EHS_NETWORK_WIFI_SUPPORT=yes
 
-# Device management
-EHS_DEVMAN_SUPPORT=mqtt
+# OTA is not supported for the community at the moment
+EHS_OTA_SUPPORT=stubbed
 
-# Memory management (uncomment to disable linked-list based allocator)
-#EHS_MEMORY_MANAGMENT=none
-
-#----- GUI Features -----
+# Display
 EHS_LVGL_DISPLAY_DRIVER=st7789
 EHS_LVGL_TOUCH_DRIVER=cst816t
-CONFIG_LV_I2C=1
-
 
 #################################################################################################################
 # Application and Packaging
@@ -81,6 +59,12 @@ CONFIG_LV_I2C=1
 
 # Default application to run
 EHS_DEFAULT_APP=tutorials/hello_world
+#EHS_DEFAULT_APP=tutorials/hello_world
+
+# Appland deployment config
+#EHS_APPLAND_INST_SUPPORT=yes
+#EHS_APPLAND_INST_DEPLOY_NAME=Xtensa-ESP32-S3-Community
+#EHS_APPLAND_INST_OS_NAME=xtensa-esp32-s3
 
 
 #################################################################################################################
@@ -88,7 +72,7 @@ EHS_DEFAULT_APP=tutorials/hello_world
 # Include files containing server connection details and credentials
 #################################################################################################################
 
-include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
+#include ./target/devman-configs/devman.inxware.io.mk
 
 
 #################################################################################################################
@@ -96,24 +80,12 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# HRDCV2 product config ("2" means Rev. B)
-DEFS += EHS_PLATFORM_ESP32S3_HRDCV2=2
-
-# Enable nano printf support
-DEFS += EHS_NANOPRINTF_SUPPORT=1
-
-# Enable the serial command prompt interface
-DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
-
-# Main task stack size
-DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
-
 # Maximum wi-fi SSID records buffer size
-DEFS += ESP32_MAX_AP_RECORDS=20
+#DEFS += ESP32_MAX_AP_RECORDS=40
 
-# Wi-Fi credentials (defaults if none saved)
-DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""
-DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""
+# Wi-Fi credentials (uncomment and set to configure)
+#DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""
+#DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""
 
 
 ################################### END OF CONFIGURATION ###################################################

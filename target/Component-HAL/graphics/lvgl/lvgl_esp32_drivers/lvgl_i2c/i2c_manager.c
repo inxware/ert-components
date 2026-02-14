@@ -40,6 +40,7 @@ SOFTWARE.
 
 
 #include "i2c_manager.h"
+#include "target_config.h"
 
 
 #if defined __has_include
