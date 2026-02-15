@@ -2092,11 +2092,42 @@ EhsHLogger_setLogLevel("Network", EHSH_LOG_LEVEL_INFO);  /* info and above */
 - **`#ifdef EHS_LOG_LEVEL_VERBOSE`:** All modules set to `INFO | WARNING | ERROR`
 - **Default (non-verbose):** All modules set to `ERROR` only, except `Network` which defaults to `INFO`
 
-To customise default levels for a specific platform, either:
-1. Add `DEFS += EHS_LOG_LEVEL_VERBOSE` in `config.mk` to switch to verbose defaults, or
-2. Modify `EhsHSetLogLevels()` in `hal.c` to set per-module levels as needed
+To customise default levels for a specific platform, there are three options:
 
-Log levels can also be changed at runtime (e.g. via a debug console command) by calling `EhsHLogger_setLogLevel()` at any time.
+**Option 1: Verbose mode** — switch all modules to `INFO | WARNING | ERROR`:
+```makefile
+# In config.mk:
+DEFS += EHS_LOG_LEVEL_VERBOSE
+```
+
+**Option 2: Per-module override** — set individual module levels from `config.mk` without modifying C code. Define make variables named `EHS_LOG_LEVEL_<MODULE>` with the desired bitmask value. `HAL.mk` checks for each variable and adds a compiler define if set:
+
+```makefile
+# In config.mk:
+EHS_LOG_LEVEL_GRAPHICS=0x07     # ERROR|WARNING|INFO for Graphics
+EHS_LOG_LEVEL_NETWORK=0x01      # ERROR only for Network
+EHS_LOG_LEVEL_KERNEL=0x1f       # All levels for Kernel
+```
+
+Available module names for `EHS_LOG_LEVEL_<MODULE>`:
+
+| Make variable | Default (non-verbose) | Overrides module |
+|---------------|----------------------|------------------|
+| `EHS_LOG_LEVEL_UNDEFINED` | `0x01` (ERROR) | Undefined |
+| `EHS_LOG_LEVEL_KERNEL` | `0x01` (ERROR) | Kernel |
+| `EHS_LOG_LEVEL_GRAPHICS` | `0x01` (ERROR) | Graphics |
+| `EHS_LOG_LEVEL_LOGGER` | `0x01` (ERROR) | Logger |
+| `EHS_LOG_LEVEL_HALMEMORY` | `0x01` (ERROR) | HalMemory |
+| `EHS_LOG_LEVEL_HALPROCESS` | `0x01` (ERROR) | HalProcess |
+| `EHS_LOG_LEVEL_HALSTRING` | `0x01` (ERROR) | HalString |
+| `EHS_LOG_LEVEL_TGTVIEWPORT` | `0x01` (ERROR) | TgtViewport |
+| `EHS_LOG_LEVEL_NETWORK` | `0x04` (INFO) | Network |
+| `EHS_LOG_LEVEL_DEVMAN` | `0x01` (ERROR) | Devman |
+| `EHS_LOG_LEVEL_FILE` | `0x01` (ERROR) | file |
+
+Bitmask values: `ERROR=0x01`, `WARNING=0x02`, `INFO=0x04`, `ENTER=0x08`, `EXIT=0x10`. OR them together, e.g. `0x07` = ERROR+WARNING+INFO.
+
+**Option 3: Runtime** — call `EhsHLogger_setLogLevel()` at any point to change a module's level dynamically (e.g. via a debug console command).
 
 #### Logging Macros
 
