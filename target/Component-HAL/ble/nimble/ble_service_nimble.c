@@ -330,6 +330,12 @@ ehs_sint32 inx_ble_service_hal_init(
     /* Start the BLE host task */
     nimble_port_freertos_init(ble_host_task);
 
+    int rc = ble_hs_start();
+    if (rc != 0)
+    {
+        ESP_LOGW(TAG, "Failed to start host controller: %d", rc);
+    }
+
     ESP_LOGI(TAG, "BLE service initialized successfully");
     return 0;
 }
@@ -413,11 +419,19 @@ ehs_sint32 inx_ble_service_hal_register_gatt(void)
 
 /**
  * Start BLE advertising
+ * Need to wait after GAP is initialised
+ *  Need to call `while(!ble_hs_synced()) {ble_hs_sched_start();}` before calling this.
  */
 ehs_sint32 inx_ble_service_hal_start_adv(void)
 {
     if (g_ble_ctx.advertising) {
         ESP_LOGW(TAG, "Already advertising");
+        return -1;
+    }
+    
+    if (!ble_hs_synced())
+    {
+        ESP_LOGE(TAG, "Host is not synchronised");
         return -1;
     }
 
@@ -434,13 +448,6 @@ ehs_sint32 inx_ble_service_hal_start_adv(void)
     
     fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
     fields.tx_pwr_lvl_is_present = 1;
-
-    rc = ble_hs_start();
-    if (rc != 0)
-    {
-        ESP_LOGE(TAG, "Failed to start host controller: %d", rc);
-        //return -1;
-    }
 
     rc = ble_gap_adv_set_fields(&fields);
     if (rc != 0) {
