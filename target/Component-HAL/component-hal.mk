@@ -270,3 +270,4 @@ include $(EHS_TARGET_COMPONENT_HAL_PATH)/watchdog/target_watchdog.mk
 ## Non-Volatile Storage (NVS)
 ########################################################################################################
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/nvs/hal_nvs.mk
+

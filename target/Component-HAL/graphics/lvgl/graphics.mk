@@ -171,6 +171,14 @@ ifeq ($(EHS_LVGL_TOUCH_DRIVER),ra8875)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/ra8875_touch.$(OBJ)
 DEFS += LVGL_USE_RA8875_TOUCH
 endif
+ifeq ($(EHS_LVGL_TOUCH_DRIVER),cst816t)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/cst816t.$(OBJ)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_i2c/i2c_manager.$(OBJ)
+DEFS += CONFIG_LV_TOUCH_CONTROLLER_CST816T
+DEFS += CONFIG_I2C_MANAGER_0_FREQ_HZ=100000
+DEFS += CONFIG_I2C_MANAGER_1_FREQ_HZ=100000
+DEFS += CONFIG_LV_I2C
+endif
 # Common files
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_helpers.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/disp_driver.$(OBJ)

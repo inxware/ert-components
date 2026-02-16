@@ -22,6 +22,8 @@ void touch_driver_init(void)
     ra8875_touch_init();
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_GT911)
     gt911_init(GT911_I2C_SLAVE_ADDR);
+#elif defined (CONFIG_LV_TOUCH_CONTROLLER_CST816T)
+    cst816t_init(CST816T_I2C_SLAVE_ADDR);
 #endif
 }
 
@@ -47,6 +49,9 @@ bool touch_driver_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
     res = ra8875_touch_read(drv, data);
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_GT911)
     res = gt911_read(drv, data);
+#elif defined (CONFIG_LV_TOUCH_CONTROLLER_CST816T)
+    cst816t_read(drv, data);
+    res = (data->state == LV_INDEV_STATE_PR);
 #endif
 
 #if LVGL_VERSION_MAJOR >= 8
