@@ -51,8 +51,8 @@ EHS_PERIPHERALS_ADC_DAC_SUPPORT=stubbed
 COMPONENT_VARIANT=base
 
 # Application Selection
-EHS_DEFAULT_APP=tutorials/hello_world_qt
-
+#EHS_DEFAULT_APP=tutorials/hello_world
+EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
 # Enable eRT1 support (binary format SODL files)
 ERT_SODL_VERSION=1
 
@@ -102,5 +102,5 @@ EHS_MV_SUPPORT=stubbed
 EHS_LOG_LEVEL_GRAPHICS=EHSH_LOG_LEVEL_ALL
 
 ## hacking 
-#DEFS += EHS_LOG_LEVEL_VERBOSE
+DEFS += EHS_LOG_LEVEL_VERBOSE
 DEFS += EHS_LOG_TO_STDIO

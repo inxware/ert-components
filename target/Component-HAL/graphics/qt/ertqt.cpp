@@ -7,6 +7,55 @@
  *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
+/**
+ * @file ertqt.cpp
+ *
+ * Qt glue layer between the eRT runtime and the Qt/QML rendering engine.
+ *
+ * This file is the sole C++ compilation unit in the Qt target HAL. It
+ * provides a pure-C API (declared in ertqt.h) that the rest of eRT — which
+ * is written in C — calls to interact with Qt. All Qt headers and C++
+ * standard library usage are confined to this file.
+ *
+ * Main responsibilities:
+ *
+ *  1. **Lifecycle management** — ertqt_init() creates the QGuiApplication
+ *     and QQmlApplicationEngine, loads the application QML file, and
+ *     populates the object table. ertqt_run() enters the Qt event loop
+ *     (blocking). ertqt_quit() requests an orderly shutdown.
+ *
+ *  2. **Object discovery** — After the QML scene is loaded, all QObject
+ *     children of the engine's root objects are enumerated by
+ *     rebuild_object_table(). Each entry records a QObject pointer and its
+ *     objectName. eRT widgets locate their QML counterpart by calling
+ *     ertqt_get_object_by_name() with the widget name parsed from the
+ *     .gui parameter file. The returned opaque handle is stored on
+ *     EhsWidgetStruct.qt_handle and used for all subsequent property
+ *     and signal operations.
+ *
+ *  3. **Property access** — ertqt_set_property_{string,int,double,bool}()
+ *     and ertqt_get_property_*() wrap QObject::setProperty/property() so
+ *     that eRT C code can push data to, and read data from, QML objects
+ *     without including any Qt headers. ertqt_update_widget() calls
+ *     QQuickItem::update() to schedule a repaint after property changes.
+ *
+ *  4. **Signal binding** — ertqt_bind_signal() connects a named Qt signal
+ *     (e.g. "clicked", "pressed", "textChanged") to a C callback using
+ *     Qt meta-object introspection. On Qt 5 this uses QSignalMapper as
+ *     bridge; on Qt 6 it connects directly to a lambda. This allows
+ *     target_viewport.c to receive click and text-change events from QML
+ *     without compile-time coupling to specific QML types.
+ *
+ *  5. **Tick timer** — ertqt_set_tick_callback() arranges for a periodic
+ *     QTimer::singleShot chain on the Qt main thread. The callback
+ *     (ehs_tick_callback in qt_main_integration.c) single-steps the eRT
+ *     kernel via EhsMainLoopSingle(). Because the timer fires on the Qt
+ *     thread, all eRT kernel work — including widget creation, property
+ *     pushes, and signal handling — runs on the GUI thread, satisfying
+ *     Qt's thread-affinity requirements.
+
+ */
+
 #include "ertqt.h"
 
 #include <QtCore/QCoreApplication>
@@ -240,7 +289,7 @@ ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv)
         local_argc = argc;
         local_argv = argv;
     }
-
+    // TODOmake this a load application function so it is separate from the rest of the init and can be callled with new apps. Requires a clean up function too.
     try
     {
         g_app = new QGuiApplication(local_argc, local_argv);
@@ -468,15 +517,19 @@ static ertqt_status set_property(ertqt_object_handle h, const char * prop_name, 
     if (!prop_name)
     {
         return ERTQT_ERR_INVALID_ARGUMENT;
+        //printf("Property name is NULL\n");
     }
 
     QObject * obj = handle_to_qobject(h);
     if (!obj)
     {
+        //printf("Invalid handle: %ld\n", (long)h);
         return ERTQT_ERR_INVALID_HANDLE;
     }
 
     const bool ok = obj->setProperty(prop_name, value);
+    //printf("Setting property '%s' on object '%s' (handle %ld) to value '%s' (type %d) - result: %s\n",
+    //       prop_name, obj->objectName().toStdString().c_str(), (long)h, value.toString().toStdString().c_str(), value.type(), ok ? "OK" : "FAIL");
     return ok ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
 }
 
@@ -948,7 +1001,7 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
     // Connect: signal -> mapper.map()
     bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");  // "1" = SLOT
     if (!connected) {
-        qDebug() << "ertqt: Failed to connect signal" << signal_name << "to QSignalMapper";
+        //qDebug() << "ertqt: Failed to connect signal" << signal_name << "to QSignalMapper";
         return ERTQT_ERR_BACKEND_FAILURE;
     }
 
@@ -960,7 +1013,7 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
                        // fflush(stdout);
                         cb(user_data);
                     });
-    qDebug() << "ertqt: Connected signal" << signal_name << "via QSignalMapper (Qt5)";
+    //qDebug() << "ertqt: Connected signal" << signal_name << "via QSignalMapper (Qt5)";
     return ERTQT_OK;
 #else
     // Qt6: Can connect string signals to lambdas directly
@@ -971,13 +1024,15 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
                                         // fflush(stdout);
                                          cb(user_data);
                                      });
+#ifdef 0 
     if (connected) {
         qDebug() << "ertqt: Connected signal" << signal_name << "directly (Qt6)";
     } else {
         qDebug() << "ertqt: Failed to connect signal" << signal_name;
     }
+#endif // skip debug
+#endif// QT version
     return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
-#endif
 }
 
 ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
@@ -1066,7 +1121,7 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
 
     bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");
     if (!connected) {
-        qDebug() << "ertqt: Failed to connect text signal" << signal_name << "to QSignalMapper";
+        //qDebug() << "ertqt: Failed to connect text signal" << signal_name << "to QSignalMapper";
         return ERTQT_ERR_BACKEND_FAILURE;
     }
 
@@ -1092,7 +1147,7 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
                             cb(utf8.constData(), user_data);
                         });
     }
-    qDebug() << "ertqt: Connected text signal" << signal_name << "via QSignalMapper (Qt5)";
+    //qDebug() << "ertqt: Connected text signal" << signal_name << "via QSignalMapper (Qt5)";
     return ERTQT_OK;
 #else
     // Qt6: Direct lambda connection
@@ -1105,11 +1160,13 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
                 QByteArray utf8 = text.toUtf8();
                 cb(utf8.constData(), user_data);
             });
+#if 0
         if (connected) {
             qDebug() << "ertqt: Connected text signal" << signal_name << "(parameterless) directly (Qt6)";
         } else {
             qDebug() << "ertqt: Failed to connect text signal" << signal_name;
         }
+#endif
         return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
     }
     else
@@ -1120,11 +1177,13 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
                 QByteArray utf8 = text.toUtf8();
                 cb(utf8.constData(), user_data);
             });
+#if 0
         if (connected) {
             qDebug() << "ertqt: Connected text signal" << signal_name << "(with QString param) directly (Qt6)";
         } else {
             qDebug() << "ertqt: Failed to connect text signal" << signal_name;
         }
+#endif
         return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
     }
 #endif

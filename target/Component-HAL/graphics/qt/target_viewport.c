@@ -56,7 +56,6 @@ static void qt_on_button_pressed(void * user_data)
         EHSH_LOG_WARNING("qt_on_button_pressed: pWidget is NULL");
         return;
     }
-
     EHSH_LOG_INFO("qt_on_button_pressed: pWidget=%p, event_callback=%p, pFIData=%p",
            (void *)pWidget, (void *)EHS_WIDGET_UI(pWidget).event_callback, (void *)pWidget->pFIData);
 
@@ -100,7 +99,6 @@ static void qt_on_button_released(void * user_data)
 static void qt_on_text_changed(const char * utf8_text, void * user_data)
 {
     EhsWidgetClass * pWidget = (EhsWidgetClass *)user_data;
-
     if (!pWidget)
     {
         return;
@@ -179,14 +177,13 @@ void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
     }
 
     /* Look up Qt object by name */
-    const char * widget_name = pWidget->szWidgetName[0] != '\0' ? pWidget->szWidgetName : "unknown_widget"; 
-    printf("EhsTargetWidgetUi_create: looking up Qt object '%s'", widget_name);
-    
+    const char * widget_name = pWidget->szWidgetName[0] != '\0' ? pWidget->szWidgetName : "unknown_widget";
+    EHSH_LOG_INFO("EhsTargetWidgetUi_create: looking up Qt object '%s'", widget_name);
+
     ertqt_object_handle h = ertqt_get_object_by_name(widget_name);
 
     if (h < 0)
     {
-        printf("cANT FIND  '%s\n", widget_name);
         EHSH_LOG_WARNING("EhsTargetWidgetUi_create: FAILED to find Qt object '%s'", widget_name);
         return;
     }
@@ -214,14 +211,12 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
     {
         return;
     }
-
     ertqt_object_handle h = pWidget->qt_handle;
 
     /* If content was updated, push the new data to the Qt widget */
     if (pWidget->bContentUpdated)
     {
         EHSH_LOG_INFO("Draw widget %"PRIdPTR" - content updated, syncing to Qt", h);
-
         /* EHS_WIDGET_UI(pWidget).data points to an EhsWidgetUi structure */
         /* The actual widget data (string/bool/int/float) is in the .data field of that structure */
         EhsWidgetUi * gui = (EhsWidgetUi *)EHS_WIDGET_UI(pWidget).data;

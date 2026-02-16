@@ -302,7 +302,7 @@ Several files currently contain `[TRACE]` printf statements for debugging the cl
 
 ### Widget Name Lookup
 
-`EhsTargetWidgetUi_create()` currently has a hardcoded name hack (`"user_interface"`) for looking up the Qt object. This needs to be replaced with the actual widget name from the `pWidget` structure (from the CDF definition) to support multiple widgets.
+`EhsTargetWidgetUi_create()` will map the actual widget name from the `pWidget` structure (from the CDF definition) to support multiple widgets.
 
 ## Porting to a New Mode B Platform
 
@@ -313,3 +313,125 @@ When implementing a new Mode B target:
 3. **Bind library events** — connect the library's click/press/release/change signals to invoke `event_callback` with the appropriate `EHS_WIDGET_UI_EVENT_*` ID
 4. **Implement viewport stubs** — Mode B targets typically stub out `EhsTV_blit`, `EhsTV_fillRect`, surface management, etc. since the library owns rendering
 5. **You do NOT need to** implement hit-testing, manage per-widget port numbers, or handle raw mouse coordinates
+
+## Qt Target — Detailed Architecture
+
+This section describes how the Qt Mode B target works in detail, covering the execution model, glue layer, object discovery, and timer-driven kernel integration.
+
+### Execution Model
+
+Qt owns the main event loop. The eRT kernel does **not** run its own loop — instead it is single-stepped from a Qt timer callback on the GUI thread. This means all eRT work (widget creation, property pushes, signal handling) runs on the Qt thread, satisfying Qt's thread-affinity requirements for QObject operations.
+
+The startup sequence (in `target_main.c` when `EHS_MAIN_LOOP_ITERATIVE` is defined):
+
+```
+main()
+  → EhsInit(argc, argv)              — initialise eRT kernel
+  → EhsTV_initQt(argc, argv)         — calls ertqt_init():
+      → Creates QGuiApplication
+      → Creates QQmlApplicationEngine
+      → Loads app.qml from the application's appdata directory
+      → Builds object table from QML scene (rebuild_object_table)
+  → EhsAppLoadingStateMachine()      — loads SODL app definition into kernel
+  → EhsTV_registerTickCallback()     — calls ertqt_set_tick_callback(10ms, ...)
+  → EhsTV_runQt()                    — calls ertqt_run() → g_app->exec() [BLOCKS]
+```
+
+Once `exec()` is running, the only entry point back into eRT is the tick callback.
+
+### The Tick Timer
+
+`ertqt_set_tick_callback()` starts a `QTimer::singleShot` chain on the Qt main thread. Each firing:
+
+1. Invokes the registered C callback (`ehs_tick_callback` in `qt_main_integration.c`)
+2. Re-arms the timer for the next interval (default 10 ms)
+
+The tick callback does:
+```c
+EhsTimer_tick();                    // process expired eRT timers
+cmd = EhsMainLoopSingle(NULL, NULL); // single-step the kernel scheduler
+```
+
+`EhsMainLoopSingle` sets `EhsYieldWhenEmpty = EHS_TRUE` so the kernel returns immediately when there is no work, allowing the Qt event loop to remain responsive.
+
+### The Glue Layer — ertqt.cpp
+
+`ertqt.cpp` is the **sole C++ file** in the Qt target. It provides a pure-C API (declared in `ertqt.h`) that the rest of eRT calls. All Qt headers and C++ standard library usage are confined to this one file.
+
+It has five main responsibilities:
+
+1. **Lifecycle** — `ertqt_init()`, `ertqt_run()`, `ertqt_quit()` manage the QGuiApplication and QQmlApplicationEngine.
+
+2. **Object discovery** — After QML is loaded, `rebuild_object_table()` enumerates all QObject children of the engine's root objects via `findChildren<QObject*>()`. Each entry records a `QObject*` and its `objectName`. This table is the bridge between eRT widget names and QML objects.
+
+3. **Property access** — `ertqt_set_property_{string,int,double,bool}()` and `ertqt_get_property_*()` wrap `QObject::setProperty()`/`property()`. `ertqt_update_widget()` calls `QQuickItem::update()` to schedule a repaint.
+
+4. **Signal binding** — `ertqt_bind_signal()` uses `QMetaObject` introspection to connect a named Qt signal (e.g. `"clicked"`, `"pressed"`, `"textChanged"`) to a C callback at runtime, without compile-time coupling to specific QML types. Qt 5 uses `QSignalMapper` as a bridge; Qt 6 connects directly to a lambda.
+
+5. **Tick timer** — `ertqt_set_tick_callback()` manages the `QTimer::singleShot` chain that drives the eRT kernel.
+
+### QML Object Discovery and Widget Name Mapping
+
+When a widget is created, `EhsTargetWidgetUi_create()` (in `target_viewport.c`) calls:
+
+```c
+ertqt_object_handle h = ertqt_get_object_by_name(widget_name);
+```
+
+This searches the object table for a QObject whose `objectName` matches `widget_name`. The widget name comes from the `.gui` parameter file — it is the first field after the version number in each widget's parameter line (e.g. `ClientIPAddress` in `ClientIPAddress,GUI_TextBox2,15,450,...`).
+
+The returned handle (an opaque cast of the `QObject*`) is stored in `pWidget->qt_handle` and used for all subsequent property and signal operations on that widget.
+
+**Important:** The `objectName` property in the QML file must exactly match the widget name from the `.gui` file. For example, if the `.gui` file has `ClientIPAddress`, the QML must have `objectName: "ClientIPAddress"`. If no match is found, the widget will have no Qt handle and cannot render or receive events.
+
+### How Properties Flow Between eRT and QML
+
+**eRT → QML (data push):**
+```
+Function block update port fires (e.g. gui_text_string2_data)
+  → Sets gui.data pointer to new text
+  → Calls EhsWidgetUI_update() → sets bContentUpdated = TRUE
+  → Calls Ehs_widget_commit() → pfDrawFunc()
+    → EhsTargetWidgetUi_draw() in target_viewport.c
+      → Reads data from EHS_WIDGET_UI(pWidget).data
+      → Calls ertqt_set_property_string(qt_handle, "text", text)
+        → QObject::setProperty("text", value) on the QML object
+      → Calls ertqt_update_widget(qt_handle)
+        → QQuickItem::update() schedules repaint
+      → Clears bContentUpdated
+```
+
+**QML → eRT (user interaction):**
+```
+User clicks a QML Button
+  → Qt emits pressed()/released()/clicked() signals
+  → ertqt.cpp lambda fires (connected via QMetaObject at widget creation time)
+    → Invokes C callback registered by target_viewport.c
+      → Calls event_callback(pWidget, EHS_WIDGET_UI_EVENT_*, label, data)
+        → gui_widget_event_callback() in inx-gui_widget.c
+          → Populates output ports and fires EHS_FB_FINISH
+```
+
+### QML File Conventions for eRT
+
+The QML file (`appdata/default/app.qml`) defines the visual layout. Each QML object that eRT should control must have:
+
+- An `objectName` property matching the widget name from the `.gui` file
+- An `id` property for internal QML references (can differ from objectName)
+
+For widgets with custom `contentItem` (e.g. Buttons with styled text), the contentItem's `text` property should bind to the parent's `text` property using the QML `id`, not the `objectName`:
+
+```qml
+Button {
+    id: myButton
+    objectName: "ClientIPAddress"   // must match .gui widget name
+    text: "default text"
+
+    contentItem: Text {
+        text: myButton.text         // bind to parent via QML id
+        color: "white"
+    }
+}
+```
+
+This ensures that when eRT sets the Button's `text` property via `ertqt_set_property_string()`, the contentItem's text binding updates automatically through QML's reactive property system.

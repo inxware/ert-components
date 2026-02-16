@@ -159,13 +159,6 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
     // Qt owns the event loop - use timer callback pattern to progress the EHS side
     EHSH_LOG_INFO("Using Qt event loop integration");
 
-    // Initialise Qt and load the QML file
-    if (!EhsTV_initQt(argc, argv)) {
-        EHSH_LOG_ERROR("Qt initialisation failed");
-        EhsExit(1);
-        return 1;
-    }
-
     // Initialise the EHS kernel and load the application
     EHSH_LOG_INFO("EHS starting up");
 
@@ -184,6 +177,12 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
     EhsInit();
     EhsAppLoadingStateMachine(NULL,NULL); // we need to kick the loading state machine here in iterative mode, as we don't have the normal tick callback pattern to drive it from yet. In non-iterative mode, the loading state machine is driven from the tick callback, so we don't call it here.
 
+      // Initialise Qt and load the QML file
+    if (!EhsTV_initQt(argc, argv)) {
+        EHSH_LOG_ERROR("Qt initialisation failed");
+        EhsExit(1);
+        return 1;
+    }
     // Register the main EHS tick callback with a Qt timer
     EhsTV_registerTickCallback();
 

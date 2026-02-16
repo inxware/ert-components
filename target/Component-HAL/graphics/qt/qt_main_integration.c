@@ -20,6 +20,7 @@
 #include "globals.h"
 #include "ertqt.h"
 #include "ehs_main.h"
+#include "hal.h"
 #include "hal_logger.h"
 
 #ifdef EHS_GUI_SUPPORT_MODE_B_QT
@@ -44,18 +45,21 @@ static void ehs_tick_callback(void * user_data)
 
 
 
-// Initialise Qt and load the QML file
+// Initialise Qt and load the QML file. Note this must be done after we have run the application state machine so we know what app we are running.
 ehs_bool EhsTV_initQt(int argc, char ** argv)
 {
-    const char *qml_path;
+    const char qml_path[EHS_TD_FILES_MAX_PATH];
     ertqt_status st;
 
-    // Get QML file path from environment or default
-    qml_path = getenv("EHS_QML_FILE");
-    if (!qml_path || qml_path[0] == '\0')
-    {
-        qml_path = "../appdata/default/app.qml";
-    }
+    EhsHMetagetCurrentAppDir(qml_path);
+    EhsStrncat(qml_path, "/app.qml", EHS_TD_FILES_MAX_PATH - EhsStrlen(qml_path) - 1);
+    //printf("Constructed QML path: %s\n", qml_path);
+     if (!EhsTF_exists(qml_path))
+     {
+         EHSH_LOG_ERROR("QML file not found: %s", qml_path);
+         return EHS_FALSE;
+     }
+    //qml_path = "../appdata/default/app.qml";
 
     EHSH_LOG_INFO("Loading QML file: %s", qml_path);
 

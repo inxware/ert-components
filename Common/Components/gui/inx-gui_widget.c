@@ -324,7 +324,7 @@ EHS_FB_DESTROY_FUNCTION(gui_widget)
 static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data)
 {
     //printf("[TRACE] gui_widget_event_callback: ENTERED, pWidget=%p, event_id=0x%04x, label=%s, data=%p\n",
-    //       (void *)pWidget, event_id, label ? label : "(null)", data);
+     //      (void *)pWidget, event_id, label ? label : "(null)", data);
     //fflush(stdout);
 
     if(pWidget){
@@ -334,9 +334,9 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint1
             EHSH_LOG_WARNING("pFIdata is NULL - do nothing");
             return;
         }
-        //printf("[TRACE] gui_widget_event_callback: pFIData=%p, dispatching event_id=0x%04x\n",
-       //        (void *)pFIdata, event_id);
-       // fflush(stdout);
+       // printf("[TRACE] gui_widget_event_callback: pFIData=%p, dispatching event_id=0x%04x\n",
+        //      (void *)pFIdata, event_id);
+        //fflush(stdout);
 
         EHSH_LOG_INFO("gui_widget_event_callback: event_id=0x%04x (MOUSE_DOWN=%d, MOUSE_CLICKED=%d, DATA_CHANGED=%d)",
                       event_id,

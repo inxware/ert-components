@@ -443,9 +443,9 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         EHSH_LOG_INFO("  GUI file format version: %u", nVersion);
 
         EhsGetWordFromString(szObjectName,pParam[nParam]);
-        printf("\n*** all paramters are [%s\n] index 2 is [%s]",   pParam[nParam],pParam[0]);
+        //printf("\n*** all paramters are [%s\n] index 2 is [%s]",   pParam[nParam],pParam[0]);
         nParam++;
-        printf("\n*** OBJECTNAME: [%s]\n",szObjectName);
+        //printf("\n*** OBJECTNAME: [%s]\n",szObjectName);
         /* identify widget type & load params */
         EhsGetWordFromString(szObjectType,pParam[nParam++]);
         pTmp = strchr(szObjectType,EHS_PARAM_SEPARATOR);

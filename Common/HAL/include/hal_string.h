@@ -283,6 +283,14 @@ EHS_EXTERN ehs_sint16 EhsStrlen(const ehs_char*sz);
 EHS_EXTERN ehs_char* EhsStrcat_s(ehs_char* src, ehs_uint32 nNumElts, const ehs_char* dest);
 #endif
 
+#ifndef EhsStrncat
+EHS_EXTERN ehs_char* EhsStrncat(ehs_char* src, const ehs_char* dest,ehs_uint32 nNumElts);
+#endif
+
+#ifndef EhsStrcat
+EHS_EXTERN ehs_char* EhsStrcat(ehs_char* src, const ehs_char* dest);
+#endif
+
 #ifndef EhsStrchr
 EHS_EXTERN ehs_char* EhsStrchr(const ehs_char*, ehs_char);
 #endif
