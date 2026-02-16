@@ -100,7 +100,11 @@ EHS_FB_INIT_FUNCTION(gui_patch)
 																0, 0, 0, 0, 0,
 																xParams.uClass.xPatch,
 																xParams.uClass.xPatch,
-																/*pFont*/NULL);
+																/*pFont*/NULL
+#ifdef EHS_STORE_WIDGET_NAMES
+																,xParams.widgetName
+#endif
+																);
 #else
 			inx_gui_patch_state->pUiWidgetClass = EhsWidgetPatch_init(&xParams.xRect, xParams.nZorder,xParams.uClass.xPatch);
 #endif

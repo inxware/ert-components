@@ -300,6 +300,11 @@ struct EhsWidgetStruct
                                                      regardless of z-order overlap. Used for widgets
                                                      that must always respond to input (e.g. modal
                                                      overlays). (Shared) */
+
+#ifdef EHS_STORE_WIDGET_NAMES
+    ehs_char szWidgetName[EHS_OBJECT_NAME_MAX_SIZE]; /**< Widget instance name from .gui file (e.g. "widget1").
+                                                          Used by Qt HAL to look up the QML object by name. */
+#endif
 }
 #ifdef EHS_OPTIMIZE_WIDGET_MEM
 __attribute__((packed))
@@ -340,7 +345,11 @@ EHS_GLOBAL EhsWidgetClass* EhsWidget_new(void);
  * set generic widget parameters before anything else
  *
  */
-void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pRect, ehs_uint16 nZ, ehs_uint8 nAlpha);
+void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pRect, ehs_uint16 nZ, ehs_uint8 nAlpha
+#ifdef EHS_STORE_WIDGET_NAMES
+    ,ehs_char * szWidgetName
+#endif
+);
 
 /**
  * Create the widget. This is a necessary step prior to showing the widget

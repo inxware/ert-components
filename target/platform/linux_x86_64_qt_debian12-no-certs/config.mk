@@ -58,8 +58,6 @@ ERT_SODL_VERSION=1
 
 # Debugging
 EHS_DEBUGALL=true
-DEFS += EHS_LOG_LEVEL_VERBOSE
-DEFS += EHS_LOG_TO_STDIO
 
 # Force 'unknown' source files to output logging at the logger's logging level
 DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
@@ -99,3 +97,10 @@ EHS_MEDIA_SUPPORT=all
 # Enable machine vision support for testing C++ integration, or disable with `stubbed`.
 #
 EHS_MV_SUPPORT=stubbed
+
+
+EHS_LOG_LEVEL_GRAPHICS=EHSH_LOG_LEVEL_ALL
+
+## hacking 
+#DEFS += EHS_LOG_LEVEL_VERBOSE
+DEFS += EHS_LOG_TO_STDIO

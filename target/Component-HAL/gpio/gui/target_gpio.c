@@ -111,7 +111,11 @@ EhsWidgetClass* create_ui_widget(ehs_uint16 id, ehs_sint32 x, ehs_sint32 y, ehs_
                                 xParams.uClass.xTextbox.nLineSep,
                                 xParams.uClass.xTextbox.xFgColour,
                                 xParams.uClass.xTextbox.xBgColour,
-                                /*pFont*/NULL);
+                                /*pFont*/NULL
+#ifdef EHS_STORE_WIDGET_NAMES
+                                ,""
+#endif
+                                );
     return pWidget;
 }
 

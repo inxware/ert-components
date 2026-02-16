@@ -58,7 +58,14 @@ ehs_FILE* EhsLLogFile=NULL;
 //ehs_bool bLogToFile = EHS_TRUE; //we will just use the file handle status
 
 /* set to max logging before the init function is called */
-EhsHLoggerLogLevel nLogLevel = EHSH_LOG_ALL_LEVEL;//EHSH_LOG_DEFAULT_LEVEL; @todo this should be set somehwre sensible.
+EhsHLoggerLogLevel nLogLevel = EHSH_LOG_DEFAULT_LEVEL; 
+
+//Set the maximum global verbosoty to all if there is on config.mk override.
+#ifndef EHSH_LOG_MAX_GLOBAL_LEVEL
+#define EHSH_LOG_MAX_GLOBAL_LEVEL EHSH_LOG_LEVEL_ALL
+#endif
+
+
 
 /* NOTE THIS NEEDS TO BE KEPT IN SYNC WITH THE ENUM TYPE IN THE HEADER!!!!*/
 /*
@@ -98,6 +105,89 @@ ehs_char* EhsLModuleNames[] =
     NULL
 };
 #endif
+
+/* Use this to set the log level of each component */
+/* todo we should have  this overridden for different tarets? */
+#ifdef EHS_LOG_LEVEL_VERBOSE
+    // Verbose mode...
+    void EhsHSetLogLevels()
+    {
+        EhsHLogger_setLogLevel("Undefined", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Kernel", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Graphics",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Logger",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("HalMemory",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("HalProcess", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("HalString", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("TgtViewport", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("Devman", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("file", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+    }
+#else
+
+    // Not verbose mode - defaults to ERROR only per module.
+    // Override individual modules by defining EHS_LOG_LEVEL_<Module> in config.mk, e.g.:
+    //   DEFS += EHS_LOG_LEVEL_GRAPHICS=0x07    (ERROR|WARNING|INFO)
+    //   DEFS += EHS_LOG_LEVEL_NETWORK=0x04     (INFO only)
+
+#ifndef EHS_LOG_LEVEL_UNDEFINED
+#define EHS_LOG_LEVEL_UNDEFINED    EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_KERNEL
+#define EHS_LOG_LEVEL_KERNEL       EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_GRAPHICS
+#define EHS_LOG_LEVEL_GRAPHICS     EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_LOGGER
+#define EHS_LOG_LEVEL_LOGGER       EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_HALMEMORY
+#define EHS_LOG_LEVEL_HALMEMORY    EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_HALPROCESS
+#define EHS_LOG_LEVEL_HALPROCESS   EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_HALSTRING
+#define EHS_LOG_LEVEL_HALSTRING    EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_TGTVIEWPORT
+#define EHS_LOG_LEVEL_TGTVIEWPORT  EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_NETWORK
+#define EHS_LOG_LEVEL_NETWORK      EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_DEVMAN
+#define EHS_LOG_LEVEL_DEVMAN       EHSH_LOG_LEVEL_ERROR
+#endif
+#ifndef EHS_LOG_LEVEL_FILE
+#define EHS_LOG_LEVEL_FILE         EHSH_LOG_LEVEL_ERROR
+#endif
+
+    void EhsHSetLogLevels()
+    {
+        EhsHLogger_setLogLevel("Undefined",   EHS_LOG_LEVEL_UNDEFINED);
+        EhsHLogger_setLogLevel("Kernel",      EHS_LOG_LEVEL_KERNEL);
+        EhsHLogger_setLogLevel("Graphics",    EHS_LOG_LEVEL_GRAPHICS);
+        EhsHLogger_setLogLevel("Logger",      EHS_LOG_LEVEL_LOGGER);
+        EhsHLogger_setLogLevel("HalMemory",   EHS_LOG_LEVEL_HALMEMORY);
+        EhsHLogger_setLogLevel("HalProcess",  EHS_LOG_LEVEL_HALPROCESS);
+        EhsHLogger_setLogLevel("HalString",   EHS_LOG_LEVEL_HALSTRING);
+        EhsHLogger_setLogLevel("TgtViewport", EHS_LOG_LEVEL_TGTVIEWPORT);
+        EhsHLogger_setLogLevel("Network",     EHS_LOG_LEVEL_NETWORK);
+        EhsHLogger_setLogLevel("Devman",      EHS_LOG_LEVEL_DEVMAN);
+        EhsHLogger_setLogLevel("file",        EHS_LOG_LEVEL_FILE);
+    }
+#endif
+
+/* Log Levels
+EHSH_LOG_LEVEL_ERROR	= 0x01,
+EHSH_LOG_LEVEL_WARNING	= 0x02,
+EHSH_LOG_LEVEL_INFO		= 0x04,
+EHSH_LOG_LEVEL_ENTER	= 0x08,
+EHSH_LOG_LEVEL_EXIT		= 0x10
+*/
 
 /*****************************************************************************/
 
@@ -154,7 +244,7 @@ void EhsHLogger_init()
     /* Continue anyway and reset log levels */
     for (nId = 0; nId < EHS_LOG_MODULE_QUANTITY; nId++)
     {
-        EhsHLoggerModuleLogLevel[nId] = EHSH_LOG_ALL_LEVEL; //EHSH_LOG_DEFAULT_LEVEL;
+        EhsHLoggerModuleLogLevel[nId] = EHSH_LOG_DEFAULT_LEVEL;
     }
     /* consistency check between EhsLModuleNames and EhsHLoggerModuleId */
     for (nId = 0; EhsLModuleNames[nId]; nId++ )
@@ -168,7 +258,9 @@ void EhsHLogger_init()
 }
 
 /**
- * Record a log entry
+ * Record a log entry.
+ * This wil ltypically by called from a header macro that will have picked up the nModule name from the #define above the includes.
+ * \yhe nLevel would be set by another macro:
  */
 void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const ehs_char* szFilename, ehs_uint32 nLine, const ehs_char* szMsg)
 {
@@ -184,10 +276,17 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const
     //EhsStdioPrintf("LOGGING time=%d,level=%s nMod=%d nLevel%d] %s",0,"somelevel", nModule,nLevel,szMsg);
     const char* szLevel;
     //const char* szModule;
-    if (!(nLevel & nLogLevel))
+    #ifdef EHSH_LOG_MAX_GLOBAL_LEVEL
+    if (!(nLevel & EHSH_LOG_MAX_GLOBAL_LEVEL)) /* Check the global filter first */
     {
         goto end;
     }
+    #endif
+     if (!(nLevel & nLogLevel)) /* Check the module filter*/
+    {
+        goto end;
+    }
+
     switch (nLevel)
     {
     case EHSH_LOG_LEVEL_ERROR:
@@ -255,6 +354,7 @@ end:
  * @param[in] szModule Name of the module to log
  * @param[in] nLevels Set of the levels we wish to log (or'd together)
  */
+
 ehs_bool EhsHLogger_setLogLevel(const ehs_char* szModule, EhsHLoggerLogLevel nLevels)
 {
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
@@ -263,7 +363,7 @@ ehs_bool EhsHLogger_setLogLevel(const ehs_char* szModule, EhsHLoggerLogLevel nLe
 
     for (nId = 0; nId < EHS_LOG_MODULE_QUANTITY; nId++)
     {
-        if (EhsStrcmp(szModule, EhsLModuleNames[nId]))
+        if (EhsStrcmp(szModule, EhsLModuleNames[nId]) == 0)
         {
             EhsHLoggerModuleLogLevel[nId] = nLevels;
             EHSH_LOG_INFO("Setting Log level %s to %d",szModule,nLevels);

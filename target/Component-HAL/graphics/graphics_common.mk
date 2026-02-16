@@ -29,8 +29,10 @@ else ifeq ($(EHS_GUI_SUPPORT),qt)
 	EHS_RENDER_MODE=Q
 	# Set this as QT rendering is a type of render mode B
 	DEFS += EHS_GUI_SUPPORT_MODE_B
-	# Set this for addition QT falvour of render MODE B     
+	# Set this for addition QT falvour of render MODE B
 	DEFS += EHS_GUI_SUPPORT_MODE_B_QT
+	# Enable storing widget names from .gui files so Qt can look them up by name
+	DEFS += EHS_STORE_WIDGET_NAMES
 else
 # Default inx widgets rendered with GTK, FB, SDL, OpenGL, ...
 	EHS_RENDER_MODE=A

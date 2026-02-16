@@ -193,6 +193,7 @@ typedef struct
     ehs_uint8 nBgBaseAlpha; /**< The starting alpha value for the background colour - this can be modified by the fade function */
     ehs_uint8 nUiState; /* used for controlling widget state in the rendering loop */
     ehs_uint8 nNoOfDecPlaces; /* number of decimal places */
+
 } EhsWidgetUiSubclass;
 
 /**
@@ -218,9 +219,13 @@ typedef struct
  */
 EHS_GLOBAL EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint16 curvature, ehs_uint16 parent_id,
                                             const EhsGraphicsRectangleClass* xBounds, ehs_uint16 nZ,
-                                            ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB, 
-                                            ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour, 
-                                            EhsGraphicsFontClass* pFont);
+                                            ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB,
+                                            ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
+                                            EhsGraphicsFontClass* pFont
+#ifdef EHS_STORE_WIDGET_NAMES
+                                            ,ehs_char * szWidgetName
+#endif
+                                            );
 
 /**
  * Set the data to be displayed onto a specific ui. This function can be called

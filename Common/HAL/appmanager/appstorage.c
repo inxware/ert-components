@@ -11,6 +11,7 @@
  * These functions provide HAL services for application downloaders & launchers
  * Function Implementations for managing Application storage on disk, flash, etc.
  * */
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_UNDEFINED) /* define before hal_logger.h */
 
 #include "globals.h"
 #include "hal-api.h" //include general HAL services

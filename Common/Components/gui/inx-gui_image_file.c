@@ -120,7 +120,11 @@ EHS_FB_INIT_FUNCTION(GUI_Image_File)
 															0, 0, 0, 0, 0,
 															xParams.uClass.xPatch,
 															xParams.uClass.xPatch,
-															/*pFont*/NULL);
+															/*pFont*/NULL
+#ifdef EHS_STORE_WIDGET_NAMES
+														,xParams.widgetName
+#endif
+														);
 #endif
 		if ((inx_GUI_Image_File_state->pUiWidgetClass == NULL) || (inx_GUI_Image_File_state->pUiWidgetClass->nState == EHS_WIDGET_STATE_EMPTY))
 		{

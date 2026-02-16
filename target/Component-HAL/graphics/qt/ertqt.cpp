@@ -433,6 +433,7 @@ ertqt_status ertqt_get_object_name(ertqt_object_handle h, char * buffer, size_t 
     }
 
     std::memcpy(buffer, name.c_str(), len);
+    //printf("Got object name for handle %ld: '%s'\n", (long)h, buffer);
     return ERTQT_OK;
 }
 
@@ -954,9 +955,9 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
     // Connect: mapper.mapped(int) -> lambda
     QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
                     g_app, [cb, user_data, signal_name](int) {
-                        printf("[TRACE] ertqt: Qt5 signal '%s' fired -> invoking C callback %p (user_data=%p)\n",
-                               signal_name, (void*)(intptr_t)cb, user_data);
-                        fflush(stdout);
+                       // printf("[TRACE] ertqt: Qt5 signal '%s' fired -> invoking C callback %p (user_data=%p)\n",
+                       //        signal_name, (void*)(intptr_t)cb, user_data);
+                       // fflush(stdout);
                         cb(user_data);
                     });
     qDebug() << "ertqt: Connected signal" << signal_name << "via QSignalMapper (Qt5)";
@@ -965,9 +966,9 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
     // Qt6: Can connect string signals to lambdas directly
     bool connected = QObject::connect(obj, signal_sig.constData(),
                                      g_app, [cb, user_data, signal_name]() {
-                                         printf("[TRACE] ertqt: Qt6 signal '%s' fired -> invoking C callback %p (user_data=%p)\n",
-                                                signal_name, (void*)(intptr_t)cb, user_data);
-                                         fflush(stdout);
+                                        // printf("[TRACE] ertqt: Qt6 signal '%s' fired -> invoking C callback %p (user_data=%p)\n",
+                                        //        signal_name, (void*)(intptr_t)cb, user_data);
+                                        // fflush(stdout);
                                          cb(user_data);
                                      });
     if (connected) {
@@ -986,8 +987,8 @@ ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, v
 
     QObject *obj = reinterpret_cast<QObject*>(h);
     ertqt_status st = connect_signal_by_name(obj, "clicked", cb, user_data);
-    printf("[TRACE] ertqt_bind_clicked: handle=%p, cb=%p, user_data=%p -> %s\n",
-           (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
+  //  printf("[TRACE] ertqt_bind_clicked: handle=%p, cb=%p, user_data=%p -> %s\n",
+   //        (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
     fflush(stdout);
     return st;
 }
@@ -999,8 +1000,8 @@ ertqt_status ertqt_bind_pressed(ertqt_object_handle h, ertqt_void_callback cb, v
 
     QObject *obj = reinterpret_cast<QObject*>(h);
     ertqt_status st = connect_signal_by_name(obj, "pressed", cb, user_data);
-    printf("[TRACE] ertqt_bind_pressed: handle=%p, cb=%p, user_data=%p -> %s\n",
-           (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
+   // printf("[TRACE] ertqt_bind_pressed: handle=%p, cb=%p, user_data=%p -> %s\n",
+   //        (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
     fflush(stdout);
     return st;
 }
@@ -1012,8 +1013,8 @@ ertqt_status ertqt_bind_released(ertqt_object_handle h, ertqt_void_callback cb, 
 
     QObject *obj = reinterpret_cast<QObject*>(h);
     ertqt_status st = connect_signal_by_name(obj, "released", cb, user_data);
-    printf("[TRACE] ertqt_bind_released: handle=%p, cb=%p, user_data=%p -> %s\n",
-           (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
+    //printf("[TRACE] ertqt_bind_released: handle=%p, cb=%p, user_data=%p -> %s\n",
+    //       (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
     fflush(stdout);
     return st;
 }

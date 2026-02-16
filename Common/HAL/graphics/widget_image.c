@@ -67,13 +67,21 @@ EHS_LOCAL ehs_bool EhsWidgetImage_fade(EhsWidgetClass* pWidget, ehs_uint8 nOpaci
  * @param szFilename Name of file containing widget image data
  * @return Pointer to initialised widget, or NULL
  */
-EhsWidgetClass* EhsWidgetImage_init(EhsGraphicsRectangleClass* pRect, ehs_uint16 nZ, ehs_uint8 nImageAlpha, const ehs_char* szFilename, ehs_bool bLoadImageFromAppDir)
+EhsWidgetClass* EhsWidgetImage_init(EhsGraphicsRectangleClass* pRect, ehs_uint16 nZ, ehs_uint8 nImageAlpha, const ehs_char* szFilename, ehs_bool bLoadImageFromAppDir
+    #ifdef EHS_STORE_WIDGET_NAMES
+    ,ehs_char * szWidgetName
+    #endif
+    )
 {
     EhsWidgetClass* pWidget = EhsWidgetTable_new(&EhsWidgetTable);//printf("Initing filename=%s\n",szFilename);
     if (pWidget)
     {
         /* init the generic part */
-        EhsWidget_init(pWidget,pRect, nZ, nImageAlpha);
+        EhsWidget_init(pWidget,pRect, nZ, nImageAlpha
+            #ifdef EHS_STORE_WIDGET_NAMES
+            ,szWidgetName // use the filename as the widget name for image widgets, for ease of debugging
+            #endif
+        );
 
         /* Do image specific widget properties */
         pWidget->eWidgetKind = EHS_WIDGET_KIND_IMAGE;

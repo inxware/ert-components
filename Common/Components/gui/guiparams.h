@@ -40,7 +40,7 @@ typedef struct
     EhsWidgetClassType eClass; /**< Indicates what kind of widget are we dealing */
     ehs_sint16 nTextBoxType;
 #if defined(EHS_STORE_WIDGET_NAMES)
-    ehs_char widgetName[EHS_WIDGET_NAME_LENGTH_MAX];
+    ehs_char widgetName[EHS_OBJECT_NAME_MAX_SIZE];
 #endif
     union
     {

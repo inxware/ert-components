@@ -74,14 +74,22 @@ EHS_LOCAL void EhsWidgetPatch_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* 
  * @param[in] xColour Widget's colour
  * @return pointer to initialised widget, or NULL
  */
-EhsWidgetClass* EhsWidgetPatch_init(const EhsGraphicsRectangleClass* pBounds, ehs_uint16 nZ, EhsGraphicsColourClass xColour)
+EhsWidgetClass* EhsWidgetPatch_init(const EhsGraphicsRectangleClass* pBounds, ehs_uint16 nZ, EhsGraphicsColourClass xColour
+    #ifdef EHS_STORE_WIDGET_NAMES
+    ,ehs_char * szWidgetName
+    #endif
+)
 {
     EhsWidgetClass* pWidget = EhsWidgetTable_new(&EhsWidgetTable);
 
 
     if (pWidget)
     {
-        EhsWidget_init(pWidget,pBounds, nZ, xColour.sComp.nAlpha);
+        EhsWidget_init(pWidget,pBounds, nZ, xColour.sComp.nAlpha
+            #ifdef EHS_STORE_WIDGET_NAMES
+            ,szWidgetName
+            #endif
+            );
         /* DO the specific stuff now */
         pWidget->eWidgetKind = EHS_WIDGET_KIND_PATCH;
         pWidget->nState = EHS_WIDGET_STATE_INIT;

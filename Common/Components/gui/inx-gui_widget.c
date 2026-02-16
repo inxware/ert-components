@@ -199,10 +199,14 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                                                                     xParams.uClass.xTextbox.nLineSep,
                                                                     xParams.uClass.xTextbox.xFgColour,
                                                                     xParams.uClass.xTextbox.xBgColour,
-                                                                    /*pFont*/NULL);
+                                                                    /*pFont*/NULL
+#if defined(EHS_STORE_WIDGET_NAMES)
+                                                                    ,xParams.widgetName
+#endif
+                                                                    );
             EHSH_LOG_INFO("  EhsWidgetUI_init returned: %p", (void*)inx_gui_widget_state->pUiWidgetClass);
 
-#else // EHS_GUI_SUPPORT_MODE_B 
+#else // EHS_GUI_SUPPORT_MODE_B
 
             EhsGraphicsFontClass* pFont = NULL;
 
@@ -319,20 +323,20 @@ EHS_FB_DESTROY_FUNCTION(gui_widget)
 
 static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data)
 {
-    printf("[TRACE] gui_widget_event_callback: ENTERED, pWidget=%p, event_id=0x%04x, label=%s, data=%p\n",
-           (void *)pWidget, event_id, label ? label : "(null)", data);
-    fflush(stdout);
+    //printf("[TRACE] gui_widget_event_callback: ENTERED, pWidget=%p, event_id=0x%04x, label=%s, data=%p\n",
+    //       (void *)pWidget, event_id, label ? label : "(null)", data);
+    //fflush(stdout);
 
     if(pWidget){
         EhsFunctionInstanceDataType* pFIdata = pWidget->pFIData;
         if(pFIdata == NULL){
-            printf("[TRACE] gui_widget_event_callback: pFIData is NULL! Cannot dispatch event.\n"); fflush(stdout);
+            //printf("[TRACE] gui_widget_event_callback: pFIData is NULL! Cannot dispatch event.\n"); fflush(stdout);
             EHSH_LOG_WARNING("pFIdata is NULL - do nothing");
             return;
         }
-        printf("[TRACE] gui_widget_event_callback: pFIData=%p, dispatching event_id=0x%04x\n",
-               (void *)pFIdata, event_id);
-        fflush(stdout);
+        //printf("[TRACE] gui_widget_event_callback: pFIData=%p, dispatching event_id=0x%04x\n",
+       //        (void *)pFIdata, event_id);
+       // fflush(stdout);
 
         EHSH_LOG_INFO("gui_widget_event_callback: event_id=0x%04x (MOUSE_DOWN=%d, MOUSE_CLICKED=%d, DATA_CHANGED=%d)",
                       event_id,
@@ -393,12 +397,12 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint1
         }
         // output mouse click event
         if(event_id & EHS_WIDGET_UI_EVENT_MOUSE_CLICKED){
-            printf("[TRACE] gui_widget_event_callback: -> EHS_FB_FINISH(click)\n"); fflush(stdout);
+            //printf("[TRACE] gui_widget_event_callback: -> EHS_FB_FINISH(click)\n"); fflush(stdout);
             EHS_FB_FINISH(INX_gui_widget_ARG_create_click);
         }
 
         if(event_id & EHS_WIDGET_UI_EVENT_MOUSE_DOWN){
-            printf("[TRACE] gui_widget_event_callback: -> EHS_FB_FINISH(mouse_down)\n"); fflush(stdout);
+            //printf("[TRACE] gui_widget_event_callback: -> EHS_FB_FINISH(mouse_down)\n"); fflush(stdout);
             EHS_FB_FINISH(INX_gui_widget_ARG_create_mouse_down);
         }
     }

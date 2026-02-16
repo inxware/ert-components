@@ -45,10 +45,23 @@ include $(EHS_COMMON_HAL_PATH)/hashmap/hashmap.mk
 # Some #defines that are used broadly
 #============================================================
 
+#============================================================
+# Logging
 # Per-module log level overrides.
 # Set in config.mk as make variables, e.g.:
 #   EHS_LOG_LEVEL_GRAPHICS=0x07
 # The value is a bitmask: ERROR=0x01, WARNING=0x02, INFO=0x04, ENTER=0x08, EXIT=0x10
+
+# Override the default level for any modules that are not set explicitly.
+ifdef EHSH_LOG_DEFAULT_LEVEL
+    DEFS += EHSH_LOG_DEFAULT_LEVEL=$(EHSH_LOG_DEFAULT_LEVEL)
+endif
+
+# If the build want no verbose logging despite any explicit settings then knoble this.
+ifdef EHSH_LOG_MAX_GLOBAL_LEVEL
+    DEFS += EHSH_LOG_MAX_GLOBAL_LEVEL=$(EHSH_LOG_MAX_GLOBAL_LEVEL)
+endif
+
 ifdef EHS_LOG_LEVEL_UNDEFINED
     DEFS += EHS_LOG_LEVEL_UNDEFINED=$(EHS_LOG_LEVEL_UNDEFINED)
 endif

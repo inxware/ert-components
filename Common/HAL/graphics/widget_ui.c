@@ -96,7 +96,11 @@ EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint1
                                  const EhsGraphicsRectangleClass* xBounds, ehs_uint16 nZ,
                                  ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB,
                                  ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
-                                 EhsGraphicsFontClass* pFont)
+                                 EhsGraphicsFontClass* pFont
+                                #ifdef EHS_STORE_WIDGET_NAMES
+                                 ,ehs_char * szWidgetName
+                                #endif
+                                 )
 {
     EhsWidgetClass* pWidget;
 
@@ -107,7 +111,11 @@ EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint1
 
     if (pWidget)
     {
-        EhsWidget_init(pWidget, xBounds, nZ, xFgColour.sComp.nAlpha);
+        EhsWidget_init(pWidget, xBounds, nZ, xFgColour.sComp.nAlpha
+        #ifdef EHS_STORE_WIDGET_NAMES
+        ,szWidgetName
+        #endif
+        );
 
         //pWidget->eWidgetKind = EHS_WIDGET_KIND_UI; // mode B (lvgl), widget kind is always ui. #def eWidgetKind in EhsWidgetClass for memory optimisation
         pWidget->nState = EHS_WIDGET_STATE_INIT;

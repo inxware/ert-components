@@ -142,8 +142,15 @@ void EhsWidget_create(EhsWidgetClass* pWidget)
     Works in both render MODE_A anad MODE_B
 */
 
-void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pRect, ehs_uint16 nZ, ehs_uint8 nAlpha)
+void EhsWidget_init(EhsWidgetClass* pWidget, const EhsGraphicsRectangleClass *pRect, ehs_uint16 nZ, ehs_uint8 nAlpha, 
+    #ifdef EHS_STORE_WIDGET_NAMES
+    ehs_char * szWidgetName)
+    #endif
 {
+    #ifdef EHS_STORE_WIDGET_NAMES
+    EhsStrncpy(pWidget->szWidgetName, szWidgetName, EHS_OBJECT_NAME_MAX_SIZE);
+    #endif
+    
     EhsMemcpy(&(pWidget->xOrigRect),pRect,sizeof(EhsGraphicsRectangleClass));
     EhsMemcpy(&(pWidget->xCurRect),pRect,sizeof(EhsGraphicsRectangleClass));
     EhsMemcpy(&(pWidget->xDesignRect),pRect,sizeof(EhsGraphicsRectangleClass));

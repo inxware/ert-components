@@ -91,7 +91,11 @@ EHS_FB_INIT_FUNCTION(ui_spinner)
 																	0, 0, 0, 0, 0,
 																	xParams.uClass.xPatch,
 																	xParams.uClass.xPatch,
-																	/*pFont*/NULL);
+																	/*pFont*/NULL
+#ifdef EHS_STORE_WIDGET_NAMES
+																	,xParams.widgetName
+#endif
+																	);
 			if ((inx_ui_spinner_state->pUiWidgetClass == NULL) || (inx_ui_spinner_state->pUiWidgetClass->nState == EHS_WIDGET_STATE_EMPTY))
 			{
 				bRet = EHS_FALSE;

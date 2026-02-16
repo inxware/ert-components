@@ -84,7 +84,10 @@ EHS_LOCAL void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass
 EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, ehs_uint16 nZ,
                                       ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB, ehs_uint16 nLineSep,
                                       EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
-                                      EhsGraphicsFontClass* pFont)
+                                      EhsGraphicsFontClass* pFont
+                                    #ifdef EHS_STORE_WIDGET_NAMES
+                                      ,ehs_char *szWidgetName
+                                    #endif)
 {
     EhsWidgetClass* pWidget;
 
@@ -94,7 +97,11 @@ EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, 
     if (pWidget)
     {
 
-        EhsWidget_init(pWidget,pBounds, nZ,  xFgColour.sComp.nAlpha);
+        EhsWidget_init(pWidget,pBounds, nZ,  xFgColour.sComp.nAlpha
+            #ifdef EHS_STORE_WIDGET_NAMES
+            ,szWidgetName
+            #endif
+            );
 
         pWidget->eWidgetKind = EHS_WIDGET_KIND_TEXTBOX;
         pWidget->nState = EHS_WIDGET_STATE_INIT;

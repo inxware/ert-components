@@ -49,7 +49,7 @@ endif
 OBJECTS+= graphics.$(OBJ)
 OBJECTS+= widget.$(OBJ)
 
-ifneq ($(EHS_RENDER_MODE),B)
+ifeq ($(EHS_RENDER_MODE),A)
 OBJECTS+= html.$(OBJ)
 OBJECTS+= widget_textbox.$(OBJ)
 OBJECTS+= widget_image.$(OBJ)
