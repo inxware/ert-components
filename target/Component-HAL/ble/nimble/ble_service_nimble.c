@@ -623,3 +623,34 @@ void inx_ble_service_hal_deinit(void)
     ESP_LOGI(TAG, "BLE service deinitialized");
 }
 
+void inx_ble_service_test_func()
+{
+    inx_ble_char_config_t qwepoi[2] = {
+        {
+            "0x4321",
+            "char1",
+            1,
+            50
+        },
+        {
+            "0x3241",
+            "char2",
+            2,
+            30
+        }
+    };
+    inx_ble_service_hal_init("0x1234",
+    "BT",
+    2,
+    100,
+    23,
+    qwepoi,//(inx_ble_char_config_t*) NULL,
+    (inx_ble_service_callbacks_t*) NULL,
+(void*) NULL);
+    
+    while (!ble_hs_synced());
+    ESP_LOGI(TAG, "BLE HS is in sync with controller");
+    inx_ble_service_hal_register_gatt();
+
+    inx_ble_service_hal_start_adv();    
+}
