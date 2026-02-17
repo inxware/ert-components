@@ -1138,26 +1138,6 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
                         cb(utf8.constData(), user_data);
                     });
     return ERTQT_OK;
-
-    // NOTE: Qt6 direct lambda connection for text signals (kept for future reference).
-    // Does NOT compile on Qt6 — string-based connect with lambdas is unsupported.
-    //
-    // Parameterless variant (reads property on signal fire):
-    // bool connected = QObject::connect(obj, signal_sig.constData(), g_app,
-    //     [obj, cb, user_data]() {
-    //         QString text = obj->property("text").toString();
-    //         QByteArray utf8 = text.toUtf8();
-    //         cb(utf8.constData(), user_data);
-    //     });
-    //
-    // Parametrized variant (receives QString directly):
-    // bool connected = QObject::connect(obj, signal_sig.constData(), g_app,
-    //     [cb, user_data](const QString& text) {
-    //         QByteArray utf8 = text.toUtf8();
-    //         cb(utf8.constData(), user_data);
-    //     });
-    //
-    // return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
 }
 
 ertqt_status ertqt_bind_text_changed(ertqt_object_handle h, ertqt_text_callback cb, void * user_data)

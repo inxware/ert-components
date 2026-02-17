@@ -1384,6 +1384,28 @@ sudo apt install libx11-dev libxext-dev libxrender-dev \
 
 #### Runtime Dependencies
 
+**QT6 Dependencies**
+```
+qml6-module-qtquick
+qml6-module-qtquick-timeline
+qt6-base-dev qt6-declarative-dev                  
+qml6-module-qtquick                  
+qml6-module-qtquick-timeline
+qml6-module-qtquick-templates
+qml6-module-qtquick-window
+qml6-module-qtquick3d   
+qml6-module-qtquick3d-helpers  ??? Doesn't exist
+qml6-module-qtquick3d-effects  ??? 
+qml6-module-qtquick3d-particleeffects ???   
+qml6-module-qtquick3d-particles3d ??
+qml-module-qtquick3d-particles3d
+qml6-module-quick3d-particles3d
+qml6-module-quick3d-helpers 
+qml6-module-quick3d-logichelper ???
+qml6-module-quick3d-effects 
+```
+**QT5 Dependencies**
+Note: we probably don't ever want to support QT5 further, but here's for the basics that work:
 ```bash
 # Core Qt5 libraries
 sudo apt install libqt5core5a libqt5gui5 libqt5qml5 libqt5quick5 \
