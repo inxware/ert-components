@@ -17,12 +17,12 @@
 #include "ertqt.h"
 #include "graphics.h"
 
-// Qt-specific widget data stored in EhsWidgetStruct
-typedef struct
-{
-    ertqt_object_handle qt_handle;
-    const char * widget_type;  // "button", "label", "textfield", etc.
-} EhsWidgetQtData;
+// Qt-specific widget data stored in EhsWidgetStruct - not used
+//typedef struct
+//{
+//    ertqt_object_handle qt_handle;
+//    const char * widget_type;  // "button", "label", "textfield", etc.
+//} EhsWidgetQtData;
 
 // Qt surface representation (minimal for PoC)
 struct EhsTVSurfaceStruct

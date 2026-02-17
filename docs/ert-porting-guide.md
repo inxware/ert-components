@@ -91,6 +91,10 @@ This guide is for developers looking to
 - [Key Platform Technologies](#key-platform-techologies)
   - [GPIO](#gpio)
   - [Flash Memory Support](#flash-memory-support)
+- [Graphics / GUI Targets](#graphics--gui-targets)
+  - [Widget Rendering Modes: Mode A vs Mode B](#widget-rendering-modes-mode-a-vs-mode-b)
+  - [LVGL](#lvgl)
+  - [Qt](#qt)
 - [Platform-Specific Guides](#platform-specific-guides)
   - [Embedded RTOS](#embedded-rtos)
   - [Windows](#windows)
@@ -1286,14 +1290,125 @@ Different MCUs have varying capabilities and inxware abstraction my be via littl
 .
 
 
+## Graphics / GUI Targets
+
+eRT supports multiple graphics backends. The choice of backend affects how widgets are rendered, how input events are processed, and what HAL functions you need to implement.
+
+### Widget Rendering Modes: Mode A vs Mode B
+
+eRT supports two fundamentally different approaches to widget rendering. The mode determines how widgets are drawn, how mouse/touch input is processed, and how events reach EHS function blocks. Understanding this distinction is essential when porting the graphics HAL.
+
+**Render Mode A** (GTK, framebuffer):
+eRT owns the pixel buffers and is responsible for all rendering. The HAL receives raw mouse/touch coordinates from the OS and must perform coordinate-based hit-testing against each widget's bounding rectangle (`xCurRect`) and z-order (`nZ`) to determine which widget was touched. Once the target widget is identified, the HAL fires the appropriate EHS kernel finish port directly using per-widget port numbers stored on the `EhsWidgetStruct` (e.g. `mouseClickPortNumber`, `mouseDownPortNumber`, `mouseUpPortNumber`, `mouseDragPortNumber`). These port numbers are populated during widget creation from the CDF/function-block definition and allow the HAL to dispatch events without knowing the function block's internal wiring.
+
+These Mode A-specific fields are compiled out (via `#if !defined(EHS_GUI_SUPPORT_MODE_B)`) when building for Mode B targets.
+
+**Render Mode B** (LVGL, Qt):
+An external widget library owns both the widgets and rendering. eRT does **not** perform hit-testing — the library knows which of its own widgets was interacted with. Mouse/touch events arrive in eRT via the `event_callback` function pointer in `EhsWidgetUiSubclass` (part of the `specificWidgetType` union), carrying a generic event ID such as `EHS_WIDGET_UI_EVENT_MOUSE_CLICKED`. The Mode B event handler in the component layer then fires the appropriate finish port using the function block's own port definitions, rather than per-widget stored port numbers.
+
+eRT communicates property changes to the external library (text, position, colour, opacity) via the `pfDrawFunc` virtual method, which checks the dirty flags (`bContentUpdated`, `bPositionUpdated`, `bColourUpdated`) to minimise unnecessary updates.
+
+**Porting a new Mode B target:** Your HAL needs to:
+1. Create library-native widgets in `pfCreateFunc` (e.g. `EhsTargetWidgetUi_create`)
+2. Push property changes in `pfDrawFunc` using the dirty flags
+3. Bind library signals/events to invoke `event_callback` with the appropriate `EHS_WIDGET_UI_EVENT_*` ID
+4. You do **not** need to implement hit-testing or manage per-widget port numbers
+
+### LVGL
+
+LVGL is a lightweight embedded graphics library used on MCU and resource-constrained Linux targets. It operates as a Mode B backend. Set `EHS_GUI_SUPPORT=lvgl` in the platform `config.mk`.
+
+Platform examples: `linux_x86_64_lvgl_debian11-debug`
+
+### Qt
+
+Qt5/Qt6 is used as a Mode B GUI backend for Linux desktop and ARM64 targets. It provides QML-based interfaces where the UI layout is defined in `.qml` files and eRT controls widget properties and receives events through the Qt object system.
+
+#### How It Works
+
+eRT runs inside a Qt application. The main execution flow is:
+
+1. `ertqt_init()` creates a `QGuiApplication` and `QQmlApplicationEngine`, loads `app.qml`
+2. A `QTimer::singleShot` chain fires `ehs_tick_callback` on the Qt GUI thread, which single-steps the eRT kernel via `EhsMainLoopSingle()`
+3. Widget names from `.gui` files are matched to QML objects by `objectName` — so a widget called `widget1` in the `.gui` file will bind to a QML object with `objectName: "widget1"`
+4. eRT pushes property changes (text, colour, position) to QML objects via `ertqt_set_property()`
+5. QML signals (e.g. button clicks) are connected back to eRT via `QSignalMapper`, invoking the widget's `event_callback`
+
+The glue layer lives in `target/Component-HAL/graphics/qt/ertqt.cpp`.
+
+Whole bundles of QML and assets can be placed in the same directory as the app.qml (i.e. the application folder.These can be added as resources to an app if they are all located in a single directoty. (Currently Lucid and the inxware runtime doesn't support sub-directories in application folders.))
+
+#### Platform Targets
+
+- `linux_x86_64_qt_debian12-no-certs` — x86_64 host build
+- `linux_arm64_qt_debian12-no-certs` — ARM64 (e.g., Raspberry Pi)
+
+#### Build Configuration
+
+Key `config.mk` settings:
+
+| Variable                     | Value        | Description |
+|------------------------------|--------------|-------------|
+| `EHS_GUI_SUPPORT`            | `qt` or `qt6`| Select Qt as the GUI backend |
+| `EHS_GUI_SUPPORT_QT6`        | `yes`        | (Optional) Use Qt6 instead of Qt5 |
+| `EHS_MAIN_LOOP_ITERATIVE`    | `yes`        | Required for Qt event loop integration |
+| `EHS_DEBUG_TCPIP_CONSOLE`    | `stubbed`    | Disable TCPIP console (conflicts with Qt event loop) |
+
+#### Build Dependencies
+
+For **Docker builds** (recommended), each Qt platform includes a Dockerfile with all dependencies:
+```bash
+make all_docker
+```
+
+For **host machine builds** on Debian 12 / Ubuntu 24.04:
+
+```bash
+# Build tools
+sudo apt install build-essential cmake git clang llvm \
+    libarchive-dev libcurl4-openssl-dev zlib1g-dev \
+    libexpat-dev libidn2-dev libxml2-dev
+
+# Qt5 (or substitute qt6 equivalents)
+sudo apt install qtbase5-dev qtdeclarative5-dev \
+    qtbase5-dev-tools qtdeclarative5-dev-tools
+
+# GTK2 and graphics (required for image handling)
+sudo apt install libgtk2.0-dev libgdk-pixbuf2.0-dev \
+    libcairo2-dev libpango1.0-dev libatk1.0-dev libglib2.0-dev
+
+# X11
+sudo apt install libx11-dev libxext-dev libxrender-dev \
+    libxcomposite-dev libxfixes-dev libfontconfig1-dev libfreetype6-dev
+```
+
+#### Runtime Dependencies
+
+```bash
+# Core Qt5 libraries
+sudo apt install libqt5core5a libqt5gui5 libqt5qml5 libqt5quick5 \
+    libqt5quickcontrols2-5 libqt5quicktemplates2-5
+
+# QML modules (required for QML imports to work)
+sudo apt install qml-module-qtquick2 qml-module-qtquick-window2 \
+    qml-module-qtquick-controls qml-module-qtquick-controls2 \
+    qml-module-qtquick-layouts qml-module-qtquick-templates2
+```
+
+**Note:** The `qml-module-qtquick-controls2` package is essential — without it you get: "Cannot protect module QtQuick.Controls 2 as it was never registered"
+
+#### QML Application Structure
+
+Qt platforms load `app.qml` from the application directory (e.g. `appdata/default/app.qml`). The QML file defines the window layout and references eRT widgets by `objectName`. Sibling `.qml` files in the same directory are automatically resolved as QML types by filename. Native Qt modules (e.g. `QtQuick.Timeline`) must be installed separately as system packages.
+
+#### Qt5 / Qt6 Compatibility
+
+Both Qt5 and Qt6 are supported. Qt6 renamed `QSignalMapper::mapped(int)` to `mappedInt(int)` and removed string-based `QObject::connect()` with lambdas. The codebase handles this via a `ERTQT_SIGNAL_MAPPER_MAPPED_INT` compatibility macro in `ertqt.cpp`.
+
 # Platform-Specific Guides
 
-### Embedded RTOS
-- **FreeRTOS**: ESP32, ESP32-S3, NXP ARM MCUs
-- **Arduino**: Various Arduino-compatible boards
-
 ## Windows
-- **Win32**: Desktop applications via MinGW toolchain
+- **Win32**: Desktop applications via MinGW toolchain. The installation directory structure is similar to linux (see below).
 
 ## GNU Linux
 
@@ -1344,129 +1459,11 @@ inxware builds as a binary executable application (`ehs.exe`) for standard linux
 └── userdata
 ```
 
-### Qt GUI Support (Linux)
+## Embedded RTOS
+- **FreeRTOS**: ESP32, ESP32-S3, NXP ARM MCUs
+- **Arduino**: Various Arduino-compatible boards
 
-Qt5 is supported as an alternative GUI backend to GTK for Linux targets. Qt provides better support for modern UI features and QML-based interfaces.
-
-#### Platform Targets
-
-- `linux_x86_64_qt_debian12-no-certs` - x86_64 host build with Qt5
-- `linux_arm64_qt_debian12-no-certs` - ARM64 (e.g., Raspberry Pi) with Qt5
-
-#### Build Dependencies
-
-For **Docker builds** (recommended), each Qt platform includes a Dockerfile with all required dependencies. Use:
-```bash
-make all_docker
-```
-
-For **host machine builds** on Debian 12 / Ubuntu 24.04, install the following packages:
-
-**Build dependencies:**
-```bash
-sudo apt install build-essential cmake git clang llvm \
-    libarchive-dev libcurl4-openssl-dev zlib1g-dev \
-    libexpat-dev libidn2-dev libxml2-dev
-```
-
-**Qt5 development packages:**
-```bash
-sudo apt install qtbase5-dev qtdeclarative5-dev \
-    qtbase5-dev-tools qtdeclarative5-dev-tools
-```
-
-**GTK2 and graphics dependencies** (required for image handling):
-```bash
-sudo apt install libgtk2.0-dev libgdk-pixbuf2.0-dev \
-    libcairo2-dev libpango1.0-dev libatk1.0-dev libglib2.0-dev
-```
-
-**X11 dependencies:**
-```bash
-sudo apt install libx11-dev libxext-dev libxrender-dev \
-    libxcomposite-dev libxfixes-dev libfontconfig1-dev libfreetype6-dev
-```
-
-#### Runtime Dependencies
-
-To run Qt-based eRT applications on a target machine, install the Qt5 runtime libraries:
-
-```bash
-# Core Qt5 libraries
-sudo apt install libqt5core5a libqt5gui5 libqt5qml5 libqt5quick5 \
-    libqt5quickcontrols2-5 libqt5quicktemplates2-5
-
-# QML modules (required for QML imports to work)
-sudo apt install qml-module-qtquick2 qml-module-qtquick-window2 \
-    qml-module-qtquick-controls qml-module-qtquick-controls2 \
-    qml-module-qtquick-layouts qml-module-qtquick-templates2
-```
-
-**Note:** The `qml-module-qtquick-controls2` package is essential - without it you will get the error: "Cannot protect module QtQuick.Controls 2 as it was never registered"
-
-#### Qt Platform Configuration
-
-Key `config.mk` settings for Qt platforms:
-
-| Variable                     | Value | Description |
-|------------------------------|-------|-------------|
-| `EHS_GUI_SUPPORT`            | `qt` | Select Qt as the GUI backend |
-| `EHS_MAIN_LOOP_ITERATIVE`    | `yes` | Required for Qt event loop integration |
-| `EHS_DEBUG_TCPIP_CONSOLE`    | `stubbed` | TEMPRARY Disable TCPIP console (conflicts with Qt event loop) |
-
-#### QML Application Structure
-
-Qt platforms load a QML file as the main UI. The default location is `apps/default/app.qml`. The QML file should define the main window and can reference eRT widgets by their `objectName` property matching the widget names in the `.gui` file.
-
-#### Widget Rendering Modes: Mode A vs Mode B
-
-eRT supports two fundamentally different approaches to widget rendering, referred to as **Render Mode A** and **Render Mode B**. The mode determines how widgets are drawn, how mouse/touch input is processed, and how events reach EHS function blocks. Understanding this distinction is essential when porting the graphics HAL.
-
-**Render Mode A** (GTK, framebuffer):
-eRT owns the pixel buffers and is responsible for all rendering. The HAL receives raw mouse/touch coordinates from the OS and must perform **coordinate-based hit-testing** against each widget's bounding rectangle (`xCurRect`) and z-order (`nZ`) to determine which widget was touched. Once the target widget is identified, the HAL fires the appropriate EHS kernel finish port directly using **per-widget port numbers** stored on the `EhsWidgetStruct` (e.g. `mouseClickPortNumber`, `mouseDownPortNumber`, `mouseUpPortNumber`, `mouseDragPortNumber`, and the absolute/offset coordinate ports). These port numbers are populated during widget creation from the CDF/function-block definition and allow the HAL to dispatch events without knowing the function block's internal wiring.
-
-Key `EhsWidgetStruct` fields used only in Mode A:
-| Field | Purpose |
-|-------|---------|
-| `pfMouseDownEventFunc` | Callback for mouse-down on non-FB widgets (e.g. GPIO widget) |
-| `pMouseDownEventData` | Opaque data for the above callback |
-| `nMouseDownX`, `nMouseDownY` | Coordinates of the last mouse-down, used for drag offset calculation |
-| `mouseClickPortNumber` | Finish port fired on mouse click |
-| `mouseDownPortNumber` | Finish port fired on mouse down |
-| `mouseUpPortNumber` | Finish port fired on mouse up |
-| `mouseDragPortNumber` | Finish port fired on drag |
-| `mouseUpDownAbsXPortNumber` | Finish port for absolute X on mouse up/down |
-| `mouseUpDownAbsYPortNumber` | Finish port for absolute Y on mouse up/down |
-| `mouseDragOffsetXPortNumber` | Finish port for drag X delta |
-| `mouseDragOffsetYPortNumber` | Finish port for drag Y delta |
-| `bRegisteredMouseDown` | Tracks whether a mouse-down is active on this widget |
-| `bOptimiseForSpeed` | Hint to prefer speed over memory for rendering |
-
-These fields are compiled out (via `#if !defined(EHS_GUI_SUPPORT_MODE_B)`) when building for Mode B targets.
-
-**Render Mode B** (LVGL, Qt):
-An external widget library owns both the widgets and rendering. eRT does **not** perform hit-testing — the library knows which of its own widgets was interacted with. Mouse/touch events arrive in eRT via the `event_callback` function pointer in `EhsWidgetUiSubclass` (part of the `specificWidgetType` union), carrying a generic event ID such as `EHS_WIDGET_UI_EVENT_MOUSE_CLICKED` or `EHS_WIDGET_UI_EVENT_MOUSE_DOWN`. The Mode B event handler in the component layer then fires the appropriate finish port using the function block's own port definitions, rather than per-widget stored port numbers. This is a cleaner separation of concerns: the widget struct does not need to know about port wiring.
-
-eRT communicates property changes to the external library (text, position, colour, opacity) via the `pfDrawFunc` virtual method, which checks the **dirty flags** (`bContentUpdated`, `bPositionUpdated`, `bColourUpdated`) to minimise unnecessary updates.
-
-Key `EhsWidgetStruct` fields used only in Mode B:
-| Field | Purpose |
-|-------|---------|
-| `specificWidgetType.ui` | `EhsWidgetUiSubclass` containing `event_callback` for receiving events from the external library |
-| `bContentUpdated` | Dirty flag: content (e.g. text) has changed |
-| `bPositionUpdated` | Dirty flag: position or size has changed |
-| `bColourUpdated` | Dirty flag: colour or alpha has changed |
-| `qt_handle` | (Qt only) Opaque handle mapping the EHS widget to its QML QObject |
-
-**Porting implications:** When porting to a new platform with an external widget library, implement Mode B. Your HAL needs to:
-1. Create library-native widgets in `pfCreateFunc` (e.g. `EhsTargetWidgetUi_create`)
-2. Push property changes in `pfDrawFunc` using the dirty flags
-3. Bind library signals/events to invoke `event_callback` with the appropriate `EHS_WIDGET_UI_EVENT_*` ID
-4. You do **not** need to implement hit-testing or manage per-widget port numbers
-
-## Xtensa-ESP32
-
-### Platform Overview
+### Xtensa-ESP32
 
 ESP32 and ESP32-S3 platforms are supported using espresiff's FreeRTOS-based IDF SDK. The toolchain part os the SDKs are extracted into ert-build-support and the IDF components into ert-contrib-middleware. The toolchain will run on any linux version similar to Ubuntu 22, but a Docker image to run this is also provided. 
 

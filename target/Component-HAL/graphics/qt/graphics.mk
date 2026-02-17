@@ -85,35 +85,62 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 	LIB += glib-2.0
 	LIB += cairo
 
-	# Qt5 libraries
-	LIB += Qt5Core
-	LIB += Qt5Gui
-	LIB += Qt5Qml
-	LIB += Qt5Quick
+	ifdef EHS_GUI_SUPPORT_QT6
+		DEFS += EHS_GUI_SUPPORT_QT6
+		# Qt6 libraries
+		LIB += Qt6Core
+		LIB += Qt6Gui
+		LIB += Qt6Qml
+		LIB += Qt6Quick
 
-	# Qt5 include paths (Debian 11/12 layout)
-	ifeq ($(EHS_ARCH),arm64)
-	    QT5_INCLUDE_BASE = /usr/include/aarch64-linux-gnu/qt5
-	else ifeq ($(EHS_GNU_ARCH),x86_64)
-	    QT5_INCLUDE_BASE = /usr/include/x86_64-linux-gnu/qt5
-	else ifeq ($(EHS_HOST_DEBIAN_BUILD),x86)
-	    QT5_INCLUDE_BASE = /usr/include/i386-linux-gnu/qt5
-	else
-	    QT5_INCLUDE_BASE = /usr/include/qt5
+		ifeq ($(EHS_HOST_DEBIAN_BUILD),x86_64)
+			LIB_DIRS += /usr/lib/x86_64-linux-gnu/qt6
+		else ifeq ($(EHS_HOST_DEBIAN_BUILD),x86)
+			LIB_DIRS += /usr/lib/i386-linux-gnu
+		endif
+
+
+		# Qt6 include paths (Debian 11/12 layout)
+		ifeq ($(EHS_ARCH),arm64)
+			QT_INCLUDE_BASE = /usr/include/aarch64-linux-gnu/qt6
+		else ifeq ($(EHS_GNU_ARCH),x86_64)
+			QT_INCLUDE_BASE = /usr/include/x86_64-linux-gnu/qt6
+		else ifeq ($(EHS_HOST_DEBIAN_BUILD),x86)
+			QT_INCLUDE_BASE = /usr/include/i386-linux-gnu/qt6
+		else
+			QT_INCLUDE_BASE = /usr/include/qt6
+		endif
+	else 
+		# Qt5 libraries
+		LIB += Qt5Core
+		LIB += Qt5Gui
+		LIB += Qt5Qml
+		LIB += Qt5Quick
+
+		# Qt5 library paths
+		ifeq ($(EHS_HOST_DEBIAN_BUILD),x86_64)
+			LIB_DIRS += /usr/lib/x86_64-linux-gnu/qt5
+		else ifeq ($(EHS_HOST_DEBIAN_BUILD),x86)
+			LIB_DIRS += /usr/lib/i386-linux-gnu
+		endif
+
+		# Qt5 include paths (Debian 11/12 layout)
+		ifeq ($(EHS_ARCH),arm64)
+			QT_INCLUDE_BASE = /usr/include/aarch64-linux-gnu/qt5
+		else ifeq ($(EHS_GNU_ARCH),x86_64)
+			QT_INCLUDE_BASE = /usr/include/x86_64-linux-gnu/qt5
+		else ifeq ($(EHS_HOST_DEBIAN_BUILD),x86)
+			QT_INCLUDE_BASE = /usr/include/i386-linux-gnu/qt5
+		else
+			QT_INCLUDE_BASE = /usr/include/qt5
+		endif
 	endif
-	INC_DIRS += $(QT5_INCLUDE_BASE)
-	INC_DIRS += $(QT5_INCLUDE_BASE)/QtCore
-	INC_DIRS += $(QT5_INCLUDE_BASE)/QtGui
-	INC_DIRS += $(QT5_INCLUDE_BASE)/QtQml
-	INC_DIRS += $(QT5_INCLUDE_BASE)/QtQuick
-
-	# Qt5 library paths
-	ifeq ($(EHS_HOST_DEBIAN_BUILD),x86_64)
-	    LIB_DIRS += /usr/lib/x86_64-linux-gnu/qt5
-	else ifeq ($(EHS_HOST_DEBIAN_BUILD),x86)
-	    LIB_DIRS += /usr/lib/i386-linux-gnu
-	endif
-
+	
+	INC_DIRS += $(QT_INCLUDE_BASE)
+	INC_DIRS += $(QT_INCLUDE_BASE)/QtCore
+	INC_DIRS += $(QT_INCLUDE_BASE)/QtGui
+	INC_DIRS += $(QT_INCLUDE_BASE)/QtQml
+	INC_DIRS += $(QT_INCLUDE_BASE)/QtQuick
 else
 
 	# For Debian host builds

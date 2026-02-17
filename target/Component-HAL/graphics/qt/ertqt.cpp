@@ -68,10 +68,16 @@
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaMethod>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 #include <QtCore/qglobal.h>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QtCore/QSignalMapper>
+
+// Qt6 renamed QSignalMapper::mapped(int) to QSignalMapper::mappedInt(int)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#define ERTQT_SIGNAL_MAPPER_MAPPED_INT &QSignalMapper::mappedInt
+#else
+#define ERTQT_SIGNAL_MAPPER_MAPPED_INT static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped)
 #endif
 
 #include <vector>
@@ -306,7 +312,20 @@ ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv)
             rebuild_object_table();
         });
 
-        g_engine->load(QUrl::fromLocalFile(QString::fromUtf8(qml_path)));
+        // Add the QML file's directory as an import path so that the
+        // application can import sibling QML modules and components.
+        QString qml_file = QString::fromUtf8(qml_path);
+        QString qml_dir = QFileInfo(qml_file).absolutePath();
+        g_engine->addImportPath(qml_dir);
+
+        QStringList paths = g_engine->importPathList();
+        printf("QML import paths:\n");
+        for (const QString &p : paths)
+        {
+            printf("  %s\n", p.toStdString().c_str());
+        }
+
+        g_engine->load(QUrl::fromLocalFile(qml_file));
 
         if (g_engine->rootObjects().isEmpty())
         {
@@ -992,47 +1011,34 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
     QByteArray normalized_sig = QMetaObject::normalizedSignature(sig_string.toLatin1().constData());
     QByteArray signal_sig = QByteArray::number(2) + normalized_sig;  // "2" = SIGNAL
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // Qt5: Use QSignalMapper as bridge to connect string signal to lambda
-    // (Qt5 string-based connect doesn't support lambdas directly)
+    // Use QSignalMapper as bridge to connect string-based signal to lambda
+    // (works on both Qt5 and Qt6)
     auto *mapper = new QSignalMapper(obj);  // Parent to signal sender for cleanup
     mapper->setMapping(obj, 0);
 
     // Connect: signal -> mapper.map()
     bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");  // "1" = SLOT
     if (!connected) {
-        //qDebug() << "ertqt: Failed to connect signal" << signal_name << "to QSignalMapper";
         return ERTQT_ERR_BACKEND_FAILURE;
     }
 
     // Connect: mapper.mapped(int) -> lambda
-    QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+    QObject::connect(mapper, ERTQT_SIGNAL_MAPPER_MAPPED_INT,
                     g_app, [cb, user_data, signal_name](int) {
-                       // printf("[TRACE] ertqt: Qt5 signal '%s' fired -> invoking C callback %p (user_data=%p)\n",
-                       //        signal_name, (void*)(intptr_t)cb, user_data);
-                       // fflush(stdout);
                         cb(user_data);
                     });
-    //qDebug() << "ertqt: Connected signal" << signal_name << "via QSignalMapper (Qt5)";
     return ERTQT_OK;
-#else
-    // Qt6: Can connect string signals to lambdas directly
-    bool connected = QObject::connect(obj, signal_sig.constData(),
-                                     g_app, [cb, user_data, signal_name]() {
-                                        // printf("[TRACE] ertqt: Qt6 signal '%s' fired -> invoking C callback %p (user_data=%p)\n",
-                                        //        signal_name, (void*)(intptr_t)cb, user_data);
-                                        // fflush(stdout);
-                                         cb(user_data);
-                                     });
-#ifdef 0 
-    if (connected) {
-        qDebug() << "ertqt: Connected signal" << signal_name << "directly (Qt6)";
-    } else {
-        qDebug() << "ertqt: Failed to connect signal" << signal_name;
-    }
-#endif // skip debug
-#endif// QT version
-    return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
+
+    // NOTE: Qt6 direct lambda connection (kept for future reference).
+    // Qt6 removed string-based connect with lambdas, so this does NOT compile.
+    // If Qt6 re-adds support or an alternative is found, this pattern avoids
+    // the QSignalMapper overhead:
+    //
+    // bool connected = QObject::connect(obj, signal_sig.constData(),
+    //                                   g_app, [cb, user_data, signal_name]() {
+    //                                       cb(user_data);
+    //                                   });
+    // return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
 }
 
 ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
@@ -1114,79 +1120,44 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
     QByteArray normalized_sig = QMetaObject::normalizedSignature(sig_string.toLatin1().constData());
     QByteArray signal_sig = QByteArray::number(2) + normalized_sig;
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // Qt5: Use QSignalMapper bridge
+    // Use QSignalMapper as bridge (works on both Qt5 and Qt6).
+    // The signal parameter is lost through QSignalMapper, so we always
+    // read the "text" property when the signal fires.
     auto *mapper = new QSignalMapper(obj);
     mapper->setMapping(obj, 0);
 
     bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");
     if (!connected) {
-        //qDebug() << "ertqt: Failed to connect text signal" << signal_name << "to QSignalMapper";
         return ERTQT_ERR_BACKEND_FAILURE;
     }
 
-    // Connect mapper to lambda that handles text
-    if (is_parameterless)
-    {
-        // Read property when signal fires
-        QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
-                        g_app, [obj, cb, user_data](int) {
-                            QString text = obj->property("text").toString();
-                            QByteArray utf8 = text.toUtf8();
-                            cb(utf8.constData(), user_data);
-                        });
-    }
-    else
-    {
-        // For parametrized signal, we lose the parameter through QSignalMapper
-        // Fall back to reading property
-        QObject::connect(mapper, static_cast<void(QSignalMapper::*)(int)>(&QSignalMapper::mapped),
-                        g_app, [obj, cb, user_data](int) {
-                            QString text = obj->property("text").toString();
-                            QByteArray utf8 = text.toUtf8();
-                            cb(utf8.constData(), user_data);
-                        });
-    }
-    //qDebug() << "ertqt: Connected text signal" << signal_name << "via QSignalMapper (Qt5)";
+    QObject::connect(mapper, ERTQT_SIGNAL_MAPPER_MAPPED_INT,
+                    g_app, [obj, cb, user_data](int) {
+                        QString text = obj->property("text").toString();
+                        QByteArray utf8 = text.toUtf8();
+                        cb(utf8.constData(), user_data);
+                    });
     return ERTQT_OK;
-#else
-    // Qt6: Direct lambda connection
-    if (is_parameterless)
-    {
-        bool connected = QObject::connect(obj, signal_sig.constData(), g_app,
-            [obj, cb, user_data]()
-            {
-                QString text = obj->property("text").toString();
-                QByteArray utf8 = text.toUtf8();
-                cb(utf8.constData(), user_data);
-            });
-#if 0
-        if (connected) {
-            qDebug() << "ertqt: Connected text signal" << signal_name << "(parameterless) directly (Qt6)";
-        } else {
-            qDebug() << "ertqt: Failed to connect text signal" << signal_name;
-        }
-#endif
-        return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
-    }
-    else
-    {
-        bool connected = QObject::connect(obj, signal_sig.constData(), g_app,
-            [cb, user_data](const QString& text)
-            {
-                QByteArray utf8 = text.toUtf8();
-                cb(utf8.constData(), user_data);
-            });
-#if 0
-        if (connected) {
-            qDebug() << "ertqt: Connected text signal" << signal_name << "(with QString param) directly (Qt6)";
-        } else {
-            qDebug() << "ertqt: Failed to connect text signal" << signal_name;
-        }
-#endif
-        return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
-    }
-#endif
+
+    // NOTE: Qt6 direct lambda connection for text signals (kept for future reference).
+    // Does NOT compile on Qt6 — string-based connect with lambdas is unsupported.
+    //
+    // Parameterless variant (reads property on signal fire):
+    // bool connected = QObject::connect(obj, signal_sig.constData(), g_app,
+    //     [obj, cb, user_data]() {
+    //         QString text = obj->property("text").toString();
+    //         QByteArray utf8 = text.toUtf8();
+    //         cb(utf8.constData(), user_data);
+    //     });
+    //
+    // Parametrized variant (receives QString directly):
+    // bool connected = QObject::connect(obj, signal_sig.constData(), g_app,
+    //     [cb, user_data](const QString& text) {
+    //         QByteArray utf8 = text.toUtf8();
+    //         cb(utf8.constData(), user_data);
+    //     });
+    //
+    // return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
 }
 
 ertqt_status ertqt_bind_text_changed(ertqt_object_handle h, ertqt_text_callback cb, void * user_data)

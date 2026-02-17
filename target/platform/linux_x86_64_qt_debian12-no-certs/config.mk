@@ -67,6 +67,9 @@ DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
 #
 # EHS_GUI_SUPPORT=gtk
 EHS_GUI_SUPPORT=qt
+# Set this as a modifier for QT not a whole new way of working.
+EHS_GUI_SUPPORT_QT6=yes
+TODO2026 -we probablly want QT6 to be the default and the extra flag would be for qt5.
 
 # Qt uses iterative event loop pattern in `target_main.c`. This means we poll `EhsMainLoop()` from a Qt timer to enable EHS
 # to progress its state, rather than the more traditional (blocking) call into `EhsLoop()`.

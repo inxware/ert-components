@@ -158,9 +158,21 @@ Kernel boot
 
 **Critical dependency:** `EhsMainLoopSingle` (or `EhsMainLoop`) must complete the kernel state machine transition from `EHSKE_STATE_READY` to `EHSKE_STATE_RUNNING` for function blocks to be processed. If this transition doesn't happen, widgets are never created.
 
-## Qt Integration Architecture
+## GUI Targets
 
-### Files
+### LVGL
+
+LVGL is a Mode B target using the [LVGL](https://lvgl.io/) embedded graphics library. Implementation is in `target/Component-HAL/graphics/lvgl/`.
+
+*(LVGL documentation to be expanded.)*
+
+### Qt
+
+#### Overview
+
+The Qt target implements Mode B rendering using Qt5 or Qt6 QML. The application UI is defined in QML files, and eRT controls QML objects by setting properties and receiving signals through a C glue layer.
+
+#### Files
 
 | File | Language | Purpose |
 |------|----------|---------|
@@ -174,7 +186,7 @@ Kernel boot
 | `target/Component-HAL/graphics/qt/ertqt_text_field.h` | C | Convenience wrappers for text field widgets |
 | `target/Component-HAL/graphics/qt/ertqt_checkbox.h` | C | Convenience wrappers for checkbox widgets |
 
-### Event Loop Integration
+#### Event Loop Integration
 
 Qt owns the event loop. The EHS kernel is driven by a Qt timer:
 
@@ -202,7 +214,7 @@ static void ehs_tick_callback(void * user_data)
 
 `EhsMainLoopSingle` (in libehs.a) sets `EhsYieldWhenEmpty = EHS_TRUE` then calls `EhsMainLoop` + `EhsProcessInAppStateMachine` + `EhsProcessExAppStateMachine`. The yield flag prevents the kernel from blocking when there's no work to do, allowing control to return to the Qt event loop.
 
-### Qt Object Handle System
+#### Qt Object Handle System
 
 The `ertqt.cpp` layer maintains an internal object table (`g_objects`) populated by `rebuild_object_table()`, which walks all `QObject` children of the QML engine's root objects. EHS widgets are mapped to QML objects by `objectName`:
 
@@ -215,7 +227,7 @@ EhsTargetWidgetUi_create(pWidget)
 
 The handle is then used for all property access and signal binding.
 
-### Qt Signal → EHS Event Flow (Click Example)
+#### Qt Signal → EHS Event Flow (Click Example)
 
 ```
 User clicks QML Button
@@ -237,7 +249,7 @@ User clicks QML Button
 
 Note: EHS treats `released()` as the actual "click" event (not Qt's `clicked()` signal).
 
-### Qt Property Push Flow (Data Update Example)
+#### Qt Property Push Flow (Data Update Example)
 
 ```
 EHS function block update port fires
@@ -252,19 +264,18 @@ EHS function block update port fires
       → Calls ertqt_update_widget(qt_handle) to request Qt repaint
 ```
 
-### Signal Connection Mechanism
+#### Signal Connection Mechanism
 
 `ertqt.cpp` uses Qt's `QMetaObject` introspection to connect signals by name at runtime:
 
 1. Looks up signal index via `QMetaObject::indexOfSignal()`
 2. Tries parameterless first (e.g. `clicked()`), then with common params (e.g. `clicked(bool)`)
-3. **Qt5:** Uses `QSignalMapper` as bridge (Qt5 string-based connect doesn't support lambdas)
-4. **Qt6:** Connects string signal directly to lambda
-5. Lambda invokes the C callback with `user_data`
+3. Uses `QSignalMapper` as bridge to connect string-based signals to C callbacks (works on both Qt5 and Qt6)
+4. Lambda invokes the C callback with `user_data`
 
 This avoids compile-time coupling to specific QML types and works with any QObject that exposes the expected signal names.
 
-## Build Configuration for Qt
+#### Build Configuration
 
 Set in `target/platform/<platform>/config.mk`:
 
@@ -273,6 +284,7 @@ EHS_GUI_SUPPORT=qt
 EHS_GUI_SUPPORT_MODE_B_QT=yes
 EHS_MAIN_LOOP_ITERATIVE=yes
 EHS_DEBUG_TCPIP_CONSOLE=stubbed   # Conflicts with Qt event loop
+EHS_GUI_SUPPORT_QT6=yes           # Set for Qt6, omit for Qt5
 ```
 
 The `EHS_MAIN_LOOP_ITERATIVE` flag is translated to a compiler define in `target/platform/platform.mk`:
@@ -285,40 +297,9 @@ endif
 
 This selects the Qt timer-based startup path in `target_main.c` instead of the blocking `EhsMain()` call.
 
-## Known Issues and Current Debug State
+Qt include and library paths are configured in `target/Component-HAL/graphics/qt/graphics.mk`, with separate blocks for Qt5 and Qt6 selected by `EHS_GUI_SUPPORT_QT6`.
 
-### Kernel State Machine Regression
-
-When `EhsMainLoopSingle` was introduced, the kernel's `EHSKE_STATE_READY → EHSKE_STATE_RUNNING` transition was initially missing. Without this transition, the kernel returns without processing function blocks, so widgets are never created. The fix was to ensure `EhsMainLoopSingle` includes this state transition in the kernel code (in libehs.a, separate repo).
-
-### Debug Tracing
-
-Several files currently contain `[TRACE]` printf statements for debugging the click event path. These should be removed once the click event flow is confirmed working end-to-end:
-- `ertqt.cpp` — signal firing lambdas, bind functions
-- `target_viewport.c` — button handlers, signal registration, widget creation
-- `ertqt_button.h` — `ertqt_button_on_clicked`
-- `inx-gui_widget.c` — `gui_widget_event_callback`
-- `qt_main_integration.c` — heartbeat `X` in tick callback
-
-### Widget Name Lookup
-
-`EhsTargetWidgetUi_create()` will map the actual widget name from the `pWidget` structure (from the CDF definition) to support multiple widgets.
-
-## Porting to a New Mode B Platform
-
-When implementing a new Mode B target:
-
-1. **Create library widgets** in `pfCreateFunc` — look up or create the library-native widget, store a handle on the `EhsWidgetStruct`
-2. **Push property changes** in `pfDrawFunc` — check `bContentUpdated`/`bPositionUpdated`/`bColourUpdated` flags, push only what changed
-3. **Bind library events** — connect the library's click/press/release/change signals to invoke `event_callback` with the appropriate `EHS_WIDGET_UI_EVENT_*` ID
-4. **Implement viewport stubs** — Mode B targets typically stub out `EhsTV_blit`, `EhsTV_fillRect`, surface management, etc. since the library owns rendering
-5. **You do NOT need to** implement hit-testing, manage per-widget port numbers, or handle raw mouse coordinates
-
-## Qt Target — Detailed Architecture
-
-This section describes how the Qt Mode B target works in detail, covering the execution model, glue layer, object discovery, and timer-driven kernel integration.
-
-### Execution Model
+#### Execution Model (Detailed)
 
 Qt owns the main event loop. The eRT kernel does **not** run its own loop — instead it is single-stepped from a Qt timer callback on the GUI thread. This means all eRT work (widget creation, property pushes, signal handling) runs on the Qt thread, satisfying Qt's thread-affinity requirements for QObject operations.
 
@@ -330,6 +311,7 @@ main()
   → EhsTV_initQt(argc, argv)         — calls ertqt_init():
       → Creates QGuiApplication
       → Creates QQmlApplicationEngine
+      → Adds app directory to QML import path
       → Loads app.qml from the application's appdata directory
       → Builds object table from QML scene (rebuild_object_table)
   → EhsAppLoadingStateMachine()      — loads SODL app definition into kernel
@@ -339,7 +321,7 @@ main()
 
 Once `exec()` is running, the only entry point back into eRT is the tick callback.
 
-### The Tick Timer
+#### The Tick Timer
 
 `ertqt_set_tick_callback()` starts a `QTimer::singleShot` chain on the Qt main thread. Each firing:
 
@@ -354,7 +336,7 @@ cmd = EhsMainLoopSingle(NULL, NULL); // single-step the kernel scheduler
 
 `EhsMainLoopSingle` sets `EhsYieldWhenEmpty = EHS_TRUE` so the kernel returns immediately when there is no work, allowing the Qt event loop to remain responsive.
 
-### The Glue Layer — ertqt.cpp
+#### The Glue Layer — ertqt.cpp
 
 `ertqt.cpp` is the **sole C++ file** in the Qt target. It provides a pure-C API (declared in `ertqt.h`) that the rest of eRT calls. All Qt headers and C++ standard library usage are confined to this one file.
 
@@ -366,11 +348,11 @@ It has five main responsibilities:
 
 3. **Property access** — `ertqt_set_property_{string,int,double,bool}()` and `ertqt_get_property_*()` wrap `QObject::setProperty()`/`property()`. `ertqt_update_widget()` calls `QQuickItem::update()` to schedule a repaint.
 
-4. **Signal binding** — `ertqt_bind_signal()` uses `QMetaObject` introspection to connect a named Qt signal (e.g. `"clicked"`, `"pressed"`, `"textChanged"`) to a C callback at runtime, without compile-time coupling to specific QML types. Qt 5 uses `QSignalMapper` as a bridge; Qt 6 connects directly to a lambda.
+4. **Signal binding** — `ertqt_bind_signal()` uses `QMetaObject` introspection to connect a named Qt signal (e.g. `"clicked"`, `"pressed"`, `"textChanged"`) to a C callback at runtime, without compile-time coupling to specific QML types. Both Qt5 and Qt6 use `QSignalMapper` as a bridge (Qt6 removed string-based connect with lambdas).
 
 5. **Tick timer** — `ertqt_set_tick_callback()` manages the `QTimer::singleShot` chain that drives the eRT kernel.
 
-### QML Object Discovery and Widget Name Mapping
+#### QML Object Discovery and Widget Name Mapping
 
 When a widget is created, `EhsTargetWidgetUi_create()` (in `target_viewport.c`) calls:
 
@@ -384,7 +366,7 @@ The returned handle (an opaque cast of the `QObject*`) is stored in `pWidget->qt
 
 **Important:** The `objectName` property in the QML file must exactly match the widget name from the `.gui` file. For example, if the `.gui` file has `ClientIPAddress`, the QML must have `objectName: "ClientIPAddress"`. If no match is found, the widget will have no Qt handle and cannot render or receive events.
 
-### How Properties Flow Between eRT and QML
+#### How Properties Flow Between eRT and QML
 
 **eRT → QML (data push):**
 ```
@@ -412,7 +394,7 @@ User clicks a QML Button
           → Populates output ports and fires EHS_FB_FINISH
 ```
 
-### QML File Conventions for eRT
+#### QML File Conventions for eRT
 
 The QML file (`appdata/default/app.qml`) defines the visual layout. Each QML object that eRT should control must have:
 
@@ -435,3 +417,28 @@ Button {
 ```
 
 This ensures that when eRT sets the Button's `text` property via `ertqt_set_property_string()`, the contentItem's text binding updates automatically through QML's reactive property system.
+
+QML files in the same directory as `app.qml` are automatically available as types by filename (e.g. `ApplicationFlow.qml` can be used as `ApplicationFlow {}` in QML). The app directory is added to the QML engine's import path at init time. Note that native Qt modules (e.g. `QtQuick.Timeline`) must be installed separately — they cannot be provided as QML files.
+
+#### Known Issues and Current Debug State
+
+**Kernel State Machine Regression:** When `EhsMainLoopSingle` was introduced, the kernel's `EHSKE_STATE_READY → EHSKE_STATE_RUNNING` transition was initially missing. Without this transition, the kernel returns without processing function blocks, so widgets are never created. The fix was to ensure `EhsMainLoopSingle` includes this state transition in the kernel code (in libehs.a, separate repo).
+
+**Debug Tracing:** Several files currently contain `[TRACE]` printf statements for debugging the click event path. These should be removed once the click event flow is confirmed working end-to-end:
+- `ertqt.cpp` — signal firing lambdas, bind functions
+- `target_viewport.c` — button handlers, signal registration, widget creation
+- `ertqt_button.h` — `ertqt_button_on_clicked`
+- `inx-gui_widget.c` — `gui_widget_event_callback`
+- `qt_main_integration.c` — heartbeat `X` in tick callback
+
+**Widget Name Lookup:** `EhsTargetWidgetUi_create()` maps the actual widget name from the `pWidget` structure (parsed from the `.gui` file) to the QML object's `objectName`. The names must match exactly.
+
+## Porting to a New Mode B Platform
+
+When implementing a new Mode B target:
+
+1. **Create library widgets** in `pfCreateFunc` — look up or create the library-native widget, store a handle on the `EhsWidgetStruct`
+2. **Push property changes** in `pfDrawFunc` — check `bContentUpdated`/`bPositionUpdated`/`bColourUpdated` flags, push only what changed
+3. **Bind library events** — connect the library's click/press/release/change signals to invoke `event_callback` with the appropriate `EHS_WIDGET_UI_EVENT_*` ID
+4. **Implement viewport stubs** — Mode B targets typically stub out `EhsTV_blit`, `EhsTV_fillRect`, surface management, etc. since the library owns rendering
+5. **You do NOT need to** implement hit-testing, manage per-widget port numbers, or handle raw mouse coordinates
