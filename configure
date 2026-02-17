@@ -11,38 +11,75 @@
 
 source ./scripts/build-function-library/colour.sh
 
-echo "--------------------------------------------------------------------"
-echo
-heading "inxware runtime software build configuration utilities"
-echo
+if [ -z "$_CONFIGURE_REENTRY" ]; then
+    echo "--------------------------------------------------------------------"
+    echo
+    heading "inxware runtime software build configuration utilities"
+    echo
+fi
+
+# Build the target list array (used by no-arg menu and numeric selection)
+_targets=()
+while IFS= read -r t; do
+    _targets+=("$t")
+done < <(ls --hide "*.mk" --hide "*TEMPLATE*" ./target/platform/ | sort)
+
+# Resolve a numeric argument to a target name
+_resolve_target() {
+    local arg="$1"
+    if [[ "$arg" =~ ^[0-9]+$ ]] && [ "$arg" -ge 1 ] && [ "$arg" -le "${#_targets[@]}" ]; then
+        echo "${_targets[$((arg-1))]}"
+    else
+        echo "$arg"
+    fi
+}
 
 if [ ! -n "${1}" ] ; then
-    echo "Usage"
-    echo "  ${TXT_FG_WHITE}./configure TARGET"
-    echo "OR"
-    echo "  ${TXT_FG_WHITE}./configure help  ${TXT_FG}to learn more about the configuration utilities"
+    echo "Select a target platform to configure, or type its name:"
     echo
-    echo "where target is one of the following target configurations:"
-    echo
-    ls --hide "*.mk" --hide "*TEMPLATES" ./target/platform/
 
+    # Show current target if configured
+    CURRENT=""
     if [ -e ./TARGET.cfg ]; then
-        echo
-        echo "${TXT_FG_WHITE}--------------------------------------------------------------------"
-        echo "Your build tree is currently configured for"
-        echo
-        echo "${TXT_FG_WHITE}  $(< ./TARGET.cfg)"
-        echo "${TXT_FG_WHITE}--------------------------------------------------------------------"
-        echo "${TXT_FG}"
+        source ./TARGET.cfg
+        CURRENT="$TARGET"
     fi
-    exit 1
+
+    local_i=1
+    for t in "${_targets[@]}"; do
+        if [ "$t" = "$CURRENT" ]; then
+            printf "  ${TXT_FG_BRIGHT_CYAN}%3d)  %s  <-- current${TXT_RESET}\n" "$local_i" "$t"
+        else
+            printf "  %3d)  %s\n" "$local_i" "$t"
+        fi
+        local_i=$((local_i + 1))
+    done
+    printf "  ${TXT_FG_GREY}  0)  exit without changes${TXT_FG}\n"
+
+    echo
+    if [ -n "$CURRENT" ]; then
+        echo "Current target: ${TXT_FG_BRIGHT_CYAN}${CURRENT}${TXT_FG}"
+    else
+        echo "${TXT_FG_YELLOW}No target currently configured.${TXT_FG}"
+    fi
+    echo -n "Enter number or target name (${TXT_FG_WHITE}0${TXT_FG}/${TXT_FG_WHITE}x${TXT_FG} to exit): "
+    read -r REPLY
+
+    if [ -z "$REPLY" ] || [ "$REPLY" = "0" ] || [ "$REPLY" = "q" ] || [ "$REPLY" = "Q" ] || [ "$REPLY" = "x" ] || [ "$REPLY" = "X" ]; then
+        exit 0
+    fi
+
+    # Re-run configure with the resolved target
+    SELECTED=$(_resolve_target "$REPLY")
+    _CONFIGURE_REENTRY=1 exec "$0" "$SELECTED"
 fi
 
 if [ "$1" = "help" -o "$1" = "-h" -o "$1" = "-help" -o "$1" = "--help" ]; then
     echo "Utilities to help build eRT for your target:"
     echo
-    echo "  ${TXT_FG_WHITE}./configure                        ${TXT_FG_GREEN}: show the list of supported platform targets."
-    echo "  ${TXT_FG_WHITE}./configure TARGET                 ${TXT_FG_GREEN}: select a platform target to build for (this is a sticky configuration)."
+    echo "  ${TXT_FG_WHITE}./configure                        ${TXT_FG_GREEN}: show numbered list of platform targets and select interactively."
+    echo "  ${TXT_FG_WHITE}./configure TARGET                 ${TXT_FG_GREEN}: select a platform target by name (this is a sticky configuration)."
+    echo "  ${TXT_FG_WHITE}./configure NUMBER                 ${TXT_FG_GREEN}: select a platform target by number from the list."
     echo "  ${TXT_FG_WHITE}./configure -new NEW_TARGET        ${TXT_FG_GREEN}: create a new platform target and configure it."
     echo "  ${TXT_FG_WHITE}./configure -edit                  ${TXT_FG_GREEN}: edit ./target/platform/${TARGET} with nano (exit to return here)."
     echo "  ${TXT_FG_WHITE}./configure -debug                 ${TXT_FG_GREEN}: run the selected target on this host with GDB (if the host supports it)."
@@ -143,20 +180,24 @@ if [ "$1" = "-diff" ]; then
     done
     exit
 fi
-## Otherwise asusume we are changing to a new specified configuration
+## Otherwise assume we are changing to a new specified configuration
+# Resolve numeric target selection (e.g. ./configure 5)
+if [[ "$1" =~ ^[0-9]+$ ]]; then
+    RESOLVED=$(_resolve_target "$1")
+    if [ "$RESOLVED" = "$1" ]; then
+        err "Number $1 is out of range (1-${#_targets[@]}). Run ./configure to see the list."
+        exit 1
+    fi
+    # Re-run with the resolved name so all subsequent logic uses the target string
+    _CONFIGURE_REENTRY=1 exec "$0" "$RESOLVED" "${@:2}"
+fi
+
 # Check we have the config
 if [ ! -d ./target/platform/$1 ]; then
-    err "TARGET [$1] Does not exist. Please use of the following or create a new profile"
+    err "TARGET [$1] does not exist."
     echo
-    echo "To create a new platform, you can:"
-    echo
-    echo "  ${TXT_FG_WHITE}mkdir -p ./target/platform/<your new platform>"
-    echo
-    echo "and copy a config.mk from another similar platform or base platform"
-    echo
-    echo "Or choose a pre-existing target plaform from:"
-    echo
-    ls --hide "*.mk"  ./target/platform/
+    echo "Run ${TXT_FG_WHITE}./configure${TXT_FG} to see the numbered list of available targets,"
+    echo "or create a new platform with ${TXT_FG_WHITE}./configure -new <name>${TXT_FG}"
     exit 1
 fi
 

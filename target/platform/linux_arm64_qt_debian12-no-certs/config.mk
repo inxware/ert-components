@@ -57,7 +57,7 @@ COMPONENT_VARIANT=base
 
 # Application Selection
 EHS_DEFAULT_APP=tutorials/hello_world_qt
-
+EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
 # Enable eRT1 support (binary format SODL files)
 ERT_SODL_VERSION=1
 
@@ -67,12 +67,6 @@ EHS_DEBUGALL=true
 # Force 'unknown' source files to output logging at the logger's logging level
 DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
 
-# To enable UI support ("ui", DCC=4) set EHS_GUI_SUPPORT to {gtk, framebuffer, OpenGLE1_1, android_stub}, depending support
-# for your target:
-#
-# EHS_GUI_SUPPORT=gtk
-EHS_GUI_SUPPORT=qt
-
 # Qt uses iterative event loop pattern in `target_main.c`. This means we poll `EhsMainLoop()` from a Qt timer to enable EHS
 # to progress its state, rather than the more traditional (blocking) call into `EhsLoop()`.
 #
@@ -81,6 +75,13 @@ EHS_MAIN_LOOP_ITERATIVE=yes
 # Graphics configuration - delegate all rendering to Qt and automatically plumb between the widgets in '*.gui' and their
 # respective QObject (from '*.qml'. This requres the EHS widget name (string) to match the `objectName` in the QML.
 #
+
+
+EHS_GUI_SUPPORT=qt
+# Set this as a modifier for QT not a whole new way of working.
+EHS_GUI_SUPPORT_QT6=yes
+#TODO2026 -we probablly want QT6 to be the default and the extra flag would be for qt5.
+
 
 
 # Mock GPIO widgets in Qt UI - enables desktop development of GPIO apps before hardware is available.
@@ -108,5 +109,5 @@ EHS_MEDIA_SUPPORT=all
 EHS_MV_SUPPORT=stubbed
 
 ## Hacking 
-#DEFS += EHS_LOG_LEVEL_VERBOSE
+DEFS += EHS_LOG_LEVEL_VERBOSE
 DEFS += EHS_LOG_TO_STDIO
