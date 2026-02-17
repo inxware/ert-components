@@ -465,7 +465,7 @@ void app_main(void)
 #if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
     // Bare metal mode: Run test immediately and hang
     extern void EHS_TEST_FUNC_NAME(void);
-    ESP_LOGI(TAG, "EHS Bare Metal Test: Running %s", #EHS_TEST_FUNC_NAME);
+    ESP_LOGI(TAG, "EHS Bare Metal Test: Running %s", EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME));
     EHS_TEST_FUNC_NAME();
     ESP_LOGI(TAG, "Test completed");
     while(1) {
@@ -516,10 +516,12 @@ void app_main(void)
 #endif
 
 #ifdef EHS_TEST_FUNC_OVERRIDE
+#if !defined(EHS_TEST_FUNC_NO_ERT_INIT)
     // Test mode with full init: Run test instead of EhsMain
     extern void EHS_TEST_FUNC_NAME(void);
-    ESP_LOGI(TAG, "EHS Test Mode: Running %s", #EHS_TEST_FUNC_NAME);
+    ESP_LOGI(TAG, "EHS Test Mode: Running %s", EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME));
     xTaskCreate(EHS_TEST_FUNC_NAME, #EHS_TEST_FUNC_NAME, stack_depth, NULL, ESP_TASK_TCPIP_PRIO + 1, xHandle);
+#endif
 #else
     // Normal production mode
     xTaskCreate(EhsMain, "EhsMain", stack_depth, NULL, ESP_TASK_TCPIP_PRIO + 1, xHandle); // tskIDLE_PRIORITY + 5

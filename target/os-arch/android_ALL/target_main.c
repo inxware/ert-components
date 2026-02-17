@@ -961,7 +961,7 @@ void * ehs_android_main(Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),
 #if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
     // Bare metal mode: Run test immediately and exit
     extern void EHS_TEST_FUNC_NAME(void);
-    EHSH_LOG_INFO("EHS Bare Metal Test: Running %s\n", #EHS_TEST_FUNC_NAME);
+    EHSH_LOG_INFO("EHS Bare Metal Test: Running %s\n", EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME));
     EHS_TEST_FUNC_NAME();
     EHSH_LOG_INFO("Test completed\n");
     return 0;
@@ -981,11 +981,13 @@ void * ehs_android_main(Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),
     //signal(SIGINT, EhsTargetHandleTerm);
 
 #ifdef EHS_TEST_FUNC_OVERRIDE
+#if !defined(EHS_TEST_FUNC_NO_ERT_INIT)
     // Test mode with full init: Run test instead of EhsMain
     extern void EHS_TEST_FUNC_NAME(void);
-    EHSH_LOG_INFO("EHS Test Mode: Running %s\n", #EHS_TEST_FUNC_NAME);
+    EHSH_LOG_INFO("EHS Test Mode: Running %s\n", EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME));
     EHS_TEST_FUNC_NAME();
     EHSH_LOG_INFO("Test completed\n");
+#endif
 #else
     // Normal production mode
     EhsMain( target_loop_iteration,target_env_blob); /* Blocking - doesn't return in this version */
