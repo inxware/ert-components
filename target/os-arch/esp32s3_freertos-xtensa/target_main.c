@@ -1561,9 +1561,6 @@ ehs_bool EhsTPlatformReady(void (*target_loop_iteration)(void *),
     return EHS_TRUE;
 }
 
-#define EHS_TEST_FUNC_XSTR(x) #x
-#define EHS_TEST_FUNC_STR(x) EHS_TEST_FUNC_XSTR(x)
-
 /**
  * Main entry point to the application.
  * @return void
@@ -1579,7 +1576,7 @@ void app_main(void)
 #if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
     // Bare metal mode: Run test immediately and hang
     extern void EHS_TEST_FUNC_NAME(void);
-    ESP_LOGI(TAG, "EHS Bare Metal Test: Running %s", EHS_TEST_FUNC_STR(EHS_TEST_FUNC_NAME));
+    ESP_LOGI(TAG, "EHS Bare Metal Test: Running %s", EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME));
     EHS_TEST_FUNC_NAME();
     ESP_LOGI(TAG, "Test completed");
     while(1) {
@@ -1750,8 +1747,8 @@ ota_data_write_jump:
 #if !defined(EHS_TEST_FUNC_NO_ERT_INIT)
     // Test mode with full init: Run test instead of EhsMain
     extern void EHS_TEST_FUNC_NAME(void);
-    ESP_LOGI(TAG, "EHS Test Mode: Running %s", EHS_TEST_FUNC_STR(EHS_TEST_FUNC_NAME));
-    xTaskCreate(EHS_TEST_FUNC_NAME, EHS_TEST_FUNC_STR(EHS_TEST_FUNC_NAME), EHS_MAIN_ESP32_TASK_STACK_SIZE, NULL, EHS_PRI_EHS_MAIN, NULL);
+    ESP_LOGI(TAG, "EHS Test Mode: Running %s", EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME));
+    xTaskCreate(EHS_TEST_FUNC_NAME, EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME), EHS_MAIN_ESP32_TASK_STACK_SIZE, NULL, EHS_PRI_EHS_MAIN, NULL);
 #endif
 #else
     // Normal production mode
