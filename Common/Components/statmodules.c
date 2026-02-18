@@ -35,7 +35,7 @@ extern const EhsBlockRefType EhsBlockRefTable_core[];
 #ifdef EHS_GUI_SUPPORT
 #include "hal_viewport.h"
 #include "widget.h"
-extern const   EhsBlockRefTable_coreGui[];
+extern const EhsBlockRefType EhsBlockRefTable_coreGui[];
 #endif
 
 /**
