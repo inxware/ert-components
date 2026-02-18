@@ -78,12 +78,16 @@ mkdir -p "../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib"
 # note - may not exist for target
 #todo this looks a bit of a mess?
 
-TC_LIBS="../ert-build-support/toolchains/${TOOLCHAIN_PATH}/sysroot/lib"
-if [ -e "${TC_LIBS}" ]; then
-    echo "Copying toolchain libraries..."
-    cp -vPR ${TC_LIBS}/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib/
+if [ "${TOOLCHAIN_PATH}" = "HOST" ] || [ "${TOOLCHAIN_NAME}" = "HOST" ]; then
+    echo "Using host system/Docker toolchain — no toolchain libraries to copy."
 else
-    warn "No toolchain libraries found in '${TC_LIBS}'"
+    TC_LIBS="../ert-build-support/toolchains/${TOOLCHAIN_PATH}/sysroot/lib"
+    if [ -e "${TC_LIBS}" ]; then
+        echo "Copying toolchain libraries..."
+        cp -vPR ${TC_LIBS}/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib/
+    else
+        warn "No toolchain libraries found in '${TC_LIBS}'"
+    fi
 fi
 
 #Tidy up any accidently copied static libraries of toolchain objects
