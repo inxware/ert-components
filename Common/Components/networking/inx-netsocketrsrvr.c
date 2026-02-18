@@ -577,7 +577,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_listen)
             inx_netSocket_state->clientSocket = EHS_TGT_TCP_INVALID_SOCKET;
         }
 
-        //EHSH_LOG_INFO("All done: closing flag=%d Closing connection\n",inx_netSocket_state->closeConnectionNow);
+        //EHSH_LOG_INFO("All done: closing flag=%d Closing connection",inx_netSocket_state->closeConnectionNow);
         if (inx_netSocket_state->connection_socket != EHS_TGT_TCP_INVALID_SOCKET )
         {
             EhsSvcTgtTcp_closeConnection(inx_netSocket_state->connection_socket); //close(sfd);

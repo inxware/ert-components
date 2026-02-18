@@ -25,15 +25,15 @@ Below are some detailed instructions on how to use the eRT Components configurat
 
 ## Prerequisites
 
-| Requirement | Minimum                                       | Recommended                        |
-| ----------- | --------------------------------------------- | ---------------------------------- |
-| **OS**      | Linux (Ubuntu 18.04) or Windows 10 with WSL2  | Ubuntu 20.04+ or Debian 11+        |
-| **RAM**     | 8GB                                           | 16GB+                              |
-| **Storage** | 50GB free                                     | 100GB+ SSD                         |
-| **CPU**     | 4 cores                                       | 8+ cores                           |
-| **Network** | Broadband internet                            | High-speed for container downloads |
+| Requirement | Minimum                             | Recommended                        |
+| ----------- | ------------------------- --------- | ---------------------------------- |
+| **OS**      | Linux (Ubuntu >= 18.04) or WSL2     | Ubuntu 20.04+ or Debian 11+        |
+| **RAM**     | 8GB                                 | 16GB+                              |
+| **Storage** | 50GB free                           | 100GB+ SSD                         |
+| **CPU**     | 4 cores                             | 8+ cores                           |
+| **Network** | Broadband internet                  | High-speed for container downloads |
 
-## Smoke test
+## First Build
 
 The instructions below will allow you to get a clean build environment set up and then run a single test build to ensure everything is working. Within a Linux bash shell, enter the following commands:
 
@@ -42,10 +42,10 @@ The instructions below will allow you to get a clean build environment set up an
 
    # Clone the main `ert-components` repository
    # If you prefer HTTPS:
-   # git clone https://github.com/inxware/ert-components.git
+   git clone -depth 1 https://github.com/inxware/ert-components.git
    #
    # If you prefer SSH:
-   git clone git@github.com:inxware/ert-components.git
+   git clone -depth 1 git@github.com:inxware/ert-components.git
    cd ert-components
 
    # Configure the build for your chosen target platform
@@ -59,7 +59,7 @@ The instructions below will allow you to get a clean build environment set up an
    make all_docker                 # Build using containerised environment
 
    # Create a staging directory for later packaging
-   make targetenv                  # Assemble the runtime environment
+   make targetenv                  # Assemble the runtime environment in ../TARGET_TREES/ehs-env_linux_x86_64_clang
    ```
 
 **Success!** You now have a working eRT runtime. Try the [Lucid IDE](https://appland.inxware.io/) to create your first no-code application.
@@ -84,18 +84,20 @@ The instructions below will allow you to get a clean build environment set up an
 
 [![build-arduino-mbed-nano-community](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml)
 
-# Detailed installation & setup
+# How inxware Builds Work
 
-eRT automatically manages most dependencies through Docker containers. The `make prepdeps` command will install:
+Building inxware's ert-components runtime automatically manages dependencies with a combination of Docker containers and additional repositories.
 
 ## Host pre-requisites
 
 - Git with LFS support
 - GNU Make (included in the `build-essential` Debian package)
 - Docker (ideally the latest stable release)
-- Python 3 for various build scripts
+- Python 3 (Optional - used for creating documentation and new components)
 
 ## Repository pre-requisites
+
+The `make prepdeps` command will clone the dependency repos for you.
 
 - **ert-build-support** (~20GB): Binary toolchains and build tools
 - **ert-contrib-middleware** (~15GB): Pre-built 3rd-party libraries
@@ -104,32 +106,38 @@ eRT automatically manages most dependencies through Docker containers. The `make
 ## Build workflow overview
 
    ```text
-   Configure → Install Deps    → Build    → Package         → Deploy
+   Configure → Install Deps → Build         → Package         → Deploy
        ↓           ↓             ↓                ↓                ↓
    ./configure  make prepdeps  make all_docker  make targetenv   build-deploy/*.sh
    ```
 
-## Repository setup
+## Detailed Build Step Explaination
 
 1. **Clone the main eRT repository**
    ```bash
    mkdir inxware && cd inxware
 
-   git clone https://github.com/inxware/ert-components.git
+   git clone --depth 1 https://github.com/inxware/ert-components.git
    cd ert-components
    ```
+You don't need to clone the repositiry with depth 1, but it saves space.
+`ert-compoents` is where the inxware runtime build system and all open source components are located.
 
 2. **Select target and download dependencies**
    ```bash
    ./configure linux_x86_64_clang  # or your preferred target
    make prepdeps                   # Downloads dependencies (may take some time!)
    ```
-
-3. **Verify installation**
-   ```bash
-   make help                       # Should show available build targets
-   docker --version                # Verify Docker is working
+After this you will find `ert-build-support` (toolchains and ert-kernels) and `ert-contrib-middleware` (pre-built 3rd-party OSS component libraries & source)
+3. **Build ert-components from source**
+  ```bash
+   make all_docker                 # Builds in the current directory, but in a specific docker environment for the toolchain.
    ```
+If you have the toolchain for your target platform already installed you can simply use
+  ```bash
+   make all                        # Builds in the current directory in your host .
+   ```
+
 
 ## Docker configuration
 

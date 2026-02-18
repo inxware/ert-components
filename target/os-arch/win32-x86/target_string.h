@@ -54,6 +54,8 @@
 
 #define EhsStrcat strcat
 
+#define EhsStrncat strncat
+
 #define EhsStrcat_s strcat_s
 
 #define EhsStrchr strchr

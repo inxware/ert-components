@@ -1,10 +1,10 @@
 /***************************************************************
- * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
  * You may use, distribute and modify this code under the terms
  * of the LGPLv3 license. You should have received a copy of the
- * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
- * not, please visit
- *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
+ *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
 
@@ -15,7 +15,7 @@
  *
  */
 
-//#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
 
 #include "globals.h"
 #include "widget.h"
@@ -84,7 +84,10 @@ EHS_LOCAL void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass
 EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, ehs_uint16 nZ,
                                       ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB, ehs_uint16 nLineSep,
                                       EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
-                                      EhsGraphicsFontClass* pFont)
+                                      EhsGraphicsFontClass* pFont
+                                    #ifdef EHS_STORE_WIDGET_NAMES
+                                      ,ehs_char *szWidgetName
+                                    #endif)
 {
     EhsWidgetClass* pWidget;
 
@@ -94,7 +97,11 @@ EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, 
     if (pWidget)
     {
 
-        EhsWidget_init(pWidget,pBounds, nZ,  xFgColour.sComp.nAlpha);
+        EhsWidget_init(pWidget,pBounds, nZ,  xFgColour.sComp.nAlpha
+            #ifdef EHS_STORE_WIDGET_NAMES
+            ,szWidgetName
+            #endif
+            );
 
         pWidget->eWidgetKind = EHS_WIDGET_KIND_TEXTBOX;
         pWidget->nState = EHS_WIDGET_STATE_INIT;
@@ -182,6 +189,7 @@ void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpor
 #else
 void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
+#if defined(EHS_GUI_SUPPORT_MODE_A)
     EhsTVSurfaceClass* pSurface;
     ehs_bool bOk = EHS_TRUE; /* true so long as we can continue drawing to the surface */
     if (EhsStrlen(EHS_WIDGET_TEXTBOX(pWidget).xText.szHtml) > EHS_STRING_LENGTH_MAX) EHS_WIDGET_TEXTBOX(pWidget).xText.szHtml[EHS_STRING_LENGTH_MAX] = '\0'; //truncate to avoid crashes
@@ -293,6 +301,7 @@ void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewpor
         xSrc.nHeight = pWidget->xCurRect.nHeight;
         EhsTV_blit_withlock(pViewport, EHS_WIDGET_TEXTBOX(pWidget).pSurface, &(pWidget->xCurRect),&xSrc, 255u);
     }
+#endif //make sure we don't do any of this in Render Mode B.
 }
 #endif
 /**

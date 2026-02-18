@@ -141,7 +141,7 @@ EHS_FB_RUN_FUNCTION(PID_init)
 	if( EhsPIDCtrlInit(pid_ctrl) == EHS_TRUE ){
 		EHS_FB_FINISH(INX_PID_ARG_init_init_done);
 	}else{
-		EHSH_LOG_ERROR("Failed to init PID controller (error=%d)\n", (ehs_sint32)pid_ctrl->nError);
+		EHSH_LOG_ERROR("Failed to init PID controller (error=%d)", (ehs_sint32)pid_ctrl->nError);
 	}
 }//ICB FUNCTION init MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION new_measure MACRO START -- DO NOT ALTER
@@ -191,7 +191,7 @@ EHS_FB_RUN_FUNCTION(PID_set_point_value)
 		if(EhsPIDCtrlSetSetpointValue(pid_ctrl) == EHS_TRUE){
 			EHS_FB_FINISH(INX_PID_ARG_set_point_value_set_point_done);
 		}else{
-			EHSH_LOG_ERROR("EhsPIDCtrlSetSetpointValue configure FAILED ! \n");
+			EHSH_LOG_ERROR("EhsPIDCtrlSetSetpointValue configure FAILED ! ");
 		}
 	}
 }//ICB FUNCTION set_point_value MACRO END -- DO NOT ALTER THIS LINE
@@ -225,7 +225,7 @@ EHS_FB_RUN_FUNCTION(PID_set_pid_config)
 	if(EhsPIDCtrlConfigurePID(pid_ctrl) == EHS_TRUE){
 		EHS_FB_FINISH(INX_PID_ARG_set_pid_config_pid_config_done);
 	}else{
-		EHSH_LOG_ERROR("EhsPIDCtrlConfigurePID configure FAILED ! \n");
+		EHSH_LOG_ERROR("EhsPIDCtrlConfigurePID configure FAILED ! ");
 	}
 }//ICB FUNCTION set_pid_config MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION set_io_config MACRO START -- DO NOT ALTER
@@ -261,7 +261,7 @@ EHS_FB_RUN_FUNCTION(PID_set_io_config)
 	if(EhsPIDCtrlConfigureIO(pid_ctrl) == EHS_TRUE){
 		EHS_FB_FINISH(INX_PID_ARG_set_io_config_io_config_done);
 	}else{
-		EHSH_LOG_ERROR("EhsPIDCtrlConfigureIO configure FAILED ! \n");
+		EHSH_LOG_ERROR("EhsPIDCtrlConfigureIO configure FAILED ! ");
 	}
 }//ICB FUNCTION set_io_config MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION get_isr_value MACRO START -- DO NOT ALTER

@@ -18,6 +18,7 @@
     #ifndef EHS_ANDROID
     #include <execinfo.h>
     #endif
+    
     #include <stdio.h>
     #include <stdlib.h>
 
@@ -407,7 +408,7 @@ void AssertTimeWindowPorts(EhsFunctionInstanceDataType* pFIdata,EhsPlayManagerTy
 
 static void PrintEvent(EhsPlayManagerEvent *pEvent)
 {
-    EHSH_LOG_INFO("//EVENT//\neventTime=%d\ntype=%u\npPlaylist=%s\npMediaSource=%s, region=%s, section=%s, ID=%u, TYPE=%s, ListType=%u Addr=%x\n",
+    EHSH_LOG_INFO("//EVENT//\neventTime=%d\ntype=%u\npPlaylist=%s\npMediaSource=%s, region=%s, section=%s, ID=%u, TYPE=%s, ListType=%u Addr=%x",
                   (unsigned int)pEvent->eventTime, (unsigned int)pEvent->type, pEvent->pPlaylist,
                   pEvent->pMediaSource,pEvent->region,pEvent->layoutSection,(unsigned int)pEvent->WaitingForObjectUniqueID,pEvent->srcType,(unsigned int)pEvent->eventListType,(unsigned int)pEvent);
 }
@@ -1714,12 +1715,12 @@ ehs_uint16 CreateListEvent(xmlTextReaderPtr reader,
         {
             xmlTextReaderClose(tempNewReaderPtr);
             xmlFreeTextReader(tempNewReaderPtr);
-            EHSH_LOG_ERROR("Couldn't create pStartEvent\n");
+            EHSH_LOG_ERROR("Couldn't create pStartEvent");
         }
     }
     else
     {
-        EHSH_LOG_ERROR("seqTag(): Failed to get the innerXML, probably means the playlist is corrupt\n");
+        EHSH_LOG_ERROR("seqTag(): Failed to get the innerXML, probably means the playlist is corrupt");
     }
     return ret;
 }
@@ -3093,7 +3094,7 @@ static void headTag(xmlTextReaderPtr reader, EhsPlayManagerType* pPlayManager)
         }
         else
         {
-            EHSH_LOG_ERROR("expected closing head. found \"%s\"\n", nextTag);
+            EHSH_LOG_ERROR("expected closing head. found \"%s\"", nextTag);
             countOut--;
         }
 
@@ -3386,7 +3387,7 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
                     if (xmlTextReaderRead(pPlayManager->srcFileReader) == 1 && pPlayManager->srcFileReader != NULL )   /* now read the first entry */
                     {
                         /* @todo consider removing this and triggering first readSRC by the get next URL only - this means all will start OK without bothering with the downloads */
-                        //EHSH_LOG_ERROR("---->Reading sources....\n");
+                        //EHSH_LOG_ERROR("---->Reading sources....");
                         readSrcs(pPlayManager, pFIdata, EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_GET, EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_URL,EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_LOCAL_FILE,EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_NOMORE); // find the first event data
                     }
                     else
@@ -3580,9 +3581,9 @@ ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayM
     ehs_bool doImmediate = EHS_FALSE;
 #define EHS_DEBUG_SMILPARSER_OUTPUTS
 #ifdef EHS_DEBUG_SMILPARSER_OUTPUTS
-    EHSH_LOG_INFO("-------------------------------------------------------->\n");
+    EHSH_LOG_INFO("-------------------------------------------------------->");
     PrintEvent(pEvent);
-    EHSH_LOG_INFO("-------------------------------------------------------->\n");
+    EHSH_LOG_INFO("-------------------------------------------------------->");
 #endif
     if (bEndEvent && pEvent->bEndFiredWaitingForAck > 0)
     {
@@ -3596,7 +3597,7 @@ ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayM
     }
     else
     {
-        EHSH_LOG_INFO("PLAYING ID (type%d)=%d\n",bEndEvent, pEvent->SendersObjectUniqueID);
+        EHSH_LOG_INFO("PLAYING ID (type%d)=%d",bEndEvent, pEvent->SendersObjectUniqueID);
 
 
         if (pEvent->class)
@@ -3970,7 +3971,7 @@ EHS_FB_RUN_FUNCTION(PlayManager_Started)
     }
     else
     {
-        //EHSH_LOG_WARNING("STARTED: Didn't get the marshalling ID (%u - expecting %u) that the previous has been played yet\n",(unsigned int)played, (unsigned int)pPlayManager->pWaitingOnEvent);
+        //EHSH_LOG_WARNING("STARTED: Didn't get the marshalling ID (%u - expecting %u) that the previous has been played yet",(unsigned int)played, (unsigned int)pPlayManager->pWaitingOnEvent);
     }
     EhsTPMutex_unlock(EhsTPMutex_playManager);
     // EHS_FB_FINISH(1); - We don't assert a done for this event - port removed.
@@ -5181,14 +5182,14 @@ EHS_FB_RUN_FUNCTION( PlayManager_Tick)
 EHS_FB_RUN_FUNCTION(PlayManager_Next_URL)
 {
     EhsPlayManagerType* pPlayManager = (EhsPlayManagerType*) EHS_FB_RUN_CONTEXT;
-    //EHSH_LOG_ERROR("---->PlayManager_Next_URL()\n");
+    //EHSH_LOG_ERROR("---->PlayManager_Next_URL()");
     EhsTPMutex_lock(EhsTPMutex_playManager);
     //X//todo Avoiding overlapping downloads: if there is a new URL thread started we need to detect this and send a semaphore to it that it can now start
     // and then bail from this function with no finish.
     if (pPlayManager->srcFileReader != NULL)
     {
         // ehs_uint32 getPortNumber,ehs_uint32 urlPortNumber, ehs_uint32 pathPortNumber)
-        //EHSH_LOG_ERROR("---->Reading sources 22222 ....\n");
+        //EHSH_LOG_ERROR("---->Reading sources 22222 ....");
         readSrcs(pPlayManager, pFIdata, 2, 0, 1,3); // get the next event data @todo use macros here for the port numbers here
     }
     EhsTPMutex_unlock(EhsTPMutex_playManager);
@@ -5283,7 +5284,7 @@ EHS_FB_RUN_FUNCTION(PlayManager_Set_Paths)
         if ((NewSmilBehavTemp == CLEAR_ALL) || (NewSmilBehavTemp == KEEP_EARLIERTHANNEW) || (NewSmilBehavTemp == KEEP_ALL) )
         {
             pPlayManager->NewSmilBehaviour = NewSmilBehavTemp;
-            EHSH_LOG_INFO("Setting Playlist Start Mode=%d\n",pPlayManager->NewSmilBehaviour);
+            EHSH_LOG_INFO("Setting Playlist Start Mode=%d",pPlayManager->NewSmilBehaviour);
         } //else don't update.
     }
     EhsTPMutex_unlock(EhsTPMutex_fbIO);

@@ -48,14 +48,17 @@
 /**
  * Default log level
  */
-#define EHSH_LOG_DEFAULT_LEVEL (EHSH_LOG_LEVEL_ERROR | EHSH_LOG_LEVEL_WARNING)
+#ifndef EHSH_LOG_DEFAULT_LEVEL
+#define EHSH_LOG_DEFAULT_LEVEL (EHSH_LOG_LEVEL_ERROR)
+#endif
+//#define EHSH_LOG_DEFAULT_LEVEL (EHSH_LOG_LEVEL_ERROR | EHSH_LOG_LEVEL_WARNING)
 //#define EHSH_LOG_DEFAULT_LEVEL (EHSH_LOG_DEFAULT_LEVEL | EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_ENTER | EHSH_LOG_LEVEL_EXIT)
 
 
 /**
  * All log levels
  */
-#define EHSH_LOG_ALL_LEVEL (EHSH_LOG_DEFAULT_LEVEL | EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_ENTER| EHSH_LOG_LEVEL_EXIT)
+// Added to ENUM NOW#define EHSH_LOG_ALL_LEVEL (EHSH_LOG_DEFAULT_LEVEL | EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_ENTER| EHSH_LOG_LEVEL_EXIT)
 
 /*****************************************************************************/
 /* Define types */
@@ -69,7 +72,8 @@ typedef enum
     EHSH_LOG_LEVEL_WARNING	= 0x02,
     EHSH_LOG_LEVEL_INFO		= 0x04,
     EHSH_LOG_LEVEL_ENTER	= 0x08,
-    EHSH_LOG_LEVEL_EXIT		= 0x10
+    EHSH_LOG_LEVEL_EXIT		= 0x10,
+    EHSH_LOG_LEVEL_ALL = 0xFF
 } EhsHLoggerLogLevel;
 
 
@@ -112,9 +116,11 @@ typedef enum
  * @param[in] nLevel logging level to check
  * @return true if current module is logging nLevel
  */
-
+// Check if we are supporting per module level checking 
 #ifdef EHSL_MODULE_ID
-#define EHSH_LOG_CHECK(nLevel) (((nLevel) & EhsHLoggerModuleLogLevel[EHSL_MODULE_ID])) //(1) /* bit check against module for the requested log level */
+// #define EHSH_LOG_CHECK(nLevel) (((nLevel) && EhsHLoggerModuleLogLevel[EHSL_MODULE_ID] & (nLevel))) //(1) /* bit check against module for the requested log level */
+#define EHSH_LOG_CHECK(nLevel) (EhsHLoggerModuleLogLevel[EHSL_MODULE_ID] & (nLevel)) //(1) /* bit check against module for the requested log level */
+
 #else
 #define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
 #define EHSH_LOG_CHECK(nLevel) 0

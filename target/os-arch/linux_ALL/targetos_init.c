@@ -170,7 +170,7 @@ EHS_LOCAL ehs_bool EhsTOS_FindIp(const struct ifaddrs* ifa, const char* interfac
 
                     inet_ntop(AF_INET, tmpAddrPtr, addressBuffer,INET_ADDRSTRLEN);
 
-                    EHSH_LOG_INFO("%s IPv4 Address %s\n", ifa->ifa_name, addressBuffer);
+                    EHSH_LOG_INFO("%s IPv4 Address %s", ifa->ifa_name, addressBuffer);
                     // EhsSprintf(bufIP,"%u.%u.%u.%u",IPaddr.b.c,IPaddr.b.d,IPaddr.b.a,IPaddr.b.b); //hack for buggy endian stuff in linux
                     if (EhsStrlen(addressBuffer) > 0 )
                         EhsStrcpy(bufIP, addressBuffer);
@@ -182,7 +182,7 @@ EHS_LOCAL ehs_bool EhsTOS_FindIp(const struct ifaddrs* ifa, const char* interfac
 
                     //addressBuffer6[0]='\0';
                     inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer6,INET6_ADDRSTRLEN);
-                    EHSH_LOG_INFO("%s IPv6 Address %s\n", ifa->ifa_name, addressBuffer6);
+                    EHSH_LOG_INFO("%s IPv6 Address %s", ifa->ifa_name, addressBuffer6);
                     // EhsSprintf(bufIP,"%s",addressBuffer); /* todo IPV6 support */
                 }
 
@@ -478,14 +478,14 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
         }
         else     // this is actually redundant - see out time check if..
         {
-            /*EHSH_LOG_INFO("Too short CPU measure interval, returning last...\n");*/
+            /*EHSH_LOG_INFO("Too short CPU measure interval, returning last...");*/
             *cpu_usage_percent = last_cpu_usage_percent;
             //leave all the last values as they were for next time.
         }
     }
     else
     {
-        EHSH_LOG_WARNING("Could not retrieve CPU and RAM info\n");
+        EHSH_LOG_WARNING("Could not retrieve CPU and RAM info");
         *RAM_Used = (ehs_uint32) 0;
         *cpu_usage_percent = (ehs_uint16) 0;
     }
@@ -504,7 +504,7 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
     else
     {
 //#endif
-        EHSH_LOG_WARNING("Could not retrieve CPU and RAM info\n");
+        EHSH_LOG_WARNING("Could not retrieve CPU and RAM info");
         *RAM_Size = (ehs_uint32) 0;
         *RAM_Free = (ehs_uint32) 0;
 //#ifndef EHS_ANDROID
@@ -921,7 +921,7 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
         }
     }
     if (ret == EHS_FALSE) {
-        EHSH_LOG_WARNING("Could not retrieve CPU and RAM info\n");
+        EHSH_LOG_WARNING("Could not retrieve CPU and RAM info");
         *RAM_Used = (ehs_uint32) 0;
         *cpu_usage_percent = (ehs_uint16) 0;
     }
@@ -957,7 +957,7 @@ ehs_bool get_dir_stats(ehs_uint32 * Size, ehs_uint32 * Used, ehs_uint32 * Free,
     }
     else     // some warning nunbers..
     {
-        //EHSH_LOG_WARNING(statvfs Failed for %s\n",path);
+        //EHSH_LOG_WARNING(statvfs Failed for %s",path);
         *Free = 0;
         *Size = 0;
         *Used = 0;

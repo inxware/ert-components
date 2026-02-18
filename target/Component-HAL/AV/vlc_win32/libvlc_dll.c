@@ -328,7 +328,7 @@ void EhsTV_getSurface(ehs_uint16* pnWid, ehs_uint16* pnHt, ehs_uint8** ppY, ehs_
 
     if (EhsL_pVout)
     {
-        EHSH_LOG_ERROR("**Error: Output thread already initialised\n");
+        EHSH_LOG_ERROR("**Error: Output thread already initialised");
         bRet = EHS_FALSE;
     }
 
@@ -338,7 +338,7 @@ void EhsTV_getSurface(ehs_uint16* pnWid, ehs_uint16* pnHt, ehs_uint8** ppY, ehs_
         EhsL_pVout = DLL__vlc_object_find((vlc_object_t*)EhsTV_pLibvlc->p_vlc, VLC_OBJECT_VOUT, FIND_ANYWHERE);
         if (!EhsL_pVout)
         {
-            EHSH_LOG_ERROR("**Error: __vlc_object_find failed\n");
+            EHSH_LOG_ERROR("**Error: __vlc_object_find failed");
             bRet = EHS_FALSE;
         }
     }

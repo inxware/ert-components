@@ -183,6 +183,11 @@ EHS_EXTERN ehs_uint32 EhsDebugSequenceNumber;
 #define MAX_PARAM_STR_LEN (EHS_STRING_LENGTH_MAX*2)
 #endif
 
+/* The following is used to define the maxim string length of a widget name or widget type string */
+#ifndef EHS_OBJECT_NAME_MAX_SIZE
+#define EHS_OBJECT_NAME_MAX_SIZE 64 
+//todo we should probably make this smaller now that we store it for qt widgets, (we don't for lVGL ...)
+#endif
 
 /* define file names and size limits */
 

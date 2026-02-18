@@ -78,12 +78,16 @@ mkdir -p "../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib"
 # note - may not exist for target
 #todo this looks a bit of a mess?
 
-TC_LIBS="../ert-build-support/toolchains/${TOOLCHAIN_PATH}/sysroot/lib"
-if [ -e "${TC_LIBS}" ]; then
-    echo "Copying toolchain libraries..."
-    cp -vPR ${TC_LIBS}/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib/
+if [ "${TOOLCHAIN_PATH}" = "HOST" ] || [ "${TOOLCHAIN_NAME}" = "HOST" ]; then
+    echo "Using host system/Docker toolchain — no toolchain libraries to copy."
 else
-    warn "No toolchain libraries found in '${TC_LIBS}'"
+    TC_LIBS="../ert-build-support/toolchains/${TOOLCHAIN_PATH}/sysroot/lib"
+    if [ -e "${TC_LIBS}" ]; then
+        echo "Copying toolchain libraries..."
+        cp -vPR ${TC_LIBS}/* ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib/
+    else
+        warn "No toolchain libraries found in '${TC_LIBS}'"
+    fi
 fi
 
 #Tidy up any accidently copied static libraries of toolchain objects
@@ -159,7 +163,7 @@ if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then
         pushd ..
         if [ -f ${LOCAL_BASE}/COMMUNITY_RELEASE ]; then
             # TODO: should the yaml action do this with credentials?
-            git clone git@github.com:inxware/apps.git
+            git clone --depth 1 git@github.com:inxware/apps.git
         else
             git clone git@github.com:inxware/apps.git
         fi
@@ -182,14 +186,44 @@ fi #if [ "${EHS_DEFAULT_APP}" = "NONE" ];
 EHS_APP_EXPORT_DIR=export-ert${ERT_SODL_VERSION}
 
 if [ "${EHS_DEFAULT_APP}" = "" ]; then
-    echo "Installing the desktop HOME app (../apps/systemapps/Home/) "
-    cp -Rf ../apps/systemapps/Home/${EHS_APP_EXPORT_DIR}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit 1
+    APP_SRC="../apps/systemapps/Home/${EHS_APP_EXPORT_DIR}"
+    echo "Installing the desktop HOME app (${APP_SRC})"
+    if [ ! -d "${APP_SRC}" ]; then
+        echo
+        err "================================================================"
+        err "  Application not found: ${APP_SRC}"
+        err ""
+        err "  The ../apps/ repository may not be checked out, or the app"
+        err "  has not been exported for eRT${ERT_SODL_VERSION}."
+        err ""
+        err "  Try:  git clone <apps-repo-url> ../apps"
+        err "  Or:   make prepdeps"
+        err "================================================================"
+        exit 1
+    fi
+    cp -Rf ${APP_SRC}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit 1
 else
     if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then
         warn "Not installing a default app (EHS_DEFAULT_APP = "NONE")!"
     else
-        echo "Installing platform configured [../apps/${EHS_DEFAULT_APP}]"
-        cp -Rf ../apps/${EHS_DEFAULT_APP}/${EHS_APP_EXPORT_DIR}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit 1
+        APP_SRC="../apps/${EHS_DEFAULT_APP}/${EHS_APP_EXPORT_DIR}"
+        echo "Installing platform configured [${APP_SRC}]"
+        if [ ! -d "${APP_SRC}" ]; then
+            echo
+            err "================================================================"
+            err "  Application not found: ${APP_SRC}"
+            err ""
+            err "  EHS_DEFAULT_APP is set to '${EHS_DEFAULT_APP}'"
+            err "  but the export directory does not exist."
+            err ""
+            err "  Check that:"
+            err "    1. ../apps/ repository is checked out"
+            err "    2. The app '${EHS_DEFAULT_APP}' exists"
+            err "    3. It has been exported to ${EHS_APP_EXPORT_DIR}/"
+            err "================================================================"
+            exit 1
+        fi
+        cp -Rf ${APP_SRC}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit 1
         echo "Default app copied OK"
     fi
 fi
@@ -212,8 +246,8 @@ else
             echo "WARNING! You need to create a security folder adjascent to ert-components."
             echo "or check one out using something like"
             echo "git clone git@github.com:/<Your Secure Repo>.git"
-            cd DevmanSecurity/ ||
-            git checkout master ||
+            #cd DevmanSecurity/ ||
+            #git checkout master ||
             popd
         fi
     else

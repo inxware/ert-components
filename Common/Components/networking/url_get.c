@@ -418,7 +418,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
 
             if (curl_easy_setopt(PURLLGET_CURL, CURLOPT_COOKIEFILE, temp) != CURLE_OK)   // todo extend with [app]/[URL].cookies
             {
-                EHSH_LOG_INFO("No cookie file for %s found\n",temp);
+                EHSH_LOG_INFO("No cookie file for %s found",temp);
             }
             else
             {
@@ -440,7 +440,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     }
     if (!PURLLGET_CURL)
     {
-        EHSH_LOG_ERROR("Error: Could not init CURL - Skipping call\n");
+        EHSH_LOG_ERROR("Error: Could not init CURL - Skipping call");
         goto error;
     }
     /* Progress */
@@ -590,7 +590,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     /* If there are passwords set then use them */
     if ((EhsStrlen(pUrlGet->szUname) > 0))
     {
-        //EHSH_LOG_INFO("!!!!!!!!! Setting Crdentials Get username = %s : %s \n",pUrlGet->szUname,pUrlGet->szPasswd);
+        //EHSH_LOG_INFO("!!!!!!!!! Setting Crdentials Get username = %s : %s ",pUrlGet->szUname,pUrlGet->szPasswd);
         EhsStrcpy(server_info.http_username, pUrlGet->szUname);
         EhsStrcpy(server_info.http_password, pUrlGet->szPasswd);
         EhsHSetUpServerSecurity(PURLLGET_CURL, &server_info);
@@ -598,7 +598,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
 
     if (pUrlGet->bUseproxy)
     {
-        EHSH_LOG_ERROR("Using PROXY as asked %d\n",pUrlGet->bUseproxy);
+        EHSH_LOG_ERROR("Using PROXY as asked %d",pUrlGet->bUseproxy);
         EhsHSetUpLocalProxy(PURLLGET_CURL); //uses global setting from the proxy info server
     }
     if (!pUrlGet->bSendCookies)   // snd some specfic cookies not in our cookie files
@@ -622,7 +622,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
 
         curl_easy_setopt(PURLLGET_CURL, CURLOPT_FILETIME, 1); // we set this for al cases of potentially writing a file
 
-        EHSH_LOG_ERROR("1 --\n");
+   
         pUrlGet->write_data_buffer_struct->filehandle=NULL;/* make sure we don't try to write anything for getting a header */
 
         if (!pUrlGet->bOverwriteAll && !pUrlGet->bDataPortConnected )   /* if only overvwrite new flag is not set or we have to push data out (we don't cache in this case */
@@ -657,11 +657,11 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                             if (statbuf.st_mtime == remotefiletimestamp)   // if we have the same time stamp it don't download
                             {
                                 bNeed_to_do = EHS_FALSE;
-                                EHSH_LOG_INFO("Got [%s] already time-stamps:[%d == %d]\n",pUrlGet->szActualSavePath,(ehs_sint32)statbuf.st_mtime,(ehs_sint32) remotefiletimestamp);
+                                EHSH_LOG_INFO("Got [%s] already time-stamps:[%d == %d]",pUrlGet->szActualSavePath,(ehs_sint32)statbuf.st_mtime,(ehs_sint32) remotefiletimestamp);
                             }
                             else
                             {
-                                //	EHSH_LOG_INFO("nOT got it already -downloading! [%s] [%d == %d]\n",pUrlGet->szActualSavePath,(ehs_sint32)statbuf.st_mtime, (ehs_sint32)remotefiletimestamp);
+                                //	EHSH_LOG_INFO("nOT got it already -downloading! [%s] [%d == %d]",pUrlGet->szActualSavePath,(ehs_sint32)statbuf.st_mtime, (ehs_sint32)remotefiletimestamp);
                             }
 
                         }
@@ -669,7 +669,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                     else     /*if no local file then we need to do request */
                     {
                         bNeed_to_do = EHS_TRUE;
-                        EHSH_LOG_ERROR("5 --\n");
+                        EHSH_LOG_ERROR("5 --");
                     }
                 }
                 else     // couldn't get a time from header l
@@ -694,7 +694,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     }
     else     /* Not writing to file (memory only!) */
     {
-        EHSH_LOG_ERROR("9 --\n");
+        EHSH_LOG_ERROR("9 --");
         bNeed_to_do = EHS_TRUE; // We'll try again anyway ...
     }
     /******************************************************************************/
@@ -707,10 +707,10 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
         /* First check if we need to create a file handle for the write to write to */
         if (pUrlGet->bWriteToFile)  //bWriting_to_file) {
         {
-            EHSH_LOG_ERROR("Write to file....... \n");
+            EHSH_LOG_ERROR("Write to file....... ");
             if (EhsStrlen(pUrlGet->szActualSavePath) > 0)
             {
-                EHSH_LOG_ERROR("++ 11\n");
+                EHSH_LOG_ERROR("++ 11");
 
                 EhsStrcpy(szTempFilePath2, pUrlGet->szActualSavePath);
                 EhsStrcat(szTempFilePath2, ".TMP");
@@ -729,14 +729,14 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                 if ( pUrlGet->write_data_buffer_struct->filehandle &&
                         ( fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF ) )
                 {
-                    EHSH_LOG_ERROR(" Download file descriptor error. trying again : fd= %d\n",fileno(pUrlGet->write_data_buffer_struct->filehandle));
+                    EHSH_LOG_ERROR(" Download file descriptor error. trying again : fd= %d",fileno(pUrlGet->write_data_buffer_struct->filehandle));
                     FILE * f = pUrlGet->write_data_buffer_struct->filehandle;
                     pUrlGet->write_data_buffer_struct->filehandle = Ehs_UserFopen(szTempFilePath2, "w");
                     EhsFclose(f);
                     if (pUrlGet->write_data_buffer_struct->filehandle &&
                            ( fcntl(fileno(pUrlGet->write_data_buffer_struct->filehandle), F_GETFD) == -1 || errno == EBADF ) )
                     {
-                        EHSH_LOG_ERROR(" Download file descriptor error - retry unseccessful:  fd = %d\n",fileno(pUrlGet->write_data_buffer_struct->filehandle));
+                        EHSH_LOG_ERROR(" Download file descriptor error - retry unseccessful:  fd = %d",fileno(pUrlGet->write_data_buffer_struct->filehandle));
                         request_config_error = EHS_TRUE; //- todo we could still try to recover this?
                         ret32 = -1;
                     }
@@ -756,7 +756,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
 #endif
                 if (!pUrlGet->write_data_buffer_struct->filehandle)
                 {
-                    EHSH_LOG_ERROR("Couldn't write file %s\n",pUrlGet->szActualSavePath);
+                    EHSH_LOG_ERROR("Couldn't write file %s",pUrlGet->szActualSavePath);
                     ret32 = -1;
                     request_config_error = EHS_TRUE;
                 }
@@ -764,7 +764,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
             }
             else     // if only the filename is wrong we should have already tried this we will write the data to the output port
             {
-                EHSH_LOG_ERROR("No File path given\n");
+                EHSH_LOG_ERROR("No File path given");
                 pUrlGet->write_data_buffer_struct->filehandle = NULL;
             }
         }
@@ -780,13 +780,13 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
         }
 
         ret32 = EhsHURLdoRequest(PURLLGET_CURL); /* This will block untill the call back has written out data with pauses etc. */
-        EHSH_LOG_ERROR("Got return from Request %s returned %d\n",pUrlGet->szActualSavePath,ret32);
+        EHSH_LOG_ERROR("Got return from Request %s returned %d",pUrlGet->szActualSavePath,ret32);
         /* Hack in case threads have been closed down */
         if (*bNewSodlFlagRef)
         {
             if (pUrlGet->write_data_buffer_struct->filehandle)
             {
-                EHSH_LOG_ERROR("**************** 1 Fclose = %d\n",fileno(pUrlGet->write_data_buffer_struct->filehandle));
+                EHSH_LOG_ERROR("**************** 1 Fclose = %d",fileno(pUrlGet->write_data_buffer_struct->filehandle));
                 EhsFclose(pUrlGet->write_data_buffer_struct->filehandle);
                 pUrlGet->write_data_buffer_struct->filehandle = NULL;
             }
@@ -798,7 +798,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     {
 #ifdef EHS_URL_DEBUG
 #endif
-        EHSH_LOG_ERROR("NOT NEEDED for %s\n",pUrlGet->szActualSavePath);
+        EHSH_LOG_ERROR("NOT NEEDED for %s",pUrlGet->szActualSavePath);
     }
     /**********************************************************************************************/
     /* Request is done.
@@ -809,7 +809,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     {
         EhsFclose(pUrlGet->write_data_buffer_struct->filehandle);
         pUrlGet->write_data_buffer_struct->filehandle = NULL;
-        //EHSH_LOG_ERROR("!!!!Checking status of downloaded file %s\n",szTempFilePath2);
+        //EHSH_LOG_ERROR("!!!!Checking status of downloaded file %s",szTempFilePath2);
         bFileexists = Ehs_UserStat(szTempFilePath2, &statbuf); //@todo We want a hal_file version of stat - should have localpath// exemption.
         if (statbuf.st_size == EHS_TRUE) request_config_error = EHS_TRUE;
     }
@@ -850,12 +850,12 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
     {
         EHSH_LOG_ERROR(" Not got %s", szTempFilePath2);
         if (pUrlGet->bWriteToFile) Ehs_UserRm(szTempFilePath2); // tidy up the temp file if we coldn't actually download it.
-        EHSH_LOG_INFO("GetUrl_thread: get info returned %d [%d]\n",success,ret32);
+        EHSH_LOG_INFO("GetUrl_thread: get info returned %d [%d]",success,ret32);
         bNetworkError = EHS_TRUE;
     }
     if (ret32 == 200)   // for all good events
     {
-        EHSH_LOG_INFO(" HTTP RET = 200\n");
+        EHSH_LOG_INFO(" HTTP RET = 200");
 
         if (EHS_FB_OUT_CONNECTED(EHS_FB_URLGET_FINALURL))   /* write out the final redirected URL */
         {

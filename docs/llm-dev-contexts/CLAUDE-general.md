@@ -33,8 +33,8 @@ The project uses a sophisticated Make-based build system with Docker support for
 **Building:**
 - `make help` - Show all available build targets and options
 - `make prepdeps` - Install dependencies and checkout required repositories - don't run this for normal build cycles
-- `make all` - Build the eRT binary (ehs_[TARGET].exe)
-- `make all_docker` - Build using Docker environment
+- `make all` - Build the eRT binary directly on the host. Note: this only works if the host has all required dependencies installed; it may fail on some systems.
+- `make all_docker` - Build using Docker environment. This is the reliable option and will always work once a Docker environment is established.
 - `make clean` - Clean build artifacts
 
 **Runtime Environment:**
@@ -60,6 +60,61 @@ The build system requires several adjacent repositories:
 - `ert-contrib-middleware` - Pre-built 3rd party dependencies
 - `apps` - is optional and contains Lucid app projects that might be pre-installed in the build.
 These are automatically cloned by `make prepdeps` and require ~40GB of disk space.
+
+### Running the Build Product
+
+After building, use `./configure -run` to create the runtime environment and launch the application in one step:
+
+```bash
+make all              # Build on host (may not work on all systems)
+# OR
+make all_docker       # Build in Docker (always works once Docker env is set up)
+
+./configure -run      # Create targetenv and run the application
+```
+
+`./configure -run` is the preferred way to run. It handles `make targetenv` and launching `ehs.exe` from the correct working directory automatically. Do NOT attempt to run `ehs.exe` directly without `./configure -run`.
+
+### Runtime Environment (TARGET_TREES)
+
+The runtime environment is a staging directory located at `../TARGET_TREES/ehs_env-<TARGET>/` relative to the `ert-components` directory. The `<TARGET>` name comes from `TARGET.cfg` in the project root (e.g., `linux_x86_64_qt_debian12-no-certs`).
+
+**Deriving the runtime path:**
+1. Read `TARGET.cfg` to get the target name
+2. The runtime tree is at `../TARGET_TREES/ehs_env-<TARGET>/`
+
+**Runtime directory structure:**
+```
+../TARGET_TREES/ehs_env-<TARGET>/
+├── bin/                    # Executable and runtime scripts
+│   ├── ehs.exe             # The built eRT binary
+│   ├── app.qml             # Qt QML UI definition (Qt targets only)
+│   ├── corelib/            # Core library files
+│   └── *.sh                # Runtime control scripts
+├── appdata/default/        # Application data files
+│   ├── app.qml             # QML UI file (Qt targets)
+│   ├── *.gui               # Widget layout files (parsed by guiparams.c)
+│   ├── *.bdf               # Font files
+│   ├── *.sdl               # SODL application definition
+│   └── *.png               # Image assets
+├── sysdata/                # System data
+├── userdata/               # User data
+└── install/                # Installation files
+```
+
+**Build utilities for investigating the runtime environment:**
+- `./configure -run` — Build and run the application
+- `./configure -debug` — Run under GDB with source path substitution
+- `./configure -pushd` — Open a shell inside the runtime environment directory (type `exit` to return)
+- `./configure -pushd-config` — Open a shell in the platform config directory
+
+**Important runtime files for debugging:**
+- `appdata/default/*.gui` — Widget parameter files. These contain the widget names, positions, colours, and other properties parsed (which may be ignored for QT apps) `appdata/default/*.sdl` — The SODL application file defining the component graph.
+- `bin/app.qml` — Copy of the QML file used at runtime.
+
+**Additional Useful Make Targets:**
+- `make chkconfig` - Show current platform configuration dependencies/
+- `make target_buildenv` - Start Docker shell in current context for build debugging
 
 ## Architecture
 

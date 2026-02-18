@@ -105,7 +105,7 @@ ehs_bool EhsTgtNetworkStartWifi(const ehs_char* ssid, const ehs_char* pass)
     status = WL_IDLE_STATUS;
     EhsStdioPrintf("Connecting to Network named: %s\n", ssid);
     while (status != WL_CONNECTED) {
-        EhsStdioPrintf(".");
+        //EhsStdioPrintf(".");
         // Connect to WPA/WPA2 network:
         EhsTPMutex_lock(EhsTPMutex_socketClient);
         status = WiFi.begin(ssid, pass);

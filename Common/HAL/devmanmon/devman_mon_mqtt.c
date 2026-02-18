@@ -90,7 +90,7 @@ inx_mqtt_publish_state_type* EhsMqttDevmanMonPublishNeedProcessing()
 
 void EhsMqttDevmanMonError(const ehs_char* msg)
 {
-    EHSH_LOG_ERROR("%s \n", msg);
+    EHSH_LOG_ERROR("%s ", msg);
 }
 
 EhsMqttDevmanMon_t* EhsMqttDevmanMonSupportInit()
@@ -127,7 +127,7 @@ void EhsMqttDevmanMonHandleDisconnected()
 {
     // toggle connection state
     if(gMqttConnected == EHS_TRUE){
-        EHSH_LOG_INFO("* DEVMAN MON MQTT DISCONNECTED * \n");
+        EHSH_LOG_INFO("* DEVMAN MON MQTT DISCONNECTED * ");
         gMqttConnected = EHS_FALSE;
     }
 }
@@ -142,7 +142,7 @@ void EhsMqttDevmanMonHandleConnected()
         EhsMqttDevmanMonConnectPayload(payload, EHS_STRING_LENGTH_MAX, gMqttConnectionsCounter);
         EhsMqttDevmanMonPublish(EHS_MQTT_PUB_TOPIC_DIDCONNECT_ID, payload);
         gMqttConnected = EHS_TRUE;
-        EHSH_LOG_INFO("* DEVMAN MON MQTT CONNECTED (%d) * \n", gMqttConnectionsCounter);
+        EHSH_LOG_INFO("* DEVMAN MON MQTT CONNECTED (%d) * ", gMqttConnectionsCounter);
     }
     // run ping handler if enabled
     EhsMqttDevmanMonHandlePing(EHS_MQTT_DEVMAN_MON_PING_ENABLED);
@@ -160,7 +160,7 @@ inx_mqtt_subscribe_state_type* EhsMqttDevmanMonSubscriptions(ehs_uint16 index)
 void EhsMqttDevmanMonRegisterSub(inx_mqtt_subscribe_state_type* subscribe_state, const char* topic, const char* clientId)
 {
     if(subscribe_state == NULL){
-        EHSH_LOG_ERROR("Failed to register devman mon subscription \n");
+        EHSH_LOG_ERROR("Failed to register devman mon subscription ");
         return;
     }
     subscribe_state->pFIdata = NULL;
@@ -220,7 +220,7 @@ void EhsMqttDevmanMonPublish(ehs_uint8 topic_id, const char* payload)
 void EhsMqttDevmanMonRegisterPub(inx_mqtt_publish_state_type* publish_state, const char* topic, const char* clientId)
 {
     if(publish_state == NULL){
-        EHSH_LOG_ERROR("Failed to register devman mon publication \n");
+        EHSH_LOG_ERROR("Failed to register devman mon publication ");
         return;
     }
     publish_state->pFIdata = NULL;
@@ -278,7 +278,7 @@ void EhsMqttDevmanMonHandlePing(ehs_bool enabled)
     }
     // check if it's time to ping server
     if(gEhsMqttDevmanMonPingTimer == 0 || ((EhsTgtTimer_tickTous(EHS_CURRENT_TIME)-EhsTgtTimer_tickTous(gEhsMqttDevmanMonPingTimer))/1000) > EHS_MQTT_DEVMAN_MON_PING_PERIOD_MS){
-        EHSH_LOG_INFO("* DEVMAN MON MQTT PING * \n");
+        EHSH_LOG_INFO("* DEVMAN MON MQTT PING * ");
         // @TODO - what topic do we ping to ?
         //char payload[EHS_STRING_LENGTH_MAX] = { 0 };
         //EhsMqttDevmanMonPingPayload(payload, EHS_STRING_LENGTH_MAX, 1 /* todo - count disconnect */);

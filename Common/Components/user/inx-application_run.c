@@ -102,7 +102,7 @@ EHS_FB_RUN_FUNCTION(application_run_runApp)
         {
             EhsHMetaSetNextAppToRun(cAppCanonicalName);
             EhsHFSMForceInternallyRequestedCommand(EHS_RELOAD_EHS_FROM_FILE); //@todo - any way to check for success?
-            //		EHSH_LOG_ERROR("Failed to start app, canonical name[%s]\n",cAppCanonicalName);
+            //		EHSH_LOG_ERROR("Failed to start app, canonical name[%s]",cAppCanonicalName);
             bSucc = EHS_TRUE;
         }
     }

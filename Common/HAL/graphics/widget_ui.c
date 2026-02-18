@@ -1,10 +1,10 @@
 /***************************************************************
- * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
  * You may use, distribute and modify this code under the terms
  * of the LGPLv3 license. You should have received a copy of the
- * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
- * not, please visit
- *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
+ *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
 
@@ -15,7 +15,7 @@
  *
  */
 
-//#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)
 
 #include "globals.h"
 #include "widget.h"
@@ -24,7 +24,7 @@
 #include "hal_process.h"
 #include "hal_viewport.h"
 
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
 #include "target_viewport_modeB.h"
 #endif
 
@@ -94,18 +94,28 @@ EHS_LOCAL void EhsWidgetUi_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pVi
  */
 EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint16 curvature, ehs_uint16 parent_id,
                                  const EhsGraphicsRectangleClass* xBounds, ehs_uint16 nZ,
-                                 ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB, 
-                                 ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour, 
-                                 EhsGraphicsFontClass* pFont)
+                                 ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB,
+                                 ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
+                                 EhsGraphicsFontClass* pFont
+                                #ifdef EHS_STORE_WIDGET_NAMES
+                                 ,ehs_char * szWidgetName
+                                #endif
+                                 )
 {
     EhsWidgetClass* pWidget;
+
+    EHSH_LOG_INFO("Initialise UI widget");
 
     EhsTPMutex_lock(EhsTPMutex_viewport);
     pWidget = EhsWidgetTable_new(&EhsWidgetTable);
 
     if (pWidget)
     {
-        EhsWidget_init(pWidget, xBounds, nZ, xFgColour.sComp.nAlpha);
+        EhsWidget_init(pWidget, xBounds, nZ, xFgColour.sComp.nAlpha
+        #ifdef EHS_STORE_WIDGET_NAMES
+        ,szWidgetName
+        #endif
+        );
 
         //pWidget->eWidgetKind = EHS_WIDGET_KIND_UI; // mode B (lvgl), widget kind is always ui. #def eWidgetKind in EhsWidgetClass for memory optimisation
         pWidget->nState = EHS_WIDGET_STATE_INIT;
@@ -139,13 +149,13 @@ EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint1
         EhsWidgetTable_updateZOrder(&EhsWidgetTable, pWidget);
     }
     else
-    { 
+    {
         EHSH_LOG_ERROR("Could not initialise UI widget");
     }
     EhsTPMutex_unlock(EhsTPMutex_viewport);
     return pWidget;
 }
-    
+
 
 /**
  * Create the widget. This is a necessary step prior to showing the widget.
@@ -154,8 +164,11 @@ EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint1
  */
 ehs_bool EhsWidgetUi_create(EhsWidgetClass* pWidget)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
+    EHSH_LOG_INFO("Create a MODE_B UI widget");
     EhsTargetWidgetUi_create(pWidget, &EhsTV);
+#else
+    // printf("\n*** QT DEBUG: EhsWidgetUi_create() was compiled-out\n");
 #endif
     return EHS_TRUE;
 }
@@ -167,8 +180,11 @@ ehs_bool EhsWidgetUi_create(EhsWidgetClass* pWidget)
  */
 void EhsWidgetUi_destroy(EhsWidgetClass* pWidget)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
+    EHSH_LOG_INFO("Destroy a MODE_B UI widget");
     EhsTargetWidgetUi_destroy(pWidget);
+#else
+    // printf("\n*** QT DEBUG: EhsWidgetUi_destroy() was compiled-out\n");
 #endif
     EHS_WIDGET_UI(pWidget).event_callback = NULL;
     EHS_WIDGET_UI(pWidget).data = NULL;
@@ -190,8 +206,11 @@ void EhsWidgetUi_destroy(EhsWidgetClass* pWidget)
 
 void EhsWidgetUi_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, EhsGraphicsRectangleClass* pClipRect)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
+    EHSH_LOG_INFO("EhsWidgetUi_draw: pWidget=%p, calling EhsTargetWidgetUi_draw", (void*)pWidget);
     EhsTargetWidgetUi_draw(pWidget);
+#else
+    // printf("\n*** QT DEBUG: EhsWidgetUi_draw() was compiled-out\n");
 #endif
 }
 
@@ -203,10 +222,13 @@ void EhsWidgetUi_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pViewport, Eh
  */
 void EhsWidgetUI_update(struct EhsWidgetStruct* pWidget)
 {
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
+    EHSH_LOG_INFO("EhsWidgetUI_update: pWidget=%p, setting bContentUpdated=TRUE", (void*)pWidget);
     EhsTPMutex_lock(EhsTPMutex_viewport);
     pWidget->bContentUpdated = EHS_TRUE;
     EhsTPMutex_unlock(EhsTPMutex_viewport);
+#else
+    // printf("\n*** QT DEBUG: EhsWidgetUI_update() was compiled-out\n");
 #endif
 }
 

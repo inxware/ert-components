@@ -91,6 +91,10 @@ This guide is for developers looking to
 - [Key Platform Technologies](#key-platform-techologies)
   - [GPIO](#gpio)
   - [Flash Memory Support](#flash-memory-support)
+- [Graphics / GUI Targets](#graphics--gui-targets)
+  - [Widget Rendering Modes: Mode A vs Mode B](#widget-rendering-modes-mode-a-vs-mode-b)
+  - [LVGL](#lvgl)
+  - [Qt](#qt)
 - [Platform-Specific Guides](#platform-specific-guides)
   - [Embedded RTOS](#embedded-rtos)
   - [Windows](#windows)
@@ -1286,14 +1290,153 @@ Different MCUs have varying capabilities and inxware abstraction my be via littl
 .
 
 
+## Graphics / GUI Targets
+
+eRT supports multiple graphics backends. The choice of backend affects how widgets are rendered, how input events are processed, and what HAL functions you need to implement.
+
+### Widget Rendering Modes: Mode A vs Mode B
+
+eRT supports two fundamentally different approaches to widget rendering. The mode determines how widgets are drawn, how mouse/touch input is processed, and how events reach EHS function blocks. Understanding this distinction is essential when porting the graphics HAL.
+
+**Render Mode A** (GTK, framebuffer):
+eRT owns the pixel buffers and is responsible for all rendering. The HAL receives raw mouse/touch coordinates from the OS and must perform coordinate-based hit-testing against each widget's bounding rectangle (`xCurRect`) and z-order (`nZ`) to determine which widget was touched. Once the target widget is identified, the HAL fires the appropriate EHS kernel finish port directly using per-widget port numbers stored on the `EhsWidgetStruct` (e.g. `mouseClickPortNumber`, `mouseDownPortNumber`, `mouseUpPortNumber`, `mouseDragPortNumber`). These port numbers are populated during widget creation from the CDF/function-block definition and allow the HAL to dispatch events without knowing the function block's internal wiring.
+
+These Mode A-specific fields are compiled out (via `#if !defined(EHS_GUI_SUPPORT_MODE_B)`) when building for Mode B targets.
+
+**Render Mode B** (LVGL, Qt):
+An external widget library owns both the widgets and rendering. eRT does **not** perform hit-testing — the library knows which of its own widgets was interacted with. Mouse/touch events arrive in eRT via the `event_callback` function pointer in `EhsWidgetUiSubclass` (part of the `specificWidgetType` union), carrying a generic event ID such as `EHS_WIDGET_UI_EVENT_MOUSE_CLICKED`. The Mode B event handler in the component layer then fires the appropriate finish port using the function block's own port definitions, rather than per-widget stored port numbers.
+
+eRT communicates property changes to the external library (text, position, colour, opacity) via the `pfDrawFunc` virtual method, which checks the dirty flags (`bContentUpdated`, `bPositionUpdated`, `bColourUpdated`) to minimise unnecessary updates.
+
+**Porting a new Mode B target:** Your HAL needs to:
+1. Create library-native widgets in `pfCreateFunc` (e.g. `EhsTargetWidgetUi_create`)
+2. Push property changes in `pfDrawFunc` using the dirty flags
+3. Bind library signals/events to invoke `event_callback` with the appropriate `EHS_WIDGET_UI_EVENT_*` ID
+4. You do **not** need to implement hit-testing or manage per-widget port numbers
+
+### LVGL
+
+LVGL is a lightweight embedded graphics library used on MCU and resource-constrained Linux targets. It operates as a Mode B backend. Set `EHS_GUI_SUPPORT=lvgl` in the platform `config.mk`.
+
+Platform examples: `linux_x86_64_lvgl_debian11-debug`
+
+### Qt
+
+Qt5/Qt6 is used as a Mode B GUI backend for Linux desktop and ARM64 targets. It provides QML-based interfaces where the UI layout is defined in `.qml` files and eRT controls widget properties and receives events through the Qt object system.
+
+#### How It Works
+
+eRT runs inside a Qt application. The main execution flow is:
+
+1. `ertqt_init()` creates a `QGuiApplication` and `QQmlApplicationEngine`, loads `app.qml`
+2. A `QTimer::singleShot` chain fires `ehs_tick_callback` on the Qt GUI thread, which single-steps the eRT kernel via `EhsMainLoopSingle()`
+3. Widget names from `.gui` files are matched to QML objects by `objectName` — so a widget called `widget1` in the `.gui` file will bind to a QML object with `objectName: "widget1"`
+4. eRT pushes property changes (text, colour, position) to QML objects via `ertqt_set_property()`
+5. QML signals (e.g. button clicks) are connected back to eRT via `QSignalMapper`, invoking the widget's `event_callback`
+
+The glue layer lives in `target/Component-HAL/graphics/qt/ertqt.cpp`.
+
+Whole bundles of QML and assets can be placed in the same directory as the app.qml (i.e. the application folder.These can be added as resources to an app if they are all located in a single directoty. (Currently Lucid and the inxware runtime doesn't support sub-directories in application folders.))
+
+#### Platform Targets
+
+- `linux_x86_64_qt_debian12-no-certs` — x86_64 host build
+- `linux_arm64_qt_debian12-no-certs` — ARM64 (e.g., Raspberry Pi)
+
+#### Build Configuration
+
+Key `config.mk` settings:
+
+| Variable                     | Value        | Description |
+|------------------------------|--------------|-------------|
+| `EHS_GUI_SUPPORT`            | `qt` or `qt6`| Select Qt as the GUI backend |
+| `EHS_GUI_SUPPORT_QT6`        | `yes`        | (Optional) Use Qt6 instead of Qt5 |
+| `EHS_MAIN_LOOP_ITERATIVE`    | `yes`        | Required for Qt event loop integration |
+| `EHS_DEBUG_TCPIP_CONSOLE`    | `stubbed`    | Disable TCPIP console (conflicts with Qt event loop) |
+
+#### Build Dependencies
+
+For **Docker builds** (recommended), each Qt platform includes a Dockerfile with all dependencies:
+```bash
+make all_docker
+```
+
+For **host machine builds** on Debian 12 / Ubuntu 24.04:
+
+```bash
+# Build tools
+sudo apt install build-essential cmake git clang llvm \
+    libarchive-dev libcurl4-openssl-dev zlib1g-dev \
+    libexpat-dev libidn2-dev libxml2-dev
+
+# Qt5 (or substitute qt6 equivalents)
+sudo apt install qtbase5-dev qtdeclarative5-dev \
+    qtbase5-dev-tools qtdeclarative5-dev-tools
+
+# GTK2 and graphics (required for image handling)
+sudo apt install libgtk2.0-dev libgdk-pixbuf2.0-dev \
+    libcairo2-dev libpango1.0-dev libatk1.0-dev libglib2.0-dev
+
+# X11
+sudo apt install libx11-dev libxext-dev libxrender-dev \
+    libxcomposite-dev libxfixes-dev libfontconfig1-dev libfreetype6-dev
+```
+
+#### Runtime Dependencies
+
+**QT6 Dependencies**
+```
+qml6-module-qtquick
+qml6-module-qtquick-timeline
+qt6-base-dev qt6-declarative-dev                  
+qml6-module-qtquick                  
+qml6-module-qtquick-timeline
+qml6-module-qtquick-templates
+qml6-module-qtquick-window
+qml6-module-qtquick3d   
+qml6-module-qtquick3d-helpers  ??? Doesn't exist
+qml6-module-qtquick3d-effects  ??? 
+qml6-module-qtquick3d-particleeffects ???   
+qml6-module-qtquick3d-particles3d ??
+qml-module-qtquick3d-particles3d
+qml6-module-quick3d-particles3d
+qml6-module-quick3d-helpers 
+qml6-module-quick3d-logichelper ???
+qml6-module-quick3d-effects 
+qml6-module-qtqml-workerscript
+```
+**QT5 Dependencies**
+Note: we probably don't ever want to support QT5 further, but here's for the basics that work:
+```bash
+# Core Qt5 libraries
+libqt5core5a 
+libqt5gui5
+libqt5qml5
+libqt5quick5 
+libqt5quickcontrols2-5
+libqt5quicktemplates2-5
+
+# QML modules (required for QML imports to work)
+qml-module-qtquick2
+qml-module-qtquick-window2 
+qml-module-qtquick-controls 
+qml-module-qtquick-controls2 
+qml-module-qtquick-layouts 
+qml-module-qtquick-templates2
+```
+
+#### QML Application Structure
+
+Qt platforms load `app.qml` from the application directory (e.g. `appdata/default/app.qml`). The QML file defines the window layout and references eRT widgets by `objectName`. Sibling `.qml` files in the same directory are automatically resolved as QML types by filename. Native Qt modules (e.g. `QtQuick.Timeline`) must be installed separately as system packages.
+
+#### Qt5 / Qt6 Compatibility
+
+Both Qt5 and Qt6 are supported. Qt6 renamed `QSignalMapper::mapped(int)` to `mappedInt(int)` and removed string-based `QObject::connect()` with lambdas. The codebase handles this via a `ERTQT_SIGNAL_MAPPER_MAPPED_INT` compatibility macro in `ertqt.cpp`.
+
 # Platform-Specific Guides
 
-### Embedded RTOS
-- **FreeRTOS**: ESP32, ESP32-S3, NXP ARM MCUs
-- **Arduino**: Various Arduino-compatible boards
-
 ## Windows
-- **Win32**: Desktop applications via MinGW toolchain
+- **Win32**: Desktop applications via MinGW toolchain. The installation directory structure is similar to linux (see below).
 
 ## GNU Linux
 
@@ -1342,11 +1485,13 @@ inxware builds as a binary executable application (`ehs.exe`) for standard linux
 │   ├── var
 │   └── version.nfo
 └── userdata
-```   
+```
 
-## Xtensa-ESP32
+## Embedded RTOS
+- **FreeRTOS**: ESP32, ESP32-S3, NXP ARM MCUs
+- **Arduino**: Various Arduino-compatible boards
 
-### Platform Overview
+### Xtensa-ESP32
 
 ESP32 and ESP32-S3 platforms are supported using espresiff's FreeRTOS-based IDF SDK. The toolchain part os the SDKs are extracted into ert-build-support and the IDF components into ert-contrib-middleware. The toolchain will run on any linux version similar to Ubuntu 22, but a Docker image to run this is also provided. 
 
@@ -1995,97 +2140,242 @@ For detailed MCU-specific information, refer to:
 
 ###  Debug Logging
 
-Comprehensive debugging system with configurable log levels and platform-specific output.
+Comprehensive per-module logging system with build-time and runtime verbosity control.
 
-#### Logging Configuration
+#### Build-Time Logging Configuration
 
-Logging is globally enabled or disabled in the platform's `config.mk` file using the following variables:
+Logging is controlled by a hierarchy of build variables set in the platform's `config.mk` and resolved in `Common/Ehs/ehs.mk`:
 
-**Global Debug Enable:**
+**1. Global debug enable** (`config.mk`):
 ```makefile
-EHS_DEBUGALL=true                    # Enable all types of debugging including stdio/console
+EHS_DEBUGALL=true
+```
+When set, `ehs.mk` automatically enables:
+- `EHS_RUNTIME_LOGGER_ENABLED=yes` (unless explicitly set to `no` in `config.mk`)
+- `EHS_DEBUG_TCPIP_CONSOLE=yes` (unless set to `target_specific`)
+- `EHS_DEBUG_AV=yes`
+- `BUILD_MODE=debug`
+
+**2. Logger-only enable** — for platforms that want logging without the full debug suite:
+```makefile
+# In config.mk (instead of EHS_DEBUGALL):
+EHS_RUNTIME_LOGGER_ENABLED=yes
 ```
 
-**Module-Based Logging:**
+**3. Verbose log levels** — enables INFO+WARNING+ERROR for all modules (instead of ERROR-only):
 ```makefile
-DEF += EHS_RUNTIME_LOGGER_ENABLED           # Normal module-based logging
-DEF += EHS_RUNTIME_FILELOGGER_ENABLED       # Write logs to file also
+# In config.mk:
+DEFS += EHS_LOG_LEVEL_VERBOSE
 ```
 
-#### Fine-Grained Logging Control
+**4. Explicitly disable logging** — useful for memory-constrained ESP32 builds:
+```makefile
+# In config.mk:
+EHS_DEBUGALL=yes               # Still want TCPIP console etc.
+EHS_RUNTIME_LOGGER_ENABLED=no  # But disable the logger to save code space
+```
 
-For more detailed logging control, change verbosity for different modules using macros at the top of specific files:
+**5. File logging** — writes log output to a file in addition to console:
+```makefile
+DEFS += EHS_RUNTIME_FILELOGGER_ENABLED
+```
+
+**6. Function tracing** — very verbose, logs function entry/exit via `EHS_TRACE_FUNC*` macros:
+```makefile
+# In config.mk:
+EHS_DEBUG_TRACE=yes
+```
+This enables both `EHS_BUILDOPT_STDIO_MESSAGE_TRACE` and `EHS_BUILDOPT_STDIO_ENABLE_FUNCTION_TRACING` defines and also forces `EHS_RUNTIME_LOGGER_ENABLED`.
+
+#### How Build Variables Become Compiler Defines
+
+The translation chain is:
+
+```
+config.mk:  EHS_DEBUGALL=true
+                ↓
+ehs.mk:     ifdef EHS_DEBUGALL → sets EHS_RUNTIME_LOGGER_ENABLED=yes
+                ↓
+ehs.mk:     ifdef EHS_RUNTIME_LOGGER_ENABLED → DEFS += EHS_RUNTIME_LOGGER_ENABLED
+                ↓
+compiler:    -DEHS_RUNTIME_LOGGER_ENABLED
+                ↓
+hal_logger.h: #ifdef EHS_RUNTIME_LOGGER_ENABLED → logging macros expand to real code
+              #else → logging macros expand to nothing (zero overhead)
+```
+
+#### Per-Module Logging Architecture
+
+Every source file that uses logging must define `EHSL_MODULE_ID` **before** including `hal_logger.h`. This identifies which module the file belongs to for per-module log level filtering:
 
 ```c
-#define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)  /* must be before includes */
+#include "globals.h"
+#include "hal_logger.h"
 ```
+
+If `EHSL_MODULE_ID` is not defined, it defaults to `EHSH_LOG_MODULE_UNDEFINED` and the `EHSH_LOG_CHECK` macro returns 0 (all logging suppressed for that file).
 
 #### Available Log Modules
 
-Different modules can have logging enabled from the following list:
-- EHSH_LOG_MODULE_UNDEFINED
-- EHSH_LOG_MODULE_EHS_CORE
-- EHSH_LOG_MODULE_EHS_COMPONENT
-- EHSH_LOG_MODULE_HAL
-- EHSH_LOG_MODULE_NETWORKING
-- EHSH_LOG_MODULE_GRAPHICS
-- EHS_LOG_MODULE_QUANTITY
+Each module has an independent log level. The module IDs (defined in `hal_logger.h`) and their display names (defined in `hal_logger.c`) are:
+
+| Enum | Display Name | Typical Usage |
+|------|-------------|---------------|
+| `EHSH_LOG_MODULE_UNDEFINED` | `Undefined` | Files without an explicit `EHSL_MODULE_ID` |
+| `EHSH_LOG_MODULE_KERNEL` | `Kernel` | EHS kernel and scheduler |
+| `EHSH_LOG_MODULE_GRAPHICS` | `Graphics` | Graphics HAL, viewport, widget rendering |
+| `EHSH_LOG_MODULE_LOGGER` | `Logger` | The logger subsystem itself |
+| `EHSH_LOG_MODULE_HAL_MEMORY` | `HalMemory` | Memory pool management |
+| `EHSH_LOG_MODULE_HAL_PROCESS` | `HalProcess` | Process/thread management |
+| `EHSH_LOG_MODULE_HAL_STRING` | `HalString` | String handling utilities |
+| `EHSH_LOG_MODULE_TGT_VIEWPORT` | `TgtViewport` | Target-specific viewport code |
+| `EHSH_LOG_MODULE_HAL_NETWORK` | `Network` | Networking HAL (HTTP, sockets, etc.) |
+| `EHSH_LOG_MODULE_HAL_DEVMANMON` | `Devman` | Device manager/monitor |
+| `EHSH_LOG_MODULE_HAL_FILE` | `file` | File system HAL |
+
+**Important:** The `EhsHLoggerModuleId` enum and the `EhsLModuleNames[]` string array in `hal_logger.c` must be kept in sync. The logger validates this at init time.
 
 #### Log Levels
 
-Logging verbosity can be set to any of the following levels:
-- **EHSH_LOG_LEVEL_CRITICAL** - Critical errors only
-- **EHSH_LOG_LEVEL_ERROR** - Error messages
-- **EHSH_LOG_LEVEL_WARNING** - Warning messages  
-- **EHSH_LOG_LEVEL_INFO** - Informational messages
-- **EHSH_LOG_LEVEL_DEBUG** - Debug messages
-- **EHSH_LOG_LEVEL_ENTRY** - Logs entry to every function
-- **EHSH_LOG_LEVEL_EXIT** - Logs exit from every function
+Log levels are **bitmask flags** that can be OR'd together. Each module maintains its own bitmask of enabled levels in the `EhsHLoggerModuleLogLevel[]` array:
 
-#### Setting Log Levels
+| Level | Value | Macro | Description |
+|-------|-------|-------|-------------|
+| ERROR | `0x01` | `EHSH_LOG_ERROR(...)` | Error conditions |
+| WARNING | `0x02` | `EHSH_LOG_WARNING(...)` | Warning conditions |
+| INFO | `0x04` | `EHSH_LOG_INFO(...)` | Informational messages |
+| ENTER | `0x08` | `EHSH_LOG_ENTER(...)` | Function entry tracing |
+| EXIT | `0x10` | `EHSH_LOG_EXIT(...)` | Function exit tracing |
 
-Log levels are set using `EhsHLogger_setLogLevel()`, which can be called at any time to change verbosity. Default levels for each module are set in `./Common/HAL/hal.c`.
+Pre-defined level combinations:
+- `EHSH_LOG_DEFAULT_LEVEL` = `ERROR | WARNING`
+- `EHSH_LOG_ALL_LEVEL` = `ERROR | WARNING | INFO | ENTER | EXIT`
+
+#### Setting Log Levels Per Module
+
+Log levels are set at runtime by calling `EhsHLogger_setLogLevel()` with the module's display name string and the desired bitmask:
+
+```c
+EhsHLogger_setLogLevel("Graphics", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+EhsHLogger_setLogLevel("Kernel", EHSH_LOG_LEVEL_ERROR);  /* errors only */
+EhsHLogger_setLogLevel("Network", EHSH_LOG_LEVEL_INFO);  /* info and above */
+```
+
+**Where default levels are configured:** The function `EhsHSetLogLevels()` in `Common/HAL/hal.c` sets the initial per-module levels. It is called during HAL initialisation (after `EhsHLogger_init()`). There are two compile-time variants:
+
+- **`#ifdef EHS_LOG_LEVEL_VERBOSE`:** All modules set to `INFO | WARNING | ERROR`
+- **Default (non-verbose):** All modules set to `ERROR` only, except `Network` which defaults to `INFO`
+
+To customise default levels for a specific platform, there are three options:
+
+**Option 1: Verbose mode** — switch all modules to `INFO | WARNING | ERROR`:
+```makefile
+# In config.mk:
+DEFS += EHS_LOG_LEVEL_VERBOSE
+```
+
+**Option 2: Per-module override** — set individual module levels from `config.mk` without modifying C code. Define make variables named `EHS_LOG_LEVEL_<MODULE>` with the desired bitmask value. `HAL.mk` checks for each variable and adds a compiler define if set:
+
+```makefile
+# In config.mk:
+EHS_LOG_LEVEL_GRAPHICS=0x07     # ERROR|WARNING|INFO for Graphics
+EHS_LOG_LEVEL_NETWORK=0x01      # ERROR only for Network
+EHS_LOG_LEVEL_KERNEL=0x1f       # All levels for Kernel
+```
+
+Available module names for `EHS_LOG_LEVEL_<MODULE>`:
+
+| Make variable | Default (non-verbose) | Overrides module |
+|---------------|----------------------|------------------|
+| `EHS_LOG_LEVEL_UNDEFINED` | `0x01` (ERROR) | Undefined |
+| `EHS_LOG_LEVEL_KERNEL` | `0x01` (ERROR) | Kernel |
+| `EHS_LOG_LEVEL_GRAPHICS` | `0x01` (ERROR) | Graphics |
+| `EHS_LOG_LEVEL_LOGGER` | `0x01` (ERROR) | Logger |
+| `EHS_LOG_LEVEL_HALMEMORY` | `0x01` (ERROR) | HalMemory |
+| `EHS_LOG_LEVEL_HALPROCESS` | `0x01` (ERROR) | HalProcess |
+| `EHS_LOG_LEVEL_HALSTRING` | `0x01` (ERROR) | HalString |
+| `EHS_LOG_LEVEL_TGTVIEWPORT` | `0x01` (ERROR) | TgtViewport |
+| `EHS_LOG_LEVEL_NETWORK` | `0x04` (INFO) | Network |
+| `EHS_LOG_LEVEL_DEVMAN` | `0x01` (ERROR) | Devman |
+| `EHS_LOG_LEVEL_FILE` | `0x01` (ERROR) | file |
+
+Bitmask values: `ERROR=0x01`, `WARNING=0x02`, `INFO=0x04`, `ENTER=0x08`, `EXIT=0x10`. OR them together, e.g. `0x07` = ERROR+WARNING+INFO.
+
+**Option 3: Runtime** — call `EhsHLogger_setLogLevel()` at any point to change a module's level dynamically (e.g. via a debug console command).
 
 #### Logging Macros
 
-Use the following macros in your code:
+Use the following macros in source code:
 ```c
-EHSH_LOG_CRITICAL(...)
-EHSH_LOG_ERROR(...)
-EHSH_LOG_WARNING(...)
-EHSH_LOG_INFO(...)
-EHSH_LOG_DEBUG(...)
-EHSH_LOG_ENTRY(...)
-EHSH_LOG_EXIT(...)
+EHSH_LOG_ERROR("Connection failed: %d", error_code);
+EHSH_LOG_WARNING("Timeout on port %d", port);
+EHSH_LOG_INFO("Widget created: %s", name);
+EHSH_LOG_ENTER("EhsWidget_create(%p)", pWidget);
+EHSH_LOG_EXIT("EhsWidget_create");
 ```
 
-#### System Architecture
+Each macro expands to a call that:
+1. Checks `EHSH_LOG_CHECK(level)` — tests the calling file's `EHSL_MODULE_ID` against `EhsHLoggerModuleLogLevel[]`
+2. If the level is enabled, formats the message into the shared `EhsHLogger_Msg` buffer using `EhsSnprintf`
+3. Calls `EhsHLogger_log()` with the module ID, level, `__FILE__`, `__LINE__`, and formatted message
 
-The debugging system works through:
-- **Stdio printf, log file, or device-specific logging** abstracted using EHS runtime logging
-- **Single function for all levels and module types** writing to device console and optionally to log file
-- **Module tagging** with module strings, log levels, source-code filename, line numbers, and printf-formatted messages
+When `EHS_RUNTIME_LOGGER_ENABLED` is not defined, all macros expand to nothing (zero code/data overhead).
+
+#### Log Output Format
+
+Log output is formatted as:
+```
+[timestamp][Level][ModuleName][filename]:line:"message"
+```
+
+Example:
+```
+[0][Info][Graphics][target/Component-HAL/graphics/qt/target_viewport.c]:362:"Qt Graphics HAL initialised"
+[0][Warning][Logger][target/os-arch/linux_ALL/targetos_init.c]:924:"Could not retrieve CPU and RAM info"
+```
+
+Output goes to:
+- **stdio** (console/serial) — always when logger is enabled
+- **Log file** (`ehs_log.000`) — when `EHS_RUNTIME_FILELOGGER_ENABLED` is defined
 
 #### Log Message Function
 
-All log messages use a single function:
+All log macros ultimately call:
 ```c
 void EhsHLogger_log(
-    EhsHLogModuleType module,
-    EhsHLogLevelType level,
-    const char* filename,
-    int line,
-    const char* format,
-    ...
+    EhsHLoggerModuleId nModule,   /* module enum value */
+    EhsHLoggerLogLevel nLevel,    /* level bitmask flag */
+    const ehs_char* szFilename,   /* __FILE__ */
+    ehs_uint32 nLine,             /* __LINE__ */
+    const ehs_char* szMsg         /* pre-formatted message */
 );
 ```
 
+#### Additional Trace Macros
+
+For low-level function tracing (enabled by `EHS_DEBUG_TRACE=yes` in `config.mk`):
+
+```c
+EHS_TRACE_MESSAGE("custom trace: %d", value);       /* requires EHS_BUILDOPT_STDIO_MESSAGE_TRACE */
+EHS_TRACE_FUNCTION(MyFunction);                      /* prints "MyFunction" */
+EHS_TRACE_FUNC1(EHS_TRACE_FLAG_KERNEL, MyFunc, "%d", arg);  /* conditional on trace flags */
+```
+
+Trace flags are a separate bitmask system (`EhsTraceFlags`) for subsystem-level function tracing:
+- `EHS_TRACE_FLAG_KERNEL` (0x0010) — kernel functions
+- `EHS_TRACE_FLAG_PARSER` (0x0020) — parser functions
+- `EHS_TRACE_FLAG_HAL_FILE` (0x0001) — file HAL functions
+- `EHS_TRACE_FLAG_ATOM/ITEM/GROUP/TOPLEVEL` — granularity levels
+
 #### Performance Considerations
 
-- When any debug is enabled, all log level statements may be compiled even if they won't run
-- Compiler optimization should remove dead strings, but long debug strings may still be included in builds
-- Consider disabling file path and line numbers for resource-constrained devices
-- Log strings may consume significant code space on memory-limited targets
+- When `EHS_RUNTIME_LOGGER_ENABLED` is not defined, all `EHSH_LOG_*` macros expand to nothing — **zero overhead**
+- When enabled, the level check (`EHSH_LOG_CHECK`) is a cheap array lookup and bitmask test — messages at disabled levels are not formatted
+- The format string and `__FILE__` path strings are compiled into the binary even for disabled levels — this can consume significant code space on memory-constrained targets (ESP32, NXP)
+- The shared `EhsHLogger_Msg` buffer (2048 bytes) is **not thread-safe** — concurrent logging from multiple threads may corrupt messages
+- For resource-constrained devices, consider setting `EHS_RUNTIME_LOGGER_ENABLED=no` in `config.mk` and using `printf` directly for targeted debugging
+- Log file output adds file I/O overhead on each log call
 
 ### Network Security
 

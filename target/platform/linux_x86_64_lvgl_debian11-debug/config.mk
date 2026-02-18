@@ -104,6 +104,7 @@ EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
 # Default application, system variant, and packaging/deployment options
 #################################################################################################################
 
+EHS_DEFAULT_APP=tutorials/hello_world
 EHS_PACKAGER_TYPE=deb
 
 

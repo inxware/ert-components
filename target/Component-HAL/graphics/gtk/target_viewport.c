@@ -414,7 +414,7 @@ EhsThreadFuncReturnType EhsL_graphicsThreadFunc(EhsTVClass* pViewport)
     //gdk_keyboard_grab(pViewport->pMainWindow->window, TRUE, GDK_CURRENT_TIME);
 #if GTK_MAJOR_VERSION == 2
     screen = gdk_screen_get_default();
-    EHSH_LOG_INFO("GTK Viewport: Got Screen = %d\n",screen);
+    EHSH_LOG_INFO("GTK Viewport: Got Screen = %d",screen);
     colormap = gdk_screen_get_rgba_colormap(screen);
     if (colormap == NULL)
     {
@@ -822,7 +822,7 @@ gboolean EhsL_event_expose(GtkWidget* pWidget, GdkEventExpose* pEvent)
     }
     else
     {
-        //EHSH_LOG_ERROR("EXPOSE DIDNT EXPOSE\n");
+        //EHSH_LOG_ERROR("EXPOSE DIDNT EXPOSE");
     }
 skip:
     EhsTPMutex_unlock(EhsTPMutex_widgetTable);
@@ -1082,7 +1082,7 @@ void EhsTV_move(EhsTVClass* pViewport, EhsDataflowIntType nX, EhsDataflowIntType
 
 
     LEAVE(EhsTV_move);
-    //EHSH_LOG_INFO("EhsTV_move:windowMoved=[%i]repositionWindow=[%i]\n",windowMoved,repositionWindow);
+    //EHSH_LOG_INFO("EhsTV_move:windowMoved=[%i]repositionWindow=[%i]",windowMoved,repositionWindow);
 }
 
 

@@ -45,6 +45,56 @@ include $(EHS_COMMON_HAL_PATH)/hashmap/hashmap.mk
 # Some #defines that are used broadly
 #============================================================
 
+#============================================================
+# Logging
+# Per-module log level overrides.
+# Set in config.mk as make variables, e.g.:
+#   EHS_LOG_LEVEL_GRAPHICS=0x07
+# The value is a bitmask: ERROR=0x01, WARNING=0x02, INFO=0x04, ENTER=0x08, EXIT=0x10
+
+# Override the default level for any modules that are not set explicitly.
+ifdef EHSH_LOG_DEFAULT_LEVEL
+    DEFS += EHSH_LOG_DEFAULT_LEVEL=$(EHSH_LOG_DEFAULT_LEVEL)
+endif
+
+# If the build want no verbose logging despite any explicit settings then knoble this.
+ifdef EHSH_LOG_MAX_GLOBAL_LEVEL
+    DEFS += EHSH_LOG_MAX_GLOBAL_LEVEL=$(EHSH_LOG_MAX_GLOBAL_LEVEL)
+endif
+
+ifdef EHS_LOG_LEVEL_UNDEFINED
+    DEFS += EHS_LOG_LEVEL_UNDEFINED=$(EHS_LOG_LEVEL_UNDEFINED)
+endif
+ifdef EHS_LOG_LEVEL_KERNEL
+    DEFS += EHS_LOG_LEVEL_KERNEL=$(EHS_LOG_LEVEL_KERNEL)
+endif
+ifdef EHS_LOG_LEVEL_GRAPHICS
+    DEFS += EHS_LOG_LEVEL_GRAPHICS=$(EHS_LOG_LEVEL_GRAPHICS)
+endif
+ifdef EHS_LOG_LEVEL_LOGGER
+    DEFS += EHS_LOG_LEVEL_LOGGER=$(EHS_LOG_LEVEL_LOGGER)
+endif
+ifdef EHS_LOG_LEVEL_HALMEMORY
+    DEFS += EHS_LOG_LEVEL_HALMEMORY=$(EHS_LOG_LEVEL_HALMEMORY)
+endif
+ifdef EHS_LOG_LEVEL_HALPROCESS
+    DEFS += EHS_LOG_LEVEL_HALPROCESS=$(EHS_LOG_LEVEL_HALPROCESS)
+endif
+ifdef EHS_LOG_LEVEL_HALSTRING
+    DEFS += EHS_LOG_LEVEL_HALSTRING=$(EHS_LOG_LEVEL_HALSTRING)
+endif
+ifdef EHS_LOG_LEVEL_TGTVIEWPORT
+    DEFS += EHS_LOG_LEVEL_TGTVIEWPORT=$(EHS_LOG_LEVEL_TGTVIEWPORT)
+endif
+ifdef EHS_LOG_LEVEL_NETWORK
+    DEFS += EHS_LOG_LEVEL_NETWORK=$(EHS_LOG_LEVEL_NETWORK)
+endif
+ifdef EHS_LOG_LEVEL_DEVMAN
+    DEFS += EHS_LOG_LEVEL_DEVMAN=$(EHS_LOG_LEVEL_DEVMAN)
+endif
+ifdef EHS_LOG_LEVEL_FILE
+    DEFS += EHS_LOG_LEVEL_FILE=$(EHS_LOG_LEVEL_FILE)
+endif
 
 #============================================================
 # OPTIONAL COMMON COMPONENT HAL SUPPORT

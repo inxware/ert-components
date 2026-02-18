@@ -12,7 +12,7 @@
 
 ## Why use inxware?
 
-inxware is a powerful solution helping you to rapidly develop real-time and data-intensive firmware for embedded devices. It is in active use across [many sectors](https://www.inx-systems.com/sectors/), including industrial IoT, smart buildings, smart domestic energy products, edge-AI applications and advanced control systems.
+inxware provides the simplest and most advanced framework for developing real-time and data-intensive firmware for embedded devices. It is in active use across [many sectors](https://www.inx-systems.com/sectors/), including industrial IoT, smart buildings, smart domestic energy products, edge-AI applications and advanced control systems.
 
 It supports [devices](#supported-platforms) ranging from basic microcontrollers (e.g. NXP Kinetis, STM32, ESP32, etc.) through Arduino, Raspberry Pi, and Android tablets, all the way to full Windows/Linux PCs and containerised environments, allowing you to build products of any complexity.
 
@@ -26,7 +26,7 @@ inxware encompasses an ecosystem of software, including:
 * A event-driven runtime application called "eRT" (which includes a proprietary runtime kernel, called EHS Kernel) and Hardware Abstraction Layer (HAL).
 * A broad range of 'components' providing all of the functionality you would expect in an embedded system.
 * Your applications, these run within the eRT environment.
-* An IoT administration platform called [Devman](https://www.inxware.io/devman/), which can be used to monitor and manage devices running your deployed inxware apps.
+* An Optional IoT administration platform called [Devman](https://www.inxware.io/devman/), can be used to monitor, manage and update devices running your deployed inxware apps.
 
 ![inxware diagram](docs/inxware.png)
 
@@ -110,10 +110,10 @@ mkdir inxware && cd inxware
 # Clone the main `ert-components` repository
 #
 # If you prefer HTTPS:
-# git clone https://github.com/inxware/ert-components.git
+# git clone --depth 1 https://github.com/inxware/ert-components.git
 #
 # If you prefer SSH:
-git clone git@github.com:inxware/ert-components.git
+git clone --depth 1 git@github.com:inxware/ert-components.git
 
 cd ert-components
 
@@ -125,10 +125,14 @@ cd ert-components
 make prepdeps       # Downloads toolchains and dependencies (~40GB) 
 
 # Build the runtime binary
-make all_docker     # Build using containerised environment
+make all_docker # Build using containerised environment
 
-# Create a staging directory for later packaging
-make targetenv      # Assemble the runtime environment
+# Create a deployable package
+make targetenv                  # Assemble the runtime environment
+make targetenv_version     # Create versioned release (binary/package)
+
+#Test your build
+./configure -run  # Run the built application
 ```
 
 **Success!** You now have a working eRT runtime. Try the [Lucid IDE](https://appland.inxware.io/) to create your first no-code application.
@@ -191,8 +195,8 @@ make prepdeps
 
 ## Supported platforms
 
-| Platform Category    | Architecture | Operating System                  | Status   | Package Format | Use Cases                  |
-| -------------------- | ------------ | --------------------------------- | -------- | -------------- | -------------------------- |
+| Platform Category    | Architecture | Operating System                  | Status    | Package Format | Use Cases                  |
+| -------------------- | ------------ | --------------------------------- | --------- | -------------- | ---------------------------|
 | **Desktop/server**   | x86_64       | Linux (Debian 9-12, Ubuntu 14-24) | ✅ Stable | DEB, Binary    | Development, Server apps   |
 |                      | x86_64       | Windows 7-11                      | ✅ Stable | EXE, MSI       | Desktop applications       |
 | **Single board**     | ARM64        | Linux (Raspberry Pi 3-5)          | ✅ Stable | DEB, Image     | IoT gateways, edge compute |

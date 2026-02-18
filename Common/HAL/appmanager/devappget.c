@@ -116,7 +116,7 @@ EhsThreadFuncReturnType HAL_appGetWaitForURLDataAndWrite(void *XObjData)
     r=archive_read_open(a, &ObjData->AppGet_write_data_buffer_struct, NULL, write_archive_to_disk, NULL);
     if (r != ARCHIVE_OK)
     {
-        EHSH_LOG_ERROR("Could not open networked archive\n");
+        EHSH_LOG_ERROR("Could not open networked archive");
         goto error;
     }
     else
@@ -185,7 +185,7 @@ EhsThreadFuncReturnType HAL_appGetWaitForURLDataAndWrite(void *XObjData)
 
                         if (r != ARCHIVE_OK && r != ARCHIVE_RETRY)  // && r != ARCHIVE_WARN ) {
                         {
-                            EHSH_LOG_ERROR(	"Archive write error %s\n errno =%s\n",
+                            EHSH_LOG_ERROR(	"Archive write error %s\n errno =%s",
                                             archive_error_string(aw), strerror(errno));
                             appget_success = EHS_FALSE;
                             //goto error;
@@ -220,7 +220,7 @@ error:
         if (ObjData->bSetAsDefaultApp == EHS_TRUE)
         {
             EhsAppSetDefaultApp(ObjData->szAppLocalName);
-            EHSH_LOG_INFO("New App set as default\n");
+            EHSH_LOG_INFO("New App set as default");
         }
 
         if (ObjData->bRunWhenDone == EHS_TRUE)
@@ -270,7 +270,7 @@ EhsThreadFuncReturnType HAL_AppGetRead_data(void *XObjData)
     ObjData->curl = curl_easy_init(); /* We can call this multiple times apparently *///@todo check that curl_global_init() is called before threads start
     if (!ObjData->curl)
     {
-        EHSH_LOG_ERROR("Error: Could not init CURL - Skipping call\n");
+        EHSH_LOG_ERROR("Error: Could not init CURL - Skipping call");
         goto error;
     }
 #define EHS_USE_CURLS_LAME_SIGNAL_AVOIDANCE
@@ -464,9 +464,9 @@ ehs_bool start_appget_getapp(const ehs_char * appname, const ehs_char * localnam
             /* Set up download location */
             EhsAppMakeDownloadString(ObjData->szpDownloadDir,ObjData->szAppLocalName);
 #if 1
-            EHSH_LOG_ERROR("ObjData->szAppCanonicalName=[%s]\n",ObjData->szAppCanonicalName);
-            EHSH_LOG_ERROR("ObjData->szAppLocalName=[%s]\n",ObjData->szAppLocalName);
-            EHSH_LOG_ERROR("ObjData->szpDownloadDir=[%s]\n",ObjData->szpDownloadDir);
+            EHSH_LOG_ERROR("ObjData->szAppCanonicalName=[%s]",ObjData->szAppCanonicalName);
+            EHSH_LOG_ERROR("ObjData->szAppLocalName=[%s]",ObjData->szAppLocalName);
+            EHSH_LOG_ERROR("ObjData->szpDownloadDir=[%s]",ObjData->szpDownloadDir);
 #endif
             /* Start URL get thread to pump data into a buffer */
             EhsHThread_execute( HAL_AppGetRead_data, (void*) ObjData, -95, EHS_THREAD_USE_DEFAULT_STACK_SIZE) ;

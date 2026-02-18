@@ -203,7 +203,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_upsert)
     if (fp == NULL)
     {
         err_no = 1;
-        EHSH_LOG_ERROR("Failed to open key-value pair file!\n");
+        EHSH_LOG_ERROR("Failed to open key-value pair file!");
         goto function_end;
     }
 
@@ -218,13 +218,13 @@ EHS_FB_RUN_FUNCTION(key_value_int_upsert)
     content = EhsFreadDynamic(fp, &_err_code);
     if (_err_code != 0)
     {
-        EHSH_LOG_ERROR("Failed to read key-value pair file! Error (%d)\n", _err_code);
+        EHSH_LOG_ERROR("Failed to read key-value pair file! Error (%d)", _err_code);
         err_no = 2;
         goto function_end;
     }
     if (fp == NULL)
     {
-        EHSH_LOG_ERROR("File object pointer is NULL!\n");
+        EHSH_LOG_ERROR("File object pointer is NULL!");
         err_no = 6;
         goto function_end;
     }
@@ -240,7 +240,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_upsert)
     }
     if (fp == NULL)
     {
-        EHSH_LOG_ERROR("Failed to re-open key-value pair file!\n");
+        EHSH_LOG_ERROR("Failed to re-open key-value pair file!");
         err_no = 7;
         goto function_end;
     }
@@ -254,7 +254,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_upsert)
     {
         if (_err_code != 0)
         {
-            EHSH_LOG_ERROR("Failed to parse key-value pair! Error (%d)\n", _err_code);
+            EHSH_LOG_ERROR("Failed to parse key-value pair! Error (%d)", _err_code);
             err_no = 3;
             goto function_end;
         }
@@ -288,7 +288,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_upsert)
             {
                 // Treat as error only if there is no key left
                 if (n_token_left > 0) break;
-                EHSH_LOG_ERROR("Find Key pointer error! Error (%d)\n", _err_code);
+                EHSH_LOG_ERROR("Find Key pointer error! Error (%d)", _err_code);
                 err_no = 4;
                 goto function_end;
                 break;
@@ -296,7 +296,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_upsert)
             case 4:
             {
                 // If it's an empty JSON, this loop only run once
-                EHSH_LOG_WARNING("Empty JSON! Error (%d)\n", _err_code);
+                EHSH_LOG_WARNING("Empty JSON! Error (%d)", _err_code);
                 if (item_size == 1)
                 {
                     upsertKeyValuePair(
@@ -331,7 +331,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_upsert)
             {
                 // Treat as error only if there is no key left
                 if (n_token_left > 0) break;
-                EHSH_LOG_WARNING("Key not found! Error (%d)\n", _err_code);
+                EHSH_LOG_WARNING("Key not found! Error (%d)", _err_code);
                 // Insert the new key-value pair
                 upsertKeyValuePair(
                     content, array + EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens, -1, -1, 
@@ -345,7 +345,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_upsert)
             {
                 // Treat as error only if there is no key left
                 if (n_token_left > 0) break;
-                EHSH_LOG_ERROR("Find Key unknown error! Error (%d)\n", _err_code);
+                EHSH_LOG_ERROR("Find Key unknown error! Error (%d)", _err_code);
                 err_no = 5;
                 goto function_end;
                 break;
@@ -417,14 +417,14 @@ EHS_FB_RUN_FUNCTION(key_value_int_query)
     else fp = Ehs_UserFopen(inx_key_value_int_state->domain, "r");
     if (fp == NULL)
     {
-        EHSH_LOG_WARNING("Key-value pair file not found!\n");
+        EHSH_LOG_WARNING("Key-value pair file not found!");
         err_no = -1;
         goto function_end;
     }
     content = EhsFreadDynamic(fp, &_err_code);
     if (_err_code != 0)
     {
-        EHSH_LOG_ERROR("Failed to read key-value pair file! Error (%d)\n", _err_code);
+        EHSH_LOG_ERROR("Failed to read key-value pair file! Error (%d)", _err_code);
         err_no = -2;
         goto function_end;
     }
@@ -438,7 +438,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_query)
     {
         if (_err_code != 0)
         {
-            EHSH_LOG_ERROR("Failed to parse key-value pair! Error (%d)\n", _err_code);
+            EHSH_LOG_ERROR("Failed to parse key-value pair! Error (%d)", _err_code);
             err_no = -3;
             goto function_end;
         }
@@ -453,7 +453,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_query)
             content, key == NULL ? INX_FB_key_value_int_key : key, &key_index, &value_index, NULL);
         if (_err_code != 0)
         {
-            EHSH_LOG_ERROR("Failed to find key-value pair! Error (%d)\n", _err_code);
+            EHSH_LOG_ERROR("Failed to find key-value pair! Error (%d)", _err_code);
             goto for_end;
         }
         value_index += EHS_JSMN_PARENT_LAYER_LIMIT - n_added_tokens;
@@ -499,7 +499,7 @@ EHS_FB_RUN_FUNCTION(key_value_int_query)
                     break;
                 }
                 value_output = (ehs_sint32) integer_long;
-                EHSH_LOG_INFO("The integer value found: %d\n", value_output);
+                EHSH_LOG_INFO("The integer value found: %d", value_output);
                 err_no = 0;
                 // The first matching key found, no need to continue
                 goto function_end;
@@ -517,7 +517,7 @@ for_end:
 
     if (n_token_left < 0)
     {
-        EHSH_LOG_ERROR("No key-value pair found!\n");
+        EHSH_LOG_ERROR("No key-value pair found!");
         err_no = -4;
         goto function_end;
     }

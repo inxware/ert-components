@@ -51,7 +51,7 @@ ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, e
 		nCopy = nSize;
 	}
 	else {
-		EHSH_LOG_ERROR("QUEUE PUSH - Couldn't write all data!!! %d > %d\n",nCopy , nSize);
+		EHSH_LOG_ERROR("QUEUE PUSH - Couldn't write all data!!! %d > %d",nCopy , nSize);
 		//nCopy = -1;
 	}
    /* write the data */

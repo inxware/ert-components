@@ -66,7 +66,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
         echo "Using existing Docker image"
         
         ${SUDO_COMMAND} docker run ${INX_ERTCOMPONENTS_BUILDENV}  \
-            --user $(id -u):$(id -g) --rm --privileged -i --device=/dev/ttyACM0 \
+            --user $(id -u):$(id -g) --rm --privileged -i $([ -t 0 ] && echo "-t") --device=/dev/ttyACM0 \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             "$@"
@@ -83,7 +83,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
 
         echo "Current PWD = $(pwd)"
         ${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV  \
-            --user $(id -u):$(id -g) --rm --privileged -i --device=/dev/ttyACM0 \
+            --user $(id -u):$(id -g) --rm --privileged -i $([ -t 0 ] && echo "-t") --device=/dev/ttyACM0 \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             "$@"

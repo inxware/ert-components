@@ -59,6 +59,7 @@
 #include "hal_configs.h"
 
 #include "sdkconfig.h"
+#include "driver/uart.h"
 #include "freertos/FreeRTOS.h"
 #include <freertos/task.h>
 
@@ -85,6 +86,10 @@
 #include "esp_wifi.h"
 #include "target_wifi.h"
 #include "wifi_station.h"
+#endif
+
+#ifdef EHS_NETWORK_BLE_SUPPORT
+#include "ble_service_nimble.h"
 #endif
 
 //todo need to change this to a normal config method
@@ -888,6 +893,8 @@ void command_prompt_task(void* params) {
                 printf("Unknown command '%c'. Type 'h' for help.\n", command);
             }
         }
+        fflush(stdout);
+        uart_wait_tx_done(CONFIG_ESP_CONSOLE_UART_NUM, pdMS_TO_TICKS(100));
         EhsHStatisticsLoopEnd(threadname);
         vTaskDelay(pdMS_TO_TICKS(50)); // Reduced delay for more responsive input
     }
@@ -1104,7 +1111,7 @@ void EhsLoadNetworkConfig()
 {
     EhsConfig* config = EhsConfigLoad(EHS_NET_CONFIG_FILE);
     if(config){
-        //ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
+        ESP_LOGI(TAG, "Loading network settings from config (" EHS_NET_CONFIG_FILE ")");
         EhsNetworkConfigDataType net_config = { 0 };
         net_config.save = EHS_FALSE; // we're loading settings, so no need to save them
         net_config.mode = EHS_NET_DHCP_MODE_ID;
@@ -1756,6 +1763,36 @@ ota_data_write_jump:
 #endif
 
  #endif
+ 
+  #ifdef EHS_NETWORK_BLE_SUPPORT
+  inx_ble_char_config_t qwepoi[2] = {
+        {
+            "0x4321",
+            "char1",
+            1,
+            50
+        },
+        {
+            "0x3241",
+            "char2",
+            2,
+            30
+        }
+    };
+    inx_ble_service_hal_init("0x1234",
+    "BT",
+    2,
+    100,
+    23,
+    qwepoi,//(inx_ble_char_config_t*) NULL,
+    (inx_ble_service_callbacks_t*) NULL,
+    (void*) NULL);
+    
+    inx_ble_service_hal_register_gatt();
+
+    inx_ble_service_hal_start_adv();    	
+ #endif
+
  #ifdef EHS_SERIAL_CONSOLE_SUPPORT
     // TODO - shell we use this in MCU_SLOW_LP_THR ?
     // create a command prompt task for interacting with the device over a console

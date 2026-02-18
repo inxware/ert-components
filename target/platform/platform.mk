@@ -12,27 +12,34 @@
 #
 # Makefile fragment using the target's config.mk data to find the correct component and core support code.
 # Called by ../../Makefile
-#
-# This file builds paths to target specific support libraries and toolchains:#
-#
-# Predefined variables
 
-#  OBJ - File extension for object files
+###############################################################################################################################
+# This file builds paths to target specific support libraries and toolchains:
+###############################################################################################################################
+# The make file include sequence is as follows:
+# 1. target/platform/*/config.mk    : most spefic config for a borad/product/platform                          (USER_EDITABLE)
+# 2. target/os-arch/*/toolchain.mk  : toolchain switches needed to choose a toolchain path & compile binaries. (ADMIN EDITABLE)
+# 3. target/os-arch/*/config.mk     : default config (including components selected) for an os-arch type       (USER_EDITABLE)
+# 4. target/os-arch/*/target.mk     : other build configuration magic incantations for an os-arch type         (ADMIN EDITABLE)
+# 5. */ all the deps.mk files for dependency                                                                   (AUTO UPDATEABLE)
+# 5. target/Component-HAL/component-hal.mk : Component HAL selected in the config.mk files                     (ADMIN EDITABLE)
+# 6. Common/components.mk           : Chooses the selected components to build from the condfig.mk             (ADMIN EDITABLE)
+# 7. Common/Ehs/ehs.mk              : Kernel runtime configuration a                                           (ADMIN EDITABLE)    
+# 8. Common/Hal/HAL.mk              : Hardware (& Middleware) Abstraction layer build configuration            (USER_EDITABLE)
+################################################################################################################################
 
 # Expected variables
-
 #  OBJECTS - list of object files added by this makefile
 #  INC_DIRS  - target-specific include paths
 #  VPATH - where to look for source code
 #  EHS_PLATFORM_PATH - path to the current directory (set by platform makefile)
 
 ################## Get the platform parameters from the platform config.mk file #######
+#$(info )
+#$(info $(TXT_FG_BLUE)Starting platform.mk with platform:)
+#$(info $(TXT_FG_WHITE)  '$(EHS_PLATFORM_PATH)')
+#$(info )
 
-
-$(info )
-$(info $(TXT_FG_BLUE)Starting platform.mk with platform:)
-$(info $(TXT_FG_WHITE)  '$(EHS_PLATFORM_PATH)')
-$(info )
 include $(EHS_PLATFORM_PATH)/config.mk
 
 ifdef TOOLCHAIN_NAME
@@ -87,7 +94,7 @@ else
 endif
 export EHS_GNU_OS_ARCH
 
-## Set upvariables first 
+## Set up variables first 
 ################# Some components might need kernel headers e.g. sizes.h       ###################
 # Deprecated
 #export KERNEL_HEADERS_BASE_DIR=$(EHS_CORE_SUPPORT_BASE)/kernel-dependencies/
@@ -242,19 +249,18 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
     LIB_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)
     $(info $(TXT_FG_BLUE)Using EHS kernel from:)
     $(info $(TXT_FG_WHITE)  [$(_KNL)])
-    $(info )
+
     $(info $(TXT_FG_BLUE)Also including the default ert-contrib middleware include path:)
     $(info $(TXT_FG_WHITE)  [$(EHS_COMPONENT_SUPPORT_INCLUDE)])
-    $(info )
+
     $(info $(TXT_FG_BLUE)Also including the default ert-contrib middleware library path:)
     $(info $(TXT_FG_WHITE)  [$(EHS_COMPONENT_SUPPORT_LIBS)])
-    $(info )
+
 else
     # Add paths the ert-build-support's LIBC
     ifdef EHS_CLIB_OVERRIDE_PATH
         $(info $(TXT_FG_BLUE)EHS_CLIB_OVERRIDE_PATH is set, using the override path:)
         $(info $(TXT_FG_WHITE)  [../ert-build-support/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/])
-        $(info )
         INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/include/
         LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/build/lib/
         LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/kernel/
@@ -263,7 +269,7 @@ else
         # Note the following is usally handled with the gcc --sysroot, but we'll add INC and LIB paths explicitly too.
         $(info $(TXT_FG_BLUE)Using the default ert-build-support path:)
         $(info $(TXT_FG_WHITE)  [../ert-build-support/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/])
-        $(info )
+
         INC_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/include/
         LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/build/lib/
         LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)/kernel/
@@ -271,7 +277,6 @@ else
     endif
     $(info $(TXT_FG_BLUE)Using the default ert-contrib middleware include path:)
     $(info $(TXT_FG_WHITE)  [$(EHS_COMPONENT_SUPPORT_INCLUDE)])
-    $(info )
     $(info $(TXT_FG_BLUE)Using the default ert-contrib middleware library path:)
     $(info $(TXT_FG_WHITE)  [$(EHS_COMPONENT_SUPPORT_LIBS)])
     # Add the component paths (Names distilled above) 
@@ -302,16 +307,6 @@ ifneq ($(EHS_SKIP_GNULIBRARIES),none)
 endif
 endif
 
-#TODO 2025. - this should go in the target component HAL make files
-################ Select between render mode A and B ###############################
-ifdef EHS_GUI_SUPPORT
-# at the moment only mode B is only used for lvgl
-ifeq ($(EHS_GUI_SUPPORT),lvgl)
-export EHS_RENDER_MODE=B
-export EHS_DONT_USE_BASIC_FONTS=yes
-endif
-endif
-
 ################# Setup the target include paths for core EHS ##########################
 INC_DIRS +=$(EHS_PLATFORM_PATH)
 VPATH += $(EHS_PLATFORM_PATH)
@@ -336,20 +331,21 @@ VPATH+= $(EHS_TARGET_OS_HW_PATH)/Components
 #
 # add required object files to OBJECTS
 #
-# We some times uese this build system to build totall irrelevant code to eRT
+# THIS SHOULD ALWAYS BE TRUE for and ert-component build.
 ifndef EXCLUDE_EHS_COMMON
-    ifdef EHS_BUILD_MONOLITHIC_KERNEL
-        include $(EHS_COMMON_KERNEL_PATH)/kernel.mk
-    endif
 
-    # define the component HAL first because this can affect the components selected for the toolboxes'
-    include $(EHS_TARGET_COMPONENT_HAL_PATH)/component-hal.mk
+ifdef EHS_BUILD_MONOLITHIC_KERNEL
+    include $(EHS_COMMON_KERNEL_PATH)/kernel.mk
+endif
+# define the component HAL first because this can affect the components selected for the toolboxes'
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/component-hal.mk
 
-    # Configure the Components Code used
-    # build the common Layer (The common components.mk file will conditionally compile depending on Component Options
-    include $(EHS_COMMON_COMPONENTS_PATH)/components.mk
-    # All target stuff is done from the platform.mk file (indirectly) relative target specific layer
-    include $(EHS_COMMON_EHS_PATH)/ehs.mk
+# Configure the Components Code used
+# build the common Layer (The common components.mk file will conditionally compile depending on Component Options
+include $(EHS_COMMON_COMPONENTS_PATH)/components.mk
+# All target stuff is done from the platform.mk file (indirectly) relative target specific layer
+include $(EHS_COMMON_EHS_PATH)/ehs.mk
+
 endif
 
 # Important to inlcude the HAL last because it's build will depend on what subcomponents are included above.
@@ -389,12 +385,18 @@ ifdef EHS_MCU_TARGET
     DEFS += EHS_MCU_TARGET
 endif
 
-# Allow basic memory management with no clean up. Not recommended for apps that have 
+# Allow basic memory management with no clean up. Not recommended for apps that have
 # console enabled or can receive new apps.
 ifdef EHS_MEMORY_MANAGMENT
     ifeq ($(EHS_MEMORY_MANAGMENT),none)
         DEFS += EHS_MEMORY_MANAGMENT__NOMANAGEMENT
     endif
+endif
+
+# Callback-driven main loop (e.g. Qt timer). When set, target_main uses
+# EhsMainLoopSingle() instead of the blocking EhsMainLoop().
+ifdef EHS_MAIN_LOOP_ITERATIVE
+    DEFS += EHS_MAIN_LOOP_ITERATIVE
 endif
 
 #TODO all of these should be idefed as they will be set to empty if previously unset

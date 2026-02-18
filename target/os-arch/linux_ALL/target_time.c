@@ -91,7 +91,7 @@ int clock_nanosleep(clockid_t clockid, int flags,
 EHS_LOCAL EhsTickType EhsTgtTimerExpiryTime;
 
 /*****************************************************************************/
-/* Variables defined with global-scope */#include <time.h>
+/* Variables defined with global-scope */
 /*****************************************************************************/
 /* Function definitions */
 

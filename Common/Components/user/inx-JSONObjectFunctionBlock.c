@@ -531,7 +531,7 @@ static int callback_start_array(void * ctx)
 #if 0
 else if(EhsStrcmp(state->queryPos->map,mapName)==0)
 {
-    //EHSH_LOG_INFO("match\n");
+    //EHSH_LOG_INFO("match");
     //they do match so go down a level in the query if possible, if not indicate we want to return the next value or JSON object
     if(state->queryPos->pNext==NULL)
     {
@@ -544,7 +544,7 @@ else if(EhsStrcmp(state->queryPos->map,mapName)==0)
     }
     if(EhsSscanf(mapName),&index)
     {
-        //EHSH_LOG_INFO("match\n");
+        //EHSH_LOG_INFO("match");
         //they do match so go down a level in the query if possible, if not indicate we want to return the next value or JSON object
         if(state->queryPos->pNext==NULL)
         {
@@ -808,7 +808,7 @@ else if(EhsStrcmp(state->queryPos->map,mapName)==0)
                         //is the token long enough
                         if(position<(start+1))
                         {
-                            EHSH_LOG_WARNING("Token not long enough\n");
+                            EHSH_LOG_WARNING("Token not long enough");
                             return parse_error;
                         }
                         tokLength=position-start;
@@ -856,7 +856,7 @@ else if(EhsStrcmp(state->queryPos->map,mapName)==0)
                 found=lexer_lex(queryString,size,&offset,&token);
                 if(found==parse_end)
                 {
-                    //EHSH_LOG_INFO("Query parse_end\n");
+                    //EHSH_LOG_INFO("Query parse_end");
                     return queryStart;
                 }
                 else if(found==parse_error)
@@ -875,7 +875,7 @@ else if(EhsStrcmp(state->queryPos->map,mapName)==0)
                 }
                 else if(found==parse_map)
                 {
-                    //EHSH_LOG_WARNING("Query found @%s@\n",token);
+                    //EHSH_LOG_WARNING("Query found @%s@",token);
                     //we have found a map, token is the name of that map. Add it to the end of our linked list of maps we are looking for
                     queryPart=(inx_JSONObject_queryPart_type*)EhsHMem_tempAlloc(sizeof(inx_JSONObject_queryPart_type));
                     queryPart->map=token;
@@ -1008,7 +1008,7 @@ else if(EhsStrcmp(state->queryPos->map,mapName)==0)
             input=state->input;
             if(input==NULL||state->hand==NULL)
             {
-                EHSH_LOG_WARNING("No data to query\n");
+                EHSH_LOG_WARNING("No data to query");
                 return EHS_FALSE;
             }
             if (queryString)
@@ -1038,7 +1038,7 @@ else if(EhsStrcmp(state->queryPos->map,mapName)==0)
             if(state->query==NULL)
             {
                 //query error so throw an error
-                EHSH_LOG_WARNING("Query parse error @%s@\n",queryString);
+                EHSH_LOG_WARNING("Query parse error @%s@",queryString);
                 if (out) out[0]='\0';
                 return EHS_FALSE;
             }

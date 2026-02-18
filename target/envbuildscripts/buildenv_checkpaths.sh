@@ -13,18 +13,29 @@
 
 source ./scripts/build-function-library/colour.sh
 
+if [ "${ERT_SODL_VERSION}" = "1" ]; then
+    EHS_KERNEL_LIB=libehs_ehrt1.a
+else
+    EHS_KERNEL_LIB=libehs.a
+fi
+
 echo
 echo "--------------------------------------------------------------------"
 echo
-echo -n "${TXT_FG_BLUE}TOOLCHAIN PATH:${TXT_FG} ${EHS_CORE_SUPPORT_BASE}/toolchains/${TOOLCHAIN_PATH} - "
-test -d "${EHS_CORE_SUPPORT_BASE}/toolchains/${TOOLCHAIN_PATH}" && echo "${TXT_FG_GREEN}EXISTS" || warn "MISSING"
-echo -n "${TXT_FG_BLUE}EHS_BUILD_SYSROOT PATH:${TXT_FG} ${EHS_BUILD_SYSROOT} - "
-test -d "${EHS_BUILD_SYSROOT}" && echo "${TXT_FG_GREEN} EXISTS" || warn "MISSING"
+if [ "${TOOLCHAIN_PATH}" = "HOST" ] || [ "${TOOLCHAIN_NAME}" = "HOST" ]; then
+    echo "${TXT_FG_BLUE}TOOLCHAIN:${TXT_FG} Using host system compiler"
+    echo "${TXT_FG_BLUE}EHS_BUILD_SYSROOT:${TXT_FG} Using host system sysroot"
+else
+    echo -n "${TXT_FG_BLUE}TOOLCHAIN PATH:${TXT_FG} ${EHS_CORE_SUPPORT_BASE}/toolchains/${TOOLCHAIN_PATH} - "
+    test -d "${EHS_CORE_SUPPORT_BASE}/toolchains/${TOOLCHAIN_PATH}" && echo "${TXT_FG_GREEN}EXISTS" || warn "MISSING"
+    echo -n "${TXT_FG_BLUE}EHS_BUILD_SYSROOT PATH:${TXT_FG} ${EHS_BUILD_SYSROOT} - "
+    test -d "${EHS_BUILD_SYSROOT}" && echo "${TXT_FG_GREEN}EXISTS" || warn "MISSING"
+fi
 echo
 echo "--------------------------------------------------------------------"
 echo
-echo -n "${TXT_FG_BLUE}EHS KERNEL:${TXT_FG} ${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/libehs.a - "
-test -f "${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/libehs.a" && echo "${TXT_FG_GREEN}EXISTS" || err "N/A"
+echo -n "${TXT_FG_BLUE}EHS KERNEL:${TXT_FG} ${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/${EHS_KERNEL_LIB} - "
+test -f "${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/${EHS_KERNEL_LIB}" && echo "${TXT_FG_GREEN}EXISTS" || err "N/A"
 
 
 if [ "${EHS_HOST_DEBIAN_BUILD}" != "" ]; then

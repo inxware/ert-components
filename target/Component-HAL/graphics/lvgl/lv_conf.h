@@ -187,7 +187,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 /*Add a custom handler when assert happens e.g. to restart the MCU*/
 #define LV_ASSERT_HANDLER_INCLUDE   "hal_logger.h" //<stdint.h>
 #define LV_ASSERT_HANDLER   do { \
-    EHSH_LOG_ERROR("LVGL assert at %s:%d\nLocked now\n", __FILE__, __LINE__); \
+    EHSH_LOG_ERROR("LVGL assert at %s:%d\nLocked now", __FILE__, __LINE__); \
     while(1);   /*Halt by default*/ \
 } while(0);
 

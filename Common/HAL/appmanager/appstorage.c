@@ -11,6 +11,7 @@
  * These functions provide HAL services for application downloaders & launchers
  * Function Implementations for managing Application storage on disk, flash, etc.
  * */
+#define EHSL_MODULE_ID (EHSH_LOG_MODULE_UNDEFINED) /* define before hal_logger.h */
 
 #include "globals.h"
 #include "hal-api.h" //include general HAL services
@@ -132,7 +133,7 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
     {
         EHSH_LOG_INFO("Found valid download for %s",canonicalName);
         EhsAppMakePreviousDirString(appdir_x, canonicalName); /* Shift Current to previous */
-        //EHSH_LOG_INFO("PBB Removing %s\n",appdir_x);
+        //EHSH_LOG_INFO("PBB Removing %s",appdir_x);
         if (EhsTF_rmdir(appdir_x) == EHS_FALSE)
         {
             EHSH_LOG_INFO("Can't remove old app version for %s",canonicalName);
@@ -149,7 +150,7 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
 
         if (EhsHRename(appdir, appdir_x) == EHS_FALSE)
         {
-            EHSH_LOG_WARNING("Can't backup current app %s\n to \n%s\n",appdir,appdir_x);
+            EHSH_LOG_WARNING("Can't backup current app %s\n to \n%s",appdir,appdir_x);
             ret = 1;/* Can't backup up current app */
         }
 
@@ -169,7 +170,7 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
         else
         {
             ret = 2; /* made directory OK - don't need this... */
-            EHSH_LOG_INFO("Set app %s to live\n%s\n->%s\n",canonicalName,appdir_x,appdir);
+            EHSH_LOG_INFO("Set app %s to live\n%s\n->%s",canonicalName,appdir_x,appdir);
         }
     }
     // make sure that we have a valid app, and if not request download of default app
@@ -377,7 +378,7 @@ do_default: /* Set up the default directory stuff */
 
     EhsAppMakeLiveDirString(appdir,EHS_SYS_DEFAULT_APP2RUN);
     EhsStrcpy(AppCanonical,EHS_SYS_DEFAULT_APP2RUN); // Set just the canonical string for Meta data set at the end!
-    //EHSH_LOG_INFO("default path for %s = %s\n",AppCanonical,appdir);
+    //EHSH_LOG_INFO("default path for %s = %s",AppCanonical,appdir);
     if (EhsTF_exists(appdir) == 0)   //if we have nothing make a default with an empty application
     {
         EhsTF_mkdir(appdir);

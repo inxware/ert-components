@@ -1,3 +1,12 @@
+/***************************************************************
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
+ *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
+****************************************************************/
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -85,13 +94,17 @@ EHS_FB_INIT_FUNCTION(gui_patch)
 		EhsParseGuiParameters(guiParams,&xParams);
 		if (xParams.eClass == EHS_WIDGET_CLASS_PATCH)
 		{
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 			inx_gui_patch_state->pUiWidgetClass = EhsWidgetUI_init(EHS_OTHER_UI_WIDGET_PANEL, 0, xParams.uClass.xTextbox.nCurve, 0,
 			                                                    &(xParams.xRect),xParams.nZorder,
 																0, 0, 0, 0, 0,
 																xParams.uClass.xPatch,
 																xParams.uClass.xPatch,
-																/*pFont*/NULL);
+																/*pFont*/NULL
+#ifdef EHS_STORE_WIDGET_NAMES
+																,xParams.widgetName
+#endif
+																);
 #else
 			inx_gui_patch_state->pUiWidgetClass = EhsWidgetPatch_init(&xParams.xRect, xParams.nZorder,xParams.uClass.xPatch);
 #endif
@@ -162,7 +175,7 @@ EHS_FB_RUN_FUNCTION(gui_patch_create)
 		if(!pWidget){
 			return;
 		}
-#ifdef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_B) 
 		/* set up on click callback */
 		EHS_WIDGET_UI(pWidget).event_callback = gui_patch_event_callback;
 		/* setup widget data */
@@ -185,7 +198,7 @@ EHS_FB_RUN_FUNCTION(gui_patch_create)
 		}
 
 		EhsWidget_create(pWidget);
-#ifndef EHS_GUI_SUPPORT_MODE_B
+#if defined(EHS_GUI_SUPPORT_MODE_A) 
 		/*Set number of mouseClick port*/
 		pWidget->mouseClickPortNumber = INX_gui_patch_ARG_create_click;
 		pWidget->mouseDownPortNumber = INX_gui_patch_ARG_create_mouse_down;

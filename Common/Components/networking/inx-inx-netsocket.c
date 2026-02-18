@@ -424,7 +424,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
 
     if (inx_netSocket_state->connection_socket == EHS_TGT_TCP_INVALID_SOCKET)
     {
-        EHSH_LOG_ERROR("interface address didn't connect, closing the port\n");
+        EHSH_LOG_ERROR("interface address didn't connect, closing the port");
         sckt_err = -1; //Could not open socket.
         goto connect_error;
     }
@@ -584,7 +584,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
             break; /* Abandon ship */
         }
     }// end of open loop
-    EHSH_LOG_INFO("All done: closing flag=%d Closing connection\n",inx_netSocket_state->closeConnectionNow);
+    EHSH_LOG_INFO("All done: closing flag=%d Closing connection",inx_netSocket_state->closeConnectionNow);
     goto good;
 
 connect_error:

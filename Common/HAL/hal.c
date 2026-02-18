@@ -1,10 +1,10 @@
 /***************************************************************
-* Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
-* You may use, distribute and modify this code under the terms
-* of the LGPLv3 license. You should have received a copy of the
-* LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
-* not, please visit
-*	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+ * Copyright (C) 2008-2025 inx limited, UK - All Rights Reserved.
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license
+ * with this file. If not, please visit:
+ *  <https://www.gnu.org/licenses/lgpl-3.0.txt>
 ****************************************************************/
 
 /** @file hal.c
@@ -72,49 +72,6 @@
 #define EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE EHS_THREAD_USE_DEFAULT_STACK_SIZE
 #endif
 
-/* Use this to set the log level of each component */
-/* todo we should have  this overridden for different tarets? */
-#ifdef EHS_LOG_LEVEL_VERBOSE
-    // Verbose mode...
-    void EhsHSetLogLevels()
-    {
-        EhsHLogger_setLogLevel("Undefined", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("Kernel", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("Graphics",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("Logger",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("HalMemory",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("HalProcess", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("HalString", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("TgtViewport", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO);
-        EhsHLogger_setLogLevel("Devman", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("file", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-    }
-#else
-    // Not verbose mode...
-    void EhsHSetLogLevels()
-    {
-        EhsHLogger_setLogLevel("Undefined", EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-        EhsHLogger_setLogLevel("Kernel", EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("Graphics",  EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("Logger",  EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("HalMemory",  EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("HalProcess", EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-        EhsHLogger_setLogLevel("HalString", EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("TgtViewport", EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO);
-        EhsHLogger_setLogLevel("Devman", EHSH_LOG_LEVEL_ERROR); /*  set the log level if logging enabled in build */
-        EhsHLogger_setLogLevel("file", EHSH_LOG_LEVEL_ERROR);//|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO);
-    }
-#endif
-
-/* Log Levels
-EHSH_LOG_LEVEL_ERROR	= 0x01,
-EHSH_LOG_LEVEL_WARNING	= 0x02,
-EHSH_LOG_LEVEL_INFO		= 0x04,
-EHSH_LOG_LEVEL_ENTER	= 0x08,
-EHSH_LOG_LEVEL_EXIT		= 0x10
-*/
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -131,7 +88,7 @@ EHSH_LOG_LEVEL_EXIT		= 0x10
 /* Variables Required from other components */
 extern EhsApplicationMetaDataType EhsApplicationMetaData;
 
-void (*EhsAppLoadedCallback)(ehs_uint32) = NULL; 
+void (*EhsAppLoadedCallback)(ehs_uint32) = NULL;
 
 /*****************************************************************************/
 /* Variables defined with global-scope */
@@ -156,13 +113,13 @@ EhsMetaDataType EhsMetaData=
     0, // was 2 for some reason
     EHS_FALSE,
     EHS_FALSE,
-    NULL,// Notes these need to be set 
+    NULL,// Notes these need to be set
     NULL,
     EHS_FALSE,
     0LL,
     0,
     EHS_FALSE
-}; 
+};
 #else
 EhsMetaDataType EhsMetaData=
 {
@@ -172,7 +129,7 @@ EhsMetaDataType EhsMetaData=
     .PairedOrganisationIDRequested=0, // was 2 for some reason
     .NewDevmanMiscDLData=EHS_FALSE,
     .NewDevmanMiscULData=EHS_FALSE,
-    .condDevmanNewMiscDLData = NULL,// Notes these need to be set 
+    .condDevmanNewMiscDLData = NULL,// Notes these need to be set
     .mutexDevmanNewMiscDLData = NULL,
     .devmanPingFail = EHS_FALSE,
     .devmanLastGoodPing = 0LL,
@@ -384,9 +341,9 @@ void EhsHStoreArgInfo(ehs_uint32 argc,ehs_char ** argv,ehs_char * start_dir)
 #ifndef INX_SODL_IN_FLASH
     //EHSH_LOG_INFO("argv0=%s",EhsMetaData.zArgv0);
     //EHSH_LOG_INFO("startdir=%s",start_dir);
-    EHSH_LOG_INFO("argv0=%s\n", EhsMetaData.zArgv0);
-    EHSH_LOG_INFO("startdir=%s\n", start_dir);
-    EHSH_LOG_INFO("Final install dir=%s\n", EhsMetaData.zInstallRootDirectory);
+    EHSH_LOG_INFO("argv0=%s", EhsMetaData.zArgv0);
+    EHSH_LOG_INFO("startdir=%s", start_dir);
+    EHSH_LOG_INFO("Final install dir=%s", EhsMetaData.zInstallRootDirectory);
 #endif
 #endif
 #endif // EHS_TARGET_NO_MAIN_ARGS
@@ -405,7 +362,7 @@ void EhsHInitEhsMetaData() {
 
 /* Version and system status information */
 void EhsHMetaUpdateStatic()
-{   
+{
     EhsTOsSys_UpdateEnvironment(&EhsMetaData,EHS_OS_ENV_STATIC_ID);
     EhsMetaData.bStaticUpdate=EHS_TRUE;
 }
@@ -434,16 +391,16 @@ const ehs_char* EhsHMetaGetUserPath()
 {
 #ifndef INX_SODL_IN_FLASH
     return EhsMetaData.zUserDirectory;
-#else 
+#else
     return NULL;
-#endif 
+#endif
 }
 const ehs_char* EhsHMetaGetAppsPath()
 {
 #ifndef INX_SODL_IN_FLASH
     if ( EhsMetaData.zAppsDirectory[0] != '\0' )
         return EhsMetaData.zAppsDirectory;
-    else 
+    else
         return NULL;
 #else
     return NULL;
@@ -682,7 +639,7 @@ const ehs_uint32 EhsHMetaGetThreadLoopTimeAvg(ehs_threadname_t threadname)
 
 /**
  * @brief Update the thread loop time to the min, max and avg
- * 
+ *
  * @param threadname The enumeration of the related thread
  * @param time The loop time to be updated
  * @return none
@@ -840,9 +797,9 @@ void EhsHMetaSetDevmanMiscDLDataType(const ehs_char* zMiscInfo)
 #endif //EHS_DEVMAN_SUPPORT
 }
 
-/* Set some miscellaneous devman JSON monitor data into two buffers?? 
-  and then signal the semaphore there's some data 
-*/ 
+/* Set some miscellaneous devman JSON monitor data into two buffers??
+  and then signal the semaphore there's some data
+*/
 
 extern void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
 {
@@ -850,7 +807,7 @@ extern void EhsHMetaSetDevmanMiscDLData(const ehs_char* zMiscInfo)
     EhsTPMutex_lock(EhsTPMutex_devmanMiscBuffers);
     EhsStrcpy(EhsMetaData.zDevmanMiscDLData, zMiscInfo); // * todo - this needs to merge JSON - Ideally not using  JSON library for portability
     EhsStrcpy(EhsMetaData.zDevmanNewMiscDLData, zMiscInfo);
-    if ( EhsMetaData.mutexDevmanNewMiscDLData != NULL  
+    if ( EhsMetaData.mutexDevmanNewMiscDLData != NULL
          && EhsMetaData.condDevmanNewMiscDLData != NULL ) { /*( Only signal if the signals have been set up */
         EhsTPMutex_lock(EhsMetaData.mutexDevmanNewMiscDLData);
         EhsTPCondition_broadcast(EhsMetaData.condDevmanNewMiscDLData);
@@ -1170,7 +1127,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
                 bExited = EHS_TRUE;
                 EhsHSys_term();
             }
-            EHSH_LOG_WARNING("Terminated System - exiting with exit code %d\n",exitCode);
+            EHSH_LOG_WARNING("Terminated System - exiting with exit code %d",exitCode);
 
             EhsTargetExit(exitCode);
             //*todo we should add a flag that the OS uses not to respawn EHS when it runs persistently.
@@ -1187,7 +1144,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
         ehs_bool EhsHSysReboot()
         {
             //@todo
-            EHSH_LOG_ERROR("EhsHSysReboot() - Not Implemented\n");
+            EHSH_LOG_ERROR("EhsHSysReboot() - Not Implemented");
             // Use Exec here so that a bash environment is not started. (this should run the reboot script in /bin.
             return EHS_TRUE;
         }
@@ -1223,21 +1180,21 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
 
             /* Shutdown the application & component threads*/
             EhsHApp_term();
-            EHSH_LOG_INFO("Terminated Application\n");
+            EHSH_LOG_INFO("Terminated Application");
             /* Shutdown the system */
             EhsTOsSys_term();
-            EHSH_LOG_INFO("Terminated Application\n");
+            EHSH_LOG_INFO("Terminated Application");
 #ifdef EHS_COMMS_API_SUPPORT
             EhsTCommsSys_term();
 #endif //EHS_COMMS_API_SUPPORT
 #ifdef EHS_GUI_SUPPORT
             EhsTGfxSys_term();
-            EHSH_LOG_INFO("Terminated Graphics Subsystem\n");
+            EHSH_LOG_INFO("Terminated Graphics Subsystem");
 #endif
 #ifdef EHS_AV_SUPPORT
 #ifdef EHS_VIDEO_SUPPORT
             EhsTVideoSys_term();
-            EHSH_LOG_INFO("Terminated A/V Subsystem\n");
+            EHSH_LOG_INFO("Terminated A/V Subsystem");
 #endif
 #endif
         }
@@ -1245,7 +1202,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
         void EhsHSys_init()
         {
             EhsHMem_init(); /* this function has no pre-requisites: it should be called first */
-            
+
             /* Create basic file syste if the installer hasn't */
             EhsFInitFileSystem();
 
@@ -1258,7 +1215,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
 #endif
 
             EhsTOsSys_init(); /* initialise the Operating System */
-            
+
 #ifdef EHS_DEBUG_TCPIP_CONSOLE
             //printf("Starting TCPIP CONSOLE thread\n");
             EhsHThread_execute(EhsSvcTcp_server, NULL, EHS_PRI_TCP_IP_CONSOLE, EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE);//-90); //////// CHANGES ONLYA
@@ -1321,7 +1278,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             EhsTGfxApp_init();
 #ifndef EHS_DONT_USE_BASIC_FONTS
             EhsGraphicsFontTable_init();
-#endif    
+#endif
             EhsWidgetViewport_default_config();//Clear the old viewport parameters in case the new one has no widget for it
 #endif
 #ifdef EHS_AV_SUPPORT

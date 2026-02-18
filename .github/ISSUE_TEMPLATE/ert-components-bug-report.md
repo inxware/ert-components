@@ -31,7 +31,7 @@ A clear, concise summary of the problem.
 
 ```sh
 # Example
-git clone https://github.com/inxware/ert-components.git
+git clone --depth 1 https://github.com/inxware/ert-components.git
 cd ert-components
 make prepdeps
 make <target> V=1

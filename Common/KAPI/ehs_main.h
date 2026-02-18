@@ -39,7 +39,17 @@ EHS_GLOBAL void EhsMain( Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*)
  */
 EHS_GLOBAL Ehs_ConsoleCommand_Type EhsMainLoop( Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),void * target_env_blob );
 
+/**
+ * @brief Perform a single iteration of the EHS main loop for use with callback-driven
+ *        event loops (e.g. Qt timer).
+ *
+ * Unlike EhsMainLoop(), this handles single-step mode and kernel state transitions
+ * internally. Returns any unhandled console commands.
+ */
+EHS_GLOBAL Ehs_ConsoleCommand_Type EhsMainLoopSingle( Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*), void * target_env_blob );
+
 Ehs_ConsoleCommand_Type EhsCheckInternalCommands(Ehs_ConsoleCommand_Type Command);
+
 ehs_bool SetupApplication();
 
 EHS_GLOBAL void EhsAppLoadingStateMachine( Ehs_ConsoleCommand_Type (*target_loop_iteration)(void*),void * target_env_blob );

@@ -39,6 +39,9 @@ typedef struct
     ehs_uint32 nZorder; /**< Z-order. Lower values go behind higher ones  */
     EhsWidgetClassType eClass; /**< Indicates what kind of widget are we dealing */
     ehs_sint16 nTextBoxType;
+#if defined(EHS_STORE_WIDGET_NAMES)
+    ehs_char widgetName[EHS_OBJECT_NAME_MAX_SIZE];
+#endif
     union
     {
         struct

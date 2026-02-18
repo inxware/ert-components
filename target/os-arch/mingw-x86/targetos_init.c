@@ -145,7 +145,7 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData,ehs_uint8 wh
     //EhsStrcpy(pEhsMetaData->zDeviceID,"none"); //@todo here
     pEhsMetaData->CPUTemp = EhsTGetCpuTemp();
     EhsTOS_GetMACandIPaddr(pEhsMetaData->zDeviceID,pEhsMetaData->zDeviceIPAddr);
-    //EHSH_LOG_INFO("\nDEVICE_ID=%s\n",pEhsMetaData->zDeviceID); // @todo note this can get any network ID, not a specific one
+    //EHSH_LOG_INFO("\nDEVICE_ID=%s",pEhsMetaData->zDeviceID); // @todo note this can get any network ID, not a specific one
 }
 
 /**
