@@ -1393,12 +1393,8 @@ qml6-module-qtquick
 qml6-module-qtquick-timeline
 qml6-module-qtquick-templates
 qml6-module-qtquick-window
-qml6-module-qtquick3d   
-qml6-module-qtquick3d-helpers  ??? Doesn't exist
-qml6-module-qtquick3d-effects  ??? 
-qml6-module-qtquick3d-particleeffects ???   
-qml6-module-qtquick3d-particles3d ??
-qml-module-qtquick3d-particles3d
+qml6-module-quick3d
+qml6-module-quick3d-particleeffects
 qml6-module-quick3d-particles3d
 qml6-module-quick3d-helpers 
 qml6-module-quick3d-logichelper ???
