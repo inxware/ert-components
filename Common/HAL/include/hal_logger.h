@@ -288,4 +288,6 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel,
  */
 ehs_bool EhsHLogger_setLogLevel(const ehs_char* szModule, EhsHLoggerLogLevel nLevels);
 
+void EhsHSetLogLevels();
+
 #endif /* EHS_HAL_LOGGER_H */
