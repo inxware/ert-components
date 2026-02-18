@@ -15,7 +15,7 @@
 
 # Add Demo features like OpenCV and EdgeML support to arm64 debian 11 build
 
-include ./target/platform/linux_arm64_lvgl_gg_debian11/config.mk
+include ./target/platform/linux_arm64_debian13_base/config.mk
 
 #################################################################################################################
 # Set general architecture and OS version 
