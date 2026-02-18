@@ -86,8 +86,8 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 	LIB += cairo
 
 	ifdef EHS_GUI_SUPPORT_QT6
+# Qt6 libraries
 		DEFS += EHS_GUI_SUPPORT_QT6
-		# Qt6 libraries
 		LIB += Qt6Core
 		LIB += Qt6Gui
 		LIB += Qt6Qml
@@ -111,7 +111,7 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 			QT_INCLUDE_BASE = /usr/include/qt6
 		endif
 	else 
-		# Qt5 libraries
+# Qt5 libraries
 		LIB += Qt5Core
 		LIB += Qt5Gui
 		LIB += Qt5Qml
@@ -135,12 +135,15 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 			QT_INCLUDE_BASE = /usr/include/qt5
 		endif
 	endif
-	
-	INC_DIRS += $(QT_INCLUDE_BASE)
-	INC_DIRS += $(QT_INCLUDE_BASE)/QtCore
-	INC_DIRS += $(QT_INCLUDE_BASE)/QtGui
-	INC_DIRS += $(QT_INCLUDE_BASE)/QtQml
-	INC_DIRS += $(QT_INCLUDE_BASE)/QtQuick
+
+	# Qt headers require C++17 so must only be on the C++ include path
+	CXX_INC_DIRS += $(QT_INCLUDE_BASE)
+#	CXX_INC_DIRS += $(QT_INCLUDE_BASE)/QtCore
+	CXX_INC_DIRS += $(QT_INCLUDE_BASE)/QtGui
+#	CXX_INC_DIRS += $(QT_INCLUDE_BASE)/QtQml
+	CXX_INC_DIRS += $(QT_INCLUDE_BASE)/QtQuick
+# todo this may eed to go into the toolchain.mk?
+	CPPFLAGS += -std=c++17
 else
 
 	# For Debian host builds

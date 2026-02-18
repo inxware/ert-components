@@ -27,7 +27,6 @@ EHS_GNU_OS_VERSION=-clang11_debian11
 # Configure some library version choices and Debian packager specifics
 EHS_DEBIAN_VERSION=12
 DEFS += EHS_DEBIAN_VERSION=12
-EHS_PACKAGER_TYPE=deb
 
 # Use host toolchain + Qt headers and static objects from Docker
 TOOLCHAIN_NAME=HOST
@@ -56,7 +55,7 @@ EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
 COMPONENT_VARIANT=base
 
 # Application Selection
-EHS_DEFAULT_APP=tutorials/hello_world_qt
+#EHS_DEFAULT_APP=tutorials/hello_world
 EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
 # Enable eRT1 support (binary format SODL files)
 ERT_SODL_VERSION=1
@@ -107,6 +106,30 @@ EHS_MEDIA_SUPPORT=all
 # Enable machine vision support for testing C++ integration, or disable with `stubbed`.
 #
 EHS_MV_SUPPORT=stubbed
+
+# Packaging
+
+EHS_PACKAGER_TYPE=deb
+
+DEBIAN_PACKAGE_PLATFORM_EXTRA= \
+qml6-module-qtquick \
+qml6-module-qtquick-timeline \
+qt6-base-dev qt6-declarative-dev \
+qml6-module-qtquick \
+qml6-module-qtquick-timeline \
+qml6-module-qtquick-templates \
+qml6-module-qtquick-window \
+qml6-module-qtquick3d \
+qml-module-qtquick3d-particles3d \
+qml6-module-quick3d-particles3d \
+qml6-module-quick3d-helpers \
+qml6-module-quick3d-effects \
+qml6-module-qtquick-window \
+qml6-module-qtquick-controls \
+qml6-module-qtquick-controls \
+qml6-module-qtquick-layouts \
+qml6-module-qtquick-templates \
+qml6-module-qtqml-workerscript
 
 ## Hacking 
 DEFS += EHS_LOG_LEVEL_VERBOSE

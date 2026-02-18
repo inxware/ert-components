@@ -1403,21 +1403,27 @@ qml6-module-quick3d-particles3d
 qml6-module-quick3d-helpers 
 qml6-module-quick3d-logichelper ???
 qml6-module-quick3d-effects 
+qml6-module-qtqml-workerscript
 ```
 **QT5 Dependencies**
 Note: we probably don't ever want to support QT5 further, but here's for the basics that work:
 ```bash
 # Core Qt5 libraries
-sudo apt install libqt5core5a libqt5gui5 libqt5qml5 libqt5quick5 \
-    libqt5quickcontrols2-5 libqt5quicktemplates2-5
+libqt5core5a 
+libqt5gui5
+libqt5qml5
+libqt5quick5 
+libqt5quickcontrols2-5
+libqt5quicktemplates2-5
 
 # QML modules (required for QML imports to work)
-sudo apt install qml-module-qtquick2 qml-module-qtquick-window2 \
-    qml-module-qtquick-controls qml-module-qtquick-controls2 \
-    qml-module-qtquick-layouts qml-module-qtquick-templates2
+qml-module-qtquick2
+qml-module-qtquick-window2 
+qml-module-qtquick-controls 
+qml-module-qtquick-controls2 
+qml-module-qtquick-layouts 
+qml-module-qtquick-templates2
 ```
-
-**Note:** The `qml-module-qtquick-controls2` package is essential — without it you get: "Cannot protect module QtQuick.Controls 2 as it was never registered"
 
 #### QML Application Structure
 

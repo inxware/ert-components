@@ -136,7 +136,10 @@ ifndef EHS_ESP32
    CFLAGS+=-std=gnu99
 endif
 
-CPPFLAGS+= -c $(INC)
+# CXX_INC_DIRS holds C++-only include paths (e.g. Qt headers that require C++17)
+CXX_INC=$(foreach i,$(CXX_INC_DIRS),-I$i)
+# CPPFLAGS+= -c $(INC) $(CXX_INC)
+CPPFLAGS+= -c $(CXX_INC)
 
 #setup linker paths
 LIB_DIRS+=$(EHS_ROOT_PATH)

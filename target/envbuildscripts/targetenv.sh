@@ -182,14 +182,44 @@ fi #if [ "${EHS_DEFAULT_APP}" = "NONE" ];
 EHS_APP_EXPORT_DIR=export-ert${ERT_SODL_VERSION}
 
 if [ "${EHS_DEFAULT_APP}" = "" ]; then
-    echo "Installing the desktop HOME app (../apps/systemapps/Home/) "
-    cp -Rf ../apps/systemapps/Home/${EHS_APP_EXPORT_DIR}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit 1
+    APP_SRC="../apps/systemapps/Home/${EHS_APP_EXPORT_DIR}"
+    echo "Installing the desktop HOME app (${APP_SRC})"
+    if [ ! -d "${APP_SRC}" ]; then
+        echo
+        err "================================================================"
+        err "  Application not found: ${APP_SRC}"
+        err ""
+        err "  The ../apps/ repository may not be checked out, or the app"
+        err "  has not been exported for eRT${ERT_SODL_VERSION}."
+        err ""
+        err "  Try:  git clone <apps-repo-url> ../apps"
+        err "  Or:   make prepdeps"
+        err "================================================================"
+        exit 1
+    fi
+    cp -Rf ${APP_SRC}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit 1
 else
     if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then
         warn "Not installing a default app (EHS_DEFAULT_APP = "NONE")!"
     else
-        echo "Installing platform configured [../apps/${EHS_DEFAULT_APP}]"
-        cp -Rf ../apps/${EHS_DEFAULT_APP}/${EHS_APP_EXPORT_DIR}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit 1
+        APP_SRC="../apps/${EHS_DEFAULT_APP}/${EHS_APP_EXPORT_DIR}"
+        echo "Installing platform configured [${APP_SRC}]"
+        if [ ! -d "${APP_SRC}" ]; then
+            echo
+            err "================================================================"
+            err "  Application not found: ${APP_SRC}"
+            err ""
+            err "  EHS_DEFAULT_APP is set to '${EHS_DEFAULT_APP}'"
+            err "  but the export directory does not exist."
+            err ""
+            err "  Check that:"
+            err "    1. ../apps/ repository is checked out"
+            err "    2. The app '${EHS_DEFAULT_APP}' exists"
+            err "    3. It has been exported to ${EHS_APP_EXPORT_DIR}/"
+            err "================================================================"
+            exit 1
+        fi
+        cp -Rf ${APP_SRC}/* ../TARGET_TREES/ehs_env-$TARGET/appdata/default/ || exit 1
         echo "Default app copied OK"
     fi
 fi

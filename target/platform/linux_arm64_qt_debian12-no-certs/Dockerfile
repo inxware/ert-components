@@ -41,11 +41,19 @@ RUN apt-get install -y \
     libgstreamer-plugins-base1.0-dev:arm64
 
 # Qt 5 dependencies
-RUN apt-get install -y \
-    qtbase5-dev:arm64 \
-    qtdeclarative5-dev:arm64 \
-    qtbase5-dev-tools \
-    qtdeclarative5-dev-tools
+#Removing these now as supporting both can be confusing to builds
+#RUN apt-get install -y \
+#    qtbase5-dev:arm64 \
+#    qtdeclarative5-dev:arm64 \
+#    qtbase5-dev-tools \
+#    qtdeclarative5-dev-tools
+#QT 6 Dependencies
+RUN apt install -y \
+     qt6-base-dev:arm64 \
+     qt6-base-dev-tools \
+     qt6-declarative-dev:arm64 \
+     qt6-declarative-dev-tools 
+#     libqt6quickwidgets6 \
 
 # We want to sudo to experiment with a few things:
 #RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
