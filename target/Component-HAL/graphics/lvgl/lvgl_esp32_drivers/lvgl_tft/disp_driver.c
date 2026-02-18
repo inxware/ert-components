@@ -41,6 +41,8 @@ void *disp_driver_init(void)
    GC9A01_init();
 #elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_JD79653A
    jd79653a_init();
+#elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_ST7701
+     st7701_init();
 #elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_UC8151D
    uc8151d_init();
 #elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9163C
@@ -107,6 +109,8 @@ void disp_driver_flush(lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t *
     GC9A01_flush(drv, area, color_map);
 #elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_JD79653A
     jd79653a_lv_fb_flush(drv, area, color_map);
+#elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_ST7701
+    st7701_flush(drv, area, color_map);
 #elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_UC8151D
     uc8151d_lv_fb_flush(drv, area, color_map);
 #elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9163C

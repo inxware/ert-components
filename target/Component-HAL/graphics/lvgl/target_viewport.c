@@ -576,7 +576,7 @@ static void EhsTV_LVGL_handle_ui_calls(lv_timer_t* timer)
 
 //todo2022 this loop should be merged into the MCU_SLOW_THR thread
 
-void EhsTV_LVGL_tick_thread(void)
+EhsThreadFuncReturnType EhsTV_LVGL_tick_thread(void *p)
 {
     //(void) data;
     while (1)
@@ -586,9 +586,10 @@ void EhsTV_LVGL_tick_thread(void)
         EhsSleep(EHS_TIME_ms(1));
     }
     gEhsTVtickExit = EHS_TRUE;
+    return 0;
 }
 
-void EhsTV_LVGL_gui_thread(void)
+EhsThreadFuncReturnType EhsTV_LVGL_gui_thread(void *p)
 {
     // initalise lvgl library
     if(gEhsLvglState == EHS_LVGL_STATE_INIT)
@@ -604,7 +605,7 @@ void EhsTV_LVGL_gui_thread(void)
         // starting thread without initalisation
         // @TODO - report error
         gEhsLvglState = EHS_LVGL_STATE_IDLE;
-        return;
+        return -1;
     }
     /* A callback function is called every 30ms - presumably this does rendering or just a clock? */
     lv_timer_create((lv_timer_cb_t)EhsTV_LVGL_handle_ui_calls, 30, NULL);
@@ -620,6 +621,7 @@ void EhsTV_LVGL_gui_thread(void)
         EhsSleep(EHS_TIME_ms(10));
     }
     gEhsTVhandleExit = EHS_TRUE;
+    return 0;
 }
 
 void on_pointer_feedback_cb(struct _lv_indev_drv_t * drv, uint8_t event_id)
@@ -1582,7 +1584,7 @@ lv_obj_t* EhsTargetWidgetUi_create_gauge(struct EhsWidgetStruct* pWidget)
 
 static int EhsTargetWidgetUi_roller_numeric_option_index(const char* options, float value, ehs_uint16 numOfDec){
     if(options == NULL || *options == '\0'){
-        return NULL;
+        return -1;
     }
     const char* input = options;
     int i = 0;

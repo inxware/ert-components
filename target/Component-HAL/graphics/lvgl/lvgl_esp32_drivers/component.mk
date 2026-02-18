@@ -30,6 +30,8 @@ $(call compile_only_if,$(CONFIG_LV_TFT_DISPLAY_CONTROLLER_UC8151D),lvgl_tft/uc81
 $(call compile_only_if,$(CONFIG_LV_TFT_DISPLAY_CONTROLLER_RA8875),lvgl_tft/ra8875.o)
 $(call compile_only_if,$(CONFIG_LV_TFT_DISPLAY_CONTROLLER_GC9A01),lvgl_tft/GC9A01.o)
 
+$(call compile_only_if,$(CONFIG_LV_TFT_DISPLAY_CONTROLLER_ST7701),lvgl_tft/st7701.o)
+
 $(call compile_only_if,$(CONFIG_LV_TFT_DISPLAY_PROTOCOL_SPI),lvgl_tft/disp_spi.o)
 
 # Touch controller drivers
@@ -44,6 +46,7 @@ $(call compile_only_if,$(and $(CONFIG_LV_TOUCH_CONTROLLER),$(CONFIG_LV_TOUCH_CON
 $(call compile_only_if,$(and $(CONFIG_LV_TOUCH_CONTROLLER),$(CONFIG_LV_TOUCH_CONTROLLER_FT81X)), lvgl_touch/FT81x.o)
 $(call compile_only_if,$(and $(CONFIG_LV_TOUCH_CONTROLLER),$(CONFIG_LV_TOUCH_CONTROLLER_RA8875)), lvgl_touch/ra8875_touch.o)
 $(call compile_only_if,$(and $(CONFIG_LV_TOUCH_CONTROLLER),$(CONFIG_LV_TOUCH_CONTROLLER_CST816T)), lvgl_touch/cst816t.o)
+$(call compile_only_if,$(and $(CONFIG_LV_TOUCH_CONTROLLER),$(CONFIG_LV_TOUCH_CONTROLLER_GT911)), lvgl_touch/gt911.o)
 
 $(call compile_only_if,$(and $(CONFIG_LV_TOUCH_CONTROLLER),$(CONFIG_LV_TOUCH_DRIVER_PROTOCOL_SPI)), lvgl_touch/tp_spi.o)
 

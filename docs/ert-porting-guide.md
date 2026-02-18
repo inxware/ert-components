@@ -1914,6 +1914,156 @@ eRT can leverage Platform.IO for Raspberry Pi Pico development:
 - See [Raspberry Pi Pico Platform.IO documentation](https://docs.platformio.org/en/latest/boards/raspberrypi/pico.html#uploading)
 - Supports multiple upload methods including raspberrypi-swd
 
+### Arduino Uno Q (Dual-Core Hybrid Platform)
+
+The Arduino Uno Q combines a high-performance Linux-capable microprocessor (MPU) with a real-time microcontroller (MCU) in a single board, maintaining Arduino UNO form factor for shield compatibility.
+
+#### Platform Architecture Overview
+
+**Microprocessor (MPU) - Qualcomm QRB2210:**
+- Quad-core ARM Cortex-A53 @ 2.0 GHz
+- Adreno 702 GPU (845 MHz)
+- 2x ISP supporting up to 25 MP @ 30 fps
+- Debian Linux OS (upstream support)
+- 2/4 GB LPDDR4 RAM options
+- 16/32 GB eMMC storage
+
+**Microcontroller (MCU) - STM32U585:**
+- ARM Cortex-M33 @ 160 MHz
+- 2 MB Flash, 786 KB SRAM
+- Zephyr RTOS support
+- Real-time control capabilities
+
+**Connectivity:**
+- WCBN3536A module: Wi-Fi 5 (2.4/5 GHz) + Bluetooth 5.1
+- USB-C 3.1 Gen 1 with DisplayPort Alt-Mode
+- Classic UNO R3 header compatibility
+- MIPI-DSI/CSI connectors for cameras/displays
+- Qwiic connector for modular expansion
+
+#### Software Support Stack
+
+**Development Platforms:**
+- **Arduino App Lab:** Unified IDE for hybrid development (Python + sketches)
+- **Arduino IDE 2.0+:** MCU-only development via standard Arduino API
+- **Arduino CLI:** Command-line interface for headless development
+- **Zephyr Native:** Direct Zephyr development for MCU without Arduino layer
+
+**Operating Systems:**
+- **MPU:** Debian Linux with POSIX environment, full package management (apt)
+- **MCU:** Zephyr RTOS for deterministic real-time control
+
+**Inter-Processor Communication:**
+- **Bridge (RPC):** Provides Provider/Call/Notify communication pattern between MPU and MCU
+- Serial connection: `/dev/ttyHS1` (Linux) ↔ `Serial1` (Zephyr)
+- Suitable for non-critical inter-processor messaging (RPC latency present)
+
+#### Power Architecture
+
+| Rail | Voltage | Source | Use |
+|------|---------|--------|-----|
+| 5V_SYS | 5.0 V | USB-C or DC input (7-24V) | Primary distribution |
+| PWR_3P3V | 3.3 V | 5V_SYS step-down | MCU, GPIO (JDIGITAL/JANALOG) |
+| VREG_L15A_1P8V | 1.8 V | PMIC | Processor I/O (JMEDIA/JMISC) |
+
+**Power Inputs:**
+- USB-C: 5V @ 3A with Power Delivery negotiation
+- DC (VIN): 7-24V, step-down to 5V
+- Operating range: -10°C to +60°C ambient
+
+**Critical Note:** I/O banks are voltage-separated (3.3V on maker headers, 1.8V on processor banks). Do not drive 1.8V signals with 3.3V logic.
+
+#### Development Workflows
+
+**Arduino App Lab (Recommended for eRT Integration):**
+Enables rapid hybrid application development with automatic Bridge orchestration between MPU (Python) and MCU (sketches). Includes pre-built AI bricks and containerized application support.
+
+**Raw Zephyr Development:**
+For developers preferring native Zephyr without Arduino abstraction:
+```
+# Build sample
+west build -b arduino_uno_q zephyr/samples/basic/blinky
+# Flash via openocd or Arduino Flasher CLI
+```
+Suitable for production firmware and real-time systems requiring maximum control.
+
+**Direct STM32 HAL Development:**
+Bypass Zephyr entirely using STM32CubeU5 and ARM GCC toolchain for lowest-level hardware access. Requires manual peripheral configuration via STM32CubeMX.
+
+#### Hardware Features Relevant to eRT Porting
+
+**GPIO and Interfaces:**
+- 47 GPIO pins controlled by MCU (22 via UNO headers, 25 via JMISC)
+- SPI, I2C, CAN-FD, UART available
+- 6x 14-bit ADC channels, 2x DAC channels
+- 11x PWM capable timers
+- Hardware cryptographic accelerators (AES, HASH)
+
+**Debug Access:**
+- Hardware Debug UART @ 1.8V (115200 baud) via JCTL connector (requires 1.8V USB-to-TTL converter)
+- Provides boot logs before Linux services start
+- Separate from application serial interfaces
+
+**Display and Multimedia:**
+- (MPU) `JMEDIA` high-speed connectors for displays and cameras
+- (MPU) DisplayPort Alt-Mode via USB-C dongle
+- (MCU) 8x13 LED Matrix + 2x RGB LEDs for visual feedback
+
+**USB Console Access:**
+- USB to host connection via `adb`
+  - Linux machine needs to update udev rules to get access to the device
+- SSH remote connection if the device and host are connected to the same network
+
+#### Single-Board Computer (SBC) Capability
+
+Board can run standalone with USB-C dongle, HDMI display, keyboard, and mouse. Pre-installed Debian includes Chromium, file manager, terminal, and text editor. Arduino App Lab runs automatically on boot. Primarily useful for application testing; 4 GB RAM variant recommended for multitasking.
+
+#### (WIP) eRT Build Configuration Example
+
+```makefile
+# ./target/platform/arduino_uno_q/config.mk
+EHS_ARCH=arm64
+EHS_OS=linux_debian
+EHS_GUI_SUPPORT=lvgl
+EHS_NETWORKING_SUPPORT=all
+EHS_MQTT_SUPPORT=esp_mqtt
+```
+
+Standard make workflow applies: `./configure arduino_uno_q && make all_docker && make targetenv`
+
+#### Known Limitations and Special Considerations
+
+1. **Bridge Latency:** RPC calls between MPU and MCU not suitable for time-critical shared control
+2. **I/O Voltage Separation:** Processor banks (1.8V) isolated from maker GPIO (3.3V); level shifters present but limits flexibility
+3. **Sketch Loader Overwrite:** Raw Zephyr firmware replaces factory application; restores via `arduino-cli burn-bootloader`
+4. **Emergency Download Mode (EDL):** Requires Linux udev rules configuration for flashing (USB VID 05c6:9008)
+5. **Memory Constraints:** 2 GB suitable for single applications; 4 GB recommended for concurrent MPU/MCU load
+
+#### OS-Specific Notes
+
+**Linux Side (MPU):**
+- Full Debian environment enables complex applications (AI inference, video processing, web services)
+- SSH/ADB access for remote development
+- Standard cross-compilation toolchain support
+- Following packages need to be installed:
+  - libsdl2-2.0-0
+  - libcamera0.4
+  - libopencv-core410
+  - libopencv-contrib410
+
+**Zephyr Side (MCU):**
+- Deterministic real-time scheduling separate from Linux
+- (WIP) Upstream Zephyr support for Arduino Uno Q included in main repository
+- (WIP) Compatible with eRT's event-driven architecture
+
+#### References
+
+- [Zephyr Project - Arduino Uno Q Support](https://docs.zephyrproject.org/latest/boards/arduino/uno_q/doc/index.html)
+- [Arduino Uno Q Documentation](https://docs.arduino.cc/hardware/uno-q)
+- [STM32U585 Datasheet](https://www.st.com/resource/en/datasheet/stm32u585ai.pdf)
+- [Qualcomm Dragonwing QRB2210](https://www.qualcomm.com/products/internet-of-things/robotics-processors/qrb2210)
+
+
 ### MCU SDKs
 
 Support for various MCU platforms including NXP Kinetis and STM32.
