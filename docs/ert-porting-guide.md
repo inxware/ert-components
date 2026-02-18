@@ -564,7 +564,7 @@ The following paramters determin what component and HAL technologies are used.
 | EHS_COMPONENTS_NETWORK_DEVMAN_PLAYER | none | Device management player components |
 | EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT | none | Network configuration components |
 | EHS_TOOLKIT_DEPRECATED | yes, no | Enable deprecated toolkit components |
-| EHS_DEBIAN_VERSION | 8, 9, 10, 11 | Target Debian version |
+| EHS_DEBIAN_VERSION | 8, 9, 10, 11, 13 | Target Debian version |
 | EHS_HOST_DEBIAN_BUILD | x86, arm64 | Host Debian build architecture |
 | EHS_ANDROID | yes, no | Android platform flag |
 | EHS_ANDROID_INSTALL_VERSION | 9.0 | Android installation version |

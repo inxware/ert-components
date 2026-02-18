@@ -52,3 +52,5 @@ include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/target.mk
 #DEFS += EHS_TARGETOS_INIT_SPECIFIC_REQUIRED
 #OBJECTS += targetos_init_specific.$(OBJ)
 OBJECTS += spi.$(OBJ)
+
+LIB+=zstd
