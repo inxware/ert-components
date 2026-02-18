@@ -149,7 +149,7 @@ static int reformat_number(void * ctx, const char * s, size_t l)
     return 0;
 }
 
-static int reformat_string(void * ctx, const char * stringVal,
+static int reformat_string(void * ctx, const unsigned char * stringVal,
                            size_t stringLen)
 {
     inx_json_stream_parser_state_type* state = (inx_json_stream_parser_state_type*)ctx;
@@ -168,7 +168,7 @@ static int reformat_string(void * ctx, const char * stringVal,
     return 0;
 }
 
-static int reformat_map_key(void * ctx, const char * stringVal,
+static int reformat_map_key(void * ctx, const unsigned char * stringVal,
                             size_t stringLen)
 {
     inx_json_stream_parser_state_type* state = (inx_json_stream_parser_state_type*)ctx;

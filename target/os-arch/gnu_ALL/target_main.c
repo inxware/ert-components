@@ -116,7 +116,7 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
 #if defined(EHS_TEST_FUNC_OVERRIDE) && defined(EHS_TEST_FUNC_NO_ERT_INIT)
     // Bare metal mode: Run test immediately and exit
     extern void EHS_TEST_FUNC_NAME(void);
-    //EHSH_LOG_INFO("EHS Bare Metal Test: Running %s\n", #EHS_TEST_FUNC_NAME);
+    //EHSH_LOG_INFO("EHS Bare Metal Test: Running %s\n", EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME));
     EHS_TEST_FUNC_NAME();
     EHSH_LOG_INFO("Test completed\n");
     return 0;
@@ -147,11 +147,13 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
 #endif
 
 #ifdef EHS_TEST_FUNC_OVERRIDE
+#if !defined(EHS_TEST_FUNC_NO_ERT_INIT)
     // Test mode with full init: Run test instead of EhsMain
     extern void EHS_TEST_FUNC_NAME(void);
-    //EHSH_LOG_INFO("EHS Test Mode: Running %s\n", #EHS_TEST_FUNC_NAME);
+    //EHSH_LOG_INFO("EHS Test Mode: Running %s\n", EHS_MACRO_STRINGIFY(EHS_TEST_FUNC_NAME));
     EHS_TEST_FUNC_NAME();
     EHSH_LOG_INFO("Test completed\n");
+#endif
 #else
 #ifdef EHS_MAIN_LOOP_ITERATIVE
     int result;

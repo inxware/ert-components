@@ -276,4 +276,29 @@ EHS_EXTERN ehs_uint32 EhsDebugSequenceNumber;
 /*****************************************************************************/
 /* Declare function prototypes  */
 
+/**************************************************** Macro Utilities ************************************** */
+
+// Internal macro. DO NOT USE THIS!
+#define _EHS_MACRO_STRINGIFY(x) #x
+
+/**
+ * @brief Turn any random characters or macro into a string
+ * @code {.C}
+ * #include <stdio.h>
+ * #define A hello_world!
+ * #define B "hello_world!"
+ * #define C test_func
+ *
+ * printf(EHS_MACRO_STRINGIFY(A)); // hello_world!
+ * printf(EHS_MACRO_STRINGIFY(B)); // "hello_world!"
+ * printf(EHS_MACRO_STRINGIFY(C)); // test_func
+ * printf(EHS_MACRO_STRINGIFY(A_MACRO_NOT_DEFINED)); // A_MACRO_NOT_DEFINED
+ * @endcode
+ * 
+ */
+#define EHS_MACRO_STRINGIFY(x) _EHS_MACRO_STRINGIFY(x)
+
+/*****************************************************************************/
+/* Declare macro utilities  */
+
 #endif /* EHS_GLOBALS */

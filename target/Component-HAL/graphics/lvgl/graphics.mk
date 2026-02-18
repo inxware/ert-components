@@ -85,6 +85,10 @@ ifeq ($(EHS_LVGL_DISPLAY_DRIVER),gc9a01)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/GC9A01.$(OBJ)
 DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_GC9A01
 endif
+ifeq ($(EHS_LVGL_DISPLAY_DRIVER),st7701)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/st7701.$(OBJ)
+DEFS += CONFIG_LV_TFT_DISPLAY_CONTROLLER_ST7701
+endif
 ifeq ($(EHS_LVGL_DISPLAY_DRIVER),ft81x)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/EVE_commands.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/FT81x.$(OBJ)
@@ -177,6 +181,12 @@ OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_i2c/i2c_manager.$(OBJ)
 DEFS += CONFIG_LV_TOUCH_CONTROLLER_CST816T
 DEFS += CONFIG_I2C_MANAGER_0_FREQ_HZ=100000
 DEFS += CONFIG_I2C_MANAGER_1_FREQ_HZ=100000
+DEFS += CONFIG_LV_I2C
+endif
+ifeq ($(EHS_LVGL_TOUCH_DRIVER),gt911)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/gt911.$(OBJ)
+OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_i2c/i2c_manager.$(OBJ)
+DEFS += CONFIG_LV_TOUCH_CONTROLLER_GT911
 DEFS += CONFIG_LV_I2C
 endif
 # Common files

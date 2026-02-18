@@ -1,5 +1,9 @@
 #include "ml_model_common.h"
 
+#ifdef EHS_ML_HWACCEL_SUPPORT_HAILO
+#include "ert_hal_hailo.h"
+#endif
+#include "ert_hal_tflite.h"
 
 /* Returns with EHS_ML_NOT_SUPPORTED if th ctx model passed in is not supported in the hardware */
 
