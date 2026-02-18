@@ -38,7 +38,7 @@ LINK_OVERRIDE=clang
 # Networking (standard)
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
-# EHS_MQTT_SUPPORT=aws_green_grass
+EHS_MQTT_SUPPORT=aws_green_grass
 
 # Unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features
 EHS_DEVMAN_SUPPORT=http
@@ -56,7 +56,8 @@ COMPONENT_VARIANT=base
 
 # Application Selection
 #EHS_DEFAULT_APP=tutorials/hello_world
-EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
+EHS_DEFAULT_APP=demos/QT_UIs/Particles
+#EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
 # Enable eRT1 support (binary format SODL files)
 ERT_SODL_VERSION=1
 
@@ -120,12 +121,10 @@ qml6-module-qtquick-timeline \
 qml6-module-qtquick-templates \
 qml6-module-qtquick-window \
 qml6-module-qtquick3d \
-qml-module-qtquick3d-particles3d \
 qml6-module-quick3d-particles3d \
 qml6-module-quick3d-helpers \
 qml6-module-quick3d-effects \
 qml6-module-qtquick-window \
-qml6-module-qtquick-controls \
 qml6-module-qtquick-controls \
 qml6-module-qtquick-layouts \
 qml6-module-qtquick-templates \
