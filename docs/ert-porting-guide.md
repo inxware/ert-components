@@ -1900,6 +1900,11 @@ Standard make workflow applies: `./configure arduino_uno_q && make all_docker &&
 - Full Debian environment enables complex applications (AI inference, video processing, web services)
 - SSH/ADB access for remote development
 - Standard cross-compilation toolchain support
+- Following packages need to be installed:
+  - libsdl2-2.0-0
+  - libcamera0.4
+  - libopencv-core410
+  - libopencv-contrib410
 
 **Zephyr Side (MCU):**
 - Deterministic real-time scheduling separate from Linux
