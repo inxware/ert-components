@@ -113,6 +113,32 @@ static void qt_on_text_changed(const char * utf8_text, void * user_data)
     }
 }
 
+/* Value changed (for float/int display widgets — sliders, dials, spinboxes) */
+static void qt_on_value_changed(double value, void * user_data)
+{
+    EhsWidgetClass * pWidget = (EhsWidgetClass *)user_data;
+    if (!pWidget)
+    {
+        return;
+    }
+
+    EHSH_LOG_INFO("Qt value changed: %f", value);
+
+    if (EHS_WIDGET_UI(pWidget).event_callback)
+    {
+        if (EhsWidgetUI_is_float_type(pWidget))
+        {
+            float fvalue = (float)value;
+            EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &fvalue);
+        }
+        else if (EhsWidgetUI_is_int_type(pWidget))
+        {
+            ehs_sint32 ivalue = (ehs_sint32)value;
+            EHS_WIDGET_UI(pWidget).event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_CHANGED, NULL, &ivalue);
+        }
+    }
+}
+
 /* Checkbox clicked */
 static void qt_on_checkbox_clicked(void * user_data)
 {
@@ -154,6 +180,9 @@ static void register_qt_signals(EhsWidgetClass * pWidget)
     /* Register text field change signal */
     ertqt_bind_text_changed(h, qt_on_text_changed, pWidget);
 
+    /* Register value changed signal (for float/int widgets: sliders, dials, spinboxes) */
+    ertqt_bind_value_changed(h, qt_on_value_changed, pWidget);
+
     /* Register checkbox clicked signal */
     ertqt_checkbox_on_clicked(h, qt_on_checkbox_clicked, pWidget);
 }
@@ -178,9 +207,22 @@ void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
 
     /* Look up Qt object by name */
     const char * widget_name = pWidget->szWidgetName[0] != '\0' ? pWidget->szWidgetName : "unknown_widget";
+    printf("[ERTQT-STATE] EhsTargetWidgetUi_create: looking up '%s' (app_state=%d)\n",
+           widget_name, (int)ertqt_get_app_state());
+    fflush(stdout);
     EHSH_LOG_INFO("EhsTargetWidgetUi_create: looking up Qt object '%s'", widget_name);
 
     ertqt_object_handle h = ertqt_get_object_by_name(widget_name);
+
+    if (h < 0)
+    {
+        /* Object not found — may have been created dynamically (Loader, Repeater,
+         * Component.createObject).  Refresh the object table and retry once. */
+        EHSH_LOG_INFO("EhsTargetWidgetUi_create: '%s' not found, refreshing object table", widget_name);
+        //ertqt_refresh_objects();
+        //rebuild_object_table();
+        h = ertqt_get_object_by_name(widget_name);
+    }
 
     if (h < 0)
     {
@@ -207,9 +249,36 @@ void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
  */
 void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
 {
-    if (!pWidget || pWidget->qt_handle == 0)
+    if (!pWidget)
     {
         return;
+    }
+
+    /* Lazy binding: if widget creation happened before the QML was loaded,
+       qt_handle will be 0.  Try to bind now that the object table may have
+       been populated by a later scan. */
+    if (pWidget->qt_handle == 0)
+    {
+        const char * name = pWidget->szWidgetName;
+        if (name[0] != '\0')
+        {
+            ertqt_object_handle h = ertqt_get_object_by_name(name);
+            if (h >= 0)
+            {
+                printf("[ERTQT-STATE] lazy bind: '%s' -> handle=%"PRIdPTR"\n", name, (intptr_t)h);
+                fflush(stdout);
+                pWidget->qt_handle = h;
+                register_qt_signals(pWidget);
+            }
+            else
+            {
+                return; /* still not available, try again next draw */
+            }
+        }
+        else
+        {
+            return;
+        }
     }
     ertqt_object_handle h = pWidget->qt_handle;
 
@@ -256,7 +325,34 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
                 }
             }
         }
-        /* Add support for int/float widgets as needed */
+        /* For float widgets, set the value property */
+        else if (EhsWidgetUI_is_float_type(pWidget))
+        {
+            float * value = (float *)gui->data;
+            if (value)
+            {
+                EHSH_LOG_INFO("  Setting Qt 'value' property to: %f", (double)*value);
+                ertqt_status status = ertqt_set_property_double(h, "value", (double)*value);
+                if (status != ERTQT_OK)
+                {
+                    EHSH_LOG_WARNING("  Failed to set Qt value property (status %d)", status);
+                }
+            }
+        }
+        /* For integer widgets, set the value property */
+        else if (EhsWidgetUI_is_int_type(pWidget))
+        {
+            ehs_sint32 * value = (ehs_sint32 *)gui->data;
+            if (value)
+            {
+                EHSH_LOG_INFO("  Setting Qt 'value' property to: %d", *value);
+                ertqt_status status = ertqt_set_property_int(h, "value", (int)*value);
+                if (status != ERTQT_OK)
+                {
+                    EHSH_LOG_WARNING("  Failed to set Qt value property (status %d)", status);
+                }
+            }
+        }
 
         /* Clear the updated flag */
         pWidget->bContentUpdated = EHS_FALSE;

@@ -27,43 +27,100 @@
 #include "widget.h"
 #endif
 
+// Helper: construct the QML path for the current app and load it
+static void load_current_app_qml(void)
+{
+    char qml_path[EHS_TD_FILES_MAX_PATH];
+    printf("++++++++++++++ Loading QML for current app\n");fflush(stdout);
+    EhsHMetagetCurrentAppDir(qml_path);
+    EhsStrncat(qml_path, "/app.qml", EHS_TD_FILES_MAX_PATH - EhsStrlen(qml_path) - 1);
+
+    if (!EhsTF_exists(qml_path))
+    {
+        EHSH_LOG_ERROR("QML file not found: %s", qml_path);
+        return;
+    }
+
+    EHSH_LOG_INFO("Loading QML file: %s", qml_path);
+
+    ertqt_status st = ertqt_load_app(qml_path);
+    if (st != ERTQT_OK)
+    {
+        EHSH_LOG_ERROR("ertqt_load_app() failed: %d", (int)st);
+    }
+}
+
+// Track previous command to edge-detect reload transitions
+static Ehs_ConsoleCommand_Type g_prev_cmd = EHS_CONTINUE;
+
 // EHS tick callback - called from a Qt timer
+static unsigned int g_tick_count = 0;
+
+/* See headerfor detailed description of this function's purpose */
+
 static void ehs_tick_callback(void * user_data)
 {
     Ehs_ConsoleCommand_Type cmd;
-    EhsTimer_tick(); // Run any timer events  that might have expired.
-    // Single-step the kernel; returns any unhandled commands, but QT wont be interested (unless perhaps it was an exit request)
+    ertqt_app_state state_before, state_after;
+
+    g_tick_count++;
+
+    EhsTimer_tick(); // Run any timer events that might have expired.
+
+    state_before = ertqt_get_app_state();
+
+    // Single-step the kernel
     cmd = EhsMainLoopSingle(NULL, NULL);
-    
-    if (EhsCheckAppExitLoop(cmd) == EHS_TRUE)
+#if 0
+    printf("[TICK %u] cmd=%d prev_cmd=%d state_before=%d\n",
+           g_tick_count, (int)cmd, (int)g_prev_cmd, (int)state_before);
+    fflush(stdout);
+#endif
+    if (cmd == EHS_RELOAD_EHS_FROM_FILE && g_prev_cmd != EHS_RELOAD_EHS_FROM_FILE)
+    {
+        //printf("[TICK %u] EDGE: EHS_RELOAD_EHS_FROM_FILE detected, loading QML\n", g_tick_count);
+        //fflush(stdout);
+        printf("================ LOADING ======================\n");
+        EHSH_LOG_INFO("EHS app reloaded, loading new QML");
+        load_current_app_qml(); // aprently this always blocks until all objects are avilable.
+        ertqt_refresh_objects(); // Ensure the object table is up to date immediately after loading new QML
+    }
+    else if (EhsCheckAppExitLoop(cmd) == EHS_TRUE)
     {
         EHSH_LOG_INFO("EHS requesting quit");
-        ertqt_quit();
+        //printf("EHS requesting quit\n");    fflush(stdout);
+        //ertqt_quit();
     }
-    //printf(".");fflush(stdout); // debug
+
+    g_prev_cmd = cmd;
+
+    // Advance the ertqt state machine (handles OBJECTS_READY -> SCANNED -> IDLE)
+    state_after = ertqt_process_state();
+
+    if (state_before != state_after)
+    {
+#if 0
+        printf("[TICK %u] state machine advanced: %d -> %d\n",
+               g_tick_count, (int)state_before, (int)state_after);
+        fflush(stdout);
+#endif
+    }
+
+    if (state_after == ERTQT_APP_STATE_SCANNED)
+    {
+        EHSH_LOG_INFO("Qt object table rebuilt — widgets can now bind");
+    }
 }
 
 
 
-// Initialise Qt and load the QML file. Note this must be done after we have run the application state machine so we know what app we are running.
+// Initialise Qt infrastructure. QML is loaded later from the tick callback
+// once the EHS app loading state machine signals a reload.
 ehs_bool EhsTV_initQt(int argc, char ** argv)
 {
-    const char qml_path[EHS_TD_FILES_MAX_PATH];
     ertqt_status st;
 
-    EhsHMetagetCurrentAppDir(qml_path);
-    EhsStrncat(qml_path, "/app.qml", EHS_TD_FILES_MAX_PATH - EhsStrlen(qml_path) - 1);
-    //printf("Constructed QML path: %s\n", qml_path);
-     if (!EhsTF_exists(qml_path))
-     {
-         EHSH_LOG_ERROR("QML file not found: %s", qml_path);
-         return EHS_FALSE;
-     }
-    //qml_path = "../appdata/default/app.qml";
-
-    EHSH_LOG_INFO("Loading QML file: %s", qml_path);
-
-    st = ertqt_init(qml_path, argc, argv);
+    st = ertqt_init(argc, argv);
     if (st != ERTQT_OK)
     {
         EHSH_LOG_ERROR("ertqt_init() failed: %d", (int)st);
@@ -79,7 +136,6 @@ void EhsTV_registerTickCallback(void)
 {
     unsigned int interval_ms = 10;  // 100 Hz - @TODO: define this in central configuration somewhere
     ertqt_status st;
-printf("\n¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬Registering EHS tick callback with Qt timer, interval %u ms\n", interval_ms);
     st = ertqt_set_tick_callback(interval_ms, ehs_tick_callback, NULL);
     if (st != ERTQT_OK)
     {

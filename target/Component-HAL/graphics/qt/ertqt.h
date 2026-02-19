@@ -47,17 +47,63 @@ typedef enum ertqt_status
 typedef intptr_t ertqt_object_handle;
 
 /* ------------------------------------------------------------------------- */
+/* Application lifecycle state machine                                       */
+/* ------------------------------------------------------------------------- */
+
+// State of the ertqt application lifecycle.
+//
+// This enum tracks the progress of QML loading and object table scanning.
+// The tick callback should call `ertqt_process_state()` each iteration to
+// advance the state machine.
+typedef enum ertqt_app_state
+{
+    ERTQT_APP_STATE_IDLE = 0,          // Steady state — app running, objects bound
+    ERTQT_APP_STATE_LOADING,           // QML submitted to engine, load() in progress
+    ERTQT_APP_STATE_OBJECTS_READY,     // QML loaded, object tree populated, scan pending
+    ERTQT_APP_STATE_SCANNED,           // Object table rebuilt — widgets can bind
+    ERTQT_APP_STATE_RESCAN_NEEDED      // Dynamic QObject change detected, rescan pending
+} ertqt_app_state;
+
+// Query the current application lifecycle state.
+//
+// Returns:
+// - The current `ertqt_app_state` value.
+ertqt_app_state ertqt_get_app_state(void);
+
+// Advance the application lifecycle state machine.
+//
+// This function should be called from the tick callback on each iteration.
+// It checks the current state and performs any pending work:
+//
+// - `ERTQT_APP_STATE_OBJECTS_READY`: Rebuilds the object table and
+//   transitions to `ERTQT_APP_STATE_SCANNED`.
+// - `ERTQT_APP_STATE_SCANNED`: Transitions to `ERTQT_APP_STATE_IDLE`.
+// - `ERTQT_APP_STATE_RESCAN_NEEDED`: Rebuilds the object table and
+//   transitions to `ERTQT_APP_STATE_SCANNED`.
+// - All other states: No action taken.
+//
+// Returns:
+// - The state after processing (which may differ from the state before).
+ertqt_app_state ertqt_process_state(void);
+
+// Request a rescan of the QObject tree on the next tick.
+//
+// This sets the state to `ERTQT_APP_STATE_RESCAN_NEEDED` so that the next
+// call to `ertqt_process_state()` will rebuild the object table. Use this
+// when dynamic QML content has been added (Loader, Repeater, etc.).
+void ertqt_request_rescan(void);
+
+/* ------------------------------------------------------------------------- */
 /* Initialisation and event loop                                             */
 /* ------------------------------------------------------------------------- */
 
-// Public interface for initialising the Qt integration and loading the QML file.
+// Public interface for initialising the Qt infrastructure.
 //
-// This function creates the Qt application instance if none exists yet, sets up
-// the QML engine, and loads the specified QML file. It also builds the initial
-// internal object table used to resolve ertqt_object_handle values.
+// This function creates the QGuiApplication and QQmlApplicationEngine
+// instances. It does not load any QML content; call `ertqt_load_app()` to
+// load a QML file after initialisation.
 //
 // Parameters:
-// - qml_path: Path to the QML file to load, encoded as UTF 8. Must not be `NULL`.
 // - argc: Application argument count, usually the same as `main()` received. If
 //   zero, a dummy argument list is constructed internally.
 // - argv: Application argument vector. If `NULL` while `argc` is non zero,
@@ -65,18 +111,64 @@ typedef intptr_t ertqt_object_handle;
 //   a dummy argument list containing a single placeholder is used.
 //
 // Returns:
-// - `ERTQT_OK` on successful initialisation and QML loading.
-// - `ERTQT_ERR_INVALID_ARGUMENT` if `qml_path` is `NULL`.
-// - `ERTQT_ERR_BACKEND_FAILURE` if a Qt application instance already exists, the
-//   Qt application or QML engine could not be created, or the QML file failed
-//   to produce at least one root object.
+// - `ERTQT_OK` on successful initialisation.
+// - `ERTQT_ERR_BACKEND_FAILURE` if a Qt application instance already exists or
+//   the Qt application or QML engine could not be created.
 //
 // Notes:
-// - This function does not start the Qt event loop. Call `ertqt_run()` after a
-//   successful return value to begin processing events.
+// - This function does not start the Qt event loop. Call `ertqt_run()` after
+//   loading an application via `ertqt_load_app()` and setting up callbacks.
 // - Repeated calls after a successful initialisation are treated as no-ops and
-//   return `ERTQT_OK` without reloading QML.
-ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv);
+//   return `ERTQT_OK`.
+ertqt_status ertqt_init(int argc, char ** argv);
+
+// Public interface for loading a QML application file.
+//
+// This function loads the specified QML file into the QML engine and rebuilds
+// the internal object table so that all QObjects with an `objectName` become
+// discoverable via `ertqt_get_object_by_name()`. It may be called multiple
+// times to load new applications after EHS reloads.
+//
+// Parameters:
+// - qml_path: Path to the QML file to load, encoded as UTF 8. Must not be
+//   `NULL`.
+//
+// Returns:
+// - `ERTQT_OK` if the QML file was loaded and at least one root object was
+//   created.
+// - `ERTQT_ERR_INVALID_ARGUMENT` if `qml_path` is `NULL`.
+// - `ERTQT_ERR_GENERIC` if `ertqt_init()` has not been called successfully.
+// - `ERTQT_ERR_BACKEND_FAILURE` if the QML file failed to produce at least one
+//   root object.
+//
+// Notes:
+// - Existing handles may become invalid after this call. Callers that cache
+//   handles should re-acquire them via `ertqt_get_object_by_name()`.
+// - This function should be called from the Qt thread (e.g. from a tick
+//   callback).
+ertqt_status ertqt_load_app(const char * qml_path);
+
+/* This may potentially be called externally if we (e.g. Widget module if QML is dynamically loaded */
+// Function  for resolving an ertqt_object_handle into a QObject pointer.
+//
+// This function validates the supplied handle against the current object table,
+// and returns the corresponding QObject pointer if it is in range and non NULL.
+//
+// Parameters:
+// - h: Opaque handle value previously returned by the public API.
+//
+// Returns:
+// - A valid QObject * pointer if the handle is in range and refers to a live object.
+// - nullptr if the handle is out of range or the slot does not currently hold a QObject.
+//
+// Notes:
+// - Callers should treat the returned pointer as transient. The mapping may be
+//   rebuilt by rebuild_object_table(), which can invalidate previously observed
+//   QObject pointers.
+// - All access is serialised via g_objects_mutex to avoid concurrent modification.
+//
+// void rebuild_object_table();
+
 
 // Public interface for entering the Qt event loop.
 //
@@ -147,6 +239,26 @@ ertqt_status ertqt_quit(void);
 // - Handles may become invalid after a subsequent table rebuild. Public API
 //   functions detect invalid handles and return an error code.
 ertqt_object_handle ertqt_get_object_by_name(const char * name);
+
+// Public interface for refreshing the internal object table.
+//
+// This function rebuilds the object table by re-enumerating all QObject
+// children of the QML engine's root objects. It should be called after
+// dynamic QML content has been loaded (e.g. via Loader, Repeater, or
+// Component.createObject) so that newly created objects become discoverable
+// by ertqt_get_object_by_name().
+//
+// Parameters:
+// - (none)
+//
+// Returns:
+// - `ERTQT_OK` if the table was rebuilt successfully.
+// - `ERTQT_ERR_GENERIC` if Qt has not been initialised via `ertqt_init()`.
+//
+// Notes:
+// - Existing handles may become invalid after this call. Callers that cache
+//   handles should re-acquire them via ertqt_get_object_by_name().
+ertqt_status ertqt_refresh_objects(void);
 
 // Public interface for retrieving the `objectName` for a given handle.
 //
@@ -526,6 +638,46 @@ typedef void (*ertqt_tick_callback)(void * user_data);
 // - Callers that need to retain the text beyond the callback must make their
 //   own copy.
 typedef void (*ertqt_text_callback)(const char * utf8_text, void * user_data);
+
+// Callback type for value based signals on numeric controls.
+//
+// This function pointer type is used for callbacks that receive a double
+// precision floating point value from a QML control when a relevant signal
+// (e.g. `valueChanged`) is emitted.
+//
+// Parameters:
+// - value: The current numeric value read from the QML control's `value`
+//   property at the time the signal was emitted.
+// - user_data: Opaque pointer supplied at registration time. The library never
+//   dereferences this pointer; it is simply passed through to the callback.
+typedef void (*ertqt_value_callback)(double value, void * user_data);
+
+// Public interface for binding a C callback to a `valueChanged` style signal.
+//
+// This function connects a numeric control's change notification signal to a C
+// callback. On QML Slider / SpinBox / Dial controls this is typically mapped to
+// the `valueChanged()` signal. The callback receives the current value as a
+// double each time it is invoked.
+//
+// Parameters:
+// - h: Opaque handle referencing the target numeric QObject.
+// - cb: Function pointer to the callback to invoke when the value changes. Must
+//   not be `NULL`.
+// - user_data: Opaque pointer passed back to the callback on each invocation.
+//
+// Returns:
+// - `ERTQT_OK` if a compatible signal was found and the connection was created.
+// - `ERTQT_ERR_INVALID_ARGUMENT` if `cb` is `NULL`.
+// - `ERTQT_ERR_INVALID_HANDLE` if `h` does not resolve to a valid QObject.
+// - `ERTQT_ERR_BACKEND_FAILURE` if the object has no compatible `valueChanged()`
+//   signal or the connection could not be created.
+//
+// Notes:
+// - The callback is invoked on the Qt application's thread. Implementations
+//   must remain quick and non blocking to avoid impacting the UI.
+// - The value is read from the QML object's `value` property as a double at
+//   the time the signal fires.
+ertqt_status ertqt_bind_value_changed(ertqt_object_handle h, ertqt_value_callback cb, void * user_data);
 
 // Public interface for binding a C callback to a `textChanged` style signal.
 //

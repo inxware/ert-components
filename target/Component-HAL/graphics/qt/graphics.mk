@@ -10,8 +10,8 @@
 #---------------------------------------------------------------
 
 # Some additional features related to the GUI/graphics subsustem
-EHS_PERIPHERALS_GUI_KEYBOARD=yes
-EHS_PERIPHERALS_RCU=yes
+#EHS_PERIPHERALS_GUI_KEYBOARD=yes
+#EHS_PERIPHERALS_RCU=yes
 
 # We get the GTK library headers and binaries from different places depending on the platform...
 ifneq ($(EHS_HOST_DEBIAN_BUILD),)
@@ -22,68 +22,41 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 		EHS_PNG_LIB_DEFAULT = png14
 	endif
 
-	ifeq ($(EHS_ARCH),arm64)
-		# This is for the rest (seems we otherwise default to gtk3)
-		INC_DIRS += /usr/include/gtk-3.0
-		INC_DIRS += /usr/lib/x86_64-linux-gnu/gtk-2.0/include/
-		INC_DIRS += /usr/include/glib-2.0
-		INC_DIRS += /usr/lib/x86_64-linux-gnu/glib-2.0/include/
-		LIB += gdk-3
-		LIB += gtk-3
-		LIB += gdk_pixbuf-2.0
-	else ifeq ($(EHS_ARCH),arm)
-		# This is for armv7 debian 10..
-		INC_DIRS += /usr/include/gtk-3.0
-		INC_DIRS += /usr/include/glib-2.0/
-		INC_DIRS += /usr/lib/arm-linux-gnueabihf/glib-2.0/include/
-		LIB += gdk-3
-		LIB += gtk-3
-		LIB += gdk_pixbuf-2.0
-		EHS_PNG_LIB_DEFAULT = png16
-	else
-		# This is for the rest (usually x86_64)
-		INC_DIRS += /usr/include/gtk-2.0
-		INC_DIRS += /usr/lib/x86_64-linux-gnu/gtk-2.0/include/
-		INC_DIRS += /usr/include/glib-2.0
-		INC_DIRS += /usr/lib/x86_64-linux-gnu/glib-2.0/include/
-		LIB += gdk-x11-2.0
-		LIB += gtk-x11-2.0
-		LIB += gdk_pixbuf-2.0
-	endif
-
-	INC_DIRS += /usr/include/cairo/
-	INC_DIRS += /usr/include/pango-1.0/
-	INC_DIRS += /usr/include/gdk-pixbuf-2.0/
-	INC_DIRS += /usr/include/atk-1.0
-	INC_DIRS += /usr/include/harfbuzz
+	
+#	INC_DIRS += /usr/include/cairo/
+#	INC_DIRS += /usr/include/pango-1.0/
+#	INC_DIRS += /usr/include/gdk-pixbuf-2.0/
+#	INC_DIRS += /usr/include/atk-1.0
+#	INC_DIRS += /usr/include/harfbuzz
 
 	# Debian Host system libraries
 	#   LIB += z This is done elswhere
-	LIB += gthread-2.0
-	LIB += Xcomposite
-	LIB += pixman-1
-	LIB += pangocairo-1.0
+
+	#LIB += gthread-2.0
+	#LIB += Xcomposite
+	#LIB += pixman-1
+	#LIB += pangocairo-1.0
 	LIB += stdc++
-	LIB += pangoft2-1.0
-	LIB += Xfixes
-	LIB += Xrender
-	LIB += Xau
+	#LIB += pangoft2-1.0
+	#LIB += Xfixes
+	#LIB += Xrender
+	#LIB += Xau
 	LIB += fontconfig
 	LIB += freetype
-	LIB += Xext
-	LIB += gmodule-2.0
-	LIB += pango-1.0
+	#LIB += Xext
+	#LIB += gmodule-2.0
+	#LIB += pango-1.0
 	LIB += gio-2.0
-	LIB += xcb
-	LIB += xcb-shm
-	LIB += xcb-render
-	LIB += X11
-	LIB += atk-1.0
+	#LIB += xcb
+	#LIB += xcb-shm
+	#LIB += xcb-render
+	#LIB += X11
+	#LIB += atk-1.0
 	# arm done
 
-	LIB += gobject-2.0
-	LIB += glib-2.0
-	LIB += cairo
+	#LIB += gobject-2.0
+	#LIB += glib-2.0
+	#LIB += cairo
 
 	ifdef EHS_GUI_SUPPORT_QT6
 # Qt6 libraries

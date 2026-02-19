@@ -105,25 +105,69 @@ static void * g_tick_user_data = nullptr;
 static unsigned int g_tick_interval_ms = 0;
 
 static bool g_initialised = false;
+static ertqt_app_state g_app_state = ERTQT_APP_STATE_IDLE;
 
-// Internal helper for resolving an ertqt_object_handle into a QObject pointer.
+// QGuiApplication subclass that swallows pointer and touch events when no QML
+// scene is loaded.
 //
-// This function validates the supplied handle against the current object table,
-// and returns the corresponding QObject pointer if it is in range and non NULL.
+// On embedded Qt platforms (e.g. eglfs, kms/drm, linuxfb) the platform input
+// layer dispatches pointer and touch events through QWindowSystemInterface even
+// before any QML root object has been created.  With no valid QQuickWindow to
+// receive them Qt may crash or exit inside its own event dispatch machinery —
+// before a conventional QObject event filter ever runs.
 //
-// Parameters:
-// - h: Opaque handle value previously returned by the public API.
+// Overriding notify() here is the earliest possible interception point: it is
+// called by QCoreApplication for every event sent to any object in the
+// application, ahead of all installed event filters and ahead of any
+// receiver-specific event() override.  Returning true without calling the
+// parent implementation completely prevents Qt from attempting to dispatch the
+// event further.
 //
-// Returns:
-// - A valid QObject * pointer if the handle is in range and refers to a live object.
-// - nullptr if the handle is out of range or the slot does not currently hold a QObject.
+// When QML is loaded (root objects are present) all events are forwarded
+// normally so that QML mouse/touch interaction is unaffected.
 //
-// Notes:
-// - Callers should treat the returned pointer as transient. The mapping may be
-//   rebuilt by rebuild_object_table(), which can invalidate previously observed
-//   QObject pointers.
-// - All access is serialised via g_objects_mutex to avoid concurrent modification.
+#define EHST_HACKLOGGING_ENABLED 1
+class ErtQtApplication : public QGuiApplication
+{
+public:
+    ErtQtApplication(int &argc, char **argv) : QGuiApplication(argc, argv) {}
+
+    bool notify(QObject *receiver, QEvent *event) override
+    {
+        if (!g_engine || g_engine->rootObjects().isEmpty())
+        {
+            switch (event->type())
+            {
+            case QEvent::MouseMove:
+            case QEvent::MouseButtonPress:
+            case QEvent::MouseButtonRelease:
+            case QEvent::MouseButtonDblClick:
+            case QEvent::HoverMove:
+            case QEvent::HoverEnter:
+            case QEvent::HoverLeave:
+            case QEvent::Wheel:
+            case QEvent::TouchBegin:
+            case QEvent::TouchUpdate:
+            case QEvent::TouchEnd:
+            case QEvent::TouchCancel:
+#if EHST_HACKLOGGING_ENABLED
+                printf("[ERTQT] pointer event type=%d intercepted in notify() — no QML loaded\n",
+                       (int)event->type());
+                fflush(stdout);
+#endif
+                event->accept(); // This eats the event so that it isen't passed up. (It doesn't solve anything with apps existing when the mouse moves).
+                return true;
+            default:
+                break;
+            }
+        }
+        return QGuiApplication::notify(receiver, event);
+    }
+};
+
+// Function  for resolving an ertqt_object_handle into a QObject pointer.
 //
+
 static QObject * handle_to_qobject(ertqt_object_handle h)
 {
     if (h == 0)  // Basic null check
@@ -133,38 +177,25 @@ static QObject * handle_to_qobject(ertqt_object_handle h)
     return reinterpret_cast<QObject*>(h);
 }
 
-// Internal helper for rebuilding the global object handle table from the QML engine.
-//
-// This function clears the current g_objects table and repopulates it using the
-// QML engine's root objects and all of their QObject children discovered via
-// findChildren(). Each entry stores a raw QObject pointer and a cached copy of
-// its objectName().
-//
-// Parameters:
-// - (none)
-//
-// Returns:
-// - (none) The function operates on the global g_objects vector.
-//
-// Notes:
-// - If g_engine is nullptr, the function performs no work.
-// - The order of entries is not specified but is stable for a given pass. Handles
-//   are simple indices into this vector.
-// - Existing handles may become invalid after this function runs. Public API
-//   functions are responsible for detecting invalid handles and returning an
-//   appropriate error code.
-//
+#define EHST_HACKLOGGING_ENABLED 1
 static void rebuild_object_table()
 {
     std::lock_guard<std::mutex> lock(g_objects_mutex);
     g_objects.clear();
-
+#if EHST_HACKLOGGING_ENABLED
+    printf("[ERTQT-STATE] rebuild_object_table() called\n");
+#endif  
     if (!g_engine)
     {
+        #if EHST_HACKLOGGING_ENABLED
+        printf("[ERTQT-STATE] rebuild_object_table: g_engine is NULL, skipping\n");
+        #endif
         return;
     }
 
     const QList<QObject *> roots = g_engine->rootObjects();
+    printf("XXXXXX[ERTQT-STATE] rebuild_object_table: %d root objects\n", roots.size());
+    int named_count = 0;
     for (QObject *root : roots)
     {
         if (!root)
@@ -176,7 +207,9 @@ static void rebuild_object_table()
         rec.ptr = root;
         rec.name = root->objectName().toStdString();
         g_objects.push_back(rec);
-
+#if EHST_HACKLOGGING_ENABLED
+        if (!rec.name.empty()) named_count++;
+#endif
         // Include all children
         const QList<QObject *> children = root->findChildren<QObject *>();
         for (QObject *child : children)
@@ -189,8 +222,16 @@ static void rebuild_object_table()
             crec.ptr = child;
             crec.name = child->objectName().toStdString();
             g_objects.push_back(crec);
+#if EHST_HACKLOGGING_ENABLED
+            if (!crec.name.empty()) named_count++;
+#endif
         }
     }
+#if EHST_HACKLOGGING_ENABLED
+    printf("[ERTQT-STATE] rebuild_object_table: %zu total objects, %d with objectName\n",
+           g_objects.size(), named_count);
+    fflush(stdout);
+#endif
 }
 
 // Internal helper used as the QTimer callback for driving the registered tick callback.
@@ -232,48 +273,102 @@ static void tick_timer_fired()
 extern "C"
 {
 
-// Public interface for initialising the Qt integration and loading the QML file.
+/* ------------------------------------------------------------------------- */
+/* Application lifecycle state machine                                       */
+/* ------------------------------------------------------------------------- */
+
+/* Report the  QML DOM state in text (Just used for debugging? )*/
+static const char * state_name(ertqt_app_state s)
+{
+    switch (s)
+    {
+    case ERTQT_APP_STATE_IDLE:           return "IDLE";
+    case ERTQT_APP_STATE_LOADING:        return "LOADING";
+    case ERTQT_APP_STATE_OBJECTS_READY:  return "OBJECTS_READY";
+    case ERTQT_APP_STATE_SCANNED:        return "SCANNED";
+    case ERTQT_APP_STATE_RESCAN_NEEDED:  return "RESCAN_NEEDED";
+    default:                             return "UNKNOWN";
+    }
+}
+
+ertqt_app_state ertqt_get_app_state(void)
+{
+    return g_app_state;
+}
+
+/* Sequentially switches to the next state on each call.
+   TODO we may not actually need to do this state machine and it could be deleted.
+   It currently only does logging..
+*/
+ertqt_app_state ertqt_process_state(void)
+{
+    ertqt_app_state prev = g_app_state;
+
+    switch (g_app_state)
+    {
+    case ERTQT_APP_STATE_OBJECTS_READY:
+    case ERTQT_APP_STATE_RESCAN_NEEDED:
+        printf("[ERTQT-STATE] process_state: %s -> rebuilding object table\n", state_name(prev));
+        fflush(stdout);
+        //x rebuild_object_table();
+        g_app_state = ERTQT_APP_STATE_SCANNED;
+        printf("[ERTQT-STATE] process_state: %s -> %s\n", state_name(prev), state_name(g_app_state));
+        fflush(stdout);
+        break;
+
+    case ERTQT_APP_STATE_SCANNED:
+        g_app_state = ERTQT_APP_STATE_IDLE;
+        printf("[ERTQT-STATE] process_state: %s -> %s\n", state_name(prev), state_name(g_app_state));
+        fflush(stdout);
+        break;
+
+    default:
+        break;
+    }
+
+    return g_app_state;
+}
+
+void ertqt_request_rescan(void)
+{
+    printf("[ERTQT-STATE] request_rescan: %s -> RESCAN_NEEDED\n", state_name(g_app_state));
+    fflush(stdout);
+    g_app_state = ERTQT_APP_STATE_RESCAN_NEEDED;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Initialisation                                                            */
+/* ------------------------------------------------------------------------- */
+
+// Public interface for initialising the Qt infrastructure.
 //
-// This function creates the Qt application instance if none exists yet, sets up
-// the QML engine, and loads the specified QML file. It also builds the initial
-// internal object table used to resolve ertqt_object_handle values.
+// This function creates the QGuiApplication and QQmlApplicationEngine
+// instances.  It does not load any QML content; call ertqt_load_app() to
+// load a QML file after initialisation.
 //
 // Parameters:
-// - qml_path: Path to the QML file to load, encoded as UTF 8. Must not be NULL.
-// - argc: Application argument count, usually the same as main() received. If zero,
-//         a dummy argument list is constructed internally.
-// - argv: Application argument vector. If NULL while argc is non zero, behaviour is
-//         undefined. If both argc and argv indicate "no arguments", a dummy argument
-//         list containing a single placeholder is used.
+// - argc: Application argument count, usually the same as main() received. If
+//         zero, a dummy argument list is constructed internally.
+// - argv: Application argument vector. If NULL while argc is non zero,
+//         behaviour is undefined.
 //
 // Returns:
-// - ERTQT_OK on successful initialisation and QML loading.
-// - ERTQT_ERR_INVALID_ARGUMENT if qml_path is NULL.
-// - ERTQT_ERR_BACKEND_FAILURE if a Qt application instance already exists, the Qt
-//   application or QML engine could not be created, or the QML file failed to
-//   produce at least one root object.
+// - ERTQT_OK on successful initialisation.
+// - ERTQT_ERR_BACKEND_FAILURE if a Qt application instance already exists or
+//   the Qt application or QML engine could not be created.
 //
 // Notes:
-// - This function does not start the Qt event loop. Call ertqt_run() after a
-//   successful return value to begin processing events.
-// - Repeated calls after a successful initialisation are treated as no-ops and
-//   return ERTQT_OK without reloading QML.
+// - Repeated calls after a successful initialisation are treated as no-ops.
 //
-ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv)
+ertqt_status ertqt_init(int argc, char ** argv)
 {
     if (g_initialised)
     {
         return ERTQT_OK;
     }
 
-    if (!qml_path)
-    {
-        return ERTQT_ERR_INVALID_ARGUMENT;
-    }
-
     if (QCoreApplication::instance())
     {
-        // Application already exists, this would complicate things
         return ERTQT_ERR_BACKEND_FAILURE;
     }
 
@@ -286,7 +381,6 @@ ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv)
 
     if (argc == 0 || !argv)
     {
-        // Provide a dummy argv if caller did not
         local_argc = 1;
         local_argv = dummy_argv;
     }
@@ -295,10 +389,10 @@ ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv)
         local_argc = argc;
         local_argv = argv;
     }
-    // TODOmake this a load application function so it is separate from the rest of the init and can be callled with new apps. Requires a clean up function too.
+
     try
     {
-        g_app = new QGuiApplication(local_argc, local_argv);
+        g_app = new ErtQtApplication(local_argc, local_argv);
         g_engine = new QQmlApplicationEngine();
 
         QObject::connect(g_engine, &QQmlApplicationEngine::objectCreated, g_engine, [](QObject *obj, const QUrl &url)
@@ -307,32 +401,9 @@ ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv)
             if (!obj)
             {
                 qWarning() << "Root object creation failed";
-                return;
             }
-            rebuild_object_table();
         });
 
-        // Add the QML file's directory as an import path so that the
-        // application can import sibling QML modules and components.
-        QString qml_file = QString::fromUtf8(qml_path);
-        QString qml_dir = QFileInfo(qml_file).absolutePath();
-        g_engine->addImportPath(qml_dir);
-
-        QStringList paths = g_engine->importPathList();
-        printf("QML import paths:\n");
-        for (const QString &p : paths)
-        {
-            printf("  %s\n", p.toStdString().c_str());
-        }
-
-        g_engine->load(QUrl::fromLocalFile(qml_file));
-
-        if (g_engine->rootObjects().isEmpty())
-        {
-            return ERTQT_ERR_BACKEND_FAILURE;
-        }
-
-        rebuild_object_table();
         g_initialised = true;
         return ERTQT_OK;
     }
@@ -340,6 +411,76 @@ ertqt_status ertqt_init(const char * qml_path, int argc, char ** argv)
     {
         return ERTQT_ERR_BACKEND_FAILURE;
     }
+}
+
+// Public interface for loading a QML application file.
+//
+// This function loads the specified QML file into the QML engine and rebuilds
+// the internal object table.  It may be called multiple times to load new
+// applications after EHS reloads.
+//
+// Parameters:
+// - qml_path: Path to the QML file to load, encoded as UTF 8. Must not be NULL.
+//
+// Returns:
+// - ERTQT_OK if the QML file was loaded and at least one root object was created.
+// - ERTQT_ERR_INVALID_ARGUMENT if qml_path is NULL.
+// - ERTQT_ERR_GENERIC if ertqt_init() has not been called successfully.
+// - ERTQT_ERR_BACKEND_FAILURE if the QML file failed to produce a root object.
+//
+ertqt_status ertqt_load_app(const char * qml_path)
+{
+    if (!qml_path)
+    {
+        return ERTQT_ERR_INVALID_ARGUMENT;
+    }
+
+    if (!g_initialised || !g_engine)
+    {
+        return ERTQT_ERR_GENERIC;
+    }
+
+    printf("[ERTQT-STATE] load_app: %s -> LOADING (qml=%s)\n", state_name(g_app_state), qml_path);
+    fflush(stdout);
+    g_app_state = ERTQT_APP_STATE_LOADING;
+
+    // Add the QML file's directory as an import path so that the
+    // application can import sibling QML modules and components.
+    QString qml_file = QString::fromUtf8(qml_path);
+    QString qml_dir = QFileInfo(qml_file).absolutePath();
+    g_engine->addImportPath(qml_dir);
+
+    QStringList paths = g_engine->importPathList();
+    printf("QML import paths:\n");
+    for (const QString &p : paths)
+    {
+        printf("  %s\n", p.toStdString().c_str());
+    }
+
+    printf("[ERTQT-STATE] load_app: calling g_engine->load() (blocking)...\n");
+    fflush(stdout);
+
+    // load() blocks until the QML tree is fully constructed
+    g_engine->load(QUrl::fromLocalFile(qml_file));
+
+    printf("[ERTQT-STATE] load_app: g_engine->load() returned, rootObjects=%d\n",
+           g_engine->rootObjects().size());
+    fflush(stdout);
+
+    if (g_engine->rootObjects().isEmpty())
+    {
+        printf("[ERTQT-STATE] load_app: LOADING -> IDLE (no root objects — FAILURE)\n");
+        fflush(stdout);
+        g_app_state = ERTQT_APP_STATE_IDLE;
+        return ERTQT_ERR_BACKEND_FAILURE;
+    }
+
+    // QML tree is ready — signal that the object table needs scanning.
+    // The actual rebuild happens on the next ertqt_process_state() call.
+    g_app_state = ERTQT_APP_STATE_OBJECTS_READY;
+    printf("[ERTQT-STATE] load_app: LOADING -> OBJECTS_READY\n");
+    fflush(stdout);
+    return ERTQT_OK;
 }
 
 // Public interface for entering the Qt event loop.
@@ -375,7 +516,7 @@ ertqt_status ertqt_run(void)
 }
 
 // Public interface for requesting termination of the Qt event loop.
-//
+// TODO this hould be used in the general hal and ampped to EhsExit
 // This function requests that the Qt application exits its event loop by calling
 // QGuiApplication::quit() on the global application instance.
 //
@@ -445,11 +586,31 @@ ertqt_object_handle ertqt_get_object_by_name(const char * name)
         }
         if (rec.name == name)
         {
+            printf("[ERTQT-STATE] get_object_by_name('%s') -> FOUND (state=%s, table_size=%zu)\n",
+                   name, state_name(g_app_state), g_objects.size());
+            fflush(stdout);
             return reinterpret_cast<ertqt_object_handle>(rec.ptr);
         }
     }
 
     return ERTQT_ERR_NOT_FOUND;
+}
+
+/* C wrapper with a bit of state filtering for calling C++ function rebuild_object_table().
+*/
+ertqt_status ertqt_refresh_objects(void)
+{
+    printf("[ERTQT-STATE] refresh_objects called (state=%s)\n", state_name(g_app_state));
+    fflush(stdout);
+
+    if (!g_initialised || !g_engine)
+    {
+        printf ("[ERTQT-STATE] refresh_objects: not initialised, cannot rebuild object table\n");
+        return ERTQT_ERR_GENERIC;
+    }
+    printf("[ERTQT-STATE] refresh_objects: calling rebuild_object_table()\n");
+    rebuild_object_table();
+    return ERTQT_OK;
 }
 
 // Public interface for retrieving the objectName for a given handle.
@@ -1138,6 +1299,77 @@ static ertqt_status connect_text_signal_by_name(QObject *obj, const char *signal
                         cb(utf8.constData(), user_data);
                     });
     return ERTQT_OK;
+}
+
+// Helper: Connect a value signal by name using metaobject introspection.
+// Value signals typically emit a numeric value (int or real).  Because the
+// signal parameter is lost through the QSignalMapper bridge, the callback
+// always reads the "value" property at the time the signal fires.
+static ertqt_status connect_value_signal_by_name(QObject *obj, const char *signal_name,
+                                                  ertqt_value_callback cb, void * user_data)
+{
+    if (!obj || !signal_name || !cb)
+        return ERTQT_ERR_INVALID_ARGUMENT;
+
+    const QMetaObject *mo = obj->metaObject();
+    if (!mo)
+        return ERTQT_ERR_BACKEND_FAILURE;
+
+    // Try parameterless first
+    QString sig_str = QString("%1()").arg(signal_name);
+    int signal_idx = mo->indexOfSignal(QMetaObject::normalizedSignature(sig_str.toUtf8().constData()));
+
+    // Try with common numeric parameter variations
+    if (signal_idx < 0)
+    {
+        sig_str = QString("%1(double)").arg(signal_name);
+        signal_idx = mo->indexOfSignal(QMetaObject::normalizedSignature(sig_str.toUtf8().constData()));
+    }
+    if (signal_idx < 0)
+    {
+        sig_str = QString("%1(qreal)").arg(signal_name);
+        signal_idx = mo->indexOfSignal(QMetaObject::normalizedSignature(sig_str.toUtf8().constData()));
+    }
+    if (signal_idx < 0)
+    {
+        sig_str = QString("%1(int)").arg(signal_name);
+        signal_idx = mo->indexOfSignal(QMetaObject::normalizedSignature(sig_str.toUtf8().constData()));
+    }
+
+    if (signal_idx < 0)
+    {
+        return ERTQT_ERR_BACKEND_FAILURE;
+    }
+
+    QMetaMethod signal = mo->method(signal_idx);
+    QString sig_string = QString("%1").arg(signal.methodSignature().constData());
+
+    QByteArray normalized_sig = QMetaObject::normalizedSignature(sig_string.toLatin1().constData());
+    QByteArray signal_sig = QByteArray::number(2) + normalized_sig;
+
+    auto *mapper = new QSignalMapper(obj);
+    mapper->setMapping(obj, 0);
+
+    bool connected = QObject::connect(obj, signal_sig.constData(), mapper, "1map()");
+    if (!connected) {
+        return ERTQT_ERR_BACKEND_FAILURE;
+    }
+
+    QObject::connect(mapper, ERTQT_SIGNAL_MAPPER_MAPPED_INT,
+                    g_app, [obj, cb, user_data](int) {
+                        double value = obj->property("value").toDouble();
+                        cb(value, user_data);
+                    });
+    return ERTQT_OK;
+}
+
+ertqt_status ertqt_bind_value_changed(ertqt_object_handle h, ertqt_value_callback cb, void * user_data)
+{
+    if (!h || !cb)
+        return ERTQT_ERR_INVALID_ARGUMENT;
+
+    QObject *obj = reinterpret_cast<QObject*>(h);
+    return connect_value_signal_by_name(obj, "valueChanged", cb, user_data);
 }
 
 ertqt_status ertqt_bind_text_changed(ertqt_object_handle h, ertqt_text_callback cb, void * user_data)
