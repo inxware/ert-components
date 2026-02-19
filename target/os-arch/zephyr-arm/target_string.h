@@ -1,0 +1,75 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
+ * not, please visit
+ *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+ ***************************************************************/
+
+/** @file target_string.h
+ * The target-specific declarations required to support the HAL for string
+ * services are defined here. This file should only be included by hal_string.h
+ *
+ * Zephyr ARM target - uses standard C library string functions.
+ *
+ * @author: inx limited
+ */
+
+#ifndef EHS_TARGET_STRING_H
+#define EHS_TARGET_STRING_H
+
+#ifndef EHS_HAL_STRING_H
+#error "This file should only be included by hal_string.h"
+#endif
+
+/*****************************************************************************/
+/* Included files */
+
+#include <ctype.h>
+#include <string.h>
+#include <strings.h>
+
+/*****************************************************************************/
+/* Define macros  */
+
+#define EhsSprintf sprintf
+#define EhsSnprintf snprintf
+#define EhsSscanf sscanf
+
+#ifdef NANOPRINTF_IMPLEMENTATION
+#define EhsVsnprintf npf_vsnprintf
+#else
+#define EhsVsnprintf vsnprintf
+#endif
+
+#define EhsStrcpy strcpy
+#define EhsStrncpy strncpy
+#define EhsStrcpy_s(dst, n, src) strcpy(dst, src)
+#define EhsStrncpy_s(dst, n, src, len) strncpy(dst, src, len)
+#define EhsStricmp strcasecmp
+#define EhsStrnicmp strncasecmp
+#define EhsStrncmp strncmp
+#define EhsStrcmp strcmp
+#define EhsStrcat strcat
+#define EhsStrncat strncat
+#define EhsStrlen strlen
+#define EhsStrchr strchr
+#define EhsStrstr strstr
+#define EhsStrnstr strstr
+#define EhsStrcat_s(dest, n, src) strcat(dest, src)
+#define EhsMemset memset
+#define EhsMemcpy memcpy
+#define EhsMemchr memchr
+#define EhsStrIsSpace(x) isspace(x)
+
+/*****************************************************************************/
+/* Define types */
+
+/*****************************************************************************/
+/* Declare global variables */
+
+/*****************************************************************************/
+/* Declare function prototypes  */
+
+#endif /* EHS_TARGET_STRING_H */
