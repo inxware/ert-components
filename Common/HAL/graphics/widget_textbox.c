@@ -26,8 +26,6 @@
 #include "font.h"
 #include "widget_textbox.h"
 
-asdad
-
 //#define DEFAULT_INDENT 5
 /**
  * Insert a widget itno the Z-ordered list of widgets. This is called

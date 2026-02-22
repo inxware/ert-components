@@ -223,8 +223,8 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                                                                     xParams.uClass.xTextbox.nLineSep,
                                                                     xParams.uClass.xTextbox.xFgColour,
                                                                     xParams.uClass.xTextbox.xBgColour,
-                                                                    xParams.ePurposeClass,
-                                                                    pFont
+                                                                    pFont,
+                                                                    xParams.ePurposeClass
                                                                 );
 
 #endif // EHS_GUI_SUPPORT_MODE_B 

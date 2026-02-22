@@ -105,7 +105,7 @@ EHS_FB_INIT_FUNCTION(GUI_Textbox)
                 EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT,
                 EHS_L_DEFAULT_LINESEP,
                 xParams.nZorder, xParams.uClass.xTextbox.xFgColour,
-                xParams.uClass.xTextbox.xBgColour,pFont);
+                xParams.uClass.xTextbox.xBgColour,pFont,xParams.ePurposeClass);
         bRet = EHS_TRUE;
     }
     return bRet; /* initialisation always succeeds */
