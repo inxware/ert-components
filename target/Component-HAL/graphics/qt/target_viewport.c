@@ -207,9 +207,6 @@ void EhsTargetWidgetUi_create(EhsWidgetClass * pWidget, EhsTVClass * pViewport)
 
     /* Look up Qt object by name */
     const char * widget_name = pWidget->szWidgetName[0] != '\0' ? pWidget->szWidgetName : "unknown_widget";
-    printf("[ERTQT-STATE] EhsTargetWidgetUi_create: looking up '%s' (app_state=%d)\n",
-           widget_name, (int)ertqt_get_app_state());
-    fflush(stdout);
     EHSH_LOG_INFO("EhsTargetWidgetUi_create: looking up Qt object '%s'", widget_name);
 
     ertqt_object_handle h = ertqt_get_object_by_name(widget_name);
@@ -265,8 +262,6 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
             ertqt_object_handle h = ertqt_get_object_by_name(name);
             if (h >= 0)
             {
-                printf("[ERTQT-STATE] lazy bind: '%s' -> handle=%"PRIdPTR"\n", name, (intptr_t)h);
-                fflush(stdout);
                 pWidget->qt_handle = h;
                 register_qt_signals(pWidget);
             }
@@ -285,24 +280,20 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
     /* If content was updated, push the new data to the Qt widget */
     if (pWidget->bContentUpdated)
     {
-        printf("Draw widget %"PRIdPTR" - content updated, syncing to Qt\n", h);
         /* EHS_WIDGET_UI(pWidget).data points to an EhsWidgetUi structure */
         /* The actual widget data (string/bool/int/float) is in the .data field of that structure */
         EhsWidgetUi * gui = (EhsWidgetUi *)EHS_WIDGET_UI(pWidget).data;
         if (!gui)
         {
-            printf("!!!!  gui pointer is NULL!\n");
             EHSH_LOG_WARNING("  gui pointer is NULL!");
             pWidget->bContentUpdated = EHS_FALSE;
             return;
         }
-       printf("Widget=%d\n",pWidget->eWidgetPurposeClass);
         /* For string widgets (TextBox), set the text property */
         /* TODO  -this should be a case statement*/
         if (EhsWidgetUI_is_string_type(pWidget))
         {
             const char * text = (const char *)gui->data;
-            printf("  gui->data=%p, text='%s'\n", gui->data, text ? text : "(null)");
             if (text && text[0] != '\0')
             {
                 EHSH_LOG_INFO("  Setting Qt 'text' property to: '%s'", text);
@@ -345,10 +336,6 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
         else if (EhsWidgetUI_is_int_type(pWidget))
         {
             ehs_sint32 * value = (ehs_sint32 *)gui->data;
-
-            printf ("**********************************\n"
-                    "Integer widget update: value=%d\n"
-                    "**********************************\n", value ? *value : -1);
             if (value)
             {
                 EHSH_LOG_INFO("  Setting Qt 'value' property to: %d", *value);

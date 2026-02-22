@@ -186,7 +186,6 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                 default:
                     EHSH_LOG_ERROR("Error unknown widget sub type for TEXTBOX class")
             }
-            printf("FFFFFFF = %d\n",nId);
             /* Initialising a render Mode B widget struct */
             /* TODO this nId stuff has to go!... Should the initi function just pass in the while xParams anyway with class and purpose class info ..?*/
             inx_gui_widget_state->pUiWidgetClass = EhsWidgetUI_init(nId, xParams.uClass.xTextbox.nProp,

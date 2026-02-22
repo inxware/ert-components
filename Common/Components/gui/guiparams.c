@@ -453,8 +453,6 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         {
             *pTmp = '\0';
         }
-        printf("\n*** OBJECTNAME: [%s]\n",szObjectName);
-        printf("\n*** DEBUG: Widget type: '%s'\n", szObjectType);
         // fflush(stdout);
         EHSH_LOG_INFO("  Widget type: '%s'", szObjectType);
 
@@ -464,18 +462,14 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         pParams->ePurposeClass = EHS_WIDGET_PURPOSE_INVALID;
         if ( EhsParseGuiParametersTextBox2Type(szObjectType, &nTextBox2Type)) //try the primitive data types first (these aremost common)
         {
-            printf("\n*** QT DEBUG: Matched TEXTBOX widget type\n");
             EHSH_LOG_INFO("  -> Parsing as TEXT BOX widget");
-            printf("(!!!!!!!!!!!!!!!!!!!!!!!!) TEXTBOX parsing (%s) = %d\n",szObjectName,nTextBox2Type);
             if (EhsParseGuiParameters_textbox(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam,szObjectName))
             {
-                printf("(!!!!!!!!!!!!!!!!!!!!!!!!) TEXTBOX parsing (%s) = %d\n",szObjectName,nTextBox2Type);
                 pParams->ePurposeClass = nTextBox2Type; // assigne the sub type 
                 pParams->eClass = EHS_WIDGET_CLASS_TEXTBOX; // assigns the base widget type
             }
             else
             {
-                printf("(fail) TEXTBOX parsing FAILED\n");
                 EHSH_LOG_WARNING("  (fail) TEXTBOX parsing FAILED");
             }
         }

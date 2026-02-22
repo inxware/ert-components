@@ -31,7 +31,6 @@
 static void load_current_app_qml(void)
 {
     char qml_path[EHS_TD_FILES_MAX_PATH];
-    printf("++++++++++++++ Loading QML for current app\n");fflush(stdout);
     EhsHMetagetCurrentAppDir(qml_path);
     EhsStrncat(qml_path, "/app.qml", EHS_TD_FILES_MAX_PATH - EhsStrlen(qml_path) - 1);
 
@@ -71,17 +70,11 @@ static void ehs_tick_callback(void * user_data)
 
     // Single-step the kernel
     cmd = EhsMainLoopSingle(NULL, NULL);
-#if 0
-    printf("[TICK %u] cmd=%d prev_cmd=%d state_before=%d\n",
-           g_tick_count, (int)cmd, (int)g_prev_cmd, (int)state_before);
-    fflush(stdout);
-#endif
     // Doesn't work because this whle process is handled in a single loop iteration by the kernel single loop call:if (cmd == EHS_RELOAD_EHS_FROM_FILE && g_prev_cmd != EHS_RELOAD_EHS_FROM_FILE)
     if (EhsGetAndClearNewAppLoaded()) // new function for detecting new apps loaded by ehs.
     {
         //printf("[TICK %u] EDGE: EHS_RELOAD_EHS_FROM_FILE detected, loading QML\n", g_tick_count);
         //fflush(stdout);
-        printf("================ LOADING ======================\n");
         EHSH_LOG_INFO("EHS app reloaded, loading new QML");
         load_current_app_qml(); // aprently this always blocks until all objects are avilable.
         ertqt_refresh_objects(); // Ensure the object table is up to date immediately after loading new QML
@@ -100,11 +93,7 @@ static void ehs_tick_callback(void * user_data)
 
     if (state_before != state_after)
     {
-#if 0
-        printf("[TICK %u] state machine advanced: %d -> %d\n",
-               g_tick_count, (int)state_before, (int)state_after);
-        fflush(stdout);
-#endif
+
     }
 
     if (state_after == ERTQT_APP_STATE_SCANNED)

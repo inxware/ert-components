@@ -126,7 +126,6 @@ static ertqt_app_state g_app_state = ERTQT_APP_STATE_IDLE;
 // When QML is loaded (root objects are present) all events are forwarded
 // normally so that QML mouse/touch interaction is unaffected.
 //
-#define EHST_HACKLOGGING_ENABLED 1
 class ErtQtApplication : public QGuiApplication
 {
 public:
@@ -150,11 +149,6 @@ public:
             case QEvent::TouchUpdate:
             case QEvent::TouchEnd:
             case QEvent::TouchCancel:
-#if EHST_HACKLOGGING_ENABLED
-                printf("[ERTQT] pointer event type=%d intercepted in notify() — no QML loaded\n",
-                       (int)event->type());
-                fflush(stdout);
-#endif
                 event->accept(); // This eats the event so that it isen't passed up. (It doesn't solve anything with apps existing when the mouse moves).
                 return true;
             default:
@@ -177,24 +171,16 @@ static QObject * handle_to_qobject(ertqt_object_handle h)
     return reinterpret_cast<QObject*>(h);
 }
 
-#define EHST_HACKLOGGING_ENABLED 1
 static void rebuild_object_table()
 {
     std::lock_guard<std::mutex> lock(g_objects_mutex);
     g_objects.clear();
-#if EHST_HACKLOGGING_ENABLED
-    printf("[ERTQT-STATE] rebuild_object_table() called\n");
-#endif  
     if (!g_engine)
     {
-        #if EHST_HACKLOGGING_ENABLED
-        printf("[ERTQT-STATE] rebuild_object_table: g_engine is NULL, skipping\n");
-        #endif
         return;
     }
 
     const QList<QObject *> roots = g_engine->rootObjects();
-    printf("XXXXXX[ERTQT-STATE] rebuild_object_table: %lld root objects\n", roots.size());
     int named_count = 0;
     for (QObject *root : roots)
     {
@@ -207,9 +193,7 @@ static void rebuild_object_table()
         rec.ptr = root;
         rec.name = root->objectName().toStdString();
         g_objects.push_back(rec);
-#if EHST_HACKLOGGING_ENABLED
         if (!rec.name.empty()) named_count++;
-#endif
         // Include all children
         const QList<QObject *> children = root->findChildren<QObject *>();
         for (QObject *child : children)
@@ -222,16 +206,10 @@ static void rebuild_object_table()
             crec.ptr = child;
             crec.name = child->objectName().toStdString();
             g_objects.push_back(crec);
-#if EHST_HACKLOGGING_ENABLED
             if (!crec.name.empty()) named_count++;
-#endif
         }
     }
-#if EHST_HACKLOGGING_ENABLED
-    printf("[ERTQT-STATE] rebuild_object_table: %zu total objects, %d with objectName\n",
-           g_objects.size(), named_count);
-    fflush(stdout);
-#endif
+    (void)named_count;
 }
 
 // Internal helper used as the QTimer callback for driving the registered tick callback.
@@ -308,18 +286,12 @@ ertqt_app_state ertqt_process_state(void)
     {
     case ERTQT_APP_STATE_OBJECTS_READY:
     case ERTQT_APP_STATE_RESCAN_NEEDED:
-        printf("[ERTQT-STATE] process_state: %s -> rebuilding object table\n", state_name(prev));
-        fflush(stdout);
         //x rebuild_object_table();
         g_app_state = ERTQT_APP_STATE_SCANNED;
-        printf("[ERTQT-STATE] process_state: %s -> %s\n", state_name(prev), state_name(g_app_state));
-        fflush(stdout);
         break;
 
     case ERTQT_APP_STATE_SCANNED:
         g_app_state = ERTQT_APP_STATE_IDLE;
-        printf("[ERTQT-STATE] process_state: %s -> %s\n", state_name(prev), state_name(g_app_state));
-        fflush(stdout);
         break;
 
     default:
@@ -331,8 +303,6 @@ ertqt_app_state ertqt_process_state(void)
 
 void ertqt_request_rescan(void)
 {
-    printf("[ERTQT-STATE] request_rescan: %s -> RESCAN_NEEDED\n", state_name(g_app_state));
-    fflush(stdout);
     g_app_state = ERTQT_APP_STATE_RESCAN_NEEDED;
 }
 
@@ -440,8 +410,6 @@ ertqt_status ertqt_load_app(const char * qml_path)
         return ERTQT_ERR_GENERIC;
     }
 
-    printf("[ERTQT-STATE] load_app: %s -> LOADING (qml=%s)\n", state_name(g_app_state), qml_path);
-    fflush(stdout);
     g_app_state = ERTQT_APP_STATE_LOADING;
 
     // Add the QML file's directory as an import path so that the
@@ -450,27 +418,11 @@ ertqt_status ertqt_load_app(const char * qml_path)
     QString qml_dir = QFileInfo(qml_file).absolutePath();
     g_engine->addImportPath(qml_dir);
 
-    QStringList paths = g_engine->importPathList();
-    printf("QML import paths:\n");
-    for (const QString &p : paths)
-    {
-        printf("  %s\n", p.toStdString().c_str());
-    }
-
-    printf("[ERTQT-STATE] load_app: calling g_engine->load() (blocking)...\n");
-    fflush(stdout);
-
     // load() blocks until the QML tree is fully constructed
     g_engine->load(QUrl::fromLocalFile(qml_file));
 
-    printf("[ERTQT-STATE] load_app: g_engine->load() returned, rootObjects=%lld\n",
-           g_engine->rootObjects().size());
-    fflush(stdout);
-
     if (g_engine->rootObjects().isEmpty())
     {
-        printf("[ERTQT-STATE] load_app: LOADING -> IDLE (no root objects — FAILURE)\n");
-        fflush(stdout);
         g_app_state = ERTQT_APP_STATE_IDLE;
         return ERTQT_ERR_BACKEND_FAILURE;
     }
@@ -478,8 +430,6 @@ ertqt_status ertqt_load_app(const char * qml_path)
     // QML tree is ready — signal that the object table needs scanning.
     // The actual rebuild happens on the next ertqt_process_state() call.
     g_app_state = ERTQT_APP_STATE_OBJECTS_READY;
-    printf("[ERTQT-STATE] load_app: LOADING -> OBJECTS_READY\n");
-    fflush(stdout);
     return ERTQT_OK;
 }
 
@@ -586,9 +536,6 @@ ertqt_object_handle ertqt_get_object_by_name(const char * name)
         }
         if (rec.name == name)
         {
-            printf("[ERTQT-STATE] get_object_by_name('%s') -> FOUND (state=%s, table_size=%zu)\n",
-                   name, state_name(g_app_state), g_objects.size());
-            fflush(stdout);
             return reinterpret_cast<ertqt_object_handle>(rec.ptr);
         }
     }
@@ -600,15 +547,10 @@ ertqt_object_handle ertqt_get_object_by_name(const char * name)
 */
 ertqt_status ertqt_refresh_objects(void)
 {
-    printf("[ERTQT-STATE] refresh_objects called (state=%s)\n", state_name(g_app_state));
-    fflush(stdout);
-
     if (!g_initialised || !g_engine)
     {
-        printf ("[ERTQT-STATE] refresh_objects: not initialised, cannot rebuild object table\n");
         return ERTQT_ERR_GENERIC;
     }
-    printf("[ERTQT-STATE] refresh_objects: calling rebuild_object_table()\n");
     rebuild_object_table();
     return ERTQT_OK;
 }
@@ -780,7 +722,6 @@ static ertqt_status get_property(ertqt_object_handle h, const char * prop_name, 
 //
 ertqt_status ertqt_set_property_int(ertqt_object_handle h, const char * prop_name, int value)
 {
-      printf("^^^^^^^^^Int\n");
     return set_property(h, prop_name, QVariant(value));
 }
 
@@ -852,7 +793,6 @@ ertqt_status ertqt_get_property_int(ertqt_object_handle h, const char * prop_nam
 //
 ertqt_status ertqt_set_property_double(ertqt_object_handle h, const char * prop_name, double value)
 {
-      printf("^^^^^^^^^Double\n");
     return set_property(h, prop_name, QVariant(value));
 }
 
@@ -921,7 +861,6 @@ ertqt_status ertqt_get_property_double(ertqt_object_handle h, const char * prop_
 //
 ertqt_status ertqt_set_property_bool(ertqt_object_handle h, const char * prop_name, bool value)
 {
-      printf("^^^^^^^^^Bool\n");
     const bool b = (value != 0);
     return set_property(h, prop_name, QVariant(b));
 }
@@ -993,7 +932,6 @@ ertqt_status ertqt_get_property_bool(ertqt_object_handle h, const char * prop_na
 //
 ertqt_status ertqt_set_property_string(ertqt_object_handle h, const char * prop_name, const char * utf8_value)
 {
-    printf("^^^^^^^^^String\n");
     if (!utf8_value)
     {
         return ERTQT_ERR_INVALID_ARGUMENT;
