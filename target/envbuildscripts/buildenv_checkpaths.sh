@@ -19,9 +19,7 @@ else
     EHS_KERNEL_LIB=libehs.a
 fi
 
-echo
-echo "--------------------------------------------------------------------"
-echo
+echo "${TXT_FG_GREY}--${TXT_FG_CYAN}TOOLCHAIN${TXT_FG_GREY}---------------------------------------------------------"
 if [ "${TOOLCHAIN_PATH}" = "HOST" ] || [ "${TOOLCHAIN_NAME}" = "HOST" ]; then
     echo "${TXT_FG_BLUE}TOOLCHAIN:${TXT_FG} Using host system compiler"
     echo "${TXT_FG_BLUE}EHS_BUILD_SYSROOT:${TXT_FG} Using host system sysroot"
@@ -32,8 +30,7 @@ else
     test -d "${EHS_BUILD_SYSROOT}" && echo "${TXT_FG_GREEN}EXISTS" || warn "MISSING"
 fi
 echo
-echo "--------------------------------------------------------------------"
-echo
+echo "${TXT_FG_GREY}--${TXT_FG_CYAN}DEPENDENCIES${TXT_FG_GREY}----------------------------------------------------"
 echo -n "${TXT_FG_BLUE}EHS KERNEL:${TXT_FG} ${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/${EHS_KERNEL_LIB} - "
 test -f "${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/${EHS_KERNEL_LIB}" && echo "${TXT_FG_GREEN}EXISTS" || err "N/A"
 
@@ -64,7 +61,6 @@ echo -n "${TXT_FG_BLUE}CONTRIB INC:${TXT_FG} ${EHS_COMPONENT_SUPPORT_INCLUDE} - 
 test -d "${EHS_COMPONENT_SUPPORT_INCLUDE}" && echo "${TXT_FG_GREEN}EXISTS" || warn "MISSING"
 echo -n "${TXT_FG_BLUE}CONTRIB LIB:${TXT_FG} ${EHS_COMPONENT_SUPPORT_LIBS} - "
 test -d "${EHS_COMPONENT_SUPPORT_LIBS}" && echo "${TXT_FG_GREEN}EXISTS" || warn "MISSING"
-echo
-echo "--------------------------------------------------------------------"
+echo "${TXT_FG_GREY}--------------------------------------------------------------------"
 echo
 exit 0

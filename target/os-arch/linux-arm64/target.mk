@@ -30,15 +30,16 @@
 ifeq ($(TOOLCHAIN_NAME),HOST)
 	#Assume this is a host build all the time for clang-arm64?
 	#Debian contrib libraries are found here: 
-	export INC_DIRS+=/usr/include/aarch64-linux-gnu/
+	INC_DIRS+=/usr/include/aarch64-linux-gnu/
 	#It seems libexpat.h is only found in the host's /usr/include after installing the -dev 
-	export INC_DIRS+=/usr/include/
-	export LIB_DIRS += /usr/lib/aarch64-linux-gnu/
+	INC_DIRS+=/usr/include/
+	LIB_DIRS += /usr/lib/aarch64-linux-gnu/
 #We usually have glib...
-	#ifdef ($(EHS_DEBIAN_VERSION)) 
-		 export INC_DIRS +=  /usr/lib/aarch64-linux-gnu/glib-2.0/include/
-		 export INC_DIRS += /usr/lib/aarch64-linux-gnu/gtk-2.0/include/
-	#endif
+	INC_DIRS +=  /usr/lib/aarch64-linux-gnu/glib-2.0/include/
+	INC_DIRS += /usr/lib/aarch64-linux-gnu/gtk-2.0/include/
+	ifeq ($(EHS_DEBIAN_VERSION),13)
+ 	   LIB += zstd
+	endif
 else
 	#No special target paths here unless we are specific target
 endif
@@ -53,4 +54,4 @@ include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/target.mk
 #OBJECTS += targetos_init_specific.$(OBJ)
 OBJECTS += spi.$(OBJ)
 
-LIB+=zstd
+

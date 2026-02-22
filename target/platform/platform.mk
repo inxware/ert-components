@@ -475,16 +475,16 @@ endif
 #####################################################################################
 # Display the config - please keep this up to date with all the platform options.
 #####################################################################################
-$(info )
-$(info $(TXT_FG_GREY)--------------------------------------------------------------------)
-$(info )
-$(info $(TXT_FG_BLUE)Build host architecture:)
+#$(info $(TXT_BG_GREY) MAKE ENVIRONMENT                                              $(TXT_BG_BLACK))
+$(info $(TXT_FG_GREY)--$(TXT_FG_CYAN)BUILD HOST ARCHIECTURE$(TXT_FG_GREY)---------------------------------------)
 $(info $(TXT_FG_GREEN)EHS_ARCH                         = '$(TXT_FG_WHITE)$(EHS_ARCH)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_GNU_ARCH                     = '$(TXT_FG_WHITE)$(EHS_GNU_ARCH)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_OS                           = '$(TXT_FG_WHITE)$(EHS_OS)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_GNU_OS                       = '$(TXT_FG_WHITE)$(EHS_GNU_OS)$(TXT_FG_GREEN)')
-$(info )
-$(info $(TXT_FG_BLUE)Toolboxes:)
+ifdef EHS_DEBIAN_VERSION
+$(info $(TXT_FG_GREEN)DEBIAN VERSION                   = '$(TXT_FG_WHITE)$(EHS_DEBIAN_VERSION)$(TXT_FG_GREEN)')
+endif
+$(info $(TXT_FG_GREY)--$(TXT_FG_CYAN)COMPONENT TOOLBOXES$(TXT_FG_GREY)------------------------------------------)
 $(info $(TXT_FG_GREEN)EHS_PERIPHERALS_GPIO_SUPPORT     = '$(TXT_FG_WHITE)$(EHS_PERIPHERALS_GPIO_SUPPORT)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_PERIPHERAL_DEVICE_SUPPORT    = '$(TXT_FG_WHITE)$(EHS_PERIPHERAL_DEVICE_SUPPORT)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_PERIPHERALS_ADC_DAC_SUPPORT  = '$(TXT_FG_WHITE)$(EHS_PERIPHERALS_ADC_DAC_SUPPORT)$(TXT_FG_GREEN)')
@@ -497,11 +497,9 @@ $(info $(TXT_FG_GREEN)EHS_AV_SUPPORT                   = '$(TXT_FG_WHITE)$(EHS_A
 $(info $(TXT_FG_GREEN)EHS_VIDEO_SUPPORT                = '$(TXT_FG_WHITE)$(EHS_VIDEO_SUPPORT)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_MEDIA_SUPPORT                = '$(TXT_FG_WHITE)$(EHS_MEDIA_SUPPORT)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_TOOLKIT_DEPRECATED           = '$(TXT_FG_WHITE)$(EHS_TOOLKIT_DEPRECATED)$(TXT_FG_GREEN)')
-$(info )
-$(info $(TXT_FG_BLUE)Debug:)
+$(info $(TXT_FG_GREY)--$(TXT_FG_CYAN)DEBUGGING LEVELS$(TXT_FG_GREY)----------------------------------------------)
 $(info $(TXT_FG_GREEN)EHS_DEBUGALL                     = '$(TXT_FG_WHITE)$(EHS_DEBUGALL)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_DEBUG_AV                     = '$(TXT_FG_WHITE)$(EHS_DEBUG_AV)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_DEBUG_TCPIP_CONSOLE          = '$(TXT_FG_WHITE)$(EHS_DEBUG_TCPIP_CONSOLE)$(TXT_FG_GREEN)')
 $(info $(TXT_FG_GREEN)EHS_DEBUG_TRACE                  = '$(TXT_FG_WHITE)$(EHS_DEBUG_TRACE)$(TXT_FG_GREEN)')
-$(info )
-$(info $(TXT_FG_GREY)--------------------------------------------------------------------)
+$(info $(TXT_FG_GREY)---------------------------------------------------------------)
