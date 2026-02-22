@@ -281,26 +281,28 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
         }
     }
     ertqt_object_handle h = pWidget->qt_handle;
-
+    //printf("++++++\n");
     /* If content was updated, push the new data to the Qt widget */
     if (pWidget->bContentUpdated)
     {
-        EHSH_LOG_INFO("Draw widget %"PRIdPTR" - content updated, syncing to Qt", h);
+        printf("Draw widget %"PRIdPTR" - content updated, syncing to Qt\n", h);
         /* EHS_WIDGET_UI(pWidget).data points to an EhsWidgetUi structure */
         /* The actual widget data (string/bool/int/float) is in the .data field of that structure */
         EhsWidgetUi * gui = (EhsWidgetUi *)EHS_WIDGET_UI(pWidget).data;
         if (!gui)
         {
+            printf("!!!!  gui pointer is NULL!\n");
             EHSH_LOG_WARNING("  gui pointer is NULL!");
             pWidget->bContentUpdated = EHS_FALSE;
             return;
         }
-
+       printf("Widget=%d\n",pWidget->eWidgetPurposeClass);
         /* For string widgets (TextBox), set the text property */
+        /* TODO  -this should be a case statement*/
         if (EhsWidgetUI_is_string_type(pWidget))
         {
             const char * text = (const char *)gui->data;
-            EHSH_LOG_INFO("  gui->data=%p, text='%s'", gui->data, text ? text : "(null)");
+            printf("  gui->data=%p, text='%s'\n", gui->data, text ? text : "(null)");
             if (text && text[0] != '\0')
             {
                 EHSH_LOG_INFO("  Setting Qt 'text' property to: '%s'", text);
@@ -343,6 +345,10 @@ void EhsTargetWidgetUi_draw(EhsWidgetClass * pWidget)
         else if (EhsWidgetUI_is_int_type(pWidget))
         {
             ehs_sint32 * value = (ehs_sint32 *)gui->data;
+
+            printf ("**********************************\n"
+                    "Integer widget update: value=%d\n"
+                    "**********************************\n", value ? *value : -1);
             if (value)
             {
                 EHSH_LOG_INFO("  Setting Qt 'value' property to: %d", *value);

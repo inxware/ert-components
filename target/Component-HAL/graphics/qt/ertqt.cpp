@@ -194,7 +194,7 @@ static void rebuild_object_table()
     }
 
     const QList<QObject *> roots = g_engine->rootObjects();
-    printf("XXXXXX[ERTQT-STATE] rebuild_object_table: %d root objects\n", roots.size());
+    printf("XXXXXX[ERTQT-STATE] rebuild_object_table: %lld root objects\n", roots.size());
     int named_count = 0;
     for (QObject *root : roots)
     {
@@ -463,7 +463,7 @@ ertqt_status ertqt_load_app(const char * qml_path)
     // load() blocks until the QML tree is fully constructed
     g_engine->load(QUrl::fromLocalFile(qml_file));
 
-    printf("[ERTQT-STATE] load_app: g_engine->load() returned, rootObjects=%d\n",
+    printf("[ERTQT-STATE] load_app: g_engine->load() returned, rootObjects=%lld\n",
            g_engine->rootObjects().size());
     fflush(stdout);
 
@@ -780,6 +780,7 @@ static ertqt_status get_property(ertqt_object_handle h, const char * prop_name, 
 //
 ertqt_status ertqt_set_property_int(ertqt_object_handle h, const char * prop_name, int value)
 {
+      printf("^^^^^^^^^Int\n");
     return set_property(h, prop_name, QVariant(value));
 }
 
@@ -851,6 +852,7 @@ ertqt_status ertqt_get_property_int(ertqt_object_handle h, const char * prop_nam
 //
 ertqt_status ertqt_set_property_double(ertqt_object_handle h, const char * prop_name, double value)
 {
+      printf("^^^^^^^^^Double\n");
     return set_property(h, prop_name, QVariant(value));
 }
 
@@ -919,6 +921,7 @@ ertqt_status ertqt_get_property_double(ertqt_object_handle h, const char * prop_
 //
 ertqt_status ertqt_set_property_bool(ertqt_object_handle h, const char * prop_name, bool value)
 {
+      printf("^^^^^^^^^Bool\n");
     const bool b = (value != 0);
     return set_property(h, prop_name, QVariant(b));
 }
@@ -946,6 +949,7 @@ ertqt_status ertqt_set_property_bool(ertqt_object_handle h, const char * prop_na
 //
 ertqt_status ertqt_get_property_bool(ertqt_object_handle h, const char * prop_name, bool * out_value)
 {
+  
     if (!out_value)
     {
         return ERTQT_ERR_INVALID_ARGUMENT;
@@ -989,6 +993,7 @@ ertqt_status ertqt_get_property_bool(ertqt_object_handle h, const char * prop_na
 //
 ertqt_status ertqt_set_property_string(ertqt_object_handle h, const char * prop_name, const char * utf8_value)
 {
+    printf("^^^^^^^^^String\n");
     if (!utf8_value)
     {
         return ERTQT_ERR_INVALID_ARGUMENT;

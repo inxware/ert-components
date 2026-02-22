@@ -23,7 +23,7 @@ ifeq ($(ESP32_TOOLCHAIN_MATCH),1)
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/esp32s3_freertos-xtensa/toolchain_idf_5_1_x.mk
 else ifeq ($(TOOLCHAIN_NAME),xtensa-esp32s3-elf-4.4.4)
 # add v4.4.4 specific configuration
-CFLAGS += -DUSE_ESP32S3_LEGACY_API=1
+CFLAGS += -DUSE_ESP32S3_LEGACY_API=1 -fshort-enums
 # v4.4.4 doesn't support a proper continious adc api, so we just stub the pid
 ifdef EHS_PID_SUPPORT
 EHS_PID_SUPPORT=stubbed

@@ -709,7 +709,7 @@ void EhsWidgetTable_triggerViewportMouseDown(const EhsWidgetTableClass* pWidgetT
             if(pWidget->pFIData)
             {
                 /* Check if it is a viewport */
-                if(pWidget->eWidgetKind == EHS_WIDGET_KIND_VIEWPORT)
+                if(pWidget->eWidgetClass == EHS_WIDGET_CLASS_VIEWPORT)
                 {
                     pWidget->nMouseDownX = x;
                     pWidget->nMouseDownY = y;
@@ -749,7 +749,7 @@ void EhsWidgetTable_triggerViewportMouseUp(const EhsWidgetTableClass* pWidgetTab
             if(pWidget->pFIData)
             {
                 /*Check if it is a viewport */
-                if(pWidget->eWidgetKind == EHS_WIDGET_KIND_VIEWPORT)
+                if(pWidget->eWidgetClass == EHS_WIDGET_CLASS_VIEWPORT)
                 {
                     pFIdata = pWidget->pFIData;
                     if (pWidget->mouseUpDownAbsXPortNumber > -1 && pWidget->mouseUpDownAbsYPortNumber > -1 && pWidget->mouseUpPortNumber > 1)
@@ -789,7 +789,7 @@ void EhsWidgetTable_triggerViewportMouseDrag(const EhsWidgetTableClass* pWidgetT
             if(pWidget->pFIData)
             {
                 /*Check if it is a viewport*/
-                if(pWidget->eWidgetKind == EHS_WIDGET_KIND_VIEWPORT)
+                if(pWidget->eWidgetClass == EHS_WIDGET_CLASS_VIEWPORT)
                 {
                     pFIdata = pWidget->pFIData;
                     if (pWidget->mouseDragOffsetXPortNumber > -1 && pWidget->mouseDragOffsetYPortNumber > -1 && pWidget->mouseDragPortNumber > -1)

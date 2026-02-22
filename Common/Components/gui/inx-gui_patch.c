@@ -14,6 +14,7 @@
 //ICB HEADER MACRO END -- DO NOT ALTER
 
 #include "widget.h"
+#include "widget_ui.h"
 #include "guiparams.h"
 
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -100,7 +101,8 @@ EHS_FB_INIT_FUNCTION(gui_patch)
 																0, 0, 0, 0, 0,
 																xParams.uClass.xPatch,
 																xParams.uClass.xPatch,
-																/*pFont*/NULL
+																/*pFont*/NULL,
+                                                               xParams.ePurposeClass
 #ifdef EHS_STORE_WIDGET_NAMES
 																,xParams.widgetName
 #endif

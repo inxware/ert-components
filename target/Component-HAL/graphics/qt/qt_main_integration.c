@@ -76,7 +76,8 @@ static void ehs_tick_callback(void * user_data)
            g_tick_count, (int)cmd, (int)g_prev_cmd, (int)state_before);
     fflush(stdout);
 #endif
-    if (cmd == EHS_RELOAD_EHS_FROM_FILE && g_prev_cmd != EHS_RELOAD_EHS_FROM_FILE)
+    // Doesn't work because this whle process is handled in a single loop iteration by the kernel single loop call:if (cmd == EHS_RELOAD_EHS_FROM_FILE && g_prev_cmd != EHS_RELOAD_EHS_FROM_FILE)
+    if (EhsGetAndClearNewAppLoaded()) // new function for detecting new apps loaded by ehs.
     {
         //printf("[TICK %u] EDGE: EHS_RELOAD_EHS_FROM_FILE detected, loading QML\n", g_tick_count);
         //fflush(stdout);

@@ -1745,6 +1745,10 @@ const char* EhsTargetWidgetUi_set_second_label(struct EhsWidgetStruct* pWidget, 
     return lv_label_get_text(label);
 }
 
+
+/* Set up LVGL widgets using the weird widget id magic that */
+/* Todo 2026 change this switch to a nested switch/ase of basic widget types and sub cases for the raw extended type defined by */
+
 lv_obj_t* EhsTargetWidgetUi_factory(struct EhsWidgetStruct* pWidget){
     lv_obj_t* obj = NULL;
     switch (EHS_WIDGET_UI(pWidget).id)

@@ -111,7 +111,8 @@ EhsWidgetClass* create_ui_widget(ehs_uint16 id, ehs_sint32 x, ehs_sint32 y, ehs_
                                 xParams.uClass.xTextbox.nLineSep,
                                 xParams.uClass.xTextbox.xFgColour,
                                 xParams.uClass.xTextbox.xBgColour,
-                                /*pFont*/NULL
+                                /*pFont*/NULL,
+                                xParams.ePurposeClass
 #ifdef EHS_STORE_WIDGET_NAMES
                                 ,""
 #endif
@@ -202,7 +203,8 @@ EhsWidgetClass* create_text_widget(ehs_sint32 x, ehs_sint32 y, ehs_sint32 w, ehs
                                     xParams.uClass.xTextbox.nLineSep,
                                     xParams.uClass.xTextbox.xFgColour,
                                     xParams.uClass.xTextbox.xBgColour,
-                                    pFont);
+                                    pFont,
+                                    xParams.ePurposeClass);
     return pWidget;
 }
 

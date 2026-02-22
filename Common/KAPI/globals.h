@@ -83,7 +83,7 @@
 #define EHS_CHAR_CR (0xdu)
 #define EHS_CHAR_ESC (0x1bu)
 
-#define EHS_PARAM_SEPARATOR 0x01 /**< Used to separate fields in parameters */
+#define EHS_PARAM_SEPARATOR 0x01 /**< Used to separate fields in parameters. Only used in indirect paramter files currently, but should be used in SODL too for ert0 ? */
 
 /* define special values */
 #define EHS_FUNCTION_ID_START 0 /**< Id of the start event */

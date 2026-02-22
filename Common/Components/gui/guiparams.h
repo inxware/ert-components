@@ -22,12 +22,8 @@
 #include "globals.h"
 #include "ehs_fb_types.h"
 #include "graphics.h"
-#include "globals.h"
+#include "widget.h" // Needed for purpose enum
 
-/**
- * Defines the type of widget that we're displaying
- */
-typedef enum {EHS_WIDGET_CLASS_INVALID, EHS_WIDGET_CLASS_BITMAP, EHS_WIDGET_CLASS_TEXTBOX, EHS_WIDGET_CLASS_PATCH, EHS_WIDGET_CLASS_VIEWPORT, EHS_WIDGET_CLASS_VIDEO_PORT} EhsWidgetClassType;
 
 /**
  * Hold the parameters for a GUI object. Derived from the GUI
@@ -35,10 +31,10 @@ typedef enum {EHS_WIDGET_CLASS_INVALID, EHS_WIDGET_CLASS_BITMAP, EHS_WIDGET_CLAS
  */
 typedef struct
 {
+    EhsWidgetClassType eClass; /**< Indicates what base type of widget are we dealing with (data, button, image, viewport etc.)*/
+    EhsWidgetPurposeClassType ePurposeClass; /* Which purpose  class (e.g. what function block type including data format ) */
     EhsGraphicsRectangleClass xRect; /**< Bounding box of widget */
     ehs_uint32 nZorder; /**< Z-order. Lower values go behind higher ones  */
-    EhsWidgetClassType eClass; /**< Indicates what kind of widget are we dealing */
-    ehs_sint16 nTextBoxType;
 #if defined(EHS_STORE_WIDGET_NAMES)
     ehs_char widgetName[EHS_OBJECT_NAME_MAX_SIZE];
 #endif
@@ -60,7 +56,7 @@ typedef struct
             ehs_uint16 nLineSep;	/**< Separation between lines */
             ehs_bool bRelativeCoords; /**< used to identify of coords. should be interpreted as percentage of screen */
             ehs_char szFontName[EHS_FILESTRING_SIZE];	/**< Font name (if any) */
-            ehs_uint16 nType;  /**< Extended text box type */
+            ehs_uint16 nExtType;  /**< Extended text box type */
             ehs_uint16 nProp;  /**< Extended text box properties */
             ehs_uint16 nCurve; /**< Extended text box curveture property, used for  */
             ehs_uint16 nParent;/**< Extended text box parent id */

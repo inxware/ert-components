@@ -132,7 +132,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
     ehs_bool bRet = EHS_TRUE;
 
     EhsGuiParamsType xParams;
-    xParams.uClass.xTextbox.nType = 0;  // type is comming from iGB and is mainly used for extended ui e.g. button, slider etc.
+    xParams.uClass.xTextbox.nExtType = 0;  // type is comming from iGB and is mainly used for extended ui e.g. button, slider etc.
     xParams.uClass.xTextbox.nProp = 0;
     xParams.uClass.xTextbox.nCurve = 0;
     xParams.uClass.xTextbox.nParent = 0;
@@ -143,51 +143,52 @@ EHS_FB_INIT_FUNCTION(gui_widget)
     inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_INIT_CONTEXT;
     inx_gui_widget_state->pUiWidgetClass = NULL;
 
-    pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams);
-    EHSH_LOG_INFO("  ReadParmFile returned, guiParams[0]='%c' (0x%02x), first 50 chars: '%.50s'",
-                  guiParams[0] ? guiParams[0] : '?', (unsigned char)guiParams[0], guiParams);
+    pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams); //read from "%%%%..."
+    
     if (guiParams[0]) {
         // printf("\n*** QT DEBUG: guiParams[0] is NOT empty, proceeding to parse\n");
         // fflush(stdout);
         EHSH_LOG_INFO("gui_widget INIT: Read GUI parameters, calling EhsParseGuiParameters");
         EhsParseGuiParameters(guiParams, &xParams);
 
-        EHSH_LOG_INFO("gui_widget INIT: After parsing, eClass=%d (TEXTBOX=%d, BITMAP=%d, PATCH=%d, VIEWPORT=%d)",
-                      xParams.eClass, EHS_WIDGET_CLASS_TEXTBOX, EHS_WIDGET_CLASS_BITMAP,
-                      EHS_WIDGET_CLASS_PATCH, EHS_WIDGET_CLASS_VIEWPORT);
 
         if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
         {
-            EHSH_LOG_INFO("gui_widget INIT: Creating TEXTBOX widget (nTextBoxType=%d)", xParams.nTextBoxType);
+            EHSH_LOG_INFO("gui_widget INIT: Creating TEXTBOX widget (eClass=%d)", xParams.eClass);
 
 #if defined(EHS_GUI_SUPPORT_MODE_B) 
 
             inx_gui_widget_state->gui.data = NULL;
             inx_gui_widget_state->gui.label = NULL;
             ehs_uint16 nId = EHS_STRING_UI_WIDGET;
-            switch(xParams.nTextBoxType){ // text box type is comming from iGB and can either be string (0), bool (0), int (0), float (0)
-                case 0: // string widget type
+            
+            switch(xParams.ePurposeClass){ // text box 
+                case EHS_WIDGET_PURPOSE_TEXT: // string widget type
                 {
-                    nId = EHS_STRING_UI_WIDGET + xParams.uClass.xTextbox.nType;
+                    nId = EHS_STRING_UI_WIDGET + xParams.uClass.xTextbox.nExtType;
                     break;
                 }
-                case 1: // bool widget type
+                case EHS_WIDGET_PURPOSE_BOOL: // bool widget type
                 {
-                    nId = EHS_BOOL_UI_WIDGET + xParams.uClass.xTextbox.nType;
+                    nId = EHS_BOOL_UI_WIDGET + xParams.uClass.xTextbox.nExtType;
                     break;
                 }
-                case 2: // int widget type
+                case EHS_WIDGET_PURPOSE_INT: // int widget type
                 {
-                    nId = EHS_INT_UI_WIDGET + xParams.uClass.xTextbox.nType;
+                    nId = EHS_INT_UI_WIDGET + xParams.uClass.xTextbox.nExtType;
                     break;
                 }
-                case 3: // float widget type
+                case EHS_WIDGET_PURPOSE_FLOAT: // float widget type
                 {
-                    nId = EHS_FLOAT_UI_WIDGET + xParams.uClass.xTextbox.nType;
+                    nId = EHS_FLOAT_UI_WIDGET + xParams.uClass.xTextbox.nExtType;
                     break;
                 }
+                default:
+                    EHSH_LOG_ERROR("Error unknown widget sub type for TEXTBOX class")
             }
+            printf("FFFFFFF = %d\n",nId);
             /* Initialising a render Mode B widget struct */
+            /* TODO this nId stuff has to go!... Should the initi function just pass in the while xParams anyway with class and purpose class info ..?*/
             inx_gui_widget_state->pUiWidgetClass = EhsWidgetUI_init(nId, xParams.uClass.xTextbox.nProp,
                                                                     xParams.uClass.xTextbox.nCurve,
                                                                     xParams.uClass.xTextbox.nParent,
@@ -199,12 +200,13 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                                                                     xParams.uClass.xTextbox.nLineSep,
                                                                     xParams.uClass.xTextbox.xFgColour,
                                                                     xParams.uClass.xTextbox.xBgColour,
-                                                                    /*pFont*/NULL
+                                                                    /*pFont*/NULL,
+                                                                    xParams.ePurposeClass
 #if defined(EHS_STORE_WIDGET_NAMES)
                                                                     ,xParams.widgetName
 #endif
                                                                     );
-            EHSH_LOG_INFO("  EhsWidgetUI_init returned: %p", (void*)inx_gui_widget_state->pUiWidgetClass);
+//            EHSH_LOG_INFO("  EhsWidgetUI_init returned: %p", (void*)inx_gui_widget_state->pUiWidgetClass);
 
 #else // EHS_GUI_SUPPORT_MODE_B
 
@@ -222,7 +224,9 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                                                                     xParams.uClass.xTextbox.nLineSep,
                                                                     xParams.uClass.xTextbox.xFgColour,
                                                                     xParams.uClass.xTextbox.xBgColour,
-                                                                    pFont);
+                                                                    xParams.ePurposeClass,
+                                                                    pFont
+                                                                );
 
 #endif // EHS_GUI_SUPPORT_MODE_B 
 
@@ -421,7 +425,7 @@ EHS_FB_RUN_FUNCTION(gui_widget_create)
             EHS_WIDGET_UI(pWidget).event_callback = gui_widget_event_callback;
             /* setup widget data */
             EHS_WIDGET_UI(pWidget).data = (void*) &inx_gui_widget_state->gui;
-            EHSH_LOG_INFO("gui_widget_create: Registered event callback for widget (id=%d)", EHS_WIDGET_UI(pWidget).id);
+            //EHSH_LOG_INFO("gui_widget_create: Registered event callback for widget (id=%d)", EHS_WIDGET_UI(pWidget).id);
 #endif
             pWidget->pFIData = EHS_FB_RUN_CONTEXT_REF;
 
@@ -566,7 +570,7 @@ EHS_FB_RUN_FUNCTION(gui_widget_update)
  */
 void Ehs_gui_text2_write(EhsWidgetClass* pWidget, const ehs_char* szString)
 {
-    Ehs_widget_position_update(pWidget, EHS_FALSE, 0, EHS_FALSE, 0, EHS_FALSE, 0, EHS_FALSE, 0, EHS_FALSE, 0);
+    Ehs_widget_position_update(pWidget, EHS_FALSE, 0, EHS_FALSE, 0, EHS_FALSE, 0, EHS_FALSE, 0, EHS_FALSE, 0); // why do we do this?
 
     EhsWidgetTextbox_write(pWidget,szString);
 

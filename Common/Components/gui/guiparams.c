@@ -295,9 +295,9 @@ ehs_bool EhsParseGuiParameters_textbox(const char** pParam, EhsGuiParamsType* pG
                         EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nLineSep),pParam[nParsed++]);
                         if (nVersion >= 140)
                         {
-                            if (nParamsRead >= (2+nParsed))
+                            if (nParamsRead >= (2+nParsed)) /* unexplained magic to comment on*/
                             {
-                                EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nType),pParam[nParsed++]);
+                                EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nExtType),pParam[nParsed++]);
                                 EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nProp),pParam[nParsed++]);
                                 if (nParamsRead >= (2+nParsed))
                                 {
@@ -350,27 +350,27 @@ ehs_bool EhsParseGuiParameters_patch(const char** pParam, EhsGuiParamsType* pGui
     return bRet;
 }
 
-/* Checks if widget is textbox type and outputs type if so ... That's great, but what is this for? 
+/* 
+  Checks if widget is textbox type and outputs type enum, ignoring version number suffix
 */
-ehs_bool EhsParseGuiParametersTextBox2Type(const char* szObjectType, ehs_sint16* type)
+ehs_bool EhsParseGuiParametersTextBox2Type(const char* szObjectType, EhsWidgetPurposeClassType* type)
 {
     *type = -1;
-    if(0 == EhsStricmp(szObjectType,"gui_textbox2")){
-        *type = 0;
+    if(0 == EhsStrnicmp(szObjectType,"gui_textbox",sizeof("gui_textbox")-1)){
+        *type = EHS_WIDGET_PURPOSE_TEXT;
         return EHS_TRUE;
-    }else if(0 == EhsStricmp(szObjectType,"gui_boolbox2")){
-        *type = 1;
+    }else if(0 == EhsStrnicmp(szObjectType,"gui_boolbox",sizeof("gui_boolbox")-1)){
+        *type = EHS_WIDGET_PURPOSE_BOOL;
         return EHS_TRUE;
-    }else if(0 == EhsStricmp(szObjectType,"gui_intbox2")){
-        *type = 2;
+    }else if(0 == EhsStrnicmp(szObjectType,"gui_intbox",sizeof("gui_intbox")-1)){
+        *type = EHS_WIDGET_PURPOSE_INT;
         return EHS_TRUE;
-    }else if(0 == EhsStricmp(szObjectType,"gui_realbox2")){
-        *type = 3;
+    }else if(0 == EhsStrnicmp(szObjectType,"gui_realbox",sizeof("gui_realbox")-1)){
+        *type = EHS_WIDGET_PURPOSE_FLOAT;
         return EHS_TRUE;
     }
     return EHS_FALSE;
 }
-
 
 /**
  * Reads the SODL parms (not the GUI paramters) initially and then finds the gui params.
@@ -386,13 +386,13 @@ ehs_bool EhsParseGuiParametersTextBox2Type(const char* szObjectType, ehs_sint16*
 void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
 {
     const char* pParam[EHS_PARAM_COUNT_MAX]; /* points to the start of each parameter */
-    char szObjectType[EHS_OBJECT_NAME_MAX_SIZE]; /* object type - used to determine eClass *///TODO:STRING LENGTH IS PROLLY TOO LONG. We can make this smaeer??
+    char szObjectType[EHS_OBJECT_NAME_MAX_SIZE]; /* object type - used to determine eClass */
     char szObjectName[EHS_OBJECT_NAME_MAX_SIZE]; /* object names that we now store */
     ehs_uint16 nParam;
     ehs_uint16 nParamsRead; /* number of parameters that we've read so far */
     ehs_uint16 nVersion = 0; /* format of the parameters */
     ehs_bool bRet = EHS_FALSE; /* Assume the function fails */
-    ehs_sint16 nTextBox2Type = -1; /* output from EhsParseGuiParametersTextBox2Type */
+    EhsWidgetPurposeClassType nTextBox2Type = EHS_WIDGET_PURPOSE_INVALID; /* sub type from EhsParseGuiParametersTextBox2Type */
     char *pTmp; /* used to terminate strings */
 
     //printf("\n*** szParamsText=[%s]***\n", szParamsText ? szParamsText : "(null)");
@@ -445,7 +445,7 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         EhsGetWordFromString(szObjectName,pParam[nParam]);
         //printf("\n*** all paramters are [%s\n] index 2 is [%s]",   pParam[nParam],pParam[0]);
         nParam++;
-        //printf("\n*** OBJECTNAME: [%s]\n",szObjectName);
+       
         /* identify widget type & load params */
         EhsGetWordFromString(szObjectType,pParam[nParam++]);
         pTmp = strchr(szObjectType,EHS_PARAM_SEPARATOR);
@@ -453,41 +453,29 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         {
             *pTmp = '\0';
         }
-
+        printf("\n*** OBJECTNAME: [%s]\n",szObjectName);
         printf("\n*** DEBUG: Widget type: '%s'\n", szObjectType);
         // fflush(stdout);
         EHSH_LOG_INFO("  Widget type: '%s'", szObjectType);
 
+        /* Convert the string name to the enuam purpose type. we do a case insensitive search and ignore version number suffixes*/
+        
         pParams->eClass = EHS_WIDGET_CLASS_INVALID;
-        if ((0 == EhsStricmp(szObjectType,"gui_bitmap")) ||
-                (0 == EhsStricmp(szObjectType,"gui_image1")))
+        pParams->ePurposeClass = EHS_WIDGET_PURPOSE_INVALID;
+        if ( EhsParseGuiParametersTextBox2Type(szObjectType, &nTextBox2Type)) //try the primitive data types first (these aremost common)
         {
-            printf("\n*** QT DEBUG: Matched BITMAP widget type\n");
-            // fflush(stdout);
-            EHSH_LOG_INFO("  -> Parsing as BITMAP widget");
-            if (EhsParseGuiParameters_bitmap(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam,szObjectName))
-            {
-                pParams->eClass = EHS_WIDGET_CLASS_BITMAP;
-                EHSH_LOG_INFO("  (ok) bitmap parsing succeeded");
-            }
-            else
-            {
-                EHSH_LOG_WARNING("  (fail) BITMAP parsing FAILED");
-            }
-        }
-        else if ((0 == EhsStricmp(szObjectType,"gui_textbox")) ||
-                 EhsParseGuiParametersTextBox2Type(szObjectType, &nTextBox2Type))
-        {
-            // printf("\n*** QT DEBUG: Matched TEXTBOX widget type\n");
-            // fflush(stdout);
-            EHSH_LOG_INFO("  -> Parsing as TEXTBOX widget");
+            printf("\n*** QT DEBUG: Matched TEXTBOX widget type\n");
+            EHSH_LOG_INFO("  -> Parsing as TEXT BOX widget");
+            printf("(!!!!!!!!!!!!!!!!!!!!!!!!) TEXTBOX parsing (%s) = %d\n",szObjectName,nTextBox2Type);
             if (EhsParseGuiParameters_textbox(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam,szObjectName))
             {
-                pParams->eClass = EHS_WIDGET_CLASS_TEXTBOX;
-                EHSH_LOG_INFO("  (ok) textbox parsing succeeded");
+                printf("(!!!!!!!!!!!!!!!!!!!!!!!!) TEXTBOX parsing (%s) = %d\n",szObjectName,nTextBox2Type);
+                pParams->ePurposeClass = nTextBox2Type; // assigne the sub type 
+                pParams->eClass = EHS_WIDGET_CLASS_TEXTBOX; // assigns the base widget type
             }
             else
             {
+                printf("(fail) TEXTBOX parsing FAILED\n");
                 EHSH_LOG_WARNING("  (fail) TEXTBOX parsing FAILED");
             }
         }
@@ -504,12 +492,26 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
                 EHSH_LOG_WARNING("  (fail) PATCH parsing FAILED");
             }
         }
+        else if ((0 == EhsStricmp(szObjectType,"gui_bitmap")) ||
+                (0 == EhsStricmp(szObjectType,"gui_image1")))
+        {
+            if (EhsParseGuiParameters_bitmap(&(pParam[nParam]),pParams, nVersion, nParamsRead-nParam,szObjectName))
+            {
+                pParams->eClass = EHS_WIDGET_CLASS_BITMAP;
+                pParams->ePurposeClass = EHS_WIDGET_PURPOSE_IMAGE;
+            }
+            else
+            {
+                EHSH_LOG_WARNING("  (fail) BITMAP parsing FAILED");
+            }
+        }
         else if (0 == EhsStricmp(szObjectType,"gui_viewport"))
         {
             EHSH_LOG_INFO("  -> Parsing as VIEWPORT widget");
             if (EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam,szObjectName))
             {
                 pParams->eClass = EHS_WIDGET_CLASS_VIEWPORT;
+                pParams->ePurposeClass = EHS_WIDGET_PURPOSE_VIEWPORT;
                 EHSH_LOG_INFO("  (ok) viewport parsing succeeded");
             }
             else
@@ -523,6 +525,7 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
             if(EhsParseGuiParameters_patch(&(pParam[nParam]), pParams, nVersion, nParamsRead-nParam,szObjectName))
             {
                 pParams->eClass = EHS_WIDGET_CLASS_VIDEO_PORT;
+                pParams->ePurposeClass = EHS_WIDGET_PURPOSE_VIDEO;
                 EHSH_LOG_INFO("  (ok) video_port parsing succeeded");
             }
             else
@@ -533,7 +536,6 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         else
         {
             // printf("\n*** QT DEBUG: NO MATCH for widget type '%s'\n", szObjectType);
-            // fflush(stdout);
             EHSH_LOG_WARNING("  (fail) Unknown widget type '%s' - class remains INVALID", szObjectType);
         }
 

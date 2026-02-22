@@ -75,7 +75,7 @@ EHS_LOCAL void EhsWidgetUi_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pVi
  * Initialise the widget with the general widget specific properties including
  * position, dimensions, z-ordering and colour.
  *
- * @param[in] id ui type ID
+ * @param[in] id ui type ID (The weird type that munges together things strangely))
  * @param[in] properties any custom properties id associated with the widget
  * @param[in] curvature defines roundess of the widget
  * @param[in] parent_id id of the parent widget (@todo)
@@ -90,13 +90,14 @@ EHS_LOCAL void EhsWidgetUi_draw(struct EhsWidgetStruct* pWidget, EhsTVClass* pVi
  * @param[in] xFgColour Widget's foreground colour
  * @param[in] xBgColour Widget's background colour
  * @param[in] pFont Pointer to the font to use for this widget
+ * @param[in] widgetPurposeClass, which is set for the widget so it know what kind of data it should work with.
  * @return pointer to initialised widget, or NULL
  */
 EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint16 curvature, ehs_uint16 parent_id,
                                  const EhsGraphicsRectangleClass* xBounds, ehs_uint16 nZ,
                                  ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB,
                                  ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
-                                 EhsGraphicsFontClass* pFont
+                                 EhsGraphicsFontClass* pFont, EhsWidgetPurposeClassType widgetPurposeClass
                                 #ifdef EHS_STORE_WIDGET_NAMES
                                  ,ehs_char * szWidgetName
                                 #endif
@@ -116,8 +117,7 @@ EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties, ehs_uint1
         ,szWidgetName
         #endif
         );
-
-        //pWidget->eWidgetKind = EHS_WIDGET_KIND_UI; // mode B (lvgl), widget kind is always ui. #def eWidgetKind in EhsWidgetClass for memory optimisation
+        pWidget->eWidgetPurposeClass=widgetPurposeClass;
         pWidget->nState = EHS_WIDGET_STATE_INIT;
         pWidget->bContentUpdated = EHS_FALSE;
         pWidget->bContentChanged = EHS_TRUE;
@@ -232,14 +232,15 @@ void EhsWidgetUI_update(struct EhsWidgetStruct* pWidget)
 #endif
 }
 
+
+
 /**
  * @param pWidget UI to be checked
  * @return returns true if expected widget type
  */
 ehs_bool EhsWidgetUI_is_string_type(struct EhsWidgetStruct* pWidget)
 {
-    ehs_uint16 id = EHS_WIDGET_UI(pWidget).id;
-    return (id >= EHS_STRING_UI_WIDGET && id < EHS_STRING_UI_WIDGET_COUNT) ? EHS_TRUE : EHS_FALSE;
+    return (pWidget->eWidgetPurposeClass == EHS_WIDGET_PURPOSE_TEXT) ? EHS_TRUE : EHS_FALSE;
 }
 
 /**
@@ -248,8 +249,7 @@ ehs_bool EhsWidgetUI_is_string_type(struct EhsWidgetStruct* pWidget)
  */
 ehs_bool EhsWidgetUI_is_bool_type(struct EhsWidgetStruct* pWidget)
 {
-    ehs_uint16 id = EHS_WIDGET_UI(pWidget).id;
-    return (id >= EHS_BOOL_UI_WIDGET && id < EHS_BOOL_UI_WIDGET_COUNT) ? EHS_TRUE : EHS_FALSE;
+    return (pWidget->eWidgetPurposeClass == EHS_WIDGET_PURPOSE_BOOL) ? EHS_TRUE : EHS_FALSE;
 }
 
 /**
@@ -258,8 +258,7 @@ ehs_bool EhsWidgetUI_is_bool_type(struct EhsWidgetStruct* pWidget)
  */
 ehs_bool EhsWidgetUI_is_int_type(struct EhsWidgetStruct* pWidget)
 {
-    ehs_uint16 id = EHS_WIDGET_UI(pWidget).id;
-    return (id >= EHS_INT_UI_WIDGET && id < EHS_INT_UI_WIDGET_COUNT) ? EHS_TRUE : EHS_FALSE;
+    return (pWidget->eWidgetPurposeClass == EHS_WIDGET_PURPOSE_INT) ? EHS_TRUE : EHS_FALSE;
 }
 
 /**
@@ -268,18 +267,16 @@ ehs_bool EhsWidgetUI_is_int_type(struct EhsWidgetStruct* pWidget)
  */
 ehs_bool EhsWidgetUI_is_float_type(struct EhsWidgetStruct* pWidget)
 {
-    ehs_uint16 id = EHS_WIDGET_UI(pWidget).id;
-    return (id >= EHS_FLOAT_UI_WIDGET && id < EHS_FLOAT_UI_WIDGET_COUNT) ? EHS_TRUE : EHS_FALSE;
+    return (pWidget->eWidgetPurposeClass == EHS_WIDGET_PURPOSE_FLOAT) ? EHS_TRUE : EHS_FALSE;
 }
 
 /**
  * @param pWidget UI to be checked
- * @return returns true if expected widget type
+ * @return returns true if expected widget type (NOT USED!)
  */
 ehs_bool EhsWidgetUI_is_other_type(struct EhsWidgetStruct* pWidget)
 {
-    ehs_uint16 id = EHS_WIDGET_UI(pWidget).id;
-    return (id >= EHS_OTHER_UI_WIDGET && id < EHS_OTHER_UI_WIDGET_COUNT) ? EHS_TRUE : EHS_FALSE;
+    return (pWidget->eWidgetPurposeClass == EHS_WIDGET_PURPOSE_OTHER) ? EHS_TRUE : EHS_FALSE;
 }
 
 

@@ -69,7 +69,10 @@ typedef struct
  * @param[in] pFont Pointer to the font to use for this textbox
  * @return pointer to initialised widget, or NULL
  */
-EHS_GLOBAL EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* xBounds, ehs_uint16 nZ,ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB, ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour, EhsGraphicsFontClass* pFont);
+
+ asad 
+EHS_GLOBAL EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* xBounds, ehs_uint16 nZ,ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, 
+    ehs_uint16 nIndentB, ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour, EhsGraphicsFontClass* pFont,EhsWidgetPurposeClassType data_type);
 
 /**
  * Set the text to be displayed onto a specific textbox. This function can be called

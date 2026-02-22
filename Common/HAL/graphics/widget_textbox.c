@@ -24,6 +24,9 @@
 #include "hal_process.h"
 #include "hal_viewport.h"
 #include "font.h"
+#include "widget_textbox.h"
+
+asdad
 
 //#define DEFAULT_INDENT 5
 /**
@@ -84,10 +87,7 @@ EHS_LOCAL void EhsWidgetTextbox_draw(struct EhsWidgetStruct* pWidget, EhsTVClass
 EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, ehs_uint16 nZ,
                                       ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB, ehs_uint16 nLineSep,
                                       EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
-                                      EhsGraphicsFontClass* pFont
-                                    #ifdef EHS_STORE_WIDGET_NAMES
-                                      ,ehs_char *szWidgetName
-                                    #endif)
+                                      EhsGraphicsFontClass* pFont,EhsWidgetPurposeClassType data_type)
 {
     EhsWidgetClass* pWidget;
 
@@ -102,8 +102,8 @@ EhsWidgetClass* EhsWidgetTextbox_init(const EhsGraphicsRectangleClass* pBounds, 
             ,szWidgetName
             #endif
             );
-
-        pWidget->eWidgetKind = EHS_WIDGET_KIND_TEXTBOX;
+        pWidget->eWidgetClass = EHS_WIDGET_CLASS_TEXTBOX;
+        pWidget->eWidgetClass = data_type; // Text boxes can show test, integers, floats, or booleans. More complex data tyes (like graphs are handled as patches.)
         pWidget->nState = EHS_WIDGET_STATE_INIT;
         pWidget->bOptimiseForSpeed = EHS_FALSE;
         pWidget->bContentChanged = EHS_TRUE;

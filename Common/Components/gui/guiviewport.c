@@ -183,7 +183,8 @@ EHS_FB_INIT_FUNCTION(gui_viewport)
 																 0, 0, 0, 0, 0,
 																 xParams.uClass.xPatch,
 																 xParams.uClass.xPatch,
-																 /*pFont*/NULL
+																 /*pFont*/NULL,
+                                                                 xParams.ePurposeClass
 #ifdef EHS_STORE_WIDGET_NAMES
 															 ,xParams.widgetName
 #endif

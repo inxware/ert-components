@@ -46,6 +46,41 @@ typedef struct EhsWidgetStruct EhsWidgetClass; /*lint !e961 Only preprocessor st
 #include "globals.h"
 #include "hal_viewport.h"
 #include "graphics.h"
+
+/*****************************************************************************/
+/* Define types - must be before widget_ui.h include to avoid circular-include ordering issues */
+
+/**
+* @brief Coarse widget classification as declared by a function block in the SODL/gui files.
+  *
+* @note EhsWidgetPurposeClassType below (provides details of the sub types (e.g. data type or viewport).
+ */
+typedef enum {
+    EHS_WIDGET_CLASS_INVALID,
+    EHS_WIDGET_CLASS_BITMAP,
+    EHS_WIDGET_CLASS_TEXTBOX,
+    EHS_WIDGET_CLASS_PATCH, /* Note: thisapparently used for more exotic UI types like graphs etc. and is effectively for Opaque types that LGB draws as a box*/
+    EHS_WIDGET_CLASS_VIEWPORT,
+    EHS_WIDGET_CLASS_VIDEO_PORT
+} EhsWidgetClassType;
+
+/**
+ * Type of widget defined Pretty ,uch the function block type, which is data type oriented.)
+ */
+typedef enum {
+    EHS_WIDGET_PURPOSE_INVALID,
+    EHS_WIDGET_PURPOSE_IMAGE,
+    EHS_WIDGET_PURPOSE_TEXT,
+    EHS_WIDGET_PURPOSE_BOOL,
+    EHS_WIDGET_PURPOSE_INT,
+    EHS_WIDGET_PURPOSE_FLOAT,
+    EHS_WIDGET_PURPOSE_VIEWPORT,
+    EHS_WIDGET_PURPOSE_VIDEO,
+    ES_WIDGET_PURPOSE_PATCH,
+    EHS_WIDGET_PURPOSE_OTHER,
+    EHS_WIDGET_PURPOSE_ENDOFLIST
+} EhsWidgetPurposeClassType;
+
 #include "widget_textbox.h"
 #include "widget_image.h"
 #include "widget_patch.h"
@@ -79,27 +114,11 @@ typedef struct EhsWidgetStruct EhsWidgetClass; /*lint !e961 Only preprocessor st
 #define EHS_WIDGET_STATE_SHOWN(x) (((x) & (EHS_WIDGET_STATE_INIT | EHS_WIDGET_STATE_CREATED | EHS_WIDGET_STATE_SHOW)) \
 	== (EHS_WIDGET_STATE_INIT | EHS_WIDGET_STATE_CREATED | EHS_WIDGET_STATE_SHOW))
 
-/*****************************************************************************/
-/* Define types */
-/**
- * Type of widget defined in the widget structure
- */
-typedef enum { EHS_WIDGET_KIND_IMAGE,
-               EHS_WIDGET_KIND_TEXTBOX,
-               EHS_WIDGET_KIND_PATCH,
-               EHS_WIDGET_KIND_VIEWPORT,
-               EHS_WIDGET_KIND_VIDEO_PORT,
-               EHS_WIDGET_KIND_UI
-             } EhsWidgetKindEnum;
 
-/**
- * Type of widget defined in the widget structure
- * todo 2023 - this doesn't seem to be used anywhere
- */
-typedef enum { ARGB8888, ARGB1888, RGB888 } EhsBlitMethodEnum;
 
-/* Some call-back functions */
+/* call-back functions */
 
+// changes the opacity of a widget.
 typedef ehs_bool (*fadeFunc_t) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity)  ;
 
 
@@ -115,8 +134,11 @@ typedef ehs_bool (*fadeFunc_t) (EhsWidgetClass* pWidget, ehs_uint8 nOpacity)  ;
  */
 struct EhsWidgetStruct
 {
-    /* ── Geometry rectangles (shared: Mode A and Mode B) ───────────────── */
+    /* ── Widget type discriminator (shared) ────────────────────────────── */
+    EhsWidgetClassType eWidgetClass; /**< Discriminator for the basic type of widget () **/
+    EhsWidgetPurposeClassType eWidgetPurposeClass; /**< Discriminator for the purpose class type if the widget  **/
 
+    /* ── Geometry rectangles (shared: Mode A and Mode B) ───────────────── */
     EhsGraphicsRectangleClass xDesignRect;	/**< Widget size as specified at design time by the LGB tool,
                                                  based on original image/media dimensions. Used as a
                                                  reference when scaling or repositioning. (Shared) */
@@ -166,11 +188,6 @@ struct EhsWidgetStruct
                                                          colour) to the external library using the
                                                          bContentUpdated/bPositionUpdated/bColourUpdated flags. (Shared) */
 
-    /* ── Widget type discriminator (shared) ────────────────────────────── */
-
-    EhsWidgetKindEnum eWidgetKind; /**< Discriminator for the specificWidgetType union below.
-                                        Values: image, textbox, patch, ui, etc. (Shared) */
-
     /* ── Mode A mouse event handling ───────────────────────────────────── */
 
 #if defined(EHS_GUI_SUPPORT_MODE_A) 
@@ -185,7 +202,7 @@ struct EhsWidgetStruct
                                      offset calculation. (Mode A only) */
     ehs_uint32 nMouseDownY;     /**< Y coordinate of last mouse-down event. (Mode A only) */
 
-//	EhsBlitMethodEnum eBlitMethod; /**< Blit method used to draw widget */
+
 #endif
 
     /* ── Function instance back-pointer (shared) ───────────────────────── */
@@ -196,9 +213,9 @@ struct EhsWidgetStruct
                                                NULL for widgets not owned by a function block (e.g. GPIO).
                                                (Shared - used by both Mode A and Mode B) */
 
-    /* ── Type-specific subclass union (discriminated by eWidgetKind) ──── */
+    /* ── Type-specific subclass union (discriminated by eWidgetClass) ──── */
 
-    /*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eWidgetKind shows which union member to use */
+    /*lint -e960 18.4 Unions shall not be used. Acceptable derogation to use variants - eWidgetClass shows which union member to use */
     union
     {
 #if defined(EHS_GUI_SUPPORT_MODE_A) 
@@ -286,7 +303,7 @@ struct EhsWidgetStruct
 #endif
 
     /* ── Qt-specific handle (Mode B Qt only) ───────────────────────────── */
-
+/* This should be in a lower level strcuture if it's renderer specific?*/
 #ifdef EHS_GUI_SUPPORT_MODE_B_QT
     ertqt_object_handle qt_handle;  /**< Opaque handle associating this EHS widget with a Qt
                                          QObject in the QML scene. Used by the Qt HAL to look up

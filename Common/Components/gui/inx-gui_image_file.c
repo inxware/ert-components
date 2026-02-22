@@ -120,7 +120,8 @@ EHS_FB_INIT_FUNCTION(GUI_Image_File)
 															0, 0, 0, 0, 0,
 															xParams.uClass.xPatch,
 															xParams.uClass.xPatch,
-															/*pFont*/NULL
+															/*pFont*/NULL,
+                                                               xParams.ePurposeClass															
 #ifdef EHS_STORE_WIDGET_NAMES
 														,xParams.widgetName
 #endif

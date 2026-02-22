@@ -151,7 +151,7 @@ EHS_FB_INIT_FUNCTION(gui_text)
     EhsGraphicsFontClass* pFont = NULL;
     ehs_bool bRet = EHS_FALSE; /* assume initialisation fails */
     EhsParseGuiParameters(EHS_FB_INIT_PARAMETERS,&xParams);
-    if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
+    if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX) /* Just checking again */
     {
 #ifndef EHS_DONT_USE_BASIC_FONTS
         pFont = EhsGraphicsFont_load(EHSHG_FONT_DEFAULT);
@@ -160,10 +160,10 @@ EHS_FB_INIT_FUNCTION(gui_text)
             EhsWidgetTextbox_init(&(xParams.xRect), xParams.nZorder,
                                   EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT,
                                   EHS_L_DEFAULT_LINESEP,
-                                  xParams.uClass.xTextbox.xFgColour, xParams.uClass.xTextbox.xBgColour, pFont);
+                                  xParams.uClass.xTextbox.xFgColour, xParams.uClass.xTextbox.xBgColour, pFont,xParams.ePurposeClass);
         bRet = EHS_TRUE;
     }
-    return bRet; /* initialisation always succeeds */
+    return bRet; /* initialisation should always succeed unless critical error */
 }
 
 /**

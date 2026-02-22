@@ -426,8 +426,9 @@ EhsWidgetClass* EhsWidgetViewport_init(const EhsGraphicsRectangleClass* pBounds,
     if (pWidget)
     {
 #if defined(EHS_GUI_SUPPORT_MODE_A)
-        pWidget->eWidgetKind = EHS_WIDGET_KIND_VIEWPORT; //this stops it being composited onto itself
+        pWidget->eWidgetClass = EHS_WIDGET_CLASS_VIEWPORT; //this stops it being composited onto itself
 #endif
+        pWidget->eWidgetPurposeClass=EHS_WIDGET_PURPOSE_VIEWPORT;
         pWidget->nState = EHS_WIDGET_STATE_INIT;
         EhsMemcpy(&(pWidget->xOrigRect),pBounds,sizeof(EhsGraphicsRectangleClass));
         EhsMemcpy(&(pWidget->xCurRect),pBounds,sizeof(EhsGraphicsRectangleClass));

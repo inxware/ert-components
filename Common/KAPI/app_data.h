@@ -157,6 +157,19 @@ ehs_bool EhsAddToDestructorList(EhsDestroyFuncType func,EhsFunctionInstanceDataT
  */
 EHS_GLOBAL void EhsDataConnectionTable_resetMonitorFlags(void);
 
+/**
+ * Returns EHS_TRUE if a new application has been loaded and started since the
+ * last call to this function, then clears the flag so subsequent calls return
+ * EHS_FALSE until the next application load.
+ *
+ * Intended for use by ert-component targets that need to poll for a fresh
+ * application load event (e.g. to re-initialise component state after a
+ * SODL reload).
+ *
+ * @return EHS_TRUE if a new application was loaded since last checked, EHS_FALSE otherwise.
+ */
+EHS_GLOBAL ehs_bool EhsGetAndClearNewAppLoaded(void);
+
 
 //These functions should be used to enter and exit component dynamic threads - declared in public header ehs_fb_types.h
 /* THese are declared in ehs_fb_types */

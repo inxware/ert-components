@@ -91,7 +91,8 @@ EhsWidgetClass* EhsWidgetPatch_init(const EhsGraphicsRectangleClass* pBounds, eh
             #endif
             );
         /* DO the specific stuff now */
-        pWidget->eWidgetKind = EHS_WIDGET_KIND_PATCH;
+        pWidget->eWidgetClass = EHS_WIDGET_PURPOSE_PATCH;
+        pWidget->eWidgetPurposeClass = EHS_WIDGET_PURPOSE_PATCH;
         pWidget->nState = EHS_WIDGET_STATE_INIT;
         pWidget->pfCreateFunc = EhsWidgetPatch_create;
         pWidget->pfDestroyFunc = EhsWidgetPatch_destroy;

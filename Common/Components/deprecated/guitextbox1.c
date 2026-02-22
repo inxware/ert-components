@@ -178,7 +178,7 @@ EHS_FB_INIT_FUNCTION(gui_text1)
             EhsWidgetTextbox_init(&(xParams.xRect), xParams.nZorder,
                                   EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT, EHS_L_DEFAULT_INDENT,
                                   EHS_L_DEFAULT_LINESEP,
-                                  xParams.uClass.xTextbox.xFgColour, xParams.uClass.xTextbox.xBgColour, pFont);
+                                  xParams.uClass.xTextbox.xFgColour, xParams.uClass.xTextbox.xBgColour, pFont,xParams.ePurposeClass);
         bRet = (pFont != NULL);
     }
     return bRet; /* initialisation always succeeds */

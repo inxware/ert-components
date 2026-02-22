@@ -84,7 +84,8 @@ EhsWidgetClass* EhsWidgetImage_init(EhsGraphicsRectangleClass* pRect, ehs_uint16
         );
 
         /* Do image specific widget properties */
-        pWidget->eWidgetKind = EHS_WIDGET_KIND_IMAGE;
+        pWidget->eWidgetClass = EHS_WIDGET_CLASS_BITMAP;
+        pWidget->eWidgetPurposeClass = EHS_WIDGET_PURPOSE_IMAGE;
         EHS_WIDGET_IMAGE(pWidget).nOrigImageAlpha = nImageAlpha;
         EHS_WIDGET_IMAGE(pWidget).nCurrentImageAlpha = nImageAlpha;
         pWidget->pfCreateFunc = EhsWidgetImage_create;

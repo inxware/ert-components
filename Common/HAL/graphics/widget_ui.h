@@ -19,6 +19,7 @@
 #define EHS_WIDGETUI_H
 
 #include "globals.h"
+#include "widget.h" // needed for enums of widget types
 
 /*
  * Event IDs
@@ -39,7 +40,11 @@
 #define EHS_WIDGET_UI_STATE_UPDATE                      0x0004
 #define EHS_WIDGET_UI_STATE_SHOW                        0x0008
 
+/* These are the sub types of widgets we are using - thay are not always set and 
+don't seem to be a goood way of identifying a widget's data type.*/
 // enums must be defined in this order, as they represent iGB set IDs
+
+/* This is rediculous - we don't need this we just need the combination of widget type and widget extended type and ise it instead of uint16 in the code it should be part of the higher level widgets (not specific to widget library)*/
 typedef enum {
     EHS_STRING_UI_WIDGET = 0,
     EHS_STRING_UI_WIDGET_TEXT_FIELD,
@@ -176,13 +181,13 @@ typedef struct
  */
 typedef struct
 {
-    void* pUiObject; /* pointer to target specific graphics object */
+    void* pUiObject; /* pointer to target specific graphics object. This is a pointer to a widget library native object. */
     const void* data; /**< data associated with this ui widget */
     void (*event_callback)(struct EhsWidgetStruct* pWidget, ehs_uint16 event_id, const char* label, void* data);  /**< event callback associated with ui widget response */
     //EhsGraphicsFontClass* pFont; /**< The font to display on the object */ // not used at the moment, so disable to save memory
     EhsGraphicsColourClass xFgColour; /**< Foreground colour */
     EhsGraphicsColourClass xBgColour; /**< Background colour */
-    ehs_uint16 id; /**< ui type id */
+    ehs_uint16 id; /**< Weird new ui type id that needs to be got rid of. Should be done at a higher level anddefined per widget class*/
     ehs_uint16 properties; /**< any custom properties id associated with the widget */
     ehs_uint16 curvature; /**< roundness of the object */
     ehs_uint16 parent_id; /**< the widget parent id */
@@ -221,7 +226,7 @@ EHS_GLOBAL EhsWidgetClass* EhsWidgetUI_init(ehs_uint16 id, ehs_uint16 properties
                                             const EhsGraphicsRectangleClass* xBounds, ehs_uint16 nZ,
                                             ehs_uint16 nIndentL, ehs_uint16 nIndentT, ehs_uint16 nIndentR, ehs_uint16 nIndentB,
                                             ehs_uint16 nLineSep,EhsGraphicsColourClass xFgColour, EhsGraphicsColourClass xBgColour,
-                                            EhsGraphicsFontClass* pFont
+                                            EhsGraphicsFontClass* pFont, EhsWidgetPurposeClassType widgetPurposeClass
 #ifdef EHS_STORE_WIDGET_NAMES
                                             ,ehs_char * szWidgetName
 #endif

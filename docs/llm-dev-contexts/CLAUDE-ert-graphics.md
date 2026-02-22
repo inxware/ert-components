@@ -101,7 +101,7 @@ Defined in `Common/HAL/graphics/widget.h`. See the inline comments there for per
 | Geometry | `xDesignRect`, `xOrigRect`, `xCurRect`, `UpdatedOffsettRect`, `MediaRect` | Shared (MediaRect type differs) |
 | Z-order | `nZ` | Shared |
 | Virtual methods | `pfFadeFunc`, `pfCreateFunc`, `pfDestroyFunc`, `pfDrawFunc` | Shared |
-| Type discriminator | `eWidgetKind` | Shared |
+| Type discriminator | `eWidgetClass` | Shared |
 | Mouse state | `pfMouseDownEventFunc`, `pMouseDownEventData`, `nMouseDownX/Y` | Mode A only |
 | FB back-pointer | `pFIData` | Shared |
 | Type-specific union | `image`, `textbox` (Mode A), `patch` (shared), `ui` (Mode B) | Mixed |
