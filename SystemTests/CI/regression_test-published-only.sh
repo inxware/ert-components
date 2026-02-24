@@ -50,7 +50,7 @@ target_platform=(
     'linux_arm64_lvgl_gg_debian11'
     'linux_arm64_gtk_gst_gg_debian11'
     'linux_android_arm'
-    'esp32_freertos-xtensor-base'
+    'esp32_freertos-xtensa-base'
     'esp32s3_freertos-xtensa-base'
     'arduino_arduino-mbed-nano-image_community'
     'arduino_arduino-mbed-nano-lib_community'
