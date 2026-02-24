@@ -375,6 +375,7 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidgetSwitch, ehs
 }
 #endif
 
+#if defined(EHS_GUI_SUPPORT_MODE_A)
 void OnMouseDownEvent(EhsWidgetClass* pWidget)
 {
     if (pWidget && pWidget->pMouseDownEventData) {
@@ -386,14 +387,14 @@ void OnMouseDownEvent(EhsWidgetClass* pWidget)
             EhsWidgetTextbox_write(pGPIOWidget->pWidgetSwitchBackground, "1");
             Ehs_widget_position_update(pGPIOWidget->pWidgetSwitch, EHS_FALSE, 255, EHS_FALSE, 0, EHS_TRUE, 50, EHS_FALSE, 0, EHS_FALSE, 0);
         }
-        else 
+        else
         {
             EhsWidgetTextbox_write(pGPIOWidget->pWidgetSwitchBackground, "0");
             Ehs_widget_position_update(pGPIOWidget->pWidgetSwitch, EHS_FALSE, 255, EHS_FALSE, 0, EHS_TRUE, 0, EHS_FALSE, 0, EHS_FALSE, 0);
         }
     }
 }
-//#endif // EHS_GUI_SUPPORT_MODE_B || EHS_MOCK_GPIO_QT
+#endif // EHS_GUI_SUPPORT_MODE_A
 
 gpio_in_gui_widget* init_gpio_in_gui_widget(ehs_gpio_in_state_type* pGPIO)
 {
