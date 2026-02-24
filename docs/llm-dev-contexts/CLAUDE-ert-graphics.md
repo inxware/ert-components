@@ -47,7 +47,7 @@ Additional Mode A-only fields on `EhsWidgetStruct`:
 
 The `specificWidgetType` union includes `image` and `textbox` subclasses in Mode A, since eRT handles image decoding and text rendering directly.
 
-**Compile guard:** `#if !defined(EHS_GUI_SUPPORT_MODE_B)` compiles out all Mode A-only fields for Mode B targets.
+**Compile guard:** `#if defined(EHS_GUI_SUPPORT_MODE_A)` compiles in all Mode A-only fields. On Mode B targets where `EHS_GUI_SUPPORT_MODE_A` is not defined, these fields are absent from the struct.
 
 ### Render Mode B (LVGL, Qt)
 
@@ -164,7 +164,185 @@ Kernel boot
 
 LVGL is a Mode B target using the [LVGL](https://lvgl.io/) embedded graphics library. Implementation is in `target/Component-HAL/graphics/lvgl/`.
 
-*(LVGL documentation to be expanded.)*
+#### LVGL Threading Model
+
+LVGL owns a dedicated background thread (`EhsTV_LVGL_tick_thread`). The EHS kernel runs on a separate thread. The two communicate through shared flags protected by `EhsTPMutex_viewport` and `EhsTPMutex_widgetTable`:
+
+- The EHS-side `EhsTargetWidgetUi_draw()` sets `nUiState |= EHS_WIDGET_UI_STATE_UPDATE` and `gEhsLvglState |= EHS_LVGL_STATE_UPDATE_WIDGET`, then **returns immediately**. No widget property is touched yet.
+- The LVGL thread loop picks up `EHS_LVGL_STATE_UPDATE_WIDGET`, walks the widget table, and for each widget with `EHS_WIDGET_UI_STATE_UPDATE` set calls `EhsTargetWidgetUi_draw_lvgl()`.
+- `EhsTargetWidgetUi_draw_lvgl()` checks `bContentUpdated`, calls `EhsTargetWidgetUi_update()` (which performs the LVGL API calls and fires `event_callback`), then clears the flag.
+
+**Consequence:** the `data___` finish port fires asynchronously from the LVGL thread, not synchronously when `Ehs_widget_commit()` returns on the EHS thread. The `// finish signal fired in the event callback` comment in `inx-gui_widget.c` refers to this deferred path.
+
+#### LVGL Data Push Flow (eRT → LVGL)
+
+```
+Function block data port fires (e.g. gui_text_int2_data)
+  → stores (void*)&EHS_FB_IN_I_API2(...) in inx_gui_widget_state->gui.data  [live pointer, not a copy]
+  → calls EhsWidgetUI_update(pWidget) → sets bContentUpdated = TRUE (mutex-protected)
+  → calls Ehs_widget_commit(pWidget) → pfDrawFunc() [EhsTargetWidgetUi_draw, LVGL version]
+    → sets nUiState |= EHS_WIDGET_UI_STATE_UPDATE
+    → sets gEhsLvglState |= EHS_LVGL_STATE_UPDATE_WIDGET
+    → RETURNS (nothing pushed to LVGL yet)
+
+[Later, on LVGL thread]
+  → LVGL loop calls EhsTargetWidgetUi_draw_lvgl(pWidget)
+    → bContentUpdated == TRUE → calls EhsTargetWidgetUi_update(pWidget)
+      → switch on EHS_WIDGET_UI(pWidget).id:
+          EHS_STRING_UI_WIDGET: cast data as const char*, lv_label_set_text_fmt(..., "%s", text)
+          EHS_BOOL_UI_WIDGET:   dereference as ehs_bool*, lv_label_set_text_fmt(..., "%d", value)
+          EHS_INT_UI_WIDGET:    dereference as ehs_sint32*, lv_label_set_text_fmt(..., "%d", value)
+          EHS_FLOAT_UI_WIDGET:  dereference as ehs_float*, lv_label_set_text_fmt(float_format_str, value)
+          [slider/bar/gauge widgets use lv_slider_set_value / lv_bar_set_value with int value]
+      → fires EhsTargetWidgetUi_gui_data_value_event_handler(pWidget, DATA_UPDATED, label, &value)
+        → calls event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_UPDATED, label, &value)
+          → gui_widget_event_callback() in inx-gui_widget.c
+            → copies typed value to data_out port
+            → fires EHS_FB_FINISH(data___)
+    → clears bContentUpdated
+```
+
+**Important:** `gui.data` stores a **pointer to the live EHS dataflow port buffer**, not a copy. For non-string types this is a pointer to the function block's input port value. The LVGL thread dereferences this pointer asynchronously, so it reads the value that is current at render time, which is the value at the time `Ehs_widget_commit` was called (since the EHS kernel won't fire the same port again until the current cycle completes).
+
+#### LVGL Data Return Flow (LVGL user interaction → eRT)
+
+Event callbacks are registered per widget type at creation time. The table below shows the `data` pointer type passed to `event_callback`:
+
+| Interaction | event_id | `data` type |
+|---|---|---|
+| Label/display widget updated | `DATA_UPDATED` | `const char*` (for string), `ehs_sint32*`, `ehs_bool*`, `float*` (typed copy on LVGL-thread stack) |
+| Button pressed | `MOUSE_DOWN \| DATA_CHANGED` | `ehs_bool*` (value = `EHS_TRUE`) |
+| Button released / clicked | `MOUSE_CLICKED \| DATA_CHANGED` | `ehs_bool*` (value = `EHS_FALSE`) |
+| Toggle button toggled | `MOUSE_CLICKED \| DATA_CHANGED` | `ehs_bool*` (current toggle state) |
+| Slider moved | `DATA_CHANGED` | `ehs_sint32*` if int widget; `float*` if float widget (C `int` cast) |
+
+`gui_widget_event_callback()` dispatches on `EhsWidgetUI_is_*_type()` checks to copy the `data` pointer value into the correctly-typed output port.
+
+## Data Type Flow Reference
+
+### Mode A: Data Push Flow (eRT → widget display)
+
+Mode A converts the value to a string **synchronously on the EHS thread** before passing it to the widget layer. There is no deferred rendering step.
+
+```
+Function block data port fires (e.g. gui_text_int2_data)
+  → [Mode A branch]
+  → converts value to string using EhsSprintf / direct copy:
+      string:  str = EHS_FB_IN_S_API2(...)          [direct pass-through]
+      int:     EhsSprintf(str, "%d", int_value)
+      float:   EhsSprintf(str, "%f", float_value)
+      bool:    str[0] = value ? 'T' : 'F'
+  → calls Ehs_gui_text2_write(pWidget, str):
+      → Ehs_widget_position_update(...)             [no-op position update]
+      → EhsWidgetTextbox_write(pWidget, str)        [copies string into widget's text buffer]
+      → Ehs_widget_commit(pWidget) → pfDrawFunc()  [synchronous blit to framebuffer]
+  → EHS_FB_FINISH(data____)                         [fires immediately, synchronously]
+```
+
+**Key Mode A properties:**
+- Conversion to string happens in the component layer (`inx-gui_widget.c`), not in the HAL.
+- `data____` finish fires from the **`data` run function** (finish port 1 of `data`), not from the `create` function.
+- The `data_out` output port (`create` function port 5) is **never written** in Mode A. If downstream logic reads `data_out`, it will see stale or zero data.
+- No `change` event fires from a data push — Mode A has no mechanism for the widget to report back a value from the display path.
+
+### Mode A: Data Return Flow (widget interaction → EHS)
+
+The HAL receives raw OS mouse/touch coordinates and performs hit-testing. On a confirmed event it fires the EHS kernel finish port stored directly on the widget struct:
+
+```
+OS delivers raw mouse event (coordinates + button state)
+  → HAL walks EhsWidgetTable
+    → for each widget: compare coords against xCurRect, check nZ z-order
+    → identifies top-most widget under cursor
+  → reads stored port number from EhsWidgetStruct:
+      mouse click:   pWidget->mouseClickPortNumber  → EHS_FB_FINISH(mouseClickPortNumber)
+      mouse down:    pWidget->mouseDownPortNumber   → EHS_FB_FINISH(mouseDownPortNumber)
+  → kernel dispatches: fires the finish port on the function block instance
+    (identified via pWidget->pFIData back-pointer)
+```
+
+Port numbers are populated during widget creation in `gui_widget_create`:
+```c
+// Mode A only — in gui_widget_create RUN function:
+pWidget->mouseClickPortNumber = INX_gui_widget_ARG_create_click;   // = 2
+pWidget->mouseDownPortNumber  = INX_gui_widget_ARG_create_mouse_down; // = 3
+```
+
+**Key Mode A properties:**
+- No `data_out` value is returned by click events — only the click/mouse_down finish ports fire.
+- The HAL fires the EHS finish port directly from its mouse-event handler, with no intermediate callback.
+- No `gui_widget_event_callback` function is involved in Mode A — that callback exists only for Mode B.
+
+### Mode B: `gui.data` Pointer Convention
+
+`inx_gui_widget_state->gui` is an `EhsWidgetUi` struct with two `void*` fields: `data` and `label`.
+
+The `data` pointer is set by the data-port run functions and must be interpreted according to the widget's purpose class. The pointer is a **direct pointer into the EHS dataflow port's memory buffer** — it is NOT a copy:
+
+| Function block | `gui.data` stores | Dereferenced type |
+|---|---|---|
+| `gui_text_string2_data` | `(void*)EHS_FB_IN_S_API2(...)` | `const char*` (char array in port buffer) |
+| `gui_text_bool2_data` | `(void*)&EHS_FB_IN_B_API2(...)` | `ehs_bool*` |
+| `gui_text_int2_data` | `(void*)&EHS_FB_IN_I_API2(...)` | `ehs_sint32*` |
+| `gui_text_float2_data` | `(void*)&EHS_FB_IN_F_API2(...)` | `ehs_float*` |
+
+The `label` pointer similarly stores a `const char*` to the port's string buffer for the optional label input.
+
+### Mode B: Type Discrimination
+
+Two mechanisms exist and must stay consistent:
+
+1. **`EhsWidgetUiSubclass.id`** — set at init from `EHS_*_UI_WIDGET + nExtType`. Used by LVGL's `EhsTargetWidgetUi_update()` switch statement to select the rendering path.
+2. **`EhsWidgetStruct.eWidgetPurposeClass`** — set from `xParams.ePurposeClass` at init. Used by `EhsWidgetUI_is_string/bool/int/float_type()`. Both Qt's draw function and `gui_widget_event_callback` use these predicate functions.
+
+Both fields are populated in `EhsWidgetUI_init()` (line 120, 129 of `widget_ui.c`) from the values computed by `inx-gui_widget.c` during INIT. `EhsParseGuiParameters()` sets `ePurposeClass` from `EhsParseGuiParametersTextBox2Type()` (prefix-matching: `"gui_intbox*"` → `EHS_WIDGET_PURPOSE_INT`).
+
+#### Widget ID / nExtType System
+
+`id = EHS_*_UI_WIDGET + nExtType` selects the specific widget variant:
+
+| Base type | `nExtType` | Resulting `id` | Widget variant |
+|---|---|---|---|
+| `EHS_INT_UI_WIDGET` (8) | 0 | 8 | plain integer label |
+| `EHS_INT_UI_WIDGET` (8) | 1 | 9 = `EHS_INT_UI_WIDGET_SLIDER` | slider |
+| `EHS_INT_UI_WIDGET` (8) | 2 | 10 = `EHS_INT_UI_WIDGET_PROGRESS_BAR` | progress bar |
+| `EHS_BOOL_UI_WIDGET` (4) | 1 | 5 = `EHS_BOOL_UI_WIDGET_BUTTON` | button |
+| `EHS_BOOL_UI_WIDGET` (4) | 2 | 6 = `EHS_BOOL_UI_WIDGET_TOGGLE_BUTTON` | toggle button |
+| `EHS_BOOL_UI_WIDGET` (4) | 3 | 7 = `EHS_BOOL_UI_WIDGET_CHECK_BOX` | check box |
+
+The `nExtType` value comes from the `.gui` parameter file (parsed by `EhsParseGuiParameters_textbox`). LVGL's `EhsTargetWidgetUi_update()` has separate `case` handlers for each `id` value. The `EhsWidgetUI_is_*_type()` predicates check only `eWidgetPurposeClass` (not `id`), so they return `TRUE` for all sub-variants of a given type (e.g. `is_int_type()` returns `TRUE` for sliders and progress bars as well as plain labels).
+
+### Mode B: Data Push — Raw Pointer, Target HAL Converts
+
+Mode B stores a raw typed pointer in `gui.data` and lets the target HAL decide how to present it:
+
+| Target | Int display | Float display | Bool display | String display |
+|---|---|---|---|---|
+| LVGL (label) | `lv_label_set_text_fmt("%d", value)` — shown as text | `lv_label_set_text_fmt(float_fmt, value)` — shown as text | `lv_label_set_text_fmt("%d", value)` — shown as 0/1 | `lv_label_set_text_fmt("%s", text)` |
+| Qt | `ertqt_set_property_int(h, "value", value)` — QML `value` property | `ertqt_set_property_double(h, "value", value)` — QML `value` property | `ertqt_set_property_bool(h, "checked", value)` — QML `checked` property | `ertqt_set_property_string(h, "text", text)` — QML `text` property |
+
+The float format string for LVGL is built from `EHS_WIDGET_UI(pWidget).nNoOfDecPlaces` (set during INIT from the CDF parameter for float widgets).
+
+**QML widget property requirements:**
+- String display widget: must expose `text` property
+- Bool widget (checkbox): must expose `checked` property
+- Int/Float widget (slider, spinbox, dial): must expose `value` property — a plain `Label` will not update
+
+### Mode B: `data_out` and `data___` Port Behaviour
+
+In Mode B, the `data_out` output port and `data___` finish port are written by `gui_widget_event_callback` (in `inx-gui_widget.c`), which is called from the target HAL's event handler. The callback fires for both `DATA_UPDATED` (from a data push) and `DATA_CHANGED` (from user interaction):
+
+- **`data_out`** (output port 5 of `create` function): written with the typed value from the `data` void* pointer. Only written if the port is connected (`EHS_FB_OUT_CONNECTED_API2` check) and a `DATA_UPDATED` or `DATA_CHANGED` event arrived.
+- **`data___`** (finish port 4 of `create` function): fired after `data_out` is populated, for `DATA_UPDATED` and `DATA_UPDATED|LABEL_UPDATED` events.
+- **`change`** (finish port 5 of `create` function): fired for `DATA_CHANGED` events (user interaction only).
+
+| Target | When `data___` fires |
+|---|---|
+| Mode A | Synchronously from the **`data` run function** (finish port 1) immediately after `Ehs_widget_commit()` returns. No `data_out` write. |
+| LVGL (Mode B) | Asynchronously, from LVGL thread, after `EhsTargetWidgetUi_update()` calls `event_callback(DATA_UPDATED)`. `data_out` IS written. |
+| Qt (Mode B) | **Never fires** from the data push path — `EhsTargetWidgetUi_draw` does not call `event_callback` (**bug**). `data_out` IS written by Qt via `qt_on_text_changed` / `qt_on_value_changed` for user-originated changes, but not for programmatic data pushes. |
+
+**Port namespace note:** Mode A fires `data____` from the `data` run function (4-underscore port name, finish port 1 of `data`). Mode B fires `data___` from the `create` run function via the event callback (3-underscore port name, finish port 4 of `create`). These are different function run-port namespaces within the same function block instance.
 
 ### Qt
 
@@ -252,17 +430,23 @@ Note: EHS treats `released()` as the actual "click" event (not Qt's `clicked()` 
 #### Qt Property Push Flow (Data Update Example)
 
 ```
-EHS function block update port fires
-  → gui_widget sets bContentUpdated = EHS_TRUE on pWidget
-  → Next draw cycle calls pfDrawFunc(pWidget, pViewport, pClipRect)
-    → EhsTargetWidgetUi_draw(pWidget)  [in target_viewport.c]
-      → Checks bContentUpdated flag
-      → Reads EHS_WIDGET_UI(pWidget).data → EhsWidgetUi.data
-      → For string widgets: ertqt_set_property_string(qt_handle, "text", text)
-      → For bool widgets: ertqt_set_property_bool(qt_handle, "checked", value)
-      → Clears bContentUpdated flag
-      → Calls ertqt_update_widget(qt_handle) to request Qt repaint
+EHS function block data port fires (e.g. gui_text_int2_data)
+  → stores (void*)&EHS_FB_IN_I_API2(...) in inx_gui_widget_state->gui.data  [live pointer]
+  → calls EhsWidgetUI_update(pWidget) → sets bContentUpdated = TRUE
+  → calls Ehs_widget_commit(pWidget) → pfDrawFunc() [EhsTargetWidgetUi_draw, Qt version]
+    → SYNCHRONOUSLY reads EHS_WIDGET_UI(pWidget).data → EhsWidgetUi* gui
+      → EhsWidgetUI_is_string_type: ertqt_set_property_string(h, "text", (const char*)gui->data)
+      → EhsWidgetUI_is_bool_type:   ertqt_set_property_bool(h, "checked", *(ehs_bool*)gui->data)
+      → EhsWidgetUI_is_float_type:  ertqt_set_property_double(h, "value", (double)*(float*)gui->data)
+      → EhsWidgetUI_is_int_type:    ertqt_set_property_int(h, "value", (int)*(ehs_sint32*)gui->data)
+    → Clears bContentUpdated
+    → Calls ertqt_update_widget(qt_handle) to request Qt repaint
+    → Does NOT call event_callback — data___ finish port is never fired for Qt widgets
 ```
+
+**Qt vs LVGL difference — integer/float display:** LVGL always calls `lv_label_set_text_fmt` to render integers and floats as text strings. Qt pushes typed values: integers go to the QML `value` property as an `int`, floats to `value` as a `double`. The QML widget must expose a `value` property (e.g. a Slider or SpinBox) to show int/float data. A plain `Label` with only a `text` property will **not** update when an int or float widget pushes data, because the property name is `"value"` not `"text"`.
+
+**Known issue — `data___` finish port not fired for Qt:** The Qt `EhsTargetWidgetUi_draw` does not call `event_callback` after setting properties. The comment `// finish signal fired in the event callback` in `inx-gui_widget.c` is correct for LVGL (where the LVGL thread fires it asynchronously) but is incorrect for Qt — no finish fires. Any EHS wiring that depends on the `data___` port to sequence the next operation will stall on Qt targets.
 
 #### Signal Connection Mechanism
 
@@ -421,6 +605,10 @@ This ensures that when eRT sets the Button's `text` property via `ertqt_set_prop
 QML files in the same directory as `app.qml` are automatically available as types by filename (e.g. `ApplicationFlow.qml` can be used as `ApplicationFlow {}` in QML). The app directory is added to the QML engine's import path at init time. Note that native Qt modules (e.g. `QtQuick.Timeline`) must be installed separately — they cannot be provided as QML files.
 
 #### Known Issues and Current Debug State
+
+**`data___` finish port never fires on Qt:** `EhsTargetWidgetUi_draw` (Qt) sets QML properties synchronously but does not call `event_callback`. The `data___` finish port, which is intended to signal "widget has been updated", never fires. Any EHS wiring that sequences further work off the `data___` port will stall. The fix is to call `event_callback(pWidget, EHS_WIDGET_UI_EVENT_DATA_UPDATED, ...)` from `EhsTargetWidgetUi_draw` after successfully setting properties, matching the LVGL pattern. See `## Data Type Flow Reference` above.
+
+**`qt_on_text_changed` fires DATA_CHANGED not DATA_UPDATED:** If a QML widget emits `textChanged` when its property is set programmatically (common for `TextField` but not `Label`), the `change` finish port fires unexpectedly on eRT → widget data updates. Widgets used only for display (not user input) should avoid binding `textChanged`.
 
 **Kernel State Machine Regression:** When `EhsMainLoopSingle` was introduced, the kernel's `EHSKE_STATE_READY → EHSKE_STATE_RUNNING` transition was initially missing. Without this transition, the kernel returns without processing function blocks, so widgets are never created. The fix was to ensure `EhsMainLoopSingle` includes this state transition in the kernel code (in libehs.a, separate repo).
 
