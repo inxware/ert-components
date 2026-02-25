@@ -107,7 +107,9 @@ Ultralytics,ONNX,6
 Ultralytics,TFLite,3
 NVIDIA TAO,ONNX,5
 NVIDIA TAO,TRT Engine,4
-Edge Impulse,EI C++ / EIM,8
+Edge Impulse,EI C++ / EIM,6
+Edge Impulse,EI TRT Library,3
+Edge Impulse,EI Docker,2
 scikit-learn,Pickle,6
 TFLite,LiteRT Runtime,6
 TFLite,Hailo HEF,3
@@ -126,7 +128,9 @@ PyTorch Native,LibTorch,2
 TRT Engine,TensorRT Runtime,6
 TRT Engine,Jetson DLA,3
 TRT Engine,DeepStream SDK,3
-EI C++ / EIM,Edge Impulse Runtime,8
+EI C++ / EIM,Edge Impulse Runtime,6
+EI TRT Library,TensorRT Runtime,3
+EI Docker,Edge Impulse Runtime,2
 Pickle,Python Inference,6
 ```
 
@@ -457,41 +461,122 @@ outputs = sess.run(None, {"input": input_array})
 
 ## 4.3 Edge Impulse Formats
 
-Edge Impulse wraps trained models (DSP blocks + ML inference) into hardware-specific deployment packages.
+Edge Impulse is an end-to-end MLOps platform covering data collection, DSP block design, model training, and deployment. It wraps trained models together with their signal-processing pipeline into hardware-specific deployment packages.
 
-### Export Formats
+### Import Formats (Bring Your Own Model — BYOM)
 
-| Format | Description |
+Models trained outside Edge Impulse can be imported directly into a project:
+
+| Input Format | Notes |
 | :--- | :--- |
-| **C++ library** | Portable C++ source (signal processing + ML inference); no OS or runtime dependencies; integrates directly into firmware builds |
-| **Arduino library** | `.zip` for direct import into Arduino IDE / PlatformIO |
-| **Linux EIM executable** | Self-contained native Linux binary (x86_64 or aarch64); IPC via Unix socket or stdio; includes NEON/SIMD optimisations; supports Python, Node.JS, Go, Rust interfaces |
-| **WebAssembly** | Browser / Node.js deployment |
-| **Docker container** | x86_64 and aarch64 |
-| **Platform SDKs** | STM32Cube.AI, Syntiant, Nordic nRF, etc. |
+| **TFLite / LiteRT** | `.tflite` or `.lite` files; most common path for MCU deployment |
+| **ONNX** | `.onnx`; automatic quantisation applied on import; input order converted automatically |
+| **TensorFlow SavedModel** | `saved_model.zip` archive |
+| **PyTorch** | Export to ONNX first, then import as ONNX |
+| **Keras** | Export to SavedModel or TFLite, then import |
+| **scikit-learn** | Via custom learning blocks (Python wrapper) |
+| **Generic C++ / custom blocks** | Custom learning blocks can wrap any inference library |
 
-**EIM IPC (Linux):** The `.eim` binary exposes a Unix socket. Client sends raw feature vectors; receives classification/detection results as JSON. No runtime library dependency beyond glibc.
+### Built-in Learning Blocks
+
+Edge Impulse provides the following native ML algorithms. No external training framework is required for these:
+
+**Classification:**
+- Softmax neural network classifier (tabular, image, audio)
+- Transfer learning (MobileNet, EfficientNet backbones — image and audio)
+
+**Object Detection:**
+
+| Block | Description | Target |
+| :--- | :--- | :--- |
+| **FOMO** (Faster Objects, More Objects) | Lightweight centroid-based detection; 30× less compute/memory than MobileNet SSD; real-time on deeply constrained MCUs | Cortex-M, ESP32 |
+| **YOLO-Pro** | Purpose-built edge YOLO family; optimised for latency and resource usage on embedded targets | MCU and Linux |
+| **MobileNet SSD** | Single Shot MultiBox Detector with MobileNet V2 backbone; standard embedded object detection | MCU and Linux |
+
+**Other blocks:** Anomaly detection (K-Means / GMM), time-series classification, audio event detection, regression.
+
+### Export / Deployment Formats
+
+| Format | Architectures / Targets | Notes |
+| :--- | :--- | :--- |
+| **C++ library** | Any with C++11 compiler | Standalone source; no OS, stdlib, or dynamic memory required; includes DSP + ML code as `.zip` |
+| **Arduino library** | ARM-based Arduino boards | `.zip` for Arduino IDE / PlatformIO; includes examples |
+| **Linux EIM executable** | x86_64, ARMv7, AARCH64 | Self-contained binary; IPC via Unix socket; NEON on ARM; 64-bit EIM does not run on 32-bit systems |
+| **WebAssembly** | Browser, Node.js | Full in-browser inference; includes JS/WASM bundle |
+| **Docker container** | x86_64, AARCH64 | Exposes HTTP inference server; hardware acceleration auto-compiled for Linux targets |
+| **iOS SDK** | Apple ARM (A-series, M-series) | Native Objective-C/Swift; includes examples |
+| **Android SDK** | ARM64-v8a, ARMv7 | Native Java/Kotlin; includes examples |
+| **TensorRT library** | NVIDIA Jetson (AARCH64) | CUDA-accelerated model compiled to TensorRT for Jetson Nano/Xavier/Orin/Thor; see §Jetson below |
+| **Rust FFI bindings** | x86_64, AARCH64 | FFI-safe Rust bindings wrapping the C++ library |
+| **Pure C source** | Bare metal / any | MCU-friendly; no C++ runtime needed |
+| **Platform SDKs** | STM32 (CubeAI), Syntiant NDP, Nordic nRF, Ethos-U | Vendor-specific bundles with HAL integration |
+
+**EIM IPC (Linux):** The `.eim` binary opens a Unix socket. A client sends raw feature vectors; results arrive as JSON. No runtime dependency beyond glibc.
+
+**Language SDKs for EIM (Linux / Jetson):** Python, Node.js, Go, C++.
 
 ### EON Compiler
 
-EON (Edge Optimised Neural) compiles TFLite-based ML models into efficient **C++ source code** rather than running an interpreter over a FlatBuffer.
+The Edge Optimised Neural (EON) Compiler transforms TFLite-based ML models directly into **C++ source code** rather than shipping a runtime interpreter over a FlatBuffer.
 
-- Up to 55% less RAM, 35% less ROM vs TFLite Micro interpreter with the same accuracy.
-- "RAM Optimised" mode (March 2024 update): further RAM reduction, zero accuracy loss.
-- **How it works:** Generates C++ that encodes the model graph statically — eliminates TFLite FlatBuffer interpretation overhead at runtime.
-- **EON Tuner:** Automates search for optimal DSP block + model architecture combinations for a given memory/latency budget.
+| Mode | RAM saving vs TFLite Micro | ROM / Flash saving |
+| :--- | :--- | :--- |
+| Standard EON | 25–55% | up to 35% |
+| RAM Optimised (2024+) | **40–65%** | up to 35% |
 
-### Supported Inference Runtimes (within Edge Impulse)
+Zero accuracy loss in both modes.
 
-- TFLite / LiteRT (default, with EON compiler alternative)
-- TFLite for Microcontrollers (TFLite Micro) with CMSIS-NN / ESP-NN kernels
-- ONNX Runtime (selected targets)
-- cuDNN / GPU (Linux EIM with GPU support)
-- Hardware-specific: Syntiant NDP, Ethos-U, Nordic nRF (via TFLite Micro), STM32 (via CubeAI)
+**How it works:**
+- Generates C++ that encodes the model graph statically; no TFLite FlatBuffer parsing at runtime.
+- Slices the model graph into segments to minimise peak RAM — each slice reuses the same arena.
+- Shifts weight data into ROM more aggressively than TFLite Micro.
+- Uses the linker to eliminate dead code.
 
-**OTA model updates:** New models can be deployed as an OTA impulse update; see [lifecycle management docs](https://docs.edgeimpulse.com/docs/tutorials/lifecycle-management/ota-model-updates).
+**Supported targets:** All ARM Cortex-M and ESP32/Xtensa embedded targets supported by Edge Impulse.
 
-**References:** [Deployment docs](https://docs.edgeimpulse.com/docs/edge-impulse-studio/deployment) · [EON Compiler](https://docs.edgeimpulse.com/docs/edge-impulse-studio/deployment/eon-compiler) · [Linux EIM](https://docs.edgeimpulse.com/docs/run-inference/linux-eim-executable)
+**EON Tuner:** Automatically searches the space of DSP block + model architecture + EON settings combinations for a given RAM/latency budget.
+
+### Inference Runtimes (per target)
+
+| Target class | Runtime | Notes |
+| :--- | :--- | :--- |
+| ARM Cortex-M MCUs | TFLite Micro (default) or EON Compiler | CMSIS-NN kernels; static arena; no OS |
+| ESP32 / Xtensa | TFLite Micro or EON Compiler | ESP-NN SIMD kernels |
+| Nordic nRF / STM32 | TFLite Micro or EON Compiler | CubeAI integration on STM32 |
+| Syntiant NDP | Syntiant runtime | Dedicated NDP block |
+| Arm Ethos-U | TFLite Micro + Vela-compiled kernels | Via Ethos-U driver |
+| Linux x86_64 / ARM | Full TFLite or ONNX Runtime | `USE_FULL_TFLITE=1` build flag for full interpreter |
+| NVIDIA Jetson | TensorRT (CUDA-accelerated) | AARCH64 EIM or TensorRT library export |
+| Browser / Node.js | WASM runtime | Specialised WebAssembly inference path |
+
+### NVIDIA Jetson Support
+
+Edge Impulse provides official support for the full Jetson family (Nano, Xavier, Orin, Thor):
+
+- **EIM deployment:** Download an AARCH64 `.eim` executable directly to the Jetson; run with the Linux SDK (Python, Node.js, Go, C++).
+- **TensorRT library export:** Studio compiles the impulse to a TensorRT-optimised library with CUDA acceleration; link it into a custom C++ application.
+- **Hardware acceleration:** GPU acceleration is automatically enabled when exporting or building for Jetson targets — no manual TRT configuration needed in the basic flow.
+- **Docker:** Jetson Docker containers expose an HTTP inference endpoint.
+
+**OTA model updates:** New impulses can be deployed as OTA updates; see [lifecycle management docs](https://docs.edgeimpulse.com/docs/tutorials/lifecycle-management/ota-model-updates).
+
+### Supported Hardware (MCU / SoC Families)
+
+| Family | Examples |
+| :--- | :--- |
+| ARM Cortex-M0+ | RAKwireless WisBlock RP2040, Raspberry Pi Pico |
+| ARM Cortex-M4F | Nordic nRF52840, STM32F4 series (80 MHz default target) |
+| ARM Cortex-M33 | Raspberry Pi Pico RP2350, STM32U5 |
+| ARM Cortex-M7 | STM32H7, MIMXRT series |
+| ARM Cortex-M55 + Ethos-U55/U65 | STM32N6 with AI accelerator |
+| Espressif Xtensa | ESP32 (240 MHz LX6), ESP32-S3, ESP32-C3 |
+| Nordic Semiconductor | nRF52840, nRF5340, nRF9160/9161/9151, nRF7002, Thingy:53/91 |
+| STMicroelectronics | STM32N6570-DK, STM32F/H/U/L series |
+| Syntiant | NDP101, NDP120 (always-on audio/sensor NPU) |
+| NVIDIA Jetson | Nano, Xavier NX, AGX Xavier, Orin NX, AGX Orin, Thor |
+| Linux x86_64 / ARM | Raspberry Pi, generic SBCs, desktop |
+
+**References:** [Deployment docs](https://docs.edgeimpulse.com/docs/edge-impulse-studio/deployment) · [BYOM](https://docs.edgeimpulse.com/docs/edge-impulse-studio/bring-your-own-model-byom) · [EON Compiler](https://docs.edgeimpulse.com/docs/edge-impulse-studio/deployment/eon-compiler) · [Linux EIM](https://docs.edgeimpulse.com/docs/run-inference/linux-eim-executable) · [Jetson support](https://docs.edgeimpulse.com/hardware/boards/nvidia-jetson)
 
 ---
 
