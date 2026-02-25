@@ -90,6 +90,40 @@ The scope of this project addresses the following cases:
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
 | Ultralytics, PyTorch, TensorFlow Lite, ROCm (AMD) | Image, Text, Audio | Detection, Image segmentation, Classification, Pose estimation | YOLOv3–11, YOLOv26, SAM (1–3), SVM, Transformer (LLM) | `.tflite` `.onnx` `.pb` `.hef` `.pte` | NumPy array, FlatBuffer, Protobuf | Combination of Primary Model Type and Task |
 
+### ML Pipeline Flow (Sankey)
+
+The diagram below shows the flow from training framework → export format → inference runtime / NPU target. Node widths are proportional to the number of downstream connections.
+
+```mermaid
+sankey-beta
+
+TensorFlow/Keras,TFLite,8
+TensorFlow/Keras,SavedModel,5
+TensorFlow/Keras,ONNX,4
+PyTorch,ONNX,8
+PyTorch,PyTorch Native,7
+Ultralytics,ONNX,6
+Ultralytics,TFLite,3
+Edge Impulse,EI C++ / EIM,8
+scikit-learn,Pickle,6
+TFLite,LiteRT Runtime,6
+TFLite,Hailo HEF,3
+TFLite,NXP eIQ / Ethos-U,4
+TFLite,Rockchip RKNN,2
+TFLite,MediaTek APU,2
+ONNX,ONNX Runtime,8
+ONNX,TensorRT,5
+ONNX,Hailo HEF,4
+ONNX,Qualcomm QNN,4
+ONNX,Rockchip RKNN,3
+ONNX,DeepX / Kneron,2
+SavedModel,TF Serving,5
+PyTorch Native,ExecuTorch,5
+PyTorch Native,LibTorch,2
+EI C++ / EIM,Edge Impulse Runtime,8
+Pickle,Python Inference,6
+```
+
 ---
 
 # 3. Model Building Frameworks
