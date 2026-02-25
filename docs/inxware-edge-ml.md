@@ -43,28 +43,33 @@
 
 Edge AI machine learning includes the following potential use-cases:
 
-- Simple vector data classification prediction
-  - From fixed model (MLPs)
-  - From adaptive model (oSVM)
-- Simple vector data value prediction (Regression)
-  - From fixed model (MLPs)
-  - From adaptive model (oSVM)
-  - From adaptive linear predictors (e.g. adaptive filters)
-- Image data object recognition and location
-  - From fixed model Convolutional NNs
-  - (Not machine learning): OpenCV parameterised object detection
-- Voice recognition (various)
+- **Machine Vision**
+  - Object detection, recognition and location
+  - Pose estimation of human movement (public space, sports & health)
+  - Manufacturing QA and anomoloy detection
+  - Medical & bioscience devices 
+     - histology microscopy
+     - cell culture incubation
+     - radiography  
+- **Natural Language Processing (SLMs and LLMs)**
+  - Human machine interfaces (SLM)
+  - Automation and agentic (function calling LLMs)
+  - Device-side reasoning and context awareness
+- **Vector data classification prediction**
+  - Time series Anomly detection (MLPs)
+  - Sensor (oSVM)
+- V**ector data value prediction (regression)**
+  - Fixed model sensor fusion and data compression
+  - Adaptive non-linear models for prediction (oSVM)
+  - Adaptive linear/non-linear predictors (Kalman filters)
+  - Model predictive control systems
+  - Condition monitoring (time series analysis and system identification)
+- **Voice recognition (various)**
+  - Feature space tranformations (FFTs,Wavelet, Periodogram)
   - Combinations of CNNs and LLMs
 
-The scope of this project addresses the following cases:
 
-- Simple vector data classification prediction
-  - From fixed model — using TensorFlow Lite
-  - From adaptive model — initially using iterative SVM code (oSVM)
-- Simple vector data value prediction (Regression)
-  - From fixed model (MLPs)
-  - From adaptive model (oSVM)
-
+  Ther are many more applications of Edge-AI, where responsiveness, reliability, privacy and operating costs are improved sufficiently for operational deployment.
 ---
 
 # 2. Terminology

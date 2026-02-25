@@ -14,18 +14,18 @@ The stubbed code should jsut be another framework that does nothing with inouts,
 ## Overview
 
 ```
--- ml
-  |- framework
+- ml/
+  |- framework/
     |- tensorflow-lite
-      |- ml_fw_tflite.mk
-      |- xxx.h
-      |- xxx.c
-    |- hailo
-      |- ml_fw_hailo.mk
-      |- xxx.h
-      |- xxx.c
+    |- ml_fw_tflite.mk
+    |- xxx.h
+    |- xxx.c
+    |- hailo/
+    |- ml_fw_hailo.mk
+    |- xxx.h
+    |- xxx.c
     ...
-  |- model
+  |- model/
     |- ml_models.h
     |- ml_model_template.c.template
     |- ml_model_template.h.template
