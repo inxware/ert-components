@@ -184,7 +184,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                     break;
                 }
                 default:
-                    EHSH_LOG_ERROR("Error unknown widget sub type for TEXTBOX class")
+                    EHSH_LOG_ERROR("Error unknown widget sub type for TEXTBOX class");
             }
             /* Initialising a render Mode B widget struct */
             /* TODO this nId stuff has to go!... Should the initi function just pass in the while xParams anyway with class and purpose class info ..?*/
@@ -293,16 +293,10 @@ EHS_FB_INIT_FUNCTION(gui_widget)
 
         EHSH_LOG_INFO("gui_widget INIT: Pre-registered event callback for auto-create (callback=%p, data=%p)",
                       (void*)gui_widget_event_callback, (void*)&inx_gui_widget_state->gui);
-
-        // NOTE: We cannot set pFIData here because we don't have the function instance pointer
-        // in INIT context. The auto-create code will need to set it from inx_gui_widget_state.
-        // We'll store the state pointer in a way that auto-create can find it.
-        // Store inx_gui_widget_state in the widget so auto-create can find it
-        // We'll use a field that's not otherwise used... Actually, let's use pFIData temporarily
-        // and have auto-create fix it up properly.
-        // HACK: Store inx_gui_widget_state in pFIData temporarily - auto-create will fix this
-        pWidget->pFIData = (EhsFunctionInstanceDataType*)inx_gui_widget_state;
-        EHSH_LOG_INFO("gui_widget INIT: Stored state pointer in pFIData for auto-create to fix");
+        // pFIData is left NULL here. gui_widget_create will set it to EHS_FB_RUN_CONTEXT_REF.
+        // Until then, any premature Qt signals will hit the pFIdata==NULL guard in
+        // gui_widget_event_callback and return safely. inx_gui_widget_state is recoverable
+        // from EHS_WIDGET_UI(pWidget).data since gui is the first member of the struct.
     }
 #endif
 

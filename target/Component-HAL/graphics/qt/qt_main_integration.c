@@ -68,18 +68,19 @@ static void ehs_tick_callback(void * user_data)
 
     state_before = ertqt_get_app_state();
 
-    // Single-step the kernel
-    cmd = EhsMainLoopSingle(NULL, NULL);
-    // Doesn't work because this whle process is handled in a single loop iteration by the kernel single loop call:if (cmd == EHS_RELOAD_EHS_FROM_FILE && g_prev_cmd != EHS_RELOAD_EHS_FROM_FILE)
-    if (EhsGetAndClearNewAppLoaded()) // new function for detecting new apps loaded by ehs.
+    // Load QML and rebuild the object table BEFORE the kernel runs so that
+    // widget creation (pfCreateFunc) finds objects in the table on the same tick.
+    if (EhsGetAndClearNewAppLoaded())
     {
-        //printf("[TICK %u] EDGE: EHS_RELOAD_EHS_FROM_FILE detected, loading QML\n", g_tick_count);
-        //fflush(stdout);
         EHSH_LOG_INFO("EHS app reloaded, loading new QML");
-        load_current_app_qml(); // aprently this always blocks until all objects are avilable.
-        ertqt_refresh_objects(); // Ensure the object table is up to date immediately after loading new QML
+        load_current_app_qml();
+        ertqt_refresh_objects();
     }
-    else if (EhsCheckAppExitLoop(cmd) == EHS_TRUE)
+
+    // Single-step the kernel — QML objects are now available if app just loaded
+    cmd = EhsMainLoopSingle(NULL, NULL);
+
+    if (EhsCheckAppExitLoop(cmd) == EHS_TRUE)
     {
         EHSH_LOG_INFO("EHS requesting quit");
         //printf("EHS requesting quit\n");    fflush(stdout);

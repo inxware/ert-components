@@ -412,6 +412,21 @@ ertqt_status ertqt_load_app(const char * qml_path)
 
     g_app_state = ERTQT_APP_STATE_LOADING;
 
+    // Delete and recreate the engine on each load so that rootObjects() starts
+    // empty. QQmlApplicationEngine::load() appends to rootObjects() rather than
+    // replacing them, so reusing the engine causes the object table to double on
+    // every reload.
+    delete g_engine;
+    g_engine = new QQmlApplicationEngine();
+    QObject::connect(g_engine, &QQmlApplicationEngine::objectCreated, g_engine, [](QObject *obj, const QUrl &url)
+    {
+        Q_UNUSED(url);
+        if (!obj)
+        {
+            qWarning() << "Root object creation failed";
+        }
+    });
+
     // Add the QML file's directory as an import path so that the
     // application can import sibling QML modules and components.
     QString qml_file = QString::fromUtf8(qml_path);
@@ -536,10 +551,12 @@ ertqt_object_handle ertqt_get_object_by_name(const char * name)
         }
         if (rec.name == name)
         {
+            printf("ertqt: object found: '%s'\n", name);
             return reinterpret_cast<ertqt_object_handle>(rec.ptr);
         }
     }
 
+    printf("ertqt: object NOT found: '%s' (table has %zu entries)\n", name, g_objects.size());
     return ERTQT_ERR_NOT_FOUND;
 }
 
