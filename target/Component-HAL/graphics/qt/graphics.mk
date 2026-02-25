@@ -117,6 +117,8 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 	CXX_INC_DIRS += $(QT_INCLUDE_BASE)/QtQuick
 # todo this may eed to go into the toolchain.mk?
 	CPPFLAGS += -std=c++17
+
+
 else
 
 	# For Debian host builds

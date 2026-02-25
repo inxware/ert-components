@@ -118,6 +118,13 @@ ehs_bool EhsTV_initQt(int argc, char ** argv)
         return EHS_FALSE;
     }
 
+#ifdef ERTQT_SINGLETON_SCAN
+    // The Rooms singleton (pragma Singleton) is not a child of any root object
+    // so findChildren() misses it. Register it for explicit singleton scanning
+    // so that all Room instances inside it appear in the object table.
+    ertqt_add_singleton_scan("Rooms");
+#endif /* ERTQT_SINGLETON_SCAN */
+
     return EHS_TRUE;
 }
 

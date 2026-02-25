@@ -62,6 +62,10 @@
 #include <QtCore/QString>
 #include <QtGui/QGuiApplication>
 #include <QtQml/QQmlApplicationEngine>
+#ifdef ERTQT_SINGLETON_SCAN
+#include <QtQml/QQmlExpression>
+#include <QtQml/QQmlContext>
+#endif
 #include <QtQuick/QQuickItem>
 #include <QtCore/QTimer>
 #include <QtCore/QVariant>
@@ -99,6 +103,13 @@ static QQmlApplicationEngine * g_engine = nullptr;
 
 static std::vector<ObjectRecord> g_objects;
 static std::mutex g_objects_mutex;
+
+#ifdef ERTQT_SINGLETON_SCAN
+// QML expressions registered via ertqt_add_singleton_scan().
+// Each entry is evaluated in the first root object's context during
+// rebuild_object_table() to reach singletons outside the visual tree.
+static std::vector<std::string> g_singleton_scan_exprs;
+#endif /* ERTQT_SINGLETON_SCAN */
 
 static ertqt_tick_callback g_tick_cb = nullptr;
 static void * g_tick_user_data = nullptr;
@@ -209,7 +220,68 @@ static void rebuild_object_table()
             if (!crec.name.empty()) named_count++;
         }
     }
-    (void)named_count;
+#ifdef ERTQT_SINGLETON_SCAN
+    // Scan QML singletons registered via ertqt_add_singleton_scan().
+    // Singletons are not in the engine's rootObjects() tree, so we evaluate
+    // each registered QML expression in the context of the first root object
+    // (which has all module imports from app.qml in scope).
+    if (!roots.isEmpty() && !g_singleton_scan_exprs.empty())
+    {
+        QObject *first_root = roots.first();
+        QQmlContext *ctx = QQmlEngine::contextForObject(first_root);
+        if (ctx)
+        {
+            for (const std::string &expr_str : g_singleton_scan_exprs)
+            {
+                QQmlExpression expr(ctx, first_root,
+                                    QString::fromStdString(expr_str));
+                bool isUndefined = false;
+                QVariant val = expr.evaluate(&isUndefined);
+                if (isUndefined || !val.isValid())
+                {
+                    printf("ertqt: singleton scan '%s': not found in context\n",
+                           expr_str.c_str());
+                    continue;
+                }
+                QObject *obj = val.value<QObject *>();
+                if (!obj)
+                {
+                    printf("ertqt: singleton scan '%s': result is not a QObject\n",
+                           expr_str.c_str());
+                    continue;
+                }
+                // Add the singleton root itself
+                ObjectRecord srec;
+                srec.ptr = obj;
+                srec.name = obj->objectName().toStdString();
+                g_objects.push_back(srec);
+                if (!srec.name.empty()) named_count++;
+                // Add all QObject children of the singleton
+                const QList<QObject *> schildren = obj->findChildren<QObject *>();
+                for (QObject *child : schildren)
+                {
+                    if (!child) continue;
+                    ObjectRecord crec;
+                    crec.ptr = child;
+                    crec.name = child->objectName().toStdString();
+                    g_objects.push_back(crec);
+                    if (!crec.name.empty()) named_count++;
+                }
+                printf("ertqt: singleton scan '%s': added %d objects\n",
+                       expr_str.c_str(), (int)schildren.size() + 1);
+            }
+        }
+    }
+#endif /* ERTQT_SINGLETON_SCAN */
+
+    printf("ertqt: object table rebuilt: %d total, %d named:\n", (int)g_objects.size(), named_count);
+    for (size_t i = 0; i < g_objects.size(); ++i)
+    {
+        if (!g_objects[i].name.empty())
+        {
+            printf("  [%zu] '%s'\n", i, g_objects[i].name.c_str());
+        }
+    }
 }
 
 // Internal helper used as the QTimer callback for driving the registered tick callback.
@@ -571,6 +643,24 @@ ertqt_status ertqt_refresh_objects(void)
     rebuild_object_table();
     return ERTQT_OK;
 }
+
+#ifdef ERTQT_SINGLETON_SCAN
+ertqt_status ertqt_add_singleton_scan(const char * qml_expression)
+{
+    if (!qml_expression)
+    {
+        return ERTQT_ERR_INVALID_ARGUMENT;
+    }
+    // Avoid duplicate registrations
+    for (const std::string &s : g_singleton_scan_exprs)
+    {
+        if (s == qml_expression)
+            return ERTQT_OK;
+    }
+    g_singleton_scan_exprs.push_back(std::string(qml_expression));
+    return ERTQT_OK;
+}
+#endif /* ERTQT_SINGLETON_SCAN */
 
 // Public interface for retrieving the objectName for a given handle.
 //

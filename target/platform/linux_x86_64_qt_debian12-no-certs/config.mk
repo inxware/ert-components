@@ -52,7 +52,7 @@ COMPONENT_VARIANT=base
 
 # Application Selection
 #EHS_DEFAULT_APP=tutorials/hello_world
-EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
+#EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
 # Enable eRT1 support (binary format SODL files)
 ERT_SODL_VERSION=1
 
@@ -71,6 +71,12 @@ EHS_MAIN_LOOP_ITERATIVE=yes
 # respective QObject (from '*.qml'. This requres the EHS widget name (string) to match the `objectName` in the QML.
 #
 
+	# Enable QML singleton scanning support in the object table builder.
+	# When defined, ertqt_add_singleton_scan() is compiled in and callers can
+	# register QML expressions (e.g. "Rooms") to be evaluated via QQmlExpression
+	# so that objects inside pragma Singleton files appear in the object table.
+	# Requires QQmlExpression / QQmlContext headers (included automatically).
+	DEFS += ERTQT_SINGLETON_SCAN
 
 EHS_GUI_SUPPORT=qt
 # Set this as a modifier for QT not a whole new way of working.

@@ -260,6 +260,34 @@ ertqt_object_handle ertqt_get_object_by_name(const char * name);
 //   handles should re-acquire them via ertqt_get_object_by_name().
 ertqt_status ertqt_refresh_objects(void);
 
+#ifdef ERTQT_SINGLETON_SCAN
+// Register a QML expression to be evaluated as an extra scan root during
+// object table rebuilds.
+//
+// QML singletons (pragma Singleton) are registered in the QML type system and
+// are NOT children of the engine's root objects. They are therefore invisible
+// to the findChildren() traversal used by rebuild_object_table(). This function
+// lets callers register a QML identifier string (e.g. "Rooms") that will be
+// evaluated in the context of the first root object on each rebuild. The
+// resulting QObject and all its QObject children are added to the table.
+//
+// Parameters:
+// - qml_expression: A QML identifier resolvable in the root object's context,
+//   e.g. "Rooms". Must not be NULL.
+//
+// Returns:
+// - ERTQT_OK on success.
+// - ERTQT_ERR_INVALID_ARGUMENT if qml_expression is NULL.
+//
+// Notes:
+// - Expressions are stored persistently and re-evaluated on every rebuild,
+//   including after app reloads.
+// - If the expression cannot be resolved at rebuild time a warning is printed
+//   and the expression is silently skipped for that rebuild.
+// - Only available when ERTQT_SINGLETON_SCAN is defined at compile time.
+ertqt_status ertqt_add_singleton_scan(const char * qml_expression);
+#endif /* ERTQT_SINGLETON_SCAN */
+
 // Public interface for retrieving the `objectName` for a given handle.
 //
 // This function looks up the entry associated with the supplied handle and
