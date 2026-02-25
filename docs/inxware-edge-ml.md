@@ -34,7 +34,8 @@
    - [C++ and Python APIs per Format](#65-c-and-python-apis-per-format)
    - [Output Formats](#66-output-formats)
 7. [LLM at the Edge](#7-llm-at-the-edge)
-8. [Appendix: Runtime Dependencies Reference](#8-appendix-runtime-dependencies-reference)
+8. [inxware Implementation — Status, APIs and Source Roadmap](#8-inxware-implementation--status-apis-and-source-roadmap)
+9. [Appendix: Runtime Dependencies Reference](#9-appendix-runtime-dependencies-reference)
 
 ---
 
@@ -1186,7 +1187,260 @@ Large language models can be run locally on edge hardware using quantised weight
 
 ---
 
-# 8. Appendix: Runtime Dependencies Reference
+# 8. inxware Implementation — Status, APIs and Source Roadmap
+
+This section gives a map of where the inxware ML implementation lives in the repository, summarises implementation status, documents the public C API, and describes the utility scripts. The authoritative narrative for the HAL structure is `target/Component-HAL/ml/README.md` — this section cross-references it without duplicating it.
+
+---
+
+## 8.1 Source Tree Overview
+
+```
+ert-components/
+├── Common/HAL/include/
+│   └── hal_ml.h                        ← Public C API: EhsML_* functions, types, enums
+│
+├── target/Component-HAL/ml/
+│   ├── README.md                        ← Authoritative HAL structure reference
+│   ├── ml_common.mk                     ← Top-level ML build entry point (EHS_ML_SUPPORT switch)
+│   ├── ml_common.h / ml_common.c        ← Highest-level abstraction; called from function block
+│   │
+│   ├── framework/                       ← Inference engine (backend) implementations
+│   │   ├── ml_framework.mk              ← Framework selection logic
+│   │   ├── tensorflow-lite/             ← TFLite C API wrapper          [implemented]
+│   │   │   ├── ert_hal_tflite.h/.c
+│   │   │   └── ml_fw_tflite.mk
+│   │   ├── tensorflow-lite-micro/       ← TFLite Micro wrapper          [TODO]
+│   │   │   ├── ert_hal_tflite_micro.h/.c
+│   │   │   └── ml_fw_tflite_micro.mk
+│   │   └── hailo/                       ← HailoRT C++ wrapper           [implemented]
+│   │       ├── ert_hal_hailo.h/.c
+│   │       ├── hailo_thread.h
+│   │       └── ml_fw_hailo.mk
+│   │
+│   ├── model/                           ← Post-processor per model type
+│   │   ├── ml_models.h                  ← Conditional header aggregator
+│   │   ├── ml_model.mk                  ← Model build configuration
+│   │   ├── ml_model_common.h/.c         ← Boilerplate: create/destroy/setinput/run
+│   │   ├── ml_model_template.{h,c}.template  ← Starting point for new models
+│   │   ├── yolov5_objdet.h/.c           ← YOLOv5 object detection       [implemented]
+│   │   ├── yolov8_objdet.h/.c           ← YOLOv8 object detection       [implemented]
+│   │   ├── yolov8_pose.h/.c             ← YOLOv8 pose estimation        [in progress]
+│   │   └── ml_utils/
+│   │       ├── ehs_ml_nms.h/.c          ← NMS implementation            [implemented]
+│   │       └── ehs_ml_utils.h/.c        ← General ML utilities          [implemented]
+│   │
+│   ├── hailo/
+│   │   └── hailo_ml.c                   ← Hailo ML session management   [implemented]
+│   │
+│   └── stubbed/                         ← No-op stubs for ML-less builds
+│       ├── stubbed_ml.h/.c
+│       └── ml_stubbed.mk
+│
+└── scripts/ai-utilities/
+    ├── yolo-model-utils/                ← YOLO SavedModel → TFLite export scripts
+    ├── hailo-utils/                     ← TFLite → HEF compilation script
+    └── apriltag-model-trainer/          ← AprilTag dataset generator + training guide
+```
+
+---
+
+## 8.2 HAL API (`Common/HAL/include/hal_ml.h`)
+
+The public C API uses the `EhsML_` prefix throughout. All functions are callable from C and C++.
+
+### Core lifecycle
+
+```c
+// Initialise a context for the given model type and backend.
+EhsML_Err EhsML_Create(EhsML_Context* ctx,
+                        const ehs_char* model_path,
+                        EhsML_Type      model_type,   // e.g. EHS_ML_YOLOV8_OBJ_DETECTOR
+                        ehs_float       conf_thres,   // 0.0–1.0
+                        ehs_sint32      thread_count);
+
+// Release all resources.
+void EhsML_Destroy(EhsML_Context* ctx);
+```
+
+### Inference
+
+```c
+// Feed raw input data (image bytes, feature vector, etc.).
+EhsML_Err EhsML_SetInputData(EhsML_Context* ctx,
+                              const void*   data,
+                              ehs_uint32    size);
+
+// Run inference; write JSON result into caller-supplied buffer.
+// Structured output: {"type":1000,"res":[{"cls":0,"cnf":0.92,"x":...},...]}
+// Flat output (ctx->enable_flat_json=true):
+//   {"type":0,...,"cls0":0,"cnf0":0.92,"x0":...,"cls1":...}
+EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx,
+                               ehs_char*     json,
+                               ehs_uint32    size);
+
+// Query which hardware accelerator is active on this build.
+EhsML_HWAccel_t EhsML_HWAccel_supported(void);
+```
+
+**Note:** `EhsML_RunOutputData()` (raw buffer output) is declared as TODO in the header and not yet implemented. JSON is the only current output path.
+
+### Tensor helpers
+
+```c
+EhsML_Err EhsML_Tensor_Alloc  (EhsML_Tensor_t* t, EhsML_DataType_t dtype,
+                                const ehs_uint32* dims, ehs_uint32 num_dims);
+void      EhsML_Tensor_Free   (EhsML_Tensor_t* t);
+EhsML_Err EhsML_Tensor_FillRaw(EhsML_Tensor_t* t, ehs_char* value, size_t size);
+```
+
+### Key types
+
+| Type | Description |
+| :--- | :--- |
+| `EhsML_Context` | Per-session context: framework handle, input/output tensor arrays (up to `EHS_ML_LAYER_TENSORS_MAX` each), `EhsML_Type`, `EhsML_HWAccel_t`, `conf_thres`, `enable_flat_json` |
+| `EhsML_Type` | Enum selecting model variant (see §8.4). Range `1000–1999` = image, `2000–2999` = text, `3000–3999` = audio |
+| `EhsML_HWAccel_t` | `NONE`, `HAILO`, `NVIDIA`, `AMD`, `EIQ`, `DEEPX`, `GEMMA`, `CUSTOM_NPU` |
+| `EhsML_Err` | `EHS_ML_OK`, `EHS_ML_FAILED`, `EHS_ML_INIT_ERR`, `EHS_ML_MODEL_LOAD_ERR`, `EHS_ML_NOT_IMPLEMENTED`, `EHS_ML_JSON_STRSIZE_ERR`, … |
+| `EhsML_Tensor_t` | Data pointer union (u8/s8/f16/f32/…), `dims[4]`, `num_dims`, `data_type`, `quantisation_params` (scale, offset) |
+
+---
+
+## 8.3 Build Configuration
+
+Set these variables in your platform `config.mk` or on the `make` command line.
+
+### Top-level switch
+
+| Variable | Values | Effect |
+| :--- | :--- | :--- |
+| `EHS_ML_SUPPORT` | `yes` | Enable ML with framework + model selection |
+| | `stubbed` | Include stub symbols only — links without an ML backend |
+| | `none` / unset | Exclude ML entirely |
+
+### Framework selection
+
+| Variable | Values | Notes |
+| :--- | :--- | :--- |
+| `EHS_ML_FRAMEWORK_IMAGE_SUPPORT` | `tensorflow-lite` | TFLite C API wrapper (implemented) |
+| | `tensorflow-lite-micro` | TFLite Micro (TODO — emits build error if set) |
+| `EHS_ML_HARDWARE_ACCELERATION` | `hailo` | Adds HailoRT backend alongside TFLite; sets `EHS_ML_HWACCEL_SUPPORT_HAILO` |
+
+**Note:** Only a single framework and single hardware accelerator are selected per build currently. Supporting multiple simultaneous accelerators is a documented TODO.
+
+### Model selection
+
+Enable models by adding `DEFS += EHS_ML_MODEL_SUPPORT_<NAME>` in `config.mk`:
+
+| Macro | Status |
+| :--- | :--- |
+| `EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET` | **Implemented** |
+| `EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET` | **Implemented** |
+| `EHS_ML_MODEL_SUPPORT_YOLOV8_POSE` | Source present; post-processor in progress |
+| `EHS_ML_MODEL_SUPPORT_YOLOV8_INSTSEG` | Not implemented |
+| `EHS_ML_MODEL_SUPPORT_YOLOV9_*` | Not implemented |
+| `EHS_ML_MODEL_SUPPORT_YOLOV10_*` | Not implemented |
+| `EHS_ML_MODEL_SUPPORT_YOLOV11_*` | Not implemented |
+| `EHS_ML_MODEL_SUPPORT_YOLOV12_*` | Not implemented |
+| `EHS_ML_MODEL_SUPPORT_YOLOV26_*` | Not implemented |
+| `EHS_ML_MODEL_SUPPORT_SAM_IMGSEG` | Not implemented |
+| Text / Audio model types | Enumerated in `hal_ml.h`; no implementations yet |
+
+### Tunable limits
+
+Override in `config.mk` with `DEFS += <MACRO>=<value>`:
+
+| Macro | Default | Purpose |
+| :--- | :--- | :--- |
+| `EHS_ML_OBJ_DETECTIONS_MAX` | 20 | Max objects returned per inference call |
+| `EHS_ML_TENSOR_MAX_DIMS` | 4 | Max tensor rank |
+| `EHS_ML_LAYER_TENSORS_MAX` | 128 | Max input or output tensors per model |
+
+---
+
+## 8.4 Utility Scripts (`scripts/ai-utilities/`)
+
+### YOLO Model Export (`yolo-model-utils/`)
+
+Three scripts convert a YOLO `best_saved_model/` directory (produced by Ultralytics training) to TFLite:
+
+| Script | Output filename | Quantisation |
+| :--- | :--- | :--- |
+| `export_tflite.py` | `best.tflite` | Default optimisations (dynamic range) |
+| `export_tflite_float16.py` | `best_float16.tflite` | FP16 weights |
+| `export_tflite_int8.py` | `best_int8.tflite` | Full INT8 static — U8 input/output |
+
+```sh
+python3 export_tflite.py        <weights_dir>
+python3 export_tflite_float16.py <weights_dir>
+python3 export_tflite_int8.py   <weights_dir>
+```
+
+`<weights_dir>` is the Ultralytics run output directory containing `best_saved_model/`.
+
+> **Note:** `export_tflite_int8.py` currently uses synthetic random calibration data. For production use replace `representative_data_gen()` with real representative input frames to improve quantisation accuracy.
+
+### Hailo Compilation (`hailo-utils/`)
+
+`tflite2hef.py` wraps the Hailo Dataflow Compiler (DFC) SDK to compile a `.tflite` model to a device-specific `.hef` binary.
+
+**Setup:**
+```sh
+python3 -m venv venv && source venv/bin/activate
+# Download the DFC wheel from https://hailo.ai/developer-zone/software-downloads/
+pip install ./<hailo_dataflow_compiler_vX.Y.Z>.whl
+pip install click
+```
+
+**Usage:**
+```sh
+python3 tflite2hef.py --hw_arch hailo8 -o model.hef <model_name> model.tflite
+# --hw_arch choices: hailo8 (default), hailo8l, hailo8r
+```
+
+The script parses the TFLite model into HAR via `ClientRunner.translate_tf_model()`, then calls `runner.compile()` to produce the HEF binary. The optimisation pass between parse and compile is currently a no-op placeholder — add Hailo optimisation steps there as needed.
+
+### AprilTag Model Trainer (`apriltag-model-trainer/`)
+
+End-to-end pipeline for training a custom YOLOv5 object detection model on AprilTag fiducials, suited to robotic and industrial vision applications.
+
+**Stages:**
+1. Record or supply a 1:1-aspect-ratio video containing AprilTags.
+2. Run `generate_dataset.sh <video> <N>` to extract labelled frames and produce a YOLO-format dataset (`dataset/xN/`). Use a stride-aligned N (multiples of 32); N=192 gives ~16–20 ms inference on RPi4.
+3. Clone Ultralytics YOLOv5 and train with the generated `data.yaml`.
+4. Export the resulting `best_saved_model/` using the YOLO model-utils scripts above.
+
+See `apriltag-model-trainer/README.md` and `AprilTag_training.ipynb` for the full walkthrough.
+
+---
+
+## 8.5 Implementation Status Summary
+
+| Component | Path | Status |
+| :--- | :--- | :--- |
+| Public C API | `Common/HAL/include/hal_ml.h` | Complete |
+| ML common layer | `target/Component-HAL/ml/ml_common.*` | Implemented |
+| TFLite C API backend | `…/framework/tensorflow-lite/` | Implemented (C API + XNNPACK delegate) |
+| TFLite Micro backend | `…/framework/tensorflow-lite-micro/` | TODO |
+| Hailo HRT backend | `…/framework/hailo/` | Implemented |
+| Hailo session management | `…/hailo/hailo_ml.c` | Implemented |
+| YOLOv5 object detection | `…/model/yolov5_objdet.*` | Implemented |
+| YOLOv8 object detection | `…/model/yolov8_objdet.*` | Implemented |
+| YOLOv8 pose estimation | `…/model/yolov8_pose.*` | Source present; post-processor in progress |
+| NMS utilities | `…/model/ml_utils/ehs_ml_nms.*` | Implemented |
+| ML utilities | `…/model/ml_utils/ehs_ml_utils.*` | Implemented |
+| Stubbed (no-op) build | `…/stubbed/` | Implemented |
+| YOLO → TFLite export | `scripts/ai-utilities/yolo-model-utils/` | Implemented (FP32, FP16, INT8) |
+| TFLite → HEF compiler | `scripts/ai-utilities/hailo-utils/` | Implemented |
+| AprilTag trainer pipeline | `scripts/ai-utilities/apriltag-model-trainer/` | Implemented |
+| YOLOv9–v26 model types | `hal_ml.h` (enumerated only) | Not implemented |
+| Text / Audio model types | `hal_ml.h` (enumerated only) | Not implemented |
+| Raw data output path | `hal_ml.h` (TODO comment) | Not implemented (JSON only) |
+| Multiple simultaneous frameworks | Build system | TODO |
+
+---
+
+# 9. Appendix: Runtime Dependencies Reference
 
 | Library | Memory (RAM) | OS Support | Language | Notes |
 | :--- | :--- | :--- | :--- | :--- |
