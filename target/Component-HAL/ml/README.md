@@ -9,9 +9,49 @@ This directory contains specific implementations of machine learning frameworks 
 - Optimisation : (Not implemented yet) this may be code the transforms data types (float>int) and should support scaling factors for a particular model optimisation 
 
 # TODO
-The stubbed code should jsut be another framework that does nothing with inouts, models and inference. Remove the weird build options  
+The stubbed code should jsut be another framework that does nothing with inouts, models and inference. Remove the weird build options
 
-## Overview
+# Key Inference Engine Entities
+## Inference Engine execution
+Inference engines can form many 
+- Tightly integrated RTE libraries
+- Executable libraries (Staic libraries for MCUs)
+- Executable dynamic libraries (for linux, windows)
+- Executable source code generated for with embedded model
+- Staticly integrate executable source code that can run models (an RTE library compiled in the application build envirnment) 
+- Linux container based services (socket, REST, or other RPC based access)
+
+
+## Inference Engine Post Processings
+Tightly integrated inference engines may require the most post-processing software to run alongisde theneural network or ML alfgorithm.  For an overview plase read `inxware-edge-ml.md` in `./docs/`
+```
+Raw model output (e.g. INT8/FP16)
+         v
+1. Raw Output Processing / Specific Dequantisation
+         v
+2. Gneralised Dequanistation (Optional)
+         v
+2. Model Type Decoding  (anchor decode, DFL, grid offsets)
+         v
+3. Logical Data Post-processing  (NMS, confidence threshold)
+         v
+4. Output Formatting  (JSON, Protobuf, FlatBuffers, ROS2, ...)
+```
+
+## Inference Engine Post Processings
+### 1. Raw Output Processing
+Engine-specific structural decoding (which may include dequantisation). For CPU hosted inference engines the outouts aretypically aligned with the mode, however some NPUs, may sub-set outouts intodifferen qunatisation levels etc. and dequansise in very specific ways. 
+### 2. General sDequantisation 
+Example see `dequantise_box_values` general function, which can be used across different inference engine and model formats.
+### 3. Model Type Decoding
+This is for decoding the model outouts (not framework-speocfc outputs) from the model's output layer e.f. vectror classes or object detection coordinates,...
+### 4. Logical Data Post-processing 
+inference outputs are often filtered (denoised) for plausability, best probability or transformed into structural features (e.g. NMS for vision system object detection). This is typically model-specific (i.e. outout tensor arrangement) but there might be some general algorithms available that can be re-sused with configuration for wider classes of model types.
+### 5. Output formatting
+Extract data into a JSON string or binary format for fastest or MCU level optimsation
+
+
+## Code Tree Overview
 
 ```
 - ml/

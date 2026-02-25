@@ -92,10 +92,10 @@ Edge AI machine learning includes the following potential use-cases:
 
 ## ML Workflow Entity
 
-| Model Creation | Purpose | Sub-Task | Primary Model Type | Model Data Container Format | Inference Data Container | Model Data Structure |
-| :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| Model Creation Examples                 | Purpose                      | Sub-Task | Primary Model Type | Model Data Container Format | Inference Data Container | Model Data Structure |
+| :-------------------------------------- | :--------------------------- | :------- | :----------------- | :-------------------------- | :----------------------- | :---------- |
 | Ultralytics, PyTorch, TensorFlow Lite, ROCm (AMD) | Image, Text, Audio | Detection, Image segmentation, Classification, Pose estimation | YOLOv3–11, YOLOv26, SAM (1–3), SVM, Transformer (LLM) | `.tflite` `.onnx` `.pb` `.hef` `.pte` | NumPy array, FlatBuffer, Protobuf | Combination of Primary Model Type and Task |
-| NVIDIA TAO Toolkit, PyTorch, TensorFlow | Image, Video | Detection, Segmentation, Classification, Pose, OCR, Tracking | YOLOv8, SSD, ResNet, EfficientDet, PeopleNet, BodyPoseNet | `.onnx` `.engine` `.plan` | CUDA tensor bindings (NumPy/CuPy), Protobuf (gRPC / Triton KServe v2) | TensorRT binding tensors; Triton inference protocol v2 |
+| NVIDIA TAO Toolkit, PyTorch, TensorFlow  | Image, Video | Detection, Segmentation, Classification, Pose, OCR, Tracking | YOLOv8, SSD, ResNet, EfficientDet, PeopleNet, BodyPoseNet | `.onnx` `.engine` `.plan` | CUDA tensor bindings (NumPy/CuPy), Protobuf (gRPC / Triton KServe v2) | TensorRT binding tensors; Triton inference protocol v2 |
 
 ### ML Pipeline Flow (Sankey)
 
@@ -143,6 +143,11 @@ Pickle,Python Inference,6
 ---
 
 # 3. Model Building Frameworks
+Model building is generally not done on edge devices, except for adaptive model types, whch are currently rarely deployed outside of earospace, automotive and defence. The model building frameowrks discuused here are alost exclusively Nueral Network based or more specifically variants of the Multi-Layer-Perceptron (MLP) model. 
+
+These frameworks often set the scene of what options for deployment are available at the edge, which splits into different work-flow and processing pipelines sometimes independently of the training fraework, used but unfortunately not always the case. This can cause variouse issues for building devices with established model types from **model zoos** or custom models built with specific tooling. 
+
+Unfortunately each silicon vendor, npu developer and ML technology has built end-2-end systems to improve accessability and/or add "stickyness" to their technology, but results in a highly fragmented eco-system, where seemingly easy transformations and generalisations are not easily practical.
 
 ## 3.1 TensorFlow / LiteRT (TFLite)
 
@@ -389,19 +394,19 @@ Unified ML library for distributed training, model serving, and federated learni
 
 ## 4.1 Native Framework Formats
 
-| Format | Extension | Producer | Notes |
-| :--- | :--- | :--- | :--- |
-| TFLite / LiteRT FlatBuffer | `.tflite` | TensorFlow Lite | Portable across CPU, GPU delegate, NNAPI, Edge TPU; quantisation supported |
-| TorchScript | `.pt` | PyTorch | Deprecated; graph + weights; loads via `torch::jit::load` |
-| ExecuTorch | `.pte` | PyTorch | FlatBuffers; minimal runtime; edge/embedded deployment |
-| SavedModel | directory | TensorFlow | Directory with `saved_model.pb` + variables; full TF graph |
-| Frozen graph | `.pb` | TensorFlow | Serialised computation graph (Protobuf); static, no variables |
-| Keras HDF5 | `.h5`, `.hdf5` | Keras / TF | Architecture + weights; Python-centric |
+| Format          | Extension | Producer | Notes        |
+| :-------------- | :-------- | :------- | :----------- |
+| TFLite / LiteRT | `.tflite` | TensorFlow Lite | FlatBuffer, Portable across CPU, GPU delegate, NNAPI, Edge TPU; quantisation supported |
+| TorchScript     | `.pt`     | PyTorch | Deprecated; graph + weights; loads via `torch::jit::load` |
+| ExecuTorch      | `.pte`    | PyTorch | FlatBuffers; minimal runtime; edge/embedded deployment |
+| SavedModel      | directory | TensorFlow | Directory with `saved_model.pb` + variables; full TF graph |
+| Frozen graph    | `.pb`     | TensorFlow | Serialised computation graph (Protobuf); static, no variables |
+| Keras HDF5      | `.h5`, `.hdf5` | Keras / TF | Architecture + weights; Python-centric |
 | TensorRT engine | `.engine`, `.plan` | TensorRT | Device-specific, version-locked; not portable |
-| Pickle | `.pkl` | scikit-learn, Python | Python-only serialisation; unsafe for untrusted inputs |
-| PMML | `.xml`, `.pmml` | R, Python | XML-based model exchange for classical ML |
-| GGUF | `.gguf` | llama.cpp | LLM weight format (successor to GGML); see §7 |
-| ML.NET Native | `.zip` | ML.NET | Encapsulates model + preprocessing pipeline for .NET |
+| Pickle          | `.pkl`    | scikit-learn, Python | Python-only serialisation; unsafe for untrusted inputs |
+| PMML            | `.xml`, `.pmml` | R, Python | XML-based model exchange for classical ML |
+| GGUF            | `.gguf`   | llama.cpp | LLM weight format (successor to GGML); see §7 |
+| ML.NET Native   | `.zip`    | ML.NET | Encapsulates model + preprocessing pipeline for .NET |
 
 ---
 
@@ -767,12 +772,12 @@ Note: Ethos-N is a separate server/mobile-class NPU; Ethos-U is the embedded var
 
 **Toolchain:**
 
-| Component | Role |
-| :--- | :--- |
-| `onnx2onnx.py` (ONNX Converter) | Optimises ONNX graph; handles layer cutting via `editor.py` |
-| **Quantizer** | INT8 post-training quantisation |
-| **Compiler** | ONNX (optimised) → NEF binary |
-| **Evaluator / Simulator** | Host-side performance estimation |
+| Component                        | Role                               |
+| :------------------------------- | :--------------------------------- |
+| `onnx2onnx.py` (ONNX Converter)  | Optimises ONNX graph; handles layer cutting via `editor.py` |
+| **Quantizer**                    | INT8 post-training quantisation    |
+| **Compiler**                     | ONNX (optimised) → NEF binary      |
+| **Evaluator / Simulator**        | Host-side performance estimation   |
 
 **Input:** ONNX (preferred); Caffe and TFLite via prior conversion.
 
@@ -855,23 +860,42 @@ These are server/cloud inference platforms rather than edge NPUs, but relevant w
 
 ## 6.1 Pipeline Overview
 
-A complete edge inference pipeline passes through up to four stages. Note that vendor software (e.g. Hailo TAPPAS) may conflate multiple stages, and the inxware function block design should accommodate this by tracking which stages a given glue-code module covers.
+A complete edge inference pipeline passes through up to four stages. Note that vendor software support may conflate multiple stages into a single library or example script. (The inxware function block design should accommodate this by tracking which stages a given glue-code module covers. and ignoring/dsaalowing conflicting stages to be selected)
+
+**Postprocessing**
+
 
 ```
-Raw model output (INT8/FP16)
+Raw model output (e.g. INT8/FP16)
          |
          v
-1. Raw Output Processing / Dequantisation
+1. Raw Output Processing / Specific Dequantisation
+         |
+         v
+2. Gneralised Dequanistation (Optional)
          |
          v
 2. Model Type Decoding  (anchor decode, DFL, grid offsets)
          |
          v
-3. Data Filtering  (NMS, confidence threshold)
+3. Logical Data Post-processing  (NMS, confidence threshold)
          |
          v
 4. Output Formatting  (JSON, Protobuf, FlatBuffers, ROS2, ...)
 ```
+
+### 1. Raw Output Processing
+Engine-specific structural decoding (which may include dequantisation). For CPU hosted inference engines the outouts aretypically aligned with the mode, however some NPUs, may sub-set outouts intodifferen qunatisation levels etc. and dequansise in very specific ways. 
+### 2. General sDequantisation 
+Example see `dequantise_box_values` general function, which can be used across different inference engine and model formats.
+### 3. Model Type Decoding
+This is for decoding the model outouts (not framework-speocfc outputs) from the model's output layer e.f. vectror classes or object detection coordinates,...
+### 4. Logical Data Post-processing 
+inference outputs are often filtered (denoised) for plausability, best probability or transformed into structural features (e.g. NMS for vision system object detection). This is typically model-specific (i.e. outout tensor arrangement) but there might be some general algorithms available that can be re-sused with configuration for wider classes of model types.
+### 5. Output formatting
+Extract data into a JSON string or binary format for fastest or MCU level optimsation
+
+More implementation details of these layers is in the `README.md` under `target/Component-HAL/ml/`
 
 **Example function block pulldown options:**
 

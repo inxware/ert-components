@@ -15,9 +15,9 @@
 
 
 /**
- * @page Verification Verification report
- * @section hal_graphics_font
- * @anchor hal_graphics_font
+ * @page 
+ * @section
+ * @anchor h
  * @subsection misra MISRA compliance:
  * test.c demonstrated MISRA compliant on
  * Last modified on $Date:$
