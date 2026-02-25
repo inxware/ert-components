@@ -89,10 +89,11 @@ The scope of this project addresses the following cases:
 | Model Creation | Purpose | Sub-Task | Primary Model Type | Model Data Container Format | Inference Data Container | Model Data Structure |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
 | Ultralytics, PyTorch, TensorFlow Lite, ROCm (AMD) | Image, Text, Audio | Detection, Image segmentation, Classification, Pose estimation | YOLOv3–11, YOLOv26, SAM (1–3), SVM, Transformer (LLM) | `.tflite` `.onnx` `.pb` `.hef` `.pte` | NumPy array, FlatBuffer, Protobuf | Combination of Primary Model Type and Task |
+| NVIDIA TAO Toolkit, PyTorch, TensorFlow | Image, Video | Detection, Segmentation, Classification, Pose, OCR, Tracking | YOLOv8, SSD, ResNet, EfficientDet, PeopleNet, BodyPoseNet | `.onnx` `.engine` `.plan` | CUDA tensor bindings (NumPy/CuPy), Protobuf (gRPC / Triton KServe v2) | TensorRT binding tensors; Triton inference protocol v2 |
 
 ### ML Pipeline Flow (Sankey)
 
-The diagram below shows the flow from training framework → export format → inference runtime / NPU target. Node widths are proportional to the number of downstream connections.
+The diagram below shows the flow from training framework → export/interchange format → compiled/device format → runtime / deployment target. Node widths are proportional to the number of downstream connections.
 
 ```mermaid
 sankey-beta
@@ -104,6 +105,8 @@ PyTorch,ONNX,8
 PyTorch,PyTorch Native,7
 Ultralytics,ONNX,6
 Ultralytics,TFLite,3
+NVIDIA TAO,ONNX,5
+NVIDIA TAO,TRT Engine,4
 Edge Impulse,EI C++ / EIM,8
 scikit-learn,Pickle,6
 TFLite,LiteRT Runtime,6
@@ -112,7 +115,7 @@ TFLite,NXP eIQ / Ethos-U,4
 TFLite,Rockchip RKNN,2
 TFLite,MediaTek APU,2
 ONNX,ONNX Runtime,8
-ONNX,TensorRT,5
+ONNX,TRT Engine,5
 ONNX,Hailo HEF,4
 ONNX,Qualcomm QNN,4
 ONNX,Rockchip RKNN,3
@@ -120,6 +123,9 @@ ONNX,DeepX / Kneron,2
 SavedModel,TF Serving,5
 PyTorch Native,ExecuTorch,5
 PyTorch Native,LibTorch,2
+TRT Engine,TensorRT Runtime,6
+TRT Engine,Jetson DLA,3
+TRT Engine,DeepStream SDK,3
 EI C++ / EIM,Edge Impulse Runtime,8
 Pickle,Python Inference,6
 ```
