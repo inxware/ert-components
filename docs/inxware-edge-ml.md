@@ -27,12 +27,12 @@
    - [BrainChip — Akida](#511-brainchip--akida)
    - [Large Integrations (Data Centre / Cloud)](#512-large-integrations-data-centre--cloud)
 6. [Inference Pipeline](#6-inference-pipeline)
-   - [Pipeline Overview](#61-pipeline-overview)
-   - [Raw Output / Dequantisation](#62-raw-output--dequantisation)
-   - [Model Type Decoding](#63-model-type-decoding)
-   - [Data Filtering — NMS](#64-data-filtering--nms)
+   - [Pipeline Overview](#61-pipeline-overview) — five-stage post-processing model
+   - [Raw Output / Dequantisation](#62-raw-output--dequantisation) — stages 1 & 2 detail
+   - [Model-Architecture Decoding](#63-model-type-decoding) — stage 3 detail (YOLO, pose models)
+   - [Data Filtering — NMS](#64-data-filtering--nms) — stage 4 detail
    - [C++ and Python APIs per Format](#65-c-and-python-apis-per-format)
-   - [Output Formats](#66-output-formats)
+   - [Output Formats](#66-output-formats) — stage 5 detail
 7. [LLM at the Edge](#7-llm-at-the-edge)
 8. [inxware Implementation — Status, APIs and Source Roadmap](#8-inxware-implementation--status-apis-and-source-roadmap)
 9. [Appendix: Runtime Dependencies Reference](#9-appendix-runtime-dependencies-reference)
@@ -860,46 +860,94 @@ These are server/cloud inference platforms rather than edge NPUs, but relevant w
 
 ## 6.1 Pipeline Overview
 
-A complete edge inference pipeline passes through up to four stages. Note that vendor software support may conflate multiple stages into a single library or example script. (The inxware function block design should accommodate this by tracking which stages a given glue-code module covers. and ignoring/dsaalowing conflicting stages to be selected)
-
-**Postprocessing**
-
+A complete edge inference pipeline passes through up to five stages after the inference engine has computed output tensors. Vendor SDKs often conflate multiple stages into a single library or pipeline configuration. The inxware function block design tracks which stages a given glue-code module covers so that conflicting or duplicate stages are not selected.
 
 ```
-Raw model output (e.g. INT8/FP16)
+Raw model output tensors (INT8 / UINT8 / FP16 / FP32)
          |
          v
-1. Raw Output Processing / Specific Dequantisation
+1. Framework-specific raw output unpacking
          |
          v
-2. Gneralised Dequanistation (Optional)
+2. Dequantisation  (scale × (value − zero_point) → float)
          |
          v
-2. Model Type Decoding  (anchor decode, DFL, grid offsets)
+3. Model-architecture decoding  (anchor decode, DFL, grid offsets, tensor routing)
          |
          v
-3. Logical Data Post-processing  (NMS, confidence threshold)
+4. Logical post-processing  (confidence filter, NMS, plausibility checks)
          |
          v
-4. Output Formatting  (JSON, Protobuf, FlatBuffers, ROS2, ...)
+5. Output formatting  (JSON, binary, Protobuf, ROS2 message, …)
 ```
 
-### 1. Raw Output Processing
-Engine-specific structural decoding (which may include dequantisation). For CPU hosted inference engines the outouts aretypically aligned with the mode, however some NPUs, may sub-set outouts intodifferen qunatisation levels etc. and dequansise in very specific ways. 
-### 2. General sDequantisation 
-Example see `dequantise_box_values` general function, which can be used across different inference engine and model formats.
-### 3. Model Type Decoding
-This is for decoding the model outouts (not framework-speocfc outputs) from the model's output layer e.f. vectror classes or object detection coordinates,...
-### 4. Logical Data Post-processing 
-inference outputs are often filtered (denoised) for plausability, best probability or transformed into structural features (e.g. NMS for vision system object detection). This is typically model-specific (i.e. outout tensor arrangement) but there might be some general algorithms available that can be re-sused with configuration for wider classes of model types.
-### 5. Output formatting
-Extract data into a JSON string or binary format for fastest or MCU level optimsation
+### Stage 1 — Framework-specific raw output unpacking
 
-More implementation details of these layers is in the `README.md` under `target/Component-HAL/ml/`
+Some inference backends do not deliver tensor output that maps 1:1 to the model's logical output layers. CPU-hosted runtimes (TFLite, ONNX Runtime) typically do, but dedicated NPUs often repack, transpose, or sub-divide tensors to match their internal data layout. This stage is the responsibility of the **framework layer** and is transparent to the model post-processing stages that follow.
 
-**Example function block pulldown options:**
+Examples:
+- **TFLite / ONNX Runtime (CPU):** output tensors match the model's output layers exactly; quantisation parameters are populated from model metadata.
+- **HailoRT:** the HEF compiler may split or transpose output tensors relative to the original model; multiple vstreams correspond to a single logical output. The framework layer normalises these into a canonical tensor array.
+- **Qualcomm QNN:** delivers a compiled SOC-specific binary context; the QNN SDK unpacks tensor outputs through its execution provider.
+- **Rockchip RKNN, NXP eIQ, Ethos-U:** similar framework-specific output conventions requiring framework-layer normalisation before model decoding begins.
 
-*Raw Output Processing (stage 1):*
+### Stage 2 — Dequantisation
+
+Converts quantised integer output values to floating-point via the affine mapping:
+
+```
+float_value = (raw_value − zero_point) × scale
+```
+
+`scale` (FP32) and `zero_point` (INT8 or UINT8) are per-tensor quantisation parameters stored in the model file's metadata and populated into tensor descriptors by the framework layer. See §6.2 for format-specific dequantisation behaviour and the Hailo-specific API.
+
+This stage is a no-op when the framework already delivers FP32 output (float-precision model, or an NPU that dequantises internally), in which case `scale = 1.0` and `zero_point = 0`.
+
+**Important:** Some model post-processors assume FP32 output without applying this transform. This is only valid for non-quantised models; using such a post-processor with an INT8-quantised model will produce incorrect results.
+
+### Stage 3 — Model-architecture decoding
+
+Interprets the semantic content of each output tensor element according to the **model architecture** — not the inference framework. The same decoding logic is needed regardless of whether the model runs on TFLite, HailoRT, or ONNX Runtime. See §6.3 for detailed per-model tensor layouts and decoding steps.
+
+This stage is **not framework-specific** — it is specific to how the neural network's output head was designed:
+
+| Model | Output structure | Key decoding step |
+| :--- | :--- | :--- |
+| YOLOv5 ObjDet | Single tensor `[1, N_anchors, 5 + C]` — x, y, w, h, objectness, class scores | `score = objectness × max_class_score`; centre-format box |
+| YOLOv8 ObjDet | Pre-decoded per-class grouped boxes with count prefixes | Count prefix per class; corner-format coordinates (ymin, xmin, ymax, xmax) |
+| YOLOv8 Pose | Three tensors per scale head (DFL boxes, scores, keypoints) | Tensor routing by feature dimension; DFL softmax regression decode; 17-keypoint COCO layout |
+| MoveNet | Direct coordinate regression (heatmap-free) | Single tensor; 17 × 3 (y, x, confidence) |
+| OpenPose / HRNet | Heatmaps + Part Affinity Fields or heatmaps only | Argmax or Gaussian peak fitting on spatial heatmap grids |
+
+New model types added to inxware must document their expected tensor layout and routing logic in the model implementation header.
+
+### Stage 4 — Logical post-processing
+
+Reduces the raw decoded candidate set to a final, application-ready result. Common operations:
+
+- **Confidence threshold filtering** — drop detections below a score threshold. Applied before NMS to bound the NMS input size.
+- **Non-Maximum Suppression (NMS)** — for object detection: collapse overlapping bounding boxes for the same class to a single best candidate using Intersection over Union (IoU) scoring. See §6.4.
+- **OKS-NMS** — keypoint-aware suppression for pose models using Object Keypoint Similarity as the overlap metric instead of IoU.
+- **Plausibility filtering** — semantic constraints on decoded output (e.g. bounding box aspect-ratio limits, joint-angle constraints for pose models, temporal consistency checks).
+- **NMS-free models** — YOLOv10, YOLO26 and some newer architectures integrate end-to-end detection heads that eliminate the post-processing NMS step by design.
+
+### Stage 5 — Output formatting
+
+Serialises the post-processed results into the application-facing format. See §6.5 for API entry points per format and §6.6 for detailed format descriptions.
+
+| Format | Relative serialisation cost | Notes |
+| :--- | :--- | :--- |
+| JSON | ~10× | Human-readable; widest tool support; highest overhead |
+| Protocol Buffers | ~2.5× | Binary, schema-enforced; used by TF Serving, gRPC, Triton |
+| FlatBuffers | ~1× | Zero-copy; used by TFLite and ExecuTorch model files |
+| Raw binary / buffer | ~1× | Lowest latency; required for constrained MCU targets |
+| ROS2 `vision_msgs` | varies | Algorithm-agnostic computer vision messages for robot systems |
+
+> For inxware implementation details of all five stages see `target/Component-HAL/ml/README.md § Post-Processing Pipeline`.
+
+**Example function block configuration options:**
+
+*Stage 1 — Framework raw output unpacking:*
 - `tflite-int8 (general)` / `tflite-fp16` / `tflite-fp32`
 - `e-impulse-eon_yolopro_object`
 - `hailo8-10_yolo8s_pose_json` / `hailo8-10_yolo8m_pose_json`
@@ -907,11 +955,11 @@ More implementation details of these layers is in the `README.md` under `target/
 - `hailo8-10_yolov5-11_objdet`
 - `hailo8-10_onnxrt_general` (requires ONNX Runtime)
 
-*Model Type (stage 2):* Yolo5-object, Yolo8-object, Yolo8-pose, Yolo10, Yolo11-objdet, Yolo11-obb, MoveNet, scdepthv3, CLIP, fcn16_resnet_v1_18, ...
+*Stage 3 — Model-architecture decoding:* YOLOv5-object, YOLOv8-object, YOLOv8-pose, YOLOv10, YOLOv11-objdet, YOLOv11-obb, MoveNet, SCDepthv3, CLIP, FCN16-ResNet-v1-18, ...
 
-*Data Filtering (stage 3):* None, Object Detection NMS, Pose Estimation NMS, ...
+*Stage 4 — Logical post-processing:* None, Object Detection NMS, Pose OKS-NMS, ...
 
-*Output Format (stage 4):* JSON-flat, JSON-structured, Protobuf, FlatBuffers, ...
+*Stage 5 — Output formatting:* JSON-flat, JSON-structured, Protobuf, FlatBuffers, ...
 
 ---
 
@@ -966,7 +1014,7 @@ Raw output from the Hailo device is INT8/UINT8. Post-processing (NMS, decode) ca
 
 ---
 
-## 6.3 Model Type Decoding
+## 6.3 Model-Architecture Decoding
 
 ### Yolo8-Pose Output Tensors
 
