@@ -28,6 +28,10 @@ EHS_DEBIAN_VERSION=12
 DEFS += EHS_DEBIAN_VERSION=12
 EHS_PACKAGER_TYPE=deb
 
+#EHS_GNU_OS_VERSION=-clang11_debian11
+EHS_GNU_OS_VERSION=-clang10_clang10
+
+
 # Use host toolchain + Qt headers and static objects from Docker
 TOOLCHAIN_NAME=HOST
 
@@ -37,7 +41,7 @@ EHS_TOOLCHAIN_TYPE=gcc
 # Networking (standard)
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
-# EHS_MQTT_SUPPORT=aws_green_grass
+EHS_MQTT_SUPPORT=aws_green_grass
 
 # Unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features
 EHS_DEVMAN_SUPPORT=http
