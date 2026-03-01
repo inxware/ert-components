@@ -154,13 +154,13 @@ EHS_LOCAL ehs_bool EhsTOS_FindIp(const struct ifaddrs* ifa, const char* interfac
     struct ifaddrs * ifAddrStruct;
     ehs_bool bSuccess = EHS_FALSE;
 
-    if (ifa != NULL && interface_name != NULL && getifaddrs(&ifAddrStruct) != -1)
+    if (interface_name != NULL && getifaddrs(&ifAddrStruct) != -1)
     {
         for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
         {
             addressBuffer[0]='\0';/* avoid unititialised strcpy */
             addressBuffer6[0]='\0';
-            //if (ifa->ifa_addr == NULL) continue; // do we want to skip unconnected ethernet ports? still would like MAC address
+            if (ifa->ifa_addr == NULL) continue;
             if (EhsStrcmp(ifa->ifa_name, interface_name) == 0)   /* Have we found the IP address we are using for the MAC address? */
             {
                 if (ifa ->ifa_addr->sa_family == AF_INET)   // check it is IP4
@@ -192,10 +192,15 @@ EHS_LOCAL ehs_bool EhsTOS_FindIp(const struct ifaddrs* ifa, const char* interfac
                     if (EhsStrlen(addressBuffer6) > 0 )
                     {
                         EhsStrcpy(bufIP, addressBuffer6);
+                        bSuccess = EHS_TRUE;
                         break;
                     }
                 }
-                else break; // if we found our preferred interface then break
+                else
+                {
+                    bSuccess = EHS_TRUE;
+                    break; // if we found our preferred interface then break
+                }
 
             }
 
@@ -203,10 +208,6 @@ EHS_LOCAL ehs_bool EhsTOS_FindIp(const struct ifaddrs* ifa, const char* interfac
         if (ifAddrStruct!=NULL){
             freeifaddrs(ifAddrStruct);
         }
-    }
-    else
-    {
-        //do nothing we put in n/A as a default
     }
 
     return bSuccess;
@@ -225,7 +226,7 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
 #endif
     struct ifreq buffer;
     ehs_char * ipbuf;
-    struct ifaddrs * ifa;
+    struct ifaddrs * ifa = NULL;
 
     memset(&buffer, 0x00, sizeof(buffer));
 #if defined(EHS_USE_WIFI_INTERFACE)
@@ -321,12 +322,15 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
 
 #define USE_MOST_GENERIC
 #if defined ( USE_MOST_GENERIC )
+/* Method checks for the platform#s priority interface to get an IP address then reverts to WiFi/Ethernet options */
+// todo2026 the alternative search should try list of interface names for the alternative connection type/
+// todo 2026 we shouls use a rpoper list iteration (that can be defined in target_config.h) ad function to interate these rather than the staggered if tree.
 
-    EhsStrcpy(bufIP, "N/A"); // might not get it...
+    EhsStrcpy(bufIP, "N/A*"); // might not get it...
 
     // find ip address for interface from which mac address was extracted
     ehs_bool success = EhsTOS_FindIp(ifa, buffer.ifr_name, bufIP);
-
+    
     if(success == EHS_FALSE){
         // find ip from any availble interface
         #ifdef EHS_USE_WIFI_INTERFACE // getting ip from wifi interface failed, try to get it from ethernet instead
@@ -337,6 +341,7 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
     }
 
 #else
+ // thi might get an arbitrary interface's IP address
     //Could use : ioctl(<socketfd>, SIOCGIFCONF, (struct ifconf)&buffer);
 #ifdef EHS_BUGGY_LINUX_NETWORKING_API
     IPaddr.i=gethostid();
