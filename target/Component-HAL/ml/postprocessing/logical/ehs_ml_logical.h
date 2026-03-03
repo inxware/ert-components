@@ -1,0 +1,16 @@
+#ifndef _CHEADER_TARGET_COMPONENT_HAL_ML_POSTPROCESSING_LOGICAL_EHS_ML_LOGICAL_H_
+#define _CHEADER_TARGET_COMPONENT_HAL_ML_POSTPROCESSING_LOGICAL_EHS_ML_LOGICAL_H_
+
+#include "ml_common.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void logical_postprocess(EhsML_Context* ctx);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // _CHEADER_TARGET_COMPONENT_HAL_ML_POSTPROCESSING_LOGICAL_EHS_ML_LOGICAL_H_
