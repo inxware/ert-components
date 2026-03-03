@@ -19,7 +19,7 @@
 
 /*****************************************************************************/
 /* Included files */
-#include "globals.h"
+#include "target_types.h"
 
 // max number of the objects per detetction
 #ifndef EHS_ML_OBJ_DETECTIONS_MAX
@@ -215,6 +215,8 @@ typedef struct {
     ehs_uint32      num_dims;
     EhsML_Quan_t    quantisation_params;
     EhsML_DataType_t data_type;
+    void            *handle; // Placeholder for any framework-specific tensor handle if needed 
+    ehs_bool        handle_owned; // Indicates if the tensor is responsible for freeing the handle
 } EhsML_Tensor_t;
 
 typedef struct {
@@ -228,6 +230,8 @@ typedef struct {
     //  because the output format could be different for various ML frameworks
     ehs_uint32 output_tensor_count;
     EhsML_Tensor_t output_tensor[EHS_ML_LAYER_TENSORS_MAX];
+    ehs_uint32 intermediate_tensor_count;
+    EhsML_Tensor_t intermediate_tensor[EHS_ML_LAYER_TENSORS_MAX]; // Placeholder for intermediate tensors if needed for processing
     EhsML_Type type;
     EhsML_HWAccel_t hw_accel;
     EhsML_DataType_t data_type;

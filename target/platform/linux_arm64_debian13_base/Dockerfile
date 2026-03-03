@@ -34,6 +34,11 @@ RUN apt install -y \
 
 #	libgtk2.0-dev:arm64 \
 
+RUN echo "deb [ trusted=yes ] http://archive.raspberrypi.com/debian/ trixie main" | tee /etc/apt/sources.list.d/raspi.list
+
+RUN apt update
+RUN apt install -y hailort
+
 # We awnt to sudo to experiment with a few things:
 #RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
 RUN adduser docker && mkdir -p /etc/sudoers.d \

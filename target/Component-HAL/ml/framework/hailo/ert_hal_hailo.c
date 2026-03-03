@@ -15,7 +15,7 @@ static hailo_version_t gHailoVersion = {0, 0, 0};
 static ehs_bool check_hailo_version() {
     if (gHailoVersion.major == 0) hailo_get_library_version(&gHailoVersion);
     if (gHailoVersion.major != EHS_HAILO_LIB_VERSION_MAJOR ||
-        gHailoVersion.minor != EHS_HAILO_LIB_VERSION_MINOR)
+        gHailoVersion.minor < EHS_HAILO_LIB_VERSION_MINOR)
         return EHS_FALSE;
     return EHS_TRUE;
 }
@@ -386,6 +386,15 @@ EhsML_Err EhsML_FW_Hailo_Create(EhsML_Context * ctx, const ehs_char * model_path
             _error = EHS_ML_INIT_ERR;
             goto l_release_buffers;
         }
+        ctx->output_tensor[tt].handle = malloc(sizeof(hailo_vstream_info_t));
+        if (ctx->output_tensor[tt].handle == NULL){
+            EHSH_LOG_ERROR("Failed to allocate memory for output tensor handle!\n");
+            gHailoStatus = HAILO_OUT_OF_HOST_MEMORY;
+            _error = EHS_ML_MEMORY_ERR;
+            goto l_release_buffers;
+        }
+        ctx->output_tensor[tt].handle_owned = EHS_TRUE;
+        EhsMemcpy(ctx->output_tensor[tt].handle, &output_vstream_info, sizeof(hailo_vstream_info_t));
         // printf("output stream name: %s, network_name: %s\n", output_vstream_info.name, output_vstream_info.network_name);
         // printf("output stream quant_info: scale=%f, zp=%f\n",
         //     output_vstream_info.quant_info.qp_scale,

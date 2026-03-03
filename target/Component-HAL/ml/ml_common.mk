@@ -34,15 +34,22 @@ else ifeq ($(EHS_ML_SUPPORT),yes)
 
 ## Makefile Variable for Framework and Model path
 	EHS_TARGET_ML_FRAMEWORK_PATH=$(EHS_TARGET_ML_ROOT_PATH)/framework
-	EHS_TARGET_ML_MODEL_PATH=$(EHS_TARGET_ML_ROOT_PATH)/model
+	EHS_TARGET_ML_ENGINE_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/engine
+	EHS_TARGET_ML_GENERAL_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/general
+	EHS_TARGET_ML_MODEL_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/model
 
 ## Include Framework and Model makefiles
 	include $(EHS_TARGET_ML_FRAMEWORK_PATH)/ml_framework.mk
+	include $(EHS_TARGET_ML_ENGINE_POSTPROCESSING_PATH)/ml_postprocessing_engine.mk
+	include $(EHS_TARGET_ML_GENERAL_POSTPROCESSING_PATH)/ml_postprocessing_general.mk
 	include $(EHS_TARGET_ML_MODEL_PATH)/ml_model.mk
 
 ## Include ML Stubbed source path
 ### Stubbed source is generic for all platforms
 	include $(EHS_TARGET_COMPONENT_HAL_PATH)/ml/stubbed/ml_stubbed.mk
+
+#	CXX_INC_DIRS+=$(EHS_COMMON_HAL_PATH)/include
+	CXX_INC_DIRS+=$(INC_DIRS)
 
 else
 # No Machine Learning support

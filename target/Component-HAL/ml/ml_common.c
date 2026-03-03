@@ -188,6 +188,12 @@ void EhsML_Tensor_Free(EhsML_Tensor_t* tensor)
 
     // Free the allocated memory
     free(tensor->data_ptr.ptr);
+    // Free the handle if it exists
+    if (tensor->handle_owned == EHS_TRUE && tensor->handle != NULL)
+    {
+        free(tensor->handle);
+        tensor->handle = NULL;
+    }
     // Reset everything to 0
     tensor->data_ptr.ptr = NULL;
     tensor->size_in_bytes = 0;
@@ -292,7 +298,6 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
         case EHS_ML_YOLOV8_POSE_ESTIMATOR:
         {
 #ifdef EHS_ML_MODEL_SUPPORT_YOLOV8_POSE
-            return EHS_ML_NOT_IMPLEMENTED;
             return EhsML_Yolov8_Pose_Create(ctx, model_path, model_type, conf_thres, thread_count);
 #else
             return EHS_ML_NOT_SUPPORTED;
@@ -991,7 +996,6 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
         case EHS_ML_YOLOV8_POSE_ESTIMATOR:
         {
 #ifdef EHS_ML_MODEL_SUPPORT_YOLOV8_POSE
-            return EHS_ML_NOT_IMPLEMENTED;
             return EhsML_Yolov8_Pose_SetInputData(ctx, data, size);
 #else
             return EHS_ML_NOT_SUPPORTED;
@@ -1373,7 +1377,6 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 siz
         case EHS_ML_YOLOV8_POSE_ESTIMATOR:
         {
 #ifdef EHS_ML_MODEL_SUPPORT_YOLOV8_POSE
-            return EHS_ML_NOT_IMPLEMENTED;
             return EhsML_Yolov8_Pose_RunOutputJson(ctx, json, size);
 #else
             return EHS_ML_NOT_SUPPORTED;

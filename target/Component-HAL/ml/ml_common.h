@@ -27,6 +27,9 @@
 #ifdef EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET
 #include "yolov8_objdet.h"
 #endif//EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET
+#ifdef EHS_ML_MODEL_SUPPORT_YOLOV8_POSE
+#include "yolov8_pose.h"
+#endif//EHS_ML_MODEL_SUPPORT_YOLOV8_POSE
 
 /*****************************************************************************/
 /* Define macros  */

@@ -162,7 +162,7 @@ Note: the coordinate formats differ between YOLOv5 (centre + width/height) and Y
   |- README.md
 ```
 
-## Framework
+## Framework (Inference Engine)
 This is the backend where the model data is processed. A few examples are Tensorflow Lite and Hailo.
 The `framework` folder contains the code where each framework is implemented in its own folder.
 
@@ -234,6 +234,7 @@ The following are the list of makefile variables. The value is either `yes` or `
 - `EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET`
 - `EHS_ML_MODEL_SUPPORT_YOLOV8_INSTSEG` (Not Implemented)
 - `EHS_ML_MODEL_SUPPORT_YOLOV8_POSE` (Not Implemented)
+  - There are some Hailo-specific output postprocessing steps before the model postprocessing. (i.e. 9 outputs into 6 outputs)
 - `EHS_ML_MODEL_SUPPORT_YOLOV8_OOB` (Not Implemented)
 - `EHS_ML_MODEL_SUPPORT_YOLOV8_CLASS` (Not Implemented)
 - `EHS_ML_MODEL_SUPPORT_YOLOV9_OBJDET` (Not Implemented)
