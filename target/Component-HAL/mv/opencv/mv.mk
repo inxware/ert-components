@@ -2,7 +2,7 @@
 OBJECTS+=mv.$(OBJ)
 OBJECTS+=camera.$(OBJ)
 
-ifeq ($(EHS_DEBIAN_VERSION),13)
+#ifeq ($(EHS_DEBIAN_VERSION),13)
 
 CPPFLAGS += -std=c++17
 
@@ -65,14 +65,14 @@ LIB+=opencv_xphoto
 LIB+=opencv_photo
 LIB+=opencv_imgproc
 LIB+=opencv_core
-else
-LIB+=opencv_wrapper
-endif
+#else
+#LIB+=opencv_wrapper
+#endif
 
 ifdef EHS_USE_LIBCAMERA
 export EHS_USE_LIBCAMERA
 DEFS+=EHS_USE_LIBCAMERA=1
-ifeq ($(EHS_DEBIAN_VERSION),13)
+#ifeq ($(EHS_DEBIAN_VERSION),13)
 # CPPFLAGS += -DCV_LIBCAMERA_SUPPORT
 DEFS+=CV_LIBCAMERA_SUPPORT
 LIB+=camera-base
@@ -83,9 +83,9 @@ CXX_INC_DIRS += /usr/local/include
 OBJECTS += lccv.$(OBJ)
 OBJECTS += libcamera_app_options.$(OBJ)
 OBJECTS += libcamera_app.$(OBJ)
-else
-LIB+=lccv
-endif
+#else
+#LIB+=lccv
+#endif
 #Note we might want to do this more gernerally if there are any CPP files compiled, but this detection is working properly yet.
 LIB+=stdc++
 endif

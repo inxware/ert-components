@@ -1,6 +1,6 @@
 #include "ml_postprocessing_engine_hailo.hpp"
 
-#include "hailo_toolbox.hpp"
+//#include "hailo_toolbox.hpp"
 
 #include "hailo_infer.hpp"
 #include "hailo/hailort.hpp"
@@ -10,7 +10,7 @@
 
 #include "yolov8pose_postprocess.hpp"
 
-using namespace hailo_utils;
+//using namespace hailo_utils;
 
 constexpr size_t MAX_QUEUE_SIZE = 60;
 
