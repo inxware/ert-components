@@ -583,6 +583,10 @@ namespace xt
      */
     template <class D>
     inline auto xstrided_view_base<D>::data() noexcept -> pointer
+        // NOTE: `provides_data_interface` must be fully qualified here.
+        // Clang 14 does not look up unqualified static constexpr bool members of a class
+        // template in requires-clauses of out-of-line definitions (fixed in Clang 16+).
+        // GCC 12+ accepts both forms. The qualification is harmless on newer compilers.
         requires(xstrided_view_base<D>::provides_data_interface)
     {
         return m_e.data();
@@ -594,7 +598,7 @@ namespace xt
      */
     template <class D>
     inline auto xstrided_view_base<D>::data() const noexcept -> const_pointer
-        requires(xstrided_view_base<D>::provides_data_interface)
+        requires(xstrided_view_base<D>::provides_data_interface) // see non-const overload note above
     {
         return m_e.data();
     }
