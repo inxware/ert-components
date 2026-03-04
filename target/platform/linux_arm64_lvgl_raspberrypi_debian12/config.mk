@@ -7,7 +7,8 @@
 #	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 #---------------------------------------------------------------
 
-# bUILD FOR THE aRDUINO UNO q (Snapdragon, 
+# @file config.mk 
+# @author: inx limited
 
 # Usage Description
 # This is for Raspberry Pis - it is aimed at being used with inxware demo
