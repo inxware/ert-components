@@ -583,7 +583,7 @@ namespace xt
      */
     template <class D>
     inline auto xstrided_view_base<D>::data() noexcept -> pointer
-        requires(provides_data_interface)
+        requires(xstrided_view_base<D>::provides_data_interface)
     {
         return m_e.data();
     }
@@ -594,7 +594,7 @@ namespace xt
      */
     template <class D>
     inline auto xstrided_view_base<D>::data() const noexcept -> const_pointer
-        requires(provides_data_interface)
+        requires(xstrided_view_base<D>::provides_data_interface)
     {
         return m_e.data();
     }
