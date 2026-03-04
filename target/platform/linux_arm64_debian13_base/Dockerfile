@@ -15,6 +15,8 @@ RUN apt install -y libarchive-dev:arm64 libcurl4-openssl-dev:arm64 \
 	gcc-multilib g++-multilib \
   	libc6-dev:arm64 libz-dev:arm64 libidn2-dev:arm64 libexpat1-dev:arm64
 
+RUN echo "deb [ trusted=yes ] http://archive.raspberrypi.com/debian/ trixie main" | tee /etc/apt/sources.list.d/raspi.list
+RUN apt update
 RUN apt install -y \
  libcurl4-openssl-dev:arm64 \
  libarchive-dev:arm64 \
@@ -34,9 +36,6 @@ RUN apt install -y \
 
 #	libgtk2.0-dev:arm64 \
 
-RUN echo "deb [ trusted=yes ] http://archive.raspberrypi.com/debian/ trixie main" | tee /etc/apt/sources.list.d/raspi.list
-
-RUN apt update
 RUN apt install -y hailort
 
 # We awnt to sudo to experiment with a few things:
