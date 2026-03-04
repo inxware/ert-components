@@ -21,6 +21,8 @@ RUN apt install -y \
     git-lfs \
     clang \
     llvm \
+    gcc-multilib \
+    g++-multilib \
     binutils-aarch64-linux-gnu \
     libc6-arm64-cross \
     crossbuild-essential-arm64 \
@@ -34,12 +36,10 @@ RUN apt install -y \
 RUN apt install -y \
     libcurl4-openssl-dev:arm64 \
     libarchive-dev:arm64 \
-    libcurl4-openssl-dev:arm64 \
-    gcc-multilib \
-    g++-multilib \
     libc6-dev:arm64 \
     libz-dev:arm64 \
     zlib1g-dev:arm64 \
+    libexpat-dev:arm64 \
     libexpat-dev:arm64 \
     libexpat1-dev:arm64 \
     libidn2-dev:arm64 \
@@ -50,7 +50,7 @@ RUN apt install -y \
     libgstreamer1.0-dev:arm64 \
     libgstreamer-plugins-base1.0-dev:arm64 \
     libopencv-dev:arm64 \
-   libcamera-dev:arm64 
+    libcamera-dev:arm64 
 
 #   g++-aarch64-linux-gnu gcc-aarch64-linux-gnu 
 
