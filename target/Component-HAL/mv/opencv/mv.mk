@@ -35,7 +35,6 @@ LIB+=opencv_reg
 LIB+=opencv_rgbd
 LIB+=opencv_saliency
 LIB+=opencv_shape
-LIB+=opencv_signal
 LIB+=opencv_stereo
 LIB+=opencv_structured_light
 LIB+=opencv_phase_unwrapping
