@@ -14,7 +14,7 @@ This directory contains specific implementations of machine learning frameworks 
  
 # Key Inference Engine Entities
 ## Inference Engine execution
-Inference engines can form many 
+Inference engines are provided bytechnology vendors in a number of strcutures and formats: 
 - Tightly integrated RTE libraries
 - Executable libraries (Staic libraries for MCUs)
 - Executable dynamic libraries (for linux, windows)
@@ -22,29 +22,74 @@ Inference engines can form many
 - Staticly integrate executable source code that can run models (an RTE library compiled in the application build envirnment) 
 - Linux container based services (socket, REST, or other RPC based access)
 
+Inference engines may also be provided with varying levels of pre and post processing requirements of 
+the host processor, which may be the result of short-comings of the hardware acclerator's support libraries
+or because of demo-grade only post processing.
+  
 
 ## Post-Processing Pipeline
 
-Tightly-integrated inference engines deliver raw tensor output that must pass through a model-specific post-processing pipeline before the application receives usable data. For broader context see `docs/inxware-edge-ml.md`.
+Tightly-integrated inference engines deliver may generate raw tensor output that must pass through model-specific 
+post-processing pipeline before the application receives usable data.
 
 ```
-Raw model output tensors (INT8 / UINT8 / FP16 / FP32)
-         |
+1. Inference Engine (This is not actually post-processing!)
          v
-1. Framework-specific raw output unpacking
-         |
+2. Framework-specific raw output unpacking (e.g. Hailo tensor-set)
          v
-2. Dequantisation  (scale × (value − zero_point) → float)
-         |
+3. Dequantisation  (e.g. scale × (value − zero_point) → float)
          v
-3. Model-architecture decoding  (anchor decode, DFL, grid offsets, tensor routing)
-         |
+4. Model-architecture decoding  (anchor decode, DFL, grid offsets, tensor routing)
          v
-4. Logical post-processing  (confidence filter, NMS, plausibility checks)
-         |
+5. Logical post-processing  (confidence filter, NMS, plausibility checks)
          v
-5. Output formatting  (JSON, binary, Protobuf, ROS2 message, …)
+6. Output formatting  (JSON, binary, Protobuf, ROS2 message, …)
 ```
+**IMPORTANT NOTE**: If the inference engine support software is satifactory across some or all of these post-processing stages then this should be used 'as-is' nad the overlapping pipeline stages will be unslectable and their should be o need to implement or seperate out the 
+monolithic post-processing to fit these stages.  
+
+The following pieline managment structure is proposed to generaliseconditional execution.
+For each ML function block a table of this format could be used instead of switch statements to paparterise the pipeline.
+
+### Hailo Example (Monolithic)
+|  **Stage**|    1    |    2    |    3    |    4    |    5    |    6    |
+|---------- |---------|---------|---------|---------|---------|---------|
+|**FuncPtr**| HailoY5 |  NULL   |  NULL   |  NULL   |  NULL   |  JSON   |
+
+### TF-Lite Example (Model-driven)
+|  **Stage**|    1    |    2    |    3    |    4    |    5    |    6    |
+|---------- |---------|---------|---------|---------|---------|---------|
+|**FuncPtr**| TFLIte  |  NULL   |int8fp32 |  NULL   |Yol8NMS  |  JSON   |
+
+**For broader context see `docs/inxware-edge-ml.md`**
+> Note: media processing frameworks, like Gstreamer pieplines, can be built conditionally on tables such as above (e.g. for image and video processomg)
+
+> Note there MUST be some type of input data/output data type enum assigned to each function so that incompatible stages can't be joined together. e.g. sometimes everything may go through as int16 or possibly FP32, because that is the reference code used. Each function should set the data type and check the preceding one matches (if NULL, it needs to check the previouse one)
+
+### Pipeline Data type Enum
+Should identify both the number format and pipeline stage **output** form e.g.
+```c
+enum {
+    EHS_ML_INF_ENGINE_TYPE_NONE = 0,
+    EHS_ML_INF_ENGINE_TYPE_UINT8,
+    EHS_ML_INF_ENGINE_TYPE_INT8,
+    EHS_ML_INF_ENGINE_TYPE_INT16,
+    EHS_ML_INF_ENGINE_TYPE_INT32,
+    EHS_ML_INF_ENGINE_TYPE_FP32,
+    EHS_ML_INF_ENGINE_TYPE_HAILO,
+    EHS_ML_INF_ENGINE_TYPE_NUMPY,
+
+    EHS_ML_TENSOR_TYPE_NONE = 1000,
+    EHS_ML_TENSOR_TYPE_UINT8,
+    EHS_ML_TENSOR_TYPE_INT8,
+    EHS_ML_TENSOR_TYPE_INT16,
+    EHS_ML_TENSOR_TYPE_INT32,
+    EHS_ML_TENSOR_TYPE_FP32,
+    EHS_ML_TENSOR_TYPE_FP64,
+    
+ // ... similar for  Dequantisation, etc,..- Generate all combinations with claude!
+
+}
 
 ### Stage 1 — Framework-specific raw output unpacking
 
