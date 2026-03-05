@@ -72,8 +72,9 @@ EHS_GUI_SUPPORT=lvgl
 #   drm:     native DRM/KMS, no compositor needed; stop Weston first
 #            (sudo kill $(fuser /dev/dri/card0 2>/dev/null))
 #   wayland: render into a running Weston compositor via SDL2 Wayland
+# If unset wil auto detect between wayland and Xorg
+#EHS_LVGL_LINUX_DISPLAY_BACKEND=drm
 EHS_LVGL_LINUX_DISPLAY_BACKEND=drm
-#EHS_LVGL_LINUX_DISPLAY_BACKEND=wayland
 
 # We should try Wi-Fi by default in Raspberry Pi devices
 DEFS += EHS_USE_WIFI_INTERFACE=1

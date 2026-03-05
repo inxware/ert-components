@@ -54,7 +54,6 @@
 #ifdef __linux__
 #include <unistd.h>
 #include <sys/stat.h>
-#include <dirent.h>
 #include <stdio.h>
 #endif
 #include SDL_INCLUDE_PATH
@@ -136,92 +135,11 @@ void sdl_init(void)
     }
 
 #ifdef EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND
-    /* Wayland backend: connect to a running compositor (e.g. Weston).
-     * Force the SDL video driver and locate the compositor socket.
-     * SDL2 connects to $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY, so both must
-     * point to wherever the compositor (e.g. Weston) actually placed it. */
+    /* Wayland backend: force SDL to use the Wayland video driver.
+     * Set WAYLAND_DISPLAY and XDG_RUNTIME_DIR in the environment before
+     * launching if they are not already set (e.g. from a Weston terminal). */
     if (getenv("SDL_VIDEODRIVER") == NULL)
         setenv("SDL_VIDEODRIVER", "wayland", 0);
-
-
-    if (getenv("WAYLAND_DISPLAY") == NULL) {
-        /* Locate the Wayland compositor socket by reading /proc/<pid>/environ
-         * for every running process.  Whichever process (weston, weston-terminal,
-         * foot, …) has WAYLAND_DISPLAY set is connected to the compositor —
-         * inherit its socket path and XDG_RUNTIME_DIR.  This is reliable
-         * regardless of where the compositor placed the socket. */
-        bool found = false;
-        DIR *proc_d = opendir("/proc");
-        if (proc_d) {
-            struct dirent *pent;
-            while (!found && (pent = readdir(proc_d)) != NULL) {
-                /* Only numeric directories are PIDs. */
-                bool is_pid = (pent->d_name[0] >= '1' && pent->d_name[0] <= '9');
-                for (const char *p = pent->d_name + 1; is_pid && *p; p++)
-                    if (*p < '0' || *p > '9') is_pid = false;
-                if (!is_pid) continue;
-
-                char env_path[64];
-                snprintf(env_path, sizeof(env_path), "/proc/%s/environ", pent->d_name);
-                FILE *f = fopen(env_path, "r");
-                if (!f) continue;
-
-                /* environ is null-separated; read in one chunk. */
-                char buf[8192];
-                size_t n = fread(buf, 1, sizeof(buf) - 1, f);
-                fclose(f);
-                buf[n] = '\0';
-
-                const char *wayland_val = NULL, *xdg_val = NULL;
-                for (const char *p = buf; p < buf + n; p += strlen(p) + 1) {
-                    if (strncmp(p, "WAYLAND_DISPLAY=", 16) == 0)
-                        wayland_val = p + 16;
-                    else if (strncmp(p, "XDG_RUNTIME_DIR=", 16) == 0)
-                        xdg_val = p + 16;
-                }
-
-                if (wayland_val && xdg_val) {
-                    /* Strip trailing slashes from XDG_RUNTIME_DIR so
-                     * libwayland constructs "dir/socket" not "dir//socket". */
-                    static char xdg_clean[256];
-                    strncpy(xdg_clean, xdg_val, sizeof(xdg_clean) - 1);
-                    xdg_clean[sizeof(xdg_clean) - 1] = '\0';
-                    size_t xdg_len = strlen(xdg_clean);
-                    while (xdg_len > 1 && xdg_clean[xdg_len - 1] == '/')
-                        xdg_clean[--xdg_len] = '\0';
-
-                    /* Verify the socket actually exists at this path. */
-                    char sock_path[320];
-                    snprintf(sock_path, sizeof(sock_path), "%s/%s", xdg_clean, wayland_val);
-                    struct stat st;
-                    if (stat(sock_path, &st) != 0 || !S_ISSOCK(st.st_mode)) {
-                        fprintf(stderr,
-                                "sdl_init: PID %s has WAYLAND_DISPLAY=%s but "
-                                "socket %s not found, continuing scan\n",
-                                pent->d_name, wayland_val, sock_path);
-                        continue;
-                    }
-
-                    setenv("WAYLAND_DISPLAY",  wayland_val, 0);
-                    setenv("XDG_RUNTIME_DIR",  xdg_clean,   1);
-                    fprintf(stderr,
-                            "sdl_init: inherited Wayland env from PID %s: "
-                            "XDG_RUNTIME_DIR=%s WAYLAND_DISPLAY=%s (socket OK)\n",
-                            pent->d_name, xdg_clean, wayland_val);
-                    found = true;
-                }
-            }
-            closedir(proc_d);
-        }
-
-        if (!found) {
-            fprintf(stderr,
-                    "sdl_init: no running process has WAYLAND_DISPLAY set.\n"
-                    "sdl_init: set WAYLAND_DISPLAY and XDG_RUNTIME_DIR manually "
-                    "before launching, e.g. from a Weston terminal:\n"
-                    "  export WAYLAND_DISPLAY XDG_RUNTIME_DIR && ./your_app\n");
-        }
-    }
 #endif
 #endif
 
