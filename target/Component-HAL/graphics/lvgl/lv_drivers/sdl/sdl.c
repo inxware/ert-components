@@ -135,7 +135,11 @@ void sdl_init(void)
 #endif
 
     /*Initialize the SDL*/
-    SDL_Init(SDL_INIT_VIDEO);
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        fprintf(stderr, "sdl_init: SDL_Init failed: %s\n", SDL_GetError());
+        return;
+    }
+    fprintf(stderr, "sdl_init: using video driver: %s\n", SDL_GetCurrentVideoDriver());
 
     SDL_SetEventFilter(quit_filter, NULL);
 
@@ -355,19 +359,32 @@ static void monitor_sdl_clean_up(void)
 
 static void window_create(monitor_t * m)
 {
-
     int flag = 0;
 #if SDL_FULLSCREEN
     flag |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 #endif
-    flag |= SDL_WINDOW_OPENGL;
+    /* SDL_WINDOW_OPENGL is NOT set: we use the SDL renderer API, not direct GL.
+     * Setting it can trigger EGL initialisation which fails on boards (e.g. Rubik Pi 3)
+     * that have no full OpenGL driver, causing SDL_CreateRenderer to return NULL. */
 
     m->window = SDL_CreateWindow("eRT (F8 - Home)",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                              SDL_HOR_RES * SDL_ZOOM, SDL_VER_RES * SDL_ZOOM, flag);       /*last param. SDL_WINDOW_BORDERLESS to hide borders*/
+                              SDL_HOR_RES * SDL_ZOOM, SDL_VER_RES * SDL_ZOOM, flag);
+    if (m->window == NULL) {
+        fprintf(stderr, "sdl_init: SDL_CreateWindow failed: %s\n", SDL_GetError());
+        return;
+    }
 
-    //m->renderer = SDL_CreateRenderer(m->window, -1, SDL_RENDERER_SOFTWARE);
+    /* Try hardware-accelerated renderer; fall back to software on failure. */
     m->renderer = SDL_CreateRenderer(m->window, -1, SDL_RENDERER_ACCELERATED);
+    if (m->renderer == NULL) {
+        fprintf(stderr, "sdl_init: accelerated renderer failed (%s), trying software\n", SDL_GetError());
+        m->renderer = SDL_CreateRenderer(m->window, -1, SDL_RENDERER_SOFTWARE);
+    }
+    if (m->renderer == NULL) {
+        fprintf(stderr, "sdl_init: SDL_CreateRenderer failed: %s\n", SDL_GetError());
+        return;
+    }
     m->texture = SDL_CreateTexture(m->renderer,
                                 SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SDL_HOR_RES, SDL_VER_RES);
     SDL_SetTextureBlendMode(m->texture, SDL_BLENDMODE_BLEND);
