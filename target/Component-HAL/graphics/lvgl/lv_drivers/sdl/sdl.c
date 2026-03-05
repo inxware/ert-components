@@ -180,12 +180,33 @@ void sdl_init(void)
                 }
 
                 if (wayland_val && xdg_val) {
+                    /* Strip trailing slashes from XDG_RUNTIME_DIR so
+                     * libwayland constructs "dir/socket" not "dir//socket". */
+                    static char xdg_clean[256];
+                    strncpy(xdg_clean, xdg_val, sizeof(xdg_clean) - 1);
+                    xdg_clean[sizeof(xdg_clean) - 1] = '\0';
+                    size_t xdg_len = strlen(xdg_clean);
+                    while (xdg_len > 1 && xdg_clean[xdg_len - 1] == '/')
+                        xdg_clean[--xdg_len] = '\0';
+
+                    /* Verify the socket actually exists at this path. */
+                    char sock_path[320];
+                    snprintf(sock_path, sizeof(sock_path), "%s/%s", xdg_clean, wayland_val);
+                    struct stat st;
+                    if (stat(sock_path, &st) != 0 || !S_ISSOCK(st.st_mode)) {
+                        fprintf(stderr,
+                                "sdl_init: PID %s has WAYLAND_DISPLAY=%s but "
+                                "socket %s not found, continuing scan\n",
+                                pent->d_name, wayland_val, sock_path);
+                        continue;
+                    }
+
                     setenv("WAYLAND_DISPLAY",  wayland_val, 0);
-                    setenv("XDG_RUNTIME_DIR",  xdg_val,     1);
+                    setenv("XDG_RUNTIME_DIR",  xdg_clean,   1);
                     fprintf(stderr,
                             "sdl_init: inherited Wayland env from PID %s: "
-                            "XDG_RUNTIME_DIR=%s WAYLAND_DISPLAY=%s\n",
-                            pent->d_name, xdg_val, wayland_val);
+                            "XDG_RUNTIME_DIR=%s WAYLAND_DISPLAY=%s (socket OK)\n",
+                            pent->d_name, xdg_clean, wayland_val);
                     found = true;
                 }
             }
