@@ -54,6 +54,8 @@
 #ifdef __linux__
 #include <unistd.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <stdio.h>
 #endif
 #include SDL_INCLUDE_PATH
 
@@ -135,11 +137,47 @@ void sdl_init(void)
 
 #ifdef EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND
     /* Wayland backend: connect to a running compositor (e.g. Weston).
-     * Force the SDL video driver and default the socket name. */
+     * Force the SDL video driver and locate the compositor socket.
+     * SDL2 connects to $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY, so both must
+     * point to wherever the compositor (e.g. Weston) actually placed it. */
     if (getenv("SDL_VIDEODRIVER") == NULL)
         setenv("SDL_VIDEODRIVER", "wayland", 0);
-    if (getenv("WAYLAND_DISPLAY") == NULL)
-        setenv("WAYLAND_DISPLAY", "wayland-0", 0);
+
+    if (getenv("WAYLAND_DISPLAY") == NULL) {
+        /* Scan /run/user/<uid>/wayland-{0,1} for all UIDs to find the
+         * socket regardless of which user Weston runs as. */
+        static const char *sockets[] = { "wayland-0", "wayland-1", NULL };
+        bool found = false;
+        DIR *run_user = opendir("/run/user");
+        if (run_user) {
+            struct dirent *ent;
+            while (!found && (ent = readdir(run_user)) != NULL) {
+                if (ent->d_name[0] == '.') continue;
+                for (int i = 0; sockets[i] && !found; i++) {
+                    char path[128];
+                    snprintf(path, sizeof(path), "/run/user/%s/%s",
+                             ent->d_name, sockets[i]);
+                    struct stat st;
+                    if (stat(path, &st) == 0 && S_ISSOCK(st.st_mode)) {
+                        char xdg[64];
+                        snprintf(xdg, sizeof(xdg), "/run/user/%s", ent->d_name);
+                        setenv("XDG_RUNTIME_DIR", xdg, 1); /* override */
+                        setenv("WAYLAND_DISPLAY", sockets[i], 0);
+                        fprintf(stderr, "sdl_init: found Wayland socket: %s/%s\n",
+                                xdg, sockets[i]);
+                        found = true;
+                    }
+                }
+            }
+            closedir(run_user);
+        }
+        if (!found) {
+            setenv("WAYLAND_DISPLAY", "wayland-0", 0);
+            fprintf(stderr, "sdl_init: no Wayland socket found in /run/user/*/,"
+                    " defaulting to %s/%s\n",
+                    getenv("XDG_RUNTIME_DIR") ?: "(unset)", "wayland-0");
+        }
+    }
 #endif
 #endif
 
