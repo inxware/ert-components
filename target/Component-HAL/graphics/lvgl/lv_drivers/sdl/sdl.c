@@ -465,7 +465,14 @@ static void window_create(monitor_t * m)
 {
     int flag = 0;
 #if SDL_FULLSCREEN
+#ifdef EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND
+    /* On Wayland, passing SDL_WINDOW_FULLSCREEN_DESKTOP at creation time
+     * causes SDL2 to call xdg_toplevel_resize with serial=0 during window
+     * setup, which Weston rejects as a fatal protocol error.
+     * Instead create a normal window first, then go fullscreen after. */
+#else
     flag |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+#endif
 #endif
     /* SDL_WINDOW_OPENGL is NOT set: we use the SDL renderer API, not direct GL.
      * Setting it can trigger EGL initialisation which fails on boards (e.g. Rubik Pi 3)
@@ -492,6 +499,15 @@ static void window_create(monitor_t * m)
     m->texture = SDL_CreateTexture(m->renderer,
                                 SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SDL_HOR_RES, SDL_VER_RES);
     SDL_SetTextureBlendMode(m->texture, SDL_BLENDMODE_BLEND);
+
+#if SDL_FULLSCREEN
+#ifdef EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND
+    /* Deferred fullscreen for Wayland: set after renderer is up to avoid
+     * the xdg_toplevel_resize protocol error that fires when fullscreen is
+     * requested at window-creation time. */
+    SDL_SetWindowFullscreen(m->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+#endif
+#endif
 
     /*Initialize the frame buffer to gray (77 is an empirical value) */
 #if SDL_DOUBLE_BUFFERED
