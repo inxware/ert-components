@@ -25,9 +25,12 @@
 
 ifeq ($(TOOLCHAIN_NAME),HOST)
 	ifeq ($(EHS_GNU_ARCH),x86_64)
-		#Debian contrib libraries are found here: 
+		#Debian contrib libraries are found here.
 		#export INC_DIRS+=/usr/include/
-		export LIB_DIRS += /usr/lib/x86_64-linux-gnu/
+		# Use SYS_LIB_DIRS (not LIB_DIRS) so this system path is appended to the
+		# link command AFTER middleware paths — prevents the system OpenSSL 3.x
+		# libcrypto.a from shadowing the middleware's older libcrypto.a.
+		export SYS_LIB_DIRS += /usr/lib/x86_64-linux-gnu/
 	else
 		#Debian contrib libraries are found here: 
 		#export INC_DIRS+=/usr/include/

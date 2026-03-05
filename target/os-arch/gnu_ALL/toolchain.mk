@@ -157,7 +157,10 @@ ifeq ($(LINK),ld.lld)
    # note LLVM-7 is needed for __umodti3 (used by greengrass)
 
    # Concatentate linker options, source and paths.
+   # SYS_LIB_DIRS comes after LIB_DIRS so middleware static libs take priority
+   # over same-named system libs (e.g. middleware libcrypto.a over system OpenSSL 3.x).
    LNKFLAGS+=$(foreach i,$(LIB_DIRS),-L$i)
+   LNKFLAGS+=$(foreach i,$(SYS_LIB_DIRS),-L$i)
    LNKFLAGS+= $(foreach i,$(LIB),-l$i)
 
 else
@@ -172,7 +175,10 @@ else
    LNKFLAGS+= -Wl,-o$(TARGET_NAME).$(EXE)
    LNKFLAGS+= -Wl,-E
    # Concatentate linker options, source and paths with -Wl for linkers called via gcc and clang
+   # SYS_LIB_DIRS comes after LIB_DIRS so middleware static libs take priority
+   # over same-named system libs (e.g. middleware libcrypto.a over system OpenSSL 3.x).
    LNKFLAGS+=$(foreach i,$(LIB_DIRS),-Wl,-L$i)
+   LNKFLAGS+=$(foreach i,$(SYS_LIB_DIRS),-Wl,-L$i)
    LNKFLAGS+= $(foreach i,$(LIB),-Wl,-l$i)
 endif
 
