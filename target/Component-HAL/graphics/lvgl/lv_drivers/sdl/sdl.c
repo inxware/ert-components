@@ -132,11 +132,25 @@ void sdl_init(void)
         mkdir(path, 0700); /* no-op if already exists */
         setenv("XDG_RUNTIME_DIR", path, 0);
     }
+
+    /* On bare embedded boards (no Wayland/X11) SDL must use the kmsdrm backend.
+     * Force it if the caller has not already set SDL_VIDEODRIVER. */
+    if (getenv("SDL_VIDEODRIVER") == NULL) {
+        setenv("SDL_VIDEODRIVER", "kmsdrm", 0);
+    }
 #endif
+
+    /* Log which video backends are compiled into this SDL2 build. */
+    int ndrv = SDL_GetNumVideoDrivers();
+    fprintf(stderr, "sdl_init: %d SDL video driver(s) compiled in:", ndrv);
+    for (int i = 0; i < ndrv; i++) fprintf(stderr, " %s", SDL_GetVideoDriver(i));
+    fprintf(stderr, "\n");
 
     /*Initialize the SDL*/
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "sdl_init: SDL_Init failed: %s\n", SDL_GetError());
+        fprintf(stderr, "sdl_init: hint – ensure the process has read/write access to /dev/dri/card* "
+                        "(add user to the 'video' group, or run as root)\n");
         return;
     }
     fprintf(stderr, "sdl_init: using video driver: %s\n", SDL_GetCurrentVideoDriver());
@@ -155,6 +169,7 @@ void sdl_init(void)
     SDL_StartTextInput();
 
     lv_timer_create(sdl_event_handler, 10, NULL);
+    sdl_inited = true;
 }
 
 /**
@@ -165,6 +180,11 @@ void sdl_init(void)
  */
 void sdl_display_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
+    if (!sdl_inited) {
+        lv_disp_flush_ready(disp_drv);
+        return;
+    }
+
     const lv_coord_t hres = disp_drv->physical_hor_res == -1 ? disp_drv->hor_res : disp_drv->physical_hor_res;
     const lv_coord_t vres = disp_drv->physical_ver_res == -1 ? disp_drv->ver_res : disp_drv->physical_ver_res;
 
