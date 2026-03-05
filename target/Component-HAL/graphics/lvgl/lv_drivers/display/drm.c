@@ -534,6 +534,14 @@ static int drm_setup(unsigned int fourcc)
 	if (drm_dev.fd < 0)
 		return -1;
 
+	/* Atomic modesetting (DRM_MODE_ATOMIC_ALLOW_MODESET) requires DRM master.
+	 * Without this the commit returns EPERM even as root. */
+	ret = drmSetMaster(drm_dev.fd);
+	if (ret)
+		info("drmSetMaster failed (%s) - atomic commit may fail if another "
+		     "process holds DRM master (stop any compositor/display manager)",
+		     strerror(errno));
+
 	ret = drmSetClientCap(drm_dev.fd, DRM_CLIENT_CAP_ATOMIC, 1);
 	if (ret) {
 		err("No atomic modesetting support: %s", strerror(errno));
