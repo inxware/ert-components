@@ -7,10 +7,16 @@
 #	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 #---------------------------------------------------------------
 
-# This is for Raspberry Pi - it is aimed at being used with inxware 'hello_world' demo app.
+# @file config.mk 
+# @author: inx limited
+
+# This is for Raspberry Pi with LVGL - it is aimed at being used with inxware 'hello_world' demo app.
 # We're assuming Pi 4B or 5 below. Other flavours may work but haven't been tested.
 #
-# Architecture and OS
+#################################################################################################################
+# Set general architecture and OS version 
+#################################################################################################################
+
 EHS_ARCH=arm64
 EHS_OS=linux
 EHS_GNU_ARCH=arm64
@@ -21,8 +27,8 @@ EHS_HOST_DEBIAN_BUILD=arm64
 
 # This will indicate what ert-contrib-middleware is used and toolchains if not using a host toolchain
 # For the PoC, the clang Debian 11 will do...
-#
-EHS_GNU_OS_VERSION=-clang11_debian11
+# WARNING : Using greengrass built for debian 11 in ert-contrib-middleware!!!!
+EHS_GNU_OS_VERSION=-clang11_debian1
 
 # Configure some library version choices and Debian packager specifics
 EHS_DEBIAN_VERSION=12
@@ -35,6 +41,23 @@ TOOLCHAIN_NAME=HOST
 EHS_TOOLCHAIN_TYPE=clang
 LINK_OVERRIDE=clang
 
+SYSTEM_VARIANT=RASPBERRYPI
+
+# Qt uses iterative event loop pattern in `target_main.c`. This means we poll `EhsMainLoop()` from a Qt timer to enable EHS
+# to progress its state, rather than the more traditional (blocking) call into `EhsLoop()`.
+#
+EHS_MAIN_LOOP_ITERATIVE=yes
+
+# Debugging
+EHS_DEBUGALL=true
+#EHS_DEBUG_TCPIP_CONSOLE=stubbed
+
+#################################################################################################################
+# Set Component Support Configuration 
+#################################################################################################################
+# Component variant
+COMPONENT_VARIANT=base
+
 # Networking (standard)
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
@@ -42,6 +65,13 @@ EHS_MQTT_SUPPORT=aws_green_grass
 
 # Unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features
 EHS_DEVMAN_SUPPORT=http
+#EHS_AV_SUPPORT=devmanonly
+
+
+EHS_GUI_SUPPORT=qt
+ Set this as a modifier for QT not a whole new way of working.
+EHS_GUI_SUPPORT_QT6=yes
+#TODO2026 -we probablly want QT6 to be the default and the extra flag would be for qt5.
 
 # We should try Wi-Fi by default in Raspberry Pi devices
 DEFS += EHS_USE_WIFI_INTERFACE=1
@@ -54,72 +84,42 @@ EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
 # Machine Leaning & Machine Vision Support
 ##EHS_ML_SUPPORT=yes
 ##EHS_ML_FRAMEWORK_IMAGE_SUPPORT=tensorflow-lite
-##EHS_ML_HARDWARE_ACCELERATION=none
+##EHS_ML_HARDWARE_ACCELERATION=hailo
 
 ##EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
 ##EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
 ##EHS_MV_SUPPORT=opencv
 ##EHS_MV_SUPPORT=stubbed
-
-
-# Component variant
-COMPONENT_VARIANT=base
-
-# Application Selection
-#EHS_DEFAULT_APP=tutorials/hello_world
-EHS_DEFAULT_APP=demos/QT_UIs/Particles
-#EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
-# Enable eRT1 support (binary format SODL files)
-ERT_SODL_VERSION=1
-
-# Debugging
-EHS_DEBUGALL=true
-
-# Force 'unknown' source files to output logging at the logger's logging level
-DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
-
-# Qt uses iterative event loop pattern in `target_main.c`. This means we poll `EhsMainLoop()` from a Qt timer to enable EHS
-# to progress its state, rather than the more traditional (blocking) call into `EhsLoop()`.
-#
-EHS_MAIN_LOOP_ITERATIVE=yes
-
-# Graphics configuration - delegate all rendering to Qt and automatically plumb between the widgets in '*.gui' and their
-# respective QObject (from '*.qml'. This requres the EHS widget name (string) to match the `objectName` in the QML.
-#
-
-
-EHS_GUI_SUPPORT=qt
-# Set this as a modifier for QT not a whole new way of working.
-EHS_GUI_SUPPORT_QT6=yes
-#TODO2026 -we probablly want QT6 to be the default and the extra flag would be for qt5.
-
-
-
-# Mock GPIO widgets in Qt UI - enables desktop development of GPIO apps before hardware is available.
-# Uncomment to enable virtual GPIO LED/switch widgets rendered in the Qt window.
-#
-# EHS_MOCK_GPIO_QT=yes
-# DEFS += EHS_MOCK_GPIO_QT
-
-# In the Arduino targets, they have their own `target_network.c` implementation which moves networking into a separate
-# thread, so it doesn't block the main thread. For our Qt PoC, we simply disable the TCPIP console.
-#
-EHS_DEBUG_TCPIP_CONSOLE=stubbed
-
-# To enable AV media support ("media", DCC=5) set EHS_GUI_SUPPORT to {gst,vlc}, depending support for your target.
-#
-EHS_AV_SUPPORT=devmanonly
-
-# This  is set to include the rendering features in eRT. It is nearly always set, so should be removed (default on) and
-# specific platform exceptions set instead.
-#
-EHS_MEDIA_SUPPORT=all
-
 # Enable machine vision support for testing C++ integration, or disable with `stubbed`.
 #
 EHS_MV_SUPPORT=stubbed
 
+#AV
+EHS_MEDIA_SUPPORT=all
+
+# use libcamera on top of opencv if supported
+EHS_USE_LIBCAMERA=yes
+
+#EHS_PERIPHERALS_GPIO_SUPPORT=pigpio
+#EHS_PERIPHERALS_GPIO_SUPPORT=wiringpi
+
+##TODO PUT GPIO back when we have more non-RPI platforms to run on.
+#EHS_PERIPHERALS_PWM_SUPPORT=pigpio
+##EHS_PERIPHERALS_PWM_SUPPORT=wiringpi
+
+#SDL_FULLSCREEN=yes
+
+#################################################################################################################
 # Packaging
+#################################################################################################################
+
+# Application Selection
+EHS_DEFAULT_APP=demos/QT_UIs/hello_world-qt
+#EHS_DEFAULT_APP=demos/QT_UIs/Particles
+#EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
+# Enable eRT1 support (binary format SODL files) TODO THIS SHOULD BE THE DEFAULT NOW.
+ERT_SODL_VERSION=1
+
 
 EHS_PACKAGER_TYPE=deb
 
@@ -141,6 +141,18 @@ qml6-module-qtquick-layouts \
 qml6-module-qtquick-templates \
 qml6-module-qtqml-workerscript
 
-## Hacking 
+#################################################################################################################
+## Platform Hacking 
+#################################################################################################################
 DEFS += EHS_LOG_LEVEL_VERBOSE
 DEFS += EHS_LOG_TO_STDIO
+
+# Force 'unknown' source files to output logging at the logger's logging level
+DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
+
+# TODO - These are messy things that shouldn'be here or needed at all.:
+# EHS_MOCK_GPIO_QT=yes
+# DEFS += EHS_MOCK_GPIO_QT
+
+# enables a floating 'debug_cam_X' window with camera preview
+#DEFS+=EHS_OPENCV_FRAMEGRAB_DEBUG_PREVIEW=1
