@@ -68,9 +68,8 @@ EHS_DEVMAN_SUPPORT=http
 #EHS_AV_SUPPORT=devmanonly
 
 EHS_GUI_SUPPORT=lvgl
-# Use native DRM/KMS backend — SDL2 on this board is Wayland-only and
-# requires a compositor.  DRM talks directly to /dev/dri/card* instead.
-EHS_LVGL_LINUX_DISPLAY_BACKEND=drm
+# SDL2 on this board is Wayland-only; the Wayland compositor holds DRM
+# master so the native DRM backend cannot acquire it.  Use SDL Wayland.
 
 # We should try Wi-Fi by default in Raspberry Pi devices
 DEFS += EHS_USE_WIFI_INTERFACE=1

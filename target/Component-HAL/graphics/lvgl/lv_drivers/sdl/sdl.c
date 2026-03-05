@@ -133,10 +133,11 @@ void sdl_init(void)
         setenv("XDG_RUNTIME_DIR", path, 0);
     }
 
-    /* On bare embedded boards (no Wayland/X11) SDL must use the kmsdrm backend.
-     * Force it if the caller has not already set SDL_VIDEODRIVER. */
-    if (getenv("SDL_VIDEODRIVER") == NULL) {
-        setenv("SDL_VIDEODRIVER", "kmsdrm", 0);
+    /* If a Wayland compositor is running (it holds DRM master, preventing
+     * direct KMS access), SDL2's Wayland backend needs WAYLAND_DISPLAY to
+     * locate the compositor socket.  Default to wayland-0 if not set. */
+    if (getenv("WAYLAND_DISPLAY") == NULL) {
+        setenv("WAYLAND_DISPLAY", "wayland-0", 0);
     }
 #endif
 
