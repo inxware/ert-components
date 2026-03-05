@@ -500,14 +500,10 @@ static void window_create(monitor_t * m)
                                 SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SDL_HOR_RES, SDL_VER_RES);
     SDL_SetTextureBlendMode(m->texture, SDL_BLENDMODE_BLEND);
 
-#if SDL_FULLSCREEN
-#ifdef EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND
-    /* Deferred fullscreen for Wayland: set after renderer is up to avoid
-     * the xdg_toplevel_resize protocol error that fires when fullscreen is
-     * requested at window-creation time. */
-    SDL_SetWindowFullscreen(m->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-#endif
-#endif
+    /* Note: SDL_WINDOW_FULLSCREEN_DESKTOP is intentionally NOT applied on
+     * Wayland (EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND): SDL2's Wayland
+     * backend calls xdg_toplevel_resize with serial=0, which Weston rejects
+     * as a fatal protocol error.  The window runs at its created size. */
 
     /*Initialize the frame buffer to gray (77 is an empirical value) */
 #if SDL_DOUBLE_BUFFERED
