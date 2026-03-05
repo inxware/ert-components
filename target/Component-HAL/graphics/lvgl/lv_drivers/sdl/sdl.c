@@ -51,6 +51,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#ifdef __linux__
+#include <unistd.h>
+#include <sys/stat.h>
+#endif
 #include SDL_INCLUDE_PATH
 
 /*********************
@@ -118,6 +122,18 @@ static char buf[KEYBOARD_BUFFER_SIZE];
 
 void sdl_init(void)
 {
+    /* libdrm 2.4.113+ (Debian 12) requires XDG_RUNTIME_DIR for KMS/DRM device access.
+     * When the app is started outside a login session (e.g. init script, systemd service)
+     * this variable is unset and SDL's KMS backend silently fails to open the display. */
+#ifdef __linux__
+    if (getenv("XDG_RUNTIME_DIR") == NULL) {
+        char path[64];
+        snprintf(path, sizeof(path), "/run/user/%d", (int)getuid());
+        mkdir(path, 0700); /* no-op if already exists */
+        setenv("XDG_RUNTIME_DIR", path, 0);
+    }
+#endif
+
     /*Initialize the SDL*/
     SDL_Init(SDL_INIT_VIDEO);
 
