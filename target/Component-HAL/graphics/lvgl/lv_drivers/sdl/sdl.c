@@ -143,6 +143,13 @@ void sdl_init(void)
     if (getenv("SDL_VIDEODRIVER") == NULL)
         setenv("SDL_VIDEODRIVER", "wayland", 0);
 
+    /* Disable libdecor (SDL2 client-side window decorations for Wayland).
+     * When libdecor is active it calls xdg_toplevel_resize with serial=0
+     * during window setup, which Weston rejects as a fatal protocol error.
+     * Must be set before SDL_Init so the Wayland video driver reads it. */
+    SDL_SetHint("SDL_VIDEO_WAYLAND_PREFER_LIBDECOR", "0");
+    SDL_SetHint("SDL_VIDEO_WAYLAND_ALLOW_LIBDECOR",  "0");
+
     if (getenv("WAYLAND_DISPLAY") == NULL) {
         /* Locate the Wayland compositor socket by reading /proc/<pid>/environ
          * for every running process.  Whichever process (weston, weston-terminal,
