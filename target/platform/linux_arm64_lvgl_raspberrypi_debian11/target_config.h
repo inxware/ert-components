@@ -3,8 +3,10 @@
  * INCLUDE AFTER DEFINING OVERRIDE PARAMETERS
  * @author: inx limited
  *
- * Copyright (c) inx Ltd, 2025. All rights reserved.
+ * Copyright (c) inx Ltd, 2010. All rights reserved.
  */
+
+
 
 #ifndef TARGET_CONFIG_H
 #define TARGET_CONFIG_H
@@ -14,5 +16,6 @@
 #define EHS_CONFIG_DISPLAY_WIDTH 1024	/**< Width for the OSD part of the display */
 #define EHS_TARGET_DEFAULT_ID "(arm64/Linux)"
 #include "../base_full/base_config.h"
+
 
 #endif /* TARGET_CONFIG_H */

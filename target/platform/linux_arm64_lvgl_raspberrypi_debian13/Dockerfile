@@ -40,6 +40,7 @@ RUN apt install -y \
     libz-dev:arm64 \
     zlib1g-dev:arm64 \
     libexpat-dev:arm64 \
+    libexpat-dev:arm64 \
     libexpat1-dev:arm64 \
     libidn2-dev:arm64 \
     libidn2-0-dev:arm64  \
