@@ -64,12 +64,21 @@ LVGL_OBJS = $(CSRCS:.c=.$(OBJ))
 OBJECTS+=$(LVGL_OBJS)
 
 ifeq ($(EHS_OS), linux)
-	VPATH+=/usr/include/SDL2/
-	INC_DIRS+=/usr/include/SDL2/
-	ifeq ($(EHS_ARCH), amd64)
-		LIB_DIRS+=/lib/x86_64-linux-gnu/
+	ifeq ($(EHS_LVGL_LINUX_DISPLAY_BACKEND),drm)
+		# Native DRM/KMS backend — no SDL2 needed.
+		# Requires libdrm-dev on the target (apt install libdrm-dev).
+		DEFS+=EHS_LVGL_LINUX_DISPLAY_BACKEND_DRM
+		INC_DIRS+=/usr/include/libdrm
+		LIB+=drm
+	else
+		# SDL2 backend (default for desktop Linux).
+		VPATH+=/usr/include/SDL2/
+		INC_DIRS+=/usr/include/SDL2/
+		ifeq ($(EHS_ARCH), amd64)
+			LIB_DIRS+=/lib/x86_64-linux-gnu/
+		endif
+		LIB+=SDL2
 	endif
-	LIB+=SDL2
 else
 	ifeq ($(EHS_OS), mingw)
 		LIB+=SDL2
