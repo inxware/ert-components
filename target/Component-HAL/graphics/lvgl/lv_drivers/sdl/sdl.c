@@ -144,38 +144,60 @@ void sdl_init(void)
         setenv("SDL_VIDEODRIVER", "wayland", 0);
 
     if (getenv("WAYLAND_DISPLAY") == NULL) {
-        /* Scan /run/user/<uid>/wayland-{0,1} for all UIDs to find the
-         * socket regardless of which user Weston runs as. */
-        static const char *sockets[] = { "wayland-0", "wayland-1", NULL };
+        /* Locate the Wayland compositor socket by reading /proc/<pid>/environ
+         * for every running process.  Whichever process (weston, weston-terminal,
+         * foot, …) has WAYLAND_DISPLAY set is connected to the compositor —
+         * inherit its socket path and XDG_RUNTIME_DIR.  This is reliable
+         * regardless of where the compositor placed the socket. */
         bool found = false;
-        DIR *run_user = opendir("/run/user");
-        if (run_user) {
-            struct dirent *ent;
-            while (!found && (ent = readdir(run_user)) != NULL) {
-                if (ent->d_name[0] == '.') continue;
-                for (int i = 0; sockets[i] && !found; i++) {
-                    char path[128];
-                    snprintf(path, sizeof(path), "/run/user/%s/%s",
-                             ent->d_name, sockets[i]);
-                    struct stat st;
-                    if (stat(path, &st) == 0 && S_ISSOCK(st.st_mode)) {
-                        char xdg[64];
-                        snprintf(xdg, sizeof(xdg), "/run/user/%s", ent->d_name);
-                        setenv("XDG_RUNTIME_DIR", xdg, 1); /* override */
-                        setenv("WAYLAND_DISPLAY", sockets[i], 0);
-                        fprintf(stderr, "sdl_init: found Wayland socket: %s/%s\n",
-                                xdg, sockets[i]);
-                        found = true;
-                    }
+        DIR *proc_d = opendir("/proc");
+        if (proc_d) {
+            struct dirent *pent;
+            while (!found && (pent = readdir(proc_d)) != NULL) {
+                /* Only numeric directories are PIDs. */
+                bool is_pid = (pent->d_name[0] >= '1' && pent->d_name[0] <= '9');
+                for (const char *p = pent->d_name + 1; is_pid && *p; p++)
+                    if (*p < '0' || *p > '9') is_pid = false;
+                if (!is_pid) continue;
+
+                char env_path[64];
+                snprintf(env_path, sizeof(env_path), "/proc/%s/environ", pent->d_name);
+                FILE *f = fopen(env_path, "r");
+                if (!f) continue;
+
+                /* environ is null-separated; read in one chunk. */
+                char buf[8192];
+                size_t n = fread(buf, 1, sizeof(buf) - 1, f);
+                fclose(f);
+                buf[n] = '\0';
+
+                const char *wayland_val = NULL, *xdg_val = NULL;
+                for (const char *p = buf; p < buf + n; p += strlen(p) + 1) {
+                    if (strncmp(p, "WAYLAND_DISPLAY=", 16) == 0)
+                        wayland_val = p + 16;
+                    else if (strncmp(p, "XDG_RUNTIME_DIR=", 16) == 0)
+                        xdg_val = p + 16;
+                }
+
+                if (wayland_val && xdg_val) {
+                    setenv("WAYLAND_DISPLAY",  wayland_val, 0);
+                    setenv("XDG_RUNTIME_DIR",  xdg_val,     1);
+                    fprintf(stderr,
+                            "sdl_init: inherited Wayland env from PID %s: "
+                            "XDG_RUNTIME_DIR=%s WAYLAND_DISPLAY=%s\n",
+                            pent->d_name, xdg_val, wayland_val);
+                    found = true;
                 }
             }
-            closedir(run_user);
+            closedir(proc_d);
         }
+
         if (!found) {
-            setenv("WAYLAND_DISPLAY", "wayland-0", 0);
-            fprintf(stderr, "sdl_init: no Wayland socket found in /run/user/*/,"
-                    " defaulting to %s/%s\n",
-                    getenv("XDG_RUNTIME_DIR") ?: "(unset)", "wayland-0");
+            fprintf(stderr,
+                    "sdl_init: no running process has WAYLAND_DISPLAY set.\n"
+                    "sdl_init: set WAYLAND_DISPLAY and XDG_RUNTIME_DIR manually "
+                    "before launching, e.g. from a Weston terminal:\n"
+                    "  export WAYLAND_DISPLAY XDG_RUNTIME_DIR && ./your_app\n");
         }
     }
 #endif
