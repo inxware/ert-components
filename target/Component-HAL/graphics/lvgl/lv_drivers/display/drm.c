@@ -246,6 +246,12 @@ static int drm_dmabuf_set_plane(struct drm_buffer *buf)
 	static int first = 1;
 	uint32_t flags = DRM_MODE_PAGE_FLIP_EVENT;
 
+	/* Re-acquire DRM master immediately before commit.
+	 * logind/systemd may have revoked master between drm_setup() and the
+	 * first flush even if drmSetMaster() succeeded during init. */
+	ret = drmSetMaster(drm_dev.fd);
+	info("drmSetMaster: %s", ret ? strerror(errno) : "ok");
+
 	drm_dev.req = drmModeAtomicAlloc();
 
 	/* On first Atomic commit, do a modeset */
@@ -272,6 +278,28 @@ static int drm_dmabuf_set_plane(struct drm_buffer *buf)
 	drm_add_plane_property("CRTC_H", drm_dev.height);
 
 	ret = drmModeAtomicCommit(drm_dev.fd, drm_dev.req, flags, NULL);
+	if (ret && errno == EACCES && (flags & DRM_MODE_ATOMIC_ALLOW_MODESET)) {
+		/* Modeset requires DRM master which we don't hold (another process
+		 * owns it — stop any compositor/display manager).
+		 * Try without ALLOW_MODESET: works if the CRTC is already active
+		 * from the kernel framebuffer console. */
+		info("Retrying atomic commit without modeset (no DRM master)");
+		flags &= ~DRM_MODE_ATOMIC_ALLOW_MODESET;
+		drmModeAtomicFree(drm_dev.req);
+		drm_dev.req = drmModeAtomicAlloc();
+		drm_add_plane_property("FB_ID", buf->fb_handle);
+		drm_add_plane_property("CRTC_ID", drm_dev.crtc_id);
+		drm_add_plane_property("SRC_X", 0);
+		drm_add_plane_property("SRC_Y", 0);
+		drm_add_plane_property("SRC_W", drm_dev.width << 16);
+		drm_add_plane_property("SRC_H", drm_dev.height << 16);
+		drm_add_plane_property("CRTC_X", 0);
+		drm_add_plane_property("CRTC_Y", 0);
+		drm_add_plane_property("CRTC_W", drm_dev.width);
+		drm_add_plane_property("CRTC_H", drm_dev.height);
+		ret = drmModeAtomicCommit(drm_dev.fd, drm_dev.req, flags, NULL);
+	}
+
 	if (ret) {
 		err("drmModeAtomicCommit failed: %s", strerror(errno));
 		drmModeAtomicFree(drm_dev.req);
