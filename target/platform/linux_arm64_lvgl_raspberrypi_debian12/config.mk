@@ -68,10 +68,12 @@ EHS_DEVMAN_SUPPORT=http
 #EHS_AV_SUPPORT=devmanonly
 
 EHS_GUI_SUPPORT=lvgl
-# SDL2 on this board is Wayland-only and requires a compositor.
-# Xorg holds DRM master; stop it before running (sudo kill $(fuser /dev/dri/card0)).
-# Then the native DRM backend takes master directly.
+# Display backend — choose one:
+#   drm:     native DRM/KMS, no compositor needed; stop Weston first
+#            (sudo kill $(fuser /dev/dri/card0 2>/dev/null))
+#   wayland: render into a running Weston compositor via SDL2 Wayland
 EHS_LVGL_LINUX_DISPLAY_BACKEND=drm
+#EHS_LVGL_LINUX_DISPLAY_BACKEND=wayland
 
 # We should try Wi-Fi by default in Raspberry Pi devices
 DEFS += EHS_USE_WIFI_INTERFACE=1

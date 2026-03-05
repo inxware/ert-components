@@ -67,11 +67,17 @@ ifeq ($(EHS_OS), linux)
 	ifeq ($(EHS_LVGL_LINUX_DISPLAY_BACKEND),drm)
 		# Native DRM/KMS backend — no SDL2 needed.
 		# Requires libdrm-dev on the target (apt install libdrm-dev).
+		# Stop any compositor (Weston, Xorg) before running; it must hold DRM master.
 		DEFS+=EHS_LVGL_LINUX_DISPLAY_BACKEND_DRM
 		INC_DIRS+=/usr/include/libdrm
 		LIB+=drm
 	else
-		# SDL2 backend (default for desktop Linux).
+		# SDL2 backend (default for desktop Linux, or explicit wayland).
+		ifeq ($(EHS_LVGL_LINUX_DISPLAY_BACKEND),wayland)
+			# Explicitly target a running Wayland compositor (e.g. Weston).
+			# SDL_VIDEODRIVER=wayland and WAYLAND_DISPLAY are forced in sdl_init.
+			DEFS+=EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND
+		endif
 		VPATH+=/usr/include/SDL2/
 		INC_DIRS+=/usr/include/SDL2/
 		ifeq ($(EHS_ARCH), amd64)

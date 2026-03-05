@@ -133,12 +133,14 @@ void sdl_init(void)
         setenv("XDG_RUNTIME_DIR", path, 0);
     }
 
-    /* If a Wayland compositor is running (it holds DRM master, preventing
-     * direct KMS access), SDL2's Wayland backend needs WAYLAND_DISPLAY to
-     * locate the compositor socket.  Default to wayland-0 if not set. */
-    if (getenv("WAYLAND_DISPLAY") == NULL) {
+#ifdef EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND
+    /* Wayland backend: connect to a running compositor (e.g. Weston).
+     * Force the SDL video driver and default the socket name. */
+    if (getenv("SDL_VIDEODRIVER") == NULL)
+        setenv("SDL_VIDEODRIVER", "wayland", 0);
+    if (getenv("WAYLAND_DISPLAY") == NULL)
         setenv("WAYLAND_DISPLAY", "wayland-0", 0);
-    }
+#endif
 #endif
 
     /* Log which video backends are compiled into this SDL2 build. */
