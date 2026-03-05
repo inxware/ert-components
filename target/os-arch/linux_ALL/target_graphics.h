@@ -13,11 +13,11 @@
  * Select this backend for embedded boards where SDL2 is Wayland-only or absent.
  * Set EHS_LVGL_LINUX_DISPLAY_BACKEND=drm in the platform config.mk.
  */
+/* Must be defined before drm.h — all declarations inside are guarded by #if USE_DRM */
+#define USE_DRM 1
 #include "lv_drivers/display/drm.h"
 
 #define TARGET_LVGL_USE_COMMON_DRIVER 1
-
-#define USE_DRM 1
 
 #define TARGET_LVGL_HORIZONTAL  EHS_CONFIG_DISPLAY_WIDTH
 #define TARGET_LVGL_VERTICAL    EHS_CONFIG_DISPLAY_HEIGHT
