@@ -86,7 +86,7 @@ if [ "$1" = "help" -o "$1" = "-h" -o "$1" = "-help" -o "$1" = "--help" ]; then
     echo "  ${TXT_FG_WHITE}./configure -run                   ${TXT_FG_GREEN}: run the selected target on this host (if the host supports it)."
     echo "  ${TXT_FG_WHITE}./configure -edit-dockerfile       ${TXT_FG_GREEN}: change the docker configuration (if the selected target has a Dockerfile)."
     echo "  ${TXT_FG_WHITE}./configure -edit-dockerimagename  ${TXT_FG_GREEN}: change the name of the docker image used to build the selected target."
-    echo "  ${TXT_FG_WHITE}./configure -diff                  ${TXT_FG_GREEN}: compare current target config.mk against another using meld."
+    echo "  ${TXT_FG_WHITE}./configure -diff                  ${TXT_FG_GREEN}: compare current platform config folder against another using meld."
     echo "  ${TXT_FG_WHITE}./configure -pushd                 ${TXT_FG_GREEN}: change directory to the ../TARGET_TREES staging directory (exit to return here)."
     echo "  ${TXT_FG_WHITE}./configure -pushd-config          ${TXT_FG_GREEN}: change directory to ./target/platform/${TARGET} (exit to return here)."
     echo
@@ -176,7 +176,7 @@ if [ "$1" = "-diff" ]; then
     echo "Current target: ${TXT_FG_WHITE}${TARGET}${TXT_FG}"
     echo "Select a target to compare against:"
     select OTHER in $(ls --hide "*.mk" --hide "*TEMPLATE*" ./target/platform/); do
-        [ -n "$OTHER" ] && meld ./target/platform/${TARGET}/config.mk ./target/platform/${OTHER}/config.mk && break
+        [ -n "$OTHER" ] && meld ./target/platform/${TARGET}/ ./target/platform/${OTHER}/ && break
     done
     exit
 fi
