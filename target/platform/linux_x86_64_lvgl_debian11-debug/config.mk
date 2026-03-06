@@ -17,7 +17,8 @@
 
 
 #################################################################################################################
-# Set general architecture and OS version 
+# Baseline Configuration Includes
+# Include parent configuration files that this target extends
 #################################################################################################################
 
 # (No parent config - this is a base configuration)

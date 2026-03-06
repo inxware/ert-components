@@ -1,5 +1,5 @@
 #---------------------------------------------------------------
-# Copyright (C) 2025 inx limited, UK - All Rights Reserved.
+# Copyright (C) 2008-2026 inx limited, UK - All Rights Reserved
 # You may use, distribute and modify this code under the terms
 # of the LGPLv3 license. You should have received a copy of the
 # LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license

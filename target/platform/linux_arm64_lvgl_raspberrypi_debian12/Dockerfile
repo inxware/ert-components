@@ -5,8 +5,9 @@ RUN echo "installing build essential and git"
 # above is used while debugging and needs the bits at the end of ths file too
 
 RUN dpkg --add-architecture arm64
-RUN apt update -y --fix-missing
-# Not sure always want to do this, but...
+# Not sure we always need to do this:
+RUN apt update --fix-missing
+# Or this
 RUN apt upgrade -y
 
 #######################################################

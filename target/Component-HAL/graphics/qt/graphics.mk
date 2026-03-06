@@ -15,7 +15,7 @@
 
 # We get the GTK library headers and binaries from different places depending on the platform...
 ifneq ($(EHS_HOST_DEBIAN_BUILD),)
-	ifneq ($(filter 9 10 11 12,$(EHS_DEBIAN_VERSION)),)
+	ifneq ($(filter 9 10 11 12 13,$(EHS_DEBIAN_VERSION)),)
 		EHS_PNG_LIB_DEFAULT = png16
 	else
 		# Use GTK-2 or do we still need to build for GTK-1 for 32 bit debian targets?

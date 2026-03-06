@@ -64,27 +64,44 @@ LIB+=opencv_xphoto
 LIB+=opencv_photo
 LIB+=opencv_imgproc
 LIB+=opencv_core
+
 #else
 #LIB+=opencv_wrapper
 #endif
 
 ifdef EHS_USE_LIBCAMERA
-export EHS_USE_LIBCAMERA
-DEFS+=EHS_USE_LIBCAMERA=1
-#ifeq ($(EHS_DEBIAN_VERSION),13)
-# CPPFLAGS += -DCV_LIBCAMERA_SUPPORT
-DEFS+=CV_LIBCAMERA_SUPPORT
-LIB+=camera-base
-LIB+=camera
-CXX_INC_DIRS += /usr/include/libcamera
-CXX_INC_DIRS += /usr/local/include
+    export EHS_USE_LIBCAMERA
+	DEFS+=EHS_USE_LIBCAMERA=1
+	#ifeq ($(EHS_DEBIAN_VERSION),13)
+	# CPPFLAGS += -DCV_LIBCAMERA_SUPPORT
+	DEFS+=CV_LIBCAMERA_SUPPORT
+# This can be replaced with a dockerfile approach. Leaving here for reference for the time being
+#	ifeq ($(SYSTEM_VARIANT),RASPBERRYPI)
+#		ifeq ($(EHS_DEBIAN_VERSION),13)
+#		# Raspbian has a later version of libcamera in Debian 
+#		CXX_INC_DIRS += libcamera_v0.7
+#		#CXX_INC_DIRS += libcamera_v0.7
+#		LIB+=:libcamera-base.so.0.7
+#		LIB+=:libcamera.so.0.7
+#		else
+#	# Other RASPBIAN versions are normal
+#		LIB+=camera-base
+#		LIB+=camera
+#		CXX_INC_DIRS += /usr/include/libcamera
+#		endif
+#	else   
+		LIB+=camera-base
+		LIB+=camera
+		CXX_INC_DIRS += /usr/include/libcamera
+		# NOT NEEDED? CXX_INC_DIRS += /usr/local/include
+#   endif
 
-OBJECTS += lccv.$(OBJ)
-OBJECTS += libcamera_app_options.$(OBJ)
-OBJECTS += libcamera_app.$(OBJ)
-#else
-#LIB+=lccv
-#endif
-#Note we might want to do this more gernerally if there are any CPP files compiled, but this detection is working properly yet.
-LIB+=stdc++
+
+	OBJECTS += lccv.$(OBJ)
+	OBJECTS += libcamera_app_options.$(OBJ)
+	OBJECTS += libcamera_app.$(OBJ)
+# This might be the only component where C++ is needed, but can be added elsewhere too (e.g. ML) which is not ideal.
+# We should change this to set a build flag that is checked in toolchain.mk and added one there. 
+# It should probablly allow setting to a specific version of STDC++ too.
+	LIB+=stdc++
 endif

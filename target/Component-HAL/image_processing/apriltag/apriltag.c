@@ -39,6 +39,7 @@ either expressed or implied, of the Regents of The University of Michigan.
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include "common/image_u8.h"
 #include "common/image_u8x3.h"

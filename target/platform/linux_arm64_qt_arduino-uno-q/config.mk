@@ -8,10 +8,10 @@
 #---------------------------------------------------------------#
 
 # @file config.mk
-# inxware ERT configuration file for linux_arm64_lvgl_arduino-uno-q
+# inxware ERT configuration file for linux_arm64_qt_arduino-uno-q
 # @author: inx limited
 
-# arm64 Debian 13 with LVGL, targeting hardware with an Arduino UNO-Q peripheral.
+# arm64 Debian 13 with Qt6, targeting hardware with an Arduino UNO-Q peripheral.
 # Includes OpenCV and ML support.
 
 
@@ -45,11 +45,14 @@ include ./target/platform/linux_arm64_debian13_base/config.mk
 #################################################################################################################
 
 #----- Networking Features -----
+EHS_MQTT_SUPPORT=aws_green_grass
 # TODO: We need to fix the build when this isn't set.
 EHS_DEVMAN_SUPPORT=http
 
 #----- GUI Features -----
-# (Inherits LVGL from parent config)
+EHS_MAIN_LOOP_ITERATIVE=yes
+EHS_GUI_SUPPORT=qt
+EHS_GUI_SUPPORT_QT6=yes
 
 #----- Machine Vision / ML Features -----
 EHS_ML_SUPPORT=yes
@@ -62,9 +65,7 @@ EHS_MV_SUPPORT=opencv
 #EHS_MV_SUPPORT=stubbed
 
 # Use libcamera on top of opencv if supported
-EHS_USE_LIBCAMERA=yes
-# Enables a floating 'debug_cam_X' window with camera preview
-#DEFS+=EHS_OPENCV_FRAMEGRAB_DEBUG_PREVIEW=1
+#EHS_USE_LIBCAMERA=yes
 
 #----- Peripheral Features -----
 # (Inherits from parent config)
