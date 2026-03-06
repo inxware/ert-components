@@ -80,7 +80,8 @@ if [ "$1" = "help" -o "$1" = "-h" -o "$1" = "-help" -o "$1" = "--help" ]; then
     echo "  ${TXT_FG_WHITE}./configure                        ${TXT_FG_GREEN}: show numbered list of platform targets and select interactively."
     echo "  ${TXT_FG_WHITE}./configure TARGET                 ${TXT_FG_GREEN}: select a platform target by name (this is a sticky configuration)."
     echo "  ${TXT_FG_WHITE}./configure NUMBER                 ${TXT_FG_GREEN}: select a platform target by number from the list."
-    echo "  ${TXT_FG_WHITE}./configure -new NEW_TARGET        ${TXT_FG_GREEN}: create a new platform target and configure it."
+    echo "  ${TXT_FG_WHITE}./configure -new NEW_TARGET        ${TXT_FG_GREEN}: create a new platform target and configure it.
+  ${TXT_FG_WHITE}./configure -clone                 ${TXT_FG_GREEN}: clone the current platform target to a new name (Dockerfile becomes a symlink to original)."
     echo "  ${TXT_FG_WHITE}./configure -edit                  ${TXT_FG_GREEN}: edit ./target/platform/${TARGET} with nano (exit to return here)."
     echo "  ${TXT_FG_WHITE}./configure -debug                 ${TXT_FG_GREEN}: run the selected target on this host with GDB (if the host supports it)."
     echo "  ${TXT_FG_WHITE}./configure -run                   ${TXT_FG_GREEN}: run the selected target on this host (if the host supports it)."
@@ -116,6 +117,40 @@ if [ "$1" = "-new" ]; then
     fi
 
     exit
+fi
+
+if [ "$1" = "-clone" ]; then
+    source ./TARGET.cfg
+    echo "Cloning current target: ${TXT_FG_WHITE}${TARGET}${TXT_FG}"
+    echo "Enter new target name (edit the name, then press Enter):"
+    read -e -i "$TARGET" -r NEW_NAME
+
+    if [ -z "$NEW_NAME" ]; then
+        err "New target name cannot be empty."
+        exit 1
+    fi
+
+    if [ "$NEW_NAME" = "$TARGET" ]; then
+        err "New target name must differ from the original (${TARGET})."
+        exit 1
+    fi
+
+    if [ -d "./target/platform/${NEW_NAME}" ]; then
+        err "Target [${NEW_NAME}] already exists. Please choose a unique name."
+        exit 1
+    fi
+
+    cp -r "./target/platform/${TARGET}" "./target/platform/${NEW_NAME}" || exit 1
+
+    # Replace any Dockerfile in the clone with a symlink back to the original
+    if [ -e "./target/platform/${NEW_NAME}/Dockerfile" ] || [ -L "./target/platform/${NEW_NAME}/Dockerfile" ]; then
+        rm "./target/platform/${NEW_NAME}/Dockerfile"
+        ln -s "../${TARGET}/Dockerfile" "./target/platform/${NEW_NAME}/Dockerfile"
+        echo "  Dockerfile -> symlink to ${TXT_FG_WHITE}../target/platform/${TARGET}/Dockerfile${TXT_FG}"
+    fi
+
+    echo "Cloned ${TXT_FG_WHITE}${TARGET}${TXT_FG} -> ${TXT_FG_WHITE}${NEW_NAME}${TXT_FG}."
+    _CONFIGURE_REENTRY=1 exec "$0" "${NEW_NAME}" -edit
 fi
 
 # The tree is configured entirely by this reference to config files in target/platform/*

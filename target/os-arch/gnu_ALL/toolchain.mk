@@ -130,10 +130,15 @@ CFLAGS+= -c $(INC)
 
 #todo - This should be a specific macro to not use c99 that is set in the esp32's toolchain.mk file -
 ifndef EHS_ESP32
-   CFLAGS+= -g -D_POSIX_C_SOURCE=199309 
+   CFLAGS+= -g
    # provide support for long long constants
    #CFLAGS+=-std=c99
    CFLAGS+=-std=gnu99
+   # Note: _POSIX_C_SOURCE=199309 was previously set here but removed because:
+   # 1. The codebase uses strdup, random, usleep, inet_aton etc. which require newer POSIX/BSD
+   # 2. It only "worked" on older toolchains (Clang <19) because implicit function declarations
+   #    were warnings not errors. With -std=gnu99 and no explicit _POSIX_C_SOURCE, glibc uses
+   #    _DEFAULT_SOURCE which is the correct baseline for modern Linux builds.
 endif
 
 # CXX_INC_DIRS holds C++-only include paths (e.g. Qt headers that require C++17)

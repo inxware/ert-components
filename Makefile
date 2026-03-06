@@ -211,6 +211,7 @@ help:
 	@$(ECHO)
 	@$(ECHO) "  $(TXT_FG_WHITE)all_docker$(TXT_FG_BRIGHT_GREEN)                     - Makes ehs_$(TARGET).exe for host or docker enviorment and copied TARGETENV bin as ehs.exe"
 	@$(ECHO) "  $(TXT_FG_WHITE)publish_docker_image$(TXT_FG_BRIGHT_GREEN)           - Build new docker image and publish it to inxware dockerhub organization."
+	@$(ECHO) "  $(TXT_FG_WHITE)build_docker_local$(TXT_FG_BRIGHT_GREEN)             - Build docker image locally without pushing to registry."
 	@$(ECHO) "  $(TXT_FG_WHITE)target_buildenv$(TXT_FG_BRIGHT_GREEN)                - Start the platform's DOCKER environment shell.  Useful during build system tuning."
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_version$(TXT_FG_BRIGHT_GREEN)              - Create a new version number for the target. Note this will check in all changes and create a tagged commit."
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_cleanall$(TXT_FG_BRIGHT_GREEN)             - Removes ALL data and directories from ../TARGET_TREES/ehs_env-$(TARGET)"
@@ -381,6 +382,9 @@ static_analysis:
 
 publish_docker_image:
 	@./target/envbuildscripts/publish_docker_image.sh
+
+build_docker_local:
+	@./target/envbuildscripts/build_docker_local.sh
 
 target_buildenv:
 	@./target/envbuildscripts/target_buildenv.sh

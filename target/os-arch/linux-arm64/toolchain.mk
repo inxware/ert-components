@@ -26,7 +26,10 @@
 # e.g. it expects libc to be at a specific path from sysroot, (which is /)
 #EHS_SYSROOT_ABS_PATH_OVERRIDE=/usr/aarch64-linux-gnu/
 ifeq ($(EHS_TOOLCHAIN_TYPE),clang)
-	LIB_DIRS+=/lib/aarch64-linux-gnu/
+	# Use SYS_LIB_DIRS (not LIB_DIRS) so this system path is appended to the
+	# link path AFTER middleware static libs. This prevents the system's OpenSSL 3.x
+	# libcrypto.a from shadowing the middleware's BoringSSL libcrypto.a.
+	SYS_LIB_DIRS+=/lib/aarch64-linux-gnu/
 	LNKFLAGS+= --target=aarch64-linux-gnu
 	CFLAGS+= -v --target=aarch64-linux-gnu
 	CPPFLAGS+= -v --target=aarch64-linux-gnu

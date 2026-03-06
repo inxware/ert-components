@@ -33,7 +33,10 @@ ifeq ($(TOOLCHAIN_NAME),HOST)
 	INC_DIRS+=/usr/include/aarch64-linux-gnu/
 	#It seems libexpat.h is only found in the host's /usr/include after installing the -dev 
 	INC_DIRS+=/usr/include/
-	LIB_DIRS += /usr/lib/aarch64-linux-gnu/
+	# Use SYS_LIB_DIRS (not LIB_DIRS) so this system path is appended to the
+	# link path AFTER middleware static libs. This prevents the system's OpenSSL 3.x
+	# libcrypto.a from shadowing the middleware's BoringSSL libcrypto.a.
+	SYS_LIB_DIRS += /usr/lib/aarch64-linux-gnu/
 #We usually have glib...
 	INC_DIRS +=  /usr/lib/aarch64-linux-gnu/glib-2.0/include/
 	INC_DIRS += /usr/lib/aarch64-linux-gnu/gtk-2.0/include/
