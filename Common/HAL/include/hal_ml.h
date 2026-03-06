@@ -220,6 +220,18 @@ typedef struct {
 } EhsML_Tensor_t;
 
 typedef struct {
+    ehs_float conf; // confidence score (0.0-1.0)
+    ehs_uint32 cls; // class index
+    ehs_bool filtered; // whether the detection is filtered out by post-processing
+    // Bounding box coordinates (x, y, w, h) - can be absolute pixel values or relative (0.0-1.0) depending on the model output
+    ehs_float x;
+    ehs_float y;
+    ehs_float w;
+    ehs_float h;
+    ehs_char label[64]; // Optional: class label string (if available)
+} EhsML_Detection_t;
+
+typedef struct {
     void* ml_model_ctx;
     // It is not necessary to have the input_tensor
     //  because additional copies cost further time as the result of too much abstraction
@@ -232,6 +244,8 @@ typedef struct {
     EhsML_Tensor_t output_tensor[EHS_ML_LAYER_TENSORS_MAX];
     ehs_uint32 intermediate_tensor_count;
     EhsML_Tensor_t intermediate_tensor[EHS_ML_LAYER_TENSORS_MAX]; // Placeholder for intermediate tensors if needed for processing
+    ehs_uint32 detection_count;
+    EhsML_Detection_t detections[EHS_ML_LAYER_TENSORS_MAX];
     EhsML_Type type;
     EhsML_HWAccel_t hw_accel;
     EhsML_DataType_t data_type;

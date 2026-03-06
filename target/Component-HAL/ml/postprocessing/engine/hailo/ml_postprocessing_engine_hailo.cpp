@@ -18,7 +18,7 @@ constexpr size_t MAX_QUEUE_SIZE = 60;
 extern "C" {
 #endif
 
-ehs_uint32 EhsML_Postprocessing_Engine_Hailo_ProcessOutput(EhsML_Context* ctx)
+EhsML_Err EhsML_Postprocessing_Engine_Hailo_ProcessOutput(EhsML_Context* ctx)
 {
     if (ctx == nullptr)
     {
@@ -66,6 +66,12 @@ ehs_uint32 EhsML_Postprocessing_Engine_Hailo_ProcessOutput(EhsML_Context* ctx)
             b.ymax() * org_height
         );
         printf("label: %s, confidence: %f%%\n", det->get_label().c_str(), det->get_confidence() * 100.0f);
+        ctx->detections[ctx->detection_count].x = b.xmin() * org_width;
+        ctx->detections[ctx->detection_count].y = b.ymin() * org_height;
+        ctx->detections[ctx->detection_count].w = (b.xmax() - b.xmin()) * org_width;
+        ctx->detections[ctx->detection_count].h = (b.ymax() - b.ymin()) * org_height;
+        strncpy(ctx->detections[ctx->detection_count].label, det->get_label().c_str(), sizeof(ctx->detections[ctx->detection_count].label) - 1);
+        ctx->detection_count++;
     }
 
     for (PairPairs &p : keypoints_and_pairs.second)

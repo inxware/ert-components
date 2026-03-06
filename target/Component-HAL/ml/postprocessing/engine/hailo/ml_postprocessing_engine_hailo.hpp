@@ -16,7 +16,7 @@ extern "C" {
  * This is where the model-specific logic for processing the output tensors should be implemented.
  * 
  */
-ehs_uint32 EhsML_Postprocessing_Engine_Hailo_ProcessOutput(EhsML_Context* ctx);
+EhsML_Err EhsML_Postprocessing_Engine_Hailo_ProcessOutput(EhsML_Context* ctx);
 
 #ifdef __cplusplus
 }
