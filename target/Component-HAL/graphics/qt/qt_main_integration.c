@@ -27,6 +27,7 @@
 #include "timer.h"
 
 #ifdef EHS_GUI_SUPPORT_MODE_B_QT
+/* We need to read the widget attribute here to look up objects and attributes in QML */
 #include "widget.h"
 #endif
 
