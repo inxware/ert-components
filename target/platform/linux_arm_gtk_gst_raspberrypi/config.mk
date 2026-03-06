@@ -107,7 +107,7 @@ include ./target/devman-configs/inx-systems.com.mk
 #################################################################################################################
 
 #Anomolous stuff apparently just for this platform
-LIB += crypto
+#LIB += crypto
 LIB += selinux
 LIB += pcre
 

@@ -60,7 +60,6 @@ ifeq ($(SYSTEM_VARIANT),OMAP4_TI)
 	LIB+= crypto
 else
    ifeq ($(SYSTEM_VARIANT),RASPBERRYPI)
-	LIB += crypto
 	LIB += selinux
 	LIB += pcre
    endif

@@ -184,8 +184,6 @@ ifeq ($(SYSTEM_VARIANT),RASPBERRYPI)
 	LIB+= Xdamage
 	LIB+= Xft
 	LIB+= pcre
-#todo2022 - why is these here as a GFX dependency?
-	LIB += crypto
 	LIB += selinux
 	LIB += ffi
 	LIB += lzma

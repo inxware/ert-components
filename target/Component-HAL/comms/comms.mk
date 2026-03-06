@@ -8,3 +8,9 @@
 #		OBJECTS += stubbed_console.$(OBJ)
 #	endif
 #endif
+
+ifdef EHS_COMPONENT_NETWORKING_SUPPORT
+ifneq ($EHS_COMPONENT_NETWORKING_SUPPORT,none)
+LIB += crypto
+endif
+endif
