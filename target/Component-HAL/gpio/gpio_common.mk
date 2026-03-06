@@ -51,6 +51,14 @@ ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),none)
     OBJECTS+=inx_pwm.$(OBJ)
 	ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),stubbed) # We don't need a target path for PWM as we stub the common HAL code to reduce code size.
 		OBJECTS+=target_pwm.$(OBJ)
+		# When the PWM backend differs from the GPIO backend (e.g. GPIO=sysfs_linux_arm, PWM=wiringpi),
+		# VPATH only contains the GPIO backend directory, so target_pwm.c from the PWM backend
+		# directory cannot be found. Add the PWM backend directory explicitly so make can locate it.
+		ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),$(EHS_PERIPHERALS_GPIO_SUPPORT))
+			EHS_TARGET_PWM_HAL_PATH=$(EHS_COMMON_GPIO_HAL_PATH)/$(EHS_PERIPHERALS_PWM_SUPPORT)
+			INC_DIRS+=$(EHS_TARGET_PWM_HAL_PATH)
+			VPATH+=$(EHS_TARGET_PWM_HAL_PATH)
+		endif
 	endif
 endif
 endif

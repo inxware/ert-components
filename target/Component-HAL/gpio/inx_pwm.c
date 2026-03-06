@@ -231,8 +231,8 @@ ehs_sint32 EhsTPwmSetMaxRes(inx_hw_pwm_t *obj, ehs_uint32 duty)
     // Cannot set the max value to be 0 or less than current duty
     if (duty == 0 || duty < obj->pStatus->duty) return -2;
     INX_HWPWM_CHECK_RETURN(EhsTPortPwmSetMaxValue(obj->channel, obj->pStatus->freq, (ehs_sint32)duty));
-    INX_HWPWM_CHECK_RETURN(EhsTPortPwmGetMaxValue(obj->channel, &duty));
-    obj->max_val = duty;
+    INX_HWPWM_CHECK_RETURN(EhsTPortPwmGetMaxValue(obj->channel, &max_val));
+    obj->max_val = max_val;
     return EhsTPwmSetDuty(obj, obj->pStatus->duty);
 }
 
@@ -277,11 +277,13 @@ ehs_sint32 EhsTPwmSetStatus(inx_hw_pwm_t *obj, inx_hw_pwm_status_t status)
 ehs_sint32 EhsTPwmGetStatus(inx_hw_pwm_t *obj, inx_hw_pwm_status_t *pStatus)
 {
     int ret = 0;
+    ehs_sint32 duty_tmp = 0;
     if (obj == NULL) return -1;
     if (pStatus == NULL) return -2;
     INX_HWPWM_CHECK_RETURN(EhsTPortPwmGetFreq(obj->channel, &(obj->pStatus->freq)));
     pStatus->freq = obj->pStatus->freq;
-    INX_HWPWM_CHECK_RETURN(EhsTPortPwmGetDuty(obj->channel, &(obj->pStatus->duty)));
+    INX_HWPWM_CHECK_RETURN(EhsTPortPwmGetDuty(obj->channel, &duty_tmp));
+    obj->pStatus->duty = (ehs_uint32)duty_tmp;
     pStatus->duty = obj->pStatus->duty;
     INX_HWPWM_CHECK_RETURN(EhsTPortPwmEnabled(obj->channel, &(obj->pStatus->enabled)));
     pStatus->enabled = obj->pStatus->enabled;
