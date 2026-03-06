@@ -19,6 +19,7 @@
 
 EHS_ARCH=arm64
 EHS_OS=linux
+
 EHS_GNU_ARCH=arm64
 EHS_GNU_OS=linux-gnu
 #
@@ -28,7 +29,7 @@ EHS_HOST_DEBIAN_BUILD=arm64
 # This will indicate what ert-contrib-middleware is used and toolchains if not using a host toolchain
 # For the PoC, the clang Debian 11 will do...
 # WARNING : Using greengrass built for debian 11 in ert-contrib-middleware!!!!
-EHS_GNU_OS_VERSION=-clang11_debian1
+EHS_GNU_OS_VERSION=-clang11_debian11
 
 # Configure some library version choices and Debian packager specifics
 EHS_DEBIAN_VERSION=12

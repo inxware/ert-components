@@ -1,4 +1,4 @@
-FROM debian:12
+FROM debian:13
 RUN echo "Successfully entered and fetched debian:12"
 RUN apt update
 RUN echo "installing build essential and git"
