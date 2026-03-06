@@ -17,8 +17,7 @@
 
 
 #################################################################################################################
-# Baseline Configuration Includes
-# Include parent configuration files that this target extends
+# Set general architecture and OS version 
 #################################################################################################################
 
 # (No parent config - this is a base configuration)
@@ -45,8 +44,6 @@ EHS_OS=linux
 
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_OS_ARCH
 TOOLCHAIN_NAME=HOST
-#OR target a specific toolchain: This target is using the same compiler as for the 32bit vlang build:
-#TOOLCHAIN_PATH=./x86_64/XXXX
 
 #Select a targe version for Debian. This may affect linking options to host libraries and the packager
 EHS_DEBIAN_VERSION=11
@@ -83,6 +80,7 @@ EHS_DEBUGALL=true
 #----- Networking Features -----
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
+#EHS_MQTT_SUPPORT=aws_green_grass
 
 #unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features
 EHS_DEVMAN_SUPPORT=http

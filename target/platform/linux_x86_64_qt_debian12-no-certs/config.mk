@@ -28,9 +28,12 @@ EHS_DEBIAN_VERSION=12
 DEFS += EHS_DEBIAN_VERSION=12
 EHS_PACKAGER_TYPE=deb
 
+# Component variant (adds _base to the middleware path)
+COMPONENT_VARIANT=base
+
 #EHS_GNU_OS_VERSION=-clang11_debian11
 EHS_GNU_OS_VERSION=-clang10_clang10
-
+#EHS_GNU_OS_VERSION=-clang11_unknown
 
 # Use host toolchain + Qt headers and static objects from Docker
 TOOLCHAIN_NAME=HOST
@@ -50,9 +53,6 @@ EHS_DEVMAN_SUPPORT=http
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
 EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
 EHS_PERIPHERALS_ADC_DAC_SUPPORT=stubbed
-
-# Component variant
-COMPONENT_VARIANT=base
 
 # Application Selection
 #EHS_DEFAULT_APP=tutorials/hello_world
