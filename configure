@@ -88,6 +88,7 @@ if [ "$1" = "help" -o "$1" = "-h" -o "$1" = "-help" -o "$1" = "--help" ]; then
     echo "  ${TXT_FG_WHITE}./configure -edit-dockerfile       ${TXT_FG_GREEN}: change the docker configuration (if the selected target has a Dockerfile)."
     echo "  ${TXT_FG_WHITE}./configure -edit-dockerimagename  ${TXT_FG_GREEN}: change the name of the docker image used to build the selected target."
     echo "  ${TXT_FG_WHITE}./configure -diff                  ${TXT_FG_GREEN}: compare current platform config folder against another using meld."
+    echo "  ${TXT_FG_WHITE}./configure -deploy user@ip        ${TXT_FG_GREEN}: deploy staged TARGET_TREES to a device via SSH, kill any running ehs, sync /opt/ehs, and start ehs."
     echo "  ${TXT_FG_WHITE}./configure -pushd                 ${TXT_FG_GREEN}: change directory to the ../TARGET_TREES staging directory (exit to return here)."
     echo "  ${TXT_FG_WHITE}./configure -pushd-config          ${TXT_FG_GREEN}: change directory to ./target/platform/${TARGET} (exit to return here)."
     echo
@@ -203,6 +204,11 @@ if [ "$1" = "-pushd-config" ]; then
     echo "Changing directory, type ${TXT_FG_WHITE}exit${TXT_FG} to return"
     pushd ./target/platform/${TARGET}/
     bash
+    exit
+fi
+
+if [ "$1" = "-deploy" ]; then
+    ./target/envbuildscripts/deploy.sh "$2"
     exit
 fi
 
