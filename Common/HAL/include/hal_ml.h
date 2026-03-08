@@ -60,7 +60,11 @@ typedef enum {
     EHS_ML_INVALID_TENSOR_ERR,
     EHS_ML_JSON_STRSIZE_ERR,
     EHS_ML_NOT_IMPLEMENTED,
-    EHS_ML_NOT_SUPPORTED
+    EHS_ML_NOT_SUPPORTED,
+    EHS_ML_NULL_CTX_ERR,              // NULL EhsML_Context pointer passed to an API function
+    EHS_ML_NULL_INPUT_ERR,            // NULL input data pointer passed to EhsML_SetInputData
+    EHS_ML_NULL_JSON_BUF_ERR,         // NULL json output buffer passed to EhsML_RunOutputJson
+    EHS_ML_INPUT_SIZE_MISMATCH_ERR,   // Input data size does not match the model's input tensor size
 } EhsML_Err;
 
 typedef enum {
@@ -273,10 +277,28 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 siz
 
 /**
  * @brief Get the currently supported hardware acceleration type
- * 
+ *
  * @return EhsML_HWAccel_t The hardware acceleration currently supported.
  */
 EhsML_HWAccel_t EhsML_HWAccel_supported( void );
+
+/**
+ * @brief Build a JSON string describing a loaded ML model.
+ *
+ * Combines framework C-API tensor introspection with model file metadata
+ * parsing to produce a self-contained JSON object describing the model's
+ * inputs, outputs, inferred type, acceleration status, and any embedded
+ * metadata.  Intended for diagnostics and for future exposure as a
+ * function block output port.
+ *
+ * @param ctx        Initialised EhsML_Context (EhsML_Create must have succeeded).
+ * @param model_path Path to the model file (used for metadata extraction).
+ * @param json_buf   Caller-provided output buffer.
+ * @param json_size  Size of output buffer in bytes.
+ * @return EHS_ML_OK on success, error code otherwise.
+ */
+EhsML_Err EhsML_GetModelInfoJson(EhsML_Context* ctx, const ehs_char* model_path,
+                                  ehs_char* json_buf, ehs_uint32 json_size);
 
 /**
  * @brief Create and allocate a tensor

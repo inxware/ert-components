@@ -183,6 +183,8 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 	if (EHS_FB_IN_CONNECTED_API2(INX_ml_image_inference_ARG_load_model_model_path))
 		EhsStrcpy(inx_ml_image_inference_state->Model_File_Path, EHS_FB_IN_S_API2(INX_ml_image_inference_ARG_load_model_model_path));
 	// Determine the file extension
+
+	printf("**** IMAGE_REF**** PATH=%s, for type %d (expected %d)",inx_ml_image_inference_state->Model_File_Path,inx_ml_image_inference_state->Model_File_Ext,EHS_ML_FILE_EXT_TFLITE);
 	switch ((EhsML_File_Ext_t)inx_ml_image_inference_state->Model_File_Ext) {
 		case EHS_ML_FILE_EXT_TFLITE:
 			// TFLITE
@@ -204,6 +206,7 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 				// Check hardware acceleration
 				if (inx_ml_image_inference_state->HW_Accelerate == EHS_FALSE)
 				{
+					printf("^^^50!\n");
 					err = EHS_ML_MODEL_TYPE_ERR; // HEF model requires hardware acceleration
 					break; // exit switch
 				}
@@ -239,7 +242,7 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 			}
 		}
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, err, __func__, "Model file does not exist!");
-
+        printf("Which one ??? Just for a change...\n");
 		err = EhsML_Create(&inx_ml_image_inference_state->ml_ctx, szCanonicalFilePath,
 			(EhsML_Type)inx_ml_image_inference_state->Model_Type,
 			inx_ml_image_inference_state->Conf_Thres,

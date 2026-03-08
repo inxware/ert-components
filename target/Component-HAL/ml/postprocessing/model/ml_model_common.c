@@ -117,7 +117,10 @@ void EhsML_Model_Boilerplate_Destroy(EhsML_Context* ctx)
 EhsML_Err EhsML_Model_Boilerplate_SetInputData(EhsML_Context* ctx, const void* input_data, ehs_uint32 data_size)
 {
     // Your code here
-    if (ctx == NULL || input_data == NULL || data_size == 0) return EHS_ML_FAILED;
+    if (ctx == NULL) return EHS_ML_NULL_CTX_ERR;
+    if (input_data == NULL) return EHS_ML_NULL_INPUT_ERR;
+    if (data_size == 0) return EHS_ML_INVALID_SIZE_ERR;
+    printf("[BOILER_DBG] SetInputData: hw_accel=%d, data_size=%u\n", (int)ctx->hw_accel, (unsigned)data_size);
     switch (ctx->hw_accel)
     {
         case EHS_ML_HWACCEL_HAILO:

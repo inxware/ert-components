@@ -30,6 +30,7 @@
 #include "ml_common.h"
 #include "hal_ml.h"
 #include "hal-api.h"
+#include "ert_hal_tflite_meta.h"
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -220,12 +221,13 @@ EhsML_Err EhsML_Tensor_FillRaw(EhsML_Tensor_t* tensor, ehs_char *value, size_t s
 
 EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Type model_type, ehs_float conf_thres, ehs_sint32 thread_count)
 {
-    if (ctx == NULL) return EHS_ML_FAILED;
+    if (ctx == NULL) return EHS_ML_NULL_CTX_ERR;
     if (model_type >= EHS_ML_TYPE_MAX) return EHS_ML_MODEL_TYPE_ERR;
     #ifdef EHS_ML_SUPPORT_STUBBED
     return EhsML_Stubbed_Create(ctx, model_path, model_type, conf_thres, thread_count);
     #else
     ctx->type = model_type;
+    printf("&&&&&& - Model Type %d (expected %d)\n",model_type,EHS_ML_YOLOV5_OBJ_DETECTOR);
     switch (model_type)
     {
         /* Stubbed */
@@ -595,6 +597,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
         }
         //// ...
         default:
+            printf("^^^99!\n");
             return EHS_ML_MODEL_TYPE_ERR;
     }
     #endif//EHS_ML_SUPPORT_STUBBED
@@ -919,8 +922,9 @@ void EhsML_Destroy(EhsML_Context* ctx)
 
 EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 size)
 {
-    if (ctx == NULL) return EHS_ML_FAILED;
-    if (ctx->type >= EHS_ML_TYPE_MAX) return EHS_ML_FAILED;
+    if (ctx == NULL) return EHS_ML_NULL_CTX_ERR;
+    if (data == NULL) return EHS_ML_NULL_INPUT_ERR;
+    if (ctx->type >= EHS_ML_TYPE_MAX) return EHS_ML_MODEL_TYPE_ERR;
     #ifdef EHS_ML_SUPPORT_STUBBED
     return EhsML_Stubbed_SetInputData(ctx, data, size);
     #else
@@ -1293,6 +1297,7 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
         }
         //// ...
         default:
+        printf("^^^98!\n");
             return EHS_ML_MODEL_TYPE_ERR;
     }
     #endif//EHS_ML_SUPPORT_STUBBED
@@ -1300,8 +1305,25 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
 
 EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 size)
 {
-    if (ctx == NULL) return EHS_ML_FAILED;
-    if (ctx->type >= EHS_ML_TYPE_MAX) return EHS_ML_FAILED;
+    if (ctx == NULL) {
+        printf("[ML_DBG] RunOutputJson: ABORT - NULL context\n");
+        return EHS_ML_NULL_CTX_ERR;
+    }
+    if (json == NULL) {
+        printf("[ML_DBG] RunOutputJson: ABORT - NULL json buffer\n");
+        return EHS_ML_NULL_JSON_BUF_ERR;
+    }
+    if (size == 0) {
+        printf("[ML_DBG] RunOutputJson: ABORT - zero-size json buffer\n");
+        return EHS_ML_JSON_STRSIZE_ERR;
+    }
+    if (ctx->type >= EHS_ML_TYPE_MAX) {
+        printf("[ML_DBG] RunOutputJson: ABORT - model type %d out of range (max %d)\n",
+               (int)ctx->type, (int)EHS_ML_TYPE_MAX);
+        return EHS_ML_MODEL_TYPE_ERR;
+    }
+    printf("[ML_DBG] RunOutputJson: ctx->type=%d, json_buf=%p, size=%u\n",
+           (int)ctx->type, (void*)json, (unsigned)size);
     #ifdef EHS_ML_SUPPORT_STUBBED
     return EhsML_Stubbed_RunOutputJson(ctx, json, size);
     #else
@@ -1674,7 +1696,25 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 siz
         }
         //// ...
         default:
+        printf("^^^97!\n");
             return EHS_ML_MODEL_TYPE_ERR;
     }
     #endif//EHS_ML_SUPPORT_STUBBED
+}
+
+EhsML_Err EhsML_GetModelInfoJson(EhsML_Context* ctx, const ehs_char* model_path,
+                                  ehs_char* json_buf, ehs_uint32 json_size)
+{
+    if (!ctx || !json_buf || json_size == 0) return EHS_ML_FAILED;
+    if (!ctx->ml_model_ctx)                  return EHS_ML_INIT_ERR;
+    switch (ctx->hw_accel) {
+#ifdef EHS_ML_HWACCEL_SUPPORT_HAILO
+        case EHS_ML_HWACCEL_HAILO:
+            return EHS_ML_NOT_SUPPORTED;
+#endif
+        case EHS_ML_HWACCEL_NONE:
+        default:
+            return EhsML_TFLite_GetModelInfoJson(
+                (TfLiteModelCtx*)ctx->ml_model_ctx, model_path, json_buf, json_size);
+    }
 }

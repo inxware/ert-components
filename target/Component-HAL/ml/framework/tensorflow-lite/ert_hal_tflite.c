@@ -1,4 +1,5 @@
 #include "ert_hal_tflite.h"
+#include "ert_hal_tflite_meta.h"
 #include <tensorflow/lite/delegates/xnnpack/xnnpack_delegate.h>
 #include "hal-api.h"
 
@@ -218,10 +219,13 @@ EhsML_Err EhsML_FW_TFLite_Create(EhsML_Context* ctx, const ehs_char* model_path,
     
     EhsML_Tensor_Alloc(&ctx->output_tensor[0], ctx->data_type, ctx->output_tensor[0].dims, output_dims);
 
-    /* 7. Get quantisation parameters from the model */
+    /* 7. Get quantisation parameters from the model.
+     * TFLite returns scale=0.0 for unquantised float models (meaning "no quantisation").
+     * Treat scale==0 as unconfigured and default to 1.0 so the dequantisation formula
+     * (value - zero_point) * scale is a no-op for raw float output. */
     TfLiteQuantizationParams q = TfLiteTensorQuantizationParams(tfl_model_ctx->out_tensor);
-    ctx->output_tensor[0].quantisation_params.scale = (double) q.scale;
-    ctx->output_tensor[0].quantisation_params.offset = ((double)q.zero_point) * -1;
+    ctx->output_tensor[0].quantisation_params.scale  = (q.scale == 0.0f) ? 1.0 : (double)q.scale;
+    ctx->output_tensor[0].quantisation_params.offset = (double)q.zero_point * -1.0;
 
     /* 8. Identify which model to process */
     //TODO should be this retrieved from the yolo_model?
@@ -260,12 +264,19 @@ void EhsML_FW_TFLite_Destroy(EhsML_Context* ctx)
 
 EhsML_Err EhsML_FW_TFLite_SetInputData(EhsML_Context* ctx, const void* input_data, ehs_uint32 data_size)
 {
-    if (!ctx) return EHS_ML_FAILED;
-    if (!ctx->ml_model_ctx) EHS_ML_INIT_ERR;
-    ehs_bool err = ( ctx->ml_model_ctx && ((TfLiteModelCtx*)ctx->ml_model_ctx)->in_tensor && input_data ) &&
-        TfLiteTensorCopyFromBuffer((TfLiteTensor*)((TfLiteModelCtx*)ctx->ml_model_ctx)->in_tensor, input_data, data_size) == kTfLiteOk;
-    
-    return (err == EHS_TRUE) ? EHS_ML_OK : EHS_ML_FAILED;
+    if (!ctx) return EHS_ML_NULL_CTX_ERR;
+    if (!ctx->ml_model_ctx) return EHS_ML_INIT_ERR;
+
+    TfLiteModelCtx* tfl = (TfLiteModelCtx*)ctx->ml_model_ctx;
+    if (!tfl->in_tensor) return EHS_ML_INIT_ERR;
+    if (!input_data) return EHS_ML_NULL_INPUT_ERR;
+
+    size_t tensor_bytes = TfLiteTensorByteSize((TfLiteTensor*)tfl->in_tensor);
+    if (data_size != tensor_bytes) return EHS_ML_INPUT_SIZE_MISMATCH_ERR;
+
+    ehs_bool ok = TfLiteTensorCopyFromBuffer((TfLiteTensor*)tfl->in_tensor, input_data, data_size) == kTfLiteOk;
+    if (!ok) return EHS_ML_FAILED;
+    return EHS_ML_OK;
 }
 
 EhsML_Err EhsML_FW_TFLite_GetOutputData(EhsML_Context* ctx)
@@ -286,7 +297,7 @@ EhsML_Err EhsML_FW_TFLite_GetOutputData(EhsML_Context* ctx)
     if (TfLiteInterpreterInvoke(tfl_model_ctx->interp) != kTfLiteOk) return EHS_ML_INFERENCE_ERR;
 
     EhsML_Tensor_FillRaw(
-        &ctx->output_tensor,
+        &ctx->output_tensor[0],
         output_from_tflite,
         TfLiteTensorByteSize(tfl_model_ctx->out_tensor)
     );

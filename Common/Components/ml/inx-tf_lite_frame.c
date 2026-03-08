@@ -32,9 +32,12 @@ EHS_FB_FUNCTIONS_END
 #define INX_TF_Lite_from_frame_ARG_load_model_load_errno 1
 #define INX_TF_Lite_from_frame_ARG_load_model_load_ok 1
 #define INX_TF_Lite_from_frame_ARG_load_model_load_error 2
+#define INX_TF_Lite_from_frame_ARG_load_model_model_info 2
 #define INX_TF_Lite_from_frame_ARG_do_inference_frame_id 1
-#define INX_TF_Lite_from_frame_ARG_do_inference_output 1
+#define INX_TF_Lite_from_frame_ARG_do_inference_output 2
+#define INX_TF_Lite_from_frame_ARG_do_inference_inference_errno 1
 #define INX_TF_Lite_from_frame_ARG_do_inference_done_inference 1
+#define INX_TF_Lite_from_frame_ARG_do_inference_inference_error 2
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
@@ -127,7 +130,7 @@ EHS_FB_RUN_FUNCTION(TF_Lite_from_frame_load_model)
 			{
 				EhsStrcat(szCanonicalFilePath, EHS_TD_FILES_SEPARATOR_STR);
 				EhsStrcat(szCanonicalFilePath, model_path);
-				
+
 			}else{
 				err = EHS_ML_MODEL_PATH_ERR;
 			}
@@ -136,11 +139,17 @@ EHS_FB_RUN_FUNCTION(TF_Lite_from_frame_load_model)
 				err = EHS_ML_MODEL_PATH_ERR;
 			}
 		}
-		
-		err = (err == EHS_ML_OK) ? EhsML_Create(&inx_TF_Lite_from_frame_state->ml_ctx, szCanonicalFilePath, 
-												 inx_TF_Lite_from_frame_state->model_type, 
+		err = (err == EHS_ML_OK) ? EhsML_Create(&inx_TF_Lite_from_frame_state->ml_ctx, szCanonicalFilePath,
+												 inx_TF_Lite_from_frame_state->model_type,
 												 inx_TF_Lite_from_frame_state->conf_thres,
 												 inx_TF_Lite_from_frame_state->thread_count) : err;
+		if (err == EHS_ML_OK && EHS_FB_OUT_CONNECTED_API2(INX_TF_Lite_from_frame_ARG_load_model_model_info)) {
+			EhsML_GetModelInfoJson(
+				&inx_TF_Lite_from_frame_state->ml_ctx,
+				szCanonicalFilePath,
+				EHS_FB_OUT_S_API2(INX_TF_Lite_from_frame_ARG_load_model_model_info),
+				EHS_STRING_LENGTH_MAX);
+		}
 	}else {
 		err = EHS_ML_MODEL_PATH_ERR;
 	}
@@ -165,36 +174,59 @@ EHS_FB_RUN_FUNCTION(TF_Lite_from_frame_do_inference)
 {
 	EhsML_Err err = EHS_ML_OK;
 	ehs_sint32 frame_id = -1;
-	
+
 	inx_TF_Lite_from_frame_state_type* inx_TF_Lite_from_frame_state = (inx_TF_Lite_from_frame_state_type*)EHS_FB_RUN_CONTEXT;
-	// @TODO - add error port this
-	if(!inx_TF_Lite_from_frame_state->ml_ctx.ml_model_ctx) return;
+
+	if(!inx_TF_Lite_from_frame_state->ml_ctx.ml_model_ctx){
+		err = EHS_ML_INIT_ERR;
+		goto inference_fail;
+	}
 
 	if (EHS_FB_IN_CONNECTED_API2(INX_TF_Lite_from_frame_ARG_do_inference_frame_id)){
-		frame_id = EHS_FB_IN_I_API2(INX_TF_Lite_from_frame_ARG_do_inference_frame_id) ;
+		frame_id = EHS_FB_IN_I_API2(INX_TF_Lite_from_frame_ARG_do_inference_frame_id);
 	}
-	// @TODO - add error port this
-	if(frame_id < -1) return;
-	
-	if (EHS_FB_OUT_CONNECTED_API2(INX_TF_Lite_from_frame_ARG_do_inference_output)){
-		
-		EhsCameraFrame* frame = EhsCameraFrameGetById(frame_id);
 
-		// @TODO - add error port all of this
-		if(!frame) return;
+	if(frame_id < -1){
+		err = EHS_ML_INVALID_FRAME_ID;
+		goto inference_fail;
+	}
+
+	if (!EHS_FB_OUT_CONNECTED_API2(INX_TF_Lite_from_frame_ARG_do_inference_output)){
+		return; /* no consumer for result - not an error, just nothing to do */
+	}
+
+	{
+		EhsCameraFrame* frame = EhsCameraFrameGetById(frame_id);
+		if(!frame){
+			err = EHS_ML_INVALID_FRAME;
+			goto inference_fail;
+		}
 
 		void* frame_data = NULL;
 		ehs_uint32 frame_size = 0;
-
-		if(EHS_FALSE == EhsCameraFrameGetData(frame, &frame_data, &frame_size)) return;
+		if(EHS_FALSE == EhsCameraFrameGetData(frame, &frame_data, &frame_size)){
+			err = EHS_ML_INVALID_FRAME;
+			goto inference_fail;
+		}
 
 		err = EhsML_SetInputData(&inx_TF_Lite_from_frame_state->ml_ctx, frame_data, frame_size);
+		if(err != EHS_ML_OK) goto inference_fail;
 
-		err = (err == EHS_ML_OK) ? EhsML_RunOutputJson(&inx_TF_Lite_from_frame_state->ml_ctx, 
+		err = EhsML_RunOutputJson(&inx_TF_Lite_from_frame_state->ml_ctx,
 								   EHS_FB_OUT_S_API2(INX_TF_Lite_from_frame_ARG_do_inference_output),
-								   EHS_STRING_LENGTH_MAX) : err;
-		if(err == EHS_ML_OK){
-			EHS_FB_FINISH(INX_TF_Lite_from_frame_ARG_do_inference_done_inference);
-		}
+								   EHS_STRING_LENGTH_MAX);
+		if(err != EHS_ML_OK) goto inference_fail;
 	}
+
+	if (EHS_FB_OUT_CONNECTED_API2(INX_TF_Lite_from_frame_ARG_do_inference_inference_errno)){
+		EHS_FB_OUT_I_API2(INX_TF_Lite_from_frame_ARG_do_inference_inference_errno) = 0;
+	}
+	EHS_FB_FINISH(INX_TF_Lite_from_frame_ARG_do_inference_done_inference);
+	return;
+
+inference_fail:
+	if (EHS_FB_OUT_CONNECTED_API2(INX_TF_Lite_from_frame_ARG_do_inference_inference_errno)){
+		EHS_FB_OUT_I_API2(INX_TF_Lite_from_frame_ARG_do_inference_inference_errno) = err;
+	}
+	EHS_FB_FINISH(INX_TF_Lite_from_frame_ARG_do_inference_inference_error);
 }//ICB FUNCTION do_inference MACRO END -- DO NOT ALTER THIS LINE

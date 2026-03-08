@@ -43,12 +43,13 @@ int is_unsigned_integer(const char *str, unsigned int *out_value) {
 int EhsCamera_is_opencv_device_id(const char *str, unsigned int *device_id) {
     if (str == NULL || *str == '\0' || device_id == NULL) return 0;
 
+    const char *start = str;
     while (*str) {
         if (!isdigit((unsigned char)*str)) return 0;
         str++;
     }
 
-    *device_id = (unsigned int)atol(str);
+    *device_id = (unsigned int)atol(start);
 
     return 1;
 }

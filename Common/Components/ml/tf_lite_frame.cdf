@@ -16,7 +16,7 @@
     </Description>
     <Block>
         <Type>Data</Type>
-        <Height>95</Height>
+        <Height>125</Height>
         <Text>ML TFLite</Text>
         <TextX>25</TextX>
         <TextY>5</TextY>
@@ -40,7 +40,7 @@
             <DataType>I</DataType>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>10</MaxValue>
+            <MaxValue>99999999</MaxValue>
             <Description>Model Type</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
@@ -157,6 +157,17 @@
             </Function>
         </Port>
         <Port>
+            <DataType>S</DataType>
+            <Description>info</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>42</YCoordinate>
+            <CName>model_info</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
             <Description>do</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
@@ -185,7 +196,7 @@
             <XCoordinate>95</XCoordinate>
             <YCoordinate>65</YCoordinate>
             <CName>output</CName>
-            <Function argument="1">
+            <Function argument="2">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>
         </Port>
@@ -200,5 +211,28 @@
                 <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>
         </Port>
+        <Port>
+            <Description>err</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>75</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>inference_error</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>errno</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>95</XCoordinate>
+            <YCoordinate>85</YCoordinate>
+            <CName>inference_errno</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        
     </Ports>
 </Component>

@@ -11,7 +11,7 @@
 <body>
 <div class="page_container">
 <div id="toc_container">
-<span class="toc_span">TensorFlow Lite Micro</span>
+<span class="toc_span">TensorFlow Lite from Frame</span>
 <!--these display in reverse order because they use float:right-->
 <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
 <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
@@ -19,7 +19,7 @@
 </div>
 <!--General Description-->
 <p class="component">
-<strong>TensorFlow Lite Micro</strong> runs machine learning models in memory-constrained environments, requiring only a few kilobytes of RAM. Load the model once with the <a href="#[In]load">load</a> event, then repeatedly invoke inference with the <a href="#[In]do">do</a> event. Input data is provided as a string via the <a href="#[In]data">data</a> port and results are returned as a string on <a href="#[Out]output">output</a>, with an integer class or regression value on <a href="#[Out]class_regression">class/regression</a>.
+<strong>TensorFlow Lite from Frame</strong> passes an image frame to a TensorFlow Lite machine learning model and returns inference results as JSON. Supports object detection models including YOLOv5 and similar architectures. The model is loaded once via the <a href="#[In]load">load</a> event and then invoked repeatedly via the <a href="#[In]do">do</a> event, each time consuming the frame identified by <a href="#[In]stream_id">stream_id</a>.
 </p>
 <!--Parameters-->
 <div class="section_heading">
@@ -38,12 +38,44 @@
   <th>Description</th>
 </tr>
 <tr>
-  <td>model_type</td>
+  <td>Model Type</td>
   <td>I</td>
   <td>0</td>
   <td>0</td>
   <td>10</td>
-  <td>The type of model loaded. Determines how the inference output is interpreted and returned on the <a href="#[Out]output">output</a> and <a href="#[Out]class_regression">class/regression</a> ports.</td>
+  <td>The type of model loaded. Determines the inference output format and post-processing applied to raw model output.</td>
+</tr>
+<tr>
+  <td>Conf Thres</td>
+  <td>F</td>
+  <td>0.5</td>
+  <td>0.0</td>
+  <td>1.0</td>
+  <td>Confidence threshold for filtering inference results. Detections below this score are discarded. Range 0.0 to 1.0.</td>
+</tr>
+<tr>
+  <td>Thread Count</td>
+  <td>I</td>
+  <td>2</td>
+  <td>0</td>
+  <td>20</td>
+  <td>Number of threads used for model inference. Set to 0 to use the platform default. Ignored on platforms that do not support multi-threaded inference.</td>
+</tr>
+<tr>
+  <td>Flat JSON</td>
+  <td>B</td>
+  <td>0</td>
+  <td>0</td>
+  <td>1</td>
+  <td>When true, the <a href="#[Out]json">json</a> output uses a flat JSON structure instead of nested objects. Useful for simpler downstream parsing.</td>
+</tr>
+<tr>
+  <td>Use Application Dir</td>
+  <td>B</td>
+  <td>0</td>
+  <td>0</td>
+  <td>1</td>
+  <td>When true, the model file path provided to <a href="#[In]model">model</a> is resolved relative to the application directory. When false, it is resolved relative to the user data directory.</td>
 </tr>
 </table>
 <!--Ports-->
@@ -64,7 +96,7 @@
 </tr>
 <tr>
 <td class="portsEvent"><a name="[In]do">do</a></td>
-<td>Run inference. Input data is taken from <a href="#[In]data">data</a>. Fires <a href="#[Out]done_inference">--</a> on completion.</td>
+<td>Run inference on the current frame. The frame is identified by <a href="#[In]stream_id">stream_id</a>. Fires <a href="#[Out]done">--</a> on success.</td>
 </tr>
 <!-- Data Inputs -->
 <tr>
@@ -72,11 +104,11 @@
 </tr>
 <tr>
 <td class="portsStr"><a name="[In]model">model</a></td>
-<td>Path to the TensorFlow Lite Micro model file. Consumed by the <a href="#[In]load">load</a> event.</td>
+<td>Path to the TensorFlow Lite model file (.tflite). Consumed by the <a href="#[In]load">load</a> event.</td>
 </tr>
 <tr>
-<td class="portsStr"><a name="[In]data">data</a></td>
-<td>Input data for inference, encoded as a string. Consumed by the <a href="#[In]do">do</a> event.</td>
+<td class="portsInt"><a name="[In]stream_id">stream_id</a></td>
+<td>Integer identifier of the camera or image stream frame to run inference on. Consumed by the <a href="#[In]do">do</a> event.</td>
 </tr>
 <!-- Output Events -->
 <tr>
@@ -87,12 +119,12 @@
 <td>Fired when the model loads successfully.</td>
 </tr>
 <tr>
-<td class="portsEvent"><a name="[Out]load_error">err</a></td>
+<td class="portsEvent"><a name="[Out]load_err">err</a></td>
 <td>Fired when the model fails to load. Check <a href="#[Out]load_errno">errno</a> for the error code.</td>
 </tr>
 <tr>
-<td class="portsEvent"><a name="[Out]done_inference">--</a></td>
-<td>Fired when inference completes. Results are available on <a href="#[Out]output">output</a> and <a href="#[Out]class_regression">class/regression</a>.</td>
+<td class="portsEvent"><a name="[Out]done">--</a></td>
+<td>Fired when inference completes successfully. Results are available on <a href="#[Out]json">json</a>.</td>
 </tr>
 <!-- Data Outputs -->
 <tr>
@@ -100,15 +132,11 @@
 </tr>
 <tr>
 <td class="portsInt"><a name="[Out]load_errno">errno</a></td>
-<td>Error code from the most recent load attempt. Valid after the <a href="#[Out]load_error">err</a> event fires.</td>
+<td>Error code from the most recent load attempt. Valid after the <a href="#[Out]load_err">err</a> event fires.</td>
 </tr>
 <tr>
-<td class="portsStr"><a name="[Out]output">output</a></td>
-<td>Inference result as a string. Format depends on the model_type parameter. Available after the <a href="#[Out]done_inference">--</a> inference event fires.</td>
-</tr>
-<tr>
-<td class="portsInt"><a name="[Out]class_regression">class/regression</a></td>
-<td>Integer result representing the predicted class index or regression value. Available after the <a href="#[Out]done_inference">--</a> inference event fires.</td>
+<td class="portsStr"><a name="[Out]json">json</a></td>
+<td>Inference result in JSON format. Available after the <a href="#[Out]done">--</a> event fires. Format depends on Model Type and the Flat JSON parameter.</td>
 </tr>
 </table>
 <!--Miscellaneous-->

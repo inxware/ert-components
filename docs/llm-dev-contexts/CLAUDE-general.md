@@ -192,6 +192,8 @@ CDF (Component Description File) files are XML-based descriptions located in `Co
 **Generating CDF Files:**
 New CDF files can be generated from natural language specifications by following the XML schema structure. The schema validates component structure and ensures compatibility with the eRT IDE and runtime system.
 
+> **See also:** [`CLAUDE-function-blocks.md`](CLAUDE-function-blocks.md) for precise rules on port `argument=` numbering (the one-OutputPort-per-argument rule, the confirmed arg=1/arg=2 pattern, help file conventions, and worked examples).
+
 #### Component Implementation Structure
 
 Each component consists of three files in `Common/Components/[category]/`:

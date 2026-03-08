@@ -43,7 +43,7 @@
   <td>0</td>
   <td>0</td>
   <td>100</td>
-  <td>The type of model loaded. It is used to determine tde inference output format.</td>
+  <td>The type of model loaded. It is used to determine the inference output format.</td>
 </tr>
 <tr>
   <td>Model File Ext</td>
@@ -51,7 +51,7 @@
   <td>1</td>
   <td>1</td>
   <td>4</td>
-  <td>The file extension of tde loaded model. 1 for `.tfl`, 2 for `.onnx`, 3 for `.pb`, 4 for `.hef`.</td>
+  <td>The file extension of the loaded model. 1 for `.tflite`, 2 for `.onnx`, 3 for `.pb`, 4 for `.hef`.</td>
 </tr>
 <tr>
   <td>Data Type</td>
@@ -59,7 +59,7 @@
   <td>0</td>
   <td>0</td>
   <td>4</td>
-  <td>The Data type of model input/ouput. 0 for auto-detection, 1 for 8-bit, 2 for 16-bit, 3 for 32-bit, 4 for 64-bit.</td>
+  <td>The data type of model input/output. 0 for auto-detection, 1 for 8-bit, 2 for 16-bit, 3 for 32-bit, 4 for 64-bit.</td>
 </tr>
 <tr>
   <td>HW Accelerate</td>
@@ -67,7 +67,7 @@
   <td>0</td>
   <td>0</td>
   <td>1</td>
-  <td>Whetder to enable tde hardware acceleration. Some platforms might not support it and error will occur when tdis is True. Some platforms require a specific Model file format, where tdis block would emit error if wrong model file format is loaded while tdis is True.</td>
+  <td>Whether to enable hardware acceleration. Some platforms may not support it and an error will occur when this is True. Some platforms require a specific model file format; this block will emit an error if the wrong format is loaded while this is True.</td>
 </tr>
 <tr>
   <td>Conf Thres</td>
@@ -75,7 +75,7 @@
   <td>0.5</td>
   <td>0</td>
   <td>1</td>
-  <td>The confidence Threshold for tde output data. The range is from 0 to 1.</td>
+  <td>The confidence threshold for the output data. The range is from 0 to 1.</td>
 </tr>
 <tr>
   <td>Thread Number</td>
@@ -83,7 +83,7 @@
   <td>0</td>
   <td>0</td>
   <td>16</td>
-  <td>The number of tdreads for inference. If tde platform does not support tdreading, tdis parameter will be ignored.</td>
+  <td>The number of threads for inference. If the platform does not support threading, this parameter will be ignored.</td>
 </tr>
 <tr>
   <td>Use Application Dir</td>
@@ -91,7 +91,7 @@
   <td>0</td>
   <td>0</td>
   <td>1</td>
-  <td>Whetder to use application directory as tde root of model patd. If not, tde User directory will be used.</td>
+  <td>Whether to use the application directory as the root of the model path. If false, the user directory will be used.</td>
 </tr>
 </table>
 <!--Ports-->

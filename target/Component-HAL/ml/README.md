@@ -86,7 +86,7 @@ enum {
     EHS_ML_TENSOR_TYPE_INT32,
     EHS_ML_TENSOR_TYPE_FP32,
     EHS_ML_TENSOR_TYPE_FP64,
-    
+```    
  // ... similar for  Dequantisation, etc,..- Generate all combinations with claude!
 
 }
@@ -167,10 +167,120 @@ Serialises the post-processed results into the output format requested by the ca
 
 Note: the coordinate formats differ between YOLOv5 (centre + width/height) and YOLOv8 (corner min/max). API consumers must be aware of the model type when parsing the JSON output.
 
+---
+
+## Implementation Comparison: Object Detection Post-Processing
+
+The table below maps each post-processing stage to the actual function or mechanism used for each supported model/framework combination.
+
+| Stage | YOLOv5 — TFLite | YOLOv8 ObjDet — TFLite (SSD-style) | YOLOv5/v8 — Hailo |
+|---|---|---|---|
+| **1. Inference** | `EhsML_Model_Boilerplate_RunOutputJson` → TFLite C API `TfLiteInterpreterInvoke` | same | HailoRT SDK (async pipeline, internal to framework layer) |
+| **2. Output unpacking** | Single tensor `[1, N_anchors, 85]` mapped directly to `ctx->output_tensor[0]` | Single flat FP32 array in `ctx->output_tensor[0]`; count-prefixed per-class encoding | `EhsML_Postprocessing_Engine_Hailo_ProcessOutput`: wraps raw buffers into `HailoTensor` and attaches to `HailoROI` |
+| **3. Dequantisation** | `_EHS_ML_TYPED_DATA_ASSIGN` macro — type-dispatched, covers all `EHS_ML_DATATYPE_*` variants, applies `scale × (value − zero_point)` per element | FP32-only guard (`EHS_ML_DATATYPE_FP32` check); no dequantisation — rejects quantised models at runtime | Done internally by HailoRT before tensors reach the model layer; transparent to post-processing code |
+| **4. Architecture decode** | Flat index: `i * elements_per_detection + field_offset`; `objectness × max_class_score` for combined confidence | Per-class count prefix then `[y_min, x_min, y_max, x_max, conf]` tuples; class iterated 0–79 | `yolov8()` (from `yolov8pose_postprocess.cpp`) — Hailo DFL decode and anchor grid reconstruction done inside HailoRT |
+| **5. Confidence filter** | `box.score >= ctx->conf_thres` before adding to pre-NMS pool | `conf >= ctx->conf_thres` inline in box loop | `det->get_confidence() > 0.0f` — threshold applied internally by HailoRT NMS |
+| **6. NMS** | `EhsApply_Greedy_NMS()` — greedy class-aware IoU NMS, `iou_thr = 0.45`, scratch buffers on stack | **None** — model output is assumed pre-filtered (count-encoded format implies model-internal NMS) | Internal to HailoRT; `hailo_common::get_hailo_detections(roi)` returns already-suppressed detections |
+| **7. Label decode** | `yolov5_class_label(class_id)` — static `const char*` array, 0-indexed, 80 entries | `get_coco_name_from_int(class_idx + 1)` — switch statement, 1-indexed (case 0 = `"__background__"`, cases 1–80 = COCO classes) | `det->get_label()` — label string carried inside `HailoDetection` object, set by HailoRT from HEF metadata |
+| **8. JSON serialise** | `EhsSnprintf` with bounds checking; `{type, det_cnt, cls0, lbl0, cnf0, x0, y0, w0, h0, …}` centre-format | `EhsSprintf` (no bounds check); `{cls0, cnf0, ymin0, xmin0, ymax0, xmax0, …, det_cnt}` corner-format | Debug `printf` only — no JSON serialisation implemented yet |
+| **Key file** | `postprocessing/model/yolov5_objdet.c` | `postprocessing/model/yolov8_objdet.c` | `postprocessing/engine/hailo/ml_postprocessing_engine_hailo.cpp` |
+| **NMS shared?** | `ehs_ml_nms.h` / `ehs_ml_nms.c` | Not used | Not used (HailoRT internal) |
+| **Quantised model support** | Yes — all `EHS_ML_DATATYPE_*` types | No — FP32 only | Yes — HailoRT dequantises before delivering tensors |
+| **Coordinate system** | Centre + w/h, pixel units | Corner ymin/xmin/ymax/xmax, pixel units | Corner xmin/ymin/xmax/ymax, pixel units (scaled from normalised by org_width/org_height) |
+
+### Notes
+
+- `EhsApply_Greedy_NMS()` operates on `NMSBox` (x,y = centre, w,h). YOLOv5 TFLite feeds it directly. A correct Ultralytics-format YOLOv8 TFLite decoder would also use it unchanged — the NMS function is model-agnostic.
+- The current `yolov8_objdet.c` targets the **TFLite Object Detection API** count-prefix format, not a standard Ultralytics YOLOv8 export. A standard Ultralytics YOLOv8 `.tflite` produces `[1, 84, 8400]` output and requires a different decoder (anchor iteration with transposed indexing `class_row * num_anchors + anchor_idx`).
+- The Hailo layer (`ml_postprocessing_engine_hailo.cpp`) currently targets YOLOv8 pose via `yolov8()`. Object detection results are read back via `hailo_common::get_hailo_detections()` which works for any detection model whose HEF was compiled with an NMS post-process layer.
+
 **Raw binary** (`EhsML_RunOutputData`) — documented in `Common/HAL/include/hal_ml.h` but not yet implemented (TODO). Intended for MCU targets or high-throughput pipelines where JSON serialisation overhead is unacceptable.
 
 **Future formats** (TODO): Protobuf, FlatBuffers, ROS2 message types.
 
+---
+
+## Error Codes (`EhsML_Err`)
+
+All HAL functions return `EhsML_Err` (defined in `Common/HAL/include/hal_ml.h`). The function block surfaces these as plain integers on dedicated errno output ports.
+
+### Function block error ports
+
+The `tf_lite_frame` function block exposes error codes on:
+
+| Function block function | Error exit port | Errno output port | Value on success |
+|---|---|---|---|
+| `load_model` | `load_error` (FinishPort arg 2) | `load_errno` (OutputPort I, arg 1) | `0` (`EHS_ML_OK`) |
+| `do_inference` | `inference_error` (FinishPort arg 2) | `inference_errno` (OutputPort I, arg 1) | `0` (`EHS_ML_OK`) |
+
+When an error occurs the block exits via the error FinishPort **and** writes the integer error code to the errno port (if connected). On success the errno port is written with `0`.
+
+### Errors raised by `load_model`
+
+Traces through: path resolution → `EhsML_Create` → TFLite model load.
+
+| `EhsML_Err` | Integer value | Raised by | Cause |
+|---|---|---|---|
+| `EHS_ML_OK` | 0 | — | Success |
+| `EHS_ML_MODEL_PATH_ERR` | 11 | FB path resolution | `model_file_path` port not connected, `EhsTF_tryCanonicPath` fails, or `EhsHMetagetCurrentAppDir` fails |
+| `EHS_ML_MODEL_IN_USE` | 9 | `EhsML_Create` | `load_model` called while a model is already loaded — call `load_error` exit or restart the FB |
+| `EHS_ML_MODEL_TYPE_ERR` | 13 | `EhsML_Create` / `ml_common.c` | `Model Type` parameter does not match any `EhsML_Type` enum value |
+| `EHS_ML_MODEL_LOAD_ERR` | 6 | `EhsML_Create` → TFLite | TFLite `TfLiteInterpreterCreate` or `TfLiteInterpreterAllocateTensors` failed — check model file is valid |
+| `EHS_ML_INIT_ERR` | 3 | `EhsML_Create` | Framework initialisation error (e.g. HailoRT device not found) |
+| `EHS_ML_INVALID_DEP` | 17 | `EhsML_Create` | Library version mismatch (e.g. HailoRT `.so` version does not match HEF) |
+| `EHS_ML_NOT_SUPPORTED` | 22 | `EhsML_Create` | Model type not supported by the current build (framework not compiled in) |
+
+### Errors raised by `do_inference`
+
+Traces through: frame fetch → `EhsML_SetInputData` → `EhsML_RunOutputJson`.
+
+| `EhsML_Err` | Integer value | Raised by | Cause |
+|---|---|---|---|
+| `EHS_ML_OK` | 0 | — | Success |
+| `EHS_ML_INIT_ERR` | 3 | FB guard | `do_inference` called before `load_model` succeeded (`ml_model_ctx == NULL`) |
+| `EHS_ML_INVALID_FRAME_ID` | 15 | FB guard | `frame_id` input port value < −1 |
+| `EHS_ML_INVALID_FRAME` | 16 | FB frame fetch | `EhsCameraFrameGetById` returned NULL, or `EhsCameraFrameGetData` returned false — frame no longer in ring buffer |
+| `EHS_ML_INPUT_SIZE_MISMATCH_ERR` | 26 | `EhsML_SetInputData` | Camera frame byte size ≠ model input tensor byte size — resize or format mismatch; see `[TFLITE_DBG] SetInputData` log lines |
+| `EHS_ML_NULL_INPUT_ERR` | 24 | `EhsML_SetInputData` | NULL frame data pointer returned by `EhsCameraFrameGetData` |
+| `EHS_ML_INFERENCE_ERR` | 14 | `EhsML_RunOutputJson` → TFLite | `TfLiteInterpreterInvoke` failed — model or input data corrupted |
+| `EHS_ML_MODEL_OUTPUT_ERR` | 13 | `EhsML_RunOutputJson` → model layer | Output tensor data type not supported by the model decoder (e.g. `yolov8_objdet` requires FP32) |
+| `EHS_ML_JSON_STRSIZE_ERR` | 19 | `EhsML_RunOutputJson` → model layer | JSON output buffer too small to hold all detections — increase the connected string port size or reduce `EHS_ML_OBJ_DETECTIONS_MAX` |
+| `EHS_ML_NULL_JSON_BUF_ERR` | 25 | `EhsML_RunOutputJson` | `output` port not connected — the FB returns silently without error in this case (see source); reaching this code path requires a NULL buffer passed directly |
+
+### Full `EhsML_Err` enum reference
+
+Defined in `Common/HAL/include/hal_ml.h`. Integer values are positional from 0.
+
+| Value | Enumerator | Description |
+|---|---|---|
+| 0 | `EHS_ML_OK` | Success |
+| 1 | `EHS_ML_FAILED` | Generic unclassified failure |
+| 2 | `EHS_ML_MEMORY_ERR` | Memory allocation failure |
+| 3 | `EHS_ML_INIT_ERR` | Context or framework not initialised; model not loaded |
+| 4 | `EHS_ML_INVALID_SIZE_ERR` | Invalid size argument (e.g. zero-length buffer) |
+| 5 | `EHS_ML_INVALID_QUANT_ERR` | Invalid quantisation parameters (scale=0 for a quantised type) |
+| 6 | `EHS_ML_MODEL_LOAD_ERR` | Framework failed to load the model file |
+| 7 | `EHS_ML_MODEL_CTX_ERR` | NULL or invalid model context |
+| 8 | `EHS_ML_MODEL_TENSOR_DIM_ERR` | Tensor dimension mismatch during setup |
+| 9 | `EHS_ML_MODEL_IN_USE` | `EhsML_Create` called while a model is already loaded |
+| 10 | `EHS_ML_MODEL_PATH_ERR` | Model file path invalid or unresolvable |
+| 11 | `EHS_ML_MODEL_NAME_ERR` | Model file name invalid |
+| 12 | `EHS_ML_MODEL_TYPE_ERR` | `EhsML_Type` value not recognised by `ml_common.c` dispatch |
+| 13 | `EHS_ML_MODEL_OUTPUT_ERR` | Output tensor format not supported by the model decoder |
+| 14 | `EHS_ML_INFERENCE_ERR` | `TfLiteInterpreterInvoke` (or equivalent) failed |
+| 15 | `EHS_ML_INVALID_FRAME_ID` | `frame_id` < −1 |
+| 16 | `EHS_ML_INVALID_FRAME` | Camera frame not found or data unavailable |
+| 17 | `EHS_ML_INVALID_DEP` | Library dependency invalid (e.g. HailoRT version mismatch) |
+| 18 | `EHS_ML_INVALID_TENSOR_ERR` | Tensor pointer or metadata invalid |
+| 19 | `EHS_ML_JSON_STRSIZE_ERR` | JSON output buffer exhausted before all results serialised |
+| 20 | `EHS_ML_NOT_IMPLEMENTED` | Called function is a stub — not yet implemented |
+| 21 | `EHS_ML_NOT_SUPPORTED` | Feature or model type not supported by this build |
+| 22 | `EHS_ML_NULL_CTX_ERR` | NULL `EhsML_Context*` passed to an API function |
+| 23 | `EHS_ML_NULL_INPUT_ERR` | NULL input data pointer passed to `EhsML_SetInputData` |
+| 24 | `EHS_ML_NULL_JSON_BUF_ERR` | NULL json output buffer passed to `EhsML_RunOutputJson` |
+| 25 | `EHS_ML_INPUT_SIZE_MISMATCH_ERR` | Input data byte size ≠ model input tensor byte size |
+
+> **Note:** integer values above are positional and will shift if new enumerators are inserted before `EHS_ML_TYPE_MAX`. Always compare against the named enumerator, not the raw integer, in application code. The integer value is only relevant when reading the `load_errno` / `inference_errno` output port of the function block in a diagram.
 
 ## Code Tree Overview
 
