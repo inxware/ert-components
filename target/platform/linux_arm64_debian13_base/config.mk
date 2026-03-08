@@ -47,8 +47,6 @@ EHS_DEBIAN_VERSION=13
 #select the os-arch directory with these
 EHS_TOOLCHAIN_TYPE=clang
 #if we have a specific version of the toolchain to suffix on the os-arch defined toolchain path
-#COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm64-linux-VX_VX_base
-#todo2023 - lets finally make this bit automatic tuple of $EHS_OS-$EHS_ARCH-$EHS_TOOLCHAIN_TYPE-$EHS_DEBIAN_VERSION (OR Make this a new variable EHS_OS_TYPE_VERSION) to allow for non debian
 
 # Toolchain Selection
 TOOLCHAIN_NAME=HOST
@@ -78,15 +76,11 @@ EHS_DEBUGALL=true
 # Enable/disable features, component support options, and peripheral configurations
 #################################################################################################################
 
-# eRT1 SODL support
-ERT_SODL_VERSION=1
-
 #----- Networking Features -----
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
 EHS_MQTT_SUPPORT=aws_green_grass
 
-#unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features
 EHS_DEVMAN_SUPPORT=http
 
 #----- GUI Features -----
@@ -95,14 +89,26 @@ EHS_AV_SUPPORT=devmanonly
 EHS_MEDIA_SUPPORT=all
 #EHS_TOOLKIT_DEPRECATED=yes
 
-# Enable machine vision support for testing C++ integration
-EHS_MV_SUPPORT=stubbed
+#----- Machine Vision / ML Features -----
+EHS_ML_SUPPORT=yes
+EHS_ML_FRAMEWORK_IMAGE_SUPPORT=tensorflow-lite
+EHS_ML_HARDWARE_ACCELERATION=none
+
+EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
+EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
+EHS_MV_SUPPORT=opencv
+#EHS_MV_SUPPORT=stubbed
+
+# Use libcamera on top of opencv if supported
+#EHS_USE_LIBCAMERA=yes
 
 #----- Peripheral Features -----
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
 #Currently these are exceptions rather than the norm for peripherals toolbox.
 #Can we assume this is the same as the android kernels SYSFS format for GPIO?
-EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
+#EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
+#TODO we should build an arduinoq MCU mapping for this/
+EHS_PERIPHERALS_GPIO_SUPPORT=gui
 #EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
 EHS_PERIPHERALS_ADC_DAC_SUPPORT=none
 

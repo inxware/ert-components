@@ -64,6 +64,9 @@ LIB+=opencv_xphoto
 LIB+=opencv_photo
 LIB+=opencv_imgproc
 LIB+=opencv_core
+# OpenCV is a C++ library — libstdc++ must appear after it on the link line so
+# Debian's --as-needed linker doesn't drop it before the dependency is seen.
+LIB+=stdc++
 
 #else
 #LIB+=opencv_wrapper

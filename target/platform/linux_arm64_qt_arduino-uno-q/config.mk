@@ -45,6 +45,8 @@ include ./target/platform/linux_arm64_debian13_base/config.mk
 #################################################################################################################
 
 #----- Networking Features -----
+EHS_NETWORKING_SUPPORT=all
+EHS_COMPONENT_NETWORKING_SUPPORT=all
 EHS_MQTT_SUPPORT=aws_green_grass
 # TODO: We need to fix the build when this isn't set.
 EHS_DEVMAN_SUPPORT=http
@@ -52,6 +54,7 @@ EHS_DEVMAN_SUPPORT=http
 #----- GUI Features -----
 EHS_MAIN_LOOP_ITERATIVE=yes
 EHS_GUI_SUPPORT=qt
+#TODO change the above to select qt6 explicitly and remove below.
 EHS_GUI_SUPPORT_QT6=yes
 
 #----- Machine Vision / ML Features -----
@@ -68,7 +71,14 @@ EHS_MV_SUPPORT=opencv
 #EHS_USE_LIBCAMERA=yes
 
 #----- Peripheral Features -----
-# (Inherits from parent config)
+EHS_PERIPHERAL_DEVICE_SUPPORT=all
+#Currently these are exceptions rather than the norm for peripherals toolbox.
+#Can we assume this is the same as the android kernels SYSFS format for GPIO?
+#EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
+#TODO we should build an arduinoq MCU mapping for this/
+EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+#EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
+EHS_PERIPHERALS_ADC_DAC_SUPPORT=none
 
 
 #################################################################################################################
@@ -76,7 +86,9 @@ EHS_MV_SUPPORT=opencv
 # Default application, system variant, and packaging/deployment options
 #################################################################################################################
 
-# (Inherits from parent config)
+EHS_DEFAULT_APP=demos/QT_UIs/hello_world-qt
+
+EHS_PACKAGER_TYPE=deb
 
 
 #################################################################################################################
