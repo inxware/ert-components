@@ -194,7 +194,7 @@ ifeq ($(SYSTEM_VARIANT),RASPBERRYPI)
 	LIB += expatw
 	#todo - we might need to exclude LIB +=expat in the above.
 
-	LIB += ssl
+#	LIB += ssl
 	LIB += Xcursor
 	LIB += Xi
 	LIB += Xrandr

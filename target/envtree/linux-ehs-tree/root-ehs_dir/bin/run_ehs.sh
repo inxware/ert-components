@@ -18,8 +18,8 @@
 # Setup variable environment space
 ########################################################################
 
-export RUNMODE=$1
-export LIBMODE=$2
+export RUNMODE=${1:-NO_RESTART}
+export LIBMODE=${2:-LIB_HOST}
 export DEBUGMODE=$3
 
 if [ "${RUNMODE}" != "SLAVE"  -a "${DEBUGMODE}" != "SPAWNED" ];then

@@ -28,6 +28,8 @@ ifndef LINK_OVERRIDE
     LINK_OVERRIDE:=xtensa-esp32-elf-gcc
 endif
 
+#TODO replace these with usual EHS_ variables rather than the hack. 
+
 #ASFLAGS+= 
 #The following are only needed for buildig the contributed esp32 libraries in the ert-contrib-middleware context. Presume we don't need them here for now.
 # TODO remove this when we know that everything works
@@ -48,9 +50,10 @@ LNKFLAGS+= -T esp32.rom.ld -T esp32.rom.libgcc.ld -T esp32.rom.syscalls.ld -T es
 # todo2022 These shoulld be done properly using the LIB variable but this seems to slightly broken: 
 LNKFLAGS+= -lcoexist -lespnow -lmesh -lnet80211 -lphy -lpp -lrtc -lsmartconfig -lwapi -lxt_hal -lapp_trace -lapp_update -lbootloader_support -lbt -lcoap -lconsole -ldriver -lefuse -lesp32 -lesp_adc_cal -lesp_common 
 LNKFLAGS+= -lesp_eth -lesp_event -lesp_gdbstub -lesp_hid -lesp_http_client -lesp_http_server -lesp_https_ota -lesp_hw_support -lesp_ipc -lesp_lcd -lesp_local_ctrl -lesp_netif -lesp_phy -lesp_pm -lesp_ringbuf -lesp_rom 
-LNKFLAGS+= -lesp_serial_slave_link -lesp_system -lesp_timer -lesp-tls -lesp_wifi -lexpat -lfatfs -lfreemodbus -lfreertos -lhal -lheap -lidf_test -ljsmn -ljson -llibsodium 
+LNKFLAGS+= -lesp_serial_slave_link -lesp_system -lesp_timer -lesp-tls -lesp_wifi -lexpat -lfatfs -lfreemodbus -lfreertos -lhal -lheap -ljsmn -ljson -llibsodium 
 LNKFLAGS+= -lnvs_flash -lopenssl -lopenthread -lperfmon -lprotobuf-c -lprotocomm -lpthread -lsdmmc -lsoc -lspiffs -lspi_flash -ltcpip_adapter -ltcp_transport -llog -llwip -lmbedtls -lmdns -lmqtt -lnewlib -lnghttp 
 LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa -lhal -lesp_littlefs -Wl,--end-group -Wl,-EL -fno-rtti
+#Removed -lidf_test 
 LIB+=c
 LIB+=cxx
 LIB_DIRS += $(EHS_ROOT_PATH)

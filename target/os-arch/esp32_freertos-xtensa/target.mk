@@ -157,10 +157,10 @@ LIB += freemodbus
 LIB += freertos
 LIB += hal
 LIB += heap
-LIB += idf_test
 LIB += jsmn
 LIB += json
 LIB += libsodium
+#LIB += idf_test
 
 #LNKFLAGS+= -lnvs_flash -lopenssl -lopenthread -lperfmon -lprotobuf-c -lprotocomm -lpthread -lsdmmc -lsoc -lspiffs -lspi_flash -ltcpip_adapter -ltcp_transport -llog -llwip -lmbedtls -lmdns -lmqtt -lnewlib -lnghttp 
 

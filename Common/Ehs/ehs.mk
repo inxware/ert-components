@@ -67,7 +67,7 @@ include $(EHS_TARGET_COMPONENT_HAL_PATH)/comms/tcp_server_common/tcp.mk
 
 #TODO2025 - the following should be moved to a HAL make file.
 ifdef EHS_COMMS_API_SUPPORT
-	ifneq ($(EHS_COMMS_API_SUPPORT), none)
+	ifneq ($(EHS_COMMS_API_SUPPORT),none)
 		EHS_TARGET_COMMS_API_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/comms/$(EHS_COMMS_API_SUPPORT)
 		DEFS+=EHS_COMMS_API_SUPPORT
 		INC_DIRS+=$(EHS_TARGET_COMMS_API_PATH)

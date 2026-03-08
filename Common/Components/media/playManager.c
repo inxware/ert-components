@@ -13,6 +13,13 @@
 
 #include "libxml/xmlreader.h"
 
+//TODO loacaltim_r function should be replaced by an Ehs prefixed version and set in the hal.h 
+//to what ever the tooolchain for the plarform supports/
+//#if defined(_MSC_VER)
+#if defined(EHS_MINGW)
+#   define localtime_r(T,Tm) (localtime_s(Tm,T) ? NULL : Tm)
+#endif
+
 #ifdef EHS_DEBUG_SMILPARSER
     /* Stack tracing code */
     #ifndef EHS_ANDROID

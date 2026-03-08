@@ -144,7 +144,6 @@ ifndef EHS_EXCLUDE_XML_PARSER
 	else
     	ifeq ($(SYSTEM_VARIANT),RASPBERRYPI)
     		LIB+= expatw
-    		LIB+= ssl
       	else
         	ifdef EHS_ANDROID
            		LIB+=:libexpat.a

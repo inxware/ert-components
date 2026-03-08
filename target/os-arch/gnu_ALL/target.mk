@@ -32,7 +32,9 @@ OBJECTS += target_math.$(OBJ)
 
 
 # We nearly always need this for GNU targets
-  LIB+=z
+  LIB += z
+
+  #LIB += ssl
   
 ifdef EHS_MINGW2
 	LIB+=archive-2

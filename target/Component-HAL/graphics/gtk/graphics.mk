@@ -174,7 +174,7 @@ ifeq ($(SYSTEM_VARIANT),RASPBERRYPI)
 	EHS_PNG_LIB_DEFAULT=png12
 	LIB+= expatw
 #todo - we might need to exclude LIB+=expat in the above.
-	LIB+= ssl
+#LIB+= ssl
 	LIB += Xcursor
 	LIB += Xi
 	LIB += Xrandr

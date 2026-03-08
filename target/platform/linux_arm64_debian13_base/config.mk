@@ -84,8 +84,7 @@ ERT_SODL_VERSION=1
 #----- Networking Features -----
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
-EHS_MQTT_SUPPORT=none
-#EHS_MQTT_SUPPORT=aws_green_grass
+EHS_MQTT_SUPPORT=aws_green_grass
 
 #unset EHS_DEVMAN_SUPPORT to disable the OS-level Devman monitoring features
 EHS_DEVMAN_SUPPORT=http
@@ -133,6 +132,7 @@ EHS_PACKAGER_TYPE=deb
 
 # we should try wifi by default in rpi devices
 DEFS+=EHS_USE_WIFI_INTERFACE=1
+
 
 
 ################################### END OF CONFIGURATION ###################################################
