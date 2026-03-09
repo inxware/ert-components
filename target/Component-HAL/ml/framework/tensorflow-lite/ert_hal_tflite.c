@@ -217,7 +217,22 @@ EhsML_Err EhsML_FW_TFLite_Create(EhsML_Context* ctx, const ehs_char* model_path,
         }
     }
     
-    EhsML_Tensor_Alloc(&ctx->output_tensor[0], ctx->data_type, ctx->output_tensor[0].dims, output_dims);
+    /* Zero-copy: point directly at TFLite's output buffer.
+     * TfLiteInterpreterAllocateTensors() (step 4) has already allocated this
+     * buffer; the pointer is stable until TfLiteInterpreterDelete() is called.
+     * After each TfLiteInterpreterInvoke() call TFLite writes results in-place —
+     * the model decoder reads them directly with no intermediate copy.
+     *
+     * data_ptr_owned = EHS_FALSE tells EhsML_Tensor_Free() not to call free()
+     * on this pointer — it is freed by TfLiteModel_Destroy().
+     *
+     * The destroy sequence in EhsML_FW_TFLite_Destroy() nulls data_ptr BEFORE
+     * calling TfLiteModel_Destroy(), so the pointer is never accessed after
+     * TFLite frees it. */
+    ctx->output_tensor[0].data_ptr.ptr   = TfLiteTensorData(tfl_model_ctx->out_tensor);
+    ctx->output_tensor[0].size_in_bytes  = (ehs_uint32)TfLiteTensorByteSize(tfl_model_ctx->out_tensor);
+    ctx->output_tensor[0].num_dims       = (ehs_uint32)output_dims;
+    ctx->output_tensor[0].data_ptr_owned = EHS_FALSE;
 
     /* 7. Get quantisation parameters from the model.
      * TFLite returns scale=0.0 for unquantised float models (meaning "no quantisation").
@@ -254,6 +269,16 @@ ml_fail:
 void EhsML_FW_TFLite_Destroy(EhsML_Context* ctx)
 {
     if (ctx == NULL) return;
+
+    /* Free owned output tensor buffers FIRST, while data_ptr is still valid.
+     * EhsMemset() below would zero data_ptr before EhsML_Tensor_Free() could
+     * reach it, causing the malloc'd buffer to leak on every model unload. */
+    ehs_uint32 _t;
+    for (_t = 0; _t < ctx->output_tensor_count; _t++)
+    {
+        EhsML_Tensor_Free(&ctx->output_tensor[_t]);
+    }
+
     if (ctx->ml_model_ctx)
     {
         TfLiteModel_Destroy((TfLiteModelCtx*) ctx->ml_model_ctx);
@@ -287,20 +312,10 @@ EhsML_Err EhsML_FW_TFLite_GetOutputData(EhsML_Context* ctx)
     TfLiteModelCtx *tfl_model_ctx = (TfLiteModelCtx *) ctx->ml_model_ctx;
     if (!tfl_model_ctx->out_tensor) return EHS_ML_INIT_ERR;
 
-    ehs_char *output_from_tflite = (ehs_char *) TfLiteTensorData(tfl_model_ctx->out_tensor);
-    if (!output_from_tflite)
-    {
-        return EHS_ML_MODEL_OUTPUT_ERR;
-    }
-
-    /* 1. Invoke Tensorflow interpreter for inference */
+    /* Run inference. TFLite writes results directly into the buffer that
+     * ctx->output_tensor[0].data_ptr already points to (set at Create time).
+     * No memcpy required — the model decoder reads from data_ptr directly. */
     if (TfLiteInterpreterInvoke(tfl_model_ctx->interp) != kTfLiteOk) return EHS_ML_INFERENCE_ERR;
-
-    EhsML_Tensor_FillRaw(
-        &ctx->output_tensor[0],
-        output_from_tflite,
-        TfLiteTensorByteSize(tfl_model_ctx->out_tensor)
-    );
 
     return EHS_ML_OK;
 }

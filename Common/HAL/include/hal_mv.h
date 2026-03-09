@@ -128,8 +128,13 @@ ehs_bool EhsCameraFrameWriteToFile(EhsCameraFrame* frame, const ehs_char* filepa
 ehs_bool EhsCameraFrameCrop(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 x1, ehs_uint32 y1, ehs_uint32 x2, ehs_uint32 y2);
 
 // Resizes the source frame to the given width and height, storing result in destination frame.
+// interp: interpolation method (maps to cv::InterpolationFlags):
+//   0 = INTER_NEAREST  fastest, recommended for ML pre-processing
+//   1 = INTER_LINEAR   bilinear (default)
+//   2 = INTER_CUBIC    bicubic, highest quality, slowest
+//   3 = INTER_AREA     best quality when shrinking
 // Returns true on success.
-ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height);
+ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height, ehs_sint32 interp);
 
 // Converts the frame format (e.g., RGB to grayscale) and stores result in destination frame.
 // Returns true on success.

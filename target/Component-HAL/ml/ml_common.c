@@ -55,11 +55,27 @@ EhsML_HWAccel_t EhsML_HWAccel_supported( void )
     return ret;
 }
 
+/**
+ * @brief Allocate a heap buffer for a tensor's data.
+ *
+ * Use this only when the inference framework does NOT already own the tensor
+ * buffer. For TFLite and Hailo, the framework allocates its own output
+ * buffers during model setup; in those cases, set data_ptr directly to the
+ * framework's buffer and set data_ptr_owned = EHS_FALSE, so that
+ * EhsML_Tensor_Free() does not call free() on a pointer it didn't allocate.
+ *
+ * When called here, data_ptr_owned is set to EHS_TRUE: the caller is
+ * responsible for eventually calling EhsML_Tensor_Free().
+ *
+ * Do NOT call this function for tensors that already have a data_ptr set
+ * (the guard below enforces this). A matching EhsML_Tensor_Free() call
+ * must come before any subsequent EhsML_Tensor_Alloc() on the same tensor.
+ */
 EhsML_Err EhsML_Tensor_Alloc(EhsML_Tensor_t* tensor, EhsML_DataType_t data_type, const ehs_uint32* dims, ehs_uint32 num_dims)
 {
     if (tensor == NULL) return EHS_ML_INIT_ERR;
     if (dims == NULL) return EHS_ML_INIT_ERR;
-    // Tensor must NOT be allocated more than once
+    /* Guard: must not allocate over an existing buffer — would leak the old one */
     if (tensor->data_ptr.ptr != NULL) return EHS_ML_MEMORY_ERR;
     if (data_type >= EHS_ML_DATATYPE_MAX || data_type < EHS_ML_DATATYPE_NONE) return EHS_ML_INVALID_QUANT_ERR;
     if (num_dims > EHS_ML_TENSOR_MAX_DIMS) return EHS_ML_INVALID_SIZE_ERR;
@@ -177,6 +193,7 @@ EhsML_Err EhsML_Tensor_Alloc(EhsML_Tensor_t* tensor, EhsML_DataType_t data_type,
     if (tensor->data_ptr.raw == NULL) return EHS_ML_MEMORY_ERR;
     tensor->size_in_bytes = size;
     tensor->num_dims = num_dims;
+    tensor->data_ptr_owned = EHS_TRUE; /* this allocation is ours to free */
     EhsMemcpy(tensor->dims, dims, num_dims * sizeof(ehs_uint32));
 
     return EHS_ML_OK;
@@ -187,32 +204,44 @@ void EhsML_Tensor_Free(EhsML_Tensor_t* tensor)
     if (tensor == NULL) return;
     if (tensor->data_ptr.ptr == NULL) return;
 
-    // Free the allocated memory
-    free(tensor->data_ptr.ptr);
-    // Free the handle if it exists
+    /* Only free the data buffer if this tensor owns it.
+     * Zero-copy tensors (data_ptr_owned == EHS_FALSE) point into a buffer
+     * owned by the inference framework (TFLite, Hailo) — calling free() on
+     * those would be a double-free once the framework destroys its allocations. */
+    if (tensor->data_ptr_owned == EHS_TRUE)
+    {
+        free(tensor->data_ptr.ptr);
+    }
+    tensor->data_ptr.ptr = NULL;
+    tensor->data_ptr_owned = EHS_FALSE;
+    tensor->size_in_bytes = 0;
+    tensor->num_dims = 0;
+    EhsMemset(tensor->dims, 0, EHS_ML_TENSOR_MAX_DIMS * sizeof(ehs_uint32));
+
     if (tensor->handle_owned == EHS_TRUE && tensor->handle != NULL)
     {
         free(tensor->handle);
         tensor->handle = NULL;
     }
-    // Reset everything to 0
-    tensor->data_ptr.ptr = NULL;
-    tensor->size_in_bytes = 0;
-    tensor->num_dims = 0;
-    EhsMemset(tensor->dims, 0, EHS_ML_TENSOR_MAX_DIMS * sizeof(ehs_uint32));
 }
 
 EhsML_Err EhsML_Tensor_FillRaw(EhsML_Tensor_t* tensor, ehs_char *value, size_t size_in_bytes)
 {
     if (tensor == NULL) return EHS_ML_INIT_ERR;
     if (tensor->data_ptr.ptr == NULL) return EHS_ML_INIT_ERR;
+    if (value == NULL) return EHS_ML_NULL_INPUT_ERR;
 
-    //{
-    //    size_t size = 1;
-    //    int _i = 0;
-    //    for (_i = 0 ; _i < tensor->num_dims ; _i++) size *= tensor->dims[_i];
-    //    if (size != size_in_bytes) return EHS_ML_MEMORY_ERR;
-    //}
+    /* Guard: never copy more bytes than were allocated.
+     * If size_in_bytes > tensor->size_in_bytes the memcpy would overflow
+     * the allocated buffer, silently corrupting heap metadata and causing
+     * free(): invalid pointer at the next teardown. */
+    if (size_in_bytes > tensor->size_in_bytes)
+    {
+        EHSH_LOG_ERROR("EhsML_Tensor_FillRaw: size mismatch — "
+                       "caller wants %zu bytes but tensor only has %u allocated\n",
+                       size_in_bytes, (unsigned)tensor->size_in_bytes);
+        return EHS_ML_MEMORY_ERR;
+    }
 
     EhsMemcpy(tensor->data_ptr.raw, value, size_in_bytes * sizeof(ehs_char));
 
@@ -917,7 +946,13 @@ void EhsML_Destroy(EhsML_Context* ctx)
             break;
     }
     #endif//EHS_ML_SUPPORT_STUBBED
-    EhsML_Tensor_Free(&ctx->output_tensor);
+    /* Free all output tensors. For zero-copy tensors (data_ptr_owned=EHS_FALSE)
+     * this just clears the pointer; for owned tensors it calls free(). */
+    ehs_uint32 _t;
+    for (_t = 0; _t < ctx->output_tensor_count; _t++)
+    {
+        EhsML_Tensor_Free(&ctx->output_tensor[_t]);
+    }
 }
 
 EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 size)

@@ -88,11 +88,12 @@ EHS_MV_SUPPORT
     return EHS_FALSE;
 }
 
-ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height)
+ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height, ehs_sint32 interp)
 {
     if(!src || !src->frameObj || !dst || !dst->frameObj) return EHS_FALSE;
-    cv_mat_release((cv_mat*)dst->frameObj);
-    if(CV_CAM_OK == cv_mat_resize((cv_mat*)src->frameObj, (cv_mat*)dst->frameObj, width, height)){
+    /* Do NOT call cv_mat_release(dst) here — cv_mat_resize reuses the existing
+     * cv::Mat buffer on repeated calls, avoiding a heap free+alloc every frame. */
+    if(CV_CAM_OK == cv_mat_resize((cv_mat*)src->frameObj, (cv_mat*)dst->frameObj, width, height, interp)){
         dst->width = width;
         dst->height = height;
         dst->fmt = src->fmt;

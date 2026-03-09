@@ -67,7 +67,10 @@ EHS_FB_IDENTIFY_FUNCTION(indexed_mux_str)
 	ehs_char* in7;
 	ehs_char* in8;
 	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%s %s %s %s %s %s %s %s",&in1,&in2,&in3,&in4,&in5,&in6,&in7,&in8); */
-	EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS) + 1;//sizeof(inx_indexed_mux_str_state_type);
+	/* Must be sizeof the state struct — NOT strlen(params).
+	 * The old strlen formula allocated as few as 1 byte when no parameters
+	 * were set, causing INIT to overflow the heap writing 8 pointers into it. */
+	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_indexed_mux_str_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
@@ -89,11 +92,9 @@ EHS_FB_INIT_FUNCTION(indexed_mux_str)
 	ehs_bool bRet = EHS_TRUE; /* assume success */
 	//this is the reference to the object data for this instance of the function block
 	inx_indexed_mux_str_state_type* inx_indexed_mux_str_state = (inx_indexed_mux_str_state_type*)EHS_FB_INIT_CONTEXT;
-	/* Allocate memory to read the parameter */
-	//TODO place it back to EhsHMem_tempAlloc once it's fixed
-	// in_temp = (ehs_char *) EhsHMem_permAlloc(EhsStrlen(EHS_FB_INIT_PARAMETERS) + 1);
-	// Init error if there is no enough memory left to be allocated
-	if (in_temp == NULL) return EHS_FALSE;
+	/* in_temp is stack-allocated — NULL check removed (was dead code from
+	 * when it was heap-allocated via EhsHMem_permAlloc). */
+	EhsMemset(inx_indexed_mux_str_state, 0, sizeof(inx_indexed_mux_str_state_type));
 	/* read the initialisation parameters */
 	for (i = 0 ; i < 8 && pFbInitParam ; i++)
 	{
@@ -146,6 +147,15 @@ jump_point:
 EHS_FB_DESTROY_FUNCTION(indexed_mux_str)
 {
 	inx_indexed_mux_str_state_type *inx_indexed_mux_str_state = (inx_indexed_mux_str_state_type*)EHS_FB_DESTROY_CONTEXT;
+	ehs_uint8 i;
+	/* EhsHMem_writeableAlloc uses the pool allocator (EhsHMem_Alloc) —
+	 * individual frees are not supported. The eRT kernel frees the pool
+	 * at app unload. Null the pointers so stale addresses are not reused
+	 * if the state memory happens to be recycled. */
+	for (i = 0; i < 8; i++)
+	{
+		inx_indexed_mux_str_state->in[i] = NULL;
+	}
 	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
@@ -160,15 +170,16 @@ EHS_FB_DESTROY_FUNCTION(indexed_mux_str)
 EHS_FB_RUN_FUNCTION(indexed_mux_str_mux)
 {
 	if (!EHS_FB_IN_CONNECTED_API2(INX_indexed_mux_str_ARG_mux_index)) return;
-	if (EHS_FB_IN_I_API2(INX_indexed_mux_str_ARG_mux_index) < 1)
+	ehs_sint32 mux_index = EHS_FB_IN_I_API2(INX_indexed_mux_str_ARG_mux_index);
+	if (mux_index < 1)
 	{
 		EHS_FB_FINISH(INX_indexed_mux_str_ARG_mux_err);
 		return;
 	}
-	if (EHS_FB_IN_I_API2(INX_indexed_mux_str_ARG_mux_index) > 8)
+	if (mux_index > 8)
 	{
 		if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_mux_str_ARG_mux_overflow))
-			EHS_FB_OUT_I_API2(INX_indexed_mux_str_ARG_mux_overflow) = EHS_FB_IN_I_API2(INX_indexed_mux_str_ARG_mux_index) - 8;
+			EHS_FB_OUT_I_API2(INX_indexed_mux_str_ARG_mux_overflow) = mux_index - 8;
 		EHS_FB_FINISH(INX_indexed_mux_str_ARG_mux_event_overflow);
 		return;
 	}
@@ -204,7 +215,7 @@ EHS_FB_RUN_FUNCTION(indexed_mux_str_mux)
 	if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_mux_str_ARG_mux_output))
 	{
 		EhsMemset(EHS_FB_OUT_S_API2(INX_indexed_mux_str_ARG_mux_output), 0, EHS_STRING_LENGTH_MAX);
-		if (session[EHS_FB_IN_I_API2(INX_indexed_mux_str_ARG_mux_index) - 1] == NULL)
+		if (session[mux_index - 1] == NULL)
 		{
 			EhsMemcpy(
 				EHS_FB_OUT_S_API2(INX_indexed_mux_str_ARG_mux_output),
@@ -216,8 +227,8 @@ EHS_FB_RUN_FUNCTION(indexed_mux_str_mux)
 		{
 			EhsMemcpy(
 				EHS_FB_OUT_S_API2(INX_indexed_mux_str_ARG_mux_output),
-				session[EHS_FB_IN_I_API2(INX_indexed_mux_str_ARG_mux_index) - 1],
-				EhsStrlen((const char*)session[EHS_FB_IN_I_API2(INX_indexed_mux_str_ARG_mux_index) - 1])
+				session[mux_index - 1],
+				EhsStrlen((const char*)session[mux_index - 1])
 			);
 		}
 	}

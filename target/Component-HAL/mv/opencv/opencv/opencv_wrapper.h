@@ -99,7 +99,16 @@ int cv_mat_convert_to(const cv_mat* src,
  * Caller must release dst using cv_mat_release.
  * Returns CV_CAM_OK or CV_CAM_ALLOC_ERR.
  */
-int cv_mat_resize(const cv_mat* src, cv_mat* dst, int target_width, int target_height);
+/* Resize src into dst.
+ * interp: OpenCV interpolation flag — cv::InterpolationFlags integer value:
+ *   0 = INTER_NEAREST  (fastest — recommended for ML preprocessing)
+ *   1 = INTER_LINEAR   (bilinear, default)
+ *   2 = INTER_CUBIC    (bicubic, highest quality, slowest)
+ *   3 = INTER_AREA     (best for downsampling/shrinking)
+ * If dst->impl is already allocated the underlying cv::Mat buffer is reused,
+ * avoiding a heap allocation on every frame after the first.
+ */
+int cv_mat_resize(const cv_mat* src, cv_mat* dst, int target_width, int target_height, int interp);
 
 /*  Crop an OpenCV matrix.
  *  src            : source cv_mat (must point to a valid cv::Mat)

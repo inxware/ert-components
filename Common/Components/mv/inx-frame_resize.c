@@ -10,6 +10,7 @@ typedef struct inx_FrameResize_state
 {
 	ehs_sint32 size_x;
 	ehs_sint32 size_y;
+	ehs_sint32 interp; /* interpolation method: 0=NEAREST, 1=LINEAR, 2=CUBIC, 3=AREA */
 
 	EhsCameraFrame frame;
 
@@ -75,10 +76,12 @@ EHS_FB_INIT_FUNCTION(FrameResize)
 	
 	EhsMemset(&inx_FrameResize_state->frame, 0, sizeof(EhsCameraFrame));
 	/* read the initialisation parameters */
+	inx_FrameResize_state->interp = 1; /* default: INTER_LINEAR */
 	const char* pParams = EHS_FB_INIT_PARAMETERS;
 	if (pParams) {
 		pParams = EhsGetSint32FromString(&inx_FrameResize_state->size_x, pParams);
 		pParams = EhsGetSint32FromString(&inx_FrameResize_state->size_y, pParams);
+		pParams = EhsGetSint32FromString(&inx_FrameResize_state->interp, pParams);
 	}
 
 	// create frame instace for this camera and add it to the global list
@@ -133,7 +136,7 @@ EHS_FB_RUN_FUNCTION(FrameResize_resize)
 	}
 
 	if(size_x > 0 || size_y > 0){
-		if(EHS_FALSE == EhsCameraFrameResize(src_frame, &inx_FrameResize_state->frame, size_x, size_y)) { err = FRAME_RESIZE_FAILED; goto done; }
+		if(EHS_FALSE == EhsCameraFrameResize(src_frame, &inx_FrameResize_state->frame, size_x, size_y, inx_FrameResize_state->interp)) { err = FRAME_RESIZE_FAILED; goto done; }
 	}else{
 		err = FRAME_RESIZE_UNUSED; goto done;
 	}

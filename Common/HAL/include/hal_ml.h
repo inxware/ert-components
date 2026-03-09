@@ -219,8 +219,11 @@ typedef struct {
     ehs_uint32      num_dims;
     EhsML_Quan_t    quantisation_params;
     EhsML_DataType_t data_type;
-    void            *handle; // Placeholder for any framework-specific tensor handle if needed 
-    ehs_bool        handle_owned; // Indicates if the tensor is responsible for freeing the handle
+    void            *handle;       /* Placeholder for any framework-specific tensor handle if needed */
+    ehs_bool        handle_owned;  /* If true, EhsML_Tensor_Free() will free handle */
+    ehs_bool        data_ptr_owned; /* If true, EhsML_Tensor_Free() will free data_ptr.
+                                     * Set to EHS_FALSE for zero-copy tensors whose buffer
+                                     * is owned by the inference framework (TFLite, Hailo). */
 } EhsML_Tensor_t;
 
 typedef struct {

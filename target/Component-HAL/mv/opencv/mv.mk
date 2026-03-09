@@ -7,9 +7,7 @@ OBJECTS+=camera.$(OBJ)
 CPPFLAGS += -std=c++17
 
 OBJECTS+=opencv_wrapper.$(OBJ)
-
 CXX_INC_DIRS += /usr/include/opencv4
-
 LIB+=opencv_stitching
 LIB+=opencv_alphamat
 LIB+=opencv_aruco

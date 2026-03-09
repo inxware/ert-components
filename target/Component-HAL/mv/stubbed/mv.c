@@ -59,8 +59,9 @@ ehs_bool EhsCameraFrameCrop(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32
     return EHS_TRUE;
 }
 
-ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height)
+ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height, ehs_sint32 interp)
 {
+    (void)interp; /* stubbed — interp unused */
     return EHS_TRUE;
 }
 

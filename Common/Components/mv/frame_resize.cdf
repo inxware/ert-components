@@ -55,6 +55,16 @@
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
         </Parameter>
+        <Parameter>
+            <Name>Interpolation</Name>
+            <DataType>I</DataType>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <Description>Interpolation method: 0=Nearest (fastest, ML), 1=Linear (default), 2=Cubic (best quality), 3=Area (best for shrinking)</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
     </Parameters>
     <Functions>
         <Function>

@@ -4,6 +4,7 @@
 #include "hal-api.h"
 #include "tflite_model.h"
 
+#error(""We're not doing this are we?")
 
 EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Type model_type, ehs_float conf_thres, ehs_sint32 thread_count)
 {

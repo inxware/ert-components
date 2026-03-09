@@ -324,24 +324,33 @@ int cv_mat_convert_to(const cv_mat* src,
     return CV_CAM_OK;
 }
 
-int cv_mat_resize(const cv_mat* src, cv_mat* dst, int target_width, int target_height)
+int cv_mat_resize(const cv_mat* src, cv_mat* dst, int target_width, int target_height, int interp)
 {
     if (!src || !src->impl || !dst) return CV_CAM_READ_ERR;
 
     auto sp_src = *(reinterpret_cast<const std::shared_ptr<cv::Mat>*>(src->impl));
     if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
 
-    cv::Mat resized;
-    cv::resize(*sp_src, resized, cv::Size(target_width, target_height));
+    const cv::Size target_size(target_width, target_height);
 
-    auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(resized)));
-    if (!holder) return CV_CAM_ALLOC_ERR;
+    if (dst->impl) {
+        /* Reuse the existing cv::Mat buffer — OpenCV will reallocate internally
+         * only if dimensions or type change, which is rare after the first frame.
+         * This eliminates a heap free+alloc on every frame in steady-state. */
+        auto& existing_mat = *(*reinterpret_cast<MatPtr*>(dst->impl));
+        cv::resize(*sp_src, existing_mat, target_size, 0, 0, interp);
+    } else {
+        /* First call for this dst — allocate the holder. */
+        cv::Mat resized;
+        cv::resize(*sp_src, resized, target_size, 0, 0, interp);
+        auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(resized)));
+        if (!holder) return CV_CAM_ALLOC_ERR;
+        dst->impl = holder;
+    }
 
-    dst->impl = holder;
-    dst->width = target_width;
-    dst->height = target_height;
-    dst->channels = sp_src->channels();  // Usually 3
-
+    dst->width    = target_width;
+    dst->height   = target_height;
+    dst->channels = sp_src->channels();
     return CV_CAM_OK;
 }
 

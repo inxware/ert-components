@@ -28,6 +28,7 @@
 /*****************************************************************************/
 /* Included files */
 #include "yolov8_pose.h"
+#include "ml_utils/ehs_ml_dequant.h"    /* EHS_ML_TENSOR_DEQUANT */
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -48,24 +49,10 @@
  ***** if they are unique from the boilerplate code
  *****/
 
-static void dequantise_box_values(EhsML_Tensor_t quant_tensor, int index, EhsML_Tensor_t dequant_tensor)
-{
-    // Your dequantisation code here
-    float scale = quant_tensor.quantisation_params.scale;
-    float zero_point = quant_tensor.quantisation_params.offset;
-
-    for (size_t i = 0; i < dequant_tensor.dims[0]; i++)
-    {
-        for (size_t j = 0; j < dequant_tensor.dims[1]; j++)
-        {
-            size_t quant_index = index * quant_tensor.dims[0] + i * dequant_tensor.dims[1] + j;
-            ehs_uint8 quantized_value = quant_tensor.data_ptr.u8[quant_index];
-            float dequantized_value = ((float)scale) * (((float)quantized_value) - ((float)zero_point));
-            // Store the dequantized value in the appropriate position
-            dequant_tensor.data_ptr.f32[i * dequant_tensor.dims[1] + j] = dequantized_value;
-        }
-    }
-}
+/* Dequantisation: use EHS_ML_TENSOR_DEQUANT from ml_utils/ehs_ml_dequant.h.
+ * That macro handles all EHS_ML_DATATYPE_* variants correctly.
+ * The former local dequantise_box_values() only handled UINT8 and was never
+ * called — it has been removed. */
 
 EhsML_Err EhsML_Yolov8_Pose_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
 {

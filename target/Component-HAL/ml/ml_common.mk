@@ -38,11 +38,13 @@ else ifeq ($(EHS_ML_SUPPORT),yes)
 	EHS_TARGET_ML_DEQUANTISE_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/dequantise
 	EHS_TARGET_ML_MODEL_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/model
 	EHS_TARGET_ML_LOGICAL_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/logical
+	EHS_TARGET_ML_OUTPUT_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/output
 
 ## Include Framework and Model makefiles
 	include $(EHS_TARGET_ML_FRAMEWORK_PATH)/ml_framework.mk
 	include $(EHS_TARGET_ML_ENGINE_POSTPROCESSING_PATH)/ml_postprocessing_engine.mk
 	include $(EHS_TARGET_ML_DEQUANTISE_POSTPROCESSING_PATH)/ml_postprocessing_general.mk
+	include $(EHS_TARGET_ML_OUTPUT_POSTPROCESSING_PATH)/ml_postprocessing_output.mk
 	include $(EHS_TARGET_ML_MODEL_PATH)/ml_model.mk
 
 ## Include ML Stubbed source path

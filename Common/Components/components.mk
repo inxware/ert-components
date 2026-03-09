@@ -89,15 +89,20 @@ endif
 
 # Machine Vision Support
 ifdef EHS_MV_SUPPORT
-export EHS_MV_SUPPORT
-DEFS+=EHS_MV_SUPPORT__$(EHS_MV_SUPPORT)
-include $(EHS_COMMON_COMPONENTS_PATH)/mv/components.mk
+ifneq ($(EHS_MV_SUPPORT),none)
+    export EHS_MV_SUPPORT
+    DEFS+=EHS_MV_SUPPORT__$(EHS_MV_SUPPORT)
+    include $(EHS_COMMON_COMPONENTS_PATH)/mv/components.mk
+endif
 endif
 
 # Machine Learing Support
 ifdef EHS_ML_SUPPORT
-export EHS_ML_SUPPORT
-include $(EHS_COMMON_COMPONENTS_PATH)/ml/components.mk
+ifneq ($(EHS_ML_SUPPORT),none)
+    export EHS_ML_SUPPORT
+    DEFS+=EHS_ML_SUPPORT__$(EHS_ML_SUPPORT)
+    include $(EHS_COMMON_COMPONENTS_PATH)/ml/components.mk
+endif
 endif
 
 ################################################################################
