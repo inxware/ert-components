@@ -30,6 +30,9 @@
 #include "yolov8_pose.h"
 #include "ml_utils/ehs_ml_dequant.h"    /* EHS_ML_TENSOR_DEQUANT */
 
+//TODO check Hailo support
+#include "ml_postprocessing_engine_hailo.hpp"
+
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 
@@ -63,12 +66,74 @@ EhsML_Err EhsML_Yolov8_Pose_RunOutputJson(EhsML_Context* ctx, ehs_char* json_out
     }
 
     // Your code here
+    if (ctx == NULL)
+    {
+        EHSH_LOG_ERROR("Invalid argument: ctx is NULL\n");
+        return EHS_ML_MODEL_CTX_ERR;
+    }
+
     if (json_output == NULL || output_size == 0)
     {
         EHSH_LOG_ERROR("Invalid argument: json_output is NULL or output_size is 0\n");
         return EHS_ML_INVALID_SIZE_ERR;
     }
 
+    switch (ctx->hw_accel)
+    {
+        case EHS_ML_HWACCEL_HAILO:
+        {
+            ehs_uint32 output_size_written = 0;
+            ehs_char* json_output_ptr = json_output;
+            ehs_uint32 valid_detections = 0;
+            // Process Hailo-specific output tensors and populate ctx->detections
+            EhsML_Postprocessing_Engine_Hailo_ProcessOutput(ctx);
+            output_size_written += EhsSnprintf(json_output_ptr, output_size - output_size_written, "{\"type\":%d,", ctx->type);
+            for (size_t i = 0 ; i < ctx->detection_count; i++)
+            {
+                if (ctx->detections[i].filtered) continue; // Skip filtered detections if needed
+                EHSH_LOG_INFO("Detection %zu: x=%f, y=%f, w=%f, h=%f, label=%s\n",
+                    i,
+                    ctx->detections[i].x,
+                    ctx->detections[i].y,
+                    ctx->detections[i].w,
+                    ctx->detections[i].h,
+                    ctx->detections[i].label
+                );
+                output_size_written += EhsSnprintf(
+                    json_output_ptr + output_size_written,
+                    output_size - output_size_written,
+                    i == ctx->detection_count - 1 ? 
+                        "\"x%03d\":%f,\"y%03d\":%f,\"w%03d\":%f,\"h%03d\":%f,\"label%03d\":\"%s\"" : 
+                        "\"x%03d\":%f,\"y%03d\":%f,\"w%03d\":%f,\"h%03d\":%f,\"label%03d\":\"%s\",",
+                    valid_detections,
+                    ctx->detections[i].x,
+                    valid_detections,
+                    ctx->detections[i].y,
+                    valid_detections,
+                    ctx->detections[i].w,
+                    valid_detections,
+                    ctx->detections[i].h,
+                    valid_detections,
+                    ctx->detections[i].label
+                );
+                valid_detections++;
+            }
+            output_size_written += EhsSnprintf(json_output_ptr + output_size_written, output_size - output_size_written, "}");
+            if (output_size_written >= output_size)            {
+                EHSH_LOG_ERROR("Output size %u exceeds buffer size %u\n", output_size_written, output_size);
+                return EHS_ML_JSON_STRSIZE_ERR;
+            }
+            break;
+        }
+        case EHS_ML_HWACCEL_NONE:
+        default:
+        {
+            //TODO Are we sure we can just fall back to tflite for any model type?
+            return EHS_ML_NOT_IMPLEMENTED;
+            break;
+        }
+    }
+    
     /* 1. Get the Boxes, Scores and Keypoints arrays from the output tensors */
     EhsML_Tensor_t raw_boxes_tensor[ctx->output_tensor_count / 3];
     EhsML_Tensor_t scores_tensor[ctx->output_tensor_count / 3];
