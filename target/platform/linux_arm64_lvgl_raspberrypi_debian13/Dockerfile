@@ -115,8 +115,8 @@ RUN rm wiringpi_*_arm64.deb ; \
 # Only update, do not upgrade.
 # pigpio:arm64 package directly installs to `/usr/lib/` instead of `/usr/lib/aarch64-linux-gnu/` and it does not install libc6:arm64 while looking for it.
 ## So it's neccesary to install the other proper arm64 package first to get the libc6:arm64 properly installed
-RUN echo "deb [ trusted=yes ] http://archive.raspberrypi.com/debian/ bookworm main" | tee /etc/apt/sources.list.d/raspi.list
-RUN apt update && apt install -y pigpio:arm64
+# RUN echo "deb [ trusted=yes ] http://archive.raspberrypi.com/debian/ bookworm main" | tee /etc/apt/sources.list.d/raspi.list
+RUN apt install -y libpigpiod-if-dev:arm64 libpigpiod-if2-1t64:arm64
 
 
 # Machine Learning Support for RPI
