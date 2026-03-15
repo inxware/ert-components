@@ -35,6 +35,7 @@ EHS_FB_FUNCTIONS_END
 #define INX_ml_image_inference_ARG_load_model_load_errno 1
 #define INX_ml_image_inference_ARG_load_model_load_done 1
 #define INX_ml_image_inference_ARG_load_model_load_err 2
+#define INX_ml_image_inference_ARG_load_model_model_info 2
 #define INX_ml_image_inference_ARG_inference_stream_id 1
 #define INX_ml_image_inference_ARG_inference_inference_errno 1
 #define INX_ml_image_inference_ARG_inference_json 2
@@ -137,8 +138,8 @@ EHS_FB_DESTROY_FUNCTION(ml_image_inference)
 ehs_bool _check_file_extension(const ehs_char* file_path, const ehs_char *expected_ext)
 {
 	if (!file_path || !expected_ext) return EHS_FALSE;
-	ehs_char *dot = NULL;
-	ehs_char *_dot = file_path;
+	const ehs_char *dot = NULL;
+	const ehs_char *_dot = file_path;
 	ehs_uint32 file_path_len = EhsStrlen(file_path);
 	ehs_uint32 ext_len = EhsStrlen(expected_ext);
 	do {
@@ -187,8 +188,10 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 	printf("**** IMAGE_REF**** PATH=%s, for type %d (expected %d)",inx_ml_image_inference_state->Model_File_Path,inx_ml_image_inference_state->Model_File_Ext,EHS_ML_FILE_EXT_TFLITE);
 	switch ((EhsML_File_Ext_t)inx_ml_image_inference_state->Model_File_Ext) {
 		case EHS_ML_FILE_EXT_TFLITE:
-			// TFLITE
-			err = _check_file_extension(inx_ml_image_inference_state->Model_File_Path, "tfl") ? EHS_ML_OK : EHS_ML_MODEL_NAME_ERR;
+			/* Accept both .tfl and .tflite extensions */
+			err = (_check_file_extension(inx_ml_image_inference_state->Model_File_Path, "tfl") ||
+			       _check_file_extension(inx_ml_image_inference_state->Model_File_Path, "tflite"))
+			      ? EHS_ML_OK : EHS_ML_MODEL_NAME_ERR;
 			break;
 		case EHS_ML_FILE_EXT_ONNX:
 			// ONNX
@@ -248,6 +251,14 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 			inx_ml_image_inference_state->Conf_Thres,
 			inx_ml_image_inference_state->Thread_Number);
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, err, __func__, "Failed to create ML context!");
+
+		if (EHS_FB_OUT_CONNECTED_API2(INX_ml_image_inference_ARG_load_model_model_info)) {
+			EhsML_GetModelInfoJson(
+				&inx_ml_image_inference_state->ml_ctx,
+				szCanonicalFilePath,
+				EHS_FB_OUT_S_API2(INX_ml_image_inference_ARG_load_model_model_info),
+				EHS_STRING_LENGTH_MAX);
+		}
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_ml_image_inference_ARG_load_model_load_errno))
 		EHS_FB_OUT_I_API2(INX_ml_image_inference_ARG_load_model_load_errno) = 0;
@@ -257,6 +268,7 @@ err:
 	if (EHS_FB_OUT_CONNECTED_API2(INX_ml_image_inference_ARG_load_model_load_errno))
 		EHS_FB_OUT_I_API2(INX_ml_image_inference_ARG_load_model_load_errno) = err;
 	EHS_FB_FINISH(INX_ml_image_inference_ARG_load_model_load_err);
+	return;
 }//ICB FUNCTION load_model MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION inference MACRO START -- DO NOT ALTER
 /**
@@ -312,4 +324,5 @@ error:
 	if (EHS_FB_OUT_CONNECTED_API2(INX_ml_image_inference_ARG_inference_inference_errno))
 		EHS_FB_OUT_I_API2(INX_ml_image_inference_ARG_inference_inference_errno) = err;
 	EHS_FB_FINISH(INX_ml_image_inference_ARG_inference_inference_error);
+	return;
 }//ICB FUNCTION inference MACRO END -- DO NOT ALTER THIS LINE

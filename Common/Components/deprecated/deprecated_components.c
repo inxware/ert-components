@@ -27,6 +27,12 @@
 #include "dtv_remote1.h"
 #endif
 
+#ifdef EHS_MV_SUPPORT
+#ifdef EHS_ML_SUPPORT
+#include "inx-ml_frame_inference.h"
+#endif
+#endif
+
 #include "event_counter.h"
 #include "operator.h"
 #include "arraystring.h"
@@ -65,6 +71,9 @@ EHS_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_deprecated[] =
 //	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_DTV_REMOTE_NAME, DtvRemote),
 //	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_DTV_REMOTE1_NAME, DtvRemote1),
 #endif /* EHS_GUI_SUPPORT */
+#if defined(EHS_MV_SUPPORT) && defined(EHS_ML_SUPPORT)
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ml_frame_inference,INXWARE_FB_ID_ml_frame_inference,ml_frame_inference),
+#endif
 	/* eventCounter1.h */
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_EventCounterVersatile,EHS_FB_ID_EventCounterVersatile,EventCounterVersatile),
 	/* operator.h */

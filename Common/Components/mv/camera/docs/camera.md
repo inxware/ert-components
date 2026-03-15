@@ -31,3 +31,24 @@ Legend: ── Data | ►─ Event
 **Port Summary:**
 - **Left:**  5 ports (3 events, 2 data)
 - **Right:** 8 ports (4 events, 4 data)
+
+**Ports by Function:**
+
+*startCamera:*
+  - **start_cam** (Start Event)
+  - **device_id** (S) - Input
+  - **start_errno** (I) - Output
+  - **start_ok** (Finish Event)
+  - **start_error** (Finish Event)
+
+*stopCamera:*
+  - **stop_cam** (Start Event)
+  - **stopped** (Finish Event)
+
+*grabFrame:*
+  - **capture** (Start Event)
+  - **im_show** (B) - Input
+  - **frame_width** (I) - Output
+  - **frame_height** (I) - Output
+  - **frame_id** (I) - Output
+  - **captur_ok** (Finish Event)

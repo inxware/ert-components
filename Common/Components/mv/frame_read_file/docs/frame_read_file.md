@@ -21,3 +21,13 @@ Legend: ── Data | ►─ Event
 **Port Summary:**
 - **Left:**  2 ports (1 events, 1 data)
 - **Right:** 4 ports (2 events, 2 data)
+
+**Ports by Function:**
+
+*run_read_file:*
+  - **run_fmt** (Start Event)
+  - **filepath** (S) - Input
+  - **start_errno** (I) - Output
+  - **formated_frame_id** (I) - Output
+  - **start_ok** (Finish Event)
+  - **start_error** (Finish Event)

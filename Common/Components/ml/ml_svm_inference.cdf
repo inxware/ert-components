@@ -3,21 +3,21 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2024-08-14T10:46:06Z</CreationDate>
-        <UpdatedDate>2025-06-12T17:40:50Z</UpdatedDate>
+        <UpdatedDate>2024-08-14T10:48:28Z</UpdatedDate>
     </CDFInfo>
     <Description>
-        <ShortDescription>Machine learning Tensorflow Lite model from image frame.</ShortDescription>
-        <LongDescription>Pass image frame to machine learning Tensorflow Lite model. Supports yolov5 ...</LongDescription>
+        <ShortDescription>Run machine learning models with limited resources</ShortDescription>
+        <LongDescription>Run machine learning models with limited resources like a few kilobytes of memory.</LongDescription>
         <UserName/>
         <Menu>
             Machine Learning
-            <Menu>Tensorflow Lite from frame</Menu>
+            <Menu>SVM Inference</Menu>
         </Menu>
     </Description>
     <Block>
         <Type>Data</Type>
-        <Height>125</Height>
-        <Text>ML TFLite</Text>
+        <Height>95</Height>
+        <Text>ML</Text>
         <TextX>25</TextX>
         <TextY>5</TextY>
         <TextScale>1.25</TextScale>
@@ -27,63 +27,23 @@
     </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
-        <Class>TF_Lite_from_frame</Class>
+        <Class>ml_svm_inference</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0xFB15</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>93145718</FbApiDescriptorHash_CRC32>
+        <NameHash_CRC16>0x1005</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>a8cfdb74</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters>
         <Parameter>
-            <Name>Model Type</Name>
+            <Name>model_type</Name>
             <DataType>I</DataType>
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
-            <MaxValue>99999999</MaxValue>
+            <MaxValue>10</MaxValue>
             <Description>Model Type</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Conf Thres</Name>
-            <DataType>F</DataType>
-            <DefaultValue>0.5</DefaultValue>
-            <MinValue>0.0</MinValue>
-            <MaxValue>1.0</MaxValue>
-            <Description>Confidence Threshold</Description>
-            <ListPlacement>2</ListPlacement>
-            <ArgPlacement>2</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Thread Count</Name>
-            <DataType>I</DataType>
-            <DefaultValue>2</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>20</MaxValue>
-            <Description>Number of model processing  threads</Description>
-            <ListPlacement>3</ListPlacement>
-            <ArgPlacement>3</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Flat JSON</Name>
-            <DataType>B</DataType>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
-            <Description>Use a flat JSON output format</Description>
-            <ListPlacement>4</ListPlacement>
-            <ArgPlacement>4</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>Use Application Dir</Name>
-            <DataType>B</DataType>
-            <DefaultValue>0</DefaultValue>
-            <MinValue>0</MinValue>
-            <MaxValue>1</MaxValue>
-            <Description>Load model in Application Directory rather than the user data directory</Description>
-            <ListPlacement>5</ListPlacement>
-            <ArgPlacement>5</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>
@@ -157,21 +117,10 @@
             </Function>
         </Port>
         <Port>
-            <DataType>S</DataType>
-            <Description>info</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>95</XCoordinate>
-            <YCoordinate>42</YCoordinate>
-            <CName>model_info</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>1</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
             <Description>do</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>57</YCoordinate>
+            <YCoordinate>47</YCoordinate>
             <CName>do_inference</CName>
             <Function argument="0">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -182,7 +131,7 @@
             <Description>--</Description>
             <PortType>FinishPort</PortType>
             <XCoordinate>95</XCoordinate>
-            <YCoordinate>55</YCoordinate>
+            <YCoordinate>47</YCoordinate>
             <Wcet>0</Wcet>
             <CName>done_inference</CName>
             <Function argument="1">
@@ -191,48 +140,36 @@
         </Port>
         <Port>
             <DataType>S</DataType>
-            <Description>json</Description>
-            <PortType>OutputPort</PortType>
-            <XCoordinate>95</XCoordinate>
-            <YCoordinate>65</YCoordinate>
-            <CName>output</CName>
-            <Function argument="2">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
-            <DataType>I</DataType>
-            <Description>stream_id</Description>
+            <Description>data</Description>
             <PortType>InputPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>67</YCoordinate>
-            <CName>frame_id</CName>
+            <YCoordinate>57</YCoordinate>
+            <CName>data</CName>
             <Function argument="1">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
-            <Description>err</Description>
-            <PortType>FinishPort</PortType>
+            <DataType>S</DataType>
+            <Description>output</Description>
+            <PortType>OutputPort</PortType>
             <XCoordinate>95</XCoordinate>
-            <YCoordinate>75</YCoordinate>
-            <Wcet>0</Wcet>
-            <CName>inference_error</CName>
-            <Function argument="2">
+            <YCoordinate>57</YCoordinate>
+            <CName>output</CName>
+            <Function argument="1">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>
         </Port>
         <Port>
             <DataType>I</DataType>
-            <Description>errno</Description>
+            <Description>class/regression</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>95</XCoordinate>
-            <YCoordinate>85</YCoordinate>
-            <CName>inference_errno</CName>
-            <Function argument="1">
+            <YCoordinate>67</YCoordinate>
+            <CName>class_regression</CName>
+            <Function argument="2">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
             </Function>
         </Port>
-        
     </Ports>
 </Component>

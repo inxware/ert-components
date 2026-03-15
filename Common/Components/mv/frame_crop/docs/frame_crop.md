@@ -26,3 +26,17 @@ Legend: ── Data | ►─ Event
 **Port Summary:**
 - **Left:**  6 ports (1 events, 5 data)
 - **Right:** 4 ports (2 events, 2 data)
+
+**Ports by Function:**
+
+*run_cropping:*
+  - **run_fmt** (Start Event)
+  - **frame_id** (I) - Input
+  - **crop_x1** (I) - Input
+  - **crop_y1** (I) - Input
+  - **crop_x2** (I) - Input
+  - **crop_y2** (I) - Input
+  - **start_errno** (I) - Output
+  - **formated_frame_id** (I) - Output
+  - **start_ok** (Finish Event)
+  - **start_error** (Finish Event)

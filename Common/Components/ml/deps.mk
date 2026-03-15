@@ -14,5 +14,5 @@
 # 
 
 
-ml_components.$(OBJ) :  inx-tf_lite_frame.h
+ml_components.$(OBJ) :  inx-ml_image_inference.h inx-ml_svm_inference.h
 

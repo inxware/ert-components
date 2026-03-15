@@ -19,17 +19,15 @@
 
 #ifdef EHS_ML_SUPPORT
 
-#include "inx-tf_lite_frame.h"
-#include "inx-tflm.h"
 #include "inx-ml_image_inference.h"
+#include "inx-ml_svm_inference.h"
 
 EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_ml[] =
 {
-#ifdef EHS_MV_SUPPORT // this FB rely on the camera support to obtain frame
-	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_TF_Lite_from_frame,INXWARE_FB_ID_TF_Lite_from_frame,TF_Lite_from_frame),
+#ifdef EHS_MV_SUPPORT /* these FBs rely on camera support to obtain frames */
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ml_image_inference,INXWARE_FB_ID_ml_image_inference,ml_image_inference),
 #endif
-	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_TFLM,INXWARE_FB_ID_TFLM,TFLM),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ml_svm_inference,INXWARE_FB_ID_ml_svm_inference,ml_svm_inference),
 	{0}
 };
 

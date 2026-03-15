@@ -415,9 +415,9 @@ void AssertTimeWindowPorts(EhsFunctionInstanceDataType* pFIdata,EhsPlayManagerTy
 
 static void PrintEvent(EhsPlayManagerEvent *pEvent)
 {
-    EHSH_LOG_INFO("//EVENT//\neventTime=%d\ntype=%u\npPlaylist=%s\npMediaSource=%s, region=%s, section=%s, ID=%u, TYPE=%s, ListType=%u Addr=%x",
+    EHSH_LOG_INFO("//EVENT//\neventTime=%d\ntype=%u\npPlaylist=%s\npMediaSource=%s, region=%s, section=%s, ID=%u, TYPE=%s, ListType=%u Addr=%p",
                   (unsigned int)pEvent->eventTime, (unsigned int)pEvent->type, pEvent->pPlaylist,
-                  pEvent->pMediaSource,pEvent->region,pEvent->layoutSection,(unsigned int)pEvent->WaitingForObjectUniqueID,pEvent->srcType,(unsigned int)pEvent->eventListType,(unsigned int)pEvent);
+                  pEvent->pMediaSource,pEvent->region,pEvent->layoutSection,(unsigned int)pEvent->WaitingForObjectUniqueID,pEvent->srcType,(unsigned int)pEvent->eventListType,(void*)pEvent);
 }
 
 EHS_LOCAL ehs_bool ClearMediaList(EhsPlayManagerType* pPlayManager, ehs_bool marked_only);

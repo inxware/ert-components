@@ -48,4 +48,10 @@ ifdef EHS_VIDEO_SUPPORT
 # OBJECTS += calc_i.$(OBJ) # already included in core.mk
 # OBJECTS += dtv_remote.$(OBJ) # already included in dtv.mk
 endif
+ifdef EHS_MV_SUPPORT
+ifdef EHS_ML_SUPPORT
+OBJECTS += inx-ml_frame_inference.$(OBJ)
+endif
+endif
+
 VPATH+=: $(EHS_COMMON_TOOLKIT_DEPRECATE_PATH)

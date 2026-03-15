@@ -1,8 +1,8 @@
-TF_Lite_from_frame
+ml_frame_inference
 Pass image frame to machine learning Tensorflow Lite model. Supports yolov5 ...
 Menu: 
-            Machine Learning
-             > Tensorflow Lite from frame
+            Deprecated
+             > Machine Learning > Tensorflow Lite from frame
 Type: Data | Height: 125
 
             ┌─────────────────────────┐

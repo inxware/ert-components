@@ -16,7 +16,7 @@
     </Description>
     <Block>
         <Type>Data</Type>
-        <Height>115</Height>
+        <Height>125</Height>
         <Text>IMG Infer</Text>
         <TextX>25</TextX>
         <TextY>5</TextY>
@@ -173,6 +173,17 @@
             <YCoordinate>35</YCoordinate>
             <CName>load_errno</CName>
             <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>model info</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>85</XCoordinate>
+            <YCoordinate>45</YCoordinate>
+            <CName>model_info</CName>
+            <Function argument="2">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>

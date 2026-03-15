@@ -30,3 +30,22 @@ Legend: ── Data | ►─ Event
 **Port Summary:**
 - **Left:**  8 ports (2 events, 6 data)
 - **Right:** 5 ports (3 events, 2 data)
+
+**Ports by Function:**
+
+*config:*
+  - **config** (Start Event)
+  - **quad_sigma** (F) - Input
+  - **quad_decimate** (F) - Input
+  - **decode_shapening** (F) - Input
+  - **refine_edge** (B) - Input
+  - **apriltag_family** (I) - Input
+  - **config_OK** (Finish Event)
+
+*detect:*
+  - **detect** (Start Event)
+  - **stream_id** (I) - Input
+  - **errno** (I) - Output
+  - **json** (S) - Output
+  - **detect_done** (Finish Event)
+  - **err** (Finish Event)

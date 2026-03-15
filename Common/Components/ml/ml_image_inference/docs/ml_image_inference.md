@@ -3,12 +3,13 @@ Inference of data input based on loaded model with vaiants like yolov8-seg. Hard
 Menu: 
             Machine Learning
              > Image Inference
-Type: Data | Height: 115
+Type: Data | Height: 125
 
             ┌─────────────────────────┐
       load►─┤                         ├►─-- 
       path──┤                         ├►─err 
             │                         ├──errno (I)
+            │                         ├──model info (S)
             │        IMG Infer        │
         do►─┤                         ├►─-- 
  stream_id──┤                         ├►─err 
@@ -29,4 +30,22 @@ Legend: ── Data | ►─ Event
 
 **Port Summary:**
 - **Left:**  4 ports (2 events, 2 data)
-- **Right:** 7 ports (4 events, 3 data)
+- **Right:** 8 ports (4 events, 4 data)
+
+**Ports by Function:**
+
+*load_model:*
+  - **load** (Start Event)
+  - **model_path** (S) - Input
+  - **load_errno** (I) - Output
+  - **model_info** (S) - Output
+  - **load_done** (Finish Event)
+  - **load_err** (Finish Event)
+
+*inference:*
+  - **inference** (Start Event)
+  - **stream_id** (I) - Input
+  - **inference_errno** (I) - Output
+  - **json** (S) - Output
+  - **inference_done** (Finish Event)
+  - **inference_error** (Finish Event)

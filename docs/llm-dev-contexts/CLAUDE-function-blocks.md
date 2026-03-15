@@ -86,11 +86,30 @@ Input ports (left, X=0) and their paired output/finish ports (right, X=95) stay 
 
 ## Function Block Help Files
 
-### Location
+### Location and naming — CRITICAL for Lucid
+
+**The CDF filename, the docs subdirectory name, and the `<Class>` element inside the CDF must all be identical.** Lucid uses the `<Class>` value to locate the help file via the directory name — a deploy script handles the final `help.html` filename when publishing to Lucid.
+
 Each component gets a `docs/help.html` in a subdirectory alongside its `.cdf`:
 ```
 Common/Components/<category>/<block_name>/docs/help.html
 Common/Components/<category>/<block_name>.cdf
+```
+
+The **directory** name must match `<Class>`. For a block with `<Class>ml_svm_inference</Class>`:
+```
+Common/Components/ml/ml_svm_inference.cdf               ← CDF filename = Class name
+Common/Components/ml/ml_svm_inference/docs/help.html    ← directory name = Class name
+Common/Components/ml/ml_svm_inference/docs/ml_svm_inference.md
+```
+
+If the CDF filename, docs directory, or `<Class>` diverge, Lucid cannot find the help file. When renaming a block, rename all three: the `.cdf` file, the docs directory, and `<Class>` inside the CDF.
+
+The markdown doc is regenerated with:
+```bash
+python3 scripts/software-utilities/cdf_to_ascii.py \
+    Common/Components/<cat>/<Class>.cdf \
+    > Common/Components/<cat>/<Class>/docs/<Class>.md
 ```
 
 ### Template
@@ -115,6 +134,64 @@ Always: **In Events → Data In → Out Events → Data Out**
 | `portsInt` | Integer (I) data ports |
 | `portsBool` | Boolean (B) data ports |
 | `portsReal` | Float/Real (F) data ports |
+
+---
+
+## Adding a port to an existing function block
+
+Four files must change in sync. Using `model_info OutputPort/S` on `load_model` as the canonical example:
+
+### 1. CDF file — add the `<Port>` element
+
+Place it after the last existing port at the same arg level. Set `argument=` to match the arg number (here `2`, same as the error FinishPort). Increment `<YCoordinate>` by 10 from the previous port on the same side. Increase `<Height>` in `<Block>` by 10.
+
+```xml
+<Port>
+    <DataType>S</DataType>
+    <Description>model info</Description>
+    <PortType>OutputPort</PortType>
+    <XCoordinate>85</XCoordinate>
+    <YCoordinate>45</YCoordinate>
+    <CName>model_info</CName>
+    <Function argument="2">
+        <Function_ERT1_ID>1</Function_ERT1_ID>
+    </Function>
+</Port>
+```
+
+### 2. C file — add a friendly label macro
+
+Inside the `//ICB FRIENDLY LABELS` block:
+```c
+#define INX_<FB>_ARG_<function>_model_info 2   // must match argument= in CDF
+```
+
+### 3. C file — call the output in the run function
+
+Inside the relevant `EHS_FB_RUN_FUNCTION`, write the output before firing the success FinishPort:
+```c
+if (EHS_FB_OUT_CONNECTED_API2(INX_<FB>_ARG_<function>_model_info)) {
+    EhsML_GetModelInfoJson(
+        &state->ml_ctx,
+        szCanonicalFilePath,
+        EHS_FB_OUT_S_API2(INX_<FB>_ARG_<function>_model_info),
+        EHS_STRING_LENGTH_MAX);
+}
+```
+
+### 4. Regenerate the markdown doc
+
+```bash
+name=ml_image_inference   # or whatever the component is
+python3 scripts/software-utilities/cdf_to_ascii.py \
+    Common/Components/ml/${name}.cdf \
+    > Common/Components/ml/${name}/docs/${name}.md
+```
+
+**Rules to remember:**
+- An `OutputPort/S` at `argument=2` is valid alongside the error `FinishPort` at `argument=2` — they use different macros (`EHS_FB_OUT_S_API2` vs `EHS_FB_FINISH`) so there is no conflict.
+- Only ONE `OutputPort` of each data type per argument number per function.
+- The CDF `<Height>` must be increased by 10 for each new port added.
 
 ---
 
