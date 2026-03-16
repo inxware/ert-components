@@ -14,6 +14,7 @@ typedef struct inx_Camera_state
 	EhsCamera camera;
 	EhsCameraFrame frame;
 	ehs_bool im_show;
+	EhsCameraOpenCL_t opencl_mode; /* 0=disabled (default), 1=OpenCL GPU */
 } inx_Camera_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
@@ -30,6 +31,7 @@ EHS_FB_FUNCTIONS_END
 #define INX_Camera_ARG_startCamera_start_errno 1
 #define INX_Camera_ARG_startCamera_start_ok 1
 #define INX_Camera_ARG_startCamera_start_error 2
+#define INX_Camera_ARG_startCamera_opencl_mode 2
 #define INX_Camera_ARG_grabFrame_im_show 1
 #define INX_Camera_ARG_grabFrame_frame_width 1
 #define INX_Camera_ARG_grabFrame_frame_height 2
@@ -85,6 +87,9 @@ EHS_FB_INIT_FUNCTION(Camera)
 		pParams = EhsGetUint8FromString(&isAsync, pParams);
 		pParams = EhsGetUint8FromString(&(inx_Camera_state->im_show), pParams);
 		pParams = EhsGetUint8FromString(&(inx_Camera_state->camera.greyscale), pParams);
+		ehs_sint32 opencl = 0;
+		pParams = EhsGetSint32FromString(&opencl, pParams);
+		inx_Camera_state->opencl_mode = (opencl) ? EHS_CAM_ACCELERATION_ENABLED : EHS_CAM_ACCELERATION_DISABLED;
 		inx_Camera_state->camera.async = (isAsync) ? EHS_TRUE : EHS_FALSE;
 		if(inx_Camera_state->camera_id && EhsStrcmp(inx_Camera_state->camera_id, "NULL") == 0)
 		{
@@ -127,6 +132,13 @@ EHS_FB_RUN_FUNCTION(Camera_startCamera)
 	if (EHS_FB_IN_CONNECTED_API2(INX_Camera_ARG_startCamera_device_id)){
 		EhsStrcpy(inx_Camera_state->camera_id, EHS_FB_IN_S_API2(INX_Camera_ARG_startCamera_device_id));
 	}
+	/* Allow runtime override of opencl_mode via input port */
+	if (EHS_FB_IN_CONNECTED_API2(INX_Camera_ARG_startCamera_opencl_mode)){
+		inx_Camera_state->opencl_mode = EHS_FB_IN_I_API2(INX_Camera_ARG_startCamera_opencl_mode)
+		                                ? EHS_CAM_ACCELERATION_ENABLED : EHS_CAM_ACCELERATION_DISABLED; // todo allow this to be any enumeration for specifics
+	}
+	/* Propagate opencl_mode to the frame so all downstream MV ops use the right path */
+	inx_Camera_state->frame.opencl_mode = inx_Camera_state->opencl_mode;
 
 	EhsCameraError err = EhsCameraStart(&inx_Camera_state->camera, inx_Camera_state->camera_id);
 	

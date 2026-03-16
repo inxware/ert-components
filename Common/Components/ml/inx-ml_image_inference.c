@@ -306,6 +306,9 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_inference)
 		if (EHS_FALSE == EhsCameraFrameGetData(frame, &frame_data, &frame_size)) err = EHS_ML_INVALID_FRAME;
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, error, __func__, "Failed to get frame data!");
 
+		/* If the frame was captured with OpenCL, download GPU→CPU before
+		 * passing to TFLite or Hailo which require CPU-accessible data. */
+		EhsCameraFrameEnsureCPU(frame);
 		err = EhsML_SetInputData(&inx_ml_image_inference_state->ml_ctx, frame_data, frame_size);
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, error, __func__, "Failed to set input data!");
 

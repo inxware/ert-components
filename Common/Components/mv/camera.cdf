@@ -16,7 +16,7 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Height>130</Height>
+        <Height>140</Height>
         <Text>Camera</Text>
         <TextX>25</TextX>
         <TextY>5</TextY>
@@ -105,6 +105,16 @@
             <ListPlacement>7</ListPlacement>
             <ArgPlacement>7</ArgPlacement>
         </Parameter>
+        <Parameter>
+            <Name>OpenCL Acceleration</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>OpenCL GPU acceleration for MV pipeline operations: 0=disabled (cv::Mat, CPU default), 1=enabled (cv::UMat, OpenCL). When enabled, resize/crop/convert run on the OpenCL GPU. Call EhsCameraFrameEnsureCPU before ML inference (TFLite/Hailo). Not supported on Raspberry Pi VideoCore.</Description>
+            <ListPlacement>8</ListPlacement>
+            <ArgPlacement>8</ArgPlacement>
+        </Parameter>
     </Parameters>
     <Functions>
         <Function>
@@ -167,6 +177,17 @@
             <YCoordinate>22</YCoordinate>
             <Wcet>0</Wcet>
             <CName>start_error</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>OpenCL: 0=off 1=on</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>32</YCoordinate>
+            <CName>opencl_mode</CName>
             <Function argument="2">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>

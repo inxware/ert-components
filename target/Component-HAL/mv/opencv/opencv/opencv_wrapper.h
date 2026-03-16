@@ -22,10 +22,12 @@ typedef struct cv_camera {
 } cv_camera;
 /* cv_mat now embeds dimensions & channels */
 typedef struct cv_mat {
-    void* impl;     /* shared_ptr<cv::Mat> on the C++ side   */
-    int   width;    /* cols  */
-    int   height;   /* rows  */
-    int   channels; /* always 3 (BGR) for this wrapper       */
+    void* impl;        /* shared_ptr<cv::Mat>  when opencl_mode=0 (CPU)
+                        * shared_ptr<cv::UMat> when opencl_mode=1 (OpenCL GPU) */
+    int   width;       /* cols  */
+    int   height;      /* rows  */
+    int   channels;    /* always 3 (BGR) for this wrapper       */
+    int   opencl_mode; /* 0 = cv::Mat (CPU default); 1 = cv::UMat (OpenCL) */
 } cv_mat;
 
 /* Return codes */
@@ -75,6 +77,15 @@ int cv_mat_write(const char* filename, const cv_mat* src);
 
 /* Release a cv_mat obtained from cv_cam_read_mat.                  */
 void cv_mat_release(cv_mat* mat);
+
+/* Like cv_cam_read but uploads the frame to a cv::UMat (OpenCL GPU).
+ * Sets m->opencl_mode = 1. Use when the OpenCL pipeline is active.  */
+int  cv_cam_read_opencl(cv_camera* cam, cv_mat* m);
+
+/* Download a cv::UMat (OpenCL) frame to a CPU cv::Mat in-place.
+ * Sets m->opencl_mode = 0 on success. No-op if already CPU.
+ * Must be called before cv_mat_data() on an OpenCL frame.           */
+int  cv_mat_ensure_cpu(cv_mat* m);
 
 /* Get pointer to raw pixel data (valid as long as cv_mat is alive).
  * This may point to uint8_t*, float*, etc. depending on mat type.

@@ -36,6 +36,24 @@ typedef enum {
     EHS_CAM_MEM_ERR
 } EhsCameraError;
 
+/**
+ * OpenCL acceleration mode for camera frames.
+ * When enabled, MV pipeline operations (resize, crop, convert) use cv::UMat
+ * and run on the OpenCL GPU. The frame data stays on the GPU between operations.
+ * ML inference frameworks (TFLite, Hailo) require CPU data — call
+ * EhsCameraFrameEnsureCPU() before EhsML_SetInputData to sync GPU→CPU once.
+ *
+ * EHS_CAM_ACCELERATION_DISABLED (0) — default, all operations use cv::Mat on CPU.
+ * EHS_CAM_ACCELERATION_ENABLED  (1) — MV operations use cv::UMat via OpenCL.
+ */
+typedef enum {
+    EHS_CAM_ACCELERATION_DISABLED = 0,
+    EHS_CAM_ACCELERATION_ENABLED  = 1,
+    EHS_CAM_ACCELERATION_OPENCL   = 2
+    EHS_CAM_ACCELERATION_OPENVX   = 3,
+    EHS_CAM_ACCELERATION_CUDA
+} EhsCameraOpenCL_t;
+
 typedef enum {
     EHS_CAM_FMT_DEF = 0,       // default
     EHS_CAM_FMT_8UC1,          // 8-bit unsigned, 1 channel (grayscale)
@@ -50,12 +68,17 @@ typedef enum {
 
 extern ehs_uint8 gEhsCameraDataFormatChanLen[EHS_CAM_FMT_MAX];
 
-    typedef struct {
-    void* frameObj;
-    ehs_sint32 id; // or index
-    ehs_uint32 width;
-    ehs_uint32 height;
+typedef struct {
+    void*              frameObj;
+    ehs_sint32         id;          /* frame slot index */
+    ehs_uint32         width;
+    ehs_uint32         height;
     EhsCameraDataFormat fmt;
+    EhsCameraOpenCL_t  opencl_mode; /* EHS_CAM_ACCELERATION_DISABLED = cv::Mat (CPU);
+                                     * EHS_CAM_ACCELERATION_ENABLED  = cv::UMat (OpenCL GPU).
+                                     * Set by the Camera FB at startCamera time.
+                                     * Propagated to all downstream MV frames (resize, crop, etc.).
+                                     * Call EhsCameraFrameEnsureCPU() before passing to ML. */
 } EhsCameraFrame;
 
 typedef struct {
@@ -110,6 +133,20 @@ EhsCameraFrame* EhsCameraFrameGetById(ehs_sint32 id);
 // Retrieves the raw frame data buffer and its size from a frame.
 // Returns true on success, false if data is unavailable.
 ehs_bool EhsCameraFrameGetData(EhsCameraFrame* frame, void** frame_data, ehs_uint32* frame_size);
+
+/**
+ * @brief Ensure frame data is in CPU-accessible memory (cv::Mat).
+ *
+ * If the frame was captured/processed with OpenCL (opencl_mode=EHS_CAM_ACCELERATION_ENABLED),
+ * its internal buffer is a cv::UMat on the GPU. Call this once before passing
+ * the frame to TFLite or Hailo via EhsML_SetInputData — it downloads the GPU
+ * buffer to a CPU cv::Mat and clears opencl_mode so subsequent calls are no-ops.
+ *
+ * Safe to call on CPU frames (opencl_mode=EHS_CAM_ACCELERATION_DISABLED) — returns immediately.
+ *
+ * @return EHS_TRUE on success, EHS_FALSE if the download failed.
+ */
+ehs_bool EhsCameraFrameEnsureCPU(EhsCameraFrame* frame);
 
 // Reads file image into 'frame' object from a file , suports jpg, png ...
 // Returns true on success.

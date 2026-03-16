@@ -70,6 +70,12 @@ ehs_bool EhsCameraFrameFormat(EhsCameraFrame* src, EhsCameraFrame* dst, EhsCamer
     return EHS_TRUE;
 }
 
+ehs_bool EhsCameraFrameEnsureCPU(EhsCameraFrame* frame)
+{
+    (void)frame; /* stubbed — no GPU on this target, frame is always CPU */
+    return EHS_TRUE;
+}
+
 ehs_bool EhsCameraFrameReadFromFile(EhsCameraFrame* frame, const ehs_char* filepath)
 {
     return EHS_TRUE;

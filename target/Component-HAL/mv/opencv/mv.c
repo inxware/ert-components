@@ -43,6 +43,18 @@ void EhsCameraFrameDestroy(EhsCameraFrame* frame)
 }
 
 
+ehs_bool EhsCameraFrameEnsureCPU(EhsCameraFrame* frame)
+{
+    if (!frame || !frame->frameObj) return EHS_FALSE;
+    if (frame->opencl_mode == EHS_CAM_ACCELERATION_DISABLED) return EHS_TRUE; /* already CPU */
+    int result = cv_mat_ensure_cpu((cv_mat*)frame->frameObj);
+    if (result == CV_CAM_OK) {
+        frame->opencl_mode = EHS_CAM_ACCELERATION_DISABLED;
+        return EHS_TRUE;
+    }
+    return EHS_FALSE;
+}
+
 ehs_bool EhsCameraFrameGetData(EhsCameraFrame* frame, void** frame_data, ehs_uint32* frame_size)
 {
     if(!frame || !frame->frameObj || !frame_data || !frame_size) return EHS_FALSE;
@@ -74,11 +86,11 @@ ehs_bool EhsCameraFrameCrop(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32
 {
     if(!src || !src->frameObj || !dst || !dst->frameObj || (x1 > x2) || (y1 > y2)) return EHS_FALSE;
     ehs_uint32 width = x2-x1, height = y2-y1;
-    cv_mat_release((cv_mat*)dst->frameObj);
     if(CV_CAM_OK == cv_mat_crop((cv_mat*)src->frameObj, (cv_mat*)dst->frameObj, x1, y1, width, height)){
         dst->width = width;
         dst->height = height;
         dst->fmt = src->fmt;
+        dst->opencl_mode = src->opencl_mode;
 #ifdef EHS_OPENCV_CROP_DEBUG_PREVIEW
 EHS_MV_SUPPORT
  //      cv_mat_show("debug_crop", (cv_mat*)dst->frameObj, 1);
@@ -91,12 +103,12 @@ EHS_MV_SUPPORT
 ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint32 width, ehs_uint32 height, ehs_sint32 interp)
 {
     if(!src || !src->frameObj || !dst || !dst->frameObj) return EHS_FALSE;
-    /* Do NOT call cv_mat_release(dst) here — cv_mat_resize reuses the existing
-     * cv::Mat buffer on repeated calls, avoiding a heap free+alloc every frame. */
+    /* cv_mat_resize manages dst buffer reuse internally (UMat or Mat). */
     if(CV_CAM_OK == cv_mat_resize((cv_mat*)src->frameObj, (cv_mat*)dst->frameObj, width, height, interp)){
         dst->width = width;
         dst->height = height;
         dst->fmt = src->fmt;
+        dst->opencl_mode = src->opencl_mode;
 #ifdef EHS_OPENCV_CROP_DEBUG_PREVIEW
        cv_mat_show("debug_resize", (cv_mat*)dst->frameObj, 1);
 #endif

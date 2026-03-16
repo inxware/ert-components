@@ -123,7 +123,12 @@ ehs_bool EhsCameraGrabFrame(EhsCamera* camera, EhsCameraFrame* frame, ehs_bool s
 
     cv_mat* cv_frameObj = (cv_mat*)frame->frameObj;
     cv_mat_release(cv_frameObj);
-    if(cv_cam_read((cv_camera*)camera->camera_ctx, cv_frameObj) == CV_CAM_OK){
+    /* Use OpenCL (UMat) or CPU (Mat) capture depending on frame->opencl_mode. */
+    /* For OpenCL builds the default acceleration mode is OpenCL */
+    int read_result = ((frame->opencl_mode == EHS_CAM_ACCELERATION_ENABLED) || (frame->opencl_mode == EHS_CAM_ACCELERATION_OPENCL))
+        ? cv_cam_read_opencl((cv_camera*)camera->camera_ctx, cv_frameObj)
+        : cv_cam_read       ((cv_camera*)camera->camera_ctx, cv_frameObj);
+    if(read_result == CV_CAM_OK){
         frame->width = cv_frameObj->width;
         frame->height = cv_frameObj->height;
         frame->fmt = EHS_CAM_FMT_DEF;

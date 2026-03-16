@@ -159,11 +159,21 @@ static inline CameraWrapper* to_cpp(cv_camera* c) {
     return c ? static_cast<CameraWrapper*>(c->impl) : nullptr;
 }
 
-/* A cv_mat is a heap-allocated shared_ptr<cv::Mat>.
-   This lets many C functions share the same underlying pixels.   */
-using MatPtr = std::shared_ptr<cv::Mat>;
-static inline MatPtr* to_mat(cv_mat* m) {
-    return m ? static_cast<MatPtr*>(m->impl) : nullptr;
+/* A cv_mat wraps either a shared_ptr<cv::Mat> (CPU, opencl_mode=0)
+   or a shared_ptr<cv::UMat> (OpenCL GPU, opencl_mode=1).           */
+using MatPtr  = std::shared_ptr<cv::Mat>;
+using UMatPtr = std::shared_ptr<cv::UMat>;
+
+static inline MatPtr*  to_mat (cv_mat* m) { return m && !m->opencl_mode ? static_cast<MatPtr*> (m->impl) : nullptr; }
+static inline UMatPtr* to_umat(cv_mat* m) { return m &&  m->opencl_mode ? static_cast<UMatPtr*>(m->impl) : nullptr; }
+
+/* Helper: release whatever is stored in impl (Mat or UMat). */
+static void cv_mat_release_impl(cv_mat* m)
+{
+    if (!m || !m->impl) return;
+    if (m->opencl_mode) { delete static_cast<UMatPtr*>(m->impl); }
+    else                { delete static_cast<MatPtr*> (m->impl); }
+    m->impl = nullptr;
 }
 
 /* ============================================================ *
@@ -276,17 +286,62 @@ int cv_mat_write(const char* filename, const cv_mat* src)
 
 void cv_mat_release(cv_mat* m)
 {
-    MatPtr* holder = to_mat(m);
-    if (holder) {
-        delete holder;           /* drops shared_ptr refcount */
-        m->impl = nullptr;
-    }
+    cv_mat_release_impl(m);
+}
+
+int cv_cam_read_opencl(cv_camera* cam, cv_mat* m)
+{
+    /* Capture a CPU frame then upload to UMat for the OpenCL pipeline. */
+    if (!cam || !m) return CV_CAM_READ_ERR;
+    CameraWrapper* cpp = to_cpp(cam);
+    if (!cpp) return CV_CAM_READ_ERR;
+
+    cv::Mat frame;
+    if (!cpp->read(frame)) return CV_CAM_READ_ERR;
+
+    cv_mat_release_impl(m); /* free any previous buffer */
+
+    cv::UMat u_frame;
+    frame.copyTo(u_frame); /* upload CPU→GPU */
+
+    auto* holder = new (std::nothrow) UMatPtr(std::make_shared<cv::UMat>(std::move(u_frame)));
+    if (!holder) return CV_CAM_ALLOC_ERR;
+
+    m->impl        = holder;
+    m->opencl_mode = 1;
+    m->width       = frame.cols;
+    m->height      = frame.rows;
+    m->channels    = frame.channels();
+    return CV_CAM_OK;
+}
+
+int cv_mat_ensure_cpu(cv_mat* m)
+{
+    /* No-op if already CPU. */
+    if (!m || !m->impl || !m->opencl_mode) return CV_CAM_OK;
+
+    auto sp_umat = *(static_cast<UMatPtr*>(m->impl));
+    cv::Mat cpu_mat = sp_umat->getMat(cv::ACCESS_READ).clone();
+
+    cv_mat_release_impl(m); /* free UMat */
+
+    auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(cpu_mat)));
+    if (!holder) return CV_CAM_ALLOC_ERR;
+
+    m->impl        = holder;
+    m->opencl_mode = 0;
+    return CV_CAM_OK;
 }
 
 void* cv_mat_data(const cv_mat* mat)
 {
     if (!mat || !mat->impl) return nullptr;
-    auto sp = *(reinterpret_cast<const std::shared_ptr<cv::Mat>*>(mat->impl));
+    /* If frame is on the GPU, download to CPU first (mutate is intentional —
+     * cv_mat_data is by definition a CPU-access operation). */
+    if (mat->opencl_mode) {
+        cv_mat_ensure_cpu(const_cast<cv_mat*>(mat));
+    }
+    auto sp = *(static_cast<const MatPtr*>(mat->impl));
     if (!sp || sp->empty()) return nullptr;
     return static_cast<void*>(sp->data);
 }
@@ -294,9 +349,14 @@ void* cv_mat_data(const cv_mat* mat)
 unsigned int cv_mat_size_bytes(const cv_mat* mat)
 {
     if (!mat || !mat->impl) return 0;
-    auto sp = *(reinterpret_cast<const std::shared_ptr<cv::Mat>*>(mat->impl));
+    if (mat->opencl_mode) {
+        auto sp = *(static_cast<const UMatPtr*>(mat->impl));
+        if (!sp || sp->empty()) return 0;
+        return static_cast<unsigned int>(sp->total() * sp->elemSize());
+    }
+    auto sp = *(static_cast<const MatPtr*>(mat->impl));
     if (!sp || sp->empty()) return 0;
-    return static_cast<unsigned int>( sp->total() * sp->elemSize() );
+    return static_cast<unsigned int>(sp->total() * sp->elemSize());
 }
 
 int cv_mat_convert_to(const cv_mat* src,
@@ -306,51 +366,77 @@ int cv_mat_convert_to(const cv_mat* src,
                       double beta)
 {
     if (!src || !src->impl || !dst) return CV_CAM_READ_ERR;
+    cv_mat_release_impl(dst);
 
-    auto sp_src = *(reinterpret_cast<const std::shared_ptr<cv::Mat>*>(src->impl));
-    if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
-
-    cv::Mat converted;
-    sp_src->convertTo(converted, rtype, alpha, beta);
-
-    auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(converted)));
-    if (!holder) return CV_CAM_ALLOC_ERR;
-
-    dst->impl = holder;
-    dst->width = holder->get()->cols;
-    dst->height = holder->get()->rows;
-    dst->channels = holder->get()->channels();
-
+    if (src->opencl_mode) {
+        auto sp_src = *(static_cast<const UMatPtr*>(src->impl));
+        if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
+        cv::UMat converted;
+        sp_src->convertTo(converted, rtype, alpha, beta);
+        auto* holder = new (std::nothrow) UMatPtr(std::make_shared<cv::UMat>(std::move(converted)));
+        if (!holder) return CV_CAM_ALLOC_ERR;
+        dst->impl        = holder;
+        dst->opencl_mode = 1;
+        dst->width       = sp_src->cols;
+        dst->height      = sp_src->rows;
+        dst->channels    = sp_src->channels();
+    } else {
+        auto sp_src = *(static_cast<const MatPtr*>(src->impl));
+        if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
+        cv::Mat converted;
+        sp_src->convertTo(converted, rtype, alpha, beta);
+        auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(converted)));
+        if (!holder) return CV_CAM_ALLOC_ERR;
+        dst->impl        = holder;
+        dst->opencl_mode = 0;
+        dst->width       = converted.cols;
+        dst->height      = converted.rows;
+        dst->channels    = converted.channels();
+    }
     return CV_CAM_OK;
 }
 
 int cv_mat_resize(const cv_mat* src, cv_mat* dst, int target_width, int target_height, int interp)
 {
     if (!src || !src->impl || !dst) return CV_CAM_READ_ERR;
-
-    auto sp_src = *(reinterpret_cast<const std::shared_ptr<cv::Mat>*>(src->impl));
-    if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
-
     const cv::Size target_size(target_width, target_height);
 
-    if (dst->impl) {
-        /* Reuse the existing cv::Mat buffer — OpenCV will reallocate internally
-         * only if dimensions or type change, which is rare after the first frame.
-         * This eliminates a heap free+alloc on every frame in steady-state. */
-        auto& existing_mat = *(*reinterpret_cast<MatPtr*>(dst->impl));
-        cv::resize(*sp_src, existing_mat, target_size, 0, 0, interp);
+    if (src->opencl_mode) {
+        /* UMat path — stays on GPU */
+        auto sp_src = *(static_cast<const UMatPtr*>(src->impl));
+        if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
+        dst->opencl_mode = 1;
+        if (dst->impl && dst->opencl_mode) {
+            cv::resize(*sp_src, *(*static_cast<UMatPtr*>(dst->impl)), target_size, 0, 0, interp);
+        } else {
+            cv_mat_release_impl(dst);
+            cv::UMat resized;
+            cv::resize(*sp_src, resized, target_size, 0, 0, interp);
+            auto* holder = new (std::nothrow) UMatPtr(std::make_shared<cv::UMat>(std::move(resized)));
+            if (!holder) return CV_CAM_ALLOC_ERR;
+            dst->impl = holder;
+        }
+        dst->channels = sp_src->channels();
     } else {
-        /* First call for this dst — allocate the holder. */
-        cv::Mat resized;
-        cv::resize(*sp_src, resized, target_size, 0, 0, interp);
-        auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(resized)));
-        if (!holder) return CV_CAM_ALLOC_ERR;
-        dst->impl = holder;
+        /* Mat path (CPU) — reuse buffer where possible */
+        auto sp_src = *(static_cast<const MatPtr*>(src->impl));
+        if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
+        dst->opencl_mode = 0;
+        if (dst->impl && !dst->opencl_mode) {
+            cv::resize(*sp_src, *(*static_cast<MatPtr*>(dst->impl)), target_size, 0, 0, interp);
+        } else {
+            cv_mat_release_impl(dst);
+            cv::Mat resized;
+            cv::resize(*sp_src, resized, target_size, 0, 0, interp);
+            auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(resized)));
+            if (!holder) return CV_CAM_ALLOC_ERR;
+            dst->impl = holder;
+        }
+        dst->channels = sp_src->channels();
     }
 
-    dst->width    = target_width;
-    dst->height   = target_height;
-    dst->channels = sp_src->channels();
+    dst->width  = target_width;
+    dst->height = target_height;
     return CV_CAM_OK;
 }
 
@@ -362,38 +448,38 @@ int cv_mat_crop(const cv_mat* src,
                 int           crop_h)
 {
     if (!src || !src->impl || !dst) return CV_CAM_READ_ERR;
+    cv_mat_release_impl(dst);
 
-    /* dereference the shared_ptr<cv::Mat> stored in src->impl */
-    auto sp_src = *(reinterpret_cast<const std::shared_ptr<cv::Mat>*>(src->impl));
-    if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
-
-    /* ---- clamp crop rectangle to the source image -------------------- */
-    int src_w = sp_src->cols;
-    int src_h = sp_src->rows;
-
-    /* clip the requested rectangle */
-    int x0 = std::max(0, x);
-    int y0 = std::max(0, y);
-    int x1 = std::min(x + crop_w, src_w);
-    int y1 = std::min(y + crop_h, src_h);
-
-    int w = x1 - x0;
-    int h = y1 - y0;
-    if (w <= 0 || h <= 0) return CV_CAM_READ_ERR;   /* nothing to crop */
-
-    /* ---- perform the crop (ROI) ------------------------------------- */
+    /* Compute clamped ROI from source dimensions */
+    int src_w = src->width;
+    int src_h = src->height;
+    int x0 = std::max(0, x),           y0 = std::max(0, y);
+    int x1 = std::min(x + crop_w, src_w), y1 = std::min(y + crop_h, src_h);
+    int w = x1 - x0, h = y1 - y0;
+    if (w <= 0 || h <= 0) return CV_CAM_READ_ERR;
     cv::Rect roi(x0, y0, w, h);
-    cv::Mat cropped = (*sp_src)(roi).clone();       /* clone → own buffer */
 
-    /* ---- wrap in shared_ptr and store in dst ------------------------ */
-    auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(cropped)));
-    if (!holder) return CV_CAM_ALLOC_ERR;
-
-    dst->impl     = holder;
-    dst->width    = w;
-    dst->height   = h;
-    dst->channels = sp_src->channels();             /* usually 3 */
-
+    if (src->opencl_mode) {
+        auto sp_src = *(static_cast<const UMatPtr*>(src->impl));
+        if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
+        cv::UMat cropped = (*sp_src)(roi).clone();
+        auto* holder = new (std::nothrow) UMatPtr(std::make_shared<cv::UMat>(std::move(cropped)));
+        if (!holder) return CV_CAM_ALLOC_ERR;
+        dst->impl        = holder;
+        dst->opencl_mode = 1;
+        dst->channels    = sp_src->channels();
+    } else {
+        auto sp_src = *(static_cast<const MatPtr*>(src->impl));
+        if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
+        cv::Mat cropped = (*sp_src)(roi).clone();
+        auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(cropped)));
+        if (!holder) return CV_CAM_ALLOC_ERR;
+        dst->impl        = holder;
+        dst->opencl_mode = 0;
+        dst->channels    = sp_src->channels();
+    }
+    dst->width  = w;
+    dst->height = h;
     return CV_CAM_OK;
 }
 
@@ -401,21 +487,32 @@ int cv_mat_crop(const cv_mat* src,
 int cv_mat_to_grayscale(const cv_mat* src, cv_mat* dst)
 {
     if (!src || !src->impl || !dst) return CV_CAM_READ_ERR;
+    cv_mat_release_impl(dst);
 
-    auto sp_src = *(reinterpret_cast<const std::shared_ptr<cv::Mat>*>(src->impl));
-    if (!sp_src || sp_src->channels() != 3) return CV_CAM_READ_ERR;
-
-    cv::Mat gray;
-    cv::cvtColor(*sp_src, gray, cv::COLOR_BGR2GRAY);
-
-    auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(gray)));
-    if (!holder) return CV_CAM_ALLOC_ERR;
-
-    dst->impl = holder;
-    dst->width = holder->get()->cols;
-    dst->height = holder->get()->rows;
+    if (src->opencl_mode) {
+        auto sp_src = *(static_cast<const UMatPtr*>(src->impl));
+        if (!sp_src || sp_src->channels() != 3) return CV_CAM_READ_ERR;
+        cv::UMat gray;
+        cv::cvtColor(*sp_src, gray, cv::COLOR_BGR2GRAY);
+        auto* holder = new (std::nothrow) UMatPtr(std::make_shared<cv::UMat>(std::move(gray)));
+        if (!holder) return CV_CAM_ALLOC_ERR;
+        dst->impl        = holder;
+        dst->opencl_mode = 1;
+        dst->width       = sp_src->cols;
+        dst->height      = sp_src->rows;
+    } else {
+        auto sp_src = *(static_cast<const MatPtr*>(src->impl));
+        if (!sp_src || sp_src->channels() != 3) return CV_CAM_READ_ERR;
+        cv::Mat gray;
+        cv::cvtColor(*sp_src, gray, cv::COLOR_BGR2GRAY);
+        auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(gray)));
+        if (!holder) return CV_CAM_ALLOC_ERR;
+        dst->impl        = holder;
+        dst->opencl_mode = 0;
+        dst->width       = gray.cols;
+        dst->height      = gray.rows;
+    }
     dst->channels = 1;
-
     return CV_CAM_OK;
 }
 

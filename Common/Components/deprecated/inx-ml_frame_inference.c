@@ -207,6 +207,9 @@ EHS_FB_RUN_FUNCTION(ml_frame_inference_do_inference)
 			goto inference_fail;
 		}
 
+		/* If the frame was captured with OpenCL, download GPU→CPU before
+		 * passing to TFLite or Hailo which require CPU-accessible data. */
+		EhsCameraFrameEnsureCPU(frame);
 		err = EhsML_SetInputData(&inx_ml_frame_inference_state->ml_ctx, frame_data, frame_size);
 		if(err != EHS_ML_OK) goto inference_fail;
 
