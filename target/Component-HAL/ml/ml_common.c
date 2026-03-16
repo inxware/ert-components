@@ -30,7 +30,12 @@
 #include "ml_common.h"
 #include "hal_ml.h"
 #include "hal-api.h"
+/* ert_hal_tflite_meta.h is only available when the TFLite framework is built.
+ * When EHS_ML_SUPPORT=stubbed (e.g. Windows targets) the framework is absent,
+ * so guard the include and any calls to EhsML_TFLite_GetModelInfoJson. */
+#ifndef EHS_ML_SUPPORT_STUBBED
 #include "ert_hal_tflite_meta.h"
+#endif
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -1749,7 +1754,11 @@ EhsML_Err EhsML_GetModelInfoJson(EhsML_Context* ctx, const ehs_char* model_path,
 #endif
         case EHS_ML_HWACCEL_NONE:
         default:
+#ifndef EHS_ML_SUPPORT_STUBBED
             return EhsML_TFLite_GetModelInfoJson(
                 (TfLiteModelCtx*)ctx->ml_model_ctx, model_path, json_buf, json_size);
+#else
+            return EHS_ML_NOT_SUPPORTED;
+#endif
     }
 }
