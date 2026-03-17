@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">UPS</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">
+UPS</strong> provides access to the uninterruptible power supply
+management on Strato Pi and Strato Pi Max boards.
+</p>
+<p class="component">
+<strong>read</strong> polls the current battery and mains status. For event-driven
+power management, the <strong>power_fail</strong> and <strong>power_restored</strong>
+output events fire automatically when the board kernel driver detects a mains transition —
+no polling is required for these.
+</p>
+<p class="component">
+<em>battery_mv</em> is reported in millivolts. Typical LiFePO4 range is 3000–3600 mV
+per cell; check the Strato Pi hardware manual for the specific battery fitted.
+</p>
+<h3>Platform Support</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Board</th><th>Supported</th><th>sysfs path</th></tr></thead>
+<tbody>
+<tr><td>Strato Pi (UPS variant)</td><td>Yes</td><td><code>/sys/class/stratopi/ups/</code></td></tr>
+<tr><td>Strato Pi Max</td><td>Yes</td><td><code>/sys/class/stratopimax/ups/</code></td></tr>
+<tr><td>Strato Pi (Base/CAN)</td><td>No (no battery)</td><td>–</td></tr>
+<tr><td>Iono Pi / Iono Pi Max</td><td>No</td><td>–</td></tr>
+</tbody>
+</table>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<p class="component">No parameters.</p>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[In]read">read</a></td><td>Poll the current UPS state. Outputs <em>on_battery</em> and <em>battery_mv</em> when complete.</td></tr>
+<tr><th>Data In</th><th></th></tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[Out]done">done</a></td><td>Fired when the <a href="#[In]read">read</a> poll is complete.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]power_fail">power_fail</a></td><td>Fires automatically when mains power is lost and the system switches to battery. No polling required.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]power_restored">power_restored</a></td><td>Fires automatically when mains power is restored.</td></tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr><td class="portsBool"><a name="[Out]on_battery">on_battery</a></td><td>True if the system is currently running on battery power.</td></tr>
+<tr><td class="portsInt"><a name="[Out]battery_mv">battery_mv</a></td><td>Battery voltage in millivolts. Updated by the <a href="#[In]read">read</a> function.</td></tr>
+</table>
+<!--Misc-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td><td colspan="5">Stateless</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td><td>Peripherals</td>
+<td class="heading-cell"><b>Version</b></td><td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td><td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td><td>Sfera Labs Strato Pi targets only.</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">RS-485 Config</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">
+RS-485 Config</strong> sets advanced RS-485/RS-422 line parameters
+for Sfera Labs boards via sysfs. It complements the generic <strong>uart_config</strong>
+block with options only available through the Sfera Labs kernel driver.
+</p>
+<p class="component">
+<strong>echo</strong> enables local echo mode: the transmitter's own data is looped back
+on the receive path. Disable for normal half-duplex RS-485; enable for RS-422 full-duplex
+diagnostics.
+</p>
+<p class="component">
+<strong>termination</strong> enables the 120 Ω line termination resistor on boards that
+support it (Iono Pi Max, Strato Pi Max expansion boards). Enable on the two physical
+endpoints of the RS-485 bus only.
+</p>
+<p class="component">
+Call this block after the <strong>uart</strong> block's <strong>start</strong> event has
+fired. Use the same <strong>Port</strong> parameter index as the corresponding
+<strong>uart</strong> block.
+</p>
+<h3>Platform Support</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Board</th><th>Echo</th><th>Termination</th><th>sysfs path</th></tr></thead>
+<tbody>
+<tr><td>Iono Pi Max</td><td>Yes</td><td>Yes</td><td><code>/sys/class/ionopimax/serial/</code></td></tr>
+<tr><td>Strato Pi (Base/UPS)</td><td>Yes</td><td>No</td><td><code>/sys/class/stratopi/rs485/</code></td></tr>
+<tr><td>Strato Pi Max</td><td>Yes</td><td>Yes (per slot)</td><td><code>/sys/class/stratopimax/rs485_s{n}/</code></td></tr>
+<tr><td>Iono Pi</td><td>No</td><td>No</td><td>–</td></tr>
+<tr><td>Exo Sense Pi</td><td>No</td><td>No</td><td>–</td></tr>
+</tbody>
+</table>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr><th>Name</th><th>Type</th><th>Default</th><th>Min</th><th>Max</th><th>Description</th></tr>
+<tr><td>Port</td><td>I</td><td>0</td><td>0</td><td>3</td><td>Serial port index matching the <strong>uart</strong> block's port number (0 = first RS-485 port).</td></tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[In]config">config</a></td><td>Apply the <em>echo</em> and <em>termination</em> settings to the port via sysfs.</td></tr>
+<tr><td class="portsEvent"><a name="[In]read">read</a></td><td>Read the current echo and termination settings from the board (not yet implemented — returns error_id = -1).</td></tr>
+<tr><th>Data In</th><th></th></tr>
+<tr><td class="portsBool"><a name="[In]echo">echo</a></td><td>Enable local echo (TX looped to RX). Normally false for RS-485 half-duplex.</td></tr>
+<tr><td class="portsBool"><a name="[In]termination">termination</a></td><td>Enable 120 Ω line termination. Enable only on the two physical bus endpoints.</td></tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[Out]done">done</a></td><td>Fired when the <a href="#[In]config">config</a> write has completed.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]read_done">read_done</a></td><td>Fired when the <a href="#[In]read">read</a> has completed.</td></tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code. 0 = success. Non-zero if the board does not support the requested attribute.</td></tr>
+</table>
+<!--Misc-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td><td colspan="5">Stateless</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td><td>Peripherals</td>
+<td class="heading-cell"><b>Version</b></td><td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td><td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td><td>Sfera Labs targets only.</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

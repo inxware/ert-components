@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">USB Power</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">
+USB Power controls power to individual USB ports. Provides software-controlled power switching on its USB host ports,
+allowing connected devices to be power-cycled without rebooting the system. This is
+useful for resetting unresponsive USB peripherals (modems, USB hubs, industrial dongles).
+</p>
+<p class="component">
+<strong>This is not supported on all hardware , boards or OSs!</strong>
+</p>
+<p class="component">
+The <strong>Port</strong> parameter selects which USB port this instance controls (1–4).
+Use multiple instances of this block to control different ports independently.
+</p>
+<h3>Platform Support</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Board</th><th>Supported</th><th>sysfs path</th></tr></thead>
+<tbody>
+<tr><td>Strato Pi Max</td><td>Yes</td><td><code>/sys/class/stratopimax/usb{n}/status</code></td></tr>
+<tr><td>All other boards</td><td>No</td><td>–</td></tr>
+</tbody>
+</table>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr><th>Name</th><th>Type</th><th>Default</th><th>Min</th><th>Max</th><th>Description</th></tr>
+<tr><td>Port</td><td>I</td><td>1</td><td>1</td><td>4</td><td>USB port number to control (1–4 on Strato Pi Max).</td></tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[In]enable">enable</a></td><td>Apply power to the configured USB port.</td></tr>
+<tr><td class="portsEvent"><a name="[In]disable">disable</a></td><td>Remove power from the configured USB port.</td></tr>
+<tr><td class="portsEvent"><a name="[In]read_status">read_status</a></td><td>Read the current power state of the port.</td></tr>
+<tr><th>Data In</th><th></th></tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[Out]enabled">enabled</a></td><td>Fired when power has been applied to the USB port.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]disabled">disabled</a></td><td>Fired when power has been removed from the USB port.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]status_done">status_done</a></td><td>Fired when the status read is complete.</td></tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code. 0 = success. Non-zero if the sysfs operation failed.</td></tr>
+<tr><td class="portsBool"><a name="[Out]powered">powered</a></td><td>True if the USB port is currently powered. Updated by <a href="#[In]read_status">read_status</a>.</td></tr>
+</table>
+<!--Misc-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td><td colspan="5">Stateless</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td><td>Peripherals</td>
+<td class="heading-cell"><b>Version</b></td><td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td><td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td><td>Sfera Labs Strato Pi Max targets only.</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

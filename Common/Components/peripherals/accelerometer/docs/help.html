@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Accelerometer</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">
+Accelerometer</strong> reads the onboard 3-axis accelerometer on
+Strato Pi Max boards.
+</p>
+<p class="component">
+Acceleration values are reported in milli-g (mg), where 1000 mg = 1 g = 9.81 m/s².
+The Z axis reads approximately +1000 mg when the board is horizontal and stationary.
+Poll <strong>read</strong> at your required sample rate — the board samples at its own
+hardware rate and the sysfs attribute returns the most recent value.
+</p>
+<p class="component">
+<strong>enable</strong> powers on the accelerometer IC (if it has a power-down mode).
+<strong>disable</strong> powers it down. If your application reads infrequently, disable
+between reads to reduce power consumption.
+</p>
+<h3>Platform Support</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Board</th><th>Supported</th><th>sysfs path</th></tr></thead>
+<tbody>
+<tr><td>Strato Pi Max</td><td>Yes</td><td><code>/sys/class/stratopimax/accelerometer/</code></td></tr>
+<tr><td>All other boards</td><td>No</td><td>–</td></tr>
+</tbody>
+</table>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<p class="component">No parameters.</p>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[In]enable">enable</a></td><td>Power on the accelerometer. Must be called before <em>read</em>.</td></tr>
+<tr><td class="portsEvent"><a name="[In]disable">disable</a></td><td>Power down the accelerometer to save power when not in use.</td></tr>
+<tr><td class="portsEvent"><a name="[In]read">read</a></td><td>Read the current X, Y, Z acceleration values.</td></tr>
+<tr><th>Data In</th><th></th></tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[Out]enabled">enabled</a></td><td>Fired when the accelerometer has been successfully enabled.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]disabled">disabled</a></td><td>Fired when the accelerometer has been successfully disabled.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]done">done</a></td><td>Fired when the <a href="#[In]read">read</a> is complete and X/Y/Z outputs are valid.</td></tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code. 0 = success.</td></tr>
+<tr><td class="portsReal"><a name="[Out]x">x</a></td><td>X-axis acceleration in milli-g.</td></tr>
+<tr><td class="portsReal"><a name="[Out]y">y</a></td><td>Y-axis acceleration in milli-g.</td></tr>
+<tr><td class="portsReal"><a name="[Out]z">z</a></td><td>Z-axis acceleration in milli-g. ~+1000 when board is horizontal.</td></tr>
+</table>
+<!--Misc-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td><td colspan="5">Stateless</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td><td>Peripherals</td>
+<td class="heading-cell"><b>Version</b></td><td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td><td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td><td>Sfera Labs Strato Pi Max targets only.</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -240,10 +240,14 @@ endif
 endif
 
 ########################################################################################################
-## UART Stub
+## UART / Serial
 ########################################################################################################
 #todo2025 this needs to be conditional on this beinavavilable (or GPIO toolbox being enabled)
+ifeq ($(EHS_PERIPHERALS_UART_SUPPORT),sferalabs)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/uart/sferalabs/target_sferalabs_uart.mk
+else
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/uart/stubbed/target_stubbed_uart.mk
+endif
 
 ########################################################################################################
 ## JSON Common

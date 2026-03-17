@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">SD Card Select</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">
+SD Card Select</strong> controls the dual-SD card hardware
+multiplexer on Strato Pi Max boards.
+</p>
+<p class="component">
+The Strato Pi Max has two physical SD card slots connected to the Raspberry Pi CM via a
+hardware switch. <strong>select</strong> switches the active slot (0 or 1) immediately;
+a system reboot is required for the OS to boot from the newly selected card.
+<strong>read_active</strong> reads back the currently selected slot without changing it.
+</p>
+<p class="component">
+Typical use: at startup, read the active slot to verify which card is in use. After an
+OTA firmware update to the standby card, fire <strong>select</strong> to switch, then
+reboot.
+</p>
+<h3>Platform Support</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Board</th><th>Supported</th><th>sysfs path</th></tr></thead>
+<tbody>
+<tr><td>Strato Pi Max</td><td>Yes</td><td><code>/sys/class/stratopimax/sd/</code></td></tr>
+<tr><td>All other boards</td><td>No</td><td>–</td></tr>
+</tbody>
+</table>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<p class="component">No parameters.</p>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[In]select">select</a></td><td>Switch to the SD slot specified by the <em>slot</em> input. Takes effect after the next system reboot.</td></tr>
+<tr><td class="portsEvent"><a name="[In]read_active">read_active</a></td><td>Read the currently active SD slot without changing it.</td></tr>
+<tr><th>Data In</th><th></th></tr>
+<tr><td class="portsInt"><a name="[In]slot">slot</a></td><td>SD slot to activate: 0 = first slot, 1 = second slot.</td></tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[Out]done">done</a></td><td>Fired when the <a href="#[In]select">select</a> write has completed.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]read_done">read_done</a></td><td>Fired when <a href="#[In]read_active">read_active</a> has completed.</td></tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr><td class="portsInt"><a name="[Out]active_slot">active_slot</a></td><td>Currently active SD slot (0 or 1). Updated by <a href="#[In]read_active">read_active</a>.</td></tr>
+<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code. 0 = success.</td></tr>
+</table>
+<!--Misc-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td><td colspan="5">Stateless</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td><td>Peripherals</td>
+<td class="heading-cell"><b>Version</b></td><td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td><td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td><td>Sfera Labs Strato Pi Max targets only.</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

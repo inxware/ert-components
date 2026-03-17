@@ -21,7 +21,9 @@ else ifeq ($(EHS_PERIPHERALS_GPIO_SUPPORT),ESP32S3_IDF)
 	DEFS+= EHS_PERIPHERALS_GPIO_SUPPORT=EHS_PERIPHERALS_GPIO_TYPE_ESP32S3_IDF
 else ifeq ($(EHS_PERIPHERALS_GPIO_SUPPORT),arduino)
 	DEFS+= EHS_PERIPHERALS_GPIO_SUPPORT=EHS_PERIPHERALS_GPIO_TYPE_ARDUINO
-else  
+else ifeq ($(EHS_PERIPHERALS_GPIO_SUPPORT),sferalabs)
+	DEFS+= EHS_PERIPHERALS_GPIO_SUPPORT=EHS_PERIPHERALS_GPIO_TYPE_SFERALABS
+else
 #This shold be probably fail as we don't really have an unknown option
 # DONT SET 	DEFS+= EHS_PERIPHERALS_GPIO_SUPPORT=EHS_PERIPHERALS_GPIO_TYPE_UKNOWN
 endif
@@ -49,16 +51,21 @@ OBJECTS+=target_gpio.$(OBJ)
 ifdef EHS_PERIPHERALS_PWM_SUPPORT
 ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),none)
     OBJECTS+=inx_pwm.$(OBJ)
-	ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),stubbed) # We don't need a target path for PWM as we stub the common HAL code to reduce code size.
-		OBJECTS+=target_pwm.$(OBJ)
+	OBJECTS+=target_pwm.$(OBJ)
+	ifeq ($(EHS_PERIPHERALS_PWM_SUPPORT),stubbed)
+		# Stubbed PWM: target_pwm.c lives in the stubbed GPIO directory
+		EHS_TARGET_PWM_HAL_PATH=$(EHS_COMMON_GPIO_HAL_PATH)/stubbed
+	else
 		# When the PWM backend differs from the GPIO backend (e.g. GPIO=sysfs_linux_arm, PWM=wiringpi),
 		# VPATH only contains the GPIO backend directory, so target_pwm.c from the PWM backend
 		# directory cannot be found. Add the PWM backend directory explicitly so make can locate it.
 		ifneq ($(EHS_PERIPHERALS_PWM_SUPPORT),$(EHS_PERIPHERALS_GPIO_SUPPORT))
 			EHS_TARGET_PWM_HAL_PATH=$(EHS_COMMON_GPIO_HAL_PATH)/$(EHS_PERIPHERALS_PWM_SUPPORT)
-			INC_DIRS+=$(EHS_TARGET_PWM_HAL_PATH)
-			VPATH+=$(EHS_TARGET_PWM_HAL_PATH)
 		endif
+	endif
+	ifdef EHS_TARGET_PWM_HAL_PATH
+		INC_DIRS+=$(EHS_TARGET_PWM_HAL_PATH)
+		VPATH+=$(EHS_TARGET_PWM_HAL_PATH)
 	endif
 endif
 endif

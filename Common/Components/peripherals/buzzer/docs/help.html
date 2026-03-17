@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Buzzer</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">
+Buzzer</strong> controls the piezo buzzer on Sfera Labs Iono Pi Max boards.
+</p>
+<p class="component">
+Fire <strong>beep</strong> with an optional <em>freq_hz</em> and <em>duration_ms</em> to
+play a tone. If <em>duration_ms</em> is 0 the tone plays continuously until
+<strong>stop</strong> is fired. The <strong>done</strong> event fires immediately after
+the sysfs write; it does not wait for the tone to finish playing.
+</p>
+<p class="component">
+Default frequency and duration can be set as parameters and will be used if the
+corresponding input ports are not connected.
+</p>
+<h3>Platform Support</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Board</th><th>Supported</th><th>sysfs path</th></tr></thead>
+<tbody>
+<tr><td>Iono Pi Max</td><td>Yes</td><td><code>/sys/class/ionopimax/buzzer/status</code></td></tr>
+<tr><td>Iono Pi</td><td>No</td><td>–</td></tr>
+<tr><td>Strato Pi / Strato Pi Max</td><td>No</td><td>–</td></tr>
+<tr><td>Exo Sense Pi</td><td>No</td><td>–</td></tr>
+</tbody>
+</table>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table">
+<tr><th>Name</th><th>Type</th><th>Default</th><th>Min</th><th>Max</th><th>Description</th></tr>
+<tr><td>Frequency (Hz)</td><td>I</td><td>1000</td><td>100</td><td>10000</td><td>Default tone frequency in Hz. Used when <em>freq_hz</em> input port is not connected.</td></tr>
+<tr><td>Duration (ms)</td><td>I</td><td>200</td><td>1</td><td>60000</td><td>Default tone duration in milliseconds. 0 = continuous. Used when <em>duration_ms</em> input port is not connected.</td></tr>
+</table>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[In]beep">beep</a></td><td>Play a tone using the current <em>freq_hz</em> and <em>duration_ms</em> values.</td></tr>
+<tr><td class="portsEvent"><a name="[In]stop">stop</a></td><td>Stop any currently playing tone immediately.</td></tr>
+<tr><th>Data In</th><th></th></tr>
+<tr><td class="portsInt"><a name="[In]freq_hz">freq_hz</a></td><td>Tone frequency in Hz (100–10000). Overrides the Frequency parameter when connected.</td></tr>
+<tr><td class="portsInt"><a name="[In]duration_ms">duration_ms</a></td><td>Tone duration in milliseconds. 0 = continuous until <a href="#[In]stop">stop</a>. Overrides the Duration parameter when connected.</td></tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[Out]done">done</a></td><td>Fired when the sysfs write for <a href="#[In]beep">beep</a> has completed. Does not wait for the tone to finish.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]stopped">stopped</a></td><td>Fired when the <a href="#[In]stop">stop</a> command has completed.</td></tr>
+<tr><th>Data Out</th><th></th></tr>
+</table>
+<!--Misc-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td><td colspan="5">Stateless</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td><td>Peripherals</td>
+<td class="heading-cell"><b>Version</b></td><td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td><td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td><td>Sfera Labs Iono Pi Max targets only.</td>
+</tr>
+</table>
+</div>
+</body>
+</html>
