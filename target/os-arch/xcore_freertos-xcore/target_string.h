@@ -23,7 +23,8 @@
 
 #include <ctype.h>
 #include <string.h>
-#include <strings.h>
+/* strings.h not provided by XMOS xcore libc; strcasecmp/strncasecmp are
+ * available in <string.h> on this target. */
 
 #define EhsSprintf        sprintf
 #define EhsSnprintf       snprintf

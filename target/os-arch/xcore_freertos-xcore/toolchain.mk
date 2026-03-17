@@ -23,20 +23,27 @@
 # expansions that gnu_ALL normally performs are reproduced explicitly below.
 
 # -----------------------------------------------------------------------------
-# Toolchain binary selection — follows gnu_ALL CC_OVERRIDE / LINK_OVERRIDE pattern.
+# Toolchain binary selection — HOST-style pattern.
 #
-# CC_OVERRIDE / LINK_OVERRIDE set the bare binary name (default: xcc).
-# XMOS_TOOL_PATH then prepends the absolute path — analogous to how gnu_ALL uses
-# $(EHS_CORE_SUPPORT_BASE)/toolchains/$(TOOLCHAIN_PATH)/bin/ for ert-build-support
-# toolchains.  XMOS_TOOL_PATH is baked into the Docker image ENV; on a host build
-# the developer must set it manually (or have xcc on PATH and leave it unset).
+# The Docker image installs xcc (and its sibling tools: xcc2clang, xmap, …)
+# and adds the XTC bin directory to PATH via the Dockerfile ENV instruction.
+# We therefore use bare binary names here, just as gnu_ALL does when
+# TOOLCHAIN_PATH=HOST, and let PATH do the lookup.
+#
+# XMOS_TOOL_PATH is used only to:
+#   1. Add the XTC bin directory to PATH as a safety net (handles stale images
+#      built before the Dockerfile ENV PATH was present).
+#   2. Construct the absolute path to the board XN file for the linker.
+#
+# CC_OVERRIDE / LINK_OVERRIDE remain available for the rare case where a
+# developer needs to point at a different xcc installation.
 # -----------------------------------------------------------------------------
 
 ifndef CC_OVERRIDE
     CC_OVERRIDE := xcc
 endif
-export CC  := $(CC_OVERRIDE)
-export CPP := $(CC_OVERRIDE)
+export CC   := $(CC_OVERRIDE)
+export CPP  := $(CC_OVERRIDE)
 
 ifndef LINK_OVERRIDE
     export LINK := $(CC)
@@ -46,28 +53,27 @@ endif
 
 AS := $(CC_OVERRIDE)
 
-# Prepend absolute path from XMOS_TOOL_PATH (analogous to TOOLCHAIN_PATH in gnu_ALL).
-# Without XMOS_TOOL_PATH, the bare binary name is used and xcc must be on PATH.
+# xcc is a wrapper script in bin/ that calls helper tools (xcc2clang, xmap, …)
+# from libexec/ by bare name.  Both directories must be on PATH.
 ifdef XMOS_TOOL_PATH
-    CC   := $(XMOS_TOOL_PATH)/bin/$(CC)
-    CPP  := $(XMOS_TOOL_PATH)/bin/$(CPP)
-    LINK := $(XMOS_TOOL_PATH)/bin/$(LINK)
-    AS   := $(XMOS_TOOL_PATH)/bin/$(AS)
+    export PATH := $(XMOS_TOOL_PATH)/bin:$(XMOS_TOOL_PATH)/libexec:$(PATH)
 else
-    $(warning XMOS_TOOL_PATH is not set — falling back to PATH-based xcc lookup.)
-    $(warning Set XMOS_TOOL_PATH to your XTC Tools installation, e.g. /opt/XMOS/XTC/15.3.1)
+    $(warning XMOS_TOOL_PATH is not set.)
+    $(warning Set XMOS_TOOL_PATH to your XTC Tools root, e.g. /opt/XMOS/XTC/15.3.1)
+    $(warning xcc and its helper tools must be on PATH for the build to succeed.)
 endif
 
 # -----------------------------------------------------------------------------
 # Board target — set XMOS_BOARD_TARGET in platform config.mk.
 #
-# xcc's built-in board-name lookup requires it to locate its target database
-# via XMOS_TOOL_PATH.  To avoid relying on that lookup, we pass the explicit
-# path to the XN file instead.  XTC Tools lays boards out as:
-#   $(XMOS_TOOL_PATH)/targets/<BOARD>/<BOARD>.xn
+# xcc's -target= flag only accepts registered board names, not file paths.
+# Passing the XN file directly on the command line is the correct approach:
+#   - Compilation (.c → .o): -march=xs3a is sufficient; XN file not needed.
+#   - Linking (.o → .xe):    XN file is passed as a positional argument
+#                             (not via any flag) after the object files.
 #
-# If XMOS_TOOL_PATH is not set (host build, xcc on PATH), we fall back to
-# the board name alone and rely on xcc finding its own database.
+# XTC Tools lays boards out as:
+#   $(XMOS_TOOL_PATH)/targets/<BOARD>/<BOARD>.xn
 # -----------------------------------------------------------------------------
 
 ifndef XMOS_BOARD_TARGET
@@ -77,9 +83,7 @@ endif
 
 ifdef XMOS_BOARD_TARGET
     ifdef XMOS_TOOL_PATH
-        _XMOS_TARGET_FLAG := -target=$(XMOS_TOOL_PATH)/targets/$(XMOS_BOARD_TARGET)/$(XMOS_BOARD_TARGET).xn
-    else
-        _XMOS_TARGET_FLAG := -target=$(XMOS_BOARD_TARGET)
+        _XMOS_XN_FILE := $(XMOS_TOOL_PATH)/targets/$(XMOS_BOARD_TARGET)/$(XMOS_BOARD_TARGET).xn
     endif
 endif
 
@@ -88,10 +92,16 @@ endif
 # -----------------------------------------------------------------------------
 
 # XS3 architecture (xcore.ai). Use -march=xs2a for older xCORE-200 targets.
+# No board target flag is needed for .c compilation; -march=xs3a is sufficient.
 CFLAGS += -march=xs3a
 
-ifdef XMOS_BOARD_TARGET
-    CFLAGS += $(_XMOS_TARGET_FLAG)
+# XMOS C library headers live in target/include/ (not usr/include/ as a
+# standard sysroot would expect).  Compiler built-in headers (stddef.h etc.)
+# are in target/include/clang/ rather than being auto-detected from the
+# xcc2clang binary location.  Both paths must be added explicitly.
+ifdef XMOS_TOOL_PATH
+    CFLAGS += -I$(XMOS_TOOL_PATH)/target/include
+    CFLAGS += -I$(XMOS_TOOL_PATH)/target/include/clang
 endif
 
 # Standard C with GNU extensions, optimise for size, keep debug info
@@ -126,9 +136,11 @@ CFLAGS += $(foreach i,$(DEFS),-D$i)
 # Linker flags
 # -----------------------------------------------------------------------------
 
-# Board target for linker: same explicit XN path as compiler
-ifdef XMOS_BOARD_TARGET
-    LNKFLAGS += $(_XMOS_TARGET_FLAG)
+# XN board description file — passed as a positional argument to the linker.
+# The link rule is: $(LINK) $(LD_SWITCHES) $(OBJECTS) $(LNKFLAGS)
+# so the XN file appears immediately after the object files, before -l flags.
+ifdef _XMOS_XN_FILE
+    LNKFLAGS += $(_XMOS_XN_FILE)
 endif
 
 # Remove unused sections

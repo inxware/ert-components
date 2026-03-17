@@ -78,11 +78,16 @@ RUN mkdir -p ${XMOS_INSTALL_BASE} \
     && chmod -R a+rX ${XMOS_INSTALL_BASE} \
     && rm /tmp/xtc-tools.tgz
 
-# Set XMOS_TOOL_PATH so xcc can locate device target files, builtins, and libraries.
-# Both variables are baked into the image at build time — they do not need to be
-# passed at runtime via INX_ERTCOMPONENTS_BUILDENV.
+# Bake the XTC Tools location into the image.
+# PATH: makes xcc and its sibling tools (xcc2clang, xmap, …) available to any
+#       process in the container — this is the primary mechanism.
+# XMOS_TOOL_PATH: used by toolchain.mk to construct the absolute XN board file
+#       path for the linker, and as a safety-net PATH prepend in case an older
+#       image was used that predates this ENV PATH line.
+# Neither variable should be listed in INX_ERTCOMPONENTS_BUILDENV — doing so
+# would override them with the (unset) host values and break the build.
 ENV XMOS_TOOL_PATH=${XMOS_INSTALL_BASE}/XTC/${XTC_VERSION}
-ENV PATH="${XMOS_INSTALL_BASE}/XTC/${XTC_VERSION}/bin:${PATH}"
+ENV PATH="${XMOS_INSTALL_BASE}/XTC/${XTC_VERSION}/bin:${XMOS_INSTALL_BASE}/XTC/${XTC_VERSION}/libexec:${PATH}"
 
 # Create the inxware build user matching the host uid/gid pattern
 RUN groupadd --gid 1000 inxware \
