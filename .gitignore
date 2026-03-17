@@ -28,6 +28,10 @@ target/os-arch/nxp_arm/heatrod_controller/Debug/
 *.pem
 *.p12
 
+# XMOS XTC Tools archive — must be downloaded manually by each developer
+# (proprietary, not redistributable). See target/platform/xcore_freertos-xcore-base/Dockerfile.
+target/platform/xcore_freertos-xcore-base/xtc-tools-linux.tgz
+
 # Libraries
 *.lib
 #*.a
