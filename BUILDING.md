@@ -229,6 +229,18 @@ For consistent, reproducible builds most targets have docker option that will ru
 
 Note: some targets that don't use any non-standard Linux commands (like `make targetenv`) don't require a dockerized toolchain.
 
+### Passing environment variables into the Docker container
+
+Docker containers do **not** automatically inherit the host shell or Make environment. Any Make or bash variable that the build needs inside the container must be explicitly listed in the `INX_ERTCOMPONENTS_BUILDENV` string inside:
+
+```
+target/envbuildscripts/target_buildenv_run_command.sh
+```
+
+Each variable is added as `-e VARIABLE_NAME` in the `docker run` invocation. If a new platform or toolchain requires an additional variable (e.g. a licence path, SDK root, or board selection flag), add it to that list or the build will silently see an empty value inside the container.
+
+Variables set directly in the Dockerfile with `ENV` are baked into the image and are always available without being listed in `INX_ERTCOMPONENTS_BUILDENV`.
+
 ## Package creation commands
 
 1. Runtime environment build and packaging

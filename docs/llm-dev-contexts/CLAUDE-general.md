@@ -543,6 +543,7 @@ See the BLE service component for a complete HAL implementation example:
 - Version information is managed in `Releases/version_strings`
 - Component definitions can be updated in development tools with `make toolsenv_update`
 - Always run `make prepdeps` when switching to a new target platform
+- **Docker environment variables** — Docker containers do not inherit the host Make or shell environment. Any variable that the build needs inside the container must be listed in `INX_ERTCOMPONENTS_BUILDENV` in `target/envbuildscripts/target_buildenv_run_command.sh`. Variables set with `ENV` in the platform `Dockerfile` are baked into the image and do not need to be listed there.
 - **Bitmap files are deprecated** - No longer used for component visual representation
 - Components now use markdown documentation with ASCII diagrams generated from CDF files
 

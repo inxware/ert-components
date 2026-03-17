@@ -21,10 +21,9 @@
 #      (it is .gitignored and will not be committed to the repository)
 #   5. Run: make build_docker_local
 #
-# XMOS_TOOL_PATH is set as an ENV so it is available to xcc at build time.
-# It is also passed into the running container via INX_ERTCOMPONENTS_BUILDENV
-# in target/envbuildscripts/target_buildenv_run_command.sh — ensure XMOS_TOOL_PATH
-# is included in that variable list.
+# XMOS_TOOL_PATH is baked into the image as a Docker ENV at build time.
+# It does NOT need to be in INX_ERTCOMPONENTS_BUILDENV in
+# target/envbuildscripts/target_buildenv_run_command.sh.
 
 FROM ubuntu:22.04
 
@@ -33,7 +32,17 @@ ARG DEBIAN_FRONTEND=noninteractive
 # XTC Tools version — update this ARG to match the version you downloaded.
 # Also update COMPONENT_BASE_TECHNOLOGIES in config.mk if the major version changes.
 ARG XTC_VERSION=15.3.1
-ARG XTC_INSTALL_DIR=/opt/XMOS/XTC/${XTC_VERSION}
+
+# Base directory into which the archive is extracted.
+# The XMOS XTC Tools archive has the internal structure:
+#   <top-level-dir>/XTC/<version>/bin/xcc
+#                                /include/
+#                                /lib/
+#                                ...
+# With --strip-components=1 the top-level directory is removed, so extracting
+# into XMOS_INSTALL_BASE produces:
+#   ${XMOS_INSTALL_BASE}/XTC/${XTC_VERSION}/bin/xcc   ← correct
+ARG XMOS_INSTALL_BASE=/opt/XMOS
 
 # Install host build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -64,14 +73,16 @@ RUN pip3 install --no-cache-dir \
 #   target/platform/xcore_freertos-xcore-base/xtc-tools-linux.tgz
 # before running 'make build_docker_local'. See instructions at the top of this file.
 COPY target/platform/xcore_freertos-xcore-base/xtc-tools-linux.tgz /tmp/xtc-tools.tgz
-RUN mkdir -p ${XTC_INSTALL_DIR} \
-    && tar -xf /tmp/xtc-tools.tgz -C ${XTC_INSTALL_DIR} --strip-components=1 \
+RUN mkdir -p ${XMOS_INSTALL_BASE} \
+    && tar -xf /tmp/xtc-tools.tgz -C ${XMOS_INSTALL_BASE} --strip-components=1 \
+    && chmod -R a+rX ${XMOS_INSTALL_BASE} \
     && rm /tmp/xtc-tools.tgz
 
 # Set XMOS_TOOL_PATH so xcc can locate device target files, builtins, and libraries.
-# This ENV is inherited by all processes run in the container.
-ENV XMOS_TOOL_PATH=${XTC_INSTALL_DIR}
-ENV PATH="${XTC_INSTALL_DIR}/bin:${PATH}"
+# Both variables are baked into the image at build time — they do not need to be
+# passed at runtime via INX_ERTCOMPONENTS_BUILDENV.
+ENV XMOS_TOOL_PATH=${XMOS_INSTALL_BASE}/XTC/${XTC_VERSION}
+ENV PATH="${XMOS_INSTALL_BASE}/XTC/${XTC_VERSION}/bin:${PATH}"
 
 # Create the inxware build user matching the host uid/gid pattern
 RUN groupadd --gid 1000 inxware \

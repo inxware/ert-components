@@ -28,9 +28,13 @@ compiler has specific requirements:
 
 1. **`XMOS_TOOL_PATH`** — `xcc` is not self-contained. It requires `XMOS_TOOL_PATH` set to the
    XTC Tools installation directory to locate xcore device target files (`.xn`), builtins, and
-   toolchain libraries. This is set inside the Docker container (see the platform Dockerfile).
-   The `XMOS_TOOL_PATH` variable is passed through to the Docker container via
-   `INX_ERTCOMPONENTS_BUILDENV` in `target/envbuildscripts/target_buildenv_run_command.sh`.
+   toolchain libraries. This is set as a Docker image `ENV` variable in the platform `Dockerfile`
+   (baked in at `make build_docker_local` time) so it is always available inside the container
+   without needing a runtime `-e` flag.
+   If you need to override `XMOS_TOOL_PATH` at runtime (e.g. to test a different XTC version),
+   add it to `INX_ERTCOMPONENTS_BUILDENV` in
+   `target/envbuildscripts/target_buildenv_run_command.sh` — see `BUILDING.md` for the general
+   rule on passing host variables into the Docker container.
 
 2. **Output format** — `xcc` links to `.xe` (XMOS executable) format rather than ELF. The
    `EXE=xe` variable is set accordingly. Use `xflash` to program the device.
@@ -101,7 +105,7 @@ make targetenv_esp32   # (XMOS equivalent — TBD: targetenv_xcore)
 
 | File | Purpose |
 |------|---------|
-| `toolchain.mk` | Compiler/assembler/linker selection; `xcc` flags; `XMOS_TOOL_PATH` reference |
+| `toolchain.mk` | `CC_OVERRIDE`/`LINK_OVERRIDE` binary selection (gnu_ALL pattern); `XMOS_TOOL_PATH` absolute-path prepending; `xcc` flags; INC/CFLAGS/LNKFLAGS expansion |
 | `target.mk` | Object files, include paths, library flags for the RTOS and peripheral libs |
 | `config.mk` | Default feature flags for all xcore FreeRTOS targets |
 

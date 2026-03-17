@@ -28,8 +28,9 @@ TOOLCHAIN_NAME=xtc-tools-15.x
 COMPONENT_BASE_TECHNOLOGIES=xcore_freertos-xcore-xtc-15.x
 
 # Board target — overridden per-board in derived platform configs.
-# This is passed to xcc as -target <XMOS_BOARD_TARGET>.
-# Use a board name (e.g. XCORE-AI-EXPLORER) or a path to a .xn file.
+# Passed to xcc as -target=<XMOS_BOARD_TARGET> (equals sign, no space).
+# XN files live at $(XMOS_TOOL_PATH)/targets/<BOARD>/<BOARD>.xn inside the container.
+# Run 'xcc -print-boards' inside the container to list all recognised names.
 XMOS_BOARD_TARGET=XCORE-AI-EXPLORER
 
 

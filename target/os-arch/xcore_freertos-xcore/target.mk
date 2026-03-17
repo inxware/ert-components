@@ -98,6 +98,7 @@ endif
 # XMOS SDK libraries (pre-built, in ert-contrib-middleware target_libs)
 # Core FreeRTOS/RTOS support — always required.
 # Peripheral libs are added conditionally by Component-HAL makefiles.
+# These are expanded to -l flags by toolchain.mk via $(foreach i,$(LIB),-l$i).
 # -----------------------------------------------------------------------------
 
 LIB += freertos

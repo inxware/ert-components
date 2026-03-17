@@ -309,10 +309,22 @@ The inxware eRT build configuration system allows different types of dependencie
 
 ### The inxware build process may involve one or more of the following steps depending on the novelty of the target being built for with respect to existing target support:
 
-* Creating a new docker environment to run the build tools and provide library dependencies.  
-* Creating basic support for a new operating system or silicon architecture.  
-* Building open source (or proprietary) third-party contributed dependencies in their respective build environments for linking with eRT.  
+* Creating a new docker environment to run the build tools and provide library dependencies.
+* Creating basic support for a new operating system or silicon architecture.
+* Building open source (or proprietary) third-party contributed dependencies in their respective build environments for linking with eRT.
 * Creating a new specific variant of a platform (e.g. with different configuration or specific additional features, default applications etc.).
+
+### Passing environment variables into the Docker container
+
+Docker containers do **not** automatically inherit the host shell or Make environment. Any Make or bash variable that the build needs inside the container must be explicitly listed in the `INX_ERTCOMPONENTS_BUILDENV` string inside:
+
+```
+target/envbuildscripts/target_buildenv_run_command.sh
+```
+
+Each entry is passed as `-e VARIABLE_NAME` in the `docker run` invocation. When adding a new platform or toolchain that requires an additional variable (for example a licence path, SDK root directory, or board selection flag), add it to that list — otherwise the build will silently see an empty value for that variable inside the container.
+
+Variables set directly in the platform `Dockerfile` with the `ENV` directive are baked into the image at `make build_docker_local` time and are always available inside the container without needing an entry in `INX_ERTCOMPONENTS_BUILDENV`.
 
 The most frequent use-case is rebuilding an already configured target platform, wich will be described first in the next section:
 
