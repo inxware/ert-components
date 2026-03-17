@@ -304,178 +304,151 @@ HAL components use a three-layer architecture:
    - Handles ports, events, and state management
    - Uses EHS API macros for port access
 
-2. **Common HAL API  Layer** (`Common/HAL/[category]/inx_[name].c`)
-   - API Headers should go in `./Common/HAL/include/inx_[name].h`)
-   - Platform-independent bridge between component and HAL
-   - The HAL also contains common utility and processing functions that may not have a hardware or target-specific implementation.
-   - For cases of bridging to `./target/Component-HAL/` the common code may 
-   - - translates component state to HAL configuration
-   - - Handles callbacks from HAL to component InternalPorts
-   - - Stores callback data in component state before triggering internal port functions
+2. **Common HAL API Layer** (`Common/HAL/[category]/inx_[name].c`)
+   - API headers in `Common/HAL/include/inx_[name].h`
+   - Platform-independent bridge between component and target HAL
+   - Translates component state to HAL configuration
+   - Handles callbacks from target HAL to component InternalPorts
+   - May contain utility/processing logic with no target-specific implementation
 
-3. **target HAL Layer** (`target/Component-HAL/[subsystem]/[implementation]/`)
+3. **Target HAL Layer** (`target/Component-HAL/[subsystem]/[implementation]/`)
    - Platform-specific hardware/SDK integration
-   - Multiple implementations per subsystem (e.g., `nimble`, `stubbed`)
-   - Provides uniform API regardless of underlying platform
+   - Multiple implementations per subsystem (e.g., `nimble`, `sferalabs`, `stubbed`)
+   - All implementations expose the same C function API
 
-### Creating HAL-Dependent Components
+### Target HAL Makefile Pattern
 
-#### 1. Define HAL Support Variable
+This is the standard pattern used across all subsystems. It must be followed consistently.
 
-In `target/platform/[target]/config.mk`, set the implementation type:
+#### component-hal.mk — top-level entry point
+
+`target/Component-HAL/component-hal.mk` contains one entry per subsystem:
 
 ```makefile
-# BLE Support - specify implementation
-EHS_NETWORK_BLE_SUPPORT=nimble     # For ESP32 with NimBLE
-# EHS_NETWORK_BLE_SUPPORT=stubbed  # For platforms without BLE
+ifdef EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT
+ifneq ($(EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]/[subsystem]_common.mk
+endif
+endif
 ```
 
-**Naming Convention:**
-- Use `EHS_NETWORK_[SUBSYSTEM]_SUPPORT` for networking features
-- Use `EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT` for peripherals
-- Use `EHS_[SUBSYSTEM]_SUPPORT` for other features
-- Value should be the implementation name (e.g., `lvgl`, `gtk`,`nimble`, `stubbed`, `esp32`, `linux`)
+The variable value (`stubbed`, `sferalabs`, `nimble`, etc.) is **not inspected here**. All selection logic lives in the subsystem's own common makefile.
 
-#### 2. Create HAL Directory Structure
+#### [subsystem]_common.mk — path construction and shared build rules
+
+`target/Component-HAL/[subsystem]/[subsystem]_common.mk`:
+
+```makefile
+EHS_COMMON_[SUBSYSTEM]_HAL_PATH = $(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]
+EHS_TARGET_[SUBSYSTEM]_HAL_PATH = $(EHS_COMMON_[SUBSYSTEM]_HAL_PATH)/$(EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT)
+
+INC_DIRS += $(EHS_COMMON_[SUBSYSTEM]_HAL_PATH)
+INC_DIRS += $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)
+VPATH    += $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)
+
+OBJECTS  += target_[subsystem].$(OBJ)
+
+# Include implementation-specific extras (extra libs, extra includes, DEFS).
+include $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)/target_[subsystem].mk
+```
+
+The variable value drives the path directly — no `ifeq` ladder needed to find the right directory.
+
+#### target/Component-HAL/[subsystem]/[implementation]/target_[subsystem].mk — per-implementation extras
+
+Each implementation directory contains a `target_[subsystem].mk` that adds only what is unique to that implementation:
+
+```makefile
+# Real hardware implementation — add vendor library
+LIB += somevendorlib
+
+# OR: add a shared board-definitions include path
+INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/shared_board_defs
+
+# OR: for stubbed — nothing needed
+# (file exists but is empty or has a comment only)
+```
+
+**The `stubbed` implementation is a peer of all other implementations** — it lives in `[subsystem]/stubbed/`, has its own `target_[subsystem].mk` (which may be empty), and provides a `target_[subsystem].c` that implements every function as a no-op returning an error code. It should never be given special treatment in `component-hal.mk` or `[subsystem]_common.mk`. There is no reason to skip compiling stubs from a higher level (they are small, and keeping the build consistent across platforms is more valuable than the trivial space saving). This allows hardware apps to be run on windows machines for instance without bailing because of missed function blocks.
+
+#### Full directory layout
 
 ```
 target/Component-HAL/[subsystem]/
-├── [subsystem].mk                    # Main HAL makefile
-├── [implementation1]/                # First implementation (e.g., nimble)
-│   ├── target_[subsystem].mk        # Implementation-specific makefile
-│   ├── [subsystem]_[impl].c         # Implementation source
-│   └── [subsystem]_[impl].h         # Implementation header
-└── stubbed/                          # Stub for unsupported platforms
-    ├── target_[subsystem].mk        # Stubbed makefile
-    ├── [subsystem]_stubbed.c        # Stub returning errors
-    └── [subsystem]_stubbed.h        # Stub header
+├── [subsystem]_common.mk             # Path construction + shared OBJECTS/VPATH/INC
+├── [implementation1]/                # e.g., nimble, sferalabs, esp32_idf
+│   ├── target_[subsystem].mk        # Implementation extras (libs, extra INC_DIRS)
+│   ├── target_[subsystem].c         # Implementation source
+│   └── target_[subsystem].h         # Implementation header
+└── stubbed/                          # No-op implementation — a peer, not special
+    ├── target_[subsystem].mk        # Usually empty
+    ├── target_[subsystem].c         # All functions return error codes
+    └── target_[subsystem].h         # Same header as other implementations
 ```
 
-#### 3. Create Main HAL Makefile
+### Creating a New HAL Subsystem
 
-`target/Component-HAL/[subsystem]/[subsystem].mk`:
+#### 1. Define the support variable in platform config
+
+`target/platform/[target]/config.mk`:
 
 ```makefile
-# [Subsystem] HAL Makefile
-
-# Determine which implementation to use based on platform variable
-ifdef EHS_NETWORK_[SUBSYSTEM]_SUPPORT
-ifneq ($(EHS_NETWORK_[SUBSYSTEM]_SUPPORT),none)
-
-    # Define paths based on implementation type
-    EHS_COMMON_[SUBSYSTEM]_HAL_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]
-    EHS_TARGET_[SUBSYSTEM]_HAL_PATH=$(EHS_COMMON_[SUBSYSTEM]_HAL_PATH)/$(EHS_NETWORK_[SUBSYSTEM]_SUPPORT)
-
-    # Include implementation-specific makefile
-    include $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)/target_[subsystem].mk
-
-    # Add include paths
-    INC_DIRS += $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)
-
-    # Add to VPATH so make can find sources
-    VPATH += $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)
-
-endif
-endif
+EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT=myimpl   # or: stubbed, none
 ```
 
-**Key Points:**
-- Use conditional includes (`include $(EHS_TARGET_..._HAL_PATH)/target_[subsystem].mk`)
-- Let each implementation's makefile specify its own `OBJECTS +=` entries
-- This keeps implementation-specific build logic in implementation directories
-- Avoids complex conditionals in the main HAL makefile
+**Naming conventions:**
+- `EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT` for I/O peripherals
+- `EHS_NETWORK_[SUBSYSTEM]_SUPPORT` for networking features
+- `EHS_[SUBSYSTEM]_SUPPORT` for other categories
+- Value = implementation directory name (`myimpl`, `stubbed`, `esp32_idf`, ...)
+- `none` means the feature is excluded from the build entirely
 
-#### 4. Create Implementation Makefiles
-
-`target/Component-HAL/[subsystem]/[implementation]/target_[subsystem].mk`:
-
-```makefile
-# [Implementation] [Subsystem] HAL Makefile
-
-# Add implementation-specific source files
-OBJECTS += [subsystem]_[implementation].$(OBJ)
-
-# Add glue layer (shared across implementations)
-OBJECTS += inx-[subsystem]_hal_glue.$(OBJ)
-
-# Add any implementation-specific includes or defines
-# INC_DIRS += $(EHS_TARGET_[SUBSYSTEM]_HAL_PATH)/lib
-# DEFS += [IMPLEMENTATION]_SPECIFIC_FLAG
-```
-
-#### 5. Integrate into Component-HAL
-
-In `target/Component-HAL/component-hal.mk`, add a section:
+#### 2. Add entry to component-hal.mk
 
 ```makefile
 ########################################################################################################
-## [Subsystem Description]
+## [Subsystem]
 ########################################################################################################
-ifdef EHS_NETWORK_[SUBSYSTEM]_SUPPORT
-ifneq ($(EHS_NETWORK_[SUBSYSTEM]_SUPPORT),none)
-DEFS += EHS_NETWORK_[SUBSYSTEM]_SUPPORT
-include $(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]/[subsystem].mk
+ifdef EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT
+ifneq ($(EHS_PERIPHERALS_[SUBSYSTEM]_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]/[subsystem]_common.mk
 endif
 endif
 ```
 
-#### 6. Add Component to Networking/Component Makefile
+#### 3. Create [subsystem]_common.mk
 
-In `Common/Components/networking/components.mk` (or appropriate category):
+Follow the template above. The `OBJECTS +=` line for the main source file goes here, not in the per-implementation `.mk`.
 
-```makefile
-# [Subsystem] support
-ifdef EHS_NETWORK_[SUBSYSTEM]_SUPPORT
-ifneq ($(EHS_NETWORK_[SUBSYSTEM]_SUPPORT),none)
-ifneq ($(EHS_NETWORK_[SUBSYSTEM]_SUPPORT),)
-	DEFS += EHS_NETWORK_[SUBSYSTEM]_SUPPORT
-	OBJECTS += inx-[component].$(OBJ)
-	# Add HAL include path for glue layer
-	INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/[subsystem]/$(EHS_NETWORK_[SUBSYSTEM]_SUPPORT)
-endif
-endif
-endif
-```
+#### 4. Create the stubbed implementation first
+
+`target_[subsystem].c` — every public function returns an error code (e.g. `-1` or a subsystem-specific `ENOTSUPPORTED` enum value). `target_[subsystem].h` — full API declaration. `target_[subsystem].mk` — empty (or a single comment).
+
+The stubbed implementation serves as the canonical API reference and ensures every platform can compile even without hardware.
+
+#### 5. Create real implementations
+
+Each implementation adds only what differs from the API contract: vendor library linkage, vendor-specific includes, hardware register initialisation. The `.mk` carries only the build differences; the `.c` carries only the functional differences.
 
 ### HAL Interface Best Practices
 
 #### Data Types
-- **Always use ehs_ types in Common/ code:** `ehs_uint8`, `ehs_uint16`, `ehs_uint32`, `ehs_bool`, `ehs_char`
-- **Use ehs_ types in HAL headers:** Ensures cross-platform compatibility
-- **Platform-specific types only in .c files:** OK to use SDK types internally, but interface must use ehs_ types
+- **Always use `ehs_` types in `Common/` code:** `ehs_uint8`, `ehs_uint16`, `ehs_uint32`, `ehs_bool`, `ehs_char`
+- **Use `ehs_` types in HAL headers:** ensures cross-platform compatibility
+- **Platform-specific types only in `.c` files:** OK internally, but the interface must use `ehs_` types
 
 #### Callback Pattern
 HAL implementations often need to trigger component InternalPorts from interrupts or threads:
 
-1. **HAL receives async event** (ISR, thread callback)
-2. **HAL calls glue layer callback** with event data
-3. **Glue layer stores data in component state**
+1. HAL receives async event (ISR, thread callback)
+2. HAL calls glue layer callback with event data
+3. Glue layer stores data in component state:
    ```c
-   state->cb_char_idx = char_idx;
    state->cb_data_len = length;
    memcpy(state->cb_data, data, length);
    ```
-4. **Glue layer calls InternalPort function**
-   ```c
-   EhsRunble_service_on_client_write(pFIdata);
-   ```
-5. **InternalPort function populates outputs from state**
-   ```c
-   EHS_FB_OUT_I_API2(port_idx) = state->cb_char_idx;
-   ```
-6. **InternalPort triggers finish event**
-   ```c
-   EHS_FB_FINISH(event_idx);
-   ```
-
-#### Stubbed Implementations
-Always provide a stubbed implementation for platforms without hardware support:
-
-- All functions return `-1` (error)
-- Read functions set output length to `0`
-- Deinit function does nothing
-- Allows components to compile on all platforms
-- Enables cross-platform build checks
+4. Glue layer fires InternalPort function: `EhsMyComponent_onEvent(pFIdata);`
+5. InternalPort populates output ports from state, then calls `EHS_FB_FINISH(event_idx)`
 
 ### Example: BLE Service Component
 

@@ -242,11 +242,10 @@ endif
 ########################################################################################################
 ## UART / Serial
 ########################################################################################################
-#todo2025 this needs to be conditional on this beinavavilable (or GPIO toolbox being enabled)
-ifeq ($(EHS_PERIPHERALS_UART_SUPPORT),sferalabs)
-include $(EHS_TARGET_COMPONENT_HAL_PATH)/uart/sferalabs/target_sferalabs_uart.mk
-else
-include $(EHS_TARGET_COMPONENT_HAL_PATH)/uart/stubbed/target_stubbed_uart.mk
+ifdef EHS_PERIPHERALS_UART_SUPPORT
+ifneq ($(EHS_PERIPHERALS_UART_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/uart/uart_common.mk
+endif
 endif
 
 ########################################################################################################
