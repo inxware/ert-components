@@ -106,7 +106,7 @@ EHS_FB_INIT_FUNCTION(indexed_mux_int)
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(indexed_mux_int)
 {
-	inx_indexed_mux_int_state_type *inx_indexed_mux_int_state = (inx_indexed_mux_int_state_type*)EHS_FB_DESTROY_CONTEXT;
+	//inx_indexed_mux_int_state_type *inx_indexed_mux_int_state = (inx_indexed_mux_int_state_type*)EHS_FB_DESTROY_CONTEXT;
 	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE

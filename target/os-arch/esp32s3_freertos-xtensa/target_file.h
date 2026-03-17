@@ -41,7 +41,9 @@
 /*****************************************************************************/
 /* Define macros  */
 
+#ifndef EHS_TARGET_FILE_SKIP_STAT
 #define EHS_TARGET_FILE_SKIP_STAT yes
+#endif
 
 
 /* If we want to use the super small flash file system durectory free files

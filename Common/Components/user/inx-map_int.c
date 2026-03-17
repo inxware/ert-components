@@ -65,7 +65,7 @@ void ehs_parse_string_to_map(const ehs_char* str, ehs_sint32 arr[EHS_CAPACITY_OF
 
         // Read the key
         int key = 0;
-        while (isdigit(*ptr)) {
+        while (isdigit((unsigned char)*ptr)) {
             key = key * 10 + (*ptr - '0');
             ptr++;
         }
@@ -84,7 +84,7 @@ void ehs_parse_string_to_map(const ehs_char* str, ehs_sint32 arr[EHS_CAPACITY_OF
 
         // Read the value
         int value = 0;
-        while (isdigit(*ptr)) {
+        while (isdigit((unsigned char)*ptr)) {
             value = value * 10 + (*ptr - '0');
             ptr++;
         }

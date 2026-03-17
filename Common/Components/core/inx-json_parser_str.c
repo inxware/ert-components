@@ -144,7 +144,7 @@ EHS_FB_INIT_FUNCTION(json_parser_str)
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(json_parser_str)
 {
-    inx_json_parser_str_state_type *inx_json_parser_str_state = (inx_json_parser_str_state_type*)EHS_FB_DESTROY_CONTEXT;
+    //inx_json_parser_str_state_type *inx_json_parser_str_state = (inx_json_parser_str_state_type*)EHS_FB_DESTROY_CONTEXT;
     return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
@@ -159,7 +159,6 @@ EHS_FB_DESTROY_FUNCTION(json_parser_str)
 EHS_FB_RUN_FUNCTION(json_parser_str_parse)
 {
     inx_json_parser_str_state_type* inx_json_parser_str_state = (inx_json_parser_str_state_type*)EHS_FB_RUN_CONTEXT;
-    ehs_uint8 count = 0;
     ehs_uint8 i = 0;
     ehs_sint32 n_elements = 0;
     ehs_uint8 ret_code = 0;

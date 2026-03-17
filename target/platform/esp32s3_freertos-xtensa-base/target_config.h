@@ -147,11 +147,11 @@
 /* Overrides go here */
 #ifndef EHS_CONFIG_DISPLAY_HEIGHT
 #define EHS_CONFIG_DISPLAY_HEIGHT 480 /* Reference board display */
-#define EHS_CONFIG_DISPLAY_HEIGHT 240 /* 3.5 inch Newhaven       */
+//#define EHS_CONFIG_DISPLAY_HEIGHT 240 /* 3.5 inch Newhaven       */
 #endif
 #ifndef EHS_CONFIG_DISPLAY_WIDTH
 #define EHS_CONFIG_DISPLAY_WIDTH 800 /* Reference board display */
-#define EHS_CONFIG_DISPLAY_WIDTH 320 /* 3.5 inch Newhaven       */
+//#define EHS_CONFIG_DISPLAY_WIDTH 320 /* 3.5 inch Newhaven       */
 #endif
 
 /* LVGL heap size */

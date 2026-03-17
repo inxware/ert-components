@@ -145,7 +145,7 @@ EHS_FB_INIT_FUNCTION(json_parser_real)
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(json_parser_real)
 {
-    inx_json_parser_real_state_type *inx_json_parser_real_state = (inx_json_parser_real_state_type*)EHS_FB_DESTROY_CONTEXT;
+    //inx_json_parser_real_state_type *inx_json_parser_real_state = (inx_json_parser_real_state_type*)EHS_FB_DESTROY_CONTEXT;
     return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
