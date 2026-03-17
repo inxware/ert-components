@@ -195,6 +195,104 @@ python3 scripts/software-utilities/cdf_to_ascii.py \
 
 ---
 
+## Function Block C Implementation
+
+### Required include
+
+Every function block `.c` file must include `inx-component.h` as its first inx header:
+
+```c
+#include "inx-component.h"
+#include "<block_name>.h"
+#include "hal_<block_name>.h"
+```
+
+`inx-component.h` provides all `EHS_FB_*` KAPI macros. Do **not** use `globals.h` as the primary include in function block `.c` files — it lacks the KAPI macros.
+
+### KAPI macro reference
+
+| Operation | Macro | Notes |
+|---|---|---|
+| Fire a FinishPort | `EHS_FB_FINISH_API2(arg_num)` | `arg_num` = the `argument=` value in the CDF |
+| Write integer output | `EHS_FB_OUT_I_API2(arg) = value` | **lvalue** — use assignment syntax |
+| Write boolean output | `EHS_FB_OUT_B_API2(arg) = value` | **lvalue** — use assignment syntax |
+| Write float output | `EHS_FB_OUT_F_API2(arg) = value` | **lvalue** — use assignment syntax |
+| Write string output | `EHS_FB_OUT_S_API2(arg)` | returns `char *` buffer — write into it |
+| Read integer input | `EHS_FB_IN_I_API2(arg)` | rvalue |
+| Read boolean input | `EHS_FB_IN_B_API2(arg)` | rvalue |
+| Read float input | `EHS_FB_IN_F_API2(arg)` | rvalue |
+| Check port connected | `EHS_FB_IN_CONNECTED_API2(arg)` / `EHS_FB_OUT_CONNECTED_API2(arg)` | |
+
+**Critical**: `EHS_FB_OUT_I_API2(arg)` is a pointer-dereference **lvalue**, not a function call.
+Always assign: `EHS_FB_OUT_I_API2(arg) = value;`  — never `EHS_FB_OUT_I_API2(arg, value)`.
+
+There is no `EHS_FB_FINISH_PORT("name")` macro. Always use `EHS_FB_FINISH_API2(arg_num)` with the numeric argument number from the CDF `<Function argument="N">` attribute.
+
+### InternalPort async callback pattern
+
+InternalPorts (at `XCoordinate=-1`, `YCoordinate=-1` in the CDF) are callback functions fired asynchronously by the HAL. They use the `EhsCallbackQueue` mechanism — the same pattern as UART's `recv_cb` in `inx-uart.c`.
+
+**Module-level (in the `.c` file):**
+```c
+static EhsCallbackQueueType xMyEventQueue;
+```
+
+**Per-instance state (in `hal_<block>.h`, inside the state struct):**
+```c
+EhsCallbackQueueEntryType xMyEventEntry;
+EhsCallbackQueueType     *pMyEventQueue;   /* pointer set at init so HAL can fire it */
+```
+
+**`EHS_FB_INIT_FUNCTION`:**
+```c
+state->pMyEventQueue = &xMyEventQueue;
+EhsCallbackQueue_register(&xMyEventQueue,
+                           EHS_FB_RUN_NAME(block_my_event_cb),
+                           EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(-1),  /* -1 = 1st InternalPort, -2 = 2nd */
+                           &(state->xMyEventEntry));
+```
+
+**HAL implementation fires the callback:**
+```c
+EhsCallbackQueue_execute(state->pMyEventQueue);
+```
+
+**The callback run function** only needs to fire its FinishPort:
+```c
+EHS_FB_RUN_FUNCTION(block_my_event_cb)
+{
+    EHS_FB_FINISH_API2(1);
+}
+```
+
+The `hal_<block>.h` must include `"callback_queue.h"` for the `EhsCallbackQueue*` types.
+
+---
+
+## CDF `<Functions>` naming convention
+
+The `<name>` element inside each `<Function>` in the `<Functions>` section must be a **lowercase descriptive name matching the C function name without the block prefix**. This is the established convention (see `uart.cdf`: `start`, `close`, `recv_cb`, `send`, `flush`).
+
+**Correct:**
+```xml
+<Function>
+    <name>read_status</name>
+    <ID>
+        <ERT1_ID>1</ERT1_ID>
+    </ID>
+</Function>
+```
+
+**Wrong** (agent-generated PascalCase — do not use):
+```xml
+<Function>
+    <name>ReadStatusFunc</name>
+    <ID><ERT1_ID>1</ERT1_ID></ID>
+</Function>
+```
+
+---
+
 ## Build note for cross-compilation targets
 
 Always use `make all_docker` — `make all` fails on cross-compilation targets (e.g. arm64 built on x86_64) because the host lacks the sysroot headers (`bits/libc-header-start.h` etc.).

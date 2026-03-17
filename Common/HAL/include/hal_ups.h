@@ -8,33 +8,42 @@
  ***************************************************************/
 
 /** @file hal_ups.h
- * Hardware abstraction layer for the UPS / power-fail monitoring peripheral.
+ * Hardware abstraction layer for UPS / power-fail monitoring.
  *
- * @author: inx limited
+ * The state struct embeds two EhsCallbackQueueEntryType entries so that the
+ * function block can register async callbacks (power-fail, power-restore) with
+ * the eRT callback-queue mechanism, exactly as the UART block does for receive.
+ *
+ * ups.c stores pointers to the module-level queues in pPowerFailQueue and
+ * pPowerRestoreQueue at init.  The HAL implementation calls
+ * EhsCallbackQueue_execute() on the appropriate queue when it detects a
+ * power-state transition.
  */
 
 #ifndef _HAL_UPS_H
 #define _HAL_UPS_H
 
 #include "globals.h"
+#include "callback_queue.h"
 
 typedef struct
 {
     ehs_bool    on_battery;
     ehs_sint32  battery_mv;
-    void      (*on_fail_cb)(void *);
-    void      (*on_restore_cb)(void *);
-    void       *cb_ctx;
+    /* Callback queue entries — populated by ups.c at init */
+    EhsCallbackQueueEntryType xPowerFailEntry;
+    EhsCallbackQueueEntryType xPowerRestoreEntry;
+    /* Queue pointers set by ups.c so the HAL can fire them */
+    EhsCallbackQueueType     *pPowerFailQueue;
+    EhsCallbackQueueType     *pPowerRestoreQueue;
 } ehs_ups_state_type;
 
 /** Read the current UPS status into state->on_battery and state->battery_mv.
  *  Returns 0 on success, -1 on error. */
 EHS_GLOBAL int EhsTUpsReadStatus(ehs_ups_state_type *state);
 
-/** Register power-fail and power-restore callbacks stored in state.
- *  The implementation is responsible for triggering the callbacks when
- *  the power source changes.  A polling thread or interrupt handler may
- *  be used; the stubbed implementation is a no-op.
+/** Register the callback queues with the HAL so it can fire them on
+ *  power-state transitions.  The stubbed implementation is a no-op.
  *  Returns 0 on success, -1 on error. */
 EHS_GLOBAL int EhsTUpsRegisterCallbacks(ehs_ups_state_type *state);
 

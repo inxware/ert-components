@@ -60,12 +60,16 @@
     </Parameters>
     <Functions>
         <Function>
-            <name>BeepFunc</name>
-            <ID><ERT1_ID>1</ERT1_ID></ID>
+            <name>beep</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
         </Function>
         <Function>
-            <name>StopFunc</name>
-            <ID><ERT1_ID>2</ERT1_ID></ID>
+            <name>stop</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
         </Function>
     </Functions>
     <Ports>

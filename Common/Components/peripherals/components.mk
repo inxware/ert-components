@@ -159,28 +159,8 @@ endif
 endif
 endif
 
-# Default new peripheral blocks to stubbed so all targets build and run any app.
-ifndef EHS_WATCHDOG_SUPPORT
-EHS_WATCHDOG_SUPPORT=stubbed
-endif
-ifndef EHS_UPS_SUPPORT
-EHS_UPS_SUPPORT=stubbed
-endif
-ifndef EHS_BUZZER_SUPPORT
-EHS_BUZZER_SUPPORT=stubbed
-endif
-ifndef EHS_SD_SELECT_SUPPORT
-EHS_SD_SELECT_SUPPORT=stubbed
-endif
-ifndef EHS_USB_POWER_SUPPORT
-EHS_USB_POWER_SUPPORT=stubbed
-endif
-ifndef EHS_ACCELEROMETER_SUPPORT
-EHS_ACCELEROMETER_SUPPORT=stubbed
-endif
-ifndef EHS_RS485_CONFIG_SUPPORT
-EHS_RS485_CONFIG_SUPPORT=stubbed
-endif
+# EHS_WATCHDOG_SUPPORT, EHS_UPS_SUPPORT etc. are set by the platform's
+# os-arch/config.mk (or platform/config.mk).
 
 ifdef EHS_WATCHDOG_SUPPORT
 ifneq ($(EHS_WATCHDOG_SUPPORT),none)

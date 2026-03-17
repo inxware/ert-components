@@ -42,12 +42,16 @@
     <Parameters/>
     <Functions>
         <Function>
-            <name>SelectFunc</name>
-            <ID><ERT1_ID>1</ERT1_ID></ID>
+            <name>select</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
         </Function>
         <Function>
-            <name>ReadActiveFunc</name>
-            <ID><ERT1_ID>2</ERT1_ID></ID>
+            <name>read_active</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
         </Function>
     </Functions>
     <Ports>

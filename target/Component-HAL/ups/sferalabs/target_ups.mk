@@ -1,3 +1,3 @@
-# Add the shared Sfera Labs board definitions to the include path
-EHS_SFERALABS_COMMON_PATH=$(EHS_TARGET_COMPONENT_HAL_PATH)/sferalabs
-INC_DIRS+=$(EHS_SFERALABS_COMMON_PATH)
+# Sfera Labs UPS HAL makefile.
+# Pulls in the shared sferalabs build rules (poll threads, include paths).
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/sferalabs/sferalabs_common.mk

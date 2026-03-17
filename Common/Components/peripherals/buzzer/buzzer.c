@@ -16,7 +16,7 @@
  *   stop (0x02) — stop the buzzer immediately
  */
 
-#include "globals.h"
+#include "inx-component.h"
 #include "buzzer.h"
 #include "hal_buzzer.h"
 
@@ -25,9 +25,11 @@ EHS_FB_FUNCTION_ENTRY("beep", 0x01, buzzer_beep)
 EHS_FB_FUNCTION_ENTRY("stop", 0x02, buzzer_stop)
 EHS_FB_FUNCTIONS_END
 
-/* Port argument numbers */
-#define INX_buzzer_ARG_freq_hz     1   /* Input: frequency in Hz      */
-#define INX_buzzer_ARG_duration_ms 2   /* Input: duration in ms       */
+/* Port argument numbers (from CDF <Function argument="N">) */
+#define INX_buzzer_ARG_freq_hz     1   /* InputPort:  freq_hz (fn1, arg=1)    */
+#define INX_buzzer_ARG_duration_ms 2   /* InputPort:  duration_ms (fn1, arg=2) */
+#define INX_buzzer_ARG_done        1   /* FinishPort: done (fn1, arg=1)       */
+#define INX_buzzer_ARG_stopped     1   /* FinishPort: stopped (fn2, arg=1)    */
 
 
 EHS_FB_IDENTIFY_FUNCTION(buzzer)
@@ -52,7 +54,7 @@ EHS_FB_RUN_FUNCTION(buzzer_beep)
     ehs_sint32 freq_hz     = EHS_FB_IN_I_API2(INX_buzzer_ARG_freq_hz);
     ehs_sint32 duration_ms = EHS_FB_IN_I_API2(INX_buzzer_ARG_duration_ms);
     EhsTBuzzerBeep(state, freq_hz, duration_ms);
-    EHS_FB_FINISH_PORT("done");
+    EHS_FB_FINISH_API2(INX_buzzer_ARG_done);
 }
 
 /* Stop the buzzer */
@@ -60,7 +62,7 @@ EHS_FB_RUN_FUNCTION(buzzer_stop)
 {
     ehs_buzzer_state_type *state = (ehs_buzzer_state_type *)EHS_FB_RUN_CONTEXT;
     EhsTBuzzerStop(state);
-    EHS_FB_FINISH_PORT("stopped");
+    EHS_FB_FINISH_API2(INX_buzzer_ARG_stopped);
 }
 
 EHS_FB_DESTROY_FUNCTION(buzzer)

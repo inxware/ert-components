@@ -430,6 +430,43 @@ The stubbed implementation serves as the canonical API reference and ensures eve
 
 Each implementation adds only what differs from the API contract: vendor library linkage, vendor-specific includes, hardware register initialisation. The `.mk` carries only the build differences; the `.c` carries only the functional differences.
 
+### os-arch Default Configuration Convention
+
+#### Where defaults belong
+
+The `EHS_X_SUPPORT` variables that control both HAL compilation (`component-hal.mk`) and function block compilation (`components.mk`) **must be set before `component-hal.mk` runs**. The build ordering in `platform.mk` is:
+
+1. `target/platform/<TARGET>/config.mk` — hardware-specific values (real implementation names)
+2. `target/os-arch/<OS-ARCH>/config.mk` — architecture-wide defaults (stubbed, none, or common defaults)
+3. `target/Component-HAL/component-hal.mk` — compiles HAL based on the variable values
+4. `Common/Components/.../components.mk` — compiles function blocks based on the same variables
+
+Defaults and stubbed directives must be set at step 2 (os-arch level) or earlier. Setting them in `components.mk` (step 4) is **too late** for `component-hal.mk` to see them — this causes linker errors because the HAL stubs are not compiled but the function blocks reference HAL symbols.
+
+#### `?=` is the preferred style for os-arch defaults
+
+Use `VAR ?= value` in os-arch `config.mk` files. This is equivalent to `ifndef VAR / VAR=value / endif` but cleaner:
+
+```makefile
+# Preferred
+EHS_WATCHDOG_SUPPORT ?= stubbed
+
+# Old style — avoid for new additions
+ifneq ($(EHS_WATCHDOG_SUPPORT),none)
+ifndef EHS_WATCHDOG_SUPPORT
+    EHS_WATCHDOG_SUPPORT=stubbed
+endif
+endif
+```
+
+Note: the `ifneq (...,none)` wrapper in the old style provides an opt-out mechanism. With `?=`, a platform that genuinely wants to exclude a feature should set `EHS_X_SUPPORT=none` in its platform `config.mk` before os-arch runs — but since platform `config.mk` runs before os-arch, the `?=` in os-arch will not overwrite a `none` value set by the platform. The opt-out still works correctly.
+
+> **TODO**: Consider converting all existing `ifndef VAR / VAR=val / endif` patterns in os-arch `config.mk` files to `VAR ?= val` for consistency. Caveat: the old style sometimes wraps additional `ifneq` guards — review each before converting. Policy: `?=` should be standard for all new additions to os-arch config files.
+
+#### When adding a new HAL subsystem
+
+After creating the HAL and stub files, add `?=` defaults to **every** os-arch `config.mk` that should stub the feature by default. Do not add defaults to `component-hal.mk` itself — that file should contain only `ifdef/include` logic, not defaults.
+
 ### HAL Interface Best Practices
 
 #### Data Types

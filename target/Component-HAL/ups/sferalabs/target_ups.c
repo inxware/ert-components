@@ -12,21 +12,24 @@
  * @brief Sfera Labs sysfs UPS HAL implementation.
  *
  * Supported boards: Strato Pi (UPS variant).
- * Other boards: ReadStatus returns 0 with on_battery=false; callbacks return -1.
+ * Other Sfera Labs boards: ReadStatus returns 0 with on_battery=false;
+ * RegisterCallbacks returns -1 (no UPS hardware).
  *
  * Sysfs paths (Strato Pi):
- *   /sys/class/stratopi/ups/battery_v     — read millivolts
- *   /sys/class/stratopi/ups/power_source  — read "ext" (mains) or "bat" (battery)
+ *   /sys/class/stratopi/ups/battery_v     — integer millivolts
+ *   /sys/class/stratopi/ups/power_source  — "ext" (mains) or "bat" (battery)
  *
- * Note: Power-fail/restore callbacks require a background polling thread for a
- * production implementation.  This implementation registers the callbacks but
- * does NOT start a thread — the callbacks will therefore never fire unless a
- * platform-specific polling mechanism is added separately.
+ * Power-fail and power-restore detection uses sferalabs_poll, a shared
+ * background thread that polls all registered sysfs nodes at
+ * SFERALABS_POLL_INTERVAL_MS (250 ms) and fires a callback on any change.
+ * The callback calls EhsCallbackQueue_execute() to notify the eRT scheduler.
  */
 
 #include "globals.h"
 #include "hal_ups.h"
 #include "sferalabs_hal.h"
+#include "sferalabs_poll.h"
+#include "callback_queue.h"
 #include "hal_logger.h"
 #include <string.h>
 
@@ -35,13 +38,48 @@
 #define SFERALABS_UPS_BATTERY_V_PATH     SFERALABS_CLASS_PATH "/ups/battery_v"
 #define SFERALABS_UPS_POWER_SOURCE_PATH  SFERALABS_CLASS_PATH "/ups/power_source"
 
+/* ------------------------------------------------------------------ */
+/*  Poll callback — fired by sferalabs_poll when power_source changes  */
+/* ------------------------------------------------------------------ */
+
+static void ups_power_source_changed(void       *ctx,
+                                     const char *old_val,
+                                     const char *new_val)
+{
+    ehs_ups_state_type *state = (ehs_ups_state_type *)ctx;
+
+    if (strncmp(new_val, "bat", 3) == 0)
+    {
+        EHSH_LOG_WARNING("UPS: power fail detected (source: %s -> %s)",
+                         old_val, new_val);
+        state->on_battery = EHS_TRUE;
+        EhsCallbackQueue_execute(state->pPowerFailQueue);
+    }
+    else if (strncmp(new_val, "ext", 3) == 0)
+    {
+        EHSH_LOG_INFO("UPS: power restored (source: %s -> %s)",
+                      old_val, new_val);
+        state->on_battery = EHS_FALSE;
+        EhsCallbackQueue_execute(state->pPowerRestoreQueue);
+    }
+    else
+    {
+        EHSH_LOG_WARNING("UPS: unexpected power_source value '%s'", new_val);
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/*  HAL API                                                             */
+/* ------------------------------------------------------------------ */
+
 EHS_GLOBAL int EhsTUpsReadStatus(ehs_ups_state_type *state)
 {
     /* Read battery voltage in mV */
     long mv = 0;
     if (sferalabs_sysfs_read_int(SFERALABS_UPS_BATTERY_V_PATH, &mv) != 0)
     {
-        EHSH_LOG_ERROR("UPS: failed to read battery_v at %s", SFERALABS_UPS_BATTERY_V_PATH);
+        EHSH_LOG_ERROR("UPS: failed to read battery_v at %s",
+                       SFERALABS_UPS_BATTERY_V_PATH);
         return -1;
     }
     state->battery_mv = (ehs_sint32)mv;
@@ -51,7 +89,8 @@ EHS_GLOBAL int EhsTUpsReadStatus(ehs_ups_state_type *state)
     int fd = open(SFERALABS_UPS_POWER_SOURCE_PATH, O_RDONLY);
     if (fd < 0)
     {
-        EHSH_LOG_ERROR("UPS: failed to open power_source at %s", SFERALABS_UPS_POWER_SOURCE_PATH);
+        EHSH_LOG_ERROR("UPS: failed to open power_source at %s",
+                       SFERALABS_UPS_POWER_SOURCE_PATH);
         return -1;
     }
     int n = (int)read(fd, buf, sizeof(buf) - 1);
@@ -68,18 +107,20 @@ EHS_GLOBAL int EhsTUpsReadStatus(ehs_ups_state_type *state)
 
 EHS_GLOBAL int EhsTUpsRegisterCallbacks(ehs_ups_state_type *state)
 {
-    /*
-     * A real implementation would start a background polling thread here
-     * that calls state->on_fail_cb(state->cb_ctx) when the power source
-     * transitions to "bat", and state->on_restore_cb(state->cb_ctx) when it
-     * transitions back to "ext".
-     *
-     * This sysfs-only implementation stores the callbacks but does not start
-     * a thread, so the callbacks will not fire automatically.
-     */
-    EHSH_LOG_INFO("UPS: callbacks registered (no background thread started — polling not implemented)");
-    (void)state;
-    return 0;
+    /* Register the power_source sysfs node with the shared poll thread.
+     * sferalabs_poll_register is idempotent on duplicate paths, so it is
+     * safe to call even if a second UPS instance is created (which the eRT
+     * kernel prevents, but be defensive). */
+    int rc = sferalabs_poll_register(SFERALABS_UPS_POWER_SOURCE_PATH,
+                                     ups_power_source_changed,
+                                     state);
+    if (rc != 0)
+    {
+        /* Either duplicate (warn) or table full (error already logged) */
+        EHSH_LOG_WARNING("UPS: sferalabs_poll_register returned %d", rc);
+    }
+
+    return sferalabs_poll_start();
 }
 
 #else /* board does not have UPS */

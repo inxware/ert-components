@@ -19,7 +19,7 @@
  * The USB port number is set via the Parameter field in the CDF.
  */
 
-#include "globals.h"
+#include "inx-component.h"
 #include "usb_power.h"
 #include "hal_usb_power.h"
 
@@ -29,9 +29,12 @@ EHS_FB_FUNCTION_ENTRY("disable",     0x02, usb_power_disable)
 EHS_FB_FUNCTION_ENTRY("read_status", 0x03, usb_power_read_status)
 EHS_FB_FUNCTIONS_END
 
-/* Port argument numbers */
-#define INX_usb_power_ARG_error_id 1   /* Output: error code (enable/disable)       */
-#define INX_usb_power_ARG_powered  1   /* Output: powered bool (read_status)        */
+/* Port argument numbers (from CDF <Function argument="N">) */
+#define INX_usb_power_ARG_enabled    1   /* FinishPort: enabled (fn1, arg=1)          */
+#define INX_usb_power_ARG_disabled   1   /* FinishPort: disabled (fn2, arg=1)         */
+#define INX_usb_power_ARG_error_id   1   /* OutputPort: error_id (fn1+fn2, arg=1)     */
+#define INX_usb_power_ARG_status_done 1  /* FinishPort: status_done (fn3, arg=1)      */
+#define INX_usb_power_ARG_powered    1   /* OutputPort: powered (fn3, arg=1)          */
 
 
 EHS_FB_IDENTIFY_FUNCTION(usb_power)
@@ -53,8 +56,8 @@ EHS_FB_RUN_FUNCTION(usb_power_enable)
 {
     ehs_usb_power_state_type *state = (ehs_usb_power_state_type *)EHS_FB_RUN_CONTEXT;
     int rc = EhsTUsbPowerEnable(state);
-    EHS_FB_OUT_I_API2(INX_usb_power_ARG_error_id, rc);
-    EHS_FB_FINISH_PORT("enabled");
+    EHS_FB_OUT_I_API2(INX_usb_power_ARG_error_id) = rc;
+    EHS_FB_FINISH_API2(INX_usb_power_ARG_enabled);
 }
 
 /* Disable USB port power */
@@ -62,8 +65,8 @@ EHS_FB_RUN_FUNCTION(usb_power_disable)
 {
     ehs_usb_power_state_type *state = (ehs_usb_power_state_type *)EHS_FB_RUN_CONTEXT;
     int rc = EhsTUsbPowerDisable(state);
-    EHS_FB_OUT_I_API2(INX_usb_power_ARG_error_id, rc);
-    EHS_FB_FINISH_PORT("disabled");
+    EHS_FB_OUT_I_API2(INX_usb_power_ARG_error_id) = rc;
+    EHS_FB_FINISH_API2(INX_usb_power_ARG_disabled);
 }
 
 /* Read USB port power status */
@@ -71,8 +74,8 @@ EHS_FB_RUN_FUNCTION(usb_power_read_status)
 {
     ehs_usb_power_state_type *state = (ehs_usb_power_state_type *)EHS_FB_RUN_CONTEXT;
     EhsTUsbPowerReadStatus(state);
-    EHS_FB_OUT_B_API2(INX_usb_power_ARG_powered, state->powered);
-    EHS_FB_FINISH_PORT("status_done");
+    EHS_FB_OUT_B_API2(INX_usb_power_ARG_powered) = state->powered;
+    EHS_FB_FINISH_API2(INX_usb_power_ARG_status_done);
 }
 
 EHS_FB_DESTROY_FUNCTION(usb_power)

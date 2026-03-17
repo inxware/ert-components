@@ -39,16 +39,22 @@
     <Parameters/>
     <Functions>
         <Function>
-            <name>ReadStatusFunc</name>
-            <ID><ERT1_ID>1</ERT1_ID></ID>
+            <name>read_status</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
         </Function>
         <Function>
-            <name>PowerFailCbFunc</name>
-            <ID><ERT1_ID>2</ERT1_ID></ID>
+            <name>power_fail_cb</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
         </Function>
         <Function>
-            <name>PowerRestoreCbFunc</name>
-            <ID><ERT1_ID>3</ERT1_ID></ID>
+            <name>power_restore_cb</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
         </Function>
     </Functions>
     <Ports>

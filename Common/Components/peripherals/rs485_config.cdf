@@ -53,12 +53,16 @@
     </Parameters>
     <Functions>
         <Function>
-            <name>ConfigFunc</name>
-            <ID><ERT1_ID>1</ERT1_ID></ID>
+            <name>config</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
         </Function>
         <Function>
-            <name>ReadFunc</name>
-            <ID><ERT1_ID>2</ERT1_ID></ID>
+            <name>read</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
         </Function>
     </Functions>
     <Ports>

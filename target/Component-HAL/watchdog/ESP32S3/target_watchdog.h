@@ -16,6 +16,7 @@
 #define _TARGET_WATCHDOG_H_
 
 #include "ehs_fb_types.h"
+#include "hal_watchdog2.h"
 #include <stdint.h>
 
 #define TCTWDT_ESP32S3_TIMG0_BASE 0x6001F000

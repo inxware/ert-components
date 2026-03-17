@@ -12,6 +12,8 @@
  *
  * The *2 suffix distinguishes these new functions from the legacy inline
  * EhsTWatchdog* stubs declared in target_watchdog.h for older system-level use.
+ * 
+ * TODO2026-we can almost certainly avoid the legacy APIs for WDTs/
  *
  * @author: inx limited
  */
