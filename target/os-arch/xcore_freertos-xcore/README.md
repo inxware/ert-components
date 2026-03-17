@@ -1,0 +1,124 @@
+# xcore_freertos-xcore — OS/Arch Build Configuration
+
+This directory contains the inxware eRT build system integration for XMOS xcore.ai targets
+running FreeRTOS via the XMOS `fwk_rtos` framework.
+
+## Architecture overview
+
+```
+Docker container (XTC Tools installed)
+    │
+    ├── xcc (compiler)     ← compiles inxware C sources
+    ├── xcc (linker)       ← links to produce .xe firmware image
+    │
+    ├── INC_DIRS → ert-contrib-middleware/target_libs/xcore_freertos-xcore-xtc-15.x/build/include/
+    └── LIB_DIRS → ert-contrib-middleware/target_libs/xcore_freertos-xcore-xtc-15.x/build/lib/
+                        ├── libfreertos.a       (from fwk_rtos)
+                        ├── librtos_support.a   (from fwk_rtos)
+                        ├── libxcore_math.a     (from lib_xcore_math)
+                        ├── libi2c.a            (from lib_i2c)
+                        ├── libuart.a           (from lib_uart)
+                        └── ...
+```
+
+## Key differences from GNU toolchain targets
+
+Unlike ESP32 or Zephyr targets which use `gcc`/`clang`-based cross-compilers, the XMOS `xcc`
+compiler has specific requirements:
+
+1. **`XMOS_TOOL_PATH`** — `xcc` is not self-contained. It requires `XMOS_TOOL_PATH` set to the
+   XTC Tools installation directory to locate xcore device target files (`.xn`), builtins, and
+   toolchain libraries. This is set inside the Docker container (see the platform Dockerfile).
+   The `XMOS_TOOL_PATH` variable is passed through to the Docker container via
+   `INX_ERTCOMPONENTS_BUILDENV` in `target/envbuildscripts/target_buildenv_run_command.sh`.
+
+2. **Output format** — `xcc` links to `.xe` (XMOS executable) format rather than ELF. The
+   `EXE=xe` variable is set accordingly. Use `xflash` to program the device.
+
+3. **No `gnu_ALL/toolchain.mk` include** — `xcc` does not follow GNU toolchain conventions.
+   This `toolchain.mk` stands alone rather than delegating to `gnu_ALL`.
+
+4. **Board target file** — Each XMOS platform requires a board `.xn` XML file describing tile
+   layout and memory. This is passed to `xcc` via `-target <BOARD_XN_FILE>` or
+   `-target <XMOS_BOARD_NAME>`. Platform-specific `config.mk` files set `XMOS_BOARD_TARGET`.
+
+5. **XC source files** — XMOS `.xc` files (channel-based concurrency extensions) may appear in
+   `fwk_rtos` glue code. `xcc` compiles both `.c` and `.xc` natively. No special handling is
+   needed in the Make rules.
+
+## Build workflow
+
+### Normal build (using Docker)
+
+```bash
+./configure xcore_freertos-xcore-base   # or a board-specific platform
+make prepdeps                            # clones ert-build-support and ert-contrib-middleware
+make build_docker_local                  # build the Docker image locally (one-time)
+make all_docker                          # builds inside the platform's Docker container
+```
+
+`make all_docker` reads `Dockerimagename` from the platform directory, starts the container
+with the inxware workspace mounted at `/inxware`, and runs `make -j 8` inside it. The container
+has XTC Tools pre-installed and `XMOS_TOOL_PATH` set.
+
+**Important — do not publish this image to DockerHub.** Because the Docker image contains
+XMOS XTC Tools binaries, distributing it via a public registry would violate the XMOS license.
+Each developer must build it locally with `make build_docker_local`. This is different from
+other inxware targets (e.g. ESP32) where the compiler comes from `ert-build-support` and the
+Docker image itself contains no proprietary binaries.
+
+### First-time SDK library build (one-time, per XTC Tools version)
+
+The XMOS SDK libraries (`fwk_rtos`, peripheral libs) must be pre-built once and committed to
+`ert-contrib-middleware/target_libs/xcore_freertos-xcore-xtc-15.x/`. To do this:
+
+```bash
+# Start an interactive shell inside the build container
+make target_buildenv
+
+# Inside the container — build the XMOS SDK libraries
+cd /inxware/ert-contrib-middleware/contrib/xmos-sdk
+./build-xmos-libs.sh
+
+# Exit container; commit the built artifacts
+# cd ../ert-contrib-middleware && git add target_libs/xcore_freertos-xcore-xtc-15.x && git commit
+```
+
+See `ert-contrib-middleware/contrib/xmos-sdk/README.md` for full SDK source setup instructions.
+
+### Flash firmware
+
+```bash
+make targetenv_esp32   # (XMOS equivalent — TBD: targetenv_xcore)
+# Then: xflash --target <board> ehs_<target>.xe
+```
+
+## File reference
+
+| File | Purpose |
+|------|---------|
+| `toolchain.mk` | Compiler/assembler/linker selection; `xcc` flags; `XMOS_TOOL_PATH` reference |
+| `target.mk` | Object files, include paths, library flags for the RTOS and peripheral libs |
+| `config.mk` | Default feature flags for all xcore FreeRTOS targets |
+
+## XMOS SDK sources (ert-contrib-middleware)
+
+The MIT-licensed XMOS libraries live in `ert-contrib-middleware/contrib/xmos-sdk/`:
+
+| Library | GitHub | Purpose |
+|---------|--------|---------|
+| `fwk_rtos` | github.com/xmos/fwk_rtos | FreeRTOS SMP port for xcore.ai |
+| `lib_xcore_math` | github.com/xmos/lib_xcore_math | VPU-accelerated maths |
+| `lib_i2c` | github.com/xmos/lib_i2c | I2C master/slave |
+| `lib_uart` | github.com/xmos/lib_uart | UART TX/RX |
+| `lib_i2s` | github.com/xmos/lib_i2s | I2S audio |
+| `xcommon_cmake` | github.com/xmos/xcommon_cmake | CMake build infrastructure (build-time only) |
+
+All are MIT licensed. Pre-built `.a` files and headers are committed to
+`ert-contrib-middleware/target_libs/xcore_freertos-xcore-xtc-15.x/build/`.
+
+## XTC Tools licensing
+
+XTC Tools (the `xcc` compiler and associated tools) are proprietary XMOS software. They are
+**not** redistributed in any inxware repository. The Docker image downloads and installs them
+from the official XMOS release at image build time. See the platform `Dockerfile` for details.
