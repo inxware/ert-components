@@ -32,9 +32,19 @@ The project uses a sophisticated Make-based build system with Docker support for
 
 **Building:**
 - `make help` - Show all available build targets and options
-- `make prepdeps` - Install dependencies and checkout required repositories - don't run this for normal build cycles
-- `make all` - Build the eRT binary directly on the host. Note: this only works if the host has all required dependencies installed; it may fail on some systems.
-- `make all_docker` - Build using Docker environment. This is the reliable option and will always work once a Docker environment is established.
+- `make prepdeps` - **One-time initialisation** for a new target or fresh checkout. Clones/updates
+  `ert-build-support` (toolchains) and `ert-contrib-middleware` (pre-built libraries), installs
+  Docker and other host tools if missing, and prints any target-specific prerequisites (e.g. for
+  XMOS targets it checks whether the XTC Tools archive has been downloaded and gives step-by-step
+  instructions if not). Re-run when switching to a new target platform. Do not run on every build.
+- `make build_docker_local` - Build the platform's Docker image locally from its `Dockerfile`.
+  Required once before `make all_docker` for targets whose Docker image contains proprietary
+  toolchain binaries that cannot be pushed to a public registry (e.g. XMOS xcore targets).
+- `make all` - Build the eRT binary directly on the host. Only works if the host has all required
+  dependencies installed; use `make all_docker` for cross-compilation targets.
+- `make all_docker` - Build inside the platform's Docker container. Reads `Dockerimagename` from
+  the platform directory; pulls from DockerHub or uses a locally built image. The reliable option
+  for all cross-compilation targets.
 - `make clean` - Clean build artifacts
 
 **Runtime Environment:**

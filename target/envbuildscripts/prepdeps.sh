@@ -199,6 +199,36 @@ else
     echo "Skipped dependency repo pull (SKIP_REPOS was set)"
 fi
 
+# XMOS XTC Tools — prompt the developer if the toolchain archive is missing.
+# XTC Tools cannot be downloaded automatically (requires XMOS developer account
+# and licence acceptance). The archive must be placed manually before running
+# 'make build_docker_local'.
+if [ "${EHS_ARCH}" = "xcore" ]; then
+    XTC_ARCHIVE="${PWD}/target/platform/${TARGET}/xtc-tools-linux.tgz"
+    if [ -f "${XTC_ARCHIVE}" ]; then
+        echo "${TXT_FG_BRIGHT_GREEN}XMOS XTC Tools archive found at:"
+        echo "${TXT_FG_WHITE}  ${XTC_ARCHIVE}"
+        echo "${TXT_FG_BRIGHT_GREEN}Run 'make build_docker_local' to build the Docker image."
+    else
+        echo
+        echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+        warn "XMOS target detected — XTC Tools archive not found."
+        echo "${TXT_FG_WHITE}"
+        echo "  XTC Tools must be downloaded manually from the XMOS website (requires a free developer account):"
+        echo "    https://www.xmos.com/software-tools/"
+        echo
+        echo "  After downloading the Linux 64-bit archive:"
+        echo "    1. Rename the file to:  xtc-tools-linux.tgz"
+        echo "    2. Place it at:         ${XTC_ARCHIVE}"
+        echo "    3. Run:                 make build_docker_local"
+        echo "    4. Then build with:     make all_docker"
+        echo
+        echo "  Note: do NOT commit xtc-tools-linux.tgz to the repository (it is .gitignored)."
+        echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+        echo
+    fi
+fi
+
 #todo2022 move this to a new make target like make all_docker
 # First see if we need to run the VM.
 # if we do then we will just open a vagrant VM and plonk you on a command line to run make etc. on your own!

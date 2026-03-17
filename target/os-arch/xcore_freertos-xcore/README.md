@@ -51,9 +51,13 @@ compiler has specific requirements:
 ### Normal build (using Docker)
 
 ```bash
+# One-time setup: download XTC Tools from https://www.xmos.com/software-tools/
+# (requires XMOS developer account). Rename the Linux archive to xtc-tools-linux.tgz
+# and place it at target/platform/xcore_freertos-xcore-base/xtc-tools-linux.tgz
+
 ./configure xcore_freertos-xcore-base   # or a board-specific platform
 make prepdeps                            # clones ert-build-support and ert-contrib-middleware
-make build_docker_local                  # build the Docker image locally (one-time)
+make build_docker_local                  # builds the Docker image locally (one-time per XTC version)
 make all_docker                          # builds inside the platform's Docker container
 ```
 
