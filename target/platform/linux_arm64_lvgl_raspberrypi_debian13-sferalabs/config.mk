@@ -83,4 +83,18 @@ DEFS+=EHS_SFERALABS_BOARD_STRATOPIMAX
 EHS_DEFAULT_APP=tutorials/hello_world
 
 
+#################################################################################################################
+# Sfera Labs Peripheral HAL Support
+# Enable the new peripheral HAL blocks for the Strato Pi Max (and other Sfera Labs boards where available).
+#################################################################################################################
+
+EHS_WATCHDOG_SUPPORT=sferalabs
+EHS_UPS_SUPPORT=sferalabs
+EHS_BUZZER_SUPPORT=sferalabs
+EHS_SD_SELECT_SUPPORT=sferalabs
+EHS_USB_POWER_SUPPORT=sferalabs
+EHS_ACCELEROMETER_SUPPORT=sferalabs
+EHS_RS485_CONFIG_SUPPORT=sferalabs
+
+
 ################################### END OF CONFIGURATION ###################################################

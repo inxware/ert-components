@@ -158,3 +158,89 @@ ifneq ($(EHS_UART_SUPPORT),)
 endif
 endif
 endif
+
+# Default new peripheral blocks to stubbed so all targets build and run any app.
+ifndef EHS_WATCHDOG_SUPPORT
+EHS_WATCHDOG_SUPPORT=stubbed
+endif
+ifndef EHS_UPS_SUPPORT
+EHS_UPS_SUPPORT=stubbed
+endif
+ifndef EHS_BUZZER_SUPPORT
+EHS_BUZZER_SUPPORT=stubbed
+endif
+ifndef EHS_SD_SELECT_SUPPORT
+EHS_SD_SELECT_SUPPORT=stubbed
+endif
+ifndef EHS_USB_POWER_SUPPORT
+EHS_USB_POWER_SUPPORT=stubbed
+endif
+ifndef EHS_ACCELEROMETER_SUPPORT
+EHS_ACCELEROMETER_SUPPORT=stubbed
+endif
+ifndef EHS_RS485_CONFIG_SUPPORT
+EHS_RS485_CONFIG_SUPPORT=stubbed
+endif
+
+ifdef EHS_WATCHDOG_SUPPORT
+ifneq ($(EHS_WATCHDOG_SUPPORT),none)
+	INC_DIRS += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/watchdog
+	VPATH    += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/watchdog
+	OBJECTS  += watchdog.$(OBJ)
+	DEFS     += EHS_WATCHDOG_SUPPORT
+endif
+endif
+
+ifdef EHS_UPS_SUPPORT
+ifneq ($(EHS_UPS_SUPPORT),none)
+	INC_DIRS += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/ups
+	VPATH    += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/ups
+	OBJECTS  += ups.$(OBJ)
+	DEFS     += EHS_UPS_SUPPORT
+endif
+endif
+
+ifdef EHS_BUZZER_SUPPORT
+ifneq ($(EHS_BUZZER_SUPPORT),none)
+	INC_DIRS += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/buzzer
+	VPATH    += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/buzzer
+	OBJECTS  += buzzer.$(OBJ)
+	DEFS     += EHS_BUZZER_SUPPORT
+endif
+endif
+
+ifdef EHS_SD_SELECT_SUPPORT
+ifneq ($(EHS_SD_SELECT_SUPPORT),none)
+	INC_DIRS += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/sd_select
+	VPATH    += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/sd_select
+	OBJECTS  += sd_select.$(OBJ)
+	DEFS     += EHS_SD_SELECT_SUPPORT
+endif
+endif
+
+ifdef EHS_USB_POWER_SUPPORT
+ifneq ($(EHS_USB_POWER_SUPPORT),none)
+	INC_DIRS += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/usb_power
+	VPATH    += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/usb_power
+	OBJECTS  += usb_power.$(OBJ)
+	DEFS     += EHS_USB_POWER_SUPPORT
+endif
+endif
+
+ifdef EHS_ACCELEROMETER_SUPPORT
+ifneq ($(EHS_ACCELEROMETER_SUPPORT),none)
+	INC_DIRS += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/accelerometer
+	VPATH    += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/accelerometer
+	OBJECTS  += accelerometer.$(OBJ)
+	DEFS     += EHS_ACCELEROMETER_SUPPORT
+endif
+endif
+
+ifdef EHS_RS485_CONFIG_SUPPORT
+ifneq ($(EHS_RS485_CONFIG_SUPPORT),none)
+	INC_DIRS += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/rs485_config
+	VPATH    += $(EHS_COMMON_COMPONENTS_PATH)/peripherals/rs485_config
+	OBJECTS  += rs485_config.$(OBJ)
+	DEFS     += EHS_RS485_CONFIG_SUPPORT
+endif
+endif

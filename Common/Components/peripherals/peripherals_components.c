@@ -15,6 +15,34 @@
 #include "inx-led.h"
 #include "inx-accel_gyro.h"
 
+#ifdef EHS_WATCHDOG_SUPPORT
+#include "watchdog/watchdog.h"
+#endif
+
+#ifdef EHS_UPS_SUPPORT
+#include "ups/ups.h"
+#endif
+
+#ifdef EHS_BUZZER_SUPPORT
+#include "buzzer/buzzer.h"
+#endif
+
+#ifdef EHS_SD_SELECT_SUPPORT
+#include "sd_select/sd_select.h"
+#endif
+
+#ifdef EHS_USB_POWER_SUPPORT
+#include "usb_power/usb_power.h"
+#endif
+
+#ifdef EHS_ACCELEROMETER_SUPPORT
+#include "accelerometer/accelerometer.h"
+#endif
+
+#ifdef EHS_RS485_CONFIG_SUPPORT
+#include "rs485_config/rs485_config.h"
+#endif
+
 // Components moved from user directory
 #ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
 #include "inx-adc_read.h"
@@ -91,6 +119,34 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_modbus_read,INXWARE_FB_ID_modbus_read ,modbus_read),
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_modbus_write,INXWARE_FB_ID_modbus_write ,modbus_write),
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_modbus_slave_register,INXWARE_FB_ID_modbus_slave_register,modbus_slave_register),
+#endif
+
+#ifdef EHS_WATCHDOG_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_watchdog, EHS_FB_ID_watchdog, watchdog),
+#endif
+
+#ifdef EHS_UPS_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_ups, EHS_FB_ID_ups, ups),
+#endif
+
+#ifdef EHS_BUZZER_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_buzzer, EHS_FB_ID_buzzer, buzzer),
+#endif
+
+#ifdef EHS_SD_SELECT_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_sd_select, EHS_FB_ID_sd_select, sd_select),
+#endif
+
+#ifdef EHS_USB_POWER_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_usb_power, EHS_FB_ID_usb_power, usb_power),
+#endif
+
+#ifdef EHS_ACCELEROMETER_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_accelerometer, EHS_FB_ID_accelerometer, accelerometer),
+#endif
+
+#ifdef EHS_RS485_CONFIG_SUPPORT
+		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_rs485_config, EHS_FB_ID_rs485_config, rs485_config),
 #endif
 
     {0}

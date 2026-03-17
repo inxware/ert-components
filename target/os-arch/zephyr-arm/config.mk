@@ -11,22 +11,10 @@
 # Features default to minimal/stubbed unless the platform config enables them
 
 # Filesystem: Zephyr provides a POSIX-compatible FS API when CONFIG_POSIX_API is enabled
-ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
-ifndef EHS_FILESYSTEM_SUPPORT
-	EHS_FILESYSTEM_SUPPORT=posix
-endif
-endif
+EHS_FILESYSTEM_SUPPORT ?= posix
 
 # No GPIO support by default - platform config should enable specific driver
-ifneq ($(EHS_PERIPHERALS_GPIO_SUPPORT),none)
-ifndef EHS_PERIPHERALS_GPIO_SUPPORT
-	EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
-endif
-endif
+EHS_PERIPHERALS_GPIO_SUPPORT ?= stubbed
 
 # System console: use Zephyr shell/UART console
-ifneq ($(EHS_SYSTEM_CONSOLE),none)
-ifndef EHS_SYSTEM_CONSOLE
-	EHS_SYSTEM_CONSOLE=yes
-endif
-endif
+EHS_SYSTEM_CONSOLE ?= yes

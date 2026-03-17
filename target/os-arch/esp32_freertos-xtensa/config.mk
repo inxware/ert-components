@@ -4,39 +4,24 @@
 
 #"Currently not building as the stubbed HAL doesn't seem to work
 
-ifneq ($(EHS_FILESYSTEM_SUPPORT),none)
-ifndef EHS_FILESYSTEM_SUPPORT
-	EHS_FILESYSTEM_SUPPORT=posix
-endif
-endif
+EHS_FILESYSTEM_SUPPORT              ?= posix
+EHS_PERIPHERALS_GPIO_SUPPORT        ?= ESP32_IDF
+EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT ?= yes
 
-ifneq ($(EHS_PERIPHERALS_GPIO_SUPPORT),none)	
-ifndef EHS_PERIPHERALS_GPIO_SUPPORT
-	EHS_PERIPHERALS_GPIO_SUPPORT=ESP32_IDF
-endif
-endif
-
-ifneq ($(EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT),none)
-ifndef EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT
-EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT=yes
-endif
-endif
-
-
-#Use NVRAM (for WiFi crenedtials to reduce clobbering risk of flash updates)
+#Use NVRAM (for WiFi credentials to reduce clobbering risk of flash updates)
 #EHS_NVS_SUPPORT=ESP32S3
 
-ifneq ($(EHS_HAL_INTERFACE_CONFIG_SUPPORT),none)
-ifndef EHS_HAL_INTERFACE_CONFIG_SUPPORT
-#default to allowing SSID for WiFi to be configured using serial tty interface
-EHS_HAL_INTERFACE_CONFIG_SUPPORT=EHS_HAL_INTERFACE_CONFIG_STUBBED
-endif
-endif
+# default to allowing SSID for WiFi to be configured using serial tty interface
+EHS_HAL_INTERFACE_CONFIG_SUPPORT    ?= EHS_HAL_INTERFACE_CONFIG_STUBBED
 
-ifneq ($(EHS_HAL_NETWORK_CONFIG_SUPPORT),none)
-ifndef EHS_HAL_NETWORK_CONFIG_SUPPORT
-#default to stubbed TCPIP configuration
-EHS_HAL_NETWORK_CONFIG_SUPPORT=EHS_HAL_NETWORK_CONFIG_STUBBED
-endif
-endif
+# default to stubbed TCPIP configuration
+EHS_HAL_NETWORK_CONFIG_SUPPORT      ?= EHS_HAL_NETWORK_CONFIG_STUBBED
 
+# New peripheral HAL defaults — stub on ESP32 unless overridden by platform config.mk
+EHS_WATCHDOG_SUPPORT      ?= stubbed
+EHS_UPS_SUPPORT           ?= stubbed
+EHS_BUZZER_SUPPORT        ?= stubbed
+EHS_SD_SELECT_SUPPORT     ?= stubbed
+EHS_USB_POWER_SUPPORT     ?= stubbed
+EHS_ACCELEROMETER_SUPPORT ?= stubbed
+EHS_RS485_CONFIG_SUPPORT  ?= stubbed

@@ -265,9 +265,72 @@ include $(EHS_TARGET_COMPONENT_HAL_PATH)/json/json_thal.mk
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/image_processing/image_processing.mk
 
 ########################################################################################################
-## Watchdog Timer
+## Watchdog Timer (legacy inline stubs — always included for backward compatibility)
 ########################################################################################################
 include $(EHS_TARGET_COMPONENT_HAL_PATH)/watchdog/target_watchdog.mk
+
+########################################################################################################
+## Watchdog Timer (new EhsTWatchdog*2 HAL API)
+########################################################################################################
+ifdef EHS_WATCHDOG_SUPPORT
+ifneq ($(EHS_WATCHDOG_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/watchdog/watchdog_common.mk
+endif
+endif
+
+########################################################################################################
+## UPS / Power-Fail Monitor
+########################################################################################################
+ifdef EHS_UPS_SUPPORT
+ifneq ($(EHS_UPS_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/ups/ups_common.mk
+endif
+endif
+
+########################################################################################################
+## Buzzer
+########################################################################################################
+ifdef EHS_BUZZER_SUPPORT
+ifneq ($(EHS_BUZZER_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/buzzer/buzzer_common.mk
+endif
+endif
+
+########################################################################################################
+## SD Card Slot Selection
+########################################################################################################
+ifdef EHS_SD_SELECT_SUPPORT
+ifneq ($(EHS_SD_SELECT_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/sd_select/sd_select_common.mk
+endif
+endif
+
+########################################################################################################
+## USB Port Power Control
+########################################################################################################
+ifdef EHS_USB_POWER_SUPPORT
+ifneq ($(EHS_USB_POWER_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/usb_power/usb_power_common.mk
+endif
+endif
+
+########################################################################################################
+## Accelerometer
+########################################################################################################
+ifdef EHS_ACCELEROMETER_SUPPORT
+ifneq ($(EHS_ACCELEROMETER_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/accelerometer/accelerometer_common.mk
+endif
+endif
+
+########################################################################################################
+## RS-485 Port Configuration
+########################################################################################################
+ifdef EHS_RS485_CONFIG_SUPPORT
+ifneq ($(EHS_RS485_CONFIG_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/rs485_config/rs485_config_common.mk
+endif
+endif
 
 ########################################################################################################
 ## Non-Volatile Storage (NVS)
