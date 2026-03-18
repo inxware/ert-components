@@ -94,4 +94,7 @@ EHS_USE_LIBCAMERA=yes
 # (No legacy DEFS for this target)
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

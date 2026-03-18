@@ -91,11 +91,7 @@ OBJECTS += ping.$(OBJ)
 OBJECTS += target_sys_stat.$(OBJ)
 
 # Optionally needed, depening on platform build
-ifdef EHS_UART_SUPPORT
-ifneq ($(EHS_UART_SUPPORT),none)
-OBJECTS += target_uart.${OBJ}
-endif
-endif
+# target_uart.$(OBJ) is now added by uart_common.mk via EHS_PERIPHERALS_UART_SUPPORT.
 
 ifdef EHS_NETWORK_WIFI_SUPPORT
 ifneq ($(EHS_NETWORK_WIFI_SUPPORT),none)

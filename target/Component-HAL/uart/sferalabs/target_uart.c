@@ -70,6 +70,8 @@ int TgtUart_Stage0(int UART_num)
 {
     if (UART_num < 0 || UART_num >= UART_COUNT)
         return TgtUART_INEXIST;
+    if (s_configured[UART_num])
+        return TgtUART_INUSE;
     s_fd[UART_num]         = -1;
     s_cb[UART_num]         = NULL;
     s_configured[UART_num] = EHS_FALSE;
@@ -174,6 +176,49 @@ int TgtUart_Start(int UART_num, int tx_io, int rx_io, int rts_io, int cts_io,
  * The Sfera Labs driver handles TX-enable automatically once this is set.
  * Call after TgtUart_Start().
  */
+/*
+ * Reconfigure a running UART port.
+ * No-op (returns OK) if the port is not yet open — the new settings will be
+ * picked up from the gUART* globals at the next TgtUart_Start call.
+ */
+int TgtUart_Config(int UART_num, int baudrate, int databits, int parity,
+                   int stop_bits, int flow_control)
+{
+    if (UART_num < 0 || UART_num >= UART_COUNT) return TgtUART_INEXIST;
+    if (!s_configured[UART_num] || s_fd[UART_num] < 0) return TgtUART_OK;
+
+    struct termios tty;
+    if (tcgetattr(s_fd[UART_num], &tty) != 0) return TgtUART_CONFIG_ERROR;
+
+    speed_t spd = baud_to_termios(baudrate);
+    cfsetispeed(&tty, spd);
+    cfsetospeed(&tty, spd);
+
+    tty.c_cflag &= ~CSIZE;
+    switch (databits) {
+        case 5:  tty.c_cflag |= CS5; break;
+        case 6:  tty.c_cflag |= CS6; break;
+        case 7:  tty.c_cflag |= CS7; break;
+        default: tty.c_cflag |= CS8; break;
+    }
+
+    if (stop_bits == 2) tty.c_cflag |= CSTOPB;
+    else                tty.c_cflag &= ~CSTOPB;
+
+    if (parity == 0) {
+        tty.c_cflag &= ~PARENB;
+    } else {
+        tty.c_cflag |= PARENB;
+        if (parity == 1) tty.c_cflag |= PARODD;
+        else             tty.c_cflag &= ~PARODD;
+    }
+
+    if (flow_control == 3) tty.c_cflag |= CRTSCTS;
+    else                   tty.c_cflag &= ~CRTSCTS;
+
+    return (tcsetattr(s_fd[UART_num], TCSANOW, &tty) == 0) ? TgtUART_OK : TgtUART_CONFIG_ERROR;
+}
+
 int TgtUart_RS485Setup(int UART_num)
 {
     if (UART_num < 0 || UART_num >= UART_COUNT)
@@ -257,6 +302,22 @@ int TgtUART_Intr_register(int UART_num, uart_cb_func_t cb_func)
     if (UART_num < 0 || UART_num >= UART_COUNT) return TgtUART_INEXIST;
     if (!cb_func)                               return TgtUART_INVALID_CALLBACK;
     s_cb[UART_num] = cb_func;
+    return TgtUART_OK;
+}
+
+int TgtUart_SetComPort(int UART_num, int com_port_number)
+{
+    /* Device paths on Linux are compile-time configured; COM port numbers
+     * are a Windows concept.  This function is a no-op on Sfera Labs targets. */
+    (void)UART_num; (void)com_port_number;
+    return TgtUART_OK;
+}
+
+int TgtUart_SetDevicePath(int UART_num, const char *path)
+{
+    /* Sfera Labs device paths are compile-time configured via SFERALABS_UARTx_DEV.
+     * Runtime override is not supported on this target. */
+    (void)UART_num; (void)path;
     return TgtUART_OK;
 }
 

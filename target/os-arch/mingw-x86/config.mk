@@ -8,7 +8,7 @@ EHS_COMPONENTS_NETWORK_URL_GET       ?= enabled
 
 EHS_IMAGEPROCESSING_APRILTAG_SUPPORT ?= enabled
 
-EHS_PERIPHERALS_UART_SUPPORT         ?= stubbed
+EHS_PERIPHERALS_UART_SUPPORT         ?= win32
 
 # New peripheral HAL defaults — stub on MinGW/Windows targets
 EHS_WATCHDOG_SUPPORT      ?= stubbed

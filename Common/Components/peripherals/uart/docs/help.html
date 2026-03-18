@@ -47,6 +47,12 @@
 <td>0</td>
 <td>Enables or disables RS485 mode for UART communication.</td>
 </tr>
+<tr>
+<td><a name="[Param]ComPort">ComPort</a></td>
+<td>I</td>
+<td>0</td>
+<td>Default UART port to open. On Windows, specifies the physical COM port number (e.g. 3 = COM3, 5 = COM5). On Linux, specifies the device index (e.g. 1 = /dev/ttyUSB1). Set to 0 to use the platform default (UART 0). When the <a href="#[In]port">port</a> input is connected its value takes precedence over this parameter.</td>
+</tr>
 </table>
 <!--Ports-->
 <div class="section_heading">
@@ -77,7 +83,7 @@
 </tr>
 <tr>
 <td class="portsData"><a name="[In]port">port</a></td>
-<td>UART port number.</td>
+<td>UART port number. When connected, overrides the <a href="#[Param]ComPort">ComPort</a> parameter.</td>
 </tr>
 <tr>
 <td class="portsData"><a name="[In]data">data</a></td>

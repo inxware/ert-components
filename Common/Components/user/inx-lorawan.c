@@ -22,7 +22,7 @@
 typedef struct inx_lorawan_state
 {
 	EhsCallbackQueueEntryType xEntry[E_LORAWAN_API__MAX_VALUE + 1];
-	
+
 	ehs_sint32 Target;
 	ehs_bool Mode;
 	ehs_sint32 Region;
@@ -37,7 +37,12 @@ typedef struct inx_lorawan_state
 	ehs_char nwkSKey[EHS_LORAWAN_KEY_STRLEN + 1];
 	ehs_char appSKey[EHS_LORAWAN_KEY_STRLEN + 1];
 	ehs_char devAddrABP[EHS_LORAWAN_ID_STRLEN + 1];
-	
+	ehs_sint32 Class;
+	ehs_sint32 SubBand;
+	ehs_sint32 RXWIN2_DR;
+	ehs_sint32 TxPower;
+	ehs_sint32 ComPort;
+
 	ehs_char devAddrOut[EHS_LORAWAN_ID_STRLEN + 1];
 	ehs_char sys_status[EHS_STRING_LENGTH_MAX + 1];
 	ehs_char devEui[EHS_LORAWAN_ID_STRLEN + 1];
@@ -70,6 +75,12 @@ EHS_FB_FUNCTION_ENTRY("disable", 0x0C, lorawan_disable)
 EHS_FB_FUNCTION_ENTRY("set_datarate_cb", 0x0D, lorawan_set_datarate_cb)
 EHS_FB_FUNCTION_ENTRY("get_payload_length_cb", 0x0E, lorawan_get_payload_length_cb)
 EHS_FB_FUNCTION_ENTRY("disable_cb", 0x0F, lorawan_disable_cb)
+EHS_FB_FUNCTION_ENTRY("set_class", 0x10, lorawan_set_class)
+EHS_FB_FUNCTION_ENTRY("set_class_cb", 0x11, lorawan_set_class_cb)
+EHS_FB_FUNCTION_ENTRY("set_tx_power", 0x12, lorawan_set_tx_power)
+EHS_FB_FUNCTION_ENTRY("set_tx_power_cb", 0x13, lorawan_set_tx_power_cb)
+EHS_FB_FUNCTION_ENTRY("link_check", 0x14, lorawan_link_check)
+EHS_FB_FUNCTION_ENTRY("link_check_cb", 0x15, lorawan_link_check_cb)
 EHS_FB_FUNCTIONS_END
 //ICB POPULATE EHS DATA STRUCTURE MACRO END -- DO NOT ALTER
 
@@ -84,6 +95,9 @@ static EhsRunFuncType gfEhsLorawanFBCBFuncs[E_LORAWAN_API__MAX_VALUE] = {
 	EHS_FB_RUN_NAME(lorawan_set_datarate_cb),
 	EHS_FB_RUN_NAME(lorawan_get_payload_length_cb),
 	EHS_FB_RUN_NAME(lorawan_disable_cb),
+	EHS_FB_RUN_NAME(lorawan_set_class_cb),
+	EHS_FB_RUN_NAME(lorawan_set_tx_power_cb),
+	EHS_FB_RUN_NAME(lorawan_link_check_cb),
 };
 
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
@@ -133,6 +147,33 @@ static EhsRunFuncType gfEhsLorawanFBCBFuncs[E_LORAWAN_API__MAX_VALUE] = {
 #define INX_lorawan_ARG_get_payload_length_cb_pl_len 1
 #define INX_lorawan_ARG_get_payload_length_cb_pl_len_got 1
 #define INX_lorawan_ARG_disable_cb_disabled 1
+/* connect — new class_in port (arg 9) */
+#define INX_lorawan_ARG_connect_class_in 9
+/* on_receive_msg — new signal quality output ports */
+#define INX_lorawan_ARG_on_receive_msg_rssi 4
+#define INX_lorawan_ARG_on_receive_msg_snr 5
+#define INX_lorawan_ARG_on_receive_msg_rxwin 6
+/* get_statusData_cb — new status output ports */
+#define INX_lorawan_ARG_get_statusData_cb_linkMargin 3
+#define INX_lorawan_ARG_get_statusData_cb_gateways 4
+#define INX_lorawan_ARG_get_statusData_cb_txPower 5
+#define INX_lorawan_ARG_get_statusData_cb_currentDR 6
+/* set_class */
+#define INX_lorawan_ARG_set_class_class_in 1
+#define INX_lorawan_ARG_set_class_set_class_sent 1
+#define INX_lorawan_ARG_set_class_set_class_busy 2
+#define INX_lorawan_ARG_set_class_cb_set_class_ok 1
+/* set_tx_power */
+#define INX_lorawan_ARG_set_tx_power_tx_power_in 1
+#define INX_lorawan_ARG_set_tx_power_set_tx_power_sent 1
+#define INX_lorawan_ARG_set_tx_power_set_tx_power_busy 2
+#define INX_lorawan_ARG_set_tx_power_cb_set_tx_power_ok 1
+/* link_check */
+#define INX_lorawan_ARG_link_check_link_check_sent 1
+#define INX_lorawan_ARG_link_check_link_check_busy 2
+#define INX_lorawan_ARG_link_check_cb_link_check_done 1
+#define INX_lorawan_ARG_link_check_cb_link_margin_out 2
+#define INX_lorawan_ARG_link_check_cb_gateway_count_out 3
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
@@ -151,10 +192,15 @@ static EhsRunFuncType gfEhsLorawanFBCBFuncs[E_LORAWAN_API__MAX_VALUE] = {
 #define INX_FB_lorawan_nwkSKey "00000000000000000000000000000000"
 #define INX_FB_lorawan_appSKey "00000000000000000000000000000000"
 #define INX_FB_lorawan_devAddrABP "00000000"
+#define INX_FB_lorawan_Class 0
+#define INX_FB_lorawan_SubBand 0
+#define INX_FB_lorawan_RXWIN2_DR 0
+#define INX_FB_lorawan_TxPower 0
+#define INX_FB_lorawan_ComPort 3
 //ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
 /**
  * @brief Check whether payload only represents hexidecimal values
- * 
+ *
  * @param payload array of characters
  * @param count number of characters to check
  * @return ehs_bool EHS_FALSE if payload is NULL, count is odd or payload contains non-hex character
@@ -256,7 +302,7 @@ EHS_FB_INIT_FUNCTION(lorawan)
 		);
 	/* read the initialisation parameters */
 	// Need to allocate memory?
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %hhu %d %d %d %d %hhu %d %f %s %s %s %s %s",
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %hhu %d %d %d %d %hhu %d %f %s %s %s %s %s %d %d %d %d %d",
 		&(inx_lorawan_state->Target),
 		&(inx_lorawan_state->Mode),
 		&(inx_lorawan_state->Region),
@@ -270,9 +316,14 @@ EHS_FB_INIT_FUNCTION(lorawan)
 		inx_lorawan_state->appEui,
 		inx_lorawan_state->nwkSKey,
 		inx_lorawan_state->appSKey,
-		inx_lorawan_state->devAddrABP
+		inx_lorawan_state->devAddrABP,
+		&(inx_lorawan_state->Class),
+		&(inx_lorawan_state->SubBand),
+		&(inx_lorawan_state->RXWIN2_DR),
+		&(inx_lorawan_state->TxPower),
+		&(inx_lorawan_state->ComPort)
 	);
-	lorawan_error = LoRaWAN_init(inx_lorawan_state->Target);
+	lorawan_error = LoRaWAN_init(inx_lorawan_state->Target, inx_lorawan_state->ComPort);
 	// This should never set to EHS_FALSE. Failure to initialisation can be reflected in the connect errno output
 	//bRet = lorawan_error == E_LWAPIERRNO_OK ? EHS_TRUE : EHS_FALSE;
 
@@ -338,11 +389,13 @@ EHS_FB_RUN_FUNCTION(lorawan_connect)
 		miscOpt = EHS_FB_IN_S_API2(INX_lorawan_ARG_connect_miscOpt) ;
 	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_connect_region))
 		inx_lorawan_state->Region = EHS_FB_IN_I_API2(INX_lorawan_ARG_connect_region) ;
+	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_connect_class_in))
+		inx_lorawan_state->Class = EHS_FB_IN_I_API2(INX_lorawan_ARG_connect_class_in);
 
 	if (inx_lorawan_state->Mode == EHS_TRUE) // ABP Mode
 	{
-		if ((check_payload_hex(AppSKey, EHS_LORAWAN_KEY_STRLEN) == EHS_FALSE) || 
-			(check_payload_hex(NwkSKey, EHS_LORAWAN_KEY_STRLEN) == EHS_FALSE) || 
+		if ((check_payload_hex(AppSKey, EHS_LORAWAN_KEY_STRLEN) == EHS_FALSE) ||
+			(check_payload_hex(NwkSKey, EHS_LORAWAN_KEY_STRLEN) == EHS_FALSE) ||
 			(check_payload_hex(DevAddr_ABP, EHS_LORAWAN_ID_STRLEN) == EHS_FALSE))
 		{
 			EHS_FB_FINISH(INX_lorawan_ARG_connect_connectFail);
@@ -354,11 +407,11 @@ EHS_FB_RUN_FUNCTION(lorawan_connect)
 		{
 			EHS_FB_FINISH(INX_lorawan_ARG_connect_connectFail);
 			return;
-		} 
+		}
 	}
 
 	ehs_lorawan_debug("AppKey: %s, AppEui: %s, Mode: %d\n", AppKey == NULL ? "NULL" : AppKey, AppEui == NULL ? "NULL" : AppEui, inx_lorawan_state->Mode);
-	
+
 	if (((AppKey != NULL && AppEui != NULL && inx_lorawan_state->Mode == EHS_FALSE) || (AppSKey != NULL && NwkSKey != NULL && DevAddr_ABP != NULL && inx_lorawan_state->Mode == EHS_TRUE)))
 		connect_ret = LoRaWAN_connect(
 			AppKey,
@@ -373,7 +426,12 @@ EHS_FB_RUN_FUNCTION(lorawan_connect)
 			adr,
 			inx_lorawan_state->DR,
 			inx_lorawan_state->AutoJoin,
-			inx_lorawan_state->devAddrOut
+			inx_lorawan_state->devAddrOut,
+			(e_ehs_lw_class_t)inx_lorawan_state->Class,
+			inx_lorawan_state->SubBand,
+			inx_lorawan_state->RXWIN2,
+			inx_lorawan_state->RXWIN2_DR,
+			inx_lorawan_state->TxPower
 		);
 	else
 		connect_ret = E_LWAPIERRNO_INVALID_PARAMETERS;
@@ -415,6 +473,12 @@ EHS_FB_RUN_FUNCTION(lorawan_on_receive_msg)
 		);
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_recv_msg))
 		EhsStrcpy(EHS_FB_OUT_S_API2(INX_lorawan_ARG_on_receive_msg_recv_msg), (ehs_char *) EhsLorawanRecvMsg) ;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_rssi))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_on_receive_msg_rssi) = gEhsLoraApiData.rssi;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_snr))
+		EHS_FB_OUT_F_API2(INX_lorawan_ARG_on_receive_msg_snr) = gEhsLoraApiData.snr;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_rxwin))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_on_receive_msg_rxwin) = gEhsLoraApiData.rxwin;
 	EHS_FB_FINISH(INX_lorawan_ARG_on_receive_msg_received);
 }//ICB FUNCTION on_receive_msg MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION send_msg MACRO START -- DO NOT ALTER
@@ -493,7 +557,7 @@ EHS_FB_RUN_FUNCTION(lorawan_get_statusData)
 
 	// Your code here
 	ehs_lorawan_api_errno_t ret = LoRaWAN_get_sysData(inx_lorawan_state->sys_status, inx_lorawan_state->devEui);
-	
+
 	if (ret == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_get_statusData_data_got);
 	else EHS_FB_FINISH(INX_lorawan_ARG_get_statusData_get_sd_failed);
 }//ICB FUNCTION get_statusData MACRO END -- DO NOT ALTER THIS LINE
@@ -584,6 +648,14 @@ EHS_FB_RUN_FUNCTION(lorawan_get_statusData_cb)
 		EhsStrcpy(EHS_FB_OUT_S_API2(INX_lorawan_ARG_get_statusData_cb_status), inx_lorawan_state->sys_status);
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_DevEui))
 		EhsStrcpy(EHS_FB_OUT_S_API2(INX_lorawan_ARG_get_statusData_cb_DevEui), inx_lorawan_state->devEui);
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_linkMargin))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_get_statusData_cb_linkMargin) = gEhsLoraApiData.link_margin;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_gateways))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_get_statusData_cb_gateways) = gEhsLoraApiData.gateway_count;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_txPower))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_get_statusData_cb_txPower) = gEhsLoraApiData.tx_power;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_currentDR))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_get_statusData_cb_currentDR) = gEhsLoraApiData.current_dr;
 	ehs_lorawan_debug("%s OK: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_GET_SYSDATA]);
 	EHS_FB_FINISH(INX_lorawan_ARG_get_statusData_cb_get_sd_cb_ok);
 }//ICB FUNCTION get_statusData_cb MACRO END -- DO NOT ALTER THIS LINE
@@ -706,6 +778,59 @@ EHS_FB_RUN_FUNCTION(lorawan_disable_cb)
 	EHS_FB_FINISH(INX_lorawan_ARG_disable_cb_disabled);
 }//ICB FUNCTION disable_cb MACRO END -- DO NOT ALTER THIS LINE
 
+EHS_FB_RUN_FUNCTION(lorawan_set_class)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+	ehs_lorawan_api_errno_t err;
+	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_class_class_in))
+		err = LoRaWAN_set_class((e_ehs_lw_class_t)EHS_FB_IN_I_API2(INX_lorawan_ARG_set_class_class_in));
+	else EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_busy);
+	if (err == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_sent);
+	else EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_busy);
+}
+
+EHS_FB_RUN_FUNCTION(lorawan_set_class_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_CLASS] == E_LWAPIERRNO_OK)
+		EHS_FB_FINISH(INX_lorawan_ARG_set_class_cb_set_class_ok);
+}
+
+EHS_FB_RUN_FUNCTION(lorawan_set_tx_power)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+	ehs_lorawan_api_errno_t err;
+	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_tx_power_tx_power_in))
+		err = LoRaWAN_set_txpower(EHS_FB_IN_I_API2(INX_lorawan_ARG_set_tx_power_tx_power_in));
+	else EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_busy);
+	if (err == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_sent);
+	else EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_busy);
+}
+
+EHS_FB_RUN_FUNCTION(lorawan_set_tx_power_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_TXPOWER] == E_LWAPIERRNO_OK)
+		EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_cb_set_tx_power_ok);
+}
+
+EHS_FB_RUN_FUNCTION(lorawan_link_check)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+	ehs_lorawan_api_errno_t err = LoRaWAN_link_check();
+	if (err == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_link_check_link_check_sent);
+	else EHS_FB_FINISH(INX_lorawan_ARG_link_check_link_check_busy);
+}
+
+EHS_FB_RUN_FUNCTION(lorawan_link_check_cb)
+{
+	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_link_check_cb_link_margin_out))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_link_check_cb_link_margin_out) = gEhsLoraApiData.link_margin;
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_link_check_cb_gateway_count_out))
+		EHS_FB_OUT_I_API2(INX_lorawan_ARG_link_check_cb_gateway_count_out) = gEhsLoraApiData.gateway_count;
+	EHS_FB_FINISH(INX_lorawan_ARG_link_check_cb_link_check_done);
+}
 
 /*
  * When the LoRaWAN receives the messages. This is called in target's receive callback
@@ -756,6 +881,18 @@ void Common_LoRaWAN_FBCBs(e_ehs_lorawan_api_cmd_t cmd)
 			break;
 		}
 		case E_LORAWAN_API_DISABLE:
+		{
+			break;
+		}
+		case E_LORAWAN_API_SET_CLASS:
+		{
+			break;
+		}
+		case E_LORAWAN_API_SET_TXPOWER:
+		{
+			break;
+		}
+		case E_LORAWAN_API_LINK_CHECK:
 		{
 			break;
 		}

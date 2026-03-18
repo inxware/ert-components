@@ -97,4 +97,7 @@ EHS_ACCELEROMETER_SUPPORT=sferalabs
 EHS_RS485_CONFIG_SUPPORT=sferalabs
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

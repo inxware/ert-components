@@ -164,3 +164,23 @@ int TgtUART_Intr_register(int UART_num, uart_cb_func_t cb_func)
     int ret = TgtUART_OK;
     return ret;
 }
+
+int TgtUart_Config(int UART_num, int baudrate, int databits, int parity,
+                   int stop_bits, int flow_control)
+{
+    (void)UART_num; (void)baudrate; (void)databits;
+    (void)parity;   (void)stop_bits; (void)flow_control;
+    return TgtUART_OK;
+}
+
+int TgtUart_SetComPort(int UART_num, int com_port_number)
+{
+    (void)UART_num; (void)com_port_number;
+    return TgtUART_OK;
+}
+
+int TgtUart_SetDevicePath(int UART_num, const char *path)
+{
+    (void)UART_num; (void)path;
+    return TgtUART_OK;
+}

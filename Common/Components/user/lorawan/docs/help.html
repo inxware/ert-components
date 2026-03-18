@@ -20,7 +20,7 @@
     LoRaWAN module
     </p>
 <p class="component">
-    This function block describes the LoRaWAN communication with external LoRaWAN module. The communication between the platform and this module is UART or something else. The UART port on the platform is hardware to the first instance (e.g. UART0). The authentication mode is either OTAA or ABP mode. This is Class C (continuous) LoRaWAN communication only.
+    This function block describes the LoRaWAN communication with external LoRaWAN module. The communication between the platform and this module is UART or something else. The UART port on the platform is hardware to the first instance (e.g. UART0). The authentication mode is either OTAA or ABP mode. Device class (A, B or C) is configurable via the Class parameter or the class_in port on connect.
     </p>
 <!--Parameters - form - short desc: long desc-->
 <div class="section_heading">
@@ -150,6 +150,46 @@
 <td></td>
 </tr>
 
+<tr>
+<td><a name="[Param]Class">Class</a></td>
+<td>I</td><td>Device class. 0=A (default), 1=B, 2=C. Class A is lowest power (receive windows only after uplink). Class B adds scheduled receive slots. Class C enables continuous receive. Can also be overridden dynamically via the <a href="#[In]class_in">class_in</a> port on each join.</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a name="[Param]SubBand">SubBand</a></td>
+<td>I</td><td>Sub-band selection for US915, AU915 and CN470 regions (1–8). 0 = all channels or not applicable (EU868, AS923, etc.). Must match the gateway sub-band configured in the LNS.</td>
+<td>0</td>
+<td>0</td>
+<td>8</td>
+</tr>
+
+<tr>
+<td><a name="[Param]RXWIN2_DR">RXWIN2_DR</a></td>
+<td>I</td><td>Data rate index for the second receive window (RX2). Paired with the RXWIN2 frequency parameter. Default 0 (SF12/125 kHz for EU868). Must match the network server RX2 configuration.</td>
+<td>0</td>
+<td>0</td>
+<td>15</td>
+</tr>
+
+<tr>
+<td><a name="[Param]TxPower">TxPower</a></td>
+<td>I</td><td>TX power index. 0 = maximum EIRP allowed for the region; higher values reduce output power in approximately 2 dB steps. Can also be changed at runtime via the <a href="#[In]set_tx_power">set_tx_power</a> port.</td>
+<td>0</td>
+<td>0</td>
+<td>7</td>
+</tr>
+
+<tr>
+<td><a name="[Param]ComPort">ComPort</a></td>
+<td>I</td><td>Serial port number for the LoRaWAN modem connection. On Windows this selects the COM port (e.g. 3 = COM3). On Linux targets this parameter has no effect — use the device path configured in the target HAL instead. Set to 0 to use the platform default.</td>
+<td>3</td>
+<td>0</td>
+<td>255</td>
+</tr>
+
 </table>
 <!--Ports - form - short desc: long desc-->
 <div class="section_heading">
@@ -188,7 +228,19 @@
 </tr>
 <tr>
 <td class="ports"><a name="[In]disable">disable</a></td>
-<td>Get the module specific data in JSON string and DevEui</td>
+<td>Disable the LoRaWAN connection (unjoin from network)</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]set_class">set_class</a></td>
+<td>Dynamically change the device class (A, B or C) without a full rejoin</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]set_tx_power">set_tx_power</a></td>
+<td>Dynamically change the TX power index at runtime</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]link_check">link_check</a></td>
+<td>Schedule a LoRaWAN LinkCheckReq MAC command. The result (link margin and gateway count) is returned via the link_check_cb ports.</td>
 </tr>
 <tr>
 <th>Data In</th><th></th>
@@ -222,6 +274,10 @@
 <td>ABP DevAddr_ABP for connection. Used only when Mode=True.</td>
 </tr>
 <tr>
+<td class="ports"><a name="[In]class_in">class_in</a> (connect)</td>
+<td>Override the <a href="#[Param]Class">Class</a> parameter for this join. Integer: 0=A, 1=B, 2=C. If not connected, the Class parameter value is used.</td>
+</tr>
+<tr>
 <td class="ports"><a name="[In]msg_confirmed">confirm</a></td>
 <td>Whether to send the unconfirmed or the confirmed message to the LoRaWAN server.</td>
 </tr>
@@ -236,6 +292,14 @@
 <tr>
 <td class="ports"><a name="[In]dr_in">DR</a></td>
 <td>Data rate setting.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]class_in_sc">class_in</a> (set_class)</td>
+<td>Device class to switch to: 0=A, 1=B, 2=C. Must be connected for the set_class event to execute.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]tx_power_in">txPwr</a> (set_tx_power)</td>
+<td>TX power index to apply: 0 = max EIRP, higher = lower power (~2 dB steps). Must be connected for the set_tx_power event to execute.</td>
 </tr>
 <tr>
 <th>Data Out</th><th></th>
@@ -342,7 +406,7 @@
 </tr>
 <tr>
 <td class="ports"><a name="[Out]link_status">lnkStat</a></td>
-<td>Link Status in JSON format. 
+<td>Link Status in JSON format.
               <table>
 <tbody>
 <tr style="background-color:#333333;">
@@ -363,6 +427,18 @@
 </td>
 </tr>
 <tr>
+<td class="ports"><a name="[Out]rssi">rssi</a> (on_receive_msg)</td>
+<td>Received signal strength indicator (dBm) of the last downlink frame.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]snr">snr</a> (on_receive_msg)</td>
+<td>Signal-to-noise ratio (dB) of the last downlink frame.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]rxwin">rxwin</a> (on_receive_msg)</td>
+<td>Receive window index (1 or 2) in which the last downlink was received.</td>
+</tr>
+<tr>
 <td class="ports"><a name="[Out]status">status</a></td>
 <td>The status data (e.g. RTC, Temperature, Voltage) in a JSON format.</td>
 </tr>
@@ -371,8 +447,32 @@
 <td>The DevEui of this LoRaWAN device</td>
 </tr>
 <tr>
+<td class="ports"><a name="[Out]linkMargin">linkMargin</a> (get_statusData_cb)</td>
+<td>Link margin from the most recent LinkCheckAns response (dB).</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]gateways">gateways</a> (get_statusData_cb)</td>
+<td>Number of gateways that received the last link-check uplink.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]txPower">txPower</a> (get_statusData_cb)</td>
+<td>Current TX power index reported by the module.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]currentDR">currentDR</a> (get_statusData_cb)</td>
+<td>Current data rate index in use (updated by ADR or set_datarate).</td>
+</tr>
+<tr>
 <td class="ports"><a name="[Out]pl_len">len</a></td>
 <td>Current maximum payload length</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]link_margin_out">linkMargin</a> (link_check_cb)</td>
+<td>Link margin returned by the network server in the LinkCheckAns response (dB).</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]gateway_count_out">gateways</a> (link_check_cb)</td>
+<td>Number of gateways that received the link-check uplink, as reported by the network server.</td>
 </tr>
 <tr>
 <th>Out Ev.</th><th></th>
@@ -404,6 +504,18 @@
 <tr>
 <td class="ports"><a name="[Out]disabled">disabled</a></td>
 <td>The LoRaWAN connection is disabled.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_class_ok">ok</a> (set_class_cb)</td>
+<td>Class change command completed successfully.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_tx_power_ok">ok</a> (set_tx_power_cb)</td>
+<td>TX power change command completed successfully.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]link_check_done">done</a> (link_check_cb)</td>
+<td>LinkCheckReq scheduled and response received. Check link_margin_out and gateway_count_out for results.</td>
 </tr>
 </table>
 <div class="section_heading">

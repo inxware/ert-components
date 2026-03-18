@@ -84,7 +84,7 @@ EHS_COMPONENTS_NETWORK_TCPIP_SOCKET=yes
 EHS_MQTT_SUPPORT=esp_mqtt
 
 # LoRaWAN support
-EHS_LORAWAN_SUPPORT=yes
+EHS_LORAWAN_SUPPORT=wio_e5
 
 # Wi-Fi Support (uncomment to enable)
 #EHS_NETWORK_WIFI_SUPPORT=yes

@@ -101,4 +101,7 @@ DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=no
 DEFS += EHS_RUNTIME_FILELOGGER_ENABLED
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

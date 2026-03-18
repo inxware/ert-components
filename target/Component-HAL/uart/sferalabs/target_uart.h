@@ -58,11 +58,18 @@ enum TgtUART_Return_t {
 int TgtUart_Stage0(int UART_num);
 int TgtUart_Start(int UART_num, int tx_io, int rx_io, int rts_io, int cts_io,
                   int baudrate, int databits, int parity, int stop_bits, int flow_control);
+int TgtUart_Config(int UART_num, int baudrate, int databits, int parity,
+                   int stop_bits, int flow_control);
+
 int TgtUart_RS485Setup(int UART_num);
 int TgtUart_Stop(int UART_num);
 int TgtUart_Send(int UART_num, char *payload, unsigned int length);
 int TgtUART_RecvPoll(int UART_num, char *payload, unsigned int length);
 int TgtUART_Intr_register(int UART_num, uart_cb_func_t cb_func);
+
+int TgtUart_SetComPort(int UART_num, int com_port_number);
+
+int TgtUart_SetDevicePath(int UART_num, const char *path);
 
 void Common_UART_onReceive(char *recv_msg, int length);
 void Common_UART_onSendComplete(int retCode);

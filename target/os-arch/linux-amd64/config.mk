@@ -1,7 +1,7 @@
 #default dependencies and feature support for AMD64 build targets.
 
 EHS_IMAGEPROCESSING_APRILTAG_SUPPORT ?= enabled
-EHS_PERIPHERALS_UART_SUPPORT         ?= stubbed
+EHS_PERIPHERALS_UART_SUPPORT         ?= linux
 
 # New peripheral HAL defaults — stub on generic linux-amd64 unless overridden by platform config.mk
 EHS_WATCHDOG_SUPPORT      ?= stubbed

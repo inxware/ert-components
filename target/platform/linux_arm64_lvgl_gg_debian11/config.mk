@@ -89,4 +89,7 @@ include ./target/devman-configs/devman.inxware.io.mk
 # (Inherits from parent config)
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

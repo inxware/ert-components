@@ -85,4 +85,7 @@ EHS_PERIPHERAL_DEVICE_SUPPORT=all
 #EHS_PNG_LIB := png16
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

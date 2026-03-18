@@ -58,6 +58,16 @@
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
         </Parameter>
+        <Parameter>
+            <Name>ComPort</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>255</MaxValue>
+            <Description>Default UART port to use. On Windows this selects the physical COM port number (e.g. 3 = COM3). On Linux this selects the device index (e.g. 1 = /dev/ttyUSB1). 0 uses the platform default. Overridden at runtime by the port input when connected.</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
     </Parameters>
     <Functions>
         <Function>

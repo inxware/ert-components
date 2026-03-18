@@ -16,7 +16,7 @@
  *    Example received message:
  *       +MSG: PORT: 100; RX: "00112233445566778899001122334455667788990011223344556677889900112233445566778899001122334455667788990011223344556677889900112233445566778899001122334455667788990011223344556677889900112233445566778899001122334455667788990011223344"
  *    1a. Therefore the maximum possible length of a single AT message return is 253+1(NULL END)
- * 
+ *
  */
 
 //#define EHS_LORAWAN_DEBUG
@@ -51,6 +51,8 @@ enum AT_COMMAND_t {
     AT_VER,
     AT_PORT,
     AT_ADR,
+    AT_POWER,
+    AT_RXWIN2,
     AT_MAX_VALUE
 };
 static const char AT_COMMAND_STRING[AT_MAX_VALUE][9] = {
@@ -75,7 +77,9 @@ static const char AT_COMMAND_STRING[AT_MAX_VALUE][9] = {
     "+RTC",
     "+VER",
     "+PORT",
-    "+ADR"
+    "+ADR",
+    "+POWER",
+    "+RXWIN2"
 };
 
 enum LORAWAN_WIO_E5_LW_CMD_t {
@@ -128,16 +132,16 @@ static const char LW_CMD_STRING[LW_WIO_E5_LW_CMD_MAX_VALUE][7] = {
 };
 
 static const char LW_REGION_STRING[E_LWREGION_MAXVALUE][7] = {
-    "EU868", 
-    "US915", 
-    "CN779", 
-    "EU433", 
-    "AU915", 
-    "CN470", 
-    "AS923", 
-    "KR920", 
-    "IN865", 
-    "RU864", 
+    "EU868",
+    "US915",
+    "CN779",
+    "EU433",
+    "AU915",
+    "CN470",
+    "AS923",
+    "KR920",
+    "IN865",
+    "RU864",
     "STE920"
 };
 
@@ -202,47 +206,6 @@ static char lw_misc_buffer[LW_MISC_BUFFER_SIZE] = {0};
     snprintf(x, LW_SEND_BUFFER_SIZE - 1, __VA_ARGS__); \
 } while (0)
 
-// static void memset_volatile(volatile void *restrict s, char c, size_t n)
-// {
-// 	volatile char *p = s;
-// 	while (n-- > 0) *p++ = c;
-// }
-// 
-// 
-// #define LW_DR_PLAN_SIZE 11
-// static char LW_DR_PLAN[][LW_DR_PLAN_SIZE] = {
-// 	"EU868",
-// 	"US915",
-// 	"CN779",
-// 	"EU433",
-// 	"AU915",
-// 	"CN470",
-// 	"AS923",
-// 	"KR920",
-// 	"IN865",
-// 	"RU864",
-// 	"STE920"
-// };
-// 
-// /*
-//  * Find the last occurance of the string in the string list
-//  * Return:
-//  * 	pointer to the occurance, otherwise NULL
-//  *
-//  * */
-// static char ** checkInStringList(char **haystack, char *needle, size_t haystack_size)
-// {
-// 	char ** ret = NULL;
-// 	while (haystack_size-- > 0)
-// 	{
-// 		if (strcmp(haystack[haystack_size], needle) == 0)
-// 		{
-// 			ret = haystack + haystack_size;
-// 			break;
-// 		}
-// 	}
-// }
-
 static void LoRaWAN_wioe5_onUart(char *payload, int length);
 
 /*
@@ -281,10 +244,12 @@ static ehs_lorawan_api_errno_t sendWaitUntilComplete(char *UART_payload, int at_
  * Init the communication interface with LoRaWAN module
  *
  * */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_init()
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_init(ehs_sint32 com_port)
 {
     ehs_lorawan_api_errno_t ret = TgtUART_OK;
     if ((ret = TgtUart_Stage0(LORA_UART_PORT)) != TgtUART_OK) return ret;
+    if (com_port > 0)
+        TgtUart_SetComPort(LORA_UART_PORT, com_port);
     // UART default pins, baudrate 9600, 8 data bits, 1 stop bit, no parity check, no flow control
     if ((ret = TgtUart_Start(LORA_UART_PORT,
                              TARGET_UART_PIN_TX_PORT(LORA_UART_PORT),
@@ -314,7 +279,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_deinit()
  *  Note that the DevAddr_OUT should be allocated with sufficient memory.
  *
  * */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT)
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT, e_ehs_lw_class_t class_type, ehs_sint32 subband, ehs_float rxwin2_freq, ehs_sint32 rxwin2_dr, ehs_sint32 tx_power)
 {
     loraConnecting = EHS_TRUE;
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
@@ -349,8 +314,12 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bo
     if ((ret = sendWaitUntilComplete(send_buffer, AT_REPT)) != 0) return ret;
     _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=%d\r\n", AT_COMMAND_STRING[AT_RETRY], RETRY);
     if ((ret = sendWaitUntilComplete(send_buffer, AT_RETRY)) != 0) return ret;
-    _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=C\r\n", AT_COMMAND_STRING[AT_CLASS]);
-    if ((ret = sendWaitUntilComplete(send_buffer, AT_CLASS)) != 0) return ret;
+    /* Set device class (A, B or C) */
+    {
+        const char class_char = (class_type == E_LWCLASS_B) ? 'B' : (class_type == E_LWCLASS_C) ? 'C' : 'A';
+        _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=%c\r\n", AT_COMMAND_STRING[AT_CLASS], class_char);
+        if ((ret = sendWaitUntilComplete(send_buffer, AT_CLASS)) != 0) return ret;
+    }
     autoJoin = autoJoin < 0 ? 0 : autoJoin > 86400 ? 86400 : autoJoin;
     _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=AUTO,%d,0,0\r\n", AT_COMMAND_STRING[AT_JOIN], autoJoin);
     while ((ret = sendWaitUntilComplete(send_buffer, AT_JOIN)) != 0);
@@ -383,11 +352,20 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bo
         if ((ret = sendWaitUntilComplete(send_buffer, AT_DR)) != 0) return ret;
     }
 
-    // //?Should we get it?
-    // // Get and populate local config for later usage
-    // /// Frame Port for message send
-    // _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s\r\n", AT_COMMAND_STRING[AT_PORT]);
-    // if ((ret = sendWaitUntilComplete(send_buffer, AT_PORT)) != 0) return ret;
+    /* Set TX power (0 = max regional EIRP, higher = lower power in ~2 dB steps) */
+    _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=%d\r\n", AT_COMMAND_STRING[AT_POWER], tx_power);
+    if ((ret = sendWaitUntilComplete(send_buffer, AT_POWER)) != 0) return ret;
+
+    /* Set RX window 2 frequency and data rate */
+    _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=%.3f,DR%d\r\n", AT_COMMAND_STRING[AT_RXWIN2], rxwin2_freq, rxwin2_dr);
+    if ((ret = sendWaitUntilComplete(send_buffer, AT_RXWIN2)) != 0) return ret;
+
+    /* Sub-band selection for US915/AU915/CN470 (0 = all channels / not applicable).
+     * TODO: implement AT+LW=BAND,<n> for sub-band selection once firmware support is confirmed.
+     * For now, log a warning if subband != 0. */
+    if (subband != 0) {
+        ehs_lorawan_debug("[LoRaWAN_wioe5_connect] WARNING: subband=%d requested but not yet implemented\n", subband);
+    }
 
     return ret;
 }
@@ -425,9 +403,9 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_reset( void )
     return sendWaitUntilComplete(send_buffer, AT_RESET);
 }
 
-/* 
+/*
  * Get the module's RTC time, core temperature, power supply voltage and DevEui. Pass them as a JSON string into the argument.
- * Note that the passed argument should have memory allocated. If that is 
+ * Note that the passed argument should have memory allocated. If that is
  *
  * */
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_get_sysData(char *data, char *DevEui)
@@ -475,9 +453,9 @@ LoRaWAN_wio_e5_get_sysData_Return:
 
 /**
  * @brief Set the datarate (DR) of the communication
- * 
+ *
  * @param datarate The level of datarate to set
- * @return ehs_lorawan_api_errno_t 
+ * @return ehs_lorawan_api_errno_t
  */
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_datarate(ehs_sint32 datarate)
 {
@@ -491,9 +469,9 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_datarate(ehs_sint32 datarate)
 
 /**
  * @brief Get the length of the payload
- * 
- * @param length 
- * @return ehs_lorawan_api_errno_t 
+ *
+ * @param length
+ * @return ehs_lorawan_api_errno_t
  */
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_get_payloadLength(ehs_sint32 *length_out)
 {
@@ -514,8 +492,8 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_get_payloadLength(ehs_sint32 *length_out)
 
 /**
  * @brief Disable the LoRa connection (This target just unjoins from the network)
- * 
- * @return ehs_lorawan_api_errno_t 
+ *
+ * @return ehs_lorawan_api_errno_t
  */
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_disable( void )
 {
@@ -530,6 +508,46 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_disable( void )
     if ((ret = sendWaitUntilComplete(send_buffer, AT_DR)) != 0) return ret;
 
     return ret;
+}
+
+/**
+ * @brief Set the LoRaWAN device class (A, B or C)
+ */
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_class(e_ehs_lw_class_t class_type)
+{
+    char send_buffer[LW_SEND_BUFFER_SIZE];
+    const char class_char = (class_type == E_LWCLASS_B) ? 'B' : (class_type == E_LWCLASS_C) ? 'C' : 'A';
+    _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=%c\r\n", AT_COMMAND_STRING[AT_CLASS], class_char);
+    return sendWaitUntilComplete(send_buffer, AT_CLASS);
+}
+
+/**
+ * @brief Set the TX power index (0 = max EIRP for region, higher = lower power)
+ */
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_txpower(ehs_sint32 tx_power)
+{
+    char send_buffer[LW_SEND_BUFFER_SIZE];
+    _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=%d\r\n", AT_COMMAND_STRING[AT_POWER], tx_power);
+    return sendWaitUntilComplete(send_buffer, AT_POWER);
+}
+
+/**
+ * @brief Request a LoRaWAN link check (LinkCheckReq MAC command).
+ *
+ * The WIO-E5 does not support a standalone link-check uplink — the MAC command
+ * must be piggybacked on the next data frame via AT+LW=LCR before sending.
+ * This function schedules the LCR flag; the result (link_margin, gateway_count)
+ * will be populated in gEhsLoraApiData on the next completed send.
+ *
+ * TODO: send a short empty frame immediately to force the link check uplink
+ * without requiring the application to send a data frame first.
+ */
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_link_check( void )
+{
+    char send_buffer[LW_SEND_BUFFER_SIZE];
+    /* Schedule LinkCheckReq on next message */
+    _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=%s\r\n", AT_COMMAND_STRING[AT_LW], LW_CMD_STRING[LW_WIO_E5_LW_CMD_LCR]);
+    return sendWaitUntilComplete(send_buffer, AT_LW);
 }
 
 static void LoRaWAN_wioe5_onUart(char *payload, int length)
@@ -557,7 +575,7 @@ static void LoRaWAN_wioe5_onUart(char *payload, int length)
     if (strstr(buffer, AT_COMMAND_STRING[AT_JOIN]) != NULL)
     {
         /* Join request */
-        if (strstr(buffer, "ERROR") != NULL) 
+        if (strstr(buffer, "ERROR") != NULL)
         {
             loraError[AT_JOIN] = E_LWAPIERRNO_GENERIC_ERROR;
         } else if (strstr(buffer, "Join failed") != NULL) {
@@ -581,7 +599,7 @@ static void LoRaWAN_wioe5_onUart(char *payload, int length)
         /* LoRaWAN ADR setting */
         if (strstr(buffer, "ERROR") != NULL) loraError[AT_ADR] = E_LWAPIERRNO_GENERIC_ERROR;
         else {
-            if (strstr(buffer, "ON") != NULL) 
+            if (strstr(buffer, "ON") != NULL)
             {
                 gLW_localConfig.adr = EHS_TRUE;
                 loraDone[AT_ADR] = EHS_TRUE;
@@ -634,7 +652,7 @@ static void LoRaWAN_wioe5_onUart(char *payload, int length)
             loraDone[AT_PORT] = EHS_TRUE;
         }
     }
-    else 
+    else
     {
         if (strstr(buffer, AT_COMMAND_STRING[AT_CMSGHEX]) != NULL) msg_type = AT_CMSGHEX;
         else if (strstr(buffer, AT_COMMAND_STRING[AT_MSGHEX]) != NULL) msg_type = AT_MSGHEX;
@@ -834,6 +852,21 @@ static void LoRaWAN_wioe5_onUart(char *payload, int length)
             /* Module Firmware version */
             sscanf(buffer, "+VER: %s\r\n", lw_misc_buffer);
             loraDone[AT_VER] = EHS_TRUE;
+        }
+        if (strstr(buffer, AT_COMMAND_STRING[AT_POWER]) != NULL)
+        {
+            /* TX power set or retrieve */
+            if (strstr(buffer, "ERROR") != NULL) loraError[AT_POWER] = E_LWAPIERRNO_GENERIC_ERROR;
+            else {
+                sscanf(buffer, "+POWER: %d", &gEhsLoraApiData.tx_power);
+                loraDone[AT_POWER] = EHS_TRUE;
+            }
+        }
+        if (strstr(buffer, AT_COMMAND_STRING[AT_RXWIN2]) != NULL)
+        {
+            /* RX window 2 set or retrieve */
+            if (strstr(buffer, "ERROR") != NULL) loraError[AT_RXWIN2] = E_LWAPIERRNO_GENERIC_ERROR;
+            else loraDone[AT_RXWIN2] = EHS_TRUE;
         }
     }
 

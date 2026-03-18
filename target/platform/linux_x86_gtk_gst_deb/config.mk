@@ -73,4 +73,7 @@ SYSTEM_VARIANT=debian
 DEFS += EHS_GST_010
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

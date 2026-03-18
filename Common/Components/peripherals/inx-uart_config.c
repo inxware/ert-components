@@ -159,7 +159,7 @@ EHS_FB_RUN_FUNCTION(uart_config_enable)
         return;
     }
 
-    // Your code here
+    // Update global config arrays from connected inputs
     if (EHS_FB_IN_CONNECTED_API2(INX_uart_config_ARG_enable_baudrate))
         gUARTBaudRate[inx_uart_config_state->Port]=EHS_FB_IN_I_API2(INX_uart_config_ARG_enable_baudrate);
     if (EHS_FB_IN_CONNECTED_API2(INX_uart_config_ARG_enable_stopbits))
@@ -167,9 +167,18 @@ EHS_FB_RUN_FUNCTION(uart_config_enable)
     if (EHS_FB_IN_CONNECTED_API2(INX_uart_config_ARG_enable_parity))
         gUARTParity[inx_uart_config_state->Port]=EHS_FB_IN_I_API2(INX_uart_config_ARG_enable_parity);
     if (EHS_FB_IN_CONNECTED_API2(INX_uart_config_ARG_enable_hw_ctrl))
-        gUARTHWCTRL[inx_uart_config_state->Port]=EHS_FB_IN_B_API2(INX_uart_config_ARG_enable_hw_ctrl) ;
-	if (EHS_FB_IN_CONNECTED_API2(INX_uart_config_ARG_enable_length))
-		gUARTLength[inx_uart_config_state->Port]=EHS_FB_IN_I_API2(INX_uart_config_ARG_enable_length) ;
+        gUARTHWCTRL[inx_uart_config_state->Port]=EHS_FB_IN_B_API2(INX_uart_config_ARG_enable_hw_ctrl);
+    if (EHS_FB_IN_CONNECTED_API2(INX_uart_config_ARG_enable_length))
+        gUARTLength[inx_uart_config_state->Port]=EHS_FB_IN_I_API2(INX_uart_config_ARG_enable_length);
+
+    /* Apply to the HAL immediately if the port is already open.
+     * If not yet open, the globals above will be used at start time. */
+    TgtUart_Config(inx_uart_config_state->Port,
+                   gUARTBaudRate[inx_uart_config_state->Port],
+                   gUARTLength[inx_uart_config_state->Port],
+                   gUARTParity[inx_uart_config_state->Port],
+                   gUARTStopBits[inx_uart_config_state->Port],
+                   gUARTHWCTRL[inx_uart_config_state->Port]);
 
     // inxUARTEnable();
     /*

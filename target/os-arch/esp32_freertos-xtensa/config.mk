@@ -6,6 +6,7 @@
 
 EHS_FILESYSTEM_SUPPORT              ?= posix
 EHS_PERIPHERALS_GPIO_SUPPORT        ?= ESP32_IDF
+EHS_PERIPHERALS_UART_SUPPORT        ?= esp32s3
 EHS_COMPONENTS_NETWORK_CONFIG_SUPPORT ?= yes
 
 #Use NVRAM (for WiFi credentials to reduce clobbering risk of flash updates)

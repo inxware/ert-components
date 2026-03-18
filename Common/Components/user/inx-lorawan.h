@@ -26,6 +26,12 @@ EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_get_payload_length); //a fu
 EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_get_payload_length_cb); //a function executed by a start port
 EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_disable_cb); //a function executed by a start port
 EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_on_receive_msg); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_set_class); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_set_class_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_set_tx_power); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_set_tx_power_cb); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_link_check); //a function executed by a start port
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(lorawan_link_check_cb); //a function executed by a start port
 /* declare the table for use by the blockref table */
 EHS_FB_FUNCTIONS(lorawan)
 

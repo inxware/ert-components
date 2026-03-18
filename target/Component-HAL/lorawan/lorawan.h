@@ -17,6 +17,13 @@ typedef enum {
     E_EHS_LWTARGET_WIO_E5 = 0,
 } e_ehs_lw_target_t;
 
+typedef enum {
+    E_LWCLASS_A = 0,
+    E_LWCLASS_B,
+    E_LWCLASS_C,
+    E_LWCLASS_MAXVALUE
+} e_ehs_lw_class_t;
+
 /* START - LoRaWAN enum - START */
 typedef enum {
     E_LORAWAN_API_CONNECT = 0,
@@ -26,6 +33,9 @@ typedef enum {
     E_LORAWAN_API_SET_DATARATE,
     E_LORAWAN_API_GET_PAYLOADLENGTH,
     E_LORAWAN_API_DISABLE,
+    E_LORAWAN_API_SET_CLASS,
+    E_LORAWAN_API_SET_TXPOWER,
+    E_LORAWAN_API_LINK_CHECK,
     // Normal command maximum number
     E_LORAWAN_API__MAX_VALUE,
     // Status
@@ -37,15 +47,15 @@ typedef enum {
 
 typedef enum {
     E_LWREGION_EU868 = 0,
-    E_LWREGION_US915, 
-    E_LWREGION_CN779, 
-    E_LWREGION_EU433, 
-    E_LWREGION_AU915, 
-    E_LWREGION_CN470, 
-    E_LWREGION_AS923, 
-    E_LWREGION_KR920, 
-    E_LWREGION_IN865, 
-    E_LWREGION_RU864, 
+    E_LWREGION_US915,
+    E_LWREGION_CN779,
+    E_LWREGION_EU433,
+    E_LWREGION_AU915,
+    E_LWREGION_CN470,
+    E_LWREGION_AS923,
+    E_LWREGION_KR920,
+    E_LWREGION_IN865,
+    E_LWREGION_RU864,
     E_LWREGION_STE920,
     E_LWREGION_MAXVALUE
 } e_ehs_lw_region_t;
@@ -86,6 +96,8 @@ typedef struct {
     ehs_uint8 fport;
     ehs_uint8 dr;
     ehs_bool adr;
+    ehs_sint32 tx_power;   /* current TX power index */
+    ehs_sint32 current_dr; /* current DR (updated by ADR or set_datarate) */
     /* Output pointer to write max payload length */
     ehs_sint32 *p_length_out;
 } ehs_lorawan_api_data_t;
@@ -95,11 +107,11 @@ extern ehs_lorawan_api_data_t gEhsLoraApiData;
 // rx_buffer
 extern char gEhsLorawanRxBuffer[LW_RX_BUFFER_SIZE];
 
-ehs_lorawan_api_errno_t LoRaWAN_init( e_ehs_lw_target_t target );
+ehs_lorawan_api_errno_t LoRaWAN_init( e_ehs_lw_target_t target, ehs_sint32 com_port );
 
 ehs_lorawan_api_errno_t LoRaWAN_deinit( void );
 
-ehs_lorawan_api_errno_t LoRaWAN_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT);
+ehs_lorawan_api_errno_t LoRaWAN_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT, e_ehs_lw_class_t class_type, ehs_sint32 subband, ehs_float rxwin2_freq, ehs_sint32 rxwin2_dr, ehs_sint32 tx_power);
 
 ehs_lorawan_api_errno_t LoRaWAN_send_msg(char *payload, int fport, ehs_bool confirmed);
 
@@ -112,6 +124,12 @@ ehs_lorawan_api_errno_t LoRaWAN_set_datarate(ehs_sint32 dr);
 ehs_lorawan_api_errno_t LoRaWAN_get_payloadLength(ehs_sint32 *length_out);
 
 ehs_lorawan_api_errno_t LoRaWAN_disable( void );
+
+ehs_lorawan_api_errno_t LoRaWAN_set_class(e_ehs_lw_class_t class_type);
+
+ehs_lorawan_api_errno_t LoRaWAN_set_txpower(ehs_sint32 tx_power);
+
+ehs_lorawan_api_errno_t LoRaWAN_link_check( void );
 
 void Common_LoRaWAN_onReceive(char *recv_msg, ehs_bool has_message);
 

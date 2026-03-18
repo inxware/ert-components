@@ -3,6 +3,7 @@
 EHS_FILESYSTEM_SUPPORT              ?= posix
 EHS_MQTT_SUPPORT                    ?= esp_mqtt
 EHS_PERIPHERALS_GPIO_SUPPORT        ?= ESP32_IDF
+EHS_PERIPHERALS_UART_SUPPORT        ?= esp32s3
 
 #We always support continuous on ESP32s3
 EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT ?= yes

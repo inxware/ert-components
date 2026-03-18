@@ -156,4 +156,7 @@ DEFS += EHSL_MODULE_ID=EHSH_LOG_MODULE_LOGGER
 DEFS += ERTQT_SINGLETON_SCAN
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

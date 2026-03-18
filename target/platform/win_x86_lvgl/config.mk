@@ -144,4 +144,7 @@ DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=no
 #https://repo.msys2.org/mingw/mingw32/mingw-w64-i686-aws-c-mqtt-0.8.14-1-any.pkg.tar.zst
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

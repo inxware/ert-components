@@ -13,6 +13,7 @@ typedef struct inx_UART_state
 	EhsCallbackQueueEntryType xEntry1;
 	ehs_sint32 GPIO_switch;
 	ehs_bool RS485;
+	ehs_sint32 ComPort;
 	ehs_sint32 port;
 } inx_UART_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
@@ -56,6 +57,7 @@ EHS_FB_FUNCTIONS_END
 /* Create some macros for the default parameters */
 #define INX_FB_UART_GPIO_switch -1
 #define INX_FB_UART_RS485 0
+#define INX_FB_UART_ComPort 0
 //ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 /**
@@ -86,6 +88,7 @@ EHS_FB_INIT_FUNCTION(UART)
 {
 	ehs_sint32 GPIO_switch;
 	ehs_bool RS485;
+	ehs_sint32 ComPort;
 	ehs_bool bRet = EHS_TRUE; /* assume success */
 	//this is the reference to the object data for this instance of the function block
 	inx_UART_state_type* inx_UART_state = (inx_UART_state_type*)EHS_FB_INIT_CONTEXT;
@@ -101,10 +104,11 @@ EHS_FB_INIT_FUNCTION(UART)
 			   &(inx_UART_state->xEntry1)
 	);
 	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d",&GPIO_switch,&RS485);
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d",&GPIO_switch,&RS485,&ComPort);
 	inx_UART_state->GPIO_switch = GPIO_switch;
 	inx_UART_state->RS485= RS485;
-	inx_UART_state->port = 0;
+	inx_UART_state->ComPort = ComPort;
+	inx_UART_state->port = ComPort;
 
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */
@@ -130,14 +134,16 @@ EHS_FB_RUN_FUNCTION(UART_start)
 {
 	inx_UART_state_type* inx_UART_state = (inx_UART_state_type*)EHS_FB_RUN_CONTEXT;
 
-	int port = 0;
-
-	// Your code here
+	/* Port input overrides the ComPort parameter default */
+	int port = inx_UART_state->ComPort;
 	if (EHS_FB_IN_CONNECTED_API2(INX_UART_ARG_start_port))
-		port = EHS_FB_IN_I_API2(INX_UART_ARG_start_port) ;
+		port = EHS_FB_IN_I_API2(INX_UART_ARG_start_port);
 	inx_UART_state->port = port;
 	TgtUart_Stage0(port);
-	TgtUart_Start(port, 
+	/* On Windows, map the logical UART port to the physical COM port number */
+	if (inx_UART_state->ComPort > 0)
+		TgtUart_SetComPort(port, inx_UART_state->ComPort);
+	TgtUart_Start(port,
 				  gTargetUartPinTx[port],
 				  gTargetUartPinRx[port],
 				  gTargetUartPinRts[port],

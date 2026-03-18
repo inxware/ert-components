@@ -7,6 +7,10 @@
 #define EHS_TARGET_LORAWAN_THREADING_SUPPORT
 
 /* START - LoRaWAN target includes - START */
+/* TODO: replace this module-specific include with a generic "lorawan_module.h"
+ * once lorawan.c is refactored to call common LoRaWAN_module_* function names.
+ * The makefile (lorawan.mk) already selects the correct module subdirectory;
+ * this include and the LoRaWAN_wioe5_* call sites below should follow suit. */
 #include "lorawan-wio_e5.h"
 
 /* END - LoRaWAN target includes - END */
@@ -38,6 +42,11 @@ struct ehs_lorawan_api_data_connect_s {
     ehs_sint32 autoJoin;
     // This is a pointer to be written (i.e. output)
     ehs_char *DevAddr_OUT;
+    e_ehs_lw_class_t class_type;
+    ehs_sint32 subband;
+    ehs_float rxwin2_freq;
+    ehs_sint32 rxwin2_dr;
+    ehs_sint32 tx_power;
 };
 
 struct ehs_lorawan_api_data_send_msg_s {
@@ -72,6 +81,18 @@ struct ehs_lorawan_api_data_disable_s {
     ehs_bool reserved;
 };
 
+struct ehs_lorawan_api_data_set_class_s {
+    e_ehs_lw_class_t class_type;
+};
+
+struct ehs_lorawan_api_data_set_txpower_s {
+    ehs_sint32 tx_power;
+};
+
+struct ehs_lorawan_api_data_link_check_s {
+    ehs_bool reserved;
+};
+
 // Union type to put the data for different lorawan API cmd data in the same memory space
 //  Note that this should only apply when only one command in executed at a time
 typedef union {
@@ -82,6 +103,9 @@ typedef union {
     struct ehs_lorawan_api_data_set_datarate_s  set_datarate;
     struct ehs_lorawan_api_data_get_payloadLength_s get_payloadLength;
     struct ehs_lorawan_api_data_disable_s       disable;
+    struct ehs_lorawan_api_data_set_class_s     set_class;
+    struct ehs_lorawan_api_data_set_txpower_s   set_txpower;
+    struct ehs_lorawan_api_data_link_check_s    link_check;
 } ehs_lorawan_api_data_ut;
 
 static ehs_lorawan_api_data_ut g_lorawan_api_data;
@@ -95,7 +119,7 @@ ehs_lorawan_api_data_t gEhsLoraApiData;
 // rx_buffer
 char gEhsLorawanRxBuffer[LW_RX_BUFFER_SIZE] = { 0 };
 
-ehs_lorawan_api_errno_t LoRaWAN_init(e_ehs_lw_target_t target)
+ehs_lorawan_api_errno_t LoRaWAN_init(e_ehs_lw_target_t target, ehs_sint32 com_port)
 {
     if (g_lorawan_cmd != E_LORAWAN_API__NOT_INTIALISED) return E_LWAPIERRNO_ALREADY_INITIALISED;
 
@@ -108,10 +132,14 @@ ehs_lorawan_api_errno_t LoRaWAN_init(e_ehs_lw_target_t target)
     // Start thread
     EhsHThread_execute(&taskLoRaWAN_execute_cmd, NULL, 0, 3072);
     #endif//EHS_TARGET_LORAWAN_THREADING_SUPPORT;
+    /* TODO: once lorawan.c is refactored to use common LoRaWAN_module_* names,
+     * this switch-on-target dispatch (and all equivalent ones below) should be
+     * removed.  Each module subdirectory will implement the common interface and
+     * the makefile will select the right module at build time. */
     switch (gLorawanTarget) {
         case E_EHS_LWTARGET_WIO_E5:
             /**/
-            ret = LoRaWAN_wioe5_init();
+            ret = LoRaWAN_wioe5_init(com_port);
             if (ret == E_LWAPIERRNO_OK) g_lorawan_cmd = E_LORAWAN_API__IDLE;
             break;
         default:
@@ -140,7 +168,7 @@ ehs_lorawan_api_errno_t LoRaWAN_deinit()
     return ret;
 }
 
-static ehs_lorawan_api_errno_t _LoRaWAN_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT)
+static ehs_lorawan_api_errno_t _LoRaWAN_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT, e_ehs_lw_class_t class_type, ehs_sint32 subband, ehs_float rxwin2_freq, ehs_sint32 rxwin2_dr, ehs_sint32 tx_power)
 {
     if (AppKey == NULL || AppEui == NULL || DevAddr_ABP == NULL || AppSKey == NULL || NwkSKey == NULL || DevAddr_OUT == NULL)
     {
@@ -149,7 +177,7 @@ static ehs_lorawan_api_errno_t _LoRaWAN_connect(char *AppKey, char *AppEui, ehs_
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_connect(AppKey, AppEui, mode, DevAddr_ABP, AppSKey, NwkSKey, REPT, RETRY, region, ADR, DR, autoJoin, DevAddr_OUT);
+            ret = LoRaWAN_wioe5_connect(AppKey, AppEui, mode, DevAddr_ABP, AppSKey, NwkSKey, REPT, RETRY, region, ADR, DR, autoJoin, DevAddr_OUT, class_type, subband, rxwin2_freq, rxwin2_dr, tx_power);
             break;
         default:
             ret = -100;
@@ -161,7 +189,7 @@ static ehs_lorawan_api_errno_t _LoRaWAN_connect(char *AppKey, char *AppEui, ehs_
     return ret;
 }
 
-ehs_lorawan_api_errno_t LoRaWAN_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT)
+ehs_lorawan_api_errno_t LoRaWAN_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT, e_ehs_lw_class_t class_type, ehs_sint32 subband, ehs_float rxwin2_freq, ehs_sint32 rxwin2_dr, ehs_sint32 tx_power)
 {
     if (g_lorawan_cmd == E_LORAWAN_API__NOT_INTIALISED) return E_LWAPIERRNO_NOT_INITIALISED;
     if (AppKey == NULL || AppEui == NULL || DevAddr_ABP == NULL || AppSKey == NULL || NwkSKey == NULL || DevAddr_OUT == NULL)
@@ -188,12 +216,17 @@ ehs_lorawan_api_errno_t LoRaWAN_connect(char *AppKey, char *AppEui, ehs_bool mod
     memcpy(g_lorawan_api_data.connect.DevAddr_ABP, DevAddr_ABP, EHS_LORAWAN_ID_STRLEN + 1);
     memcpy(g_lorawan_api_data.connect.AppSKey, AppSKey, EHS_LORAWAN_KEY_STRLEN + 1);
     memcpy(g_lorawan_api_data.connect.NwkSKey,NwkSKey, EHS_LORAWAN_KEY_STRLEN + 1);
+    g_lorawan_api_data.connect.class_type = class_type;
+    g_lorawan_api_data.connect.subband = subband;
+    g_lorawan_api_data.connect.rxwin2_freq = rxwin2_freq;
+    g_lorawan_api_data.connect.rxwin2_dr = rxwin2_dr;
+    g_lorawan_api_data.connect.tx_power = tx_power;
     #endif//#ifdef EHS_TARGET_LORAWAN_THREADING_SUPPORT
 
     g_lorawan_cmd = E_LORAWAN_API_CONNECT;
 
     #ifndef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
-    return _LoRaWAN_connect(AppKey, AppEui, mode, DevAddr_ABP, AppSKey, NwkSKey, REPT, RETRY, region, DevAddr_OUT);
+    return _LoRaWAN_connect(AppKey, AppEui, mode, DevAddr_ABP, AppSKey, NwkSKey, REPT, RETRY, region, ADR, DR, autoJoin, DevAddr_OUT, class_type, subband, rxwin2_freq, rxwin2_dr, tx_power);
     #endif//#ifndef EHS_TARGET_LORAWAN_THREADING_SUPPORT
 
     return E_LWAPIERRNO_OK;
@@ -224,13 +257,13 @@ ehs_lorawan_api_errno_t LoRaWAN_send_msg(char *payload, int fport, ehs_bool conf
 
     if (g_lorawan_cmd != E_LORAWAN_API__IDLE && g_lorawan_cmd != E_LORAWAN_API__COMPLETE)
         return E_LWAPIERRNO_BUSY;
-    
+
     #ifdef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
     g_lorawan_api_data.send_msg.confirmed = confirmed;
     g_lorawan_api_data.send_msg.fport = fport;
     memcpy(g_lorawan_api_data.send_msg.payload, payload, 485);
     #endif//#ifdef EHS_TARGET_LORAWAN_THREADING_SUPPORT
-    
+
     g_lorawan_cmd = E_LORAWAN_API_SEND_MSG;
 
     #ifndef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
@@ -267,9 +300,9 @@ ehs_lorawan_api_errno_t LoRaWAN_reset()
     // Dummy code. Reserved for later
     ;
     #endif//#ifdef EHS_TARGET_LORAWAN_THREADING_SUPPORT
-    
+
     g_lorawan_cmd = E_LORAWAN_API_RESET;
-    
+
     #ifndef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
     return _LoRaWAN_reset();
     #endif//#ifndef EHS_TARGET_LORAWAN_THREADING_SUPPORT
@@ -307,9 +340,9 @@ ehs_lorawan_api_errno_t LoRaWAN_get_sysData(char *sysData_out, char *DevEui_out)
     g_lorawan_api_data.get_sysdata.sysData = sysData_out;
     g_lorawan_api_data.get_sysdata.DevEui = DevEui_out;
     #endif//#ifdef EHS_TARGET_LORAWAN_THREADING_SUPPORT
-    
+
     g_lorawan_cmd = E_LORAWAN_API_GET_SYSDATA;
-    
+
     #ifndef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
     return _LoRaWAN_get_sysData(sysData_out, DevEui_out);
     #endif//#ifndef EHS_TARGET_LORAWAN_THREADING_SUPPORT
@@ -343,9 +376,9 @@ ehs_lorawan_api_errno_t LoRaWAN_set_datarate(ehs_sint32 dr)
     #ifdef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
     g_lorawan_api_data.set_datarate.datarate = dr;
     #endif//#ifdef EHS_TARGET_LORAWAN_THREADING_SUPPORT
-    
+
     g_lorawan_cmd = E_LORAWAN_API_SET_DATARATE;
-    
+
     #ifndef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
     return _LoRaWAN_set_datarate(dr);
     #endif//#ifndef EHS_TARGET_LORAWAN_THREADING_SUPPORT
@@ -422,11 +455,104 @@ ehs_lorawan_api_errno_t LoRaWAN_disable( void )
     #endif//#ifdef EHS_TARGET_LORAWAN_THREADING_SUPPORT
 
     g_lorawan_cmd = E_LORAWAN_API_DISABLE;
-    
+
     #ifndef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
     return _LoRaWAN_disable( );
     #endif//#ifndef EHS_TARGET_LORAWAN_THREADING_SUPPORT
 
+    return E_LWAPIERRNO_OK;
+}
+
+static ehs_lorawan_api_errno_t _LoRaWAN_set_class(e_ehs_lw_class_t class_type)
+{
+    ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
+    switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_WIO_E5:
+            ret = LoRaWAN_wioe5_set_class(class_type);
+            break;
+        default:
+            ret = -100;
+            break;
+    }
+    if (ret == E_LWAPIERRNO_OK) g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+    gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_CLASS] = ret;
+    Common_LoRaWAN_FBCBs(E_LORAWAN_API_SET_CLASS);
+    return ret;
+}
+
+ehs_lorawan_api_errno_t LoRaWAN_set_class(e_ehs_lw_class_t class_type)
+{
+    if (g_lorawan_cmd == E_LORAWAN_API__NOT_INTIALISED) return E_LWAPIERRNO_NOT_INITIALISED;
+    if (g_lorawan_cmd != E_LORAWAN_API__IDLE && g_lorawan_cmd != E_LORAWAN_API__COMPLETE)
+        return E_LWAPIERRNO_BUSY;
+    #ifdef EHS_TARGET_LORAWAN_THREADING_SUPPORT
+    g_lorawan_api_data.set_class.class_type = class_type;
+    #endif
+    g_lorawan_cmd = E_LORAWAN_API_SET_CLASS;
+    #ifndef EHS_TARGET_LORAWAN_THREADING_SUPPORT
+    return _LoRaWAN_set_class(class_type);
+    #endif
+    return E_LWAPIERRNO_OK;
+}
+
+static ehs_lorawan_api_errno_t _LoRaWAN_set_txpower(ehs_sint32 tx_power)
+{
+    ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
+    switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_WIO_E5:
+            ret = LoRaWAN_wioe5_set_txpower(tx_power);
+            break;
+        default:
+            ret = -100;
+            break;
+    }
+    if (ret == E_LWAPIERRNO_OK) g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+    gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_TXPOWER] = ret;
+    Common_LoRaWAN_FBCBs(E_LORAWAN_API_SET_TXPOWER);
+    return ret;
+}
+
+ehs_lorawan_api_errno_t LoRaWAN_set_txpower(ehs_sint32 tx_power)
+{
+    if (g_lorawan_cmd == E_LORAWAN_API__NOT_INTIALISED) return E_LWAPIERRNO_NOT_INITIALISED;
+    if (g_lorawan_cmd != E_LORAWAN_API__IDLE && g_lorawan_cmd != E_LORAWAN_API__COMPLETE)
+        return E_LWAPIERRNO_BUSY;
+    #ifdef EHS_TARGET_LORAWAN_THREADING_SUPPORT
+    g_lorawan_api_data.set_txpower.tx_power = tx_power;
+    #endif
+    g_lorawan_cmd = E_LORAWAN_API_SET_TXPOWER;
+    #ifndef EHS_TARGET_LORAWAN_THREADING_SUPPORT
+    return _LoRaWAN_set_txpower(tx_power);
+    #endif
+    return E_LWAPIERRNO_OK;
+}
+
+static ehs_lorawan_api_errno_t _LoRaWAN_link_check( void )
+{
+    ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
+    switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_WIO_E5:
+            ret = LoRaWAN_wioe5_link_check();
+            break;
+        default:
+            ret = -100;
+            break;
+    }
+    if (ret == E_LWAPIERRNO_OK) g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+    gEhsLoraApiData.error_ret[E_LORAWAN_API_LINK_CHECK] = ret;
+    Common_LoRaWAN_FBCBs(E_LORAWAN_API_LINK_CHECK);
+    return ret;
+}
+
+ehs_lorawan_api_errno_t LoRaWAN_link_check( void )
+{
+    if (g_lorawan_cmd == E_LORAWAN_API__NOT_INTIALISED) return E_LWAPIERRNO_NOT_INITIALISED;
+    if (g_lorawan_cmd != E_LORAWAN_API__IDLE && g_lorawan_cmd != E_LORAWAN_API__COMPLETE)
+        return E_LWAPIERRNO_BUSY;
+    g_lorawan_cmd = E_LORAWAN_API_LINK_CHECK;
+    #ifndef EHS_TARGET_LORAWAN_THREADING_SUPPORT
+    return _LoRaWAN_link_check();
+    #endif
     return E_LWAPIERRNO_OK;
 }
 
@@ -446,19 +572,24 @@ static void LoRaWAN_run_threadInLoop()
         case E_LORAWAN_API_CONNECT:
         {
             _LoRaWAN_connect(
-                g_lorawan_api_data.connect.AppKey, 
-                g_lorawan_api_data.connect.AppEui, 
-                g_lorawan_api_data.connect.mode, 
-                g_lorawan_api_data.connect.DevAddr_ABP, 
-                g_lorawan_api_data.connect.AppSKey, 
-                g_lorawan_api_data.connect.NwkSKey, 
-                g_lorawan_api_data.connect.REPT, 
-                g_lorawan_api_data.connect.RETRY, 
-                g_lorawan_api_data.connect.region, 
-                g_lorawan_api_data.connect.ADR, 
-                g_lorawan_api_data.connect.DR, 
-                g_lorawan_api_data.connect.autoJoin, 
-                g_lorawan_api_data.connect.DevAddr_OUT
+                g_lorawan_api_data.connect.AppKey,
+                g_lorawan_api_data.connect.AppEui,
+                g_lorawan_api_data.connect.mode,
+                g_lorawan_api_data.connect.DevAddr_ABP,
+                g_lorawan_api_data.connect.AppSKey,
+                g_lorawan_api_data.connect.NwkSKey,
+                g_lorawan_api_data.connect.REPT,
+                g_lorawan_api_data.connect.RETRY,
+                g_lorawan_api_data.connect.region,
+                g_lorawan_api_data.connect.ADR,
+                g_lorawan_api_data.connect.DR,
+                g_lorawan_api_data.connect.autoJoin,
+                g_lorawan_api_data.connect.DevAddr_OUT,
+                g_lorawan_api_data.connect.class_type,
+                g_lorawan_api_data.connect.subband,
+                g_lorawan_api_data.connect.rxwin2_freq,
+                g_lorawan_api_data.connect.rxwin2_dr,
+                g_lorawan_api_data.connect.tx_power
             );
             g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
             break;
@@ -466,7 +597,7 @@ static void LoRaWAN_run_threadInLoop()
         case E_LORAWAN_API_SEND_MSG:
         {
             _LoRaWAN_send_msg(
-                g_lorawan_api_data.send_msg.payload, 
+                g_lorawan_api_data.send_msg.payload,
                 g_lorawan_api_data.send_msg.fport,
                 g_lorawan_api_data.send_msg.confirmed
             );
@@ -482,7 +613,7 @@ static void LoRaWAN_run_threadInLoop()
         case E_LORAWAN_API_GET_SYSDATA:
         {
             _LoRaWAN_get_sysData(
-                g_lorawan_api_data.get_sysdata.sysData, 
+                g_lorawan_api_data.get_sysdata.sysData,
                 g_lorawan_api_data.get_sysdata.DevEui
             );
             g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
@@ -507,6 +638,24 @@ static void LoRaWAN_run_threadInLoop()
         case E_LORAWAN_API_DISABLE:
         {
             _LoRaWAN_disable( );
+            g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+            break;
+        }
+        case E_LORAWAN_API_SET_CLASS:
+        {
+            _LoRaWAN_set_class(g_lorawan_api_data.set_class.class_type);
+            g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+            break;
+        }
+        case E_LORAWAN_API_SET_TXPOWER:
+        {
+            _LoRaWAN_set_txpower(g_lorawan_api_data.set_txpower.tx_power);
+            g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+            break;
+        }
+        case E_LORAWAN_API_LINK_CHECK:
+        {
+            _LoRaWAN_link_check();
             g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
             break;
         }

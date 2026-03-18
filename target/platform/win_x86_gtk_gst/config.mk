@@ -157,4 +157,7 @@ DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=no
 #/usr/lib/gcc/i686-w64-mingw32/10-win32/libstdc++-6.dll
 
 
+# LoRaWAN modem support (WIO-E5 via UART/serial)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 ################################### END OF CONFIGURATION ###################################################

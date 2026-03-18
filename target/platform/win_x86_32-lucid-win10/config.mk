@@ -51,6 +51,9 @@ EHS_ML_SUPPORT=stubbed
 EHS_MV_SUPPORT=stubbed
 EHS_PID_SUPPORT=stubbed
 
+# LoRaWAN modem support (WIO-E5 via Win32 COM port)
+EHS_LORAWAN_SUPPORT=wio_e5
+
 
 #################################################################################################################
 # Application and Packaging

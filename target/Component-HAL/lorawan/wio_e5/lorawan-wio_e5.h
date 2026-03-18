@@ -3,11 +3,11 @@
 #include "globals.h"
 #include "lorawan.h"
 
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_init( void );
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_init( ehs_sint32 com_port );
 
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_deinit( void );
 
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT);
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT, e_ehs_lw_class_t class_type, ehs_sint32 subband, ehs_float rxwin2_freq, ehs_sint32 rxwin2_dr, ehs_sint32 tx_power);
 
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_send_msg(char *payload, ehs_uint8 fport, ehs_bool confirmed);
 
@@ -20,6 +20,12 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_datarate(ehs_sint32 datarate);
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_get_payloadLength(ehs_sint32 *length);
 
 ehs_lorawan_api_errno_t LoRaWAN_wioe5_disable( void );
+
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_class(e_ehs_lw_class_t class_type);
+
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_txpower(ehs_sint32 tx_power);
+
+ehs_lorawan_api_errno_t LoRaWAN_wioe5_link_check( void );
 
 void Common_LoRaWAN_onReceive(char *recv_msg, ehs_bool has_message);
 

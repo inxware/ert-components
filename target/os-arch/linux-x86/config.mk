@@ -3,7 +3,7 @@
 ########################################################################
 
 EHS_PERIPHERALS_GPIO_SUPPORT         ?= stubbed
-EHS_PERIPHERALS_UART_SUPPORT         ?= stubbed
+EHS_PERIPHERALS_UART_SUPPORT         ?= linux
 EHS_IMAGEPROCESSING_APRILTAG_SUPPORT ?= enabled
 
 # New peripheral HAL defaults — stub on generic linux-x86 unless overridden by platform config.mk
