@@ -5,3 +5,4 @@ INC_DIRS+=$(EHS_TARGET_ML_FRAMEWORK_TFLITE_PATH)
 OBJECTS += ert_hal_tflite.$(OBJ)
 OBJECTS += ert_hal_tflite_meta.$(OBJ)
 LIB+=tensorflowlite_c
+DEFS += EHS_ML_HWACCEL_SUPPORT_TFLITE

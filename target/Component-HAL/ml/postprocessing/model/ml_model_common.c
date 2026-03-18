@@ -3,7 +3,12 @@
 #ifdef EHS_ML_HWACCEL_SUPPORT_HAILO
 #include "ert_hal_hailo.h"
 #endif
+#ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
+#include "ert_hal_tensorrt.h"
+#endif
+#ifdef EHS_ML_HWACCEL_SUPPORT_TFLITE
 #include "ert_hal_tflite.h"
+#endif
 
 /* Returns with EHS_ML_NOT_SUPPORTED if th ctx model passed in is not supported in the hardware */
 
@@ -40,8 +45,11 @@ EhsML_Err EhsML_Model_Boilerplate_Create(EhsML_Context* ctx, const ehs_char* mod
         }
         case EHS_ML_HWACCEL_NVIDIA:
         {
-            //TODO add support later. Now just fallback to tensorflow lite
+        #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
+            return EhsML_FW_TensorRT_Create(ctx, model_path, conf_thres, thread_count);
+        #else
             goto ml_hw_fallback;
+        #endif
             break;
         }
         case EHS_ML_HWACCEL_AMD:
@@ -92,7 +100,9 @@ void EhsML_Model_Boilerplate_Destroy(EhsML_Context* ctx)
         }
         case EHS_ML_HWACCEL_NVIDIA:
         {
-            //TODO add support later. Now just fallback to tensorflow lite
+        #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
+            EhsML_FW_TensorRT_Destroy(ctx);
+        #endif
             break;
         }
         case EHS_ML_HWACCEL_AMD:
@@ -134,8 +144,11 @@ EhsML_Err EhsML_Model_Boilerplate_SetInputData(EhsML_Context* ctx, const void* i
         }
         case EHS_ML_HWACCEL_NVIDIA:
         {
-            //TODO add support later. Now just fallback to tensorflow lite
+        #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
+            return EhsML_FW_TensorRT_SetInputData(ctx, input_data, data_size);
+        #else
             return EHS_ML_NOT_SUPPORTED;
+        #endif
             break;
         }
         case EHS_ML_HWACCEL_AMD:
@@ -179,7 +192,11 @@ EhsML_Err EhsML_Model_Boilerplate_RunOutputJson(EhsML_Context* ctx, ehs_char* js
         }
         case EHS_ML_HWACCEL_NVIDIA:
         {
-            //TODO add support later. Now just fallback to tensorflow lite
+        #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
+            err = EhsML_FW_TensorRT_GetOutputData(ctx);
+        #else
+            err = EHS_ML_NOT_SUPPORTED;
+        #endif
             break;
         }
         case EHS_ML_HWACCEL_AMD:

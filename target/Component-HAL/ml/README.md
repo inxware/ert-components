@@ -414,15 +414,66 @@ The following are the list of makefile variables. The value is either `yes` or `
 - `EHS_ML_MODEL_SUPPORT_SAM_IMGSEG` (Not Implemented)
 
 
-# Hardware Accleration
+# Hardware Acceleration
 
-## GPU
+Hardware accleration is boradly cateogorised as
+- GPUs (Graphics Processing Units)
+- NPUs (Neural Processing Units)
+- TPU (Tensor Processing Unit)
+- CPU acceleration instructions (e.g. ARM NEON,...)
+
+The API to use these are usually focused on the specific type of hardware accelerator, however there are some APIs that work abstract across the hardware types including:
+- OpenVX
+- 
+
+## SoC Comparison
+
+| SoC | CPU | GPU | Vision / AI Accelerator | AI Performance | Key APIs | Power (W) | Typical Use Case | Realistic Vision Pipeline FPS |
+|---|---|---|---|---|---|---|---|---|
+| **NVIDIA Jetson Orin Nano** | 6× Cortex‑A78 | Ampere GPU | Tensor cores + DLA | ~40–70 TOPS | CUDA, TensorRT | 10–15 | Robotics, AI pipelines | 60–120+ FPS (1080p, multi-camera AI) |
+| **Rockchip RK3588** | 4× Cortex‑A76 + 4× Cortex‑A55 | Mali‑G610 | 6 TOPS NPU | 6 TOPS | OpenCL 2.2, Vulkan | 5–8 | High-performance SBC, AI vision | 30–60 FPS (1080p OpenCL CV + NPU inference) |
+| **NXP i.MX8M Plus** | 4× Cortex‑A53 + M7 | Vivante GC7000UL | 2.3 TOPS NPU | 2.3 TOPS | OpenCL 1.2, OpenVX | 2–5 | Industrial vision, embedded devices | 20–40 FPS (1080p OpenVX pipelines) |
+| **TI TDA4VM (Jacinto)** | Cortex‑A72 + MCU cores | GPU + DSP | Vision accelerators | ~8–16 TOPS | OpenVX (TIOVX) | 5–10 | Automotive ADAS, industrial | 30–60 FPS (multi-camera ADAS pipelines) |
+| **Qualcomm RB5** | Kryo CPU | Adreno GPU | Hexagon DSP + AI engine | ~15 TOPS | OpenCL, OpenVX | ~10 | Robotics, mobile vision | 40–80 FPS (1080p OpenCL + DSP CV) |
+| **Intel N100 / iGPU** | x86 cores | Intel Xe | iGPU + VPU | varies | OpenCL, OpenVINO | 6–15 | Low-power AI inference, vision | 20–50 FPS (OpenVINO optimized pipelines) |
+
+---
+
+## Architecture Notes
+
+- **Jetson**: GPU-centric, CUDA + Tensor cores, best ecosystem, excellent for real-time AI robotics.  
+- **RK3588**: Hybrid GPU + NPU, OpenCL + Vulkan compute, strong CPU performance.  
+- **i.MX8M Plus**: GPU + NPU, OpenCL/OpenVX, industrial reliability, great for embedded vision devices.  
+- **TI Jacinto**: DSP + vision accelerators, OpenVX/TIOVX, deterministic pipelines, widely used in automotive.  
+- **Qualcomm RB5**: DSP + GPU hybrid, OpenCL/OpenVX, good for robotics/mobile.  
+- **Intel N100/iGPU**: OpenCL/OpenVINO, low-power AI/vision inference, limited GPU compute.
+- **Raspberry Pi5**: GPUs don't currently support any compute accleration APIs other than OpenGL/OpenGLE.
+
+## Gneral GPUs
+
+Good at inference and also image transformation and segmentation prior to ML processing.
+GPUs may support non-graphic processing acceleration beyond OpenGL/OpenGLES, for example OpenCL, Vulcan, Cuda (Nvidia only), OpenVino
 
 ## Hailo
+NPU based accelerator with high bandwidth (M.2/PMCi.e) data input. Off-schip accelerators (or chplets available) are good for high bandwitdh data. Hailo also provide some gstreamer plguns to accelerate image transformation on the NPU.
 
 ## DeepX
 
+## Google Coral
+TPUbased general compute accelerator for dot/cross-products.
+(See later techologies driven by Google for edge compute)
+## Intel
+OpenVino and OpenCL
+
+## TI 
+OpenVX (TIOVX)
+
+## Qualcomm
+
+
 ## Nvidia Jetson
+
+GPU based vision system accelerators with 
 
 **Dependencies**
 

@@ -52,7 +52,8 @@ RUN apt install -y \
     libgstreamer1.0-dev:arm64 \
     libgstreamer-plugins-base1.0-dev:arm64 \
     libopencv-dev:arm64 \
-    libcamera-dev:arm64 
+    libcamera-dev:arm64 \
+    libpaho-mqtt-c-dev:arm64 
 
 #   g++-aarch64-linux-gnu gcc-aarch64-linux-gnu 
 

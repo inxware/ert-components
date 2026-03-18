@@ -1,0 +1,11 @@
+# TensorRT headers are not redistributable and must not be committed to the repo.
+# Download TensorRT from https://developer.nvidia.com/tensorrt (free NVIDIA developer account required),
+# extract the archive, and copy the include/ directory here:
+#   temp/TensorRT/include/NvInfer.h
+#   temp/TensorRT/include/NvInferRuntime.h
+#   ... etc.
+# The Docker build will then COPY them into the container at build time.
+
+# Ignore everything under include/ except the placeholder
+include/*
+!include/.gitkeep

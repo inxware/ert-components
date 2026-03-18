@@ -27,6 +27,11 @@ ifeq ($(EHS_ML_FRAMEWORK_AUDIO_SUPPORT),none)
 endif
 
 # Check EHS_ML_HARDWARE_ACCELERATION to include additional framework
+ifeq ($(EHS_ML_HARDWARE_ACCELERATION),nvidia)
+include $(EHS_TARGET_ML_FRAMEWORK_PATH)/tensorrt/ml_fw_tensorrt.mk
+DEFS += EHS_ML_HWACCEL_SUPPORT_NVIDIA
+endif
+
 ifeq ($(EHS_ML_HARDWARE_ACCELERATION),hailo)
 include $(EHS_TARGET_ML_FRAMEWORK_PATH)/hailo/ml_fw_hailo.mk
 #TODO 2026  Revieww that we will probably want to supportmore than one acceleratoron a build (either because it is a swappable or because theere may be both.

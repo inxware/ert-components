@@ -8,11 +8,13 @@
 #---------------------------------------------------------------#
 
 # @file config.mk
-# inxware ERT configuration file for linux_arm64_clang_A6_supervisor
+# inxware ERT configuration file for linux_arm64_lvgl_jetson_nano
 # @author: inx limited
-
-# Usage Description
-# This is for Raspberry Pis - it is aimed at being used with inxware demo
+#
+# NVIDIA Jetson Orin Nano — JetPack 6.x / Ubuntu 22.04 (Jammy).
+# Enables GStreamer camera capture (mv/jetson) and TensorRT inference (ml/tensorrt).
+# Build environment: Dockerfile in this directory.
+# See README.md for host setup, JetPack preparation, and engine-file workflow.
 
 
 #################################################################################################################
@@ -20,7 +22,7 @@
 # Include parent configuration files that this target extends
 #################################################################################################################
 
-# (No parent config - this is a base configuration)
+# (No parent config — this is a self-contained base for Jetson targets)
 
 
 #################################################################################################################
@@ -28,38 +30,27 @@
 # CPU architecture, operating system, toolchain selection, and middleware dependencies
 #################################################################################################################
 
-# CPU and OS Type Selection
-EHS_ARCH=arm64
-EHS_OS=linux
+EHS_ARCH         = arm64
+EHS_OS           = linux
+EHS_GNU_ARCH     = arm64
+EHS_GNU_OS       = linux-gnu
 
-EHS_GNU_ARCH=arm64
-EHS_GNU_OS=linux-gnu
+# Ubuntu 22.04 (Jammy) — cross-compilation from Debian 12 / Ubuntu 22.04 host.
+# EHS_DEBIAN_VERSION is used by some component makefiles for version-specific choices;
+# Ubuntu 22.04 is ABI-compatible with Debian 12.
+EHS_DEBIAN_VERSION = 12
 
 #This determines the /usr/<arch> when using the host's toolchain
-EHS_HOST_DEBIAN_BUILD=arm64
+EHS_HOST_DEBIAN_BUILD = arm64
 
-#This will indicate what ert-contrib-middleware is used and toolchains if not using a host toolchain
-EHS_GNU_OS_VERSION=-clang19_debian13
-
-#This determines some library version choices and for the deb packager
-EHS_DEBIAN_VERSION=13
-
-#select the os-arch directory with these
-EHS_TOOLCHAIN_TYPE=clang
-#if we have a specific version of the toolchain to suffix on the os-arch defined toolchain path
-
-# Toolchain Selection
-TOOLCHAIN_NAME=HOST
-
-# Done os-arch for arm64 dockerised host environment:
-#EHS_SYSROOT_ABS_PATH_OVERRIDE=/usr/aarch64-linux-gnu/
-
-#OR target a specific toolchain: This target is using the same compiler as for the 32bit vlang build:
-#TOOLCHAIN_PATH=
-LINK_OVERRIDE=clang
+# Toolchain: clang from the Ubuntu 22.04 cross-compilation Docker container.
+EHS_TOOLCHAIN_TYPE  = clang
+EHS_GNU_OS_VERSION  = -clang15_ubuntu2204
+TOOLCHAIN_NAME      = HOST
+LINK_OVERRIDE       = clang
 
 # Contributed library dependencies variant
-COMPONENT_VARIANT=base
+COMPONENT_VARIANT = base
 
 
 #################################################################################################################
@@ -67,8 +58,7 @@ COMPONENT_VARIANT=base
 # Debug levels, logging, console settings, and startup behavior
 #################################################################################################################
 
-# Debug/Production mode
-EHS_DEBUGALL=true
+EHS_DEBUGALL = true
 
 
 #################################################################################################################
@@ -77,41 +67,48 @@ EHS_DEBUGALL=true
 #################################################################################################################
 
 #----- Networking Features -----
-EHS_NETWORKING_SUPPORT=all
-EHS_COMPONENT_NETWORKING_SUPPORT=all
-EHS_MQTT_SUPPORT=paho
-
-EHS_DEVMAN_SUPPORT=http
+EHS_NETWORKING_SUPPORT          = all
+EHS_COMPONENT_NETWORKING_SUPPORT = all
+EHS_MQTT_SUPPORT                = paho
+EHS_DEVMAN_SUPPORT              = http
 
 #----- GUI Features -----
-EHS_GUI_SUPPORT=lvgl
-EHS_AV_SUPPORT=devmanonly
-EHS_MEDIA_SUPPORT=all
-#EHS_TOOLKIT_DEPRECATED=yes
+EHS_GUI_SUPPORT  = lvgl
+EHS_AV_SUPPORT   = devmanonly
+EHS_MEDIA_SUPPORT = all
 
-#----- Machine Vision / ML Features -----
-#EHS_ML_SUPPORT=none
-EHS_ML_SUPPORT=yes
-EHS_ML_FRAMEWORK_IMAGE_SUPPORT=tensorflow-lite
-EHS_ML_HARDWARE_ACCELERATION=none
+#----- Machine Vision — Jetson GStreamer HAL -----
+# Uses nvarguscamerasrc (CSI) or v4l2src (USB) via GStreamer + nvvidconv.
+# No OpenCV dependency required.
+EHS_MV_SUPPORT   = jetson
 
-EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
-EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
-EHS_MV_SUPPORT=opencv
-#EHS_MV_SUPPORT=stubbed
+#----- Machine Learning — TensorRT inference on Jetson GPU -----
+# Requires a pre-built .engine file on the target (see README.md).
+# Tensorflow Lite is still linked as the CPU fallback for non-Jetson paths.
+EHS_ML_SUPPORT                      = yes
+# TFLite is not needed on Jetson — TensorRT handles all inference via the
+# EHS_ML_HWACCEL_NVIDIA dispatch path.  TFLite has no apt package on
+# Ubuntu 22.04 and would require an ert-contrib-middleware build.
+EHS_ML_FRAMEWORK_IMAGE_SUPPORT      = none
+EHS_ML_HARDWARE_ACCELERATION        = nvidia
 
-# Use libcamera on top of opencv if supported
-#EHS_USE_LIBCAMERA=yes
+EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET  = yes
+EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET  = yes
 
 #----- Peripheral Features -----
-EHS_PERIPHERAL_DEVICE_SUPPORT=all
-#Currently these are exceptions rather than the norm for peripherals toolbox.
-#Can we assume this is the same as the android kernels SYSFS format for GPIO?
-#EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
-#TODO we should build an arduinoq MCU mapping for this/
-EHS_PERIPHERALS_GPIO_SUPPORT=gui
-#EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
-EHS_PERIPHERALS_ADC_DAC_SUPPORT=none
+EHS_PERIPHERAL_DEVICE_SUPPORT   = all
+EHS_PERIPHERALS_GPIO_SUPPORT     = stubbed
+EHS_PERIPHERALS_UART_SUPPORT     = linux
+EHS_PERIPHERALS_ADC_DAC_SUPPORT  = none
+
+# New peripheral HAL defaults — stubbed unless a Jetson-specific HAL is added later
+EHS_WATCHDOG_SUPPORT      ?= stubbed
+EHS_UPS_SUPPORT           ?= stubbed
+EHS_BUZZER_SUPPORT        ?= stubbed
+EHS_SD_SELECT_SUPPORT     ?= stubbed
+EHS_USB_POWER_SUPPORT     ?= stubbed
+EHS_ACCELEROMETER_SUPPORT ?= stubbed
+EHS_RS485_CONFIG_SUPPORT  ?= stubbed
 
 
 #################################################################################################################
@@ -119,17 +116,8 @@ EHS_PERIPHERALS_ADC_DAC_SUPPORT=none
 # Default application, system variant, and packaging/deployment options
 #################################################################################################################
 
-EHS_DEFAULT_APP=systemapps/Home
-
-EHS_PACKAGER_TYPE=deb
-
-
-#################################################################################################################
-# Device Management Credentials
-# Include files containing server connection details and credentials
-#################################################################################################################
-
-# (No devman config for this target - no-certs variant)
+EHS_DEFAULT_APP  = tutorials/hello_world
+EHS_PACKAGER_TYPE = deb
 
 
 #################################################################################################################
@@ -137,12 +125,8 @@ EHS_PACKAGER_TYPE=deb
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# we should try wifi by default in rpi devices
-DEFS+=EHS_USE_WIFI_INTERFACE=1
-
-
-
-# LoRaWAN modem support (WIO-E5 via UART/serial)
-EHS_LORAWAN_SUPPORT=wio_e5
+# Ethernet is the primary network interface on Jetson Nano / Orin Nano.
+# Wi-Fi is optional (USB or M.2 adapter) — enable if present.
+#DEFS += EHS_USE_WIFI_INTERFACE=1
 
 ################################### END OF CONFIGURATION ###################################################

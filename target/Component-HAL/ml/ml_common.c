@@ -33,7 +33,7 @@
 /* ert_hal_tflite_meta.h is only available when the TFLite framework is built.
  * When EHS_ML_SUPPORT=stubbed (e.g. Windows targets) the framework is absent,
  * so guard the include and any calls to EhsML_TFLite_GetModelInfoJson. */
-#ifndef EHS_ML_SUPPORT_STUBBED
+#ifdef EHS_ML_HWACCEL_SUPPORT_TFLITE
 #include "ert_hal_tflite_meta.h"
 #endif
 
@@ -1752,9 +1752,13 @@ EhsML_Err EhsML_GetModelInfoJson(EhsML_Context* ctx, const ehs_char* model_path,
         case EHS_ML_HWACCEL_HAILO:
             return EHS_ML_NOT_SUPPORTED;
 #endif
+#ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
+        case EHS_ML_HWACCEL_NVIDIA:
+            return EhsML_FW_TensorRT_GetModelInfoJson(ctx, model_path, json_buf, json_size);
+#endif
         case EHS_ML_HWACCEL_NONE:
         default:
-#ifndef EHS_ML_SUPPORT_STUBBED
+#ifdef EHS_ML_HWACCEL_SUPPORT_TFLITE
             return EhsML_TFLite_GetModelInfoJson(
                 (TfLiteModelCtx*)ctx->ml_model_ctx, model_path, json_buf, json_size);
 #else

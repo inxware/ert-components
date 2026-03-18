@@ -18,7 +18,7 @@ APRILTAG_C_SRC := $(wildcard *.c)
 APRILTAG_C_SRC += $(wildcard common/*.c)
 APRILTAG_C_EXECUTABLE := $(APRILTAG_C_SRC:.c=.$(OBJ))
 
-INCLUDE_FLAG := -I/home/xiaosheng/Github_Repos/apriltag
+INCLUDE_FLAG := -I..//Github_Repos/apriltag
 
 all:$(APRILTAG_C_EXECUTABLE)
 	${AR} qc libapriltag.a $(APRILTAG_C_EXECUTABLE)

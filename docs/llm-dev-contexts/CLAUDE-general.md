@@ -112,9 +112,23 @@ The runtime environment is a staging directory located at `../TARGET_TREES/ehs_e
 - `appdata/default/*.gui` — Widget parameter files. These contain the widget names, positions, colours, and other properties parsed (which may be ignored for QT apps) `appdata/default/*.sdl` — The SODL application file defining the component graph.
 - `bin/app.qml` — Copy of the QML file used at runtime.
 
+**Docker Image Management:**
+- `make publish_docker_image` - Build the Docker image for the current target and push it to the inxware Docker Hub organisation. Run this after any change to the target's `Dockerfile`. Everyone using the repo then gets the updated image automatically on next `make all_docker`.
+- `make build_docker_local` - Build the Docker image locally without pushing to the registry. Use this to test Dockerfile changes before publishing.
+- `make target_buildenv` - Start an interactive shell inside the Docker container for the current target. Useful for debugging build environment issues.
+
+The Docker image name for each target is defined in `target/platform/<TARGET>/Dockerimagename`.
+
+**Third-party SDKs in Docker images (HailoRT, TensorRT, etc.):**
+Some targets depend on vendor SDKs that cannot be redistributed in the repo. The pattern is:
+1. Place the SDK package/headers in `temp/<SDK>/` in the repo root (gitignored via `temp/<SDK>/.gitignore`).
+2. The `Dockerfile` `COPY`s from `temp/<SDK>/` at build time.
+3. Run `make publish_docker_image` — the resulting image has the SDK baked in.
+4. All other developers use the published image and never need the SDK locally.
+Only the person running `publish_docker_image` needs the vendor SDK files.
+
 **Additional Useful Make Targets:**
-- `make chkconfig` - Show current platform configuration dependencies/
-- `make target_buildenv` - Start Docker shell in current context for build debugging
+- `make chkconfig` - Show current platform configuration dependencies
 
 ## Architecture
 
