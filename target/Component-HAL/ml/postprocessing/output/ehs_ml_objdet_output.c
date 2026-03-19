@@ -89,3 +89,28 @@ int EhsML_ObjDet_Json_AppendCorner(char* buf, int size, int idx,
         idx, xmax
     );
 }
+
+EhsML_Err EhsML_ObjDet_Json_FromDetections(EhsML_Context *ctx,
+                                            ehs_char      *json_buf,
+                                            ehs_uint32     json_size)
+{
+    ehs_uint32 used = EhsSnprintf(json_buf, json_size,
+        "{\"type\":%d,\"det_cnt\":%d",
+        (int)ctx->type, (int)ctx->detection_count);
+    if (used >= json_size) return EHS_ML_JSON_STRSIZE_ERR;
+
+    for (ehs_uint32 i = 0; i < ctx->detection_count; i++)
+    {
+        const EhsML_Detection_t *d = &ctx->detections[i];
+        if (d->filtered) continue;
+        int remaining = (int)(json_size - used - 1);
+        if (remaining <= 0) break;
+        int len = EhsML_ObjDet_Json_AppendCentre(
+            json_buf + used, remaining, (int)i,
+            (int)d->cls, d->conf,
+            d->x, d->y, d->w, d->h);
+        if (len > 0) used += (ehs_uint32)len;
+    }
+    EhsSnprintf(json_buf + used, json_size - used, "}");
+    return EHS_ML_OK;
+}

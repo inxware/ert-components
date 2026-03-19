@@ -261,7 +261,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     return EhsML_Stubbed_Create(ctx, model_path, model_type, conf_thres, thread_count);
     #else
     ctx->type = model_type;
-    printf("&&&&&& - Model Type %d (expected %d)\n",model_type,EHS_ML_YOLOV5_OBJ_DETECTOR);
+    printf("Model Type %d (expected %d)\n",model_type,EHS_ML_YOLOV5_OBJ_DETECTOR);
     switch (model_type)
     {
         /* Stubbed */
@@ -1742,11 +1742,72 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 siz
     #endif//EHS_ML_SUPPORT_STUBBED
 }
 
+/* -------------------------------------------------------------------------
+ * Pipeline JSON helpers
+ * ------------------------------------------------------------------------- */
+
+static const char * const ml_stage_names[EHS_ML_STAGE_COUNT] = {
+    "infer", "unpack", "dequant", "decode", "logical", "format"
+};
+
+static const char *ml_tech_to_str(EhsML_StageTech_t tech)
+{
+    switch (tech) {
+    case EHS_ML_TECH_NONE:            return "none";
+    case EHS_ML_TECH_COVERED_BY_PREV: return "covered";
+    case EHS_ML_TECH_TFLITE:          return "tflite";
+    case EHS_ML_TECH_TFLITE_MICRO:    return "tflite-micro";
+    case EHS_ML_TECH_HAILORT:         return "hailort";
+    case EHS_ML_TECH_TENSORRT:        return "tensorrt";
+    case EHS_ML_TECH_ERT_MODEL:       return "ert-model";
+    case EHS_ML_TECH_ERT_GENERIC:     return "ert-generic";
+    default:                           return "unknown";
+    }
+}
+
+/* Strip the closing '}' from an existing JSON string and append
+ * ,"pipeline":{"infer":"...","unpack":"...",...}} */
+static EhsML_Err ml_pipeline_json_append(EhsML_Context *ctx,
+                                         ehs_char *json_buf, ehs_uint32 json_size)
+{
+    size_t len = strlen(json_buf);
+    if (len == 0 || json_buf[len - 1] != '}') return EHS_ML_FAILED;
+
+    /* Overwrite the closing '}' to open the pipeline field */
+    json_buf[len - 1] = '\0';
+
+    int used = (int)(len - 1);
+    int written;
+    int s;
+
+    written = snprintf(json_buf + used, (size_t)(json_size - (ehs_uint32)used),
+                       ",\"pipeline\":{");
+    if (written < 0 || (ehs_uint32)(used + written) >= json_size) return EHS_ML_FAILED;
+    used += written;
+
+    for (s = 0; s < EHS_ML_STAGE_COUNT; s++) {
+        written = snprintf(json_buf + used, (size_t)(json_size - (ehs_uint32)used),
+                           "%s\"%s\":\"%s\"",
+                           (s ? "," : ""),
+                           ml_stage_names[s],
+                           ml_tech_to_str(ctx->pipeline.stages[s].tech));
+        if (written < 0 || (ehs_uint32)(used + written) >= json_size) return EHS_ML_FAILED;
+        used += written;
+    }
+
+    written = snprintf(json_buf + used, (size_t)(json_size - (ehs_uint32)used), "}}");
+    if (written < 0 || (ehs_uint32)(used + written) >= json_size) return EHS_ML_FAILED;
+
+    return EHS_ML_OK;
+}
+
 EhsML_Err EhsML_GetModelInfoJson(EhsML_Context* ctx, const ehs_char* model_path,
                                   ehs_char* json_buf, ehs_uint32 json_size)
 {
     if (!ctx || !json_buf || json_size == 0) return EHS_ML_FAILED;
     if (!ctx->ml_model_ctx)                  return EHS_ML_INIT_ERR;
+
+    EhsML_Err err;
     switch (ctx->hw_accel) {
 #ifdef EHS_ML_HWACCEL_SUPPORT_HAILO
         case EHS_ML_HWACCEL_HAILO:
@@ -1754,15 +1815,20 @@ EhsML_Err EhsML_GetModelInfoJson(EhsML_Context* ctx, const ehs_char* model_path,
 #endif
 #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
         case EHS_ML_HWACCEL_NVIDIA:
-            return EhsML_FW_TensorRT_GetModelInfoJson(ctx, model_path, json_buf, json_size);
+            err = EhsML_FW_TensorRT_GetModelInfoJson(ctx, model_path, json_buf, json_size);
+            break;
 #endif
         case EHS_ML_HWACCEL_NONE:
         default:
 #ifdef EHS_ML_HWACCEL_SUPPORT_TFLITE
-            return EhsML_TFLite_GetModelInfoJson(
+            err = EhsML_TFLite_GetModelInfoJson(
                 (TfLiteModelCtx*)ctx->ml_model_ctx, model_path, json_buf, json_size);
+            break;
 #else
             return EHS_ML_NOT_SUPPORTED;
 #endif
     }
+
+    if (err != EHS_ML_OK) return err;
+    return ml_pipeline_json_append(ctx, json_buf, json_size);
 }

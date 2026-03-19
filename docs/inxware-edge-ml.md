@@ -1399,7 +1399,7 @@ Set these variables in your platform `config.mk` or on the `make` command line.
 
 | Variable | Values | Notes |
 | :--- | :--- | :--- |
-| `EHS_ML_FRAMEWORK_IMAGE_SUPPORT` | `tensorflow-lite` | TFLite C API wrapper (implemented) |
+| `EHS_ML_IE_IMAGE_SUPPORT` | `tensorflow-lite` | TFLite C API wrapper (implemented) |
 | | `tensorflow-lite-micro` | TFLite Micro (TODO — emits build error if set) |
 | `EHS_ML_HARDWARE_ACCELERATION` | `hailo` | Adds HailoRT backend alongside TFLite; sets `EHS_ML_HWACCEL_SUPPORT_HAILO` |
 

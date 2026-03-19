@@ -56,6 +56,7 @@ target_platform=(
     'arduino_arduino-mbed-nano-lib_community'
     'win_x86_gtk_gst'
     'win_x86_32-lucid-win10'
+    'linux_arm64_lvgl_jetson_nano_ngc'
 )
 
 echo "Testing the following platforms:"

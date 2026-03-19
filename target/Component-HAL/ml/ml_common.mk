@@ -32,16 +32,15 @@ else ifeq ($(EHS_ML_SUPPORT),yes)
 	OBJECTS+=ml_common.$(OBJ)
 	INC_DIRS+=$(EHS_TARGET_ML_ROOT_PATH)
 
-## Makefile Variable for Framework and Model path
-	EHS_TARGET_ML_FRAMEWORK_PATH=$(EHS_TARGET_ML_ROOT_PATH)/framework
+## Makefile Variable paths
 	EHS_TARGET_ML_ENGINE_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/engine
 	EHS_TARGET_ML_DEQUANTISE_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/dequantise
 	EHS_TARGET_ML_MODEL_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/model
 	EHS_TARGET_ML_LOGICAL_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/logical
 	EHS_TARGET_ML_OUTPUT_POSTPROCESSING_PATH=$(EHS_TARGET_ML_ROOT_PATH)/postprocessing/output
 
-## Include Framework and Model makefiles
-	include $(EHS_TARGET_ML_FRAMEWORK_PATH)/ml_framework.mk
+## Include engine selector + dispatch, then post-processing and model layers
+	include $(EHS_TARGET_ML_ROOT_PATH)/engine/ml_engine.mk
 	include $(EHS_TARGET_ML_ENGINE_POSTPROCESSING_PATH)/ml_postprocessing_engine.mk
 	include $(EHS_TARGET_ML_DEQUANTISE_POSTPROCESSING_PATH)/ml_postprocessing_general.mk
 	include $(EHS_TARGET_ML_OUTPUT_POSTPROCESSING_PATH)/ml_postprocessing_output.mk

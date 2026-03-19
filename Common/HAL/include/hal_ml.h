@@ -238,6 +238,120 @@ typedef struct {
     ehs_char label[64]; // Optional: class label string (if available)
 } EhsML_Detection_t;
 
+/* ************************************************************************************************
+ * Pipeline capability map
+ *
+ * Each EhsML_Context carries a per-stage descriptor that records which
+ * technology handles each canonical pipeline stage and whether the stage
+ * is implemented, absorbed by the preceding stage, or absent.
+ *
+ * Intended uses:
+ *   1. Runtime gap detection — EHS_ML_STAGE_NOT_IMPLEMENTED stages can be
+ *      reported back to the function block as EHS_ML_NOT_IMPLEMENTED.
+ *   2. Diagnostics / model-info JSON — expose the pipeline map to the
+ *      application so it knows which stages are hardware-accelerated.
+ *   3. (Roadmap) Pipeline builder — a future builder can inspect the map
+ *      after engine Create and fill NOT_IMPLEMENTED stages by inserting
+ *      generic eRT implementations.  The fn pointer is reserved for this
+ *      purpose; it is always NULL in current monolithic call chains.
+ *
+ * Population contract:
+ *   - Engine Create (ert_hal_tflite.c, ert_hal_hailo.c, etc.) writes the
+ *     stages it handles (INFER, UNPACK, and any SDK-covered post-processing).
+ *   - Model RunOutputJson (yolov5_objdet.c, etc.) writes the remaining
+ *     model/generic stages (DEQUANT, DECODE, LOGICAL, FORMAT).
+ *   - Stages not touched by either are left zeroed (NOT_IMPLEMENTED).
+ * *********************************************************************************************** */
+
+/** Canonical pipeline stages, in execution order. */
+typedef enum {
+    EHS_ML_STAGE_INFER   = 0,  /**< Engine runs model arithmetic */
+    EHS_ML_STAGE_UNPACK  = 1,  /**< Engine-specific tensor unpacking into ctx->output_tensor[] */
+    EHS_ML_STAGE_DEQUANT = 2,  /**< Dequantisation (scale × (raw − zero_point) → float) */
+    EHS_ML_STAGE_DECODE  = 3,  /**< Model-architecture decode (anchor, DFL, grid offsets) */
+    EHS_ML_STAGE_LOGICAL = 4,  /**< Logical post-processing (NMS, confidence threshold, …) */
+    EHS_ML_STAGE_FORMAT  = 5,  /**< Output serialisation (JSON, binary, Protobuf, …) */
+    EHS_ML_STAGE_COUNT   = 6
+} EhsML_PipelineStage_t;
+
+/**
+ * Which technology is responsible for a stage.
+ *
+ * This enum serves double duty as both a technology identifier and a
+ * stage-status indicator, eliminating the need for a separate status enum:
+ *
+ *   EHS_ML_TECH_NONE (0)          — stage not implemented (zero-initialised default)
+ *   EHS_ML_TECH_COVERED_BY_PREV   — stage absorbed by the preceding stage's technology
+ *                                    (e.g. TensorRT NMS plugin handling decode+logical
+ *                                    as part of inference; HailoRT dequantising internally)
+ *   Any other value               — stage implemented by the named technology
+ *
+ * Because NONE is zero, a fully zeroed EhsML_Pipeline_t correctly represents
+ * an uninitialised pipeline where all stages are not implemented.
+ */
+typedef enum {
+    EHS_ML_TECH_NONE            = 0,  /**< Not implemented — gap in pipeline */
+    EHS_ML_TECH_COVERED_BY_PREV = 1,  /**< Absorbed by preceding stage's technology */
+    EHS_ML_TECH_TFLITE          = 2,  /**< TFLite runtime */
+    EHS_ML_TECH_TFLITE_MICRO    = 3,  /**< TFLite Micro runtime */
+    EHS_ML_TECH_HAILORT         = 4,  /**< HailoRT SDK (Hailo NPU) */
+    EHS_ML_TECH_TENSORRT        = 5,  /**< TensorRT SDK (NVIDIA Jetson GPU/DLA) */
+    EHS_ML_TECH_ERT_MODEL       = 6,  /**< eRT model-specific code (postprocessing/model/) */
+    EHS_ML_TECH_ERT_GENERIC     = 7,  /**< eRT shared/generic code (postprocessing/logical/ etc.) */
+    /* Future: EHS_ML_TECH_RKNN, EHS_ML_TECH_COREML, EHS_ML_TECH_EIQ, … */
+} EhsML_StageTech_t;
+
+/**
+ * Roadmap hook: pointer to a discrete single-stage pipeline function.
+ *
+ * All stages except FORMAT share the signature (void *ctx) → EhsML_Err,
+ * where ctx is cast to EhsML_Context*.  FORMAT additionally needs a JSON
+ * output buffer and size; to fit the uniform signature those would be stored
+ * as transient fields in EhsML_Context before the pipeline runner executes
+ * (a future addition — not present today).
+ *
+ * NULL = stage is embedded in a larger monolithic RunOutputJson call (all
+ * current flows).  The pipeline runner is a future feature; fn exists as a
+ * defined hook so the ABI and struct layout are stable when it is added.
+ */
+typedef EhsML_Err (*EhsML_StageFn_t)(void *ctx);
+
+/**
+ * Descriptor for one canonical pipeline stage.
+ *
+ * tech encodes both status and identity:
+ *   NONE             → not implemented
+ *   COVERED_BY_PREV  → absorbed by preceding stage
+ *   anything else    → implemented by that technology
+ */
+typedef struct {
+    EhsML_StageTech_t  tech;  /**< Technology (or NONE / COVERED_BY_PREV) */
+    EhsML_StageFn_t    fn;    /**< Roadmap: discrete stage fn; always NULL in current flows */
+} EhsML_StageInfo_t;
+
+/** Complete pipeline capability map — one EhsML_StageInfo_t per canonical stage. */
+typedef struct {
+    EhsML_StageInfo_t stages[EHS_ML_STAGE_COUNT];
+} EhsML_Pipeline_t;
+
+/**
+ * Convenience macro: set one stage entry.
+ * fn is always NULL (monolithic flows; roadmap hook only).
+ *
+ * Usage:
+ *   EHS_ML_STAGE_SET(ctx->pipeline, EHS_ML_STAGE_INFER,  EHS_ML_TECH_TFLITE);
+ *   EHS_ML_STAGE_SET(ctx->pipeline, EHS_ML_STAGE_DEQUANT, EHS_ML_TECH_COVERED_BY_PREV);
+ */
+#define EHS_ML_STAGE_SET(pipeline, stage, _tech)        \
+    do { (pipeline).stages[(stage)].tech = (_tech);     \
+         (pipeline).stages[(stage)].fn   = NULL; } while (0)
+
+/* ************************************************************************************************
+   This is the main ML engine and post processing handle that is passed down the inference pipeline
+   within a function block, but could also be passed between function blocks for graphical methods
+    of post-processing if that becomes useful to application developers .
+   ********************************************************************************************** */
+
 typedef struct {
     void* ml_model_ctx;
     // It is not necessary to have the input_tensor
@@ -260,7 +374,18 @@ typedef struct {
     // if supported creates json without arrays e.g.
     // {"type":0,...,"cls0":0,"cnf0":0.00,"x0":0,"y0":0,"w0":0,"h0":0, ... , "clsN":0,"cnfN":0.00, ... }
     ehs_bool enable_flat_json;
-    // ... other ?
+
+    /**
+     * Pipeline capability map.
+     *
+     * Populated during EhsML_Create (engine layer fills INFER/UNPACK and any
+     * SDK-covered stages) and during RunOutputJson (model layer fills DEQUANT/
+     * DECODE/LOGICAL/FORMAT).  Stages left zeroed after Create are NOT_IMPLEMENTED
+     * gaps detectable at runtime.
+     *
+     * Use EHS_ML_STAGE_SET(pipeline, stage, tech) to populate individual stages.
+     */
+    EhsML_Pipeline_t pipeline;
 } EhsML_Context;
 
 // Creates and initializes a machine learning context for a given model.

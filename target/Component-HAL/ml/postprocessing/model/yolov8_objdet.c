@@ -28,7 +28,10 @@
 /*****************************************************************************/
 /* Included files */
 #include "yolov8_objdet.h"
-#include "ehs_ml_objdet_output.h"   /* EhsML_Coco80_Label, EhsML_ObjDet_Json_AppendCorner */
+#include "ehs_ml_objdet_output.h"   /* EhsML_Coco80_Label, EhsML_ObjDet_Json_AppendCorner, EhsML_ObjDet_Json_FromDetections */
+#ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
+#include "ert_trt_nms_decode.h"
+#endif
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -88,14 +91,32 @@
  */
 EhsML_Err EhsML_Yolov8_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
 {
-    EhsML_Err err = EhsML_Model_Boilerplate_RunOutputJson(ctx, json_output, output_size);
+    EhsML_Err err = EhsML_InfEngine_RunInference(ctx, json_output, output_size);
     if (err != EHS_ML_OK)
     {
         return err;
     }
 
-    /* Guard: this decoder only handles FP32 output. Quantised models must be
-     * dequantised before use — see quantisation_params in EhsML_Tensor_t. */
+#ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
+    /* TensorRT NMS-plugin path: engine delivers 4 canonical output tensors.
+     * Decode into ctx->detections[] then serialise engine-independently. */
+    if (ctx->hw_accel == EHS_ML_HWACCEL_NVIDIA)
+    {
+        err = EhsML_TRT_NMS_Decode(ctx);
+        if (err != EHS_ML_OK) return err;
+        return EhsML_ObjDet_Json_FromDetections(ctx, json_output, output_size);
+    }
+#endif
+
+    /* TFLite SSD path (count-prefixed, corner coordinates).
+     *
+     * Expected output tensor format:
+     *   For each of the 80 COCO classes:
+     *     [count]  number of boxes for this class (float cast to size_t)
+     *     For each box: [y_min, x_min, y_max, x_max, confidence]
+     *   Coordinates normalised [0,1], scaled to pixels below.
+     *
+     * Guard: this decoder only handles FP32 output. */
     if (ctx->output_tensor[0].data_type != EHS_ML_DATATYPE_FP32)
     {
         EHSH_LOG_ERROR("yolov8_objdet: output tensor data type %d is not FP32 — "
@@ -104,45 +125,50 @@ EhsML_Err EhsML_Yolov8_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_o
         return EHS_ML_MODEL_OUTPUT_ERR;
     }
 
-    /* Scale factors: tensor coordinates are normalised 0–1 relative to
-     * model input dimensions. Read from the input tensor metadata so that
-     * any model input resolution works without hardcoding. */
     int input_width  = ctx->input_tensor[0].dims[2];  /* W: dims = [batch, H, W, C] */
     int input_height = ctx->input_tensor[0].dims[1];  /* H */
 
     size_t class_idx = 0;
-    size_t index = -1;         /* flat index into the output tensor; pre-incremented on every read */
+    size_t index = -1;
     size_t printed_count = 0;
     size_t string_index = 0;
+    ctx->detection_count = 0;
     string_index += EhsSprintf(&(json_output[string_index]), "{");
 
-    /* Outer loop: one iteration per COCO class (0–79).
-     * class_idx is the 0-based model class index; +1 is passed to
-     * get_coco_name_from_int() because that function reserves case 0 for
-     * "__background__", so case 1 == "person" == model class 0. */
     while (class_idx < 80)
     {
-        /* First element for this class: number of boxes the model detected. */
         size_t num_of_class_boxes = (size_t)ctx->output_tensor[0].data_ptr.f32[++index];
 
         for (size_t box_idx = 0 ; box_idx < num_of_class_boxes ; box_idx++)
         {
-            /* Coordinates are normalised [0,1]; scale to pixels. */
             float y_min = ctx->output_tensor[0].data_ptr.f32[++index] * input_height;
             float x_min = ctx->output_tensor[0].data_ptr.f32[++index] * input_width;
             float y_max = ctx->output_tensor[0].data_ptr.f32[++index] * input_height;
             float x_max = ctx->output_tensor[0].data_ptr.f32[++index] * input_width;
             float conf  = ctx->output_tensor[0].data_ptr.f32[++index];
 
-            if (conf >= ctx->conf_thres) {
-                /* class_idx is 0-based (0="person"); EhsML_Coco80_Label uses same convention */
+            if (conf >= ctx->conf_thres)
+            {
                 int written = EhsML_ObjDet_Json_AppendCorner(
                     &(json_output[string_index]),
                     (int)(output_size - string_index - 1),
                     (int)printed_count, (int)class_idx,
-                    conf, y_min, x_min, y_max, x_max
-                );
+                    conf, y_min, x_min, y_max, x_max);
                 if (written > 0) string_index += (size_t)written;
+
+                /* Also populate canonical detection list for callers that
+                 * consume ctx->detections[] directly. */
+                if (ctx->detection_count < EHS_ML_OBJ_DETECTIONS_MAX)
+                {
+                    EhsML_Detection_t *d = &ctx->detections[ctx->detection_count++];
+                    d->conf     = conf;
+                    d->cls      = (ehs_uint32)class_idx;
+                    d->filtered = EHS_FALSE;
+                    d->x        = (x_min + x_max) * 0.5f;
+                    d->y        = (y_min + y_max) * 0.5f;
+                    d->w        = x_max - x_min;
+                    d->h        = y_max - y_min;
+                }
                 printed_count++;
             }
         }

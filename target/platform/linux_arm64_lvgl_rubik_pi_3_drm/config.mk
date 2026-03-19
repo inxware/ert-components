@@ -99,7 +99,7 @@ EHS_USE_LIBCAMERA=yes
 # Enable machine vision support for testing C++ integration, or disable with `stubbed`.
 EHS_MV_SUPPORT=stubbed
 ##EHS_ML_SUPPORT=yes
-##EHS_ML_FRAMEWORK_IMAGE_SUPPORT=tensorflow-lite
+##EHS_ML_IE_IMAGE_SUPPORT=tensorflow-lite
 ##EHS_ML_HARDWARE_ACCELERATION=hailo
 ##EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
 ##EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes

@@ -12,7 +12,7 @@
  * @brief TensorRT ML framework HAL — C-compatible interface.
  *
  * Mirrors the interface of ert_hal_hailo.h / ert_hal_tflite.h so that
- * ml_model_common.c can dispatch to TensorRT with the same call pattern.
+ * engine/ml_inf_engine.c can dispatch to TensorRT with the same call pattern.
  *
  * Model loading
  * -------------

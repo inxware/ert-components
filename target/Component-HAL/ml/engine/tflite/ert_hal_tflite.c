@@ -260,6 +260,11 @@ tflite_error:
     ctx->ml_model_ctx = (void*)tfl_model_ctx;
     ctx->conf_thres = conf_thres;
 
+    /* Pipeline capability: TFLite handles inference and tensor unpacking.
+     * Model layer (yolov5_objdet.c etc.) fills DEQUANT/DECODE/LOGICAL/FORMAT. */
+    EHS_ML_STAGE_SET(ctx->pipeline, EHS_ML_STAGE_INFER,  EHS_ML_TECH_TFLITE);
+    EHS_ML_STAGE_SET(ctx->pipeline, EHS_ML_STAGE_UNPACK, EHS_ML_TECH_TFLITE);
+
     return EHS_ML_OK;
 
 ml_fail:

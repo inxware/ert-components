@@ -8,10 +8,6 @@ EHS_TARGET_ML_MODEL_UTILS_PATH=$(EHS_TARGET_ML_MODEL_PATH)/ml_utils
 include $(EHS_TARGET_ML_MODEL_UTILS_PATH)/ml_model_utils.mk
 # ENDED Machine Learning Model Utilities/#
 
-#/BEGIN Machine Learning Model Common #
-OBJECTS += $(EHS_TARGET_ML_MODEL_PATH)/ml_model_common.$(OBJ)
-# ENDED Machine Learning Model Common/#
-
 #/BEGIN Machine Learning Model Support #
 ifeq ($(EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET),yes)
 DEFS += EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET

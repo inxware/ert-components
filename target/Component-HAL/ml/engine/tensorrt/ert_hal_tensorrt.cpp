@@ -14,8 +14,11 @@
  * Implements EhsML_FW_TensorRT_Create/Destroy/SetInputData/GetOutputData
  * using the TensorRT C++ API (NvInfer).
  *
- * Only single-input, single-output engines are currently supported.
- * Multi-binding support can be added by iterating getNbIOTensors() / getIOTensorName().
+ * Supports engines with a single input binding and one or more output
+ * bindings.  All output bindings are allocated and mapped into
+ * ctx->output_tensor[0..N-1], which allows post-processors (e.g.
+ * EhsML_TRT_NMS_Decode) to access individual tensors by index without
+ * knowing the engine internals.
  *
  * Error handling follows the same pattern as ert_hal_tflite.c:
  *   - goto cleanup on error
@@ -27,6 +30,7 @@
 #include "hal-api.h"
 
 #include <NvInfer.h>
+#include <NvInferPlugin.h>
 #include <cuda_runtime_api.h>
 
 #include <fstream>
@@ -67,23 +71,27 @@ static EhsTRTLogger s_trt_logger;
  * Per-model context (stored in ctx->ml_model_ctx)
  * ------------------------------------------------------------------------- */
 
-struct TRTModelCtx {
-    nvinfer1::IRuntime          *runtime       = nullptr;
-    nvinfer1::ICudaEngine        *engine        = nullptr;
-    nvinfer1::IExecutionContext  *exec_ctx      = nullptr;
-    cudaStream_t                  stream        = nullptr;
+static constexpr int TRT_MAX_OUTPUT_BINDINGS = 8;
 
-    void  *d_input   = nullptr;  /* CUDA device input  buffer */
-    void  *d_output  = nullptr;  /* CUDA device output buffer */
-    void  *h_output  = nullptr;  /* Host output buffer (malloc'd, owned here) */
+struct TRTModelCtx {
+    nvinfer1::IRuntime          *runtime  = nullptr;
+    nvinfer1::ICudaEngine       *engine   = nullptr;
+    nvinfer1::IExecutionContext *exec_ctx = nullptr;
+    cudaStream_t                 stream   = nullptr;
+
+    /* Input binding */
+    void  *d_input      = nullptr;
     size_t input_bytes  = 0;
-    size_t output_bytes = 0;
+    char   input_name[64] = {};
+
+    /* Output bindings — one slot per binding, up to TRT_MAX_OUTPUT_BINDINGS */
+    int    output_count = 0;
+    void  *d_output[TRT_MAX_OUTPUT_BINDINGS]     = {};
+    void  *h_output[TRT_MAX_OUTPUT_BINDINGS]     = {};
+    size_t output_bytes[TRT_MAX_OUTPUT_BINDINGS] = {};
+    char   output_names[TRT_MAX_OUTPUT_BINDINGS][64] = {};
 
     float  conf_thres = 0.0f;
-
-    /* TRT 8.x binding names */
-    char   input_name[64];
-    char   output_name[64];
 };
 
 /* -------------------------------------------------------------------------
@@ -150,7 +158,13 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_Create(EhsML_Context *ctx,
 
     EhsML_Err err = EHS_ML_FAILED;
 
-    /* 1. Read engine file into a byte buffer */
+    /* 1. Register built-in plugins (required for NMS-plugin engines).
+     *    Safe to call multiple times; logs a warning on failure but does
+     *    not abort — non-NMS engines load fine without the plugins. */
+    if (!initLibNvInferPlugins(&s_trt_logger, ""))
+        EHSH_LOG_WARNING("TensorRT: initLibNvInferPlugins failed — NMS plugin engines may not load");
+
+    /* 2. Read engine file into a byte buffer */
     std::ifstream file(model_path, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
         EHSH_LOG_ERROR("TensorRT: cannot open engine file: %s", model_path);
@@ -169,11 +183,11 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_Create(EhsML_Context *ctx,
     }
     file.close();
 
-    /* 2. Allocate private context */
+    /* 3. Allocate private context */
     TRTModelCtx *trt = new (std::nothrow) TRTModelCtx();
     if (!trt) return EHS_ML_MEMORY_ERR;
 
-    /* 3. Deserialize engine */
+    /* 4. Deserialize engine */
     trt->runtime = nvinfer1::createInferRuntime(s_trt_logger);
     if (!trt->runtime) {
         EHSH_LOG_ERROR("TensorRT: createInferRuntime failed");
@@ -189,7 +203,7 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_Create(EhsML_Context *ctx,
         goto trt_fail;
     }
 
-    /* 4. Create execution context */
+    /* 5. Create execution context */
     trt->exec_ctx = trt->engine->createExecutionContext();
     if (!trt->exec_ctx) {
         EHSH_LOG_ERROR("TensorRT: createExecutionContext failed");
@@ -197,7 +211,7 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_Create(EhsML_Context *ctx,
         goto trt_fail;
     }
 
-    /* 5. Discover bindings (TRT 8.x API) */
+    /* 6. Discover bindings (TRT 8.x API) */
     {
         int nb = trt->engine->getNbIOTensors();
         if (nb < 2) {
@@ -206,23 +220,23 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_Create(EhsML_Context *ctx,
             goto trt_fail;
         }
 
-        /* Locate first input and first output bindings */
-        int in_idx  = -1;
-        int out_idx = -1;
-        for (int i = 0; i < nb && (in_idx < 0 || out_idx < 0); i++) {
+        /* Collect one input and all output bindings */
+        int in_idx = -1;
+        for (int i = 0; i < nb; i++) {
             const char *name = trt->engine->getIOTensorName(i);
             auto mode = trt->engine->getTensorIOMode(name);
-            if (mode == nvinfer1::TensorIOMode::kINPUT  && in_idx  < 0) {
+            if (mode == nvinfer1::TensorIOMode::kINPUT && in_idx < 0) {
                 in_idx = i;
-                snprintf(trt->input_name,  sizeof(trt->input_name),  "%s", name);
-            }
-            if (mode == nvinfer1::TensorIOMode::kOUTPUT && out_idx < 0) {
-                out_idx = i;
-                snprintf(trt->output_name, sizeof(trt->output_name), "%s", name);
+                snprintf(trt->input_name, sizeof(trt->input_name), "%s", name);
+            } else if (mode == nvinfer1::TensorIOMode::kOUTPUT
+                       && trt->output_count < TRT_MAX_OUTPUT_BINDINGS) {
+                snprintf(trt->output_names[trt->output_count],
+                         sizeof(trt->output_names[0]), "%s", name);
+                trt->output_count++;
             }
         }
 
-        if (in_idx < 0 || out_idx < 0) {
+        if (in_idx < 0 || trt->output_count == 0) {
             EHSH_LOG_ERROR("TensorRT: could not identify input/output bindings");
             err = EHS_ML_MODEL_TENSOR_DIM_ERR;
             goto trt_fail;
@@ -231,14 +245,8 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_Create(EhsML_Context *ctx,
         /* Input binding */
         nvinfer1::Dims in_dims  = trt->engine->getTensorShape(trt->input_name);
         nvinfer1::DataType in_dt = trt->engine->getTensorDataType(trt->input_name);
-        trt->input_bytes  = volume_of(in_dims) * trt_dtype_bytes(in_dt);
+        trt->input_bytes = volume_of(in_dims) * trt_dtype_bytes(in_dt);
 
-        /* Output binding */
-        nvinfer1::Dims out_dims  = trt->engine->getTensorShape(trt->output_name);
-        nvinfer1::DataType out_dt = trt->engine->getTensorDataType(trt->output_name);
-        trt->output_bytes = volume_of(out_dims) * trt_dtype_bytes(out_dt);
-
-        /* Populate EhsML_Context tensor descriptors */
         ctx->input_tensor_count = 1;
         ctx->input_tensor[0].size_in_bytes = (ehs_uint32)trt->input_bytes;
         ctx->input_tensor[0].num_dims      = (ehs_uint32)in_dims.nbDims;
@@ -246,45 +254,64 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_Create(EhsML_Context *ctx,
         for (int d = 0; d < in_dims.nbDims && d < EHS_ML_TENSOR_MAX_DIMS; d++)
             ctx->input_tensor[0].dims[d] = (ehs_uint32)in_dims.d[d];
 
-        ctx->output_tensor_count = 1;
-        ctx->output_tensor[0].size_in_bytes = (ehs_uint32)trt->output_bytes;
-        ctx->output_tensor[0].num_dims      = (ehs_uint32)out_dims.nbDims;
-        ctx->output_tensor[0].data_type     = trt_dtype_to_ehs(out_dt);
-        for (int d = 0; d < out_dims.nbDims && d < EHS_ML_TENSOR_MAX_DIMS; d++)
-            ctx->output_tensor[0].dims[d] = (ehs_uint32)out_dims.d[d];
-        ctx->output_tensor[0].data_ptr_owned = EHS_FALSE; /* owned by TRTModelCtx */
+        /* Output bindings */
+        for (int o = 0; o < trt->output_count; o++) {
+            nvinfer1::Dims out_dims  = trt->engine->getTensorShape(trt->output_names[o]);
+            nvinfer1::DataType out_dt = trt->engine->getTensorDataType(trt->output_names[o]);
+            trt->output_bytes[o] = volume_of(out_dims) * trt_dtype_bytes(out_dt);
+
+            ctx->output_tensor[o].size_in_bytes = (ehs_uint32)trt->output_bytes[o];
+            ctx->output_tensor[o].num_dims      = (ehs_uint32)out_dims.nbDims;
+            ctx->output_tensor[o].data_type     = trt_dtype_to_ehs(out_dt);
+            for (int d = 0; d < out_dims.nbDims && d < EHS_ML_TENSOR_MAX_DIMS; d++)
+                ctx->output_tensor[o].dims[d] = (ehs_uint32)out_dims.d[d];
+            ctx->output_tensor[o].data_ptr_owned = EHS_FALSE;
+        }
+        ctx->output_tensor_count = (ehs_uint32)trt->output_count;
     }
 
-    /* 6. CUDA stream */
+    /* 7. CUDA stream */
     if (cudaStreamCreate(&trt->stream) != cudaSuccess) {
         EHSH_LOG_ERROR("TensorRT: cudaStreamCreate failed");
         err = EHS_ML_INIT_ERR;
         goto trt_fail;
     }
 
-    /* 7. Device buffers */
-    if (cudaMalloc(&trt->d_input,  trt->input_bytes)  != cudaSuccess ||
-        cudaMalloc(&trt->d_output, trt->output_bytes) != cudaSuccess) {
-        EHSH_LOG_ERROR("TensorRT: cudaMalloc failed (in=%zu out=%zu bytes)",
-                       trt->input_bytes, trt->output_bytes);
+    /* 8. Device input buffer */
+    if (cudaMalloc(&trt->d_input, trt->input_bytes) != cudaSuccess) {
+        EHSH_LOG_ERROR("TensorRT: cudaMalloc failed for input (%zu bytes)", trt->input_bytes);
         err = EHS_ML_MEMORY_ERR;
         goto trt_fail;
     }
 
-    /* 8. Host output buffer */
-    trt->h_output = malloc(trt->output_bytes);
-    if (!trt->h_output) {
-        EHSH_LOG_ERROR("TensorRT: host output buffer malloc failed");
-        err = EHS_ML_MEMORY_ERR;
-        goto trt_fail;
+    /* 9. Device + host output buffers (one pair per output binding) */
+    for (int o = 0; o < trt->output_count; o++) {
+        if (cudaMalloc(&trt->d_output[o], trt->output_bytes[o]) != cudaSuccess) {
+            EHSH_LOG_ERROR("TensorRT: cudaMalloc failed for output[%d] (%zu bytes)",
+                           o, trt->output_bytes[o]);
+            err = EHS_ML_MEMORY_ERR;
+            goto trt_fail;
+        }
+        trt->h_output[o] = malloc(trt->output_bytes[o]);
+        if (!trt->h_output[o]) {
+            EHSH_LOG_ERROR("TensorRT: host malloc failed for output[%d]", o);
+            err = EHS_ML_MEMORY_ERR;
+            goto trt_fail;
+        }
     }
 
-    /* 9. Bind device buffers to execution context (TRT 8.6+ API) */
-    if (!trt->exec_ctx->setTensorAddress(trt->input_name,  trt->d_input)  ||
-        !trt->exec_ctx->setTensorAddress(trt->output_name, trt->d_output)) {
-        EHSH_LOG_ERROR("TensorRT: setTensorAddress failed");
+    /* 10. Bind device buffers to execution context (TRT 8.6+ API) */
+    if (!trt->exec_ctx->setTensorAddress(trt->input_name, trt->d_input)) {
+        EHSH_LOG_ERROR("TensorRT: setTensorAddress failed for input");
         err = EHS_ML_MODEL_CTX_ERR;
         goto trt_fail;
+    }
+    for (int o = 0; o < trt->output_count; o++) {
+        if (!trt->exec_ctx->setTensorAddress(trt->output_names[o], trt->d_output[o])) {
+            EHSH_LOG_ERROR("TensorRT: setTensorAddress failed for output[%d]", o);
+            err = EHS_ML_MODEL_CTX_ERR;
+            goto trt_fail;
+        }
     }
 
     trt->conf_thres   = (float)conf_thres;
@@ -292,19 +319,27 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_Create(EhsML_Context *ctx,
     ctx->hw_accel     = EHS_ML_HWACCEL_NVIDIA;
     ctx->conf_thres   = conf_thres;
 
-    EHSH_LOG_INFO("TensorRT: engine loaded: %s  in=%zu out=%zu bytes",
-                  model_path, trt->input_bytes, trt->output_bytes);
+    /* Pipeline capability: TensorRT handles inference and tensor extraction.
+     * Post-processing stages (dequant/decode/logical/format) are filled in
+     * by the model layer or NMS decode helper. */
+    EHS_ML_STAGE_SET(ctx->pipeline, EHS_ML_STAGE_INFER,  EHS_ML_TECH_TENSORRT);
+    EHS_ML_STAGE_SET(ctx->pipeline, EHS_ML_STAGE_UNPACK, EHS_ML_TECH_TENSORRT);
+
+    EHSH_LOG_INFO("TensorRT: engine loaded: %s  in=%zu bytes  outputs=%d",
+                  model_path, trt->input_bytes, trt->output_count);
     return EHS_ML_OK;
 
 trt_fail:
-    /* Clean up in reverse order — some pointers may be null */
-    if (trt->h_output)  { free(trt->h_output); trt->h_output = nullptr; }
-    if (trt->d_output)  { cudaFree(trt->d_output); trt->d_output = nullptr; }
-    if (trt->d_input)   { cudaFree(trt->d_input);  trt->d_input  = nullptr; }
-    if (trt->stream)    { cudaStreamDestroy(trt->stream); trt->stream = nullptr; }
-    if (trt->exec_ctx)  { delete trt->exec_ctx;  trt->exec_ctx = nullptr; }
-    if (trt->engine)    { delete trt->engine;    trt->engine   = nullptr; }
-    if (trt->runtime)   { delete trt->runtime;   trt->runtime  = nullptr; }
+    /* Clean up in reverse order — null-check each pointer */
+    if (trt->d_input)  { cudaFree(trt->d_input);  trt->d_input  = nullptr; }
+    for (int o = TRT_MAX_OUTPUT_BINDINGS - 1; o >= 0; o--) {
+        if (trt->h_output[o]) { free(trt->h_output[o]); trt->h_output[o] = nullptr; }
+        if (trt->d_output[o]) { cudaFree(trt->d_output[o]); trt->d_output[o] = nullptr; }
+    }
+    if (trt->stream)   { cudaStreamDestroy(trt->stream); trt->stream   = nullptr; }
+    if (trt->exec_ctx) { delete trt->exec_ctx;  trt->exec_ctx = nullptr; }
+    if (trt->engine)   { delete trt->engine;    trt->engine   = nullptr; }
+    if (trt->runtime)  { delete trt->runtime;   trt->runtime  = nullptr; }
     delete trt;
     return err;
 }
@@ -318,11 +353,14 @@ extern "C" void EhsML_FW_TensorRT_Destroy(EhsML_Context *ctx)
     if (!ctx || !ctx->ml_model_ctx) return;
     TRTModelCtx *trt = static_cast<TRTModelCtx *>(ctx->ml_model_ctx);
 
-    if (trt->stream)  cudaStreamSynchronize(trt->stream);
-    if (trt->h_output) { free(trt->h_output); trt->h_output = nullptr; }
-    if (trt->d_output) { cudaFree(trt->d_output); trt->d_output = nullptr; }
+    if (trt->stream) cudaStreamSynchronize(trt->stream);
+
     if (trt->d_input)  { cudaFree(trt->d_input);  trt->d_input  = nullptr; }
-    if (trt->stream)   { cudaStreamDestroy(trt->stream); trt->stream = nullptr; }
+    for (int o = 0; o < TRT_MAX_OUTPUT_BINDINGS; o++) {
+        if (trt->h_output[o]) { free(trt->h_output[o]); trt->h_output[o] = nullptr; }
+        if (trt->d_output[o]) { cudaFree(trt->d_output[o]); trt->d_output[o] = nullptr; }
+    }
+    if (trt->stream)   { cudaStreamDestroy(trt->stream); trt->stream   = nullptr; }
     if (trt->exec_ctx) { delete trt->exec_ctx;  trt->exec_ctx = nullptr; }
     if (trt->engine)   { delete trt->engine;    trt->engine   = nullptr; }
     if (trt->runtime)  { delete trt->runtime;   trt->runtime  = nullptr; }
@@ -330,8 +368,9 @@ extern "C" void EhsML_FW_TensorRT_Destroy(EhsML_Context *ctx)
     delete trt;
     ctx->ml_model_ctx = nullptr;
 
-    /* Clear output tensor data pointer — it pointed into h_output which is freed */
-    ctx->output_tensor[0].data_ptr.ptr = nullptr;
+    /* Clear output tensor data pointers — they pointed into freed h_output buffers */
+    for (ehs_uint32 o = 0; o < ctx->output_tensor_count; o++)
+        ctx->output_tensor[o].data_ptr.ptr = nullptr;
 }
 
 /* -------------------------------------------------------------------------
@@ -377,23 +416,27 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_GetOutputData(EhsML_Context *ctx)
         return EHS_ML_INFERENCE_ERR;
     }
 
-    /* Copy device output to host */
-    if (cudaMemcpyAsync(trt->h_output, trt->d_output, trt->output_bytes,
-                        cudaMemcpyDeviceToHost, trt->stream) != cudaSuccess) {
-        EHSH_LOG_ERROR("TensorRT: cudaMemcpyAsync D→H failed");
-        return EHS_ML_INFERENCE_ERR;
+    /* Copy all output bindings device→host */
+    for (int o = 0; o < trt->output_count; o++) {
+        if (cudaMemcpyAsync(trt->h_output[o], trt->d_output[o], trt->output_bytes[o],
+                            cudaMemcpyDeviceToHost, trt->stream) != cudaSuccess) {
+            EHSH_LOG_ERROR("TensorRT: cudaMemcpyAsync D→H failed for output[%d]", o);
+            return EHS_ML_INFERENCE_ERR;
+        }
     }
 
-    /* Synchronise so the host buffer is ready for post-processing */
+    /* Synchronise — host buffers ready after this point */
     if (cudaStreamSynchronize(trt->stream) != cudaSuccess) {
         EHSH_LOG_ERROR("TensorRT: cudaStreamSynchronize failed");
         return EHS_ML_INFERENCE_ERR;
     }
 
-    /* Expose result through EhsML_Context — pointer into our h_output buffer */
-    ctx->output_tensor[0].data_ptr.ptr   = trt->h_output;
-    ctx->output_tensor[0].size_in_bytes  = (ehs_uint32)trt->output_bytes;
-    ctx->output_tensor[0].data_ptr_owned = EHS_FALSE; /* owned by TRTModelCtx */
+    /* Expose all output tensors through EhsML_Context */
+    for (int o = 0; o < trt->output_count; o++) {
+        ctx->output_tensor[o].data_ptr.ptr   = trt->h_output[o];
+        ctx->output_tensor[o].size_in_bytes  = (ehs_uint32)trt->output_bytes[o];
+        ctx->output_tensor[o].data_ptr_owned = EHS_FALSE;
+    }
 
     return EHS_ML_OK;
 }
@@ -410,40 +453,63 @@ extern "C" EhsML_Err EhsML_FW_TensorRT_GetModelInfoJson(EhsML_Context *ctx,
     if (!ctx || !ctx->ml_model_ctx || !json_buf || json_size == 0)
         return EHS_ML_FAILED;
 
-    TRTModelCtx              *trt = static_cast<TRTModelCtx *>(ctx->ml_model_ctx);
-    const EhsML_Tensor_t     *in  = &ctx->input_tensor[0];
-    const EhsML_Tensor_t     *out = &ctx->output_tensor[0];
+    TRTModelCtx          *trt = static_cast<TRTModelCtx *>(ctx->ml_model_ctx);
+    const EhsML_Tensor_t *in  = &ctx->input_tensor[0];
 
-    /* Build shape arrays as JSON strings */
-    char in_shape[128]  = "[";
-    char out_shape[128] = "[";
+    /* Build input shape string */
+    char in_shape[128] = "[";
     for (ehs_uint32 i = 0; i < in->num_dims; i++) {
         char tmp[16];
         snprintf(tmp, sizeof(tmp), "%s%u", (i ? "," : ""), in->dims[i]);
-        strncat(in_shape,  tmp, sizeof(in_shape)  - strlen(in_shape)  - 1);
+        strncat(in_shape, tmp, sizeof(in_shape) - strlen(in_shape) - 1);
     }
     strncat(in_shape, "]", sizeof(in_shape) - strlen(in_shape) - 1);
 
-    for (ehs_uint32 i = 0; i < out->num_dims; i++) {
-        char tmp[16];
-        snprintf(tmp, sizeof(tmp), "%s%u", (i ? "," : ""), out->dims[i]);
-        strncat(out_shape, tmp, sizeof(out_shape) - strlen(out_shape) - 1);
-    }
-    strncat(out_shape, "]", sizeof(out_shape) - strlen(out_shape) - 1);
-
-    int written = snprintf(json_buf, (size_t)json_size,
-        "{"
-        "\"runtime\":\"TensorRT\","
-        "\"input_count\":1,\"output_count\":1,"
+    /* Start JSON */
+    int used = snprintf(json_buf, (size_t)json_size,
+        "{\"runtime\":\"TensorRT\","
+        "\"input_count\":1,\"output_count\":%d,"
         "\"inputs\":[{\"name\":\"%s\",\"dtype\":\"%s\",\"shape\":%s,\"bytes\":%u}],"
-        "\"outputs\":[{\"name\":\"%s\",\"dtype\":\"%s\",\"shape\":%s,\"bytes\":%u}]"
-        "}",
-        trt->input_name,  ehs_dtype_to_str(in->data_type),  in_shape,  in->size_in_bytes,
-        trt->output_name, ehs_dtype_to_str(out->data_type), out_shape, out->size_in_bytes);
+        "\"outputs\":[",
+        trt->output_count,
+        trt->input_name,
+        ehs_dtype_to_str(in->data_type),
+        in_shape,
+        in->size_in_bytes);
 
-    if (written < 0 || (ehs_uint32)written >= json_size) {
-        EHSH_LOG_ERROR("TensorRT: GetModelInfoJson buffer too small (%u bytes)", json_size);
-        return EHS_ML_FAILED;
+    if (used < 0 || (ehs_uint32)used >= json_size) goto too_small;
+
+    /* Append one JSON object per output binding */
+    for (int o = 0; o < trt->output_count; o++) {
+        const EhsML_Tensor_t *out = &ctx->output_tensor[o];
+        char out_shape[128] = "[";
+        for (ehs_uint32 d = 0; d < out->num_dims; d++) {
+            char tmp[16];
+            snprintf(tmp, sizeof(tmp), "%s%u", (d ? "," : ""), out->dims[d]);
+            strncat(out_shape, tmp, sizeof(out_shape) - strlen(out_shape) - 1);
+        }
+        strncat(out_shape, "]", sizeof(out_shape) - strlen(out_shape) - 1);
+
+        int written = snprintf(json_buf + used, (size_t)(json_size - used),
+            "%s{\"name\":\"%s\",\"dtype\":\"%s\",\"shape\":%s,\"bytes\":%u}",
+            (o ? "," : ""),
+            trt->output_names[o],
+            ehs_dtype_to_str(out->data_type),
+            out_shape,
+            out->size_in_bytes);
+
+        if (written < 0 || (ehs_uint32)(used + written) >= json_size) goto too_small;
+        used += written;
+    }
+
+    /* Close arrays and object */
+    {
+        int written = snprintf(json_buf + used, (size_t)(json_size - used), "]}");
+        if (written < 0 || (ehs_uint32)(used + written) >= json_size) goto too_small;
     }
     return EHS_ML_OK;
+
+too_small:
+    EHSH_LOG_ERROR("TensorRT: GetModelInfoJson buffer too small (%u bytes)", json_size);
+    return EHS_ML_FAILED;
 }

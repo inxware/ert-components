@@ -91,7 +91,7 @@ EHS_MV_SUPPORT   = jetson
 EHS_ML_SUPPORT                      = yes
 # TFLite is not needed on Jetson — TensorRT handles all inference via the
 # EHS_ML_HWACCEL_NVIDIA dispatch path.
-EHS_ML_FRAMEWORK_IMAGE_SUPPORT      = none
+EHS_ML_IE_IMAGE_SUPPORT      = none
 EHS_ML_HARDWARE_ACCELERATION        = nvidia
 
 EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET  = yes

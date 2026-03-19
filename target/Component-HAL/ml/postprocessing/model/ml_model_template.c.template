@@ -50,7 +50,7 @@
 
 EhsML_Err EhsML_Template_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
 {
-    EhsML_Err err = EhsML_Model_Boilerplate_RunOutputJson(ctx, json_output, output_size);
+    EhsML_Err err = EhsML_InfEngine_RunInference(ctx, json_output, output_size);
     if (err != EHS_ML_OK)
     {
         return err;

@@ -119,16 +119,20 @@ static hailo_status infer(EhsML_Context * ctx)
     ehs_uint32 output_threads_index = 0;
     ehs_uint32 i = 0;
 
-    HailoInputThreadArg write_thread_args = {0};
-    write_thread_args.ctx = ctx;
-
-    HailoOutputThreadArg read_thread_args = {0};
-    read_thread_args.ctx = ctx;
+    /* Each thread must receive its own args struct — passing a shared struct
+     * and overwriting its index field before the thread starts causes all
+     * threads to see the last index value (race condition).  For models with
+     * a single output vstream (objdet) this is invisible, but for models with
+     * multiple output vstreams (pose) it leaves most vstreams unread, causing
+     * HailoRT to back up and report a timeout. */
+    HailoInputThreadArg  write_thread_args[HAILO_MAX_EDGE_LAYERS];
+    HailoOutputThreadArg read_thread_args[HAILO_MAX_EDGE_LAYERS];
 
     for (output_threads_index = 0; output_threads_index < gOutputVStreamsSize; output_threads_index++)
     {
-        read_thread_args.index = output_threads_index;
-        status = hailo_create_thread(read_from_device, &read_thread_args, &read_threads[output_threads_index]);
+        read_thread_args[output_threads_index].ctx   = ctx;
+        read_thread_args[output_threads_index].index = output_threads_index;
+        status = hailo_create_thread(read_from_device, &read_thread_args[output_threads_index], &read_threads[output_threads_index]);
         if (status != HAILO_SUCCESS)
         {
             EHSH_LOG_ERROR("hailo_create_thread failed: %d\n", status);
@@ -137,8 +141,9 @@ static hailo_status infer(EhsML_Context * ctx)
     }
     for (input_threads_index = 0; input_threads_index < gInputVStreamsSize; input_threads_index++)
     {
-        write_thread_args.index = input_threads_index;
-        status = hailo_create_thread(write_to_device, &write_thread_args, &write_threads[input_threads_index]);
+        write_thread_args[input_threads_index].ctx   = ctx;
+        write_thread_args[input_threads_index].index = input_threads_index;
+        status = hailo_create_thread(write_to_device, &write_thread_args[input_threads_index], &write_threads[input_threads_index]);
         if (status != HAILO_SUCCESS)
         {
             EHSH_LOG_ERROR("hailo_create_thread failed: %d\n", status);
@@ -379,7 +384,7 @@ EhsML_Err EhsML_FW_Hailo_Create(EhsML_Context * ctx, const ehs_char * model_path
             goto l_release_buffers;
         }
         hailo_vstream_info_t output_vstream_info;
-        gHailoStatus = hailo_get_output_vstream_info(gOutputVStream[0], &output_vstream_info);
+        gHailoStatus = hailo_get_output_vstream_info(gOutputVStream[tt], &output_vstream_info);
         if (gHailoStatus != HAILO_SUCCESS)
         {
             EHSH_LOG_ERROR("hailo_get_output_vstream_info failed: %d\n", gHailoStatus);

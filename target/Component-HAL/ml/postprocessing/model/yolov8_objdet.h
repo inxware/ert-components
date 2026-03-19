@@ -20,13 +20,13 @@
 /*****************************************************************************/
 /* Included files */
 #include "hal_ml.h"
-#include "ml_model_common.h"
+#include "ml_inf_engine.h"
 
 /*****************************************************************************/
 /* Define macros  */
-#define EhsML_Yolov8_ObjDet_Create EhsML_Model_Boilerplate_Create
-#define EhsML_Yolov8_ObjDet_Destroy EhsML_Model_Boilerplate_Destroy
-#define EhsML_Yolov8_ObjDet_SetInputData EhsML_Model_Boilerplate_SetInputData
+#define EhsML_Yolov8_ObjDet_Create       EhsML_InfEngine_Create
+#define EhsML_Yolov8_ObjDet_Destroy      EhsML_InfEngine_Destroy
+#define EhsML_Yolov8_ObjDet_SetInputData EhsML_InfEngine_SetInputData
 
 /*****************************************************************************/
 /* Define types */

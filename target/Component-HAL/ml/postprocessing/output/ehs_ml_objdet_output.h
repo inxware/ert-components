@@ -41,6 +41,8 @@
 #ifndef _C_HEADER_EHS_TARGET_HAL_ML_OUTPUT_EHS_ML_OBJDET_OUTPUT_H_
 #define _C_HEADER_EHS_TARGET_HAL_ML_OUTPUT_EHS_ML_OBJDET_OUTPUT_H_
 
+#include "hal_ml.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -106,6 +108,28 @@ int EhsML_ObjDet_Json_AppendCorner(char* buf, int size, int idx,
                                     int class_id, float score,
                                     float ymin, float xmin,
                                     float ymax, float xmax);
+
+/**
+ * @brief Serialise ctx->detections[] into a flat JSON object.
+ *
+ * Engine-independent formatter. Consumes the canonical detection list
+ * already populated in ctx->detections[0..detection_count-1] by the
+ * model decode step.  Detections with filtered==EHS_TRUE are skipped.
+ *
+ * Output format:
+ *   {"type":<type>,"det_cnt":<N>,"cls0":<id>,"lbl0":"<label>","cnf0":<score>,
+ *    "x0":<cx>,"y0":<cy>,"w0":<w>,"h0":<h>,...}
+ *
+ * Coordinates are pixel-space centre + width/height (same as AppendCentre).
+ *
+ * @param ctx       ML context with detections[] and detection_count populated.
+ * @param json_buf  Caller-allocated output buffer.
+ * @param json_size Size of json_buf in bytes.
+ * @return EHS_ML_OK on success, EHS_ML_JSON_STRSIZE_ERR if buffer too small.
+ */
+EhsML_Err EhsML_ObjDet_Json_FromDetections(EhsML_Context *ctx,
+                                            ehs_char      *json_buf,
+                                            ehs_uint32     json_size);
 
 #ifdef __cplusplus
 }

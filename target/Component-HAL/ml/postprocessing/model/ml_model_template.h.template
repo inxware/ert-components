@@ -19,13 +19,16 @@
 
 /*****************************************************************************/
 /* Included files */
+#include "hal_ml.h"
+#include "ml_inf_engine.h"
 
 /*****************************************************************************/
 /* Define macros  */
-//TODO-2026 review whether to use macro or function
-#define EhsML_Template_Create EhsML_Model_Boilerplate_Create
-#define EhsML_Template_Destroy EhsML_Model_Boilerplate_Destroy
-#define EhsML_Template_SetInputData EhsML_Model_Boilerplate_SetInputData
+/* Create, Destroy and SetInputData delegate to the inference engine dispatch
+ * layer.  Only RunOutputJson is model-specific. */
+#define EhsML_Template_Create       EhsML_InfEngine_Create
+#define EhsML_Template_Destroy      EhsML_InfEngine_Destroy
+#define EhsML_Template_SetInputData EhsML_InfEngine_SetInputData
 
 /*****************************************************************************/
 /* Define types */

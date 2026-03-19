@@ -59,7 +59,7 @@
 EhsML_Err EhsML_Yolov5_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
 {
     // Your code here
-    EhsML_Err err = EhsML_Model_Boilerplate_RunOutputJson(ctx, json_output, output_size);
+    EhsML_Err err = EhsML_InfEngine_RunInference(ctx, json_output, output_size);
     if (err != EHS_ML_OK)
     {
         return err;
@@ -163,29 +163,18 @@ EhsML_Err EhsML_Yolov5_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_o
         scratch_i, scratch_f
     );
 
-    /* 4. Parse the output into JSON output with given maximum output length */
-    ehs_uint32 used = EhsSnprintf(
-        json_output, output_size,
-        "{\"type\":%d,\"det_cnt\":%d",
-        (int)ctx->type, (int)keep_count
-    );
-#if 0
-    printf("[YOLOV5_DBG] after NMS: keep_count=%d\n", (int)keep_count);
-#endif
-    if (used >= output_size) return EHS_ML_JSON_STRSIZE_ERR;
-    for (i = 0 ; i < keep_count ; ++i)
+    /* 4. Populate canonical detection list, then serialise engine-independently */
+    ctx->detection_count = 0;
+    for (i = 0; i < (int)keep_count && ctx->detection_count < EHS_ML_OBJ_DETECTIONS_MAX; i++)
     {
-        int remaining = output_size - used - 1; // reserve space for closing '}' and NULL terminator
-        if (remaining <= 0) break; //TODO this should return an error because JSON output length is too short
-        int len = EhsML_ObjDet_Json_AppendCentre(
-            json_output + used, remaining, i,
-            boxes[keep[i]].class_id,
-            (float)boxes[keep[i]].score,
-            (float)boxes[keep[i]].x, (float)boxes[keep[i]].y,
-            (float)boxes[keep[i]].w, (float)boxes[keep[i]].h
-        );
-        if (len > 0) used += (ehs_uint32)len;
+        EhsML_Detection_t *d = &ctx->detections[ctx->detection_count++];
+        d->conf     = (ehs_float)boxes[keep[i]].score;
+        d->cls      = (ehs_uint32)boxes[keep[i]].class_id;
+        d->filtered = EHS_FALSE;
+        d->x        = (ehs_float)boxes[keep[i]].x;
+        d->y        = (ehs_float)boxes[keep[i]].y;
+        d->w        = (ehs_float)boxes[keep[i]].w;
+        d->h        = (ehs_float)boxes[keep[i]].h;
     }
-    EhsSnprintf(json_output + used, output_size - used - 1, "}");
-    return EHS_ML_OK;
+    return EhsML_ObjDet_Json_FromDetections(ctx, json_output, output_size);
 }
