@@ -208,12 +208,9 @@ EhsML_Err EhsML_InfEngine_SetInputData(EhsML_Context* ctx, const void* input_dat
     }
 }
 
-EhsML_Err EhsML_InfEngine_RunInference(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
+EhsML_Err EhsML_InfEngine_RunInference(EhsML_Context* ctx)
 {
-    /* Validate early on behalf of the model layer above — json_output and
-     * output_size are not used by the engine dispatch itself but must be valid
-     * before the model layer proceeds to write into them. */
-    if (ctx == NULL || json_output == NULL || output_size == 0) return EHS_ML_FAILED;
+    if (ctx == NULL) return EHS_ML_NULL_CTX_ERR;
     EhsML_Err err = EHS_ML_FAILED;
 
     switch (ctx->hw_accel)

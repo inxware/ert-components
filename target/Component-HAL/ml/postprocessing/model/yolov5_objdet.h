@@ -38,6 +38,8 @@
 /*****************************************************************************/
 /* Declare function prototypes  */
 
+EhsML_Err EhsML_Yolov5_ObjDet_RunPipeline(EhsML_Context* ctx);
+/** @deprecated Use EhsML_RunAndGetOutput() */
 EhsML_Err EhsML_Yolov5_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size);
 
 

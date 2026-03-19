@@ -89,9 +89,9 @@
  * @param output_size Size of json_output in bytes.
  * @return EHS_ML_OK on success, EHS_ML_MODEL_OUTPUT_ERR if data type is not FP32.
  */
-EhsML_Err EhsML_Yolov8_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
+EhsML_Err EhsML_Yolov8_ObjDet_RunPipeline(EhsML_Context* ctx)
 {
-    EhsML_Err err = EhsML_InfEngine_RunInference(ctx, json_output, output_size);
+    EhsML_Err err = EhsML_InfEngine_RunInference(ctx);
     if (err != EHS_ML_OK)
     {
         return err;
@@ -99,12 +99,10 @@ EhsML_Err EhsML_Yolov8_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_o
 
 #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
     /* TensorRT NMS-plugin path: engine delivers 4 canonical output tensors.
-     * Decode into ctx->detections[] then serialise engine-independently. */
+     * Decode into ctx->detections[] — serialisation is done by EhsML_GetOutput(). */
     if (ctx->hw_accel == EHS_ML_HWACCEL_NVIDIA)
     {
-        err = EhsML_TRT_NMS_Decode(ctx);
-        if (err != EHS_ML_OK) return err;
-        return EhsML_ObjDet_Json_FromDetections(ctx, json_output, output_size);
+        return EhsML_TRT_NMS_Decode(ctx);
     }
 #endif
 
@@ -130,10 +128,7 @@ EhsML_Err EhsML_Yolov8_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_o
 
     size_t class_idx = 0;
     size_t index = -1;
-    size_t printed_count = 0;
-    size_t string_index = 0;
     ctx->detection_count = 0;
-    string_index += EhsSprintf(&(json_output[string_index]), "{");
 
     while (class_idx < 80)
     {
@@ -147,36 +142,20 @@ EhsML_Err EhsML_Yolov8_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_o
             float x_max = ctx->output_tensor[0].data_ptr.f32[++index] * input_width;
             float conf  = ctx->output_tensor[0].data_ptr.f32[++index];
 
-            if (conf >= ctx->conf_thres)
+            if (conf >= ctx->conf_thres && ctx->detection_count < EHS_ML_OBJ_DETECTIONS_MAX)
             {
-                int written = EhsML_ObjDet_Json_AppendCorner(
-                    &(json_output[string_index]),
-                    (int)(output_size - string_index - 1),
-                    (int)printed_count, (int)class_idx,
-                    conf, y_min, x_min, y_max, x_max);
-                if (written > 0) string_index += (size_t)written;
-
-                /* Also populate canonical detection list for callers that
-                 * consume ctx->detections[] directly. */
-                if (ctx->detection_count < EHS_ML_OBJ_DETECTIONS_MAX)
-                {
-                    EhsML_Detection_t *d = &ctx->detections[ctx->detection_count++];
-                    d->conf     = conf;
-                    d->cls      = (ehs_uint32)class_idx;
-                    d->filtered = EHS_FALSE;
-                    d->x        = (x_min + x_max) * 0.5f;
-                    d->y        = (y_min + y_max) * 0.5f;
-                    d->w        = x_max - x_min;
-                    d->h        = y_max - y_min;
-                }
-                printed_count++;
+                EhsML_Detection_t *d = &ctx->detections[ctx->detection_count++];
+                d->conf     = conf;
+                d->cls      = (ehs_uint32)class_idx;
+                d->filtered = EHS_FALSE;
+                d->x        = (x_min + x_max) * 0.5f;
+                d->y        = (y_min + y_max) * 0.5f;
+                d->w        = x_max - x_min;
+                d->h        = y_max - y_min;
             }
         }
         class_idx++;
     }
-
-    string_index += EhsSprintf(&(json_output[string_index]), "\"det_cnt\":%d", (int)printed_count);
-    string_index += EhsSprintf(&(json_output[string_index]), "}");
 
     return EHS_ML_OK;
 }

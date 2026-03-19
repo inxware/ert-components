@@ -56,13 +56,10 @@ EhsML_Err EhsML_InfEngine_SetInputData(EhsML_Context* ctx, const void* input_dat
  *
  * Runs one inference pass on the previously set input data and places the
  * raw engine output into ctx->output_tensor[].  Does NOT perform
- * model-specific post-processing or JSON serialisation — those are the
- * responsibility of the model layer that calls this function.
- *
- * The json_output / output_size parameters are validated here (non-NULL,
- * non-zero) as an early check on behalf of the model layer above.
+ * model-specific post-processing or output serialisation — those are the
+ * responsibility of the model layer (RunPipeline) and EhsML_GetOutput().
  */
-EhsML_Err EhsML_InfEngine_RunInference(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size);
+EhsML_Err EhsML_InfEngine_RunInference(EhsML_Context* ctx);
 
 
 #endif /* _C_HEADER_EHS_TARGET_HAL_ML_ENGINE_ML_INF_ENGINE_H_ */

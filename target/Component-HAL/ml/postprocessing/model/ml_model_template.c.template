@@ -48,14 +48,15 @@
  ***** if they are unique from the boilerplate code
  *****/
 
-EhsML_Err EhsML_Template_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
+EhsML_Err EhsML_Template_RunPipeline(EhsML_Context* ctx)
 {
-    EhsML_Err err = EhsML_InfEngine_RunInference(ctx, json_output, output_size);
+    EhsML_Err err = EhsML_InfEngine_RunInference(ctx);
     if (err != EHS_ML_OK)
     {
         return err;
     }
 
-    // Your code here
+    /* TODO: decode ctx->output_tensor[] into ctx->detections[] here.
+     * EhsML_GetOutput() will serialise ctx->detections[] to the output buffer. */
     return EHS_ML_OK;
 }

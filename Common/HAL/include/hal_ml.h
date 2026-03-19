@@ -63,8 +63,9 @@ typedef enum {
     EHS_ML_NOT_SUPPORTED,
     EHS_ML_NULL_CTX_ERR,              // NULL EhsML_Context pointer passed to an API function
     EHS_ML_NULL_INPUT_ERR,            // NULL input data pointer passed to EhsML_SetInputData
-    EHS_ML_NULL_JSON_BUF_ERR,         // NULL json output buffer passed to EhsML_RunOutputJson
+    EHS_ML_NULL_JSON_BUF_ERR,         // NULL output buffer passed to EhsML_GetOutput / EhsML_RunAndGetOutput
     EHS_ML_INPUT_SIZE_MISMATCH_ERR,   // Input data size does not match the model's input tensor size
+    EHS_ML_BUSY,                      // Inference already in progress; request dropped
 } EhsML_Err;
 
 typedef enum {
@@ -379,13 +380,25 @@ typedef struct {
      * Pipeline capability map.
      *
      * Populated during EhsML_Create (engine layer fills INFER/UNPACK and any
-     * SDK-covered stages) and during RunOutputJson (model layer fills DEQUANT/
+     * SDK-covered stages) and during EhsML_Run (model layer fills DEQUANT/
      * DECODE/LOGICAL/FORMAT).  Stages left zeroed after Create are NOT_IMPLEMENTED
      * gaps detectable at runtime.
      *
      * Use EHS_ML_STAGE_SET(pipeline, stage, tech) to populate individual stages.
      */
     EhsML_Pipeline_t pipeline;
+
+    /**
+     * Busy flag — set to EHS_TRUE for the duration of EhsML_Run() through
+     * EhsML_GetOutput().  Any call to EhsML_Run() or EhsML_SetInputData()
+     * while this is EHS_TRUE returns EHS_ML_BUSY immediately, dropping the
+     * request without corrupting the in-progress inference.
+     *
+     * Declared volatile so that the check is not optimised away by the
+     * compiler when the flag is set/read from different call contexts
+     * (e.g. a timer callback vs. the inference call).
+     */
+    volatile ehs_bool inferring;
 } EhsML_Context;
 
 // Creates and initializes a machine learning context for a given model.
@@ -410,11 +423,55 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
 // This function is not yet implemented.
 // EhsML_Err EhsML_RunOutputData(EhsML_Context* ctx, void* data, ehs_uint32 size);
 
-// Runs inference and writes the results to a JSON-formatted string.
-// - json: output buffer for JSON result string (must be preallocated).
-// - size: maximum size of the buffer to avoid overflow.
-// Output format example: {"type":0, "res":[{"cls":0, "cnf":0.92, "x":...}, ...]}
-// Returns an error code indicating success or failure.
+/**
+ * @brief Run the full inference pipeline for the loaded model.
+ *
+ * Executes: inference → unpack → dequant → decode → logical (NMS etc.).
+ * Results are written into ctx->detections[] / ctx->detection_count.
+ * No output buffer is involved; call EhsML_GetOutput() afterwards to
+ * serialise the results into the desired format.
+ *
+ * @param ctx  Initialised EhsML_Context (EhsML_Create must have succeeded).
+ * @return EHS_ML_OK on success, error code otherwise.
+ */
+EhsML_Err EhsML_Run(EhsML_Context* ctx);
+
+/**
+ * @brief Serialise the pipeline results into an output buffer.
+ *
+ * Dispatches to the formatter appropriate for ctx->type.  Currently all
+ * supported model types produce a JSON string.
+ * Output format example: {"type":0,"det_cnt":N,"res":[{"cls":0,"cnf":0.92,...}]}
+ *
+ * Must be called after a successful EhsML_Run().
+ *
+ * @param ctx   Initialised EhsML_Context after EhsML_Run() has completed.
+ * @param buf   Caller-provided output buffer (must be preallocated, non-NULL).
+ * @param size  Size of the buffer in bytes.
+ * @return EHS_ML_OK on success, EHS_ML_NULL_JSON_BUF_ERR if buf is NULL,
+ *         error code otherwise.
+ */
+EhsML_Err EhsML_GetOutput(EhsML_Context* ctx, ehs_char* buf, ehs_uint32 size);
+
+/**
+ * @brief Convenience wrapper: EhsML_Run() followed by EhsML_GetOutput().
+ *
+ * Equivalent to:
+ *   err = EhsML_Run(ctx);
+ *   if (err == EHS_ML_OK) err = EhsML_GetOutput(ctx, buf, size);
+ *   return err;
+ *
+ * Replaces EhsML_RunOutputJson() at call sites.  The old name is kept as a
+ * backwards-compatible alias until all callers have been updated.
+ *
+ * @param ctx   Initialised EhsML_Context.
+ * @param buf   Caller-provided output buffer (must be preallocated, non-NULL).
+ * @param size  Size of the buffer in bytes.
+ * @return EHS_ML_OK on success, error code otherwise.
+ */
+EhsML_Err EhsML_RunAndGetOutput(EhsML_Context* ctx, ehs_char* buf, ehs_uint32 size);
+
+/** @deprecated Use EhsML_RunAndGetOutput() instead. */
 EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 size);
 
 /**

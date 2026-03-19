@@ -56,10 +56,9 @@
 /*****************************************************************************/
 /* Function definitions */
 
-EhsML_Err EhsML_Yolov5_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size)
+EhsML_Err EhsML_Yolov5_ObjDet_RunPipeline(EhsML_Context* ctx)
 {
-    // Your code here
-    EhsML_Err err = EhsML_InfEngine_RunInference(ctx, json_output, output_size);
+    EhsML_Err err = EhsML_InfEngine_RunInference(ctx);
     if (err != EHS_ML_OK)
     {
         return err;
@@ -163,7 +162,7 @@ EhsML_Err EhsML_Yolov5_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_o
         scratch_i, scratch_f
     );
 
-    /* 4. Populate canonical detection list, then serialise engine-independently */
+    /* 4. Populate canonical detection list */
     ctx->detection_count = 0;
     for (i = 0; i < (int)keep_count && ctx->detection_count < EHS_ML_OBJ_DETECTIONS_MAX; i++)
     {
@@ -176,5 +175,5 @@ EhsML_Err EhsML_Yolov5_ObjDet_RunOutputJson(EhsML_Context* ctx, ehs_char* json_o
         d->w        = (ehs_float)boxes[keep[i]].w;
         d->h        = (ehs_float)boxes[keep[i]].h;
     }
-    return EhsML_ObjDet_Json_FromDetections(ctx, json_output, output_size);
+    return EHS_ML_OK;
 }

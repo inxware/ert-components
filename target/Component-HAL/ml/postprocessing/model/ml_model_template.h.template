@@ -25,7 +25,7 @@
 /*****************************************************************************/
 /* Define macros  */
 /* Create, Destroy and SetInputData delegate to the inference engine dispatch
- * layer.  Only RunOutputJson is model-specific. */
+ * layer.  Only RunPipeline is model-specific. */
 #define EhsML_Template_Create       EhsML_InfEngine_Create
 #define EhsML_Template_Destroy      EhsML_InfEngine_Destroy
 #define EhsML_Template_SetInputData EhsML_InfEngine_SetInputData
@@ -41,7 +41,7 @@
 /*****************************************************************************/
 /* Declare function prototypes  */
 
-EhsML_Err EhsML_Template_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size);
+EhsML_Err EhsML_Template_RunPipeline(EhsML_Context* ctx);
 
 
 #endif /*_C_HEADER_EHS_TARGET_HAL_ML_MODEL_ML_MODEL_TEMPLATE_H_*/

@@ -14,4 +14,6 @@
 #define EhsML_Model_Boilerplate_Create       EhsML_InfEngine_Create
 #define EhsML_Model_Boilerplate_Destroy      EhsML_InfEngine_Destroy
 #define EhsML_Model_Boilerplate_SetInputData EhsML_InfEngine_SetInputData
+#define EhsML_Model_Boilerplate_RunPipeline   EhsML_InfEngine_RunInference
+/** @deprecated signature changed — use EhsML_InfEngine_RunInference(ctx) directly */
 #define EhsML_Model_Boilerplate_RunOutputJson EhsML_InfEngine_RunInference

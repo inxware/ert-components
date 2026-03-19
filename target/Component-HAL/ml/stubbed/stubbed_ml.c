@@ -14,6 +14,18 @@ EhsML_Err EhsML_Stubbed_SetInputData(EhsML_Context* ctx, const void* data, ehs_u
     return EHS_ML_OK;
 }
 
+EhsML_Err EhsML_Stubbed_RunPipeline(EhsML_Context* ctx)
+{
+    (void)ctx;
+    return EHS_ML_OK;
+}
+
+EhsML_Err EhsML_Stubbed_GetOutput(EhsML_Context* ctx, ehs_char* buf, ehs_uint32 size)
+{
+    (void)ctx; (void)buf; (void)size;
+    return EHS_ML_OK;
+}
+
 EhsML_Err EhsML_Stubbed_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 size)
 {
     return EHS_ML_OK;

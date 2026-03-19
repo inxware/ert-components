@@ -963,6 +963,7 @@ void EhsML_Destroy(EhsML_Context* ctx)
 EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 size)
 {
     if (ctx == NULL) return EHS_ML_NULL_CTX_ERR;
+    if (ctx->inferring) return EHS_ML_BUSY;
     if (data == NULL) return EHS_ML_NULL_INPUT_ERR;
     if (ctx->type >= EHS_ML_TYPE_MAX) return EHS_ML_MODEL_TYPE_ERR;
     #ifdef EHS_ML_SUPPORT_STUBBED
@@ -1343,30 +1344,120 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
     #endif//EHS_ML_SUPPORT_STUBBED
 }
 
+/* -------------------------------------------------------------------------
+ * EhsML_Run / EhsML_GetOutput / EhsML_RunAndGetOutput
+ *
+ * These replace the monolithic EhsML_RunOutputJson by separating pipeline
+ * execution (Run) from output serialisation (GetOutput).
+ *
+ * EhsML_Run        — inference → decode → NMS → ctx->detections[]
+ * EhsML_GetOutput  — ctx->detections[] → JSON (or other format in future)
+ * EhsML_RunAndGetOutput — convenience wrapper for the synchronous case
+ *
+ * ctx->inferring is set TRUE at the start of EhsML_Run() and cleared by
+ * EhsML_GetOutput() on completion (or by EhsML_Run() itself on failure).
+ * EhsML_SetInputData() also checks the flag to prevent clobbering an input
+ * buffer that is currently being consumed by an in-progress inference.
+ * ------------------------------------------------------------------------- */
+
+EhsML_Err EhsML_Run(EhsML_Context* ctx)
+{
+    if (ctx == NULL) return EHS_ML_NULL_CTX_ERR;
+    if (ctx->inferring) return EHS_ML_BUSY;
+    if (ctx->type >= EHS_ML_TYPE_MAX) return EHS_ML_MODEL_TYPE_ERR;
+
+    ctx->inferring = EHS_TRUE;
+
+    EhsML_Err err;
+    #ifdef EHS_ML_SUPPORT_STUBBED
+    err = EhsML_Stubbed_RunPipeline(ctx);
+    #else
+    switch (ctx->type)
+    {
+        case EHS_ML_TYPE_STUBBED:
+            err = EhsML_Stubbed_RunPipeline(ctx);
+            break;
+        case EHS_ML_YOLOV5_OBJ_DETECTOR:
+        {
+#ifdef EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET
+            err = EhsML_Yolov5_ObjDet_RunPipeline(ctx);
+#else
+            err = EHS_ML_NOT_SUPPORTED;
+#endif
+            break;
+        }
+        case EHS_ML_YOLOV8_OBJ_DETECTOR:
+        {
+#ifdef EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET
+            err = EhsML_Yolov8_ObjDet_RunPipeline(ctx);
+#else
+            err = EHS_ML_NOT_SUPPORTED;
+#endif
+            break;
+        }
+        case EHS_ML_YOLOV8_POSE_ESTIMATOR:
+        {
+#ifdef EHS_ML_MODEL_SUPPORT_YOLOV8_POSE
+            err = EhsML_Yolov8_Pose_RunPipeline(ctx);
+#else
+            err = EHS_ML_NOT_SUPPORTED;
+#endif
+            break;
+        }
+        default:
+            err = EHS_ML_NOT_IMPLEMENTED;
+            break;
+    }
+    #endif//EHS_ML_SUPPORT_STUBBED
+
+    /* On pipeline failure, clear the busy flag immediately — GetOutput will
+     * not be called so nothing else will release it. */
+    if (err != EHS_ML_OK) ctx->inferring = EHS_FALSE;
+}
+
+EhsML_Err EhsML_GetOutput(EhsML_Context* ctx, ehs_char* buf, ehs_uint32 size)
+{
+    if (ctx == NULL) return EHS_ML_NULL_CTX_ERR;
+    if (buf == NULL) return EHS_ML_NULL_JSON_BUF_ERR;
+    if (size == 0)   return EHS_ML_JSON_STRSIZE_ERR;
+    if (ctx->type >= EHS_ML_TYPE_MAX) return EHS_ML_MODEL_TYPE_ERR;
+
+    EhsML_Err err;
+    #ifdef EHS_ML_SUPPORT_STUBBED
+    err = EhsML_Stubbed_GetOutput(ctx, buf, size);
+    #else
+    /* All currently implemented model types populate ctx->detections[] during
+     * EhsML_Run() and share the same JSON serialiser.  As new model types with
+     * different output schemas are added, dispatch here on ctx->type. */
+    err = EhsML_ObjDet_Json_FromDetections(ctx, buf, size);
+    #endif//EHS_ML_SUPPORT_STUBBED
+
+    /* Release the busy lock regardless of serialisation outcome so that the
+     * next inference cycle can proceed. */
+    ctx->inferring = EHS_FALSE;
+    return err;
+}
+
+EhsML_Err EhsML_RunAndGetOutput(EhsML_Context* ctx, ehs_char* buf, ehs_uint32 size)
+{
+    EhsML_Err err = EhsML_Run(ctx);
+    if (err != EHS_ML_OK) return err;
+    return EhsML_GetOutput(ctx, buf, size);
+}
+
+/** @deprecated — forwards to EhsML_RunAndGetOutput(). */
 EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 size)
 {
-    if (ctx == NULL) {
-        printf("[ML_DBG] RunOutputJson: ABORT - NULL context\n");
-        return EHS_ML_NULL_CTX_ERR;
-    }
-    if (json == NULL) {
-        printf("[ML_DBG] RunOutputJson: ABORT - NULL json buffer\n");
-        return EHS_ML_NULL_JSON_BUF_ERR;
-    }
-    if (size == 0) {
-        printf("[ML_DBG] RunOutputJson: ABORT - zero-size json buffer\n");
-        return EHS_ML_JSON_STRSIZE_ERR;
-    }
-    if (ctx->type >= EHS_ML_TYPE_MAX) {
-        printf("[ML_DBG] RunOutputJson: ABORT - model type %d out of range (max %d)\n",
-               (int)ctx->type, (int)EHS_ML_TYPE_MAX);
-        return EHS_ML_MODEL_TYPE_ERR;
-    }
-    printf("[ML_DBG] RunOutputJson: ctx->type=%d, json_buf=%p, size=%u\n",
-           (int)ctx->type, (void*)json, (unsigned)size);
-    #ifdef EHS_ML_SUPPORT_STUBBED
-    return EhsML_Stubbed_RunOutputJson(ctx, json, size);
-    #else
+    return EhsML_RunAndGetOutput(ctx, json, size);
+}
+
+/* -------------------------------------------------------------------------
+ * Legacy per-model RunOutputJson stubs — kept to satisfy any object files
+ * not yet rebuilt against the new API.  Remove once all callers are updated.
+ * ------------------------------------------------------------------------- */
+#ifndef EHS_ML_SUPPORT_STUBBED
+static EhsML_Err legacy_RunOutputJson_dispatch(EhsML_Context* ctx, ehs_char* json, ehs_uint32 size)
+{
     switch (ctx->type)
     {
         /* Stubbed */
@@ -1734,13 +1825,11 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx, ehs_char* json, ehs_uint32 siz
             return EHS_ML_NOT_SUPPORTED;
 #endif//EHS_ML_MODEL_SUPPORT_AUDIO_VOICE_ACTIVITY_DETECTION
         }
-        //// ...
         default:
-        printf("^^^97!\n");
-            return EHS_ML_MODEL_TYPE_ERR;
+            return EHS_ML_NOT_IMPLEMENTED;
     }
-    #endif//EHS_ML_SUPPORT_STUBBED
 }
+#endif//!EHS_ML_SUPPORT_STUBBED
 
 /* -------------------------------------------------------------------------
  * Pipeline JSON helpers

@@ -39,6 +39,8 @@
 /*****************************************************************************/
 /* Declare function prototypes  */
 
+EhsML_Err EhsML_Yolov8_Pose_RunPipeline(EhsML_Context* ctx);
+/** @deprecated Use EhsML_RunAndGetOutput() */
 EhsML_Err EhsML_Yolov8_Pose_RunOutputJson(EhsML_Context* ctx, ehs_char* json_output, ehs_uint32 output_size);
 
 
