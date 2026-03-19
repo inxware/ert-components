@@ -129,6 +129,22 @@ Only the person running `publish_docker_image` needs the vendor SDK files.
 
 **Additional Useful Make Targets:**
 - `make chkconfig` - Show current platform configuration dependencies
+- `make sbom` - Generate Software Bill of Materials for the current platform (see below)
+
+**Software Bill of Materials (SBOM):**
+`make sbom` produces three outputs for the current `TARGET`:
+
+1. **`sbom/$(TARGET)/SBOM.spdx`** — Forward SBOM in SPDX 2.3 tag-value format listing all external
+   dependencies (ert-contrib-middleware, ert-build-support, toolchain). Suitable for supply-chain tooling.
+2. **`sbom/$(TARGET)/SBOM_SUMMARY.md`** — Human-readable markdown table of dependencies with
+   on-disk presence check. Quick way to verify a build environment has all required repos.
+3. **`<dep-root>/DEPENDENTS.md`** — Reverse index appended to each dependency root in the sibling
+   repos (`../ert-build-support`, `../ert-contrib-middleware`). Records which platforms consume
+   that dependency. Run `make sbom` across all platforms to build a complete usage matrix.
+
+The `sbom/` output directory is gitignored in ert-components. The `DEPENDENTS.md` files live in and
+should be committed to the sibling repos. The SBOM logic is in `target/platform/sbom.mk` and is
+conditionally included by the root `Makefile` only when `make sbom` is invoked.
 
 ## Architecture
 

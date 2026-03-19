@@ -147,6 +147,10 @@ gdb.txt
 #build & deploy spam
 /output.txt
 
+# Generated SBOM output (forward SBOM per platform — not committed to ert-components)
+# DEPENDENTS.md files live in the sibling repos (ert-build-support, ert-contrib-middleware)
+/sbom/
+
 # Other items
 /CLAUDE.md
 

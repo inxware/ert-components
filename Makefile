@@ -95,7 +95,14 @@ ifdef TARGET
 include $(EHS_PLATFORM_PATH)/../platform.mk
 endif
 
+# SBOM (Software Bill of Materials) — dependency usage tracking across platforms.
+# Only loaded when 'make sbom' is explicitly requested to avoid parse-time overhead.
+ifeq ($(filter sbom,$(MAKECMDGOALS)),sbom)
+-include $(EHS_TARGETS_ROOT_PATH)/platform/sbom.mk
+endif
+
 .PHONY: chkconfig
+.PHONY: sbom
 .PHONY: help
 #.PHONY: $(OBJDIRECTORY)
 
@@ -200,6 +207,7 @@ help:
 	@$(ECHO) "$(TXT_FG_BLUE)Build Diagnostics:"
 	@$(ECHO)
 	@$(ECHO) "  $(TXT_FG_WHITE)chkconfig$(TXT_FG_BRIGHT_GREEN)            - Shows the current key config parameters implied by the platform/<TARGET>config.mk"
+	@$(ECHO) "  $(TXT_FG_WHITE)sbom$(TXT_FG_BRIGHT_GREEN)                 - Appends a dependency-usage record for TARGET into SBOM.md at each external dep root."
 	@$(ECHO) "  $(TXT_FG_WHITE)compare_kernelconfig$(TXT_FG_BRIGHT_GREEN) - Compares platform/<TARGET>/config.mk with the one in ../EHS-kernel/targete/platform/<OS ARCH VERSION>/"
 	@$(ECHO) "  $(TXT_FG_WHITE)chk_ext_deps$(TXT_FG_BRIGHT_GREEN)         - Shows the external dependencies met or unmet for the platform configuration."
 	@$(ECHO_N) "  $(TXT_FG_WHITE)depend$(TXT_FG_BRIGHT_GREEN)               - "
