@@ -1,5 +1,7 @@
 # Machine Learning HAL — Architecture and Development Guide
 
+> For broader context on the inxware Edge-AI strategy see [docs/inxware-edge-ml.md](../../../docs/inxware-edge-ml.md).
+
 ---
 ## Introduction
 Some Edge-AI inference engines provide a full chain of pre and post processing for machineleanring inference, but the scope and quality varies quite substantialy.
@@ -15,7 +17,7 @@ specific to this codebase.
 | **ML Framework**     | The toolchain or format used to *train and export* a model (TensorFlow/Lite, ONNX, Edge Impulse, PyTorch). Determines the file format (`.tflite`, `.onnx`, `.hef`, `.engine`) and constrains which inference engines can load it. Not always relevant at inference time — once compiled to a hardware-native format (e.g. Hailo HEF or TensorRT engine) the original framework is opaque. |
 | **Inference Engine** | The *runtime backend* that executes inference on the target hardware: TFLite runtime, HailoRT SDK, TensorRT, TFLite Micro, RKNN, etc. Selection is a **build-time** decision via `EHS_ML_IE_IMAGE_SUPPORT` / `EHS_ML_HARDWARE_ACCELERATION` (see §Makefile Variables). |
 | **Post-processing**  | Everything that converts raw inference engine tensor output into application-ready data: tensor unpacking, dequantisation, architecture decode, confidence filter, NMS, output serialisation. Model-specific, not engine-specific. |
-| **Model Type** (AKA **Model**) | The top-level HAL API (`ml_common.*`). Dispatches `EhsML_Create` / `EhsML_RunOutputJson` / `EhsML_Destroy` to the correct model implementation by `EhsML_Type`. |
+| **Model Type** (AKA **Model**) | The top-level HAL API (`ml_common.*`). Dispatches `EhsML_Create` / `EhsML_Run` / `EhsML_GetOutput` / `EhsML_Destroy` to the correct model implementation by `EhsML_Type`. |
 
 > **Naming note**: `EHS_ML_HARDWARE_ACCELERATION` still uses "hardware
 > acceleration" rather than "inference engine" — this is intentionally kept
@@ -25,41 +27,6 @@ specific to this codebase.
 
 ---
 
-## Pipeline Dependency Seperation
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  FUNCTION BLOCK:/Common/Components/ml/                           │
-│  EhsML_Create(), EhsML_SetInputData(),EhsML_RunOutputJson()      │
-└───────────────────────────┬──────────────────────────────────────┘
-                            │ > dispatched by EhsML_Type
-┌───────────────────────────▼──────────────────────────────────────┐
-│  COMMON ML HAL:/target/Component-HAL/ml/ml_common.c              │
-│  Creates a pipeline object and routes engine and model specifics │
-└───────────────────────────┬──────────────────────────────────────┘
-                            │ > per-model Create / RunOutputJson
-┌───────────────────────────▼──────────────────────────────────────┐
-│  MODEL TYPE POSTPROCESSING:/target/Component-HAL/ml/             │
-│  Model-architecture-specific decoding, implies logical           |
-|  post-processing and output data formatting                      │
-│  EhsML_InfEngine_*(),  more TODO                                 │
-└───────────────────────────┬──────────────────────────────────────┘
-                            │ > TODO
-┌───────────────────────────▼──────────────────────────────────────┐
-│  Inference Engine Dispatch  (engine/ml_inf_engine.c)             │
-│  Selects backend by ctx->hw_accel                                │
-└──────┬──────────────────┬──────────────────────┬─────────────────┘
-       │ TFLite           │ HailoRT              │ TensorRT
-┌──────▼──────┐   ┌───────▼───────┐   ┌──────────▼──────────┐
-│ engine/     │   │ engine/       │   │ engine/             │
-│ tensorflow- │   │ hailo/        │   │ tensorrt/           │
-│ lite/       │   │ ert_hal_hailo │   │ ert_hal_tensorrt    │
-└─────────────┘   └───────────────┘   └─────────────────────┘
-```
-
-> Note other directories are assigned for model development framework dependencies, but are not generally needed.
-
----
 
 ## Post-Processing Pipeline Stages
 
@@ -80,37 +47,82 @@ before returning tensors), those stages are a no-op in our code.
 
 | Stage | Owner |
 |---|---|
-| 1 — Inference | `framework/<engine>/ert_hal_*.c` via `engine/ml_inf_engine.c` dispatch |
+| 1 — Inference | `engine/<engine>/ert_hal_*.c` via `engine/ml_inf_engine.c` dispatch |
 | 2 — Engine tensor unpacking | `postprocessing/engine/<engine>/` |
 | 3 — Dequantisation | `postprocessing/dequantise/` utilities; called from model layer |
 | 4 — Architecture decode | `postprocessing/model/<model>.c` |
 | 5 — Logical post-processing | `postprocessing/logical/` (NMS, confidence, etc.); called from model layer |
-| 6 — Output formatting | `postprocessing/output/` and model `RunOutputJson` |
+| 6 — Output formatting | `EhsML_GetOutput()` → `postprocessing/output/` (`EhsML_ObjDet_Json_FromDetections`) |
 
 **Important**: if the engine SDK already covers stages 2–5 satisfactorily,
 use the SDK output directly.  There is no requirement to split a monolithic
 engine post-processor into these stages.
 
+### Pipeline Capability Map (`EhsML_Pipeline_t`)
+
+Each `EhsML_Context` carries a `pipeline` field of type `EhsML_Pipeline_t` —
+a per-stage capability map populated at load time.  It records which technology
+handles each stage and is serialised into the `"pipeline":{...}` key of
+`EhsML_GetModelInfoJson` output.
+
+Stages are set with the `EHS_ML_STAGE_SET(pipeline, stage, tech)` macro.
+`EhsML_InfEngine_Create` sets `FORMAT = EHS_ML_TECH_ERT_MODEL` on all
+successful loads.  Model decode functions set INFER/UNPACK/DEQUANT/DECODE/LOGICAL
+for their engine.
+
+**Stages** (`EhsML_PipelineStage_t`):
+
+| Enumerator | Stage |
+|---|---|
+| `EHS_ML_STAGE_INFER` | Raw model inference |
+| `EHS_ML_STAGE_UNPACK` | Engine tensor unpacking |
+| `EHS_ML_STAGE_DEQUANT` | Dequantisation |
+| `EHS_ML_STAGE_DECODE` | Architecture decode |
+| `EHS_ML_STAGE_LOGICAL` | Confidence filter / NMS |
+| `EHS_ML_STAGE_FORMAT` | Output serialisation |
+
+**Technologies** (`EhsML_StageTech_t`):
+
+| Value | Enumerator | Meaning |
+|---|---|---|
+| 0 | `EHS_ML_TECH_NONE` | Not implemented / zero-initialised default |
+| 1 | `EHS_ML_TECH_COVERED_BY_PREV` | Stage handled internally by the preceding stage |
+| 2 | `EHS_ML_TECH_TFLITE` | TFLite runtime |
+| 3 | `EHS_ML_TECH_TFLITE_MICRO` | TFLite Micro |
+| 4 | `EHS_ML_TECH_HAILORT` | Hailo NPU + HailoRT SDK |
+| 5 | `EHS_ML_TECH_TENSORRT` | TensorRT (NVIDIA) |
+| 6 | `EHS_ML_TECH_ERT_MODEL` | eRT model-layer code |
+| 7 | `EHS_ML_TECH_ERT_GENERIC` | Shared inxware utility code (maps to `inxware` in the coverage table) |
+
+### Concurrent inference guard
+
+`EhsML_Context` carries a `volatile ehs_bool inferring` field.  `EhsML_Run`
+sets it `TRUE` on entry and clears it on pipeline failure.  `EhsML_GetOutput`
+clears it unconditionally after serialisation.  `EhsML_Run`, `EhsML_GetOutput`,
+and `EhsML_SetInputData` all return `EHS_ML_BUSY` immediately if the flag is
+already set, so a slow inference on one thread cannot corrupt results being
+consumed on another.
+
 ### Pipeline coverage by engine + model
 
-Ownership labels: `engine` = inference engine SDK or its eRT wrapper;
-`model` = model-specific eRT code; `generic` = shared eRT utilities;
+Ownership labels: `engine` = 3rd-party inference engine SDK or its eRT wrapper;
+`model` = model-specific inxware code; `inxware` = shared inxware utility code;
 `n/a` = stage eliminated by a preceding stage; `TODO` = not yet implemented.
 
 | Engine                | Model   | Task   | \| | Infer  | Unpack | Dequant | Decode  | Logical | Format  |
 |-----------------------|---------|--------|---|--------|--------|---------|---------|---------|---------|
-| TFLite                | YOLOv5  | ObjDet | \| | engine | engine | model   | model   | generic | model   |
-| TFLite                | YOLOv8  | ObjDet | \| | engine | engine | engine  | model   | model   | model   |
-| TFLite                | YOLOv8  | Pose   | \| | engine | engine | engine  | model   | N/A     | model   |
+| TFLite                | YOLOv5  | ObjDet | \| | engine | engine | model   | model   | inxware | inxware |
+| TFLite                | YOLOv8  | ObjDet | \| | engine | engine | engine  | model   | model   | inxware |
+| TFLite                | YOLOv8  | Pose   | \| | engine | engine | engine  | model   | N/A     | inxware |
 | TFLite                | YOLOv10 | ObjDet | \| | engine | engine | engine  | ----    | ----    | ----    |
-| TFLite Micro          | YOLOv5  | ObjDet | \| | engine | engine | model   | model   | generic | model   |
-| HailoRT — NMS HEF     | YOLOv5  | ObjDet | \| | engine | engine | engine  | engine  | engine  | ----    |
-| HailoRT — NMS HEF     | YOLOv8  | ObjDet | \| | engine | engine | engine  | engine  | engine  | ----    |
-| HailoRT — NMS HEF     | YOLOv8  | Pose   | \| | engine | engine | engine  | engine  | engine  | ----    |
-| HailoRT — NMS HEF     | YOLOv10 | ObjDet | \| | engine | engine | engine  | engine  | engine  | ----    |
-| HailoRT — raw HEF     | YOLOv8  | ObjDet | \| | engine | engine | engine  | model   | ----    | ----    |
-| HailoRT — raw HEF     | YOLOv8  | Pose   | \| | engine | engine | engine  | model   | ----    | ----    |
-| TensorRT — NMS plugin | YOLOv8  | ObjDet | \| | engine | engine | engine  | engine  | engine  | model   |
+| TFLite Micro          | YOLOv5  | ObjDet | \| | engine | engine | model   | model   | inxware | inxware |
+| HailoRT — NMS HEF     | YOLOv5  | ObjDet | \| | engine | engine | engine  | engine  | engine  | inxware |
+| HailoRT — NMS HEF     | YOLOv8  | ObjDet | \| | engine | engine | engine  | engine  | engine  | inxware |
+| HailoRT — NMS HEF     | YOLOv8  | Pose   | \| | engine | engine | engine  | engine  | engine  | inxware |
+| HailoRT — NMS HEF     | YOLOv10 | ObjDet | \| | engine | engine | engine  | engine  | engine  | inxware |
+| HailoRT — raw HEF     | YOLOv8  | ObjDet | \| | engine | engine | engine  | model   | ----    | inxware |
+| HailoRT — raw HEF     | YOLOv8  | Pose   | \| | engine | engine | engine  | model   | ----    | inxware |
+| TensorRT — NMS plugin | YOLOv8  | ObjDet | \| | engine | engine | engine  | engine  | engine  | inxware |
 | TensorRT — standard   | YOLOv8  | ObjDet | \| | engine | engine | engine  | ----    | N/A     | ----    |
 
 Per-engine implementation detail is in the subsections below.
@@ -129,7 +141,7 @@ currently implemented model/engine combinations.
 | **3. Dequant** | `_EHS_ML_TYPED_DATA_ASSIGN` macro, all types | FP32 only (rejects quantised) | Internal to HailoRT |
 | **4. Arch decode** | Flat index, objectness × class_score | Per-class count prefix, corner coords | `yolov8()` — DFL decode inside HailoRT |
 | **5. Confidence / NMS** | `box.score >= conf_thres` + `EhsApply_Greedy_NMS()` | Threshold inline, no NMS (model-internal) | `det->get_confidence()`, NMS internal to HailoRT |
-| **6. JSON** | `EhsSnprintf` centre-format `{x,y,w,h}` | `EhsSprintf` corner-format `{ymin,xmin,ymax,xmax}` | TODO |
+| **6. Format** | `EhsML_GetOutput()` → `EhsML_ObjDet_Json_FromDetections` (centre `{x,y,w,h}`) | same | same |
 | **Key file** | `postprocessing/model/yolov5_objdet.c` | `postprocessing/model/yolov8_objdet.c` | `postprocessing/engine/hailo/ml_postprocessing_engine_hailo.cpp` |
 
 ---
@@ -169,14 +181,16 @@ currently implemented model/engine combinations.
   file by `trtexec` or ONNX post-processing tools.  If included, stages 4–5 are handled
   by the SDK.
 - **Standard export**: raw box/score tensors require a model-layer decoder (TODO).
-**Option B — DeepStream `NvDsInferContext` integration (NVIDIA ecosystem)**
+
+#### DeepStream `NvDsInferContext` integration (future option)
 
 DeepStream (available for Jetson via the JetPack apt feeds, separate from the
 TensorRT base install) provides `NvDsInferContext` — a managed inference context
 that handles engine loading, input pre-processing, output parsing, and detection
 decoding natively, with plugin parsers for common architectures.
+**Not currently implemented** — retained here as a reference for future consideration.
 
-Features it would add over Option A:
+Features it would add over the current TensorRT implementation:
 
 | Feature | Notes |
 |---|---|
@@ -291,7 +305,7 @@ The four per-model functions and their responsibilities:
 | `EhsML_<Model>_Create` | Macro alias → `EhsML_InfEngine_Create` (no model-specific setup needed by default) |
 | `EhsML_<Model>_Destroy` | Macro alias → `EhsML_InfEngine_Destroy` |
 | `EhsML_<Model>_SetInputData` | Macro alias → `EhsML_InfEngine_SetInputData` |
-| `EhsML_<Model>_RunOutputJson` | Calls `EhsML_InfEngine_RunInference` to populate `ctx->output_tensor[]`, then performs stages 4–6 (decode, Logical, JSON) |
+| `EhsML_<Model>_RunPipeline` | Calls `EhsML_InfEngine_RunInference` to populate `ctx->output_tensor[]`, then performs stages 2–5 (unpack, dequant, decode, logical) and writes results to `ctx->detections[]`. Stage 6 (formatting) is handled by `EhsML_GetOutput` — not this function. |
 
 ---
 
@@ -367,6 +381,7 @@ Defined in `Common/HAL/include/hal_ml.h`.
 | 23 | `EHS_ML_NULL_INPUT_ERR` | NULL input data pointer |
 | 24 | `EHS_ML_NULL_JSON_BUF_ERR` | NULL JSON output buffer |
 | 25 | `EHS_ML_INPUT_SIZE_MISMATCH_ERR` | Input byte size ≠ model tensor byte size |
+| 26 | `EHS_ML_BUSY` | Pipeline already executing; request dropped (see concurrent inference guard) |
 
 > Integer values are positional — always compare against the named enumerator.
 > The integer appears on the `load_errno` / `inference_errno` output port of
@@ -383,12 +398,7 @@ Defined in `Common/HAL/include/hal_ml.h`.
 - [ ] Pipeline dispatch table: replace `switch(ctx->type)` in `ml_common.c`
       with a function-pointer table indexed by `EhsML_Type` to avoid
       growing switch statements.
-- [ ] `EhsML_InfEngine_RunInference` currently passes `json_output` and
-      `output_size` for early validation only.  Consider removing them from
-      the engine-layer signature once the validation is moved to `ml_common.c`.
 - [ ] Raw binary output path (`EhsML_RunOutputData`) — not yet implemented.
 - [ ] AMD ROCm/MIGraphX and custom NPU backends — currently fall back to TFLite.
 
 ---
-
-**For broader context see `docs/inxware-edge-ml.md`**
