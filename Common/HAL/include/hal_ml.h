@@ -69,14 +69,14 @@ typedef enum {
 } EhsML_Err;
 
 typedef enum {
-    EHS_ML_FILE_EXT_START = 0,
-    EHS_ML_FILE_EXT_TFLITE,
-    EHS_ML_FILE_EXT_ONNX,
-    EHS_ML_FILE_EXT_PB,
-    EHS_ML_FILE_EXT_HEF,
+    EHS_ML_FORMAT_START = 0,
+    EHS_ML_FORMAT_TFLITE,   /* .tflite / .tfl (8.3) */
+    EHS_ML_FORMAT_ONNX,     /* .onnx / .onn (8.3) */
+    EHS_ML_FORMAT_PB,       /* .pb */
+    EHS_ML_FORMAT_HEF,      /* .hef */
     // ...
-    EHS_ML_FILE_EXT_MAX
-} EhsML_File_Ext_t;
+    EHS_ML_FORMAT_MAX
+} EhsML_ModelFormat_t;
 
 typedef enum {
     EHS_ML_TYPE_TEST_RESERVED = 0, // For testing purposes

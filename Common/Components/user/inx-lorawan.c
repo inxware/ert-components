@@ -337,11 +337,7 @@ EHS_FB_DESTROY_FUNCTION(lorawan)
 	inx_lorawan_state_type *inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
 	// Need to free the memory?
-	if (inx_lorawan_state->Region != NULL)
-	{
-		free(inx_lorawan_state->Region);
-		inx_lorawan_state->Region = NULL;
-	}
+	inx_lorawan_state->Region = 0;
 
 	// We should make them as robust as possible because it may be called multiple times
 	//  So we need to handle this properly in the target code.

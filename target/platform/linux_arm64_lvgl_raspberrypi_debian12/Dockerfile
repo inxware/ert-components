@@ -50,13 +50,38 @@ RUN apt install -y \
     libgstreamer1.0-dev:arm64 \
     libgstreamer-plugins-base1.0-dev:arm64 \
     libopencv-dev:arm64 \
-    libcamera-dev:arm64 
+    libcamera-dev:arm64
 
 #   g++-aarch64-linux-gnu gcc-aarch64-linux-gnu 
 
 
 #####################################################
-# Othe Debian packages directly from vendors
+# Paho MQTT C — cross-compiled from source for arm64
+# libpaho-mqtt-c-dev:arm64 is not available as a cross-arch apt package.
+# Not used by the default config (aws_green_grass) but available if
+# EHS_MQTT_SUPPORT=paho is selected.
+#####################################################
+ARG PAHO_MQTT_C_VERSION=1.3.13
+RUN git clone --depth 1 --branch v${PAHO_MQTT_C_VERSION} \
+        https://github.com/eclipse/paho.mqtt.c.git /tmp/paho-mqtt-c \
+    && cd /tmp/paho-mqtt-c && mkdir build && cd build \
+    && cmake .. \
+        -DCMAKE_SYSTEM_NAME=Linux \
+        -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+        -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib/aarch64-linux-gnu \
+        -DPAHO_WITH_SSL=ON \
+        -DPAHO_BUILD_STATIC=OFF \
+        -DOPENSSL_SSL_LIBRARY=/usr/lib/aarch64-linux-gnu/libssl.so \
+        -DOPENSSL_CRYPTO_LIBRARY=/usr/lib/aarch64-linux-gnu/libcrypto.so \
+        -DOPENSSL_INCLUDE_DIR=/usr/include \
+    && make -j$(nproc) \
+    && make install \
+    && rm -rf /tmp/paho-mqtt-c
+
+#####################################################
+# Other Debian packages directly from vendors
 #####################################################
 
 ARG WIRINGPI_VERSION=3.16

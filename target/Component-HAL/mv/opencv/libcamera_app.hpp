@@ -230,10 +230,11 @@ struct FrameInfo
 		auto ae = ctrls.get(libcamera::controls::draft::AeState);
 		if (ae)
 			aelock = (*ae == libcamera::controls::draft::AeStateLocked);
-#else
+#elif LIBCAMERA_VERSION_MINOR > 0
+		/* controls::AeState exists in libcamera >= 0.1; absent in Debian 12's 0.0.5 */
 		auto ae = ctrls.get(libcamera::controls::AeState);
-                if (ae)
-                        aelock = (*ae == libcamera::controls::AeStateSearching);
+		if (ae)
+			aelock = (*ae == libcamera::controls::AeStateSearching);
 #endif
 	}
 

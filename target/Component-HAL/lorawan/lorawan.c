@@ -18,7 +18,7 @@
 /* START - LoRaWAN function prototypes - START */
 // Only for targets with threading support
 #ifdef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
-static void taskLoRaWAN_execute_cmd( void *context );
+static int taskLoRaWAN_execute_cmd( void *context );
 static void LoRaWAN_run_threadInLoop();
 #endif//EHS_TARGET_LORAWAN_THREADING_SUPPORT
 /* END - LoRaWAN function prototypes - END */
@@ -668,11 +668,12 @@ static void LoRaWAN_run_threadInLoop()
     }
 }
 
-static void taskLoRaWAN_execute_cmd( void *context )
+static int taskLoRaWAN_execute_cmd( void *context )
 {
     while (1) {
         LoRaWAN_run_threadInLoop();
         EhsSleep(EHS_TIME_ms(10));
     }
+    return 0;
 }
 #endif//EHS_TARGET_LORAWAN_THREADING_SUPPORT

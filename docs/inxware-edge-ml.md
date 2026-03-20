@@ -4,29 +4,31 @@
 
 1. [Use Cases](#1-use-cases)
 2. [Terminology](#2-terminology)
-3. [Model Building Frameworks](#3-model-building-frameworks)
-   - [TensorFlow / LiteRT (TFLite)](#31-tensorflow--litert-tflite)
+3. [Model Training Frameworks](#3-model-training-frameworks)
+   - [LiteRT (formerly TFLite)](#31-litert-formerly-tflite)
    - [PyTorch / ExecuTorch](#32-pytorch--executorch)
-   - [NVIDIA TensorRT / Jetson](#33-nvidia-tensorrt--jetson)
-   - [Other Frameworks](#34-other-frameworks)
-4. [Model Deployment Formats](#4-model-deployment-formats)
-   - [Native Framework Formats](#41-native-framework-formats)
+   - [Other Training Tools](#34-other-training-tools)
+4. [Portable Model Exchange Formats](#4-portable-model-exchange-formats)
+   - [Format Reference Table](#41-format-reference-table)
    - [ONNX (Open Neural Network Exchange)](#42-onnx-open-neural-network-exchange)
    - [Edge Impulse Formats](#43-edge-impulse-formats)
-5. [NPU-Specific Formats](#5-npu-specific-formats)
-   - [Hailo — HEF](#51-hailo--hef)
-   - [DeepX — DXNN](#52-deepx--dxnn)
-   - [Qualcomm — QNN / DLC (SNPE)](#53-qualcomm--qnn--dlc-snpe)
-   - [Rockchip — RKNN](#54-rockchip--rknn)
-   - [NXP — eIQ / Neutron NPU](#55-nxp--eiq--neutron-npu)
-   - [Arm — Ethos-U (Vela)](#56-arm--ethos-u-vela)
-   - [MediaTek — NeuroPilot / APU](#57-mediatek--neuropilot--apu)
-   - [Kneron — NEF](#58-kneron--nef)
-   - [Axelera — Metis (Voyager SDK)](#59-axelera--metis-voyager-sdk)
-   - [Ambarella — CVflow](#510-ambarella--cvflow)
-   - [BrainChip — Akida](#511-brainchip--akida)
-   - [Large Integrations (Data Centre / Cloud)](#512-large-integrations-data-centre--cloud)
-6. [Inference Pipeline](#6-inference-pipeline)
+5. [Hardware-Specific Compilation](#5-hardware-specific-compilation)
+   - [NVIDIA TensorRT](#51-nvidia-tensorrt) · [DeepStream SDK](#nvidia-deepstream-sdk)
+   - [Hailo — HEF](#52-hailo--hef)
+   - [DeepX — DXNN](#53-deepx--dxnn)
+   - [Qualcomm — QNN / DLC (SNPE)](#54-qualcomm--qnn--dlc-snpe)
+   - [Rockchip — RKNN](#55-rockchip--rknn)
+   - [NXP — eIQ / Neutron NPU](#56-nxp--eiq--neutron-npu)
+   - [Arm — Ethos-U (Vela)](#57-arm--ethos-u-vela)
+   - [MediaTek — NeuroPilot / APU](#58-mediatek--neuropilot--apu)
+   - [Kneron — NEF](#59-kneron--nef)
+   - [Axelera — Metis (Voyager SDK)](#510-axelera--metis-voyager-sdk)
+   - [Ambarella — CVflow](#511-ambarella--cvflow)
+   - [BrainChip — Akida](#512-brainchip--akida)
+   - [Large Integrations (Data Centre / Cloud)](#513-large-integrations-data-centre--cloud)
+   - [Google Coral — Edge TPU](#514-google-coral--edge-tpu)
+   - [RISC-V Based ML Processors](#515-risc-v-based-ml-processors)
+6. [Inference Post-Processing Pipeline](#6-inference-post-processing-pipeline)
    - [Pipeline Overview](#61-pipeline-overview) — five-stage post-processing model
    - [Raw Output / Dequantisation](#62-raw-output--dequantisation) — stages 1 & 2 detail
    - [Model-Architecture Decoding](#63-model-type-decoding) — stage 3 detail (YOLO, pose models)
@@ -46,30 +48,30 @@ Edge AI machine learning includes the following potential use-cases:
 - **Machine Vision**
   - Object detection, recognition and location
   - Pose estimation of human movement (public space, sports & health)
-  - Manufacturing QA and anomoloy detection
-  - Medical & bioscience devices 
+  - Manufacturing QA and anomaly detection
+  - Medical & bioscience devices
      - histology microscopy
      - cell culture incubation
-     - radiography  
+     - radiography
 - **Natural Language Processing (SLMs and LLMs)**
   - Human machine interfaces (SLM)
   - Automation and agentic (function calling LLMs)
   - Device-side reasoning and context awareness
 - **Vector data classification prediction**
-  - Time series Anomly detection (MLPs)
+  - Time series anomaly detection (MLPs)
   - Sensor (oSVM)
-- V**ector data value prediction (regression)**
+- **Vector data value prediction (regression)**
   - Fixed model sensor fusion and data compression
   - Adaptive non-linear models for prediction (oSVM)
   - Adaptive linear/non-linear predictors (Kalman filters)
   - Model predictive control systems
   - Condition monitoring (time series analysis and system identification)
 - **Voice recognition (various)**
-  - Feature space tranformations (FFTs,Wavelet, Periodogram)
+  - Feature space transformations (FFTs, Wavelet, Periodogram)
   - Combinations of CNNs and LLMs
 
 
-  Ther are many more applications of Edge-AI, where responsiveness, reliability, privacy and operating costs are improved sufficiently for operational deployment.
+  There are many more applications of Edge-AI, where responsiveness, reliability, privacy and operating costs are improved sufficiently for operational deployment.
 ---
 
 # 2. Terminology
@@ -84,7 +86,7 @@ Edge AI machine learning includes the following potential use-cases:
 | **Model Data Container** | How the inference model is stored on disk. |
 | **Inference Data Container** | Container format of the inference output data. |
 | **Model Data Structure** | Data structure of input/output data inside the container. |
-| **Dequantisation** | Converting quantised INT8/INT4 outputs back to floating-point using stored scale and zero-point parameters. |
+| **Dequantisation** | Converting quantised INT8/INT4 outputs back to floating-point using stored scale and zero-point parameters. Formula: `float_value = (raw_value − zero_point) × scale`. `scale` (FP32) and `zero_point` (INT8 or UINT8) are per-tensor quantisation parameters stored in the model file's metadata. |
 | **NMS** | Non-Maximum Suppression — filters duplicate/overlapping detections. |
 | **QDQ** | QuantizeLinear / DequantizeLinear ONNX operator pair carrying quantisation parameters. |
 | **HEF** | Hailo Executable Format — compiled binary for Hailo NPUs. |
@@ -97,63 +99,72 @@ Edge AI machine learning includes the following potential use-cases:
 | Ultralytics, PyTorch, TensorFlow Lite, ROCm (AMD) | Image, Text, Audio | Detection, Image segmentation, Classification, Pose estimation | YOLOv3–11, YOLOv26, SAM (1–3), SVM, Transformer (LLM) | `.tflite` `.onnx` `.pb` `.hef` `.pte` | NumPy array, FlatBuffer, Protobuf | Combination of Primary Model Type and Task |
 | NVIDIA TAO Toolkit, PyTorch, TensorFlow  | Image, Video | Detection, Segmentation, Classification, Pose, OCR, Tracking | YOLOv8, SSD, ResNet, EfficientDet, PeopleNet, BodyPoseNet | `.onnx` `.engine` `.plan` | CUDA tensor bindings (NumPy/CuPy), Protobuf (gRPC / Triton KServe v2) | TensorRT binding tensors; Triton inference protocol v2 |
 
-### ML Pipeline Flow (Sankey)
+### Potential ML Pipeline Flows
 
-The diagram below shows the flow from training framework → export/interchange format → compiled/device format → runtime / deployment target. Node widths are proportional to the number of downstream connections.
+The diagram shows three tiers: **training frameworks and model zoos** (left) → **export formats, compilers, and middlewares** (centre) → **inference engine runtimes** (right).
+
+> **Note on the numbers in source:** In Mermaid `sankey-beta` syntax the third value on each line (e.g. `,1`) is a required flow-width parameter — it controls arrow thickness proportionally and does not appear as a label in the rendered output. All values are set to `1` here for equal-width flows; increase individual values to emphasise higher-traffic paths. Per-flow colours cannot be overridden in `sankey-beta` — colours are assigned by the active Mermaid theme.
 
 ```mermaid
 sankey-beta
 
-TensorFlow/Keras,TFLite,8
-TensorFlow/Keras,SavedModel,5
-TensorFlow/Keras,ONNX,4
-PyTorch,ONNX,8
-PyTorch,PyTorch Native,7
-Ultralytics,ONNX,6
-Ultralytics,TFLite,3
-NVIDIA TAO,ONNX,5
-NVIDIA TAO,TRT Engine,4
-Edge Impulse,EI C++ / EIM,6
-Edge Impulse,EI TRT Library,3
-Edge Impulse,EI Docker,2
-scikit-learn,Pickle,6
-TFLite,LiteRT Runtime,6
-TFLite,Hailo HEF,3
-TFLite,NXP eIQ / Ethos-U,4
-TFLite,Rockchip RKNN,2
-TFLite,MediaTek APU,2
-ONNX,ONNX Runtime,8
-ONNX,TRT Engine,5
-ONNX,Hailo HEF,4
-ONNX,Qualcomm QNN,4
-ONNX,Rockchip RKNN,3
-ONNX,DeepX / Kneron,2
-SavedModel,TF Serving,5
-PyTorch Native,ExecuTorch,5
-PyTorch Native,LibTorch,2
-TRT Engine,TensorRT Runtime,6
-TRT Engine,Jetson DLA,3
-TRT Engine,DeepStream SDK,3
-EI C++ / EIM,Edge Impulse Runtime,6
-EI TRT Library,TensorRT Runtime,3
-EI Docker,Edge Impulse Runtime,2
-Pickle,Python Inference,6
+TensorFlow/Keras,ONNX,1
+TensorFlow/Keras,TFLite,1
+TensorFlow/Keras,SavedModel,1
+PyTorch,ONNX,1
+PyTorch,ExecuTorch (.pte),1
+PyTorch,TorchScript (.pt),1
+Ultralytics (YOLO),ONNX,1
+Ultralytics (YOLO),TFLite,1
+NVIDIA TAO Toolkit,ONNX,1
+NVIDIA TAO Toolkit,TRT Engine,1
+Edge Impulse Studio,EI Package,1
+scikit-learn,Pickle,1
+JAX,ONNX,1
+Hailo Model Zoo,Hailo HEF,1
+Coral Model Zoo,Edge TPU Model,1
+ONNX,ONNX Runtime,1
+ONNX,TRT Engine,1
+ONNX,Hailo HEF,1
+ONNX,Qualcomm QNN,1
+ONNX,Rockchip RKNN,1
+ONNX,DeepX / Kneron,1
+TFLite,LiteRT Runtime,1
+TFLite,Hailo HEF,1
+TFLite,Edge TPU Model,1
+TFLite,NXP eIQ / Ethos-U,1
+TFLite,Rockchip RKNN,1
+TFLite,MediaTek APU,1
+TRT Engine,TensorRT Runtime,1
+TRT Engine,Jetson DLA,1
+TRT Engine,DeepStream SDK,1
+SavedModel,TF Serving,1
+ExecuTorch (.pte),ExecuTorch Runtime,1
+TorchScript (.pt),LibTorch,1
+EI Package,Edge Impulse Runtime,1
+EI Package,TensorRT Runtime,1
+Pickle,Python Runtime,1
+Hailo HEF,HailoRT,1
+Edge TPU Model,Edge TPU Runtime,1
+Qualcomm QNN,QNN Runtime,1
+Rockchip RKNN,RKNN Runtime,1
 ```
 
 ---
 
-# 3. Model Building Frameworks
-Model building is generally not done on edge devices, except for adaptive model types, whch are currently rarely deployed outside of earospace, automotive and defence. The model building frameowrks discuused here are alost exclusively Nueral Network based or more specifically variants of the Multi-Layer-Perceptron (MLP) model. 
+# 3. Model Training Frameworks
 
-These frameworks often set the scene of what options for deployment are available at the edge, which splits into different work-flow and processing pipelines sometimes independently of the training fraework, used but unfortunately not always the case. This can cause variouse issues for building devices with established model types from **model zoos** or custom models built with specific tooling. 
+Model building is generally not done on edge devices, except for adaptive model types, which are currently rarely deployed outside of aerospace, automotive and defence. The model building frameworks discussed here are almost exclusively Neural Network based or more specifically variants of the Multi-Layer-Perceptron (MLP) model.
 
-Unfortunately each silicon vendor, npu developer and ML technology has built end-2-end systems to improve accessability and/or add "stickyness" to their technology, but results in a highly fragmented eco-system, where seemingly easy transformations and generalisations are not easily practical.
+These frameworks often set the scene of what options for deployment are available at the edge, which splits into different work-flow and processing pipelines sometimes independently of the training framework, used but unfortunately not always the case. This can cause various issues for building devices with established model types from **model zoos** or custom models built with specific tooling.
 
-## 3.1 TensorFlow / LiteRT (TFLite)
+Unfortunately each silicon vendor, npu developer and ML technology has built end-2-end systems to improve accessibility and/or add "stickiness" to their technology, but results in a highly fragmented eco-system, where seemingly easy transformations and generalisations are not easily practical between model zoos, training frameworks, deplyment formats and inference execution.
+
+## 3.1 LiteRT (formerly TFLite)
 
 **TensorFlow** is Google's primary ML framework. Models are defined in Python using the Keras high-level API or the lower-level TF ops.
 
-**LiteRT** (formerly TensorFlow Lite, still commonly called TFLite) is the lightweight inference runtime for mobile and edge devices. The model file format is `.tflite` — a FlatBuffer-serialised representation of the computation graph and weights.
+**LiteRT** (formerly TensorFlow Lite, still commonly called TFLite) is the lightweight inference runtime for mobile and edge devices, officially rebranded to LiteRT in September 2024. The model file format is `.tflite` — a FlatBuffer-serialised representation of the computation graph and weights — and this format is unchanged by the rebrand. GitHub: [github.com/google-ai-edge/LiteRT](https://github.com/google-ai-edge/LiteRT) · Docs: [ai.google.dev/edge/litert](https://ai.google.dev/edge/litert). In March 2026, a LiteRT update delivered 1.4× faster GPU execution and new NPU acceleration support.
 
 **Training workflow:**
 
@@ -227,6 +238,7 @@ float output = interpreter.output(0)->data.f[0];
 - PyTorch models → `.tflite` via [ai-edge-torch](https://github.com/google-ai-edge/ai-edge-torch)
 - Quantisation may reduce accuracy; calibration dataset needed for INT8 static quantisation
 
+
 ![TFLite runtime diagram](illustrations/edge-ml-tflite-runtime-diagram.png)
 
 ---
@@ -258,7 +270,7 @@ Captures a strict ahead-of-time graph (ExportedProgram) as a pure ATen/ATEN dial
 
 ### ExecuTorch (`.pte`) — Edge Deployment
 
-PyTorch's answer to TFLite. **ExecuTorch 1.0 GA** released late 2024.
+PyTorch's answer to TFLite. **ExecuTorch 1.0 GA** was released October 2025. Current version is **1.1.0** (January 2026).
 
 **File format:** `.pte` — FlatBuffers-serialised model graph + weights.
 
@@ -297,82 +309,205 @@ Full PyTorch C++ API: tensors, autograd, `torch::jit::load`. **Not suitable for 
 
 ---
 
-## 3.3 NVIDIA TensorRT / Jetson
+## 3.4 Other Training Tools
 
-TensorRT is NVIDIA's inference optimisation library. It parses ONNX (or other formats), applies layer fusion, kernel auto-tuning, and precision calibration, then serialises to a hardware-specific engine file.
+### CMSIS-NN
 
-**Builder API — Python (TensorRT 10.x):**
+> CMSIS-NN is an **inference kernel library**, not a training framework — it belongs here because it is the standard Cortex-M deployment target for TFLite Micro models, so it appears at the end of all training workflows targeting ARM microcontrollers.
 
-```python
-import tensorrt as trt
+**Repository:** [github.com/ARM-software/CMSIS-NN](https://github.com/ARM-software/CMSIS-NN) · **Current version:** v7.0.0 (November 2024) · **Licence:** Apache 2.0
 
-logger = trt.Logger(trt.Logger.WARNING)
-builder = trt.Builder(logger)
-network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
-parser = trt.OnnxParser(network, logger)
-parser.parse_from_file("model.onnx")
+CMSIS-NN provides optimised neural network inference kernels for Arm Cortex-M processors. It is the official hardware-accelerated backend for TFLite Micro: building TFLM with `OPTIMIZED_KERNEL_DIR=cmsis_nn` replaces all reference kernels with CMSIS-NN implementations. Kernels are bit-exact with TFLM reference kernels (except for an optional single-rounding mode).
 
-config = builder.create_builder_config()
-config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 1 << 30)
+#### Processor tiers and SIMD capability
 
-# Optional INT8
-config.set_flag(trt.BuilderFlag.INT8)
-config.int8_calibrator = MyCalibrator(calibration_data)
+| Tier | Processors | Capability | Reported gain |
+|---|---|---|---|
+| Scalar (pure C) | Cortex-M0, M0+, M3 | No SIMD | baseline |
+| DSP extension | Cortex-M4, M7, M33 | 32-bit SIMD (`SMLAD`, packed INT16) | 4.6× throughput, 4.9× energy (vs scalar, arXiv:1801.06601) |
+| MVE / Helium | Cortex-M55, M85 | 128-bit vector, 16 INT8 lanes, `vmladava.s8` | up to 15× ML vs pre-MVE Cortex-M |
 
-serialized_engine = builder.build_serialized_network(network, config)
-with open("model.engine", "wb") as f:
-    f.write(serialized_engine)
+The implementation tier is selected at compile time via `ARM_MATH_MVEI`, `ARM_MATH_DSP`, or neither.
+
+#### Quantisation scheme
+
+CMSIS-NN implements the **TFLite asymmetric INT8 scheme**:
+- Signed INT8 activations, range [−128, 127]; INT32 biases (never INT8)
+- Asymmetric zero-point per tensor (float 0.0 ≠ integer 0)
+- **Per-channel** quantisation for convolution weights: `int32_t *multiplier` and `int32_t *shift` arrays, one per output channel
+- **Per-tensor** quantisation for activations and (default) fully-connected layers
+- Requantisation uses the GEMMLOWP fixed-point multiplier+shift scheme; controlled by `CMSIS_NN_USE_SINGLE_ROUNDING`
+- INT4 weight + INT8 activation support added in v6/v7 for weight-only quantised models
+
+#### Memory model — `cmsis_nn_context` and scratch buffers
+
+CMSIS-NN never allocates memory internally. All scratch memory is caller-supplied via:
+
+```c
+typedef struct {
+    void   *buf;   // pointer to caller-allocated scratch buffer
+    int32_t size;  // size in bytes
+} cmsis_nn_context;
 ```
 
-**Builder API — C++ (TensorRT 10.x):**
+Every stateful operator has a paired buffer-size query function. The pattern is:
 
-```cpp
-auto builder = std::unique_ptr<nvinfer1::IBuilder>(nvinfer1::createInferBuilder(logger));
-auto network = std::unique_ptr<nvinfer1::INetworkDefinition>(
-    builder->createNetworkV2(1U << static_cast<uint32_t>(
-        nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH)));
-auto parser = std::unique_ptr<nvonnxparser::IParser>(
-    nvonnxparser::createParser(*network, logger));
-parser->parseFromFile("model.onnx", static_cast<int>(trt::Logger::Severity::kWARNING));
+```c
+// 1. Query at init time
+int32_t buf_size = arm_convolve_wrapper_s8_get_buffer_size(
+    &conv_params, &input_dims, &filter_dims, &output_dims);
 
-auto config = std::unique_ptr<nvinfer1::IBuilderConfig>(builder->createBuilderConfig());
-auto serialized = std::unique_ptr<nvinfer1::IHostMemory>(
-    builder->buildSerializedNetwork(*network, *config));
-// write serialized->data() / serialized->size() to file
+// 2. Allocate (static or dynamic)
+static int8_t scratch[BUF_SIZE];  // or malloc(buf_size)
+
+// 3. Pass at inference time
+cmsis_nn_context ctx = { .buf = scratch, .size = buf_size };
+arm_convolve_wrapper_s8(&ctx, ...);
 ```
 
-**Engine file format:** Conventionally `.engine` or `.plan` (interchangeable). **Not portable** — engines are specific to GPU architecture, TRT version (major.minor.patch.build), CUDA, and cuDNN. Cannot be shared between host types.
+Scratch is primarily used for **im2col** (input patch rearrangement before matrix multiply). Pooling, activation, softmax, and elementwise ops require zero or minimal scratch.
 
-**INT8 calibration:** Requires a calibrator implementing `IInt8EntropyCalibrator2`; first run writes a `.cache` file reused on subsequent builds.
+#### API function reference
 
-**TensorRT 10 notable changes:**
-- INT4 weight-only quantisation (block quantisation)
-- Weight-stripped engines: small `.engine` + separate weight file; refitted at runtime
-- `IStreamWriter` for serialising engine to custom streams
-- `build_serialized_network` returns `IHostMemory`; `buildEngineWithConfig` removed
+All functions return `arm_cmsis_nn_status` (`ARM_CMSIS_NN_SUCCESS` or `ARM_CMSIS_NN_ARG_ERROR`).
 
-**Jetson / JetPack versions:**
+**Convolution**
 
-| JetPack | TensorRT | CUDA | DLA version |
-| :--- | :--- | :--- | :--- |
-| JP 6.0 (May 2024) | 8.6 | 12.2 | 3.0 |
-| JP 6.2 (current) | 10.3 | 12.6 | 3.1 |
+```c
+// Standard Conv2D — INT8 in/filter, INT32 bias, INT8 out; per-channel quant
+arm_cmsis_nn_status arm_convolve_s8(
+    const cmsis_nn_context *ctx,
+    const cmsis_nn_conv_params *conv_params,
+    const cmsis_nn_per_channel_quant_params *quant_params,
+    const cmsis_nn_dims *input_dims,  const int8_t *input_data,
+    const cmsis_nn_dims *filter_dims, const int8_t *filter_data,
+    const cmsis_nn_dims *bias_dims,   const int32_t *bias_data,
+    const cmsis_nn_dims *output_dims, int8_t *output_data);
 
-**DLA (Deep Learning Accelerator):** Fixed-function accelerator alongside the GPU on Jetson AGX Orin. Configured per-layer via `config.set_device_type(layer, trt.DeviceType.DLA)`. Primary benefit is energy efficiency and throughput, not latency vs GPU. Engine files built for GPU and DLA are not interchangeable.
+// Recommended wrapper — automatically selects optimal kernel for ISA
+arm_cmsis_nn_status arm_convolve_wrapper_s8(...);  // same params as above
+int32_t arm_convolve_wrapper_s8_get_buffer_size(
+    const cmsis_nn_conv_params*, const cmsis_nn_dims *input,
+    const cmsis_nn_dims *filter, const cmsis_nn_dims *output);
+```
 
-**Upgradable Compute Stack (JP6+):** TensorRT and CUDA can be upgraded independently of the BSP.
+**Depthwise convolution**
 
-**`trtexec`:** CLI tool on Jetson for building and benchmarking engines.
+```c
+arm_cmsis_nn_status arm_depthwise_conv_s8(
+    const cmsis_nn_context *ctx,
+    const cmsis_nn_dw_conv_params *dw_conv_params,  // includes ch_mult
+    const cmsis_nn_per_channel_quant_params *quant_params,
+    const cmsis_nn_dims *input_dims,  const int8_t *input_data,
+    const cmsis_nn_dims *filter_dims, const int8_t *filter_data,
+    const cmsis_nn_dims *bias_dims,   const int32_t *bias_data,
+    const cmsis_nn_dims *output_dims, int8_t *output_data);
 
----
+arm_cmsis_nn_status arm_depthwise_conv_wrapper_s8(...);  // ISA-optimised wrapper
+```
 
-## 3.4 Other Frameworks
+**Fully connected**
 
-### CMSIS-NN / KleidiAI
+```c
+// Per-tensor quantisation (single multiplier/shift for whole layer)
+arm_cmsis_nn_status arm_fully_connected_s8(
+    const cmsis_nn_context *ctx,
+    const cmsis_nn_fc_params *fc_params,
+    const cmsis_nn_per_tensor_quant_params *quant_params,
+    const cmsis_nn_dims *input_dims,  const int8_t *input_data,
+    const cmsis_nn_dims *filter_dims, const int8_t *filter_data,
+    const cmsis_nn_dims *bias_dims,   const int32_t *bias_data,
+    const cmsis_nn_dims *output_dims, int8_t *output_data);
+```
 
-Arm CMSIS-NN provides highly optimised C/C++ kernels for inference on Arm Cortex-M. Designed for real-time fixed-model inference; no training or adaptive models. Fits standard ARM/pure C build environments.
+**Pooling**
 
-[KleidiAI](https://gitlab.arm.com/kleidi/kleidiai) is a newer Arm library providing optimised INT4/INT8 micro-kernels for Cortex-A (including LLM inference), integrated in ExecuTorch via XNNPACK.
+```c
+arm_cmsis_nn_status arm_avgpool_s8(
+    const cmsis_nn_context *ctx,
+    const cmsis_nn_pool_params *pool_params,
+    const cmsis_nn_dims *input_dims, const int8_t *input_data,
+    const cmsis_nn_dims *filter_dims,
+    const cmsis_nn_dims *output_dims, int8_t *output_data);
+
+arm_cmsis_nn_status arm_max_pool_s8(...);  // same signature
+// INT16 variants: arm_avgpool_s16, arm_max_pool_s16
+```
+
+**Activations**
+
+```c
+void arm_relu_q7(int8_t *data, uint32_t size);      // in-place ReLU, INT8
+void arm_relu6_s8(int8_t *data, uint32_t size);     // in-place ReLU6, INT8
+void arm_relu_q15(int16_t *data, uint32_t size);    // in-place ReLU, INT16
+```
+
+**Softmax**
+
+```c
+void arm_softmax_s8(const int8_t *input, int32_t num_rows, int32_t row_size,
+                    int32_t mult, int32_t shift, int8_t *output);
+void arm_softmax_s8_s16(...);    // INT8 in → INT16 out
+arm_cmsis_nn_status arm_softmax_s16(...);
+void arm_softmax_u8(...);        // unsigned INT8
+```
+
+**Elementwise**
+
+```c
+arm_cmsis_nn_status arm_elementwise_add_s8(
+    const int8_t *in1, const int8_t *in2,
+    int32_t in1_offset, int32_t in2_offset,
+    int8_t *output, int32_t out_offset,
+    int32_t out_mult, int32_t out_shift, int32_t out_size);
+
+arm_cmsis_nn_status arm_elementwise_mul_s8(...);
+// INT16 variants: arm_elementwise_add_s16, arm_elementwise_mul_s16
+```
+
+**LSTM** (unidirectional, INT8 activations / INT16 state)
+
+```c
+arm_cmsis_nn_status arm_lstm_unidirectional_s8(
+    const cmsis_nn_context *ctx,
+    const cmsis_nn_lstm_params *lstm_params,
+    const cmsis_nn_dims *input_dims,   const int8_t *input_data,
+    const cmsis_nn_dims *weights_dims, const int8_t *weights_data,
+    const cmsis_nn_dims *bias_dims,    const int32_t *bias_data,
+    const cmsis_nn_dims *output_dims,  int8_t *output_data);
+```
+
+**SVDF** (Singular Value Decomposition Filter — compact RNN for keyword spotting)
+
+```c
+arm_cmsis_nn_status arm_svdf_s8(
+    const cmsis_nn_context *ctx,
+    const cmsis_nn_svdf_params *svdf_params,
+    const cmsis_nn_dims *input_dims,           const int8_t *input_data,
+    const cmsis_nn_dims *state_dims,           int16_t *state_data,  // mutable ring-buffer
+    const cmsis_nn_dims *weights_feature_dims, const int8_t *weights_feature_data,
+    const cmsis_nn_dims *weights_time_dims,    const int8_t *weights_time_data,
+    const cmsis_nn_dims *bias_dims,            const int32_t *bias_data,
+    const cmsis_nn_dims *output_dims,          int8_t *output_data);
+```
+
+**Batch matmul** (added v7 — for attention layers)
+
+```c
+arm_cmsis_nn_status arm_batch_matmul_s8(
+    const cmsis_nn_context *ctx,
+    const cmsis_nn_batch_matmul_params *params,
+    const cmsis_nn_dims *input_dims,   const int8_t *input_data,
+    const cmsis_nn_dims *weights_dims, const int8_t *weights_data,
+    const cmsis_nn_dims *bias_dims,    const int32_t *bias_data,
+    const cmsis_nn_dims *output_dims,  int8_t *output_data);
+```
+
+**v7 additions:** `arm_pad_s8` (zero-padding), `arm_transpose_s8` (dimension permutation), per-channel FC quantisation, updated `arm_convolve_s8` with `upscale_dims` for transposed convolution.
+
+#### KleidiAI
+
+[KleidiAI](https://gitlab.arm.com/kleidi/kleidiai) is a companion Arm library providing optimised **INT4/INT8 micro-kernels for Cortex-A** (not Cortex-M). Targeted at LLM inference on mobile and embedded Linux SoCs. Integrated into ExecuTorch via XNNPACK.
 
 ![CMSIS inference diagram](illustrations/edge-ml-cmsis-inference-diagram.png)
 
@@ -390,9 +525,9 @@ Unified ML library for distributed training, model serving, and federated learni
 
 ---
 
-# 4. Model Deployment Formats
+# 4. Portable Model Exchange Formats
 
-## 4.1 Native Framework Formats
+## 4.1 Format Reference Table
 
 | Format          | Extension | Producer | Notes        |
 | :-------------- | :-------- | :------- | :----------- |
@@ -402,11 +537,13 @@ Unified ML library for distributed training, model serving, and federated learni
 | SavedModel      | directory | TensorFlow | Directory with `saved_model.pb` + variables; full TF graph |
 | Frozen graph    | `.pb`     | TensorFlow | Serialised computation graph (Protobuf); static, no variables |
 | Keras HDF5      | `.h5`, `.hdf5` | Keras / TF | Architecture + weights; Python-centric |
-| TensorRT engine | `.engine`, `.plan` | TensorRT | Device-specific, version-locked; not portable |
 | Pickle          | `.pkl`    | scikit-learn, Python | Python-only serialisation; unsafe for untrusted inputs |
 | PMML            | `.xml`, `.pmml` | R, Python | XML-based model exchange for classical ML |
 | GGUF            | `.gguf`   | llama.cpp | LLM weight format (successor to GGML); see §7 |
 | ML.NET Native   | `.zip`    | ML.NET | Encapsulates model + preprocessing pipeline for .NET |
+| Google Coral (Edge TPU) | `.tflite` (partitioned) | Edge TPU Compiler splits a quantised TFLite model into Edge-TPU-executable ops and CPU fallback ops; the output is still a `.tflite` file with custom ops — see §5.14 |
+
+> **Note:** Hardware-specific compiled formats (HEF, RKNN, QNN context binary) are not listed here — see §5.
 
 ---
 
@@ -466,7 +603,8 @@ outputs = sess.run(None, {"input": input_array})
 - **INT8 modes:** S8S8 with QDQ (default), U8S8, U8U8.
 - **INT4:** Supported in ONNX opset 21+ via `QuantizeLinear` with 4-bit output; used with QNN EP and TRT EP for weight-only quantisation.
 
-![ML data formats workflow](illustrations/edge-ml-ml-data-formats-workflow.png)
+
+
 
 ---
 
@@ -591,9 +729,173 @@ Edge Impulse provides official support for the full Jetson family (Nano, Xavier,
 
 ---
 
-# 5. NPU-Specific Formats
+# 5. Hardware-Specific Compilation
 
-## 5.1 Hailo — HEF
+Hardware-specific compilation converts a portable model (ONNX, TFLite, etc.) into a device-locked binary optimised for a particular chip family. This is a build-time step that must be re-run for each target device or firmware version. The resulting binary is not portable between chip generations.
+
+## 5.1 NVIDIA TensorRT
+
+TensorRT is NVIDIA's inference optimisation library. It parses ONNX (or other formats), applies layer fusion, kernel auto-tuning, and precision calibration, then serialises to a hardware-specific engine file.
+
+**Builder API — Python (TensorRT 10.x):**
+
+```python
+import tensorrt as trt
+
+logger = trt.Logger(trt.Logger.WARNING)
+builder = trt.Builder(logger)
+network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
+parser = trt.OnnxParser(network, logger)
+parser.parse_from_file("model.onnx")
+
+config = builder.create_builder_config()
+config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 1 << 30)
+
+# Optional INT8
+config.set_flag(trt.BuilderFlag.INT8)
+config.int8_calibrator = MyCalibrator(calibration_data)
+
+serialized_engine = builder.build_serialized_network(network, config)
+with open("model.engine", "wb") as f:
+    f.write(serialized_engine)
+```
+
+**Builder API — C++ (TensorRT 10.x):**
+
+```cpp
+auto builder = std::unique_ptr<nvinfer1::IBuilder>(nvinfer1::createInferBuilder(logger));
+auto network = std::unique_ptr<nvinfer1::INetworkDefinition>(
+    builder->createNetworkV2(1U << static_cast<uint32_t>(
+        nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH)));
+auto parser = std::unique_ptr<nvonnxparser::IParser>(
+    nvonnxparser::createParser(*network, logger));
+parser->parseFromFile("model.onnx", static_cast<int>(trt::Logger::Severity::kWARNING));
+
+auto config = std::unique_ptr<nvinfer1::IBuilderConfig>(builder->createBuilderConfig());
+auto serialized = std::unique_ptr<nvinfer1::IHostMemory>(
+    builder->buildSerializedNetwork(*network, *config));
+// write serialized->data() / serialized->size() to file
+```
+
+**Engine file format:** Conventionally `.engine` or `.plan` (interchangeable). **Not portable** — engines are specific to GPU architecture, TRT version (major.minor.patch.build), CUDA, and cuDNN. Cannot be shared between host types.
+
+**INT8 calibration:** Requires a calibrator implementing `IInt8EntropyCalibrator2`; first run writes a `.cache` file reused on subsequent builds.
+
+**TensorRT 10 notable changes:**
+- INT4 weight-only quantisation (block quantisation)
+- Weight-stripped engines: small `.engine` + separate weight file; refitted at runtime
+- `IStreamWriter` for serialising engine to custom streams
+- `build_serialized_network` returns `IHostMemory`; `buildEngineWithConfig` removed
+
+**Standalone TensorRT:** Latest version is **10.16.0.72** (March 2026). TensorRT 11 has been announced for Q2 2026; breaking changes include removal of IPluginV2 APIs (replaced by IPluginV3).
+
+**Jetson / JetPack versions:**
+
+| JetPack | TensorRT | CUDA | DLA version | Jetson family |
+| :--- | :--- | :--- | :--- | :--- |
+| JP 6.2.1 (current, Orin) | 10.3 | 12.6 | 3.1 | Orin series |
+| JP 7.1 (Thor, Aug 2025+) | TBD | 13.0 | — | Jetson Thor |
+
+**DLA (Deep Learning Accelerator):** Fixed-function accelerator alongside the GPU on Jetson AGX Orin. Configured per-layer via `config.set_device_type(layer, trt.DeviceType.DLA)`. Primary benefit is energy efficiency and throughput, not latency vs GPU. Engine files built for GPU and DLA are not interchangeable.
+
+**Upgradable Compute Stack (JP6+):** TensorRT and CUDA can be upgraded independently of the BSP.
+
+**`trtexec`:** CLI tool on Jetson for building and benchmarking engines.
+
+### NVIDIA DeepStream SDK
+
+DeepStream is NVIDIA's streaming analytics toolkit built on top of TensorRT and GStreamer. It provides an end-to-end pipeline from video input to intelligent analytics with zero-copy GPU buffer management throughout.
+
+**Architecture:**
+
+```
+Video source (RTSP / USB / file)
+    │  GStreamer pipeline
+    ▼
+nvstreammux  — batches multiple streams into a single tensor
+    │
+    ▼
+nvinfer  — TensorRT inference (wraps engine file; handles pre/post-process)
+    │
+    ▼
+nvtracker  — multi-object tracking (NvDCF, DeepSORT, etc.)
+    │
+    ▼
+nvdsanalytics — line-crossing, ROI occupancy, direction, crowd density
+    │
+    ▼
+Output sink (display / RTSP re-stream / Kafka / file / custom callback)
+```
+
+**Key components:**
+
+| Component | Role |
+| :--- | :--- |
+| `nvinfer` | TensorRT engine loader + inference; configurable batch size, precision (INT8/FP16/FP32), custom parser plugins |
+| `nvtracker` | Object tracking across frames; NvDCF (correlation filter, default), DeepSORT, ByteTrack; maintains object IDs |
+| `nvdsanalytics` | Spatial analytics: line crossing, ROI occupancy, direction, crowd density |
+| `nvstreammux` | Batches N input streams into a single GPU tensor batch for inference |
+| `NvDsInferContext` | C++ API for managing inference context; handles engine loading, input preprocessing, output parsing |
+| Custom parser plugins | `NvDsInferParseCustomYoloV5/V8` and similar; replace default tensor layout parsing for non-standard models |
+| `NvBufSurface` | Zero-copy GPU buffer surface; avoids CPU round-trip for image data throughout the pipeline |
+
+**Inference configuration (`config_infer_primary.txt` excerpt):**
+
+```ini
+[property]
+gpu-id=0
+net-scale-factor=0.0039216
+model-engine-file=model.engine
+labelfile-path=labels.txt
+batch-size=4
+network-mode=0          # 0=FP32, 1=INT8, 2=FP16
+num-detected-classes=80
+interval=0              # process every frame
+gie-unique-id=1
+
+[class-attrs-all]
+threshold=0.5
+nms-iou-threshold=0.45
+```
+
+**Python API (pyds):**
+
+```python
+import pyds
+
+def osd_sink_pad_buffer_probe(pad, info, u_data):
+    frame_meta = pyds.gst_buffer_get_nvds_batch_meta(info.get_buffer())
+    for frame in pyds.NvDsBatchMeta.cast(frame_meta).frame_meta_list:
+        frame_meta = pyds.NvDsFrameMeta.cast(frame.data)
+        for obj in pyds.NvDsFrameMeta.cast(frame_meta).obj_meta_list:
+            obj_meta = pyds.NvDsObjectMeta.cast(obj.data)
+            print(f"class={obj_meta.class_id} conf={obj_meta.confidence:.2f} "
+                  f"bbox=({obj_meta.rect_params.left:.0f},{obj_meta.rect_params.top:.0f},"
+                  f"{obj_meta.rect_params.width:.0f},{obj_meta.rect_params.height:.0f})")
+```
+
+**Platform and dependency:**
+- Requires JetPack 6.x or later on Jetson; also available on dGPU (x86 + NVIDIA GPU) via separate installer
+- Depends on: GStreamer 1.x, CUDA, TensorRT, cuDNN, OpenCV; significant runtime footprint (~several GB installed)
+- License: NVIDIA proprietary (NVIDIA DeepStream SDK License Agreement); redistribution restricted
+- Versioning is tightly coupled to JetPack: DeepStream 7.x targets JetPack 6.x; a JetPack major upgrade typically requires a parallel DeepStream upgrade
+
+**When to use DeepStream vs plain TensorRT:**
+
+| Requirement | Plain TensorRT | DeepStream |
+| :--- | :--- | :--- |
+| Single model, custom application | ✓ preferred — minimal deps | overkill |
+| Multi-stream video analytics | complex to build manually | ✓ built-in |
+| Multi-model cascade (detect → classify → track) | manual pipeline | ✓ native |
+| Object tracking / ID persistence | manual | ✓ NvDCF / DeepSORT |
+| Spatial analytics (line cross, ROI) | manual | ✓ nvdsanalytics |
+| Resource-constrained Jetson (Orin Nano, etc.) | ✓ lower overhead | high overhead |
+
+**References:** [DeepStream developer guide](https://docs.nvidia.com/metropolis/deepstream/dev-guide/) · [deepstream-app sample](https://github.com/NVIDIA-AI-IOT/deepstream_python_apps)
+
+---
+
+## 5.2 Hailo — HEF
 
 **Toolchain:** Hailo AI Software Suite; central tool is the **Hailo Dataflow Compiler (DFC)**.
 
@@ -613,12 +915,15 @@ Edge Impulse provides official support for the full Jetson family (Nano, Xavier,
 | March 2024 | v3.27.0 | 4.17 |
 | October 2024 | v3.29.0 | 4.19 |
 | January 2025 | v3.30.0 | 4.20 |
+| April 2025 | v3.31.x | 4.21 |
+| July 2025 | v3.32.x | 4.22 |
+| August 2025 | v3.33.x | 4.23 |
 
 **Runtime:** HailoRT C/C++ and Python APIs consume HEF files. Outputs are quantised INT8; dequantisation uses `quant_info.qp_scale` and `quant_info.qp_zp` from the output VStream info (see §6.2).
 
 **Post-processing:** NMS and other post-processing can be compiled into the HEF (on supported architectures) via model scripts, eliminating CPU post-processing overhead.
 
-**Model Zoo:** Pre-compiled HEF files available; YOLOv8/v9/v10/v12, SigLIP, PaddleOCR-v5, StereoNet, and more.
+**Model Zoo:** Pre-compiled HEF files available; includes YOLOv8/v9/v10/v12, SigLIP (siglip_l_16_256, siglip2_l_16_256, siglip_b_16), PaddleOCR v5 (mobile detection and recognition), StereoNet (stereo depth estimation), and a dedicated GenAI zoo (hailo_model_zoo_genai) for generative AI models.
 
 **References:** [Hailo Model Zoo](https://github.com/hailo-ai/hailo_model_zoo) · [Application Code Examples (C++)](https://github.com/hailo-ai/hailo-apps/tree/main/hailo_apps/cpp/)
 
@@ -626,7 +931,7 @@ Edge Impulse provides official support for the full Jetson family (Nano, Xavier,
 
 ---
 
-## 5.2 DeepX — DXNN
+## 5.3 DeepX — DXNN
 
 **Format:** Proprietary **DXNN** binary (`.dxnn`).
 
@@ -648,7 +953,7 @@ Edge Impulse provides official support for the full Jetson family (Nano, Xavier,
 
 ---
 
-## 5.3 Qualcomm — QNN / DLC (SNPE)
+## 5.4 Qualcomm — QNN / DLC (SNPE)
 
 **Two SDK generations:**
 
@@ -671,7 +976,7 @@ Edge Impulse provides official support for the full Jetson family (Nano, Xavier,
 
 ---
 
-## 5.4 Rockchip — RKNN
+## 5.5 Rockchip — RKNN
 
 **Format:** `.rknn` binary (device-specific).
 
@@ -696,7 +1001,7 @@ Edge Impulse provides official support for the full Jetson family (Nano, Xavier,
 
 ---
 
-## 5.5 NXP — eIQ / Neutron NPU
+## 5.6 NXP — eIQ / Neutron NPU
 
 **Framework:** eIQ Toolkit (ML workflow tool, inference engines, neural network compilers).
 
@@ -708,7 +1013,7 @@ Edge Impulse provides official support for the full Jetson family (Nano, Xavier,
 
 **Note:** eIQ Portal (BYOM) does **not** support direct NPU export; separate conversion tool required after quantised TFLite export.
 
-**Ethos-U path (i.MX93):** Uses Arm Vela compiler (see §5.6) after quantised TFLite export.
+**Ethos-U path (i.MX93):** Uses Arm Vela compiler (see §5.7) after quantised TFLite export.
 
 **Inference engines included in eIQ:** TensorFlow Lite / LiteRT, ONNX Runtime, PyTorch (via TFLite export).
 
@@ -722,7 +1027,7 @@ eIQ feeds into DeepViewRT, TensorFlow Lite, TFLite Micro, Glow, and Arm NN infer
 
 ---
 
-## 5.6 Arm — Ethos-U (Vela)
+## 5.7 Arm — Ethos-U (Vela)
 
 **Target hardware:** Ethos-U55, Ethos-U65, Ethos-U85 (microNPU class, Cortex-M ecosystem).
 Note: Ethos-N is a separate server/mobile-class NPU; Ethos-U is the embedded variant.
@@ -743,7 +1048,7 @@ Note: Ethos-N is a separate server/mobile-class NPU; Ethos-U is the embedded var
 
 ---
 
-## 5.7 MediaTek — NeuroPilot / APU
+## 5.8 MediaTek — NeuroPilot / APU
 
 **APU:** AI Processing Unit on Dimensity and Genio SoCs.
 
@@ -766,7 +1071,7 @@ Note: Ethos-N is a separate server/mobile-class NPU; Ethos-U is the embedded var
 
 ---
 
-## 5.8 Kneron — NEF
+## 5.9 Kneron — NEF
 
 **Format:** **NEF (NPU Executable Format)** — can contain one or multiple models; hardware-specific to Kneron SoCs.
 
@@ -789,7 +1094,7 @@ Note: Ethos-N is a separate server/mobile-class NPU; Ethos-U is the embedded var
 
 ---
 
-## 5.9 Axelera — Metis (Voyager SDK)
+## 5.10 Axelera — Metis (Voyager SDK)
 
 **Hardware:** Metis AIPU — up to 214 TOPS on Metis Compute Board (paired with RK3588).
 
@@ -807,7 +1112,7 @@ Note: Ethos-N is a separate server/mobile-class NPU; Ethos-U is the embedded var
 
 ---
 
-## 5.10 Ambarella — CVflow
+## 5.11 Ambarella — CVflow
 
 **Architecture:** Proprietary CNN accelerator, present in CV25, CV28, CV5, CV72, etc.
 
@@ -827,7 +1132,7 @@ Note: Ethos-N is a separate server/mobile-class NPU; Ethos-U is the embedded var
 
 ---
 
-## 5.11 BrainChip — Akida
+## 5.12 BrainChip — Akida
 
 Neuromorphic computing using Spiking Neural Networks (SNNs). AKD1000 is the production NPU chip. Low-power (milliwatt-class); suited for always-on inference.
 
@@ -838,7 +1143,7 @@ Other neuromorphic / edge AI companies:
 
 ---
 
-## 5.12 Large Integrations (Data Centre / Cloud)
+## 5.13 Large Integrations (Data Centre / Cloud)
 
 These are server/cloud inference platforms rather than edge NPUs, but relevant when edge devices offload to cloud or when models are compiled for deployment.
 
@@ -856,7 +1161,85 @@ These are server/cloud inference platforms rather than edge NPUs, but relevant w
 
 ---
 
-# 6. Inference Pipeline
+## 5.14 Google Coral — Edge TPU
+
+**Compiler:** Google Edge TPU Compiler (x86-64 host tool; `edgetpu_compiler` CLI)
+
+**Compilation pipeline:**
+1. Input: fully INT8-quantised TFLite model (all tensors, not just weights — full static quantisation required)
+2. Edge TPU Compiler partitions the computation graph: operations supported by the Edge TPU are fused into a single `edgetpu-custom-op` TFLite Custom Op; unsupported operations remain as standard CPU-executed TFLite ops
+3. Output: `.tflite` file with the partitioned graph (same extension — not a new file format)
+
+**Key architectural constraint:** The Edge TPU contains approximately **8 MB of on-chip SRAM** that the compiler uses as a parameter cache. The compiler attempts to place as many weight tensors as possible into this SRAM at load time. Weights that fit remain resident across inferences ("cached"); weights that do not fit must stream from external memory on each inference, substantially degrading throughput. This is why small models (MobileNet v1: ~2.4 ms) are dramatically faster than large models (VGG19: ~357 ms) on the same chip.
+
+**Performance:**
+- 4 TOPS (INT8) peak throughput
+- ~2 TOPS/watt power efficiency (~2 W at peak)
+- On-chip SRAM: ~8 MB (compiler-managed scratchpad, not a traditional cache)
+
+**Supported operations:** Conv2D, DepthwiseConv2D, FullyConnected, AveragePool2D, MaxPool2D, LSTM, ReLU, Sigmoid, SoftMax, and ~40 others — consult the [Edge TPU model requirements](https://coral.ai/docs/edgetpu/models-intro/) for the full list and constraints.
+
+**Internal architecture:** The Edge TPU is a custom Google ASIC; its internal microarchitecture is not publicly documented. The chip is fabricated at TSMC. Whether internal RISC-V control cores are used for sequencing (as is common in similar ASICs) is unconfirmed — no architectural specification has been published by Google. See §5.15 for confirmed RISC-V based ML processors.
+
+**Product line:**
+
+| Product | Host processor | Notes |
+| :--- | :--- | :--- |
+| Coral Dev Board | NXP i.MX 8M (4× Cortex-A53 + M4) | Linux SBC with integrated Edge TPU |
+| Coral Dev Board Mini | MediaTek MT8167S (4× Cortex-A35) | Compact SBC |
+| Coral Dev Board Micro | NXP i.MX RT1176 (Cortex-M7 + M4) | MCU-class host; TFLite Micro runtime |
+| Coral USB Accelerator | USB 3.0 attached | Plug into any x86 or ARM Linux host |
+| Coral M.2 Accelerator | PCIe/USB M.2 module | Jetson, x86 platforms |
+| Coral SOM | i.MX 8M based | System-on-Module for custom board designs |
+
+**References:** [Coral product page](https://coral.ai/) · [Edge TPU Compiler docs](https://coral.ai/docs/edgetpu/compiler/) · [Model requirements](https://coral.ai/docs/edgetpu/models-intro/) · [Coral Model Zoo](https://coral.ai/models/)
+
+---
+
+## 5.15 RISC-V Based ML Processors
+
+Several edge ML accelerators are built around multi-core RISC-V architectures. These are distinct from both ARM-based platforms (Coral, Hailo host SoCs) and proprietary NPU ISAs.
+
+### GreenWaves Technologies — GAP8 / GAP9
+
+The most prominent multi-core RISC-V ML processors in the embedded/IoT space.
+
+**Architecture:**
+- **GAP8:** 1× RISC-V Fabric Controller core (I/O + task dispatch) + 8× RISC-V compute cluster cores; all RV32IMC with DSP/SIMD extensions; Hardware Convolutional Engine (HWCE) in the cluster; ~50 GOPS at ~1/10 W
+- **GAP9:** 1 FC + 9 cluster RISC-V cores; extended vector ISA; integrated neural engine; higher GOPS, lower power than GAP8; suited for always-on camera inference from battery
+
+**Software:** GreenWaves NNTool converts TFLite models to GAP8/GAP9 optimised C code; supports INT8 and INT4 quantisation.
+
+**References:** [GreenWaves GAP SDK](https://github.com/GreenWaves-Technologies/gap_sdk) · [NNTool](https://github.com/GreenWaves-Technologies/gap_sdk/tree/master/tools/nntool)
+
+### Canaan — Kendryte K210
+
+- **2× RISC-V RV64IMAFDC cores** (64-bit dual-core) at up to 800 MHz
+- **KPU (Knowledge Processing Unit):** CNN accelerator, 0.23–1 TOPS INT8
+- **APU:** audio processing unit for keyword detection
+- Widely deployed in cheap ML devkits: Sipeed Maixduino, M5StickV, Sipeed Dock
+- Supports TFLite and Caffe model inference via KPU C/C++ APIs
+- Available from Seeed, SparkFun, M5Stack ecosystem
+
+### Bouffalo Lab — BL808
+
+- **3× RISC-V cores:** C906 (RV64, high-performance), E907 (RV32, application), E902 (RV32, real-time/always-on)
+- **BLAI-100 NPU:** 100 GOPS INT8, on-chip
+- Used in Sipeed M1S Dock and similar boards; marketed as an alternative to Coral USB Accelerator in resource-constrained Linux devkit contexts
+
+### Comparison with Coral Edge TPU
+
+| | Coral Edge TPU | GAP8/GAP9 | K210 | BL808 |
+| :--- | :--- | :--- | :--- | :--- |
+| Host CPU ISA | ARM (all products) | RISC-V | RISC-V | RISC-V |
+| NPU/accelerator | Custom ASIC (4 TOPS) | HWCE in cluster | KPU (0.23–1 TOPS) | BLAI-100 (100 GOPS) |
+| OS | Linux (Dev Board), bare-metal (Dev Board Micro) | Bare-metal / FreeRTOS | Bare-metal / FreeRTOS | Linux / bare-metal |
+| Model format | INT8 TFLite (partitioned) | NNTool C code / TFLite | TFLite / Caffe | TFLite |
+| Power class | ~2 W (NPU) | ~0.1 W | ~0.3 W | ~0.5 W |
+
+---
+
+# 6. Inference Post-Processing Pipeline
 
 ## 6.1 Pipeline Overview
 
@@ -881,70 +1264,6 @@ Raw model output tensors (INT8 / UINT8 / FP16 / FP32)
 5. Output formatting  (JSON, binary, Protobuf, ROS2 message, …)
 ```
 
-### Stage 1 — Framework-specific raw output unpacking
-
-Some inference backends do not deliver tensor output that maps 1:1 to the model's logical output layers. CPU-hosted runtimes (TFLite, ONNX Runtime) typically do, but dedicated NPUs often repack, transpose, or sub-divide tensors to match their internal data layout. This stage is the responsibility of the **framework layer** and is transparent to the model post-processing stages that follow.
-
-Examples:
-- **TFLite / ONNX Runtime (CPU):** output tensors match the model's output layers exactly; quantisation parameters are populated from model metadata.
-- **HailoRT:** the HEF compiler may split or transpose output tensors relative to the original model; multiple vstreams correspond to a single logical output. The framework layer normalises these into a canonical tensor array.
-- **Qualcomm QNN:** delivers a compiled SOC-specific binary context; the QNN SDK unpacks tensor outputs through its execution provider.
-- **Rockchip RKNN, NXP eIQ, Ethos-U:** similar framework-specific output conventions requiring framework-layer normalisation before model decoding begins.
-
-### Stage 2 — Dequantisation
-
-Converts quantised integer output values to floating-point via the affine mapping:
-
-```
-float_value = (raw_value − zero_point) × scale
-```
-
-`scale` (FP32) and `zero_point` (INT8 or UINT8) are per-tensor quantisation parameters stored in the model file's metadata and populated into tensor descriptors by the framework layer. See §6.2 for format-specific dequantisation behaviour and the Hailo-specific API.
-
-This stage is a no-op when the framework already delivers FP32 output (float-precision model, or an NPU that dequantises internally), in which case `scale = 1.0` and `zero_point = 0`.
-
-**Important:** Some model post-processors assume FP32 output without applying this transform. This is only valid for non-quantised models; using such a post-processor with an INT8-quantised model will produce incorrect results.
-
-### Stage 3 — Model-architecture decoding
-
-Interprets the semantic content of each output tensor element according to the **model architecture** — not the inference framework. The same decoding logic is needed regardless of whether the model runs on TFLite, HailoRT, or ONNX Runtime. See §6.3 for detailed per-model tensor layouts and decoding steps.
-
-This stage is **not framework-specific** — it is specific to how the neural network's output head was designed:
-
-| Model | Output structure | Key decoding step |
-| :--- | :--- | :--- |
-| YOLOv5 ObjDet | Single tensor `[1, N_anchors, 5 + C]` — x, y, w, h, objectness, class scores | `score = objectness × max_class_score`; centre-format box |
-| YOLOv8 ObjDet | Pre-decoded per-class grouped boxes with count prefixes | Count prefix per class; corner-format coordinates (ymin, xmin, ymax, xmax) |
-| YOLOv8 Pose | Three tensors per scale head (DFL boxes, scores, keypoints) | Tensor routing by feature dimension; DFL softmax regression decode; 17-keypoint COCO layout |
-| MoveNet | Direct coordinate regression (heatmap-free) | Single tensor; 17 × 3 (y, x, confidence) |
-| OpenPose / HRNet | Heatmaps + Part Affinity Fields or heatmaps only | Argmax or Gaussian peak fitting on spatial heatmap grids |
-
-New model types added to inxware must document their expected tensor layout and routing logic in the model implementation header.
-
-### Stage 4 — Logical post-processing
-
-Reduces the raw decoded candidate set to a final, application-ready result. Common operations:
-
-- **Confidence threshold filtering** — drop detections below a score threshold. Applied before NMS to bound the NMS input size.
-- **Non-Maximum Suppression (NMS)** — for object detection: collapse overlapping bounding boxes for the same class to a single best candidate using Intersection over Union (IoU) scoring. See §6.4.
-- **OKS-NMS** — keypoint-aware suppression for pose models using Object Keypoint Similarity as the overlap metric instead of IoU.
-- **Plausibility filtering** — semantic constraints on decoded output (e.g. bounding box aspect-ratio limits, joint-angle constraints for pose models, temporal consistency checks).
-- **NMS-free models** — YOLOv10, YOLO26 and some newer architectures integrate end-to-end detection heads that eliminate the post-processing NMS step by design.
-
-### Stage 5 — Output formatting
-
-Serialises the post-processed results into the application-facing format. See §6.5 for API entry points per format and §6.6 for detailed format descriptions.
-
-| Format | Relative serialisation cost | Notes |
-| :--- | :--- | :--- |
-| JSON | ~10× | Human-readable; widest tool support; highest overhead |
-| Protocol Buffers | ~2.5× | Binary, schema-enforced; used by TF Serving, gRPC, Triton |
-| FlatBuffers | ~1× | Zero-copy; used by TFLite and ExecuTorch model files |
-| Raw binary / buffer | ~1× | Lowest latency; required for constrained MCU targets |
-| ROS2 `vision_msgs` | varies | Algorithm-agnostic computer vision messages for robot systems |
-
-> For inxware implementation details of all five stages see `target/Component-HAL/ml/README.md § Post-Processing Pipeline`.
-
 **Example function block configuration options:**
 
 *Stage 1 — Framework raw output unpacking:*
@@ -964,22 +1283,6 @@ Serialises the post-processed results into the application-facing format. See §
 ---
 
 ## 6.2 Raw Output / Dequantisation
-
-### Core Formula
-
-Quantisation maps FP32 tensors to low-bit integers:
-
-```
-quantized = clamp(round(float / scale) + zero_point, qmin, qmax)
-```
-
-Dequantisation is the inverse:
-
-```
-float_val = (quantized - zero_point) x scale
-```
-
-`scale` (FP32) and `zero_point` (INT8 or UINT8) are the quantisation parameters, stored per-tensor or per-channel (axis).
 
 ### When Dequantisation Happens
 
@@ -1069,6 +1372,19 @@ Full implementation details: [pose_estimation_models_detailed.xlsx](https://docs
 | MotionBERT | 2D->3D Lifting | 17 (3D) | Direct 3D coordinate regression | CUDA |
 | DWPose | Top-down | 133 (wholebody) | SimCC coordinate classification | TensorRT, ONNX, CPU, GPU |
 
+### Model-Architecture Decoding Reference
+
+| Model | Architecture | Key decoding step |
+| :--- | :--- | :--- |
+| YOLOv5 ObjDet | Single tensor `[1, N_anchors, 5 + C]` — x, y, w, h, objectness, class scores | `score = objectness × max_class_score`; centre-format box |
+| YOLOv8 ObjDet | Pre-decoded per-class grouped boxes with count prefixes | Count prefix per class; corner-format coordinates (ymin, xmin, ymax, xmax) |
+| YOLOv8 Pose | Three tensors per scale head (DFL boxes, scores, keypoints) | Tensor routing by feature dimension; DFL softmax regression decode; 17-keypoint COCO layout |
+| MoveNet | Direct coordinate regression (heatmap-free) | Single tensor; 17 × 3 (y, x, confidence) |
+| OpenPose / HRNet | Heatmaps + Part Affinity Fields or heatmaps only | Argmax or Gaussian peak fitting on spatial heatmap grids |
+| YOLO26 | 25 variants; single-stage; native NMS-free end-to-end head | End-to-end detection head; no post-hoc NMS required |
+
+New model types added to inxware must document their expected tensor layout and routing logic in the model implementation header.
+
 ---
 
 ## 6.4 Data Filtering — NMS
@@ -1084,10 +1400,16 @@ Post-processing for YOLO pose models follows a well-defined set of standard oper
 | **Heatmap NMS (Max-Pool)** | Keypoint peak detection | Max-pool + comparison (PyTorch/NumPy) | `kernel_size` (typically 3, 5, or 7) |
 | **OKS-NMS** | Pose-level deduplication | `pycocotools`, `xtcocotools` | `oks_threshold`, `score_threshold` |
 
+**NMS-free model architectures:**
+- `YOLOv10` — NMS-free by design (dual label assignment, one-to-one inference head)
+- `RT-DETR / RT-DETRv2` (Baidu) — NMS-free (DETR lineage)
+- `YOLO26` — NMS-free (native end-to-end architecture, released January 2026; 25 variants; year-based naming scheme)
+
+**Note:** `YOLO11` uses traditional NMS post-processing and is **not** NMS-free, despite following YOLOv10 chronologically. YOLOv5, YOLOv8, and all versions other than YOLOv10, RT-DETR, and YOLO26 also require NMS.
+
 **Platform notes:**
 - For yolov8_pose on Hailo, post-processing is done on the CPU from raw output tensors, which can be computationally costly ([Hailo Community discussion](https://community.hailo.ai/t/running-yolo-pose-with-nms-postprocessing-on-hailo8/15800)).
 - Different platforms optimise differently: SIMD on CPU, GPU kernels, NPU-specific implementations.
-- YOLOv10 / YOLO26 are moving toward NMS-free end-to-end designs.
 
 ### Comparison of Post-Processing Across Platforms
 
@@ -1260,7 +1582,7 @@ Large language models can be run locally on edge hardware using quantised weight
 
 **Models:** Gemma (Google), Llama 3.x (Meta), Qwen (Alibaba), LocalLLaMA community models.
 
-**ExecuTorch LLM:** ExecuTorch 1.0 provides dedicated LLM inference APIs in C++, Java, Objective-C, Swift. KleidiAI INT4 micro-kernels via XNNPACK for ARM acceleration.
+**ExecuTorch LLM:** ExecuTorch 1.1.0 (January 2026) provides dedicated LLM inference APIs in C++, Java, Objective-C, Swift. KleidiAI INT4 micro-kernels via XNNPACK for ARM acceleration.
 
 ---
 
@@ -1282,18 +1604,20 @@ ert-components/
 │   ├── ml_common.mk                     ← Top-level ML build entry point (EHS_ML_SUPPORT switch)
 │   ├── ml_common.h / ml_common.c        ← Highest-level abstraction; called from function block
 │   │
-│   ├── framework/                       ← Inference engine (backend) implementations
-│   │   ├── ml_framework.mk              ← Framework selection logic
+│   ├── engine/                          ← Inference engine (backend) implementations
+│   │   ├── ml_engine.mk                 ← Engine selection logic
 │   │   ├── tensorflow-lite/             ← TFLite C API wrapper          [implemented]
 │   │   │   ├── ert_hal_tflite.h/.c
-│   │   │   └── ml_fw_tflite.mk
+│   │   │   └── ml_ie_tflite.mk
 │   │   ├── tensorflow-lite-micro/       ← TFLite Micro wrapper          [TODO]
 │   │   │   ├── ert_hal_tflite_micro.h/.c
-│   │   │   └── ml_fw_tflite_micro.mk
-│   │   └── hailo/                       ← HailoRT C++ wrapper           [implemented]
-│   │       ├── ert_hal_hailo.h/.c
-│   │       ├── hailo_thread.h
-│   │       └── ml_fw_hailo.mk
+│   │   │   └── ml_ie_tflite_micro.mk
+│   │   ├── hailo/                       ← HailoRT C++ wrapper           [implemented]
+│   │   │   ├── ert_hal_hailo.h/.c
+│   │   │   ├── hailo_thread.h
+│   │   │   └── ml_ie_hailo.mk
+│   │   └── tensorrt/                    ← TensorRT (NVIDIA Jetson)      [implemented]
+│   │       ├── ert_hal_tensorrt.cpp / .h
 │   │
 │   ├── model/                           ← Post-processor per model type
 │   │   ├── ml_models.h                  ← Conditional header aggregator
@@ -1302,7 +1626,7 @@ ert-components/
 │   │   ├── ml_model_template.{h,c}.template  ← Starting point for new models
 │   │   ├── yolov5_objdet.h/.c           ← YOLOv5 object detection       [implemented]
 │   │   ├── yolov8_objdet.h/.c           ← YOLOv8 object detection       [implemented]
-│   │   ├── yolov8_pose.h/.c             ← YOLOv8 pose estimation        [in progress]
+│   │   ├── yolov8_pose.h/.c             ← YOLOv8 pose estimation        [implemented (Hailo and TFLite paths)]
 │   │   └── ml_utils/
 │   │       ├── ehs_ml_nms.h/.c          ← NMS implementation            [implemented]
 │   │       └── ehs_ml_utils.h/.c        ← General ML utilities          [implemented]
@@ -1344,14 +1668,29 @@ void EhsML_Destroy(EhsML_Context* ctx);
 
 ```c
 // Feed raw input data (image bytes, feature vector, etc.).
+// Returns EHS_ML_BUSY if a pipeline is already executing.
 EhsML_Err EhsML_SetInputData(EhsML_Context* ctx,
                               const void*   data,
                               ehs_uint32    size);
 
-// Run inference; write JSON result into caller-supplied buffer.
-// Structured output: {"type":1000,"res":[{"cls":0,"cnf":0.92,"x":...},...]}
-// Flat output (ctx->enable_flat_json=true):
-//   {"type":0,...,"cls0":0,"cnf0":0.92,"x0":...,"cls1":...}
+// Run pipeline only: engine inference + model decode → ctx->detections[].
+// Returns EHS_ML_BUSY if already inferring.
+EhsML_Err EhsML_Run(EhsML_Context* ctx);
+
+// Serialise results to JSON: reads ctx->detections[] → json buffer.
+// Clears the busy flag on completion.
+// Structured: {"type":1000,"res":[{"cls":0,"cnf":0.92,"x":...},...]}
+// Flat (ctx->enable_flat_json=true): {"type":0,...,"cls0":0,"cnf0":0.92,...}
+EhsML_Err EhsML_GetOutput(EhsML_Context* ctx,
+                           ehs_char*     json,
+                           ehs_uint32    size);
+
+// Convenience wrapper: EhsML_Run() then EhsML_GetOutput().
+EhsML_Err EhsML_RunAndGetOutput(EhsML_Context* ctx,
+                                 ehs_char*      json,
+                                 ehs_uint32     size);
+
+// @deprecated Use EhsML_RunAndGetOutput()
 EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx,
                                ehs_char*     json,
                                ehs_uint32    size);
@@ -1360,7 +1699,7 @@ EhsML_Err EhsML_RunOutputJson(EhsML_Context* ctx,
 EhsML_HWAccel_t EhsML_HWAccel_supported(void);
 ```
 
-**Note:** `EhsML_RunOutputData()` (raw buffer output) is declared as TODO in the header and not yet implemented. JSON is the only current output path.
+**Note:** The busy guard (`ctx->inferring`) prevents concurrent inference — `EhsML_Run`, `EhsML_GetOutput`, and `EhsML_SetInputData` all return `EHS_ML_BUSY` (error code 26) immediately if a pipeline is already executing.
 
 ### Tensor helpers
 
@@ -1402,8 +1741,9 @@ Set these variables in your platform `config.mk` or on the `make` command line.
 | `EHS_ML_IE_IMAGE_SUPPORT` | `tensorflow-lite` | TFLite C API wrapper (implemented) |
 | | `tensorflow-lite-micro` | TFLite Micro (TODO — emits build error if set) |
 | `EHS_ML_HARDWARE_ACCELERATION` | `hailo` | Adds HailoRT backend alongside TFLite; sets `EHS_ML_HWACCEL_SUPPORT_HAILO` |
+| | `nvidia` | TensorRT (CUDA, Jetson GPU/DLA); sets `EHS_ML_HWACCEL_SUPPORT_NVIDIA` |
 
-**Note:** Only a single framework and single hardware accelerator are selected per build currently. Supporting multiple simultaneous accelerators is a documented TODO.
+**Note:** Only a single framework and single hardware accelerator are selected per build currently.
 
 ### Model selection
 
@@ -1497,23 +1837,24 @@ See `apriltag-model-trainer/README.md` and `AprilTag_training.ipynb` for the ful
 | :--- | :--- | :--- |
 | Public C API | `Common/HAL/include/hal_ml.h` | Complete |
 | ML common layer | `target/Component-HAL/ml/ml_common.*` | Implemented |
-| TFLite C API backend | `…/framework/tensorflow-lite/` | Implemented (C API + XNNPACK delegate) |
-| TFLite Micro backend | `…/framework/tensorflow-lite-micro/` | TODO |
-| Hailo HRT backend | `…/framework/hailo/` | Implemented |
+| TFLite C API backend | `…/engine/tensorflow-lite/` | Implemented (C API + XNNPACK delegate) |
+| TFLite Micro backend | `…/engine/tensorflow-lite-micro/` | TODO |
+| Hailo HRT backend | `…/engine/hailo/` | Implemented |
+| TensorRT backend | `…/engine/tensorrt/` | Implemented (NMS plugin decoder) |
 | Hailo session management | `…/hailo/hailo_ml.c` | Implemented |
 | YOLOv5 object detection | `…/model/yolov5_objdet.*` | Implemented |
 | YOLOv8 object detection | `…/model/yolov8_objdet.*` | Implemented |
-| YOLOv8 pose estimation | `…/model/yolov8_pose.*` | Source present; post-processor in progress |
+| YOLOv8 pose estimation | `…/model/yolov8_pose.*` | Implemented (Hailo and TFLite paths) |
 | NMS utilities | `…/model/ml_utils/ehs_ml_nms.*` | Implemented |
 | ML utilities | `…/model/ml_utils/ehs_ml_utils.*` | Implemented |
 | Stubbed (no-op) build | `…/stubbed/` | Implemented |
 | YOLO → TFLite export | `scripts/ai-utilities/yolo-model-utils/` | Implemented (FP32, FP16, INT8) |
 | TFLite → HEF compiler | `scripts/ai-utilities/hailo-utils/` | Implemented |
 | AprilTag trainer pipeline | `scripts/ai-utilities/apriltag-model-trainer/` | Implemented |
-| YOLOv9–v26 model types | `hal_ml.h` (enumerated only) | Not implemented |
+| YOLO9–YOLO11 model types | `hal_ml.h` (enumerated only) | Not implemented |
+| YOLO26 model type | `hal_ml.h` (enumerated only) | Not implemented |
 | Text / Audio model types | `hal_ml.h` (enumerated only) | Not implemented |
 | Raw data output path | `hal_ml.h` (TODO comment) | Not implemented (JSON only) |
-| Multiple simultaneous frameworks | Build system | TODO |
 
 ---
 

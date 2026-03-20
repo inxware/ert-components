@@ -13,7 +13,7 @@ typedef struct inx_ml_image_inference_state
 {
 	ehs_char Model_File_Path[EHS_STRING_LENGTH_MAX];
 	EhsML_Type Model_Type;
-	EhsML_File_Ext_t Model_File_Ext;
+	EhsML_ModelFormat_t Model_Format;
 	EhsML_DataType_t Data_Type;
 	EhsML_HWAccel_t HW_Accelerate;
 	ehs_float Conf_Thres;
@@ -47,7 +47,7 @@ EHS_FB_FUNCTIONS_END
 /* Create some macros for the default parameters */
 #define INX_FB_ml_image_inference_Model_File_Path 
 #define INX_FB_ml_image_inference_Model_Type 0
-#define INX_FB_ml_image_inference_Model_File_Ext 1
+#define INX_FB_ml_image_inference_Model_Format 1
 #define INX_FB_ml_image_inference_Data_Type 0
 #define INX_FB_ml_image_inference_HW_Accelerate 0
 #define INX_FB_ml_image_inference_Conf_Thres 0.5
@@ -67,13 +67,13 @@ EHS_FB_IDENTIFY_FUNCTION(ml_image_inference)
 /*
 	ehs_char* Model_File_Path;
 	ehs_sint32 Model_Type;
-	ehs_sint32 Model_File_Ext;
+	ehs_sint32 Model_Format;
 	ehs_sint32 Data_Type;
 	ehs_bool HW_Accelerate;
 	ehs_float Conf_Thres;
 	ehs_sint32 Thread_Number;
 	ehs_bool Use_Application_Dir;
-	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%s %d %d %d %d %f %d %d",&Model File Path,&Model Type,&Model File Ext,&Quantisation Level,&HW Accelerate,&Conf Thres,&Thread Number,&Use Application Dir); */
+	EhsSscanf(EHS_FB_IDENTIFY_PARAMETERS,"%s %d %d %d %d %f %d %d",&Model File Path,&Model Type,&Model Format,&Quantisation Level,&HW Accelerate,&Conf Thres,&Thread Number,&Use Application Dir); */
 	EHS_FB_IDENTIFY_MEMORY = sizeof(inx_ml_image_inference_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
@@ -88,7 +88,7 @@ EHS_FB_IDENTIFY_FUNCTION(ml_image_inference)
 EHS_FB_INIT_FUNCTION(ml_image_inference)
 {
 	ehs_sint32 Model_Type;
-	ehs_sint32 Model_File_Ext;
+	ehs_sint32 Model_Format;
 	ehs_sint32 Data_Type;
 	ehs_bool HW_Accelerate;
 	ehs_float Conf_Thres;
@@ -104,7 +104,7 @@ EHS_FB_INIT_FUNCTION(ml_image_inference)
 		ehs_uint8 useAppDir = 0;
 		ehs_char* Model_File_Path;
 		pParams = EhsGetSint32FromString(&inx_ml_image_inference_state->Model_Type, pParams);
-		pParams = EhsGetSint32FromString(&inx_ml_image_inference_state->Model_File_Ext, pParams);
+		pParams = EhsGetSint32FromString(&inx_ml_image_inference_state->Model_Format, pParams);
 		pParams = EhsGetSint32FromString(&inx_ml_image_inference_state->Data_Type, pParams);
 		pParams = EhsGetUint8FromString(&hw_accel, pParams);
 		inx_ml_image_inference_state->HW_Accelerate = (hw_accel) ? EHS_TRUE : EHS_FALSE;
@@ -185,23 +185,24 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 		EhsStrcpy(inx_ml_image_inference_state->Model_File_Path, EHS_FB_IN_S_API2(INX_ml_image_inference_ARG_load_model_model_path));
 	// Determine the file extension
 
-	printf("**** IMAGE_REF**** PATH=%s, for type %d (expected %d)",inx_ml_image_inference_state->Model_File_Path,inx_ml_image_inference_state->Model_File_Ext,EHS_ML_FILE_EXT_TFLITE);
-	switch ((EhsML_File_Ext_t)inx_ml_image_inference_state->Model_File_Ext) {
-		case EHS_ML_FILE_EXT_TFLITE:
-			/* Accept both .tfl and .tflite extensions */
-			err = (_check_file_extension(inx_ml_image_inference_state->Model_File_Path, "tfl") ||
-			       _check_file_extension(inx_ml_image_inference_state->Model_File_Path, "tflite"))
+	printf("**** IMAGE_REF**** PATH=%s, for type %d (expected %d)",inx_ml_image_inference_state->Model_File_Path,inx_ml_image_inference_state->Model_Format,EHS_ML_FORMAT_TFLITE);
+	switch ((EhsML_ModelFormat_t)inx_ml_image_inference_state->Model_Format) {
+		case EHS_ML_FORMAT_TFLITE:
+			/* Accept .tflite (full) and .tfl (8.3 short) */
+			err = (_check_file_extension(inx_ml_image_inference_state->Model_File_Path, "tflite") ||
+			       _check_file_extension(inx_ml_image_inference_state->Model_File_Path, "tfl"))
 			      ? EHS_ML_OK : EHS_ML_MODEL_NAME_ERR;
 			break;
-		case EHS_ML_FILE_EXT_ONNX:
-			// ONNX
-			err = _check_file_extension(inx_ml_image_inference_state->Model_File_Path, "onnx") ? EHS_ML_OK : EHS_ML_MODEL_NAME_ERR;
+		case EHS_ML_FORMAT_ONNX:
+			/* Accept .onnx (full) and .onn (8.3 short) */
+			err = (_check_file_extension(inx_ml_image_inference_state->Model_File_Path, "onnx") ||
+			       _check_file_extension(inx_ml_image_inference_state->Model_File_Path, "onn"))
+			      ? EHS_ML_OK : EHS_ML_MODEL_NAME_ERR;
 			break;
-		case EHS_ML_FILE_EXT_PB:
-			// PB
+		case EHS_ML_FORMAT_PB:
 			err = _check_file_extension(inx_ml_image_inference_state->Model_File_Path, "pb") ? EHS_ML_OK : EHS_ML_MODEL_NAME_ERR;
 			break;
-		case EHS_ML_FILE_EXT_HEF:
+		case EHS_ML_FORMAT_HEF:
 			// HEF
 			err = _check_file_extension(inx_ml_image_inference_state->Model_File_Path, "hef") ? EHS_ML_OK : EHS_ML_MODEL_NAME_ERR;
 			if (err == EHS_ML_OK)
@@ -309,6 +310,7 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_inference)
 		/* If the frame was captured with OpenCL, download GPU→CPU before
 		 * passing to TFLite or Hailo which require CPU-accessible data. */
 		EhsCameraFrameEnsureCPU(frame);
+		printf(">>>image presnetation is %d x %x\n",frame_size, frame_data);
 		err = EhsML_SetInputData(&inx_ml_image_inference_state->ml_ctx, frame_data, frame_size);
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, error, __func__, "Failed to set input data!");
 

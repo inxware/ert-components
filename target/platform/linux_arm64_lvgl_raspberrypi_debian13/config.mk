@@ -57,9 +57,9 @@ EHS_ML_HARDWARE_ACCELERATION=hailo
 
 EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
 EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
+
 EHS_MV_SUPPORT=opencv
 #EHS_MV_SUPPORT=stubbed
-
 # Use libcamera on top of opencv if supported
 EHS_USE_LIBCAMERA=yes
 # Enables a floating 'debug_cam_X' window with camera preview

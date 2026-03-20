@@ -27,6 +27,8 @@
 #ifndef _TARGET_UART_H_
 #define _TARGET_UART_H_
 
+#include <sched.h>  /* sched_yield() for TgtUART_WDT_feed() */
+
 /* -----------------------------------------------------------------------
  * Device path defaults
  * ----------------------------------------------------------------------- */

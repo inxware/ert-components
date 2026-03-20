@@ -13,7 +13,7 @@
             Deprecated
             <Menu>
                 Machine Learning
-                <Menu>Tensorflow Lite from frame</Menu>
+                <Menu>Tensorflow Lite Image DEPRECATED</Menu>
             </Menu>
         </Menu>
     </Description>

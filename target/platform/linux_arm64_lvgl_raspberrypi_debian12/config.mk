@@ -88,34 +88,52 @@ EHS_GUI_SUPPORT=lvgl
 # If unset will auto-detect between wayland and Xorg
 EHS_LVGL_LINUX_DISPLAY_BACKEND=wayland
 
-EHS_MAIN_LOOP_ITERATIVE=yes
+#QT Only: EHS_MAIN_LOOP_ITERATIVE=yes
 #EHS_AV_SUPPORT=devmanonly
 
 #AV
 EHS_MEDIA_SUPPORT=all
 
-# Use libcamera on top of opencv if supported
-EHS_USE_LIBCAMERA=yes
 
 #----- Machine Vision / ML Features -----
 # Enable machine vision support for testing C++ integration, or disable with `stubbed`.
-EHS_MV_SUPPORT=stubbed
-##EHS_ML_SUPPORT=yes
-##EHS_ML_IE_IMAGE_SUPPORT=tensorflow-lite
+#EHS_MV_SUPPORT=stubbed
+EHS_MV_SUPPORT=opencv
+# Use libcamera on top of opencv if supported
+# Libcamera is not needed for USB camera. May be needed for MIPIP, but libcanera for Debian 12 is very young (0.0.3)
+# And is not very stable
+#EHS_USE_LIBCAMERA=yes
+EHS_ML_SUPPORT=yes
+EHS_ML_IE_IMAGE_SUPPORT=tensorflow-lite
 ##EHS_ML_HARDWARE_ACCELERATION=hailo
-##EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
-##EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
-##EHS_MV_SUPPORT=opencv
+EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
+EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
 
 #----- Peripheral Features -----
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
-EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
+EHS_PERIPHERALS_GPIO_SUPPORT=sferalabs
+#EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
 EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
 #EHS_PERIPHERALS_GPIO_SUPPORT=pigpio
 #EHS_PERIPHERALS_GPIO_SUPPORT=wiringpi
 #EHS_PERIPHERALS_PWM_SUPPORT=pigpio
 #EHS_PERIPHERALS_PWM_SUPPORT=wiringpi
 
+#################################################################################################################
+# Sfera Labs Peripheral HAL Support
+# Enable the new peripheral HAL blocks for the Strato Pi Max (and other Sfera Labs boards where available).
+#################################################################################################################
+
+
+EHS_PERIPHERALS_ADC_DAC_SUPPORT=sferalabs
+
+EHS_WATCHDOG_SUPPORT=sferalabs
+EHS_UPS_SUPPORT=sferalabs
+EHS_BUZZER_SUPPORT=sferalabs
+EHS_SD_SELECT_SUPPORT=sferalabs
+EHS_USB_POWER_SUPPORT=sferalabs
+EHS_ACCELEROMETER_SUPPORT=sferalabs
+EHS_RS485_CONFIG_SUPPORT=sferalabs
 
 #################################################################################################################
 # Application and Packaging
@@ -123,11 +141,9 @@ EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
 #################################################################################################################
 
 # Application Selection
-EHS_DEFAULT_APP=demos/QT_UIs/hello_world-qt
+EHS_DEFAULT_APP=tutorials/hello_world
+#EHS_DEFAULT_APP=demos/QT_UIs/hello_world-qt
 #EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
-
-# Enable eRT1 support (binary format SODL files)
-ERT_SODL_VERSION=1
 
 EHS_PACKAGER_TYPE=deb
 

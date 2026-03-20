@@ -46,12 +46,12 @@
             <ArgPlacement>1</ArgPlacement>
         </Parameter>
         <Parameter>
-            <Name>Model File Ext</Name>
+            <Name>Model Format</Name>
             <DataType>I</DataType>
             <DefaultValue>1</DefaultValue>
             <MinValue>1</MinValue>
             <MaxValue>4</MaxValue>
-            <Description>The file extension of the loaded model. 1 for `.tflite`, 2 for `.onnx`, 3 for `.pb`, 4 for `.hef`.</Description>
+            <Description>The format of the loaded model file. 1 for TFLite (`.tflite` / `.tfl`), 2 for ONNX (`.onnx` / `.onn`), 3 for TensorFlow (`.pb`), 4 for Hailo (`.hef`).</Description>
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
         </Parameter>

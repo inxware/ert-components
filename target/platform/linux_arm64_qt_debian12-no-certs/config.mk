@@ -109,12 +109,20 @@ EHS_DEBUG_TCPIP_CONSOLE=stubbed
 #----- Machine Vision / ML Features -----
 # Enable machine vision support for testing C++ integration, or disable with `stubbed`.
 EHS_MV_SUPPORT=stubbed
-
+##EHS_MV_SUPPORT=opencv
 # Use libcamera on top of opencv if supported
-EHS_USE_LIBCAMERA=yes
+##EHS_USE_LIBCAMERA=yes
+##EHS_ML_SUPPORT=yes
+##EHS_ML_IE_IMAGE_SUPPORT=tensorflow-lite
+
+##EHS_ML_HARDWARE_ACCELERATION=hailo
+##EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
+##EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
 
 #----- Peripheral Features -----
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
+EHS_PERIPHERALS_GPIO_SUPPORT=sferalabs
+#EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
 EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
 EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
 #EHS_PERIPHERALS_GPIO_SUPPORT=pigpio
@@ -122,6 +130,21 @@ EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
 #EHS_PERIPHERALS_PWM_SUPPORT=pigpio
 #EHS_PERIPHERALS_PWM_SUPPORT=wiringpi
 
+#################################################################################################################
+# Sfera Labs Peripheral HAL Support
+# Enable the new peripheral HAL blocks for the Strato Pi Max (and other Sfera Labs boards where available).
+#################################################################################################################
+
+
+EHS_PERIPHERALS_ADC_DAC_SUPPORT=sferalabs
+
+EHS_WATCHDOG_SUPPORT=sferalabs
+EHS_UPS_SUPPORT=sferalabs
+EHS_BUZZER_SUPPORT=sferalabs
+EHS_SD_SELECT_SUPPORT=sferalabs
+EHS_USB_POWER_SUPPORT=sferalabs
+EHS_ACCELEROMETER_SUPPORT=sferalabs
+EHS_RS485_CONFIG_SUPPORT=sferalabs
 
 #################################################################################################################
 # Application and Packaging

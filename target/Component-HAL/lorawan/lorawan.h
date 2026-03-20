@@ -132,5 +132,6 @@ ehs_lorawan_api_errno_t LoRaWAN_set_txpower(ehs_sint32 tx_power);
 ehs_lorawan_api_errno_t LoRaWAN_link_check( void );
 
 void Common_LoRaWAN_onReceive(char *recv_msg, ehs_bool has_message);
+void Common_LoRaWAN_FBCBs(e_ehs_lorawan_api_cmd_t cmd);
 
 #endif

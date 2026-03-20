@@ -30,6 +30,7 @@
 #include "ml_common.h"
 #include "hal_ml.h"
 #include "hal-api.h"
+#include "ehs_ml_objdet_output.h"
 /* ert_hal_tflite_meta.h is only available when the TFLite framework is built.
  * When EHS_ML_SUPPORT=stubbed (e.g. Windows targets) the framework is absent,
  * so guard the include and any calls to EhsML_TFLite_GetModelInfoJson. */
@@ -969,6 +970,7 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
     #ifdef EHS_ML_SUPPORT_STUBBED
     return EhsML_Stubbed_SetInputData(ctx, data, size);
     #else
+    printf("$$$$$$$$$$$$$$ctx-type=%d = expecting %d\n",ctx->type,EHS_ML_YOLOV5_OBJ_DETECTOR);
     switch (ctx->type)
     {
         /* Stubbed */
