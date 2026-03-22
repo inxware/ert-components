@@ -18,7 +18,7 @@
 #include "inx-component.h"
 
 #define EHS_FB_NAME_rs485_config "rs485_config"
-#define EHS_FB_ID_rs485_config   0x9A07
+#define EHS_FB_ID_rs485_config   0x2F4D
 
 EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(rs485_config);
 EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(rs485_config);

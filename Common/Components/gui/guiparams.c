@@ -383,6 +383,105 @@ ehs_bool EhsParseGuiParametersTextBox2Type(const char* szObjectType, EhsWidgetPu
  * @param szParamsText[in] "raw" parameter text
  * @param pParams[out] Pointer to EhsGuiParamsType
  */
+/**
+ * Parse GUI parameters for a textbox widget with a known purpose class.
+ *
+ * Does the same header splitting as EhsParseGuiParameters() but skips the
+ * type-detection step.  Geometry and colour data are always parsed because
+ * the caller supplies the purpose class directly.  Use this from per-type
+ * init functions (gui_text_int2, gui_text_bool2, etc.) so the widget data
+ * type is determined by the function block class, not by string matching.
+ */
+ehs_bool EhsParseGuiParametersTextbox(const char* szParamsText, EhsGuiParamsType* pParams,
+                                       EhsWidgetPurposeClassType purposeClass)
+{
+    const char* pParam[EHS_PARAM_COUNT_MAX];
+    char szObjectType[EHS_OBJECT_NAME_MAX_SIZE];
+    char szObjectName[EHS_OBJECT_NAME_MAX_SIZE];
+    ehs_uint16 nParamsRead = 0;
+    ehs_uint16 nVersion = 0;
+    ehs_uint16 nParam;
+    char* pTmp;
+
+    pParams->eClass = EHS_WIDGET_CLASS_INVALID;
+    pParams->ePurposeClass = EHS_WIDGET_PURPOSE_INVALID;
+
+    /* Split params string into token pointers — same as EhsParseGuiParameters */
+    pParam[nParamsRead++] = szParamsText;
+    while (*szParamsText && nParamsRead < EHS_PARAM_COUNT_MAX)
+    {
+        if (*szParamsText == EHS_PARAM_SEPARATOR)
+            pParam[nParamsRead++] = ++szParamsText;
+        else
+            szParamsText++;
+    }
+
+    EHSH_LOG_INFO("EhsParseGuiParametersTextbox: %u tokens, forcedPurpose=%d",
+                  nParamsRead, (int)purposeClass);
+
+    if (nParamsRead <= 3)
+    {
+        EHSH_LOG_WARNING("EhsParseGuiParametersTextbox: too few tokens");
+        return EHS_FALSE;
+    }
+
+    /* Read version (token 0) */
+    nParam = 0;
+    if (EhsStrnicmp("1.0.0", pParam[nParam], 5) == 0)      nVersion = 100;
+    else if (EhsStrnicmp("1.3", pParam[nParam], 3) == 0)   nVersion = 130;
+    else if (EhsStrnicmp("1.4", pParam[nParam], 3) == 0)   nVersion = 140;
+    nParam++;
+
+    /* Read object name (token 1) */
+    EhsGetWordFromString(szObjectName, pParam[nParam++]);
+
+    /* Read object type (token 2) and validate it matches the expected purpose class.
+       The widget class is authoritative; a mismatch means the .gui file is wrong. */
+    EhsGetWordFromString(szObjectType, pParam[nParam++]);
+    pTmp = strchr(szObjectType, EHS_PARAM_SEPARATOR);
+    if (pTmp) *pTmp = '\0';
+
+    /* Validate .gui file type token against the expected purpose class.
+     * The function block class is authoritative — a mismatch means the .gui
+     * file is wrong but the widget will still render correctly because
+     * purposeClass (not the token) drives the rendering dispatch and id field.
+     * Geometry wire format is currently identical across all textbox sub-types
+     * so parsing succeeds regardless. If that ever changes, this mismatch
+     * would become a load-time error. */
+    {
+        EhsWidgetPurposeClassType parsedType = EHS_WIDGET_PURPOSE_INVALID;
+        if (EhsParseGuiParametersTextBox2Type(szObjectType, &parsedType))
+        {
+            if (parsedType != purposeClass)
+            {
+                EHSH_LOG_WARNING("Widget '%s': .gui file type '%s' does not match "
+                                 "function block type (gui purpose=%d, expected=%d). "
+                                 "Widget will display correctly but the .gui file should be fixed.",
+                                 szObjectName, szObjectType, (int)parsedType, (int)purposeClass);
+            }
+        }
+        else
+        {
+            EHSH_LOG_WARNING("Widget '%s': .gui file has unrecognised type token '%s' "
+                             "(expected purpose=%d). "
+                             "Widget will display correctly but the .gui file should be fixed.",
+                             szObjectName, szObjectType, (int)purposeClass);
+        }
+    }
+
+    /* Token 3 onwards: geometry/colour data — parse directly as textbox */
+    if (EhsParseGuiParameters_textbox(&(pParam[nParam]), pParams, nVersion,
+                                       nParamsRead - nParam, szObjectName))
+    {
+        pParams->ePurposeClass = purposeClass;
+        pParams->eClass = EHS_WIDGET_CLASS_TEXTBOX;
+        return EHS_TRUE;
+    }
+
+    EHSH_LOG_WARNING("EhsParseGuiParametersTextbox: geometry parsing failed");
+    return EHS_FALSE;
+}
+
 void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
 {
     const char* pParam[EHS_PARAM_COUNT_MAX]; /* points to the start of each parameter */

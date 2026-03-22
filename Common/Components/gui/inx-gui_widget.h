@@ -11,6 +11,12 @@
 EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(gui_widget); // this relates to C file identify function
 EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_widget); // this relates to C-file init function
 EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(gui_widget); //this relates to C-file destroy function
+
+/* Per-type init functions — data type is encoded at compile time, bypassing GUI parameter string parsing */
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_text_string2);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_text_float2);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_text_int2);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(gui_text_bool2);
 EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_widget_create); //a function executed by a start port
 EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_widget_destroy); //a function executed by a start port
 EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(gui_widget_show); //a function executed by a start port

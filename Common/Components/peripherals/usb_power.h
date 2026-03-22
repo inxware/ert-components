@@ -18,7 +18,7 @@
 #include "inx-component.h"
 
 #define EHS_FB_NAME_usb_power "usb_power"
-#define EHS_FB_ID_usb_power   0x9A05
+#define EHS_FB_ID_usb_power   0x7A15
 
 EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(usb_power);
 EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(usb_power);

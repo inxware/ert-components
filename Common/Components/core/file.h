@@ -82,7 +82,7 @@ EHS_FB_FUNCTIONS(FILE_ReadOnly_Int)
 /* Declare integer file, writeonly */
 
 #define EHS_FB_NAME_FILE_WriteOnly_Int "FILE_WriteOnly_Int"
-#define EHS_FB_ID_FILE_WriteOnly_Int 0x3355  // this was duplicate of EHS_FB_ID_DemultiplexTwoOutputString
+#define EHS_FB_ID_FILE_WriteOnly_Int 0x493B
 
 EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(FILE_WriteOnly_Int);
 EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(FILE_WriteOnly_Int);

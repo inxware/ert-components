@@ -35,7 +35,7 @@
         <Class>rs485_config</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0x0000</NameHash_CRC16>
+        <NameHash_CRC16>0x2F4D</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>00000000</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

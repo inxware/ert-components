@@ -18,7 +18,7 @@
 #include "inx-component.h"
 
 #define EHS_FB_NAME_accelerometer "accelerometer"
-#define EHS_FB_ID_accelerometer   0x9A06
+#define EHS_FB_ID_accelerometer   0x69DD
 
 EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(accelerometer);
 EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(accelerometer);

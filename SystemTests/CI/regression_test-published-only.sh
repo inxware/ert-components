@@ -245,6 +245,18 @@ else
     rm -Rf ${CI_RESULT_DIR}/*
 fi
 
+#####################################################
+# Pre-flight: validate function block CDF hashes
+#####################################################
+echo
+heading "Checking CDF NameHash_CRC16 consistency across all function blocks..."
+if python3 scripts/inxware-id-tool/check_cdf_hashes.py Common/Components; then
+    echo "${TXT_FG_BRIGHT_GREEN}CDF hash check passed"
+else
+    err "CDF hash check FAILED — fix NameHash_CRC16 mismatches before building"
+    exit 1
+fi
+
 for platform in "${target_platform[@]}"; do
     display_target
     if [  "${platform}" == ".svn" -o "${platform}" == "depricated" -o "`expr "${platform}" : "base.*"`" -gt 0 ]; then

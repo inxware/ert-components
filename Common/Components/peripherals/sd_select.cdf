@@ -35,7 +35,7 @@
         <Class>sd_select</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0x0000</NameHash_CRC16>
+        <NameHash_CRC16>0x7FBB</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>00000000</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

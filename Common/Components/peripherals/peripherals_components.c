@@ -16,31 +16,31 @@
 #include "inx-accel_gyro.h"
 
 #ifdef EHS_WATCHDOG_SUPPORT
-#include "watchdog/watchdog.h"
+#include "watchdog.h"
 #endif
 
 #ifdef EHS_UPS_SUPPORT
-#include "ups/ups.h"
+#include "ups.h"
 #endif
 
 #ifdef EHS_BUZZER_SUPPORT
-#include "buzzer/buzzer.h"
+#include "buzzer.h"
 #endif
 
 #ifdef EHS_SD_SELECT_SUPPORT
-#include "sd_select/sd_select.h"
+#include "sd_select.h"
 #endif
 
 #ifdef EHS_USB_POWER_SUPPORT
-#include "usb_power/usb_power.h"
+#include "usb_power.h"
 #endif
 
 #ifdef EHS_ACCELEROMETER_SUPPORT
-#include "accelerometer/accelerometer.h"
+#include "accelerometer.h"
 #endif
 
 #ifdef EHS_RS485_CONFIG_SUPPORT
-#include "rs485_config/rs485_config.h"
+#include "rs485_config.h"
 #endif
 
 // Components moved from user directory

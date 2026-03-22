@@ -7,7 +7,7 @@
  * Supports yolov5, yolov8 and other object detection models
  * via the EhsML HAL (TFLite, Hailo, etc.).
  *****************************************************/
-#define INXWARE_FB_ID_ml_frame_inference 0xFB15
+#define INXWARE_FB_ID_ml_frame_inference 0x365B
 #define INXWARE_FB_NAME_ml_frame_inference "ml_frame_inference"
 /* Declaring the functions used here as public interface for static linking into EHS builds */
 EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ml_frame_inference); // this relates to C file identify function

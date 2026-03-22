@@ -41,17 +41,17 @@
             <DefaultValue>0</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>4001</MaxValue>
-            <Description>The type of model loaded. It is used to determine the inference output format.</Description>
+            <Description>The type of model loaded. Used to select the post-processing pipeline for the inference output. 0 = auto/generic (raw inference run, no model-specific decode; output will be empty). Non-zero = filter: only this model type is accepted (e.g. 1003 for YOLOv5, 1006 for YOLOv8).</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>Model Format</Name>
             <DataType>I</DataType>
-            <DefaultValue>1</DefaultValue>
-            <MinValue>1</MinValue>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
             <MaxValue>4</MaxValue>
-            <Description>The format of the loaded model file. 1 for TFLite (`.tflite` / `.tfl`), 2 for ONNX (`.onnx` / `.onn`), 3 for TensorFlow (`.pb`), 4 for Hailo (`.hef`).</Description>
+            <Description>The format of the loaded model file. 0 = auto-detect from file extension. 1 = TFLite (`.tflite` / `.tfl`), 2 = ONNX (`.onnx` / `.onn`), 3 = TensorFlow (`.pb`), 4 = Hailo (`.hef`). Non-zero acts as a filter: load fails if the file extension does not match.</Description>
             <ListPlacement>2</ListPlacement>
             <ArgPlacement>2</ArgPlacement>
         </Parameter>

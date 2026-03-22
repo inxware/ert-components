@@ -1,3 +1,33 @@
+/*
+ * TODO LIST
+ *
+ * NON-BLOCKING INFERENCE
+ *   The inference run function currently blocks the ERT scheduler while the ML
+ *   pipeline executes.  To make it non-blocking, use a persistent worker thread:
+ *   1. Add to state: pthread_t, pthread_mutex_t, pthread_cond_t,
+ *      inference_busy flag, pending_frame_id, pFIdata pointer.
+ *   2. Spawn the worker thread inside load_model; it loops waiting on the
+ *      condition variable.
+ *   3. In the inference run function: if busy, drop the frame; otherwise queue
+ *      frame_id, signal the condition variable, and return immediately.
+ *   4. Worker thread: wake on signal, retrieve the frame, run EhsML_SetInputData
+ *      + EhsML_RunAndGetOutput, access output ports via pFIdata, fire
+ *      EHS_FB_FINISH events.
+ *   5. In destroy: set an exit flag, signal the condition variable, join the
+ *      thread, then destroy the mutex and condition variable.
+ *
+ * MODEL TYPE AUTO-DETECTION
+ *   Model_Type == 0 (auto/generic) runs raw inference without model-specific
+ *   decode or NMS, leaving ctx->detections[] empty.  A future improvement
+ *   would inspect the model's input/output tensor shapes and embedded metadata
+ *   to infer the architecture (e.g. YOLOv5 vs YOLOv8) automatically.
+ *
+ * DEBUG PRINTF CLEANUP
+ *   Several printf() calls remain from development (image presentation size,
+ *   load path, format check).  These should be replaced with EHSH_LOG_DEBUG
+ *   calls or removed before production use.
+ */
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -185,7 +215,20 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 		EhsStrcpy(inx_ml_image_inference_state->Model_File_Path, EHS_FB_IN_S_API2(INX_ml_image_inference_ARG_load_model_model_path));
 	// Determine the file extension
 
-	printf("**** IMAGE_REF**** PATH=%s, for type %d (expected %d)",inx_ml_image_inference_state->Model_File_Path,inx_ml_image_inference_state->Model_Format,EHS_ML_FORMAT_TFLITE);
+	/* Auto-detect model format from file extension when Model_Format == 0 */
+	if (inx_ml_image_inference_state->Model_Format == EHS_ML_FORMAT_START) {
+		const ehs_char* p = inx_ml_image_inference_state->Model_File_Path;
+		if      (_check_file_extension(p, "tflite") || _check_file_extension(p, "tfl"))
+			inx_ml_image_inference_state->Model_Format = EHS_ML_FORMAT_TFLITE;
+		else if (_check_file_extension(p, "onnx")   || _check_file_extension(p, "onn"))
+			inx_ml_image_inference_state->Model_Format = EHS_ML_FORMAT_ONNX;
+		else if (_check_file_extension(p, "pb"))
+			inx_ml_image_inference_state->Model_Format = EHS_ML_FORMAT_PB;
+		else if (_check_file_extension(p, "hef"))
+			inx_ml_image_inference_state->Model_Format = EHS_ML_FORMAT_HEF;
+		/* else: unrecognised extension — the switch default below will fail with MODEL_NAME_ERR */
+	}
+
 	switch ((EhsML_ModelFormat_t)inx_ml_image_inference_state->Model_Format) {
 		case EHS_ML_FORMAT_TFLITE:
 			/* Accept .tflite (full) and .tfl (8.3 short) */
@@ -246,7 +289,7 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 			}
 		}
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, err, __func__, "Model file does not exist!");
-        printf("Which one ??? Just for a change...\n");
+        //printf("Which one ??? Just for a change...\n");
 		err = EhsML_Create(&inx_ml_image_inference_state->ml_ctx, szCanonicalFilePath,
 			(EhsML_Type)inx_ml_image_inference_state->Model_Type,
 			inx_ml_image_inference_state->Conf_Thres,
@@ -278,6 +321,17 @@ err:
  * This function can access the object data shared using the following macros:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
  *  EHS_FB_RUN_CONTEXT_REF - pointer to the address of the context area for this function block
+ * 
+ * NOTE: This function currently blocks while performing ML inference.
+ * 
+ * SUGGESTED NON-BLOCKING APPROACH:
+ * To make this non-blocking, consider using a persistent worker thread pattern:
+ * 1. Add to state: pthread_t, pthread_mutex_t, pthread_cond_t, inference_busy flag, pending_frame_id, pFIdata pointer
+ * 2. Create worker thread in load_model that loops waiting on condition variable
+ * 3. In this function: check if busy (drop frame if so), queue frame_id, signal condition, return immediately
+ * 4. Worker thread: wait for signal, get frame, run inference, access output ports via pFIdata, fire EHS_FB_FINISH events
+ * 5. In destroy: signal thread exit, join thread, destroy mutex/cond
+ * This allows the inference function to return immediately while the worker processes frames asynchronously.
  */
 EHS_FB_RUN_FUNCTION(ml_image_inference_inference)
 {
@@ -310,7 +364,6 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_inference)
 		/* If the frame was captured with OpenCL, download GPU→CPU before
 		 * passing to TFLite or Hailo which require CPU-accessible data. */
 		EhsCameraFrameEnsureCPU(frame);
-		printf(">>>image presnetation is %d x %x\n",frame_size, frame_data);
 		err = EhsML_SetInputData(&inx_ml_image_inference_state->ml_ctx, frame_data, frame_size);
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, error, __func__, "Failed to set input data!");
 

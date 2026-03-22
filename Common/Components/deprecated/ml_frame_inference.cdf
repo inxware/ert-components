@@ -33,7 +33,7 @@
         <Class>ml_frame_inference</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0xFB15</NameHash_CRC16>
+        <NameHash_CRC16>0x365B</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>93145718</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

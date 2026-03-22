@@ -18,7 +18,7 @@
 #include "inx-component.h"
 
 #define EHS_FB_NAME_watchdog "watchdog"
-#define EHS_FB_ID_watchdog   0x9A01
+#define EHS_FB_ID_watchdog   0x1DC9
 
 EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(watchdog);
 EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(watchdog);

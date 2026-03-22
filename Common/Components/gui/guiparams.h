@@ -74,5 +74,21 @@ typedef struct
  */
 EHS_GLOBAL void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams);
 
+/**
+ * Parse GUI parameters for a textbox widget with a known data type.
+ *
+ * Identical to EhsParseGuiParameters() but skips the internal type-detection
+ * step. The caller supplies the purpose class directly (e.g.
+ * EHS_WIDGET_PURPOSE_INT for a gui_text_int2 block), so geometry and colour
+ * data are always parsed regardless of what the GUI parameter type token says.
+ *
+ * @param szParamsText[in]   "raw" parameter text (same as EhsParseGuiParameters)
+ * @param pParams[out]       Pointer to EhsGuiParamsType
+ * @param purposeClass[in]   The known data type (must not be EHS_WIDGET_PURPOSE_INVALID)
+ * @return EHS_TRUE if geometry was parsed successfully
+ */
+EHS_GLOBAL ehs_bool EhsParseGuiParametersTextbox(const char* szParamsText, EhsGuiParamsType* pParams,
+                                                  EhsWidgetPurposeClassType purposeClass);
+
 #endif /* _EHS_GUIPARAMS_H */
 

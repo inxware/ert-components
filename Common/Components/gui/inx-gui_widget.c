@@ -124,11 +124,18 @@ EHS_FB_IDENTIFY_FUNCTION(gui_widget)
     EHS_FB_IDENTIFY_MEMORY = sizeof(inx_gui_widget_state_type);
 }
 
-EHS_FB_INIT_FUNCTION(gui_widget)
+/*
+ * Shared init implementation for all typed textbox widget classes.
+ *
+ * forcedPurposeClass: when != EHS_WIDGET_PURPOSE_INVALID, overrides the type
+ * inferred from the GUI parameter string. Per-type init functions pass a
+ * hardcoded value here so the data type is determined by the function block
+ * class, not by fragile string prefix matching of the GUI parameter token.
+ */
+static ehs_bool gui_widget_init_impl(const ehs_char* params, void* context,
+                                     EhsWidgetPurposeClassType forcedPurposeClass)
 {
-    // printf("\n*** QT DEBUG: gui_widget INIT called ***\n");
-    // fflush(stdout);
-    EHSH_LOG_INFO("=== gui_widget INIT FUNCTION CALLED ===");
+    EHSH_LOG_INFO("=== gui_widget INIT FUNCTION CALLED (forcedPurposeClass=%d) ===", (int)forcedPurposeClass);
     ehs_bool bRet = EHS_TRUE;
 
     EhsGuiParamsType xParams;
@@ -140,29 +147,35 @@ EHS_FB_INIT_FUNCTION(gui_widget)
     const char* pParams;
 
     //this is the reference to the object data for this instance of the function block
-    inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)EHS_FB_INIT_CONTEXT;
+    inx_gui_widget_state_type* inx_gui_widget_state = (inx_gui_widget_state_type*)context;
     inx_gui_widget_state->pUiWidgetClass = NULL;
 
-    pParams = ReadParmFile(&EHS_FB_INIT_PARAMETERS[4], guiParams); //read from "%%%%..."
-    
-    if (guiParams[0]) {
-        // printf("\n*** QT DEBUG: guiParams[0] is NOT empty, proceeding to parse\n");
-        // fflush(stdout);
-        EHSH_LOG_INFO("gui_widget INIT: Read GUI parameters, calling EhsParseGuiParameters");
-        EhsParseGuiParameters(guiParams, &xParams);
+    pParams = ReadParmFile(&params[4], guiParams); //read from "%%%%..."
 
+    if (guiParams[0]) {
+        if (forcedPurposeClass != EHS_WIDGET_PURPOSE_INVALID) {
+            /* Per-type init: bypass type detection; parse geometry directly.
+               This guarantees eClass=TEXTBOX and the correct ePurposeClass even
+               when the GUI parameter type token doesn't match any known prefix. */
+            EHSH_LOG_INFO("gui_widget INIT: calling EhsParseGuiParametersTextbox (forcedPurpose=%d)",
+                          (int)forcedPurposeClass);
+            EhsParseGuiParametersTextbox(guiParams, &xParams, forcedPurposeClass);
+        } else {
+            EHSH_LOG_INFO("gui_widget INIT: calling EhsParseGuiParameters (type from param string)");
+            EhsParseGuiParameters(guiParams, &xParams);
+        }
 
         if (xParams.eClass == EHS_WIDGET_CLASS_TEXTBOX)
         {
-            EHSH_LOG_INFO("gui_widget INIT: Creating TEXTBOX widget (eClass=%d)", xParams.eClass);
+            EHSH_LOG_INFO("gui_widget INIT: Creating TEXTBOX widget (ePurposeClass=%d)", (int)xParams.ePurposeClass);
 
-#if defined(EHS_GUI_SUPPORT_MODE_B) 
+#if defined(EHS_GUI_SUPPORT_MODE_B)
 
             inx_gui_widget_state->gui.data = NULL;
             inx_gui_widget_state->gui.label = NULL;
             ehs_uint16 nId = EHS_STRING_UI_WIDGET;
-            
-            switch(xParams.ePurposeClass){ // text box 
+
+            switch(xParams.ePurposeClass){ // text box
                 case EHS_WIDGET_PURPOSE_TEXT: // string widget type
                 {
                     nId = EHS_STRING_UI_WIDGET + xParams.uClass.xTextbox.nExtType;
@@ -186,8 +199,6 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                 default:
                     EHSH_LOG_ERROR("Error unknown widget sub type for TEXTBOX class");
             }
-            /* Initialising a render Mode B widget struct */
-            /* TODO this nId stuff has to go!... Should the initi function just pass in the while xParams anyway with class and purpose class info ..?*/
             inx_gui_widget_state->pUiWidgetClass = EhsWidgetUI_init(nId, xParams.uClass.xTextbox.nProp,
                                                                     xParams.uClass.xTextbox.nCurve,
                                                                     xParams.uClass.xTextbox.nParent,
@@ -205,7 +216,6 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                                                                     ,xParams.widgetName
 #endif
                                                                     );
-//            EHSH_LOG_INFO("  EhsWidgetUI_init returned: %p", (void*)inx_gui_widget_state->pUiWidgetClass);
 
 #else // EHS_GUI_SUPPORT_MODE_B
 
@@ -214,7 +224,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
     #ifndef EHS_DONT_USE_BASIC_FONTS
             pFont = EhsGraphicsFont_load(xParams.uClass.xTextbox.szFontName);
     #endif // EHS_DONT_USE_BASIC_FONTS
-                
+
             inx_gui_widget_state->pUiWidgetClass = EhsWidgetTextbox_init(&(xParams.xRect),xParams.nZorder,
                                                                     xParams.uClass.xTextbox.nIndentL,
                                                                     xParams.uClass.xTextbox.nIndentT,
@@ -227,7 +237,7 @@ EHS_FB_INIT_FUNCTION(gui_widget)
                                                                     xParams.ePurposeClass
                                                                 );
 
-#endif // EHS_GUI_SUPPORT_MODE_B 
+#endif // EHS_GUI_SUPPORT_MODE_B
 
             if ((inx_gui_widget_state->pUiWidgetClass == NULL) || (inx_gui_widget_state->pUiWidgetClass->nState == EHS_WIDGET_STATE_EMPTY))
             {
@@ -265,15 +275,11 @@ EHS_FB_INIT_FUNCTION(gui_widget)
         }
         else
         {
-            // printf("\n*** QT DEBUG: Widget class is NOT TEXTBOX (eClass=%d)\n", xParams.eClass);
-            // fflush(stdout);
             EHSH_LOG_WARNING("gui_widget INIT: Parsed widget class is NOT TEXTBOX (eClass=%d), widget not created", xParams.eClass);
         }
     }
     else
     {
-        // printf("\n*** QT DEBUG: guiParams[0] IS EMPTY - no parameters to parse!\n");
-        // fflush(stdout);
         EHSH_LOG_WARNING("gui_widget INIT: No GUI parameters to parse (guiParams is empty)");
     }
 
@@ -300,10 +306,35 @@ EHS_FB_INIT_FUNCTION(gui_widget)
     }
 #endif
 
-    // printf("\n*** QT DEBUG: gui_widget INIT: EXIT - bRet=%d\n", bRet);
-    // fflush(stdout);
     EHSH_LOG_INFO("gui_widget INIT: EXIT - returning bRet=%d", bRet);
     return bRet; /* initialisation always succeeds */
+}
+
+/* Generic init — type determined entirely by GUI parameter string parsing. */
+EHS_FB_INIT_FUNCTION(gui_widget)
+{
+    return gui_widget_init_impl(EHS_FB_INIT_PARAMETERS, EHS_FB_INIT_CONTEXT, EHS_WIDGET_PURPOSE_INVALID);
+}
+
+/* Per-type inits — data type is hardcoded, independent of GUI parameter string content. */
+EHS_FB_INIT_FUNCTION(gui_text_string2)
+{
+    return gui_widget_init_impl(EHS_FB_INIT_PARAMETERS, EHS_FB_INIT_CONTEXT, EHS_WIDGET_PURPOSE_TEXT);
+}
+
+EHS_FB_INIT_FUNCTION(gui_text_float2)
+{
+    return gui_widget_init_impl(EHS_FB_INIT_PARAMETERS, EHS_FB_INIT_CONTEXT, EHS_WIDGET_PURPOSE_FLOAT);
+}
+
+EHS_FB_INIT_FUNCTION(gui_text_int2)
+{
+    return gui_widget_init_impl(EHS_FB_INIT_PARAMETERS, EHS_FB_INIT_CONTEXT, EHS_WIDGET_PURPOSE_INT);
+}
+
+EHS_FB_INIT_FUNCTION(gui_text_bool2)
+{
+    return gui_widget_init_impl(EHS_FB_INIT_PARAMETERS, EHS_FB_INIT_CONTEXT, EHS_WIDGET_PURPOSE_BOOL);
 }
 
 EHS_FB_DESTROY_FUNCTION(gui_widget)

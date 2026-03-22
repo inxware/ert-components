@@ -48,9 +48,15 @@ Machine learning model preparation tools:
 **yolo-model-utils/** - YOLO object detection model preparation and conversion
 
 ### inxware-id-tool/
-Tools for managing inxware device identifiers and component validation:
-- `cdf_validate.py` - Symlink to software-utilities validator
-- `inxtool_oldscript/` - Legacy tooling (deprecated)
+Tools for generating and validating hash-based identifiers for eRT function blocks. See `inxware-id-tool/README.md` for full usage.
+- `inxtool.py` - Main entry point: generate `NameHash_CRC16` for a class name (`-genHash`) or batch-update ID defines in `.c`/`.h` files
+- `hash.py` - CRC-16/Modbus and CRC-32 hash algorithm implementations (used by `inxtool.py`)
+- `argumentparser.py` - CLI argument parsing for `inxtool.py`
+- `configurations.py` - Default configuration values for `inxtool.py`
+- `converter.py` - File-walking and processing orchestrator (used by `inxtool.py`)
+- `processline.py` - Line-level matching and replacement logic for each processing mode (used by `inxtool.py`)
+- `check_cdf_hashes.py` - Regression checker: verifies every CDF's `NameHash_CRC16` matches the CRC-16/Modbus of its class name, and that matching `.h` macros agree. Exits non-zero on mismatch — run after adding or renaming any function block
+- `cdf_validate.py` - Validates that function IDs in `.cdf` files match `EHS_FB_FUNCTION_ENTRY` entries in C source
 
 ## Notes for Developers
 

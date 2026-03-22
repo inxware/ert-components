@@ -7,26 +7,26 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
-/** @file sd_select.h
- * Function block declarations for dual SD-card slot selection.
+/** @file buzzer.h
+ * Function block declarations for the buzzer peripheral.
  */
 
-#ifndef _EHS_SD_SELECT_H
-#define _EHS_SD_SELECT_H
+#ifndef _EHS_BUZZER_H
+#define _EHS_BUZZER_H
 
 #include "ehs_fb_types.h"
 #include "inx-component.h"
 
-#define EHS_FB_NAME_sd_select "sd_select"
-#define EHS_FB_ID_sd_select   0x9A04
+#define EHS_FB_NAME_buzzer "buzzer"
+#define EHS_FB_ID_buzzer   0x3D16
 
-EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(sd_select);
-EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(sd_select);
-EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(sd_select_select);
-EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(sd_select_read_active);
-EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(sd_select);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(buzzer);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(buzzer);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(buzzer_beep);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(buzzer_stop);
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(buzzer);
 
 /* declare the table for use by the blockref table */
-EHS_FB_FUNCTIONS(sd_select)
+EHS_FB_FUNCTIONS(buzzer)
 
-#endif /* _EHS_SD_SELECT_H */
+#endif /* _EHS_BUZZER_H */

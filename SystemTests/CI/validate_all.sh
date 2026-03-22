@@ -78,6 +78,14 @@ cd ${ROOT_DIR}/../ert-components || exit
 rm -Rf ${CI_RESULT_DIR}/*
 rm -Rf ${CI_RESULT_DIR}/*/*
 
+# Pre-flight: validate function block CDF hashes before any build starts
+echo "Checking CDF NameHash_CRC16 consistency across all function blocks..."
+if ! python3 scripts/inxware-id-tool/check_cdf_hashes.py Common/Components; then
+    echo "ERROR: CDF hash check FAILED — fix NameHash_CRC16 mismatches before building"
+    exit 1
+fi
+echo "CDF hash check passed"
+
 for platform in `find ./target/platform/* -maxdepth 0 -type d  -printf "%f\n"`
 do
  echo "===============================${platform}======================"

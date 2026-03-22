@@ -35,7 +35,7 @@
         <Class>usb_power</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0x0000</NameHash_CRC16>
+        <NameHash_CRC16>0x7A15</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>00000000</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

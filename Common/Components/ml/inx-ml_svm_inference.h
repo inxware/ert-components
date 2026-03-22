@@ -8,7 +8,7 @@
  * kernel-based classification or regression inference.
  * Supports linear, polynomial and Gaussian kernels.
  *****************************************************/
-#define INXWARE_FB_ID_ml_svm_inference 0x1005
+#define INXWARE_FB_ID_ml_svm_inference 0x533F
 #define INXWARE_FB_NAME_ml_svm_inference "ml_svm_inference"
 
 /* Declaring the functions used here as public interface for static linking into EHS builds */

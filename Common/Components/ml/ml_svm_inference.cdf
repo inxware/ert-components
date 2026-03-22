@@ -30,7 +30,7 @@
         <Class>ml_svm_inference</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0x1005</NameHash_CRC16>
+        <NameHash_CRC16>0x533F</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>a8cfdb74</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

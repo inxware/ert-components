@@ -76,6 +76,7 @@ This guide is for developers looking to
     - [Step 3: Create Visual Representation](#step-3-create-visual-representation)
     - [Step 4: Integration](#step-4-integration)
     - [Step 5: Documentation](#step-5-documentation)
+  - [Function Block IDs](#function-block-ids)
   - [Component Categories](#component-categories)
     - [Core Components (`core/`)](#core-components-core)
     - [GUI Components (`gui/`)](#gui-components-gui)
@@ -1039,6 +1040,48 @@ Add component to appropriate category and update build system.
 
 #### Step 5: Documentation
 Create help.html and test applications.
+
+### Function Block IDs
+
+Every function block needs two identifiers in its CDF `<Hashes>` block and mirrored in its `.h` header.
+
+#### `NameHash_CRC16` — generate with `inxtool.py`
+
+Run from the repo root:
+```bash
+python3 scripts/inxware-id-tool/inxtool.py -genHash "<class_name>" -hash 16CRC
+```
+
+The tool prints 4 uppercase hex digits. Prepend `0x` and write it in two places:
+
+**CDF `<Hashes>` element:**
+```xml
+<Hashes>
+    <NameHash_CRC16>0xF512</NameHash_CRC16>
+    <FbApiDescriptorHash_CRC32>00000000</FbApiDescriptorHash_CRC32>
+    <FbApiDescriptorHash/>
+</Hashes>
+```
+
+**`.h` header macro** (value must match the CDF exactly):
+```c
+#define INXWARE_FB_ID_my_block_class  0xF512
+```
+
+> The `<Class>` name in the CDF, the CDF filename, and the docs directory must all be identical — Lucid IDE uses the `<Class>` value to locate the help file.
+
+#### `FbApiDescriptorHash_CRC32` — always leave as `00000000`
+
+This field is not used by the runtime or by Lucid IDE (marked as `@TODO` in Lucid source). Existing CDFs show non-zero values set by older IDE versions, but **do not attempt to reproduce these** — the algorithm is not available in the open-source tools. For any new or manually edited CDF, `00000000` is correct.
+
+#### Checking for missing or zero IDs
+
+```bash
+# Find CDFs with zero NameHash_CRC16
+grep -r 'NameHash_CRC16>0x0000' Common/Components/
+# Validate CDF function IDs against C implementation
+python3 scripts/inxware-id-tool/cdf_validate.py
+```
 
 ### Previewing CDF
 

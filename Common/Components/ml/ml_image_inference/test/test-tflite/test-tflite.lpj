@@ -12,7 +12,7 @@
 <Toolbox hash="0x1ab8">mv</Toolbox>
 <Toolbox hash="0x1a10">ml</Toolbox>
 </Toolboxes>
-<LastTransferToTarget>2026-02-20 03:47:21:000</LastTransferToTarget>
+<LastTransferToTarget>2026-02-20 16:15:33:000</LastTransferToTarget>
 <GroupSet>
 <Group>
 <ID>1</ID>
@@ -63,11 +63,23 @@
 </ScreenSet>
 <WidgetSet>
 <Widget>
-<WidgetTag>MLTime</WidgetTag>
+<WidgetTag>pixelFormar</WidgetTag>
 <ScreenTag>default</ScreenTag>
 </Widget>
 <Widget>
 <WidgetTag>preprocesstime</WidgetTag>
+<ScreenTag>default</ScreenTag>
+</Widget>
+<Widget>
+<WidgetTag>EHSJitter</WidgetTag>
+<ScreenTag>default</ScreenTag>
+</Widget>
+<Widget>
+<WidgetTag>InferenceTime</WidgetTag>
+<ScreenTag>default</ScreenTag>
+</Widget>
+<Widget>
+<WidgetTag>Detections</WidgetTag>
 <ScreenTag>default</ScreenTag>
 </Widget>
 </WidgetSet>

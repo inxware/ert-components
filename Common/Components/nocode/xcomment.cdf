@@ -24,7 +24,7 @@
         <Class>xcomment</Class>
     </FBID>    
     <Hashes>
-        <NameHash_CRC16>0xCEA8</NameHash_CRC16>
+        <NameHash_CRC16>0xE6D1</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>c0d8d429</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

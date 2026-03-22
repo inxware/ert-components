@@ -37,7 +37,7 @@
         <Class>IndexedDemultiplexer_Float</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0xDA95</NameHash_CRC16>
+        <NameHash_CRC16>0x844C</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>eb9dc7c1</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

@@ -30,6 +30,7 @@
 #include "ml_common.h"
 #include "hal_ml.h"
 #include "hal-api.h"
+#include "ml_inf_engine.h"
 #include "ehs_ml_objdet_output.h"
 /* ert_hal_tflite_meta.h is only available when the TFLite framework is built.
  * When EHS_ML_SUPPORT=stubbed (e.g. Windows targets) the framework is absent,
@@ -967,10 +968,13 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
     if (ctx->inferring) return EHS_ML_BUSY;
     if (data == NULL) return EHS_ML_NULL_INPUT_ERR;
     if (ctx->type >= EHS_ML_TYPE_MAX) return EHS_ML_MODEL_TYPE_ERR;
+    /* Type 0: auto/generic — bypass model-specific input prep, feed raw to engine */
+    if (ctx->type == EHS_ML_TYPE_TEST_RESERVED)
+        return EhsML_InfEngine_SetInputData(ctx, data, size);
     #ifdef EHS_ML_SUPPORT_STUBBED
     return EhsML_Stubbed_SetInputData(ctx, data, size);
     #else
-    printf("$$$$$$$$$$$$$$ctx-type=%d = expecting %d\n",ctx->type,EHS_ML_YOLOV5_OBJ_DETECTOR);
+    //printf("ctx-type=%d = expecting %d\n",ctx->type,EHS_ML_YOLOV5_OBJ_DETECTOR);
     switch (ctx->type)
     {
         /* Stubbed */
@@ -1376,6 +1380,11 @@ EhsML_Err EhsML_Run(EhsML_Context* ctx)
     #else
     switch (ctx->type)
     {
+        case EHS_ML_TYPE_TEST_RESERVED:
+            /* Auto/generic mode: run raw inference without model-specific decode/NMS.
+             * ctx->detections[] is left empty; GetOutput will serialise an empty result. */
+            err = EhsML_InfEngine_RunInference(ctx);
+            break;
         case EHS_ML_TYPE_STUBBED:
             err = EhsML_Stubbed_RunPipeline(ctx);
             break;
@@ -1415,6 +1424,7 @@ EhsML_Err EhsML_Run(EhsML_Context* ctx)
     /* On pipeline failure, clear the busy flag immediately — GetOutput will
      * not be called so nothing else will release it. */
     if (err != EHS_ML_OK) ctx->inferring = EHS_FALSE;
+    return err;
 }
 
 EhsML_Err EhsML_GetOutput(EhsML_Context* ctx, ehs_char* buf, ehs_uint32 size)

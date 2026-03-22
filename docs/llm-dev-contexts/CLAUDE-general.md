@@ -191,7 +191,7 @@ CDF (Component Description File) files are XML-based descriptions located in `Co
 - **Description** - Component description and menu categorization
 - **Block** - Visual representation (type, dimensions, text, position)
 - **FBID** - Functional block identifier (ERT1_ID, Class)
-- **Hashes** - CRC checksums for component identification
+- **Hashes** - CRC checksums for component identification. See [Function Block ID Generation](#function-block-id-generation) below for how to compute these.
 - **Parameters** - Configurable values with types, defaults, min/max ranges
 - **Functions** - Named operations the component performs
 - **Ports** - Connection points for data and events
@@ -553,6 +553,36 @@ See the BLE service component for a complete HAL implementation example:
 - ERT1_ID values are sequential starting from 1
 - Each Function element must have unique ID within component
 - IDs map to function table entries in C implementation
+
+---
+
+## Function Block ID Generation
+
+Every function block has two hash-based identifiers stored in the CDF `<Hashes>` block and mirrored in the `.h` header file.
+
+### `NameHash_CRC16` — the block's unique runtime ID
+
+This is a **CRC-16/Modbus** hash of the `<Class>` name string. Use `inxtool.py` to compute it:
+
+```bash
+python3 scripts/inxware-id-tool/inxtool.py -genHash "<class_name>" -hash 16CRC
+```
+
+The tool prints 4 uppercase hex digits (e.g. `F512`). Prepend `0x` for the CDF and `.h` macro.
+
+The result goes in **two places**:
+1. CDF `<Hashes>/<NameHash_CRC16>` element
+2. `.h` file as `#define INXWARE_FB_ID_<class>  0xF512`
+
+Verified values: `adc_config`→`0x566F`, `accel_gyro`→`0xF2AA`, `lorawan`→`0xC89A`, `rtc`→`0x32C7`, `Unsigned2Int`→`0x4F75`, `led`→`0xA6EA`, `ml_image_inference`→`0xF512`.
+
+See `CLAUDE-function-blocks.md` § *Function Block ID Generation* for full detail including the `FbApiDescriptorHash_CRC32` note.
+
+### `FbApiDescriptorHash_CRC32` — leave as `00000000`
+
+The Lucid IDE source marks this as `@TODO - this is not done yet`. Leave it as `00000000` for any manually-created or modified CDF. Do not attempt to compute it — the algorithm is not exposed in the open-source tools.
+
+---
 
 **Port-to-Function Mapping:**
 - Each Port must reference a Function via `<Function_ERT1_ID>` element

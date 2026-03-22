@@ -7,26 +7,27 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
-/** @file buzzer.h
- * Function block declarations for the buzzer peripheral.
+/** @file ups.h
+ * Function block declarations for the UPS / power-fail monitor.
  */
 
-#ifndef _EHS_BUZZER_H
-#define _EHS_BUZZER_H
+#ifndef _EHS_UPS_H
+#define _EHS_UPS_H
 
 #include "ehs_fb_types.h"
 #include "inx-component.h"
 
-#define EHS_FB_NAME_buzzer "buzzer"
-#define EHS_FB_ID_buzzer   0x9A03
+#define EHS_FB_NAME_ups "ups"
+#define EHS_FB_ID_ups   0xFF75
 
-EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(buzzer);
-EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(buzzer);
-EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(buzzer_beep);
-EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(buzzer_stop);
-EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(buzzer);
+EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(ups);
+EHS_COMPONENT_API_EXPORT EHS_FB_INIT_FUNCTION(ups);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ups_read_status);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ups_power_fail_cb);
+EHS_COMPONENT_API_EXPORT EHS_FB_RUN_FUNCTION(ups_power_restore_cb);
+EHS_COMPONENT_API_EXPORT EHS_FB_DESTROY_FUNCTION(ups);
 
 /* declare the table for use by the blockref table */
-EHS_FB_FUNCTIONS(buzzer)
+EHS_FB_FUNCTIONS(ups)
 
-#endif /* _EHS_BUZZER_H */
+#endif /* _EHS_UPS_H */

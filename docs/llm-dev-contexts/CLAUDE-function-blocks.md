@@ -293,6 +293,49 @@ The `<name>` element inside each `<Function>` in the `<Functions>` section must 
 
 ---
 
+## Function Block ID Generation
+
+Every function block has two hash-based identifiers stored in the CDF `<Hashes>` block and mirrored in the `.h` header file.
+
+### `NameHash_CRC16` — the block's unique runtime ID
+
+This is a **CRC-16/Modbus** hash of the `<Class>` name string (exact byte sequence, UTF-8, no null terminator).
+
+**To compute the hash for a new block, use the `inxtool.py` script** (from repo root):
+```bash
+python3 scripts/inxware-id-tool/inxtool.py -genHash "<class_name>" -hash 16CRC
+```
+
+The tool prints the 4-hex-digit result (e.g. `F512`). Prepend `0x` when writing to the CDF (`0xF512`).
+
+The result is written to **two places**:
+
+1. **CDF** `<Hashes>` block:
+```xml
+<Hashes>
+    <NameHash_CRC16>0xF512</NameHash_CRC16>
+    <FbApiDescriptorHash_CRC32>00000000</FbApiDescriptorHash_CRC32>
+    <FbApiDescriptorHash/>
+</Hashes>
+```
+
+2. **Header file** — `INXWARE_FB_ID_<Class>` macro (the value from the tool, prefixed with `0x`):
+```c
+#define INXWARE_FB_ID_my_block_class  0xF512
+```
+
+Verified values: `adc_config`→`0x566F`, `accel_gyro`→`0xF2AA`, `lorawan`→`0xC89A`, `rtc`→`0x32C7`, `Unsigned2Int`→`0x4F75`, `led`→`0xA6EA`, `ml_image_inference`→`0xF512`.
+
+> **Note:** The scripts were previously in a subdirectory called `inxtool_oldscript/`. That name was a historical artefact — there was no newer replacement. The scripts have been moved up to `scripts/inxware-id-tool/` directly.
+
+### `FbApiDescriptorHash_CRC32` — not used, leave as `00000000`
+
+The Lucid IDE source (`LucidConstants.h`) marks both `FbApiDescriptorHash_CRC32` and `FbApiDescriptorHash` as `@TODO - this is not done yet`. Existing CDFs that show non-zero values (e.g. `5659f300` for `uart`) had these set by older versions of Lucid IDE; the algorithm is not exposed in the open-source tools.
+
+**Always leave as `00000000` for manually-created or modified CDFs.** The `inxtool.py` script does not compute this field and neither should you.
+
+---
+
 ## Build note for cross-compilation targets
 
 Always use `make all_docker` — `make all` fails on cross-compilation targets (e.g. arm64 built on x86_64) because the host lacks the sysroot headers (`bits/libc-header-start.h` etc.).
