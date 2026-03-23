@@ -155,11 +155,34 @@ LNKFLAGS += $(foreach i,$(LIB_DIRS),-L$i)
 LNKFLAGS += $(foreach i,$(LIB),-l$i)
 
 # -----------------------------------------------------------------------------
-# Output format
-# xcc produces .xe (XMOS executable) files, not ELF.
-# Use 'xflash' to program the device from the .xe file.
+# Output format — two-phase build
+#
+# Phase 1 (make all / make all_docker):
+#   xcc compiles .c → .o files as normal.  Instead of linking to .xe, the
+#   objects are archived into a static library using xar (the XMOS archiver).
+#   This only requires the SDK *headers* (in target_libs/include/); the SDK
+#   .a files and the XN board file are NOT needed at this stage.
+#
+# Phase 2 (make targetenv_xmos_docker):
+#   targetenv_xmos.sh runs inside the XMOS Docker container and invokes a
+#   minimal xcommon_cmake wrapper app (contrib/xmos-sdk/xcore-ehs-app/) that
+#   links the Phase 1 .a against fwk_rtos, fwk_io, etc. and the XN board file
+#   to produce the final ehs.xe firmware image.  This is pure xcommon_cmake
+#   — no cmake hacks required.
+#
+# xar is the XMOS archiver (part of XTC Tools), analogous to GNU ar.
+# Syntax: xar rcs output.a input1.o input2.o ...
+# The link rule in the Makefile is: $(LINK) $(LD_SWITCHES) $(OBJECTS) $(LNKFLAGS)
+# so LD_SWITCHES carries "rcs <output>" and LNKFLAGS is left empty.
 # -----------------------------------------------------------------------------
 
-EXE   = xe
+AR    := xmosar
+LINK  := $(AR)
+EXE   := a
 OBJ   = o
-FINAL = $(EXE)
+FINAL := a
+
+# Clear linker flags — not needed for archiving.
+# Use = (deferred) for LD_SWITCHES so TARGET_NAME is resolved at recipe time.
+LD_SWITCHES = rcs $(TARGET_NAME).$(FINAL)
+LNKFLAGS   :=

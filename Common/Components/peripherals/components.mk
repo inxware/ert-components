@@ -87,11 +87,13 @@ endif
 endif
 
 # Accelerometer and Gyroscope (combined IMU) — HAL selected via EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
-# Set by platform config.mk (same pattern as EHS_WATCHDOG_SUPPORT etc.).
+# Both the simple accelerometer FB and the combined accel_gyro FB share the same HAL, so both
+# are guarded by the same variable.  os-arch configs default this to 'stubbed'.
 
 ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 ifneq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),none)
 	OBJECTS += inx-accel_gyro.$(OBJ)
+	OBJECTS += accelerometer.$(OBJ)
 	DEFS += EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 endif
 endif
@@ -189,12 +191,6 @@ ifneq ($(EHS_USB_POWER_SUPPORT),none)
 endif
 endif
 
-ifdef EHS_ACCELEROMETER_SUPPORT
-ifneq ($(EHS_ACCELEROMETER_SUPPORT),none)
-	OBJECTS  += accelerometer.$(OBJ)
-	DEFS     += EHS_ACCELEROMETER_SUPPORT
-endif
-endif
 
 ifdef EHS_RS485_CONFIG_SUPPORT
 ifneq ($(EHS_RS485_CONFIG_SUPPORT),none)

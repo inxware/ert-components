@@ -9,5 +9,5 @@ EHS_UPS_SUPPORT           ?= stubbed
 EHS_BUZZER_SUPPORT        ?= stubbed
 EHS_SD_SELECT_SUPPORT     ?= stubbed
 EHS_USB_POWER_SUPPORT     ?= stubbed
-EHS_ACCELEROMETER_SUPPORT ?= stubbed
+EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT ?= stubbed
 EHS_RS485_CONFIG_SUPPORT  ?= stubbed

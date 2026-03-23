@@ -147,6 +147,9 @@ endif
 # @mkdir -p ../TARGET_TREES/ehs_env-$(TARGET)/ todo - look for paths used in esoteric android targetenv scripts.
 # @cp -f $(TARGET_NAME).$(FINAL) ../TARGET_TREES/ehs_env-$(TARGET)/
 # @$(ECHO) copied to ../TARGET_TREES/ehs_env-$(TARGET)/
+else ifdef EHS_XCORE
+	@$(ECHO) "Phase 1 complete: $(TARGET_NAME).$(FINAL)"
+	@$(ECHO) "Run 'make targetenv_xmos_docker' to link the final .xe firmware via xcommon_cmake."
 else
 	@mkdir -p ../TARGET_TREES/ehs_env-$(TARGET)/bin
 	@cp -f $(TARGET_NAME).$(FINAL) ../TARGET_TREES/ehs_env-$(TARGET)/bin/ehs.exe
@@ -233,6 +236,7 @@ help:
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_apk_docker$(TXT_FG_BRIGHT_GREEN)           - Builds android APK and stores it in ../TARGET_TREES/ in an android arm configured docker image."
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_unity_export$(TXT_FG_BRIGHT_GREEN)         - Exports Unity 3D IDE (C#) based project to eRT compatible project/exe e.g. eRT Android Studio project or Windows app with eRT plugin."
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_unity_export_docker$(TXT_FG_BRIGHT_GREEN)  - Same as above but in docker."
+	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_xmos_docker$(TXT_FG_BRIGHT_GREEN)           - Phase 2 XMOS xcore build: links Phase 1 .a + fwk_rtos SDK via xcommon_cmake → ehs.xe (run after make all_docker)."
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_esp32$(TXT_FG_BRIGHT_GREEN)                - Builds an esp32 (or esp32s3,...) bootable image for deployment via usb or OTA."
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_esp32_docker$(TXT_FG_BRIGHT_GREEN)         - runs make targetenv_esp32X in an esp32X configured docker image."
 	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_nsis_docker$(TXT_FG_BRIGHT_GREEN)          - Builds a windows installer using the NSIS installer"
@@ -296,6 +300,12 @@ targetenv_nsis: chkconfig
 
 targetenv_nsis_docker: chkconfig
 	@./target/envbuildscripts/targetenv_make_nsis_docker.sh $(TARGET)
+
+targetenv_xmos: chkconfig
+	@./target/envbuildscripts/targetenv_xmos.sh $(TARGET)
+
+targetenv_xmos_docker: chkconfig
+	@./target/envbuildscripts/targetenv_xmos_docker.sh $(TARGET)
 
 targetenv_esp32: chkconfig
 	@./target/envbuildscripts/targetenv_esp32.sh $(TARGET)

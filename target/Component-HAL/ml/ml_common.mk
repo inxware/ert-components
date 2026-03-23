@@ -7,17 +7,13 @@ ifeq ($(EHS_ML_SUPPORT),stubbed)
 # Machine Learning Stubbed support
 ## Add C macro definition for ML support
 	DEFS += EHS_ML_SUPPORT
-## TODO2026  we shouldn't need to define a stubbed preprocessor if we are just going to build the stubbed code?
-	DEFS += EHS_ML_SUPPORT_STUBBED
 
-## Add ML Common sources and headers
-	VPATH+=$(EHS_TARGET_ML_ROOT_PATH)
-	OBJECTS+=ml_common.$(OBJ)
+## ml_common_stub.c implements the full public API as no-ops.
+## ml_common.c is NOT compiled — no engine or postprocessing headers needed.
+	VPATH+=$(EHS_TARGET_ML_ROOT_PATH)/stubbed
+	INC_DIRS+=$(EHS_TARGET_ML_ROOT_PATH)/stubbed
 	INC_DIRS+=$(EHS_TARGET_ML_ROOT_PATH)
-
-## Include ML Stubbed source path
-### Stubbed source is generic for all platforms
-	include $(EHS_TARGET_COMPONENT_HAL_PATH)/ml/stubbed/ml_stubbed.mk
+	OBJECTS+=ml_common.$(OBJ)
 
 # The following should check for a specific type of ML support?
 # There was a discussion about supporting multiple ML abstractions (e.g. CPU + NPU), in which case we probably 

@@ -20,7 +20,6 @@
 /*****************************************************************************/
 /* Included files */
 #include "hal_ml.h"
-#include "stubbed_ml.h"
 #ifdef EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET
 #include "yolov5_objdet.h"
 #endif//EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET

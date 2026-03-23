@@ -46,9 +46,9 @@ ifneq ($(EHS_HOST_DEBIAN_BUILD),)
   	ifeq ($(EHS_ARCH),arm64)
 		#This is for the rest (seems we otherwise default to gtk3)
 		INC_DIRS += /usr/include/gtk-3.0
-		INC_DIRS += /usr/lib/x86_64-linux-gnu/gtk-2.0/include/
+		INC_DIRS += /usr/lib/aarch64-linux-gnu/gtk-3.0/include/
 		INC_DIRS += /usr/include/glib-2.0
-		INC_DIRS += /usr/lib/x86_64-linux-gnu/glib-2.0/include/
+		INC_DIRS += /usr/lib/aarch64-linux-gnu/glib-2.0/include/
 		LIB+= gdk-3
 		LIB+= gtk-3
 		LIB+= gdk_pixbuf-2.0

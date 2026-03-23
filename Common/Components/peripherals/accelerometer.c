@@ -20,6 +20,7 @@
 #include "inx-component.h"
 #include "accelerometer.h"
 #include "hal_accelerometer.h"
+#include "hal_accel_gyro.h"
 
 EHS_FB_FUNCTIONS_START(accelerometer)
 EHS_FB_FUNCTION_ENTRY("enable",  0x01, accelerometer_enable)
@@ -56,9 +57,9 @@ EHS_FB_INIT_FUNCTION(accelerometer)
 EHS_FB_RUN_FUNCTION(accelerometer_enable)
 {
     ehs_accelerometer_state_type *state = (ehs_accelerometer_state_type *)EHS_FB_RUN_CONTEXT;
-    int rc = EhsTAccelEnable(state);
+    ehs_sint32 rc = EhsTAccelGyroEnable();
     EHS_FB_OUT_I_API2(INX_accelerometer_ARG_error_id) = rc;
-    if (rc == 0)
+    if (rc == EHS_PERIPH_OK)
         state->enabled = EHS_TRUE;
     EHS_FB_FINISH_API2(INX_accelerometer_ARG_enabled);
 }
@@ -67,10 +68,9 @@ EHS_FB_RUN_FUNCTION(accelerometer_enable)
 EHS_FB_RUN_FUNCTION(accelerometer_disable)
 {
     ehs_accelerometer_state_type *state = (ehs_accelerometer_state_type *)EHS_FB_RUN_CONTEXT;
-    int rc = EhsTAccelDisable(state);
-    EHS_FB_OUT_I_API2(INX_accelerometer_ARG_error_id) = rc;
-    if (rc == 0)
-        state->enabled = EHS_FALSE;
+    EhsTAccelGyroDisable();
+    state->enabled = EHS_FALSE;
+    EHS_FB_OUT_I_API2(INX_accelerometer_ARG_error_id) = EHS_PERIPH_OK;
     EHS_FB_FINISH_API2(INX_accelerometer_ARG_disabled);
 }
 
@@ -78,7 +78,7 @@ EHS_FB_RUN_FUNCTION(accelerometer_disable)
 EHS_FB_RUN_FUNCTION(accelerometer_read)
 {
     ehs_accelerometer_state_type *state = (ehs_accelerometer_state_type *)EHS_FB_RUN_CONTEXT;
-    EhsTAccelRead(state);
+    EhsTAccelRead(&state->x, &state->y, &state->z);
     EHS_FB_OUT_F_API2(INX_accelerometer_ARG_x) = state->x;
     EHS_FB_OUT_F_API2(INX_accelerometer_ARG_y) = state->y;
     EHS_FB_OUT_F_API2(INX_accelerometer_ARG_z) = state->z;
@@ -89,6 +89,6 @@ EHS_FB_DESTROY_FUNCTION(accelerometer)
 {
     ehs_accelerometer_state_type *state = (ehs_accelerometer_state_type *)EHS_FB_DESTROY_CONTEXT;
     if (state->enabled)
-        EhsTAccelDisable(state);
+        EhsTAccelGyroDisable();
     return EHS_TRUE;
 }

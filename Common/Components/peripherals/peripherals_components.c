@@ -35,7 +35,7 @@
 #include "usb_power.h"
 #endif
 
-#ifdef EHS_ACCELEROMETER_SUPPORT
+#ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 #include "accelerometer.h"
 #endif
 
@@ -141,7 +141,7 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_usb_power, EHS_FB_ID_usb_power, usb_power),
 #endif
 
-#ifdef EHS_ACCELEROMETER_SUPPORT
+#ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_accelerometer, EHS_FB_ID_accelerometer, accelerometer),
 #endif
 

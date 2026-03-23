@@ -27,16 +27,4 @@ typedef struct
     ehs_float z;   /* acceleration in mg */
 } ehs_accelerometer_state_type;
 
-/** Enable the accelerometer.
- *  Returns 0 on success, -1 on error. */
-EHS_GLOBAL int EhsTAccelEnable(ehs_accelerometer_state_type *state);
-
-/** Disable the accelerometer.
- *  Returns 0 on success, -1 on error. */
-EHS_GLOBAL int EhsTAccelDisable(ehs_accelerometer_state_type *state);
-
-/** Read the current x/y/z acceleration in mg into state->x, state->y, state->z.
- *  Returns 0 on success, -1 on error. */
-EHS_GLOBAL int EhsTAccelRead(ehs_accelerometer_state_type *state);
-
 #endif /* _HAL_ACCELEROMETER_H */
