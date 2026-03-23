@@ -77,28 +77,73 @@ Docker image itself contains no proprietary binaries.
 
 ### First-time SDK library build (one-time, per XTC Tools version)
 
-The XMOS SDK libraries (`fwk_rtos`, peripheral libs) must be pre-built once and committed to
-`ert-contrib-middleware/target_libs/xcore_freertos-xcore-xtc-15.x/`. To do this:
+The pre-built `.a` files and headers for `fwk_rtos` and the XMOS peripheral libraries are
+checked in to `ert-contrib-middleware/target_libs/xcore_freertos-xcore-xtc-15.x/build/`.
+If that directory is empty (new checkout, or XTC Tools version upgrade), the libraries must
+be built inside the Docker container and the artifacts committed to `ert-contrib-middleware`.
+
+**This work is done in the `ert-contrib-middleware` repository**, not here.
+See `ert-contrib-middleware/contrib/xmos-sdk/README.md` for the full procedure.
+
+#### Packages required (clone into `ert-contrib-middleware/contrib/xmos-sdk/`)
+
+| Directory | Repository | Purpose |
+|-----------|-----------|---------|
+| `fwk_rtos/` | github.com/xmos/fwk_rtos | FreeRTOS SMP kernel, lwIP, FatFS, RTOS support layer |
+| `xcommon_cmake/` | github.com/xmos/xcommon_cmake | CMake build infrastructure (build-time only) |
+| `lib_xcore_math/` | github.com/xmos/lib_xcore_math | VPU-accelerated maths |
+| `lib_i2c/` | github.com/xmos/lib_i2c | I2C master/slave |
+| `lib_uart/` | github.com/xmos/lib_uart | Async UART TX/RX |
+| `lib_i2s/` | github.com/xmos/lib_i2s | I2S audio |
+
+#### What gets built and where it lands
+
+```
+ert-contrib-middleware/target_libs/xcore_freertos-xcore-xtc-15.x/build/
+├── include/
+│   ├── FreeRTOS/          ← FreeRTOS.h, task.h, timers.h, semphr.h, …
+│   ├── rtos_support/      ← XMOS RTOS support layer headers
+│   └── xcore/             ← xcore intrinsics headers
+└── lib/
+    ├── libfreertos.a
+    ├── librtos_support.a
+    ├── libxcore_math.a
+    ├── libi2c.a
+    ├── libuart.a
+    └── libi2s.a
+```
+
+#### Quick steps (run from `ert-components` with the xcore target configured)
 
 ```bash
-# Start an interactive shell inside the build container
+# 1. Clone SDK sources into ert-contrib-middleware (host, outside Docker)
+cd ../ert-contrib-middleware/contrib/xmos-sdk
+git clone https://github.com/xmos/fwk_rtos.git
+git clone https://github.com/xmos/xcommon_cmake.git
+git clone https://github.com/xmos/lib_xcore_math.git
+git clone https://github.com/xmos/lib_i2c.git
+git clone https://github.com/xmos/lib_uart.git
+git clone https://github.com/xmos/lib_i2s.git
+
+# 2. Start the build container
+cd ../../ert-components
 make target_buildenv
 
-# Inside the container — build the XMOS SDK libraries
+# 3. Inside the container — build all libraries
 cd /inxware/ert-contrib-middleware/contrib/xmos-sdk
 ./build-xmos-libs.sh
 
-# Exit container; commit the built artifacts
-# cd ../ert-contrib-middleware && git add target_libs/xcore_freertos-xcore-xtc-15.x && git commit
+# 4. Exit container; commit built artifacts to ert-contrib-middleware
+cd ../ert-contrib-middleware
+git add target_libs/xcore_freertos-xcore-xtc-15.x/
+git commit -m "feat(xmos): add pre-built SDK libs for XTC 15.x"
 ```
-
-See `ert-contrib-middleware/contrib/xmos-sdk/README.md` for full SDK source setup instructions.
 
 ### Flash firmware
 
 ```bash
-make targetenv_esp32   # (XMOS equivalent — TBD: targetenv_xcore)
-# Then: xflash --target <board> ehs_<target>.xe
+# TBD: targetenv_xcore.sh (equivalent of targetenv_esp32.sh)
+# Then: xflash --target XCORE-AI-EXPLORER ehs_xcore_freertos-xcore-base.xe
 ```
 
 ## File reference
