@@ -64,7 +64,18 @@ reboot.
 <tr><td class="portsEvent"><a name="[Out]read_done">read_done</a></td><td>Fired when <a href="#[In]read_active">read_active</a> has completed.</td></tr>
 <tr><th>Data Out</th><th></th></tr>
 <tr><td class="portsInt"><a name="[Out]active_slot">active_slot</a></td><td>Currently active SD slot (0 or 1). Updated by <a href="#[In]read_active">read_active</a>.</td></tr>
-<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code. 0 = success.</td></tr>
+<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code from the last operation. See error codes table below.</td></tr>
+</table>
+<!--Error Codes-->
+<h3>Error Codes (<code>error_id</code>)</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Code</th><th>Constant</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>0</td><td><code>EHS_PERIPH_OK</code></td><td>Success.</td></tr>
+<tr><td>-1</td><td><code>EHS_PERIPH_ERR_GENERAL</code></td><td>Unspecified failure.</td></tr>
+<tr><td>-2</td><td><code>EHS_PERIPH_ERR_SYSFS</code></td><td>sysfs I/O error — node not accessible or read/write failed.</td></tr>
+<tr><td>-3</td><td><code>EHS_PERIPH_ERR_NOT_SUPPORTED</code></td><td>Dual SD selection not available on this board (Strato Pi / Strato Pi Max only).</td></tr>
+</tbody>
 </table>
 <!--Misc-->
 <div class="section_heading">

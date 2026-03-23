@@ -12,7 +12,7 @@
  * @brief Sfera Labs sysfs USB power control HAL implementation.
  *
  * Supported boards: Strato Pi Max only.
- * All other Sfera Labs boards return -1.
+ * All other Sfera Labs boards return EHS_PERIPH_ERR_NOT_SUPPORTED (-3).
  *
  * Sysfs path (Strato Pi Max):
  *   /sys/class/stratopimax/usb/usb<N>/enabled — write "1"/"0", read "1"/"0"
@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "hal_usb_power.h"
+#include "hal_peripheral_errors.h"
 #include "sferalabs_hal.h"
 #include "hal_logger.h"
 
@@ -34,11 +35,11 @@ EHS_GLOBAL int EhsTUsbPowerEnable(ehs_usb_power_state_type *state)
     if (sferalabs_sysfs_write(path, "1", 1) != 0)
     {
         EHSH_LOG_ERROR("USB power: failed to enable port %d at %s", state->port_num, path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     state->powered = EHS_TRUE;
     EHSH_LOG_INFO("USB power: enabled port %d", state->port_num);
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTUsbPowerDisable(ehs_usb_power_state_type *state)
@@ -49,11 +50,11 @@ EHS_GLOBAL int EhsTUsbPowerDisable(ehs_usb_power_state_type *state)
     if (sferalabs_sysfs_write(path, "0", 1) != 0)
     {
         EHSH_LOG_ERROR("USB power: failed to disable port %d at %s", state->port_num, path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     state->powered = EHS_FALSE;
     EHSH_LOG_INFO("USB power: disabled port %d", state->port_num);
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTUsbPowerReadStatus(ehs_usb_power_state_type *state)
@@ -65,10 +66,10 @@ EHS_GLOBAL int EhsTUsbPowerReadStatus(ehs_usb_power_state_type *state)
     if (sferalabs_sysfs_read_char(path, &ch) != 0)
     {
         EHSH_LOG_ERROR("USB power: failed to read status for port %d at %s", state->port_num, path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     state->powered = (ch == '1') ? EHS_TRUE : EHS_FALSE;
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 #else /* board does not have USB power control */
@@ -77,14 +78,14 @@ EHS_GLOBAL int EhsTUsbPowerEnable(ehs_usb_power_state_type *state)
 {
     (void)state;
     EHSH_LOG_ERROR("USB power: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 EHS_GLOBAL int EhsTUsbPowerDisable(ehs_usb_power_state_type *state)
 {
     (void)state;
     EHSH_LOG_ERROR("USB power: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 EHS_GLOBAL int EhsTUsbPowerReadStatus(ehs_usb_power_state_type *state)
@@ -92,7 +93,7 @@ EHS_GLOBAL int EhsTUsbPowerReadStatus(ehs_usb_power_state_type *state)
     if (state)
         state->powered = EHS_FALSE;
     EHSH_LOG_ERROR("USB power: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 #endif /* board selection */

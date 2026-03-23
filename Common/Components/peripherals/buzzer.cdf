@@ -17,8 +17,8 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Width>50</Width>
-        <Height>55</Height>
+        <Width>75</Width>
+        <Height>73</Height>
         <Text>Buzz</Text>
         <TextX>10</TextX>
         <TextY>5</TextY>
@@ -109,7 +109,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>10</YCoordinate>
             <Wcet>0</Wcet>
             <CName>done</CName>
@@ -131,7 +131,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>45</YCoordinate>
             <Wcet>0</Wcet>
             <CName>stopped</CName>

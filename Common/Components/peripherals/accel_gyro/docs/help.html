@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Accelerometer and Gyroscope</span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<!--General Description-->
+<p class="component">
+<strong>AccGyro</strong> provides access to a combined IMU (Inertial Measurement Unit)
+with separate accelerometer and gyroscope channels. Both channels share a single
+<strong>enable</strong>/<strong>disable</strong> pair.
+</p>
+<p class="component">
+<strong>read_accel</strong> and <strong>read_gyro</strong> trigger independent reads;
+either may be used without the other. On platforms that provide only an accelerometer
+(e.g. Sfera Labs Exo Sense Pi), <strong>read_gyro</strong> never fires its
+<em>gyro_done</em> event.
+</p>
+<h3>Platform Support</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Platform</th><th>Accel</th><th>Gyro</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Arduino Nano 33 IoT</td><td>Yes</td><td>Yes</td><td>LSM6DS3 via Arduino_LSM6DS3 library.</td></tr>
+<tr><td>Sfera Labs Exo Sense Pi</td><td>Yes</td><td>No</td><td>sysfs <code>/sys/class/exosensepi/accelerometer/</code>; gyro not available.</td></tr>
+<tr><td>All other Sfera Labs boards</td><td>No</td><td>No</td><td>Returns <code>EHS_PERIPH_ERR_NOT_SUPPORTED</code> on enable.</td></tr>
+<tr><td>Stubbed (development)</td><td>Yes (0,0,0)</td><td>Yes (0,0,0)</td><td>No hardware access; always succeeds.</td></tr>
+</tbody>
+</table>
+<!--Parameters-->
+<div class="section_heading">
+<span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<p class="component">No parameters.</p>
+<!--Ports-->
+<div class="section_heading">
+<span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[In]enable">enable</a></td><td>Enable the IMU hardware. Must be called before any <em>read_accel</em> or <em>read_gyro</em> calls. Sets <em>error_id</em> and fires <em>enabled</em> on success.</td></tr>
+<tr><td class="portsEvent"><a name="[In]disable">disable</a></td><td>Disable the IMU hardware. Sets <em>error_id</em> to 0 and fires <em>disabled</em>.</td></tr>
+<tr><td class="portsEvent"><a name="[In]read_accel">read_accel</a></td><td>Read one accelerometer sample. Fires <em>accel_done</em> with <em>Ax</em>, <em>Ay</em>, <em>Az</em> on success. Does nothing if data is not available.</td></tr>
+<tr><td class="portsEvent"><a name="[In]read_gyro">read_gyro</a></td><td>Read one gyroscope sample. Fires <em>gyro_done</em> with <em>Gx</em>, <em>Gy</em>, <em>Gz</em> on success. Never fires on platforms without a gyroscope.</td></tr>
+<tr><th>Data In</th><th></th></tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr><td class="portsEvent"><a name="[Out]enabled">enabled</a></td><td>Fired when the IMU has been successfully enabled.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]disabled">disabled</a></td><td>Fired when the IMU has been disabled.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]accel_done">accel_done</a></td><td>Fired when an accelerometer sample has been read successfully.</td></tr>
+<tr><td class="portsEvent"><a name="[Out]gyro_done">gyro_done</a></td><td>Fired when a gyroscope sample has been read successfully.</td></tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code from <em>enable</em> or <em>disable</em>. See error codes table below.</td></tr>
+<tr><td class="portsFloat"><a name="[Out]Ax">Ax</a></td><td>X-axis acceleration (g or mg — unit is platform-defined). Updated by <a href="#[In]read_accel">read_accel</a>.</td></tr>
+<tr><td class="portsFloat"><a name="[Out]Ay">Ay</a></td><td>Y-axis acceleration. Updated by <a href="#[In]read_accel">read_accel</a>.</td></tr>
+<tr><td class="portsFloat"><a name="[Out]Az">Az</a></td><td>Z-axis acceleration. Updated by <a href="#[In]read_accel">read_accel</a>.</td></tr>
+<tr><td class="portsFloat"><a name="[Out]Gx">Gx</a></td><td>X-axis angular rate (deg/s). Updated by <a href="#[In]read_gyro">read_gyro</a>.</td></tr>
+<tr><td class="portsFloat"><a name="[Out]Gy">Gy</a></td><td>Y-axis angular rate (deg/s). Updated by <a href="#[In]read_gyro">read_gyro</a>.</td></tr>
+<tr><td class="portsFloat"><a name="[Out]Gz">Gz</a></td><td>Z-axis angular rate (deg/s). Updated by <a href="#[In]read_gyro">read_gyro</a>.</td></tr>
+</table>
+<!--Error Codes-->
+<h3>Error Codes (<code>error_id</code>)</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Code</th><th>Constant</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>0</td><td><code>EHS_PERIPH_OK</code></td><td>Success.</td></tr>
+<tr><td>-1</td><td><code>EHS_PERIPH_ERR_GENERAL</code></td><td>Unspecified failure (e.g. Arduino IMU.begin() returned false).</td></tr>
+<tr><td>-2</td><td><code>EHS_PERIPH_ERR_SYSFS</code></td><td>sysfs I/O error — the accelerometer enable node could not be written (Sfera Labs Exo Sense Pi).</td></tr>
+<tr><td>-3</td><td><code>EHS_PERIPH_ERR_NOT_SUPPORTED</code></td><td>IMU not available on this board. The <em>enabled</em> event will not fire.</td></tr>
+</tbody>
+</table>
+<!--Misc-->
+<div class="section_heading">
+<span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+</div>
+<table>
+<tr class="fsm_row">
+<td style="width:90px;"><b>State Machine</b></td>
+<td colspan="5">Stateless</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Toolbox</b></td><td>Peripherals / Accelerometer and Gyroscope</td>
+<td class="heading-cell"><b>Version</b></td><td>v1.0</td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td>
+<td class="heading-cell"><b>Component Supplier</b></td>
+<td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+</tr>
+<tr>
+<td class="heading-cell"><b>Minimum DCC</b></td><td>A0000</td>
+<td class="heading-cell"><b>Profiles</b></td><td>Arduino Nano 33 IoT; Sfera Labs Exo Sense Pi (accel only).</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

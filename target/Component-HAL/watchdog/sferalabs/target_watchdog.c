@@ -12,7 +12,7 @@
  * @brief Sfera Labs sysfs watchdog HAL implementation.
  *
  * Supported boards: Strato Pi, Strato Pi Max.
- * All other Sfera Labs boards return -1 (watchdog not available).
+ * All other Sfera Labs boards return EHS_PERIPH_ERR_NOT_SUPPORTED (-3).
  *
  * Sysfs paths (Strato Pi):
  *   /sys/class/stratopi/watchdog/enable   — write "1"/"0"
@@ -27,6 +27,7 @@
 
 #include "globals.h"
 #include "hal_watchdog2.h"
+#include "hal_peripheral_errors.h"
 #include "sferalabs_hal.h"
 #include "hal_logger.h"
 
@@ -43,15 +44,15 @@ EHS_GLOBAL int EhsTWatchdogEnable2(ehs_watchdog_state_type *state)
     if (sferalabs_sysfs_write_int(SFERALABS_WDT_TIMEOUT_PATH, timeout_tenths) != 0)
     {
         EHSH_LOG_ERROR("Watchdog: failed to set timeout at %s", SFERALABS_WDT_TIMEOUT_PATH);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     if (sferalabs_sysfs_write(SFERALABS_WDT_ENABLE_PATH, "1", 1) != 0)
     {
         EHSH_LOG_ERROR("Watchdog: failed to enable at %s", SFERALABS_WDT_ENABLE_PATH);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     EHSH_LOG_INFO("Watchdog: enabled, timeout %ld tenths-of-second", timeout_tenths);
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTWatchdogDisable2(ehs_watchdog_state_type *state)
@@ -60,10 +61,10 @@ EHS_GLOBAL int EhsTWatchdogDisable2(ehs_watchdog_state_type *state)
     if (sferalabs_sysfs_write(SFERALABS_WDT_ENABLE_PATH, "0", 1) != 0)
     {
         EHSH_LOG_ERROR("Watchdog: failed to disable at %s", SFERALABS_WDT_ENABLE_PATH);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     EHSH_LOG_INFO("Watchdog: disabled");
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTWatchdogKick2(ehs_watchdog_state_type *state)
@@ -73,9 +74,9 @@ EHS_GLOBAL int EhsTWatchdogKick2(ehs_watchdog_state_type *state)
     if (sferalabs_sysfs_write(SFERALABS_WDT_ENABLE_PATH, "1", 1) != 0)
     {
         EHSH_LOG_ERROR("Watchdog: failed to kick at %s", SFERALABS_WDT_ENABLE_PATH);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTWatchdogReadStatus2(ehs_watchdog_state_type *state)
@@ -84,10 +85,10 @@ EHS_GLOBAL int EhsTWatchdogReadStatus2(ehs_watchdog_state_type *state)
     if (sferalabs_sysfs_read_char(SFERALABS_WDT_EXPIRED_PATH, &ch) != 0)
     {
         EHSH_LOG_ERROR("Watchdog: failed to read expired status at %s", SFERALABS_WDT_EXPIRED_PATH);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     state->expired = (ch == '1') ? EHS_TRUE : EHS_FALSE;
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 #else /* board does not have watchdog */
@@ -96,21 +97,21 @@ EHS_GLOBAL int EhsTWatchdogEnable2(ehs_watchdog_state_type *state)
 {
     (void)state;
     EHSH_LOG_ERROR("Watchdog: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 EHS_GLOBAL int EhsTWatchdogDisable2(ehs_watchdog_state_type *state)
 {
     (void)state;
     EHSH_LOG_ERROR("Watchdog: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 EHS_GLOBAL int EhsTWatchdogKick2(ehs_watchdog_state_type *state)
 {
     (void)state;
     EHSH_LOG_ERROR("Watchdog: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 EHS_GLOBAL int EhsTWatchdogReadStatus2(ehs_watchdog_state_type *state)
@@ -118,7 +119,7 @@ EHS_GLOBAL int EhsTWatchdogReadStatus2(ehs_watchdog_state_type *state)
     if (state)
         state->expired = EHS_FALSE;
     EHSH_LOG_ERROR("Watchdog: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 #endif /* board selection */

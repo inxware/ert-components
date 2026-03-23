@@ -75,7 +75,18 @@ fired. Use the same <strong>Port</strong> parameter index as the corresponding
 <tr><td class="portsEvent"><a name="[Out]done">done</a></td><td>Fired when the <a href="#[In]config">config</a> write has completed.</td></tr>
 <tr><td class="portsEvent"><a name="[Out]read_done">read_done</a></td><td>Fired when the <a href="#[In]read">read</a> has completed.</td></tr>
 <tr><th>Data Out</th><th></th></tr>
-<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code. 0 = success. Non-zero if the board does not support the requested attribute.</td></tr>
+<tr><td class="portsInt"><a name="[Out]error_id">error_id</a></td><td>Error code from the last operation. See error codes table below.</td></tr>
+</table>
+<!--Error Codes-->
+<h3>Error Codes (<code>error_id</code>)</h3>
+<table border="1" cellpadding="6">
+<thead><tr><th>Code</th><th>Constant</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>0</td><td><code>EHS_PERIPH_OK</code></td><td>Success.</td></tr>
+<tr><td>-1</td><td><code>EHS_PERIPH_ERR_GENERAL</code></td><td>Unspecified failure.</td></tr>
+<tr><td>-2</td><td><code>EHS_PERIPH_ERR_SYSFS</code></td><td>sysfs I/O error — node not accessible or read/write failed.</td></tr>
+<tr><td>-3</td><td><code>EHS_PERIPH_ERR_NOT_SUPPORTED</code></td><td>RS-485 config not available on this board (e.g. Iono Pi, Exo Sense Pi).</td></tr>
+</tbody>
 </table>
 <!--Misc-->
 <div class="section_heading">

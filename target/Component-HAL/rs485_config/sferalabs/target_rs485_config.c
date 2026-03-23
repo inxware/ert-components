@@ -12,7 +12,8 @@
  * @brief Sfera Labs sysfs RS-485 configuration HAL implementation.
  *
  * Supported boards: Iono Pi Max, Strato Pi, Strato Pi Max.
- * Exo Sense Pi and Iono Pi have no RS-485 configuration via sysfs and return -1.
+ * Exo Sense Pi and Iono Pi have no RS-485 configuration via sysfs and return
+ * EHS_PERIPH_ERR_NOT_SUPPORTED (-3).
  *
  * Sysfs paths:
  *
@@ -31,6 +32,7 @@
 
 #include "globals.h"
 #include "hal_rs485_config.h"
+#include "hal_peripheral_errors.h"
 #include "sferalabs_hal.h"
 #include "hal_logger.h"
 #include <string.h>
@@ -53,13 +55,13 @@ static int read_on_off(const char *path, ehs_bool *out)
 {
     char buf[8];
     int fd = open(path, O_RDONLY);
-    if (fd < 0) return -1;
+    if (fd < 0) return EHS_PERIPH_ERR_SYSFS;
     int n = (int)read(fd, buf, sizeof(buf) - 1);
     close(fd);
-    if (n <= 0) return -1;
+    if (n <= 0) return EHS_PERIPH_ERR_SYSFS;
     buf[n] = '\0';
     *out = (strncmp(buf, "on", 2) == 0) ? EHS_TRUE : EHS_FALSE;
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 /* -------------------------------------------------------------------------
@@ -73,15 +75,15 @@ EHS_GLOBAL int EhsTRs485Config(ehs_rs485_config_state_type *state)
     if (write_on_off(SFERALABS_SERIAL_RS485_FMT, state->echo) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to write echo to %s", SFERALABS_SERIAL_RS485_FMT);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     const char *term_path = SFERALABS_CLASS_PATH "/rs485/termination";
     if (write_on_off(term_path, state->termination) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to write termination to %s", term_path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTRs485Read(ehs_rs485_config_state_type *state)
@@ -89,15 +91,15 @@ EHS_GLOBAL int EhsTRs485Read(ehs_rs485_config_state_type *state)
     if (read_on_off(SFERALABS_SERIAL_RS485_FMT, &state->echo) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to read echo from %s", SFERALABS_SERIAL_RS485_FMT);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     const char *term_path = SFERALABS_CLASS_PATH "/rs485/termination";
     if (read_on_off(term_path, &state->termination) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to read termination from %s", term_path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 #elif defined(EHS_SFERALABS_BOARD_STRATOPI)
@@ -107,15 +109,15 @@ EHS_GLOBAL int EhsTRs485Config(ehs_rs485_config_state_type *state)
     if (write_on_off(SFERALABS_SERIAL_RS485_FMT, state->echo) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to write echo/mode to %s", SFERALABS_SERIAL_RS485_FMT);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     const char *term_path = SFERALABS_CLASS_PATH "/rs485/termination";
     if (write_on_off(term_path, state->termination) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to write termination to %s", term_path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTRs485Read(ehs_rs485_config_state_type *state)
@@ -123,15 +125,15 @@ EHS_GLOBAL int EhsTRs485Read(ehs_rs485_config_state_type *state)
     if (read_on_off(SFERALABS_SERIAL_RS485_FMT, &state->echo) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to read echo/mode from %s", SFERALABS_SERIAL_RS485_FMT);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     const char *term_path = SFERALABS_CLASS_PATH "/rs485/termination";
     if (read_on_off(term_path, &state->termination) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to read termination from %s", term_path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 #elif defined(EHS_SFERALABS_BOARD_STRATOPIMAX)
@@ -148,14 +150,14 @@ EHS_GLOBAL int EhsTRs485Config(ehs_rs485_config_state_type *state)
     if (write_on_off(echo_path, state->echo) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to write echo to %s", echo_path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     if (write_on_off(term_path, state->termination) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to write termination to %s", term_path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTRs485Read(ehs_rs485_config_state_type *state)
@@ -170,14 +172,14 @@ EHS_GLOBAL int EhsTRs485Read(ehs_rs485_config_state_type *state)
     if (read_on_off(echo_path, &state->echo) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to read echo from %s", echo_path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     if (read_on_off(term_path, &state->termination) != 0)
     {
         EHSH_LOG_ERROR("RS-485 config: failed to read termination from %s", term_path);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 #else /* board does not support RS-485 config via sysfs */
@@ -186,7 +188,7 @@ EHS_GLOBAL int EhsTRs485Config(ehs_rs485_config_state_type *state)
 {
     (void)state;
     EHSH_LOG_ERROR("RS-485 config: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 EHS_GLOBAL int EhsTRs485Read(ehs_rs485_config_state_type *state)
@@ -197,7 +199,7 @@ EHS_GLOBAL int EhsTRs485Read(ehs_rs485_config_state_type *state)
         state->termination = EHS_FALSE;
     }
     EHSH_LOG_ERROR("RS-485 config: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 #endif /* board selection */

@@ -12,7 +12,7 @@
  * @brief Sfera Labs sysfs SD slot selection HAL implementation.
  *
  * Supported boards: Strato Pi, Strato Pi Max.
- * All other Sfera Labs boards return -1.
+ * All other Sfera Labs boards return EHS_PERIPH_ERR_NOT_SUPPORTED (-3).
  *
  * Sysfs path:
  *   /sys/class/[board]/sd_card/sd_main_enabled
@@ -22,6 +22,7 @@
 
 #include "globals.h"
 #include "hal_sd_select.h"
+#include "hal_peripheral_errors.h"
 #include "sferalabs_hal.h"
 #include "hal_logger.h"
 
@@ -36,12 +37,12 @@ EHS_GLOBAL int EhsTSdSelectSlot(ehs_sd_select_state_type *state, ehs_sint32 slot
     if (sferalabs_sysfs_write(SFERALABS_SD_MAIN_ENABLED_PATH, val, 1) != 0)
     {
         EHSH_LOG_ERROR("SD select: failed to write slot %d to %s", slot, SFERALABS_SD_MAIN_ENABLED_PATH);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     if (state)
         state->active_slot = slot;
     EHSH_LOG_INFO("SD select: selected slot %d", slot);
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 EHS_GLOBAL int EhsTSdReadActiveSlot(ehs_sd_select_state_type *state)
@@ -50,12 +51,12 @@ EHS_GLOBAL int EhsTSdReadActiveSlot(ehs_sd_select_state_type *state)
     if (sferalabs_sysfs_read_char(SFERALABS_SD_MAIN_ENABLED_PATH, &ch) != 0)
     {
         EHSH_LOG_ERROR("SD select: failed to read from %s", SFERALABS_SD_MAIN_ENABLED_PATH);
-        return -1;
+        return EHS_PERIPH_ERR_SYSFS;
     }
     /* "1" means main (slot 0) is active; "0" means secondary (slot 1) */
     if (state)
         state->active_slot = (ch == '1') ? 0 : 1;
-    return 0;
+    return EHS_PERIPH_OK;
 }
 
 #else /* board does not have dual SD select */
@@ -65,7 +66,7 @@ EHS_GLOBAL int EhsTSdSelectSlot(ehs_sd_select_state_type *state, ehs_sint32 slot
     (void)state;
     (void)slot;
     EHSH_LOG_ERROR("SD select: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 EHS_GLOBAL int EhsTSdReadActiveSlot(ehs_sd_select_state_type *state)
@@ -73,7 +74,7 @@ EHS_GLOBAL int EhsTSdReadActiveSlot(ehs_sd_select_state_type *state)
     if (state)
         state->active_slot = 0;
     EHSH_LOG_ERROR("SD select: not supported on this Sfera Labs board");
-    return -1;
+    return EHS_PERIPH_ERR_NOT_SUPPORTED;
 }
 
 #endif /* board selection */

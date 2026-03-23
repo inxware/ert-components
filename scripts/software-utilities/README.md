@@ -8,6 +8,7 @@ This directory contains Python scripts for working with eRT components, CDF file
   - [cdf_to_ascii.py](#cdf_to_asciipy)
   - [cdf_to_c_skel.py](#cdf_to_c_skelpy)
   - [cdf_validate.py](#cdf_validatepy)
+  - [fb_platform_matrix.py](#fb_platform_matrixpy)
 - [Documentation Tools](#documentation-tools)
   - [move_description_column_final.py](#move_description_column_finalpy)
 - [Binary Conversion Tools](#binary-conversion-tools)
@@ -16,6 +17,128 @@ This directory contains Python scripts for working with eRT components, CDF file
 ---
 
 ## CDF Component Tools
+
+### cdf_geometry.py  ⟨LLM tool⟩
+
+**Purpose:** Block geometry calculator and validator for CDF files.  This script
+is designed to be called by an LLM (Claude Code) as a normal part of the CDF
+authoring workflow — before writing geometry values into a new CDF, and after
+writing a CDF to confirm correctness.  Developers may also run it manually.
+
+**Modes:**
+
+#### `suggest` — call before writing the CDF
+
+Given the planned port labels and the Y coordinate of the lowest port, outputs
+a ready-to-paste `<Block>` geometry snippet.
+
+```bash
+python3 scripts/software-utilities/cdf_geometry.py suggest \
+    --labels "enable" "disable" "kick" "error id" "expired" \
+    --last-y 70
+```
+
+Output:
+```
+Suggested Block geometry
+  Max label : 11 chars  ("read_status")
+
+  <Width>75</Width>
+  <Height>98</Height>   <!-- last_port_Y=70 + 28 -->
+  <TextX>10</TextX>
+  <TextY>5</TextY>
+  <TextScale>1.25</TextScale>
+  <TextVertical>0</TextVertical>
+  <LocationX>0</LocationX>
+  <LocationY>-15</LocationY>
+
+  Right-side port XCoordinate : 70  (Width-5)
+```
+
+#### `validate` — call after writing the CDF
+
+Parses one or more CDF files and reports geometry violations.  Exits 0 if all
+files pass, 1 if any errors are found.
+
+```bash
+# Single file
+python3 scripts/software-utilities/cdf_geometry.py validate path/to/block.cdf
+
+# All CDFs in a category
+python3 scripts/software-utilities/cdf_geometry.py validate Common/Components/peripherals/*.cdf
+```
+
+**Checks performed:**
+- `<Width>` is explicit
+- `<Height>` is present and ≥ `last_port_Y + 28` (effective bottom clears last port by 13 units)
+- `<LocationX>0</LocationX>` and `<LocationY>-15</LocationY>` are set (missing LocationY clips the title)
+- `<TextY>` ≤ 10 (title placed at top, not overlapping ports)
+- All right-side ports (FinishPort, OutputPort) have `XCoordinate = Width − 5`
+- All left-side ports (StartPort, InputPort) have `XCoordinate = 0`
+- Width is not obviously too narrow for the longest port label
+
+**LLM workflow:** An LLM authoring a CDF should:
+1. Run `suggest` with the planned port info → copy values into the `<Block>` section
+2. Write the full CDF
+3. Run `validate` on the written file → fix any errors reported
+
+---
+
+### fb_platform_matrix.py  ⟨LLM tool⟩
+
+**Purpose:** Generates a function-block × platform support matrix showing which
+HAL variant (or `—`) each component has on each target platform.  Useful for
+understanding per-platform component availability and for auditing HAL coverage.
+Designed to be called by an LLM or engineer.
+
+**Usage:**
+```bash
+# All components vs all platforms (CSV, pipe to file):
+python3 scripts/software-utilities/fb_platform_matrix.py > matrix.csv
+
+# Platform-specific blocks only, markdown (omit always-built and never-built rows):
+python3 scripts/software-utilities/fb_platform_matrix.py \
+    --format md --no-always --no-never
+
+# Sfera Labs platforms, peripheral blocks only:
+python3 scripts/software-utilities/fb_platform_matrix.py \
+    --format md --platform '*sferalabs*' --no-always --no-never
+
+# Single component family:
+python3 scripts/software-utilities/fb_platform_matrix.py \
+    --format md --component 'accel_gyro'
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--repo PATH` | Repository root (auto-detected by default) |
+| `--format {csv,md,html}` | Output format (default: `csv`) |
+| `--platform GLOB` | Filter platform names, repeatable |
+| `--component GLOB` | Filter by family/class name glob, repeatable |
+| `--no-always` | Omit components always built (no support variable) |
+| `--no-never` | Omit components with no support on any shown platform |
+
+**Cell values:**
+
+| Value | Meaning |
+|-------|---------|
+| `always` | No support variable — unconditionally built |
+| `sferalabs`, `stubbed`, `arduino`, … | HAL variant name from platform config |
+| `—` | Not built on this platform |
+| `?` | Support variable present but not set in platform config |
+
+**How it works:**
+- Parses all `Common/Components/**/*.cdf` for class names, descriptions, and menus
+- Parses all `Common/Components/**/components.mk` with a stack-based `ifdef` tracker
+  to map each class name to its `EHS_*_SUPPORT` variable
+- Parses all `target/platform/*/config.mk` for variable assignments
+- Collapses primitive-family variants (type and count variants of the same block,
+  e.g. `MultiplexFourInputInt` / `MultiplexEightInputBool` → `Multiplex`) so the
+  matrix shows one representative row per functional family
+
+---
 
 ### cdf_to_ascii.py
 
@@ -406,28 +529,43 @@ make components_gendocs  # Regenerate all .md files from CDF files
 
 ### Creating a New Component
 
-1. **Create CDF file** defining the component interface
+1. **Get geometry values** before writing the CDF `<Block>` section
    ```bash
-   # Create Common/Components/category/inx-my_component.cdf
+   python3 scripts/software-utilities/cdf_geometry.py suggest \
+       --labels "enable" "error id" "done" \
+       --last-y 32
+   # Copy the output Width, Height, TextX/Y, LocationX/Y into the CDF
    ```
 
-2. **Generate documentation** to preview the component
+2. **Create CDF file** defining the component interface
    ```bash
-   python3 scripts/software-utilities/cdf_to_ascii.py Common/Components/category/inx-my_component.cdf > preview.md
+   # Create Common/Components/category/my_component.cdf
    ```
 
-3. **Generate skeleton code**
+3. **Validate CDF geometry**
    ```bash
-   python3 scripts/software-utilities/cdf_to_c_skel.py Common/Components/category/inx-my_component.cdf
+   python3 scripts/software-utilities/cdf_geometry.py validate \
+       Common/Components/category/my_component.cdf
+   # Fix any errors before proceeding
+   ```
+
+4. **Generate documentation** to preview the component
+   ```bash
+   python3 scripts/software-utilities/cdf_to_ascii.py Common/Components/category/my_component.cdf > preview.md
+   ```
+
+6. **Generate skeleton code**
+   ```bash
+   python3 scripts/software-utilities/cdf_to_c_skel.py Common/Components/category/my_component.cdf
    # Answer 'y' to add to components.mk
    ```
 
-4. **Implement functionality** in the generated C file
+7. **Implement functionality** in the generated C file
    - Add state variables
    - Implement RUN functions
    - Add initialization/cleanup code
 
-5. **Validate** CDF matches implementation
+8. **Validate** CDF matches implementation
    ```bash
    python3 scripts/software-utilities/cdf_validate.py
    ```

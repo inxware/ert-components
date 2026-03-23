@@ -17,8 +17,8 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Width>50</Width>
-        <Height>80</Height>
+        <Width>75</Width>
+        <Height>98</Height>
         <Text>WDog</Text>
         <TextX>10</TextX>
         <TextY>5</TextY>
@@ -89,7 +89,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>10</YCoordinate>
             <Wcet>0</Wcet>
             <CName>enabled</CName>
@@ -111,7 +111,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>20</YCoordinate>
             <Wcet>0</Wcet>
             <CName>disabled</CName>
@@ -123,7 +123,7 @@
             <DataType>I</DataType>
             <Description>error id</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>30</YCoordinate>
             <CName>error_id</CName>
             <Function argument="1">
@@ -147,7 +147,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>45</YCoordinate>
             <Wcet>0</Wcet>
             <CName>kicked</CName>
@@ -169,7 +169,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>60</YCoordinate>
             <Wcet>0</Wcet>
             <CName>status_done</CName>
@@ -181,7 +181,7 @@
             <DataType>B</DataType>
             <Description>expired</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>70</YCoordinate>
             <CName>expired</CName>
             <Function argument="1">

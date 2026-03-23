@@ -7,7 +7,7 @@
     </CDFInfo>
     <Description>
         <ShortDescription>Accelerometer</ShortDescription>
-        <LongDescription>3-axis accelerometer. Returns X, Y, Z acceleration values in milli-g.</LongDescription>
+        <LongDescription>DEPRECATED — use the accel_gyro block instead. The accel_gyro block is a superset of this block and supports both accelerometer and gyroscope via the same HAL switching mechanism. This block remains available for backward compatibility only.</LongDescription>
         <UserName/>
         <Menu>
             Peripherals

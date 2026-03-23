@@ -20,8 +20,8 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Width>50</Width>
-        <Height>55</Height>
+        <Width>75</Width>
+        <Height>73</Height>
         <Text>485</Text>
         <TextX>14</TextX>
         <TextY>5</TextY>
@@ -102,7 +102,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>10</YCoordinate>
             <Wcet>0</Wcet>
             <CName>done</CName>
@@ -114,7 +114,7 @@
             <DataType>I</DataType>
             <Description>error id</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>20</YCoordinate>
             <CName>error_id</CName>
             <Function argument="1">
@@ -138,7 +138,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>45</YCoordinate>
             <Wcet>0</Wcet>
             <CName>read_done</CName>

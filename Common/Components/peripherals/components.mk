@@ -86,20 +86,12 @@ ifneq ($(EHS_PERIPHERALS_LED_SUPPORT),none)
 endif
 endif
 
-#Acceleromter support
-# temporarrilly  do this ...
-ifndef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
-EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT=stubbed
-endif
+# Accelerometer and Gyroscope (combined IMU) — HAL selected via EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+# Set by platform config.mk (same pattern as EHS_WATCHDOG_SUPPORT etc.).
 
 ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 ifneq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),none)
 	OBJECTS += inx-accel_gyro.$(OBJ)
-#todo2025- the following should just be another HAL stub and we don't need to differentiate stubbed from implemented here...
-
-	ifeq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),stubbed)
-		OBJECTS += inx-accel_gyro_stubb.$(OBJ)
-	endif
 	DEFS += EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 endif
 endif

@@ -3,19 +3,28 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2023-04-18T13:32:37Z</CreationDate>
-        <UpdatedDate>2025-03-17T13:48:17Z</UpdatedDate>
+        <UpdatedDate>2026-03-22T00:00:00Z</UpdatedDate>
     </CDFInfo>
     <Description>
-        <ShortDescription>Accelometer and Gyroscope</ShortDescription>
-        <LongDescription>Accelometer and Gyroscope</LongDescription>
+        <ShortDescription>Accelerometer and Gyroscope</ShortDescription>
+        <LongDescription>Combined IMU function block providing accelerometer and gyroscope readings. Enable/disable control the hardware sensor. read_accel and read_gyro trigger independent reads; either may be used without the other. On platforms that do not provide a gyroscope (e.g. Sfera Labs Exo Sense Pi) read_gyro never fires its done event.</LongDescription>
         <UserName/>
         <Menu>
             Peripherals
-            <Menu>Accelometer and Gyroscope</Menu>
+            <Menu>Accelerometer and Gyroscope</Menu>
         </Menu>
     </Description>
     <Block>
         <Type>IO</Type>
+        <Width>75</Width>
+        <Height>145</Height>
+        <Text>AccGyro</Text>
+        <TextX>10</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
     </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
@@ -23,31 +32,31 @@
     </FBID>
     <Hashes>
         <NameHash_CRC16>0xF2AA</NameHash_CRC16>
-        <FbApiDescriptorHash_CRC32>bad9e7af</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash_CRC32>00000000</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>
     <Parameters/>
     <Functions>
         <Function>
-            <name>EnableFunc</name>
+            <name>enable</name>
             <ID>
                 <ERT1_ID>1</ERT1_ID>
             </ID>
         </Function>
         <Function>
-            <name>DisableFunc</name>
+            <name>disable</name>
             <ID>
                 <ERT1_ID>2</ERT1_ID>
             </ID>
         </Function>
         <Function>
-            <name>ReadAccelFunc</name>
+            <name>read_accel</name>
             <ID>
                 <ERT1_ID>3</ERT1_ID>
             </ID>
         </Function>
         <Function>
-            <name>ReadGyroFunc</name>
+            <name>read_gyro</name>
             <ID>
                 <ERT1_ID>4</ERT1_ID>
             </ID>
@@ -66,11 +75,11 @@
             </Function>
         </Port>
         <Port>
-            <Description>disbale</Description>
+            <Description>disable</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
             <YCoordinate>22</YCoordinate>
-            <CName>disbale</CName>
+            <CName>disable</CName>
             <Function argument="0">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
                 <AtomicFlag>0</AtomicFlag>
@@ -79,7 +88,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>75</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>12</YCoordinate>
             <Wcet>0</Wcet>
             <CName>enabled</CName>
@@ -90,7 +99,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>75</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>22</YCoordinate>
             <Wcet>0</Wcet>
             <CName>disabled</CName>
@@ -102,7 +111,7 @@
             <DataType>I</DataType>
             <Description>err id</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>75</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>32</YCoordinate>
             <CName>error_id</CName>
             <Function argument="1">
@@ -126,8 +135,8 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>75</XCoordinate>
-            <YCoordinate>45</YCoordinate>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>47</YCoordinate>
             <Wcet>0</Wcet>
             <CName>accel_done</CName>
             <Function argument="1">
@@ -138,8 +147,8 @@
             <DataType>F</DataType>
             <Description>Ax</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>75</XCoordinate>
-            <YCoordinate>55</YCoordinate>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>57</YCoordinate>
             <CName>Ax</CName>
             <Function argument="1">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -149,8 +158,8 @@
             <DataType>F</DataType>
             <Description>Ay</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>75</XCoordinate>
-            <YCoordinate>65</YCoordinate>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>67</YCoordinate>
             <CName>Ay</CName>
             <Function argument="2">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -160,8 +169,8 @@
             <DataType>F</DataType>
             <Description>Az</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>75</XCoordinate>
-            <YCoordinate>75</YCoordinate>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>77</YCoordinate>
             <CName>Az</CName>
             <Function argument="3">
                 <Function_ERT1_ID>3</Function_ERT1_ID>
@@ -171,7 +180,7 @@
             <Description>gyro</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>
-            <YCoordinate>87</YCoordinate>
+            <YCoordinate>92</YCoordinate>
             <CName>read_gyro</CName>
             <Function argument="0">
                 <Function_ERT1_ID>4</Function_ERT1_ID>
@@ -181,8 +190,8 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>75</XCoordinate>
-            <YCoordinate>87</YCoordinate>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>92</YCoordinate>
             <Wcet>0</Wcet>
             <CName>gyro_done</CName>
             <Function argument="1">
@@ -193,8 +202,8 @@
             <DataType>F</DataType>
             <Description>Gx</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>75</XCoordinate>
-            <YCoordinate>97</YCoordinate>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>102</YCoordinate>
             <CName>Gx</CName>
             <Function argument="1">
                 <Function_ERT1_ID>4</Function_ERT1_ID>
@@ -204,7 +213,7 @@
             <DataType>F</DataType>
             <Description>Gy</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>75</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>107</YCoordinate>
             <CName>Gy</CName>
             <Function argument="2">
@@ -215,7 +224,7 @@
             <DataType>F</DataType>
             <Description>Gz</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>75</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>117</YCoordinate>
             <CName>Gz</CName>
             <Function argument="3">

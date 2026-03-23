@@ -20,8 +20,8 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Width>50</Width>
-        <Height>65</Height>
+        <Width>55</Width>
+        <Height>83</Height>
         <Text>USB</Text>
         <TextX>13</TextX>
         <TextY>5</TextY>

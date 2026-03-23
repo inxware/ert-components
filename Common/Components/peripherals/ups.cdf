@@ -17,8 +17,8 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Width>50</Width>
-        <Height>65</Height>
+        <Width>75</Width>
+        <Height>83</Height>
         <Text>UPS</Text>
         <TextX>14</TextX>
         <TextY>5</TextY>
@@ -72,7 +72,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>10</YCoordinate>
             <Wcet>0</Wcet>
             <CName>done</CName>
@@ -84,7 +84,7 @@
             <DataType>B</DataType>
             <Description>on battery</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>20</YCoordinate>
             <CName>on_battery</CName>
             <Function argument="1">
@@ -95,7 +95,7 @@
             <DataType>I</DataType>
             <Description>battery mV</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>30</YCoordinate>
             <CName>battery_mv</CName>
             <Function argument="2">
@@ -116,7 +116,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>45</YCoordinate>
             <Wcet>0</Wcet>
             <CName>power_fail</CName>
@@ -138,7 +138,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>50</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>55</YCoordinate>
             <Wcet>0</Wcet>
             <CName>power_restored</CName>

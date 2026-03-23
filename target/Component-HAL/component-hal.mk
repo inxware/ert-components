@@ -315,11 +315,11 @@ endif
 endif
 
 ########################################################################################################
-## Accelerometer
+## Accelerometer and Gyroscope (combined IMU)
 ########################################################################################################
-ifdef EHS_ACCELEROMETER_SUPPORT
-ifneq ($(EHS_ACCELEROMETER_SUPPORT),none)
-include $(EHS_TARGET_COMPONENT_HAL_PATH)/accelerometer/accelerometer_common.mk
+ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+ifneq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/accel_gyro/accel_gyro_common.mk
 endif
 endif
 

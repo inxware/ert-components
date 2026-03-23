@@ -50,6 +50,124 @@ Example for a function with the standard pattern:
 
 ---
 
+## CDF Block Geometry (Width, Height, port X coordinates)
+
+These rules ensure the block outline fits all ports with no gaps or clipping, and the title label has room. Confirmed against `adc_read_single.cdf` (canonical reference) and corrected against `watchdog`, `ups`, `rs485_config`, and `led`.
+
+### How LocationY affects the block rectangle
+
+`<LocationY>-15</LocationY>` is standard for all IO blocks. It shifts the block rectangle so that:
+
+- **Effective block top** = `LocationY` = **−15**
+- **Effective block bottom** = `LocationY + Height` = **Height − 15**
+
+This means Height is NOT simply the visual span of the ports. A block with `LocationY=-15` and `Height=60` has its rectangle from Y=−15 to Y=45.
+
+**Missing `<LocationY>-15</LocationY>` causes the title to be clipped at the top** because the block rectangle starts at Y=0 and the title (TextY=5, text body extends slightly above that) is cut off.
+
+### Height formula
+
+```
+Height = last_port_Y + 28
+```
+
+Derivation (from `adc_read_single.cdf`):
+- `LocationY = -15`, so effective bottom = `Height − 15`
+- Required bottom clearance below last port = **13 units** (confirmed from reference block)
+- Therefore: `Height − 15 = last_port_Y + 13` → `Height = last_port_Y + 28`
+
+| Block | Last port Y | Height |
+|---|---|---|
+| adc_read_single (reference) | 32 | 60 (32+28) |
+| watchdog | 70 | 98 (70+28) |
+| ups | 55 | 83 (55+28) |
+| rs485_config | 45 | 73 (45+28) |
+| led | 75 | 103 (75+28) |
+
+**When adding a port**, increase Height by 10 if the new port's Y is 10 more than the previous last port (i.e. Height stays `last_port_Y + 28`).
+
+### Port X coordinate rules
+
+- **Right-side ports** (FinishPort, OutputPort) at `XCoordinate = Width − 5`. Example: Width=75 → X=70. Do **not** use X=Width — that places the connector outside the border.
+- **Left-side ports** (StartPort, InputPort) at `XCoordinate = 0`.
+- **Hidden ports** (InternalPort) at `XCoordinate = -1`, `YCoordinate = -1`.
+
+### Title placement
+
+- `<TextX>10</TextX>`, `<TextY>5</TextY>` — title at top-left. Works because `LocationY=-15` puts the block top 15 units above Y=0, well above the title body.
+- **Do not use a large TextY** (e.g. TextY=70) — the title will overlap body ports.
+- First port at `Y=12` gives 7 units of clearance below the title baseline.
+
+### Block section template
+
+```xml
+<Block>
+    <Type>IO</Type>
+    <Width>75</Width>
+    <Height><!-- last_port_Y + 28 --></Height>
+    <Text>Block Label</Text>
+    <TextX>10</TextX>
+    <TextY>5</TextY>
+    <TextScale>1.25</TextScale>
+    <TextVertical>0</TextVertical>
+    <LocationX>0</LocationX>
+    <LocationY>-15</LocationY>
+</Block>
+```
+
+### Port X coordinate summary
+
+| Side | Port types | XCoordinate |
+|---|---|---|
+| Left | StartPort, InputPort | `0` |
+| Right | FinishPort, OutputPort | `Width − 5` (e.g. `70` for Width=75) |
+| Hidden | InternalPort | `-1` |
+
+### Using `cdf_geometry.py` — mandatory geometry tool
+
+**Always use `scripts/software-utilities/cdf_geometry.py` when authoring or modifying CDF files.** It implements the rules above so geometry is consistent and errors are caught before they reach the IDE.
+
+#### Before writing the CDF — get geometry values
+
+Run `suggest` with the planned port labels and the Y coordinate of the lowest port:
+
+```bash
+python3 scripts/software-utilities/cdf_geometry.py suggest \
+    --labels "enable" "disable" "kick" "error id" "expired" \
+    --last-y 70
+```
+
+Output is a ready-to-paste `<Block>` geometry snippet with Width, Height, TextX/Y, LocationX/Y, and the right-side port XCoordinate. Copy these values into the CDF.
+
+#### After writing the CDF — validate
+
+```bash
+python3 scripts/software-utilities/cdf_geometry.py validate path/to/block.cdf
+```
+
+Exits 0 if OK, 1 if errors. Errors must be fixed before the CDF is considered complete. Warnings are advisory (e.g. width may be slightly tight for the label length).
+
+#### Validating all CDFs in a category
+
+```bash
+python3 scripts/software-utilities/cdf_geometry.py validate Common/Components/peripherals/*.cdf
+```
+
+### Width tier selection
+
+The `suggest` command picks the smallest standard tier that fits the longest label. Bump to the next tier for complex or protocol-heavy blocks:
+
+| Tier | Fits labels up to | Typical use |
+|---|---|---|
+| 30 | 2 chars | Logic, operators, mux/demux (no meaningful labels) |
+| 65 | 9 chars | Simple utilities, buffers, file ops |
+| 75 | 11 chars | Standard peripheral blocks (ADC, GPIO, watchdog, UPS) |
+| 95 | 14 chars | Config blocks, UART, NV storage |
+| 105 | 16 chars | Complex blocks: MQTT, RTC, GUI widgets |
+| 115 | 20+ chars | Protocol stacks: Modbus, BLE |
+
+---
+
 ## CDF Port Y Coordinate Layout
 
 Y coordinates control the visual position of ports on the block. The conventions below are confirmed from `tf_lite_frame.cdf` and `ml_image_inference.cdf`.
@@ -143,7 +261,7 @@ Four files must change in sync. Using `model_info OutputPort/S` on `load_model` 
 
 ### 1. CDF file — add the `<Port>` element
 
-Place it after the last existing port at the same arg level. Set `argument=` to match the arg number (here `2`, same as the error FinishPort). Increment `<YCoordinate>` by 10 from the previous port on the same side. Increase `<Height>` in `<Block>` by 10.
+Place it after the last existing port at the same arg level. Set `argument=` to match the arg number (here `2`, same as the error FinishPort). Increment `<YCoordinate>` by 10 from the previous port on the same side. Recalculate `<Height>` as `new_last_port_Y + 28` (see Block Geometry section).
 
 ```xml
 <Port>
@@ -191,7 +309,7 @@ python3 scripts/software-utilities/cdf_to_ascii.py \
 **Rules to remember:**
 - An `OutputPort/S` at `argument=2` is valid alongside the error `FinishPort` at `argument=2` — they use different macros (`EHS_FB_OUT_S_API2` vs `EHS_FB_FINISH`) so there is no conflict.
 - Only ONE `OutputPort` of each data type per argument number per function.
-- The CDF `<Height>` must be increased by 10 for each new port added.
+- The CDF `<Height>` must be recalculated as `last_port_Y + 28` whenever a port is added (see Block Geometry section for derivation).
 
 ---
 
@@ -333,6 +451,31 @@ Verified values: `adc_config`→`0x566F`, `accel_gyro`→`0xF2AA`, `lorawan`→`
 The Lucid IDE source (`LucidConstants.h`) marks both `FbApiDescriptorHash_CRC32` and `FbApiDescriptorHash` as `@TODO - this is not done yet`. Existing CDFs that show non-zero values (e.g. `5659f300` for `uart`) had these set by older versions of Lucid IDE; the algorithm is not exposed in the open-source tools.
 
 **Always leave as `00000000` for manually-created or modified CDFs.** The `inxtool.py` script does not compute this field and neither should you.
+
+---
+
+## Platform support matrix
+
+To see which function blocks are available on which platforms (and which HAL variant is selected), use `scripts/software-utilities/fb_platform_matrix.py`:
+
+```bash
+# Most useful view — HAL-selectable blocks only, markdown:
+python3 scripts/software-utilities/fb_platform_matrix.py \
+    --format md --no-always --no-never
+
+# Sfera Labs platforms only:
+python3 scripts/software-utilities/fb_platform_matrix.py \
+    --format md --platform '*sferalabs*' --no-always --no-never
+
+# All platforms, CSV (pipe to file for spreadsheet):
+python3 scripts/software-utilities/fb_platform_matrix.py > matrix.csv
+
+# Single block family:
+python3 scripts/software-utilities/fb_platform_matrix.py \
+    --format md --component 'accel_gyro'
+```
+
+The script collapses primitive-family variants (type and count variants such as `MultiplexFourInputInt` / `MultiplexEightInputBool`) into a single representative row. Core toolbox blocks that are always built show as `always`; platform-specific blocks show the HAL variant name (`sferalabs`, `stubbed`, `arduino`, …) or `—` if not built.
 
 ---
 

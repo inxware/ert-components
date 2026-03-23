@@ -16,10 +16,15 @@
     </Description>
     <Block>
         <Type>IO</Type>
+        <Width>75</Width>
+        <Height>103</Height>
         <Text>LED</Text>
-        <TextX>23</TextX>
-        <TextY>70</TextY>
+        <TextX>10</TextX>
+        <TextY>5</TextY>
         <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
     </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
@@ -108,7 +113,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>45</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>12</YCoordinate>
             <Wcet>0</Wcet>
             <CName>enabled</CName>
@@ -119,7 +124,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>45</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>22</YCoordinate>
             <Wcet>0</Wcet>
             <CName>disabled</CName>
@@ -131,7 +136,7 @@
             <DataType>I</DataType>
             <Description>err id</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>45</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>32</YCoordinate>
             <CName>error_id</CName>
             <Function argument="1">
@@ -177,7 +182,7 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>45</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>55</YCoordinate>
             <Wcet>0</Wcet>
             <CName>set_done</CName>

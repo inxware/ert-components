@@ -12,7 +12,7 @@
 <Toolbox hash="0x1ab8">mv</Toolbox>
 <Toolbox hash="0x1a10">ml</Toolbox>
 </Toolboxes>
-<LastTransferToTarget>2026-02-22 19:24:02:000</LastTransferToTarget>
+<LastTransferToTarget>2026-02-23 00:45:27:000</LastTransferToTarget>
 <GroupSet>
 <Group>
 <ID>1</ID>
@@ -61,15 +61,27 @@
 <ScreenTag>default</ScreenTag>
 </Widget>
 <Widget>
-<WidgetTag>Accelx</WidgetTag>
+<WidgetTag>ErrorCode</WidgetTag>
 <ScreenTag>default</ScreenTag>
 </Widget>
 <Widget>
-<WidgetTag>Accely</WidgetTag>
+<WidgetTag>ax</WidgetTag>
 <ScreenTag>default</ScreenTag>
 </Widget>
 <Widget>
-<WidgetTag>Accelz</WidgetTag>
+<WidgetTag>az</WidgetTag>
+<ScreenTag>default</ScreenTag>
+</Widget>
+<Widget>
+<WidgetTag>ay</WidgetTag>
+<ScreenTag>default</ScreenTag>
+</Widget>
+<Widget>
+<WidgetTag>ADCFloat</WidgetTag>
+<ScreenTag>default</ScreenTag>
+</Widget>
+<Widget>
+<WidgetTag>GPIOValue</WidgetTag>
 <ScreenTag>default</ScreenTag>
 </Widget>
 </WidgetSet>

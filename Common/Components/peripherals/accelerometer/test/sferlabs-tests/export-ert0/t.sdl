@@ -1,6 +1,6 @@
 #V:2.0.0
-#B:28
-#D:Y2026M2d22h19m23s49
+#B:39
+#D:Y2026M2d23h0m22s40
 #N:sferlabs-tests
 1
 1	100000	90000
@@ -13,55 +13,116 @@ BEGIN gui_text_int2 0
 %%%_ADCVal g0000001.gui 0 0 
 create	1	1	1	0 	6 I -1 I -1 I -1 I -1 I -1 S -1 	5 -1 -1 -1 -1 -1 
 show	1	1	1	0 	0 	1 -1 
-END
-BEGIN gui_text_real2 0
-%%%_Accelx g0000001.gui 0 0 2 
-create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
-show	1	1	1	0 	0 	1 -1 
-END
-BEGIN gui_text_real2 0
-%%%_Accely g0000001.gui 0 0 2 
-create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
-show	1	1	1	0 	0 	1 -1 
-END
-BEGIN gui_text_real2 0
-%%%_Accelz g0000001.gui 0 0 2 
-create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
-show	1	1	1	0 	0 	1 -1 
+data	1	1	2	2 I 1 S -1 	2 I -1 S -1 	2 -1 -1 
 END
 BEGIN time_clock 0
 5000000 1 1 
 start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
-tick	1	1	-1	0 	0 	1 5 
+tick	1	1	-1	0 	0 	1 3 
 END
 BEGIN time_clock 0
 1000000 0 1 
-start	1	1	2	3 I -1 B -1 B -1 	0 	1 -1 
-tick	1	1	-1	0 	0 	1 6 
+start	1	1	3	3 I -1 B -1 B -1 	0 	1 9 
+tick	1	1	-1	0 	0 	1 10 
 END
-BEGIN accelerometer 0
+BEGIN time_clock 0
+100000 0 1 
+start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 12 
+END
+BEGIN gpio_in 0
+0 
+read	1	1	4	0 	1 B 2 	1 14 
+END
+BEGIN gpio_out 0
+0 0 0 
+write	1	1	5	1 B 1 	0 	0 
+END
+BEGIN accel_gyro 0
 *
-enable	1	1	3	0 	1 I 1 	1 8 
-read	1	1	4	0 	3 F 1 F 2 F 3 	1 7 
+enable	1	1	1	0 	1 I 3 	1 7 
+END
+BEGIN dac 0
+0 10000 1000000 
+set	1	1	6	1 I 2 	0 	1 -1 
+END
+BEGIN led 0
+1 0 100 
+EnableFunc	1	1	1	0 	1 I -1 	1 -1 
+SetFunc	1	1	5	2 B 1 I -1 	0 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_ErrorCode g0000001.gui 0 0 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 I -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	7	2 I 3 S -1 	2 I -1 S -1 	2 -1 -1 
+END
+BEGIN gui_text_real2 0
+%%%_ax g0000001.gui 0 0 2 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	8	2 F 1 S -1 	2 F -1 S -1 	2 -1 -1 
+END
+BEGIN gui_text_real2 0
+%%%_az g0000001.gui 0 0 2 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	8	2 F 2 S -1 	2 F -1 S -1 	2 -1 -1 
+END
+BEGIN gui_text_real2 0
+%%%_ay g0000001.gui 0 0 2 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	8	2 F 3 S -1 	2 F -1 S -1 	2 -1 -1 
 END
 BEGIN buzzer 0
 1000 200 
-beep	1	1	5	2 I -1 I -1 	0 	1 2 
-stop	1	1	6	0 	0 	1 -1 
+beep	1	1	9	2 I -1 I -1 	0 	1 -1 
+stop	1	1	10	0 	0 	1 -1 
 END
-BEGIN MultiplexFourInputReal 0
+BEGIN adc_read 0
+1 0 1 1 0 
+read	1	1	1	1 I -1 	1 F 4 	1 11 
+sample	1	1	4	0 	1 F 4 	1 11 
+END
+BEGIN gui_text_real2 0
+%%%_ADCFloat g0000001.gui 0 0 2 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	11	2 F 4 S -1 	2 F -1 S -1 	2 -1 -1 
+END
+BEGIN adc_read_single 0
+0 0 10 
+sample	1	1	4	0 	1 I 1 	2 2 -1 
+END
+BEGIN EventCounterVersatile1 0
+1 0 1 1000 0 
+Run_CountEventCounter	1	1	12	4 I -1 I -1 I -1 I -1 	1 I 2 	2 6 13 
+Run_ResetEventCounter	1	1	13	4 I -1 I -1 I -1 I -1 	1 I 2 	1 -1 
+END
+BEGIN EventToggleBoolean 0
 *
-Run_Input1	1	1	7	1 F 1 	1 F -1 	1 -1 
+Toggle	1	1	3	0 	1 B 1 	1 5 
 END
-BEGIN MultiplexFourInputInt 0
+BEGIN usb_power 0
+1 
+enable	1	1	1	0 	1 I -1 	1 -1 
+disable	1	1	1	0 	1 I -1 	1 -1 
+END
+BEGIN gui_text_bool2 0
+%%%_widget6 g0000001.gui 0 0 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 B -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	14	2 B 2 S -1 	2 B -1 S -1 	2 -1 -1 
+END
+BEGIN sd_select 0
 *
-Run_Input1	1	1	8	1 I 1 	1 I -1 	1 -1 
-Run_Input2	1	1	9	1 I -1 	1 I -1 	1 -1 
+select	1	1	1	1 I 4 	1 I -1 	1 15 
+read_active	1	1	15	0 	2 I -1 I -1 	1 -1 
 END
-BEGIN time_clock 0
-5000000 0 1 
-start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
-tick	1	1	-1	0 	0 	1 3 
+BEGIN Constant_Int1 0
+1 
+Run_ConstantInt	1	1	-1	0 	1 I 4 	0 
 END
 BEGIN Start
 *

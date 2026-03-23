@@ -7,11 +7,10 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
-#ifndef _TARGET_ACCELEROMETER_SFERALABS_H_
-#define _TARGET_ACCELEROMETER_SFERALABS_H_
+#ifndef _TARGET_ACCEL_GYRO_STUBBED_H_
+#define _TARGET_ACCEL_GYRO_STUBBED_H_
 
 #include "globals.h"
-#include "hal_accelerometer.h"
-#include "sferalabs_hal.h"
+#include "hal_accel_gyro.h"
 
-#endif /* _TARGET_ACCELEROMETER_SFERALABS_H_ */
+#endif /* _TARGET_ACCEL_GYRO_STUBBED_H_ */

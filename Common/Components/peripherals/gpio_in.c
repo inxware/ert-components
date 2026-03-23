@@ -39,7 +39,8 @@ EHS_FB_INIT_FUNCTION(gpio_in)
     EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d",&gpio_in_state->pin_id);
     gpio_in_state->pin_value = EHS_FALSE;
     ehs_bool ret = EhsInitInputGPIO(gpio_in_state);
-    return ret;
+    //return ret;
+    return EHS_TRUE;// not critical if GPIO has not started typically.
 }
 
 EHS_FB_RUN_FUNCTION(gpio_in_read)

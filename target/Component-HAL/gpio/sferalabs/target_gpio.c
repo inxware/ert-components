@@ -176,12 +176,14 @@ EHS_GLOBAL ehs_bool EhsInitInputGPIO(ehs_gpio_in_state_type *pGPIO)
     if (!build_input_path(path, pGPIO->pin_id))
     {
         EHSH_LOG_ERROR("SferaLabs GPIO: pin_id %d is not a valid input", pGPIO->pin_id);
+        printf("SferaLabs GPIO: pin_id %d is not a valid input\n", pGPIO->pin_id);
         return EHS_FALSE;
     }
     /* Verify readable */
     char ch;
     if (sferalabs_sysfs_read_char(path, &ch) != 0)
     {
+        printf("SferaLabs GPIO: input pin_id %d not readable at %s\n", pGPIO->pin_id, path);
         EHSH_LOG_ERROR("SferaLabs GPIO: input pin_id %d not readable at %s", pGPIO->pin_id, path);
         return EHS_FALSE;
     }
