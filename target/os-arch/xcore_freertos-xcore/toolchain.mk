@@ -99,9 +99,15 @@ CFLAGS += -march=xs3a
 # standard sysroot would expect).  Compiler built-in headers (stddef.h etc.)
 # are in target/include/clang/ rather than being auto-detected from the
 # xcc2clang binary location.  Both paths must be added explicitly.
+#
+# NOTE: These are appended to XTC_SYS_INC rather than CFLAGS directly.
+# They must come AFTER the EHS user -I paths (INC_DIRS → INC) in the final
+# command line, otherwise XTC system headers (e.g. timer.h for the hardware
+# timer peripheral) shadow identically-named EHS headers such as
+# Common/KAPI/timer.h.  See the INC/CFLAGS assembly block below.
 ifdef XMOS_TOOL_PATH
-    CFLAGS += -I$(XMOS_TOOL_PATH)/target/include
-    CFLAGS += -I$(XMOS_TOOL_PATH)/target/include/clang
+    XTC_SYS_INC += -I$(XMOS_TOOL_PATH)/target/include
+    XTC_SYS_INC += -I$(XMOS_TOOL_PATH)/target/include/clang
 endif
 
 # Standard C with GNU extensions, optimise for size, keep debug info
@@ -128,8 +134,10 @@ CFLAGS += -DXMOS_FREERTOS_TILES=$(XMOS_FREERTOS_TILES)
 # Aggregate include paths from INC_DIRS and preprocessor definitions from DEFS.
 # Uses lazy (recursive) expansion so all INC_DIRS and DEFS accumulated later
 # (in target.mk, platform config.mk, component makefiles) are included.
+# XTC system headers (XTC_SYS_INC) are appended last so that EHS headers with
+# the same name (e.g. Common/KAPI/timer.h) are found before the XTC ones.
 INC    += $(foreach i,$(INC_DIRS),-I$i)
-CFLAGS += -c $(INC)
+CFLAGS += -c $(INC) $(XTC_SYS_INC)
 CFLAGS += $(foreach i,$(DEFS),-D$i)
 
 # -----------------------------------------------------------------------------

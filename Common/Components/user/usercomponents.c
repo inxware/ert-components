@@ -162,7 +162,7 @@ EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_console_print,INXWARE_FB_ID_cons
  #ifndef EHS_SKIP_GNULIBRARIES
     EHS_BLOCKREF_ENTRY(INXWARE_FB_NAME_ehs_controller ,INXWARE_FB_ID_ehs_controller,ehs_controller),
     #ifndef  EHS_NO_LIBXML2_SUPPORT
-        EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_application_info_getter,INXWARE_FB_ID_application_info_getter ,application_info_getter),
+    EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_application_info_getter,INXWARE_FB_ID_application_info_getter ,application_info_getter),
     #endif
     EHS_BLOCKREF_ENTRY(INXWARE_FB_NAME_application_run,INXWARE_FB_ID_application_run ,application_run),
     #ifdef EHS_UNITY3D_WIDGETS

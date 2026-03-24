@@ -38,7 +38,7 @@ INXWARE_TARGETENV_HACKS=arduino
 # Note: This is a host build so we don't ned it but will add it in case we fdo have any bits we may build for the target.
 # COMPONENT_VARIANT=gtk_gst
 
-EHS_NO_LIBXML2_SUPPORT=1
+EHS_EXCLUDE_XML_PARSER=yes
 EHS_SKIP_GNULIBRARIES=yes
 
 
@@ -59,7 +59,7 @@ EHS_TARGET_NO_MAIN_ARGS=yes
 # Enable/disable features, component support options, and peripheral configurations
 #################################################################################################################
 
-EHS_EXCLUDE_XML_PARSER=1
+EHS_EXCLUDE_XML_PARSER=yes
 
 # enable console I/O e.g. 'console print' function block
 EHS_COMPONENTS_CONSOLE_IO=yes
@@ -86,7 +86,6 @@ EHS_PERIPHERALS_PWM_SUPPORT=arduino
 # disable continous, as it's not supported on arduino atm
 EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT=none
 
-
 #################################################################################################################
 # Application and Packaging
 # Default application, system variant, and packaging/deployment options
@@ -110,7 +109,6 @@ EHS_DEFAULT_APP=NONE
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-DEFS += EHS_NO_LIBXML2_SUPPORT=1
 DEFS+=EHS_ARDUINO_SUPPORT=1
 
 # ehs_float as float, not as double

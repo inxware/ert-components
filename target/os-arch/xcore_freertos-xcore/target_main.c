@@ -25,8 +25,8 @@
 #include "targetos_init.h"
 #include "hal-api.h"
 
-#include "FreeRTOS/FreeRTOS.h"
-#include "FreeRTOS/task.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 /* EhsMain task stack depth in words.  Increase if stack overflows occur. */
 #ifndef EHS_XCORE_MAIN_STACK_DEPTH

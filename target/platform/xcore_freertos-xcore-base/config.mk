@@ -22,6 +22,7 @@ EHS_OS=xcore_freertos
 
 # XTC Tools version — matches the Docker image and ert-contrib-middleware target_libs directory name.
 # Update this when upgrading the XTC Tools version used to build the SDK libraries.
+# TOD this should be a default in the toolchain for all xmos o-arch - and nt needed here.
 TOOLCHAIN_NAME=xtc-tools-15.x
 
 # Pre-built SDK library variant in ert-contrib-middleware/target_libs/
@@ -50,7 +51,15 @@ EHS_FILESYSTEM_SUPPORT=posix
 
 #----- Networking -----
 EHS_COMPONENT_NETWORKING_SUPPORT=nocurl
-EHS_COMMS_API_SUPPORT=lwip
+
+# Need to decide what we do here...
+EHS_COMMS_API_SUPPORT=none
+# This shouldn't be needed. TODO remove from all configs: DEFS += EHS_LWIP
+
+
+#----- Middleware -----
+EHS_EXCLUDE_XML_PARSER=yes
+EHS_SKIP_APPLICATION_INFO_GETTER=yes  # dirent.h not supported on xcore
 
 #----- Peripheral Features -----
 # Set to xmos_gpio when the Component-HAL implementation is available
@@ -84,8 +93,6 @@ include ./target/devman-configs/inx-systems.com.mk
 #################################################################################################################
 
 DEFS += EHS_XCORE=1
-DEFS += EHS_NO_LIBXML2_SUPPORT=1
-DEFS += EHS_LWIP
 DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
 
 

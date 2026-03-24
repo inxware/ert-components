@@ -9,52 +9,83 @@
 
 /** @file target_process.c
  * Thread and mutex implementation for XMOS xcore.ai FreeRTOS targets.
- * fwk_rtos exposes a POSIX pthread layer over FreeRTOS, so this file is
- * largely the same as the ESP32 port with esp_restart() replaced.
+ *
+ * xcore has no POSIX pthread layer.  This file uses native FreeRTOS APIs:
+ *   - Mutexes: xSemaphoreCreateRecursiveMutexStatic / xSemaphoreTakeRecursive
+ *   - Threads: xTaskCreate  (EhsGeneralThreadFuncType is cast to TaskFunction_t;
+ *              both take a single void* arg — return value from EHS function is
+ *              discarded by the FreeRTOS wrapper)
+ *
+ * Condition variables (used only by the DevMan misc-DL-data path) are stubbed
+ * as zero-item queues; add full signalling semantics when that path is ported.
  *
  * @author: inx limited
  */
 
 #define EHS_TARGET_CODE
 
-#include <errno.h>
 #include <stdio.h>
+#include <stdint.h>
+
+/* FreeRTOS headers — only included here, not in target_process.h, so that
+ * the SDK include paths do not need to be visible to every translation unit. */
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "queue.h"
+#include "task.h"
 
 #include "globals.h"
 #include "hal-api.h"
 #include "target_process.h"
 
-typedef pthread_t EhsTPThread;
+/* ---- Full struct definitions ------------------------------------------- */
+/*
+ * hal_process.h forward-declares these as opaque pointer types:
+ *   typedef struct EhsTPMutexStruct    * EhsTPMutexClass;
+ *   typedef struct EhsTPConditionStruct* EhsTPConditionClass;
+ *
+ * The full definitions live here (not in target_process.h) so that FreeRTOS
+ * headers do not need to be on the include path for every .c file.
+ */
+
+struct EhsTPMutexStruct {
+    SemaphoreHandle_t handle;
+    StaticSemaphore_t storage;
+};
+
+struct EhsTPConditionStruct {
+    QueueHandle_t queue;  /* zero-payload queue used as a signal */
+};
 
 /* ---- Private mutex storage -------------------------------------------- */
 
-EHS_LOCAL pthread_mutex_t EhsL_fbIO;
-EHS_LOCAL pthread_mutex_t EhsL_socketClient;
-EHS_LOCAL pthread_mutex_t EhsL_devman_request;
-EHS_LOCAL pthread_mutex_t EhsL_mem;
-EHS_LOCAL pthread_mutex_t EhsL_consoleQueue;
-EHS_LOCAL pthread_mutex_t EhsL_consoleInputQueue;
-EHS_LOCAL pthread_mutex_t EhsL_eventQueue;
-EHS_LOCAL pthread_mutex_t EhsLMutex_fb_thread_counter;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_fbIO;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_socketClient;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_devman_request;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_mem;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_consoleQueue;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_consoleInputQueue;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_eventQueue;
+EHS_LOCAL struct EhsTPMutexStruct EhsLMutex_fb_thread_counter;
 
 #ifdef EHS_NETWORKING_SUPPORT
-EHS_LOCAL pthread_mutex_t EhsL_UrlGet;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_UrlGet;
 #endif
 
 #ifdef EHS_GUI_SUPPORT
-EHS_LOCAL pthread_mutex_t EhsL_widgetTable;
-EHS_LOCAL pthread_mutex_t EhsL_viewport;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_widgetTable;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_viewport;
 #endif
 
 #ifdef EHS_DEVMAN_SUPPORT
-EHS_LOCAL pthread_mutex_t EhsL_devmanPlayerData;
-EHS_LOCAL pthread_mutex_t EhsL_playManager;
-EHS_LOCAL pthread_mutex_t EhsL_devmanMiscBuffers;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_devmanPlayerData;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_playManager;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_devmanMiscBuffers;
 #endif
 
-EHS_LOCAL pthread_mutex_t EhsL_MBMaster;
-EHS_LOCAL pthread_mutex_t EhsL_subMQTT;
-EHS_LOCAL pthread_mutex_t EhsL_pubMQTT;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_MBMaster;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_subMQTT;
+EHS_LOCAL struct EhsTPMutexStruct EhsL_pubMQTT;
 
 /* ---- Public mutex handles --------------------------------------------- */
 
@@ -86,8 +117,23 @@ EhsTPMutexClass EhsTPMutex_MBMaster;
 EhsTPMutexClass EhsTPMutex_subMQTT;
 EhsTPMutexClass EhsTPMutex_pubMQTT;
 
-pid_t *EhsT_pidParent;
-pid_t *EhsT_pidTcpIp;
+/* ----------------------------------------------------------------------- */
+
+/* Helper macro: create a static recursive mutex and assign the public handle */
+#define INIT_MUTEX(pub, priv) \
+    do { \
+        (priv).handle = xSemaphoreCreateRecursiveMutexStatic(&(priv).storage); \
+        (pub) = (EhsTPMutexClass)&(priv); \
+    } while (0)
+
+/* Helper macro: delete a mutex and clear the public handle */
+#define TERM_MUTEX(pub) \
+    do { \
+        if ((pub) != NULL) { \
+            vSemaphoreDelete(((struct EhsTPMutexStruct *)(pub))->handle); \
+            (pub) = NULL; \
+        } \
+    } while (0)
 
 /* ----------------------------------------------------------------------- */
 
@@ -96,151 +142,154 @@ void EhsTargetExit(ehs_uint16 exitCode)
     printf("EhsTargetExit %d\n", exitCode);
 }
 
+/* ---- Mutex lock / unlock ---------------------------------------------- */
+/*
+ * Implemented as real functions rather than macros so that FreeRTOS headers
+ * do not need to be included by every translation unit.
+ * hal_process.h declares the prototypes; this port does not define macros
+ * that would shadow them (unlike the ESP32 / Zephyr ports which do).
+ */
+
+void EhsTPMutex_lock(EhsTPMutexClass pMutexRef)
+{
+    xSemaphoreTakeRecursive(((struct EhsTPMutexStruct *)pMutexRef)->handle,
+                            portMAX_DELAY);
+}
+
+void EhsTPMutex_unlock(EhsTPMutexClass pMutexRef)
+{
+    xSemaphoreGiveRecursive(((struct EhsTPMutexStruct *)pMutexRef)->handle);
+}
+
+/**
+ * Initialise all EHS mutexes using static FreeRTOS recursive semaphores.
+ * Must be called once before any thread uses an EhsTPMutex_* handle.
+ */
 void EhsTPMutex_init(void)
 {
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-
-    EhsTPMutex_fbIO = (EhsTPMutexClass)&EhsL_fbIO;
-    pthread_mutex_init(&EhsL_fbIO, &attr);
-
-    EhsTPMutex_devman_request = (EhsTPMutexClass)&EhsL_devman_request;
-    pthread_mutex_init(&EhsL_devman_request, &attr);
-
-    EhsTPMutex_mem = (EhsTPMutexClass)&EhsL_mem;
-    pthread_mutex_init(&EhsL_mem, &attr);
-
-    EhsTPMutex_consoleQueue = (EhsTPMutexClass)&EhsL_consoleQueue;
-    pthread_mutex_init(&EhsL_consoleQueue, &attr);
-
-    EhsTPMutex_consoleInputQueue = (EhsTPMutexClass)&EhsL_consoleInputQueue;
-    pthread_mutex_init(&EhsL_consoleInputQueue, &attr);
-
-    EhsTPMutex_eventQueue = (EhsTPMutexClass)&EhsL_eventQueue;
-    pthread_mutex_init(&EhsL_eventQueue, &attr);
-
-    EhsTPMutex_fb_thread_counter = (EhsTPMutexClass)&EhsLMutex_fb_thread_counter;
-    pthread_mutex_init(&EhsLMutex_fb_thread_counter, &attr);
-
-    EhsTPMutex_socketClient = (EhsTPMutexClass)&EhsL_socketClient;
-    pthread_mutex_init(&EhsL_socketClient, &attr);
+    INIT_MUTEX(EhsTPMutex_fbIO,                EhsL_fbIO);
+    INIT_MUTEX(EhsTPMutex_devman_request,       EhsL_devman_request);
+    INIT_MUTEX(EhsTPMutex_mem,                  EhsL_mem);
+    INIT_MUTEX(EhsTPMutex_consoleQueue,         EhsL_consoleQueue);
+    INIT_MUTEX(EhsTPMutex_consoleInputQueue,    EhsL_consoleInputQueue);
+    INIT_MUTEX(EhsTPMutex_eventQueue,           EhsL_eventQueue);
+    INIT_MUTEX(EhsTPMutex_fb_thread_counter,    EhsLMutex_fb_thread_counter);
+    INIT_MUTEX(EhsTPMutex_socketClient,         EhsL_socketClient);
+    INIT_MUTEX(EhsTPMutex_MBMaster,             EhsL_MBMaster);
+    INIT_MUTEX(EhsTPMutex_subMQTT,              EhsL_subMQTT);
+    INIT_MUTEX(EhsTPMutex_pubMQTT,              EhsL_pubMQTT);
 
 #ifdef EHS_NETWORKING_SUPPORT
-    EhsTPMutex_UrlGet = (EhsTPMutexClass)&EhsL_UrlGet;
-    pthread_mutex_init(&EhsL_UrlGet, &attr);
+    INIT_MUTEX(EhsTPMutex_UrlGet,               EhsL_UrlGet);
 #endif
 
 #ifdef EHS_GUI_SUPPORT
-    EhsTPMutex_widgetTable = (EhsTPMutexClass)&EhsL_widgetTable;
-    pthread_mutex_init(&EhsL_widgetTable, &attr);
-
-    EhsTPMutex_viewport = (EhsTPMutexClass)&EhsL_viewport;
-    pthread_mutex_init(&EhsL_viewport, &attr);
+    INIT_MUTEX(EhsTPMutex_widgetTable,          EhsL_widgetTable);
+    INIT_MUTEX(EhsTPMutex_viewport,             EhsL_viewport);
 #endif
 
 #ifdef EHS_DEVMAN_SUPPORT
-    EhsTPMutex_devmanPlayerData = (EhsTPMutexClass)&EhsL_devmanPlayerData;
-    pthread_mutex_init(&EhsL_devmanPlayerData, &attr);
-
-    EhsTPMutex_playManager = (EhsTPMutexClass)&EhsL_playManager;
-    pthread_mutex_init(&EhsL_playManager, &attr);
-
-    EhsTPMutex_devmanMiscBuffers = (EhsTPMutexClass)&EhsL_devmanMiscBuffers;
-    pthread_mutex_init(&EhsL_devmanMiscBuffers, &attr);
+    INIT_MUTEX(EhsTPMutex_devmanPlayerData,     EhsL_devmanPlayerData);
+    INIT_MUTEX(EhsTPMutex_playManager,          EhsL_playManager);
+    INIT_MUTEX(EhsTPMutex_devmanMiscBuffers,    EhsL_devmanMiscBuffers);
 #endif
-
-    EhsTPMutex_MBMaster = (EhsTPMutexClass)&EhsL_MBMaster;
-    pthread_mutex_init(&EhsL_MBMaster, &attr);
-
-    EhsTPMutex_subMQTT = (EhsTPMutexClass)&EhsL_subMQTT;
-    pthread_mutex_init(&EhsL_subMQTT, &attr);
-
-    EhsTPMutex_pubMQTT = (EhsTPMutexClass)&EhsL_pubMQTT;
-    pthread_mutex_init(&EhsL_pubMQTT, &attr);
-
-    pthread_mutexattr_destroy(&attr);
 }
 
+/**
+ * Release all EHS mutexes.
+ */
 void EhsTPMutex_term(void)
 {
-    if (EhsTPMutex_fbIO)        { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_fbIO);        EhsTPMutex_fbIO        = NULL; }
-    if (EhsTPMutex_socketClient){ pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_socketClient); EhsTPMutex_socketClient = NULL; }
-    if (EhsTPMutex_viewport)    { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_viewport);     EhsTPMutex_viewport     = NULL; }
-    if (EhsTPMutex_mem)         { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_mem);          EhsTPMutex_mem          = NULL; }
-    if (EhsTPMutex_consoleQueue){ pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_consoleQueue); EhsTPMutex_consoleQueue = NULL; }
-    if (EhsTPMutex_consoleInputQueue){ pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_consoleInputQueue); EhsTPMutex_consoleInputQueue = NULL; }
-    if (EhsTPMutex_eventQueue)  { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_eventQueue);   EhsTPMutex_eventQueue   = NULL; }
-    if (EhsTPMutex_fb_thread_counter){ pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_fb_thread_counter); EhsTPMutex_fb_thread_counter = NULL; }
-    if (EhsTPMutex_widgetTable) { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_widgetTable);  EhsTPMutex_widgetTable  = NULL; }
-    if (EhsTPMutex_MBMaster)    { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_MBMaster);     EhsTPMutex_MBMaster     = NULL; }
-    if (EhsTPMutex_subMQTT)     { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_subMQTT);      EhsTPMutex_subMQTT      = NULL; }
-    if (EhsTPMutex_pubMQTT)     { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_pubMQTT);      EhsTPMutex_pubMQTT      = NULL; }
+    TERM_MUTEX(EhsTPMutex_fbIO);
+    TERM_MUTEX(EhsTPMutex_socketClient);
+    TERM_MUTEX(EhsTPMutex_viewport);
+    TERM_MUTEX(EhsTPMutex_mem);
+    TERM_MUTEX(EhsTPMutex_consoleQueue);
+    TERM_MUTEX(EhsTPMutex_consoleInputQueue);
+    TERM_MUTEX(EhsTPMutex_eventQueue);
+    TERM_MUTEX(EhsTPMutex_fb_thread_counter);
+    TERM_MUTEX(EhsTPMutex_widgetTable);
+    TERM_MUTEX(EhsTPMutex_MBMaster);
+    TERM_MUTEX(EhsTPMutex_subMQTT);
+    TERM_MUTEX(EhsTPMutex_pubMQTT);
 
 #ifdef EHS_DEVMAN_SUPPORT
-    if (EhsTPMutex_devmanPlayerData)  { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_devmanPlayerData);  EhsTPMutex_devmanPlayerData  = NULL; }
-    if (EhsTPMutex_playManager)       { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_playManager);       EhsTPMutex_playManager       = NULL; }
+    TERM_MUTEX(EhsTPMutex_devmanPlayerData);
+    TERM_MUTEX(EhsTPMutex_playManager);
 #endif
 
 #ifdef EHS_NETWORKING_SUPPORT
-    if (EhsTPMutex_UrlGet) { pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_UrlGet); EhsTPMutex_UrlGet = NULL; }
+    TERM_MUTEX(EhsTPMutex_UrlGet);
 #endif
 }
+
+/* ---- Thread creation --------------------------------------------------- */
 
 #ifndef tskIDLE_PRIORITY
 #define tskIDLE_PRIORITY 0
 #endif
-#define CONFIG_MAIN_THREAD_PRIORITY (tskIDLE_PRIORITY + 3)
 
+/* Default base priority for EHS tasks (one above idle + 3 headroom) */
+#define EHS_XCORE_BASE_PRIORITY  (tskIDLE_PRIORITY + 3u)
+
+/* Minimum stack in words for an EHS task */
+#define EHS_XCORE_MIN_STACK_WORDS  (configMINIMAL_STACK_SIZE * 4u)
+
+/**
+ * Spawn a new FreeRTOS task for the given EHS thread function.
+ *
+ * EhsGeneralThreadFuncType is int(*)(void*); FreeRTOS TaskFunction_t is
+ * void(*)(void*).  The cast is safe on xcore.ai (same ABI, return value
+ * from the EHS function is discarded by the FreeRTOS scheduler).
+ *
+ * stackSize is in bytes (EHS convention); xTaskCreate takes words.
+ * priority is an EHS relative value; mapped to FreeRTOS absolute priority.
+ */
 ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void *context,
                              ehs_sint16 priority, ehs_sint32 stackSize)
 {
-    EhsTPThread thread;
-    pthread_attr_t tattr_param;
-    struct sched_param param;
-    int maxpri = 20;
-    int minpri = 0;
-    int ret;
+    UBaseType_t freertos_priority;
+    uint32_t stack_words;
+    BaseType_t result;
 
-    ret = pthread_attr_init(&tattr_param);
-    param.sched_priority = maxpri + priority;
-    if (param.sched_priority < minpri) param.sched_priority = minpri;
-    if (param.sched_priority > maxpri) param.sched_priority = maxpri;
+    freertos_priority = (UBaseType_t)((ehs_sint32)EHS_XCORE_BASE_PRIORITY + priority);
+    if (freertos_priority < 1u)                     freertos_priority = 1u;
+    if (freertos_priority >= configMAX_PRIORITIES)  freertos_priority = configMAX_PRIORITIES - 1u;
 
-    pthread_attr_setdetachstate(&tattr_param, PTHREAD_CREATE_DETACHED);
+    stack_words = (stackSize > 0) ? (uint32_t)((uint32_t)stackSize / sizeof(StackType_t))
+                                  : EHS_XCORE_MIN_STACK_WORDS;
+    if (stack_words < EHS_XCORE_MIN_STACK_WORDS)    stack_words = EHS_XCORE_MIN_STACK_WORDS;
 
-    ret = pthread_create(&thread, &tattr_param, (void *(*)(void *))pfRun, context);
-    pthread_attr_destroy(&tattr_param);
+    result = xTaskCreate((TaskFunction_t)pfRun,
+                         "ehs",
+                         (configSTACK_DEPTH_TYPE)stack_words,
+                         context,
+                         freertos_priority,
+                         NULL);
 
-    switch (ret)
+    if (result != pdPASS)
     {
-    case 0:
-        break;
-    case EAGAIN:
-        EHSH_LOG_ERROR("ERROR Could not create thread: no resources");
-        break;
-    case EINVAL:
-        EHSH_LOG_ERROR("ERROR Could not create thread: invalid attributes");
-        break;
-    case EPERM:
-        EHSH_LOG_ERROR("ERROR Could not create thread: insufficient permissions");
-        break;
-    default:
-        EHSH_LOG_ERROR("ERROR Could not create thread: unknown error");
-        break;
+        EHSH_LOG_ERROR("EhsHThread_execute: xTaskCreate failed");
+        return EHS_FALSE;
     }
-    return (ret == 0);
+    return EHS_TRUE;
 }
 
 void EhsTPThread_exit(void) { }
 
-EHS_LOCAL pthread_mutex_t EhsProcess_mutexDevmanNewMiscDLData = PTHREAD_MUTEX_INITIALIZER;
+/* ---- DevMan misc-DL-data mutex / condition (one-shot init) ------------ */
+
+EHS_LOCAL struct EhsTPMutexStruct    EhsProcess_mutexDevmanNewMiscDLData;
+EHS_LOCAL struct EhsTPConditionStruct EhsProcess_condDevmanNewMiscDLData;
 
 ehs_bool EhsProcessInitMutex(EhsTPMutexClass *reftoMutex)
 {
     if (*reftoMutex == NULL)
     {
-        *reftoMutex = (EhsTPMutexClass *)&EhsProcess_mutexDevmanNewMiscDLData;
+        EhsProcess_mutexDevmanNewMiscDLData.handle =
+            xSemaphoreCreateRecursiveMutexStatic(
+                &EhsProcess_mutexDevmanNewMiscDLData.storage);
+        *reftoMutex = (EhsTPMutexClass)&EhsProcess_mutexDevmanNewMiscDLData;
     }
     else
     {
@@ -249,13 +298,13 @@ ehs_bool EhsProcessInitMutex(EhsTPMutexClass *reftoMutex)
     return EHS_TRUE;
 }
 
-EHS_LOCAL pthread_cond_t condDevmanNewMiscDLData = PTHREAD_COND_INITIALIZER;
-
 ehs_bool EhsProcessInitCond(EhsTPConditionClass *refToCond)
 {
     if (*refToCond == NULL)
     {
-        *refToCond = (EhsTPConditionClass *)&condDevmanNewMiscDLData;
+        /* Zero-item-size queue: used for signalling only (no data payload). */
+        EhsProcess_condDevmanNewMiscDLData.queue = xQueueCreate(1u, 0u);
+        *refToCond = (EhsTPConditionClass)&EhsProcess_condDevmanNewMiscDLData;
     }
     else
     {
@@ -263,6 +312,8 @@ ehs_bool EhsProcessInitCond(EhsTPConditionClass *refToCond)
     }
     return EHS_TRUE;
 }
+
+/* ----------------------------------------------------------------------- */
 
 ehs_bool EhsTPThread_ChangeThisPriority(ehs_sint16 priority)
 {
@@ -280,7 +331,7 @@ ehs_bool EhsTP_shellExecuteStdout(char *sZstdout, const char *szCmd, int max_buf
 
 void EhsTargetReboot(void)
 {
-    /* TODO: implement XMOS reboot via rtos_support or watchdog */
+    /* TODO: implement XMOS reboot via rtos_support watchdog */
     printf("EhsTargetReboot: reboot requested (not yet implemented on xcore)\n");
     while (1) { }
 }

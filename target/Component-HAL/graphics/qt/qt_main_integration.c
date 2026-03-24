@@ -24,7 +24,7 @@
 #include "hal_logger.h"
 // This is for the app functions - that should probably be in the KAPI instead?
 #include "app_data.h"
-#include "timer.h"
+#include "ehs_timer.h"
 
 #ifdef EHS_GUI_SUPPORT_MODE_B_QT
 /* We need to read the widget attribute here to look up objects and attributes in QML */

@@ -5,7 +5,8 @@
 #include "hal_mqtt.h"
 
 
-void* EhsMqttClientLoop(void*)
+void* EhsMqttClientLoop(void* arg)
 {
+    (void)arg;
     return NULL;
 }

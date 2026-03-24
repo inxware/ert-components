@@ -21,10 +21,11 @@
  */
 
 #include "globals.h"
-#include "FreeRTOS/FreeRTOS.h"
-#include "FreeRTOS/task.h"
-#include "FreeRTOS/timers.h"
-#include "timer.h"
+#include "hal_time.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
+#include "ehs_timer.h"
 #include "hal_logger.h"
 
 #define TAG "target_time"

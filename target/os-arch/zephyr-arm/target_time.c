@@ -18,7 +18,7 @@
 #include <zephyr/kernel.h>
 #include <errno.h>
 #include <stdio.h>
-#include "timer.h"
+#include "ehs_timer.h"
 #include "hal_logger.h"
 
 #define TAG "target_time"

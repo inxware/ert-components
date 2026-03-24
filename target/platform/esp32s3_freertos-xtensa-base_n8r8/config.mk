@@ -35,6 +35,8 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 # libraries built with 16k cache (alternative)
 #TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1-16k
 
+EHS_EXCLUDE_XML_PARSER=yes
+
 # COMPONENT_VARIANT allows a specific variant of contributed ert-contrib-middleware/build directory
 # N8R8 = 8 MB Flash (N8) and 8 MB PSRAM (R8) or more (R16)
 COMPONENT_VARIANT=n8r8
@@ -42,9 +44,7 @@ COMPONENT_VARIANT=n8r8
 # Apply esp32 specific targetenv hacks
 INXWARE_TARGETENV_HACKS=esp32
 
-# Export ESP32 platform flag
-export EHS_ESP32=yes
-export EHS_NO_LIBXML2_SUPPORT=1
+
 
 
 #################################################################################################################
@@ -88,6 +88,8 @@ EHS_MQTT_SUPPORT=esp_mqtt
 
 # LoRaWAN support
 EHS_LORAWAN_SUPPORT=wio_e5
+
+EHS_EXCLUDE_XML_PARSER=yes
 
 # Wi-Fi Support (uncomment to enable)
 #EHS_NETWORK_WIFI_SUPPORT=yes
@@ -148,9 +150,6 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 
 # Platform identification
 #DEFS += EHS_ESP32
-
-# XML/libxml2 disabled
-DEFS += EHS_NO_LIBXML2_SUPPORT=1
 
 # Networking stack
 DEFS += EHS_LWIP

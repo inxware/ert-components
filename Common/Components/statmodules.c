@@ -21,7 +21,7 @@
 #include "hal_logger.h" /* EHSH_LOG_INFO */
 
 /* For the core toolkit */
-#include "timer.h"
+#include "ehs_timer.h"
 
 /**
  * Declares the block reference table containing all functions held within EHS

@@ -20,7 +20,7 @@
 #include "ehs_fb_types.h"
 #include "time_clock.h"
 #include "fid.h"
-#include "timer.h"
+#include "ehs_timer.h"
 #include "app_data.h"
 
 #include "hal-api.h" /* Required for logging */

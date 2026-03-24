@@ -29,8 +29,9 @@ OBJECTS += inx-ehs_controller.$(OBJ)
 ifeq ($(EHS_PERIPHERALS_BACKLIGHT_SUPPORT),)
 	EHS_PERIPHERALS_BACKLIGHT_SUPPORT=stubbed
 endif
+
 ifdef EHS_PERIPHERALS_BACKLIGHT_SUPPORT
-# backlight is using stub if not implementd for target, so should be safe to just define it
+# backlight is using stubb if not implementd for target, so should be safe to just define it
 DEFS += EHS_PERIPHERALS_BACKLIGHT_SUPPORT=1
 endif
 
@@ -103,7 +104,10 @@ OBJECTS += inx-stringdivader.$(OBJ)
 
 #TODO Change this to stub version later
 ifdef EHS_PERIPHERALS_BACKLIGHT_SUPPORT
+ifneq ($(EHS_PERIPHERALS_BACKLIGHT_SUPPORT),none)
+DEFS += EHS_PERIPHERALS_BACKLIGHT_SUPPORT
 OBJECTS += inx-display_backlight.$(OBJ)
+endif
 endif
 
 # TODO move these to the core directory
@@ -133,8 +137,10 @@ ifdef EHS_COMPONENTS_CONSOLE_IO
 	DEFS += EHS_COMPONENTS_CONSOLE_IO
 endif
 
-# PWM support moved to peripherals/ directory
+# This is a bit of a messy set of rules to avoid compiling gnu type middleware
+# Review using the normal target/Component-HAL/ approach for stubbed vs disabled.
 
+#This bit should definatly be in a target/Component-HAL/ make file:
 ifndef EHS_EXCLUDE_XML_PARSER
 # inx-xml_stream moved to core/ directory
 #@todo this is for the xml stream parser - should be out somewhere more sensible..

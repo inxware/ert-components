@@ -12,7 +12,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-#include "timer.h"
+#include "ehs_timer.h"
 #include "hal_logger.h"
 #include <errno.h>
 

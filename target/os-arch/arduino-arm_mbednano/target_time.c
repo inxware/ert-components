@@ -10,7 +10,7 @@
 #include <mbed.h>
 
 #include "globals.h"
-#include "timer.h"
+#include "ehs_timer.h"
 #include "hal_logger.h"
 
 /**

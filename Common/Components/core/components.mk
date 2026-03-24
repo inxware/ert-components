@@ -48,6 +48,14 @@ OBJECTS += demux.$(OBJ) ehs_if.$(OBJ) logic.$(OBJ)  mux.$(OBJ) operator1.$(OBJ) 
 OBJECTS += time_clock.$(OBJ) trigger.$(OBJ) rtinfo.$(OBJ) wall_clock.$(OBJ) appinfo.$(OBJ) inx-elapsed_timer.$(OBJ)
 OBJECTS += inx-rng.$(OBJ)
 
+# Fine grained GNU dependency filtering
+# This is to avoid havint to ser DEFs in target config.mk files and should stay here
+# perhaps with the double negative removed. It does change the function block existance.
+ifdef EHS_EXCLUDE_XML_PARSER=
+DEFS += EHS_EXCLUDE_XML_PARSER==1
+endif
+
+# Broad GNU depency management.
 # Components moved from user/ directory
 ifndef EHS_SKIP_GNULIBRARIES
 ifneq ($(EHS_SKIP_GNULIBRARIES),none)

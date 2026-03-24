@@ -20,7 +20,7 @@
 #include <windows.h>
 
 #include "hal_time.h"
-#include "timer.h"
+#include "ehs_timer.h"
 #include "hal_logger.h"
 
 

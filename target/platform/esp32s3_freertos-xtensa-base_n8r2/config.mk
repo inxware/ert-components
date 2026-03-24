@@ -44,7 +44,6 @@ INXWARE_TARGETENV_HACKS=esp32
 
 # Export ESP32 platform flag
 export EHS_ESP32=yes
-export EHS_NO_LIBXML2_SUPPORT=1
 
 
 #################################################################################################################
@@ -140,6 +139,7 @@ EHS_DEFAULT_APP=tutorials/hello_world
 
 include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 
+EHS_EXCLUDE_XML_PARSER=yes
 
 #################################################################################################################
 # Legacy Preprocessor Definitions (DEFS)
@@ -148,9 +148,6 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 
 # Platform identification
 #DEFS += EHS_ESP32
-
-# XML/libxml2 disabled
-DEFS += EHS_NO_LIBXML2_SUPPORT=1
 
 # Networking stack
 DEFS += EHS_LWIP

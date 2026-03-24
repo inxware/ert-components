@@ -29,4 +29,8 @@
 #define EHS_CONSOLE_UART          0
 #endif
 
+/* Pull in shared base constants (EHS_MAX_TOOLKITS, EHS_MAX_FUNCTION_BLOCKS,
+ * etc.) — must come after any local overrides above. */
+#include "../base_small/base_config.h"
+
 #endif /* TARGET_CONFIG_H */

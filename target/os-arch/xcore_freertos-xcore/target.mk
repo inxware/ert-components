@@ -28,21 +28,52 @@ INC_DIRS += $(EHS_TARGETS_ROOT_PATH)/os-arch/xcore_freertos-xcore/
 VPATH    += $(EHS_TARGETS_ROOT_PATH)/os-arch/xcore_freertos-xcore/
 
 # -----------------------------------------------------------------------------
-# XMOS SDK include paths (pre-built headers in ert-contrib-middleware)
-# COMPONENT_BASE_TECHNOLOGIES is set in platform config.mk, e.g.:
-#   COMPONENT_BASE_TECHNOLOGIES=xcore_freertos-xcore-xtc-15.x
-# EHS_COMPONENT_SUPPORT_INCLUDE resolves to:
-#   ../ert-contrib-middleware/target_libs/<COMPONENT_BASE_TECHNOLOGIES>/build/include/
+# XMOS SDK include paths — OPTION B (source tree direct, temporary)
+#
+# The fwk_rtos SDK is not designed to export pre-built headers as a developer
+# library (Option C, using cmake install, requires hacking the cmake build
+# system in ways it is not intended to support).  The correct long-term
+# approach is Phase 2 (make targetenv_xmos_docker) which uses xcommon_cmake
+# to consume fwk_rtos natively — headers are never exported to target_libs.
+#
+# For Phase 1 compilation we point directly at the fwk_rtos source tree.
+# FreeRTOS-SMP-Kernel must be cloned into the submodule path by
+# build-xcore-freertos-ehs.sh before running make all_docker.
+#
+# If the SDK source tree layout changes, update these paths here.
+# EHS_COMPONENT_SUPPORT_INCLUDE paths are retained below (commented) for
+# reference — they would be used if a pre-built header install existed.
 # -----------------------------------------------------------------------------
 
-INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)
-INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)FreeRTOS/
-INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)FreeRTOS/portable/
-INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)rtos_support/
-INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)xcore/
+XMOS_SDK_DIR := $(EHS_ROOT_PATH)/../ert-contrib-middleware/contrib/xmos-sdk
+FREERTOS_KERNEL_DIR := $(XMOS_SDK_DIR)/fwk_rtos/modules/FreeRTOS/FreeRTOS-SMP-Kernel
 
-# Library search path for pre-built .a files
-LIB_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)
+# FreeRTOS.h, task.h, timers.h, queue.h etc.
+INC_DIRS += $(FREERTOS_KERNEL_DIR)/include
+# XCORE-AI portable layer (portmacro.h etc.)
+INC_DIRS += $(FREERTOS_KERNEL_DIR)/portable/ThirdParty/xClang/XCOREAI
+# rtos_support API (rtos_printf, etc.) and its private impl headers
+INC_DIRS += $(XMOS_SDK_DIR)/fwk_rtos/modules/rtos_support/api
+INC_DIRS += $(XMOS_SDK_DIR)/fwk_rtos/modules/rtos_support/src
+# fwk_core utility headers (xcore_utils.h etc.) pulled in by rtos_support
+INC_DIRS += $(XMOS_SDK_DIR)/fwk_core/modules/utils/api
+# RTOS OSAL API
+INC_DIRS += $(XMOS_SDK_DIR)/fwk_rtos/modules/osal/api
+INC_DIRS += $(XMOS_SDK_DIR)/fwk_rtos/modules/osal/FreeRTOS
+
+# FreeRTOSConfig.h — provided in this os-arch directory.
+# (already on INC_DIRS via the xcore_freertos-xcore/ path added above)
+
+# Pre-built header paths (Option C, not yet usable — kept for reference):
+# INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)
+# INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)FreeRTOS/
+# INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)FreeRTOS/portable/
+# INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)rtos_support/
+# INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)xcore/
+
+# Library search path — not used in Phase 1 (archive build).
+# Phase 2 (xcommon_cmake) resolves SDK .a files via fwk_rtos dependencies.
+# LIB_DIRS += $(EHS_COMPONENT_SUPPORT_LIBS)
 
 # -----------------------------------------------------------------------------
 # Always-on OS/arch defines

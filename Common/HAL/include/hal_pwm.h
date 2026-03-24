@@ -14,7 +14,7 @@
 #define _HAL_PWM_H_ 
 
 #include "globals.h"
-#include "timer.h"
+#include "ehs_timer.h"
 
 typedef struct {
     ehs_sint32 freq;
