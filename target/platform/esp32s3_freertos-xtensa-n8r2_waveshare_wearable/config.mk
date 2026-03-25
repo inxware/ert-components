@@ -39,9 +39,6 @@ COMPONENT_VARIANT=n8r2
 # Apply esp32 specific targetenv hacks
 INXWARE_TARGETENV_HACKS=esp32
 
-EHS_EXCLUDE_XML_PARSER=yes
-
-
 #################################################################################################################
 # Debug and Startup Modifiers
 # Debug levels, logging, console settings, and startup behavior

@@ -1762,8 +1762,11 @@ ota_data_write_jump:
     xTaskCreate(EhsMain, "EhsMain", EHS_MAIN_ESP32_TASK_STACK_SIZE, NULL, EHS_PRI_EHS_MAIN, NULL/* see above should be xHandle*/); // tskIDLE_PRIORITY + 5
 #endif
 
- #endif
+#endif
  
+
+ #if 0
+ // todo ask Xiaosheng if he knows what this is for?
   #ifdef EHS_NETWORK_BLE_SUPPORT
   inx_ble_char_config_t qwepoi[2] = {
         {
@@ -1792,6 +1795,7 @@ ota_data_write_jump:
 
     inx_ble_service_hal_start_adv();    	
  #endif
+ #endif // temporary skip
 
  #ifdef EHS_SERIAL_CONSOLE_SUPPORT
     // TODO - shell we use this in MCU_SLOW_LP_THR ?

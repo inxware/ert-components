@@ -253,7 +253,6 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 				// Check hardware acceleration
 				if (inx_ml_image_inference_state->HW_Accelerate == EHS_FALSE)
 				{
-					printf("^^^50!\n");
 					err = EHS_ML_MODEL_TYPE_ERR; // HEF model requires hardware acceleration
 					break; // exit switch
 				}
@@ -289,7 +288,7 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 			}
 		}
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, err, __func__, "Model file does not exist!");
-        //printf("Which one ??? Just for a change...\n");
+
 		err = EhsML_Create(&inx_ml_image_inference_state->ml_ctx, szCanonicalFilePath,
 			(EhsML_Type)inx_ml_image_inference_state->Model_Type,
 			inx_ml_image_inference_state->Conf_Thres,

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Runs on a build machine and installs the supervisro scripts on rooted Android Devices.
+# Android Version 11
+
 source ${EHS_ROOT}/target/envbuildscripts/installers/android-adb/install_scripts/install_utils.sh || exit 1
 
 echo "Initalise scripts for Android 11.0"

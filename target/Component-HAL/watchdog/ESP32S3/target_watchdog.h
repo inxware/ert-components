@@ -19,6 +19,8 @@
 #include "hal_watchdog2.h"
 #include <stdint.h>
 
+//todo move all of these into the  C file - not used or needed anywhere currently
+
 #define TCTWDT_ESP32S3_TIMG0_BASE 0x6001F000
 #define TCTWDT_ESP32S3_TIMG1_BASE 0x60020000
 #define TCTWDT_ESP32S3_TIMG_WDT_CONFIG0_OFFSET 0x0048
@@ -54,6 +56,9 @@
 
 #define TCTWDT_ESP32S3_TIMG_MWDT_PERIOD_MULTIPLIER (80u)
 
+// TODO Comment on the scope of this enablement, what the timeout is and what kicks it. 
+// TODO We probably want the 3 types of wastchdocs to be seperate enable/disable functions and would call these indirectly from the kernel, system processing threads, and the application.  
+// TODO need to add the specification to the porting guide where each  WDT may have a specific selection of actions depending on what processing is stopped.
 static inline void EhsTWatchdogEnable() {
     // Enable Super watchdog timer
     EHS_REG32(TCTWDT_ESP32S3_LPMGMT_BASE + TCTWDT_ESP32S3_RTC_CNTL_RTC_SWD_WPROTECT_REG_OFFSET) = TCTWDT_ESP32S3_RTC_CNTL_WDT_WRITEPROTECT_MAGIC_VALUE;
@@ -104,6 +109,8 @@ static inline void EhsTWatchdogKick() {
     EHS_REG32(TCTWDT_ESP32S3_TIMG1_BASE + TCTWDT_ESP32S3_TIMG_WDT_FEED_OFFSET) = 1;
     EHS_REG32(TCTWDT_ESP32S3_TIMG1_BASE + TCTWDT_ESP32S3_TIMG_WDT_WRITEPROTECT_OFFSET) = 0;
 }
+
+// TODO - unlikely we would want to set the same periodicity for all of these. as above needs splitting into assigned purpose (a time out and action will be assigned to each WDT.
 
 static inline void EhsTWatchdogModify( ehs_uint32 period_us ) {
     // Feed Super watchdog timer

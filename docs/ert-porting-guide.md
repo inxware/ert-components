@@ -758,6 +758,92 @@ The general directories contain a number of utilities related to maintaining and
 | win32_x86 | Windows x86 | Working | XC | Windows |
 
 
+## EHS Kernel Operating Modes
+
+The EHS kernel can be run in three distinct modes depending on the platform's integration needs. All three share the same underlying scheduling, console, and lifecycle logic — they differ only in how the host platform's `target_main.c` integrates with the kernel's main loop. Understanding these modes is essential when porting to a new platform, as the choice determines how `target_main.c` should be structured.
+
+### Mode 1: Blocking (Monolithic) — `EhsMain()`
+
+The simplest and most common mode. A single call to `EhsMain()` handles everything: initialisation, application loading, the scheduler loop, console command processing, application reload, and exit. It only returns when the kernel receives an `EHS_EXIT_EHS` command. The caller does not need to call `EhsInit()` or manage any loop.
+
+```c
+/* target_main.c — blocking mode (most platforms) */
+EhsMain(NULL, NULL);
+```
+
+**When to use:** The platform has no other main-loop work to interleave and can surrender control entirely to the kernel until exit. This is the default for most Linux, Windows, NXP, ESP32, and Arduino targets.
+
+### Mode 2: Non-Blocking (Cooperative Single-Iteration) — `EhsMainLoopSingle()`
+
+For platforms that cannot surrender control to a monolithic loop (e.g. bare-metal systems, RTOS tasks, or applications that must interleave their own processing), the kernel is stepped one iteration at a time using the decomposed API.
+
+The caller (`target_main.c`) is responsible for:
+1. Calling `EhsInit()` once at startup to bootstrap the kernel (HAL, subsystems, memory manager, static modules).
+2. Calling `EhsAppLoadingStateMachine()` once to load the initial SODL application.
+3. Calling `EhsMainLoopSingle()` as fast as possible from its own main loop. This drains all currently-queued events and returns immediately when the queues are empty — it never blocks.
+
+```c
+/* target_main.c — non-blocking mode (bare-metal, RTOS, cooperative platforms) */
+EhsInit();
+EhsAppLoadingStateMachine(NULL, NULL);
+while (true) {
+    cmd = EhsMainLoopSingle(NULL, NULL);
+    cmd = EhsProcessInAppStateMachine(cmd);
+    cmd = EhsProcessExAppStateMachine(cmd);
+    if (EhsCheckAppExitLoop(cmd)) break;
+    // ... platform-specific work here (sensor polling, RTOS yields, etc.) ...
+}
+```
+
+`EhsCheckAppExitLoop()` returns `EHS_TRUE` (and performs cleanup) when the kernel receives `EHS_EXIT_EHS`. The caller should treat this as the signal to exit its own loop.
+
+**When to use:** The platform needs cooperative scheduling and must interleave its own work between kernel iterations, or cannot block indefinitely inside the kernel.
+
+### Mode 3: Blocking with Per-Iteration Callback — `EhsMain()` with `target_loop_iteration`
+
+A variant of Mode 1 where the kernel is still fully blocking, but the caller provides a callback function that is invoked cooperatively once per scheduler iteration inside the kernel's `EhsMainLoop()`. This allows the platform to perform periodic work (e.g. rendering UIs, servicing OS message queues, proving thread liveness) without needing the fully decomposed API.
+
+```c
+/* target_main.c — blocking with callback (Android) */
+Ehs_ConsoleCommand_Type my_platform_tick(void *blob) {
+    MyPlatformState *state = (MyPlatformState *)blob;
+    // service OS events, render UI, pump message queues, etc.
+    return EHS_CONTINUE;  /* or EHS_EXIT_EHS to request shutdown */
+}
+
+EhsMain(my_platform_tick, &my_state);
+```
+
+The callback receives the `target_env_blob` pointer and returns a command. Returning `EHS_CONTINUE` lets the kernel proceed normally; returning `EHS_EXIT_EHS` (or other lifecycle commands) injects that command back into the kernel's state machine. The callback **must be non-blocking and short** — it runs synchronously inside the scheduler loop.
+
+**When to use:** The platform needs periodic cooperative callbacks but is otherwise happy to let the kernel own the main loop. Currently used by the **Android** platform.
+
+### Mode Summary
+
+| Mode | Entry Point | Init by Caller? | Blocks? | Platform Work | Primary Use |
+|---|---|---|---|---|---|
+| **1. Blocking** | `EhsMain(NULL, NULL)` | No (handled internally) | Yes, until exit | None — kernel owns the loop | Most platforms (Linux, Windows, NXP, ESP32, Arduino) |
+| **2. Non-Blocking** | `EhsMainLoopSingle()` | Yes (`EhsInit()` + `EhsAppLoadingStateMachine()`) | No — returns when queues empty | Interleaved between iterations | Bare-metal, RTOS, cooperative systems |
+| **3. Blocking + Callback** | `EhsMain(callback, blob)` | No (handled internally) | Yes, until exit | Via per-iteration callback | Android (OS event pump, UI rendering) |
+
+### Decomposed API Functions
+
+All three modes ultimately use the same set of decomposed kernel functions. Modes 2 and 3 expose them directly to the caller; Mode 1 (`EhsMain`) calls them internally.
+
+| Function | Purpose |
+|---|---|
+| `EhsInit()` | One-time kernel and HAL initialisation. Call once at startup. |
+| `EhsAppLoadingStateMachine()` | Attempts SODL loading and transitions state. Call once after init. |
+| `EhsMainLoop()` | Blocking scheduling batch. Blocks when queues are empty. |
+| `EhsMainLoopSingle()` | Non-blocking scheduling batch. Returns when queues are empty. |
+| `EhsProcessInAppStateMachine()` | In-application command processing (console poll, internal interrupts, idle sleep). |
+| `EhsProcessExAppStateMachine()` | Ex-application lifecycle transitions (teardown, reload, watchdog management). |
+| `EhsCheckAppExitLoop()` | Tests for exit condition and performs cleanup. |
+
+For detailed descriptions of each function, see `EHS-kernel/docs/README.md`.
+
+---
+
 ## Platform Porting Guide
 
 ### Porting Overview
@@ -1057,6 +1143,8 @@ Create help.html and test applications.
 
 Every function block needs two identifiers in its CDF `<Hashes>` block and mirrored in its `.h` header.
 
+Currenty these are hashes of the names, but we may switch to incremental UUIDs in the future.
+
 #### `NameHash_CRC16` — generate with `inxtool.py`
 
 Run from the repo root:
@@ -1329,19 +1417,19 @@ Protocol Layer
 
 ## GPIO
 
-## Flash Memory Support
+## Flash Memory & File Support
 
 Different MCUs have varying capabilities and inxware abstraction my be via littlefs or inx's super-simple flast file system allowing using of standard C's file.h API or direct flash HAL to native target file APIs.
 
 
-| Microcontroller | Direct| File System | Notes |
-|-----------------|-------|-------------|-------|
-| **NXP Kensis**  | ✅    | inx-fs      | MCUXpresso SDK      |
-| **STM32**       | ✅    | inx-fs      | Supports flash writes via HAL library |
-| **RP20XX (Pico)** | ✅  | inx-fs      | Arduino SDK         |
-| **ESP32**       | ✅ | littlefs       | Espressif IDF       |
-| **ESP8266**     | ❌ | not supported  |                     |
-| **Linux Systems**| ? | POSIX | Any Linux FS accessed via FS  | 
+| Microcontroller   | Direct| File System     | Notes |
+|-----------------  |-------|-------------    |-------|
+| **NXP Kenesis**  | ✅     | inx-fs          | MCUXpresso SDK      |
+| **STM32**        | ✅     | inx-fs          | Supports flash writes via HAL library |
+| **RP20XX (Pico)**| ✅     | inx-fs          | Arduino SDK         |
+| **ESP32**        | ✅     | littlefs        | Espressif IDF       |
+| **ESP8266**      | ❌     | not supported   |                     |
+| **Linux Systems**| ?      | POSIX           | Any Linux FS accessed via FS  | 
 .
 
 
@@ -1486,6 +1574,11 @@ Both Qt5 and Qt6 are supported. Qt6 renamed `QSignalMapper::mapped(int)` to `map
 
 # Platform-Specific Guides
 
+## Embedded RTOS
+- **Zephyr**  : Nordic, NXP, STM32 (Most ARM MCUs)
+- **FreeRTOS**: ESP32, ESP32-S3, NXP ARM MCUs
+- **Arduino** : Various Arduino-compatible boards
+
 ## Windows
 - **Win32**: Desktop applications via MinGW toolchain. The installation directory structure is similar to linux (see below).
 
@@ -1538,11 +1631,9 @@ inxware builds as a binary executable application (`ehs.exe`) for standard linux
 └── userdata
 ```
 
-## Embedded RTOS
-- **FreeRTOS**: ESP32, ESP32-S3, NXP ARM MCUs
-- **Arduino**: Various Arduino-compatible boards
+## Xtensa-ESP32 (FreeRTOS)
 
-### Xtensa-ESP32
+### Platform Overview
 
 ESP32 and ESP32-S3 platforms are supported using espresiff's FreeRTOS-based IDF SDK. The toolchain part os the SDKs are extracted into ert-build-support and the IDF components into ert-contrib-middleware. The toolchain will run on any linux version similar to Ubuntu 22, but a Docker image to run this is also provided. 
 
@@ -2187,19 +2278,19 @@ For detailed MCU-specific information, refer to:
 - [FreeRTOS Documentation](https://www.st.com/content/st_com/en/support/learning/stm32-education/stm32-moocs/freertos-common-microcontroller-software-interface-standard-osv2.html) - STM32 FreeRTOS integration
 - Platform-specific documentation in ert-build-support repository
 
-## Advanced Topics
+# Advanced Topics
 
-###  Debug Logging
+##  Debug Logging
 
 Comprehensive per-module logging system with build-time and runtime verbosity control.
 
-#### Build-Time Logging Configuration
+### Build-Time Logging Configuration
 
 Logging is controlled by a hierarchy of build variables set in the platform's `config.mk` and resolved in `Common/Ehs/ehs.mk`:
 
-**1. Global debug enable** (`config.mk`):
+**1. Global Debug Enable:**
 ```makefile
-EHS_DEBUGALL=true
+EHS_DEBUGALL=true                    # Enable all types of debugging including stdio/console
 ```
 When set, `ehs.mk` automatically enables:
 - `EHS_RUNTIME_LOGGER_ENABLED=yes` (unless explicitly set to `no` in `config.mk`)
@@ -2207,7 +2298,7 @@ When set, `ehs.mk` automatically enables:
 - `EHS_DEBUG_AV=yes`
 - `BUILD_MODE=debug`
 
-**2. Logger-only enable** — for platforms that want logging without the full debug suite:
+**2. Module-Based Logging:**
 ```makefile
 # In config.mk (instead of EHS_DEBUGALL):
 EHS_RUNTIME_LOGGER_ENABLED=yes
@@ -2262,7 +2353,7 @@ Every source file that uses logging must define `EHSL_MODULE_ID` **before** incl
 ```c
 #define EHSL_MODULE_ID (EHSH_LOG_MODULE_GRAPHICS)  /* must be before includes */
 #include "globals.h"
-#include "hal_logger.h"
+#include "hal_logger.h"...
 ```
 
 If `EHSL_MODULE_ID` is not defined, it defaults to `EHSH_LOG_MODULE_UNDEFINED` and the `EHSH_LOG_CHECK` macro returns 0 (all logging suppressed for that file).
@@ -2271,19 +2362,19 @@ If `EHSL_MODULE_ID` is not defined, it defaults to `EHSH_LOG_MODULE_UNDEFINED` a
 
 Each module has an independent log level. The module IDs (defined in `hal_logger.h`) and their display names (defined in `hal_logger.c`) are:
 
-| Enum | Display Name | Typical Usage |
-|------|-------------|---------------|
-| `EHSH_LOG_MODULE_UNDEFINED` | `Undefined` | Files without an explicit `EHSL_MODULE_ID` |
-| `EHSH_LOG_MODULE_KERNEL` | `Kernel` | EHS kernel and scheduler |
-| `EHSH_LOG_MODULE_GRAPHICS` | `Graphics` | Graphics HAL, viewport, widget rendering |
-| `EHSH_LOG_MODULE_LOGGER` | `Logger` | The logger subsystem itself |
-| `EHSH_LOG_MODULE_HAL_MEMORY` | `HalMemory` | Memory pool management |
-| `EHSH_LOG_MODULE_HAL_PROCESS` | `HalProcess` | Process/thread management |
-| `EHSH_LOG_MODULE_HAL_STRING` | `HalString` | String handling utilities |
+| Enum                           | Display Name | Typical Usage |
+|------                          |-------------|---------------|
+| `EHSH_LOG_MODULE_UNDEFINED`    | `Undefined` | Files without an explicit `EHSL_MODULE_ID` |
+| `EHSH_LOG_MODULE_KERNEL`       | `Kernel`    | EHS kernel and scheduler |
+| `EHSH_LOG_MODULE_GRAPHICS`     | `Graphics`  | Graphics HAL, viewport, widget rendering |
+| `EHSH_LOG_MODULE_LOGGER`       | `Logger`    | The logger subsystem itself |
+| `EHSH_LOG_MODULE_HAL_MEMORY`   | `HalMemory` | Memory pool management |
+| `EHSH_LOG_MODULE_HAL_PROCESS`  | `HalProcess`| Process/thread management |
+| `EHSH_LOG_MODULE_HAL_STRING`   | `HalString` | String handling utilities |
 | `EHSH_LOG_MODULE_TGT_VIEWPORT` | `TgtViewport` | Target-specific viewport code |
-| `EHSH_LOG_MODULE_HAL_NETWORK` | `Network` | Networking HAL (HTTP, sockets, etc.) |
-| `EHSH_LOG_MODULE_HAL_DEVMANMON` | `Devman` | Device manager/monitor |
-| `EHSH_LOG_MODULE_HAL_FILE` | `file` | File system HAL |
+| `EHSH_LOG_MODULE_HAL_NETWORK`  | `Network`   | Networking HAL (HTTP, sockets, etc.) |
+| `EHSH_LOG_MODULE_HAL_DEVMANMON`| `Devman`    | Device manager/monitor |
+| `EHSH_LOG_MODULE_HAL_FILE`     | `file`      | File system HAL |
 
 **Important:** The `EhsHLoggerModuleId` enum and the `EhsLModuleNames[]` string array in `hal_logger.c` must be kept in sync. The logger validates this at init time.
 
@@ -2291,13 +2382,13 @@ Each module has an independent log level. The module IDs (defined in `hal_logger
 
 Log levels are **bitmask flags** that can be OR'd together. Each module maintains its own bitmask of enabled levels in the `EhsHLoggerModuleLogLevel[]` array:
 
-| Level | Value | Macro | Description |
-|-------|-------|-------|-------------|
-| ERROR | `0x01` | `EHSH_LOG_ERROR(...)` | Error conditions |
-| WARNING | `0x02` | `EHSH_LOG_WARNING(...)` | Warning conditions |
-| INFO | `0x04` | `EHSH_LOG_INFO(...)` | Informational messages |
-| ENTER | `0x08` | `EHSH_LOG_ENTER(...)` | Function entry tracing |
-| EXIT | `0x10` | `EHSH_LOG_EXIT(...)` | Function exit tracing |
+| Level   | Value  | Macro                  | Description |
+|-------  |------- |-------                 |-------------|
+| ERROR   | `0x01` | `EHSH_LOG_ERROR(...)`  | Error conditions |
+| WARNING | `0x02` | `EHSH_LOG_WARNING(...)`| Warning conditions |
+| INFO    | `0x04` | `EHSH_LOG_INFO(...)`   | Informational messages |
+| ENTER   | `0x08` | `EHSH_LOG_ENTER(...)`  | Function entry tracing |
+| EXIT    | `0x10` | `EHSH_LOG_EXIT(...)`   | Function exit tracing |
 
 Pre-defined level combinations:
 - `EHSH_LOG_DEFAULT_LEVEL` = `ERROR | WARNING`

@@ -199,7 +199,8 @@ TXT_FG_GRAY=${TXT_FG_GREY}
 TXT_BG_GRAY=${TXT_BG_GREY}
 
 # A sensible default foreground (if not already set)
-: "${TXT_FG:=${TXT_FG_GREY}}"
+# TXT_FG_WHITE (ANSI 37) is light grey, more readable than TXT_FG_GREY (ANSI 90)
+: "${TXT_FG:=${TXT_FG_WHITE}}"
 
 # Helper functions (auto-reset the text style and colour)
 echo-display() {

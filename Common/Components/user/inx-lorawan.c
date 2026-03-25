@@ -37,11 +37,11 @@ typedef struct inx_lorawan_state
 	ehs_char nwkSKey[EHS_LORAWAN_KEY_STRLEN + 1];
 	ehs_char appSKey[EHS_LORAWAN_KEY_STRLEN + 1];
 	ehs_char devAddrABP[EHS_LORAWAN_ID_STRLEN + 1];
-	ehs_sint32 Class;
-	ehs_sint32 SubBand;
-	ehs_sint32 RXWIN2_DR;
-	ehs_sint32 TxPower;
-	ehs_sint32 ComPort;
+	ehs_sint32 Class; // Consider uint8
+	ehs_sint32 SubBand; // Consider uint8
+	ehs_sint32 RXWIN2_DR; // Consider uint8
+ 	ehs_sint32 TxPower; // Consider uint8
+	ehs_sint32 ComPort; // Consider uint8
 
 	ehs_char devAddrOut[EHS_LORAWAN_ID_STRLEN + 1];
 	ehs_char sys_status[EHS_STRING_LENGTH_MAX + 1];

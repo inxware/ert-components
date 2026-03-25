@@ -68,6 +68,7 @@
  */
 typedef enum
 {
+    EHSH_LOG_LEVEL_NONE	    = 0x0,
     EHSH_LOG_LEVEL_ERROR	= 0x01,
     EHSH_LOG_LEVEL_WARNING	= 0x02,
     EHSH_LOG_LEVEL_INFO		= 0x04,

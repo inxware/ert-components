@@ -34,12 +34,25 @@ EHS_FB_FUNCTIONS_END
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Identify the function block to EHS.
+ * This function provides access to:
+ *  - string containing parameter text
+ * EHS_FB_IDENTIFY_MEMORY - variable to store the memory requirements for this function block's context
+ */
 EHS_FB_IDENTIFY_FUNCTION(accel_gyro)
 {
     EHS_FB_IDENTIFY_MEMORY = sizeof(inx_accel_gyro_state_type);
 }
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
+/**
+ * Initialise the function block. Populate the context area for the function block.
+ * This function provides access to:
+ *  EHS_FB_INIT_CONTEXT - pointer to the context area provided by EHS for this function block
+ *  EHS_FB_INIT_PARAMETERS - string containing the parameter text
+ */
+
 EHS_FB_INIT_FUNCTION(accel_gyro)
 {
     return EHS_TRUE;

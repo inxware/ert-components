@@ -29,6 +29,7 @@
 ################################################################################################################################
 
 # Expected variables
+
 #  OBJECTS - list of object files added by this makefile
 #  INC_DIRS  - target-specific include paths
 #  VPATH - where to look for source code
@@ -403,7 +404,7 @@ endif
 
 # don't need this in bash: export EHS_MQTT_SUPPORT
 #we need to set this for cases where it needs to override an inheritted server config
-ifdef
+ifdef DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE
 export DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE
 endif
 ifdef DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED
@@ -416,7 +417,7 @@ export EHS_INSTALL_SUPERVISOR
 endif
 
 # The following is used mostly for supervisor and downloader configuration. 
-ifdef
+ifdef EHS_ANDROID_INSTALL_VERSION
 export EHS_ANDROID_INSTALL_VERSION
 endif
 ## This is used for the uploader to a package server
@@ -426,30 +427,30 @@ endif
 
 ## This is used for exporting of Unity 3D IDE (C#) based project to eRT compatible project/exe 
 # e.g. eRT Android Studio project or Windows app with eRT plugin.
-ifdef
+ifdef EHS_UNITY_PROJECT_EXPORT_SUPPORT
 export EHS_UNITY_PROJECT_EXPORT_SUPPORT
 endif
 # Path to a direcory with items used for signing android apk and aab files
-ifdef
+ifdef EHS_ANDROID_PACKAGE_SIGNING_PATH
 export EHS_ANDROID_PACKAGE_SIGNING_PATH
 endif
 
 # Used to indicate wherther android traget is built with supervisor
-ifdef
+ifdef BUILD_WITH_ANDROID_SUPERVISOR
 export BUILD_WITH_ANDROID_SUPERVISOR
 endif
 
 # Used for specifying any android supplementary apps that needs to be added to target e.g. Amabifier.apk
-ifdef
+ifdef ANDROID_SUPPLEMENTARY_APP_REPO
 export ANDROID_SUPPLEMENTARY_APP_REPO
 endif
 
-ifdef
+ifdef ANDROID_SUPPLEMENTARY_APP_PATH
 export ANDROID_SUPPLEMENTARY_APP_PATH
 endif
 
 # Used for specifing name of the eRT package/executable
-ifdef
+ifdef ERT_PACKAGE_NAME
 export ERT_PACKAGE_NAME
 endif
 
@@ -464,7 +465,7 @@ ifdef EHS_APPLAND_INST_SUPPORT
 export EHS_APPLAND_INST_SUPPORT
 endif
 
-ifdef
+ifdef EHS_APPLAND_INST_DEPLOY_NAME
 export EHS_APPLAND_INST_DEPLOY_NAME
 endif
 

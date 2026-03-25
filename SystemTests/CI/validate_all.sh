@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Another scripts for dpoing CIthat seems pretty much the same as the others.
+# todo merge the various methods of running regression tests - we only need one.
+
 if [ -d ../CI ]; then
 	ROOT_DIR=$PWD/../../
 else

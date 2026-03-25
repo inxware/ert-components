@@ -103,6 +103,10 @@ DEFS += EHS_PLATFORM_ESP32S3_HRDCV2=2
 # Enable the serial command prompt interface
 DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
 
+EHS_SERIAL_CONSOLE_SUPPORT=yes
+# Enable esp logger
+DEFS += EHS_ESP32_ENABLE_LOGS=1
+
 # Enable nano printf support
 DEFS += EHS_NANOPRINTF_SUPPORT=1
 

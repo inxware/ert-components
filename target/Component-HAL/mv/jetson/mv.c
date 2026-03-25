@@ -7,6 +7,10 @@
  *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
  ***************************************************************/
 
+/* TODO - review the applicability of some of these functions for gstreamer and GPU-based pipelines, where these 
+   operations are not aligned with the gstreamer pipeline processing. 
+*/
+
 /**
  * @file mv.c  (mv/jetson)
  * @brief Jetson MV HAL — frame management and image-processing operations.

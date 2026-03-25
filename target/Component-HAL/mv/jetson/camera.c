@@ -125,6 +125,7 @@ EhsCameraError EhsCameraStart(EhsCamera *camera, const ehs_char *id)
             " ! video/x-raw,format=BGR"
             " ! appsink name=sink sync=false max-buffers=2 drop=true",
             sensor_id, w, h, fps);
+//todo check the number of chars is less than 512 to be sure this has worked..
     } else {
         snprintf(pipeline_str, sizeof(pipeline_str),
             "v4l2src device=%s"
@@ -133,6 +134,7 @@ EhsCameraError EhsCameraStart(EhsCamera *camera, const ehs_char *id)
             " ! video/x-raw,format=BGR"
             " ! appsink name=sink sync=false max-buffers=2 drop=true",
             v4l2_dev, w, h, fps);
+//todo check the number of chars is less than 512 to be sure this has worked..
     }
 
     EHSH_LOG_INFO("Jetson camera: pipeline: %s", pipeline_str);

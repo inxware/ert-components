@@ -107,7 +107,7 @@ EHS_PACKAGER_TYPE=apk
 # Path to a direcory in DevmanSecurity repo with items used for signing android apk and aab files
 #export EHS_ANDROID_SIMPLE_APK=yes
 ## todo make the base scripts export the above...
-EHS_ANDROID_PACKAGE_SIGNING_PATH=show.online.google.play
+#EHS_ANDROID_PACKAGE_SIGNING_PATH=show.online.google.play
 EHS_ANDROID_PACKAGE_SIGNING_PATH=ehs.google.play
 
 

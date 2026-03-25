@@ -38,9 +38,6 @@ INXWARE_TARGETENV_HACKS=arduino
 # Note: This is a host build so we don't ned it but will add it in case we fdo have any bits we may build for the target.
 # COMPONENT_VARIANT=gtk_gst
 
-EHS_EXCLUDE_XML_PARSER=yes
-EHS_SKIP_GNULIBRARIES=yes
-
 
 #################################################################################################################
 # Debug and Startup Modifiers
@@ -60,6 +57,8 @@ EHS_TARGET_NO_MAIN_ARGS=yes
 #################################################################################################################
 
 EHS_EXCLUDE_XML_PARSER=yes
+EHS_SKIP_GNULIBRARIES=yes
+
 
 # enable console I/O e.g. 'console print' function block
 EHS_COMPONENTS_CONSOLE_IO=yes

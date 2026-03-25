@@ -382,6 +382,7 @@ static void monitor_sdl_clean_up(void)
 
 static void window_create(monitor_t * m)
 {
+
     int flag = 0;
 #if SDL_FULLSCREEN
 #ifdef EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND

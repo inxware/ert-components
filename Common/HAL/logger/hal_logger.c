@@ -113,7 +113,7 @@ ehs_char* EhsLModuleNames[] =
     void EhsHSetLogLevels()
     {
         EhsHLogger_setLogLevel("Undefined", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
-        EhsHLogger_setLogLevel("Kernel", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        //EhsHLogger_setLogLevel("Kernel", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
         EhsHLogger_setLogLevel("Graphics",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
         EhsHLogger_setLogLevel("Logger",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
         EhsHLogger_setLogLevel("HalMemory",  EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);

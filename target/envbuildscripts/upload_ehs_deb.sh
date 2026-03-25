@@ -58,12 +58,18 @@ else
     echo "Using the override credentials and path provided (${UPLOAD})"
     echo "This should be of the ssh format xxxx@devman.inx-systems.com:/home/inxware-packages/deb-repo"
     
+    if [ "$SSHPORT" = "" ]; then
+        echo "WARNING: SSHPORT is not set - using port 22"
+        export SSHPORT=22
+    fi
     UPLOAD_DOMAIN=` echo "${UPLOAD}" | cut -d':' -f1 `
     UPLOAD_PATH=` echo "${UPLOAD}" | cut -d':' -f1 --complement`
     #add a default ssh port
     test -z "${UPLOADPORT}" && export  UPLOADPORT=22
 fi
 
+UPLOADPORT=$SSHPORT
+    
 #Get some version ifno for the package name
 
 EHS_VERSION_SUGGEST=`sed -n 1p ../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/sysdata/version.nfo`

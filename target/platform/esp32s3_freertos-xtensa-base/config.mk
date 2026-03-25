@@ -39,8 +39,6 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 # Apply esp32 specific targetenv hacks
 INXWARE_TARGETENV_HACKS=esp32
 
-EHS_EXCLUDE_XML_PARSER=yes
-
 # Export ESP32 platform flag
 export EHS_ESP32=yes
 
@@ -67,6 +65,9 @@ EHS_TARGET_APPLOAD_RESTARTING_REBOOT=yes
 # Feature Configuration
 # Enable/disable features, component support options, and peripheral configurations
 #################################################################################################################
+
+EHS_EXCLUDE_XML_PARSER=yes
+
 
 # eRT1 SODL support
 ERT_SODL_VERSION=1

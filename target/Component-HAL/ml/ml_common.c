@@ -263,7 +263,7 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
     return EhsML_Stubbed_Create(ctx, model_path, model_type, conf_thres, thread_count);
     #else
     ctx->type = model_type;
-    printf("Model Type %d (expected %d)\n",model_type,EHS_ML_YOLOV5_OBJ_DETECTOR);
+    //printf("Model Type %d (expected %d)\n",model_type,EHS_ML_YOLOV5_OBJ_DETECTOR);
     switch (model_type)
     {
         /* Stubbed */
@@ -633,7 +633,6 @@ EhsML_Err EhsML_Create(EhsML_Context* ctx, const ehs_char* model_path, EhsML_Typ
         }
         //// ...
         default:
-            printf("^^^99!\n");
             return EHS_ML_MODEL_TYPE_ERR;
     }
     #endif//EHS_ML_SUPPORT_STUBBED
@@ -1344,7 +1343,6 @@ EhsML_Err EhsML_SetInputData(EhsML_Context* ctx, const void* data, ehs_uint32 si
         }
         //// ...
         default:
-        printf("^^^98!\n");
             return EHS_ML_MODEL_TYPE_ERR;
     }
     #endif//EHS_ML_SUPPORT_STUBBED

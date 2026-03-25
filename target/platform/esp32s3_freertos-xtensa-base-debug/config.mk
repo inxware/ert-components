@@ -51,6 +51,9 @@ EHS_RUNTIME_LOGGER_ENABLED=no
 
 # (Inherited from base)
 
+EHS_NETWORK_WIFI_SUPPORT=yes
+EHS_SERIAL_CONSOLE_SUPPORT=yes
+EHS_NETWORK_BLE_SUPPORT=nimble
 
 #################################################################################################################
 # Application and Packaging
@@ -77,6 +80,4 @@ EHS_RUNTIME_LOGGER_ENABLED=no
 
 
 ################################### END OF CONFIGURATION ###################################################
-EHS_NETWORK_WIFI_SUPPORT=yes
-EHS_SERIAL_CONSOLE_SUPPORT=yes
-EHS_NETWORK_BLE_SUPPORT=nimble
+

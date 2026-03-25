@@ -140,7 +140,7 @@ endif
 # This is a bit of a messy set of rules to avoid compiling gnu type middleware
 # Review using the normal target/Component-HAL/ approach for stubbed vs disabled.
 
-#This bit should definatly be in a target/Component-HAL/ make file:
+#This bit should definitely be in a target/Component-HAL/ make file:
 ifndef EHS_EXCLUDE_XML_PARSER
 # inx-xml_stream moved to core/ directory
 #@todo this is for the xml stream parser - should be out somewhere more sensible..
