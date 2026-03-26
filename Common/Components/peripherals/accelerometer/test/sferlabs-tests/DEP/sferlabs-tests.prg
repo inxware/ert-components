@@ -1,7 +1,7 @@
 #V:2.1.2
 
 CanvasSizeXY
-1065	1060
+1350	1060
 
 IconData
 BEGIN_BLOCK
@@ -15,7 +15,7 @@ Creates periodic timed events.
 time_clock
 0
 _
--705	-160	-640	-70
+-855	-165	-790	-75
 1	0
 blockattr
 BEGIN_BA
@@ -47,7 +47,7 @@ Retriggerable if TRUE.
 
 inputport
 
-0	1	coords= -706 -125 0	0	0	1	mandatory= 0	0	1
+0	1	coords= -856 -130 0	0	0	1	mandatory= 0	0	1
 period
 
 funcName= start 1	1	EndOfFunc
@@ -56,7 +56,7 @@ BEGIN_LINE
 END_LINE
 inputport
 
-0	0	coords= -706 -115 0	1	0	1	mandatory= 0	0	1
+0	0	coords= -856 -120 0	1	0	1	mandatory= 0	0	1
 rpt
 
 funcName= start 1	2	EndOfFunc
@@ -65,7 +65,7 @@ BEGIN_LINE
 END_LINE
 inputport
 
-0	0	coords= -706 -105 0	2	0	1	mandatory= 0	0	1
+0	0	coords= -856 -110 0	2	0	1	mandatory= 0	0	1
 retrig
 
 funcName= start 1	3	EndOfFunc
@@ -74,16 +74,20 @@ BEGIN_LINE
 END_LINE
 startport
 
-2	0	coords= -706 -135 0	0	1	0	mandatory= 0	0	1
+2	0	coords= -856 -140 0	0	0	0	mandatory= 0	0	1
 start
-
+LateInit
 funcName= start 1	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	0
+1	2344	0	2	-1	0
+-779	-380
+-779	-209
+-960	-209
+-960	-140
 END_LINE
 startport
 
-2	0	coords= -706 -85 0	1	0	0	mandatory= 0	0	1
+2	0	coords= -856 -90 0	1	0	0	mandatory= 0	0	1
 stop
 
 funcName= stop 3	0	EndOfFunc
@@ -92,16 +96,16 @@ BEGIN_LINE
 END_LINE
 finishport
 
-3	0	coords= -640 -105 0	0	0	1	mandatory= 0	0	1
+3	0	coords= -790 -110 0	0	0	1	mandatory= 0	0	1
 clk
-
+1secondTimer
 funcName= tick 2	1	EndOfFunc
 BEGIN_LINE
-0	1860	0	3	-1	0
+0	2177	1	3	-1	0
 END_LINE
 finishport
 
-3	0	coords= -640 -135 0	1	0	1	mandatory= 0	0	1
+3	0	coords= -790 -140 0	1	0	1	mandatory= 0	0	1
 
 
 funcName= start 1	4	EndOfFunc
@@ -110,7 +114,7 @@ BEGIN_LINE
 END_LINE
 finishport
 
-3	0	coords= -640 -85 0	2	0	1	mandatory= 0	0	1
+3	0	coords= -790 -90 0	2	0	1	mandatory= 0	0	1
 
 
 funcName= stop 3	1	EndOfFunc
@@ -226,7 +230,7 @@ data
 
 funcName= data 6	1	EndOfFunc
 BEGIN_LINE
-1	1927	0	0	-1	0
+1	1927	0	0	-1	1
 -475	-58
 -475	12
 END_LINE
@@ -345,7 +349,7 @@ update
 
 funcName= data 6	0	EndOfFunc
 BEGIN_LINE
-1	1927	0	2	-1	0
+1	1927	0	2	-1	1
 -469	-68
 -469	0
 END_LINE
@@ -501,12 +505,14 @@ BEGIN_LINE
 END_LINE
 startport
 
-2	0	coords= 69 -375 0	0	1	0	mandatory= 0	0	1
+2	0	coords= 69 -375 0	0	0	0	mandatory= 0	0	1
 start
-
+LateInit
 funcName= start 1	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	0
+1	2344	0	2	-1	0
+-760	-380
+-760	-375
 END_LINE
 startport
 
@@ -683,120 +689,6 @@ END_LINE
 END_BLOCK
 BEGIN_BLOCK
 
-mux_4r
-_
-1771	0	0	0
-_
-_
-This is a 4-input real multiplexer.
-MultiplexFourInputReal
-0
-_
--25	-150	5	-30
-1	0
-blockattr
-BEGIN_BA
-type	Data_Processor
-text	3	5	1.25	0	Mux
-trans	-1	0	0	0
-offset	0	0
-hash	0x8E18
-Instance_Info	_
-End_Instance
-END_BA
-inputport
-
-0	2	coords= -26 -115 0	0	0	1	mandatory= 0	0	1
-i1
-
-funcName= Run_Input1 1	1	EndOfFunc
-BEGIN_LINE
-0	-1	1	0	-1	1
-END_LINE
-inputport
-
-0	2	coords= -26 -90 0	1	0	1	mandatory= 0	0	1
-i2
-
-funcName= Run_Input2 2	1	EndOfFunc
-BEGIN_LINE
-0	-1	2	0	-1	1
-END_LINE
-inputport
-
-0	2	coords= -26 -65 0	2	0	1	mandatory= 0	0	1
-i3
-
-funcName= Run_Input3 3	1	EndOfFunc
-BEGIN_LINE
-0	-1	3	0	-1	1
-END_LINE
-inputport
-
-0	2	coords= -26 -40 0	3	0	1	mandatory= 0	0	1
-i4
-
-funcName= Run_Input4 4	1	EndOfFunc
-BEGIN_LINE
-0	-1	0	0	-1	0
-END_LINE
-outputport
-
-1	2	coords= 5 -115 0	0	0	1	mandatory= 0	0	1
-
-
-funcName= Run_Input1 1	2	funcName= Run_Input2 2	2	funcName= Run_Input3 3	2	funcName= Run_Input4 4	2	EndOfFunc
-BEGIN_LINE
-0	-1	0	1	-1	0
-END_LINE
-startport
-
-2	2	coords= -26 -125 0	0	0	0	mandatory= 0	0	1
-
-
-funcName= Run_Input1 1	0	EndOfFunc
-BEGIN_LINE
-0	-1	2	2	-1	1
-END_LINE
-startport
-
-2	2	coords= -26 -100 0	1	0	0	mandatory= 0	0	1
-
-
-funcName= Run_Input2 2	0	EndOfFunc
-BEGIN_LINE
-0	-1	0	2	-1	0
-END_LINE
-startport
-
-2	2	coords= -26 -75 0	2	0	0	mandatory= 0	0	1
-
-
-funcName= Run_Input3 3	0	EndOfFunc
-BEGIN_LINE
-0	-1	0	2	-1	0
-END_LINE
-startport
-
-2	2	coords= -26 -50 0	3	0	0	mandatory= 0	0	1
-
-
-funcName= Run_Input4 4	0	EndOfFunc
-BEGIN_LINE
-0	-1	0	2	-1	0
-END_LINE
-finishport
-
-3	2	coords= 5 -125 0	0	0	1	mandatory= 0	0	1
-
-
-funcName= Run_Input1 1	3	funcName= Run_Input2 2	3	funcName= Run_Input3 3	3	funcName= Run_Input4 4	3	EndOfFunc
-BEGIN_LINE
-0	-1	0	3	-1	0
-END_LINE
-END_BLOCK
-BEGIN_BLOCK
-
 mux_4i
 _
 1799	0	0	0
@@ -806,7 +698,7 @@ This is a 4-input integer multiplexer.
 MultiplexFourInputInt
 0
 _
-70	-180	100	-60
+420	-335	450	-215
 1	0
 blockattr
 BEGIN_BA
@@ -820,43 +712,51 @@ End_Instance
 END_BA
 inputport
 
-0	1	coords= 69 -145 0	0	0	1	mandatory= 0	0	1
+0	1	coords= 419 -300 0	0	0	1	mandatory= 0	0	1
 i1
 
 funcName= Run_Input1 1	1	EndOfFunc
 BEGIN_LINE
-0	-1	0	0	-1	1
+1	1870	0	0	-1	1
+391	-418
+391	-300
 END_LINE
 inputport
 
-0	1	coords= 69 -120 0	1	0	1	mandatory= 0	0	1
+0	1	coords= 419 -275 0	1	0	1	mandatory= 0	0	1
 i2
 
 funcName= Run_Input2 2	1	EndOfFunc
 BEGIN_LINE
-0	-1	0	0	-1	0
+1	2568	0	0	-1	1
+340	305
+340	-275
 END_LINE
 inputport
 
-0	1	coords= 69 -95 0	2	0	1	mandatory= 0	0	1
+0	1	coords= 419 -250 0	2	0	1	mandatory= 0	0	1
 i3
 
 funcName= Run_Input3 3	1	EndOfFunc
 BEGIN_LINE
-0	-1	0	0	-1	0
+1	2177	0	0	-1	1
+365	510
+365	-250
 END_LINE
 inputport
 
-0	1	coords= 69 -70 0	3	0	1	mandatory= 0	0	1
+0	1	coords= 419 -225 0	3	0	1	mandatory= 0	0	1
 i4
 
 funcName= Run_Input4 4	1	EndOfFunc
 BEGIN_LINE
-0	-1	0	0	-1	0
+1	2177	1	0	-1	0
+390	535
+390	-225
 END_LINE
 outputport
 
-1	1	coords= 100 -145 0	0	0	1	mandatory= 0	0	1
+1	1	coords= 450 -300 0	0	0	1	mandatory= 0	0	1
 
 
 funcName= Run_Input1 1	2	funcName= Run_Input2 2	2	funcName= Run_Input3 3	2	funcName= Run_Input4 4	2	EndOfFunc
@@ -865,43 +765,51 @@ BEGIN_LINE
 END_LINE
 startport
 
-2	1	coords= 69 -155 0	0	0	0	mandatory= 0	0	1
+2	1	coords= 419 -310 0	0	0	0	mandatory= 0	0	1
 
 
 funcName= Run_Input1 1	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	1
+1	1870	0	2	-1	1
+375	-438
+375	-310
 END_LINE
 startport
 
-2	1	coords= 69 -130 0	1	0	0	mandatory= 0	0	1
+2	1	coords= 419 -285 0	1	0	0	mandatory= 0	0	1
 
 
 funcName= Run_Input2 2	0	EndOfFunc
 BEGIN_LINE
-0	-1	1	2	-1	1
+1	2568	0	2	-1	1
+330	285
+330	-285
 END_LINE
 startport
 
-2	1	coords= 69 -105 0	2	0	0	mandatory= 0	0	1
+2	1	coords= 419 -260 0	2	0	0	mandatory= 0	0	1
 
 
 funcName= Run_Input3 3	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	0
+1	2177	0	2	-1	1
+360	500
+360	-260
 END_LINE
 startport
 
-2	1	coords= 69 -80 0	3	0	0	mandatory= 0	0	1
+2	1	coords= 419 -235 0	3	0	0	mandatory= 0	0	1
 
 
 funcName= Run_Input4 4	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	0
+1	2177	1	2	-1	0
+380	525
+380	-235
 END_LINE
 finishport
 
-3	1	coords= 100 -155 0	0	0	1	mandatory= 0	0	1
+3	1	coords= 450 -310 0	0	0	1	mandatory= 0	0	1
 
 
 funcName= Run_Input1 1	3	funcName= Run_Input2 2	3	funcName= Run_Input3 3	3	funcName= Run_Input4 4	3	EndOfFunc
@@ -939,7 +847,7 @@ EndOfLabels
 Time interval between events.
 
 parameter
-Periodic Flag	0	_	_	0	0	0	0	1.2	0
+Periodic Flag	0	_	_	0	0	0	0	1.2	1
 EndOfValues
 EndOfLabels
 Periodic if TRUE, single delay only if FALSE. 
@@ -979,12 +887,14 @@ BEGIN_LINE
 END_LINE
 startport
 
-2	0	coords= -711 -360 0	0	1	0	mandatory= 0	0	1
+2	0	coords= -711 -360 0	0	0	0	mandatory= 0	0	1
 start
-
+LateInit
 funcName= start 1	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	1
+1	2344	0	2	-1	1
+-760	-380
+-760	-360
 END_LINE
 startport
 
@@ -1074,11 +984,11 @@ startport
 
 2	1	coords= -156 30 0	0	0	0	mandatory= 0	0	1
 read
-
+1secondTimer
 funcName= read 1	0	EndOfFunc
 BEGIN_LINE
 1	1475	0	2	-1	0
--620	-105
+-620	-110
 -620	30
 END_LINE
 finishport
@@ -1139,7 +1049,7 @@ inputport
 
 funcName= write 1	1	EndOfFunc
 BEGIN_LINE
-1	1954	0	0	-1	0
+1	1954	0	0	-1	1
 255	-380
 255	-310
 END_LINE
@@ -1150,7 +1060,7 @@ write
 
 funcName= write 1	0	EndOfFunc
 BEGIN_LINE
-1	1954	0	2	-1	0
+1	1954	0	2	-1	1
 255	-390
 255	-320
 END_LINE
@@ -1243,12 +1153,14 @@ BEGIN_LINE
 END_LINE
 startport
 
-2	-1	coords= -581 182 0	0	1	0	mandatory= 0	0	1
+2	-1	coords= -581 182 0	0	0	0	mandatory= 0	0	1
 enable
-
+LateInit
 funcName= enable 1	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	0
+1	2344	0	2	-1	0
+-760	-380
+-760	182
 END_LINE
 startport
 
@@ -1263,10 +1175,12 @@ startport
 
 2	1	coords= -581 217 0	2	0	0	mandatory= 0	0	1
 accel
-
+1secondTimer
 funcName= read_accel 3	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	0
+1	1475	0	2	-1	1
+-609	-110
+-609	217
 END_LINE
 startport
 
@@ -1362,7 +1276,7 @@ value
 
 funcName= set 1	1	EndOfFunc
 BEGIN_LINE
-1	1929	0	0	-1	0
+1	1929	0	0	-1	1
 -450	-300
 -450	-365
 END_LINE
@@ -1373,7 +1287,7 @@ set
 
 funcName= set 1	0	EndOfFunc
 BEGIN_LINE
-1	1929	0	2	-1	0
+1	1929	0	2	-1	1
 -465	-350
 -465	-378
 END_LINE
@@ -1435,7 +1349,7 @@ on/off
 
 funcName= SetFunc 3	1	EndOfFunc
 BEGIN_LINE
-1	1954	0	0	-1	0
+1	1954	0	0	-1	1
 255	-380
 255	-385
 END_LINE
@@ -1455,7 +1369,7 @@ err id
 
 funcName= EnableFunc 1	1	funcName= DisableFunc 2	1	EndOfFunc
 BEGIN_LINE
-0	-1	0	1	-1	0
+0	1799	0	1	-1	0
 END_LINE
 startport
 
@@ -1482,7 +1396,7 @@ set
 
 funcName= SetFunc 3	0	EndOfFunc
 BEGIN_LINE
-1	1954	0	2	-1	0
+1	1954	0	2	-1	1
 259	-390
 259	-395
 END_LINE
@@ -1493,7 +1407,7 @@ finishport
 
 funcName= EnableFunc 1	2	EndOfFunc
 BEGIN_LINE
-0	-1	0	3	-1	0
+0	1799	0	3	-1	0
 END_LINE
 finishport
 
@@ -1613,7 +1527,7 @@ data
 
 funcName= data 6	1	EndOfFunc
 BEGIN_LINE
-1	1864	0	0	-1	0
+1	1864	0	0	-1	1
 -354	202
 -354	262
 END_LINE
@@ -1732,7 +1646,9 @@ update
 
 funcName= data 6	0	EndOfFunc
 BEGIN_LINE
-1	1864	0	2	-1	0
+1	1864	0	2	-1	1
+-445	180
+-445	180
 -354	182
 -354	250
 END_LINE
@@ -1923,7 +1839,7 @@ data
 
 funcName= data 6	1	EndOfFunc
 BEGIN_LINE
-1	1864	1	0	-1	0
+1	1864	1	0	-1	1
 -444	227
 -444	272
 END_LINE
@@ -2042,7 +1958,7 @@ update
 
 funcName= data 6	0	EndOfFunc
 BEGIN_LINE
-1	1864	2	2	-1	0
+1	1864	2	2	-1	1
 -460	217
 -460	260
 END_LINE
@@ -2233,7 +2149,7 @@ data
 
 funcName= data 6	1	EndOfFunc
 BEGIN_LINE
-1	1864	3	0	-1	0
+1	1864	3	0	-1	1
 -460	247
 -460	497
 END_LINE
@@ -2352,7 +2268,7 @@ update
 
 funcName= data 6	0	EndOfFunc
 BEGIN_LINE
-1	1864	2	2	-1	0
+1	1864	2	2	-1	1
 -450	217
 -450	485
 END_LINE
@@ -2543,7 +2459,7 @@ data
 
 funcName= data 6	1	EndOfFunc
 BEGIN_LINE
-1	1864	2	0	-1	0
+1	1864	2	0	-1	1
 -485	237
 -485	140
 -680	140
@@ -2664,7 +2580,7 @@ update
 
 funcName= data 6	0	EndOfFunc
 BEGIN_LINE
-1	1864	2	2	-1	0
+1	1864	2	2	-1	1
 -480	217
 -480	135
 -687	135
@@ -2866,7 +2782,7 @@ text	10	5	1.25	0	ADC
 trans	-1	0	0	0
 offset	0	-15
 hash	0xA05C
-Instance_Info	_
+Instance_Info	[OBS]
 End_Instance
 END_BA
 parameter
@@ -2930,11 +2846,11 @@ startport
 
 2	1	coords= -571 -143 0	1	0	0	mandatory= 0	0	1
 Sample
-
+1secondTimer
 funcName= sample 2	0	EndOfFunc
 BEGIN_LINE
 1	1475	0	2	-1	0
--612	-105
+-612	-110
 -612	-143
 END_LINE
 finishport
@@ -3052,7 +2968,7 @@ data
 
 funcName= data 6	1	EndOfFunc
 BEGIN_LINE
-1	1902	0	0	-1	0
+1	1902	0	0	-1	1
 -460	-130
 -460	-208
 END_LINE
@@ -3171,7 +3087,7 @@ update
 
 funcName= data 6	0	EndOfFunc
 BEGIN_LINE
-1	1902	0	2	-1	0
+1	1902	0	2	-1	1
 -475	-140
 -475	-220
 END_LINE
@@ -3311,11 +3227,11 @@ startport
 
 2	1	coords= -576 -68 0	0	0	0	mandatory= 0	0	1
 samp.
-
+1secondTimer
 funcName= sample 1	0	EndOfFunc
 BEGIN_LINE
 1	1475	0	2	-1	0
--620	-105
+-620	-110
 -620	-68
 END_LINE
 finishport
@@ -3605,108 +3521,6 @@ END_LINE
 END_BLOCK
 BEGIN_BLOCK
 
-usb_power
-_
-1955	0	0	0
-_
-_
-Software-controlled USB port power switching. Enables or disables power to an individual USB host port and reads the current power state.
-usb_power
-0
-_
--40	315	15	398
-1	0
-blockattr
-BEGIN_BA
-type	IO
-text	13	5	1.25	0	USB
-trans	-1	0	0	0
-offset	0	-15
-hash	0x7A15
-Instance_Info	_
-End_Instance
-END_BA
-parameter
-Port	1	1	4	0	0	0	0	1.2	1
-EndOfValues
-EndOfLabels
-USB port number to control (1-4).
-
-outputport
-
-1	1	coords= 15 360 0	0	0	1	mandatory= 0	0	1
-error id
-
-funcName= enable 1	1	funcName= disable 2	1	EndOfFunc
-BEGIN_LINE
-0	-1	0	1	-1	0
-END_LINE
-outputport
-
-1	0	coords= 15 385 0	1	0	1	mandatory= 0	0	1
-powered
-
-funcName= read_status 3	1	EndOfFunc
-BEGIN_LINE
-0	-1	0	1	-1	0
-END_LINE
-startport
-
-2	1	coords= -41 340 0	0	1	0	mandatory= 0	0	1
-enable
-
-funcName= enable 1	0	EndOfFunc
-BEGIN_LINE
-0	-1	0	2	-1	0
-END_LINE
-startport
-
-2	1	coords= -41 350 0	1	1	0	mandatory= 0	0	1
-disable
-
-funcName= disable 2	0	EndOfFunc
-BEGIN_LINE
-0	-1	0	2	-1	0
-END_LINE
-startport
-
-2	1	coords= -41 375 0	2	0	0	mandatory= 0	0	1
-read
-
-funcName= read_status 3	0	EndOfFunc
-BEGIN_LINE
-0	-1	0	2	-1	0
-END_LINE
-finishport
-
-3	1	coords= 15 340 0	0	0	1	mandatory= 0	0	1
---
-
-funcName= enable 1	2	EndOfFunc
-BEGIN_LINE
-0	-1	0	3	-1	0
-END_LINE
-finishport
-
-3	1	coords= 15 350 0	1	0	1	mandatory= 0	0	1
---
-
-funcName= disable 2	2	EndOfFunc
-BEGIN_LINE
-0	-1	0	3	-1	0
-END_LINE
-finishport
-
-3	1	coords= 15 375 0	2	0	1	mandatory= 0	0	1
---
-
-funcName= read_status 3	2	EndOfFunc
-BEGIN_LINE
-0	-1	0	3	-1	0
-END_LINE
-END_BLOCK
-BEGIN_BLOCK
-
 gui_text_bool2
 _
 2125	0	0	0
@@ -3804,7 +3618,7 @@ data
 
 funcName= data 6	1	EndOfFunc
 BEGIN_LINE
-1	1860	0	0	-1	0
+1	1860	0	0	-1	1
 -70	40
 -70	107
 END_LINE
@@ -3923,7 +3737,7 @@ update
 
 funcName= data 6	0	EndOfFunc
 BEGIN_LINE
-1	1860	0	2	-1	0
+1	1860	0	2	-1	1
 -61	30
 -61	95
 END_LINE
@@ -4050,7 +3864,7 @@ error id
 
 funcName= select 1	2	funcName= read_active 2	1	EndOfFunc
 BEGIN_LINE
-0	-1	0	1	-1	0
+0	1799	2	1	-1	0
 END_LINE
 outputport
 
@@ -4059,29 +3873,29 @@ active slot
 
 funcName= read_active 2	2	EndOfFunc
 BEGIN_LINE
-0	-1	0	1	-1	0
+0	1799	3	1	-1	0
 END_LINE
 startport
 
-2	-1	coords= -46 500 0	0	1	0	mandatory= 0	0	1
+2	-1	coords= -46 500 0	0	0	0	mandatory= 0	0	1
 select
-
+LateInit
 funcName= select 1	0	EndOfFunc
 BEGIN_LINE
-0	-1	0	2	-1	0
+1	2344	0	2	-1	0
+-760	-380
+-760	500
 END_LINE
 startport
 
 2	1	coords= -46 525 0	1	0	0	mandatory= 0	0	1
 read active
-
+1secondTimer
 funcName= read_active 2	0	EndOfFunc
 BEGIN_LINE
-1	2177	0	2	-1	0
-50	500
-50	450
--80	450
--80	525
+1	1475	0	2	-1	1
+-762	-110
+-762	525
 END_LINE
 finishport
 
@@ -4090,7 +3904,7 @@ finishport
 
 funcName= select 1	3	EndOfFunc
 BEGIN_LINE
-0	2177	1	3	-1	0
+0	1799	2	3	-1	0
 END_LINE
 finishport
 
@@ -4099,7 +3913,7 @@ finishport
 
 funcName= read_active 2	3	EndOfFunc
 BEGIN_LINE
-0	-1	0	3	-1	0
+0	1799	3	3	-1	0
 END_LINE
 END_BLOCK
 BEGIN_BLOCK
@@ -4148,5 +3962,258 @@ funcName= Run_ConstantInt 1	0	EndOfFunc
 BEGIN_LINE
 0	-1	0	4	-1	0
 END_LINE
+END_BLOCK
+BEGIN_BLOCK
+
+time_clock
+_
+2344	0	0	0
+_
+_
+Creates periodic timed events.
+time_clock
+0
+_
+-900	-435	-835	-345
+1	0
+blockattr
+BEGIN_BA
+type	Event_Processor
+text	15	5	1.5	0	Timer
+trans	-1	0	0	0
+offset	0	-15
+hash	0xEEFF
+Instance_Info	Delay Start
+End_Instance
+END_BA
+parameter
+Time Interval (uSecs)	1	1	2147483647	0	0	0	0	1.2	5000000
+EndOfValues
+EndOfLabels
+Time interval between events.
+
+parameter
+Periodic Flag	0	_	_	0	0	0	0	1.2	0
+EndOfValues
+EndOfLabels
+Periodic if TRUE, single delay only if FALSE. 
+
+parameter
+Retriggerable Flag	0	_	_	0	0	0	0	1.2	1
+EndOfValues
+EndOfLabels
+Retriggerable if TRUE. 
+
+inputport
+
+0	1	coords= -901 -400 0	0	0	1	mandatory= 0	0	1
+period
+
+funcName= start 1	1	EndOfFunc
+BEGIN_LINE
+0	-1	0	0	-1	0
+END_LINE
+inputport
+
+0	0	coords= -901 -390 0	1	0	1	mandatory= 0	0	1
+rpt
+
+funcName= start 1	2	EndOfFunc
+BEGIN_LINE
+0	-1	0	0	-1	0
+END_LINE
+inputport
+
+0	0	coords= -901 -380 0	2	0	1	mandatory= 0	0	1
+retrig
+
+funcName= start 1	3	EndOfFunc
+BEGIN_LINE
+0	-1	0	0	-1	0
+END_LINE
+startport
+
+2	0	coords= -901 -410 0	0	1	0	mandatory= 0	0	1
+start
+
+funcName= start 1	0	EndOfFunc
+BEGIN_LINE
+0	-1	0	2	-1	1
+END_LINE
+startport
+
+2	0	coords= -901 -360 0	1	0	0	mandatory= 0	0	1
+stop
+
+funcName= stop 3	0	EndOfFunc
+BEGIN_LINE
+0	-1	0	2	-1	0
+END_LINE
+finishport
+
+3	0	coords= -835 -380 0	0	0	1	mandatory= 0	0	1
+clk
+LateInit
+funcName= tick 2	1	EndOfFunc
+BEGIN_LINE
+0	1955	0	3	-1	0
+END_LINE
+finishport
+
+3	0	coords= -835 -410 0	1	0	1	mandatory= 0	0	1
+
+
+funcName= start 1	4	EndOfFunc
+BEGIN_LINE
+0	-1	0	3	-1	0
+END_LINE
+finishport
+
+3	0	coords= -835 -360 0	2	0	1	mandatory= 0	0	1
+
+
+funcName= stop 3	1	EndOfFunc
+BEGIN_LINE
+0	-1	0	3	-1	0
+END_LINE
+internalport
+
+4	-1	coords= 0 0 0	0	0	1	mandatory= 0	0	1
+
+
+funcName= tick 2	0	EndOfFunc
+BEGIN_LINE
+0	-1	0	4	-1	0
+END_LINE
+END_BLOCK
+BEGIN_BLOCK
+
+usb_power
+_
+2568	0	0	0
+_
+_
+Software-controlled USB port power switching. Enables or disables power to an individual USB host port and reads the current power state.
+usb_power
+0
+_
+115	260	170	343
+1	0
+blockattr
+BEGIN_BA
+type	IO
+text	13	5	1.25	0	USB
+trans	-1	0	0	0
+offset	0	-15
+hash	0x7A15
+Instance_Info	_
+End_Instance
+END_BA
+parameter
+Port	1	1	4	0	0	0	0	1.2	1
+EndOfValues
+EndOfLabels
+USB port number to control (1-4).
+
+outputport
+
+1	1	coords= 170 305 0	0	0	1	mandatory= 0	0	1
+error id
+
+funcName= enable 1	1	funcName= disable 2	1	EndOfFunc
+BEGIN_LINE
+0	1799	1	1	-1	0
+END_LINE
+outputport
+
+1	0	coords= 170 330 0	1	0	1	mandatory= 0	0	1
+powered
+
+funcName= read_status 3	1	EndOfFunc
+BEGIN_LINE
+0	-1	0	1	-1	0
+END_LINE
+startport
+
+2	1	coords= 114 285 0	0	0	0	mandatory= 0	0	1
+enable
+LateInit
+funcName= enable 1	0	EndOfFunc
+BEGIN_LINE
+1	2344	0	2	-1	0
+94	-380
+94	285
+END_LINE
+startport
+
+2	1	coords= 114 295 0	1	0	0	mandatory= 0	0	1
+disable
+
+funcName= disable 2	0	EndOfFunc
+BEGIN_LINE
+0	-1	0	2	-1	0
+END_LINE
+startport
+
+2	1	coords= 114 320 0	2	0	0	mandatory= 0	0	1
+read
+1secondTimer
+funcName= read_status 3	0	EndOfFunc
+BEGIN_LINE
+1	1475	0	2	-1	0
+-754	-110
+-754	320
+END_LINE
+finishport
+
+3	1	coords= 170 285 0	0	0	1	mandatory= 0	0	1
+--
+
+funcName= enable 1	2	EndOfFunc
+BEGIN_LINE
+0	1799	1	3	-1	0
+END_LINE
+finishport
+
+3	1	coords= 170 295 0	1	0	1	mandatory= 0	0	1
+--
+
+funcName= disable 2	2	EndOfFunc
+BEGIN_LINE
+0	-1	0	3	-1	0
+END_LINE
+finishport
+
+3	1	coords= 170 320 0	2	0	1	mandatory= 0	0	1
+--
+
+funcName= read_status 3	2	EndOfFunc
+BEGIN_LINE
+0	-1	0	3	-1	0
+END_LINE
+END_BLOCK
+BEGIN_BLOCK
+
+adc_config
+_
+2684	0	0	0
+_
+_
+Configure the ADC unit either from parameters or JSON string
+adc_config
+0
+_
+-730	-245	-655	-170
+1	0
+blockattr
+BEGIN_BA
+type	IO
+text	5	5	1.25	0	ADC_Config
+trans	-1	0	0	0
+offset	0	-15
+hash	0x566F
+Instance_Info	_
+End_Instance
+END_BA
 END_BLOCK
 END_OF_BLOCKS
