@@ -1760,6 +1760,8 @@ xcommon_cmake application project that sets up the `XCORE_XS3A` platform.
 Trying to drive the SDK build directly (without xcommon_cmake) results in
 missing cmake platform files and the FreeRTOS port not being activated.
 
+> **NOTE** The XMOS toolchain is not fully open to redistribution, but you can build the Dockerfile locally from XMOSs repositories.
+> **Don't run `make publish_docker` for XMOS**
 
 ## Xtensa-ESP32 (FreeRTOS)
 
