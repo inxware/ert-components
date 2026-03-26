@@ -62,11 +62,61 @@ if [ ! -n "${1}" ] ; then
     else
         echo "${TXT_FG_YELLOW}No target currently configured.${TXT_FG}"
     fi
-    echo -n "Enter number or target name (${TXT_FG_WHITE}0${TXT_FG}/${TXT_FG_WHITE}x${TXT_FG} to exit): "
+    echo -n "Enter number, target name, or ${TXT_FG_WHITE}/${TXT_FG} to search (${TXT_FG_WHITE}0${TXT_FG}/${TXT_FG_WHITE}x${TXT_FG} to exit): "
     read -r REPLY
 
     if [ -z "$REPLY" ] || [ "$REPLY" = "0" ] || [ "$REPLY" = "q" ] || [ "$REPLY" = "Q" ] || [ "$REPLY" = "x" ] || [ "$REPLY" = "X" ]; then
         exit 0
+    fi
+
+    # Search mode: user typed '/' (with optional search term after it)
+    if [[ "$REPLY" = /* ]]; then
+        SEARCH="${REPLY:1}"
+        if [ -z "$SEARCH" ]; then
+            echo -n "Search platforms: "
+            read -r SEARCH
+        fi
+
+        _filtered=()
+        for t in "${_targets[@]}"; do
+            if [[ "$t" == *"$SEARCH"* ]]; then
+                _filtered+=("$t")
+            fi
+        done
+
+        if [ "${#_filtered[@]}" -eq 0 ]; then
+            echo "${TXT_FG_YELLOW}No platforms match '${SEARCH}'.${TXT_FG}"
+            _CONFIGURE_REENTRY=1 exec "$0"
+        fi
+
+        echo
+        echo "Platforms matching '${TXT_FG_WHITE}${SEARCH}${TXT_FG}':"
+        echo
+        local_j=1
+        for t in "${_filtered[@]}"; do
+            if [ "$t" = "$CURRENT" ]; then
+                printf "  ${TXT_FG_BRIGHT_CYAN}%3d)  %s  <-- current${TXT_RESET}\n" "$local_j" "$t"
+            else
+                printf "  %3d)  %s\n" "$local_j" "$t"
+            fi
+            local_j=$((local_j + 1))
+        done
+        printf "  ${TXT_FG_GREY}  0)  back${TXT_FG}\n"
+        echo
+        echo -n "Enter number or target name (${TXT_FG_WHITE}0${TXT_FG}/${TXT_FG_WHITE}x${TXT_FG} to exit): "
+        read -r REPLY2
+
+        if [ -z "$REPLY2" ] || [ "$REPLY2" = "0" ] || [ "$REPLY2" = "q" ] || [ "$REPLY2" = "Q" ] || [ "$REPLY2" = "x" ] || [ "$REPLY2" = "X" ]; then
+            _CONFIGURE_REENTRY=1 exec "$0"
+        fi
+
+        # Resolve numeric selection within filtered list, or fall back to name
+        if [[ "$REPLY2" =~ ^[0-9]+$ ]] && [ "$REPLY2" -ge 1 ] && [ "$REPLY2" -le "${#_filtered[@]}" ]; then
+            SELECTED="${_filtered[$((REPLY2-1))]}"
+        else
+            SELECTED="$REPLY2"
+        fi
+        _CONFIGURE_REENTRY=1 exec "$0" "$SELECTED"
     fi
 
     # Re-run configure with the resolved target
@@ -77,7 +127,7 @@ fi
 if [ "$1" = "help" -o "$1" = "-h" -o "$1" = "-help" -o "$1" = "--help" ]; then
     echo "Utilities to help build eRT for your target:"
     echo
-    echo "  ${TXT_FG_WHITE}./configure                        ${TXT_FG_GREEN}: show numbered list of platform targets and select interactively."
+    echo "  ${TXT_FG_WHITE}./configure                        ${TXT_FG_GREEN}: show numbered list of platform targets and select interactively (type / to search)."
     echo "  ${TXT_FG_WHITE}./configure TARGET                 ${TXT_FG_GREEN}: select a platform target by name (this is a sticky configuration)."
     echo "  ${TXT_FG_WHITE}./configure NUMBER                 ${TXT_FG_GREEN}: select a platform target by number from the list."
     echo "  ${TXT_FG_WHITE}./configure -new NEW_TARGET        ${TXT_FG_GREEN}: create a new platform target and configure it.
