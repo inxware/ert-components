@@ -1,3 +1,4 @@
+# inxware/inx-debian12-clang-arm-qt
 FROM debian:12
 RUN echo "Successfully entered and fetched debian:12"
 RUN apt update
