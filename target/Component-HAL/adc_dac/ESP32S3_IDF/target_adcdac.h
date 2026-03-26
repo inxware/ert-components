@@ -10,6 +10,7 @@
 #ifndef EHS_TARGET_ADCCAD_H
 #define EHS_TARGET_ADCCAD_H
 #include "globals.h"
+#include "../ehs_adc_errors.h"
 
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
@@ -174,9 +175,9 @@ extern ehs_uint16 g_ehs_adc_continuous_enabled_bitmask[EHS_TARGET_ADC_UNIT_NUMBE
 /****************************** !DO NOT EDIT THIS! ************************************/
 
 esp_err_t IRAM_ATTR inx_adc_cali_raw_to_voltage(adc_cali_handle_t handle, int raw, int *voltage);
-ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
+ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
                                 ehs_uint8 config);
-ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configuration,
+ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configuration,
                        ehs_uint8 *config);
 /*
 declare the adc init function needed to configure the cahnnel/adc.
@@ -184,9 +185,9 @@ pass in specific primitive values for now rather than a struct.
 target_read_adc_init(....);
 */
 
-ehs_bool destroy_adc(ehs_uint8 channel);
+ehs_bool legacy_destroy_adc(ehs_uint8 channel);
 
-ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit);
+ehs_sint32 EhsTAdcUnitConfigure(ehs_uint8 unit);
 
 ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel);
 

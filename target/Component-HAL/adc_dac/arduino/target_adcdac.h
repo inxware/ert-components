@@ -32,6 +32,7 @@
 /* Included files */
 
 #include <ehs_types.h>
+#include "../ehs_adc_errors.h"
 
 #define EHS_TARGET_ADC_COMMA ,
 
@@ -180,8 +181,8 @@ void EhsTgtAdcDacInit();
 /***************************** ADC START *****************************/
 
 
-ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config);
-ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, 
+ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config);
+ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, 
                        ehs_float bias, ehs_uint8 configuration, ehs_uint8 *config);
 /*
 declare the adc init function needed to configure the cahnnel/adc.
@@ -189,9 +190,9 @@ pass in specific primitive values for now rather than a struct.
 target_read_adc_init(....);
 */
 
-ehs_bool destroy_adc(ehs_uint8 channel);
+ehs_bool legacy_destroy_adc(ehs_uint8 channel);
 
-ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit);
+ehs_sint32 EhsTAdcUnitConfigure(ehs_uint8 unit);
 
 ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel);
 

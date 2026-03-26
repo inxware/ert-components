@@ -45,6 +45,8 @@ static ehs_bool resolve_adc_path(ehs_uint8 channel, char *path_buf, float *scale
         *scale = 1.0f;
         return EHS_TRUE;
     }
+    EHSH_LOG_ERROR("SferaLabs ADC: channel %d out of range for IONOPI (max %d)",
+                   (int)channel, SFERALABS_AI_VOLT_CHANNELS - 1);
     return EHS_FALSE;
 
 #elif defined(EHS_SFERALABS_BOARD_IONOPIMAX)
@@ -71,20 +73,33 @@ static ehs_bool resolve_adc_path(ehs_uint8 channel, char *path_buf, float *scale
         *scale = 100.0f;
         return EHS_TRUE;
     }
+    EHSH_LOG_ERROR("SferaLabs ADC: channel %d out of range for IONOPIMAX (volt<4, curr<8, temp<10)",
+                   (int)channel);
     return EHS_FALSE;
 
 #elif defined(EHS_SFERALABS_BOARD_STRATOPIMAX)
     /* Slot encoded in upper byte of channel; lower byte is channel within slot */
     int slot    = ((int)channel >> 4) & 0x0F;   /* upper nibble = slot 1-4 */
     int slot_ch = (int)channel & 0x0F;           /* lower nibble = ch within slot 1-4 */
-    if (slot < 1 || slot > 4) return EHS_FALSE;
-    if (slot_ch < 1 || slot_ch > SFERALABS_AI_VOLT_CHANNELS) return EHS_FALSE;
+    if (slot < 1 || slot > 4)
+    {
+        EHSH_LOG_ERROR("SferaLabs ADC: channel=0x%02x invalid slot=%d (expected 1-4)",
+                       (int)channel, slot);
+        return EHS_FALSE;
+    }
+    if (slot_ch < 1 || slot_ch > SFERALABS_AI_VOLT_CHANNELS)
+    {
+        EHSH_LOG_ERROR("SferaLabs ADC: channel=0x%02x invalid slot_ch=%d (expected 1-%d)",
+                       (int)channel, slot_ch, SFERALABS_AI_VOLT_CHANNELS);
+        return EHS_FALSE;
+    }
     snprintf(path_buf, SFERALABS_SYSFS_BUF_SIZE, SFERALABS_AI_VOLT_FMT, slot, slot_ch);
     *scale = 100.0f;
     return EHS_TRUE;
 
 #else
     (void)channel; (void)path_buf; (void)scale;
+    EHSH_LOG_ERROR("SferaLabs ADC: no board variant defined (EHS_SFERALABS_BOARD_* not set)");
     return EHS_FALSE;
 #endif
 }
@@ -165,7 +180,7 @@ static void configure_adc_mode(ehs_uint8 channel, ehs_uint8 configuration)
  * Public ADC API
  * ------------------------------------------------------------------------- */
 
-EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous,
+EHS_GLOBAL ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous,
                                    ehs_float f_s, ehs_sint32 num_samples,
                                    ehs_float bias, ehs_uint8 configuration,
                                    ehs_uint8 *config)
@@ -187,7 +202,7 @@ EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous,
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config)
+EHS_GLOBAL ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config)
 {
     (void)config;
     char path[SFERALABS_SYSFS_BUF_SIZE];
@@ -202,7 +217,8 @@ EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value, 
     long raw;
     if (sferalabs_sysfs_read_int(path, &raw) != 0)
     {
-        EHSH_LOG_ERROR("SferaLabs ADC: failed to read channel %d from %s", channel, path);
+        EHSH_LOG_ERROR("SferaLabs ADC: failed to read channel %d from %s: errno=%d (%s)",
+                       channel, path, errno, strerror(errno));
         *value = 0.0f;
         return EHS_FALSE;
     }
@@ -211,23 +227,55 @@ EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value, 
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool destroy_adc(ehs_uint8 channel)
+EHS_GLOBAL ehs_bool legacy_destroy_adc(ehs_uint8 channel)
 {
     (void)channel;
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit)
+EHS_GLOBAL ehs_sint32 EhsTAdcUnitConfigure(ehs_uint8 unit)
 {
-    (void)unit;
-    return EHS_TRUE;
+    /* Validate every channel the adc_config block has mapped (non-negative
+     * values in unit_config.channel[]).  Two checks per channel:
+     *   1. resolve_adc_path — confirms the index is in range for this board
+     *      variant.  Returns EHS_ADC_ERR_INVALID_CHANNEL if not.
+     *   2. sferalabs_sysfs_read_int probe — confirms the sysfs node exists and
+     *      is readable.  A failure here means the kernel module is not loaded
+     *      or the hardware is absent.  Returns EHS_ADC_ERR_HAL_INIT_FAILED.
+     */
+    ehs_bool any_channel = EHS_FALSE;
+    for (int i = 0; i < EHS_TARGET_ADC_CHANNEL_NUMBER; i++)
+    {
+        ehs_sint16 ch_val = g_ehs_adc_configs[unit].unit_config.channel[i];
+        if (ch_val < 0) continue;   /* -1 = channel not in use */
+        any_channel = EHS_TRUE;
+
+        char path[SFERALABS_SYSFS_BUF_SIZE];
+        float scale;
+        if (!resolve_adc_path((ehs_uint8)ch_val, path, &scale))
+        {
+            EHSH_LOG_ERROR("SferaLabs ADC: channel %d not available on this board", (int)ch_val);
+            return EHS_ADC_ERR_INVALID_CHANNEL;
+        }
+        long dummy;
+        if (sferalabs_sysfs_read_int(path, &dummy) != 0)
+        {
+            EHSH_LOG_ERROR("SferaLabs ADC: sysfs node not readable for channel %d (%s) - kernel module loaded?",
+                           (int)ch_val, path);
+            return EHS_ADC_ERR_HAL_INIT_FAILED;
+        }
+    }
+    if (!any_channel)
+        EHSH_LOG_INFO("SferaLabs ADC: unit %d configured with no active channels", (int)unit);
+    return EHS_ADC_ERR_NONE;
 }
 
 EHS_GLOBAL ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel)
 {
-    (void)unit;
     ehs_float value = 0.0f;
-    target_read_adc_sample(channel, &value, 0);
+    ehs_bool ok = legacy_target_read_adc_sample(channel, &value, 0);
+    if (!ok)
+        EHSH_LOG_ERROR("SferaLabs ADC: single read failed for unit=%d channel=%d", (int)unit, (int)channel);
     return (ehs_uint32)value;
 }
 

@@ -87,7 +87,7 @@ static ehs_bool configure_ADC2(ehs_uint8 channel)
 }
 
 // todo - what is the *config needed for in generic code?
-ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
+ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
                                   ehs_uint8 *config)
 {
     set_ADC_unit(configure);
@@ -106,7 +106,7 @@ ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, eh
 }
 
 /* polled adc read function */
-ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
+ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
         ehs_uint8 config)
 {
     /// todo2022 write the esp32 specific code to get a value and return and error
@@ -128,7 +128,7 @@ ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
     return EHS_TRUE;
 }
 
-ehs_bool destroy_adc(ehs_uint8 channel)
+ehs_bool legacy_destroy_adc(ehs_uint8 channel)
 {
     return EHS_TRUE;
 }
@@ -142,11 +142,11 @@ void app_main(void)
 {
     static const adc_channel_t channel = ADC_CHANNEL_6;
     ehs_uint8 config;
-    configure_adc(channel, 1, &config);
+    legacy_configure_adc(channel, 1, &config);
     ehs_float raw_value = 0;
     while (1)
     {
-        if (target_read_adc_sample((ehs_uint8)channel, &raw_value, config) ==
+        if (legacy_target_read_adc_sample((ehs_uint8)channel, &raw_value, config) ==
                 EHS_TRUE)
         {
             printf("Config\t%d\tResult_value\t%f\n", config, raw_value);

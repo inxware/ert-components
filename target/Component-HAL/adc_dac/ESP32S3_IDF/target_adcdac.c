@@ -453,7 +453,7 @@ static bool IRAM_ATTR s_conv_done_cb(adc_continuous_handle_t handle, const adc_c
 #endif
 
 // todo - what is the *config needed for in generic code?
-EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure, ehs_uint8 *config)
+EHS_GLOBAL ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure, ehs_uint8 *config)
 {
 #ifdef USE_ESP32S3_LEGACY_API
     set_ADC_unit(configure);
@@ -497,7 +497,7 @@ EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_fl
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config)
+EHS_GLOBAL ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config)
 {
     if (channel >= EHS_TARGET_ADC_CHANNEL_NUMBER) return EHS_FALSE;
 #ifdef USE_ESP32S3_LEGACY_API
@@ -534,7 +534,7 @@ EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value, 
     return EHS_TRUE;
 }
 
-ehs_bool destroy_adc(ehs_uint8 channel)
+ehs_bool legacy_destroy_adc(ehs_uint8 channel)
 {
 #ifdef USE_ESP32S3_LEGACY_API
     // not applying
@@ -617,11 +617,11 @@ static void IRAM_ATTR ehs_s_pool_ovf_cb(void *arg) {
     //ets_printf("[%s] DMA pool overflow occured!\n", __func__);
 }
 
-ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit)
+ehs_sint32 EhsTAdcUnitConfigure(ehs_uint8 unit)
 {
     // Total supported unit count is 2
-    if (unit >= EHS_TARGET_ADC_UNIT_NUMBER) return EHS_FALSE;
-    if (g_ehs_adc_configs[unit].unit_config.init == 1) return EHS_FALSE;
+    if (unit >= EHS_TARGET_ADC_UNIT_NUMBER) return EHS_ADC_ERR_INVALID_DEVICE;
+    if (g_ehs_adc_configs[unit].unit_config.init == 1) return EHS_ADC_ERR_ALREADY_INIT;
     switch (g_ehs_adc_configs[unit].unit_config.mode) {
         case 0: // Single-Shot
         {
@@ -652,7 +652,7 @@ ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit)
 #ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
             // Continuous Configuration
             // ADC continuous mode on ADC unit 2 is not available
-            if (unit == 1) return EHS_FALSE;
+            if (unit == 1) return EHS_ADC_ERR_HAL_INIT_FAILED;
             int chan_count = 0;
             for (int i = 0 ; i < EHS_TARGET_ADC_CHANNEL_NUMBER ; i++)
             {
@@ -681,7 +681,7 @@ ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit)
                 }
             }
             // No ADC channel is enabled
-            if (adc_count == 0) return EHS_FALSE;
+            if (adc_count == 0) return EHS_ADC_ERR_INVALID_CHANNEL;
             adc_continuous_config_t dig_cfg = {
                 .sample_freq_hz = g_ehs_adc_configs[unit].unit_config.f_s_hz * adc_count,
                 .conv_mode = ADC_CONV_SINGLE_UNIT_1,
@@ -700,10 +700,10 @@ ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit)
             break;
         }
         default:
-            return EHS_FALSE;
+            return EHS_ADC_ERR_HAL_INIT_FAILED;
     }
     g_ehs_adc_configs[unit].unit_config.init = 1;
-    return EHS_TRUE;
+    return EHS_ADC_ERR_NONE;
 }
 
 ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel)

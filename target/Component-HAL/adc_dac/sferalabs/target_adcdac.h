@@ -27,7 +27,7 @@
  * DAC channel mapping (0-based):
  *   Iono Pi Max / Strato Pi Max: ch 0 → ao1, ch 1 → ao2
  *
- * The 'configuration' byte passed to configure_adc selects input mode:
+ * The 'configuration' byte passed to legacy_configure_adc selects input mode:
  *   SFERALABS_ADC_MODE_VOLT_UNI   (0x00) = unipolar voltage (default)
  *   SFERALABS_ADC_MODE_VOLT_BI    (0x01) = bipolar voltage
  *   SFERALABS_ADC_MODE_CURR_UNI   (0x10) = unipolar current
@@ -42,6 +42,7 @@
 #define EHS_TARGET_ADCCAD_H
 
 #include "globals.h"
+#include "../ehs_adc_errors.h"
 #include "sferalabs_hal.h"
 
 /* -------------------------------------------------------------------------
@@ -52,10 +53,12 @@
 #define EHS_TARGET_ADC_COMMA ,
 
 #ifndef EHS_TARGET_ADC_UNIT_NUMBER
-#define EHS_TARGET_ADC_UNIT_NUMBER 1
+#define EHS_TARGET_ADC_UNIT_NUMBER 0
 #endif
+
+// No such thing:
 #ifndef EHS_TARGET_ADC_CHANNEL_NUMBER
-#define EHS_TARGET_ADC_CHANNEL_NUMBER 1
+#define EHS_TARGET_ADC_CHANNEL_NUMBER 8
 #endif
 
 #if EHS_TARGET_ADC_UNIT_NUMBER <= 0
@@ -190,12 +193,12 @@ extern ehs_uint16 g_ehs_adc_continuous_enabled_bitmask[EHS_TARGET_ADC_UNIT_NUMBE
 #endif
 
 /* ADC function declarations */
-ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s,
+ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s,
                         ehs_sint32 num_samples, ehs_float bias,
                         ehs_uint8 configuration, ehs_uint8 *config);
-ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config);
-ehs_bool destroy_adc(ehs_uint8 channel);
-ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit);
+ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config);
+ehs_bool legacy_destroy_adc(ehs_uint8 channel);
+ehs_sint32 EhsTAdcUnitConfigure(ehs_uint8 unit);
 ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel);
 EHS_MEMORY_ATTRIB void EhsTHAdcChannelContinuousConvertCB(ehs_uint8 unit, ehs_uint8 channel,
                                                            ehs_sint32 mean, ehs_uint32 variance,

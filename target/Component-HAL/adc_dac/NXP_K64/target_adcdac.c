@@ -49,20 +49,20 @@ static ehs_bool configure_ADC2(ehs_uint8 channel)
 	return EHS_TRUE;
 }
 
-ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
+ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
                                   ehs_uint8 *config)
 {
     *config=configure;// something random for now... not sure what this is supposed to do...
     return EHS_TRUE;
 }
 
-ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
+ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
         ehs_uint8 config)
 {
     return EHS_TRUE;
 }
 
-ehs_bool destroy_adc(ehs_uint8 channel)
+ehs_bool legacy_destroy_adc(ehs_uint8 channel)
 {
     return EHS_TRUE;
 }

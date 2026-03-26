@@ -14,25 +14,26 @@ ehs_adc_config_t g_ehs_adc_configs[EHS_TARGET_ADC_UNIT_NUMBER] = EHS_DEFAULT_ADC
 ehs_uint16 g_ehs_adc_continuous_enabled_bitmask[EHS_TARGET_ADC_UNIT_NUMBER] = EHS_TARGET_ADC_UNIT_DEFAULT(0);
 
 // todo - what is the *config needed for in generic code?
-EHS_GLOBAL ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure, ehs_uint8 *config)
+EHS_GLOBAL ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure, ehs_uint8 *config)
 {
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config)
+EHS_GLOBAL ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value, ehs_uint8 config)
 {
     *value = 0.0;
     return EHS_TRUE;
 }
 
-EHS_GLOBAL ehs_bool destroy_adc(ehs_uint8 channel)
+EHS_GLOBAL ehs_bool legacy_destroy_adc(ehs_uint8 channel)
 {
     return EHS_TRUE;
 }
 
-ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit)
+ehs_sint32 EhsTAdcUnitConfigure(ehs_uint8 unit)
 {
-    return EHS_TRUE;
+    (void)unit;
+    return EHS_ADC_ERR_NONE;
 }
 
 ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel)

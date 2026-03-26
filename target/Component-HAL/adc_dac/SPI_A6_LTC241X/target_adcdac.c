@@ -47,8 +47,9 @@ Longer term:
 2. errors for misconfiguration (e.g.) channel number out of range.
 */
 
-ehs_bool EhsTAdcUnitConfigure(ehs_uint8 unit) {
-    return EHS_TRUE;
+ehs_sint32 EhsTAdcUnitConfigure(ehs_uint8 unit) {
+    (void)unit;
+    return EHS_ADC_ERR_NONE;
 }
 
 ehs_bool EhsTAdcUnitDestroy(ehs_uint8 unit) {
@@ -82,7 +83,7 @@ static ehs_bool set_atten(ehs_uint8 channel, ehs_uint8 atten)
 }
 
 // todo - what is the *config needed for in generic code?
-ehs_bool configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
+ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configure,
                                   ehs_uint8 *config)
 {
     ehs_bool ret = EHS_TRUE;
@@ -104,7 +105,7 @@ ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel) {
 
 
 /* Probably don't need this : */
-ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
+ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
         ehs_uint8 config)
 {
     /// todo2022 write the esp32 specific code to get a value and return and error
@@ -147,7 +148,7 @@ ehs_bool target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
     return EHS_TRUE;
 }
 
-ehs_bool destroy_adc(ehs_uint8 channel)
+ehs_bool legacy_destroy_adc(ehs_uint8 channel)
 {
     return EHS_TRUE;
 }
