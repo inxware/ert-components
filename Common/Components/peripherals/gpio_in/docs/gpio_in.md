@@ -3,12 +3,13 @@ GPIO Input
 Menu: 
             Peripherals
              > GPIO > GPIO In
-Type: IO | Height: 45
+Type: IO | Width: 75 | Height: 58
 
             ┌─────────────────────────┐
       read►─┤                         ├►─finishevent 
             │          GPIO           │
             │                         ├──value (B)
+            │                         ├►─error 
             └─────────────────────────┘
 
 Legend: ── Data | ►─ Event
@@ -18,4 +19,12 @@ Legend: ── Data | ►─ Event
 
 **Port Summary:**
 - **Left:**  1 ports (1 events, 0 data)
-- **Right:** 2 ports (1 events, 1 data)
+- **Right:** 3 ports (2 events, 1 data)
+
+**Ports by Function:**
+
+*read:*
+  - **read** (Start Event)
+  - **value** (B) - Output
+  - **finishevent** (Finish Event)
+  - **error** (Finish Event)

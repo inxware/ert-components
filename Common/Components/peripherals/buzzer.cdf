@@ -118,6 +118,17 @@
             </Function>
         </Port>
         <Port>
+            <DataType>I</DataType>
+            <Description>error num</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>error_num</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
             <Description>stop</Description>
             <PortType>StartPort</PortType>
             <XCoordinate>0</XCoordinate>

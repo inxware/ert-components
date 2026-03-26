@@ -34,6 +34,14 @@
 #include "target_types.h"
 #include "ehs_types.h"
 
+/* EHS_VOLATILE: expands to 'volatile' on targets whose mutex implementation does
+ * not guarantee compiler memory-barrier semantics (e.g. no-op mutexes on bare-metal
+ * MCUs, cooperative RTOS targets).  Targets backed by real POSIX pthread_mutex or
+ * equivalent (GNU/Linux, ESP32 IDF, Zephyr) define this empty in target_types.h. */
+#ifndef EHS_VOLATILE
+#define EHS_VOLATILE volatile
+#endif
+
 
 /*********************** TARGET_INDEPENDENT TYPES FIRST AS THESE MAY BE USED IN TARGET SPECIFIC HEADERS ************************************************ */
 

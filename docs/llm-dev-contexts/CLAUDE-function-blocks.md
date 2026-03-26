@@ -1,5 +1,8 @@
 # Function Block Authoring Guide
 
+> **⚠ CRITICAL — CDF port changes break existing applications.**
+> Adding, removing, or renumbering ports in a CDF file changes the compiled block interface. Any application wired against the old port layout will fail to load or behave incorrectly at runtime. **Never add, remove, or renumber CDF ports without explicit agreement in the chat.** Changes to the `.c` implementation (state, logic, HAL calls) that do not touch the CDF port list are safe to make freely.
+
 Reference for creating and modifying eRT function blocks (CDF + C implementation).
 
 > **See also:** [`CLAUDE-general.md`](CLAUDE-general.md) for the full CDF XML schema reference (port types, data types, key elements), component file structure, `EHS_FB_*` macro reference, and the component creation workflow.

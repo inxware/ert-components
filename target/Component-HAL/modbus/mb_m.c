@@ -105,8 +105,8 @@ volatile mbUCHAR ucMasterRcvBuf[MB_SERIAL_BUF_SIZE];
 volatile _Atomic eMBMasterTimerMode eMasterCurTimerMode;
 volatile _Atomic mbBOOL xFrameIsBroadcast = FALSE;
 
-volatile EhsHashMap* gMBMasterReadHashMap = NULL;
-volatile EhsHashMap* gMBMasterWriteHashMap = NULL;
+EHS_VOLATILE EhsHashMap* gMBMasterReadHashMap = NULL;
+EHS_VOLATILE EhsHashMap* gMBMasterWriteHashMap = NULL;
 
 static enum
 {

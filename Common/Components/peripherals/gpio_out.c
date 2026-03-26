@@ -24,6 +24,8 @@ EHS_FB_FUNCTION_ENTRY("write", 0x01, gpio_out_write)
 EHS_FB_FUNCTIONS_END
 
 #define INX_gpio_out_ARG_write_value 1
+#define INX_gpio_out_ARG_write_done  1
+#define INX_gpio_out_ARG_write_error 2
 
 
 EHS_FB_IDENTIFY_FUNCTION(gpio_out)
@@ -61,7 +63,11 @@ EHS_FB_RUN_FUNCTION(gpio_out_write)
         gpio_out_state->error_state = EhsInitOutputGPIO(gpio_out_state);
         gpio_out_state->initial_state = 255; /* mark that the intialisation has now been done */
     }
-    EhsWriteOutputGPIO(gpio_out_state); /* We will write this again in all cases in case the intialiser doesn't support intial values*/
+    ehs_bool ret = EhsWriteOutputGPIO(gpio_out_state); /* We will write this again in all cases in case the intialiser doesn't support intial values*/
+    if (ret == EHS_TRUE)
+        EHS_FB_FINISH(INX_gpio_out_ARG_write_done);
+    else
+        EHS_FB_FINISH(INX_gpio_out_ARG_write_error);
 }
 
 EHS_FB_DESTROY_FUNCTION(gpio_out)

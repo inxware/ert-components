@@ -19,8 +19,8 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Width>50</Width>
-        <Height>45</Height>
+        <Width>65</Width>
+        <Height>48</Height>
         <Text>GPIO</Text>
         <TextX>10</TextX>
         <TextY>5</TextY>
@@ -96,6 +96,28 @@
             <YCoordinate>20</YCoordinate>
             <CName>value</CName>
             <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error</CName>
+            <Function argument="2">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>

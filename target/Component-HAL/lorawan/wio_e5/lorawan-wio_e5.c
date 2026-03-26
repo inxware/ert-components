@@ -252,10 +252,10 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_init(ehs_sint32 com_port)
         TgtUart_SetComPort(LORA_UART_PORT, com_port);
     // UART default pins, baudrate 9600, 8 data bits, 1 stop bit, no parity check, no flow control
     if ((ret = TgtUart_Start(LORA_UART_PORT,
-                             TARGET_UART_PIN_TX_PORT(LORA_UART_PORT),
-                             TARGET_UART_PIN_RX_PORT(LORA_UART_PORT),
-                             TARGET_UART_PIN_RTS_PORT(LORA_UART_PORT),
-                             TARGET_UART_PIN_CTS_PORT(LORA_UART_PORT),
+                             LORA_UART_TX_PIN,
+                             LORA_UART_RX_PIN,
+                             LORA_UART_RTS_PIN,
+                             LORA_UART_CTS_PIN,
                              9600, 8, 0, 0, 0)) != TgtUART_OK) {ehs_lorawan_debug("Uart Start ret: %d\n", ret); return ret;}
 //	if ((ret = TgtUart_Start(LORA_UART_PORT)) != TgtUART_OK) { ehs_lorawan_debug("UART Start ret: %d\n", ret); return ret; }
     if ((ret = TgtUART_Intr_register(LORA_UART_PORT, &LoRaWAN_wioe5_onUart)) != TgtUART_OK) {ehs_lorawan_debug("Uart Intr Reg ret: %d\n", ret); return ret;}

@@ -8,58 +8,67 @@ CPPFLAGS += -std=c++17
 
 OBJECTS+=opencv_wrapper.$(OBJ)
 CXX_INC_DIRS += /usr/include/opencv4
-LIB+=opencv_stitching
+#Most of these are dynamically linked and not needed at build time?
+#LIB+=opencv_stitching
+
 LIB+=opencv_alphamat
-LIB+=opencv_aruco
-LIB+=opencv_bgsegm
-LIB+=opencv_bioinspired
-LIB+=opencv_ccalib
-LIB+=opencv_cvv
-LIB+=opencv_dnn_objdetect
-LIB+=opencv_dnn_superres
-LIB+=opencv_dpm
-LIB+=opencv_face
-LIB+=opencv_freetype
-LIB+=opencv_fuzzy
-LIB+=opencv_hdf
-LIB+=opencv_hfs
-LIB+=opencv_img_hash
-LIB+=opencv_intensity_transform
-LIB+=opencv_line_descriptor
-LIB+=opencv_mcc
-LIB+=opencv_quality
-LIB+=opencv_rapid
-LIB+=opencv_reg
-LIB+=opencv_rgbd
-LIB+=opencv_saliency
-LIB+=opencv_shape
-LIB+=opencv_stereo
-LIB+=opencv_structured_light
-LIB+=opencv_phase_unwrapping
-LIB+=opencv_superres
-LIB+=opencv_optflow
-LIB+=opencv_surface_matching
-LIB+=opencv_tracking
+# this is provided by libopencv-contrib410 on debin 13
+
+#LIB+=opencv_aruco
+#LIB+=opencv_bgsegm
+#LIB+=opencv_bioinspired
+#LIB+=opencv_ccalib
+#LIB+=opencv_cvv
+#LIB+=opencv_dnn_objdetect
+#LIB+=opencv_dnn_superre11s
+#LIB+=opencv_dpm
+#LIB+=opencv_face
+#LIB+=opencv_freetype
+#LIB+=opencv_fuzzy
+#LIB+=opencv_hdf
+#LIB+=opencv_hfs
+#LIB+=opencv_img_hash
+#LIB+=opencv_intensity_transform
+#LIB+=opencv_line_descriptor
+#LIB+=opencv_mcc
+#LIB+=opencv_quality
+#LIB+=opencv_rapid
+#LIB+=opencv_reg
+#LIB+=opencv_rgbd
+#LIB+=opencv_saliency
+#LIB+=opencv_shape
+#LIB+=opencv_stereo
+#LIB+=opencv_structured_light
+#LIB+=opencv_phase_unwrapping
+#LIB+=opencv_superres
+#LIB+=opencv_optflow
+#LIB+=opencv_surface_matching
+#LIB+=opencv_tracking
+
 LIB+=opencv_highgui
-LIB+=opencv_datasets
-LIB+=opencv_text
+
+#LIB+=opencv_datasets
+#LIB+=opencv_text
 LIB+=opencv_plot
-LIB+=opencv_ml
-LIB+=opencv_videostab
+#LIB+=opencv_ml
+#LIB+=opencv_videostab
+
 LIB+=opencv_videoio
-LIB+=opencv_viz
-LIB+=opencv_wechat_qrcode
-LIB+=opencv_ximgproc
-LIB+=opencv_video
-LIB+=opencv_xobjdetect
-LIB+=opencv_objdetect
-LIB+=opencv_calib3d
+#debian 13 libopencv-videoio410 
+
+#LIB+=opencv_viz
+#LIB+=opencv_wechat_qrcode
+#LIB+=opencv_ximgproc
+#LIB+=opencv_video
+#LIB+=opencv_xobjdetect
+#LIB+=opencv_objdetect
+#LIB+=opencv_calib3d
 LIB+=opencv_imgcodecs
-LIB+=opencv_features2d
-LIB+=opencv_dnn
-LIB+=opencv_flann
-LIB+=opencv_xphoto
-LIB+=opencv_photo
+#LIB+=opencv_features2d
+#LIB+=opencv_dnn
+#LIB+=opencv_flann
+#LIB+=opencv_xphoto
+#LIB+=opencv_photo
 LIB+=opencv_imgproc
 LIB+=opencv_core
 # OpenCV is a C++ library — libstdc++ must appear after it on the link line so
@@ -92,6 +101,7 @@ ifdef EHS_USE_LIBCAMERA
 #		endif
 #	else   
 		LIB+=camera-base
+# Debian 13 this is libcamra0.7
 		LIB+=camera
 		CXX_INC_DIRS += /usr/include/libcamera
 		# NOT NEEDED? CXX_INC_DIRS += /usr/local/include

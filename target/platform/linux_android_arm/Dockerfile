@@ -1,3 +1,4 @@
+# inxware/ubuntu22.04-build-essential
 FROM ubuntu:22.04
 #todo2022 this needs to add the SDK installer
 RUN apt-get update && \

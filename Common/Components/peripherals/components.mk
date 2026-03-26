@@ -93,7 +93,6 @@ endif
 ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 ifneq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),none)
 	OBJECTS += inx-accel_gyro.$(OBJ)
-	OBJECTS += accelerometer.$(OBJ)
 	DEFS += EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
 endif
 endif
@@ -102,7 +101,6 @@ endif
 ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
 ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),none)
 ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),)
-	OBJECTS += inx-adc_read.$(OBJ)
 	OBJECTS += inx-adc_config.$(OBJ)
 	OBJECTS += inx-dac.$(OBJ)
 	ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT

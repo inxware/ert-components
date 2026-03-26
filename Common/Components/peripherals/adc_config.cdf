@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2024-12-30T11:19:08Z</CreationDate>
-        <UpdatedDate>2024-12-30T11:32:12Z</UpdatedDate>
+        <UpdatedDate>2026-03-26T00:00:00Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>Configure the ADC unit</ShortDescription>
@@ -20,7 +20,7 @@
     <Block>
         <Type>IO</Type>
         <Width>75</Width>
-        <Height>75</Height>
+        <Height>85</Height>
         <Text>ADC Config</Text>
         <TextX>5</TextX>
         <TextY>5</TextY>
@@ -284,6 +284,17 @@
             <Wcet>0</Wcet>
             <CName>error</CName>
             <Function argument="2">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>err id</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>32</YCoordinate>
+            <CName>error_id</CName>
+            <Function argument="1">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>

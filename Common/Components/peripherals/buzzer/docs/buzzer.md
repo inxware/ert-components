@@ -3,11 +3,11 @@ Piezo buzzer control. Plays a tone at a specified frequency for a specified dura
 Menu: 
             Peripherals
              > Buzzer
-Type: IO | Width: 50 | Height: 55
+Type: IO | Width: 75 | Height: 73
 
              ┌─────────────────────────┐
        beep►─┤                         ├►─-- 
-    freq Hz──┤                         │
+    freq Hz──┤                         ├──error num (I)
              │          Buzz           │
 duration ms──┤                         │
        stop►─┤                         ├►─-- 
@@ -21,16 +21,17 @@ Legend: ── Data | ►─ Event
 
 **Port Summary:**
 - **Left:**  4 ports (2 events, 2 data)
-- **Right:** 2 ports (2 events, 0 data)
+- **Right:** 3 ports (2 events, 1 data)
 
 **Ports by Function:**
 
-*BeepFunc:*
+*beep:*
   - **beep** (Start Event)
   - **freq_hz** (I) - Input
   - **duration_ms** (I) - Input
+  - **error_num** (I) - Output
   - **done** (Finish Event)
 
-*StopFunc:*
+*stop:*
   - **stop** (Start Event)
   - **stopped** (Finish Event)

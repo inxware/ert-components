@@ -21,6 +21,10 @@
 
 /*Overrides Here! */
 
+/* GNU/Linux uses native pthreads which provide full memory barriers —
+ * volatile is not needed for inter-thread shared variables. */
+#define EHS_VOLATILE
+
 #include "../base_full/base_types.h"
 
 #endif

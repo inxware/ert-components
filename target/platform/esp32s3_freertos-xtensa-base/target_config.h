@@ -284,6 +284,12 @@
 #ifndef LORA_UART_PORT
 #define LORA_UART_PORT 1
 #endif
+#ifndef LORA_UART_TX_PIN
+#define LORA_UART_TX_PIN TARGET_UART_PIN_TX_PORT1
+#endif
+#ifndef LORA_UART_RX_PIN
+#define LORA_UART_RX_PIN TARGET_UART_PIN_RX_PORT1
+#endif
 
 #include "../base_small/base_config.h"
 

@@ -29,6 +29,7 @@ EHS_FB_FUNCTIONS_END
 #define INX_buzzer_ARG_freq_hz     1   /* InputPort:  freq_hz (fn1, arg=1)    */
 #define INX_buzzer_ARG_duration_ms 2   /* InputPort:  duration_ms (fn1, arg=2) */
 #define INX_buzzer_ARG_done        1   /* FinishPort: done (fn1, arg=1)       */
+#define INX_buzzer_ARG_error_num   1   /* OutputPort/I: error_num (fn1, arg=1) */
 #define INX_buzzer_ARG_stopped     1   /* FinishPort: stopped (fn2, arg=1)    */
 
 
@@ -53,7 +54,7 @@ EHS_FB_RUN_FUNCTION(buzzer_beep)
     ehs_buzzer_state_type *state = (ehs_buzzer_state_type *)EHS_FB_RUN_CONTEXT;
     ehs_sint32 freq_hz     = EHS_FB_IN_I_API2(INX_buzzer_ARG_freq_hz);
     ehs_sint32 duration_ms = EHS_FB_IN_I_API2(INX_buzzer_ARG_duration_ms);
-    EhsTBuzzerBeep(state, freq_hz, duration_ms);
+    EHS_FB_OUT_I_API2(INX_buzzer_ARG_error_num) = EhsTBuzzerBeep(state, freq_hz, duration_ms);
     EHS_FB_FINISH_API2(INX_buzzer_ARG_done);
 }
 

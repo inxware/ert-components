@@ -629,4 +629,204 @@ When implementing a new Mode B target:
 2. **Push property changes** in `pfDrawFunc` — check `bContentUpdated`/`bPositionUpdated`/`bColourUpdated` flags, push only what changed
 3. **Bind library events** — connect the library's click/press/release/change signals to invoke `event_callback` with the appropriate `EHS_WIDGET_UI_EVENT_*` ID
 4. **Implement viewport stubs** — Mode B targets typically stub out `EhsTV_blit`, `EhsTV_fillRect`, surface management, etc. since the library owns rendering
+
+## GUI Parameter String Schema
+
+The `.gui` file stores widget definitions as delimiter-separated parameter strings parsed by `EhsParseGuiParameters()` in `Common/Components/gui/guiparams.c`. The delimiter is `EHS_PARAM_SEPARATOR` = `0x01` (ASCII SOH, defined in `Common/KAPI/globals.h`).
+
+### Versions
+
+The first token selects the parser version:
+
+| Token value | Internal version (`nVersion`) |
+|-------------|-------------------------------|
+| `"1.0.0"`   | 100 (v100) — legacy format    |
+| `"1.3"`     | 130 (v130) — adds font/indent |
+| `"1.4"`     | 140 (v140) — adds ext_type/prop/curve/parent |
+
+### Common Header (all widget types, all versions)
+
+| Token | Field | Notes |
+|-------|-------|-------|
+| 0 | `version` | `"1.0.0"`, `"1.3"`, or `"1.4"` |
+| 1 | `object_name` | Widget name — must match `objectName` in QML / `.gui` file |
+| 2 | `object_type` | Selects the widget parser (see per-type sections below) |
+| 3 | `x` | Left edge in pixels (`nLeft`) |
+| 4 | `y` | Top edge in pixels (`nTop`) |
+| 5 | `width` | Width in pixels (`nWidth`) |
+| 6 | `height` | Height in pixels (`nHeight`) |
+| 7 | `zorder` | Signed 32-bit z-order **(v1.x only)** — stored raw; `nZorder` = raw XOR `0x80000000` (maps sint32 monotonically to uint32) |
+| 7–8 | *(dummy1, dummy2)* | Two placeholder tokens, **skipped** (v1.0.0 only; zorder appears per-type below) |
+
+Tokens after the common header are referred to as **type-specific tokens** in the tables below; their absolute index depends on version (8 for v1.x, 9 for v1.0.0).
+
+---
+
+### `gui_textbox` / `gui_boolbox` / `gui_intbox` / `gui_realbox`
+
+All four type strings route through `EhsParseGuiParameters_textbox()`. The purpose class (`EHS_WIDGET_PURPOSE_TEXT`, `_BOOL`, `_INT`, `_FLOAT`) is derived from the type string.
+
+#### v1.0.0
+
+| Offset | Field | Notes |
+|--------|-------|-------|
+| +0 | `bg_r` | Background red (0–255); alpha hardcoded to 0 |
+| +1 | `bg_g` | Background green |
+| +2 | `bg_b` | Background blue |
+| +3 | `fg_r` | Foreground red (0–255); alpha hardcoded to 255 |
+| +4 | `fg_g` | Foreground green |
+| +5 | `fg_b` | Foreground blue |
+| +6 | `zorder` | Signed 32-bit z-order (here for v1.0.0; absent from common header) |
+
+#### v1.x (base — all v1.x versions)
+
+| Offset | Field | Notes |
+|--------|-------|-------|
+| +0 | `fg_alpha` | Foreground alpha (0–255) |
+| +1 | `fg_r` | Foreground red |
+| +2 | `fg_g` | Foreground green |
+| +3 | `fg_b` | Foreground blue |
+| +4 | `bg_alpha` | Background alpha |
+| +5 | `bg_r` | Background red |
+| +6 | `bg_g` | Background green |
+| +7 | `bg_b` | Background blue |
+
+#### v1.3+ (additional fields after base)
+
+| Offset | Field | Notes |
+|--------|-------|-------|
+| +8 | `font_name` | Font identifier string |
+| +9 | `indent_l` | Left text indent (pixels) |
+| +10 | `indent_r` | Right text indent |
+| +11 | `indent_t` | Top text indent |
+| +12 | `indent_b` | Bottom text indent |
+| +13 | `line_sep` | Line separation (pixels) |
+
+#### v1.4+ (additional fields after v1.3 fields)
+
+| Offset | Field | Notes |
+|--------|-------|-------|
+| +14 | `ext_type` | Widget sub-type offset — added to the base type enum to select a specific UI control (see below) |
+| +15 | `prop` | Visual style index (`uint16`) — selects a named LVGL style; see table below |
+| +16 | `curve` | Corner curvature / roundness (`uint16`) → `EhsWidgetUiSubclass.curvature`; **optional** (only if 2+ tokens remain) |
+| +17 | `parent` | Parent widget ID (`uint16`) → `EhsWidgetUiSubclass.parent_id`; optional, paired with `curve` |
+
+**`prop` (style index) values** — applied in `EhsTargetWidgetUi_style()` (LVGL HAL, `target_viewport.c`):
+
+| `prop` | Named constant | Effect (LVGL) |
+|--------|---------------|---------------|
+| 0 | *(default)* | No additional style applied |
+| 1 | — | Blue-grey drop shadow (offset 10,10; width 8) |
+| 2 | — | Vertical grey gradient background (shifted to lower half) |
+| 3 | — | Reserved / not yet implemented |
+| 4 | — | Reserved / not yet implemented |
+| 6 | — | Second label aligned `LV_ALIGN_OUT_BOTTOM_LEFT` (secondary text label below widget) |
+| 7 | — | Second label aligned `LV_ALIGN_OUT_TOP_LEFT` (secondary text label above widget) |
+| 8 | `EHS_CUSTOM_STYLE_8_ID` | Reserved for special character font — no style applied to widget body |
+| 9 | `EHS_CUSTOM_STYLE_9_ID` | HeatRod reserved style — secondary label: 12px grey (`180,180,180`), aligned `LV_ALIGN_BOTTOM_LEFT` |
+
+Styles 6–9 are **reserved for secondary-label positioning** and skip the `lv_obj_add_style` call on the widget body. They are consumed by `EhsTargetWidgetUi_set_second_label()` instead. Do not reassign these values.
+
+For gauges specifically, `prop` selects the colour palette passed to `ehs_gauge_color()` for the scale arcs and needle. Style 9 is also the default palette used for chart series colours.
+
+**`ext_type` values by base widget type** — resolved at init time as `nId = <BASE> + ext_type` (from `inx-gui_widget.c`):
+
+*`gui_textbox` / `gui_text_str` (string):*
+
+| `ext_type` | Resolved enum | Rendered as |
+|------------|---------------|-------------|
+| 0 | `EHS_STRING_UI_WIDGET` | Label / display only |
+| 1 | `EHS_STRING_UI_WIDGET_TEXT_FIELD` | Editable text field |
+| 2 | `EHS_STRING_UI_WIDGET_KEYPAD` | On-screen keypad input |
+| 3 | `EHS_STRING_UI_WIDGET_LABEL_LIST` | Scrollable label list |
+
+*`gui_boolbox` / `gui_text_bool` (bool):*
+
+| `ext_type` | Resolved enum | Rendered as |
+|------------|---------------|-------------|
+| 0 | `EHS_BOOL_UI_WIDGET` | Label / display only |
+| 1 | `EHS_BOOL_UI_WIDGET_BUTTON` | Momentary button |
+| 2 | `EHS_BOOL_UI_WIDGET_TOGGLE_BUTTON` | Toggle/latch button |
+| 3 | `EHS_BOOL_UI_WIDGET_CHECK_BOX` | Checkbox |
+
+*`gui_intbox` / `gui_text_int` (integer):*
+
+| `ext_type` | Resolved enum | Rendered as |
+|------------|---------------|-------------|
+| 0 | `EHS_INT_UI_WIDGET` | Label / display only |
+| 1 | `EHS_INT_UI_WIDGET_SLIDER` | Slider |
+| 2 | `EHS_INT_UI_WIDGET_PROGRESS_BAR` | Progress bar |
+| 3 | `EHS_INT_UI_WIDGET_GAUGE` | Gauge / arc indicator |
+| 4 | `EHS_INT_UI_WIDGET_DROP_DOWN_LIST` | Drop-down list |
+
+*`gui_realbox` / `gui_text_real` (float):*
+
+| `ext_type` | Resolved enum | Rendered as |
+|------------|---------------|-------------|
+| 0 | `EHS_FLOAT_UI_WIDGET` | Label / display only |
+| 1 | `EHS_FLOAT_UI_WIDGET_SLIDER` | Slider |
+| 2 | `EHS_FLOAT_UI_WIDGET_PROGRESS_BAR` | Progress bar |
+| 3 | `EHS_FLOAT_UI_WIDGET_GAUGE` | Gauge / arc indicator |
+| 4 | `EHS_FLOAT_UI_WIDGET_ROLLER` | Roller / drum picker |
+| 5 | `EHS_FLOAT_UI_WIDGET_NUMPAD` | Numeric keypad input |
+
+---
+
+### `gui_bitmap` / `gui_image1`
+
+Both type strings route through `EhsParseGuiParameters_bitmap()`.
+
+#### v1.0.0
+
+| Offset | Field | Notes |
+|--------|-------|-------|
+| +0 | `bitmap_name` | Image filename (string; terminated at next `EHS_PARAM_SEPARATOR`) |
+| +1 | `zorder` | Signed 32-bit z-order |
+
+#### v1.x
+
+| Offset | Field | Notes |
+|--------|-------|-------|
+| +0 | `image_alpha` | Overall image alpha (0–255) |
+| +1 | `bitmap_name` | Image filename (string; separator-terminated if present) |
+
+> **Note:** A `lockAspectRatio` field exists in IGB's format after `bitmap_name` (v1.3) but is ignored by EHS.
+
+---
+
+### `gui_patch`
+
+Routes through `EhsParseGuiParameters_patch()`. Used for coloured rectangular overlays.
+
+| Offset | Field | Notes |
+|--------|-------|-------|
+| +0 | `fg_alpha` | Fill alpha (0–255) |
+| +1 | `fg_r` | Fill red |
+| +2 | `fg_g` | Fill green |
+| +3 | `fg_b` | Fill blue |
+| +4 | `curve` | Corner curve radius (`uint16`) — **optional** |
+
+---
+
+### `gui_viewport`
+
+Routes through `EhsParseGuiParameters_patch()` — identical wire format to `gui_patch`. Sets `eClass = EHS_WIDGET_CLASS_VIEWPORT`, `ePurposeClass = EHS_WIDGET_PURPOSE_VIEWPORT`.
+
+---
+
+### `gui_video_port`
+
+Routes through `EhsParseGuiParameters_patch()` — identical wire format to `gui_patch`. Sets `eClass = EHS_WIDGET_CLASS_VIDEO_PORT`, `ePurposeClass = EHS_WIDGET_PURPOSE_VIDEO`.
+
+---
+
+### z-order Encoding Note
+
+The raw z-order token is a signed 32-bit integer. After parsing, `EhsParseGuiParameters()` applies:
+
+```c
+pParams->nZorder = (0x80000000 ^ pParams->nZorder);
+```
+
+This maps `INT32_MIN` → 0 and `INT32_MAX` → `UINT32_MAX`, preserving monotonic ordering so unsigned comparison of `nZorder` values gives correct front-to-back ordering.
 5. **You do NOT need to** implement hit-testing, manage per-widget port numbers, or handle raw mouse coordinates

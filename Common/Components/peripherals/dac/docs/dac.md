@@ -3,12 +3,12 @@ Digital-to-Analog Converter
 Menu: 
             Peripherals
              > DAC
-Type: IO | Height: 50
+Type: IO | Width: 65 | Height: 53
 
             ┌─────────────────────────┐
        set►─┤                         ├►─-- 
             │           DAC           │
-     value──┤                         │
+     value──┤                         ├►─error 
             └─────────────────────────┘
 
 Legend: ── Data | ►─ Event
@@ -20,4 +20,12 @@ Legend: ── Data | ►─ Event
 
 **Port Summary:**
 - **Left:**  2 ports (1 events, 1 data)
-- **Right:** 1 ports (1 events, 0 data)
+- **Right:** 2 ports (2 events, 0 data)
+
+**Ports by Function:**
+
+*set:*
+  - **set** (Start Event)
+  - **value** (I) - Input
+  - **done** (Finish Event)
+  - **error** (Finish Event)

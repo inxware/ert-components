@@ -6,6 +6,23 @@
 #define LORA_UART_PORT 0
 #endif
 
+/* UART pin assignments for the LoRaWAN modem.
+ * On Linux/sferalabs these are ignored by TgtUart_Start.
+ * On ESP32 they must be set to the physical GPIO numbers in target_config.h.
+ * Default -1 means "not assigned / ignored". */
+#ifndef LORA_UART_TX_PIN
+#define LORA_UART_TX_PIN  -1
+#endif
+#ifndef LORA_UART_RX_PIN
+#define LORA_UART_RX_PIN  -1
+#endif
+#ifndef LORA_UART_RTS_PIN
+#define LORA_UART_RTS_PIN -1
+#endif
+#ifndef LORA_UART_CTS_PIN
+#define LORA_UART_CTS_PIN -1
+#endif
+
 #define EHS_LORAWAN_ID_STRLEN 16
 #define EHS_LORAWAN_KEY_STRLEN 32
 

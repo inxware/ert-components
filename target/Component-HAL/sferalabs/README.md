@@ -14,13 +14,13 @@ source-only modules — there are no pre-built `.deb` or dkms packages.
 
 ### Product / Repository Matrix
 
-| Product | Kernel module repository |
-|---|---|
-| Strato Pi (CM1 / CM3 / CM4) | https://github.com/sfera-labs/strato-pi-kernel-module |
-| Strato Pi Max (CM4 / CM5) | https://github.com/sfera-labs/strato-pi-max-kernel-module |
-| Iono Pi | https://github.com/sfera-labs/iono-pi-kernel-module |
-| Iono Pi Max | https://github.com/sfera-labs/iono-pi-max-kernel-module |
-| Exo Sense Pi | https://github.com/sfera-labs/exo-sense-pi-kernel-module |
+| Product                     | Kernel module repository                                  |
+|---                          |---                                                        |
+| Strato Pi (CM1 / CM3 / CM4) | https://github.com/sfera-labs/strato-pi-kernel-module     |
+| Strato Pi Max (CM4 / CM5)   | https://github.com/sfera-labs/strato-pi-max-kernel-module |
+| Iono Pi                     | https://github.com/sfera-labs/iono-pi-kernel-module       |
+| Iono Pi Max                 | https://github.com/sfera-labs/iono-pi-max-kernel-module   |
+| Exo Sense Pi                | https://github.com/sfera-labs/exo-sense-pi-kernel-module  |
 
 Sfera Labs GitHub organisation: https://github.com/sfera-labs
 Sfera Labs website: https://www.sferalabs.cc/

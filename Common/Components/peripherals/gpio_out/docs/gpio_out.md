@@ -3,12 +3,12 @@ GPIO Output
 Menu: 
             Peripherals
              > GPIO > GPIO Out
-Type: IO | Width: 50 | Height: 45
+Type: IO | Width: 65 | Height: 48
 
             ┌─────────────────────────┐
-     write►─┤                         │
+     write►─┤                         ├►─-- 
             │          GPIO           │
-     value──┤                         │
+     value──┤                         ├►─error 
             └─────────────────────────┘
 
 Legend: ── Data | ►─ Event
@@ -20,4 +20,12 @@ Legend: ── Data | ►─ Event
 
 **Port Summary:**
 - **Left:**  2 ports (1 events, 1 data)
-- **Right:** 0 ports (0 events, 0 data)
+- **Right:** 2 ports (2 events, 0 data)
+
+**Ports by Function:**
+
+*write:*
+  - **write** (Start Event)
+  - **value** (B) - Input
+  - **done** (Finish Event)
+  - **error** (Finish Event)

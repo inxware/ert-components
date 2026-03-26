@@ -32,6 +32,7 @@
 #include "hal-api.h"
 #include "ml_inf_engine.h"
 #include "ehs_ml_objdet_output.h"
+#include "stubbed_ml.h"
 /* ert_hal_tflite_meta.h is only available when the TFLite framework is built.
  * When EHS_ML_SUPPORT=stubbed (e.g. Windows targets) the framework is absent,
  * so guard the include and any calls to EhsML_TFLite_GetModelInfoJson. */

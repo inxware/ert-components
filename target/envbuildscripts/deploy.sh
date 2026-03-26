@@ -24,6 +24,13 @@ source ./TARGET.cfg
 
 DEPLOY_TARGET="$1"
 
+if [ "$SSH_PORT" != "" ]; then
+   EXTRA_SCP_ARGS="-P ${SSH_PORT}"
+   EXTRA_SSH_ARGS="-p ${SSH_PORT}"
+fi
+
+
+
 if [ -z "$DEPLOY_TARGET" ]; then
     err "Usage: ./configure -deploy <username>@<ipaddress>"
     exit 1
@@ -49,14 +56,14 @@ echo "${TXT_FG_CYAN}Deploying ${TXT_FG_WHITE}${TARGET}${TXT_FG_CYAN} to ${TXT_FG
 echo
 
 echo "${TXT_FG_WHITE}[1/3] Stopping running ehs processes on ${DEPLOY_TARGET}...${TXT_RESET}"
-ssh "$DEPLOY_TARGET" "pkill -f run_ehs.sh; pkill -f ehs.exe; sleep 1; true" 2>/dev/null || true
+ssh ${EXTRA_SSH_ARGS} "$DEPLOY_TARGET" "pkill -f run_ehs.sh; pkill -f ehs.exe; sleep 1; true" 2>/dev/null || true
 
 echo "${TXT_FG_WHITE}[2/3] Syncing ${STAGING_DIR}/ -> ${DEPLOY_TARGET}:/opt/ehs/ ...${TXT_RESET}"
 if [ 1 = 0 ]; then
 #if command -v rsync > /dev/null 2>&1; then
-	rsync -av -e ssh "${STAGING_DIR}/" "${DEPLOY_TARGET}:/opt/ehs/"
+	rsync -av -e ssh ${EXTRA_SSH_ARGS} "${STAGING_DIR}/" "${DEPLOY_TARGET}:/opt/ehs/"
 else
-	scp -r "${STAGING_DIR}/." "${DEPLOY_TARGET}:/opt/ehs/"
+	scp ${EXTRA_SCP_ARGS} -r "${STAGING_DIR}/." "${DEPLOY_TARGET}:/opt/ehs/"
 fi
 echo "${TXT_FG_WHITE}[3/3] Starting ehs on ${DEPLOY_TARGET} (Ctrl+C to detach)...${TXT_RESET}"
 echo "--------------------------------------------------------------------"

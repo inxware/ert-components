@@ -3,7 +3,7 @@
     <CDFInfo>
         <Version>3</Version>
         <CreationDate>2024-12-30T12:06:20Z</CreationDate>
-        <UpdatedDate>2024-12-30T12:12:20Z</UpdatedDate>
+        <UpdatedDate>2026-03-26T00:00:00Z</UpdatedDate>
     </CDFInfo>
     <Description>
         <ShortDescription>Read ADC value on request</ShortDescription>
@@ -21,7 +21,7 @@
         <Type>IO</Type>
         <Width>75</Width>
         <Height>60</Height>
-        <Text>ADC S.S.</Text>
+        <Text>ADC Single</Text>
         <TextX>10</TextX>
         <TextY>5</TextY>
         <TextScale>1.25</TextScale>

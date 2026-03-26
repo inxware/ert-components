@@ -25,7 +25,8 @@ EHS_FB_FUNCTION_ENTRY("read", 0x01, gpio_in_read)
 EHS_FB_FUNCTIONS_END
 
 #define INX_gpio_in_ARG_read_finishevent 1
-#define INX_gpio_in_ARG_read_value 1
+#define INX_gpio_in_ARG_read_value       1
+#define INX_gpio_in_ARG_read_error       2
 
 EHS_FB_IDENTIFY_FUNCTION(gpio_in)
 {
@@ -51,6 +52,10 @@ EHS_FB_RUN_FUNCTION(gpio_in_read)
     {
         EHS_FB_OUT_B_API2(INX_gpio_in_ARG_read_value) = gpio_in_state->pin_value;
         EHS_FB_FINISH(INX_gpio_in_ARG_read_finishevent);
+    }
+    else
+    {
+        EHS_FB_FINISH(INX_gpio_in_ARG_read_error);
     }
 }
 

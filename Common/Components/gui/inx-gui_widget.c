@@ -199,6 +199,7 @@ static ehs_bool gui_widget_init_impl(const ehs_char* params, void* context,
                 default:
                     EHSH_LOG_ERROR("Error unknown widget sub type for TEXTBOX class");
             }
+            /* Initialising a render Mode B widget struct */
             inx_gui_widget_state->pUiWidgetClass = EhsWidgetUI_init(nId, xParams.uClass.xTextbox.nProp,
                                                                     xParams.uClass.xTextbox.nCurve,
                                                                     xParams.uClass.xTextbox.nParent,

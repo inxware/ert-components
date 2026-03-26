@@ -237,7 +237,6 @@ ehs_bool EhsParseGuiParameters_bitmap(const char** pParam, EhsGuiParamsType* pGu
     return bRet;
 }
 
-
 /**
  * Parse the parameters for a textbox
  * @param pParam points to the start of each parameter
@@ -494,8 +493,6 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
     EhsWidgetPurposeClassType nTextBox2Type = EHS_WIDGET_PURPOSE_INVALID; /* sub type from EhsParseGuiParametersTextBox2Type */
     char *pTmp; /* used to terminate strings */
 
-    //printf("\n*** szParamsText=[%s]***\n", szParamsText ? szParamsText : "(null)");
-    // fflush(stdout);
     //EHSH_LOG_INFO("EhsParseGuiParameters: ENTRY - parsing widget parameters");
     //EHSH_LOG_INFO("  Raw params text (first 100 chars): %.100s", szParamsText ? szParamsText : "(null)");
 
@@ -514,13 +511,11 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         }
     }
 
-    //printf("\n*** QT DEBUG: Parameters split into %u tokens\n", nParamsRead);
     EHSH_LOG_INFO("  Parameters split into %u tokens", nParamsRead);
 
     if (nParamsRead > 1)
     {
         
-        // fflush(stdout);
         /* determine version number */
         nParam = 0;
         if (EhsStrnicmp("1.0.0",pParam[nParam],5) == 0)
@@ -537,12 +532,9 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
         }
         nParam++;
 
-        //printf("\n*** QT DEBUG: GUI file format version: %u\n", nVersion);
-        // fflush(stdout);
         EHSH_LOG_INFO("  GUI file format version: %u", nVersion);
 
         EhsGetWordFromString(szObjectName,pParam[nParam]);
-        //printf("\n*** all paramters are [%s\n] index 2 is [%s]",   pParam[nParam],pParam[0]);
         nParam++;
        
         /* identify widget type & load params */
@@ -636,18 +628,12 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
          * preserves monotonicity of zOrdering */
         pParams->nZorder = (0x80000000 ^ pParams->nZorder);
 
-        // printf("\n*** QT DEBUG: EhsParseGuiParameters EXIT - eClass=%d, nZorder=%u\n", pParams->eClass, pParams->nZorder);
-        // fflush(stdout);
         EHSH_LOG_INFO("EhsParseGuiParameters: EXIT - eClass=%d, nZorder=%u", pParams->eClass, pParams->nZorder);
     }
     else
     {
-        // printf("\n*** QT DEBUG: nParamsRead=%u (too few parameters)\n", nParamsRead);
-        // fflush(stdout);
         EHSH_LOG_WARNING("EhsParseGuiParameters: EXIT - insufficient parameters (nParamsRead=%u)", nParamsRead);
     }
-    // printf("\n*** QT DEBUG: EhsParseGuiParameters COMPLETE\n");
-    // fflush(stdout);
 }
 
 #endif /* EHS_GUI_SUPPORT */

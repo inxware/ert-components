@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 /* Default to Iono Pi Max if no board variant is specified */
 #if !defined(EHS_SFERALABS_BOARD_IONOPI)     && \
@@ -195,20 +196,38 @@
 static inline int sferalabs_sysfs_read_char(const char *path, char *out)
 {
     int fd = open(path, O_RDONLY);
-    if (fd < 0) return -1;
+    if (fd < 0)
+    {
+        printf("SferaLabs: open('%s') failed: %s\n", path, strerror(errno));
+        return -1;
+    }
     int n = (int)read(fd, out, 1);
     close(fd);
-    return (n == 1) ? 0 : -1;
+    if (n != 1)
+    {
+        printf("SferaLabs: read('%s') failed: %s\n", path, strerror(errno));
+        return -1;
+    }
+    return 0;
 }
 
 /* Convenience: write a short string to a sysfs attribute */
 static inline int sferalabs_sysfs_write(const char *path, const char *val, int len)
 {
     int fd = open(path, O_WRONLY);
-    if (fd < 0) return -1;
+    if (fd < 0)
+    {
+        printf("SferaLabs: open('%s') failed: %s\n", path, strerror(errno));
+        return -1;
+    }
     int n = (int)write(fd, val, (size_t)len);
     close(fd);
-    return (n == len) ? 0 : -1;
+    if (n != len)
+    {
+        printf("SferaLabs: write('%s') failed: %s\n", path, strerror(errno));
+        return -1;
+    }
+    return 0;
 }
 
 /* Convenience: read a signed integer from a sysfs attribute */
@@ -216,10 +235,18 @@ static inline int sferalabs_sysfs_read_int(const char *path, long *out)
 {
     char buf[32];
     int fd = open(path, O_RDONLY);
-    if (fd < 0) return -1;
+    if (fd < 0)
+    {
+        printf("SferaLabs: open('%s') failed: %s\n", path, strerror(errno));
+        return -1;
+    }
     int n = (int)read(fd, buf, sizeof(buf) - 1);
     close(fd);
-    if (n <= 0) return -1;
+    if (n <= 0)
+    {
+        printf("SferaLabs: read('%s') failed: %s\n", path, strerror(errno));
+        return -1;
+    }
     buf[n] = '\0';
     *out = strtol(buf, NULL, 10);
     return 0;

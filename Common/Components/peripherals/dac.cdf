@@ -16,14 +16,15 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Height>50</Height>
+        <Width>65</Width>
+        <Height>53</Height>
         <Text>DAC</Text>
-        <TextX>25</TextX>
+        <TextX>10</TextX>
         <TextY>5</TextY>
         <TextScale>1.25</TextScale>
         <TextVertical>0</TextVertical>
         <LocationX>0</LocationX>
-        <LocationY>-10</LocationY>
+        <LocationY>-15</LocationY>
     </Block>
     <FBID>
         <ERT1_ID>1</ERT1_ID>
@@ -104,11 +105,22 @@
         <Port>
             <Description>--</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>80</XCoordinate>
+            <XCoordinate>60</XCoordinate>
             <YCoordinate>12</YCoordinate>
             <Wcet>0</Wcet>
             <CName>done</CName>
             <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>60</XCoordinate>
+            <YCoordinate>22</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error</CName>
+            <Function argument="2">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>

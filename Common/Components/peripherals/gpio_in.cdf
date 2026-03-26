@@ -19,7 +19,8 @@
     </Description>
     <Block>
         <Type>IO</Type>
-        <Height>45</Height>
+        <Width>75</Width>
+        <Height>58</Height>
         <Text>GPIO</Text>
         <TextX>10</TextX>
         <TextY>5</TextY>
@@ -72,7 +73,7 @@
         <Port>
             <Description/>
             <PortType>FinishPort</PortType>
-            <XCoordinate>43</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>10</YCoordinate>
             <Wcet>0</Wcet>
             <CName>finishevent</CName>
@@ -84,10 +85,21 @@
             <DataType>B</DataType>
             <Description/>
             <PortType>OutputPort</PortType>
-            <XCoordinate>43</XCoordinate>
+            <XCoordinate>70</XCoordinate>
             <YCoordinate>20</YCoordinate>
             <CName>value</CName>
             <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>error</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>70</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>error</CName>
+            <Function argument="2">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>

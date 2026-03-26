@@ -12,12 +12,25 @@
 <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
 <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
 <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+<span class="toc_span_items"><a href="#channels">Channels &#8595;</a></span>
+<span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
 </div>
-<p class="component"> 
-      This component configures the ADC unit either from parameters or JSON string input.</p>
-<p class="component"></p>      
-      <b>WARNING:</b> This is for advanced ADC configuration for multiplexed ADCs and high-sample-rate data averaging acceleration is supported. 
-      This may not be supported on all hardware types. 
+<p class="component">
+      Configures an ADC unit before use with <b>adc_read_single</b> or <b>adc_read_continuous</b>.
+      Trigger <b>init</b> once at startup. On success the <b>finish</b> event fires; on failure
+      the <b>error</b> event fires and <b>error_id</b> carries a numeric error code (see
+      <a href="#errors">Error Codes</a> below).
+</p>
+<p class="component">
+      Configuration may be supplied via block parameters or overridden at runtime via the
+      <a href="#[In]JSON">JSON</a> input port. If the JSON port is connected and non-empty when
+      <b>init</b> fires, the JSON values take precedence over the parameters.
+</p>
+<p class="component">
+      <b>NOTE:</b> Each ADC unit may only be configured once per run. Triggering <b>init</b> a
+      second time on the same <code>device_id</code> fires the <b>error</b> event with
+      <code>error_id = -3</code> (already initialised). Continuous mode is not supported on
+      all platforms — see <a href="#errors">Error Codes</a>.
 </p>
 <!-- Parameters -->
 <div class="section_heading">
@@ -34,39 +47,30 @@
 <th>default</th>
 <th>min.</th>
 <th>max.</th>
-
 </tr>
 <tr>
 <td>device_id</td>
-<td>integer</td><td>The ADC Device number to be configured. For internal ADCs, this is the unit. For external ADCs, this is the address enumeration.</td>
-<td>0</td>
-<td>0</td>
-<td>9</td>
-
+<td>integer</td>
+<td>ADC unit/device number to configure. For on-chip ADCs this is the peripheral unit index (0-based). For external ADCs it is the address enumeration. Must be less than the platform's maximum ADC unit count.</td>
+<td>0</td><td>0</td><td>9</td>
 </tr>
 <tr>
 <td>f_s_hz</td>
-<td>integer</td><td>Total sampling frequency in Hz. With n channels enabled, the sampling frequency of each channel is f_s_hz/n Hz.</td>
-<td>1000</td>
-<td>100</td>
-<td>1000000000</td>
-
+<td>integer</td>
+<td>Total sampling frequency in Hz across all enabled channels. With <i>n</i> active channels, each channel is sampled at <i>f_s_hz / n</i> Hz. Ignored on platforms that do not support configurable sample rates (e.g. Sfera Labs sysfs, Arduino).</td>
+<td>1000</td><td>100</td><td>1000000000</td>
 </tr>
 <tr>
 <td>mode</td>
-<td>boolean</td><td>The ADC conversion mode. False for Single-shot. True for Continuous.</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-
+<td>boolean</td>
+<td>Conversion mode: <b>0</b> = single-shot (use with <b>adc_read_single</b>); <b>1</b> = continuous (use with <b>adc_read_continuous</b>). Continuous mode is not available on all platforms.</td>
+<td>0</td><td>0</td><td>1</td>
 </tr>
 <tr>
 <td>channel_[0..15]</td>
-<td>integer</td><td>Pin mapping for individual channels of this ADC instance/unit. For fixed-mapped ADC, any non-negative number means enabled channel.</td>
-<td>-1</td>
-<td>-1</td>
-<td>999</td>
-
+<td>integer</td>
+<td>Pin/channel mapping for up to 16 logical ADC channels on this unit. Set to <b>-1</b> to disable a slot. A non-negative value enables that slot and maps it to the platform-specific channel/pin number (see <a href="#channels">Channel Mapping</a> below).</td>
+<td>-1</td><td>-1</td><td>999</td>
 </tr>
 </tbody>
 </table>
@@ -84,75 +88,220 @@
 <th>Description</th>
 </tr>
 <tr>
-<td class="ports">init</td>
-<td>Initialise the ADC unit with the configuration defined in either the parameters or the <a href="#[In]JSON">JSON</a> input port.</td>
+<td class="portsEvent">init</td>
+<td>Trigger to configure the ADC unit. Reads parameters (or the <a href="#[In]JSON">JSON</a>
+    input if connected) and calls the platform HAL to initialise the hardware. Fires
+    <b>finish</b> on success or <b>error</b> on failure. Should be triggered once at startup
+    before any <b>adc_read_single</b> or <b>adc_read_continuous</b> blocks that reference
+    the same <code>device_id</code>.</td>
 </tr>
 <tr>
 <th>Data In</th>
 <th>Description</th>
 </tr>
 <tr>
-<td class="ports"><a name="[In]JSON">JSON</a></td>
-<td>Alternative definition to the parameters to override. The format of it is:
-              <table>
-<tbody>
-<tr style="background-color:#333333;">
-<td colspan="1" rowspan="1">
-<p>
-<span style="color:white;">{"id":</span>
-<span style="color:red;">0</span>
-<span style="color:white;">,"fs":</span>
-<span style="color:red;">1000</span>
-<span style="color:white;">,"m":</span>
-<span style="color:red;">0</span>
-<span style="color:white;">,"c0":</span>
-<span style="color:red;">-1</span>
-<span style="color:white;">,"c1":</span>
-<span style="color:red;">123</span>
-<span style="color:white;">,"c2":</span>
-<span style="color:red;">-1</span>
-<span style="color:white;">,"c3":</span>
-<span style="color:red;">0</span>
-<span style="color:white;">, ... ,"c15":</span>
-<span style="color:red;">-1</span>
-<span style="color:white;">}</span>
-</p>
+<td class="portsStr"><a name="[In]JSON">JSON</a></td>
+<td>Optional runtime configuration string. When connected and non-empty, overrides the
+    block parameters. Fields that are absent in the JSON fall back to the parameter values.
+    Format:
+    <table>
+    <tbody>
+    <tr style="background-color:#333333;">
+    <td colspan="1" rowspan="1">
+    <p>
+    <span style="color:white;">{"id":</span><span style="color:red;">0</span>
+    <span style="color:white;">,"fs":</span><span style="color:red;">1000</span>
+    <span style="color:white;">,"m":</span><span style="color:red;">0</span>
+    <span style="color:white;">,"c0":</span><span style="color:red;">-1</span>
+    <span style="color:white;">,"c1":</span><span style="color:red;">0</span>
+    <span style="color:white;">,"c2":</span><span style="color:red;">1</span>
+    <span style="color:white;">,"c3":</span><span style="color:red;">-1</span>
+    <span style="color:white;">, ... ,"c15":</span><span style="color:red;">-1</span>
+    <span style="color:white;">}</span>
+    </p>
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    Keys: <code>id</code> = device_id, <code>fs</code> = f_s_hz, <code>m</code> = mode,
+    <code>c0</code>–<code>c15</code> = channel slot mappings (-1 = disabled).
 </td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-<tr>
-<th>Data Out</th>
-<th>Description</th>
 </tr>
 <tr>
 <th>Out Ev.</th>
 <th>Description</th>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]done">--</a></td>
-<td>Triggerred when the configuration is completed without any error</td>
+<td class="portsEvent"><a name="[Out]finish">finish</a></td>
+<td>Fired when the ADC unit was configured successfully. The unit is ready for use by
+    <b>adc_read_single</b> or <b>adc_read_continuous</b>.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]error">error</a></td>
-<td>Triggerred when:
-              <ol start="1">
-<li>
-<span>the same unit is already initialised</span>
-</li>
-<li>
-<span>the parameters are invalid</span>
-</li>
-<li>
-<span>the JSON port gives invalid format</span>
-</li>
-<li>
-<span>ADC Config is not supported on this target because continuous mode is not supported and pin mappings are ignored</span>
-</li>
-</ol>
-</td>
+<td class="portsEvent"><a name="[Out]error">error</a></td>
+<td>Fired when configuration failed. Check <b>error_id</b> for the specific reason
+    (see <a href="#errors">Error Codes</a>).</td>
+</tr>
+<tr>
+<th>Data Out</th>
+<th>Description</th>
+</tr>
+<tr>
+<td class="portsInt"><a name="[Out]error_id">error_id</a></td>
+<td>Integer error code, valid when <b>error</b> fires. Zero means no error (will not be
+    set on the <b>finish</b> path). See <a href="#errors">Error Codes</a> for the full
+    list of values. Connect to a variable or display block to capture the failure reason.</td>
+</tr>
+</tbody>
+</table>
+<!-- Channel Mapping -->
+<div class="section_heading">
+<span class="toc_span" id="channels">Channel Mapping</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+</div>
+<p class="component">
+  The value stored in each <code>channel_[n]</code> parameter (or <code>c0</code>–<code>c15</code>
+  in JSON) is a <i>platform-specific channel number</i>. Its meaning depends on the target HAL.
+  The tables below show how channel values map to real hardware signals for each supported platform.
+</p>
+<p class="component"><b>Sfera Labs — Iono Pi</b> (<code>EHS_SFERALABS_BOARD_IONOPI</code>)</p>
+<table class="table_params">
+<tbody>
+<tr><th>channel value</th><th>Signal</th><th>sysfs node</th><th>Unit / Scale</th></tr>
+<tr><td>0</td><td>ai1</td><td><code>/sys/class/ionopi/analog_in/ai1</code></td><td>mV (raw = mV)</td></tr>
+<tr><td>1</td><td>ai2</td><td><code>/sys/class/ionopi/analog_in/ai2</code></td><td>mV</td></tr>
+<tr><td>2</td><td>ai3</td><td><code>/sys/class/ionopi/analog_in/ai3</code></td><td>mV</td></tr>
+<tr><td>3</td><td>ai4</td><td><code>/sys/class/ionopi/analog_in/ai4</code></td><td>mV</td></tr>
+<tr><td>4</td><td>ai5</td><td><code>/sys/class/ionopi/analog_in/ai5</code></td><td>mV</td></tr>
+<tr><td>5</td><td>ai6</td><td><code>/sys/class/ionopi/analog_in/ai6</code></td><td>mV</td></tr>
+</tbody>
+</table>
+<p class="component"><b>Sfera Labs — Iono Pi Max</b> (<code>EHS_SFERALABS_BOARD_IONOPIMAX</code>)</p>
+<table class="table_params">
+<tbody>
+<tr><th>channel value</th><th>Signal</th><th>sysfs node</th><th>Unit / Scale</th></tr>
+<tr><td>0</td><td>av1 (voltage)</td><td><code>/sys/class/ionopimax/analog_in/av1</code></td><td>mV (raw ÷ 100)</td></tr>
+<tr><td>1</td><td>av2 (voltage)</td><td><code>/sys/class/ionopimax/analog_in/av2</code></td><td>mV (raw ÷ 100)</td></tr>
+<tr><td>2</td><td>av3 (voltage)</td><td><code>/sys/class/ionopimax/analog_in/av3</code></td><td>mV (raw ÷ 100)</td></tr>
+<tr><td>3</td><td>av4 (voltage)</td><td><code>/sys/class/ionopimax/analog_in/av4</code></td><td>mV (raw ÷ 100)</td></tr>
+<tr><td>4</td><td>ai1 (current)</td><td><code>/sys/class/ionopimax/analog_in/ai1</code></td><td>µA (raw = µA)</td></tr>
+<tr><td>5</td><td>ai2 (current)</td><td><code>/sys/class/ionopimax/analog_in/ai2</code></td><td>µA</td></tr>
+<tr><td>6</td><td>ai3 (current)</td><td><code>/sys/class/ionopimax/analog_in/ai3</code></td><td>µA</td></tr>
+<tr><td>7</td><td>ai4 (current)</td><td><code>/sys/class/ionopimax/analog_in/ai4</code></td><td>µA</td></tr>
+<tr><td>8</td><td>at1 (temp)</td><td><code>/sys/class/ionopimax/analog_in/at1</code></td><td>°C (raw ÷ 100)</td></tr>
+<tr><td>9</td><td>at2 (temp)</td><td><code>/sys/class/ionopimax/analog_in/at2</code></td><td>°C (raw ÷ 100)</td></tr>
+</tbody>
+</table>
+<p class="component"><b>Sfera Labs — Strato Pi Max</b> (<code>EHS_SFERALABS_BOARD_STRATOPIMAX</code>)</p>
+<p class="component">
+  Channel value encodes both slot and channel: <code>value = (slot &lt;&lt; 4) | ch</code>
+  where <i>slot</i> is 1–4 and <i>ch</i> is 1–4.
+  Example: slot 1 channel 1 → <code>0x11</code> (17); slot 2 channel 3 → <code>0x23</code> (35).
+</p>
+<table class="table_params">
+<tbody>
+<tr><th>channel value (hex)</th><th>Signal</th><th>sysfs node</th><th>Unit / Scale</th></tr>
+<tr><td>0x11</td><td>Slot 1, av1</td><td><code>/sys/class/stratopimax/analog_in_s1/av1</code></td><td>mV (raw ÷ 100)</td></tr>
+<tr><td>0x12</td><td>Slot 1, av2</td><td><code>/sys/class/stratopimax/analog_in_s1/av2</code></td><td>mV (raw ÷ 100)</td></tr>
+<tr><td>0x21</td><td>Slot 2, av1</td><td><code>/sys/class/stratopimax/analog_in_s2/av1</code></td><td>mV (raw ÷ 100)</td></tr>
+<tr><td>...</td><td>...</td><td>...</td><td></td></tr>
+<tr><td>0x44</td><td>Slot 4, av4</td><td><code>/sys/class/stratopimax/analog_in_s4/av4</code></td><td>mV (raw ÷ 100)</td></tr>
+</tbody>
+</table>
+<p class="component">
+  <b>NOTE:</b> The Sfera Labs HAL validates that the sysfs node is readable at <b>init</b> time.
+  If the kernel module is not loaded or the hardware is absent, <b>error</b> fires with
+  <code>error_id = -6</code> (<code>EHS_ADC_ERR_HAL_INIT_FAILED</code>).
+</p>
+<p class="component"><b>ESP32-S3 (IDF)</b></p>
+<p class="component">
+  The channel value is the <b>ADC channel number</b> (not the GPIO number).
+  ADC unit 0 = ADC1; ADC unit 1 = ADC2 (single-shot only on unit 1).
+  Continuous mode is not supported on ADC unit 1.
+</p>
+<table class="table_params">
+<tbody>
+<tr><th>channel value</th><th>ADC signal</th><th>Typical GPIO (ESP32-S3)</th></tr>
+<tr><td>0</td><td>ADC_CHANNEL_0</td><td>GPIO1</td></tr>
+<tr><td>1</td><td>ADC_CHANNEL_1</td><td>GPIO2</td></tr>
+<tr><td>2</td><td>ADC_CHANNEL_2</td><td>GPIO3</td></tr>
+<tr><td>3</td><td>ADC_CHANNEL_3</td><td>GPIO4</td></tr>
+<tr><td>4</td><td>ADC_CHANNEL_4</td><td>GPIO5</td></tr>
+<tr><td>5</td><td>ADC_CHANNEL_5</td><td>GPIO6</td></tr>
+<tr><td>6</td><td>ADC_CHANNEL_6</td><td>GPIO7</td></tr>
+<tr><td>7</td><td>ADC_CHANNEL_7</td><td>GPIO8</td></tr>
+<tr><td>8</td><td>ADC_CHANNEL_8</td><td>GPIO9</td></tr>
+<tr><td>9</td><td>ADC_CHANNEL_9</td><td>GPIO10</td></tr>
+</tbody>
+</table>
+<p class="component">
+  GPIO numbers vary by ESP32 variant — consult the ESP-IDF ADC documentation for your specific chip.
+  At least one channel must be enabled; configuring a unit with all channels set to -1 returns
+  <code>error_id = -5</code>.
+</p>
+<p class="component"><b>Arduino</b></p>
+<p class="component">
+  The channel value is the <b>Arduino analog pin number</b> (0 = A0, 1 = A1, …).
+  Up to 4 channels (A0–A3) are supported by default; boards with
+  <code>EHS_TARGET_ADC_CHANNEL_NUMBER = 8</code> support A0–A7.
+  Continuous mode is not available on Arduino.
+</p>
+<p class="component"><b>Stubbed / SPI_A6_LTC241X</b></p>
+<p class="component">
+  Channel values are accepted without hardware validation. Reads return 0.
+  These targets do not produce <code>error_id = -5</code> or <code>-6</code> on init.
+</p>
+<!-- Error Codes -->
+<div class="section_heading">
+<span class="toc_span" id="errors">Error Codes</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#channels">Channels &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+</div>
+<p class="component">
+  When the <b>error</b> event fires, the <b>error_id</b> output port holds one of the following
+  values (defined as <code>ehs_adc_err_t</code> in the platform HAL):
+</p>
+<table class="table_params">
+<tbody>
+<tr><th style="width:40px;">code</th><th style="width:160px;">name</th><th>meaning / cause</th></tr>
+<tr>
+  <td>0</td><td><code>EHS_ADC_ERR_NONE</code></td>
+  <td>Success. Not set on the error path.</td>
+</tr>
+<tr>
+  <td>-1</td><td><code>EHS_ADC_ERR_NOT_SUPPORTED</code></td>
+  <td>The <b>adc_config</b> block is not supported on this platform (the HAL predates the
+      modern ADC API). Use the legacy <b>adc_read</b> block instead, or upgrade the HAL.</td>
+</tr>
+<tr>
+  <td>-2</td><td><code>EHS_ADC_ERR_INVALID_DEVICE</code></td>
+  <td><code>device_id</code> is out of range for this platform. Check the maximum unit count
+      in the platform HAL header (<code>EHS_TARGET_ADC_UNIT_NUMBER</code>).</td>
+</tr>
+<tr>
+  <td>-3</td><td><code>EHS_ADC_ERR_ALREADY_INIT</code></td>
+  <td>The specified ADC unit has already been configured. Each unit may only be initialised
+      once per run. This error fires if <b>init</b> is triggered a second time on the same
+      <code>device_id</code>.</td>
+</tr>
+<tr>
+  <td>-4</td><td><code>EHS_ADC_ERR_FREQ_RANGE</code></td>
+  <td><code>f_s_hz</code> is outside the range supported by the platform (too low or too high).
+      Adjust the parameter or use the JSON override port.</td>
+</tr>
+<tr>
+  <td>-5</td><td><code>EHS_ADC_ERR_INVALID_CHANNEL</code></td>
+  <td>One or more channel values are not valid for this board variant or MCU pin mapping.
+      Check the <a href="#channels">Channel Mapping</a> table for the target platform.</td>
+</tr>
+<tr>
+  <td>-6</td><td><code>EHS_ADC_ERR_HAL_INIT_FAILED</code></td>
+  <td>The hardware peripheral or sysfs node could not be initialised. On Sfera Labs targets
+      this means a sysfs node was not readable — check that the kernel module is loaded
+      (<code>lsmod | grep ionopi</code> etc.). On ESP32/Arduino this means the MCU ADC
+      peripheral returned an error during setup.</td>
 </tr>
 </tbody>
 </table>

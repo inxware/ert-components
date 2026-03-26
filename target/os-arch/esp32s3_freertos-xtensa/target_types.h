@@ -27,6 +27,10 @@
 #define EHS_MEMORY_ATTRIB IRAM_ATTR
 #define EHS_DATA_MEMORY_ATTRIB DRAM_ATTR
 
+/* ESP32-S3 IDF uses pthread wrappers over FreeRTOS mutexes which include full
+ * memory barriers — volatile is not needed for inter-thread shared variables. */
+#define EHS_VOLATILE
+
 #include "../base_small/base_types.h"
 
 #endif

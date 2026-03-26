@@ -36,7 +36,7 @@ typedef struct
     EhsGraphicsRectangleClass xRect; /**< Bounding box of widget */
     ehs_uint32 nZorder; /**< Z-order. Lower values go behind higher ones  */
 #if defined(EHS_STORE_WIDGET_NAMES)
-    ehs_char widgetName[EHS_OBJECT_NAME_MAX_SIZE];
+    ehs_char widgetName[EHS_WIDGET_NAME_LENGTH_MAX];
 #endif
     union
     {
