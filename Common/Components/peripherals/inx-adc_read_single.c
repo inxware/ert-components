@@ -94,18 +94,25 @@ EHS_FB_RUN_FUNCTION(adc_read_single_sample)
 	// This unit is not initialised
 	if (g_ehs_adc_configs[inx_adc_read_single_state->device_id].unit_config.init == 0)
 	{
+		printf("adc_read_single error: device_id=%d not initialised\n", inx_adc_read_single_state->device_id);
 		EHS_FB_FINISH(INX_adc_read_single_ARG_sample_error);
 		return;
 	}
 	// This ADC is not in single-shot conversion mode
 	if (g_ehs_adc_configs[inx_adc_read_single_state->device_id].unit_config.mode != 0)
 	{
+		printf("adc_read_single error: device_id=%d not in single-shot mode (mode=%d)\n",
+		       inx_adc_read_single_state->device_id,
+		       g_ehs_adc_configs[inx_adc_read_single_state->device_id].unit_config.mode);
 		EHS_FB_FINISH(INX_adc_read_single_ARG_sample_error);
 		return;
 	}
 	// This ADC channel of the unit is not enabled
 	if (g_ehs_adc_configs[inx_adc_read_single_state->device_id].unit_config.channel[inx_adc_read_single_state->channel] == -1)
 	{
+		printf("adc_read_single error: device_id=%d channel=%d not enabled\n",
+		       inx_adc_read_single_state->device_id,
+		       inx_adc_read_single_state->channel);
 		EHS_FB_FINISH(INX_adc_read_single_ARG_sample_error);
 		return;
 	}

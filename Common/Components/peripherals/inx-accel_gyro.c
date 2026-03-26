@@ -7,6 +7,7 @@
 //ICB STATE VAR MACRO START -- DO NOT ALTER
 typedef struct inx_accel_gyro_state
 {
+    ehs_bool supported; /* set by enable; EHS_FALSE until enable succeeds */
 } inx_accel_gyro_state_type;
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
@@ -55,6 +56,8 @@ EHS_FB_IDENTIFY_FUNCTION(accel_gyro)
 
 EHS_FB_INIT_FUNCTION(accel_gyro)
 {
+    inx_accel_gyro_state_type* state = (inx_accel_gyro_state_type*)EHS_FB_INIT_CONTEXT;
+    state->supported = EHS_FALSE;
     return EHS_TRUE;
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
@@ -68,7 +71,9 @@ EHS_FB_DESTROY_FUNCTION(accel_gyro)
 //ICB FUNCTION enable MACRO START -- DO NOT ALTER
 EHS_FB_RUN_FUNCTION(accel_gyro_enable)
 {
+    inx_accel_gyro_state_type* state = (inx_accel_gyro_state_type*)EHS_FB_RUN_CONTEXT;
     ehs_sint32 error_id = EhsTAccelGyroEnable();
+    state->supported = (error_id == EHS_PERIPH_OK);
     if (EHS_FB_OUT_CONNECTED_API2(INX_accel_gyro_ARG_enable_error_id))
         EHS_FB_OUT_I_API2(INX_accel_gyro_ARG_enable_error_id) = error_id;
     if (error_id == EHS_PERIPH_OK)
@@ -87,7 +92,9 @@ EHS_FB_RUN_FUNCTION(accel_gyro_disable)
 //ICB FUNCTION read_accel MACRO START -- DO NOT ALTER
 EHS_FB_RUN_FUNCTION(accel_gyro_read_accel)
 {
-    ehs_float x, y, z;
+    inx_accel_gyro_state_type* state = (inx_accel_gyro_state_type*)EHS_FB_RUN_CONTEXT;
+    if (!state->supported) return;
+    ehs_float x = 0.0f, y = 0.0f, z = 0.0f;
     if (EhsTAccelRead(&x, &y, &z)) {
         if (EHS_FB_OUT_CONNECTED_API2(INX_accel_gyro_ARG_read_accel_Ax))
             EHS_FB_OUT_F_API2(INX_accel_gyro_ARG_read_accel_Ax) = x;
@@ -102,7 +109,9 @@ EHS_FB_RUN_FUNCTION(accel_gyro_read_accel)
 //ICB FUNCTION read_gyro MACRO START -- DO NOT ALTER
 EHS_FB_RUN_FUNCTION(accel_gyro_read_gyro)
 {
-    ehs_float x, y, z;
+    inx_accel_gyro_state_type* state = (inx_accel_gyro_state_type*)EHS_FB_RUN_CONTEXT;
+    if (!state->supported) return;
+    ehs_float x = 0.0f, y = 0.0f, z = 0.0f;
     if (EhsTGyroRead(&x, &y, &z)) {
         if (EHS_FB_OUT_CONNECTED_API2(INX_accel_gyro_ARG_read_gyro_Gx))
             EHS_FB_OUT_F_API2(INX_accel_gyro_ARG_read_gyro_Gx) = x;

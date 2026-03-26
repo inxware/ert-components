@@ -35,9 +35,6 @@
 #include "usb_power.h"
 #endif
 
-#ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
-#include "accelerometer.h"
-#endif
 
 #ifdef EHS_RS485_CONFIG_SUPPORT
 #include "rs485_config.h"
@@ -45,7 +42,6 @@
 
 // Components moved from user directory
 #ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
-#include "inx-adc_read.h"
 #include "inx-adc_config.h"
 #ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
 #include "inx-adc_read_continuous.h"
@@ -95,7 +91,6 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 
 // Components moved from user directory
 #ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
-		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_adc_read,INXWARE_FB_ID_adc_read ,adc_read),
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_adc_config,INXWARE_FB_ID_adc_config,adc_config),
 #ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_adc_read_continuous,INXWARE_FB_ID_adc_read_continuous,adc_read_continuous),
@@ -141,9 +136,6 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_Peripherals[] =
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_usb_power, EHS_FB_ID_usb_power, usb_power),
 #endif
 
-#ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
-		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_accelerometer, EHS_FB_ID_accelerometer, accelerometer),
-#endif
 
 #ifdef EHS_RS485_CONFIG_SUPPORT
 		EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_rs485_config, EHS_FB_ID_rs485_config, rs485_config),

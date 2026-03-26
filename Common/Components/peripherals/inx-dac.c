@@ -22,7 +22,8 @@ EHS_FB_FUNCTIONS_END
 //ICB FRIENDLY LABELS MACRO START -- DO NOT ALTER
 /* Friendly labels for the run function data and event function argument enumerations */
 #define INX_dac_ARG_set_value 1
-#define INX_dac_ARG_set_done 1
+#define INX_dac_ARG_set_done  1
+#define INX_dac_ARG_set_error 2
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
@@ -101,5 +102,8 @@ EHS_FB_RUN_FUNCTION(dac_set)
 	ehs_bool bRet = EHS_FALSE;
 	if (EHS_FB_IN_CONNECTED_API2(INX_dac_ARG_set_value))
 		bRet = EhsTDacSet(inx_dac_state->channel, EHS_FB_IN_I_API2(INX_dac_ARG_set_value));
-	if (bRet == EHS_TRUE) EHS_FB_FINISH(INX_dac_ARG_set_done);
+	if (bRet == EHS_TRUE)
+		EHS_FB_FINISH(INX_dac_ARG_set_done);
+	else
+		EHS_FB_FINISH(INX_dac_ARG_set_error);
 }//ICB FUNCTION set MACRO END -- DO NOT ALTER THIS LINE

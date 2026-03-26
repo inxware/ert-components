@@ -52,6 +52,7 @@ EHS_FB_FUNCTIONS_END
 #define INX_adc_config_ARG_config_JSON 1
 #define INX_adc_config_ARG_config_finish 1
 #define INX_adc_config_ARG_config_error 2
+#define INX_adc_config_ARG_config_error_id 1
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
@@ -191,32 +192,35 @@ EHS_FB_RUN_FUNCTION(adc_config_config)
 {
 	inx_adc_config_state_type* inx_adc_config_state = (inx_adc_config_state_type*)EHS_FB_RUN_CONTEXT;
 
+#define ADC_CONFIG_ERROR(code) \
+	do { \
+		if (EHS_FB_OUT_CONNECTED_API2(INX_adc_config_ARG_config_error_id)) \
+			EHS_FB_OUT_I_API2(INX_adc_config_ARG_config_error_id) = (code); \
+		EHS_FB_FINISH(INX_adc_config_ARG_config_error); \
+		return; \
+	} while(0)
+
 	// Your code here
 	if (!g_ehs_adc_configs) { /* Not all ADC support the config block so bypass everything if they do*/
-		EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-		return;
+		ADC_CONFIG_ERROR(EHS_ADC_ERR_NOT_SUPPORTED);
 	}
 
 	//TODO parse JSON and get the parameters
 	if (EHS_FB_IN_CONNECTED_API2(INX_adc_config_ARG_config_JSON))
 	{
-		
+
 		// EHS_FB_IN_S_API2(INX_adc_config_ARG_config_JSON) ;
-		if (inx_adc_config_state->device_id >= EHS_TARGET_ADC_UNIT_NUMBER)
-		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
+		if (EHS_TARGET_ADC_UNIT_NUMBER == 0 || inx_adc_config_state->device_id >= EHS_TARGET_ADC_UNIT_NUMBER)
+			ADC_CONFIG_ERROR(EHS_ADC_ERR_INVALID_DEVICE);
 		if (g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init != 0)
 		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
+			printf("adc_config: device_id=%d already initialised, destroying and re-configuring\n",
+			       inx_adc_config_state->device_id);
+			EhsTAdcUnitDestroy(inx_adc_config_state->device_id);
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init = 0;
 		}
 		if (inx_adc_config_state->f_s_hz > EHS_TARGET_ADC_FREQ_MAX || inx_adc_config_state->f_s_hz < EHS_TARGET_ADC_FREQ_MIN)
-		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
+			ADC_CONFIG_ERROR(EHS_ADC_ERR_FREQ_RANGE);
 		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.f_s_hz = inx_adc_config_state->f_s_hz;
 		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.mode = inx_adc_config_state->mode;
 		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[0] = inx_adc_config_state->channel_0;
@@ -268,21 +272,19 @@ EHS_FB_RUN_FUNCTION(adc_config_config)
 	}
 	else
 	{
-		if (inx_adc_config_state->device_id >= EHS_TARGET_ADC_UNIT_NUMBER)
-		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
+		printf("adc_config: device_id=%d EHS_TARGET_ADC_UNIT_NUMBER=%d\n",
+		       inx_adc_config_state->device_id, EHS_TARGET_ADC_UNIT_NUMBER);
+		if (EHS_TARGET_ADC_UNIT_NUMBER == 0 || inx_adc_config_state->device_id >= EHS_TARGET_ADC_UNIT_NUMBER)
+			ADC_CONFIG_ERROR(EHS_ADC_ERR_INVALID_DEVICE);
 		if (g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init != 0)
 		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
+			printf("adc_config: device_id=%d already initialised, destroying and re-configuring\n",
+			       inx_adc_config_state->device_id);
+			EhsTAdcUnitDestroy(inx_adc_config_state->device_id);
+			g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init = 0;
 		}
 		if (inx_adc_config_state->f_s_hz > EHS_TARGET_ADC_FREQ_MAX || inx_adc_config_state->f_s_hz < EHS_TARGET_ADC_FREQ_MIN)
-		{
-			EHS_FB_FINISH(INX_adc_config_ARG_config_error);
-			return;
-		}
+			ADC_CONFIG_ERROR(EHS_ADC_ERR_FREQ_RANGE);
 		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.f_s_hz = inx_adc_config_state->f_s_hz;
 		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.mode = inx_adc_config_state->mode;
 		g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.channel[0] = inx_adc_config_state->channel_0;
@@ -332,7 +334,11 @@ EHS_FB_RUN_FUNCTION(adc_config_config)
 		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 3
 		#endif//EHS_TARGET_ADC_CHANNEL_NUMBER >= 2
 	} 
-	EhsTAdcUnitConfigure(inx_adc_config_state->device_id);
+	ehs_sint32 hal_err = EhsTAdcUnitConfigure(inx_adc_config_state->device_id);
+	if (hal_err != EHS_ADC_ERR_NONE)
+		ADC_CONFIG_ERROR(hal_err);
+
+	g_ehs_adc_configs[inx_adc_config_state->device_id].unit_config.init = 1;
 
 	EHS_FB_FINISH(INX_adc_config_ARG_config_finish);
 
