@@ -33,6 +33,14 @@
 #endif
 #endif
 
+#ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+#include "accelerometer.h"
+#endif
+
+#ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+#include "inx-adc_read.h"
+#endif
+
 #include "event_counter.h"
 #include "operator.h"
 #include "arraystring.h"
@@ -73,6 +81,12 @@ EHS_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_deprecated[] =
 #endif /* EHS_GUI_SUPPORT */
 #if defined(EHS_MV_SUPPORT) && defined(EHS_ML_SUPPORT)
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ml_frame_inference,INXWARE_FB_ID_ml_frame_inference,ml_frame_inference),
+#endif
+#ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_accelerometer, EHS_FB_ID_accelerometer, accelerometer),
+#endif
+#ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_adc_read, INXWARE_FB_ID_adc_read, adc_read),
 #endif
 	/* eventCounter1.h */
 	EHS_BLOCKREF_ENTRY(EHS_FB_NAME_EventCounterVersatile,EHS_FB_ID_EventCounterVersatile,EventCounterVersatile),

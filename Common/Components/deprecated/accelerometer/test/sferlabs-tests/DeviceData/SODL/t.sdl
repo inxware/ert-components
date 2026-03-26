@@ -1,0 +1,158 @@
+#V:2.0.0
+#B:127
+#D:Y2026M2d26h21m54s33
+#N:sferlabs-tests
+1
+1	100000	90000
+BEGIN time_clock 0
+1000000 1 1 
+start	1	1	2	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 10 
+END
+BEGIN gui_text_int2 0
+%%%_ADCVal g0000001.gui 0 0 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 I -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	5 I -1 I -1 I -1 I -1 I -1 	4 I -1 I -1 I -1 I -1 	1 -1 
+data	1	1	4	2 I 1 S 1 	2 I -1 S -1 	2 -1 -1 
+END
+BEGIN time_clock 0
+500000 1 1 
+start	1	1	2	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 5 
+END
+BEGIN time_clock 0
+350000 0 1 
+start	1	1	5	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 -1 
+END
+BEGIN MultiplexFourInputInt 0
+*
+Run_Input1	1	1	6	1 I 2 	1 I -1 	1 -1 
+Run_Input2	1	1	7	1 I -1 	1 I -1 	1 -1 
+Run_Input3	1	1	8	1 I -1 	1 I -1 	1 -1 
+Run_Input4	1	1	9	1 I 3 	1 I -1 	1 -1 
+END
+BEGIN time_clock 0
+500000 1 1 
+start	1	1	2	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 14 
+END
+BEGIN accel_gyro 0
+*
+enable	1	1	2	0 	1 I 4 	1 12 
+read_accel	1	1	10	0 	3 F 1 F 3 F 2 	1 13 
+END
+BEGIN led 0
+1 0 100 
+EnableFunc	1	1	1	0 	1 I 2 	1 6 
+SetFunc	1	1	11	2 B 1 I -1 	0 	1 -1 
+END
+BEGIN gui_text_int2 0
+%%%_ErrorCode g0000001.gui 0 0 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 I -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	12	2 I 4 S 2 	2 I -1 S -1 	2 -1 -1 
+END
+BEGIN gui_text_real2 0
+%%%_ax g0000001.gui 0 0 2 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	13	2 F 1 S 3 	2 F -1 S -1 	2 -1 -1 
+END
+BEGIN gui_text_real2 0
+%%%_az g0000001.gui 0 0 2 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	13	2 F 2 S 4 	2 F -1 S -1 	2 -1 -1 
+END
+BEGIN gui_text_real2 0
+%%%_ay g0000001.gui 0 0 2 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 F -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+data	1	1	13	2 F 3 S 5 	2 F -1 S -1 	2 -1 -1 
+END
+BEGIN adc_read_single 0
+0 1 10 
+sample	1	1	10	0 	1 I 1 	2 4 3 
+END
+BEGIN EventCounterVersatile1 0
+1 0 100 10000 0 
+Run_CountEventCounter	1	1	14	4 I -1 I -1 I -1 I -1 	1 I 5 	2 18 15 
+Run_ResetEventCounter	1	1	15	4 I -1 I -1 I -1 I -1 	1 I 5 	1 -1 
+END
+BEGIN EventToggleBoolean 0
+*
+Toggle	1	1	5	0 	1 B 1 	1 11 
+END
+BEGIN gui_text_bool2 0
+%%%_GPIOValue g0000001.gui 0 0 
+create	1	1	1	0 	6 I -1 I -1 I -1 I -1 B -1 S -1 	5 -1 -1 -1 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	16	5 I -1 I -1 I -1 I -1 I -1 	4 I -1 I -1 I -1 I -1 	1 -1 
+data	1	1	17	2 B 2 S 6 	2 B -1 S -1 	2 -1 -1 
+END
+BEGIN time_clock 0
+5000000 0 1 
+start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 2 
+END
+BEGIN usb_power 0
+1 
+enable	1	1	2	0 	1 I 3 	1 9 
+read_status	1	1	10	0 	1 B -1 	1 -1 
+END
+BEGIN adc_config 0
+0 1000 0 0 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+config	1	1	2	1 S -1 	1 I 6 	2 21 22 
+END
+BEGIN dac 0
+1 10000 1000000 
+set	1	1	18	1 I 5 	0 	2 19 20 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	19	0 	0 	1 -1 
+Or2	1	1	20	0 	0 	1 -1 
+END
+BEGIN MultiplexFourInputInt 0
+*
+Run_Input2	1	1	21	1 I -1 	1 I -1 	1 -1 
+Run_Input3	1	1	22	1 I 6 	1 I -1 	1 -1 
+END
+BEGIN gpio_out 0
+0 0 0 
+write	1	1	11	1 B 1 	0 	2 7 8 
+END
+BEGIN gpio_in 0
+1 
+read	1	1	10	0 	1 B 2 	2 17 16 
+END
+BEGIN Constant_String1 0
+ax 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN Constant_String1 0
+az 
+Run_ConstantString	1	1	-1	0 	1 S 4 	0 
+END
+BEGIN Constant_String1 0
+ay 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN Constant_String1 0
+acc error code 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN Constant_String1 0
+GPIO Input Value 
+Run_ConstantString	1	1	-1	0 	1 S 6 	0 
+END
+BEGIN Constant_String1 0
+ADC Value 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

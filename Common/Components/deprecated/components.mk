@@ -36,6 +36,20 @@ ifneq ($(EHS_GUI_SUPPORT),none)
 endif
 endif
 
+ifdef EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT
+ifneq ($(EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT),none)
+	OBJECTS += accelerometer.$(OBJ)
+endif
+endif
+
+ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
+ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),none)
+ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),)
+	OBJECTS += inx-adc_read.$(OBJ)
+endif
+endif
+endif
+
 OBJECTS += event_counter.$(OBJ)
 OBJECTS += deprecated_components.$(OBJ) 
 OBJECTS += operator.$(OBJ)
