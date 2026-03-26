@@ -1,3 +1,4 @@
+# inxware/ubuntu22.04-build-essential-mingw
 FROM inxware/ubuntu22.04
 
 RUN apt-get update && \
