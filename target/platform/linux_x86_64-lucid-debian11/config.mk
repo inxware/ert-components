@@ -15,7 +15,13 @@
 
 include ./target/platform/linux_x86_64_clang_lvgl_debian11/config.mk
 
-#EHS_DEBUGALL=true
+###!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+### NOTE: This config gets a lot of junk that is probably not needed (on a normal system)
+### from ../ert-contrib-middleware/target_libs/x86_64-linux-gnu-clang10_clang10_base/target_packages/cslib/
+###  Ultimately this build should not be using the clang10_clang10_base contrib middleware anyway.
+###!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+# EHS_DEBUGALL=true
 
 # Machine Leaning & Machine Vision Support
 EHS_ML_SUPPORT=yes

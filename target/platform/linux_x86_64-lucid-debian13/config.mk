@@ -44,6 +44,7 @@ include ./target/platform/linux_x86_64_clang_lvgl_debian13-no-certs/config.mk
 # (Inherits from parent config)
 # LoRaWAN modem support (WIO-E5 via UART/serial)
 EHS_LORAWAN_SUPPORT=wio_e5
+EHS_PERIPHERALS_UART_SUPPORT=linux
 
 # Machine Leaning & Machine Vision Support
 EHS_ML_SUPPORT=yes
