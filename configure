@@ -265,10 +265,80 @@ fi
 if [ "$1" = "-diff" ]; then
     source ./TARGET.cfg
     echo "Current target: ${TXT_FG_WHITE}${TARGET}${TXT_FG}"
+
+    _diff_pick() {
+        local -n _list=$1
+        local local_i=1
+        for t in "${_list[@]}"; do
+            if [ "$t" = "$TARGET" ]; then
+                printf "  ${TXT_FG_BRIGHT_CYAN}%3d)  %s  <-- current${TXT_RESET}\n" "$local_i" "$t"
+            else
+                printf "  %3d)  %s\n" "$local_i" "$t"
+            fi
+            local_i=$((local_i + 1))
+        done
+        printf "  ${TXT_FG_GREY}  0)  exit${TXT_FG}\n"
+        echo
+        echo -n "Enter number, target name, or ${TXT_FG_WHITE}/${TXT_FG} to search (${TXT_FG_WHITE}0${TXT_FG}/${TXT_FG_WHITE}x${TXT_FG} to exit): "
+        read -r _DIFF_REPLY
+
+        if [ -z "$_DIFF_REPLY" ] || [ "$_DIFF_REPLY" = "0" ] || [ "$_DIFF_REPLY" = "q" ] || [ "$_DIFF_REPLY" = "Q" ] || [ "$_DIFF_REPLY" = "x" ] || [ "$_DIFF_REPLY" = "X" ]; then
+            exit 0
+        fi
+
+        if [[ "$_DIFF_REPLY" = /* ]]; then
+            SEARCH="${_DIFF_REPLY:1}"
+            if [ -z "$SEARCH" ]; then
+                echo -n "Search platforms: "
+                read -r SEARCH
+            fi
+            _filtered=()
+            for t in "${_list[@]}"; do
+                [[ "$t" == *"$SEARCH"* ]] && _filtered+=("$t")
+            done
+            if [ "${#_filtered[@]}" -eq 0 ]; then
+                echo "${TXT_FG_YELLOW}No platforms match '${SEARCH}'.${TXT_FG}"
+                echo
+                _diff_pick "$1"
+                return
+            fi
+            echo
+            echo "Platforms matching '${TXT_FG_WHITE}${SEARCH}${TXT_FG}':"
+            echo
+            local local_j=1
+            for t in "${_filtered[@]}"; do
+                if [ "$t" = "$TARGET" ]; then
+                    printf "  ${TXT_FG_BRIGHT_CYAN}%3d)  %s  <-- current${TXT_RESET}\n" "$local_j" "$t"
+                else
+                    printf "  %3d)  %s\n" "$local_j" "$t"
+                fi
+                local_j=$((local_j + 1))
+            done
+            printf "  ${TXT_FG_GREY}  0)  back${TXT_FG}\n"
+            echo
+            echo -n "Enter number or target name (${TXT_FG_WHITE}0${TXT_FG}/${TXT_FG_WHITE}x${TXT_FG} to exit): "
+            read -r _DIFF_REPLY2
+            if [ -z "$_DIFF_REPLY2" ] || [ "$_DIFF_REPLY2" = "0" ] || [ "$_DIFF_REPLY2" = "q" ] || [ "$_DIFF_REPLY2" = "Q" ] || [ "$_DIFF_REPLY2" = "x" ] || [ "$_DIFF_REPLY2" = "X" ]; then
+                echo
+                _diff_pick "$1"
+                return
+            fi
+            if [[ "$_DIFF_REPLY2" =~ ^[0-9]+$ ]] && [ "$_DIFF_REPLY2" -ge 1 ] && [ "$_DIFF_REPLY2" -le "${#_filtered[@]}" ]; then
+                OTHER="${_filtered[$((_DIFF_REPLY2-1))]}"
+            else
+                OTHER="$_DIFF_REPLY2"
+            fi
+        elif [[ "$_DIFF_REPLY" =~ ^[0-9]+$ ]] && [ "$_DIFF_REPLY" -ge 1 ] && [ "$_DIFF_REPLY" -le "${#_list[@]}" ]; then
+            OTHER="${_list[$((${_DIFF_REPLY}-1))]}"
+        else
+            OTHER="$_DIFF_REPLY"
+        fi
+    }
+
     echo "Select a target to compare against:"
-    select OTHER in $(ls --hide "*.mk" --hide "*TEMPLATE*" ./target/platform/); do
-        [ -n "$OTHER" ] && meld ./target/platform/${TARGET}/ ./target/platform/${OTHER}/ && break
-    done
+    echo
+    _diff_pick _targets
+    meld ./target/platform/${TARGET}/ ./target/platform/${OTHER}/
     exit
 fi
 ## Otherwise assume we are changing to a new specified configuration
