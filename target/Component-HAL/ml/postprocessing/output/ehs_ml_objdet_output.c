@@ -61,8 +61,8 @@ int EhsML_ObjDet_Json_AppendCentre(char* buf, int size, int idx,
                                     float cx, float cy, float w, float h)
 {
     return EhsSnprintf(buf, size,
-        ",\"cls%d\":%d,\"lbl%d\":\"%s\",\"cnf%d\":%.2f"
-        ",\"x%d\":%.1f,\"y%d\":%.1f,\"w%d\":%.1f,\"h%d\":%.1f",
+        ",\"cls%d\":%d,\"lbl%d\":\"%s\",\"cnf%d\":%.4f"
+        ",\"x%d\":%.4f,\"y%d\":%.4f,\"w%d\":%.4f,\"h%d\":%.4f",
         idx, class_id,
         idx, EhsML_Coco80_Label(class_id),
         idx, score,
@@ -79,8 +79,8 @@ int EhsML_ObjDet_Json_AppendCorner(char* buf, int size, int idx,
                                     float ymax, float xmax)
 {
     return EhsSnprintf(buf, size,
-        "\"cls%d\":\"%s\",\"cnf%d\":%.2f"
-        ",\"ymin%d\":%.2f,\"xmin%d\":%.2f,\"ymax%d\":%.2f,\"xmax%d\":%.2f,",
+        "\"cls%d\":\"%s\",\"cnf%d\":%.4f"
+        ",\"ymin%d\":%.4f,\"xmin%d\":%.4f,\"ymax%d\":%.4f,\"xmax%d\":%.4f,",
         idx, EhsML_Coco80_Label(class_id),
         idx, score,
         idx, ymin,

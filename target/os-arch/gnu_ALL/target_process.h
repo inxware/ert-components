@@ -62,6 +62,8 @@
  * 
  */
 #define EhsTPCondition_broadcast(ConditionRef) pthread_cond_broadcast((pthread_cond_t*)ConditionRef)
+#define EhsTPCondition_signal(ConditionRef)    pthread_cond_signal((pthread_cond_t*)ConditionRef)
+#define EhsTPCondition_wait(ConditionRef, MutexRef) pthread_cond_wait((pthread_cond_t*)ConditionRef, (pthread_mutex_t*)MutexRef)
 
 /**
  * Try Lock a mutex to indicate the start of a region where we perform exclusive handling by a thread/process

@@ -514,6 +514,33 @@ After creating the HAL and stub files, add `?=` defaults to **every** os-arch `c
 - **Use `ehs_` types in HAL headers:** ensures cross-platform compatibility
 - **Platform-specific types only in `.c` files:** OK internally, but the interface must use `ehs_` types
 
+
+#### OS & Libc Abstraction
+
+**Never include OS/POSIX headers directly in `Common/` code.** Headers such as `<pthread.h>`, `<semaphore.h>`, `<unistd.h>`, and `<sched.h>` are platform-specific and must not appear under `Common/Components/` or `Common/HAL/`.
+
+#### Threading
+
+**Never include OS/POSIX headers directly in `Common/` code.** Headers such as `<pthread.h>`, `<semaphore.h>`, `<unistd.h>`, and `<sched.h>` are platform-specific and must not appear under `Common/Components/` or `Common/HAL/`.
+
+Use the EHS HAL abstractions from `hal_process.h` instead:
+
+| Operation | HAL abstraction |
+|-----------|----------------|
+| Create a mutex (heap) | `EhsHMutex_create(EhsTPMutexClass* ref)` |
+| Destroy a mutex | `EhsHMutex_destroy(EhsTPMutexClass* ref)` |
+| Lock / unlock | `EhsTPMutex_lock(ref)` / `EhsTPMutex_unlock(ref)` |
+| Create a condition variable (heap) | `EhsHCond_create(EhsTPConditionClass* ref)` |
+| Destroy a condition variable | `EhsHCond_destroy(EhsTPConditionClass* ref)` |
+| Signal / wait | `EhsTPCondition_signal(ref)` / `EhsTPCondition_wait(condRef, mutexRef)` |
+| Broadcast | `EhsTPCondition_broadcast(ref)` |
+| Spawn a thread | `EhsHThread_execute(func, ctx, priority, stackSize)` |
+| Yield the current thread | `EhsHThread_yield()` |
+
+`EhsHThread_execute` creates a **detached** thread — there is no join. To wait for a thread to finish, have the thread signal a `EhsTPConditionClass` variable (`worker_done_cond`) just before returning and wait on it from the caller.
+
+Platform-specific implementations of these primitives live under `target/os-arch/` and `target/Component-HAL/` where direct OS headers are permitted.
+
 #### Callback Pattern
 HAL implementations often need to trigger component InternalPorts from interrupts or threads:
 

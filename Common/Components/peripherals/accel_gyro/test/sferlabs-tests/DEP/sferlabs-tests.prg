@@ -1,7 +1,7 @@
 #V:2.1.2
 
 CanvasSizeXY
-2298	1510
+1890	1351
 
 IconData
 BEGIN_BLOCK
@@ -781,7 +781,7 @@ startport
 
 funcName= Run_Input2 2	0	EndOfFunc
 BEGIN_LINE
-1	4090	0	2	-1	0
+1	4090	0	2	-1	1
 370	-315
 370	-285
 END_LINE
@@ -792,7 +792,7 @@ startport
 
 funcName= Run_Input3 3	0	EndOfFunc
 BEGIN_LINE
-1	4090	1	2	-1	0
+1	4090	1	2	-1	1
 365	-305
 365	-260
 END_LINE
@@ -803,7 +803,7 @@ startport
 
 funcName= Run_Input4 4	0	EndOfFunc
 BEGIN_LINE
-1	2568	0	2	-1	0
+1	2568	0	2	-1	1
 325	-240
 325	-235
 END_LINE

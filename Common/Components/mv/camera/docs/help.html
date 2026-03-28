@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+    <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container">
+        <span class="toc_span">Camera</span>
+        <!--these display in reverse order because they use float:right-->
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+        <span class="toc_span_items"><a href="#camera_id">Camera ID &#8595;</a></span>
+      </div>
+
+      <!--General Description-->
+      <p class="component">
+        <strong>Camera</strong> opens a video capture device or file and provides frames for
+        downstream machine vision processing. It supports V4L2 cameras (via OpenCV or libcamera),
+        USB cameras, and video files. Frames are referenced by a stream ID and consumed by
+        <em>Frame Resize</em>, <em>Frame Crop</em>, <em>Frame Format</em>,
+        <em>Frame Show</em>, and ML inference blocks.
+      </p>
+      <p>
+        Resolution and frame rate parameters are <strong>hints</strong>. Set them to
+        <code>0</code> to accept whatever the device provides. The actual dimensions of each
+        captured frame are reported on the <strong>width</strong> and <strong>height</strong>
+        output ports of <em>grabFrame</em>.
+      </p>
+
+      <!--Camera ID section-->
+      <div class="section_heading">
+        <span class="toc_span" id="camera_id">Camera ID</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#parameters">Params &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+
+      <p>The <strong>camera_id</strong> parameter (and the optional <strong>device_id</strong>
+      input port) selects the capture source. Two formats are accepted:</p>
+
+      <table class="table">
+        <tr>
+          <th>Format</th>
+          <th>Example</th>
+          <th>Behaviour</th>
+        </tr>
+        <tr>
+          <td>Non-negative integer</td>
+          <td><code>0</code>, <code>1</code>, <code>2</code></td>
+          <td>
+            Opens camera <code>/dev/video<em>N</em></code>. The block tries the
+            standard OpenCV/V4L2 backend first. If that fails <em>and</em> the
+            build includes libcamera support <em>and</em> the system has the
+            required DMA-buf heap devices, it automatically retries using
+            libcamera — allowing MIPI/CSI cameras (e.g. Raspberry Pi Camera
+            Module) to work without any configuration change. The block fires
+            <strong>err</strong> with error code <strong>5</strong> (not found)
+            if <code>/dev/video<em>N</em></code> is absent.
+          </td>
+        </tr>
+        <tr>
+          <td>File or device path</td>
+          <td><code>/dev/video0</code>, <code>/tmp/test.mp4</code></td>
+          <td>
+            Opens the path directly using the standard OpenCV/V4L2 backend only.
+            No libcamera fallback is attempted. Useful for specifying a device by
+            its stable path (e.g. <code>/dev/v4l/by-id/…</code>), a named pipe,
+            or a video file. Use an integer index if libcamera fallback is needed.
+            The block fires <strong>err</strong> with error code <strong>5</strong>
+            (not found) if the path does not exist.
+          </td>
+        </tr>
+      </table>
+
+      <p>
+        <strong>Finding the correct camera index on Linux.</strong> Use
+        <code>v4l2-ctl --list-devices</code> to list all V4L2 devices and their
+        <code>/dev/video<em>N</em></code> nodes. Then verify the supported formats and
+        frame sizes with:
+      </p>
+      <pre>v4l2-ctl -d /dev/video0 --list-formats-ext</pre>
+      <p>
+        Note that a single physical camera often creates several <code>/dev/video<em>N</em></code>
+        nodes (e.g. video0 for raw capture, video1 for metadata). Try the lowest-numbered node
+        that reports a supported pixel format. If OpenCV cannot open the device but
+        <code>v4l2-ctl</code> can, check that no other process holds the device open and
+        that the user has read/write permission on the node.
+      </p>
+
+      <p>
+        <strong>libcamera mode (Raspberry Pi and compatible boards).</strong>
+        When the build is compiled with <code>EHS_USE_LIBCAMERA</code>, the block attempts
+        to use libcamera instead of the standard OpenCV V4L2 backend. libcamera requires
+        kernel DMA-buf heap devices (<code>/dev/dma_heap/linux,cma</code> or
+        <code>/dev/dma_heap/reserved</code>, and <code>/dev/udmabuf</code>). If those
+        devices are absent the block fires <strong>err</strong> with error code
+        <strong>3</strong> (open error) rather than crashing. Use an integer device index
+        with libcamera mode; path-based IDs are not supported.
+      </p>
+
+      <p>
+        <strong>Resolution and FPS negotiation.</strong> OpenCV passes the requested
+        <code>width</code>, <code>height</code>, and <code>fps</code> to the driver as hints
+        via <code>CAP_PROP_FRAME_WIDTH</code> / <code>CAP_PROP_FRAME_HEIGHT</code> /
+        <code>CAP_PROP_FPS</code>. The driver silently rounds to the nearest supported
+        mode &mdash; it does not fail if the exact values are unavailable. Setting any of
+        these to <code>0</code> skips the hint and uses the driver default. After
+        <em>grabFrame</em> fires the actual dimensions are available on the
+        <strong>width</strong> and <strong>height</strong> output ports.
+      </p>
+
+      <!--Parameters-->
+      <div class="section_heading">
+        <span class="toc_span" id="parameters">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+        <div class="toc_span_items"><a href="#camera_id">Camera ID &#8593;</a></div>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><a name="[Param]camera_id">camera_id</a></td>
+          <td>S</td>
+          <td></td>
+          <td>
+            Camera device index or path. Integer <code>0</code> opens <code>/dev/video0</code>,
+            <code>1</code> opens <code>/dev/video1</code>, etc. A non-integer string is
+            treated as a file or device path. Leave blank to use the value supplied on the
+            <strong>device_id</strong> input port at runtime.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]fps">fps</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Requested capture frame rate in frames per second. <code>0</code> = don't care
+            (use device default). The driver selects the nearest supported rate; the
+            parameter does not fail if the exact value is unavailable.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]width">width</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Requested capture width in pixels. <code>0</code> = don't care (use device
+            default). The driver rounds to the nearest supported width. The actual captured
+            width is reported on the <strong>width</strong> output port after
+            <em>grabFrame</em>.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]height">height</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Requested capture height in pixels. <code>0</code> = don't care (use device
+            default). The driver rounds to the nearest supported height. The actual captured
+            height is reported on the <strong>height</strong> output port after
+            <em>grabFrame</em>.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]asynchronous">asynchronous</a></td>
+          <td>B</td>
+          <td>0</td>
+          <td>
+            When <code>1</code>, a background capture thread continuously grabs frames so
+            that <em>grabFrame</em> returns immediately with the most recent frame.
+            When <code>0</code>, <em>grabFrame</em> blocks until the camera delivers the
+            next frame. Async mode is recommended when grabbing frames from the main EHS
+            thread to avoid stalling other function blocks.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]show_frame">show_frame</a></td>
+          <td>B</td>
+          <td>0</td>
+          <td>
+            When <code>1</code>, each captured frame is displayed in a debug preview window
+            with an FPS overlay. Only supported in desktop builds with a display
+            (requires OpenCV highgui). This is a debug option only; only one camera instance
+            can use it at a time.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]greyscale">greyscale</a></td>
+          <td>B</td>
+          <td>0</td>
+          <td>
+            When <code>1</code>, captured frames are delivered as 1-channel greyscale.
+            Support depends on the backend: libcamera-based devices (Raspberry Pi CSI
+            cameras) generally support this natively. V4L2/USB cameras may not; if the
+            driver ignores the hint the frame will still be BGR and downstream processing
+            will need to convert it.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]opencl_acceleration">OpenCL Acceleration</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            <code>0</code> = CPU (cv::Mat, default). <code>1</code> = OpenCL GPU
+            (cv::UMat). When enabled, <em>Frame Resize</em>, <em>Frame Crop</em>, and
+            <em>Frame Format</em> operations run on the OpenCL GPU and frame data stays
+            on the GPU between operations. Call <em>EhsCameraFrameEnsureCPU</em> (or
+            connect the frame to a CPU-only block such as a TFLite inference block) to
+            download the frame to CPU memory before ML inference. Not supported on
+            Raspberry Pi VideoCore GPU.
+          </td>
+        </tr>
+      </table>
+
+      <!--Ports-->
+      <div class="section_heading">
+        <span class="toc_span" id="ports">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+        <span class="toc_span_items"><a href="#camera_id">Camera ID &#8593;</a></span>
+      </div>
+      <table class="table">
+        <!-- startCamera -->
+        <tr>
+          <th colspan="3">startCamera</th>
+        </tr>
+        <tr>
+          <th>In Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]start_cam">start</a></td>
+          <td></td>
+          <td>
+            Opens the camera device and begins the capture session. Parameters
+            (and optional runtime inputs) are applied at this point. Fires
+            <strong>--</strong> on success or <strong>err</strong> on failure.
+            The <strong>errno</strong> output port holds the numeric error code
+            (see <a href="#errors">Error Codes</a> below).
+          </td>
+        </tr>
+        <tr>
+          <th>Data In</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]device_id">id</a></td>
+          <td>S</td>
+          <td>
+            Optional runtime override for the camera ID. If connected, the value
+            supplied here takes precedence over the <strong>camera_id</strong> parameter.
+            Accepts the same integer index or path formats as the parameter.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]opencl_mode">OpenCL: 0=off 1=on</a></td>
+          <td>I</td>
+          <td>
+            Optional runtime override for OpenCL acceleration mode.
+            <code>0</code> = CPU, <code>1</code> = OpenCL GPU.
+            If not connected, the <strong>OpenCL Acceleration</strong> parameter value is used.
+          </td>
+        </tr>
+        <tr>
+          <th>Out Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]start_ok">--</a></td>
+          <td></td>
+          <td>Fired when the camera opened successfully and is ready to capture.</td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]start_error">err</a></td>
+          <td></td>
+          <td>
+            Fired when the camera could not be opened. Connect the
+            <strong>errno</strong> data output to determine the reason
+            (see <a href="#errors">Error Codes</a>).
+          </td>
+        </tr>
+        <tr>
+          <th>Data Out</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]start_errno">errno</a></td>
+          <td>I</td>
+          <td>
+            Numeric error code set after <em>startCamera</em> completes.
+            <code>0</code> = success. Non-zero values are described in the
+            <a href="#errors">Error Codes</a> section. Connect this port to a
+            display or logic block to surface failure reasons at runtime.
+          </td>
+        </tr>
+
+        <!-- grabFrame -->
+        <tr>
+          <th colspan="3">grabFrame</th>
+        </tr>
+        <tr>
+          <th>In Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]capture">capture</a></td>
+          <td></td>
+          <td>
+            Captures the next frame from the camera. In synchronous mode this blocks until
+            the camera delivers a frame. In asynchronous mode it returns the most recently
+            buffered frame immediately. Fires <strong>--</strong> only if a frame was
+            successfully captured; fires nothing on failure (connect a watchdog timer if
+            frame delivery must be guaranteed).
+          </td>
+        </tr>
+        <tr>
+          <th>Data In</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]im_show">show</a></td>
+          <td>B</td>
+          <td>
+            When <code>true</code>, displays the captured frame in a debug preview window.
+            Overrides the <strong>show_frame</strong> parameter at runtime. Only functional
+            in desktop builds with a display.
+          </td>
+        </tr>
+        <tr>
+          <th>Out Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]captur_ok">--</a></td>
+          <td></td>
+          <td>Fired when a frame was captured successfully.</td>
+        </tr>
+        <tr>
+          <th>Data Out</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]frame_id">stream_id</a></td>
+          <td>I</td>
+          <td>
+            The frame slot ID. Pass this to downstream <em>Frame Resize</em>,
+            <em>Frame Crop</em>, <em>Frame Format</em>, <em>Frame Show</em>, or
+            ML inference blocks to identify which frame buffer to process.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]frame_width">width</a></td>
+          <td>I</td>
+          <td>
+            Actual width in pixels of the captured frame. May differ from the
+            requested <strong>width</strong> parameter if the device rounded to a
+            supported resolution.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]frame_height">height</a></td>
+          <td>I</td>
+          <td>
+            Actual height in pixels of the captured frame. May differ from the
+            requested <strong>height</strong> parameter if the device rounded to a
+            supported resolution.
+          </td>
+        </tr>
+
+        <!-- stopCamera -->
+        <tr>
+          <th colspan="3">stopCamera</th>
+        </tr>
+        <tr>
+          <th>In Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]stop_cam">stop</a></td>
+          <td></td>
+          <td>
+            Stops the capture session and releases the camera device. The device node
+            is freed immediately so another process or a restart can reopen it.
+          </td>
+        </tr>
+        <tr>
+          <th>Out Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]stopped">--</a></td>
+          <td></td>
+          <td>Fired when the camera has been stopped and the device released.</td>
+        </tr>
+      </table>
+
+      <!--Error Codes-->
+      <div class="section_heading">
+        <span class="toc_span" id="errors">Error Codes</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <p>
+        The <strong>errno</strong> output port on <em>startCamera</em> carries one of the
+        following values. Connect it to a data display or integer comparison block to surface
+        the failure reason at runtime.
+      </p>
+      <table class="table">
+        <tr>
+          <th>Value</th>
+          <th>Name</th>
+          <th>Meaning</th>
+          <th>Common causes &amp; remedies</th>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>OK</td>
+          <td>Camera opened successfully.</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>FAILED</td>
+          <td>Generic failure.</td>
+          <td>
+            Unexpected error not covered by more specific codes. Check the runtime log for
+            details.
+          </td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>IN_USE</td>
+          <td>Camera already open.</td>
+          <td>
+            <em>startCamera</em> was fired while the camera was already running.
+            Fire <em>stopCamera</em> first, or guard the start event so it only fires once.
+          </td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>OPEN_ERR</td>
+          <td>Device exists but could not be opened.</td>
+          <td>
+            <ul>
+              <li>Another process holds the device open exclusively (e.g. a previous crash
+                left the device locked — restart may be needed).</li>
+              <li>Insufficient permissions: check <code>ls -l /dev/video0</code> and that
+                the user is in the <code>video</code> group.</li>
+              <li>The device reported an unsupported format or pixel mode.</li>
+              <li><em>libcamera mode:</em> OpenCamera() threw an exception (e.g. no
+                compatible sensor pipeline, or DMA-buf heap devices absent). Check
+                <code>/dev/dma_heap/</code> and <code>/dev/udmabuf</code> exist.</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>MEM_ERR</td>
+          <td>Memory allocation failure.</td>
+          <td>
+            Insufficient permanent heap. Check EHS heap configuration. This error is very
+            uncommon on normal hardware.
+          </td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>NOT_FOUND</td>
+          <td>Device node or file path does not exist.</td>
+          <td>
+            <ul>
+              <li>The <strong>camera_id</strong> integer index has no corresponding
+                <code>/dev/video<em>N</em></code> node. Use <code>v4l2-ctl --list-devices</code>
+                to find the correct index.</li>
+              <li>A path-format ID points to a file or device that does not exist.</li>
+              <li>The camera is not plugged in or the kernel driver has not loaded
+                (<code>lsmod | grep uvcvideo</code>).</li>
+              <li>On Raspberry Pi, multiple <code>/dev/video<em>N</em></code> nodes exist
+                for one camera; try incrementing the index until a working one is found.</li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+
+      <p>
+        <strong>Diagnosing &ldquo;never finds the camera&rdquo; problems.</strong>
+        If <em>startCamera</em> consistently fires <strong>err</strong> even when
+        <code>v4l2-ctl</code> reports the device with matching parameters:
+      </p>
+      <ol>
+        <li>Connect the <strong>errno</strong> output to a display to confirm the error code.</li>
+        <li>Error <strong>5</strong>: the index or path is wrong — verify with
+            <code>v4l2-ctl --list-devices</code>.</li>
+        <li>Error <strong>3</strong>: the device exists but OpenCV cannot open it.
+            Try <code>ffplay /dev/video0</code> or <code>python3 -c "import cv2; c=cv2.VideoCapture(0); print(c.isOpened())"</code>
+            to test independently of inxware.</li>
+        <li>Error <strong>3</strong> after a crash: the previous session may have left the
+            device locked. Restarting the application (or the system) usually resolves this.</li>
+        <li>If <code>v4l2-ctl --list-formats-ext -d /dev/video0</code> shows multiple
+            resolutions, try setting <strong>width</strong> and <strong>height</strong>
+            to <code>0</code> to let OpenCV choose rather than requesting a specific size
+            that may be mismatched.</li>
+      </ol>
+
+      <!--Miscellaneous-->
+      <div class="section_heading">
+        <span class="toc_span" id="misc">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8593;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <table>
+        <tr class="fsm_row">
+          <td style="width:90px;">
+            <b>State Machine</b>
+          </td>
+          <td colspan="5">
+            startCamera &rarr; (grabFrame)* &rarr; stopCamera
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Toolbox</b>
+          </td>
+          <td>
+            Machine Vision &gt; Camera
+          </td>
+          <td class="heading-cell">
+            <b>Version</b>
+          </td>
+          <td>
+            v1.0
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Licence Type</b>
+          </td>
+          <td>
+            LGPLv3
+          </td>
+          <td class="heading-cell">
+            <b>Component Supplier</b>
+          </td>
+          <td>
+            <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Minimum DCC</b>
+          </td>
+          <td>A0000</td>
+          <td class="heading-cell">
+            <b>Profiles</b>
+          </td>
+          <td>
+            Linux x86_64, Linux ARM64, Raspberry Pi (libcamera or V4L2).
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

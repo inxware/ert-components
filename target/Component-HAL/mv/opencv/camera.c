@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "hal_mv.h"
 #include "hal-api.h"
+#include "hal_logger.h"
 
 #include <opencv/opencv_wrapper.h>
 
@@ -71,12 +72,6 @@ EhsCameraError EhsCameraStart(EhsCamera* camera, const ehs_char* id)
         goto cam_fail;
     }
     EhsMemset(camera->camera_ctx, 0, sizeof(cv_camera));
-#ifdef EHS_USE_LIBCAMERA
-    // use libcamera on top of opencv if supported. Note that it can only be configured with numberic IDs
-    if(!cv_cam_enable_libcamera_mode((cv_camera*)camera->camera_ctx, 1, 1000)){
-        // @TODO - error out
-    }
-#endif
     int ret; unsigned int device_id;
     if(EhsCamera_is_opencv_device_id(id, &device_id)){
         ret = cv_cam_open((cv_camera*)camera->camera_ctx, device_id, 
@@ -86,7 +81,16 @@ EhsCameraError EhsCameraStart(EhsCamera* camera, const ehs_char* id)
                 camera->width, camera->height, camera->fps, EHS_OPENCV_CAMERA_BUFFER_COUNT, camera->greyscale, EHS_OPENCV_ASYNC_FRAME_CAP);
     }
     if(ret != CV_CAM_OK){
-        err = EHS_CAM_OPEN_ERR;
+        if (ret == CV_CAM_NOT_FOUND_ERR) {
+            EHSH_LOG_ERROR("camera: device '%s' not found", id ? id : "(null)");
+            err = EHS_CAM_NOT_FOUND;
+        } else if (ret == CV_CAM_EXCEPTION_ERR) {
+            EHSH_LOG_ERROR("camera: library exception opening device '%s' (libcamera OpenCamera failed)", id ? id : "(null)");
+            err = EHS_CAM_OPEN_ERR;
+        } else {
+            EHSH_LOG_ERROR("camera: failed to open device '%s' (cv_cam err=%d)", id ? id : "(null)", ret);
+            err = EHS_CAM_OPEN_ERR;
+        }
         EhsHMem_permFree(camera->camera_ctx);
         camera->camera_ctx = 0;
         goto cam_fail;

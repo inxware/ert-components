@@ -238,6 +238,48 @@ void EhsTPMutex_term(void);
  ehs_bool EhsProcessInitMutex(EhsTPMutexClass *reftoMutex); // note this will only work once!
  ehs_bool EhsProcessInitCond(EhsTPConditionClass * refToCond); // note this will only work once!
 
+/**
+ * Dynamically allocate and initialise a new mutex.
+ * The mutex is heap-allocated; release with EhsHMutex_destroy().
+ * Returns EHS_TRUE on success.
+ */
+ehs_bool EhsHMutex_create(EhsTPMutexClass* ref);
+
+/**
+ * Destroy and free a heap-allocated mutex created with EhsHMutex_create().
+ * Sets *ref to NULL on return.
+ */
+void EhsHMutex_destroy(EhsTPMutexClass* ref);
+
+/**
+ * Dynamically allocate and initialise a new condition variable.
+ * Must be released with EhsHCond_destroy().
+ * Returns EHS_TRUE on success.
+ */
+ehs_bool EhsHCond_create(EhsTPConditionClass* ref);
+
+/**
+ * Destroy and free a heap-allocated condition variable created with EhsHCond_create().
+ * Sets *ref to NULL on return.
+ */
+void EhsHCond_destroy(EhsTPConditionClass* ref);
+
+#ifndef EhsTPCondition_signal
+/**
+ * Wake one thread waiting on a condition variable.
+ * The associated mutex must be held by the caller.
+ */
+void EhsTPCondition_signal(EhsTPConditionClass ConditionRef);
+#endif
+
+#ifndef EhsTPCondition_wait
+/**
+ * Atomically release MutexRef and block until ConditionRef is signalled.
+ * Re-acquires MutexRef before returning.
+ */
+void EhsTPCondition_wait(EhsTPConditionClass ConditionRef, EhsTPMutexClass MutexRef);
+#endif
+
 
 #ifndef EhsTgtProcess_isOrphan
 /**

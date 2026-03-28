@@ -32,16 +32,24 @@ typedef struct cv_mat {
 
 /* Return codes */
 enum cv_cam_err {
-    CV_CAM_OK          = 0,
-    CV_CAM_OPEN_ERR    = 1,
-    CV_CAM_READ_ERR    = 2,
-    CV_CAM_ALLOC_ERR   = 3,
-    CV_CAM_WRITE_ERR   = 4
+    CV_CAM_OK            = 0,
+    CV_CAM_OPEN_ERR      = 1,  /* open failed (device exists but could not be opened) */
+    CV_CAM_READ_ERR      = 2,
+    CV_CAM_ALLOC_ERR     = 3,
+    CV_CAM_WRITE_ERR     = 4,
+    CV_CAM_NOT_FOUND_ERR = 5,  /* device node / path does not exist */
+    CV_CAM_EXCEPTION_ERR = 6   /* C++ exception thrown by camera library (e.g. libcamera) */
 };
 
 int  cv_cam_enable_libcamera_mode (cv_camera* cam, int enable, int cap_timeout_ms);
 
 int  cv_cam_libcamera_support();
+
+/* Returns 1 if the system prerequisites for libcamera are present (DMA-buf
+ * heap devices + V4L2 node for device_id), 0 if any are missing.
+ * Call this before cv_cam_open() when libcamera mode is enabled to avoid
+ * DmaBufAllocator calling abort() on a system without the required devices. */
+int  cv_cam_libcamera_ready(int device_id);
 
 /* ---------------- Camera lifecycle ---------------- */
 int  cv_cam_open (cv_camera* cam,

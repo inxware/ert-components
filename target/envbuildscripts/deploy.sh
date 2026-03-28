@@ -24,6 +24,10 @@ source ./TARGET.cfg
 
 DEPLOY_TARGET="$1"
 
+echo "***** DEPLOYING TO *******"
+echo $DEPLOY_TARGET
+echo "***************************"
+
 if [ "$SSH_PORT" != "" ]; then
    EXTRA_SCP_ARGS="-P ${SSH_PORT}"
    EXTRA_SSH_ARGS="-p ${SSH_PORT}"

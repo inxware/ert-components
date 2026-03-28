@@ -33,7 +33,8 @@ typedef enum {
     EHS_CAM_FAILED,
     EHS_CAM_IN_USE,
     EHS_CAM_OPEN_ERR,
-    EHS_CAM_MEM_ERR
+    EHS_CAM_MEM_ERR,
+    EHS_CAM_NOT_FOUND   /* device node / path does not exist */
 } EhsCameraError;
 
 /**

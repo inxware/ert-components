@@ -558,6 +558,50 @@ ehs_bool EhsProcessInitCond(EhsTPConditionClass * refToCond)
  } 
 
 
+/* -----------------------------------------------------------------------
+ * Dynamic mutex / condition variable lifecycle
+ * These allocate from the heap so each function block instance can own
+ * its own synchronisation objects without sharing static storage.
+ * ----------------------------------------------------------------------- */
+
+ehs_bool EhsHMutex_create(EhsTPMutexClass* ref)
+{
+    if (!ref) return EHS_FALSE;
+    pthread_mutex_t* m = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
+    if (!m) return EHS_FALSE;
+    pthread_mutex_init(m, NULL);
+    *ref = (EhsTPMutexClass)m;
+    return EHS_TRUE;
+}
+
+void EhsHMutex_destroy(EhsTPMutexClass* ref)
+{
+    if (ref && *ref) {
+        pthread_mutex_destroy((pthread_mutex_t*)*ref);
+        free((pthread_mutex_t*)*ref);
+        *ref = NULL;
+    }
+}
+
+ehs_bool EhsHCond_create(EhsTPConditionClass* ref)
+{
+    if (!ref) return EHS_FALSE;
+    pthread_cond_t* c = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));
+    if (!c) return EHS_FALSE;
+    pthread_cond_init(c, NULL);
+    *ref = (EhsTPConditionClass)c;
+    return EHS_TRUE;
+}
+
+void EhsHCond_destroy(EhsTPConditionClass* ref)
+{
+    if (ref && *ref) {
+        pthread_cond_destroy((pthread_cond_t*)*ref);
+        free((pthread_cond_t*)*ref);
+        *ref = NULL;
+    }
+}
+
 /**
  * Execute a function from a function block in a separate thread
  * returns

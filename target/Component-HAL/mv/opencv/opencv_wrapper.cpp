@@ -10,6 +10,11 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <stdexcept>
+#ifdef __linux__
+#include <unistd.h>
+#include <cstdio>
+#endif
 
 /* ---------- tiny RAII VideoCapture wrapper ------------------ */
 class CameraWrapper {
@@ -18,7 +23,10 @@ public:
         if (libcamera_enabled_){
 #ifdef CV_LIBCAMERA_SUPPORT
             if (cam_ || running_ || !setup_libcam(id, w, h, fps, monochrome)) return false;
-            if (cam_ && !cam_->startVideo()) return false;
+            try {
+                if (!cam_->startVideo()) return false;
+            } catch (const std::exception&) { return false; }
+              catch (...)                   { return false; }
 #endif // CV_LIBCAMERA_SUPPORT
         }else{
             if (running_ || cap_.isOpened()) return false; // already running, make sure to close it first
@@ -202,24 +210,97 @@ int  cv_cam_libcamera_support()
     return 0;
 }
 
+/* Check whether the system has the prerequisites for libcamera to work without
+ * crashing.  libcamera's DmaBufAllocator (dma_buf_allocator.cpp:119) will call
+ * abort() if it cannot open any DMA-buf heap device.  We check for the known
+ * heap paths before ever calling into libcamera so we can return a clean error.
+ *
+ * Also verifies the V4L2 media device for the requested camera id exists.
+ *
+ * Returns 1 if libcamera prerequisites are met, 0 otherwise.
+ */
+int cv_cam_libcamera_ready(int device_id)
+{
+#ifdef __linux__
+    /* DMA-buf heap devices required by libcamera's DmaBufAllocator */
+    static const char* const dma_heap_paths[] = {
+        "/dev/dma_heap/linux,cma",
+        "/dev/dma_heap/reserved",
+        "/dev/udmabuf",
+        nullptr
+    };
+    int dma_found = 0;
+    for (const char* const* p = dma_heap_paths; *p; ++p) {
+        if (access(*p, R_OK) == 0) { dma_found = 1; break; }
+    }
+    if (!dma_found) return 0;
+
+    /* V4L2 video device for the requested id */
+    char dev_path[32];
+    snprintf(dev_path, sizeof(dev_path), "/dev/video%d", device_id);
+    if (access(dev_path, F_OK) != 0) return 0;
+#endif
+    return 1;
+}
+
 int cv_cam_open(cv_camera* cam, int id, int w, int h, int fps, int buffer_size, bool is_monochrome, int async_mode)
 {
     if (!cam) return CV_CAM_OPEN_ERR;
-    std::unique_ptr<CameraWrapper> cpp(new (std::nothrow) CameraWrapper);
-    if (!cpp)                       return CV_CAM_ALLOC_ERR;
-    if (cv_cam_libcamera_support()) cpp->enable_libcamera(cam->libcamera_support_enabled, cam->libcamera_support_cap_timeout_ms);
-    if (!cpp->open(id, w, h, fps, buffer_size, is_monochrome, (async_mode > 0)))  return CV_CAM_OPEN_ERR;
-    cam->impl = cpp.release();
-    return CV_CAM_OK;
+#ifdef __linux__
+    /* Pre-validate: device node must exist before we try anything. */
+    char dev_path[32];
+    snprintf(dev_path, sizeof(dev_path), "/dev/video%d", id);
+    if (access(dev_path, F_OK) != 0) return CV_CAM_NOT_FOUND_ERR;
+#endif
+    /* --- Try standard OpenCV / V4L2 first (works for USB and most V4L2 cameras) --- */
+    {
+        std::unique_ptr<CameraWrapper> cpp(new (std::nothrow) CameraWrapper);
+        if (!cpp) return CV_CAM_ALLOC_ERR;
+        try {
+            if (cpp->open(id, w, h, fps, buffer_size, is_monochrome, (async_mode > 0))) {
+                cam->impl = cpp.release();
+                return CV_CAM_OK;
+            }
+        } catch (...) { /* fall through to libcamera */ }
+    }
+    /* --- OpenCV/V4L2 failed: fall back to libcamera if compiled in and prerequisites met.
+     *     libcamera is required for MIPI/CSI cameras on platforms (e.g. Raspberry Pi) where
+     *     the kernel no longer exposes the camera as a usable V4L2 device. --- */
+#ifdef CV_LIBCAMERA_SUPPORT
+    if (cv_cam_libcamera_ready(id)) {
+        std::unique_ptr<CameraWrapper> cpp(new (std::nothrow) CameraWrapper);
+        if (!cpp) return CV_CAM_ALLOC_ERR;
+        int timeout_ms = (cam->libcamera_support_cap_timeout_ms > 0) ? cam->libcamera_support_cap_timeout_ms : 1000;
+        cpp->enable_libcamera(true, timeout_ms);
+        try {
+            if (cpp->open(id, w, h, fps, buffer_size, is_monochrome, (async_mode > 0))) {
+                cam->impl = cpp.release();
+                return CV_CAM_OK;
+            }
+        } catch (const std::exception&) { return CV_CAM_EXCEPTION_ERR; }
+          catch (...)                   { return CV_CAM_EXCEPTION_ERR; }
+    }
+#endif
+    return CV_CAM_OPEN_ERR;
 }
 
 int  cv_cam_path (cv_camera* cam, const char* path, int w, int h, int fps, int buffer_size, bool is_monochrome, int async_mode)
 {
-    if (!cam) return CV_CAM_OPEN_ERR;
+    if (!cam || !path) return CV_CAM_OPEN_ERR;
+#ifdef __linux__
+    /* Pre-validate: check the device/file path exists before the library tries
+     * to open it. Catches missing /dev/videoX paths and bad file paths early. */
+    if (access(path, F_OK) != 0) return CV_CAM_NOT_FOUND_ERR;
+#endif
+    /* Path-based IDs always use the standard OpenCV/V4L2 backend.
+     * libcamera does not support path-based device selection — use an integer
+     * device index if libcamera fallback is needed. */
     std::unique_ptr<CameraWrapper> cpp(new (std::nothrow) CameraWrapper);
-    if (!cpp)                       return CV_CAM_ALLOC_ERR;
-    if (cv_cam_libcamera_support()) cpp->enable_libcamera(cam->libcamera_support_enabled, cam->libcamera_support_cap_timeout_ms);
-    if (!cpp->open(path, w, h, fps, buffer_size, is_monochrome, (async_mode > 0)))  return CV_CAM_OPEN_ERR;
+    if (!cpp) return CV_CAM_ALLOC_ERR;
+    try {
+        if (!cpp->open(path, w, h, fps, buffer_size, is_monochrome, (async_mode > 0))) return CV_CAM_OPEN_ERR;
+    } catch (const std::exception&) { return CV_CAM_EXCEPTION_ERR; }
+      catch (...)                   { return CV_CAM_EXCEPTION_ERR; }
     cam->impl = cpp.release();
     return CV_CAM_OK;
 }
