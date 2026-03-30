@@ -38,6 +38,7 @@ typedef struct inx_ml_image_inference_state
 	ehs_float Conf_Thres;
 	ehs_sint32 Thread_Number;
 	ehs_bool Use_Application_Dir;
+	ehs_bool Flat_Json;
 	EhsML_Context ml_ctx;
 
 	/* Inference worker thread — persistent, woken by condition signal.
@@ -88,6 +89,7 @@ EHS_FB_FUNCTIONS_END
 #define INX_FB_ml_image_inference_Conf_Thres 0.5
 #define INX_FB_ml_image_inference_Thread_Number 0
 #define INX_FB_ml_image_inference_Use_Application_Dir 0
+#define INX_FB_ml_image_inference_Flat_Json 0
 //ICB PARAMETER DEFAULTS MACRO END -- DO NOT ALTER
 
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
@@ -115,6 +117,9 @@ EHS_FB_INIT_FUNCTION(ml_image_inference)
 		pParams = EhsGetSint32FromString(&inx_ml_image_inference_state->Thread_Number, pParams);
 		pParams = EhsGetUint8FromString(&useAppDir, pParams);
 		inx_ml_image_inference_state->Use_Application_Dir = (useAppDir) ? EHS_TRUE : EHS_FALSE;
+		ehs_uint8 flatJson = 0;
+		pParams = EhsGetUint8FromString(&flatJson, pParams);
+		inx_ml_image_inference_state->Flat_Json = (flatJson) ? EHS_TRUE : EHS_FALSE;
 	}
 	inx_ml_image_inference_state->ml_ctx        = (EhsML_Context){0};
 	inx_ml_image_inference_state->worker_mutex  = NULL;
@@ -261,6 +266,7 @@ static EhsThreadFuncReturnType _ml_load_model_worker(void* arg)
 		EHSH_LOG_ERROR("[ml_load_worker] EhsML_Create failed: %d", err);
 		goto load_done;
 	}
+	state->ml_ctx.enable_flat_json = state->Flat_Json;
 
 	if (EHS_FB_OUT_CONNECTED_API2(INX_ml_image_inference_ARG_load_model_model_info)) {
 		EhsML_GetModelInfoJson(

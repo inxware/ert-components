@@ -105,6 +105,16 @@
             <ListPlacement>7</ListPlacement>
             <ArgPlacement>7</ArgPlacement>
         </Parameter>
+        <Parameter>
+            <Name>JSON Format</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Output JSON structure. 0 = object-based (default): each detection is an object in a "res" array, e.g. {"det_cnt":N,"res":[{"cls":0,"cnf":0.92,"x":...},...]}. 1 = flat: all detection fields at the top level with numeric suffixes, e.g. {"det_cnt":N,"cls0":0,"cnf0":0.92,"x0":...}.</Description>
+            <ListPlacement>8</ListPlacement>
+            <ArgPlacement>8</ArgPlacement>
+        </Parameter>
     </Parameters>
     <Functions>
         <Function>
