@@ -184,7 +184,29 @@ int cv_mat_draw_text(cv_mat* mat,
  */
 int cv_mat_show(const char* window_name, const cv_mat* mat, int wait_ms);
 
-/* Destroy all OpenCV windows created with cv_mat_show().
+/* Show a cv_mat without calling waitKey. Use this from a dedicated display
+ * thread after cv_window_start_thread() has been called — the background
+ * event thread handles GUI updates so waitKey is not required.
+ * Returns CV_CAM_OK on success, error code otherwise.
+ */
+int cv_mat_imshow(const char* window_name, const cv_mat* mat);
+
+/* Start OpenCV's background window-event thread. On GTK this runs gtk_main()
+ * in a separate thread, making cv::imshow() safe to call from any thread.
+ * On Qt and other backends this is a no-op (already thread-safe).
+ * Call once before spawning any display thread.
+ */
+void cv_window_start_thread(void);
+
+/* Pump the OpenCV/Qt window event loop for up to wait_ms milliseconds.
+ * Must be called periodically from the thread that calls cv_mat_imshow()
+ * when using the Qt highgui backend — Qt requires at least one waitKey pump
+ * per frame in the rendering thread for the window to actually paint.
+ * A value of 1 is sufficient (non-blocking in practice).
+ */
+void cv_mat_waitkey(int wait_ms);
+
+/* Destroy all OpenCV windows created with cv_mat_show() / cv_mat_imshow().
  * Safe to call even if no windows are open.
  */
 void cv_mat_destroy_all_windows();

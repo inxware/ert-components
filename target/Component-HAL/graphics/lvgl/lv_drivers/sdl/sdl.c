@@ -134,6 +134,35 @@ void sdl_init(void)
         setenv("XDG_RUNTIME_DIR", path, 0);
     }
 
+    /* Auto-detect display before SDL_Init() so SDL selects the right backend.
+     * Priority: Wayland (preferred, lower overhead) → X11.
+     * Must run before SDL_Init(); SDL reads DISPLAY/WAYLAND_DISPLAY at Init time. */
+    if (!getenv("DISPLAY") && !getenv("WAYLAND_DISPLAY")) {
+        const char* xdg = getenv("XDG_RUNTIME_DIR");
+        char sock[256];
+        int found = 0;
+        if (xdg) {
+            snprintf(sock, sizeof(sock), "%s/wayland-0", xdg);
+            if (access(sock, F_OK) == 0) {
+                setenv("WAYLAND_DISPLAY", "wayland-0", 0);
+                fprintf(stderr, "sdl_init: auto-detected Wayland display (WAYLAND_DISPLAY=wayland-0)\n");
+                found = 1;
+            }
+        }
+        if (!found) {
+            snprintf(sock, sizeof(sock), "/run/user/%d/wayland-0", (int)getuid());
+            if (access(sock, F_OK) == 0) {
+                setenv("WAYLAND_DISPLAY", "wayland-0", 0);
+                fprintf(stderr, "sdl_init: auto-detected Wayland display (WAYLAND_DISPLAY=wayland-0)\n");
+                found = 1;
+            }
+        }
+        if (!found && access("/tmp/.X11-unix/X0", F_OK) == 0) {
+            setenv("DISPLAY", ":0", 0);
+            fprintf(stderr, "sdl_init: auto-detected X11 display (DISPLAY=:0)\n");
+        }
+    }
+
 #ifdef EHS_LVGL_LINUX_DISPLAY_BACKEND_WAYLAND
     /* Wayland backend: force SDL to use the Wayland video driver.
      * Set WAYLAND_DISPLAY and XDG_RUNTIME_DIR in the environment before

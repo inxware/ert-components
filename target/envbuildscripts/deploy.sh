@@ -60,7 +60,7 @@ echo "${TXT_FG_CYAN}Deploying ${TXT_FG_WHITE}${TARGET}${TXT_FG_CYAN} to ${TXT_FG
 echo
 
 echo "${TXT_FG_WHITE}[1/3] Stopping running ehs processes on ${DEPLOY_TARGET}...${TXT_RESET}"
-ssh ${EXTRA_SSH_ARGS} "$DEPLOY_TARGET" "pkill -f run_ehs.sh; pkill -f ehs.exe; sleep 1; true" 2>/dev/null || true
+ssh ${EXTRA_SSH_ARGS} "$DEPLOY_TARGET" "pkill -f run_ehs.sh ||:; pkill -f ehs.exe ||:; sleep 1; true" 2>/dev/null || true
 
 echo "${TXT_FG_WHITE}[2/3] Syncing ${STAGING_DIR}/ -> ${DEPLOY_TARGET}:/opt/ehs/ ...${TXT_RESET}"
 if [ 1 = 0 ]; then

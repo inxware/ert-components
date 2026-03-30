@@ -14,6 +14,69 @@
 #ifdef __linux__
 #include <unistd.h>
 #include <cstdio>
+#include <cstdlib>   /* getenv */
+#endif
+
+extern "C" {
+#include "hal_logger.h"
+}
+
+/* Returns true when a usable GUI display is present, false on a headless system.
+ *
+ * OpenCV's highgui Qt backend calls qFatal()/abort() if QApplication cannot
+ * find a display, so all cv::imshow / cv::waitKey / cv::startWindowThread
+ * calls must be skipped when there is no display available.
+ *
+ * Auto-discovery order (most to least preferred):
+ *   1. Wayland  — probe $XDG_RUNTIME_DIR/wayland-0 or /run/user/<uid>/wayland-0
+ *   2. X11/xcb  — probe /tmp/.X11-unix/X0
+ *
+ * If a socket is found but the matching environment variable is not yet set,
+ * it is set here so that Qt picks it up when it initialises.  The result is
+ * cached in a static after the first call to avoid repeated filesystem probes.
+ */
+#ifdef __linux__
+static bool cv_has_display()
+{
+    static int cached = -1; /* -1 = not yet determined */
+    if (cached >= 0) return cached != 0;
+
+    /* Already configured — trust the environment */
+    if (std::getenv("DISPLAY") || std::getenv("WAYLAND_DISPLAY")) {
+        cached = 1; return true;
+    }
+
+    /* --- Probe Wayland first (preferred: lower overhead, no X server needed) --- */
+    char sock[256];
+    const char* xdg = std::getenv("XDG_RUNTIME_DIR");
+    if (xdg) {
+        std::snprintf(sock, sizeof(sock), "%s/wayland-0", xdg);
+        if (access(sock, F_OK) == 0) {
+            setenv("WAYLAND_DISPLAY", "wayland-0", 0);
+            cached = 1; return true;
+        }
+    }
+    /* Fallback Wayland path when XDG_RUNTIME_DIR is not set */
+    std::snprintf(sock, sizeof(sock), "/run/user/%d/wayland-0", (int)getuid());
+    if (access(sock, F_OK) == 0) {
+        setenv("WAYLAND_DISPLAY", "wayland-0", 0);
+        cached = 1; return true;
+    }
+
+    /* --- Probe X11 display :0 --- */
+    if (access("/tmp/.X11-unix/X0", F_OK) == 0) {
+        setenv("DISPLAY", ":0", 0);
+        cached = 1; return true;
+    }
+
+    EHSH_LOG_ERROR("[opencv_wrapper] No display found"
+                   " (DISPLAY/WAYLAND_DISPLAY not set,"
+                   " no Wayland or X11 socket detected) -"
+                   " highgui disabled");
+    cached = 0; return false;
+}
+#else
+static bool cv_has_display() { return true; }
 #endif
 
 /* ---------- tiny RAII VideoCapture wrapper ------------------ */
@@ -651,6 +714,7 @@ int cv_mat_draw_text(cv_mat* mat,
 
 
 int cv_mat_show(const char* window_name, const cv_mat* mat, int wait_ms) {
+    if (!cv_has_display()) return CV_CAM_OK;
     if (!window_name || !mat || !mat->impl) {
         return CV_CAM_ALLOC_ERR;
     }
@@ -669,7 +733,33 @@ int cv_mat_show(const char* window_name, const cv_mat* mat, int wait_ms) {
     }
 }
 
+int cv_mat_imshow(const char* window_name, const cv_mat* mat) {
+    if (!cv_has_display()) return CV_CAM_OK;
+    if (!window_name || !mat || !mat->impl)
+        return CV_CAM_ALLOC_ERR;
+    auto mat_ptr = static_cast<std::shared_ptr<cv::Mat>*>(mat->impl);
+    if (!mat_ptr || !(*mat_ptr) || (*mat_ptr)->empty())
+        return CV_CAM_ALLOC_ERR;
+    try {
+        cv::imshow(window_name, *(*mat_ptr));
+        return CV_CAM_OK;
+    } catch (...) {
+        return CV_CAM_ALLOC_ERR;
+    }
+}
+
+void cv_window_start_thread(void) {
+    if (!cv_has_display()) return;
+    cv::startWindowThread();
+}
+
+void cv_mat_waitkey(int wait_ms) {
+    if (!cv_has_display()) return;
+    cv::waitKey(wait_ms);
+}
+
 void cv_mat_destroy_all_windows() {
+    if (!cv_has_display()) return;
     cv::destroyAllWindows();
 }
 
