@@ -42,24 +42,24 @@
   <td>I</td>
   <td>0</td>
   <td>0</td>
-  <td>100</td>
-  <td>The type of model loaded. It is used to determine the inference output format.</td>
+  <td>4001</td>
+  <td>The type of model loaded. Selects the post-processing pipeline for the inference output. 0 = auto/generic (raw inference only; output will be empty). Non-zero = filter: only this model type is accepted (e.g. 1003 for YOLOv5, 1006 for YOLOv8).</td>
 </tr>
 <tr>
-  <td>Model File Ext</td>
+  <td>Model Format</td>
   <td>I</td>
-  <td>1</td>
-  <td>1</td>
+  <td>0</td>
+  <td>0</td>
   <td>4</td>
-  <td>The file extension of the loaded model. 1 for `.tflite`, 2 for `.onnx`, 3 for `.pb`, 4 for `.hef`.</td>
+  <td>The format of the model file. 0 = auto-detect from file extension. 1 = TFLite (<code>.tflite</code>&nbsp;/&nbsp;<code>.tfl</code>), 2 = ONNX (<code>.onnx</code>&nbsp;/&nbsp;<code>.onn</code>), 3 = TensorFlow (<code>.pb</code>), 4 = Hailo (<code>.hef</code>). Non-zero acts as a filter: load fails if the file extension does not match.</td>
 </tr>
 <tr>
   <td>Data Type</td>
   <td>I</td>
   <td>0</td>
   <td>0</td>
-  <td>4</td>
-  <td>The data type of model input/output. 0 for auto-detection, 1 for 8-bit, 2 for 16-bit, 3 for 32-bit, 4 for 64-bit.</td>
+  <td>16</td>
+  <td>The tensor data type for model input/output. 0 = auto-detect. 1 = uint8, 2 = int8, 3 = uint16, 4 = int16, 5 = uint32, 6 = int32, 9 = fp16, 10 = fp32, 11 = fp64.</td>
 </tr>
 <tr>
   <td>HW Accelerate</td>
@@ -67,7 +67,7 @@
   <td>0</td>
   <td>0</td>
   <td>1</td>
-  <td>Whether to enable hardware acceleration. Some platforms may not support it and an error will occur when this is True. Some platforms require a specific model file format; this block will emit an error if the wrong format is loaded while this is True.</td>
+  <td>Enable hardware acceleration. Some platforms may not support it; an error is emitted if unsupported. Some platforms require a specific model format (e.g. Hailo requires <code>.hef</code>); an error is emitted if the wrong format is loaded.</td>
 </tr>
 <tr>
   <td>Conf Thres</td>
@@ -75,7 +75,7 @@
   <td>0.5</td>
   <td>0</td>
   <td>1</td>
-  <td>The confidence threshold for the output data. The range is from 0 to 1.</td>
+  <td>Confidence threshold for detections. Results with a score below this value are filtered out. Range 0.0&#8211;1.0.</td>
 </tr>
 <tr>
   <td>Thread Number</td>
@@ -83,7 +83,7 @@
   <td>0</td>
   <td>0</td>
   <td>16</td>
-  <td>The number of threads for inference. If the platform does not support threading, this parameter will be ignored.</td>
+  <td>Number of threads for inference. 0 = platform default. Ignored on platforms that do not support multi-threaded inference.</td>
 </tr>
 <tr>
   <td>Use Application Dir</td>
@@ -91,7 +91,27 @@
   <td>0</td>
   <td>0</td>
   <td>1</td>
-  <td>Whether to use the application directory as the root of the model path. If false, the user directory will be used.</td>
+  <td>Root directory for the model path. 0 = user data directory, 1 = application directory.</td>
+</tr>
+<tr>
+  <td>JSON Format</td>
+  <td>I</td>
+  <td>0</td>
+  <td>0</td>
+  <td>1</td>
+  <td>
+    Output JSON structure written to the <strong>json</strong> port.<br/><br/>
+    <strong>0 &mdash; Object-based (default).</strong> Each detection is an object inside a <code>"res"</code> array. Fields have no numeric suffix.
+    <pre>{"type":1,"det_cnt":2,"res":[
+  {"cls":0,"lbl":"person","cnf":0.9200,"x":320.0,"y":240.0,"w":100.0,"h":80.0},
+  {"cls":2,"lbl":"car",   "cnf":0.8800,"x":500.0,"y":300.0,"w":200.0,"h":120.0}
+]}</pre>
+    <strong>1 &mdash; Flat.</strong> All detection fields are at the top level with a numeric index suffix. Useful for downstream blocks that cannot parse nested arrays.
+    <pre>{"type":1,"det_cnt":2,
+ "cls0":0,"lbl0":"person","cnf0":0.9200,"x0":320.0,"y0":240.0,"w0":100.0,"h0":80.0,
+ "cls1":2,"lbl1":"car",   "cnf1":0.8800,"x1":500.0,"y1":300.0,"w1":200.0,"h1":120.0}</pre>
+    In both formats, <code>x</code>/<code>y</code> are the bounding box centre and <code>w</code>/<code>h</code> are width/height in pixels.
+  </td>
 </tr>
 </table>
 <!--Ports-->

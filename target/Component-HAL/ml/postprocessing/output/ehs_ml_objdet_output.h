@@ -110,19 +110,26 @@ int EhsML_ObjDet_Json_AppendCorner(char* buf, int size, int idx,
                                     float ymax, float xmax);
 
 /**
- * @brief Serialise ctx->detections[] into a flat JSON object.
+ * @brief Serialise ctx->detections[] into JSON, format controlled by ctx->enable_flat_json.
  *
  * Engine-independent formatter. Consumes the canonical detection list
  * already populated in ctx->detections[0..detection_count-1] by the
  * model decode step.  Detections with filtered==EHS_TRUE are skipped.
  *
- * Output format:
- *   {"type":<type>,"det_cnt":<N>,"cls0":<id>,"lbl0":"<label>","cnf0":<score>,
- *    "x0":<cx>,"y0":<cy>,"w0":<w>,"h0":<h>,...}
+ * Object-based format (default, ctx->enable_flat_json == EHS_FALSE):
+ *   {"type":<type>,"det_cnt":<N>,"res":[
+ *     {"cls":<id>,"lbl":"<label>","cnf":<score>,"x":<cx>,"y":<cy>,"w":<w>,"h":<h>},
+ *     ...
+ *   ]}
  *
- * Coordinates are pixel-space centre + width/height (same as AppendCentre).
+ * Flat format (ctx->enable_flat_json == EHS_TRUE):
+ *   {"type":<type>,"det_cnt":<N>,
+ *    "cls0":<id>,"lbl0":"<label>","cnf0":<score>,"x0":<cx>,"y0":<cy>,"w0":<w>,"h0":<h>,
+ *    ...}
  *
- * @param ctx       ML context with detections[] and detection_count populated.
+ * Coordinates are pixel-space centre + width/height in both formats.
+ *
+ * @param ctx       ML context with detections[], detection_count, and enable_flat_json set.
  * @param json_buf  Caller-allocated output buffer.
  * @param json_size Size of json_buf in bytes.
  * @return EHS_ML_OK on success, EHS_ML_JSON_STRSIZE_ERR if buffer too small.
