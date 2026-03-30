@@ -184,25 +184,20 @@ int cv_mat_draw_text(cv_mat* mat,
  */
 int cv_mat_show(const char* window_name, const cv_mat* mat, int wait_ms);
 
-/* Show a cv_mat without calling waitKey. Use this from a dedicated display
- * thread after cv_window_start_thread() has been called — the background
- * event thread handles GUI updates so waitKey is not required.
+/* Enqueue a cv_mat for display by the global highgui thread.
+ * Returns immediately (non-blocking); the global thread shows the frame
+ * asynchronously and pumps the Qt event loop at ~60 fps continuously.
  * Returns CV_CAM_OK on success, error code otherwise.
  */
 int cv_mat_imshow(const char* window_name, const cv_mat* mat);
 
-/* Start OpenCV's background window-event thread. On GTK this runs gtk_main()
- * in a separate thread, making cv::imshow() safe to call from any thread.
- * On Qt and other backends this is a no-op (already thread-safe).
- * Call once before spawning any display thread.
+/* Ensure the global highgui thread is running. Optional — cv_mat_imshow()
+ * starts it lazily on first call.  May be called from init code.
  */
 void cv_window_start_thread(void);
 
-/* Pump the OpenCV/Qt window event loop for up to wait_ms milliseconds.
- * Must be called periodically from the thread that calls cv_mat_imshow()
- * when using the Qt highgui backend — Qt requires at least one waitKey pump
- * per frame in the rendering thread for the window to actually paint.
- * A value of 1 is sufficient (non-blocking in practice).
+/* No-op. The global highgui thread pumps Qt events continuously.
+ * Kept for API compatibility.
  */
 void cv_mat_waitkey(int wait_ms);
 

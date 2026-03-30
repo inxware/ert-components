@@ -78,14 +78,22 @@ static EhsThreadFuncReturnType _frame_show_display_worker(void* arg)
 		EhsCameraFrame* src = EhsCameraFrameGetById(frame_id);
 		if (src) {
 			cv_mat_imshow(title, (cv_mat*)src->frameObj);
-			/* Pump the Qt/highgui event loop so the window actually paints.
-			 * cv::startWindowThread() drives the loop between frames but a
-			 * waitKey(1) in the rendering thread is required for Qt to flush
-			 * the draw commands posted by cv::imshow(). */
+			/* Pump Qt's event loop so the window paints.
+			 * cv::startWindowThread() is a no-op for the Qt highgui backend,
+			 * so this is the sole event-loop driver.  Must stay in THIS thread —
+			 * Qt associates windows with the thread that first called imshow(). */
 			cv_mat_waitkey(1);
 		}
 #endif
 	}
+
+#ifdef EHS_MV_SUPPORT__opencv
+	/* Destroy the window from this thread before exiting.  Qt ties window
+	 * ownership to the thread that created it, so destroying here keeps the
+	 * association clean — the next SODL load's fresh worker thread can create
+	 * a new window without inheriting stale Qt thread state. */
+	cv_mat_destroy_all_windows();
+#endif
 
 	EhsTPMutex_lock(state->disp_mutex);
 	state->disp_done = 1;
@@ -172,10 +180,6 @@ EHS_FB_DESTROY_FUNCTION(frame_show)
 	EhsHMutex_destroy(&state->disp_mutex);
 	EhsHCond_destroy(&state->disp_cond);
 	EhsHCond_destroy(&state->disp_done_cond);
-
-#ifdef EHS_MV_SUPPORT__opencv
-	cv_mat_destroy_all_windows();
-#endif
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION show MACRO START -- DO NOT ALTER

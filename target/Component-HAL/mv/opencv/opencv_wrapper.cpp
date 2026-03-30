@@ -11,6 +11,7 @@
 #include <mutex>
 #include <atomic>
 #include <stdexcept>
+#include <chrono>
 #ifdef __linux__
 #include <unistd.h>
 #include <cstdio>
@@ -19,6 +20,63 @@
 
 extern "C" {
 #include "hal_logger.h"
+}
+
+/* ============================================================
+ *  Global highgui thread
+ *
+ *  OpenCV's Qt highgui backend ties QApplication (and all QWidget
+ *  windows) to the thread that first calls cv::imshow().  eRT's SODL
+ *  reload spawns a fresh display worker thread on every reload, so if
+ *  those threads call cv::imshow() directly, Qt's "main thread" stays
+ *  the first worker (now exited) and subsequent imshow/waitKey calls
+ *  from the new thread are silently ignored — the window never updates.
+ *
+ *  Fix: one persistent background thread that owns all highgui calls
+ *  for the process lifetime.  cv_mat_imshow() and
+ *  cv_mat_destroy_all_windows() enqueue requests; the thread processes
+ *  them and pumps the Qt event loop at ~60 fps continuously.
+ *  cv_mat_waitkey() is therefore a no-op.
+ * ============================================================ */
+struct HighguiReq {
+    enum Kind { NONE, IMSHOW, DESTROY_ALL } kind = NONE;
+    std::string                  window_name;
+    std::shared_ptr<cv::Mat>     frame;  /* shared ownership; no pixel copy */
+};
+
+static std::mutex              g_hg_mtx;
+static std::condition_variable g_hg_cv;
+static HighguiReq              g_hg_req;
+static bool                    g_hg_running = false;
+
+static void highgui_thread_run()
+{
+    for (;;) {
+        HighguiReq req;
+        {
+            std::unique_lock<std::mutex> lk(g_hg_mtx);
+            /* Wake on a new request, or every 16 ms to keep Qt alive */
+            g_hg_cv.wait_for(lk, std::chrono::milliseconds(16),
+                []{ return g_hg_req.kind != HighguiReq::NONE; });
+            std::swap(req, g_hg_req); /* consume; resets kind to NONE */
+        }
+        if (req.kind == HighguiReq::IMSHOW && req.frame && !req.frame->empty())
+            cv::imshow(req.window_name, *req.frame);
+        else if (req.kind == HighguiReq::DESTROY_ALL)
+            cv::destroyAllWindows();
+        /* Pump Qt event loop on every iteration, even with no new frame */
+        cv::waitKey(1);
+    }
+}
+
+/* Start the global highgui thread exactly once (idempotent). */
+static void cv_ensure_highgui_thread()
+{
+    std::lock_guard<std::mutex> lk(g_hg_mtx);
+    if (!g_hg_running) {
+        g_hg_running = true;
+        std::thread(highgui_thread_run).detach(); /* process-lifetime */
+    }
 }
 
 /* Returns true when a usable GUI display is present, false on a headless system.
@@ -714,53 +772,47 @@ int cv_mat_draw_text(cv_mat* mat,
 
 
 int cv_mat_show(const char* window_name, const cv_mat* mat, int wait_ms) {
-    if (!cv_has_display()) return CV_CAM_OK;
-    if (!window_name || !mat || !mat->impl) {
-        return CV_CAM_ALLOC_ERR;
-    }
-
-    auto mat_ptr = static_cast<std::shared_ptr<cv::Mat>*>(mat->impl);
-    if (!mat_ptr || !(*mat_ptr) || (*mat_ptr)->empty()) {
-        return CV_CAM_ALLOC_ERR;
-    }
-
-    try {
-        cv::imshow(window_name, *(*mat_ptr));
-        cv::waitKey(wait_ms);
-        return CV_CAM_OK;
-    } catch (...) {
-        return CV_CAM_ALLOC_ERR;
-    }
+    (void)wait_ms; /* global highgui thread handles event pumping */
+    return cv_mat_imshow(window_name, mat);
 }
 
 int cv_mat_imshow(const char* window_name, const cv_mat* mat) {
     if (!cv_has_display()) return CV_CAM_OK;
-    if (!window_name || !mat || !mat->impl)
-        return CV_CAM_ALLOC_ERR;
-    auto mat_ptr = static_cast<std::shared_ptr<cv::Mat>*>(mat->impl);
-    if (!mat_ptr || !(*mat_ptr) || (*mat_ptr)->empty())
-        return CV_CAM_ALLOC_ERR;
-    try {
-        cv::imshow(window_name, *(*mat_ptr));
-        return CV_CAM_OK;
-    } catch (...) {
-        return CV_CAM_ALLOC_ERR;
+    if (!window_name || !mat || !mat->impl) return CV_CAM_ALLOC_ERR;
+    auto* mat_ptr = static_cast<std::shared_ptr<cv::Mat>*>(mat->impl);
+    if (!mat_ptr || !(*mat_ptr) || (*mat_ptr)->empty()) return CV_CAM_ALLOC_ERR;
+
+    cv_ensure_highgui_thread();
+
+    {
+        std::lock_guard<std::mutex> lk(g_hg_mtx);
+        g_hg_req.kind        = HighguiReq::IMSHOW;
+        g_hg_req.window_name = window_name;
+        g_hg_req.frame       = *mat_ptr; /* shared ownership; latest frame wins */
     }
+    g_hg_cv.notify_one();
+    return CV_CAM_OK;
 }
 
 void cv_window_start_thread(void) {
     if (!cv_has_display()) return;
-    cv::startWindowThread();
+    cv_ensure_highgui_thread();
 }
 
 void cv_mat_waitkey(int wait_ms) {
-    if (!cv_has_display()) return;
-    cv::waitKey(wait_ms);
+    /* No-op: the global highgui thread pumps Qt events continuously. */
+    (void)wait_ms;
 }
 
 void cv_mat_destroy_all_windows() {
     if (!cv_has_display()) return;
-    cv::destroyAllWindows();
+    {
+        std::lock_guard<std::mutex> lk(g_hg_mtx);
+        g_hg_req.kind = HighguiReq::DESTROY_ALL;
+        g_hg_req.frame.reset();
+        g_hg_req.window_name.clear();
+    }
+    g_hg_cv.notify_one();
 }
 
 } /* extern "C" */
