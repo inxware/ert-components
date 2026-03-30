@@ -375,6 +375,9 @@ typedef struct {
     // if supported creates json without arrays e.g.
     // {"type":0,...,"cls0":0,"cnf0":0.00,"x0":0,"y0":0,"w0":0,"h0":0, ... , "clsN":0,"cnfN":0.00, ... }
     ehs_bool enable_flat_json;
+    // if EHS_TRUE, bounding box coordinates (x, y, w, h) are emitted as 0-1 normalised
+    // values (divided by model input width/height) instead of model-input pixel values.
+    ehs_bool enable_normalized_coords;
 
     /**
      * Pipeline capability map.

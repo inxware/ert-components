@@ -151,4 +151,9 @@ extern ehs_uint32 gMqttClientInstanceCount;
  inx_mqtt_publish_state_type* EhsMqttDevmanMonPublishNeedProcessing();
  #endif
 
+ void EhsMQTTPublishRegisterState(inx_mqtt_publish_state_type* pState);
+ void EhsMQTTPublishClearList(void);
+ void EhsMQTTSubscribeRegisterState(inx_mqtt_subscribe_state_type* pState);
+ void EhsMQTTSubscribeClearList(void);
+
 #endif /* EHS_HAL_MQTT_H */

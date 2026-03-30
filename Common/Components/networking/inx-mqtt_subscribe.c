@@ -123,7 +123,7 @@ static inx_mqtt_subscribe_state_type* inxMQTTSubscribeGetWidgetById(const char* 
     return widget;
 }
 
-static void inxMQTTSubscribeRegisterWidget(inx_mqtt_subscribe_state_type* pState)
+void inxMQTTSubscribeRegisterWidget(inx_mqtt_subscribe_state_type* pState)
 {
     if(gpFirstWidget==NULL)
     {
@@ -316,6 +316,16 @@ EHS_FB_RUN_FUNCTION(mqtt_subscribe_unsubscribe)
     EHS_FB_FINISH(INX_mqtt_subscribe_ARG_unsubscribe_finishunsubscribe);
 }//ICB FUNCTION unsubscribe MACRO END -- DO NOT ALTER THIS LINE
 
+
+void EhsMQTTSubscribeRegisterState(inx_mqtt_subscribe_state_type* pState)
+{
+    inxMQTTSubscribeRegisterWidget(pState);
+}
+
+void EhsMQTTSubscribeClearList(void)
+{
+    gpFirstWidget = NULL;
+}
 
 ehs_bool EhsMQTTSubscribeWritePoll(char* buffer, ehs_bool* subscribe, ehs_uint8* qos)
 {

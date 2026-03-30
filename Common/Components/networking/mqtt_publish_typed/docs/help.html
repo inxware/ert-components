@@ -1,0 +1,150 @@
+<html>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container"> <span class="toc_span">MQTT Publish Typed</span>
+<!--these display in reverse order because they use float:right--> <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span> <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span> </div>
+<!--General Description-->
+<p class="component"> The MQTT Publish Typed block publishes a typed numeric or boolean value to an
+        MQTT topic. Unlike the standard MQTT Publish block it accepts integer, float, and boolean
+        input ports and converts the connected value to a string payload automatically. </p>
+<p class="component"> Connect only one of <b>value_i</b>, <b>value_f</b>, or <b>value_b</b>. If
+        more than one is connected the priority order is integer &gt; float &gt; boolean. </p>
+<p class="component"> The Quality Of Service (QOS) level is an integer with three possible values:
+        At Least Once (0), At Most Once (1), and Exactly Once (2). </p>
+<!--Parameters - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="parameters">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tbody>
+<tr>
+<th style="width:60px;">name</th>
+<th>type</th><th>description</th>
+<th>default</th>
+<th>min.</th>
+<th>max.</th>
+</tr>
+<tr>
+<td>topic<br/>
+</td>
+<td>String<br/>
+</td><td>Default MQTT topic to publish to<br/>
+</td>
+<td>default<br/>
+</td>
+<td><br/>
+</td>
+<td><br/>
+</td>
+</tr>
+<tr>
+<td>qos<br/>
+</td>
+<td>integer<br/>
+</td><td>Quality of service (0, 1, or 2)<br/>
+</td>
+<td>0<br/>
+</td>
+<td>0<br/>
+</td>
+<td>2<br/>
+</td>
+</tr>
+</tbody>
+</table>
+<!--Ports - form - short desc: long desc-->
+<div class="section_heading"> <span class="toc_span" id="ports">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span> </div>
+<table class="table">
+<tbody>
+<tr>
+<th>In Ev.</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]publish">publish</a></td>
+<td>Input Event. Trigger a publish event.</td>
+</tr>
+<tr>
+<th>Data In</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td class="ports"><a name="[In]topic">topic</a></td>
+<td>Name of the MQTT topic the message belongs to. Overrides the topic parameter when connected.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]value_i">value_i</a></td>
+<td>Integer value to publish. Takes priority over value_f and value_b.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]value_f">value_f</a></td>
+<td>Float value to publish. Takes priority over value_b.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]value_b">value_b</a></td>
+<td>Boolean value to publish. Published as "true" or "false".</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]qos">qos</a></td>
+<td>Quality of service override. At Least Once (0), At Most Once (1), Exactly Once (2).</td>
+</tr>
+<tr>
+<th>Out Ev.</th>
+<th><br/>
+</th>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]done">done</a></td>
+<td>Triggers when the publish completes.</td>
+</tr>
+</tbody>
+</table>
+<div class="section_heading"> <span class="toc_span" id="misc">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span> <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span> <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span> </div>
+<table>
+<tbody>
+<tr class="fsm_row">
+<td style="width:90px;"> <b>State Machine</b> </td>
+<td colspan="5">None</td>
+<td> <br/>
+</td>
+<td> <br/>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Toolbox</b> </td>
+<td> Core </td>
+<td class="heading-cell"> <b>Version</b> </td>
+<td> v1.0. </td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Licence Type</b> </td>
+<td> LGPLv3 </td>
+<td class="heading-cell"> <b>Component Supplier</b> </td>
+<td> <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+</td>
+</tr>
+<tr>
+<td class="heading-cell"> <b>Minumum DCC</b> </td>
+<td>A0000</td>
+<td class="heading-cell"> <b>Profiles</b> </td>
+<td> All. </td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>

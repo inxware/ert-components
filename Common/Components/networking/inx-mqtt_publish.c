@@ -86,7 +86,7 @@ static inx_mqtt_publish_state_type* inxMQTTPublishGetFirstWidgetNeedProcessing()
     return widget;
 }
 
-static void inxMQTTPublishRegisterWidget(inx_mqtt_publish_state_type* pState)
+void inxMQTTPublishRegisterWidget(inx_mqtt_publish_state_type* pState)
 {
     if(gpFirstWidget==NULL)
     {
@@ -241,6 +241,16 @@ EHS_FB_RUN_FUNCTION(mqtt_publish_publish)
 }//ICB FUNCTION publish MACRO END -- DO NOT ALTER THIS LINE
 
 
+
+void EhsMQTTPublishRegisterState(inx_mqtt_publish_state_type* pState)
+{
+    inxMQTTPublishRegisterWidget(pState);
+}
+
+void EhsMQTTPublishClearList(void)
+{
+    gpFirstWidget = NULL;
+}
 
 ehs_bool EhsMQTTPublishWritePoll(ehs_char* topic, ehs_char* payload, ehs_uint8* qos)
 {
