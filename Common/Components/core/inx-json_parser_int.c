@@ -8,6 +8,7 @@
 #endif
 #include "jsmn.h"
 #include <limits.h>
+#include <math.h>
 //ICB HEADER MACRO END -- DO NOT ALTER
 //ICB STATE VAR MACRO START -- DO NOT ALTER
 /* My Component state data structure. - Use this in your code! */
@@ -307,10 +308,17 @@ EHS_FB_RUN_FUNCTION(json_parser_int_parse)
                 case JSMN_PRIMITIVE:
                 {
                     // It could be integer, float or boolean (true/false)
-                    // Determine whether it's float
+                    // Determine whether it's a float — if so, parse and round to integer
                     if (EhsMemchr(json_slice_string, '.', json_array[value_index].end - json_array[value_index].start) != NULL)
                     {
-                        continue; // It is definitely not an integer value, continue to the next key
+                        char *float_end = NULL;
+                        double fval = strtod(json_slice_string, &float_end);
+                        if (float_end == json_slice_string) continue; // not parseable
+                        long rounded = (long)floor(fval + 0.5);
+                        if (rounded > INT_MAX || rounded < INT_MIN) continue;
+                        output[i] = (EhsDataflowIntType)rounded;
+                        output_ok[i] = EHS_TRUE;
+                        break;
                     }
                     // Determine whether it's boolean or something else
                     switch (json_slice_string[0])
