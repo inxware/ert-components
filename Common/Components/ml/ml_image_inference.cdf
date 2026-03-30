@@ -115,6 +115,16 @@
             <ListPlacement>8</ListPlacement>
             <ArgPlacement>8</ArgPlacement>
         </Parameter>
+        <Parameter>
+            <Name>Coord Format</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Bounding box coordinate format in JSON output. 0 = model-input pixel values (default): x, y, w, h are in pixels relative to the model input dimensions (e.g. 640x640). 1 = normalised 0-1: coordinates are divided by the model input width/height, giving values in the range [0, 1] regardless of model input size.</Description>
+            <ListPlacement>9</ListPlacement>
+            <ArgPlacement>9</ArgPlacement>
+        </Parameter>
     </Parameters>
     <Functions>
         <Function>

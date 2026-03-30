@@ -19,13 +19,17 @@
 typedef struct inx_frame_show_state
 {
 	ehs_char            window_title[INX_FRAME_SHOW_WINDOW_TITLE_SIZE + 1];
+	ehs_sint32          pos_x;          /* screen X (0 = default/auto) */
+	ehs_sint32          pos_y;          /* screen Y (0 = default/auto) */
+	ehs_sint32          disp_w;         /* display width  (0 = natural) */
+	ehs_sint32          disp_h;         /* display height (0 = natural) */
 	EhsTPMutexClass     disp_mutex;
 	EhsTPConditionClass disp_cond;
 	EhsTPConditionClass disp_done_cond;
 	volatile ehs_sint32 disp_frame_id;  /* -1 = idle, >=0 = frame pending */
 	volatile int        disp_running;
 	volatile int        disp_done;
-} inx_frame_show_state_type; //Reference this, maybe store your config parameters in here too.
+} inx_frame_show_state_type;
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
 /* Populate the data structure used by EHS and map the function names to strings identified in CDF */
@@ -77,12 +81,34 @@ static EhsThreadFuncReturnType _frame_show_display_worker(void* arg)
 #ifdef EHS_MV_SUPPORT__opencv
 		EhsCameraFrame* src = EhsCameraFrameGetById(frame_id);
 		if (src) {
-			cv_mat_imshow(title, (cv_mat*)src->frameObj);
-			/* Pump Qt's event loop so the window paints.
-			 * cv::startWindowThread() is a no-op for the Qt highgui backend,
-			 * so this is the sole event-loop driver.  Must stay in THIS thread —
-			 * Qt associates windows with the thread that first called imshow(). */
+			cv_mat* mat = (cv_mat*)src->frameObj;
+			ehs_bool has_pos = (state->pos_x != 0 || state->pos_y != 0 ||
+			                    state->disp_w != 0 || state->disp_h  != 0);
+			if (has_pos)
+				cv_mat_imshow_at(title, mat,
+				                 state->pos_x, state->pos_y,
+				                 state->disp_w, state->disp_h);
+			else
+				cv_mat_imshow(title, mat);
 			cv_mat_waitkey(1);
+
+			/* Embedded renderer (e.g. LVGL canvas) — only for uint8 formats */
+			if (src->fmt == EHS_CAM_FMT_DEF || src->fmt == EHS_CAM_FMT_8UC1) {
+				EhsCamEmbeddedRendererFn renderer = EhsCameraFrameGetEmbeddedRenderer();
+				if (renderer) {
+					void* data = NULL;
+					ehs_uint32 sz = 0;
+					if (EhsCameraFrameGetData(src, &data, &sz) && data) {
+						ehs_sint32 dst_w = (state->disp_w > 0) ? state->disp_w
+						                                        : (ehs_sint32)src->width;
+						ehs_sint32 dst_h = (state->disp_h > 0) ? state->disp_h
+						                                        : (ehs_sint32)src->height;
+						renderer(state->pos_x, state->pos_y, dst_w, dst_h,
+						         data, (ehs_sint32)src->width, (ehs_sint32)src->height,
+						         mat->channels);
+					}
+				}
+			}
 		}
 #endif
 	}
@@ -128,9 +154,15 @@ EHS_FB_INIT_FUNCTION(frame_show)
 	inx_frame_show_state_type* state = (inx_frame_show_state_type*)EHS_FB_INIT_CONTEXT;
 
 	EhsMemset(state->window_title, 0, INX_FRAME_SHOW_WINDOW_TITLE_SIZE + 1);
+	state->pos_x = 0;
+	state->pos_y = 0;
+	state->disp_w = 0;
+	state->disp_h = 0;
 	EhsSscanf(EHS_FB_INIT_PARAMETERS,
-	          "%" INX_FRAME_SHOW_STR(INX_FRAME_SHOW_WINDOW_TITLE_SIZE) "s",
-	          state->window_title);
+	          "%" INX_FRAME_SHOW_STR(INX_FRAME_SHOW_WINDOW_TITLE_SIZE) "s %d %d %d %d",
+	          state->window_title,
+	          &state->pos_x, &state->pos_y,
+	          &state->disp_w, &state->disp_h);
 
 	state->disp_frame_id  = -1;
 	state->disp_running   = 0;

@@ -19,14 +19,16 @@ Type: Data | Height: 125
 
 Legend: ── Data | ►─ Event
 
-**Parameters (7):**
-- **Model Type:** 0 (0 to 4001) - The type of model loaded. It is used to determine 
-- **Model File Ext:** 1 (1 to 4) - The file extension of the loaded model. 1 for `.tf
+**Parameters (9):**
+- **Model Type:** 0 (0 to 4001) - The type of model loaded. Used to select the post-
+- **Model Format:** 0 (0 to 4) - The format of the loaded model file. 0 = auto-dete
 - **Data Type:** 0 (0 to 4) - The Data type of model input/ouput. 0 for auto-det
 - **HW Accelerate:** 0 (Bool) - Whether to enable the hardware acceleration. Some 
 - **Conf Thres:** 0.5 (Real) - The confidence Threshold for the output data. The 
 - **Thread Number:** 0 (0 to 16) - The number of threads for inference. If the platfo
 - **Use Application Dir:** 0 (Bool) - Whether to use application directory as the root o
+- **JSON Format:** 0 (0 to 1) - Output JSON structure. 0 = object-based (default):
+- **Coord Format:** 0 (0 to 1) - Bounding box coordinate format in JSON output. 0 =
 
 **Port Summary:**
 - **Left:**  4 ports (2 events, 2 data)

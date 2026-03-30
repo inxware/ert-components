@@ -25,6 +25,7 @@
 #include "inx-frame_read_file.h"
 #include "inx-apriltag.h"
 #include "inx-frame_show.h"
+#include "inx-mv_objdet_annotate.h"
 
 EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_mv[] =
 {
@@ -35,6 +36,7 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_mv[] =
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_FrameReadFromFile,INXWARE_FB_ID_FrameReadFromFile,FrameReadFromFile),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_Camera,INXWARE_FB_ID_apriltag,apriltag),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_frame_show,INXWARE_FB_ID_frame_show,frame_show),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_mv_objdet_annotate,INXWARE_FB_ID_mv_objdet_annotate,mv_objdet_annotate),
 	{0}
 };
 

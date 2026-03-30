@@ -41,9 +41,49 @@
             <DefaultValue>frame</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>0</MaxValue>
-            <Description>Title of the pop window.</Description>
+            <Description>Title of the pop window (OpenCV path only).</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>x</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-32768</MinValue>
+            <MaxValue>32767</MaxValue>
+            <Description>Horizontal position on screen in pixels. 0 = default window placement.</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>y</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>-32768</MinValue>
+            <MaxValue>32767</MaxValue>
+            <Description>Vertical position on screen in pixels. 0 = default window placement.</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>w</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>32767</MaxValue>
+            <Description>Display width in pixels. 0 = use the frame's natural width.</Description>
+            <ListPlacement>4</ListPlacement>
+            <ArgPlacement>4</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>h</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>32767</MaxValue>
+            <Description>Display height in pixels. 0 = use the frame's natural height.</Description>
+            <ListPlacement>5</ListPlacement>
+            <ArgPlacement>5</ArgPlacement>
         </Parameter>
     </Parameters>
     <Functions>

@@ -42,4 +42,6 @@ OBJECTS += inx-apriltag.$(OBJ)
 
 OBJECTS += inx-frame_show.$(OBJ)
 
+OBJECTS += inx-mv_objdet_annotate.$(OBJ)
+
 VPATH+= $(EHS_COMMON_COMPONENTS_PATH)/mv

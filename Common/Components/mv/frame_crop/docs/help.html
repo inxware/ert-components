@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+    <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container">
+        <span class="toc_span">Frame Crop</span>
+        <!--these display in reverse order because they use float:right-->
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+        <span class="toc_span_items"><a href="#coords">Coords &#8595;</a></span>
+      </div>
+
+      <!--General Description-->
+      <p class="component">
+        <strong>Frame Crop</strong> cuts a rectangular sub-region from a camera frame and
+        writes the result into a new frame buffer. The cropped frame can then be passed to
+        downstream blocks such as <em>Frame Resize</em>, <em>Frame Format</em>,
+        <em>Frame Show</em>, or ML inference blocks, exactly like any other frame.
+      </p>
+      <p>
+        The crop region is defined by two corner coordinates: <strong>(x1, y1)</strong>
+        is the top-left corner and <strong>(x2, y2)</strong> is the bottom-right corner,
+        both in pixels relative to the top-left of the source frame. Crop values can be
+        set as static parameters and/or overridden at runtime via the input ports.
+      </p>
+      <p>
+        If all four crop values are zero the block fires <strong>err</strong> with errno
+        <strong>2</strong> (UNUSED) and does not produce a cropped frame. This lets you
+        conditionally bypass cropping without disconnecting the block.
+      </p>
+      <p>
+        The block works on frames in any pixel format: default BGR (format&nbsp;0),
+        greyscale 8-bit (format&nbsp;1), normalised 32-bit float single-channel
+        (format&nbsp;2), and normalised 32-bit float three-channel (format&nbsp;3).
+        Connect the output of <em>Frame Format</em> directly to <em>Frame Crop</em>
+        when working with converted frames.
+      </p>
+
+      <!--Coordinate system-->
+      <div class="section_heading">
+        <span class="toc_span" id="coords">Coordinate System &amp; Magic Numbers</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#parameters">Params &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+
+      <p>
+        Crop coordinates are <strong>pixel offsets from the top-left corner of the source
+        frame</strong>, measured in the frame's native pixel grid (before any resize).
+      </p>
+
+      <table class="table">
+        <tr>
+          <th>Value</th>
+          <th>Meaning</th>
+        </tr>
+        <tr>
+          <td><code>x1</code></td>
+          <td>
+            Left edge of the crop region (column offset). The cropped frame starts
+            at this column. <code>0</code> = left edge of the source.
+          </td>
+        </tr>
+        <tr>
+          <td><code>y1</code></td>
+          <td>
+            Top edge of the crop region (row offset). The cropped frame starts at
+            this row. <code>0</code> = top edge of the source.
+          </td>
+        </tr>
+        <tr>
+          <td><code>x2</code></td>
+          <td>
+            Right edge of the crop region (exclusive column). The output width is
+            <code>x2 &minus; x1</code>. Must be greater than <code>x1</code> and
+            no larger than the source frame width.
+          </td>
+        </tr>
+        <tr>
+          <td><code>y2</code></td>
+          <td>
+            Bottom edge of the crop region (exclusive row). The output height is
+            <code>y2 &minus; y1</code>. Must be greater than <code>y1</code> and
+            no larger than the source frame height.
+          </td>
+        </tr>
+      </table>
+
+      <p>
+        <strong>Example:</strong> to crop a 1920&times;1080 frame down to a 640&times;480
+        region starting 100 pixels from the left and 60 pixels from the top:
+      </p>
+      <pre>x1 = 100,  y1 = 60,  x2 = 740,  y2 = 540</pre>
+      <p>
+        This produces a 640&times;480 output frame
+        (<code>x2&minus;x1 = 640</code>, <code>y2&minus;y1 = 480</code>).
+      </p>
+
+      <p>
+        <strong>All-zero bypass:</strong> if all four parameters and all four input ports
+        are zero (the default), the block treats cropping as unused and fires
+        <strong>err</strong> (errno = 2, UNUSED) without producing an output frame.
+        This is intentional — it allows a crop block to be placed in a pipeline and
+        effectively disabled by leaving the defaults.
+      </p>
+
+      <!--Parameters-->
+      <div class="section_heading">
+        <span class="toc_span" id="parameters">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+        <div class="toc_span_items"><a href="#coords">Coords &#8593;</a></div>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><a name="[Param]crop_x1">crop_x1</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Static left edge (column offset) of the crop region. Can be overridden at
+            runtime by connecting the <strong>crop_x1</strong> input port.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]crop_y1">crop_y1</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Static top edge (row offset) of the crop region. Can be overridden at
+            runtime by connecting the <strong>crop_y1</strong> input port.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]crop_x2">crop_x2</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Static right edge (exclusive column) of the crop region. Can be overridden
+            at runtime by connecting the <strong>crop_x2</strong> input port.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]crop_y2">crop_y2</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Static bottom edge (exclusive row) of the crop region. Can be overridden
+            at runtime by connecting the <strong>crop_y2</strong> input port.
+          </td>
+        </tr>
+      </table>
+
+      <!--Ports-->
+      <div class="section_heading">
+        <span class="toc_span" id="ports">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+        <span class="toc_span_items"><a href="#coords">Coords &#8593;</a></span>
+      </div>
+      <table class="table">
+        <!-- run_cropping -->
+        <tr>
+          <th colspan="3">run_cropping</th>
+        </tr>
+        <tr>
+          <th>In Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]run_fmt">run</a></td>
+          <td></td>
+          <td>
+            Triggers the crop operation. Reads the source frame identified by
+            <strong>stream_id</strong>, crops it using the current coordinate values,
+            and stores the result in this block's private frame buffer. Fires
+            <strong>--</strong> on success or <strong>err</strong> on failure.
+          </td>
+        </tr>
+        <tr>
+          <th>Data In</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]frame_id">stream_id</a></td>
+          <td>I</td>
+          <td>
+            Frame slot ID of the source frame to crop. Obtain this from the
+            <strong>stream_id</strong> output of <em>Camera</em>, <em>Frame Format</em>,
+            <em>Frame Resize</em>, or another upstream frame block.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]crop_x1">crop_x1</a></td>
+          <td>I</td>
+          <td>
+            Runtime left edge override. If connected, this value takes precedence over
+            the <strong>crop_x1</strong> parameter for this invocation.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]crop_y1">crop_y1</a></td>
+          <td>I</td>
+          <td>
+            Runtime top edge override. If connected, this value takes precedence over
+            the <strong>crop_y1</strong> parameter for this invocation.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]crop_x2">crop_x2</a></td>
+          <td>I</td>
+          <td>
+            Runtime right edge override. If connected, this value takes precedence over
+            the <strong>crop_x2</strong> parameter for this invocation.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]crop_y2">crop_y2</a></td>
+          <td>I</td>
+          <td>
+            Runtime bottom edge override. If connected, this value takes precedence over
+            the <strong>crop_y2</strong> parameter for this invocation.
+          </td>
+        </tr>
+        <tr>
+          <th>Out Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]start_ok">--</a></td>
+          <td></td>
+          <td>Fired when the crop completed successfully. The cropped frame is available on <strong>stream_id</strong>.</td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]start_error">err</a></td>
+          <td></td>
+          <td>
+            Fired when the crop failed or was bypassed. Connect <strong>errno</strong>
+            to determine the reason (see <a href="#errors">Error Codes</a>).
+          </td>
+        </tr>
+        <tr>
+          <th>Data Out</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]start_errno">errno</a></td>
+          <td>I</td>
+          <td>
+            Error code set after each invocation of <em>run_cropping</em>.
+            <code>0</code> = success. See <a href="#errors">Error Codes</a> below.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]formated_frame_id">stream_id</a></td>
+          <td>I</td>
+          <td>
+            Frame slot ID of the cropped output frame. Only valid after
+            <strong>--</strong> fires. Pass this to downstream blocks
+            (<em>Frame Resize</em>, <em>Frame Show</em>, ML inference, etc.).
+          </td>
+        </tr>
+      </table>
+
+      <!--Error Codes-->
+      <div class="section_heading">
+        <span class="toc_span" id="errors">Error Codes</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <p>
+        The <strong>errno</strong> output port carries one of the following values after
+        each invocation of <em>run_cropping</em>.
+      </p>
+      <table class="table">
+        <tr>
+          <th>Value</th>
+          <th>Name</th>
+          <th>Meaning</th>
+          <th>Common causes &amp; remedies</th>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>OK</td>
+          <td>Crop succeeded.</td>
+          <td>&mdash; <strong>--</strong> event fires.</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>FAILED</td>
+          <td>Crop operation failed.</td>
+          <td>
+            <ul>
+              <li>No valid source frame: the <strong>stream_id</strong> input is not
+                connected or the upstream block has not yet produced a frame.</li>
+              <li>This block's internal frame buffer is not initialised (frame slot
+                allocation failed at startup).</li>
+              <li>The crop coordinates extend outside the source frame boundaries
+                (<code>x2 &gt; frame_width</code> or <code>y2 &gt; frame_height</code>).
+                Check that the coordinates match the actual frame dimensions.</li>
+              <li>The HAL crop function returned an error (e.g. memory allocation
+                failure).</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>UNUSED</td>
+          <td>All crop values are zero — cropping was skipped.</td>
+          <td>
+            Set at least one of <strong>x1</strong>, <strong>y1</strong>,
+            <strong>x2</strong>, or <strong>y2</strong> to a non-zero value, either
+            as a parameter or via a connected input port. If zero-bypass is intentional,
+            ignore this event or connect it to a pass-through path.
+          </td>
+        </tr>
+      </table>
+
+      <!--Miscellaneous-->
+      <div class="section_heading">
+        <span class="toc_span" id="misc">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8593;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <table>
+        <tr class="fsm_row">
+          <td style="width:90px;">
+            <b>State Machine</b>
+          </td>
+          <td colspan="5">
+            (run_cropping)*
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Toolbox</b>
+          </td>
+          <td>
+            Machine Vision &gt; Frame Crop
+          </td>
+          <td class="heading-cell">
+            <b>Version</b>
+          </td>
+          <td>
+            v1.0
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Licence Type</b>
+          </td>
+          <td>
+            LGPLv3
+          </td>
+          <td class="heading-cell">
+            <b>Component Supplier</b>
+          </td>
+          <td>
+            <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Minimum DCC</b>
+          </td>
+          <td>A0000</td>
+          <td class="heading-cell">
+            <b>Profiles</b>
+          </td>
+          <td>
+            Linux x86_64, Linux ARM64, Raspberry Pi, Jetson.
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

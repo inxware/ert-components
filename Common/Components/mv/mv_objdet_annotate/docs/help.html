@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container">
+        <span class="toc_span">Annotate (ObjDet)</span>
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+        <span class="toc_span_items"><a href="#colours">Colours &#8595;</a></span>
+        <span class="toc_span_items"><a href="#json">JSON &#8595;</a></span>
+      </div>
+
+      <p class="component">
+        <strong>Annotate (ObjDet)</strong> draws labelled bounding boxes onto a camera
+        frame using the JSON detection output from <em>ML Image Inference</em> or
+        <em>TFLite Frame</em>. Each detection gets a coloured outline box and an optional
+        text label showing the class name and confidence percentage. The frame is
+        modified in-place — pass its ID to <em>Frame Show</em> or save it with
+        <em>Frame Write File</em> to see the annotations.
+      </p>
+      <p>
+        Box colour is keyed automatically from the object class ID using a built-in
+        16-colour palette that cycles for class IDs beyond 15. No configuration is
+        required to get distinct colours for multi-class models.
+      </p>
+
+      <!--JSON format section-->
+      <div class="section_heading">
+        <span class="toc_span" id="json">Detection JSON Formats</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#parameters">Params &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+
+      <p>
+        The block accepts both JSON formats produced by <em>ML Image Inference</em>.
+        All coordinates are pixel-space centre + width/height of the bounding box.
+      </p>
+
+      <p><strong>Object-array format</strong> (default, <code>enable_flat_json=0</code>):</p>
+      <pre>{"type":1,"det_cnt":2,"res":[
+  {"cls":0,"lbl":"person","cnf":0.87,"x":320,"y":240,"w":100,"h":80},
+  {"cls":2,"lbl":"car",   "cnf":0.92,"x":640,"y":360,"w":200,"h":150}
+]}</pre>
+
+      <p><strong>Flat format</strong> (<code>enable_flat_json=1</code>):</p>
+      <pre>{"type":1,"det_cnt":2,
+ "cls0":0,"lbl0":"person","cnf0":0.87,"x0":320,"y0":240,"w0":100,"h0":80,
+ "cls1":2,"lbl1":"car",   "cnf1":0.92,"x1":640,"y1":360,"w1":200,"h1":150}</pre>
+
+      <p>
+        Coordinate semantics: <code>x</code> and <code>y</code> are the pixel coordinates
+        of the box centre. <code>w</code> and <code>h</code> are the full width and height
+        of the box. The block converts these to top-left / bottom-right corners internally.
+        Detections with <code>w=0</code> or <code>h=0</code> are silently skipped.
+        Up to 50 detections per frame are processed; extras are ignored.
+      </p>
+
+      <!--Colour palette section-->
+      <div class="section_heading">
+        <span class="toc_span" id="colours">Colour Palette (class_id % 16)</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#parameters">Params &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+
+      <p>
+        Box colour is selected as <code>palette[class_id % 16]</code>. The palette is
+        designed to give visually distinct colours even on low-contrast backgrounds.
+        For COCO-80 models, each of the 80 classes gets one of these 16 colours
+        (5 classes per colour slot).
+      </p>
+
+      <table class="table">
+        <tr><th>Index</th><th>Colour</th><th>RGB</th><th>COCO-80 classes (examples)</th></tr>
+        <tr><td>0</td><td style="background:#ff4040;color:#000">&#9632;</td><td>(255, 64, 64)</td><td>person, bus, elephant, backpack, frisbee</td></tr>
+        <tr><td>1</td><td style="background:#40dc40;color:#000">&#9632;</td><td>(64, 220, 64)</td><td>bicycle, train, bear, umbrella, skis</td></tr>
+        <tr><td>2</td><td style="background:#4080ff;color:#000">&#9632;</td><td>(64, 128, 255)</td><td>car, truck, zebra, handbag, snowboard</td></tr>
+        <tr><td>3</td><td style="background:#ffdc20;color:#000">&#9632;</td><td>(255, 220, 32)</td><td>motorcycle, boat, giraffe, tie, sports ball</td></tr>
+        <tr><td>4</td><td style="background:#ff8020;color:#000">&#9632;</td><td>(255, 128, 32)</td><td>airplane, traffic light, backpack, suitcase, kite</td></tr>
+        <tr><td>5</td><td style="background:#dc40dc;color:#000">&#9632;</td><td>(220, 64, 220)</td><td>bus, fire hydrant, umbrella, frisbee, baseball bat</td></tr>
+        <tr><td>6</td><td style="background:#20d2d2;color:#000">&#9632;</td><td>(32, 210, 210)</td><td>train, stop sign, handbag, skis, baseball glove</td></tr>
+        <tr><td>7</td><td style="background:#40ffdc;color:#000">&#9632;</td><td>(64, 255, 220)</td><td>truck, parking meter, tie, snowboard, skateboard</td></tr>
+        <tr><td>8</td><td style="background:#ffa040;color:#000">&#9632;</td><td>(255, 160, 64)</td><td>boat, bench, suitcase, surfboard, tennis racket</td></tr>
+        <tr><td>9</td><td style="background:#80ff80;color:#000">&#9632;</td><td>(128, 255, 128)</td><td>traffic light, bird, kite, bottle, bottle</td></tr>
+        <tr><td>10</td><td style="background:#a0a0ff;color:#000">&#9632;</td><td>(160, 160, 255)</td><td>fire hydrant, cat, baseball bat, wine glass, fork</td></tr>
+        <tr><td>11</td><td style="background:#ff8c8c;color:#000">&#9632;</td><td>(255, 140, 140)</td><td>stop sign, dog, baseball glove, cup, knife</td></tr>
+        <tr><td>12</td><td style="background:#80e6e6;color:#000">&#9632;</td><td>(128, 230, 230)</td><td>parking meter, horse, skateboard, fork, spoon</td></tr>
+        <tr><td>13</td><td style="background:#ffa0dc;color:#000">&#9632;</td><td>(255, 160, 220)</td><td>bench, sheep, surfboard, knife, bowl</td></tr>
+        <tr><td>14</td><td style="background:#b4b430;color:#000">&#9632;</td><td>(180, 180, 48)</td><td>bird, cow, tennis racket, spoon, banana</td></tr>
+        <tr><td>15</td><td style="background:#b440b4;color:#000">&#9632;</td><td>(180, 64, 180)</td><td>cat, elephant, bottle, bowl, apple</td></tr>
+      </table>
+
+      <!--Parameters-->
+      <div class="section_heading">
+        <span class="toc_span" id="parameters">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+        <div class="toc_span_items"><a href="#colours">Colours &#8593;</a></div>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Name</th><th>Type</th><th>Default</th><th>Min</th><th>Max</th><th>Description</th>
+        </tr>
+        <tr>
+          <td><a name="[Param]box_thickness">box_thickness</a></td>
+          <td>I</td><td>2</td><td>1</td><td>10</td>
+          <td>
+            Outline thickness of each bounding box in pixels.
+            <code>1</code> = thinnest single-pixel line.
+            <code>2</code>–<code>3</code> recommended for 640&times;480 or larger frames.
+            Values outside [1, 10] are clamped.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]show_label">show_label</a></td>
+          <td>B</td><td>1</td><td>0</td><td>1</td>
+          <td>
+            When <code>1</code>, draws a text label above each bounding box containing
+            the class name and confidence percentage (e.g. <em>person 87%</em>).
+            When <code>0</code>, only the coloured outline is drawn — useful when labels
+            are too small to read at the displayed resolution.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]copy_frame">copy_frame</a></td>
+          <td>B</td><td>0</td><td>0</td><td>1</td>
+          <td>
+            Controls whether annotation is performed in-place or on a copy of the frame.
+            <br/><strong>0 (default) — in-place:</strong> bounding boxes are drawn
+            directly onto the input frame. No extra memory is allocated. Use this when
+            the annotated frame is the only consumer downstream (e.g. pass to
+            <em>Frame Show</em> or <em>Frame Write File</em>). Do <em>not</em> feed the
+            same frame to ML inference after annotation in this mode — draw operations
+            corrupt inference inputs.
+            <br/><strong>1 — copy mode:</strong> the input frame is cloned into a
+            private frame buffer before annotation. The original frame is left untouched
+            and can continue to be used for further inference. The cloned (annotated)
+            frame ID is output on <strong>annotated_frame_id</strong>. Uses additional
+            memory equal to one uncompressed frame.
+          </td>
+        </tr>
+      </table>
+
+      <!--Ports-->
+      <div class="section_heading">
+        <span class="toc_span" id="ports">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+        <span class="toc_span_items"><a href="#colours">Colours &#8593;</a></span>
+      </div>
+      <table class="table">
+        <tr><th colspan="3">annotate</th></tr>
+        <tr><th>In Ev.</th><th>Type</th><th></th></tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]run">run</a></td>
+          <td></td>
+          <td>
+            Triggers annotation. Reads the <strong>frame id</strong> and
+            <strong>detections</strong> inputs, parses the JSON, and draws all
+            bounding boxes onto the frame. Fires <strong>done</strong> on success
+            (including when there are zero valid detections) or <strong>error</strong>
+            on a hard failure such as a missing frame or unparseable JSON structure.
+          </td>
+        </tr>
+        <tr><th>Data In</th><th>Type</th><th></th></tr>
+        <tr>
+          <td class="portsData"><a name="[In]frame_id">frame id</a></td>
+          <td>I</td>
+          <td>
+            Frame slot ID of the frame to annotate. Obtain from <em>Camera</em>,
+            <em>Frame Resize</em>, <em>Frame Crop</em>, or another frame-producing block.
+            The frame is modified <strong>in-place</strong>: its pixel data is changed by
+            the draw operations. Do not feed this same frame slot to ML inference
+            <em>after</em> annotation — draw operations corrupt inference inputs.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsStr"><a name="[In]detections">detections</a></td>
+          <td>S</td>
+          <td>
+            Detection JSON string. Connect to the <strong>output</strong> port of
+            <em>ML Image Inference</em> or <em>TFLite Frame</em>. Both the
+            object-array format (<code>"res":[...]</code>) and the flat indexed format
+            (<code>"cls0":N,"x0":N,...</code>) are accepted.
+            See <a href="#json">Detection JSON Formats</a> for field details.
+          </td>
+        </tr>
+        <tr><th>Out Ev.</th><th>Type</th><th></th></tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]done">done</a></td>
+          <td></td>
+          <td>
+            Fired when annotation completed — either boxes were drawn, or the JSON
+            contained zero valid detections (<code>det_cnt=0</code> or all detections
+            had zero-size boxes). Check <strong>errno</strong> to distinguish.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]error">error</a></td>
+          <td></td>
+          <td>
+            Fired when annotation could not proceed: invalid frame ID, frame not found,
+            or missing JSON input. Connect <strong>errno</strong> to determine the
+            specific reason.
+          </td>
+        </tr>
+        <tr><th>Data Out</th><th>Type</th><th></th></tr>
+        <tr>
+          <td class="portsData"><a name="[Out]errno">errno</a></td>
+          <td>I</td>
+          <td>
+            Result code. See <a href="#errors">Error Codes</a> below.
+            <code>0</code> means boxes were successfully drawn.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]annotated_frame_id">annotated frame id</a></td>
+          <td>I</td>
+          <td>
+            Frame slot ID of the annotated output frame. The value depends on
+            <strong>copy_frame</strong>:
+            <ul>
+              <li><strong>copy_frame=0</strong> (in-place): outputs the same ID as
+                <strong>frame id</strong> — the original frame, now annotated.</li>
+              <li><strong>copy_frame=1</strong> (copy mode): outputs the ID of the
+                cloned frame that was annotated. The original frame is unchanged.</li>
+            </ul>
+            On <strong>error</strong>, outputs <code>-1</code>. Always check for
+            <code>-1</code> before passing downstream.
+          </td>
+        </tr>
+      </table>
+
+      <!--Error Codes-->
+      <div class="section_heading">
+        <span class="toc_span" id="errors">Error Codes</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <table class="table">
+        <tr><th>Value</th><th>Name</th><th>Meaning</th><th>Common causes &amp; remedies</th></tr>
+        <tr>
+          <td>0</td><td>OK</td>
+          <td>Annotation succeeded — boxes were drawn.</td>
+          <td><strong>done</strong> event fires. Frame is now annotated.</td>
+        </tr>
+        <tr>
+          <td>1</td><td>FAILED</td>
+          <td>Hard failure — nothing drawn.</td>
+          <td>
+            <ul>
+              <li>The <strong>frame id</strong> input was not connected or carried a
+                negative value (no frame available yet — check upstream block fires
+                before annotate).</li>
+              <li>The frame slot ID was not found in the global frame pool (frame was
+                destroyed or never created).</li>
+              <li>The <strong>detections</strong> input was not connected.</li>
+            </ul>
+            <strong>error</strong> event fires. Connect errno to a display to confirm.
+          </td>
+        </tr>
+        <tr>
+          <td>2</td><td>NO_DETECTIONS</td>
+          <td>JSON parsed successfully but no boxes were drawn.</td>
+          <td>
+            <code>det_cnt</code> was 0 or all detection entries had zero-size boxes
+            (<code>w=0</code> or <code>h=0</code>). This is normal when the model
+            found nothing in the current frame. <strong>done</strong> event fires —
+            it is not an error condition.
+          </td>
+        </tr>
+      </table>
+
+      <!--Miscellaneous-->
+      <div class="section_heading">
+        <span class="toc_span" id="misc">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8593;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <table>
+        <tr class="fsm_row">
+          <td style="width:90px;"><b>State Machine</b></td>
+          <td colspan="5">(annotate)*</td>
+        </tr>
+        <tr>
+          <td class="heading-cell"><b>Toolbox</b></td>
+          <td>Machine Vision &gt; Annotate</td>
+          <td class="heading-cell"><b>Version</b></td>
+          <td>v1.0</td>
+        </tr>
+        <tr>
+          <td class="heading-cell"><b>Licence Type</b></td>
+          <td>LGPLv3</td>
+          <td class="heading-cell"><b>Component Supplier</b></td>
+          <td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td>
+        </tr>
+        <tr>
+          <td class="heading-cell"><b>Minimum DCC</b></td>
+          <td>A0000</td>
+          <td class="heading-cell"><b>Profiles</b></td>
+          <td>Linux x86_64 (OpenCV), Linux ARM64 (OpenCV), Raspberry Pi.</td>
+        </tr>
+        <tr>
+          <td class="heading-cell"><b>Notes</b></td>
+          <td colspan="3">
+            Drawing is not supported on Jetson targets (no OpenCV display layer).
+            The block will fire <strong>error</strong> on Jetson. Run inference on
+            Jetson and annotate frames on a secondary OpenCV host if needed.
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
