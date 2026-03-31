@@ -102,6 +102,8 @@ ifneq ($(EHS_MQTT_SUPPORT),)
 	OBJECTS += inx-mqtt_client.$(OBJ)
 	OBJECTS += inx-mqtt_publish.$(OBJ)
 	OBJECTS += inx-mqtt_subscribe.$(OBJ)
+	OBJECTS += inx-mqtt_publish_typed.$(OBJ)
+	OBJECTS += inx-mqtt_subscribe_typed.$(OBJ)
 endif
 endif
 endif
