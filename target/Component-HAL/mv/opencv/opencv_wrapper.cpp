@@ -39,9 +39,10 @@ extern "C" {
  *  cv_mat_waitkey() is therefore a no-op.
  * ============================================================ */
 struct HighguiReq {
-    enum Kind { NONE, IMSHOW, DESTROY_ALL } kind = NONE;
+    enum Kind { NONE, IMSHOW, SHOW_AT, DESTROY_ALL } kind = NONE;
     std::string                  window_name;
     std::shared_ptr<cv::Mat>     frame;  /* shared ownership; no pixel copy */
+    int win_x = 0, win_y = 0, win_w = 0, win_h = 0;
 };
 
 static std::mutex              g_hg_mtx;
@@ -62,6 +63,13 @@ static void highgui_thread_run()
         }
         if (req.kind == HighguiReq::IMSHOW && req.frame && !req.frame->empty())
             cv::imshow(req.window_name, *req.frame);
+        else if (req.kind == HighguiReq::SHOW_AT && req.frame && !req.frame->empty()) {
+            cv::namedWindow(req.window_name, cv::WINDOW_NORMAL);
+            if (req.win_w > 0 && req.win_h > 0)
+                cv::resizeWindow(req.window_name, req.win_w, req.win_h);
+            cv::moveWindow(req.window_name, req.win_x, req.win_y);
+            cv::imshow(req.window_name, *req.frame);
+        }
         else if (req.kind == HighguiReq::DESTROY_ALL)
             cv::destroyAllWindows();
         /* Pump Qt event loop on every iteration, even with no new frame */
@@ -587,13 +595,14 @@ int cv_mat_convert_to(const cv_mat* src,
         if (!sp_src || sp_src->empty()) return CV_CAM_READ_ERR;
         cv::Mat converted;
         sp_src->convertTo(converted, rtype, alpha, beta);
+        int cols = converted.cols, rows = converted.rows, ch = converted.channels();
         auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(converted)));
         if (!holder) return CV_CAM_ALLOC_ERR;
         dst->impl        = holder;
         dst->opencl_mode = 0;
-        dst->width       = converted.cols;
-        dst->height      = converted.rows;
-        dst->channels    = converted.channels();
+        dst->width       = cols;
+        dst->height      = rows;
+        dst->channels    = ch;
     }
     return CV_CAM_OK;
 }
@@ -724,19 +733,18 @@ int cv_mat_draw_rectangle(cv_mat* mat,
                           int r, int g, int b,
                           int thickness)
 {
-    if (!mat || !mat->impl) {
-        return CV_CAM_ALLOC_ERR;
-    }
-
-    auto mat_ptr = static_cast<std::shared_ptr<cv::Mat>*>(mat->impl);
-    if (!mat_ptr || !(*mat_ptr) || (*mat_ptr)->empty()) {
-        return CV_CAM_ALLOC_ERR;
-    }
+    MatPtr* mat_ptr = to_mat(mat);
+    if (!mat_ptr || !(*mat_ptr) || (*mat_ptr)->empty()) return CV_CAM_ALLOC_ERR;
 
     try {
-        cv::rectangle(*(*mat_ptr),
+        cv::Mat& m = *(*mat_ptr);
+        /* Scale colours to [0.0, 1.0] for float-depth images (e.g. 32FC3_NORM).
+         * Integer-depth images (8UC3) use the values as-is (0–255). */
+        bool is_float = (m.depth() == CV_32F || m.depth() == CV_64F);
+        double scale = is_float ? 1.0 / 255.0 : 1.0;
+        cv::rectangle(m,
                       cv::Rect(x, y, width, height),
-                      cv::Scalar(b, g, r),  // OpenCV uses BGR order
+                      cv::Scalar(b * scale, g * scale, r * scale),  // OpenCV uses BGR
                       thickness);
         return CV_CAM_OK;
     } catch (...) {
@@ -751,18 +759,20 @@ int cv_mat_draw_text(cv_mat* mat,
                      int r, int g, int b,
                      int thickness)
 {
-    if (!mat || !mat->impl || !text) return CV_CAM_ALLOC_ERR;
-
-    auto mat_ptr = static_cast<std::shared_ptr<cv::Mat>*>(mat->impl);
+    if (!text) return CV_CAM_ALLOC_ERR;
+    MatPtr* mat_ptr = to_mat(mat);
     if (!mat_ptr || !(*mat_ptr) || (*mat_ptr)->empty()) return CV_CAM_ALLOC_ERR;
 
     try {
-        cv::putText(*(*mat_ptr),
+        cv::Mat& m = *(*mat_ptr);
+        bool is_float = (m.depth() == CV_32F || m.depth() == CV_64F);
+        double scale = is_float ? 1.0 / 255.0 : 1.0;
+        cv::putText(m,
                     text,
                     cv::Point(x, y),
                     cv::FONT_HERSHEY_SIMPLEX,
                     font_scale,
-                    cv::Scalar(b, g, r),
+                    cv::Scalar(b * scale, g * scale, r * scale),
                     thickness);
         return CV_CAM_OK;
     } catch (...) {
@@ -789,6 +799,58 @@ int cv_mat_imshow(const char* window_name, const cv_mat* mat) {
         g_hg_req.kind        = HighguiReq::IMSHOW;
         g_hg_req.window_name = window_name;
         g_hg_req.frame       = *mat_ptr; /* shared ownership; latest frame wins */
+    }
+    g_hg_cv.notify_one();
+    return CV_CAM_OK;
+}
+
+int cv_mat_clone(const cv_mat* src, cv_mat* dst)
+{
+    if (!src || !src->impl || !dst) return CV_CAM_ALLOC_ERR;
+    try {
+        cv::Mat cloned;
+        if (!src->opencl_mode) {
+            MatPtr* sp = static_cast<MatPtr*>(src->impl);
+            if (!sp || !(*sp)) return CV_CAM_ALLOC_ERR;
+            cloned = (*sp)->clone();
+        } else {
+            UMatPtr* sp = static_cast<UMatPtr*>(src->impl);
+            if (!sp || !(*sp)) return CV_CAM_ALLOC_ERR;
+            cloned = (*sp)->getMat(cv::ACCESS_READ).clone();
+        }
+        int cols = cloned.cols, rows = cloned.rows, ch = cloned.channels();
+        cv_mat_release(dst);
+        auto* holder = new (std::nothrow) MatPtr(std::make_shared<cv::Mat>(std::move(cloned)));
+        if (!holder) return CV_CAM_ALLOC_ERR;
+        dst->impl        = holder;
+        dst->opencl_mode = 0;
+        dst->width       = cols;
+        dst->height      = rows;
+        dst->channels    = ch;
+        return CV_CAM_OK;
+    } catch (...) {
+        return CV_CAM_EXCEPTION_ERR;
+    }
+}
+
+int cv_mat_imshow_at(const char* window_name, const cv_mat* mat,
+                     int x, int y, int w, int h) {
+    if (!cv_has_display()) return CV_CAM_OK;
+    if (!window_name || !mat || !mat->impl) return CV_CAM_ALLOC_ERR;
+    auto* mat_ptr = static_cast<std::shared_ptr<cv::Mat>*>(mat->impl);
+    if (!mat_ptr || !(*mat_ptr) || (*mat_ptr)->empty()) return CV_CAM_ALLOC_ERR;
+
+    cv_ensure_highgui_thread();
+
+    {
+        std::lock_guard<std::mutex> lk(g_hg_mtx);
+        g_hg_req.kind        = HighguiReq::SHOW_AT;
+        g_hg_req.window_name = window_name;
+        g_hg_req.frame       = *mat_ptr;
+        g_hg_req.win_x       = x;
+        g_hg_req.win_y       = y;
+        g_hg_req.win_w       = w;
+        g_hg_req.win_h       = h;
     }
     g_hg_cv.notify_one();
     return CV_CAM_OK;

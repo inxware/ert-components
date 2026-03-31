@@ -178,7 +178,78 @@ ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint
 // Returns true on success.
 ehs_bool EhsCameraFrameFormat(EhsCameraFrame* src, EhsCameraFrame* dst, EhsCameraDataFormat fmt);
 
+// Deep-copy src frame into dst (dst must already have been created with EhsCameraFrameCreate).
+// dst gets its own independent pixel buffer; src is not modified.
+// Returns true on success.
+ehs_bool EhsCameraFrameCopy(const EhsCameraFrame* src, EhsCameraFrame* dst);
+
 // @TODO - add filtering functions e.g. Sobel, Threshold, Gauss, Morph etc.
 
+/**
+ * @brief Draw a bounding box and optional label on a frame in-place.
+ *
+ * Draws a rectangle from (x1, y1) to (x2, y2) with the given RGB colour and
+ * line thickness. If label is non-NULL and non-empty, the text is drawn just
+ * above the box top edge in the same colour.
+ *
+ * The frame is modified in-place. Coordinates are clamped to the frame bounds
+ * by the HAL implementation. Coordinates may be signed to allow for detections
+ * that partially overflow the frame edge.
+ *
+ * @param frame     Target frame (must have a valid frameObj).
+ * @param x1        Left edge of the box in pixels.
+ * @param y1        Top edge of the box in pixels.
+ * @param x2        Right edge of the box in pixels (exclusive).
+ * @param y2        Bottom edge of the box in pixels (exclusive).
+ * @param r         Red channel (0-255).
+ * @param g         Green channel (0-255).
+ * @param b         Blue channel (0-255).
+ * @param thickness Box outline thickness in pixels (>= 1).
+ * @param label     Null-terminated label string drawn above the box, or NULL.
+ * @return EHS_TRUE on success, EHS_FALSE on failure.
+ */
+ehs_bool EhsCameraFrameDrawBBox(EhsCameraFrame* frame,
+                                 ehs_sint32 x1, ehs_sint32 y1,
+                                 ehs_sint32 x2, ehs_sint32 y2,
+                                 ehs_uint8 r, ehs_uint8 g, ehs_uint8 b,
+                                 ehs_sint32 thickness,
+                                 const ehs_char* label);
+
+
+/**
+ * @brief Callback type for embedded frame renderers.
+ *
+ * An embedded renderer (e.g. LVGL canvas) receives raw pixel data from a
+ * camera frame and displays it within the native UI toolkit's scene, at the
+ * specified position and scaled to the destination size.
+ *
+ * The callback is invoked from the frame_show display worker thread.
+ * Implementations must be thread-safe (e.g. hold EhsTPMutex_viewport while
+ * touching LVGL objects).
+ *
+ * @param x        Left edge of the target region in screen/UI coordinates.
+ * @param y        Top edge of the target region.
+ * @param dst_w    Width of the rendered image in pixels (0 = use frame width).
+ * @param dst_h    Height of the rendered image in pixels (0 = use frame height).
+ * @param data     Pointer to raw pixel bytes (BGR uint8 or grayscale uint8).
+ * @param frame_w  Pixel width of the source frame.
+ * @param frame_h  Pixel height of the source frame.
+ * @param channels Bytes per pixel (3 = BGR, 1 = grayscale).
+ */
+typedef void (*EhsCamEmbeddedRendererFn)(
+    ehs_sint32 x, ehs_sint32 y,
+    ehs_sint32 dst_w, ehs_sint32 dst_h,
+    const void* data,
+    ehs_sint32 frame_w, ehs_sint32 frame_h,
+    ehs_sint32 channels);
+
+/**
+ * Register an embedded frame renderer.  Pass NULL to clear.
+ * Only one renderer can be registered at a time.
+ */
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn);
+
+/** Return the currently registered embedded renderer (may be NULL). */
+EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void);
 
 #endif // _EHS_HAL_MV_H

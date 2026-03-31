@@ -81,6 +81,22 @@ EhsML_Err EhsML_FW_TFLite_Create(EhsML_Context* ctx, const ehs_char* model_path,
     // TODO Support multiple input and output tensors
     ctx->input_tensor_count = 1;
     ctx->output_tensor_count = 1;
+    int i = 0;
+
+    /* Input tensor dimensions — needed by post-processors for pixel-coordinate scaling. */
+    int32_t input_dims = TfLiteTensorNumDims(tfl_model_ctx->in_tensor);
+    if (input_dims > EHS_ML_TENSOR_MAX_DIMS)
+    {
+        tflite_err_override = EHS_TRUE;
+        err = EHS_ML_MODEL_TENSOR_DIM_ERR;
+        goto tflite_error;
+    }
+    ctx->input_tensor[0].num_dims = (ehs_uint32)input_dims;
+    for (i = 0; i < input_dims; i++)
+    {
+        ctx->input_tensor[0].dims[i] = TfLiteTensorDim(tfl_model_ctx->in_tensor, i);
+    }
+
     int32_t output_dims = TfLiteTensorNumDims(tfl_model_ctx->out_tensor);
     if (output_dims > EHS_ML_TENSOR_MAX_DIMS)
     {
@@ -88,7 +104,6 @@ EhsML_Err EhsML_FW_TFLite_Create(EhsML_Context* ctx, const ehs_char* model_path,
         err = EHS_ML_MODEL_TENSOR_DIM_ERR;
         goto tflite_error;
     }
-    int i = 0;
     for (i = 0 ; i < output_dims ; i++)
     {
         ctx->output_tensor[0].dims[i] = TfLiteTensorDim(tfl_model_ctx->out_tensor, i);

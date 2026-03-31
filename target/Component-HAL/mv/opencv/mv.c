@@ -21,6 +21,19 @@ ehs_uint8 gEhsCameraDataFormatChanLen[EHS_CAM_FMT_MAX] = {
     //1,      // EHS_CAM_FMT_32FC1
 };
 
+/* Embedded renderer callback registration */
+static EhsCamEmbeddedRendererFn g_embedded_renderer = NULL;
+
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn)
+{
+    g_embedded_renderer = fn;
+}
+
+EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void)
+{
+    return g_embedded_renderer;
+}
+
 // Machine Vision Algorithms
 
 void EhsCameraFrameCreate(EhsCameraFrame* frame)
@@ -117,12 +130,45 @@ ehs_bool EhsCameraFrameResize(EhsCameraFrame* src, EhsCameraFrame* dst, ehs_uint
     return EHS_FALSE;
 }
 
+ehs_bool EhsCameraFrameCopy(const EhsCameraFrame* src, EhsCameraFrame* dst)
+{
+    if (!src || !src->frameObj || !dst || !dst->frameObj) return EHS_FALSE;
+    if (CV_CAM_OK != cv_mat_clone((const cv_mat*)src->frameObj, (cv_mat*)dst->frameObj))
+        return EHS_FALSE;
+    dst->width       = src->width;
+    dst->height      = src->height;
+    dst->fmt         = src->fmt;
+    dst->opencl_mode = EHS_CAM_ACCELERATION_DISABLED; /* clone is always CPU */
+    return EHS_TRUE;
+}
+
 /* @brief Pixel format converter.
     * Converts the pixel format of the source frame to the specified format using OpenCV libraries..
     * Supported formats: EHS_CAM_FMT_8UC1, EHS_CAM_FMT_32FC1_NORM, EHS_CAM_FMT_32FC3_NORM.
     * Returns EHS_TRUE on success, EHS_FALSE on failure.
     * NOTE: This is very slow! It oesn't use the GPU.
 */
+
+ehs_bool EhsCameraFrameDrawBBox(EhsCameraFrame* frame,
+                                 ehs_sint32 x1, ehs_sint32 y1,
+                                 ehs_sint32 x2, ehs_sint32 y2,
+                                 ehs_uint8 r, ehs_uint8 g, ehs_uint8 b,
+                                 ehs_sint32 thickness,
+                                 const ehs_char* label)
+{
+    if (!frame || !frame->frameObj) return EHS_FALSE;
+    cv_mat* mat = (cv_mat*)frame->frameObj;
+    ehs_sint32 w = x2 - x1;
+    ehs_sint32 h = y2 - y1;
+    if (w <= 0 || h <= 0) return EHS_FALSE;
+    if (CV_CAM_OK != cv_mat_draw_rectangle(mat, x1, y1, w, h, r, g, b, thickness))
+        return EHS_FALSE;
+    if (label && label[0]) {
+        ehs_sint32 text_y = (y1 > 14) ? (y1 - 4) : (y2 + 14);
+        cv_mat_draw_text(mat, label, x1, text_y, 0.5, r, g, b, 1);
+    }
+    return EHS_TRUE;
+}
 
 ehs_bool EhsCameraFrameFormat(EhsCameraFrame* src, EhsCameraFrame* dst, EhsCameraDataFormat fmt)
 {

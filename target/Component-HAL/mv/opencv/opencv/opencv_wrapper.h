@@ -176,6 +176,13 @@ int cv_mat_draw_text(cv_mat* mat,
                      int r, int g, int b,
                      int thickness);
 
+/* Deep-copy src into dst (dst gets its own independent pixel buffer).
+ * dst->impl must be NULL or a previously released cv_mat (call cv_mat_release first).
+ * The result is always a CPU cv::Mat regardless of src's opencl_mode.
+ * Returns CV_CAM_OK on success.
+ */
+int cv_mat_clone(const cv_mat* src, cv_mat* dst);
+
 /* Show a cv_mat in a window. The window stays open until key is pressed.
  * window_name : null-terminated string for window title
  * mat         : input frame (must be valid)
@@ -190,6 +197,15 @@ int cv_mat_show(const char* window_name, const cv_mat* mat, int wait_ms);
  * Returns CV_CAM_OK on success, error code otherwise.
  */
 int cv_mat_imshow(const char* window_name, const cv_mat* mat);
+
+/* Like cv_mat_imshow but positions and sizes the window.
+ * x, y: screen coordinates for the window's top-left corner.
+ * w, h: window client area size in pixels (0 = keep current / auto).
+ * Uses cv::WINDOW_NORMAL so the window can be freely resized/moved.
+ * Returns CV_CAM_OK on success, error code otherwise.
+ */
+int cv_mat_imshow_at(const char* window_name, const cv_mat* mat,
+                     int x, int y, int w, int h);
 
 /* Ensure the global highgui thread is running. Optional — cv_mat_imshow()
  * starts it lazily on first call.  May be called from init code.

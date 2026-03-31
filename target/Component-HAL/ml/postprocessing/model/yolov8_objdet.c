@@ -78,11 +78,11 @@
  * models, dequantise using ctx->output_tensor[0].quantisation_params.scale and
  * .offset before interpreting the decoded values.
  *
- * JSON output schema:
- *   {"cls0":"person","cnf0":0.87,"ymin0":45.2,"xmin0":120.1,"ymax0":380.0,"xmax0":290.4,...,"det_cnt":N}
- *   Coordinates are in pixels (corner format), ordered ymin/xmin/ymax/xmax.
- *   Only detections with confidence >= ctx->conf_thres are emitted.
- *   No NMS is applied — the model output is assumed to be pre-filtered.
+ * Canonical detection format:
+ *   d->x, d->y = centre x, y in normalised [0,1] space
+ *   d->w, d->h = width, height in normalised [0,1] space
+ *   The output formatter (ehs_ml_objdet_output.c) scales to pixels or keeps
+ *   normalised depending on ctx->enable_normalized_coords.
  *
  * @param ctx         Initialised ML context with output_tensor[0] populated.
  * @param json_output Caller-allocated buffer for JSON output.
@@ -123,9 +123,6 @@ EhsML_Err EhsML_Yolov8_ObjDet_RunPipeline(EhsML_Context* ctx)
         return EHS_ML_MODEL_OUTPUT_ERR;
     }
 
-    int input_width  = ctx->input_tensor[0].dims[2];  /* W: dims = [batch, H, W, C] */
-    int input_height = ctx->input_tensor[0].dims[1];  /* H */
-
     size_t class_idx = 0;
     size_t index = -1;
     ctx->detection_count = 0;
@@ -136,10 +133,13 @@ EhsML_Err EhsML_Yolov8_ObjDet_RunPipeline(EhsML_Context* ctx)
 
         for (size_t box_idx = 0 ; box_idx < num_of_class_boxes ; box_idx++)
         {
-            float y_min = ctx->output_tensor[0].data_ptr.f32[++index] * input_height;
-            float x_min = ctx->output_tensor[0].data_ptr.f32[++index] * input_width;
-            float y_max = ctx->output_tensor[0].data_ptr.f32[++index] * input_height;
-            float x_max = ctx->output_tensor[0].data_ptr.f32[++index] * input_width;
+            /* Coordinates are normalised [0,1] from the model output tensor.
+             * Store as-is; the output formatter scales to pixels or keeps
+             * normalised depending on ctx->enable_normalized_coords. */
+            float y_min = ctx->output_tensor[0].data_ptr.f32[++index];
+            float x_min = ctx->output_tensor[0].data_ptr.f32[++index];
+            float y_max = ctx->output_tensor[0].data_ptr.f32[++index];
+            float x_max = ctx->output_tensor[0].data_ptr.f32[++index];
             float conf  = ctx->output_tensor[0].data_ptr.f32[++index];
 
             if (conf >= ctx->conf_thres && ctx->detection_count < EHS_ML_OBJ_DETECTIONS_MAX)

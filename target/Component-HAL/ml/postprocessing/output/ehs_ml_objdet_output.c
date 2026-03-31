@@ -99,10 +99,24 @@ EhsML_Err EhsML_ObjDet_Json_FromDetections(EhsML_Context *ctx,
         (int)ctx->type, (int)ctx->detection_count);
     if (used >= json_size) return EHS_ML_JSON_STRSIZE_ERR;
 
+    /* Detections are stored in 0-1 normalised space.
+     * Pixel mode: scale up by model input dimensions.
+     * Normalised mode: output as-is (scale factor = 1.0). */
+    float norm_x = 1.0f, norm_y = 1.0f;
+    if (!ctx->enable_normalized_coords) {
+        int iw = (int)ctx->input_tensor[0].dims[2];
+        int ih = (int)ctx->input_tensor[0].dims[1];
+        if (iw > 0 && ih > 0) {
+            norm_x = (float)iw;
+            norm_y = (float)ih;
+        } else {
+            EHSH_LOG_ERROR("ml_objdet_output: input tensor dims not set (iw=%d ih=%d) — "
+                           "pixel coordinate scaling unavailable; outputting normalised values",
+                           iw, ih);
+        }
+    }
+
     if (ctx->enable_flat_json) {
-        /* Flat format: all detection fields at top level with numeric suffixes.
-         * e.g. {"type":1,"det_cnt":2,"cls0":0,"lbl0":"person","cnf0":0.92,
-         *        "x0":320.0,"y0":240.0,"w0":100.0,"h0":80.0,...} */
         for (ehs_uint32 i = 0; i < ctx->detection_count; i++) {
             const EhsML_Detection_t *d = &ctx->detections[i];
             if (d->filtered) continue;
@@ -111,16 +125,11 @@ EhsML_Err EhsML_ObjDet_Json_FromDetections(EhsML_Context *ctx,
             int len = EhsML_ObjDet_Json_AppendCentre(
                 json_buf + used, remaining, (int)i,
                 (int)d->cls, d->conf,
-                d->x, d->y, d->w, d->h);
+                d->x * norm_x, d->y * norm_y, d->w * norm_x, d->h * norm_y);
             if (len > 0) used += (ehs_uint32)len;
         }
         EhsSnprintf(json_buf + used, json_size - used, "}");
     } else {
-        /* Object-based format (default): detections as a "res" array.
-         * e.g. {"type":1,"det_cnt":2,"res":[
-         *         {"cls":0,"lbl":"person","cnf":0.92,"x":320.0,"y":240.0,"w":100.0,"h":80.0},
-         *         {"cls":2,"lbl":"car",   "cnf":0.88,"x":500.0,"y":300.0,"w":200.0,"h":120.0}
-         *       ]} */
         int len = EhsSnprintf(json_buf + used, (int)(json_size - used - 1), ",\"res\":[");
         if (len > 0) used += (ehs_uint32)len;
 
@@ -135,7 +144,7 @@ EhsML_Err EhsML_ObjDet_Json_FromDetections(EhsML_Context *ctx,
                 ",\"x\":%.4f,\"y\":%.4f,\"w\":%.4f,\"h\":%.4f}",
                 first ? "" : ",",
                 (int)d->cls, EhsML_Coco80_Label((int)d->cls), d->conf,
-                d->x, d->y, d->w, d->h);
+                d->x * norm_x, d->y * norm_y, d->w * norm_x, d->h * norm_y);
             if (len > 0) { used += (ehs_uint32)len; first = EHS_FALSE; }
         }
         EhsSnprintf(json_buf + used, json_size - used, "]}");

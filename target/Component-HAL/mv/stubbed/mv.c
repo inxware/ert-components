@@ -85,3 +85,25 @@ ehs_bool EhsCameraFrameWriteToFile(EhsCameraFrame* frame, const ehs_char* filepa
 {
     return EHS_TRUE;
 }
+
+ehs_bool EhsCameraFrameDrawBBox(EhsCameraFrame* frame,
+                                 ehs_sint32 x1, ehs_sint32 y1,
+                                 ehs_sint32 x2, ehs_sint32 y2,
+                                 ehs_uint8 r, ehs_uint8 g, ehs_uint8 b,
+                                 ehs_sint32 thickness,
+                                 const ehs_char* label)
+{
+    (void)frame; (void)x1; (void)y1; (void)x2; (void)y2;
+    (void)r; (void)g; (void)b; (void)thickness; (void)label;
+    return EHS_FALSE; /* stubbed — no display support on this target */
+}
+
+ehs_bool EhsCameraFrameCopy(const EhsCameraFrame* src, EhsCameraFrame* dst)
+{
+    (void)src; (void)dst;
+    return EHS_FALSE; /* stubbed — no image processing on this target */
+}
+
+/* Embedded renderer stubs — no display on this target */
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn) { (void)fn; }
+EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void) { return NULL; }

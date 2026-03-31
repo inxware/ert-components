@@ -368,3 +368,29 @@ ehs_bool EhsCameraFrameFormat(EhsCameraFrame *src, EhsCameraFrame *dst, EhsCamer
         return EHS_FALSE;
     }
 }
+
+ehs_bool EhsCameraFrameDrawBBox(EhsCameraFrame *frame,
+                                 ehs_sint32 x1, ehs_sint32 y1,
+                                 ehs_sint32 x2, ehs_sint32 y2,
+                                 ehs_uint8 r, ehs_uint8 g, ehs_uint8 b,
+                                 ehs_sint32 thickness,
+                                 const ehs_char* label)
+{
+    /* Text rendering is not available without a font library on Jetson.
+     * Box drawing on the raw CPU buffer is possible in principle but would
+     * require per-format stride logic for every supported pixel type.
+     * Stubbed for now — annotated frames are typically displayed via OpenCV. */
+    (void)frame; (void)x1; (void)y1; (void)x2; (void)y2;
+    (void)r; (void)g; (void)b; (void)thickness; (void)label;
+    return EHS_FALSE;
+}
+
+ehs_bool EhsCameraFrameCopy(const EhsCameraFrame* src, EhsCameraFrame* dst)
+{
+    (void)src; (void)dst;
+    return EHS_FALSE; /* not yet implemented on Jetson */
+}
+
+/* Embedded renderer stubs — not supported on Jetson */
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn) { (void)fn; }
+EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void) { return NULL; }
