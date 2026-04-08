@@ -234,7 +234,7 @@ EhsML_Err EhsML_TFLite_GetModelInfoJson(TfLiteModelCtx*  tfl,
     JAPP("]");
 
     JAPP(",\"inferred_type\":\"%s\"", infer_model_family(tfl->out_tensor));
-    JAPP(",\"xnnpack\":%s", tfl->xnn_delegate ? "true" : "false");
+    JAPP(",\"xnnpack\":%s", tfl->accel_delegate ? "true" : "false");
 
     /* Metadata entries */
     if (fb_meta_cnt > 0) {

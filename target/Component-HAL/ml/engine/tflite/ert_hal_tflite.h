@@ -13,7 +13,7 @@ typedef struct TfLiteModelCtx {
     TfLiteModel*              model;            /* owns the flat-buffer */
     TfLiteInterpreterOptions* options;          /* holds thread count etc. */
     TfLiteInterpreter*        interp;           /* ready-to-run interpreter */
-    TfLiteDelegate*           xnn_delegate;     /* used for enabling XNNPACK */
+    TfLiteDelegate*           accel_delegate;   /* XNNPACK (Linux) or NNAPI (Android) */
     TfLiteType                type;             /* model data type e.g. float32, float16, int8 etc. */
     const TfLiteTensor*       in_tensor;
     const TfLiteTensor*       out_tensor;

@@ -10,6 +10,8 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+/* The following MAY only be needed for QT buids */
+#if 1//QT builds 
 #include <stdexcept>
 #include <chrono>
 #ifdef __linux__
@@ -144,6 +146,7 @@ static bool cv_has_display()
 #else
 static bool cv_has_display() { return true; }
 #endif
+#endif //QT build
 
 /* ---------- tiny RAII VideoCapture wrapper ------------------ */
 class CameraWrapper {

@@ -8,7 +8,7 @@ static void TfLiteModel_Destroy(TfLiteModelCtx* ctx)
     if (!ctx) return;
 
     if (ctx->interp ) TfLiteInterpreterDelete(ctx->interp );
-    if (ctx->xnn_delegate) TfLiteXNNPackDelegateDelete(ctx->xnn_delegate);
+    if (ctx->accel_delegate) TfLiteXNNPackDelegateDelete(ctx->accel_delegate);
     if (ctx->options) TfLiteInterpreterOptionsDelete(ctx->options);
     if (ctx->model  ) TfLiteModelDelete(ctx->model);
 
@@ -53,11 +53,11 @@ EhsML_Err EhsML_FW_TFLite_Create(EhsML_Context* ctx, const ehs_char* model_path,
 
     TfLiteInterpreterOptionsSetNumThreads(tfl_model_ctx->options, thread_count);
 
-    /* Create and attach XNNPACK delegate */
+    /* XNNPACK delegate — CPU SIMD acceleration (NEON on ARM32/ARM64, SSE/AVX on x86). */
     TfLiteXNNPackDelegateOptions xnn_opts = TfLiteXNNPackDelegateOptionsDefault();
     xnn_opts.num_threads = thread_count;
-    tfl_model_ctx->xnn_delegate = TfLiteXNNPackDelegateCreate(&xnn_opts);
-    TfLiteInterpreterOptionsAddDelegate(tfl_model_ctx->options, tfl_model_ctx->xnn_delegate);
+    tfl_model_ctx->accel_delegate = TfLiteXNNPackDelegateCreate(&xnn_opts);
+    TfLiteInterpreterOptionsAddDelegate(tfl_model_ctx->options, tfl_model_ctx->accel_delegate);
     // If you know which ops you need, you can add them here:
     //  TfLiteInterpreterOptionsAddBuiltinOp(ctx->options,
     //       kTfLiteBuiltinConv2d, /* min_version = */ 1, /* max_version = */ 5);
@@ -104,6 +104,7 @@ EhsML_Err EhsML_FW_TFLite_Create(EhsML_Context* ctx, const ehs_char* model_path,
         err = EHS_ML_MODEL_TENSOR_DIM_ERR;
         goto tflite_error;
     }
+    int i = 0;
     for (i = 0 ; i < output_dims ; i++)
     {
         ctx->output_tensor[0].dims[i] = TfLiteTensorDim(tfl_model_ctx->out_tensor, i);
