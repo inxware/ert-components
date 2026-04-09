@@ -104,7 +104,6 @@ EhsML_Err EhsML_FW_TFLite_Create(EhsML_Context* ctx, const ehs_char* model_path,
         err = EHS_ML_MODEL_TENSOR_DIM_ERR;
         goto tflite_error;
     }
-    int i = 0;
     for (i = 0 ; i < output_dims ; i++)
     {
         ctx->output_tensor[0].dims[i] = TfLiteTensorDim(tfl_model_ctx->out_tensor, i);
