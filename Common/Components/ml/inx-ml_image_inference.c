@@ -1,6 +1,21 @@
 /*
  * TODO LIST
  *
+ * NON-BLOCKING INFERENCE
+ *   The inference run function currently blocks the ERT scheduler while the ML
+ *   pipeline executes.  To make it non-blocking, use a persistent worker thread:
+ *   1. Add to state: pthread_t, pthread_mutex_t, pthread_cond_t,
+ *      inference_busy flag, pending_frame_id, pFIdata pointer.
+ *   2. Spawn the worker thread inside load_model; it loops waiting on the
+ *      condition variable.
+ *   3. In the inference run function: if busy, drop the frame; otherwise queue
+ *      frame_id, signal the condition variable, and return immediately.
+ *   4. Worker thread: wake on signal, retrieve the frame, run EhsML_SetInputData
+ *      + EhsML_RunAndGetOutput, access output ports via pFIdata, fire
+ *      EHS_FB_FINISH events.
+ *   5. In destroy: set an exit flag, signal the condition variable, join the
+ *      thread, then destroy the mutex and condition variable.
+ *
  * MODEL TYPE AUTO-DETECTION
  *   Model_Type == 0 (auto/generic) runs raw inference without model-specific
  *   decode or NMS, leaving ctx->detections[] empty.  A future improvement
@@ -16,6 +31,7 @@
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
+//#include <sys/types.h>
 #include "inx-ml_image_inference.h"
 #include "hal_ml.h"
 #include "hal_mv.h"
@@ -102,6 +118,7 @@ EHS_FB_IDENTIFY_FUNCTION(ml_image_inference)
 //ICB IDENTIFY FUNCTION MACRO START -- DO NOT ALTER
 
 //ICB INITIALISE FUNCTION MACRO START -- DO NOT ALTER
+
 EHS_FB_INIT_FUNCTION(ml_image_inference)
 {
 	ehs_bool bRet = EHS_TRUE;
@@ -348,7 +365,7 @@ ehs_bool _check_file_extension(const ehs_char* file_path, const ehs_char *expect
 		}
 	} while (_dot != NULL);
 	if (!dot || dot == file_path) return EHS_FALSE;
-	return EHS_FALSE;
+	return EHS_TRUE;
 }
 
 #define _EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(error, label, tag, msg)  do { \

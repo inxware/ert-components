@@ -35,7 +35,6 @@
 #include "usb_power.h"
 #endif
 
-
 #ifdef EHS_RS485_CONFIG_SUPPORT
 #include "rs485_config.h"
 #endif

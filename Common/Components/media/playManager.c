@@ -2677,7 +2677,7 @@ static void  Layout_AddTableStyle(EhsPlayManagerType* pPlayManager,ehs_char * ta
     ehs_uint32 rows = 0;
     ehs_uint32 columns = 0;
     ehs_bool gotId = EhsSscanf( tableConfigId, "tableconfig_%d",&id); //extract the layout ID from the tableconfig_$id.
-    ehs_bool gotrowscols = EhsSscanf( rowscolumns, "%d,%d",&rows, &columns);
+    ehs_bool gotrowscols = rowscolumns ? EhsSscanf( rowscolumns, "%d,%d",&rows, &columns) : 0;
 
     if (gotId)
     {
@@ -2696,7 +2696,7 @@ static void Layout_AddRooteStyle(EhsPlayManagerType* pPlayManager,ehs_char * wid
     ehs_uint16 nWidth = 0;
     ehs_uint16 nHeight = 0;
     if (width) 	EhsSscanf (  width,"%hd",&nWidth);
-    if (width) 	EhsSscanf (  height,"%hd",&nHeight);
+    if (height) 	EhsSscanf (  height,"%hd",&nHeight);
     if (pPlayManager && pPlayManager->layoutInfo)
     {
         pPlayManager->layoutInfo->rootHeight=nHeight;
@@ -3377,7 +3377,8 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
                     pPlayManager->playlistFileCount = 0; // reset playlist file count to be read from the header
                     smilTag(fileReader, pPlayManager); /* This parses the entire SMIL file and creates sub-systems (creating it's own parent time). */
                     EhsTPMutex_lock(EhsTPMutex_fbIO);
-                    EHS_FB_OUT_I(EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_FILE_COUNT) = pPlayManager->playlistFileCount;
+                    if (pFIdata->pOut[EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_FILE_COUNT] != NULL)
+                        EHS_FB_OUT_I(EHS_FB_PLAYMANAGER_NEXT_PLAYLIST_FILE_COUNT) = pPlayManager->playlistFileCount;
                     EhsTPMutex_unlock(EhsTPMutex_fbIO);
                     printf("playlist=%s, fileCount=%d\n", filename, pPlayManager->playlistFileCount); // apply playlist file count to the port
                     /* The exception is for sequences that are parsed as they become live */
@@ -3391,7 +3392,7 @@ EHS_FB_THREAD_FUNCTION(PlayManagerNextPlayListThread)
                         EHSH_LOG_ERROR("Could Not open SMIL file %s for reading",filename);
                     }
                     /* expose the first node of the SMIL playlist for getting source info */
-                    if (xmlTextReaderRead(pPlayManager->srcFileReader) == 1 && pPlayManager->srcFileReader != NULL )   /* now read the first entry */
+                    if (pPlayManager->srcFileReader != NULL && xmlTextReaderRead(pPlayManager->srcFileReader) == 1 )   /* now read the first entry */
                     {
                         /* @todo consider removing this and triggering first readSRC by the get next URL only - this means all will start OK without bothering with the downloads */
                         //EHSH_LOG_ERROR("---->Reading sources....");

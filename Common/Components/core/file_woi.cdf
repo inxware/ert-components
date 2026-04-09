@@ -38,7 +38,7 @@
         <Class>FILE_WriteOnly_Int</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0x493B</NameHash_CRC16>
+        <NameHash_CRC16>0x3355</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>9c2ac95b</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

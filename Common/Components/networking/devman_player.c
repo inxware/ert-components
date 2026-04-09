@@ -248,34 +248,46 @@ void EhsGetDevmanPlayerURL(struct EhsFbDevmanPlayerStruct* pDevmanPlayer)
     if (pDevmanPlayer->CurrentURLindex <= -2 )
     {
         if (EhsStrlen(pDevmanPlayer->szUrl_input) < 8) pDevmanPlayer->CurrentURLindex=-1; /* We haven't got a proper URL so don't bother with this */
-        else EhsStrcpy(pDevmanPlayer->szUrl, pDevmanPlayer->szUrl_input);
+        else {
+            EhsStrcpy(pDevmanPlayer->szUrl, pDevmanPlayer->szUrl_input);
+            EHSH_LOG_ERROR("Devman URL: Using FB Port=[%s]",pDevmanPlayer->szUrl);
+        }
     }
     if (pDevmanPlayer->CurrentURLindex == -1 )
     {
         if (EhsStrlen(pDevmanPlayer->szUrl_parameter) < 8 ) pDevmanPlayer->CurrentURLindex=0;
-        else EhsStrcpy(pDevmanPlayer->szUrl, pDevmanPlayer->szUrl_parameter);
+        else {
+            EhsStrcpy(pDevmanPlayer->szUrl, pDevmanPlayer->szUrl_parameter);
+            EHSH_LOG_ERROR("Devman URL: Using Paramter=[%s]",pDevmanPlayer->szUrl);
+        }
     }
     if (pDevmanPlayer->CurrentURLindex >= 0 && pDevmanPlayer->CurrentURLindex < 1000 )
     {
-        if (!EhsHDevmanGetURL(pDevmanPlayer->szUrl, EHS_DEVMAN_PLAYERURLS, EHS_MAXDEVMANNAMELEN, pDevmanPlayer->CurrentURLindex))
+        if (!EhsHDevmanGetURL(pDevmanPlayer->szUrl, EHS_DEVMAN_PLAYERURLS, EHS_MAXDEVMANNAMELEN, pDevmanPlayer->CurrentURLindex)) {
             pDevmanPlayer->CurrentURLindex=1000; /* Try the devman core list */
+            EHSH_LOG_ERROR("Devman URL: Using Devman config file=[%s]",pDevmanPlayer->szUrl);
+        }
     }
     if (pDevmanPlayer->CurrentURLindex >= 1000 && pDevmanPlayer->CurrentURLindex < 2000 )
     {
-        if (EhsHDevmanGetURL(pDevmanPlayer->szUrl, EHS_DEVMAN_COREURLS, EHS_MAXDEVMANNAMELEN, pDevmanPlayer->CurrentURLindex-1000))  /* Only try first the top of the list at this point */
+        if (EhsHDevmanGetURL(pDevmanPlayer->szUrl, EHS_DEVMAN_COREURLS, EHS_MAXDEVMANNAMELEN, pDevmanPlayer->CurrentURLindex-1000))  {
+            /* Only try first the top of the list at this point */
             EhsStrcat(pDevmanPlayer->szUrl,EHS_DEVMAN_PLAYERDEFAULTURL_PATH); /* if this path is OK it won't have the player specific extension so need to add it */
+            EHSH_LOG_ERROR("Devman URL: Using Devman Core config file=[%s]",pDevmanPlayer->szUrl);
+        }
         else
             pDevmanPlayer->CurrentURLindex=2000; /* Try the devman core list */
     }
     if (pDevmanPlayer->CurrentURLindex == 2000)
     {
         EhsStrcpy(pDevmanPlayer->szUrl,EHS_DEVMAN_PLAYERDEFAULTURL); /* try the hard-wired inx-systems.com  */
+        EHSH_LOG_ERROR("Devman  URL: Using Devman Player config file=[%s]",pDevmanPlayer->szUrl);
     }
     if (pDevmanPlayer->CurrentURLindex > 2000)
     {
         pDevmanPlayer->CurrentURLindex=-2; /* start from the top again, but wait to loop around - results in two loops before -2 option is actualy tried */
     }
-    EHSH_LOG_INFO("Using Devman Player URL:%s (index %d)", pDevmanPlayer->szUrl,pDevmanPlayer->CurrentURLindex);
+    EHSH_LOG_ERROR("Using Devman Player URL:%s (index %d)", pDevmanPlayer->szUrl,pDevmanPlayer->CurrentURLindex);
 }
 
 

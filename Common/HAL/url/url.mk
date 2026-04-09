@@ -66,7 +66,12 @@ ifdef EHS_ANDROID
 LIB +=:libcurl.a
 LIB +=:libssl.a
 LIB +=:libcrypto.a
-LIB +=:libidn.a
+## TODO the following is why we shouldn't include dependencies contrib-middleware libraries in the Common code.
+# libidn: NOT linked for any Android API level.
+# Android bionic libc has provided native IDNA (internationalized domain name)
+# support since API 21 (Android 5.0 Lollipop). curl is built --without-libidn.
+# The contrib build (build-android-ehs.sh) therefore does not build libidn at all.
+# EHS_ANDROID_API is set by os-arch/android_ALL/toolchain.mk (default: 30).
 
 #LIB +=curl
 #LIB+=crypto

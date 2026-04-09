@@ -27,7 +27,7 @@ include $(EHS_COMMON_COMPONENTS_PATH)/ml/deps.mk
 INC_PATH+= $(EHS_COMPONENT_SUPPORT_INCLUDE)/
 
 # function blocks that need frames from the camera
-ifdef EHS_MV_SUPPORT 
+ifdef EHS_MV_SUPPORT
 OBJECTS += inx-ml_image_inference.$(OBJ)
 endif
 

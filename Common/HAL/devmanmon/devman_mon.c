@@ -111,11 +111,16 @@ ehs_bool EhsHDevmanGetURL(ehs_char * URL, ehs_char * list_file,  ehs_uint16 maxl
                  EhsStrcpy(URL,EHS_DEVMAN_DEFAULTBASEURL);//Default if nothing is returned.
                  retval = EHS_FALSE;
                  */
+                  EHSH_LOG_ERROR("Read [%s] from [%s]", URL,szTemp);
             }
-            else retval = EHS_FALSE;
+            else {
+                EHSH_LOG_ERROR("Read 0 from [%s]",szTemp);
+                retval = EHS_FALSE;
+            }
         }
         else     /* No file - leave URL in tact */
         {
+            EHSH_LOG_ERROR("Could not open devman URL file=[%s]",szTemp);
             retval = EHS_FALSE;
         }
     }

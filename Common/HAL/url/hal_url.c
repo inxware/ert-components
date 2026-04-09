@@ -187,8 +187,12 @@ ehs_char* EhsGetHostAndPathFromURL(ehs_char * szHost, const ehs_char * szUrl)
     ehs_sint16 i,j=0;
     ehs_sint16 offset = 0 ;
     ehs_char * szPath = NULL;
-    if (szUrl == NULL || szUrl[0] != 'h') {
-        EHSH_LOG_ERROR("Url is null or without prefix http");
+    if (szUrl == NULL) {
+        EHSH_LOG_ERROR("Url is null!!!");
+        return NULL;
+    }
+    if (szUrl[0] != 'h') {
+        EHSH_LOG_ERROR("Url does not start with http/s prefix [%s]",szUrl);
     }
     //todo replace this with left first search for //
     EhsStrcpy(szHost,szUrl); // default is to use it as we got it if no path is found..
@@ -858,6 +862,7 @@ ehs_uint8 EhsHGetDevmanCaCertificatePath(ehs_char* pCertPath,const ehs_char * pS
     if (pServerUrl != NULL ) {
         EhsStrcpy(szTemp,EHS_DEVMAN_CERTIFICATES_BASE);
         EhsGetHostAndPathFromURL(&szTemp[sizeof(EHS_DEVMAN_CERTIFICATES_BASE)-1], pServerUrl);// get the domain to check the path with the normal try method for Devman directories
+        
         //printf("Looking for ca certs for URL=%s and domain=|%s|\n",pServerUrl,szTemp);
         EhsStrcat(szTemp,EHS_TD_FILES_SEPARATOR_STR EHS_DEVMAN_CA_CERTIFICATE_FILENAME); // addd a trailing slash of course
         if (EhsTF_tryCanonicPath(pCertPath, EHS_RUNTIME_DEVMAN_DIR,szTemp, EHS_FALSE) == EHS_TRUE && EhsTF_exists(pCertPath) > 0) { // check if we have Devman directory for this domain}
