@@ -1,0 +1,3 @@
+include ':launcher', ':unityLibrary', ':media', ':utils'
+project(':media').projectDir = new File(settingsDir, '../android_studio_ehs/media')
+project(':utils').projectDir = new File(settingsDir, '../android_studio_ehs/utils')

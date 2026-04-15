@@ -33,11 +33,13 @@ public class EHS_MaterialUtils
         material.mainTexture = texture;
         // prevent streaching of the text
         float quadScale;
-        if(parentScale){ 
+        if(parentScale){
             var transform = quad.transform.parent;
-            quadScale = transform.localScale.x/transform.localScale.y;
+            float sy = transform.localScale.y;
+            quadScale = (sy != 0f) ? transform.localScale.x / sy : 1f;
         }else{
-            quadScale = quad.transform.localScale.x/quad.transform.localScale.y;
+            float sy = quad.transform.localScale.y;
+            quadScale = (sy != 0f) ? quad.transform.localScale.x / sy : 1f;
         }
         float textureScale = (float)texture.width/(float)texture.height;
         if(quadScale != 1f || textureScale != 1f){
@@ -77,9 +79,8 @@ public class EHS_MaterialUtils
         return material;
     }
 
-    public static void UpdateBackgroundColor(EHS_Object ehsObject, GameObject unityObject, Color color, string sufixId){ 
+    public static void UpdateBackgroundColor(EHS_Object ehsObject, GameObject unityObject, Color color, string sufixId){
         var material = GetMaterial(ehsObject, unityObject, sufixId);
-        material.color = color;
         material.SetColor("_BackgroundColor", color);
     }
 
@@ -100,7 +101,6 @@ public class EHS_MaterialUtils
         var material = GetMaterial(ehsObject, unityObject, sufixId);
         if(!string.IsNullOrEmpty(bgrColor)){
             Color color = EHS_Utils.PareseColor(bgrColor, Color.white);
-            material.color = color;
             material.SetColor("_BackgroundColor", color);
         }
         if(!string.IsNullOrEmpty(fgrColor)){

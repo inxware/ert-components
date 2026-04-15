@@ -9,6 +9,7 @@
 #include <new>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <atomic>
 /* The following MAY only be needed for QT buids */
 #if 1//QT builds 

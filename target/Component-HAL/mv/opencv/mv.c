@@ -3,7 +3,7 @@
 #include "hal_mv.h"
 #include "hal-api.h"
 
-#include <opencv/opencv_wrapper.h>
+#include "opencv/opencv_wrapper.h"
 
 /* TODO WHAT DOES THIS ACTUALLY DO? WHAT ARE WE DEFINING HERE? */
 #ifndef EHS_CAMERA_DATAFORMAT_CHANLEN_DEF

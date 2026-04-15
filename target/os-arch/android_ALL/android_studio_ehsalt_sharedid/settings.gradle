@@ -1,0 +1,4 @@
+rootProject.name='ehs-alt'
+include ':app'
+include ':media'
+include ':utils'

@@ -1,0 +1,51 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.inx.ehs" 
+    android:sharedUserId="com.inx.ehs"
+    android:installLocation="preferExternal">
+
+    <!-- Actually this .apk Java has code ! Set hasCode to true. Else your NativeDebug
+        class will not be inserted in the final apk and your app will crash failing to find it. -->
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="EHS"
+        android:hasCode="true" >
+
+        <!-- Our activity is the built-in NativeActivity framework class.
+             This will take care of integrating with our NDK code. -->
+        <activity android:name=".EhsNativeActivity"
+            android:configChanges="orientation|keyboardHidden">
+            <!-- Tell NativeActivity the name of or .so -->
+            <meta-data android:name="android.app.lib_name"
+                android:value="native-activity" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".EhsHomeNativeActivity"
+            android:configChanges="orientation|keyboardHidden">
+            <!-- Tell NativeActivity the name of or .so -->
+            <meta-data android:name="android.app.lib_name"
+                android:value="native-activity" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
+    </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.DUMP" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+</manifest>

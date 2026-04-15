@@ -4,7 +4,7 @@
 #include "hal-api.h"
 #include "hal_logger.h"
 
-#include <opencv/opencv_wrapper.h>
+#include "opencv/opencv_wrapper.h"
 
 // Enable this for displaying every grabbed frame in a preview window
 // NOTE ! - this works only with a single camera instance

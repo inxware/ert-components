@@ -278,6 +278,11 @@ fi
 
 # add install apk(s) to the device
 if [ -d "$INSTALL_APK_DIR" ]; then
+	if [ -z "$(ls ${INSTALL_APK_DIR}/*.apk 2>/dev/null)" ]; then
+		echo "ERROR: INSTALL_APK_DIR ($INSTALL_APK_DIR) contains no APK files."
+		echo "Has 'make targetenv_apk' been run successfully?"
+		exit 1
+	fi
 	echo "Adding APKs to the install directories"
 	INSTALL_APK_ANDROID="/sdcard/.EHS_INSTALL"
 	shell_exec 'if [ -d "'${INSTALL_APK_ANDROID}'" ]; then rm -r "'${INSTALL_APK_ANDROID}'"; fi' || exit 1

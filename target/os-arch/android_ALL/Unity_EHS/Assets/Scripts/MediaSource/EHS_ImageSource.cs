@@ -64,7 +64,7 @@ public class EHS_ImageSource : EHS_MediaSource
         {
             yield return uwr.SendWebRequest();
 
-            if (uwr.isNetworkError || uwr.isHttpError){
+            if (uwr.result != UnityWebRequest.Result.Success){
                 Debug.Log(uwr.error);
             }else{
                 // Get downloaded asset bundle

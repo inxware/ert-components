@@ -77,7 +77,7 @@ fi
 
 export REPOSITORY_ANDROID_STUDIO_ROOT="${EHS_ROOT}/target/os-arch/android_ALL/${ANDROID_STUDIO_EHS_PROJECT}"
 
-if [ "${EHS_ARCH}" = "arm64" ]; then 
+if [ "${EHS_ARCH}" = "arm64" ] || [ "${EHS_ANDROID_NATIVE_ABI}" = "arm64" ]; then
     echo "Using 64 bit eRT Android plug-in for this target."
     export ANDROID_STUDIO_JNILIBS_PATH="$ANDROID_STUDIO_SRC_ROOT/src/main/jniLibs/arm64-v8a"
 else
@@ -106,10 +106,16 @@ if [ "${EHS_UNITY_PROJECT_EXPORT_SUPPORT}" != "" ]; then
     export ANDROID_STUDIO_BUILD_APK_OUTPUT="${ANDROID_STUDIO_SRC_ROOT}/build/outputs/apk"
     #This is the final name of the package (copied from )
     export ANDROID_TARGET_APK_NAME="tellisign.apk"
-    # unset env that should not be used when building Unity target
-    # @TODO - we may want to overwrite both 32-bit and 64-bit for Unity platforms so that 'make targetenv_unity_export' is not needed when only eRT changes
     export REPOSITORY_ANDROID_STUDIO_ROOT=""
-    export ANDROID_STUDIO_JNILIBS_PATH=""
+    # For Unity targets the jniLibs path inside the exported unityLibrary project is
+    # the canonical location Gradle picks up native libs from.  We set it here so the
+    # copy block below updates it whenever make targetenv_apk is run — no need to
+    # re-run the slow make targetenv_unity_export just because ehs.so changed.
+    if [ "${EHS_ARCH}" = "arm64" ] || [ "${EHS_ANDROID_NATIVE_ABI}" = "arm64" ]; then
+        export ANDROID_STUDIO_JNILIBS_PATH="${ANDROID_STUDIO_ROOT}/unityLibrary/src/main/jniLibs/arm64-v8a"
+    else
+        export ANDROID_STUDIO_JNILIBS_PATH="${ANDROID_STUDIO_ROOT}/unityLibrary/src/main/jniLibs/armeabi-v7a"
+    fi
 fi
 ####################################################
 
@@ -137,13 +143,24 @@ else
         exit 1   
     fi
 fi
-echo "Copying latest eRT pluging to Android Studio project."
+echo "Copying latest eRT plugin to Android Studio project."
 if [ "${ANDROID_STUDIO_JNILIBS_PATH}" = "" ]; then
-    echo "Android Studio project should already contain latest plugin."
-    echo "e.g. Unity does it while exporting project. 'make targetenv_unity_export'"
+    echo "ERROR: ANDROID_STUDIO_JNILIBS_PATH is not set — cannot update jniLibs."
+    exit 1
 else
     echo "cp ${TARGET_PATH}/bin/ehs.${EXE} ${ANDROID_STUDIO_JNILIBS_PATH}/libnative-activity.${EXE}"
     cp ${TARGET_PATH}/bin/ehs.${EXE} ${ANDROID_STUDIO_JNILIBS_PATH}/libnative-activity.${EXE}
+    # Copy libc++_shared.so from the contrib target_libs directory.  This is the version
+    # built/extracted from the same NDK as liblitert_c.a (NDK r27c) and must be version-
+    # coherent with it.  It is placed alongside libnative-activity.so so the Android
+    # dynamic linker finds it inside the APK rather than falling back to a missing system lib.
+    if [ -n "${EHS_COMPONENT_SUPPORT_LIBS}" ] && [ -f "${EHS_COMPONENT_SUPPORT_LIBS}libc++_shared.so" ]; then
+        echo "cp ${EHS_COMPONENT_SUPPORT_LIBS}libc++_shared.so ${ANDROID_STUDIO_JNILIBS_PATH}/libc++_shared.so"
+        cp "${EHS_COMPONENT_SUPPORT_LIBS}libc++_shared.so" "${ANDROID_STUDIO_JNILIBS_PATH}/libc++_shared.so"
+    else
+        echo "WARNING: libc++_shared.so not found at ${EHS_COMPONENT_SUPPORT_LIBS} — APK may fail to load on device."
+        echo "         Run: make all_docker first to ensure libc++_shared.so is present."
+    fi
 fi
 echo "Copying 'devman' data"
 cp -Rf ${TARGET_PATH}/devman/* ${ANDROID_STUDIO_DEVMAN_PATH}
@@ -212,17 +229,19 @@ if [ "${JAVA_HOME}" = "" ]; then
     echo $JAVA_HOME
 fi    
 
+#todo  should we look for the SDK in opt (including in the unity SDK) if we are building on the host. 
+# or should we do this in a docker image in any case?
 if ! [ -d "$ANDROID_SDK" ]; then
     # Download SDK
     echo "Downloading SDK"
-    if ! curl -k -s -o "$ANDROID_ROOT/android-sdk.zip" $ANDROID_SDK_URL ;
+    if ! curl -k -o "$ANDROID_ROOT/android-sdk.zip" $ANDROID_SDK_URL ;
     then
         echo "Failed to download SDK"
         "$ANDROID_ROOT/android-sdk.zip"
         exit 1
     fi
     echo "Unpacking SDK to $ANDROID_SDK"
-    if ! unzip -qq "$ANDROID_ROOT/android-sdk.zip" -d "$ANDROID_SDK";
+    if ! unzip "$ANDROID_ROOT/android-sdk.zip" -d "$ANDROID_SDK";
     then
         echo "Failed to unpack SDK"
         rm -f "$ANDROID_ROOT/android-sdk.zip"
@@ -271,7 +290,17 @@ fi
 #cat $GRADLE_PROPS_FILE
 pushd $ANDROID_PROJECT_ROOT
 chmod +x ./gradlew
-./gradlew clean
+
+# Kill any stale il2cpp/bee_backend processes from previous interrupted builds
+# to avoid them interfering with the new build or leaving pipes open in Gradle.
+echo "Killing any stale il2cpp/bee_backend processes..."
+pkill -KILL -f "Il2CppOutputProject/IL2CPP/build/deploy/il2cpp" 2>/dev/null || true
+pkill -KILL -f "bee_backend/linux-x64/bee_backend" 2>/dev/null || true
+
+# Stop any lingering Gradle daemon — long-running daemons accumulate state from
+# previous builds and can hang at arbitrary points. A fresh daemon is safer.
+./gradlew --stop 2>/dev/null || true
+
 ./gradlew assembleRelease
 if [ "${ANDROID_STUDIO_BUILD_BUNDLE_OUTPUT}" = "" ]; then
     echo "Android bundle (.aab) is not built for this target."
@@ -285,11 +314,25 @@ fi
 fi
 popd
 
+EXPECTED_APK="${ANDROID_STUDIO_BUILD_APK_OUTPUT}/release/${ANDROID_STUDIO_BUILD_RELEASE_APK_NAME}"
+if [ ! -f "${EXPECTED_APK}" ]; then
+    echo "ERROR: Gradle build did not produce expected APK at:"
+    echo "  ${EXPECTED_APK}"
+    echo "The build may have failed silently. Check Gradle output above."
+    exit 1
+fi
+
 echo "Copying .apk from ($ANDROID_STUDIO_BUILD_APK_OUTPUT) to the target tree"
 cp -R "${ANDROID_STUDIO_BUILD_APK_OUTPUT}" "${TARGET_PATH}"
 
 EHS_APK=${TARGET_PATH}/apk/release/${ANDROID_STUDIO_BUILD_RELEASE_APK_NAME}
 cp ${EHS_APK} ${TARGET_PATH}/bin/${ANDROID_TARGET_APK_NAME}
+
+if [ ! -f "${TARGET_PATH}/bin/${ANDROID_TARGET_APK_NAME}" ]; then
+    echo "ERROR: Failed to stage APK to ${TARGET_PATH}/bin/${ANDROID_TARGET_APK_NAME}"
+    exit 1
+fi
+echo "APK staged successfully: ${TARGET_PATH}/bin/${ANDROID_TARGET_APK_NAME}"
 echo "Done!"
 echo "====================================================================================="
 

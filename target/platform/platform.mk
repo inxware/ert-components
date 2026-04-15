@@ -430,6 +430,15 @@ endif
 ifdef EHS_UNITY_PROJECT_EXPORT_SUPPORT
 export EHS_UNITY_PROJECT_EXPORT_SUPPORT
 endif
+ifdef EHS_UNITY_VERSION
+export EHS_UNITY_VERSION
+endif
+ifdef EHS_UNITY_ANDROID_STUDIO_TEMPLATE
+export EHS_UNITY_ANDROID_STUDIO_TEMPLATE  # optional override — normally derived from EHS_UNITY_VERSION
+endif
+ifdef EHS_ANDROID_NATIVE_ABI
+export EHS_ANDROID_NATIVE_ABI  # arm64 for 64-bit-only targets (Android 12+); default arm for dual-ABI
+endif
 # Path to a direcory with items used for signing android apk and aab files
 ifdef EHS_ANDROID_PACKAGE_SIGNING_PATH
 export EHS_ANDROID_PACKAGE_SIGNING_PATH

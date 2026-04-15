@@ -1,0 +1,4 @@
+rootProject.name='ehs'
+include ':app'
+include ':media'
+include ':utils'

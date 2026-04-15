@@ -36,16 +36,15 @@ fi
 #We probably never wanted this as we already have a staging directory for certs
 mkdir $TEMP_CERT_DIR || exit 1
 
-# This mess spawned out of find a way to provide certificates to the supervisor without including them in the APK.
-# Don't this it wil only work as soon as you look away.. Just store them in the certiicate repo like everything else
 # WARNING - openssl seems to create different .p12 keys on Ubuntu 20.04 and 22.04 (DevmanSecurity is using key created in Ubuntu 20.04)
-#echo "Converting certificate from .pem to .p12"
-#openssl pkcs12 -export -out "$TEMP_CERT_DIR/devman-client-crt-key.p12" -in "$TEMP_CERT_DIR/devman-client-crt-key.pem" -passin pass: -passout pass: || exit 1
-# and of course there is no point applying certificates at this stage.... as they are still just visible files for the supervisor to use
-# Just use the ones that have been staged - all this logic has already been done by make targetenv
+# The downloader may want a server certificate so we check for the server only case
+if [ -f $EHS_ROOT/../TARGET_TREES/ehs_env-${TARGET}/devman/core/${DEVMAN_CERT_DIR}/devman-only-ca.crt ]; then
+   # Not sure there is ever a file called devman-only-ar.crt anymore. This should probably b more explicit.
+   cp "$EHS_ROOT/../TARGET_TREES/ehs_env-${TARGET}/devman/core/${DEVMAN_CERT_DIR}/devman-only-ca.crt" "$TEMP_CERT_DIR/devman-ca.crt" || exit 1
+else
+   cp "$EHS_ROOT/../TARGET_TREES/ehs_env-${TARGET}/devman/core/${DEVMAN_CERT_DIR}/devman-ca.crt" "$TEMP_CERT_DIR/devman-ca.crt" || exit 1
+fi
 
-#cp "$EHS_ROOT/../TARGET_TREES/ehs_env-${TARGET}/devman/core/${DEVMAN_CERT_DIR}/devman-ca.crt" "$TEMP_CERT_DIR/devman-ca.crt" || exit 1
-cp "$EHS_ROOT/../TARGET_TREES/ehs_env-${TARGET}/devman/core/${DEVMAN_CERT_DIR}/devman-only-ca.crt" "$TEMP_CERT_DIR/devman-ca.crt" || exit 1
 # Copy the 
 cp "$EHS_ROOT/../TARGET_TREES/ehs_env-${TARGET}/devman/core/${DEVMAN_CERT_DIR}/devman-client-crt-key.pem" "$TEMP_CERT_DIR/devman-client-crt-key.pem" || exit 1
 cp "$EHS_ROOT/../TARGET_TREES/ehs_env-${TARGET}/devman/core/${DEVMAN_CERT_DIR}/devman-client-crt-key.p12" "$TEMP_CERT_DIR/devman-client-crt-key.p12" || exit 1

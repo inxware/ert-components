@@ -179,8 +179,8 @@ PlayerSettings:
     Android: online.show.signplayer
   buildNumber: {}
   AndroidBundleVersionCode: 31
-  AndroidMinSdkVersion: 19
-  AndroidTargetSdkVersion: 29
+  AndroidMinSdkVersion: 22
+  AndroidTargetSdkVersion: 34
   AndroidPreferredInstallLocation: 1
   aotOptions: 
   stripEngineCode: 1

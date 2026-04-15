@@ -1,10 +1,10 @@
-Shader "Custom/MaintainImageTextureRatio"
+﻿Shader "Custom/MaintainImageTextureRatio"
 {
     Properties
     {
-        _Color ("Color", Color) = (1,1,1,1)
+        [MainColor] _Color ("Color", Color) = (1,1,1,1)
         _BackgroundColor ("BackgroundColor", Color) = (1,1,1,1)
-        _MainTex ("Albedo", 2D) = "white" {}
+        [MainTexture] _MainTex ("Albedo", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
     }
@@ -71,12 +71,15 @@ Shader "Custom/MaintainImageTextureRatio"
 
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
             c.rgb = (c.rgb * rectMask) + ((1 - rectMask) * _BackgroundColor.rgb);
-            o.Albedo = c.rgb;
             c.a = (rectMask * c.a) + ((1 - rectMask) * _BackgroundColor.a);
+            // Use emission so the texture is visible regardless of scene lighting direction.
+            // Shape face normals can point away from any scene light, making Albedo-only
+            // surfaces render black. Emission is unaffected by lighting.
+            o.Albedo = float3(0, 0, 0);
+            o.Emission = c.rgb;
             o.Alpha = c.a;
-            // Metallic and smoothness come from slider variables
-            o.Metallic = _Metallic;
-            o.Smoothness = _Glossiness;
+            o.Metallic = 0;
+            o.Smoothness = 0;
         }
         ENDCG
     }

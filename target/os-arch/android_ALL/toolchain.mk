@@ -24,7 +24,15 @@ CFLAGS+=  -DANDROID
 #NDKs usual: -MMD -MP -MF -fpic -ffunction-sections -funwind-tables -fstack-protector -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__  -Wno-psabi -march=armv5te -mtune=xscale -msoft-float -mthumb -Os -fomit-frame-pointer -fno-strict-aliasing -finline-limit=64 -Wa,--noexecstack -O0 -g
 
 
-LD_SWITCHES+=-shared -no-canonical-prefixes  -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now 
+# Note: --no-undefined is intentionally omitted for Android .so builds.
+# When liblitert_c.a is linked (compiled with NDK r27c), it references newer
+# libc++ vtable symbols (basic_filebuf, basic_ofstream, etc.) that NDK r27c
+# moved out-of-line into libc++_shared.so. The ert-build-support clang 9 linker
+# stub (NDK r19 era) doesn't advertise these, so --no-undefined would fail at
+# link time even though the symbols are present at runtime on Android 11+.
+# To use --no-undefined again: align the ert-components Android toolchain with
+# NDK r27c (update ert-build-support) or build in the same Docker container.
+LD_SWITCHES+=-shared -no-canonical-prefixes  -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now
 LIB+=z
 
 override EXE = so

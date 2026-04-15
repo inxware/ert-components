@@ -1,12 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "30.0.2"
-    
+    namespace 'com.inx.ehs.media'
+    compileSdkVersion 34
+    buildToolsVersion "34.0.0"
+
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 29
+        minSdkVersion 22
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
 
