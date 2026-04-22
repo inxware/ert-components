@@ -1595,6 +1595,7 @@ void app_main(void)
 #if EHS_ESP32_ENABLE_LOGS != 1
     esp_log_level_set("*", ESP_LOG_NONE);
 #endif
+    esp_log_level_set("esp32_ehs", ESP_LOG_DEBUG);
     // Set callback function for notifying about file systems status
     ehs_filesystem_initalised_callback = EhsFilesystemInitalised;
 

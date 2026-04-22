@@ -43,7 +43,7 @@
 
 #ifndef EHSStdioPrintf
   #define EhsStdioPrintf(x, y, z, ...) {if (strcmp(z,"Error") == 0) ESP_LOGE(TS_TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Warning") == 0) ESP_LOGW(TS_TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Info")) ESP_LOGI(TS_TAG, x, y, z, __VA_ARGS__);else ESP_LOGD(TS_TAG, x, y, z, __VA_ARGS__);}
-  #define EhsStdioSimplePrintf(...)  ESP_LOGD(TS_TAG, __VA_ARGS__)
+  #define EhsStdioSimplePrintf(...)  ESP_LOGI(TS_TAG, __VA_ARGS__)
 #endif
 
 /* math functions not implemented in Windows */

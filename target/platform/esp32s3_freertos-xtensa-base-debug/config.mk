@@ -38,7 +38,7 @@ EHS_DEBUGALL=yes
 EHS_DEBUG_TCPIP_CONSOLE=yes
 
 # Runtime logger
-EHS_RUNTIME_LOGGER_ENABLED=no
+EHS_RUNTIME_LOGGER_ENABLED=yes
 
 # Memory management (uncomment to disable linked-list based allocator)
 #EHS_MEMORY_MANAGMENT=none

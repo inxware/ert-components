@@ -42,6 +42,9 @@ EHS_SERIAL_CONSOLE_SUPPORT=yes
 # Memory management (uncomment to disable linked-list based allocator)
 #EHS_MEMORY_MANAGMENT=none
 
+# Disable reboot after app load to allow debugging with OpenOCD
+EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
+
 
 #################################################################################################################
 # Feature Configuration
