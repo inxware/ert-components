@@ -1,6 +1,6 @@
 <LucidProject>
 <Version>1.4</Version>
-<ProjectName>sferlabs-tests</ProjectName>
+<ProjectName>sferalabs-tests</ProjectName>
 <Toolboxes>
 <Toolbox hash="0x1ab0">core</Toolbox>
 <Toolbox hash="0x1ab1">AV</Toolbox>
