@@ -1,0 +1,81 @@
+name: build-linux_android_arm
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+    container:
+      image: inxware/ubuntu22.04-build-essential
+      options: --user root
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ert-components
+        fetch-depth: 1
+
+    # Sparse paths below are derived from linux_android_arm's config:
+    #   EHS_GNU_ARCH=armv7a, EHS_GNU_OS=linux-android
+    #   -> EHS_GNU_OS_ARCH = armv7a-linux-android
+    # which selects the toolchain, the libc/kernel support libs and (as
+    # COMPONENT_BASE_TECHNOLOGIES, since no COMPONENT_VARIANT is set) the
+    # contrib target_libs. Changing any of those config values means changing
+    # these paths too.
+    - name: Checkout tools repo
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-build-support
+        path: ert-build-support
+        ref: refs/heads/main
+        fetch-depth: 1
+        sparse-checkout: |
+            toolchains/x86_64/armv7a-linux-android
+            support_libs/target_libs/armv7a-linux-android
+        lfs: true
+
+    - name: Checkout contrib middleware repo
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-contrib-middleware
+        path: ert-contrib-middleware
+        ref: refs/heads/main
+        fetch-depth: 1
+        sparse-checkout: target_libs/armv7a-linux-android
+        lfs: true
+
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        fetch-depth: 1
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+
+    - name: configure
+      run: |
+         cd ert-components
+         pwd
+         ./configure linux_android_arm
+    - name: make
+      run: |
+         cd ert-components
+         pwd
+         make -j 8
+    - name: make targetenv
+      run: |
+         cd ert-components
+         pwd
+         make targetenv
+#    - name: make package
+#      run: |
+#         cd ert-components
+#         pwd
+#         make targetenv_apk

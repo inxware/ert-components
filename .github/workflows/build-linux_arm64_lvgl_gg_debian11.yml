@@ -25,6 +25,7 @@ jobs:
              support_libs/target_libs/arm64-linux-gnu-clang11_debian11
         repository: inxware/ert-build-support
         path: ert-build-support
+        fetch-depth: 1
         ref: refs/heads/main
         lfs: true
 

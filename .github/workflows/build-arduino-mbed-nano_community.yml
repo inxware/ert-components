@@ -22,7 +22,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         sparse-checkout: |
-            toolchains/x86_64
+            toolchains/x86_64/arm-none-eabi
             support_libs/target_libs/arm_mbednano-arduino
         repository: inxware/ert-build-support
         fetch-depth: 1
