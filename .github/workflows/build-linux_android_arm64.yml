@@ -36,7 +36,7 @@ jobs:
         repository: inxware/ert-contrib-middleware
         fetch-depth: 1
         path: ert-contrib-middleware
-        sparse-checkout: target_libs/arm64-linux-android
+        sparse-checkout: target_libs/arm64-linux-android-arm-linux-android
         ref: refs/heads/main
         lfs: true
 
