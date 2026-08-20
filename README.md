@@ -63,7 +63,7 @@ Here are some of the key features of inxware:
 
 ## How is inxware licenced?
 
-The majority of the inxware runtime stack is published under an Open Source licence ([LGPL v3.0](licenses/eRT_Components.md)) and we welcome [contributions](CONTRIBUTING.md) from the community to expand and improve its capabilities and features.
+The majority of the inxware runtime stack is published under a permissive Open Source licence ([LGPL v3.0](licenses/eRT_Components.md)) and we welcome [contributions](CONTRIBUTING.md) from the community to expand and improve its capabilities and features.
 
 There is a single closed-source component, the inxware event-handling system EHS Kernel, supplied in binary form in our [`ert-build-support`](https://github.com/inxware/ert-build-support) repository. The EHS Kernel is required and automatically included in inxware firmware builds.
 
@@ -308,7 +308,18 @@ The following documents contain more information about inxware, eRT Components, 
 - Guidelines on getting involved with [contributing](CONTRIBUTING.md) to this project.
 - Our guide to [building](BUILDING.md) eRT Components.
 - Our guide to [developing](DEVELOPING.md) within inxware.
+- Our guide to [edge machine learning with inxware](docs/inxware-edge-ml.md), covering model formats and hardware-specific compilation for Nvidia TensorRT, Hailo, DeepX, Qualcomm, Rockchip, NXP eIQ and Arm Ethos-U.
 - The eRT [licence](LICENSE.md).
+
+## About inx
+
+inxware is built and maintained by [inx limited](https://www.inx-systems.com/), a UK embedded systems company that designs, builds and deploys connected products for OEMs and service providers, from concept and prototype through certification to volume production.
+
+- [Open source at inx](https://www.inx-systems.com/open-source/) — what inxware is, the platforms it supports, and how to get started
+- [Technologies we build with](https://www.inx-systems.com/technologies/) — embedded operating systems, wireless connectivity, security, OTA and device management
+- [Edge AI development](https://www.inx-systems.com/embedded-ai/) — taking on-device inference from prototype to production
+- [Technology partners](https://www.inx-systems.com/partners/) — Arm, BlackBerry QNX, Onomondo and Cumulocity
+- [inxware.io](https://www.inxware.io/) — the full platform, including the Lucid no-code IDE and the Appland community gallery
 
 ## Github build status
 

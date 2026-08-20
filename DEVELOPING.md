@@ -36,6 +36,23 @@ The following notes aim at helping developers who want to work upon and expand t
 
    Where it is the source code for a (imported) third-party component, the existing coding style should be preserved to minimise the work of merges of future upstream revisions.
 
+### Comments 
+
+Say what the code is for, not how it works unless this is necessary
+
+Write a comment when the intent is not obvious from the code. Say what the
+function or block is for, what the units are, what the caller must guarantee,
+which invariant must hold. Then stop.
+
+```c
+/* Bad - a history lesson */
+/* i must be uint32: it was uint8, which wrapped 255->0 and spun forever on
+ * any format over 256 characters, which is how the empty-format hang got in. */
+ehs_uint32 i;
+
+/* Good - if a longer explaination is necessary*/
+ehs_uint32 i; /* i indexes the format string characters, which can be a full row */
+```
 ## Platform porting
 
 ### Porting new hardware
@@ -97,7 +114,7 @@ For detailed porting instructions, see [Porting Guide](docs/ert-porting-guide.md
 Each eRT component consists of:
 
 - **CDF file** (.cdf): XML component description
-- **Implementation** (.c/.h): C/C++ source code  
+- **Implementation** (.c/.h): C/C++ source code
 - **Bitmap** (.bmp): Visual icon for IDE
 - **Interface file** (.idf.ini): IDE integration settings
 
@@ -138,6 +155,22 @@ Common/Components/<category>/
    nano my_component.idf.ini
    ```
 
+### Creating HALs
+
+The function block code that is common to all platforms should be implemented within the **`./Common/Components/`** directories under their relevant toolbox directories.
+
+Code and functions that are common to multiple functions blocks and also 100% platform independent should be included within the **`./Common/HAL/`** directories. Functions should be prefixed with **`EhsH`**
+
+Code and functions that works across more than one operating system-architecture combination and makes calls to APIs not defined within `./Common` (usually hardare or OS specific libraries) should be developed within the **`./target/Component-HAL/`** and prefixed with  **`Ehs<HAL Name>_`**. The HAL Name is the name of the abstraction function and defines a common API that any code in the `./Common/` directories or `target` directories can call. This code may interface directly to third party library APIs, OSs or hardware specific spefic code.
+
+Code that only works for a specific operating system-architecture (os-arch) should be implemented within **`./target/os-arch/<os-arch>/`**. directories. The functions should be prefixed **`EhsT`**. 
+
+During new hardware or OS integration it can be helpful to run only minimal functions of the ert runtimes. Skipping full system intialisation and/or starting an alternative main function instead of the EHS event handler can be achieved when running `make all` or `make all_docker` by setting the following environment variables:
+```make
+  TEST_FUNC=<some function>    # to run an alternative entrypoint instead of ehs_main() event handler.
+  ERT_INIT=none                # to also skip the normal eRT initialisation functions before running TEST_FUNC.
+```
+
 3. **Register component**
    ```bash
    # Add to category makefile
@@ -153,16 +186,32 @@ Common/Components/<category>/
 ## Testing guidelines
 
 ### Automated unit testing
+   Host tests. They compile the real source with the host `cc`, so they need no
+   target tree and no hardware, and they return non-zero on failure.
 
    ```bash
-   # Run all unit tests
-   make targetenv_run_tests
+   # Run every host unit test
+   make unit_tests
 
-   # Run specific test suites
-   cd UnitTest/
-   ./run_function_library_tests.sh
-   ./run_component_tests.sh
+   # The same, under AddressSanitizer + UndefinedBehaviorSanitizer
+   make unit_tests_asan
+
+   # Run one suite on its own
+   cd UnitTest/hal_string && make
    ```
+   `make unit_tests` picks up any `UnitTest/*/Makefile` that has a `run`
+   target, so a new suite needs no wiring beyond its own directory. See
+   [`UnitTest/README.md`](UnitTest/README.md) for what each suite covers and
+   which ones are currently orphaned.
+
+   The tests are host-native and Linux-only, but they are **not** detached from
+   the eRT configuration: `PLATFORM=` selects a real `target_config.h`, so
+   `make PLATFORM=nxp_arm` exercises the `base_small` size constants
+   (`EHS_STRING_LENGTH_MAX` 256) rather than `base_full`'s (2048). What they do
+   not inherit is `TARGET.cfg`, the `config.mk` feature flags and the target
+   toolchain — so code behind a configuration `#ifdef` is untested unless the
+   suite defines the flag itself. The full picture, and the refactoring this is
+   expected to go through, is in [`docs/unit-testing.md`](docs/unit-testing.md).
 
 ### Automated integration testing
 
@@ -232,12 +281,41 @@ The logging verbosity of eRT can be configured in the build at the module level 
 ### Static analysis
 
    ```bash
-   # Run static analysis
+   # cppcheck over the whole tree, honouring suppressions.txt and inline
+   # suppressions. Results go to stdout.
    make static_analysis
-
-   # Results in build/analysis/
-   # Includes: cppcheck, clang-analyzer, etc.
    ```
+
+### Stack usage
+
+   Function blocks run on task stacks of a few kB on MCU targets, so a run
+   function holding a buffer sized from a string-table constant can be the
+   entire budget on its own. `EHS_DATA_TABLE_STRING_DEFAULT_LENGTH` is 32 KB on
+   `base_full` and 256 bytes on `base_small` — never size a stack buffer from
+   it.
+
+   ```bash
+   # Largest per-function frames, largest first
+   make stack_report
+
+   # Narrow it, and fail rather than just report
+   make stack_report STACK_SRCS="Common/Components/core/stringfn.c" STACK_THRESHOLD=8192
+   ```
+   Frame sizes are ABI-dependent. The default is a host build, which is fine
+   for comparing one revision against another; for the figure that matters on a
+   device, build the real target and read the `.su` files the cross-compiler
+   leaves behind:
+
+   ```bash
+   ./scripts/software-utilities/stack_report.sh --prebuilt
+   ```
+
+### Sanitisers
+
+   The host unit tests build under AddressSanitizer and
+   UndefinedBehaviorSanitizer with `make unit_tests_asan`. Bounds tests should
+   use exact-sized heap allocations so the sanitiser catches an overrun that an
+   assertion would miss.
 
 ## Development examples
 
