@@ -63,7 +63,7 @@ Here are some of the key features of inxware:
 
 ## How is inxware licenced?
 
-The majority of the inxware runtime stack is published under a permissive Open Source licence ([LGPL v3.0](licenses/eRT_Components.md)) and we welcome [contributions](CONTRIBUTING.md) from the community to expand and improve its capabilities and features.
+The majority of the inxware runtime stack is published under an Open Source licence ([LGPL v3.0](licenses/eRT_Components.md)) and we welcome [contributions](CONTRIBUTING.md) from the community to expand and improve its capabilities and features.
 
 There is a single closed-source component, the inxware event-handling system EHS Kernel, supplied in binary form in our [`ert-build-support`](https://github.com/inxware/ert-build-support) repository. The EHS Kernel is required and automatically included in inxware firmware builds.
 
