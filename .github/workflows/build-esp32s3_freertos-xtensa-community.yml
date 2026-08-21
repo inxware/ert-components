@@ -30,6 +30,15 @@ jobs:
         ref: refs/heads/main
         lfs: true
 
+    - name: Checkout ert-kernels
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-kernels
+        fetch-depth: 1
+        path: ert-kernels
+        sparse-checkout: xtensa-esp32s3_freertos/kernel
+        ref: refs/heads/main
+
     - name: Checkout ert-contrib-middleware
       uses: actions/checkout@v4
       with:

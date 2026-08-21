@@ -41,6 +41,15 @@ jobs:
             support_libs/target_libs/armv7a-linux-android
         lfs: true
 
+    - name: Checkout ert-kernels
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-kernels
+        fetch-depth: 1
+        path: ert-kernels
+        sparse-checkout: armv7a-linux-android/kernel
+        ref: refs/heads/main
+
     - name: Checkout contrib middleware repo
       uses: actions/checkout@v4
       with:
