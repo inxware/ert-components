@@ -1,0 +1,76 @@
+name: build-win_x86_64_gtk_gst
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Using_Pulled_container:
+
+    runs-on: ubuntu-22.04
+    container:
+      # 64-bit Windows uses the newer image: mingw gcc 13.2 and NSIS 3.09. The
+      # 32-bit targets stay on inxware/ubuntu22.04-build-essential-mingw, pinned
+      # to the toolchain their MSYS2 contrib libraries were proven against.
+      image: inxware/ubuntu24.04-build-essential-mingw
+      options: --user root
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ert-components
+
+    # No ert-build-support checkout: this target is TOOLCHAIN_NAME=HOST, so the
+    # compiler comes from the image, and support_libs/target_libs is not
+    # published (nothing populates it — see docs/community-github-mirror.md).
+
+    - name: Checkout ert-kernels
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-kernels
+        fetch-depth: 1
+        path: ert-kernels
+        sparse-checkout: x86_64-mingw32posix/kernel
+        ref: refs/heads/main
+
+    - name: Checkout ert-contrib-middleware
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-contrib-middleware
+        fetch-depth: 1
+        path: ert-contrib-middleware
+        sparse-checkout: target_libs/x86_64-mingw32posix_gtk-gst
+        ref: refs/heads/main
+        lfs: true
+
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        fetch-depth: 1
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+
+    - name: configure
+      run: |
+           cd ert-components
+           ./configure win_x86_64_gtk_gst
+
+    - name: make
+      run: |
+           cd ert-components
+           pwd
+           make -j 8
+
+    - name: make targetenv
+      run: |
+           cd ert-components
+           pwd
+           make targetenv
+
+    - name: make package
+      run: |
+           cd ert-components
+           pwd
+           make targetenv_package

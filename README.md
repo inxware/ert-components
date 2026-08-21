@@ -323,23 +323,31 @@ inxware is built and maintained by [inx limited](https://www.inx-systems.com/), 
 
 ## Github build status
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/inxware/ert-components/actions)
+One badge per build workflow. Each links to its run history.
 
-[![build-linux_arm64_lvgl_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
+[![linux x86_64 — GTK/GStreamer](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11-no-certs.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11-no-certs.yml)
 
-[![build-linux_arm64_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml)
+[![linux x86_64 — LVGL](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-linux_x86_64_clang_lvgl_debian11-no-certs.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-linux_x86_64_clang_lvgl_debian11-no-certs.yml)
 
-[![build-linux_android_arm64](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml)
+[![linux arm64 — GTK/GStreamer](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml)
 
-[![build-esp32s3_freertos-xtensa-community](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml)
+[![linux arm64 — LVGL](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
 
-[![build-linux_x86_64_clang_lvgl_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-linux_x86_64_clang_lvgl_debian11-no-certs.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-linux_x86_64_clang_lvgl_debian11-no-certs.yml)
+[![Android arm64](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml)
 
-[![build-linux_x86_64_clang_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11-no-certs.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11-no-certs.yml)
+[![Android arm (32-bit)](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm.yml)
 
-[![build-win_x86_32-lucid-win10](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml)
+[![Windows x86_64 — GTK/GStreamer](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_64_gtk_gst.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_64_gtk_gst.yml)
 
-[![build-arduino-mbed-nano-community](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml)
+[![Windows x86 (32-bit)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml)
+
+[![ESP32-S3 — FreeRTOS](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml)
+
+[![Arduino Nano 33 BLE](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml)
+
+The full internal regression covers considerably more than this — see
+`SystemTests/CI/platform-lists/`. These workflows are the subset built on
+public runners.
 
 ## Project statistics
 
