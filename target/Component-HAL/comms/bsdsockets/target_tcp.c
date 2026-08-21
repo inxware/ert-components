@@ -51,8 +51,23 @@
 #include "hal_logger.h"
 
 // need to include these after ert hal for some reason?? e.g. setting gnu options?
+
+/* rtnetlink interface enumeration is a LINUX facility, not part of POSIX
+ * sockets - so it is unavailable on other platforms that use this otherwise
+ * portable bsdsockets backend (macOS, and Zephyr with CONFIG_POSIX_API +
+ * CONFIG_NET_SOCKETS). Expressed as a positive capability rather than a
+ * growing list of #ifndef EHS_<os> exclusions at each of the two use sites.
+ *
+ * Safe to omit: EhsTgtTcp_IterateInterfaces() and rtnl_get_link_ipv4addr()
+ * are self-contained diagnostics with no callers anywhere else in the tree. */
+#if !defined(EHS_MACOS) && !defined(EHS_ZEPHYR_RTOS)
+#define EHS_BSDSOCKETS_HAVE_NETLINK 1
+#endif
+
+#ifdef EHS_BSDSOCKETS_HAVE_NETLINK
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
+#endif
 #include <arpa/inet.h>
 
 /*****************************************************************************/
@@ -77,6 +92,7 @@
 /* returns the IP address of the current interface handle if it matches the string- nlmsghdr
  * todo split this into one function that returns a list of interface strings and another that returns the ip address (perhaps with a cache of some type)
  * */
+#ifdef EHS_BSDSOCKETS_HAVE_NETLINK
 ehs_bool rtnl_get_link_ipv4addr(struct nlmsghdr *h,ehs_char * if_string_match,unsigned long *in4p_ret)
 {
     struct ifaddrmsg *ifaddr;
@@ -218,6 +234,7 @@ void EhsTgtTcp_IterateInterfaces()
     }/*subscope */
     close(fd);
 }
+#endif /* EHS_BSDSOCKETS_HAVE_NETLINK - end of netlink-only functions */
 
 
 /**
@@ -278,7 +295,7 @@ ehs_sint32 EhsTgtTcp_recvNonblock(EhsTgtTcpSocketType xRxSocket, ehs_uint8* pDat
     ehs_sint32 nDataReceived;
 
     memset(pData, 0, (size_t)nData); /*lint !e534 Safe to ignore return value here */
-    nDataReceived = recv(xRxSocket, (ehs_char*)pData, nData, 0x40 /* MSG_DONT_WAIT */);
+    nDataReceived = recv(xRxSocket, (ehs_char*)pData, nData, MSG_DONTWAIT);
     if ( nDataReceived == 0 )   // This is actually what linux returns when the streamhas been closed nicely
     {
         nDataReceived = EHS_TGT_TCP_SOCKET_ERROR;

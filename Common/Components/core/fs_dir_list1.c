@@ -184,7 +184,7 @@ EHS_FB_RUN_FUNCTION(FileSystemDirGet1)
 
     if (pListInfo->bFileValid)
     {
-        EhsStrcpy(EHS_FB_OUT_S(0), pListInfo->szLastFile);
+        EHS_FB_OUT_S_SET(0, pListInfo->szLastFile);
     }
     if (bPathOK)
     {

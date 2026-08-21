@@ -67,6 +67,7 @@ EHS_FB_DESTROY_FUNCTION(interface_manager)
 {
 	inx_interface_manager_state_type *inx_interface_manager_state = (inx_interface_manager_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
+	return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 

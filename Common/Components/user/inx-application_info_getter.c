@@ -163,7 +163,7 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getList)
     if(appdir==NULL)
     {
         EHSH_LOG_ERROR("Failed to open appdata directory with path:%s",appdatapath);
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getList_errors_DO), "Failed to open app data dir.");
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getList_errors_DO, "Failed to open app data dir.");
         EHS_FB_FINISH(INX_application_info_getter_ARG_getList_errorlist_EO);
         return;
     }
@@ -195,13 +195,13 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getList)
     }
     if (EHS_FB_OUT_CONNECTED_API2(INX_application_info_getter_ARG_getList_list_DO))
     {
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getList_list_DO),csv);
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getList_list_DO, csv);
     }
     if (EHS_FB_OUT_CONNECTED_API2(INX_application_info_getter_ARG_getList_amount_DO))
     {
         EHS_FB_OUT_I_API2(INX_application_info_getter_ARG_getList_amount_DO)=count;
     }
-    EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getList_errors_DO), "OK.");
+    EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getList_errors_DO, "OK.");
     EHS_FB_FINISH(INX_application_info_getter_ARG_getList_xxxxxlist_EO);
 }//ICB FUNCTION getList MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION getInfo MACRO START -- DO NOT ALTER
@@ -259,7 +259,7 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getInfo)
         if(infofile==NULL)
         {
             EHSH_LOG_WARNING("Could not open:%s",infopath);
-            EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getInfo_errors_DO), "Failed to open info.xml.");
+            EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getInfo_errors_DO, "Failed to open info.xml.");
             EHS_FB_FINISH(INX_application_info_getter_ARG_getInfo_errorinfo_EO);
             return;
         }
@@ -297,22 +297,22 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getInfo)
     else
     {
         EHSH_LOG_WARNING("Trying to get application info with no name given.");
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getInfo_errors_DO), "No app name supplied.");
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getInfo_errors_DO, "No app name supplied.");
         EHS_FB_FINISH(INX_application_info_getter_ARG_getInfo_errorinfo_EO);
         return;
     }
 
     //@todo - output whole xml chunk to another port for future extensibility
     if (EHS_FB_OUT_CONNECTED_API2(INX_application_info_getter_ARG_getInfo_name_DO))
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getInfo_name_DO),cName);
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getInfo_name_DO, cName);
     if (EHS_FB_OUT_CONNECTED_API2(INX_application_info_getter_ARG_getInfo_commercial_Name_DO))
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getInfo_commercial_Name_DO),cCommercialName);
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getInfo_commercial_Name_DO, cCommercialName);
     if (EHS_FB_OUT_CONNECTED_API2(INX_application_info_getter_ARG_getInfo_version_DO))
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getInfo_version_DO),cVersion);
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getInfo_version_DO, cVersion);
     if (EHS_FB_OUT_CONNECTED_API2(INX_application_info_getter_ARG_getInfo_description_DO))
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getInfo_description_DO),cDescription);
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getInfo_description_DO, cDescription);
 
-    EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getInfo_errors_DO), "OK.");
+    EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getInfo_errors_DO, "OK.");
     EHS_FB_FINISH(INX_application_info_getter_ARG_getInfo_xxxxxinfo_EO);
 }//ICB FUNCTION getInfo MACRO END -- DO NOT ALTER THIS LINE
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
@@ -342,12 +342,12 @@ EHS_FB_RUN_FUNCTION(application_info_getter_setDefault)
     }
     if (succ == EHS_TRUE)
     {
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_setDefault_errors_DO), "OK.");
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_setDefault_errors_DO, "OK.");
         EHS_FB_FINISH(INX_application_info_getter_ARG_setDefault_xxxxxsetDefault_EO);
     }
     else
     {
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_setDefault_errors_DO), "Failed to set app as default.");
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_setDefault_errors_DO, "Failed to set app as default.");
         EHS_FB_FINISH(INX_application_info_getter_ARG_setDefault_errorsetDefault_EO);
     }
     return;
@@ -366,24 +366,26 @@ EHS_FB_RUN_FUNCTION(application_info_getter_deleteApp)
     ehs_bool succ = EHS_FALSE;
     inx_application_info_getter_state_type* inx_application_info_getter_state = (inx_application_info_getter_state_type*)EHS_FB_RUN_CONTEXT;
 
-    // Your code here
-
     if (EHS_FB_IN_CONNECTED_API2(INX_application_info_getter_ARG_deleteApp_app_namedelete_DI))
     {
-        //@todo - complete
-        // delete app folder if exists
-
-        EHS_FB_IN_S_API2(INX_application_info_getter_ARG_deleteApp_app_namedelete_DI) ;
+        const ehs_char *app_name =
+            EHS_FB_IN_S_API2(INX_application_info_getter_ARG_deleteApp_app_namedelete_DI);
+        /* Delegates to the common HAL primitive that SetupApplication already
+         * uses on SODL parse failure, and that also backs the console 'X'
+         * command and the boot-time crash-auto-delete path. Same semantic:
+         * remove live dir + try-revert-to-previous; fall back to default if no
+         * _prev. Refuses EHS_SYS_APP_DEFAULT_NAME. */
+        succ = EhsAppDenyApp(app_name);
     }
 
     if (succ == EHS_TRUE)
     {
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_deleteApp_errors_DO), "OK.");
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_deleteApp_errors_DO, "OK.");
         EHS_FB_FINISH(INX_application_info_getter_ARG_deleteApp_xxxxxdelete_EO);
     }
     else
     {
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_deleteApp_errors_DO), "Failed to uninstall app.");
+        EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_deleteApp_errors_DO, "Failed to uninstall app.");
         EHS_FB_FINISH(INX_application_info_getter_ARG_deleteApp_errordelete_EO);
     }
     return;
@@ -407,7 +409,7 @@ EHS_FB_RUN_FUNCTION(application_info_getter_getDefault)
         EhsAppGetDefaultApp(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getDefault_app_namegetDefault_DO));
     }
     //always succeeds
-    EhsStrcpy(EHS_FB_OUT_S_API2(INX_application_info_getter_ARG_getDefault_errors_DO), "OK.");
+    EHS_FB_OUT_S_SET_API2(INX_application_info_getter_ARG_getDefault_errors_DO, "OK.");
     EHS_FB_FINISH(INX_application_info_getter_ARG_getDefault_xxxxxgetDefault_EO);
 
     return;

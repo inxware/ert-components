@@ -29,9 +29,25 @@
 EHS_ARCH=arm
 EHS_OS=linux
 
-EHS_GNU_ARCH=arm#this must map onto the component library
+# NOTE: the trailing comment here used to read "this must map onto the component
+# library". That is stale — the contrib key comes from
+# COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH below, not from EHS_GNU_ARCH, so
+# this token now only selects the KERNEL archive key.
+# It currently resolves to `arm-linux-gnu`, which has no directory. See the
+# TODO under EHS_TARGET_LIB_VARIANT.
+EHS_GNU_ARCH=arm
 EHS_GNU_OS=linux-gnu
-EHS_GNU_OS_VERSION=""#arm-none-linux-gnueabi-4.6.1
+# Was  EHS_TARGET_LIB_VARIANT=""  — make assigns the two-character string `""`,
+# not empty, so the kernel key became `arm-linux-gnu""`. A bare `=` means empty.
+#
+# TODO: this target still cannot link. With the quotes fixed the key is
+# `arm-linux-gnu`, which has no archive. Two options, needs a decision and a
+# link test:
+#   (a) build a kernel under arm-linux-gnu in ../EHS-kernel; or
+#   (b) set EHS_GNU_ARCH=armv7l to reuse armv7l-linux-gnu, which exists — but
+#       that archive is built with clang10ubuntu18 while this target uses
+#       gcc-linaro, so ABI compatibility must be confirmed first.
+EHS_TARGET_LIB_VARIANT=
 #Optional if different clib build is required - dangerous!
 #KERNEL_VERSION=linux/2.6.35.9
 
@@ -51,7 +67,11 @@ SYSTEM_VARIANT=RASPBERRYPI
 COMPONENT_VARIANT=
 
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm-linux-gnu-arm-none-linux-gnueabi-4.6.1-gtk_gst_raspberrypi
+# COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH removed (the variable no longer
+# exists). It pointed at contrib target_libs/arm-linux-gnu-arm-none-linux-gnueabi-4.6.1-gtk_gst_raspberrypi.
+# This target cannot link today, so it is part of the legacy-target batch in
+# docs/target-libs-naming-audit.md; if it is revived, rename that directory to
+# the key the composition rule derives rather than reinstating an override.
 
 
 #################################################################################################################

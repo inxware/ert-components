@@ -18,6 +18,9 @@
 #include <stdio.h>
 
 #include "globals.h"
+#include "hal_ui_binding_qt.h"
+#include "qt_app_lifecycle.h"
+#include "hal_app_lifecycle.h"
 #include "ertqt.h"
 #include "ehs_main.h"
 #include "hal.h"
@@ -77,11 +80,21 @@ static void ehs_tick_callback(void * user_data)
     if (EhsGetAndClearNewAppLoaded())
     {
         EHSH_LOG_INFO("EHS app reloaded, loading new QML");
+        // Fully tear down per-app Qt runtime state (engine, root window,
+        // GStreamer pipelines, ertqt object table). The HAL subscription
+        // table is untouched here — old subs were already freed via per-FB
+        // DESTROY → EhsUI_unregister during the kernel's SODL unload, and
+        // new subs are sitting unbound (register_property deliberately does
+        // not try_bind eagerly) waiting for the new QML root.
+        EhsApp_teardown();
         load_current_app_qml();
         ertqt_refresh_objects();
+        // processPending (called when state transitions to SCANNED below)
+        // will bind every unbound sub to the fresh QML root — first-time
+        // bind, no invalidate/rebind dance needed.
     }
 
-    // Single-step the kernel — QML objects are now available if app just loaded
+    // Single-step the kernel — QML objects are now available if app just loaded.
     cmd = EhsMainLoopSingle(NULL, NULL);
 
     if (EhsCheckAppExitLoop(cmd) == EHS_TRUE)
@@ -104,6 +117,7 @@ static void ehs_tick_callback(void * user_data)
     if (state_after == ERTQT_APP_STATE_SCANNED)
     {
         EHSH_LOG_INFO("Qt object table rebuilt — widgets can now bind");
+        EhsUIBindingQt_processPending();
     }
 }
 
@@ -122,12 +136,13 @@ ehs_bool EhsTV_initQt(int argc, char ** argv)
         return EHS_FALSE;
     }
 
-#ifdef ERTQT_SINGLETON_SCAN
+#ifdef ERTQT_SINGLETON_SCAN_ROOMS
     // The Rooms singleton (pragma Singleton) is not a child of any root object
     // so findChildren() misses it. Register it for explicit singleton scanning
     // so that all Room instances inside it appear in the object table.
+    // Enable by defining ERTQT_SINGLETON_SCAN_ROOMS in the target config.
     ertqt_add_singleton_scan("Rooms");
-#endif /* ERTQT_SINGLETON_SCAN */
+#endif /* ERTQT_SINGLETON_SCAN_ROOMS */
 
     return EHS_TRUE;
 }
@@ -164,4 +179,35 @@ int EhsTV_runQt(void)
     }
 
     return 0;
+}
+
+// Qt component-HAL teardown — called via the per-os-arch app-lifecycle
+// dispatcher (see target/os-arch/<arch>/target_app_lifecycle.c).
+//
+// Destroys all Qt-framework runtime objects for the current app:
+//   - QQmlApplicationEngine and its QML root tree
+//   - QQuickWindow we created to host an Item-rooted QML app
+//   - QSignalMapper bridges parented to the QML root (auto-destroyed
+//     with their parent)
+//   - ertqt object table (cleared)
+//   - GStreamer pipelines in any QtMultimedia elements (moved through
+//     NULL state before the destructors fire)
+//
+// What this does NOT touch:
+//   - HAL-side subscription_t entries in g_subs[]. Those represent FB-
+//     side state and are independently managed via EhsUI_unregister()
+//     calls in each FB's DESTROY function. Subs registered by the
+//     just-loaded app survive this teardown and get re-bound to the
+//     fresh QML root by EhsUIBindingQt_invalidateAll +
+//     EhsUIBindingQt_processPending.
+//   - QGuiApplication (g_app). Qt does not support
+//     destroy/recreate of QGuiApplication within a process. It lives
+//     for the full process lifetime.
+//
+// For a true full-shutdown (process exit), call EhsUIBindingQt_shutdown
+// separately to wipe the subscription table too.
+void EhsTV_qtAppTeardown(void)
+{
+    EHSH_LOG_INFO("EhsTV_qtAppTeardown: tearing down Qt runtime objects for app reload");
+    (void)ertqt_destroy_engine();
 }

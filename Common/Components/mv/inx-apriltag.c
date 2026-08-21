@@ -301,7 +301,9 @@ EHS_FB_RUN_FUNCTION(apriltag_detect)
     // i.e. len('"id00":12345,"xlt00":1234.12,"ylt00":1234.12,"xlt00":1234.12,"ylt00":1234.12,"xlt00":1234.12,"ylt00":1234.12,"xlt00":1234.12,"ylt00":1234.12,') = 141
     ehs_char temp_json[145];
     // Set JSON string start
-    EhsSprintf(detect_json, "{\"n\":%d", zarray_size(detections));
+    EhsDataString_set(detect_json, "");
+    EhsSnprintf(temp_json, sizeof(temp_json), "{\"n\":%d", zarray_size(detections));
+    EhsDataString_append(detect_json, temp_json);
 
     ehs_uint16 detection_id = 0;
     apriltag_detection_t *det;
@@ -316,14 +318,13 @@ EHS_FB_RUN_FUNCTION(apriltag_detect)
             det->p[2][0] / ((float)gEhsCameraDataFormatChanLen[src_frame->fmt]), det->p[2][1],
             det->p[3][0] / ((float)gEhsCameraDataFormatChanLen[src_frame->fmt]), det->p[3][1]
         );
-        EhsStrcat(detect_json, temp_json);
+        EhsDataString_append(detect_json, temp_json);
     }
 
     apriltag_detections_destroy(detections);
 
     // End JSON string
-    detect_json[EhsStrlen(detect_json) + 1] = '\0';
-    detect_json[EhsStrlen(detect_json)] = '}';
+    EhsDataString_append(detect_json, "}");
     //printf("JSON: %s\r", detect_json);
 
 tag_return:

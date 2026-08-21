@@ -22,7 +22,7 @@ fi
 _targets=()
 while IFS= read -r t; do
     _targets+=("$t")
-done < <(ls --hide "*.mk" --hide "*TEMPLATE*" ./target/platform/ | sort)
+done < <(ls ./target/platform/ | grep -v '\.mk$' | grep -v 'TEMPLATE' | sort)
 
 # Resolve a numeric argument to a target name
 _resolve_target() {
@@ -141,6 +141,7 @@ if [ "$1" = "help" -o "$1" = "-h" -o "$1" = "-help" -o "$1" = "--help" ]; then
     echo "  ${TXT_FG_WHITE}./configure -deploy user@ip        ${TXT_FG_GREEN}: deploy staged TARGET_TREES to a device via SSH, kill any running ehs, sync /opt/ehs, and start ehs."
     echo "  ${TXT_FG_WHITE}./configure -pushd                 ${TXT_FG_GREEN}: change directory to the ../TARGET_TREES staging directory (exit to return here)."
     echo "  ${TXT_FG_WHITE}./configure -pushd-config          ${TXT_FG_GREEN}: change directory to ./target/platform/${TARGET} (exit to return here)."
+    echo "  ${TXT_FG_WHITE}./configure -install-make          ${TXT_FG_GREEN}: Installs basic build tools to run make"
     echo
     echo "Use the following to see build commands and utilities:"
     echo
@@ -226,8 +227,13 @@ fi
 if [ "$1" = "-debug" ]; then
     source ./TARGET.cfg
     pushd ../TARGET_TREES/ehs_env-${TARGET}/bin
+if [ "$LD_LIBRARY_PATH" = "" ]; then
+    export LD_LIBRARY_PATH="${PWD}/cslib"
+else
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${PWD}/cslib"
+fi
     export DISPLAY=:0.0
-    gdb -ex "set substitute-path inxwware ../" -ex "run" ./ehs.exe
+    gdb -ex "set substitute-path /inxware ../../.." -ex "run" ./ehs.exe
     popd
     exit
 fi
@@ -235,9 +241,20 @@ fi
 if [ "$1" = "-run" ]; then
     source ./TARGET.cfg
     pushd ../TARGET_TREES/ehs_env-${TARGET}/bin
+if [ "$LD_LIBRARY_PATH" = "" ]; then
+    export LD_LIBRARY_PATH="${PWD}/cslib"
+else
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${PWD}/cslib"
+fi
     export DISPLAY=:0.0
     ./ehs.exe
     popd
+    exit
+fi
+
+if [ "$1" = "-install-make" ]; then
+    sudo apt update
+    sudo apt install make
     exit
 fi
 

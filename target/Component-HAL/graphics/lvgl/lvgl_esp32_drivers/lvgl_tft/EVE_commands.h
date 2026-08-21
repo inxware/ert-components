@@ -197,6 +197,9 @@ void EVE_cmd_point(int16_t x0, int16_t y0, uint16_t size);
 void EVE_cmd_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t w0);
 void EVE_cmd_rect(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t corner);
 
+/* probe commands */
+uint32_t EVE_cmd_frames(void);
+
 void EVE_calibrate_manual(uint16_t height);
 #endif // FT81X_FULL
 

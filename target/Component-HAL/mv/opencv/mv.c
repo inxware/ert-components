@@ -23,15 +23,22 @@ ehs_uint8 gEhsCameraDataFormatChanLen[EHS_CAM_FMT_MAX] = {
 
 /* Embedded renderer callback registration */
 static EhsCamEmbeddedRendererFn g_embedded_renderer = NULL;
+static EhsCamEmbeddedRendererReleaseFn g_embedded_renderer_release = NULL;
 
-void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn)
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn, EhsCamEmbeddedRendererReleaseFn releaseFn)
 {
     g_embedded_renderer = fn;
+    g_embedded_renderer_release = releaseFn;
 }
 
 EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void)
 {
     return g_embedded_renderer;
+}
+
+EhsCamEmbeddedRendererReleaseFn EhsCameraFrameGetEmbeddedRendererRelease(void)
+{
+    return g_embedded_renderer_release;
 }
 
 // Machine Vision Algorithms

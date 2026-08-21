@@ -1181,7 +1181,7 @@ else if(EhsStrcmp(state->queryPos->map,mapName)==0)
                             }
                             if(out)
                             {
-                                EhsStrcpy(out,state->result);
+                                EhsDataString_set(out,state->result);
                             }
                         }
                         else

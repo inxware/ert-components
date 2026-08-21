@@ -2431,6 +2431,7 @@ void* EhsMqttClientLoop(void* args __attribute__((unused)))
     ehs_uint16 port=0;
     EhsMQTTConnectPoll(&connect,&host,&port,(ehs_bool*)&gUseTLS,&clientid,&username,&password,&clientCertFileName,&clientKeyFileName,&rootCAFileName);
     err_t err=ERR_OK;
+    printf("Q1\n");
     #ifdef INX_MQTT_SUPPORT_HARDWIRED_CONTROLLER_DATA
             char publishPayload[INX_MQTT_MAX_PAYLOAD_SIZE];
     #endif
@@ -2443,6 +2444,7 @@ void* EhsMqttClientLoop(void* args __attribute__((unused)))
         {
             //after we have inited then start connection
             mqttSetGlobalState(MQTT_STATE_DNS_LOOKUP);
+            printf("Q2\n");
         }
         break;
     case MQTT_STATE_IDLE:
@@ -2451,12 +2453,14 @@ void* EhsMqttClientLoop(void* args __attribute__((unused)))
         switch(inxNetworkTaskWaitForDNS(host,&brokerServerAddress))
         {
         case ERR_OK:
+        printf("Q3\n");
             /*printf("PBB 2147 %u.%u.%u.%u\n", ((u8_t *)&brokerServerAddress)[0],
             			((u8_t *)&brokerServerAddress)[1], ((u8_t *)&brokerServerAddress)[2],
             			((u8_t *)&brokerServerAddress)[3]); */
             mqttSetGlobalState(MQTT_STATE_DO_CONNECT);
             break;
         case ERR_INPROGRESS:
+        printf("Q4\n");
             break;
         default:
             mqttSetGlobalState(MQTT_STATE_DO_DISCONNECT);

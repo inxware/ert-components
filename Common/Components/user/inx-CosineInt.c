@@ -58,7 +58,7 @@ EHS_FB_INIT_FUNCTION(CosineInt)
 	//this is the reference to the object data for this instance of the function block
 	inx_CosineInt_state_type* inx_CosineInt_state = (inx_CosineInt_state_type*)EHS_FB_INIT_CONTEXT;
 	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d",&inx_CosineInt_state->unit);
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhu",&inx_CosineInt_state->unit); /* unit is ehs_bool */
 
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */

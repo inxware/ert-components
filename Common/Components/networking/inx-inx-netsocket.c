@@ -142,8 +142,14 @@ EHS_FB_INIT_FUNCTION(netSocket)
     ehs_bool bRet = EHS_TRUE; /* assume success */
     //this is the reference to the object data for this instance of the function block
     inx_netSocket_state_type* inx_netSocket_state = (inx_netSocket_state_type*)EHS_FB_INIT_CONTEXT;
-    /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s %d %d",inx_netSocket_state->URL,&port,&tcp_udp);
+    /* read the initialisation parameters - the %s carries a field width from
+     * sizeof, or sscanf writes as many characters as the parameter holds */
+    {
+        ehs_char szScanFmt[32];
+        EhsSnprintf(szScanFmt, sizeof(szScanFmt), "%%%us %%d %%d",
+                    (unsigned int)(sizeof(inx_netSocket_state->URL) - 1u));
+        EhsSscanf(EHS_FB_INIT_PARAMETERS,szScanFmt,inx_netSocket_state->URL,&port,&tcp_udp);
+    }
     inx_netSocket_state->port=port;
     inx_netSocket_state->tcp_udp=tcp_udp;
     inx_netSocket_state->read_dwell_time_ms=10; //default to 10ms (~10MBs), @todo make this a parameter to govern data rate.
@@ -537,7 +543,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_receive)
             /* note data received should be EHS_STRING_LENGTH-1 from recv() */
             inx_netSocket_state->data_recv_buf[nDataReceived]='\0'; // just in case the user treats this as a NULL term string.
             if (EHS_FB_OUT_CONNECTED_API2(INX_netSocket_ARG_open_data)){
-                EhsStrncpy(EHS_FB_OUT_S_API2( INX_netSocket_ARG_open_data ),inx_netSocket_state->data_recv_buf, nDataReceived+1);
+                EHS_FB_OUT_S_SETN_API2(INX_netSocket_ARG_open_data, inx_netSocket_state->data_recv_buf, nDataReceived+1);
                 //((ehs_char*) (EHS_FB_OUT_S_API2(INX_netSocket_ARG_open_data)))[nDataReceived] = '\0';
             }
             if (EHS_FB_OUT_CONNECTED_API2(INX_netSocket_ARG_open_sizeout_size)){

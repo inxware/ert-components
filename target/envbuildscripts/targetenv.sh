@@ -95,7 +95,7 @@ rm -f "../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib/*.a"
 rm -Rf "../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/corelib/gcc"
 # additional clib libraries if built separately
 if [ ! -n "${EHS_CLIB_OVERRIDE_PATH}" ]; then
-    EXTR_PKGS="../ert-build-support/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/target_packages"
+    EXTR_PKGS="../ert-build-support/support_libs/target_libs/${EHS_GNU_OS_ARCH}/target_packages"
     if [ -e "${EXTR_PKGS}" ]; then
         echo "Copying additional core libraries..."
         cp -vPR "${EXTR_PKGS}/"* "../TARGET_TREES/ehs_env-${SPECIFIC_TARGET}/bin"
@@ -155,6 +155,21 @@ if [ "${EHS_DEFAULT_APP}" = "NONE" ]; then
         #    echo "or set EHS_SKIP_REPO_PULL=1 to use your local state." >&2
         #    exit 1
         #fi
+
+        # Refuse the switch ourselves if the tree is dirty, rather than letting
+        # git emit "Please commit your changes or stash them before you switch
+        # branches" into a build log. The checkout below would abort anyway; the
+        # difference is that this says whose repo it is and how to proceed.
+        # Uncommitted work in ../apps is normal during app development, so this
+        # is a routine condition, not a broken checkout.
+        if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+            err "../apps has uncommitted changes, so it cannot be switched to RELEASE-PRODUCTION." >&2
+            err "  $(git status --porcelain --untracked-files=no | wc -l) modified file(s), currently on branch '$(git rev-parse --abbrev-ref HEAD)'." >&2
+            err "Either commit/stash them in ../apps, or build against your local app state with:" >&2
+            err "  EHS_SKIP_REPO_PULL=1 make targetenv" >&2
+            exit 1
+        fi
+
         git checkout RELEASE-PRODUCTION || exit 1
         #git pull --ff-only origin RELEASE-PRODUCTION || exit 1
 
@@ -246,8 +261,8 @@ else
             echo "WARNING! You need to create a security folder adjascent to ert-components."
             echo "or check one out using something like"
             echo "git clone git@github.com:/<Your Secure Repo>.git"
-            #cd DevmanSecurity/ ||
-            #git checkout master ||
+            cd DevmanSecurity/ ||
+            git checkout master ||
             popd
         fi
     else

@@ -51,6 +51,8 @@ else
 	LIB += log
 endif
 LIB+=:libarchive.a
+# libarchive is linked above, so enable console "load *.tar" unpack support.
+EHS_LIBARCHIVE_SUPPORT=yes
 
 ####################################################################################################
 # os-arch porting code 
@@ -63,8 +65,16 @@ OBJECTS += target_file.$(OBJ)
 endif
 OBJECTS += target_process.$(OBJ) 
 OBJECTS += target_main.$(OBJ)
-OBJECTS += target_math.$(OBJ) 
-OBJECTS += target_net.$(OBJ) 
+OBJECTS += target_math.$(OBJ)
+OBJECTS += target_net.$(OBJ)
+
+# Per-target serial-console HAL — backs Common/Ehs/serial_console.c.
+# Contract: Common/HAL/include/hal_serial.h.
+ifdef EHS_SERIAL_CONSOLE_SUPPORT
+ifneq ($(EHS_SERIAL_CONSOLE_SUPPORT),none)
+OBJECTS += target_serial.$(OBJ)
+endif
+endif
 OBJECTS += JNISysInfoInterface.$(OBJ) 
 
 # This is needed only if we are using a pure native NDK app rather than JNI launched.

@@ -44,57 +44,22 @@ else
     exit 1
 fi
 
-# Check we have git lfs installed
-echo "Checking git lfs is installed. You may be asked for you user password for sudo"
-git lfs env &>/dev/null || sudo apt -y install git-lfs
 
-#Install GNU make and some basic host building tools.
-if ! command -v make &> /dev/null ; then
-    echo "Installing build-essentials for GNU make. You may be asked for you user password for sudo"
-    sudo apt update -qq
-    sudo apt -y install build-essential
-fi
+# NOTE: host tool installation (Xcode CLT, Homebrew, apt packages, git-lfs, make,
+# curl, Docker) used to live here. It is host scope, not target scope, and ran on
+# every 'make prepdeps' - so a 37-platform regression sweep probed Homebrew and
+# could invoke 'sudo apt' 37 times to do nothing. It now lives in
+# target/envbuildscripts/configure_host.sh, run once per machine via
+# 'make configure-host'.
+#
+# What stays here needs the make-exported environment that only 'make prepdeps'
+# provides (TARGET, EHS_ARCH, EHS_GNU_OS...), which is why it is not in ./configure:
+#   - the dependency-repo fetch (skippable with SKIP_REPOS=1)
+#   - the per-target checks at the end of this file
+#
+OS_TYPE="$(uname -s)"
+CPU_ARCH="$(uname -m)"
 
-#Check for curl we often want this and need it for the docker install
-if ! command -v curl &> /dev/null ; then
-    echo "Installing curl. You may be asked for you user password for sudo"
-    sudo apt update -qq
-    sudo apt -y install curl
-fi
-
-# Check if we have socker installed and isntall it if we don't
-if ! command -v docker &> /dev/null ; then
-    echo "Docker not found. Installing. (You may be asked to enter your user password for sudo operations)"
-    sudo apt update -qq
-    sudo apt -y install apt-transport-https ca-certificates curl software-properties-common
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt update -qq
-    apt-cache policy docker-ce # check this is coming from the docker package manager not Ubuntu
-    sudo apt -y install docker-ce
-    sudo systemctl status docker
-    sudo usermod -aG docker ${USER}
-    read -n 1 -p "${TXT_FG_RED}Docker has been installed, which requires you to reboot your machine or re-login so that new user permissions can take affect for ${USER}"
-else
-    echo "Docker Already installed installed"
-fi
-
-# Check if we have docker-compose installed and install it if we don't
-warn "We're not checking the python environment for esp32 tools... find this line and enable if you want to know how..."
-if [ 1 = 0 ];then
-    # Check we have git lfs installed
-    if ! command -v pip &> /dev/null ; then
-        # Check we have python and pip
-        sudo apt -y install python3 python3-pip python3-venv
-        pip install pyserial
-        #export IDF_PYTHON_ENV_BASE="../../TARGET_TREES/esp32_venv"
-        #python3 -m venv "../TARGET_TREES/esp32_venv" > /dev/null - WE SEEM TO BE USING /opt these days.
-        python3 -m venv "/opt/python_env" > /dev/null
-        pip install -r "../ert-contrib-middleware/inx_build_scripts/source-scripts/python-pip-requirements_inx-xbuilder-source-me-espidf.txt" > /dev/null
-    else
-        echo "Python already installed."
-    fi
-fi
 
 # Set up some hardwired paramters for the inxware dependency repos
 # TODO2025: THIS SHOULD BE A BASE MAKE SYSTEM VARIABLE THAT IS EXPORTED TO HERE AND OTHER SCRIPTS
@@ -103,7 +68,8 @@ LOCAL_BASE="../"
 if [ "$IS_PUBLIC" = "yes" ]; then
     REPOSITORY_BASE="$(dirname -- ${REPO_URL})"
 else
-    REPOSITORY_BASE="git@github.com:inxware/"
+#   REPOSITORY_BASE="git@github.com:inxware/"
+    REPOSITORY_BASE="${REPO_URL}/../"
 fi
 
 #
@@ -112,17 +78,15 @@ fi
 EHS_CORE_SUPPORT_DIR="ert-build-support"
 EHS_CORE_SUPPORT_REPO="ert-build-support.git"
 
-if [ ! -n ${EHS_CLIB_OVERRIDE_PATH} ];then
-    EHS_CORE_SUPPORT_PATH_FROM_BASE="${EHS_CORE_SUPPORT_DIR}/target_libs/$(EHS_GNU_OS_ARCH)${EHS_SPECIAL_CLIB_EXT}"
-else
-    EHS_CORE_SUPPORT_PATH_FROM_BASE="${EHS_CORE_SUPPORT_DIR}/target_libs/${EHS_CLIB_OVERRIDE_PATH}"
-fi
-
-# The following paths contain toolcains, kernel headers and other c-abi libraries.
+# Removed 2026-08: EHS_CORE_SUPPORT_PATH_FROM_BASE / EHS_TOOLCHAIN_PATH_FROM_BASE /
+# EHS_TOOLCHAIN_LOCAL_PATH were computed here and never read. One of them also
+# contained "$(EHS_GNU_OS_ARCH)" - command substitution, a makefile $(VAR) written
+# into a shell script - which ran a non-existent command and expanded to empty. The
+# repo fetch below clones whole repos to fixed paths, so none of it was needed.
+# If a per-arch path is ever wanted here, note that the fetch is arch-independent
+# today and would need sparse-checkout / 'git lfs pull --include' to become arch-aware.
 EHS_CORE_SUPPORT_SERVER_PATH="${REPOSITORY_BASE}/${EHS_CORE_SUPPORT_REPO}"
 EHS_CORE_SUPPORT_LOCAL_PATH="${LOCAL_BASE}/${EHS_CORE_SUPPORT_DIR}"
-EHS_TOOLCHAIN_PATH_FROM_BASE="${EHS_CORE_SUPPORT_DIR}/toolchains/${TOOLCHAIN_PATH}"
-EHS_TOOLCHAIN_LOCAL_PATH="${LOCAL_BASE}/${EHS_TOOLCHAIN_PATH_FROM_BASE}"
 
 EHS_KERNEL_REPO="EHS-kernel.git"
 EHS_KERNEL_SERVER_PATH="${REPOSITORY_BASE}/${EHS_KERNEL_REPO}"
@@ -199,6 +163,34 @@ else
     echo "Skipped dependency repo pull (SKIP_REPOS was set)"
 fi
 
+# macOS: the EHS kernel archive must be built natively on the host.
+# On Linux the pre-built archive is distributed via ert-build-support (or built
+# inside a Docker image by make all_docker). On macOS there is no Docker image
+# for the kernel build, so it must be compiled from source in ../EHS-kernel.
+if [ "$OS_TYPE" = "Darwin" ] && [ "$IS_PUBLIC" = "no" ]; then
+    KERNEL_ARCHIVE="${LOCAL_BASE}/ert-build-support/support_libs/target_libs/x86_64-darwin/kernel/libehs_ehrt1.a"
+    if [ ! -f "$KERNEL_ARCHIVE" ]; then
+        echo
+        echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+        warn "macOS: EHS kernel archive not found at:"
+        echo "${TXT_FG_WHITE}  ${KERNEL_ARCHIVE}"
+        echo
+        echo "  Build it with:"
+        echo "    cd ../EHS-kernel"
+        echo "    ./configure macos_x86_64_clang_ehrt1"
+        echo "    make all"
+        echo "    cd ../ert-components"
+        echo
+        echo "  The archive is installed automatically by 'make all' in EHS-kernel."
+        echo "  Then run 'make all' here to link the final binary."
+        echo "${TXT_FG_GREY}---------------------------------------------------------------------------------------------------------------------------"
+        echo
+    else
+        echo "${TXT_FG_BRIGHT_GREEN}macOS: EHS kernel archive found at:"
+        echo "${TXT_FG_WHITE}  ${KERNEL_ARCHIVE}"
+    fi
+fi
+
 # XMOS XTC Tools — prompt the developer if the toolchain archive is missing.
 # XTC Tools cannot be downloaded automatically (requires XMOS developer account
 # and licence acceptance). The archive must be placed manually before running
@@ -229,34 +221,27 @@ if [ "${EHS_ARCH}" = "xcore" ]; then
     fi
 fi
 
-#todo2022 move this to a new make target like make all_docker
-# First see if we need to run the VM.
-# if we do then we will just open a vagrant VM and plonk you on a command line to run make etc. on your own!
-# for now we will check for Docker run files to decide if we run docker, but might decide based on a config.mor target.mk k f in the future
+# Vagrant builds are no longer supported.
+#
+# Every platform that used to carry a Vagrantfile also has a Dockerimagename and
+# builds through 'make all_docker'; the Vagrantfiles were dead from 2023 and were
+# removed in 2026. What kept them alive was this block: it ran before the Docker
+# branch and blocked on 'read -n 1' waiting for a keypress. Harmless interactively,
+# fatal to CI - once SystemTests/CI started calling 'make prepdeps' per target
+# (ci_functions.sh, April 2026) a single platform with a leftover Vagrantfile
+# silently stalled the entire regression sweep, leaving a building.flag and no
+# pass/fail verdict.
+#
+# So this is now a hard error rather than a prompt: a Vagrantfile in a platform
+# directory is a mistake, and it must fail loudly and immediately instead of
+# waiting for input that never comes in an automated run.
 if  [ -f ${PWD}/target/platform/${1}/Vagrantfile ]; then
-    if [ "$2" == "NO_VM"  ]; then
-        echo "Not doing Vagrant VM because arg#2 = NO_VM, checking for Docker "
-    else
-        if [ "${INX_SKIP_VAGRANT}" == "true" ]; then
-            echo "Skipping vagrant due to INX_SKIP_VAGRANT set in the environment"
-        else
-            echo "!!! Ths platform build requires a vm to be started by vagrant!!!"
-            echo " If you continue this shell will be restarted in a VM, where the build will take place"
-            echo "You will still work from this current directory from inside the VM and will be able to use the make targets as usual:"
-            echo "Press ctr-C to exit or any other key to continue"
-            read -n 1
-            
-            VAGRANT_STAGING_DIR="${PWD}/../TARGET_TREES/VAGRANT/cachespace"
-            mkdir -p  ${VAGRANT_STAGING_DIR} || exit
-            cp  ./target/platform/$1/Vagrantfile ${VAGRANT_STAGING_DIR}/|| exit
-            pushd ${VAGRANT_STAGING_DIR}
-            vagrant up
-            vagrant ssh -- -t 'cd /vagrant_data/ert-components && pwd ; /bin/bash'
-            #This shell will halt here while the make commands are called
-            vagrant halt
-            popd
-        fi #end INX_SKIP_VAGRANT
-    fi #end NO_VM
+    echo "ERROR: target/platform/${1}/Vagrantfile found, but Vagrant builds are no longer supported." >&2
+    echo "       Build this platform with Docker instead:" >&2
+    echo "         - ensure target/platform/${1}/Dockerimagename names a suitable image" >&2
+    echo "         - then use 'make all_docker'" >&2
+    echo "       Delete the Vagrantfile to clear this error." >&2
+    exit 1
 else
     :
     #echo "NO Vagrant VM image found for this target"

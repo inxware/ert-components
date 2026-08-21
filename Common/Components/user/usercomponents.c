@@ -21,7 +21,9 @@
 /* TODO Not sure what inx-ehs-controller.h GNU feATURES ARE??/*/
 #include "inx-ehs_controller.h"
 // JSON stream parser moved to core/
+#ifndef EHS_SKIP_APPLICATION_INFO_GETTER
 #include "inx-application_info_getter.h"
+#endif
 // JSON object function block moved to core/
 #include "inx-application_run.h"
 // XML stream parser moved to core/
@@ -161,7 +163,7 @@ EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_console_print,INXWARE_FB_ID_cons
  Not sure why it's just destry functions.... possibly this is a hack for something else?*/
  #ifndef EHS_SKIP_GNULIBRARIES
     EHS_BLOCKREF_ENTRY(INXWARE_FB_NAME_ehs_controller ,INXWARE_FB_ID_ehs_controller,ehs_controller),
-    #ifndef  EHS_NO_LIBXML2_SUPPORT
+    #if !defined(EHS_NO_LIBXML2_SUPPORT) && !defined(EHS_SKIP_APPLICATION_INFO_GETTER)
     EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_application_info_getter,INXWARE_FB_ID_application_info_getter ,application_info_getter),
     #endif
     EHS_BLOCKREF_ENTRY(INXWARE_FB_NAME_application_run,INXWARE_FB_ID_application_run ,application_run),

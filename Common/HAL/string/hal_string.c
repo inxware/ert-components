@@ -142,6 +142,23 @@ ehs_bool EhsIsHexNum(char ch)
            (ch >= 'a' && ch <= 'f');
 }
 
+/* replaces any EOL chr with NULL if found. returns false otherwise*/
+ehs_bool EhsReplaceNextEolWithNull( ehs_char* p, ehs_uint32 max_length ) {
+    ehs_uint32 i;
+    if (p == NULL || max_length == 0) {
+        return EHS_FALSE;
+    }
+    for (i = 0; i < max_length; i++) {
+        if (p[i] == '\n' || p[i] == '\r') {
+            p[i] = '\0';
+            return EHS_TRUE;
+        }
+    }
+    // No EOL found, set first char to NULL and return false
+    //printf("Eol-Swap-WRONG!!!\n");
+    p[0] = '\0';
+    return EHS_FALSE;
+}
 
 /**
  * Read an unsigned 32-bit integer from a line of the SODL file.
@@ -467,88 +484,647 @@ const ehs_char* EhsHSUtil_getUtf32(ehs_uint32* pnUtf32, const ehs_char* szSource
 
 
 /**
- * Read a word from a line of a SODL file. A word is a sequence of characters that do not include whitespace.
+ * Copies a word from a line of a SODL file. A word is a sequence of characters that do not include whitespace.
  *
  * @param output Word read from input. NULL just to skip the word
  * @param input String containing SODL input.
- * @return Pointer to updated input string (i.e. after reading the integer)
+ * @param max_len Maximum length of output buffer (including null terminator).
+ * @return Pointer to updated input string (i.e. after reading the integer) or NULL if it exceeds the bbuffer size of there are no words to return.
  */
-const ehs_char* EhsGetWordFromString(ehs_char * output, const ehs_char* input)
+ehs_char* EhsGetWordFromString(ehs_char *output,
+                                const ehs_char *input,
+                                ehs_uint32 max_len)
 {
-    int i=0;
+    
+    if (input == NULL)
+        return NULL;
+    //printf("IP=%s\n",input);
     input = EhsStrTrimL(input);
 
-    EHS_TRACE_FUNC2(EHS_TRACE_FLAG_PARSER|EHS_TRACE_FLAG_ATOM, EhsGetWordFromString, "%x,%x", output, input);
-
-    if (!input||*input==25||*input==0)
+    // no input / end markers
+    if (*input == '\0' || *input == 25)
     {
-        input = NULL;
-        if (output)
-        {
-            *output = '\0';
-        }
-    }
-    else
-    {
-        for (i=0; (i<EHS_STRING_LENGTH_MAX)&&('\0' != *input)&&(!EhsStrIsSpace(*input))&&(*input != 1); i++)
-        {
-            if (output)
-            {
-                *(output++)=*(input++);
-            }
-            else
-            {
-                input++;
-            }
-        }
-        if (output)
-        {
-            *output=0;
-        }
+        if (output && max_len > 0)
+            output[0] = '\0';
+        return NULL;
     }
 
-    return input;
+    ehs_char *out_start = output;
+    const ehs_char *word_start = input;
+
+    // copy word
+    while (*input &&
+           !EhsStrIsSpace(*input) &&
+           *input != 1 &&
+           *input != 25)
+    {
+        if (output)
+        {
+            // ensure space for next char + null terminator
+            if ((ehs_uint32)(output - out_start) + 1 >= max_len)
+            {
+                printf("\nERROR: GetWord O/F [%s] (max size=%d)\n", word_start,max_len);
+                //while (1) {} // temporary to stop spamming.
+                return NULL;
+            }
+
+            *output++ = *input;
+        }
+
+        input++;
+    }
+
+    // if no characters copied : no word
+    if (output && output == out_start)
+        return NULL;
+
+    // null terminate
+    if (output && max_len > 0)
+        *output = '\0';
+
+    return (ehs_char*)input;
 }
+
+/**
+ * Copies a record from a line of a SODL file. A rcord is a sequence of characters using unit seperators 0x1F instead of spaces
+ # and accepts either spaces or end of record (0x1E) char to searate strinfs from Lucid.
+ * 
+ * @param[in,out] output Word read from input.
+ * @param[in] input String containing SODL input.
+ * @param[in] max_len Maximum length of output buffer (including null terminator).
+ * @return Pointer to updated input string (i.e. after reading the integer)
+ * - Note #1 near copy of EhsGetWordFromString() for speed.
+ * - Note #2 we should probably get Lucid and kernel parser to striclty use 0x1E (end of record to deliniate paramters, 
+ *           but for now we convert 0x1Fs to spaces. We should support 0x1Fs as spaces anyway)
+ */
+
+ehs_char* EhsGetRecordFromString(ehs_char *output,
+                                const ehs_char *input,
+                                ehs_uint32 max_len)
+{
+    
+    if (input == NULL)
+        return NULL;
+    input = EhsStrTrimL(input);
+
+    // no input / end markers
+    if (*input == '\0' || *input == 0x19) // 0x19 (ascii 25) is end of medium
+    {
+        if (output && max_len > 0)
+            output[0] = '\0';
+        return NULL;
+    }
+
+    ehs_char *out_start = output;
+    const ehs_char *word_start = input;
+
+    // copy word
+    while (*input &&
+           !EhsStrIsSpace(*input) && //delimit with normal space tab \n \v \f \r
+           *input != 1 &&
+           *input != 0x19 &&   // checkfor ed of medium
+           *input != 0x1E      // check for end of record
+        )
+    {
+        if (output)
+        {
+            // ensure space for next char + null terminator
+            if ((ehs_uint32)(output - out_start) + 1 >= max_len)
+            {
+                out_start[max_len - 1] = '\0';
+                printf("\nERROR: GetWord O/F [%s] (max size=%d)\n", word_start,max_len);
+                return NULL;
+            }
+            if ( *input  == 0x1F )
+                *output++ = ' '; // replacing Unit seperators (that Lucid produces with normal spaces)
+            else
+                *output++ = *input;
+        }
+        input++;
+    }
+
+    // if no characters copied : no word
+    if (output && output == out_start)
+        return NULL;
+
+    // null terminate
+    if (output && max_len > 0)
+        *output = '\0';
+
+    return (ehs_char*)input;
+}
+
+
 
 /*** @brief This function replaces escaped control characters into the control characters
  *
+ * Bounded by nOutputCap, and safe to call in place (output == input): no branch
+ * writes more characters than it consumed, so the write index never overtakes
+ * the read index. See the header for the full contract.
  *
  *  */
-ehs_bool EhsParseEscapeChars(ehs_char * output, const ehs_char* input)
+ehs_bool EhsParseEscapeChars(ehs_char * output, ehs_uint32 nOutputCap, const ehs_char* input)
 {
-    int i,j=0;
-    for (i = 0 ; i <= EhsStrlen(input); i++)
+    ehs_uint32 i = 0u;
+    ehs_uint32 j = 0u;
+    ehs_uint32 nMax;
+
+    if ((output == NULL) || (input == NULL) || (nOutputCap == 0u))
     {
-        if ( input[i] != '\\' )
+        if ((output != NULL) && (nOutputCap > 0u))
         {
-            output[j++] = input[i];
+            output[0] = '\0';
+        }
+        return EHS_FALSE;
+    }
+    nMax = nOutputCap - 1u; /* leave room for the terminator */
+
+    while (input[i] != '\0')
+    {
+        if (input[i] != '\\')
+        {
+            if (j >= nMax) break;
+            output[j++] = input[i++];
+        }
+        else if (input[i + 1u] == '\0')
+        {
+            /* trailing lone backslash - emit it and stop */
+            if (j >= nMax) break;
+            output[j++] = input[i++];
         }
         else
         {
-            i++;
-            switch (input[i])
+            ehs_char cEscaped = '\0';
+            switch (input[i + 1u])
             {
-            case 'n':
-                output[j++] = '\n';
-                break;
-            case 't':
-                output[j++] = '\t';
-                break;
-            case 'r' :
-                output[j++] = '\r';
-                break;
-            case 'f':
-                output[j++] = '\f';
-                break;
-            default: /* copy verbatim if not in above */
-                output[j++] = input[i-1];
+            case 'n': cEscaped = '\n'; break;
+            case 't': cEscaped = '\t'; break;
+            case 'r': cEscaped = '\r'; break;
+            case 'f': cEscaped = '\f'; break;
+            default:  cEscaped = '\0'; break; /* not one of ours */
+            }
+
+            if (cEscaped != '\0')
+            {
+                if (j >= nMax) break;
+                output[j++] = cEscaped;
+                i += 2u;
+            }
+            else
+            {
+                /* both characters or neither, so a truncation never leaves a
+                 * dangling backslash */
+                if ((j + 1u) >= nMax) break;
                 output[j++] = input[i];
-                break;
+                output[j++] = input[i + 1u];
+                i += 2u;
             }
         }
     }
-    return EHS_TRUE;
+    output[j] = '\0';
 
+    return (input[i] == '\0') ? EHS_TRUE : EHS_FALSE;
+}
+
+void EhsParamUnescapeSpaces(ehs_char* sz)
+{
+    ehs_uint32 i;
+
+    if (sz == NULL)
+    {
+        return;
+    }
+    for (i = 0u; sz[i] != '\0'; i++)
+    {
+        if (sz[i] == (ehs_char)0x1F)
+        {
+            sz[i] = ' ';
+        }
+    }
+}
+
+/*****************************************************************************/
+/* printf format specifier scanning - see hal_string.h for the contract */
+
+/** flags: the characters permitted between '%' and the width */
+static ehs_bool EhsFormat_isFlag(ehs_char c)
+{
+    return ((c == '-') || (c == '+') || (c == ' ') ||
+            (c == '#') || (c == '0')) ? EHS_TRUE : EHS_FALSE;
+}
+
+static ehs_bool EhsFormat_isDigit(ehs_char c)
+{
+    return ((c >= '0') && (c <= '9')) ? EHS_TRUE : EHS_FALSE;
+}
+
+/** length modifiers - always rejected; the caller has already fixed the
+ * argument width */
+static ehs_bool EhsFormat_isLength(ehs_char c)
+{
+    return ((c == 'h') || (c == 'l') || (c == 'j') ||
+            (c == 'z') || (c == 't') || (c == 'L')) ? EHS_TRUE : EHS_FALSE;
+}
+
+/** Map a conversion character onto the class of argument it consumes. */
+static EhsFormatArgType EhsFormat_classify(ehs_char c)
+{
+    switch (c)
+    {
+    case 's':
+        return EHS_FMT_ARG_STRING;
+    case 'd':
+    case 'i':
+    case 'u':
+    case 'o':
+    case 'x':
+    case 'X':
+    case 'c':
+        return EHS_FMT_ARG_INT;
+    case 'f':
+    case 'F':
+    case 'e':
+    case 'E':
+    case 'g':
+    case 'G':
+    case 'a':
+    case 'A':
+        return EHS_FMT_ARG_REAL;
+    default:
+        return EHS_FMT_ARG_INVALID;
+    }
+}
+
+/** Record a rejection and return EHS_FALSE, so callers can 'return EhsFormat_fail(...)'. */
+static ehs_bool EhsFormat_fail(EhsFormatScanType* pResult, ehs_uint32 nOffset, const ehs_char* szReason)
+{
+    pResult->nArgs = 0u;
+    pResult->nErrorOffset = nOffset;
+    pResult->szError = szReason;
+    return EHS_FALSE;
+}
+
+ehs_bool EhsFormatScan(EhsFormatScanType* pResult,
+                       const ehs_char* szFormat,
+                       EhsFormatArgType eAllowed,
+                       ehs_uint32 nMaxArgs)
+{
+    ehs_uint32 i = 0u;
+    ehs_uint32 nArgs = 0u;
+
+    if (pResult == NULL)
+    {
+        return EHS_FALSE;
+    }
+    pResult->nArgs = 0u;
+    pResult->nErrorOffset = 0u;
+    pResult->szError = NULL;
+
+    if (szFormat == NULL)
+    {
+        return EhsFormat_fail(pResult, 0u, "no format string");
+    }
+
+    /* Every predicate below is false for '\0', and the only unconditional step
+     * lands on the terminator at worst, so the walk cannot run off the end. */
+    while (szFormat[i] != '\0')
+    {
+        ehs_uint32 nSpecStart;
+        EhsFormatArgType eType;
+
+        if (szFormat[i] != '%')
+        {
+            i++;
+            continue;
+        }
+
+        nSpecStart = i;
+        i++; /* step over the '%' */
+
+        if (szFormat[i] == '%')
+        {
+            i++; /* "%%" - a literal percent, consumes no argument */
+            continue;
+        }
+
+        while (EhsFormat_isFlag(szFormat[i]))
+        {
+            i++;
+        }
+        if (szFormat[i] == '*')
+        {
+            return EhsFormat_fail(pResult, nSpecStart,
+                                  "'*' width is not supported - it consumes an extra argument");
+        }
+        while (EhsFormat_isDigit(szFormat[i]))
+        {
+            i++;
+        }
+        if (szFormat[i] == '.')
+        {
+            i++;
+            if (szFormat[i] == '*')
+            {
+                return EhsFormat_fail(pResult, nSpecStart,
+                                      "'*' precision is not supported - it consumes an extra argument");
+            }
+            while (EhsFormat_isDigit(szFormat[i]))
+            {
+                i++;
+            }
+        }
+        if (EhsFormat_isLength(szFormat[i]))
+        {
+            return EhsFormat_fail(pResult, nSpecStart,
+                                  "length modifiers (h l j z t L) are not supported");
+        }
+        if (szFormat[i] == 'n')
+        {
+            return EhsFormat_fail(pResult, nSpecStart,
+                                  "'%n' is not supported - it writes through its argument");
+        }
+
+        eType = EhsFormat_classify(szFormat[i]);
+        if (eType != eAllowed)
+        {
+            /* also catches %p, a positional '$', a trailing '%', and anything
+             * else unrecognised */
+            switch (eAllowed)
+            {
+            case EHS_FMT_ARG_STRING:
+                return EhsFormat_fail(pResult, nSpecStart, "only %s placeholders are supported here");
+            case EHS_FMT_ARG_INT:
+                return EhsFormat_fail(pResult, nSpecStart,
+                                      "only integer placeholders (%d %i %u %o %x %X %c) are supported here");
+            case EHS_FMT_ARG_REAL:
+                return EhsFormat_fail(pResult, nSpecStart,
+                                      "only real placeholders (%f %e %g %a) are supported here");
+            default:
+                return EhsFormat_fail(pResult, nSpecStart, "placeholders are not supported here");
+            }
+        }
+        i++; /* step over the conversion character */
+
+        nArgs++;
+        if (nArgs > nMaxArgs)
+        {
+            return EhsFormat_fail(pResult, nSpecStart, "too many placeholders for the inputs available");
+        }
+    }
+
+    pResult->nArgs = nArgs;
+    return EHS_TRUE;
+}
+
+/*****************************************************************************/
+/* scanf format rewriting - see hal_string.h for the contract */
+
+/** Append one character, or report that szDst is full. */
+static ehs_bool EhsScanf_put(ehs_char* szDst, ehs_uint32 nDstCap, ehs_uint32* pnAt, ehs_char c)
+{
+    if (*pnAt + 1u >= nDstCap)
+    {
+        return EHS_FALSE; /* leave room for the terminator */
+    }
+    szDst[*pnAt] = c;
+    (*pnAt)++;
+    return EHS_TRUE;
+}
+
+/** Append a decimal field width. */
+static ehs_bool EhsScanf_putWidth(ehs_char* szDst, ehs_uint32 nDstCap, ehs_uint32* pnAt, ehs_uint32 nWidth)
+{
+    ehs_char szNum[12];
+    ehs_uint32 nDigits = 0u;
+    ehs_uint32 n = nWidth;
+
+    if (n == 0u)
+    {
+        szNum[nDigits++] = '0';
+    }
+    while ((n > 0u) && (nDigits < sizeof(szNum)))
+    {
+        szNum[nDigits++] = (ehs_char)('0' + (n % 10u));
+        n /= 10u;
+    }
+    while (nDigits > 0u)
+    {
+        nDigits--;
+        if (!EhsScanf_put(szDst, nDstCap, pnAt, szNum[nDigits]))
+        {
+            return EHS_FALSE;
+        }
+    }
+    return EHS_TRUE;
+}
+
+static ehs_bool EhsScanf_fail(EhsScanfBuildType* pResult, ehs_uint32 nOffset, const ehs_char* szReason)
+{
+    pResult->nArgs = 0u;
+    pResult->nErrorOffset = nOffset;
+    pResult->szError = szReason;
+    return EHS_FALSE;
+}
+
+ehs_bool EhsScanfFormatBuild(ehs_char* szDst, ehs_uint32 nDstCap,
+                             const ehs_char* szSrc,
+                             const ehs_uint32* pnMaxChars,
+                             ehs_uint32 nMaxArgs,
+                             EhsScanfBuildType* pResult)
+{
+    ehs_uint32 i = 0u;   /* read index into szSrc */
+    ehs_uint32 o = 0u;   /* write index into szDst */
+    ehs_uint32 nArgs = 0u;
+    ehs_uint32 k;
+
+    if (pResult == NULL)
+    {
+        return EHS_FALSE;
+    }
+    pResult->nArgs = 0u;
+    pResult->nErrorOffset = 0u;
+    pResult->szError = NULL;
+    for (k = 0u; k < EHS_SCANF_MAX_ARGS; k++)
+    {
+        pResult->anFixedWidth[k] = 0u;
+    }
+
+    if ((szDst == NULL) || (nDstCap == 0u) || (szSrc == NULL) || (pnMaxChars == NULL))
+    {
+        if ((szDst != NULL) && (nDstCap > 0u))
+        {
+            szDst[0] = '\0';
+        }
+        return EhsScanf_fail(pResult, 0u, "no format string");
+    }
+    szDst[0] = '\0';
+    if (nMaxArgs > EHS_SCANF_MAX_ARGS)
+    {
+        nMaxArgs = EHS_SCANF_MAX_ARGS;
+    }
+
+    while (szSrc[i] != '\0')
+    {
+        ehs_uint32 nSpecStart;
+        ehs_bool bSuppressed = EHS_FALSE;
+        ehs_uint32 nWidth = 0u;
+        ehs_bool bHasWidth = EHS_FALSE;
+        ehs_uint32 nMax;
+        ehs_char cConv;
+
+        if (szSrc[i] != '%')
+        {
+            if (!EhsScanf_put(szDst, nDstCap, &o, szSrc[i]))
+            {
+                return EhsScanf_fail(pResult, i, "format too long once field widths are added");
+            }
+            i++;
+            continue;
+        }
+
+        nSpecStart = i;
+        i++; /* step over the '%' */
+
+        if (szSrc[i] == '%')
+        {
+            if (!EhsScanf_put(szDst, nDstCap, &o, '%') ||
+                !EhsScanf_put(szDst, nDstCap, &o, '%'))
+            {
+                return EhsScanf_fail(pResult, nSpecStart, "format too long once field widths are added");
+            }
+            i++;
+            continue;
+        }
+
+        if (szSrc[i] == '*')
+        {
+            bSuppressed = EHS_TRUE;
+            i++;
+        }
+        while ((szSrc[i] >= '0') && (szSrc[i] <= '9'))
+        {
+            bHasWidth = EHS_TRUE;
+            if (nWidth < 1000000u) /* saturate rather than wrap on a silly width */
+            {
+                nWidth = (nWidth * 10u) + (ehs_uint32)(szSrc[i] - '0');
+            }
+            i++;
+        }
+        if ((szSrc[i] == 'h') || (szSrc[i] == 'l') || (szSrc[i] == 'j') ||
+            (szSrc[i] == 'z') || (szSrc[i] == 't') || (szSrc[i] == 'L'))
+        {
+            return EhsScanf_fail(pResult, nSpecStart,
+                                 "length modifiers (h l j z t L) are not supported");
+        }
+        cConv = szSrc[i];
+        if (cConv == 'n')
+        {
+            return EhsScanf_fail(pResult, nSpecStart,
+                                 "'%n' is not supported - it writes through its argument");
+        }
+        if (cConv == '\0')
+        {
+            return EhsScanf_fail(pResult, nSpecStart, "format ends in an incomplete conversion");
+        }
+
+        if (bSuppressed)
+        {
+            /* Nothing is assigned, so the conversion type does not matter and
+             * no width is needed. Copy the specifier through as written. */
+            ehs_uint32 nCopy;
+            for (nCopy = nSpecStart; nCopy <= i; nCopy++)
+            {
+                if (!EhsScanf_put(szDst, nDstCap, &o, szSrc[nCopy]))
+                {
+                    return EhsScanf_fail(pResult, nSpecStart, "format too long once field widths are added");
+                }
+            }
+            i++;
+            if (cConv == '[')
+            {
+                /* copy the scanset through as well */
+                ehs_uint32 nSet = i;
+                if (szSrc[nSet] == '^') { nSet++; }
+                if (szSrc[nSet] == ']') { nSet++; } /* a leading ']' is a literal */
+                while ((szSrc[nSet] != '\0') && (szSrc[nSet] != ']')) { nSet++; }
+                if (szSrc[nSet] != ']')
+                {
+                    return EhsScanf_fail(pResult, nSpecStart, "unterminated '[' scanset");
+                }
+                while (i <= nSet)
+                {
+                    if (!EhsScanf_put(szDst, nDstCap, &o, szSrc[i]))
+                    {
+                        return EhsScanf_fail(pResult, nSpecStart, "format too long once field widths are added");
+                    }
+                    i++;
+                }
+            }
+            continue;
+        }
+
+        if ((cConv != 's') && (cConv != 'c') && (cConv != '['))
+        {
+            return EhsScanf_fail(pResult, nSpecStart,
+                                 "only %s, %c and %[ are supported - the destinations are strings");
+        }
+        if (nArgs >= nMaxArgs)
+        {
+            return EhsScanf_fail(pResult, nSpecStart, "more conversions than outputs available");
+        }
+
+        nMax = pnMaxChars[nArgs];
+        if (nMax == 0u)
+        {
+            return EhsScanf_fail(pResult, nSpecStart, "destination has no capacity");
+        }
+        /* Supply a width if the format omitted one... */
+        if (!bHasWidth || (nWidth == 0u))
+        {
+            nWidth = (cConv == 'c') ? 1u : nMax;
+        }
+        /* ...then clamp whatever we have to what the destination can take. */
+        if (nWidth > nMax)
+        {
+            nWidth = nMax;
+        }
+
+        if (!EhsScanf_put(szDst, nDstCap, &o, '%') ||
+            !EhsScanf_putWidth(szDst, nDstCap, &o, nWidth) ||
+            !EhsScanf_put(szDst, nDstCap, &o, cConv))
+        {
+            return EhsScanf_fail(pResult, nSpecStart, "format too long once field widths are added");
+        }
+        i++;
+
+        if (cConv == '[')
+        {
+            ehs_uint32 nSet = i;
+            if (szSrc[nSet] == '^') { nSet++; }
+            if (szSrc[nSet] == ']') { nSet++; }
+            while ((szSrc[nSet] != '\0') && (szSrc[nSet] != ']')) { nSet++; }
+            if (szSrc[nSet] != ']')
+            {
+                return EhsScanf_fail(pResult, nSpecStart, "unterminated '[' scanset");
+            }
+            while (i <= nSet)
+            {
+                if (!EhsScanf_put(szDst, nDstCap, &o, szSrc[i]))
+                {
+                    return EhsScanf_fail(pResult, nSpecStart, "format too long once field widths are added");
+                }
+                i++;
+            }
+        }
+
+        /* %c writes exactly nWidth characters and adds no terminator */
+        pResult->anFixedWidth[nArgs] = (cConv == 'c') ? nWidth : 0u;
+        nArgs++;
+    }
+
+    szDst[o] = '\0';
+    pResult->nArgs = nArgs;
+    return EHS_TRUE;
 }
 
 /*** @brief Read a " dlimted string from a space saprated list of paramters
@@ -617,7 +1193,7 @@ ehs_uint8 EhsGetWordsFromString(ehs_char **outputs, const ehs_char* input, ehs_u
         if (input[0] != '"')
         {
             /* When it's not a string containing spaces */
-            input = EhsGetWordFromString(in_temp, input);
+            input = EhsGetWordFromString(in_temp, input, sizeof(in_temp));
             str_count = EhsStrlen(in_temp);
             if (str_count == 4 && EhsStrncmp(in_temp, "NULL", 4) == 0)
             {

@@ -39,7 +39,7 @@ SYSTEM_VARIANT=esp32s3-hrdcv2
 EHS_SERIAL_CONSOLE_SUPPORT=yes
 
 # Do NOT restart after loading the app
-EHS_TARGET_APPLOAD_RESTARTING_REBOOT=yes
+EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
 
 
 #################################################################################################################
@@ -81,9 +81,6 @@ DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
 
 # Enable nano printf support for isr safe vsnprintf
 DEFS += EHS_NANOPRINTF_SUPPORT=1
-
-# Maximum wi-fi SSID records buffer size
-DEFS += ESP32_MAX_AP_RECORDS=20
 
 # Wi-Fi credentials (defaults if none saved)
 DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""

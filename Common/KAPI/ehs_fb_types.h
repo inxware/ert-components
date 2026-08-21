@@ -155,8 +155,8 @@ typedef EhsThreadFuncReturnType (*EhsThreadFuncType)(struct EhsFunctionInstanceD
 #define EHS_FB_RUN_CONTEXT_REF (pFIdata) // @todo This should be called something else - it is used instead of EHS_FB_RUN_FUNCTION_INSTANCE - it only happens to be the same address as the object data pointer
 #define EHS_FB_RUN_FUNCTION_INSTANCE (pFIdata) //PUBLIC
 /* Executing threaded functions conforming to EHS_FB_RUN contexts (i.e. to access object data and ports for the calling RUN context)*/
-#define EHS_FB_START_THREAD(x,pri) EhsTPThread_execute(EHS_FB_THREAD_NAME(x), (EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,pri,EHS_THREAD_USE_DEFAULT_STACK_SIZE)
-#define EHS_FB_START_THREAD_ARGS(x,pri,...) EhsTPThread_execute(EHS_FB_THREAD_NAME(x), (EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,pri,EHS_THREAD_USE_DEFAULT_STACK_SIZE,__VA_ARGS__)
+#define EHS_FB_START_THREAD(x,pri) EhsTPThread_execute(EHS_FB_THREAD_NAME(x), (EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,pri,EHS_THREAD_USE_DEFAULT_STACK_SIZE,NULL)
+// we don't support or use this: #define EHS_FB_START_THREAD_ARGS(x,pri,...) EhsTPThread_execute(EHS_FB_THREAD_NAME(x), (EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,pri,EHS_THREAD_USE_DEFAULT_STACK_SIZE,NULL,__VA_ARGS__)
 /* Executing non threaded functions conforming to EHS_FB_RUN contexts (i.e. to access object data and ports for the calling RUN context)*/
 #define EHS_FB_START_RUN_FUNCTION(x) EHS_FB_RUN_NAME(x) ((EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF)
 #define EHS_FB_START_RUN_FUNCTION_ARGS(x,...) EHS_FB_RUN_NAME(x) ((EhsFunctionInstanceDataType*) EHS_FB_RUN_CONTEXT_REF,__VA_ARGS__)
@@ -253,9 +253,16 @@ typedef void* EhsDataflowUserType;
 #define EHS_FB_IN(x) EHS_FB_RUN_FUNCTION_INSTANCE->pIn[x]
 
 /**
- * Check whether input x is connected or not
+ * Check whether input x is connected or not.
+ * Bounds-checked against nNumInputs — see EHS_FB_IN_CONNECTED_API2 in
+ * ehs_comp_api2.h for why this matters (a FB rebuilt against a newer CDF
+ * can probe an argument an older exported app's SODL never declared).
+ * Note: x here is 0-indexed, unlike the _API2 family.
  */
-#define EHS_FB_IN_CONNECTED(x) ((EHS_FB_RUN_FUNCTION_INSTANCE->pIn) && (EHS_FB_IN(x) != EhsDataConnectionTable.xDummyIn))
+#define EHS_FB_IN_CONNECTED(x)                                                    \
+    ((EHS_FB_RUN_FUNCTION_INSTANCE->pIn) &&                                      \
+     ((x) < EHS_FB_RUN_FUNCTION_INSTANCE->nNumInputs) &&                         \
+     (EHS_FB_IN(x) != EhsDataConnectionTable.xDummyIn))
 
 /**
  * Get input x as an integer
@@ -283,9 +290,14 @@ typedef void* EhsDataflowUserType;
 #define EHS_FB_IN_U(x) *(EhsDataflowUserType*)EHS_FB_IN(x)
 
 /**
- * Check whether output x is connected or not
+ * Check whether output x is connected or not.
+ * Bounds-checked against nNumOutputs — see EHS_FB_IN_CONNECTED above.
+ * Note: x here is 0-indexed, unlike the _API2 family.
  */
-#define EHS_FB_OUT_CONNECTED(x) ((EHS_FB_RUN_FUNCTION_INSTANCE->pOut) && (EHS_FB_OUT(x) != EhsDataConnectionTable.xDummy))
+#define EHS_FB_OUT_CONNECTED(x)                                                   \
+    ((EHS_FB_RUN_FUNCTION_INSTANCE->pOut) &&                                     \
+     ((x) < EHS_FB_RUN_FUNCTION_INSTANCE->nNumOutputs) &&                        \
+     (EHS_FB_OUT(x) != EhsDataConnectionTable.xDummy))
 
 /**
  * Get output x - generic version
@@ -316,6 +328,109 @@ typedef void* EhsDataflowUserType;
  * Get output x as a user
  */
 #define EHS_FB_OUT_U(x) *(EhsDataflowUserType*)EHS_FB_OUT(x)
+
+/* Bounded access to string data connections.
+ *
+ * String rows are variable length: each carries its own capacity in
+ * EhsDataConnectionTable.pszDataSizes[], set per connection by the SODL and
+ * defaulted by the parser. All rows are slices of one contiguous block with
+ * no padding between them, so a write past a row's capacity corrupts the next
+ * connection's value rather than hitting an allocator boundary.
+ *
+ * Neither EHS_STRING_LENGTH_MAX nor EHS_DATA_TABLE_STRING_DEFAULT_LENGTH is a
+ * safe bound for such a write - a per-connection size can be smaller than
+ * either. Use these accessors (or the EHS_FB_OUT_S_* macros over them) instead
+ * of EhsStrcpy/EhsStrncpy against a raw EHS_FB_OUT_S() pointer.
+ *
+ * See EHS-kernel/docs/data-tables.md for the row layout and the SODL wire
+ * format that sizes it.
+ */
+
+/**
+ * Capacity of the string data row that pStr points at, in bytes, including the
+ * NUL terminator.
+ * @param[in] pStr Pointer obtained from EHS_FB_OUT_S()/EHS_FB_IN_S(), or the
+ *                 unconnected-output scratch row (xDummy).
+ * @return Capacity in bytes, or 0 if pStr is not the base of a string data row
+ *         (NULL, an unconnected input, or any unrelated pointer).
+ */
+EHS_GLOBAL ehs_uint32 EhsDataString_capacity(const ehs_char* pStr);
+
+/**
+ * Longest string that fits in the row pStr points at, excluding the NUL.
+ * @return EhsDataString_capacity(pStr) - 1, or 0 if pStr is not a string data row.
+ */
+EHS_GLOBAL ehs_uint32 EhsDataString_maxLen(const ehs_char* pStr);
+
+/**
+ * Length of the string in the row pStr points at, bounded by the row capacity
+ * so a row left unterminated by an older unbounded write cannot run away.
+ * @return Length excluding the NUL, or 0 if pStr is not a string data row.
+ */
+EHS_GLOBAL ehs_uint32 EhsDataString_len(const ehs_char* pStr);
+
+/**
+ * Copy pSrc into the string data row pDst points at, truncating to fit.
+ * The row is always NUL terminated on success. Truncation is logged at
+ * WARNING level.
+ * @param[out] pDst Row to write, from EHS_FB_OUT_S().
+ * @param[in] pSrc Source string.
+ * @return Characters written excluding the NUL. 0 if pDst is not a string data
+ *         row, or pSrc is NULL, in which case nothing is written.
+ */
+EHS_GLOBAL ehs_uint32 EhsDataString_set(ehs_char* pDst, const ehs_char* pSrc);
+
+/**
+ * As EhsDataString_set, but copies at most nCount characters from pSrc.
+ * Unlike strncpy the result is always NUL terminated, and pSrc need not be.
+ * @param[in] nCount Maximum characters to take from pSrc.
+ */
+EHS_GLOBAL ehs_uint32 EhsDataString_setN(ehs_char* pDst, const ehs_char* pSrc, ehs_uint32 nCount);
+
+/**
+ * Append pSrc to the string already in the row pDst points at, truncating to
+ * fit. Truncation is logged at WARNING level.
+ * @return Total length of the row contents after the append, excluding the
+ *         NUL. 0 if pDst is not a string data row or pSrc is NULL.
+ */
+EHS_GLOBAL ehs_uint32 EhsDataString_append(ehs_char* pDst, const ehs_char* pSrc);
+
+/* For formatted output use the target's own EhsSnprintf with the row capacity
+ * as its bound, e.g.
+ *     EhsSnprintf(EHS_FB_OUT_S(n), EHS_FB_OUT_S_CAP(n), "%s:%d", sz, i);
+ * rather than a fixed EHS_STRING_LENGTH_MAX. */
+/*
+ * Bounded access to string ports. String connections are variable length -
+ * neither EHS_STRING_LENGTH_MAX nor EHS_DATA_TABLE_STRING_DEFAULT_LENGTH is a
+ * safe bound for a write, because a per-connection size set in the app can be
+ * smaller than either. Prefer these over EhsStrcpy/EhsStrncpy against a raw
+ * EHS_FB_OUT_S(x) pointer. Declared in app_data.h, which the using .c must
+ * include (as it already must for EHS_FB_OUT_CONNECTED).
+ */
+
+/** Capacity of string output x in bytes including the NUL, 0 if not a string port */
+#define EHS_FB_OUT_S_CAP(x) EhsDataString_capacity(EHS_FB_OUT_S(x))
+
+/** Longest string that fits in output x, excluding the NUL */
+#define EHS_FB_OUT_S_MAXLEN(x) EhsDataString_maxLen(EHS_FB_OUT_S(x))
+
+/** Length of the string currently in output x, bounded by its capacity */
+#define EHS_FB_OUT_S_LEN(x) EhsDataString_len(EHS_FB_OUT_S(x))
+
+/** Write src to string output x, truncating to fit. Always NUL terminates. */
+#define EHS_FB_OUT_S_SET(x,src) EhsDataString_set(EHS_FB_OUT_S(x),(src))
+
+/** As EHS_FB_OUT_S_SET but takes at most n characters from src */
+#define EHS_FB_OUT_S_SETN(x,src,n) EhsDataString_setN(EHS_FB_OUT_S(x),(src),(n))
+
+/** Append src to string output x, truncating to fit */
+#define EHS_FB_OUT_S_CAT(x,src) EhsDataString_append(EHS_FB_OUT_S(x),(src))
+
+/** Capacity of string input x in bytes including the NUL */
+#define EHS_FB_IN_S_CAP(x) EhsDataString_capacity(EHS_FB_IN_S(x))
+
+/** Length of the string on input x, bounded by its capacity */
+#define EHS_FB_IN_S_LEN(x) EhsDataString_len(EHS_FB_IN_S(x))
 
 /**
  * Assert event x

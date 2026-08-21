@@ -39,6 +39,8 @@
 #include "hal-api.h"
 #include "target_process.h"
 #include "FreeRTOSConfig.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 
 #include "esp_log.h"
@@ -474,7 +476,7 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
 
 /* FreeRTOS Method 
-ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_sint16 priority)
+ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_sint16 priority,ehs_char * _szThreadname)
 {
     ESP_LOGI(TAG, "EhsHThread_execute");
     EhsTPThread thread;
@@ -484,7 +486,7 @@ ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context,ehs_si
 */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
+ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize, ehs_char * _szThreadName)
 {
     EhsTPThread thread;
     pthread_attr_t tattr_param;
@@ -522,6 +524,8 @@ ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_s
     //   int getpriority(int which, int who);
     /* @todo we through the above away and use null for now. This needs sorting when EHS SCHED_RR is re-instated */
     /* cast pfRun to return void* with one arg of void* */
+
+    // todo add the thread config for setting a thread name (see the s3 version) and apply _szThreadName
 
     /* @todo : We need to clone the instance data here, this required the size of the object to be known outside of the component, and housekeeping (garbage collection) is required for terminated threads that do not use a terminate or proper completion exit path..*/
     ret=pthread_create(&thread,&tattr_param,(void*(*)(void*))pfRun,context);
@@ -609,4 +613,16 @@ ehs_bool EhsTP_shellExecuteStdout(char* sZstdout,const char * szCmd, int max_buf
 void EhsTargetReboot( void )
 {
     esp_restart();
+}
+
+ehs_sint32 EhsHProcess_getStackRemaining(void)
+{
+#ifdef EHS_STACK_MONITORING_ENABLED
+    /* uxTaskGetStackHighWaterMark(NULL) is in StackType_t units, not bytes - see the
+     * doc comment on the prototype (hal_process.h) for the historical-low-water-mark
+     * caveat. INCLUDE_uxTaskGetStackHighWaterMark defaults on for ESP-IDF. */
+    return (ehs_sint32)(uxTaskGetStackHighWaterMark(NULL) * sizeof(StackType_t));
+#else
+    return -1;
+#endif
 }

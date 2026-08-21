@@ -8,9 +8,11 @@
 
 set -e
 
-# Check to see if we should use a docker image
-PATH_TO_TARGET_DOCKER_IMAGE="${PWD}/target/platform/${TARGET}/Dockerimagename"
-#todo check for a config.mk variable - either as an argument or set by mkae as an environment variable.
+# Use a separate image name file for Unity export so that make all_docker
+# (which uses Dockerimagename) continues to use the C/C++ build image while
+# targetenv_unity_export_docker uses the GameCI Unity editor image.
+export DOCKER_IMAGE_NAME_FILE="Dockerimagename-unity"
+PATH_TO_TARGET_DOCKER_IMAGE="${PWD}/target/platform/${TARGET}/${DOCKER_IMAGE_NAME_FILE}"
 
 if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
 	read Dockerimagename <  ${PATH_TO_TARGET_DOCKER_IMAGE} || echo "Could not read ${PATH_TO_TARGET_DOCKER_IMAGE} "

@@ -70,6 +70,7 @@ EHS_FB_DESTROY_FUNCTION(Unsigned2Int)
 {
 	inx_Unsigned2Int_state_type *inx_Unsigned2Int_state = (inx_Unsigned2Int_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
+	return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION convert MACRO START -- DO NOT ALTER

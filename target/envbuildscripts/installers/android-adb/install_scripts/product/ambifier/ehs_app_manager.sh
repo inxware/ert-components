@@ -4,6 +4,8 @@ source "$EHS_SUPERVISOR_LOCATION/ehs_app_utils.sh"
 source "$EHS_SUPERVISOR_LOCATION/ehs_settings.sh"
 
 EHS_PACKAGE="com.inx.ehs"
+AMBIFIER_PACKAGE="com.TheSoundAgency.Ambifier2"
+AMBIFIER_LAUNCH_DELAY=5
 EHS_SWITCH_LOCK="$EHS_STORAGE_LOCATION/.ehs_switch_lock"
 
 # this is called from the ehs supervisor
@@ -65,13 +67,29 @@ InitAppManger(){
             SupervisorLog "Url file is not present ("$SERVER_ADDRESS_URL_FILE")"
         fi    
 	fi
-	if [ "$REBOOT" = "Yes" ]; then
+	INSTALLED=$( IsPackageInstalled $AMBIFIER_PACKAGE )
+    if [ -z "$INSTALLED" ]; then
+        REBOOT="No"
+        SupervisorLog "$AMBIFIER_PACKAGE not installed ..."
+        WaitDir $APK_INSTALL_DIR 10
+        APK_NAME="ambifier.apk"
+        APK_LOCATION="$APK_INSTALL_DIR/$APK_NAME"
+        if [ -f "$APK_LOCATION" ]; then
+            InstallNewApk $APK_NAME $APK_LOCATION $AMBIFIER_PACKAGE
+            if [ -n "$( IsPackageInstalled $AMBIFIER_PACKAGE )" ]; then
+                REBOOT="Yes"
+            fi
+        fi
+    fi
+    if [ "$REBOOT" = "Yes" ]; then
         StartHomeApp $EHS_PACKAGE ".EhsHomeNativeActivity"
         RebootDevice
     else
-    	# Launch the Unity application (it works only in foreground...)	
-    	SupervisorLog "Initialising the home app."
+    	# Launch the applications	
+    	SupervisorLog "Initialising ambifier."
     	StartHomeApp $EHS_PACKAGE ".EhsHomeNativeActivity"
+    	sleep $AMBIFIER_LAUNCH_DELAY
+    	StartApp $AMBIFIER_PACKAGE "com.unity3d.player.UnityPlayerActivity"
     fi
 }
 
@@ -93,16 +111,28 @@ RunAppManger(){
 		else
 			SupervisorError "EHS app is NOT running!"
 			SetAsHomeApp $EHS_PACKAGE ".EhsHomeNativeActivity"
-		fi		
+			sleep $AMBIFIER_LAUNCH_DELAY
+		fi	
+		# ensure the ambifier app is in focus
+		IS_ACTIVE=$( IsActivityFocused $AMBIFIER_PACKAGE "com.unity3d.player.UnityPlayerActivity" )
+		if [ "$IS_ACTIVE" = "YES" ]; then
+			SupervisorLog "Ambifier focus ====> OK!"
+		else
+			SupervisorError "Ambifier app is NOT focused!"
+			LaunchApp $AMBIFIER_PACKAGE "com.unity3d.player.UnityPlayerActivity"
+		fi	
 	fi	
 }
 
 RestartApp(){
     SupervisorLog "Restarting Apps ..."
     LockSettings
+	StopApp $AMBIFIER_PACKAGE
 	StopApp $EHS_PACKAGE
 	SetAsHomeApp $EHS_PACKAGE ".EhsHomeNativeActivity"
-	sleep 1
+	sleep $AMBIFIER_LAUNCH_DELAY
+	LaunchApp $AMBIFIER_PACKAGE "com.unity3d.player.UnityPlayerActivity"
+    sleep 1
     UnlockSettings
 }
 
@@ -115,9 +145,16 @@ EHS_VIEW_TOGGLE_KEY_CODE="00070008" # "e"
 AppEventsHandler(){
 	EVENT=$1
 	if [[ "$EVENT" == *"$EHS_VIEW_TOGGLE_KEY_CODE"* ]]; then
-			SupervisorLog "Switching to Unity app"
-			#LaunchApp $UNITY_PACKAGE "com.unity3d.player.UnityPlayerActivity"
+		IS_ACTIVE=$( IsActivityFocused $AMBIFIER_PACKAGE "com.unity3d.player.UnityPlayerActivity" )
+		if [ "$IS_ACTIVE" = "YES" ]; then
+			SupervisorLog "Switching to EHS app"
+            LockEhsSwitch
+			LaunchHomeApp
+		else
+			SupervisorLog "Switching to Ambifier app"
+			LaunchApp $AMBIFIER_PACKAGE "com.unity3d.player.UnityPlayerActivity"
             sleep 1
             UnlockEhsSwitch
+		fi
 	fi
 }

@@ -1,0 +1,36 @@
+<!-- INSTALLER.html — appland installation guide fragment.
+     Rules:
+       - No <html>, <head>, or <body> tags — this is an HTML fragment injected into the appland page.
+       - Supported CSS classes (defined by appland):
+           .step           — bold step heading
+           .command        — monospace inline command or path
+           .instructionsImage — full-width instruction screenshot
+       - Place images in res/ and reference them as:
+           <img class="instructionsImage" src="https://appland.inxware.io/downloads/appland/runtimes/PLATFORM/image.png">
+       - wget download URL pattern:
+           https://appland.inxware.io/downloads/appland/runtimes/PLATFORM/PACKAGE-NAME.deb
+       - Replace every REPLACE: token before publishing.
+-->
+
+<h3>REPLACE: Device + OS Setup Guide, e.g. "eRT Sfera Labs Strato Pi Max Setup Guide"</h3>
+
+<span class="step">1. Prepare Your Device</span>
+<span>Ensure your device is running <span class="command">REPLACE: OS name and version, e.g. "Raspberry Pi OS (64-bit) based on Debian 13 (bookworm)"</span></span>
+<span>REPLACE: Link to OS image or flashing instructions if applicable, e.g.:</span>
+<span><a href="https://www.raspberrypi.com/software/" target="_blank">https://www.raspberrypi.com/software/</a></span>
+
+<span class="step">2. Install eRT on Your Device</span>
+<span>Open the Terminal window and follow these steps:</span>
+
+<span class="command">cd ~/Downloads</span>
+<span>Download the Debian package from the link on our website or use the following command:</span>
+<span class="command">wget https://appland.inxware.io/downloads/appland/runtimes/REPLACE-PLATFORM-PATH/REPLACE-PACKAGE-NAME.deb</span>
+<span>Then, install the package:</span>
+<span class="command">sudo apt install ./REPLACE-PACKAGE-NAME.deb</span>
+
+<span class="step">3. Run eRT</span>
+<!-- Optional: add a launcher screenshot.  Place the image in res/ and upload alongside this file.
+<img class="instructionsImage" src="https://appland.inxware.io/downloads/appland/runtimes/REPLACE-PLATFORM-PATH/REPLACE-IMAGE.png">
+-->
+<span>Run eRT from the terminal:</span>
+<span class="command">/opt/ehs/bin/ehs.exe</span>

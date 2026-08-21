@@ -41,7 +41,23 @@ OBJECTS += inx-gui_patch.$(OBJ)
 OBJECTS += inx-gui_image_file.$(OBJ)
 OBJECTS += inx-gui_widget.$(OBJ)
 
-OBJECTS += gui_components.$(OBJ) guiparams.$(OBJ) 
+# UI binding blocks (object-property / object-signal access for UIs).
+# Only built when the active target's HAL implements Common/HAL/include/hal_ui_binding.h
+# (currently the Qt target — target/Component-HAL/graphics/qt/hal_ui_binding_qt.c).
+ifdef EHS_UI_BINDING_SUPPORT
+# UI binding HAL — enables Common/Components/gui/ui_data_* and ui_event
+DEFS += EHS_UI_BINDING_SUPPORT
+OBJECTS += inx-ui_data_int.$(OBJ)
+OBJECTS += inx-ui_data_bool.$(OBJ)
+OBJECTS += inx-ui_data_string.$(OBJ)
+OBJECTS += inx-ui_event.$(OBJ)
+# Seems we don't have this as a build variable yet
+#ifdef EHS_TARGET_FP_SUPPORT
+OBJECTS += inx-ui_data_real.$(OBJ)
+#endif
+endif
+
+OBJECTS += gui_components.$(OBJ) guiparams.$(OBJ)
 OBJECTS += guiviewport.$(OBJ)
 
 OBJECTS += inx-ui_spinner.$(OBJ)

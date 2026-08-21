@@ -38,6 +38,8 @@ include $(EHS_COMMON_HAL_PATH)/logger/logger.mk
 include $(EHS_COMMON_HAL_PATH)/memory/mem.mk
 include $(EHS_COMMON_HAL_PATH)/string/string.mk
 include $(EHS_COMMON_HAL_PATH)/appmanager/appmanager.mk
+include $(EHS_COMMON_HAL_PATH)/applifecycle/applifecycle.mk
+include $(EHS_COMMON_HAL_PATH)/bootstate/bootstate.mk
 include $(EHS_COMMON_HAL_PATH)/ota/ota.mk
 include $(EHS_COMMON_HAL_PATH)/hashmap/hashmap.mk
 
@@ -47,10 +49,15 @@ include $(EHS_COMMON_HAL_PATH)/hashmap/hashmap.mk
 
 #============================================================
 # Logging
-# Per-module log level overrides.
-# Set in config.mk as make variables, e.g.:
-#   EHS_LOG_LEVEL_GRAPHICS=0x07
-# The value is a bitmask: ERROR=0x01, WARNING=0x02, INFO=0x04, ENTER=0x08, EXIT=0x10
+# Per-module log level overrides - proper make variables, not DEFS += hacks.
+# Set in config.mk, e.g.:
+#   EHS_LOG_LEVEL_CONSOLE=EHSH_LOG_LEVEL_ALL
+#   EHS_LOG_LEVEL_NETWORK=(EHSH_LOG_LEVEL_ERROR|EHSH_LOG_LEVEL_WARNING|EHSH_LOG_LEVEL_INFO)
+# The value is any EhsHLoggerLogLevel expression from hal_logger.h (EHSH_LOG_LEVEL_ERROR/
+# _WARNING/_INFO/_ENTER/_EXIT/_ALL, OR'd with | as needed) - passed through verbatim to the
+# compiler as EHS_LOG_LEVEL_<MODULE>=<value>, so it must be valid as a #define body, not a
+# module-side numeric literal nobody can decode later. Setting any of these also requires
+# EHS_RUNTIME_LOGGER_ENABLED=yes (see ehs.mk) or the level is compiled in but never checked.
 
 # Override the default level for any modules that are not set explicitly.
 ifdef EHSH_LOG_DEFAULT_LEVEL
@@ -95,6 +102,19 @@ endif
 ifdef EHS_LOG_LEVEL_FILE
     DEFS += EHS_LOG_LEVEL_FILE=$(EHS_LOG_LEVEL_FILE)
 endif
+ifdef EHS_LOG_LEVEL_CONSOLE
+    DEFS += EHS_LOG_LEVEL_CONSOLE=$(EHS_LOG_LEVEL_CONSOLE)
+endif
+
+# Per-line header verbosity - which fields EHSH_LOG_* output includes, independent of the
+# per-module level above. Bitmask of EHS_LOGGER_REPORT_* from hal_logger.h, e.g.:
+#   EHS_LOGGER_REPORT_FIELDS=(EHS_LOGGER_REPORT_MODULE|EHS_LOGGER_REPORT_SEVERITY)
+# Omitting _SOURCEFILE/_SOURCE_LINENO also drops __FILE__/__LINE__ from every EHSH_LOG_*
+# call site's expansion, not just from the printed line - see hal_logger.h for why that's
+# where the real code-size saving is.
+ifdef EHS_LOGGER_REPORT_FIELDS
+    DEFS += EHS_LOGGER_REPORT_FIELDS=$(EHS_LOGGER_REPORT_FIELDS)
+endif
 
 #============================================================
 # OPTIONAL COMMON COMPONENT HAL SUPPORT
@@ -114,19 +134,19 @@ endif
 endif
 
 ifdef EHS_GUI_SUPPORT
-ifneq ($(EHS_GUI_SUPPORT), none) 
+ifneq ($(EHS_GUI_SUPPORT),none) 
 include $(EHS_COMMON_HAL_PATH)/graphics/graphics.mk
 endif
 endif
 
 ifdef EHS_WEBKIT_SUPPORT
-ifneq ($(EHS_WEBKIT_SUPPORT), none)
+ifneq ($(EHS_WEBKIT_SUPPORT),none)
 	include $(EHS_COMMON_HAL_PATH)/webkit/webkit.mk
 endif
 endif
 
 ifdef EHS_LUA_SUPPORT
-ifneq ($(EHS_LUA_SUPPORT), none)
+ifneq ($(EHS_LUA_SUPPORT),none)
 	include $(EHS_COMMON_HAL_PATH)/lua/lua.mk
 endif
 endif
@@ -136,7 +156,7 @@ endif
 #####################
 #Integrated Code
 ifdef EHS_JSON_SUPPORT
-ifneq ($(EHS_JSON_SUPPORT), none)
+ifneq ($(EHS_JSON_SUPPORT),none)
 	include $(EHS_COMMON_HAL_PATH)/json/json.mk
 endif
 endif
@@ -150,14 +170,14 @@ include $(EHS_COMMON_HAL_PATH)/xml/xml.mk
 #Networking dependent components support
 #########################################
 ifdef EHS_NETWORKING_SUPPORT
-ifneq ($(EHS_NETWORKING_SUPPORT), none)
+ifneq ($(EHS_NETWORKING_SUPPORT),none)
 	include $(EHS_COMMON_HAL_PATH)/url/url.mk
 endif
 endif
 
 # include devman mon support if enabled
 ifdef EHS_DEVMAN_SUPPORT
-ifneq ($(EHS_DEVMAN_SUPPORT), none)
+ifneq ($(EHS_DEVMAN_SUPPORT),none)
 	include $(EHS_COMMON_HAL_PATH)/devmanmon/devmanmon.mk
 endif
 endif

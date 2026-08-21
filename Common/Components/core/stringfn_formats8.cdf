@@ -48,7 +48,7 @@
             <DefaultValue>%s%s%s%s%s%s%s%s</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>0</MaxValue>
-            <Description>C-style format string - supports %s only</Description>
+            <Description>C-style format string. Supports %s placeholders (flags, width and precision allowed, e.g. %-10s) and %% for a literal percent. One placeholder per connected input, in port order. Unconnected inputs format as an empty string.</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
         </Parameter>

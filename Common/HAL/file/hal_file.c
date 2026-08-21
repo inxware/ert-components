@@ -30,9 +30,10 @@
 /*****************************************************************************/
 /* Included files */
 
-//#define EHSHL_MODULE_ID EHSH_LOG_MODULE_HAL_FILE
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_FILE /* define before hal_logger.h */
 
 #include "globals.h"
+#include "hal_logger.h"
 #include "hal-api.h" /* required for active application directory */
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -503,7 +504,7 @@ ehs_bool Ehs_Touch(ehs_char * path)
     filething = EhsFopen(path, "w");
     if (filething)
     {
-        fprintf(filething, "X");
+        EhsFprintf(filething, "X");
         EhsFclose(filething);
         //exit(0);
         return EHS_TRUE;
@@ -632,7 +633,12 @@ ehs_bool EhsHCopy(const ehs_char* szSrcFilename, const ehs_char* szDstFilename)
 ehs_FILE* Ehs_SysFopen(const ehs_char * szFilename, const ehs_char * access)
 {
     ehs_char szCanonicalFilePath[EHS_MAXPATHLENGTH]="";
-    EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_SYSDATA_DIR,szFilename, EHS_TRUE);
+    /* Bail if the sysdata path can't be built (matches Ehs_AppBaseFopen): opening
+     * an empty/invalid path can hand back a bad FILE* on some libcs, which then
+     * faults in the caller's fgets/fprintf. Return NULL so callers degrade cleanly. */
+    if (!EhsTF_tryCanonicPath(szCanonicalFilePath, EHS_RUNTIME_SYSDATA_DIR, szFilename, EHS_TRUE)) {
+        return NULL;
+    }
     return EhsFopen(szCanonicalFilePath, access);
 }
 
@@ -656,10 +662,22 @@ ehs_FILE* Ehs_AppFopen(const ehs_char * szFilename, const ehs_char * access)
     {
         EhsStrcat(szCanonicalFilePath, EHS_TD_FILES_SEPARATOR_STR);
         EhsStrcat(szCanonicalFilePath, szFilename);
+#ifdef EHS_DEBUG_APP_PATH
+        {
+            ehs_FILE* fdbg = EhsFopen(szCanonicalFilePath, access);
+            EHSH_LOG_INFO("APPFOPEN '%s' (%s) -> %s",
+                          szCanonicalFilePath, access, fdbg ? "OK" : "NULL");
+            return fdbg;
+        }
+#else
         return EhsFopen(szCanonicalFilePath, access);
+#endif
     }
     else
     {
+#ifdef EHS_DEBUG_APP_PATH
+        EHSH_LOG_ERROR("APPFOPEN: EhsHMetagetCurrentAppDir FAILED for '%s'", szFilename);
+#endif
         return NULL;
     }
 }

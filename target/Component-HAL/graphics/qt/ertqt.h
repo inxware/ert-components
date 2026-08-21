@@ -213,6 +213,27 @@ ertqt_status ertqt_run(void);
 //   according to Qt's normal shutdown semantics.
 ertqt_status ertqt_quit(void);
 
+// Destroy the QML engine, root window and object table.
+//
+// Tears down all per-app Qt state without exiting the Qt event loop or
+// destroying the QGuiApplication. Designed to be called between app
+// loads so the next ertqt_load_app starts against a clean engine state
+// equivalent to the one immediately after ertqt_init.
+//
+// Specifically:
+//   - Stops any active QtMultimedia elements found in the current QML tree
+//     (transitions GStreamer pipelines from PLAYING/READY → NULL).
+//   - Clears the g_engine_ready flag so notify() suppresses input events.
+//   - Deletes the QQmlApplicationEngine; nulls g_engine BEFORE delete so
+//     the ChildEvent storm during destructors does not dereference a
+//     dangling pointer in ErtQtApplication::notify().
+//   - Deletes the QQuickWindow.
+//   - Clears the cached object table.
+//
+// Safe to call from a clean state (engine already null). Returns OK
+// regardless.
+ertqt_status ertqt_destroy_engine(void);
+
 /* ------------------------------------------------------------------------- */
 /* Object lookup and introspection                                           */
 /* ------------------------------------------------------------------------- */
@@ -587,6 +608,48 @@ typedef void (*ertqt_void_callback)(void * user_data);
 //   should avoid long blocking operations.
 // - Note: Qt's clicked() signal is emitted on button release, not press.
 ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data);
+
+// Public interface for binding a C callback to an arbitrary parameterless
+// signal by name. This is the generalised form of ertqt_bind_clicked /
+// ertqt_bind_pressed / ertqt_bind_released — those are pinned to specific
+// signal names; this lets the caller bind any signal exposed by the target
+// QObject (including QML-declared custom signals).
+//
+// Parameters:
+// - h: Opaque handle referencing the target QObject.
+// - signal_name: Name of the signal in the metaobject (e.g. "clicked",
+//   "valueChanged", "mySignal"). The wrapper probes both the parameterless
+//   form `<signal_name>()` and the common `<signal_name>(bool)` form so it
+//   works for both pure events and parameter-carrying signals. Any payload
+//   on the signal is discarded — read the property via ertqt_get_property_*
+//   from inside the callback if you need its current value.
+// - cb: Callback to invoke when the signal fires. Must not be NULL.
+// - user_data: Opaque pointer passed back to the callback on each invocation.
+//
+// Returns:
+// - ERTQT_OK if the signal was found and the connection was created.
+// - ERTQT_ERR_INVALID_ARGUMENT if cb or signal_name is NULL.
+// - ERTQT_ERR_INVALID_HANDLE if h does not resolve to a valid QObject.
+// - ERTQT_ERR_BACKEND_FAILURE if the object has no signal matching signal_name
+//   or the connection could not be created.
+ertqt_status ertqt_bind_signal(ertqt_object_handle h, const char * signal_name,
+                               ertqt_void_callback cb, void * user_data);
+
+// Public interface for invoking (emitting) a parameterless signal by name on a
+// target QObject. Uses QMetaObject::invokeMethod so it works for both C++ and
+// QML-declared signals. Only supports parameterless signal emission — caller
+// is responsible for setting any required state on the object (via
+// ertqt_set_property_*) before the call.
+//
+// Parameters:
+// - h: Opaque handle referencing the target QObject.
+// - signal_name: Name of the signal to emit (no trailing parentheses).
+//
+// Returns:
+// - ERTQT_OK on success.
+// - ERTQT_ERR_INVALID_HANDLE / ERTQT_ERR_INVALID_ARGUMENT for bad inputs.
+// - ERTQT_ERR_BACKEND_FAILURE if no method with that name exists.
+ertqt_status ertqt_invoke_signal(ertqt_object_handle h, const char * signal_name);
 
 // Public interface for binding a C callback to a `pressed()` style signal.
 //

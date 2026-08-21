@@ -19,7 +19,14 @@
 #include "hal_process.h"
 #include "hal_string.h"
 
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_CONSOLE
 #include "hal_logger.h"
+
+#ifdef EHS_CONSOLE_QUEUE_STATS
+#ifndef EHS_RUNTIME_LOGGER_ENABLED
+#error "EHS_CONSOLE_QUEUE_STATS requires EHS_RUNTIME_LOGGER_ENABLED - without it, EHSH_LOG_INFO compiles to nothing (see hal_logger.h) and every CQ push/pushRecord line below is silently dropped at compile time, not just filtered at runtime. Fix the target's config.mk instead of relying on this file compiling quietly."
+#endif
+#endif
 
 /**
  * Add new data to the console queue. This function can be called from separate threads.
@@ -51,7 +58,8 @@ ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, e
 		nCopy = nSize;
 	}
 	else {
-		EHSH_LOG_ERROR("QUEUE PUSH - Couldn't write all data!!! %d > %d",nCopy , nSize);
+		EHSH_LOG_ERROR("QUEUE PUSH queue=%p - Couldn't write all data: requested=%u left=%d used=%u/%u",
+		               (void*)xQueue, nSize, nCopy, EhsConsoleQueue_length(xQueue), consoleQueueMaxSize);
 		//nCopy = -1;
 	}
    /* write the data */
@@ -73,13 +81,81 @@ ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, e
 	/* reader can't start reading this new data until the in pointer has been updated */
 	*pnIdx = (*pnIdx + nCopy) & ((consoleQueueMaxSize*2)-1);
 	EhsTPMutex_unlock(EhsTPMutex_consoleQueue);
+#ifdef EHS_CONSOLE_QUEUE_STATS
+	EHSH_LOG_INFO("CQ push queue=%p +%d bytes: used=%u/%u left=%u", (void*)xQueue, nCopy,
+	              EhsConsoleQueue_length(xQueue), consoleQueueMaxSize,
+	              consoleQueueMaxSize - EhsConsoleQueue_length(xQueue));
+#endif
     return nCopy;
 }
 
 /**
- * Remove data from the console queue. This is accessed by only one
- * thread, and is therefore threadsafe. The protocol for communicating between
- * push and pop follows the Mascot queue scheme, and is safe without using mutexes.
+ * Add a whole record to the console queue, or nothing at all. See console_queue.h.
+ */
+ehs_bool EhsConsoleQueue_pushRecord(EhsConsoleQueueType* xQueue, const ehs_uint8* pData,
+                                    ehs_uint32 nSize, ehs_uint32 nKeepFree)
+{
+	ehs_bool bRet = EHS_FALSE;
+
+	if (xQueue == NULL || xQueue->xQueue == NULL || pData == NULL || nSize == 0u)
+	{
+		return EHS_FALSE;
+	}
+
+	EhsTPMutex_lock(EhsTPMutex_consoleQueue);
+	{
+		const ehs_uint32 consoleQueueMaxSize = EhsConsoleQueue_maxSize();
+		ehs_uint32* pnIdx = &(xQueue->uInIdx);
+		const ehs_uint32 nSpace = consoleQueueMaxSize - EhsConsoleQueue_length(xQueue);
+
+		/* All-or-nothing: only commit if the whole record fits and the reserve survives */
+		if (nSpace >= (nSize + nKeepFree))
+		{
+			void* pIn = &(xQueue->xQueue[EHS_CONSOLE_QUEUE_INDEX(*pnIdx)]);
+
+			if ((EHS_CONSOLE_QUEUE_INDEX(*pnIdx) + nSize) > consoleQueueMaxSize)
+			{
+				/* record wraps the end of the ring */
+				const ehs_uint32 nBytesTillWrap = consoleQueueMaxSize - EHS_CONSOLE_QUEUE_INDEX(*pnIdx);
+				EhsMemcpy(pIn,(void*)pData,nBytesTillWrap);
+				EhsMemcpy(&(xQueue->xQueue[0]),(void*)(pData + nBytesTillWrap),nSize - nBytesTillWrap);
+			}
+			else
+			{
+				EhsMemcpy(pIn,(void*)pData,nSize);
+			}
+			/* reader can't see the record until the in pointer moves */
+			*pnIdx = (*pnIdx + nSize) & ((consoleQueueMaxSize*2)-1);
+			bRet = EHS_TRUE;
+		}
+#ifdef EHS_CONSOLE_QUEUE_STATS
+		if (bRet)
+		{
+			EHSH_LOG_INFO("CQ pushRecord queue=%p +%u bytes: used=%u/%u left=%u",
+			              (void*)xQueue, nSize, EhsConsoleQueue_length(xQueue), consoleQueueMaxSize,
+			              consoleQueueMaxSize - EhsConsoleQueue_length(xQueue));
+		}
+		else
+		{
+			/* nSpace is the space that was actually available at the point of rejection -
+			 * requested/keepFree/used/left/capacity together are everything needed to tell
+			 * whether this was a near-miss or the queue was already essentially full. */
+			EHSH_LOG_INFO("CQ pushRecord queue=%p REJECTED: requested=%u keepFree=%u used=%u/%u left=%u",
+			              (void*)xQueue, nSize, nKeepFree, EhsConsoleQueue_length(xQueue), consoleQueueMaxSize, nSpace);
+		}
+#endif
+	}
+	EhsTPMutex_unlock(EhsTPMutex_consoleQueue);
+	return bRet;
+}
+
+/**
+ * Remove data from the console queue.
+ *
+ * Note: the Mascot single-producer/single-consumer scheme this was written for needs no
+ * mutex, but the queue now has more than one potential writer, so push and pop both take
+ * EhsTPMutex_consoleQueue. EhsConsoleQueue_length/_space do NOT, so they are only safe as
+ * hints - never as the basis of a decision. Use EhsConsoleQueue_pushRecord for that.
  * @param xQueue Queue to remove data from.
  * @param pData pointer to the data that we want to retrieve
  * @param nSize amount of data to retrieve

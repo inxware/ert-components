@@ -121,8 +121,8 @@ EHS_FB_RUN_FUNCTION(pwm_gen_setup)
         freq = EHS_FB_IN_I_API2(INX_pwm_gen_ARG_setup_frequency) ;
     if (EHS_FB_IN_CONNECTED_API2(INX_pwm_gen_ARG_setup_max_val))
         max_duty = EHS_FB_IN_I_API2(INX_pwm_gen_ARG_setup_max_val) ;
-	// Setup the PWM controller
-	err_no = EhsTPwmSetup(channel, io_num, freq, max_duty, 1, &inx_pwm_gen_state->pwm_obj);
+    // Setup the PWM controller
+    err_no = EhsTPwmSetup(channel, io_num, freq, max_duty, 1, &inx_pwm_gen_state->pwm_obj);
     if (EHS_FB_OUT_CONNECTED_API2(INX_pwm_gen_ARG_setup_setup_errno))
         EHS_FB_OUT_I_API2(INX_pwm_gen_ARG_setup_setup_errno) = err_no;
     EHS_FB_FINISH(INX_pwm_gen_ARG_setup_setup_done);

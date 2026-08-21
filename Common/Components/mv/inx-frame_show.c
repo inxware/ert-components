@@ -1,3 +1,7 @@
+/* Must precede every #include below (even transitively) — hal_logger.h locks
+ * EHSH_LOG_CHECK to a no-op literal 0 if included before this is defined. */
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_GRAPHICS
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -11,6 +15,8 @@
 #endif
 
 //ICB HEADER MACRO END -- DO NOT ALTER
+
+#include "hal_logger.h"
 //ICB STATE VAR MACRO START -- DO NOT ALTER
 #define INX_FRAME_SHOW_WINDOW_TITLE_SIZE 255
 #define INX_FRAME_SHOW_STR_INDIR(x) #x
@@ -29,6 +35,7 @@ typedef struct inx_frame_show_state
 	volatile ehs_sint32 disp_frame_id;  /* -1 = idle, >=0 = frame pending */
 	volatile int        disp_running;
 	volatile int        disp_done;
+	void*               embed_handle;   /* owned by the embedded renderer (e.g. LVGL canvas); NULL until first render */
 } inx_frame_show_state_type;
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 //ICB POPULATE EHS DATA STRUCTURE MACRO START -- DO NOT ALTER
@@ -82,17 +89,12 @@ static EhsThreadFuncReturnType _frame_show_display_worker(void* arg)
 		EhsCameraFrame* src = EhsCameraFrameGetById(frame_id);
 		if (src) {
 			cv_mat* mat = (cv_mat*)src->frameObj;
-			ehs_bool has_pos = (state->pos_x != 0 || state->pos_y != 0 ||
-			                    state->disp_w != 0 || state->disp_h  != 0);
-			if (has_pos)
-				cv_mat_imshow_at(title, mat,
-				                 state->pos_x, state->pos_y,
-				                 state->disp_w, state->disp_h);
-			else
-				cv_mat_imshow(title, mat);
-			cv_mat_waitkey(1);
 
-			/* Embedded renderer (e.g. LVGL canvas) — only for uint8 formats */
+			/* Embedded renderer (e.g. LVGL canvas) — only for uint8 formats.
+			 * When a target embeds camera frames in its own GUI, that is the
+			 * only display: falling through to cv_mat_imshow as well would
+			 * pop up a second, separate native window for the same frame. */
+			ehs_bool shown_embedded = EHS_FALSE;
 			if (src->fmt == EHS_CAM_FMT_DEF || src->fmt == EHS_CAM_FMT_8UC1) {
 				EhsCamEmbeddedRendererFn renderer = EhsCameraFrameGetEmbeddedRenderer();
 				if (renderer) {
@@ -103,11 +105,32 @@ static EhsThreadFuncReturnType _frame_show_display_worker(void* arg)
 						                                        : (ehs_sint32)src->width;
 						ehs_sint32 dst_h = (state->disp_h > 0) ? state->disp_h
 						                                        : (ehs_sint32)src->height;
-						renderer(state->pos_x, state->pos_y, dst_w, dst_h,
+						EHSH_LOG_INFO("frame_show: embedded renderer, dst=%dx%d frame=%dx%d channels=%d",
+						              dst_w, dst_h, (int)src->width, (int)src->height, (int)mat->channels);
+						renderer(&state->embed_handle, state->pos_x, state->pos_y, dst_w, dst_h,
 						         data, (ehs_sint32)src->width, (ehs_sint32)src->height,
 						         mat->channels);
+						shown_embedded = EHS_TRUE;
+					} else {
+						EHSH_LOG_WARNING("frame_show: EhsCameraFrameGetData failed/empty, falling back to cv_mat_imshow");
 					}
+				} else {
+					EHSH_LOG_WARNING("frame_show: no embedded renderer registered, falling back to cv_mat_imshow");
 				}
+			} else {
+				EHSH_LOG_WARNING("frame_show: frame fmt=%d not embeddable, falling back to cv_mat_imshow", (int)src->fmt);
+			}
+
+			if (!shown_embedded) {
+				ehs_bool has_pos = (state->pos_x != 0 || state->pos_y != 0 ||
+				                    state->disp_w != 0 || state->disp_h  != 0);
+				if (has_pos)
+					cv_mat_imshow_at(title, mat,
+					                 state->pos_x, state->pos_y,
+					                 state->disp_w, state->disp_h);
+				else
+					cv_mat_imshow(title, mat);
+				cv_mat_waitkey(1);
 			}
 		}
 #endif
@@ -170,6 +193,7 @@ EHS_FB_INIT_FUNCTION(frame_show)
 	state->disp_mutex     = NULL;
 	state->disp_cond      = NULL;
 	state->disp_done_cond = NULL;
+	state->embed_handle   = NULL;
 
 	if (!EhsHMutex_create(&state->disp_mutex)    ||
 	    !EhsHCond_create(&state->disp_cond)       ||
@@ -185,7 +209,7 @@ EHS_FB_INIT_FUNCTION(frame_show)
 #endif
 		state->disp_running = 1;
 		if (!EhsHThread_execute(_frame_show_display_worker, (void*)state,
-		                        0, EHS_THREAD_USE_DEFAULT_STACK_SIZE))
+		                        0, EHS_THREAD_USE_DEFAULT_STACK_SIZE,NULL))
 		{
 			state->disp_running = 0;
 			bRet = EHS_FALSE;
@@ -212,6 +236,18 @@ EHS_FB_DESTROY_FUNCTION(frame_show)
 	EhsHMutex_destroy(&state->disp_mutex);
 	EhsHCond_destroy(&state->disp_cond);
 	EhsHCond_destroy(&state->disp_done_cond);
+
+	/* Worker is joined above, so nothing can still be rendering into this —
+	 * safe to release outside any lock. Tolerates state->embed_handle == NULL
+	 * (an instance that never actually rendered a frame). */
+#ifdef EHS_MV_SUPPORT__opencv
+	{
+		EhsCamEmbeddedRendererReleaseFn release = EhsCameraFrameGetEmbeddedRendererRelease();
+		if (release) release(state->embed_handle);
+		state->embed_handle = NULL;
+	}
+#endif
+	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION show MACRO START -- DO NOT ALTER

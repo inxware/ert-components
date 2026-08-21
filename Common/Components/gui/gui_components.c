@@ -26,6 +26,15 @@
 #include "inx-gui_image_file.h"
 #include "inx-gui_patch.h"
 
+/* UI binding blocks — only declared if the target provides a hal_ui_binding impl */
+#ifdef EHS_UI_BINDING_SUPPORT
+#include "inx-ui_data_int.h"
+#include "inx-ui_data_real.h"
+#include "inx-ui_data_bool.h"
+#include "inx-ui_data_string.h"
+#include "inx-ui_event.h"
+#endif
+
 // Components moved from user directory
 #ifdef EHS_WEBKIT_SUPPORT
 #include "inx-webkit.h"
@@ -54,6 +63,16 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_coreGui[] =
 #endif /* EHS_TARGET_FP_SUPPORT */
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_gui_text_int2,EHS_FB_ID_gui_text_int2, gui_text_int2,EHS_FB_INIT_NAME(gui_text_int2),EHS_FB_IDENTIFY_NAME(gui_widget)),
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_gui_text_bool2,EHS_FB_ID_gui_text_bool2, gui_text_bool2,EHS_FB_INIT_NAME(gui_text_bool2),EHS_FB_IDENTIFY_NAME(gui_widget)),
+	/* UI binding blocks — object-property / object-signal access (Qt-only today) */
+#ifdef EHS_UI_BINDING_SUPPORT
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ui_data_int,    INXWARE_FB_ID_ui_data_int,    ui_data_int),
+#ifdef EHS_TARGET_FP_SUPPORT
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ui_data_real,   INXWARE_FB_ID_ui_data_real,   ui_data_real),
+#endif
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ui_data_bool,   INXWARE_FB_ID_ui_data_bool,   ui_data_bool),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ui_data_string, INXWARE_FB_ID_ui_data_string, ui_data_string),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ui_event,       INXWARE_FB_ID_ui_event,       ui_event),
+#endif /* EHS_UI_BINDING_SUPPORT */
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(EHS_FB_NAME_gui_viewport,EHS_FB_ID_gui_viewport, gui_viewport),
 #ifdef USB_SUPPORT /*we will put this in anyway and make it dumb for non-supporting targets*/
 	EHS_BLOCKREF_ENTRY_EX(EHS_FB_NAME_gui_textdisplay,EHS_FB_ID_gui_textdisplay, gui_textdisplay,EHS_FB_INIT_NAME(gui_textdisplay),EHS_FB_IDENTIFY_NAME(gui_textdisplay)),

@@ -15,8 +15,26 @@
 <p class="component"> The MQTT Publish Typed block publishes a typed numeric or boolean value to an
         MQTT topic. Unlike the standard MQTT Publish block it accepts integer, float, and boolean
         input ports and converts the connected value to a string payload automatically. </p>
+<p class="component"> <b>The payload sent is text, not binary.</b> An integer is formatted as
+        decimal digits, a float in the shortest form that round-trips, and a boolean as the literal
+        word <code>true</code> or <code>false</code>. A float of 21.75 therefore leaves the device
+        as the five characters <code>"21.75"</code>, not as a 4-byte IEEE-754 value. </p>
+<p class="component"> This block is intended for brokers and IoT platforms that expect
+        human-readable ASCII &#8212; for example Blynk, Node-RED, Home Assistant and most cloud
+        dashboards. It saves wiring a separate number-to-string conversion block before every
+        publication. </p>
+<p class="component"> <b>For binary payloads, do not use this block.</b> MQTT payloads are
+        arbitrary byte arrays, and a value encoded as raw bytes needs an encoder that knows its
+        word size and byte order. Build the payload with the raw-data conversion blocks under
+        <i>Data Utilities &#8594; String Functions &#8594; Raw Data Conversion</i> and
+        <i>Data Utilities &#8594; Conversion</i> (integer&#8594;string (hex), Hex String to String,
+        and related blocks), then send it with the untyped <b>MQTT Publish</b> block. </p>
+<p class="component"> Note that the MQTT component family carries payloads as null-terminated
+        strings, so a payload containing a zero byte cannot be represented end to end. Binary data
+        should therefore be hex- or base64-encoded before publication. </p>
 <p class="component"> Connect only one of <b>value_i</b>, <b>value_f</b>, or <b>value_b</b>. If
-        more than one is connected the priority order is integer &gt; float &gt; boolean. </p>
+        more than one is connected the priority order is integer &gt; float &gt; boolean, and the
+        lower-priority values are silently discarded. </p>
 <p class="component"> The Quality Of Service (QOS) level is an integer with three possible values:
         At Least Once (0), At Most Once (1), and Exactly Once (2). </p>
 <!--Parameters - form - short desc: long desc-->

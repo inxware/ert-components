@@ -2,16 +2,14 @@
 #
 # EHS_LORAWAN_SUPPORT selects the modem module subdirectory:
 #   wio_e5   — Seeed WIO-E5 AT-command modem (UART)
+#   rak3112  — RAK3112 (ESP32-S3 + SX1262) via SX126x-Arduino LoRaWAN stack
 #   stubbed  — no-op stub for platforms without a physical modem
 #
 # Module subdirectories each provide:
-#   lorawan-wio_e5.h / lorawan-wio_e5.c  (implementation or stub)
-#   lorawan_module.mk                     (adds module objects to OBJECTS)
-#
-# TODO: when a second real module is added, lorawan.c should be refactored
-# to call common LoRaWAN_module_* function names instead of LoRaWAN_wioe5_*
-# directly, and each module directory will implement that common interface.
-# At that point the switch-on-target dispatch in lorawan.c can be removed.
+#   lorawan_module.h                    — common LoRaWAN_module_* API
+#   lorawan-<module>.c / .cpp           — module-specific implementation
+#   lorawan_module.mk                   — adds module objects to OBJECTS
+#                                         (and any module-specific link flags)
 
 EHS_TARGET_LORAWAN_PATH        := $(EHS_TARGET_COMPONENT_HAL_PATH)/lorawan
 EHS_TARGET_LORAWAN_MODULE_PATH := $(EHS_TARGET_LORAWAN_PATH)/$(EHS_LORAWAN_SUPPORT)

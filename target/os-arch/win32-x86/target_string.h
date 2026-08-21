@@ -38,6 +38,12 @@
 
 #define EhsSprintf sprintf
 
+/* Every other target maps this in its own target_string.h; without it here the
+ * hal_string.h fallback declaration is used, and that one takes no size
+ * argument - so a bounded EhsSnprintf(dst, cap, fmt, ...) call would silently
+ * treat cap as the format string. */
+#define EhsSnprintf snprintf
+
 #define EhsSscanf sscanf
 
 #define EhsVsnprintf vsnprintf

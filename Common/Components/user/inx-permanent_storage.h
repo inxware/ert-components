@@ -41,7 +41,7 @@ EHS_FB_FUNCTIONS(permanent_storage_bool)
 
 
 #define INXWARE_FB_NAME_permanent_storage_real "permanent_storage_real"
-#define INXWARE_FB_ID_permanent_storage_real 0xE9B4
+#define INXWARE_FB_ID_permanent_storage_real 0xE9B5
 
 /* Declaring the functions used here as public interface for static linking into EHS builds */
 EHS_COMPONENT_API_EXPORT EHS_FB_IDENTIFY_FUNCTION(permanent_storage_real); // this relates to C file identify function

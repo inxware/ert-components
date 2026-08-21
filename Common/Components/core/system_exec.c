@@ -110,7 +110,7 @@ EHS_FB_THREAD_FUNCTION(Exec)
         EhsTPMutex_lock(EhsTPMutex_fbIO);
         if (EHS_FB_OUT_CONNECTED(0))
         {
-            EhsStrcpy(EHS_FB_OUT_S(0), szStdout);
+            EHS_FB_OUT_S_SET(0, szStdout);
         }
 
         SetCompletes1((structFuncArg*)&EHS_FB_RUN_CONTEXT);

@@ -88,6 +88,19 @@ typedef struct _spi_read_data {
 #define SPI_READ_WORD_LEN	(SPI_READ_DUMMY_LEN + member_size(spi_read_data, word))
 #define SPI_READ_DWORD_LEN	(SPI_READ_DUMMY_LEN + member_size(spi_read_data, dword))
 
+#if defined (EHS_CONFIG_OVERRIDE_LCD_PINDRIVE)
+#if EHS_CONFIG_OVERRIDE_LCD_PINDRIVE < 0
+#define EHS_LCD_DRIVE_CAP (0)
+#elif EHS_CONFIG_OVERRIDE_LCD_PINDRIVE > 3
+#define EHS_LCD_DRIVE_CAP (3)
+#elif (EHS_CONFIG_OVERRIDE_LCD_PINDRIVE >= 0 && EHS_CONFIG_OVERRIDE_LCD_PINDRIVE <= 3)
+#define EHS_LCD_DRIVE_CAP EHS_CONFIG_OVERRIDE_LCD_PINDRIVE
+#else
+#define EHS_LCD_DRIVE_CAP (0)
+#endif
+#else
+#define EHS_LCD_DRIVE_CAP (0)
+#endif
 
 // EVE Memory Commands - used with EVE_memWritexx and EVE_memReadxx
 #define MEM_WRITE		0x80 		// EVE Host Memory Write
@@ -989,6 +1002,19 @@ uint8_t EVE_init(void)
 
 	/* nothing is being displayed yet... the pixel clock is still 0x00 */
 	EVE_memWrite8(REG_GPIO, 0x80); /* enable the DISP signal to the LCD panel, it is set to output in REG_GPIO_DIR by default */
+	// Set pin drive to lowest (5mA) to reduce EMI
+	EVE_memWrite8(EVE_PINDRIVE, ((8 <<2) | EHS_LCD_DRIVE_CAP)); /* Set DISP pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((9 <<2) | EHS_LCD_DRIVE_CAP)); /* Set DE pin to 5mA drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((10<<2) | EHS_LCD_DRIVE_CAP)); /* Set VSYNC/HSYNC pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((11<<2) | EHS_LCD_DRIVE_CAP)); /* Set PCLK pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((12<<2) | EHS_LCD_DRIVE_CAP)); /* Set BAKCLIGHT pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((13<<2) | EHS_LCD_DRIVE_CAP)); /* Set RGB pins to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((14<<2) | EHS_LCD_DRIVE_CAP)); /* Set AUDIO_L pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((15<<2) | EHS_LCD_DRIVE_CAP)); /* Set INT_N pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((16<<2) | EHS_LCD_DRIVE_CAP)); /* Set CTP_RST_N pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((17<<2) | EHS_LCD_DRIVE_CAP)); /* Set CTP_SCL pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((18<<2) | EHS_LCD_DRIVE_CAP)); /* Set CTP_SDA pin to a specific current drive */
+	EVE_memWrite8(EVE_PINDRIVE, ((19<<2) | EHS_LCD_DRIVE_CAP)); /* Set SPI MISO/MOSI/IO2/IO3 pins to 5mA drive */
 	EVE_memWrite8(REG_PCLK, EVE_PCLK); /* now start clocking data to the LCD panel */
 
 #if defined (EVE_ADAM101)
@@ -1017,6 +1043,10 @@ uint8_t EVE_init(void)
 	return 1;
 }
 
+uint32_t EVE_cmd_frames(void)
+{
+	return EVE_memRead32(REG_FRAMES);
+}
 
 /*
 These eliminate the overhead of transmitting the command-fifo address with every single command, just wrap a sequence of commands

@@ -548,11 +548,12 @@ const ehs_char * EhsHMetaGetBuildDate()
 }
 const ehs_char * EhsHMetaGetTargetVariant()
 {
-    #ifdef EHS_ESP32_SUPPORT
+#ifdef EHS_ESP32_SUPPORT
+/* why the hack? */
     return "ehs-esp32";
-    #else
+#else
     return EhsMetaData.zTargetVariant;
-    #endif
+#endif
 }
 const ehs_char * EhsHMetaGetEHSStartDate()
 {
@@ -572,6 +573,93 @@ ehs_bool EhsHMetaGetStartWithoutApp()
 void EhsHMetaSetStartWithoutApp(ehs_bool enable)
 {
     EhsMetaData.bStartWithoutApp = enable;
+}
+
+void EhsHMetaSetLastResetReason(EhsResetReasonType reason)
+{
+    if (reason < 0 || reason >= EHS_RESET_REASON_MAX) {
+        reason = EHS_RESET_REASON_UNKNOWN;
+    }
+    EhsMetaData.eLastResetReason = reason;
+}
+
+EhsResetReasonType EhsHMetaGetLastResetReason()
+{
+    return EhsMetaData.eLastResetReason;
+}
+
+ehs_bool EhsHResetReasonIsAbnormal(EhsResetReasonType reason)
+{
+    /* Only a clean power-on or a deliberate software restart are considered normal.
+     * Treat deep-sleep-wake as normal too since it's an expected resume path. */
+    switch (reason) {
+        case EHS_RESET_REASON_POWER_ON:
+        case EHS_RESET_REASON_SOFTWARE:
+        case EHS_RESET_REASON_DEEP_SLEEP_WAKE:
+            return EHS_FALSE;
+        default:
+            return EHS_TRUE;
+    }
+}
+
+const ehs_char* EhsHResetReasonToString(EhsResetReasonType reason)
+{
+    switch (reason) {
+        case EHS_RESET_REASON_POWER_ON:        return "power-on";
+        case EHS_RESET_REASON_SOFTWARE:        return "software";
+        case EHS_RESET_REASON_EXTERNAL:        return "external";
+        case EHS_RESET_REASON_PANIC:           return "panic";
+        case EHS_RESET_REASON_INT_WATCHDOG:    return "int-wdt";
+        case EHS_RESET_REASON_TASK_WATCHDOG:   return "task-wdt";
+        case EHS_RESET_REASON_OTHER_WATCHDOG:  return "other-wdt";
+        case EHS_RESET_REASON_BROWNOUT:        return "brownout";
+        case EHS_RESET_REASON_DEEP_SLEEP_WAKE: return "deep-sleep-wake";
+        case EHS_RESET_REASON_SDIO:            return "sdio";
+        case EHS_RESET_REASON_USB:             return "usb";
+        case EHS_RESET_REASON_JTAG:            return "jtag";
+        case EHS_RESET_REASON_UNKNOWN:
+        default:                               return "unknown";
+    }
+}
+
+ehs_bool EhsHResetReasonIsAppCrash(EhsResetReasonType reason)
+{
+    /* Software-caused crashes only. Brownout / external-reset / deep-sleep-wake /
+     * power-on / deliberate software restart are explicitly NOT app crashes. */
+    switch (reason) {
+        case EHS_RESET_REASON_PANIC:
+        case EHS_RESET_REASON_INT_WATCHDOG:
+        case EHS_RESET_REASON_TASK_WATCHDOG:
+        case EHS_RESET_REASON_OTHER_WATCHDOG:
+            return EHS_TRUE;
+        default:
+            return EHS_FALSE;
+    }
+}
+
+ehs_bool EhsHShouldDeleteAppForCrashReason(EhsResetReasonType reason)
+{
+    /* Policy gate for the boot-time crash-auto-delete feature. Gated in the HAL
+     * (ert-components) rather than in the kernel so the same kernel archive can
+     * serve targets with different policies without a kernel rebuild.
+     *
+     * Master switch EHS_APP_AUTO_DELETE forces the whole feature off when not
+     * defined (default for now — see ehs.mk). Only when the master switch is
+     * on do the finer-grained flags get consulted.
+     *
+     * Today: delete on any app-crash when EHS_APP_DELETE_ON_CRASH is defined.
+     * Future: consult a consecutive-crash counter — see porting guide TODO. */
+#ifndef EHS_APP_AUTO_DELETE
+    (void)reason;
+    return EHS_FALSE;
+#else
+ #ifdef EHS_APP_DELETE_ON_CRASH
+    return EhsHResetReasonIsAppCrash(reason);
+ #else
+    (void)reason;
+    return EHS_FALSE;
+ #endif
+#endif
 }
 
 void EhsHMetaAppSetCurrent(ehs_char * App)
@@ -1119,6 +1207,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
         {
             // todo attempt to do nice things with toolkits (e.g.g shutdown gtk, close sockets etc.)
             static ehs_bool bExited = EHS_FALSE; // don't let EhsHSys_term() run twice!
+            printf("EhsExit(%d) ret=%p\n", exitCode, __builtin_return_address(0));
 #ifdef EHS_DEBUG_TCPIP_CONSOLE // todo2022 this should be a higher level comms close down - not just the console?
             EhsSvcTcp_closeConnection();
 #endif //EHS_COMMS_API_SUPPORT
@@ -1143,9 +1232,18 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
 
         ehs_bool EhsHSysReboot()
         {
-            //@todo
-            EHSH_LOG_ERROR("EhsHSysReboot() - Not Implemented");
-            // Use Exec here so that a bash environment is not started. (this should run the reboot script in /bin.
+            /* Reboot the target. Delegates to EhsTargetReboot() which each target OS
+             * maps to its native restart primitive (esp_restart on ESP32, sys_reboot
+             * on Zephyr, reboot(2) on Linux, etc.). Console 'B' command and any
+             * future "reset from code" callers go through this.
+             *
+             * EhsTargetReboot() currently also runs EhsApplicationReset() as a
+             * pre-step — safe on most targets, but on LVGL-based targets it races
+             * with the gui_thread (see porting guide § "Reboot HAL abstraction
+             * (TODO)"). Once EhsTargetRebootNow() lands, switch to it here. */
+            EHSH_LOG_INFO("EhsHSysReboot() — rebooting target");
+            EhsTargetReboot();
+            /* Unreachable on a successful reboot. */
             return EHS_TRUE;
         }
 
@@ -1217,9 +1315,7 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
             EhsTOsSys_init(); /* initialise the Operating System */
 
 #ifdef EHS_DEBUG_TCPIP_CONSOLE
-            //printf("Starting TCPIP CONSOLE thread\n");
-            EhsHThread_execute(EhsSvcTcp_server, NULL, EHS_PRI_TCP_IP_CONSOLE, EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE);//-90); //////// CHANGES ONLYA
-            //printf("Started TCPIP CONSOLE thread\n");
+            EhsHThread_execute(EhsSvcTcp_server, NULL, EHS_PRI_TCP_IP_CONSOLE, EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE,"dbgconsole");//-90); //////// CHANGES ONLYA
 #endif
             EhsHGetEHSVersionInfo(&EhsMetaData); /*Populate the version information table */
             /* Path info is defined at first start before any cds etc */
@@ -1285,6 +1381,34 @@ ehs_sint8 EhsSysSetStaticIpV4Addr(ehs_char * json)
 #ifdef EHS_VIDEO_SUPPORT
             EhsTVideoApp_init();
 #endif
+#endif
+        }
+
+        /**
+         * Called by the kernel at the start of app teardown. Pause any persistent
+         * HAL-side background work that could deref app memory while the kernel
+         * frees it. Currently that's the viewport rendering thread(s) — LVGL's
+         * gui_thread, Qt's tick, GTK's main loop, etc. — all of which already
+         * serialise their work with EhsTPMutex_viewport. Targets with no such
+         * workers / no graphics support fall through to a no-op.
+         */
+        void EhsHApp_quiesce()
+        {
+#ifdef EHS_GUI_SUPPORT
+            if (EhsTPMutex_viewport != NULL) EhsTPMutex_lock(EhsTPMutex_viewport);
+#endif
+        }
+
+        /**
+         * Paired with EhsHApp_quiesce — called by the kernel at the end of app
+         * teardown once the memory wipe is complete. Rendering threads may
+         * resume; widget table is empty so their next iteration will render
+         * nothing until a new app populates it.
+         */
+        void EhsHApp_resume()
+        {
+#ifdef EHS_GUI_SUPPORT
+            if (EhsTPMutex_viewport != NULL) EhsTPMutex_unlock(EhsTPMutex_viewport);
 #endif
         }
 

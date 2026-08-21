@@ -243,7 +243,9 @@ int TgtUART_SendInThread(int UART_num)
         int ret = TgtUart_Send(UART_num,
                                UART_statusData[UART_num].data_to_send,
                                UART_statusData[UART_num].len_data_to_send);
+#ifdef EHS_UART_SUPPORT
         Common_UART_onSendComplete(ret);
+#endif
         return ret;
     }
     return 1;
@@ -276,7 +278,7 @@ int TgtUART_Intr_register(int UART_num, uart_cb_func_t cb_func)
     }
     if (ret == TgtUART_OK)
     {
-        char task_str[20];
+        char task_str[32]; /* "uart_event_task-" is 16 chars + up to 11 digits + NUL */
         UART_CALLBACK_FUNCTIONS[UART_num] = cb_func;
         sprintf(task_str, "uart_event_task-%d", UART_num);
         BaseType_t xReturned = xTaskCreate(UART_ISR_espressif, task_str, 3072,
@@ -376,3 +378,4 @@ void UART_ISR_espressif(void *pvParameters)
     free(dtmp);
     vTaskDelete(NULL);
 }
+

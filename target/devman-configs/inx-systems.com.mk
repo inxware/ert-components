@@ -6,7 +6,8 @@ DEVMAN_SERVER_PROTOCOL=https
 #Server config & credentials for uplading OTA updates
 #it's other name...
 DEVMAN_SERVER_NAME=tellisign
-DEVMAN_UNAME=_NOT_SAFE_USERNAME_
+DEVMAN_UNAME=inx
 EHS_PRODUCT_NAME=tellisign
-SSHPORT=22
+SSHPORT=3344
 
+EHS_DEVMAN_SUPERVISOR_REQUIRED=yes

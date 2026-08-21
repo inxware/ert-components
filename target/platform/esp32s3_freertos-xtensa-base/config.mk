@@ -39,9 +39,6 @@ TOOLCHAIN_NAME=xtensa-esp32s3-elf-5.1
 # Apply esp32 specific targetenv hacks
 INXWARE_TARGETENV_HACKS=esp32
 
-# Export ESP32 platform flag
-export EHS_ESP32=yes
-
 
 #################################################################################################################
 # Debug and Startup Modifiers
@@ -58,7 +55,10 @@ EHS_RUNTIME_LOGGER_ENABLED=no
 EHS_TARGET_NO_MAIN_ARGS=yes
 
 # Reboot after app load
-EHS_TARGET_APPLOAD_RESTARTING_REBOOT=yes
+# NOTE: potentially in conflict with EHS_GUI_SUPPORT=lvgl below - the porting guide
+# says LVGL targets currently need 'yes' (in-place teardown can crash the render
+# thread), but 'no' does work on some platforms. Set 'yes' per-platform if reload hangs.
+EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
 
 
 #################################################################################################################
@@ -86,12 +86,13 @@ EHS_COMPONENTS_NETWORK_TCPIP_SOCKET=yes
 EHS_MQTT_SUPPORT=esp_mqtt
 
 # LoRaWAN support
-EHS_LORAWAN_SUPPORT=wio_e5
+#EHS_LORAWAN_SUPPORT=wio_e5
 
 # Wi-Fi Support (uncomment to enable)
 #EHS_NETWORK_WIFI_SUPPORT=yes
 
 # BLE support (uncomment to enable)
+# Uses quite a bit of memory but is available.
 #EHS_NETWORK_BLE_SUPPORT=nimble
 
 #----- GUI Features -----
@@ -143,8 +144,6 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# Platform identification
-#DEFS += EHS_ESP32
 
 # Networking stack
 DEFS += EHS_LWIP
@@ -152,6 +151,10 @@ DEFS += EHS_LWIP
 # Console/debug buffer sizes
 DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
 DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=4096
+
+# set EHS_CONSOLE_QUEUE_STATS to log every console queue push (bytes pushed, % of buffer
+# used) via EHSH_LOG_INFO - use to size EHS_DEBUG_CONSOLE_BUFFER_SIZE per target/application
+#DEFS += EHS_CONSOLE_QUEUE_STATS
 
 # Numeric type configurations
 DEFS += EHS_FLOAT_AS_FLOAT_TYPE=1

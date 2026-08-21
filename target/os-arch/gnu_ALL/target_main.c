@@ -53,6 +53,38 @@
 #include "qt_main_integration.h"
 #endif
 
+#if defined(EHS_MACOS) && defined(EHS_GUI_SUPPORT_MODE_B_LVGL)
+/* macOS + LVGL: SDL2 2.32 calls [[NSWindow alloc] initWithContentRect:] and
+ * SDL_PollEvent directly on the calling thread — no internal dispatch to main.
+ * Both MUST run on the OS main POSIX thread (pthread_main_np()==1).
+ *
+ * dispatch_main() is NOT used here: it calls pthread_exit() which kills the
+ * main POSIX thread, then GCD services the main queue from a worker thread
+ * where pthread_main_np()==0, causing the NSWindow assertion to fire.
+ *
+ * Solution: EhsMain runs on a worker pthread.  main() spin-waits until
+ * EhsTV_init() (in target_viewport.c) sets g_ehs_macos_lvgl_ready, then
+ * calls EhsTV_LVGL_gui_thread() directly on the OS main POSIX thread. */
+#define SDL_MAIN_HANDLED
+#include <SDL2/SDL.h>
+#include <pthread.h>
+#include <stdatomic.h>
+#include <unistd.h>
+
+/* Set by EhsTV_init() when the LVGL GUI loop is ready to start. */
+_Atomic int g_ehs_macos_lvgl_ready = 0;
+
+/* Forward declaration — defined in target_viewport.c. */
+EhsThreadFuncReturnType EhsTV_LVGL_gui_thread(void *p);
+
+static void* ehs_macos_sdl_main_thread(void* arg)
+{
+    (void)arg;
+    EhsMain(NULL, NULL);
+    return NULL;
+}
+#endif
+
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
 /*****************************************************************************/
@@ -191,6 +223,19 @@ EhsTargetIntType main(int argc, ehs_char ** argv)
     // Enter the core Qt event loop (blocks until quit)
     result = EhsTV_runQt();
     EhsExit(result);
+#elif defined(EHS_MACOS) && defined(EHS_GUI_SUPPORT_MODE_B_LVGL)
+    SDL_SetMainReady();
+    pthread_t g_ehs_macos_tid;
+    pthread_create(&g_ehs_macos_tid, NULL, ehs_macos_sdl_main_thread, NULL);
+    // Spin until EhsTV_init() (worker thread) signals that the LVGL GUI loop
+    // is ready to start, then run it directly on the OS main POSIX thread so
+    // SDL2's Cocoa backend sees pthread_main_np()==1 for NSWindow creation and
+    // SDL_PollEvent.
+    while (!atomic_load_explicit(&g_ehs_macos_lvgl_ready, memory_order_acquire)) {
+        usleep(1000); // 1 ms
+    }
+    EhsTV_LVGL_gui_thread(NULL); // never returns
+
 #else // EHS_MAIN_LOOP_ITERATIVE
         // Normal production mode
     EhsMain(NULL,NULL); /* doesn't return in this version */

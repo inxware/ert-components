@@ -92,7 +92,7 @@ EHS_FB_RUN_FUNCTION(DtvPvrList)
 
     if (pListInfo->bFileValid)
     {
-        EhsStrcpy(EHS_FB_OUT_S(1),pListInfo->szLastFile);
+        EHS_FB_OUT_S_SET(1, pListInfo->szLastFile);
     }
     EHS_FB_OUT_B(0) = pListInfo->bFileValid;
 

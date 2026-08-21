@@ -89,9 +89,9 @@ EHS_FB_RUN_FUNCTION(Int2HexString_convert)
 		if (strlen(output) % 2 != 0)
 		{
 			((char *)EHS_FB_OUT_S_API2(INX_Int2HexString_ARG_convert_output))[0] = '0';
-			strcpy(EHS_FB_OUT_S_API2(INX_Int2HexString_ARG_convert_output) + 1, output) ;
+			EHS_FB_OUT_S_SET_API2(INX_Int2HexString_ARG_convert_output, output) ;
 		}
-		else strcpy(EHS_FB_OUT_S_API2(INX_Int2HexString_ARG_convert_output), output);
+		else EHS_FB_OUT_S_SET_API2(INX_Int2HexString_ARG_convert_output, output);
 	}
 	EHS_FB_FINISH(INX_Int2HexString_ARG_convert_finish);
 }//ICB FUNCTION convert MACRO END -- DO NOT ALTER THIS LINE

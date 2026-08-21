@@ -28,3 +28,9 @@ EHS_PERIPHERALS_LED_SUPPORT ?= arduino_nina
 
 # Use accelometer and gyroscope library (Arduino_LSM6DS3@1.0.3)
 EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT ?= arduino
+
+# Default packager for this os-arch. A platform config.mk may override it with a
+# plain '=' -- this file is included after the platform's own config (see
+# target/platform/platform.mk, "include $(EHS_TARGET_OS_HW_PATH)/config.mk"),
+# so '?=' here yields to the platform. 'make targetenv_package' dispatches on it.
+EHS_PACKAGER_TYPE ?= arduino

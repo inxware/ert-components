@@ -11,7 +11,9 @@
  * Definitions for Common utilities for supporting file access
  *
  * @author: inx limited
- *
+ * config support is a generic method of writing key/vlue pairs to specific files for multiple purposes, 
+ * including system wide configrations like wifi and network settings.
+ * It is not currently represented as a function block or used by application HALS, but could be. 
  */
 
 /**

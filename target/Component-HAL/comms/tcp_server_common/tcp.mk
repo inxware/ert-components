@@ -43,6 +43,13 @@ ifneq ($(EHS_DEBUG_TCPIP_CONSOLE),stubbed)
 else
 	OBJECTS += stubbed_console.$(OBJ)
 endif
+# Console "load" of a *.tar unpacks it into the application directory. The real
+# implementation needs libarchive; platforms without it get a no-op stub.
+ifeq ($(EHS_LIBARCHIVE_SUPPORT),yes)
+	OBJECTS += archive_unpack.$(OBJ)
+else
+	OBJECTS += archive_unpack_stub.$(OBJ)
+endif
 endif
 
 VPATH+=: $(EHS_TARGET_SERVER_PATH)

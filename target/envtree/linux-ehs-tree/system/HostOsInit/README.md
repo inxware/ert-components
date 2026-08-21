@@ -18,6 +18,8 @@ e.g. ./target/platform/<YOUR PLATFORM>/config.mk
 can select OS initi scripts from here using the following directives
 
     HOST_OS_CONFIG_SCRIPTS+= \
+    0090-update-debian8-npt-www-ambifier-com \
+    0100-configure-ambifier-debian9 \
     0200-snd-add-csound-volume \
 
 

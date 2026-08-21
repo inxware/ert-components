@@ -39,7 +39,7 @@ EHS_HOST_DEBIAN_BUILD=arm64
 
 # This will indicate what ert-contrib-middleware is used and toolchains if not using a host toolchain
 # WARNING: Using greengrass built for debian 11 in ert-contrib-middleware
-EHS_GNU_OS_VERSION=-clang11_debian11
+EHS_TARGET_LIB_VARIANT=-clang11_debian11
 
 # Configure some library version choices and Debian packager specifics
 EHS_DEBIAN_VERSION=12
@@ -66,9 +66,10 @@ COMPONENT_VARIANT=base
 # Debug/Production mode
 EHS_DEBUGALL=true
 #EHS_DEBUG_TCPIP_CONSOLE=stubbed
+EHS_DEBUG_TCPIP_CONSOLE=yes
 
 # Graphics subsystem log level
-EHS_LOG_LEVEL_GRAPHICS=EHSH_LOG_LEVEL_ALL
+#EHS_LOG_LEVEL_GRAPHICS=EHSH_LOG_LEVEL_ALL
 
 
 #################################################################################################################
@@ -97,54 +98,106 @@ EHS_GUI_SUPPORT=qt
 EHS_GUI_SUPPORT_QT6=yes
 #TODO2026 - we probably want Qt6 to be the default and the extra flag would be for Qt5.
 
+# This target's binary also runs on Boot2Qt images (b2qt-raspberrypi-armv8), not just
+# Debian 12.  Rendering there is eglfs + eglfs_kms + GBM straight onto DRM/KMS - no X11,
+# no compositor - with v3d rendering and a separate display-only DRM device for scanout
+# (vc4-drm for HDMI, drm-rp1-dsi for an MIPI panel on a Pi 5).
+#
+# Driving an MIPI/DSI panel instead of HDMI needs target-side runtime config that this
+# build does NOT set: display_auto_detect in /boot/config.txt and the DRM device in
+# /etc/kms.conf.  Get either wrong and HDMI silently keeps working, so nothing looks
+# broken.  See boot2qt-display-config.md in this directory for the full rendering stack,
+# the exact settings, and how to verify which screen Qt picked.
+#
+# That document also covers adding eRT to the Boot2Qt launcher as a tile (with the
+# ready-made descriptor, launch wrapper and branded icon in boot2qt-launcher/), and
+# hiding the mouse pointer.  Note a tile runs the app as a WAYLAND CLIENT inside the
+# launcher's compositor, not on eglfs - read the "Two traps" subsection before wiring
+# one up, it is not just a matter of adding an XML file.
+
 #EHS_AV_SUPPORT=devmanonly
 EHS_MEDIA_SUPPORT=all
 
 # To enable AV media support set EHS_AV_SUPPORT to {gst,vlc} depending on target support.
 
-# In the Arduino targets, networking moves into a separate thread so it doesn't block the main thread.
-# For this Qt target, simply disable the TCPIP console.
-EHS_DEBUG_TCPIP_CONSOLE=stubbed
 
 #----- Machine Vision / ML Features -----
-# Enable machine vision support for testing C++ integration, or disable with `stubbed`.
+# Both are OFF for this target.  The valid alternatives are spelled out below so they
+# don't have to be reverse-engineered from the HAL directories each time.
+#
+# EHS_MV_SUPPORT       - machine vision backend.  One of:
+#                          stubbed | opencv | none      (also jetson | android, other platforms)
+#                        Backends are the directories in target/Component-HAL/mv/.
+# EHS_USE_LIBCAMERA    - yes.  Only meaningful with opencv; needed for the Pi CSI camera
+#                        (a USB/UVC webcam works through opencv without it).
+# EHS_ML_SUPPORT       - yes, to build the ML HAL at all.
+# EHS_ML_IE_IMAGE_SUPPORT
+#                      - inference engine.  One of:
+#                          none | tensorflow-lite | tensorflow-lite-micro
+#                        Use tensorflow-lite here; -micro is for MCU targets.
+# EHS_ML_HARDWARE_ACCELERATION
+#                      - one of: none | hailo | axelera | nvidia
+#                        For a Pi: none (CPU) or hailo (Pi AI Kit / Hailo-8L).
+#                        axelera = Axelera M.2, nvidia = Jetson - neither applies here.
+# EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET / _YOLOV8_OBJDET
+#                      - yes, to build the matching post-processing.  Needs EHS_ML_SUPPORT.
+#
+# See docs/llm-dev-contexts/CLAUDE-ml-hal.md for the EhsML_* API and the tf_lite_frame block.
+#
+# Typical CPU-inference setup for this target (mirrors linux_arm64_lvgl_raspberrypi_debian12):
+#   EHS_MV_SUPPORT=opencv
+#   EHS_USE_LIBCAMERA=yes
+#   EHS_ML_SUPPORT=yes
+#   EHS_ML_IE_IMAGE_SUPPORT=tensorflow-lite
+#   EHS_ML_HARDWARE_ACCELERATION=none
+#   EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
+#   EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
+#
+# For Hailo acceleration, ALSO rebuild the Docker image with HailoRT - it is gated off by
+# default because the .deb is not in the repo:
+#   drop hailort_<ver>_arm64.deb into <repo-root>/temp/, then
+#   ERT_DOCKER_BUILD_ARGS=INSTALL_HAILO=1 make build_docker_local
+# and set EHS_ML_HARDWARE_ACCELERATION=hailo with EHS_ML_IE_IMAGE_SUPPORT=none
+# (see linux_arm64_lvgl_raspberrypi_demo_hailo for a worked example).
 EHS_MV_SUPPORT=stubbed
-##EHS_MV_SUPPORT=opencv
-# Use libcamera on top of opencv if supported
-##EHS_USE_LIBCAMERA=yes
-##EHS_ML_SUPPORT=yes
-##EHS_ML_IE_IMAGE_SUPPORT=tensorflow-lite
-
-##EHS_ML_HARDWARE_ACCELERATION=hailo
-##EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
-##EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes
 
 #----- Peripheral Features -----
+# NOTE: exactly ONE uncommented assignment per variable.  This file used to set several
+# of these twice and make silently took the last one, so the visible value was not the
+# effective one.  Alternatives are listed commented-out above each live setting.
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
-EHS_PERIPHERALS_GPIO_SUPPORT=sferalabs
-#EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
-EHS_PERIPHERALS_GPIO_SUPPORT=sysfs_linux_arm
-EHS_PERIPHERALS_ADC_DAC_SUPPORT=SPI_A6_LTC241X
-#EHS_PERIPHERALS_GPIO_SUPPORT=pigpio
-#EHS_PERIPHERALS_GPIO_SUPPORT=wiringpi
-#EHS_PERIPHERALS_PWM_SUPPORT=pigpio
-#EHS_PERIPHERALS_PWM_SUPPORT=wiringpi
+
+# GPIO.  Alternatives: sferalabs | sysfs_linux_arm | pigpio | wiringpi | stubbed
+#   sysfs_linux_arm - no library dependency, works on Pi 4 and Pi 5
+#   wiringpi        - Pi 5 capable (WiringPi 3.x); needs libwiringPi in the Docker image
+#   pigpio          - Pi 1-4 ONLY.  Bit-bangs BCM registers; the Pi 5 moved GPIO behind
+#                     the RP1 southbridge, so pigpio does not work there at all.
+EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
+
+# ADC/DAC.  Alternatives: sferalabs | SPI_A6_LTC241X | stubbed
+EHS_PERIPHERALS_ADC_DAC_SUPPORT=stubbed
+
+# PWM.  Alternatives: pigpio | wiringpi | stubbed   (same Pi 5 caveat as GPIO above)
+EHS_PERIPHERALS_PWM_SUPPORT=stubbed
 
 #################################################################################################################
 # Sfera Labs Peripheral HAL Support
 # Enable the new peripheral HAL blocks for the Strato Pi Max (and other Sfera Labs boards where available).
+#
+# DISABLED - this target is a plain Raspberry Pi 4B/5 (currently a Pi 5 + Boot2Qt + MIPI
+# DSI panel), not a Sfera Labs board, so none of these HALs have hardware to talk to.
+# The ADC/DAC line below also used to silently override the stubbed setting above.
+# Uncomment the block as a whole if this target is ever pointed at a Strato Pi.
 #################################################################################################################
 
-
-EHS_PERIPHERALS_ADC_DAC_SUPPORT=sferalabs
-
-EHS_WATCHDOG_SUPPORT=sferalabs
-EHS_UPS_SUPPORT=sferalabs
-EHS_BUZZER_SUPPORT=sferalabs
-EHS_SD_SELECT_SUPPORT=sferalabs
-EHS_USB_POWER_SUPPORT=sferalabs
-EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT=sferalabs
-EHS_RS485_CONFIG_SUPPORT=sferalabs
+#EHS_PERIPHERALS_ADC_DAC_SUPPORT=sferalabs
+#EHS_WATCHDOG_SUPPORT=sferalabs
+#EHS_UPS_SUPPORT=sferalabs
+#EHS_BUZZER_SUPPORT=sferalabs
+#EHS_SD_SELECT_SUPPORT=sferalabs
+#EHS_USB_POWER_SUPPORT=sferalabs
+#EHS_PERIPHERALS_ACCEL_GYRO_SUPPORT=sferalabs
+#EHS_RS485_CONFIG_SUPPORT=sferalabs
 
 #################################################################################################################
 # Application and Packaging
@@ -152,7 +205,7 @@ EHS_RS485_CONFIG_SUPPORT=sferalabs
 #################################################################################################################
 
 # Application Selection
-EHS_DEFAULT_APP=demos/QT_UIs/hello_world-qt
+EHS_DEFAULT_APP=customer-apps/qt/hello_world-qt
 #EHS_DEFAULT_APP=demos/QT_UIs/Particles
 #EHS_DEFAULT_APP=demos/simple-qt-socket_webserver
 

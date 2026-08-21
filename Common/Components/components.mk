@@ -120,4 +120,8 @@ ifeq "$(EHS_TOOLKIT_DEPRECATED)" "yes"
     DEFS+=EHS_TOOLKIT_DEPRECATED
 endif
 
-DEFS += EHS_TOOLBOX_HASHES=\"$(EHS_TOOLBOX_HASHES)\"
+# Toolbox hashes are space separated, but DEFS is expanded with $(foreach ...) which splits
+# on whitespace - a literal space here swallows the following -D flag into this value.
+# Substitute the C escape for a space so make sees one word and the string is unchanged.
+EHS_SPACE := $(subst ,, )
+DEFS += EHS_TOOLBOX_HASHES=\"$(subst $(EHS_SPACE),\x20,$(EHS_TOOLBOX_HASHES))\"

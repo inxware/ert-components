@@ -42,8 +42,15 @@
 #define EHS_TGT_MEMORY_ALIGNED(type, name) type name
 
 #ifndef EHSStdioPrintf
-  #define EhsStdioPrintf(x, y, z, ...) {if (strcmp(z,"Error") == 0) ESP_LOGE(TS_TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Warning") == 0) ESP_LOGW(TS_TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Info")) ESP_LOGI(TS_TAG, x, y, z, __VA_ARGS__);else ESP_LOGD(TS_TAG, x, y, z, __VA_ARGS__);}
-  #define EhsStdioSimplePrintf(...)  ESP_LOGI(TS_TAG, __VA_ARGS__)
+  #define EhsStdioPrintf(x, y, z, ...) {if (strcmp(z,"Error") == 0) ESP_LOGE(TS_TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Warning") == 0) ESP_LOGW(TS_TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Info") == 0) ESP_LOGI(TS_TAG, x, y, z, __VA_ARGS__);else ESP_LOGD(TS_TAG, x, y, z, __VA_ARGS__);}
+  /* Was ESP_LOGD(...) — but EhsStdioSimplePrintf is the kernel-side TTY
+   * path used by EhsKernelMessage / EhsParserError / etc. to surface
+   * load + parse errors on the UART console. ESP_LOGD is silently dropped
+   * at the default IDF runtime log level (INFO), so errors never reached
+   * the TTY — only the debugger console saw them. Plain printf() matches
+   * what every other target does (gnu_ALL, zephyr, nxp, xcore) and lands
+   * the message on UART0 regardless of ESP log filter. */
+  #define EhsStdioSimplePrintf(...)  printf(__VA_ARGS__)
 #endif
 
 /* math functions not implemented in Windows */

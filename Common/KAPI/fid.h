@@ -111,5 +111,42 @@ EHS_MEMORY_ATTRIB void EhsFunctionInstanceData_triggerEvent(EhsFunctionInstanceD
 
 void EhsFunctionInstanceData_clearEvents(EhsFunctionInstanceClearEventsType* pClearEvents);
 
+/* FB-init-time callback FB-instance lookup. Use these instead of the
+ * positional EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE() macro when an FB has
+ * more than one InternalPort callback — the positional macro silently
+ * couples the FB-side cb dispatch order to the CDF's InternalPort document
+ * order, which has produced runtime LoadProhibited crashes when the two
+ * drift (LoRaWAN cb dispatch was the canonical case).
+ *
+ * The lookup is O(N_callbacks_in_block) once per FB-init and operates on a
+ * transient parallel index built by the SODL parser; it has zero runtime
+ * cost on event dispatch. Calling these from anywhere other than an FB-init
+ * function (i.e. once EhsKP_parse has returned) is undefined — the index is
+ * freed when parse completes.
+ *
+ * Returns NULL if the SODL did not contain a callback with the requested
+ * identifier for this FB instance. Wrap the call in EHS_TRUSTLESS_NULL_FATAL
+ * (hal_logger.h) to fail cleanly at FB-init in that case.
+ */
+#if ERT_SODL_VERSION > 0
+EhsFunctionInstanceDataType *
+EhsCallback_findByFunctionId(EhsFunctionInstanceDataType *pCallbackTable,
+                             ehs_uint16 nCallbacksInBlock,
+                             ehs_uint8 cFunctionId);
+#define EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE_BY_FNID(fnId, n_in_block) \
+    EhsCallback_findByFunctionId(pCallbackTable, (n_in_block), (fnId))
+#else
+EhsFunctionInstanceDataType *
+EhsCallback_findByFunctionName(EhsFunctionInstanceDataType *pCallbackTable,
+                               ehs_uint16 nCallbacksInBlock,
+                               const ehs_char *szName);
+/* On ERT0 builds the FB also needs to know the function's name, not just its
+ * 8-bit ID. The convention is for the FB or the ICB-generated header to
+ * supply both forms (FNID + FN_NAME) per function — see lorawan migration
+ * for the concrete pattern. */
+#define EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE_BY_NAME(szName, n_in_block) \
+    EhsCallback_findByFunctionName(pCallbackTable, (n_in_block), (szName))
+#endif
+
 #endif /* _FUNCTION_INSTANCE_DATA_H */
 

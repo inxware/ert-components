@@ -544,11 +544,11 @@ EHS_UNITY_EXPORT ehs_bool EhsUnityEvent(char* id,char* event)
     //create pFIData variable so we can use the APIs
     EhsFunctionInstanceDataType* pFIdata=pState->pFIdata;
 
-    EhsStrcpy(EHS_FB_OUT_S_API2(INX_unity2_ARG_create_event),event);
+    EHS_FB_OUT_S_SET_API2(INX_unity2_ARG_create_event, event);
     EHS_FB_FINISH(INX_unity2_ARG_create_finishevent);
 }
 
 EHS_UNITY_EXPORT void EhsUnityStartAsync()
 {
-    EhsHThread_execute(EhsUnityStartBlocking, NULL, 0, EHS_THREAD_USE_DEFAULT_STACK_SIZE);
+    EhsHThread_execute(EhsUnityStartBlocking, NULL, 0, EHS_THREAD_USE_DEFAULT_STACK_SIZE,NULL);
 }

@@ -84,7 +84,8 @@
 
 #define EhsMemchr memchr
 
-#define EhsStrIsSpace(x) isspace(x)
+/* Cast to unsigned: newlib ctype is a table lookup, so a signed char >=128 indexes before the table */
+#define EhsStrIsSpace(x) isspace((ehs_uint8)(x))
 
 /*****************************************************************************/
 /* Define types */

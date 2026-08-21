@@ -3,6 +3,13 @@
 This directory contains the inxware eRT build system integration for XMOS xcore.ai targets
 running FreeRTOS via the XMOS `fwk_rtos` framework.
 
+> **Operational status, current Phase 1/Phase 2 architecture, fwk_rtos library target
+> map, BSP decision, known landmines, and Phase 2 todo list:** see
+> [`docs/llm-dev-contexts/CLAUDE-xcore.md`](../../../docs/llm-dev-contexts/CLAUDE-xcore.md).
+> Some sections of this README (the pre-built `target_libs/` workflow, the "Flash firmware"
+> stub) describe an earlier "Option C" plan that the current build does not use — treat
+> CLAUDE-xcore.md as authoritative for the current state.
+
 ## Architecture overview
 
 ```

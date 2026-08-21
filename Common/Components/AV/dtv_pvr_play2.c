@@ -402,7 +402,7 @@ EHS_FB_RUN_FUNCTION(DtvPvrPlay2_get)
         }
         else
         {
-            EhsStrcpy(EHS_FB_OUT_S(PORT_OUT_INPUT), (ehs_char*) nInput);
+            EHS_FB_OUT_S_SET(PORT_OUT_INPUT, (ehs_char*) nInput);
         }
     } //@todo should post error here
     else
@@ -413,7 +413,7 @@ EHS_FB_RUN_FUNCTION(DtvPvrPlay2_get)
             EHS_FB_OUT_I(PORT_OUT_POS) = 0;
             EHS_FB_OUT_I(PORT_OUT_TIME) = 0;
             EHS_FB_OUT_I(PORT_OUT_LENGTH) = 0;
-            EhsStrcpy(EHS_FB_OUT_S(PORT_OUT_INPUT), "");
+            EHS_FB_OUT_S_SET(PORT_OUT_INPUT, "");
         }//else leave all as is
     }
     EHS_FB_FINISH(PORT_FINISH_GET);

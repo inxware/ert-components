@@ -34,7 +34,7 @@
         <Class>permanent_storage_real</Class>
     </FBID>
     <Hashes>
-        <NameHash_CRC16>0xE9B4</NameHash_CRC16>
+        <NameHash_CRC16>0xE9B5</NameHash_CRC16>
         <FbApiDescriptorHash_CRC32>93a7cde</FbApiDescriptorHash_CRC32>
         <FbApiDescriptorHash/>
     </Hashes>

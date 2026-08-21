@@ -94,7 +94,7 @@ EHS_FB_INIT_FUNCTION(key_value_bool)
         if (pFbInitParam[0] != '"')
         {
             /* When it's not a string containing spaces */
-            pFbInitParam = EhsGetWordFromString(in_temp, pFbInitParam);
+            pFbInitParam = EhsGetWordFromString(in_temp, pFbInitParam, sizeof(in_temp));
             str_count = EhsStrlen(in_temp);
             if (str_count == 4 && EhsStrncmp(in_temp, "NULL", 4) == 0)
             {
@@ -172,7 +172,7 @@ EHS_FB_RUN_FUNCTION(key_value_bool_upsert)
     ehs_char *key = (ehs_char *) inx_key_value_bool_state->key;
     ehs_bool value_temp = inx_key_value_bool_state->default_value;
     // Min value is "0". Max value is "1". String length with NULL terminator is max 2.
-    ehs_char value[2];
+    ehs_char value[12]; /* "%d" of an int can emit 11 chars + NUL */
     ehs_FILE *fp = NULL;
     ehs_char *content = NULL;
     EhsDataflowStringType json_slice_string = NULL;

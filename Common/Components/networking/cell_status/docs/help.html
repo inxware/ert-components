@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Cell Status</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">Samples radio signal quality, connection-evaluation metrics and data counters.</p>
+<p class="component">A read-only companion to the modem manager. Trigger <a href="#[In]read">Read</a> to sample everything at once; every output is refreshed together so they describe the same instant.</p>
+<p class="component">The connection-evaluation group (TX power, repetitions, pathloss, energy estimate) comes from a single modem query that is only valid while registered. Check <a href="#[Out]eval_ok">evalOk</a> before trusting those five - when it is false they hold no meaningful value rather than a zero reading.</p>
+<p class="component">Values that the modem cannot supply are reported as an invalid sentinel rather than 0, so that 'no measurement' is never mistaken for 'measured zero'.</p>
+<div class="section_heading">
+<span id="parameters" class="toc_span">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr><th>name</th><th>type</th><th>description</th><th>default</th><th>min.</th><th>max.</th></tr>
+<tr>
+<td><a name="[Param]mode">mode</a></td>
+<td>I</td>
+<td>0 reads signal strength only. 1 additionally performs the full pre-transmit link evaluation, which requires modem support and is only valid while registered and idle.</td>
+<td>1</td>
+<td>0</td><td>1</td>
+</tr>
+</table>
+<div class="section_heading">
+<span id="ports" class="toc_span">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[In]read">Read</a></td>
+<td>Sample all radio and counter values into the outputs below.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]reset_counters">ResetCounters</a></td>
+<td>Zero the TX / RX byte counters. Does not affect the radio measurements.</td>
+</tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]rsrp">RSRP</a></td>
+<td>Reference Signal Received Power in dBm. Typically -140 (worst) to -44 (best); better than -100 is comfortable.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]rsrq">RSRQ</a></td>
+<td>Reference Signal Received Quality in dB. Roughly -20 (worst) to -3 (best).</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]snr">SNR</a></td>
+<td>Signal to noise ratio in dB.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]ce_level">CELevel</a></td>
+<td>Coverage Enhancement level, 0-3. Higher means the modem is repeating transmissions harder to be heard, which costs power and throughput.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]tx_power">TXPower</a></td>
+<td>Current uplink transmit power in dBm. Valid only when evalOk is true.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]tx_reps">TXReps</a></td>
+<td>Uplink repetitions the modem expects to need. Valid only when evalOk is true.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]rx_reps">RXReps</a></td>
+<td>Downlink repetitions expected. Valid only when evalOk is true.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]dl_pathloss">DLPathloss</a></td>
+<td>Estimated downlink path loss in dB. Valid only when evalOk is true.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]energy_estimate">Energy</a></td>
+<td>Modem's relative estimate of the energy cost of sending data now. Valid only when evalOk is true.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]eval_ok">evalOk</a></td>
+<td>True when the connection-evaluation group above holds valid data. Check this first.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]tx_bytes">TXBytes</a></td>
+<td>Bytes transmitted since boot or the last counter reset.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]rx_bytes">RXBytes</a></td>
+<td>Bytes received since boot or the last counter reset.</td>
+</tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]read_ok">Done</a></td>
+<td>Fires once all outputs have been refreshed.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]reset_ok">RDone</a></td>
+<td>Fires once the byte counters have been zeroed.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span id="misc" class="toc_span">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr><td class="heading-cell"><b>Toolbox</b></td><td>net</td><td class="heading-cell"><b>Version</b></td><td>v1.0</td></tr>
+<tr><td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td><td class="heading-cell"><b>Component Supplier</b></td><td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td></tr>
+<tr><td class="heading-cell"><b>Minumum DCC</b></td><td>A0000</td><td class="heading-cell"><b>Profiles</b></td><td>All.</td></tr>
+</table>
+</div>
+</body>
+
+</html>

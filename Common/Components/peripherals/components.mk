@@ -64,7 +64,7 @@ ifneq ($(EHS_PERIPHERALS_GPIO_SUPPORT),none)
 #if the hardware doesn't have real GPIO then stubb it if the peripheral toolbox is still needed
 # include the commone GPIO components in the toolbox. 
 	OBJECTS += gpio_out.$(OBJ)
-	OBJECTS += gpio_in.$(OBJ)     
+	OBJECTS += gpio_in.$(OBJ)
 endif
 endif
 
@@ -98,9 +98,16 @@ endif
 endif
 
 # Components moved from user/ directory
+# NOTE: ADC unit/channel counts are NOT configured here - they belong to the ADC/DAC
+# HAL and are handled by target/Component-HAL/adc_dac/adc_dac_common.mk.  A target may
+# have GPIO without ADC (or the reverse), so the two must never share a guard.
 ifdef EHS_PERIPHERALS_ADC_DAC_SUPPORT
 ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),none)
 ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),)
+# EHS_TARGET_ADC_UNIT_NUMBER=0 means "this board variant has no ADC units at all".
+# adc_dac_common.mk builds no HAL backend in that case, so the FBs that call it must
+# be left out too or the link fails with undefined references.
+ifneq ($(EHS_TARGET_ADC_UNIT_NUMBER),0)
 	OBJECTS += inx-adc_config.$(OBJ)
 	OBJECTS += inx-dac.$(OBJ)
 	ifdef EHS_PERIPHERALS_ADC_CONTINUOUS_SUPPORT
@@ -110,6 +117,7 @@ ifneq ($(EHS_PERIPHERALS_ADC_DAC_SUPPORT),)
 	endif
 	endif
 	OBJECTS += inx-adc_read_single.$(OBJ)
+endif
 endif
 endif
 endif

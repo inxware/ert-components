@@ -151,7 +151,7 @@ EHS_FB_RUN_FUNCTION(GUI_keypress_hit)
         EHS_FB_OUT_I_API2(1) = EhsGUIKbHitChar;
         c[0]=(char)EhsGUIKbHitChar;
         c[1]='\0';
-        EhsStrcpy(EHS_FB_OUT_S_API2(2),c);
+        EHS_FB_OUT_S_SET_API2(2, c);
         //SetCompletes1((structFuncArg*)&EHS_FB_RUN_CONTEXT);
         EHS_FB_FINISH(1);
     }

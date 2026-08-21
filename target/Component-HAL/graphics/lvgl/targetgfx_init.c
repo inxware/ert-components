@@ -25,6 +25,10 @@
  * This file contained no derogations to the MISRA standard.
  */
 
+/* Must precede every #include below (even transitively) — hal_logger.h locks
+ * EHSH_LOG_CHECK to a no-op literal 0 if included before this is defined. */
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_GRAPHICS
+
 /*****************************************************************************/
 /* Included files */
 #define EHS_TARGET_CODE /* Ensure header files include target-internal values */
@@ -38,48 +42,82 @@
 #include "lvgl/lvgl.h"
 #include "hal_mv.h"
 #include "hal_process.h"
+#include "hal_logger.h"
 
 /* -----------------------------------------------------------------------
  * LVGL camera canvas — renders camera frames inside the LVGL scene.
  *
- * Created lazily on the first frame_show call; re-created if the
- * requested position or size changes.  The buffer is owned by this
- * module and released on application reset so the next SODL run starts
- * with a clean state.
+ * One canvas + backing buffer per calling FB instance, not a single shared
+ * one: multiple frame_show instances can be embedding simultaneously (e.g.
+ * a raw feed and an annotated one side by side), and sharing a single
+ * canvas means each one's render clobbers the other's ("flicker, only one
+ * renders at a time"). Ownership is the caller's: *pHandle is NULL on that
+ * instance's first call, this allocates a canvas for it and stores the
+ * pointer back through *pHandle; the instance passes the same handle back
+ * on every later call. lvgl_camera_frame_renderer_release() is called once
+ * by the owning instance's destroy function.
  * --------------------------------------------------------------------- */
-static lv_obj_t*   g_cam_canvas = NULL;
-static lv_color_t* g_cam_buf    = NULL;
-static ehs_sint32  g_cam_x = -1, g_cam_y = -1, g_cam_w = 0, g_cam_h = 0;
+typedef struct {
+    lv_obj_t*   canvas;
+    lv_color_t* buf;
+    ehs_sint32  w, h;
+} EhsCamEmbedCanvas_t;
 
 static void lvgl_camera_frame_renderer(
+    void** pHandle,
     ehs_sint32 x, ehs_sint32 y, ehs_sint32 dst_w, ehs_sint32 dst_h,
     const void* data, ehs_sint32 frame_w, ehs_sint32 frame_h, ehs_sint32 channels)
 {
-    if (!data || dst_w <= 0 || dst_h <= 0 || frame_w <= 0 || frame_h <= 0) return;
-    if (channels != 3 && channels != 1) return; /* BGR and grayscale only */
+    if (!pHandle || !data || dst_w <= 0 || dst_h <= 0 || frame_w <= 0 || frame_h <= 0) {
+        EHSH_LOG_WARNING("lvgl_camera_frame_renderer: rejected pHandle=%p data=%p dst=%dx%d frame=%dx%d",
+                          (void*)pHandle, data, dst_w, dst_h, frame_w, frame_h);
+        return;
+    }
+    if (channels != 3 && channels != 1) {
+        EHSH_LOG_WARNING("lvgl_camera_frame_renderer: rejected channels=%d", channels);
+        return; /* BGR and grayscale only */
+    }
 
     EhsTPMutex_lock(EhsTPMutex_viewport);
 
-    /* (Re)create canvas when position or size changes */
-    if (!g_cam_canvas || g_cam_x != x || g_cam_y != y ||
-        g_cam_w != dst_w || g_cam_h != dst_h) {
-        if (g_cam_canvas) { lv_obj_del(g_cam_canvas); g_cam_canvas = NULL; }
-        if (g_cam_buf)    { free(g_cam_buf); g_cam_buf = NULL; }
+    EhsCamEmbedCanvas_t* slot = (EhsCamEmbedCanvas_t*)*pHandle;
+    if (!slot) {
+        slot = (EhsCamEmbedCanvas_t*)malloc(sizeof(*slot));
+        if (!slot) {
+            EHSH_LOG_ERROR("lvgl_camera_frame_renderer: malloc(%zu) failed for canvas handle", sizeof(*slot));
+            EhsTPMutex_unlock(EhsTPMutex_viewport); return;
+        }
+        memset(slot, 0, sizeof(*slot));
+        *pHandle = slot;
+    }
+
+    /* (Re)create canvas when newly allocated or its size changes */
+    if (!slot->canvas || slot->w != dst_w || slot->h != dst_h) {
+        EHSH_LOG_INFO("lvgl_camera_frame_renderer: (re)creating canvas at %d,%d size %dx%d (was %p %dx%d)",
+                      x, y, dst_w, dst_h, (void*)slot->canvas, slot->w, slot->h);
+        if (slot->canvas) { lv_obj_del(slot->canvas); slot->canvas = NULL; }
+        if (slot->buf)    { free(slot->buf); slot->buf = NULL; }
 
         size_t buf_sz = (size_t)LV_CANVAS_BUF_SIZE_TRUE_COLOR(dst_w, dst_h);
-        g_cam_buf = (lv_color_t*)malloc(buf_sz);
-        if (!g_cam_buf) { EhsTPMutex_unlock(EhsTPMutex_viewport); return; }
-        memset(g_cam_buf, 0, buf_sz);
+        slot->buf = (lv_color_t*)malloc(buf_sz);
+        if (!slot->buf) {
+            EHSH_LOG_ERROR("lvgl_camera_frame_renderer: malloc(%zu) failed for canvas buffer", buf_sz);
+            EhsTPMutex_unlock(EhsTPMutex_viewport); return;
+        }
+        memset(slot->buf, 0, buf_sz);
 
-        g_cam_canvas = lv_canvas_create(lv_scr_act());
-        lv_canvas_set_buffer(g_cam_canvas, g_cam_buf,
+        slot->canvas = lv_canvas_create(lv_scr_act());
+        lv_canvas_set_buffer(slot->canvas, slot->buf,
                              (lv_coord_t)dst_w, (lv_coord_t)dst_h,
                              LV_IMG_CF_TRUE_COLOR);
-        lv_obj_set_pos(g_cam_canvas, (lv_coord_t)x, (lv_coord_t)y);
-        lv_obj_move_background(g_cam_canvas); /* stays behind UI widgets */
-        lv_obj_set_style_pad_all(g_cam_canvas, 0, 0);
-        lv_obj_set_style_border_width(g_cam_canvas, 0, 0);
-        g_cam_x = x; g_cam_y = y; g_cam_w = dst_w; g_cam_h = dst_h;
+        lv_obj_set_pos(slot->canvas, (lv_coord_t)x, (lv_coord_t)y);
+        lv_obj_move_background(slot->canvas); /* stays behind UI widgets */
+        lv_obj_set_style_pad_all(slot->canvas, 0, 0);
+        lv_obj_set_style_border_width(slot->canvas, 0, 0);
+        slot->w = dst_w; slot->h = dst_h;
+    } else {
+        /* Size unchanged, but position may have moved (e.g. layout reflow) */
+        lv_obj_set_pos(slot->canvas, (lv_coord_t)x, (lv_coord_t)y);
     }
 
     /* Nearest-neighbour scale + BGR→lv_color_t conversion */
@@ -93,12 +131,25 @@ static void lvgl_camera_frame_renderer(
             lv_color_t color = (channels == 3)
                 ? lv_color_make(px[2], px[1], px[0])    /* BGR → RGB */
                 : lv_color_make(px[0], px[0], px[0]);   /* grayscale  */
-            g_cam_buf[cy * dst_w + cx] = color;
+            slot->buf[cy * dst_w + cx] = color;
         }
     }
-    lv_obj_invalidate(g_cam_canvas);
+    lv_obj_invalidate(slot->canvas);
 
     EhsTPMutex_unlock(EhsTPMutex_viewport);
+}
+
+/* Called once by the owning frame_show instance's EHS_FB_DESTROY_FUNCTION.
+ * Must tolerate a NULL handle (an instance that never rendered a frame). */
+static void lvgl_camera_frame_renderer_release(void* handle)
+{
+    if (!handle) return;
+    EhsCamEmbedCanvas_t* slot = (EhsCamEmbedCanvas_t*)handle;
+    EhsTPMutex_lock(EhsTPMutex_viewport);
+    if (slot->canvas) lv_obj_del(slot->canvas);
+    if (slot->buf)    free(slot->buf);
+    EhsTPMutex_unlock(EhsTPMutex_viewport);
+    free(slot);
 }
 #endif /* EHS_MV_SUPPORT__opencv */
 
@@ -135,7 +186,7 @@ void EhsTGfxSys_init()
         }
     }
 #ifdef EHS_MV_SUPPORT__opencv
-    EhsCameraFrameRegisterEmbeddedRenderer(lvgl_camera_frame_renderer);
+    EhsCameraFrameRegisterEmbeddedRenderer(lvgl_camera_frame_renderer, lvgl_camera_frame_renderer_release);
 #endif
 }
 
@@ -163,17 +214,16 @@ void EhsTGfxSys_term(void)
 }
 
 /**
- * Perform setup before loading in a new application
+ * Perform setup before loading in a new application.
+ *
+ * Camera embed canvases are no longer tracked here: each frame_show FB
+ * instance now owns its canvas via the opaque handle EhsCamEmbeddedRendererFn
+ * hands back, and releases it directly from its own EHS_FB_DESTROY_FUNCTION
+ * (which runs, for every instance of the outgoing app, before this is next
+ * called) — see lvgl_camera_frame_renderer_release() above.
  */
 void EhsTGfxApp_init(void)
 {
-#ifdef EHS_MV_SUPPORT__opencv
-    /* LVGL destroys all objects between app runs — the canvas pointer is now
-     * stale.  Reset state so lvgl_camera_frame_renderer recreates it fresh. */
-    g_cam_canvas = NULL;
-    if (g_cam_buf) { free(g_cam_buf); g_cam_buf = NULL; }
-    g_cam_x = -1; g_cam_y = -1; g_cam_w = 0; g_cam_h = 0;
-#endif
 }
 
 /**

@@ -47,5 +47,6 @@ extern struct timespec gMutexGUITimeToWaitLock;
 
 /*****************************************************************************/
 /* Declare function prototypes  */
+void EhsTargetWidget_refr_scr_period_lvgl(ehs_uint32 period_s);
 
 #endif /* EHS_TARGET_VIEWPORT_H */

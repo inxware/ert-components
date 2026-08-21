@@ -15,19 +15,27 @@ echo "$dt" > out.txt
 if [ "$1" == --use-screen ]; then
   TTYTERMINAL="screen -L -Logfile  out.txt"
   echo "Using screen. Use <CTRL>+d to exist and <CTRL>+<Escape> for scrollable TTY"
+  if [ "$2" != "" ]; then
+    ESP_TTY=$2
+  fi
+
 else
+  if [ "$1" != "" ]; then
+    ESP_TTY=$1
+  fi
   TTYTERMINAL="minicom -D"
 fi
 
-if [ -c /dev/ttyUSB0 ]; then
-ESP_TTY=/dev/ttyUSB0
-elif [ -c /dev/ttyUSB1 ]; then
-ESP_TTY=/dev/ttyUSB1
-elif [ -c /dev/ttyACM0 ]; then
-ESP_TTY=/dev/ttyACM0
-elif [ -c /dev/ttyACM1 ]; then
-ESP_TTY=/dev/ttyACM1
-else
+if [ "$ESP_TTY" = "" ];then
+ if [ -c /dev/ttyUSB0 ]; then
+  ESP_TTY=/dev/ttyUSB0
+ elif [ -c /dev/ttyUSB1 ]; then
+  ESP_TTY=/dev/ttyUSB1
+ elif [ -c /dev/ttyACM0 ]; then
+  ESP_TTY=/dev/ttyACM0
+ elif [ -c /dev/ttyACM1 ]; then
+  ESP_TTY=/dev/ttyACM1
+ else
   echo "Could not find /dev/ttyUSB0 or /dev/ttyACM0"
   echo "If you are running in WSL, consider installing  usbipd"
   echo "https://github.com/dorssel/usbipd-win"
@@ -37,6 +45,9 @@ else
   echo "Then run the following from a WSL terminal"
   echo "usbipd.exe attach --wsl --busid=2-2"
   exit 1
+ fi
+else
+  echo "Using US/Serial at $ESP_TTY"
 fi
 
 echo "If you need to use a terminal please try the web line editing enabled terminal here:"

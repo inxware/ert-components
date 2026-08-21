@@ -28,7 +28,9 @@ INC_PATH+= $(EHS_COMPONENT_SUPPORT_INCLUDE)/
 
 # function blocks that need frames from the camera
 ifdef EHS_MV_SUPPORT
+ifneq ($(EHS_MV_SUPPORT),none)
 OBJECTS += inx-ml_image_inference.$(OBJ)
+endif
 endif
 
 OBJECTS += inx-ml_svm_inference.$(OBJ)

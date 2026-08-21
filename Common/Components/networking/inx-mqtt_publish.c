@@ -182,7 +182,7 @@ EHS_FB_INIT_FUNCTION(mqtt_publish)
 
     const char* pParams = EHS_FB_INIT_PARAMETERS;
     if (pParams) {
-        pParams = EhsGetWordFromString(inx_mqtt_publish_state->topic, pParams);
+        pParams = EhsGetWordFromString(inx_mqtt_publish_state->topic, pParams, sizeof(inx_mqtt_publish_state->topic));
         pParams = EhsGetUint8FromString(&inx_mqtt_publish_state->qos, pParams);
         handle_mqtt_param_string(inx_mqtt_publish_state->topic, EHS_STRING_LENGTH_MAX);
     }

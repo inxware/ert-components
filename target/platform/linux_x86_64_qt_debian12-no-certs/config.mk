@@ -14,6 +14,12 @@
 # Linux PC (x86_64) with Qt6, Debian 12.
 # Based on linux_x86_64_clang_gg_debian11 and linux_arm64_qt_debian12-no-certs.
 
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# RUNTIME NOTES:
+# Requires QT6.11 for 3D mesh part
+# Use export LD_LIBRARY_PATH=$HOME/Qt/6.11.1/gcc_64/lib/ (for Qt Software manager downloaded versions)
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 #################################################################################################################
 # Baseline Configuration Includes
@@ -38,19 +44,28 @@ EHS_GNU_OS=linux-gnu
 EHS_HOST_DEBIAN_BUILD=x86
 
 # This will indicate what ert-contrib-middleware is used and toolchains if not using a host toolchain
-# Using gcc-based middleware for host gcc toolchain
-#EHS_GNU_OS_VERSION=-clang11_debian11
-EHS_GNU_OS_VERSION=-clang10_clang10
-#EHS_GNU_OS_VERSION=-clang11_unknown
+# Selects target_libs/x86_64-linux-gnu-clang14_debian12_base — clang 14 archives,
+# which is why EHS_TOOLCHAIN_TYPE below is clang and the build image ships clang 14.
+#EHS_TARGET_LIB_VARIANT=-clang11_debian11
+#EHS_TARGET_LIB_VARIANT=-clang10_clang10
+#EHS_TARGET_LIB_VARIANT=-clang11_unknown
+EHS_TARGET_LIB_VARIANT=-clang14_debian12
 
 # Configure some library version choices and Debian packager specifics
 EHS_DEBIAN_VERSION=12
 
-# Use host toolchain + Qt headers and static objects from Docker
+# HOST here means "the toolchain that ships in the build image" (see the
+# toolchain table in docs/ert-porting-guide.md), not the developer's machine —
+# this target builds in Docker via Dockerimagename.
 TOOLCHAIN_NAME=HOST
 
-# Select the os-arch directory with these - using gcc (host default)
-EHS_TOOLCHAIN_TYPE=gcc
+# Select the os-arch directory with these.
+# clang, to match EHS_TARGET_LIB_VARIANT above: the contrib archives this target links
+# against are x86_64-linux-gnu-clang14_debian12_base, and the arm64 Qt sibling is
+# clang too (its os-arch layer forces it). Do NOT add LINK_OVERRIDE — gnu_ALL's
+# toolchain.mk already selects clang++ for the link when C++ sources are present,
+# which this target has.
+EHS_TOOLCHAIN_TYPE=clang
 
 # Contributed library dependencies variant (adds _base to the middleware path)
 COMPONENT_VARIANT=base
@@ -100,11 +115,16 @@ EHS_MEDIA_SUPPORT=all
 
 # In the Arduino targets, networking moves into a separate thread so it doesn't block the main thread.
 # For this Qt target, simply disable the TCPIP console.
-EHS_DEBUG_TCPIP_CONSOLE=stubbed
+EHS_DEBUG_TCPIP_CONSOLE=yes
 
 #----- Machine Vision / ML Features -----
 # Enable machine vision support for testing C++ integration, or disable with `stubbed`.
 EHS_MV_SUPPORT=stubbed
+
+#----- User Component Features -----
+# Builds the console_print FB (Common/Components/user/inx-console_print.c), which writes to
+# the target's stdio via EhsStdioPrintf.
+EHS_COMPONENTS_CONSOLE_IO=yes
 
 #----- Peripheral Features -----
 EHS_PERIPHERAL_DEVICE_SUPPORT=all

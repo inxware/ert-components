@@ -64,6 +64,19 @@ INC_DIRS += $(XMOS_SDK_DIR)/fwk_rtos/modules/osal/FreeRTOS
 # FreeRTOSConfig.h — provided in this os-arch directory.
 # (already on INC_DIRS via the xcore_freertos-xcore/ path added above)
 
+# -----------------------------------------------------------------------------
+# Comms HAL header path — TRANSITIONAL
+#
+# hal_network.h unconditionally #include "target_tcp.h", so the header must
+# resolve even when EHS_COMMS_API_SUPPORT=none (the platform default until
+# networking is implemented). The freertos_plus_tcp Component-HAL is the
+# architectural home for xcore networking (fwk_rtos uses FreeRTOS-Plus-TCP
+# via FreeRTOS_Sockets.h), but currently contains only a stub target_tcp.h.
+# Add it to INC_DIRS unconditionally; remove this once EHS_COMMS_API_SUPPORT
+# is set to freertos_plus_tcp (at which point ehs.mk adds the path itself).
+# -----------------------------------------------------------------------------
+INC_DIRS += $(EHS_TARGET_COMPONENT_HAL_PATH)/comms/freertos_plus_tcp
+
 # Pre-built header paths (Option C, not yet usable — kept for reference):
 # INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)
 # INC_DIRS += $(EHS_COMPONENT_SUPPORT_INCLUDE)FreeRTOS/
@@ -114,6 +127,14 @@ OBJECTS += target_process.$(OBJ)
 OBJECTS += target_time.$(OBJ)
 OBJECTS += target_math.$(OBJ)
 OBJECTS += target_sys_stat.$(OBJ)
+
+# Per-target serial-console HAL — backs Common/Ehs/serial_console.c.
+# Contract: Common/HAL/include/hal_serial.h.
+ifdef EHS_SERIAL_CONSOLE_SUPPORT
+ifneq ($(EHS_SERIAL_CONSOLE_SUPPORT),none)
+OBJECTS += target_serial.$(OBJ)
+endif
+endif
 
 ifneq ($(EHS_FILESYSTEM_SUPPORT),stubbed)
     OBJECTS += target_file.$(OBJ)

@@ -67,6 +67,7 @@
 // which seems to depend on having the GNU macro defined #include
 //"freertos/task.h"
 
+//todo remove the networking inludes we don't do that here any more.
 #include "esp_event.h"
 #include "esp_wifi.h"
 #include "freertos/event_groups.h"

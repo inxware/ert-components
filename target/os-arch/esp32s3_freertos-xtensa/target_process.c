@@ -36,11 +36,13 @@
 #include "hal-api.h"
 #include "target_process.h"
 #include "freertos/FreeRTOSConfig.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_pthread.h"
 
 
 #include <errno.h>
 #include <stdio.h>
-//#include <pthread.h>
 #include "esp_system.h"
 #include "esp_log.h"
 #ifdef TAG
@@ -284,7 +286,10 @@ EHS_GLOBAL pid_t* EhsT_pidTcpIp;
  */
 void EhsTargetExit(ehs_uint16 exitCode)
 {
-    printf("EhsTargetExit %d\n",exitCode);
+    /* UART only - the tools console is kernel-only. Short sleep before
+     * esp_restart so the UART drains. */
+    printf("**REBOOT (EhsTargetExit) code=%d ret=%p\n", (int)exitCode, __builtin_return_address(0));
+    EhsSleep(EHS_TIME_ms(100));
     esp_restart();
 }
 
@@ -487,7 +492,7 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
 */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
+EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize,ehs_char *_szThreadName)
 {
     EhsTPThread thread;
     pthread_attr_t tattr_param;
@@ -532,6 +537,16 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
     /* cast pfRun to return void* with one arg of void* */
 
     /* @todo : We need to clone the instance data here, this required the size of the object to be known outside of the component, and housekeeping (garbage collection) is required for terminated threads that do not use a terminate or proper completion exit path..*/
+
+    /* ESP-IDF's pthread wrapper names every thread it creates, which helps trace stack overflows */
+    if (_szThreadName != NULL )
+    {
+        esp_pthread_cfg_t cfg = esp_pthread_get_default_config();
+        char szThreadName[24]; // limit the width - or a useless copy
+        EhsSnprintf(szThreadName, sizeof(szThreadName), _szThreadName, (int)stackSize);
+        cfg.thread_name = szThreadName;
+        (void)esp_pthread_set_cfg(&cfg);
+    }
     ret=pthread_create(&thread,&tattr_param,(void*(*)(void*))pfRun,context);
     pthread_attr_destroy(&tattr_param);
     switch ( ret )
@@ -539,6 +554,7 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
     case	0 : // this is good
         break;
     case 	EAGAIN :
+    //printf("ERROR Could not create thread: no resources\n");
         EHSH_LOG_ERROR("ERROR Could not create thread: no resources");
         break;
     case	EINVAL :
@@ -548,7 +564,8 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
         EHSH_LOG_ERROR("ERROR Could not create thread: Client does not have necessary permissions");
         break;
     default:
-        EHSH_LOG_ERROR("ERROR Could not create thread: Unknown Error");;
+    //printf("ERROR Could not create thread: Unknown Error\n");
+        EHSH_LOG_ERROR("ERROR Could not create thread: Unknown Error");
     }
     //ret = pthread_attr_destroy(&tattr);
     return (ret == 0);
@@ -566,7 +583,7 @@ EHS_LOCAL pthread_mutex_t EhsProcess_mutexDevmanNewMiscDLData = PTHREAD_MUTEX_IN
  ehs_bool EhsProcessInitMutex(EhsTPMutexClass *reftoMutex) 
  {
     if (*reftoMutex == NULL ) {
-        *reftoMutex = (EhsTPMutexClass*)&EhsProcess_mutexDevmanNewMiscDLData;
+        *reftoMutex = (EhsTPMutexClass)&EhsProcess_mutexDevmanNewMiscDLData; /* EhsTPMutexClass is already a pointer */
     }
     else {
         EHSH_LOG_ERROR("Refused to Assig mutexDevmanNewMiscDLData Twice!");
@@ -579,7 +596,7 @@ EHS_LOCAL pthread_cond_t condDevmanNewMiscDLData = PTHREAD_COND_INITIALIZER;
  ehs_bool EhsProcessInitCond(EhsTPConditionClass * refToCond)
  { 
     if (*refToCond == NULL ) {
-        *refToCond = (EhsTPConditionClass*)&condDevmanNewMiscDLData;
+        *refToCond = (EhsTPConditionClass)&condDevmanNewMiscDLData; /* EhsTPConditionClass is already a pointer */
     }
     else {
         EHSH_LOG_ERROR("Refised to assigning mutexDevmanNewMiscDLData Twice!");
@@ -617,7 +634,24 @@ ehs_bool EhsTP_shellExecuteStdout(char* sZstdout,const char * szCmd, int max_buf
 
 void EhsTargetReboot( void )
 {
+    /* Mirror to TCPIP console (in addition to the runtime logger which may
+     * be filtered/down level) and sleep briefly before esp_restart so the
+     * TCPIP buffer can flush. Without this a remote dev sees an
+     * unexplained rst:0x3. */
     EHSH_LOG_INFO("Target Rebooting...");
-    EhsApplicationReset();
+    EhsSleep(EHS_TIME_ms(100));
+    // We never really wanted to do this Biz logic here did we? EhsApplicationReset();
     esp_restart();
+}
+
+ehs_sint32 EhsHProcess_getStackRemaining(void)
+{
+#ifdef EHS_STACK_MONITORING_ENABLED
+    /* uxTaskGetStackHighWaterMark(NULL) is in StackType_t units, not bytes - see the
+     * doc comment on the prototype (hal_process.h) for the historical-low-water-mark
+     * caveat. INCLUDE_uxTaskGetStackHighWaterMark defaults on for ESP-IDF. */
+    return (ehs_sint32)(uxTaskGetStackHighWaterMark(NULL) * sizeof(StackType_t));
+#else
+    return -1;
+#endif
 }

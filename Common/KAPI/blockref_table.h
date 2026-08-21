@@ -127,11 +127,63 @@ So for now:
 
 
 /**
+ * Number of toolkit slots in EhsToolkitTable. THE single source of truth, defined
+ * here in the one header both EHS-kernel and ert-components compile, so the struct
+ * has an identical layout on both sides by construction.
+ *
+ * This used to be EHS_MAX_TOOLKITS, defined independently by each repo - 12/8 in
+ * the kernel's base_full/base_small kernel_config.h against 10-12 computed in
+ * ert_components_config.h here. Two separately-configured numbers sizing one shared
+ * struct meant sizeof(EhsToolkitTableType) could differ between the kernel archive
+ * and the components that link against it, putting nNumToolkits at a different
+ * offset in each view. The kernel defines the object; this repo only declares it
+ * extern.
+ *
+ * It is not per-platform configurable, deliberately. Two reasons:
+ *
+ *  1. It cannot be, safely. Both repos must agree on the array length, and each has
+ *     its own target/platform/<T>/target_config.h - so a per-platform value would
+ *     have to be written twice and kept equal by hand, which is exactly the defect
+ *     this replaced. Publishing it at run time (as EhsTargetConfigInfo does for the
+ *     data connection row) cannot work either: an array length is needed at compile
+ *     time.
+ *  2. There is nothing worth tuning. This is ONE global object holding POINTERS to
+ *     toolkit tables - not the tables themselves, which are static const
+ *     EhsBlockRefType[] arrays in ert-components and sit in rodata/flash. So the
+ *     whole cost is 12 pointers plus a ehs_uint16: about 52 bytes on a 32-bit
+ *     target and 104 on 64-bit, once. The old base_small value of 8 saved 16 bytes
+ *     on an MCU while risking a silent layout mismatch.
+ *
+ * 12 covers the worst case with room to spare: EhsAddStaticModules has 11 live
+ * registration sites of which two (EhsBlockRefTable_Media) are mutually exclusive
+ * #ifdef arms, so at most 10 toolkits can register in any one build.
+ *
+ * If a build ever needs more, raise this ONE number. It changes
+ * sizeof(EhsToolkitTableType), so both repos must be rebuilt and regression-tested
+ * together.
+ */
+#define EHS_TOOLKIT_TABLE_SLOTS 12
+
+/* Backwards-compatible alias. Nothing in either repo defines EHS_MAX_TOOLKITS any
+ * more - it now defaults to the capacity, so the registration bound in the kernel's
+ * EhsToolkitTable_addTable matches the array it is guarding. Retained only so
+ * out-of-tree code that still references or defines the old name keeps working: a
+ * smaller value is honoured as a registration limit (harmless), and a larger one is
+ * a build error rather than an overrun. */
+#ifndef EHS_MAX_TOOLKITS
+#define EHS_MAX_TOOLKITS EHS_TOOLKIT_TABLE_SLOTS
+#endif
+
+#if EHS_MAX_TOOLKITS > EHS_TOOLKIT_TABLE_SLOTS
+#error "EHS_MAX_TOOLKITS exceeds EHS_TOOLKIT_TABLE_SLOTS - raise EHS_TOOLKIT_TABLE_SLOTS in blockref_table.h (and rebuild BOTH repos, it changes sizeof(EhsToolkitTableType))"
+#endif
+
+/**
  * Declares a type containing a set of block reference tables, each corresponding to a toolkit
  */
 typedef struct
 {
-    EhsBlockRefType* pxRefTable[EHS_MAX_TOOLKITS];  /**< Reference to the toolkits */
+    EhsBlockRefType* pxRefTable[EHS_TOOLKIT_TABLE_SLOTS];  /**< Reference to the toolkits. Length is the shared constant above, not a per-repo config value. */
     ehs_uint16 nNumToolkits; /**< Number of toolkits in the table */
 } EhsToolkitTableType;
 

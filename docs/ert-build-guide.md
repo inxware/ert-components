@@ -4,13 +4,26 @@
 
 # Build Machine & System Requirements
 
-In general inxware runtimes are built  using Ubuntu 22.04 machines or a machine that can support the following packages
+Two host configurations are supported:
 
-* **build-essentials** (GNU Make and host Toolchains)
-* **Git & Git-LFS** (For downloading this Repo and the dependency repos )
-* **Docker** (Used for building in dependency specific environments )
+| Host                       | Supported use                                                      |
+|----------------------------|--------------------------------------------------------------------|
+| Ubuntu 22.04 (x86_64)      | All targets — native Linux builds and Docker cross-compilation     |
+| macOS 12+ Intel (x86_64)   | `macos_x86_64_clang` native build only; Docker targets also work   |
 
-Other dependencies and tools should be installed using specific methods e.g. the ert-runtime environment is created by running `make prepdeps` in the `ert-components` repo (see below). This will install the remaining requirements on a debian machine, though we aim to use docker images as much as possible to contain tools (BUT NOT CODE!).  There may be other dependencies needed for building the tools etc. on windows.
+> **Apple Silicon (arm64):** not yet validated. The `macos_x86_64_clang` target
+> produces an Intel x86_64 binary; Homebrew library paths are hardcoded to the
+> Intel prefix (`/usr/local/opt`). Rosetta 2 may work but is untested.
+
+All hosts require the following before running `make prepdeps`:
+
+* **Build toolchain** — `build-essential` (Linux) or Xcode Command Line Tools (macOS)
+* **Git & Git-LFS** — for cloning this repo and its dependency repos
+* **Docker** — for cross-compilation targets (not required for the macOS native build)
+
+Running `make prepdeps` installs all remaining requirements automatically.
+On macOS it uses Homebrew; on Debian/Ubuntu it uses apt.
+There may be additional dependencies for Windows builds (not documented here).
 
 # eRT Build Overview
 
@@ -71,7 +84,7 @@ Also See the following documents for more details in eRT’s architecture:
 
 This section should provide only necessary information for an internal inx technical product manager (i.e. not just a developer) to be able to create a release of inxware-based products. The content of this section should provide a general overview of the process and components involved and how things SHOULD work.
 
-### Starting from Scratch
+### Starting from Scratch — Linux (Ubuntu 22.04)
 
 System requirements: Ubuntu 22.04 or later is Recommended (64 bit almost essential)
 
@@ -97,7 +110,85 @@ cd ../TARGET_TREES/ehs-env_linux_x86_64_gtk_gst_debian11/bin
 ./ehs.exe
 ```
 
-The final step will run eRT on a Debian/Ubuntu host and wait to accept an application from the inxware tools. See here to build and run the [tools](https://docs.google.com/document/u/0/d/16p4iZMkgj_46SH9fl4PSG2FGREKYv0jCDF66OfWDnoM/edit) on  linux.
+The final step will run eRT on a Debian/Ubuntu host and wait to accept an application from the inxware tools. See here to build and run the [tools](https://docs.google.com/document/u/0/d/16p4iZMkgj_46SH9fl4PSG2FGREKYv0jCDF66OfWDnoM/edit) on linux.
+
+### Starting from Scratch — macOS (Intel x86_64)
+
+**Confirmed working on:** macOS Monterey 12.x, Apple CLT 14.0, Homebrew (Intel).
+**Apple Silicon (arm64):** untested — see note in [System Requirements](#build-machine--system-requirements).
+
+#### System prerequisites (one-time, manual)
+
+1. **Xcode Command Line Tools** — provides `clang`, `ar`, `make`, and the macOS SDK
+   which supplies `libz`, `libexpat`, and `libcurl` as system stubs:
+   ```bash
+   xcode-select --install
+   ```
+
+2. **Homebrew** — needed for the two link-time dependencies not in the SDK:
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+3. **Docker Desktop** — only needed for cross-compilation targets (ESP32, ARM Linux,
+   etc.). **Not required** for the `macos_x86_64_clang` native build.
+   ```bash
+   brew install --cask docker   # then launch Docker.app once to complete setup
+   # OR download from https://www.docker.com/products/docker-desktop/
+   ```
+   *(BEST GUESS — the `--cask` install flow has not been tested end-to-end.)*
+
+#### Homebrew packages installed automatically by `make prepdeps`
+
+| Package      | Version tested | Why needed                                              | Notes                           |
+|--------------|----------------|---------------------------------------------------------|---------------------------------|
+| `git-lfs`    | any            | Cloning LFS-enabled dependency repos                   | Not in macOS or Xcode CLT       |
+| `libarchive` | 3.8.7          | Archive unpacking at runtime (`archive_unpack`)        | Keg-only; path wired in target.mk |
+| `libidn2`    | 2.3.8          | Hostname internationalisation used by the network stack | Linked from `/usr/local/lib`    |
+
+Libraries supplied by the macOS SDK (no Homebrew needed):
+
+| Library    | Source                              |
+|------------|-------------------------------------|
+| `libz`     | macOS SDK (`/usr/lib/libz.tbd`)     |
+| `libexpat` | macOS SDK (`/usr/lib/libexpat.tbd`) |
+| `libcurl`  | macOS SDK (`/usr/lib/libcurl.tbd`)  |
+| `libc++`   | Xcode CLT (Apple libc++)            |
+
+#### Build sequence
+
+```bash
+# 1. Install system prerequisites (Xcode CLT + Homebrew) — see above, one-time only
+
+# 2. Clone and prepare dependencies
+mkdir inxware && cd inxware
+git clone ssh://git@github.com:inxware/ert-components.git
+cd ert-components
+./configure macos_x86_64_clang
+make prepdeps          # installs git-lfs, libarchive, libidn2 via Homebrew
+                       # and clones ert-build-support + ert-contrib-middleware
+
+# 3. Build the EHS kernel natively (no Docker image exists for macOS)
+cd ../EHS-kernel
+./configure macos_x86_64_clang_ehrt1
+make all               # produces libehs_ehrt1.a and installs it to
+                       # ../ert-build-support/support_libs/target_libs/x86_64-darwin/kernel/
+cd ../ert-components
+
+# 4. Build ert-components
+make all               # compiles and links; no Docker required
+make targetenv         # assembles staging directory
+
+# 5. Run
+cd ../TARGET_TREES/ehs_env-macos_x86_64_clang/bin
+./ehs.exe
+```
+
+> **Note on `make prepdeps` vs `make all_docker`:** on macOS the `make prepdeps`
+> step also prompts you to build the EHS kernel if the archive is missing. Use
+> `make all` (not `make all_docker`) for the macos_x86_64_clang target — there
+> is no Docker image for this platform and `make all_docker` will fall back to a
+> host build anyway, but `make all` is clearer and faster.
 
 ### eRT Build System General Reference
 
@@ -171,23 +262,99 @@ The above Android target build gets built in following stages:
 
 ## Unity (e.g. signage) Android Builds
 
-#### **Setup UnityHub and Licence (Skip this!!! Only do it if this fails, which probably means you have installed it and signed the license).**
+### Unity Version per Target
 
-####  **make targetenv_unity_export**
+Each Unity target declares the Unity version it requires via `EHS_UNITY_VERSION` in its
+`target/platform/<TARGET>/config.mk`. The export script picks this up automatically; no
+manual version editing is needed.
 
-**(needs to be done only once. if not present on your machine!)**
+| Android ABI | Unity version | Reason |
+|---|---|---|
+| armeabi-v7a (32-bit ARM) | 2022.3.x LTS | Unity 6 dropped 32-bit ARM support |
+| arm64-v8a (64-bit ARM) | 6000.x (Unity 6) | Full Unity 6 support on 64-bit |
 
-1. Install Unity3d Hub (We don'tprovide this in docker for licensing reasons)
-   * Install following dependencies
-      1. sudo apt-get install gconf2
-   * Download the Unity Hub from  [https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)
-   * chmod +x ./UnityHub.AppImage
-   * Run the hub, login and setup your licence (use inx developer account ) [developer@inx-systems.com](mailto:developer@inx-systems.com):HelloUnity101
-   * Press the activate new license button if there’s no licenses shown (Choose personal use if this is the case).
+The default fallback (if `EHS_UNITY_VERSION` is unset) is `2022.3.62f3`. All current
+32-bit ARM targets inherit from `linux_android_arm_unity-tellisign/config.mk` which sets
+this value; 64-bit targets set it in their own `config.mk`.
 
-## Build Entire Platform (including Supervisor)
+### Installing Unity on the Build Host
 
-Commands for building Android Unity targets with supervisor and updates.
+Unity must be installed locally — Docker-based Unity builds require a seat license that
+is not freely activatable headlessly. Use the provided installer script:
+
+```bash
+./scripts/build-deploy/unity/install-unity-host.sh
+```
+
+This installs Unity Hub via APT and prints step-by-step instructions for installing
+the correct Unity editor version with Android Build Support (Android SDK, NDK, OpenJDK)
+via the Unity Hub GUI. The expected install path is:
+
+```
+/opt/unity3d/<UNITY_VERSION>/Editor/Unity
+```
+
+The export script searches for Unity in this order:
+1. `$UNITY_HOST_EDITOR_PATH` environment variable (explicit override)
+2. `/opt/unity3d/<VERSION>/Editor/Unity` (standard install path)
+3. `find /opt $HOME/TOOLS` for a binary matching the version string
+4. `/opt/unity/Editor/Unity` (GameCI Docker image path, for CI use)
+
+Android SDK licences are accepted automatically on first run. A sentinel file
+`<UNITY_INSTALL>/Editor/licence_checked` prevents re-running on subsequent builds.
+
+### Android Studio Template Configuration
+
+Each Unity version requires a matching Android Studio template under
+`target/os-arch/android_ALL/`. The template provides the Gradle build files,
+signing configuration, and asset layout that are overlaid on Unity’s raw export.
+
+The template directory is **automatically derived** from `EHS_UNITY_VERSION` using the
+major.minor portion of the version string. For example:
+
+| `EHS_UNITY_VERSION` | Template directory auto-selected |
+|---|---|
+| `2022.3.62f3` | `android_studio_unity_ehs_2022.3` |
+| `6000.4.1f1` | `android_studio_unity_ehs_6000.4` |
+
+No extra variable needs to be set in `config.mk`. To override the convention (e.g. for
+a non-standard template layout), set `EHS_UNITY_ANDROID_STUDIO_TEMPLATE` explicitly in
+`config.mk` — this takes precedence over the derived name.
+
+Template SDK versions currently in use:
+
+| Template directory | Unity version | SDK / build-tools |
+|---|---|---|
+| `android_studio_unity_ehs_2022.3` | 2022.3.x LTS | compileSdk 34, buildTools 34.0.0 |
+
+> When a Unity 6 app target is needed, create `android_studio_unity_ehs_6000.4` with
+> `compileSdkVersion 36` / `buildToolsVersion ‘36.0.0’` to match Unity 6’s bundled SDK.
+> No `config.mk` change is needed — setting `EHS_UNITY_VERSION=6000.4.x` is sufficient.
+
+**Important:** The `compileSdkVersion` and `targetSdkVersion` in the template must
+match the SDK platforms bundled with the Unity install being used. A mismatch (e.g.
+targeting SDK 29 with a Unity install that only ships SDK 34+) causes a JNI class
+loader failure at runtime where `libunity.so` cannot resolve
+`com/unity3d/player/UnityPlayer`.
+
+### Gradle and Java Requirements
+
+The Unity Android APK build uses Gradle 7.6.1 with Android Gradle Plugin 7.4.2.
+These versions were chosen to support Java 17 (bundled with Unity 2022.3+) and modern
+build-tools (29+) which no longer ship the legacy `dx` binary required by AGP 4.x.
+
+The `gradle.properties` template includes the `--add-opens` JVM flags required for
+AGP 7.x to run under Java 17:
+
+```
+org.gradle.jvmargs=-Xmx4096M \
+  --add-opens=java.base/java.io=ALL-UNNAMED \
+  --add-opens=java.base/java.lang=ALL-UNNAMED \
+  --add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
+  --add-opens=java.base/java.util=ALL-UNNAMED
+```
+
+### Build Entire Platform (including Supervisor)
 
 ```bash
 # build 64-bit eRT plugin required by all Unity targets
@@ -202,45 +369,135 @@ make clean
 make targetenv_cleanall       # needed ONLY when Unity C# project needs updating
 make all_docker
 make targetenv
-make targetenv_unity_export
-make targetenv_apk            # targetenv_apk_docker doesn’t seem to work for some reason?
+make targetenv_unity_export   # exports Unity project and overlays Android Studio template
+make targetenv_apk            # builds and signs the APK using Gradle
 
-# bundles supervisor and updates for deployment (only used for managed devices)
+# bundle supervisor and updates for deployment (only used for managed devices)
 make targetenv_android_dep_pack
 
-# deploying to server
+# deploy to server
 make upload_ehs_sys_patch
 ```
 
-Note the above seems to be broken when building with docker.
+### Entity Relationships and Build Flow
 
-============================================================
-Notes:
+There are three distinct Android/Unity project entities. Understanding their relationship
+explains why Unity does not produce the final APK directly.
 
-1. Make libraries (e.g. 64 bit)
-2. Make base .so (usually 32 bit)
-3. Make (do unity thing) -> We need a new **make targetenv_unity_export**
-   1. Exports a unity IDE project containing all (compiles c# code to mono binary) -> ….xxx.so. (**Potentially these could be stored in an ert-contrib-middleware).**
-   2. Exports this as an android studio project.
-   3. We then add JNI / Java script to the android studio project.
-4. Make targetenv_apk
+The `TARGET_TREES` directory is a sibling of `ert-components` in the workspace root
+(e.g. `~/workspace/inxware/TARGET_TREES`). Each configured target gets its own
+subdirectory: `TARGET_TREES/ehs_env-<TARGET>/`. All staging paths below are relative
+to that directory (e.g. `TARGET_TREES/ehs_env-linux_android_arm_p64_h6_unity-tellisign/`).
 
-Tellisign - needs both 32 and 64 bit versions.
+```
+ert-components repository                   TARGET_TREES/ehs_env-<TARGET>/  (staging)
+────────────────────────────────────────    ──────────────────────────────────────────
+                                            android_studio_project/   ← Gradle builds APK here
+target/os-arch/android_ALL/
+  Unity_EHS/                 ──[copy+inject]──►  Unity_EHS/           ← Unity opens this
+    Assets/Libs/arm/                                Assets/Libs/arm/
+      libnative-activity.so  ◄──────────────────── ehs_<target>.so   (copied from make all)
+    Assets/Editor/
+      BuildScript.cs                           [Unity batch export]
+    Assets/Plugins/Android/                         │
+      mainTemplate.gradle    ───────────────────────┤
+      gradleTemplate.properties                     │
+                                                    ▼
+  android_studio_unity_ehs_2022.3/      android_studio_project/
+    launcher/build.gradle    ──[overlay]──►  launcher/          ← APK launcher module
+    gradle.properties        ──[overlay]──►  gradle.properties  ← signing keys, SDK props
+    launcher/src/...         ──[overlay]──►  launcher/src/      ← launcher Java source
+       (UnityPlayerActivity.java)
+                                             unityLibrary/       ← Unity library module
+                                               build.gradle      ← generated by Unity from
+                                               (BuildIl2Cpp        mainTemplate.gradle;
+                                                Gradle task)        contains IL2CPP build task
+                                               src/main/
+                                                 jniLibs/         ← libunity.so, libmain.so
+                                                 Il2CppOutputProject/ ← C++ source (IL2CPP)
 
-1. Prior step to build 64 bit plugin - should be in ../TARGET-TREE/…plugins/… libehs.so (e.g.).
-   1. This is checked during make targetenv - but not used - just a warning is issues before targetnv_version etc. is called.
-2. Why do we get Android Studio differently  - Should be the same or docker.
-   1. E.g. to avoid the gradle version problem.
-3. We need to export Unity’s project to our own android studio so we can add more code to it when it is built.
-   1. Potentially this should be in ert-build-support?
-   2. Unzipped to ../ next to ert-components.
-4. Unity has android gcc & gradle toolchains (all of Android SDK) in the zip file and we need to use this.
-5. Things we copy into the Vanilla Unity project (where are the follows):
-   1. Knows about the ehs plugins
-   2.  Adds certificates
-6. Uses mono to build the unity app code.
-7. Updated the build version stuff.
-8. Android has JNI stuff and Java - which is not needed for windows below.
+  android_studio_ehs/
+    media/                   ──[copy]──────►  android_studio_ehs/
+    utils/                                      media/           ← EHS media Java module
+                                                utils/           ← EhsJNI, EhsLogger
+```
+
+**The three entities:**
+
+**1. `Unity_EHS` — the Unity source project** (`target/os-arch/android_ALL/Unity_EHS`)
+
+The Unity 3D project containing the C# application code (scenes, scripts, assets).
+It is not modified during builds — a fresh copy is made to `TARGET_TREES` each time.
+The eRT native plugin (`libnative-activity.so`) is injected into `Assets/Libs/` before
+Unity opens it. Custom Gradle templates in `Assets/Plugins/Android/` control how
+Unity generates the exported Android project.
+
+**2. `android_studio_project` — Unity's exported Android Studio project** (staging, in `TARGET_TREES`)
+
+Unity's output from `BuildScript.Android`. Unity does **not** build an APK — it exports
+a Gradle project. This project contains:
+- `unityLibrary/` — the Unity library module with pre-built `libunity.so`, `libmain.so`,
+  and the full IL2CPP C++ source tree (`Il2CppOutputProject/`). The `build.gradle` here
+  is generated by Unity from `mainTemplate.gradle` and contains a `BuildIl2Cpp` Gradle
+  task that compiles the C++ source into `libil2cpp.so` during the Gradle build.
+- `launcher/` — a thin Android Activity launcher.
+
+After Unity exports, the `android_studio_unity_ehs_2022.3` template is overlaid to add
+the signing configuration (`gradle.properties`), the EHS-customised launcher activity
+(`UnityPlayerActivity.java`), and the `unityStreamingAssets` property.
+
+**3. `android_studio_ehs` — the EHS Android Java modules** (`target/os-arch/android_ALL/android_studio_ehs`)
+
+Pure Java modules (`media`, `utils`) that provide the bridge between Android and the
+ERT native runtime:
+- `utils`: `EhsJNI` (native initialisation), `EhsLogger`
+- `media`: `EhsMediaHandler` (video/image sources routed to Unity via `UnitySendMessage`)
+
+These are copied alongside the Unity export and included as Gradle subprojects so that
+`unityLibrary/build.gradle` can reference them as `implementation project(path: ':media')`.
+
+**Why Gradle builds the APK, not Unity:**
+
+Unity's "Export to Google Android Project" is intentional — Unity transpiles C# to C++
+(IL2CPP) and writes the source to `Il2CppOutputProject/`, but leaves the native
+compilation to the platform's NDK toolchain via Gradle. This allows the build to use
+the exact NDK version bundled with Unity without requiring Unity to be re-run every time
+a signing key or SDK version changes. The `BuildIl2Cpp` Gradle task in the exported
+`unityLibrary/build.gradle` invokes the IL2CPP compiler binary directly
+(`Il2CppOutputProject/IL2CPP/build/deploy/il2cpp`) to produce `libil2cpp.so`, which
+`libmain.so` loads at runtime via `dlopen`. The APK therefore contains:
+
+| Library | Source | Required for |
+|---|---|---|
+| `libunity.so` | Pre-built by Unity, shipped in Unity install | Unity engine runtime |
+| `libmain.so` | Pre-built by Unity | JNI entry point, bootstraps Unity |
+| `libil2cpp.so` | **Compiled by Gradle** from IL2CPP C++ source | All C# game logic |
+| `libnative-activity.so` | Built by `make all` from ert-components | eRT runtime |
+
+### How the Unity Export Works (step by step)
+
+All staging paths are under `TARGET_TREES/ehs_env-<TARGET>/` (a sibling directory of
+`ert-components` in the workspace root, e.g. `~/workspace/inxware/TARGET_TREES/ehs_env-linux_android_arm_p64_h6_unity-tellisign/`).
+
+1. `make all` builds the eRT native plugin → `ehs_<target>.so` (in `ert-components/` root)
+2. `make targetenv` stages it into `TARGET_TREES/ehs_env-<TARGET>/`
+3. `make targetenv_unity_export`:
+   - Cleans and re-creates `TARGET_TREES/ehs_env-<TARGET>/android_studio_project/`
+   - Copies `Unity_EHS` source project to `TARGET_TREES/ehs_env-<TARGET>/Unity_EHS/`
+   - Injects the eRT `.so` into `Unity_EHS/Assets/Libs/` (arm/ and/or arm64/)
+   - Removes Unity-version-incompatible Gradle templates for Unity 6000.x targets
+   - Runs Unity in batch mode (`-executemethod BuildScript.Android`), which writes to
+     `android_studio_project/`:
+     - Transpiles C# → C++ (IL2CPP) into `unityLibrary/src/main/Il2CppOutputProject/`
+     - Generates `unityLibrary/build.gradle` (with `BuildIl2Cpp` task) from `mainTemplate.gradle`
+     - Copies `libunity.so`, `libmain.so` to `unityLibrary/src/main/jniLibs/`
+   - Overlays `android_studio_unity_ehs_<major.minor>/` template onto `android_studio_project/`
+     (adds signing config, launcher source, `gradle.properties`)
+   - Copies `android_studio_ehs/` modules to `TARGET_TREES/ehs_env-<TARGET>/android_studio_ehs/`
+4. `make targetenv_apk` runs Gradle from `android_studio_project/`, which:
+   - Executes `BuildIl2Cpp` → compiles C++ source → `unityLibrary/src/main/jniLibs/armeabi-v7a/libil2cpp.so`
+   - Packages all `.so` files, assets, and Java bytecode into a signed APK at
+     `android_studio_project/launcher/build/outputs/apk/release/launcher-release.apk`
 
 ## Windows Unity Builds
 

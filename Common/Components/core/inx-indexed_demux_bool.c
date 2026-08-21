@@ -77,7 +77,7 @@ EHS_FB_INIT_FUNCTION(indexed_demux_bool)
     inx_indexed_demux_bool_state_type* inx_indexed_demux_bool_state = (inx_indexed_demux_bool_state_type*)EHS_FB_INIT_CONTEXT;
     inx_indexed_demux_bool_state->default_v = INX_FB_indexed_demux_bool_default;
     /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d",&inx_indexed_demux_bool_state->default_v);
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhu",&inx_indexed_demux_bool_state->default_v); /* ehs_bool */
 
     /* Add any further intialisation code here */
     return bRet; /* initialisation always succeeds */

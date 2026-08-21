@@ -12,8 +12,17 @@ function WriteInitDFile {
     echo "# Provides:  ehs" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
 
     # TODO This should just be a wait for network flag in the config.mk file
-    echo "# Required-Start: $network $local_fs" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
-    
+    # TODO Ambifier2 - should also stop depending on csdctl?
+    if [  "${SYSTEM_VARIANT}" = "ambifier" -o "${SYSTEM_VARIANT}" = "ambifier-debug" \
+    -o "${SYSTEM_VARIANT}" = "ambifier2" -o "${SYSTEM_VARIANT}" = "ambifier2-debug" \
+    -o "${SYSTEM_VARIANT}" = "ambifier2-deb11" -o "${SYSTEM_VARIANT}" = "ambifier2-adnoc" ]; then
+
+        echo '# Required-Start: $network $local_fs' >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
+        echo '# Should-Start: csdctl' >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs" 
+    else
+        echo "# Required-Start: $network $local_fs" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
+    fi
+
     echo "# Required-Stop:" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
     echo "# Default-Start:  2" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"
     echo "# Default-Stop:  0 1 6" >> "${DEBIAN_WORKING_BASE}/debian/etc/init.d/run_ehs"

@@ -63,8 +63,10 @@ ifdef EHS_VIDEO_SUPPORT
 # OBJECTS += dtv_remote.$(OBJ) # already included in dtv.mk
 endif
 ifdef EHS_MV_SUPPORT
+ifneq ($(EHS_MV_SUPPORT),none)
 ifdef EHS_ML_SUPPORT
 OBJECTS += inx-ml_frame_inference.$(OBJ)
+endif
 endif
 endif
 

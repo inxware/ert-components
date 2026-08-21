@@ -13,8 +13,20 @@
 #EHS_PERIPHERALS_GUI_KEYBOARD=yes
 #EHS_PERIPHERALS_RCU=yes
 
-# We get the GTK library headers and binaries from different places depending on the platform...
-ifneq ($(EHS_HOST_DEBIAN_BUILD),)
+# We get the Qt/GTK library headers and binaries from different places depending on the platform...
+ifeq ($(EHS_OS), macos)
+# macOS: Qt6 from Homebrew.  Intel Homebrew prefix is /usr/local/opt/qt.
+# Qt frameworks use absolute install names so no -rpath is needed at runtime.
+	QT_BREW_PREFIX = /usr/local/opt/qt
+	CXX_INC_DIRS += $(QT_BREW_PREFIX)/include
+	LNKFLAGS += -F$(QT_BREW_PREFIX)/lib
+	LNKFLAGS += -framework QtCore -framework QtGui -framework QtQml -framework QtQuick
+	CPPFLAGS += -std=c++17
+	ifdef EHS_GUI_SUPPORT_QT6
+		DEFS += EHS_GUI_SUPPORT_QT6
+	endif
+
+else ifneq ($(EHS_HOST_DEBIAN_BUILD),)
 	ifneq ($(filter 9 10 11 12 13,$(EHS_DEBIAN_VERSION)),)
 		EHS_PNG_LIB_DEFAULT = png16
 	else
@@ -256,11 +268,23 @@ endif
 # Qt5 requires position-independent code
 CPPFLAGS += -fPIC
 
-# Disable PIE for linking (kernel library may not be compiled with -fPIE)
+# Disable PIE for linking (kernel library may not be compiled with -fPIE).
+# macOS enforces PIE on 64-bit binaries — skip there.
+ifneq ($(EHS_OS), macos)
 LD_SWITCHES += -no-pie
+endif
 
 # ert-component objects that need building and linking:
 OBJECTS += target_viewport.$(OBJ)
 OBJECTS += targetgfx_init.$(OBJ)
 OBJECTS += ertqt.$(OBJ)
 OBJECTS += qt_main_integration.$(OBJ)
+OBJECTS += hal_ui_binding_qt.$(OBJ)
+
+# We always want data binding when build QT, but will only force if not forced off. 
+#ifeq ($(EHS_UI_BINDING_SUPPORT),none)
+#EHS_UI_BINDING_SUPPORT=qt
+#endif
+ifndef EHS_UI_BINDING_SUPPORT
+EHS_UI_BINDING_SUPPORT=qt
+endif

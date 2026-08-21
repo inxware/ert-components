@@ -313,7 +313,7 @@ EHS_FB_RUN_FUNCTION(json_parser_str_parse)
                     // Copy the string to the output buffer
                     if (EHS_FB_OUT_CONNECTED_API2(output[i]))
                     {
-                        EhsSprintf(EHS_FB_OUT_S_API2(output[i]), "%.*s", json_array[value_index].end - json_array[value_index].start, &json_string[json_array[value_index].start]);
+                        EhsSnprintf(EHS_FB_OUT_S_API2(output[i]), EHS_FB_OUT_S_CAP_API2(output[i]), "%.*s", json_array[value_index].end - json_array[value_index].start, &json_string[json_array[value_index].start]);
                     }
                     break;
                 }

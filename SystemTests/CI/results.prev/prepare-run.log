@@ -1,0 +1,124 @@
+Configured TARGET loaded as 'linux_x86_64-lucid-debian11'
+Your Build target is using ert-contrib_middleware:
+  [x86_64-linux-gnu-clang10_clang10_base]
+
+Using EHS kernel from:
+  [/home/pdrezet/workspace1/inxware/ert-components/../ert-kernels/x86_64-linux-gnu-clang10_clang10/kernel/]
+Also including the default ert-contrib middleware include path:
+  [/home/pdrezet/workspace1/inxware/ert-components/../ert-contrib-middleware/target_libs/x86_64-linux-gnu-clang10_clang10_base/build//include/]
+Also including the default ert-contrib middleware library path:
+  [/home/pdrezet/workspace1/inxware/ert-components/../ert-contrib-middleware/target_libs/x86_64-linux-gnu-clang10_clang10_base/build/lib/]
+--BUILD HOST ARCHIECTURE---------------------------------------
+EHS_ARCH                         = 'x86'
+EHS_GNU_ARCH                     = 'x86_64'
+EHS_OS                           = 'linux'
+EHS_GNU_OS                       = 'linux-gnu'
+DEBIAN VERSION                   = '11'
+--COMPONENT TOOLBOXES------------------------------------------
+EHS_PERIPHERALS_GPIO_SUPPORT     = 'gui'
+EHS_PERIPHERALS_PWM_SUPPORT      = ''
+EHS_PERIPHERAL_DEVICE_SUPPORT    = 'all'
+EHS_PERIPHERALS_ADC_DAC_SUPPORT  = 'stubbed'
+EHS_PERIPHERALS_UART_SUPPORT     = 'linux'
+EHS_COMPONENT_NETWORKING_SUPPORT = 'all'
+EHS_PID_SUPPORT                  = 'stubbed'
+EHS_SCHEDULER_SUPPORT            = '1'
+EHS_MODBUS_SUPPORT               = 'stubbed'
+EHS_GUI_SUPPORT                  = 'lvgl'
+EHS_AV_SUPPORT                   = 'ffmpeg'
+EHS_VIDEO_SUPPORT                = 'yes'
+EHS_MEDIA_SUPPORT                = 'all'
+EHS_TOOLKIT_DEPRECATED           = 'yes'
+EHS_MV_SUPPORT                   = 'opencv'
+EHS_ML_SUPPORT                   = 'yes'
+EHS_ML_IE_IMAGE_SUPPORT   = ''
+EHS_ML_HARDWARE_ACCELERATION     = ''
+EHS_MQTT_SUPPORT                 = 'aws_green_grass'
+EHS_LORAWAN_SUPPORT              = 'wio_e5'
+--DEBUGGING LEVELS----------------------------------------------
+EHS_DEBUGALL                     = 'yes'
+EHS_DEBUG_AV                     = 'yes'
+EHS_DEBUG_TCPIP_CONSOLE          = 'yes'
+EHS_DEBUG_TRACE                  = ''
+---------------------------------------------------------------
+Docker already installed
+WARNING: We're not checking the python environment for esp32 tools... find this line and enable if you want to know how...
+Host build tools checked.
+Configured TARGET loaded as 'linux_x86_64-lucid-debian11'
+Your Build target is using ert-contrib_middleware:
+  [x86_64-linux-gnu-clang10_clang10_base]
+
+Using EHS kernel from:
+  [/home/pdrezet/workspace1/inxware/ert-components/../ert-kernels/x86_64-linux-gnu-clang10_clang10/kernel/]
+Also including the default ert-contrib middleware include path:
+  [/home/pdrezet/workspace1/inxware/ert-components/../ert-contrib-middleware/target_libs/x86_64-linux-gnu-clang10_clang10_base/build//include/]
+Also including the default ert-contrib middleware library path:
+  [/home/pdrezet/workspace1/inxware/ert-components/../ert-contrib-middleware/target_libs/x86_64-linux-gnu-clang10_clang10_base/build/lib/]
+--BUILD HOST ARCHIECTURE---------------------------------------
+EHS_ARCH                         = 'x86'
+EHS_GNU_ARCH                     = 'x86_64'
+EHS_OS                           = 'linux'
+EHS_GNU_OS                       = 'linux-gnu'
+DEBIAN VERSION                   = '11'
+--COMPONENT TOOLBOXES------------------------------------------
+EHS_PERIPHERALS_GPIO_SUPPORT     = 'gui'
+EHS_PERIPHERALS_PWM_SUPPORT      = ''
+EHS_PERIPHERAL_DEVICE_SUPPORT    = 'all'
+EHS_PERIPHERALS_ADC_DAC_SUPPORT  = 'stubbed'
+EHS_PERIPHERALS_UART_SUPPORT     = 'linux'
+EHS_COMPONENT_NETWORKING_SUPPORT = 'all'
+EHS_PID_SUPPORT                  = 'stubbed'
+EHS_SCHEDULER_SUPPORT            = '1'
+EHS_MODBUS_SUPPORT               = 'stubbed'
+EHS_GUI_SUPPORT                  = 'lvgl'
+EHS_AV_SUPPORT                   = 'ffmpeg'
+EHS_VIDEO_SUPPORT                = 'yes'
+EHS_MEDIA_SUPPORT                = 'all'
+EHS_TOOLKIT_DEPRECATED           = 'yes'
+EHS_MV_SUPPORT                   = 'opencv'
+EHS_ML_SUPPORT                   = 'yes'
+EHS_ML_IE_IMAGE_SUPPORT   = ''
+EHS_ML_HARDWARE_ACCELERATION     = ''
+EHS_MQTT_SUPPORT                 = 'aws_green_grass'
+EHS_LORAWAN_SUPPORT              = 'wio_e5'
+--DEBUGGING LEVELS----------------------------------------------
+EHS_DEBUGALL                     = 'yes'
+EHS_DEBUG_AV                     = 'yes'
+EHS_DEBUG_TCPIP_CONSOLE          = 'yes'
+EHS_DEBUG_TRACE                  = ''
+---------------------------------------------------------------
+The following dependencies are available for this build:
+--TOOLCHAIN---------------------------------------------------------
+TOOLCHAIN: Using host system compiler
+EHS_BUILD_SYSROOT: Using host system sysroot
+
+--DEPENDENCIES----------------------------------------------------
+EHS KERNEL: /home/pdrezet/workspace1/inxware/ert-components/../ert-kernels/x86_64-linux-gnu-clang10_clang10/kernel/libehs_ehrt1.a - EXISTS
+BUILD SUPP: /home/pdrezet/workspace1/inxware/ert-components/../ert-build-support/support_libs/target_libs/x86_64-linux-gnu-clang10_clang10/build/ - INFO: N/A
+CONTRIB INC: /home/pdrezet/workspace1/inxware/ert-components/../ert-contrib-middleware/target_libs/x86_64-linux-gnu-clang10_clang10_base/build//include/ - EXISTS
+CONTRIB LIB: /home/pdrezet/workspace1/inxware/ert-components/../ert-contrib-middleware/target_libs/x86_64-linux-gnu-clang10_clang10_base/build/lib/ - EXISTS
+--------------------------------------------------------------------
+
+WARNING: Preparing dependencies from private source tree
+Retrieving latest ERT build support repo for x86_64-linux-gnu-clang10_clang10 from ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/ert-components.git/..//ert-build-support.git
+Found existing repo at '..//ert-build-support'. Updating...
+~/workspace1/inxware/ert-build-support ~/workspace1/inxware/ert-components
+Already up-to-date.
+~/workspace1/inxware/ert-components
+Retrieving latest ERT contrib middleware for x86_64-linux-gnu-clang10_clang10 from ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/ert-components.git/..//ert-contrib-middleware.git ...
+Found existing Repo at '..//ert-contrib-middleware/'. Updating...
+~/workspace1/inxware/ert-contrib-middleware ~/workspace1/inxware/ert-components
+Already up-to-date.
+~/workspace1/inxware/ert-components
+Retrieving latest EHS kernel server for x86_64-linux-gnu-clang10_clang10 from ssh://tech-data@dev.inx-systems.net:8822/home/inx-data/data/Repos/ert-components.git/..//ert-contrib-middleware.git ...
+Found existing repo at '..//EHS-kernel.git'. Updating...
+~/workspace1/inxware/EHS-kernel.git ~/workspace1/inxware/ert-components
+Already up-to-date.
+~/workspace1/inxware/ert-components
+
+---------------------------------------------------------------------------------------------------------------------------
+
+Successfully retrieved dependencies for x86_64
+
+---------------------------------------------------------------------------------------------------------------------------
+

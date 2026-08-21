@@ -379,9 +379,9 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint1
             if(label){
                 static const ehs_uint32 UI_OUTPUT_STR_LEN = EHS_STRING_LENGTH_MAX-1;
                 (EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_label_out))[UI_OUTPUT_STR_LEN] = '\0';
-                EhsStrncpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_label_out), label, UI_OUTPUT_STR_LEN);
+                EHS_FB_OUT_S_SET_API2(INX_gui_widget_ARG_create_label_out, label);
             }else{
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_label_out), "");
+                EHS_FB_OUT_S_SET_API2(INX_gui_widget_ARG_create_label_out, "");
             }
             bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_LABEL_CHANGED) ? EHS_TRUE : EHS_FALSE;
         }
@@ -392,7 +392,7 @@ static void gui_widget_event_callback(struct EhsWidgetStruct* pWidget, ehs_uint1
                 const char* str = (const char*)data;
                 static const ehs_uint32 UI_OUTPUT_STR_LEN = EHS_STRING_LENGTH_MAX-1;
                 (EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_data_out))[UI_OUTPUT_STR_LEN] = '\0';
-                EhsStrncpy(EHS_FB_OUT_S_API2(INX_gui_widget_ARG_create_data_out), str, UI_OUTPUT_STR_LEN);
+                EHS_FB_OUT_S_SET_API2(INX_gui_widget_ARG_create_data_out, str);
                 bDataChanged = (event_id & EHS_WIDGET_UI_EVENT_DATA_CHANGED) ? EHS_TRUE : EHS_FALSE;
             }else if(EhsWidgetUI_is_bool_type(pWidget)){
                 // printf("\n*** QT DEBUG: EhsWidgetUI_is_bool_type\n");

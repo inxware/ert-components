@@ -42,9 +42,6 @@ COMPONENT_VARIANT=n8r2
 # Apply esp32 specific targetenv hacks
 INXWARE_TARGETENV_HACKS=esp32
 
-# Export ESP32 platform flag
-export EHS_ESP32=yes
-
 
 #################################################################################################################
 # Debug and Startup Modifiers
@@ -61,7 +58,10 @@ EHS_RUNTIME_LOGGER_ENABLED=no
 EHS_TARGET_NO_MAIN_ARGS=yes
 
 # Reboot after app load
-EHS_TARGET_APPLOAD_RESTARTING_REBOOT=yes
+# NOTE: potentially in conflict with EHS_GUI_SUPPORT=lvgl below - the porting guide
+# says LVGL targets currently need 'yes' (in-place teardown can crash the render
+# thread), but 'no' does work on some platforms. Set 'yes' per-platform if reload hangs.
+EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
 
 
 #################################################################################################################
@@ -146,14 +146,11 @@ EHS_EXCLUDE_XML_PARSER=yes
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# Platform identification
-#DEFS += EHS_ESP32
-
 # Networking stack
 DEFS += EHS_LWIP
 
 # Console/debug buffer sizes
-DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
+DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=1024
 DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=2048
 
 # Numeric type configurations

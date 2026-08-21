@@ -73,7 +73,7 @@ _WIN32_WINNT should be define in target_config.h, but just in case
 // todo2022 - this shouldn't be in here it should be in the target_consoe header o r c file
 #define EHS_TGT_TCP_PORTNUM  11425u			/**< Port number to use for receiving TCP/IP connections */
 
-#define EHS_TGT_TCP_LISTENTIME_us 20000 /**< Time to listen (uS) for incoming TCP/IP data */
+#define EHS_TGT_TCP_LISTENTIME_us 5000 /**< Time to listen (uS) for incoming TCP/IP data */
 #define EHS_TGT_TCP_SUSPENDTIME_us 5000LL /**< Time to sleep (uS) to allow main EHS thread to do processing */
 
 /*lint -emacro( (960), EHS_TGT_TCP_INVALID_SOCKET) Standard definition from Windows header file - proven in use */

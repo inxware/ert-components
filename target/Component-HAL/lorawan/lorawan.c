@@ -7,11 +7,9 @@
 #define EHS_TARGET_LORAWAN_THREADING_SUPPORT
 
 /* START - LoRaWAN target includes - START */
-/* TODO: replace this module-specific include with a generic "lorawan_module.h"
- * once lorawan.c is refactored to call common LoRaWAN_module_* function names.
- * The makefile (lorawan.mk) already selects the correct module subdirectory;
- * this include and the LoRaWAN_wioe5_* call sites below should follow suit. */
-#include "lorawan-wio_e5.h"
+/* TODO: rename each "lorawan_module.h" to "lorawan_<module name>.h" and guard them with build flags.
+ */
+#include "lorawan_module.h"
 
 /* END - LoRaWAN target includes - END */
 
@@ -129,17 +127,34 @@ ehs_lorawan_api_errno_t LoRaWAN_init(e_ehs_lw_target_t target, ehs_sint32 com_po
     e_ehs_lorawan_api_cmd_t temp_cmd;
     for (temp_cmd = 0 ; temp_cmd < E_LORAWAN_API__MAX_VALUE ; temp_cmd++) gEhsLoraApiData.error_ret[temp_cmd] = E_LWAPIERRNO_OK;
     #ifdef  EHS_TARGET_LORAWAN_THREADING_SUPPORT
-    // Start thread
-    EhsHThread_execute(&taskLoRaWAN_execute_cmd, NULL, 0, 3072);
-    #endif//EHS_TARGET_LORAWAN_THREADING_SUPPORT;
-    /* TODO: once lorawan.c is refactored to use common LoRaWAN_module_* names,
-     * this switch-on-target dispatch (and all equivalent ones below) should be
-     * removed.  Each module subdirectory will implement the common interface and
-     * the makefile will select the right module at build time. */
+    /* Worker thread is a one-shot for the firmware lifetime. taskLoRaWAN_execute_cmd
+     * loops on g_lorawan_cmd, which is a file-global and survives app reloads,
+     * so a single long-lived worker correctly serves every app loaded across
+     * the firmware's life. Without this guard, every LoRaWAN_init call (one per
+     * app FB-init) would spawn a fresh worker — after N reloads we'd have N
+     * workers all racing on g_lorawan_cmd.
+     *
+     * Worker stack: 8192. Was 3072, which the rak3112 backend (sx126x-arduino
+     * lmh_send → LoRaMAC → printf logging) overflows under sustained traffic,
+     * silently corrupting adjacent task state and surfacing as a NULL deref in
+     * the kernel event-queue path. Other backends are smaller but the cost of
+     * a generous worker stack here is negligible vs. an unrecoverable crash. */
+    static ehs_bool g_lorawan_worker_started = EHS_FALSE;
+    if (!g_lorawan_worker_started) {
+        EhsHThread_execute(&taskLoRaWAN_execute_cmd, NULL, 0, 8192, "lorawan"); //tdo the stack size should be reconfigurable per platform
+        g_lorawan_worker_started = EHS_TRUE;
+    }
+    #endif//EHS_TARGET_LORAWAN_THREADING_SUPPORT
+    /* TODO: Every LoRaWAN module target should have their dedicated functions
+     *  instead of the common LoRaWAN_module_* names.
+     * Each case in the switch statement should look for whether its very target
+     *  is supported. The Makefile should define an array of module targets instead
+     *  of a single one. */
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
             /**/
-            ret = LoRaWAN_wioe5_init(com_port);
+            ret = LoRaWAN_module_init(com_port);
             if (ret == E_LWAPIERRNO_OK) g_lorawan_cmd = E_LORAWAN_API__IDLE;
             break;
         default:
@@ -157,8 +172,9 @@ ehs_lorawan_api_errno_t LoRaWAN_deinit()
 
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_deinit();
+            ret = LoRaWAN_module_deinit();
             if (ret == E_LWAPIERRNO_OK) g_lorawan_cmd = E_LORAWAN_API__NOT_INTIALISED;
             break;
         default:
@@ -176,8 +192,9 @@ static ehs_lorawan_api_errno_t _LoRaWAN_connect(char *AppKey, char *AppEui, ehs_
     }
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_connect(AppKey, AppEui, mode, DevAddr_ABP, AppSKey, NwkSKey, REPT, RETRY, region, ADR, DR, autoJoin, DevAddr_OUT, class_type, subband, rxwin2_freq, rxwin2_dr, tx_power);
+            ret = LoRaWAN_module_connect(AppKey, AppEui, mode, DevAddr_ABP, AppSKey, NwkSKey, REPT, RETRY, region, ADR, DR, autoJoin, DevAddr_OUT, class_type, subband, rxwin2_freq, rxwin2_dr, tx_power);
             break;
         default:
             ret = -100;
@@ -237,8 +254,9 @@ static ehs_lorawan_api_errno_t _LoRaWAN_send_msg(char *payload, int fport, ehs_b
     if (payload == NULL) return E_LWAPIERRNO_INTERNAL_ERROR;
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_send_msg(payload, fport, confirmed);
+            ret = LoRaWAN_module_send_msg(payload, fport, confirmed);
             break;
         default:
             ret = -100;
@@ -277,8 +295,9 @@ static ehs_lorawan_api_errno_t _LoRaWAN_reset()
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_reset();
+            ret = LoRaWAN_module_reset();
             break;
         default:
             ret = -100;
@@ -315,8 +334,9 @@ static ehs_lorawan_api_errno_t _LoRaWAN_get_sysData(char *sysData_out, char *Dev
     if (sysData_out == NULL || DevEui_out == NULL) return E_LWAPIERRNO_INTERNAL_ERROR;
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_get_sysData(sysData_out, DevEui_out);
+            ret = LoRaWAN_module_get_sysData(sysData_out, DevEui_out);
             break;
         default:
             ret = -100;
@@ -354,14 +374,20 @@ static ehs_lorawan_api_errno_t _LoRaWAN_set_datarate(ehs_sint32 dr)
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_set_datarate(dr);
+            ret = LoRaWAN_module_set_datarate(dr);
             break;
         default:
             ret = -100;
             break;
     }
-    if (ret == E_LWAPIERRNO_OK) g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+    if (ret == E_LWAPIERRNO_OK) {
+        g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+        /* Mirror the successful value into the FB-visible state so
+         * get_statusData_cb reports the current DR. Backend-agnostic. */
+        gEhsLoraApiData.current_dr = dr;
+    }
     gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_DATARATE] = ret;
     Common_LoRaWAN_FBCBs(E_LORAWAN_API_SET_DATARATE);
     return ret;
@@ -391,8 +417,9 @@ static ehs_lorawan_api_errno_t _LoRaWAN_get_payloadLength(ehs_sint32 *length_out
     if (length_out == NULL) return E_LWAPIERRNO_INTERNAL_ERROR;
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_get_payloadLength(length_out);
+            ret = LoRaWAN_module_get_payloadLength(length_out);
             break;
         default:
             ret = -100;
@@ -430,8 +457,9 @@ static ehs_lorawan_api_errno_t _LoRaWAN_disable( void )
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_disable( );
+            ret = LoRaWAN_module_disable( );
             break;
         default:
             ret = -100;
@@ -467,8 +495,9 @@ static ehs_lorawan_api_errno_t _LoRaWAN_set_class(e_ehs_lw_class_t class_type)
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_set_class(class_type);
+            ret = LoRaWAN_module_set_class(class_type);
             break;
         default:
             ret = -100;
@@ -499,14 +528,18 @@ static ehs_lorawan_api_errno_t _LoRaWAN_set_txpower(ehs_sint32 tx_power)
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_set_txpower(tx_power);
+            ret = LoRaWAN_module_set_txpower(tx_power);
             break;
         default:
             ret = -100;
             break;
     }
-    if (ret == E_LWAPIERRNO_OK) g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+    if (ret == E_LWAPIERRNO_OK) {
+        g_lorawan_cmd = E_LORAWAN_API__COMPLETE;
+        gEhsLoraApiData.tx_power = tx_power;
+    }
     gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_TXPOWER] = ret;
     Common_LoRaWAN_FBCBs(E_LORAWAN_API_SET_TXPOWER);
     return ret;
@@ -531,8 +564,9 @@ static ehs_lorawan_api_errno_t _LoRaWAN_link_check( void )
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     switch (gLorawanTarget) {
+        case E_EHS_LWTARGET_RAK3112: /* fallthrough — one module_ backend linked per build */
         case E_EHS_LWTARGET_WIO_E5:
-            ret = LoRaWAN_wioe5_link_check();
+            ret = LoRaWAN_module_link_check();
             break;
         default:
             ret = -100;

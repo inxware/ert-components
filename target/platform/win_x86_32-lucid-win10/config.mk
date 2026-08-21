@@ -47,8 +47,11 @@ include ./target/platform/win_x86_lvgl/config.mk
 ERT_SODL_VERSION=1
 
 # Machine Leaning & Machine Vision Support
-EHS_ML_SUPPORT=stubbed
-EHS_MV_SUPPORT=stubbed
+#todo get th stubbe and real ones of these working
+EHS_ML_SUPPORT=none
+EHS_MV_SUPPORT=none
+
+
 EHS_PID_SUPPORT=stubbed
 
 # LoRaWAN modem support (WIO-E5 via Win32 COM port)
@@ -81,13 +84,10 @@ DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=no
 
 include ./target/devman-configs/devman.inxware.io.mk
 
-
 #################################################################################################################
 # Legacy Preprocessor Definitions (DEFS)
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# (Inherits from parent config)
 
-
-################################### END OF CONFIGURATION ###################################################
+################################### END OF CONFIGURATION ########################################################

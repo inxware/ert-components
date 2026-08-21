@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2026-05-19T15:37:01Z</CreationDate>
+        <UpdatedDate>2026-05-19T15:37:01Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Bind a signal on a UI object</ShortDescription>
+        <LongDescription>Provides bidirectional event access to a signal on a UI object. The emit port fires the named signal on the UI object; the received callback fires when the UI emits the signal (e.g. a button click).</LongDescription>
+        <UserName/>
+        <Menu>User Interface
+                <Menu>Bindings
+                    <Menu>Event</Menu></Menu></Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>150</Width>
+        <Height>42</Height>
+        <Text>UI Event</Text>
+        <TextX>10</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>ui_event</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0xAA58</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>00000000</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Object</Name>
+            <DataType>UO</DataType>
+            <DefaultValue>_qml_root_object_</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>Name of the UI object to bind to (matches the object's name in the UI definition).</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Signal</Name>
+            <DataType>US</DataType>
+            <DefaultValue>clicked</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>Name of the signal on the UI object to emit and listen for.</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+            <DisplayOnWidget>
+                <x>10</x>
+                <y>30</y>
+            </DisplayOnWidget>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>emit</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>received_cb</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>emit</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>emit</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>---</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>145</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--&gt;</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>145</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>received</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>received_cb_start</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>received_cb_start</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

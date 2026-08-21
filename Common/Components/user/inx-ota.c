@@ -86,7 +86,7 @@ EHS_FB_INIT_FUNCTION(OTA)
 			   &(inx_OTA_state->xEntry)
 		);
 	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d",&(inx_OTA_state->ota_partition_alt),&(inx_OTA_state->partition_number));
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhu %d",&(inx_OTA_state->ota_partition_alt),&(inx_OTA_state->partition_number));
 
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */

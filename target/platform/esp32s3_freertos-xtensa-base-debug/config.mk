@@ -38,7 +38,7 @@ EHS_DEBUGALL=yes
 EHS_DEBUG_TCPIP_CONSOLE=yes
 
 # Runtime logger
-EHS_RUNTIME_LOGGER_ENABLED=yes
+EHS_RUNTIME_LOGGER_ENABLED=no
 
 # Memory management (uncomment to disable linked-list based allocator)
 #EHS_MEMORY_MANAGMENT=none
@@ -53,8 +53,9 @@ EHS_RUNTIME_LOGGER_ENABLED=yes
 
 EHS_NETWORK_WIFI_SUPPORT=yes
 EHS_SERIAL_CONSOLE_SUPPORT=yes
-EHS_NETWORK_BLE_SUPPORT=nimble
 
+# BLE support (uncomment to enable)
+# Uses quite a bit of memory but is available.
 #################################################################################################################
 # Application and Packaging
 # Default application, system variant, and packaging/deployment options

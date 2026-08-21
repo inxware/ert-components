@@ -54,7 +54,7 @@ EHS_RUNTIME_LOGGER_ENABLED=no
 EHS_TARGET_NO_MAIN_ARGS=yes
 
 # Reboot after app load
-EHS_TARGET_APPLOAD_RESTARTING_REBOOT=yes
+EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
 
 # Interface config type
 EHS_INTERFACE_CONFIG_TYPE_SUPPORT=esp32
@@ -87,33 +87,44 @@ EHS_NETWORK_BLE_SUPPORT=none
 #EHS_NETWORK_WIFI_SUPPORT=yes
 
 # LoRaWAN support
-EHS_LORAWAN_SUPPORT=wio_e5
+##EHS_LORAWAN_SUPPORT=wio_e5
+EHS_LORAWAN_SUPPORT=none
 
 #----- GUI Features -----
-EHS_GUI_SUPPORT=lvgl
+##EHS_GUI_SUPPORT=lvgl
+EHS_GUI_SUPPORT=stubbed
 EHS_LVGL_DISPLAY_DRIVER=ft81x
 EHS_LVGL_TOUCH_DRIVER=ft81x
 
 #----- Peripheral Features -----
-EHS_PERIPHERAL_DEVICE_SUPPORT=all
-EHS_PERIPHERALS_PWM_SUPPORT=esp32
-EHS_UART_SUPPORT=yes
-EHS_MODBUS_SUPPORT=yes
+##EHS_PERIPHERAL_DEVICE_SUPPORT=all
+EHS_PERIPHERAL_DEVICE_SUPPORT=none
+##EHS_PERIPHERALS_PWM_SUPPORT=esp32
+EHS_PERIPHERALS_PWM_SUPPORT=none
+
+##EHS_UART_SUPPORT=yes
+EHS_UART_SUPPORT=none
+
+##EHS_MODBUS_SUPPORT=yes
+EHS_MODBUS_SUPPORT=none
+
+
 
 # PID controller (uncomment to enable ISR mode for ESP32)
 #EHS_PID_SUPPORT=esp32
 
 # Scheduler support
-EHS_SCHEDULER_SUPPORT=1
+##EHS_SCHEDULER_SUPPORT=1
+EHS_SCHEDULER_SUPPORT=0
 
 # Watchdog support
-EHS_WATCHDOG_SUPPORT=ESP32S3
+##EHS_WATCHDOG_SUPPORT=ESP32S3
 
 # File system config support
-EHS_CONFIGS_SUPPORT=yes
+##EHS_CONFIGS_SUPPORT=yes
 
 # OTA support
-EHS_OTA_SUPPORT=yes
+##EHS_OTA_SUPPORT=yes
 
 
 #################################################################################################################
@@ -122,7 +133,7 @@ EHS_OTA_SUPPORT=yes
 #################################################################################################################
 
 # Default application to run
-EHS_DEFAULT_APP=tutorials/UI_for_Waveshare
+##EHS_DEFAULT_APP=demos/UI_for_Waveshare
 #EHS_DEFAULT_APP=tutorials/hello_world
 
 #################################################################################################################
@@ -138,8 +149,6 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# Platform identification
-#DEFS += EHS_ESP32
 
 # Wi-Fi credentials (defaults if none saved)
 DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""

@@ -37,9 +37,16 @@
 #define EHS_FB_IN_API2(x) EHS_FB_RUN_FUNCTION_INSTANCE->pIn[x-1]
 
 /**
- * Check whether input x is connected or not
+ * Check whether input x is connected or not.
+ * Bounds-checked against nNumInputs (the count the SODL actually parsed for
+ * this function instance) — a FB rebuilt against a newer CDF can probe a
+ * higher argument than an older exported app ever declared; without this,
+ * that reads past the pIn array instead of reporting "not connected".
  */
-#define EHS_FB_IN_CONNECTED_API2(x) ((EHS_FB_RUN_FUNCTION_INSTANCE->pIn) && (EHS_FB_IN_API2(x) != EhsDataConnectionTable.xDummyIn))
+#define EHS_FB_IN_CONNECTED_API2(x)                                               \
+    ((EHS_FB_RUN_FUNCTION_INSTANCE->pIn) &&                                      \
+     ((x) <= EHS_FB_RUN_FUNCTION_INSTANCE->nNumInputs) &&                        \
+     (EHS_FB_IN_API2(x) != EhsDataConnectionTable.xDummyIn))
 
 /**
  * Get input x as an integer
@@ -62,9 +69,13 @@
 #define EHS_FB_IN_S_API2(x) (char*)EHS_FB_IN_API2(x)
 
 /**
- * Check whether output x is connected or not
+ * Check whether output x is connected or not.
+ * Bounds-checked against nNumOutputs — see EHS_FB_IN_CONNECTED_API2.
  */
-#define EHS_FB_OUT_CONNECTED_API2(x) ((EHS_FB_RUN_FUNCTION_INSTANCE->pOut) && (EHS_FB_OUT_API2(x) != EhsDataConnectionTable.xDummy))
+#define EHS_FB_OUT_CONNECTED_API2(x)                                              \
+    ((EHS_FB_RUN_FUNCTION_INSTANCE->pOut) &&                                     \
+     ((x) <= EHS_FB_RUN_FUNCTION_INSTANCE->nNumOutputs) &&                       \
+     (EHS_FB_OUT_API2(x) != EhsDataConnectionTable.xDummy))
 
 /**
  * Get output x - generic version
@@ -91,10 +102,52 @@
  */
 #define EHS_FB_OUT_S_API2(x) (char*)EHS_FB_OUT_API2(x)
 
+/*
+ * Bounded access to string ports - see the equivalent block in ehs_fb_types.h.
+ * String connections are variable length, so neither EHS_STRING_LENGTH_MAX nor
+ * EHS_DATA_TABLE_STRING_DEFAULT_LENGTH is a safe bound for a write.
+ */
+
+/** Capacity of string output x in bytes including the NUL, 0 if not a string port */
+#define EHS_FB_OUT_S_CAP_API2(x) EhsDataString_capacity(EHS_FB_OUT_S_API2(x))
+
+/** Longest string that fits in output x, excluding the NUL */
+#define EHS_FB_OUT_S_MAXLEN_API2(x) EhsDataString_maxLen(EHS_FB_OUT_S_API2(x))
+
+/** Length of the string currently in output x, bounded by its capacity */
+#define EHS_FB_OUT_S_LEN_API2(x) EhsDataString_len(EHS_FB_OUT_S_API2(x))
+
+/** Write src to string output x, truncating to fit. Always NUL terminates. */
+#define EHS_FB_OUT_S_SET_API2(x,src) EhsDataString_set(EHS_FB_OUT_S_API2(x),(src))
+
+/** As EHS_FB_OUT_S_SET_API2 but takes at most n characters from src */
+#define EHS_FB_OUT_S_SETN_API2(x,src,n) EhsDataString_setN(EHS_FB_OUT_S_API2(x),(src),(n))
+
+/** Append src to string output x, truncating to fit */
+#define EHS_FB_OUT_S_CAT_API2(x,src) EhsDataString_append(EHS_FB_OUT_S_API2(x),(src))
+
+/** Capacity of string input x in bytes including the NUL */
+#define EHS_FB_IN_S_CAP_API2(x) EhsDataString_capacity(EHS_FB_IN_S_API2(x))
+
+/** Length of the string on input x, bounded by its capacity */
+#define EHS_FB_IN_S_LEN_API2(x) EhsDataString_len(EHS_FB_IN_S_API2(x))
+
 /**
  * Assert event x
  */
 #define EHS_FB_FINISH_API2(x) EhsFunctionInstanceData_triggerEvent(EHS_FB_RUN_CONTEXT_REF,(x))
+
+/**
+ * Check whether finish port x is connected (i.e. has a trigger registered for
+ * it in the SODL graph). Note that EHS_FB_FINISH / EHS_FB_FINISH_API2 already
+ * silently handle unconnected ports inside the kernel — this macro is for FBs
+ * that want to skip the call (and any expensive work that precedes it) when
+ * the port is not wired up.
+ */
+#define EHS_FB_FINISH_CONNECTED_API2(x)                                            \
+    ((EHS_FB_RUN_FUNCTION_INSTANCE->pFinishPort) &&                                \
+     ((x) <= EHS_FB_RUN_FUNCTION_INSTANCE->nFinishPorts) &&                        \
+     (EHS_FB_RUN_FUNCTION_INSTANCE->pFinishPort[(x)-1] != NULL))
 
 /*********************************************************************************************/
 

@@ -127,17 +127,17 @@ EHS_FB_RUN_FUNCTION(runtimeinfo_updatestatic)
     }
     //EhsHAppMetaRequestPairedOrganisation(); /* request Devman to retrieve paring information */
     if (EHS_FB_OUT_CONNECTED(EHS_RTINFO_GETSTAT_DeviceID_OUT))
-        EhsStrcpy(EHS_FB_OUT_S(EHS_RTINFO_GETSTAT_DeviceID_OUT),EhsHMetaGetHWID());
+        EHS_FB_OUT_S_SET(EHS_RTINFO_GETSTAT_DeviceID_OUT, EhsHMetaGetHWID());
     if (EHS_FB_OUT_CONNECTED(EHS_RTINFO_GETSTAT_RAM_KB_OUT))
         EHS_FB_OUT_I(EHS_RTINFO_GETSTAT_RAM_KB_OUT)=EhsHMetaGetRAMTotal();
     if (EHS_FB_OUT_CONNECTED(EHS_RTINFO_GETSTAT_Storage_KB_OUT))
         EHS_FB_OUT_I(EHS_RTINFO_GETSTAT_Storage_KB_OUT)=EhsHMetaGetStorTotal();
     if (EHS_FB_OUT_CONNECTED(EHS_RTINFO_GETSTAT_EHS_Version_OUT)) 
-        EhsStrcpy(EHS_FB_OUT_S(EHS_RTINFO_GETSTAT_EHS_Version_OUT),EhsHMetaGetEHSVersion());
+        EHS_FB_OUT_S_SET(EHS_RTINFO_GETSTAT_EHS_Version_OUT, EhsHMetaGetEHSVersion());
     if (EHS_FB_OUT_CONNECTED(EHS_RTINFO_GETSTAT_ModuleList_OUT))
-        EhsStrcpy(EHS_FB_OUT_S(EHS_RTINFO_GETSTAT_ModuleList_OUT),"N/A");
+        EHS_FB_OUT_S_SET(EHS_RTINFO_GETSTAT_ModuleList_OUT, "N/A");
     if (EHS_FB_OUT_CONNECTED(EHS_RTINFO_GETSTAT_InstallDir_OUT))
-        EhsStrcpy(EHS_FB_OUT_S(EHS_RTINFO_GETSTAT_InstallDir_OUT),EhsHMetaGetInstPath());
+        EHS_FB_OUT_S_SET(EHS_RTINFO_GETSTAT_InstallDir_OUT, EhsHMetaGetInstPath());
     EHS_FB_FINISH(EHS_RTINFO_GETSTAT_PORT_FINISH);
 }
 
@@ -168,7 +168,7 @@ EHS_FB_RUN_FUNCTION(runtimeinfo_updatedynamic)
     /* and the dynamic data */
     /* call the os-specfic call e.g. EHSTos_GetFileInfo(&pRtinfoObj); */
     if (EHS_FB_OUT_CONNECTED(EHS_RTINFO_GETDYN_IPAddr_OUT))
-        EhsStrcpy(EHS_FB_OUT_S(EHS_RTINFO_GETDYN_IPAddr_OUT),EhsHMetaGetIPAddr());
+        EHS_FB_OUT_S_SET(EHS_RTINFO_GETDYN_IPAddr_OUT, EhsHMetaGetIPAddr());
     EHS_FB_OUT_I(EHS_RTINFO_GETDYN_RAMAvail_KB_OUT)=EhsHMetaGetRAMAvail();             /* Get total spare RAM */
     EHS_FB_OUT_I(EHS_RTINFO_GETDYN_StorAvail_KB_OUT)=EhsHMetaGetStorAvail();           /* File storage available for user data */
     EHS_FB_OUT_I(EHS_RTINFO_GETDYN_CPU_USAGE_OUT)=EhsHMetaGetCPUUsage();               /* CPU for eRT process */

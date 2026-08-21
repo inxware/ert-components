@@ -220,7 +220,7 @@ EHS_FB_RUN_FUNCTION(html_java_RunFunction)
     if (EHS_FB_OUT_CONNECTED_API2(INX_html_java_ARG_RunFunction_jsonOUT))
     {
         EhsHWebkitRunFunction(inx_html_java_state->BaseURL,	run_func,arg);
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_html_java_ARG_RunFunction_jsonOUT),"Not Yet Implemented"); /* todo */
+        EHS_FB_OUT_S_SET_API2(INX_html_java_ARG_RunFunction_jsonOUT, "Not Yet Implemented"); /* todo */
     }
     else
     {

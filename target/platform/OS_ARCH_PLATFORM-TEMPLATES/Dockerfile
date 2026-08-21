@@ -1,4 +1,3 @@
-# inxware/inx-debian11
 From debian:11
 RUN echo "Successfully entered and fetched debian:11"
 RUN apt-get update

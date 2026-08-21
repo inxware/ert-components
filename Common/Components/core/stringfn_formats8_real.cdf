@@ -48,7 +48,7 @@
             <DefaultValue>%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f</DefaultValue>
             <MinValue>0</MinValue>
             <MaxValue>0</MaxValue>
-            <Description>C-style format string - supports %f only (Should handle different decimal places)</Description>
+            <Description>C-style format string. Supports real placeholders %f %e %g %a with any precision (e.g. %.3f, %8.2f) and %% for a literal percent. One placeholder per connected input, in port order. Unconnected inputs format as 0.</Description>
             <ListPlacement>1</ListPlacement>
             <ArgPlacement>1</ArgPlacement>
         </Parameter>

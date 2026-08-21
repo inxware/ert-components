@@ -35,6 +35,9 @@
 #ifdef EHS_ML_HWACCEL_SUPPORT_TFLITE
 #include "ert_hal_tflite.h"
 #endif
+#ifdef EHS_ML_HWACCEL_SUPPORT_AXELERA
+#include "ert_hal_axelera.h"
+#endif
 
 /* Returns EHS_ML_NOT_SUPPORTED if no usable backend is compiled in for the
  * detected hardware.  The fallback to TFLite is valid only if the model was
@@ -77,6 +80,15 @@ EhsML_Err EhsML_InfEngine_Create(EhsML_Context* ctx, const ehs_char* model_path,
             break;
         #else
             goto ml_hw_fallback;
+        #endif
+        }
+        case EHS_ML_HWACCEL_AXELERA:
+        {
+        #ifdef EHS_ML_HWACCEL_SUPPORT_AXELERA
+            err = EhsML_FW_Axelera_Create(ctx, model_path, conf_thres, thread_count);
+            break;
+        #else
+            return EHS_ML_NOT_SUPPORTED;
         #endif
         }
         case EHS_ML_HWACCEL_AMD:
@@ -138,6 +150,13 @@ void EhsML_InfEngine_Destroy(EhsML_Context* ctx)
         #endif
             break;
         }
+        case EHS_ML_HWACCEL_AXELERA:
+        {
+        #ifdef EHS_ML_HWACCEL_SUPPORT_AXELERA
+            EhsML_FW_Axelera_Destroy(ctx);
+        #endif
+            break;
+        }
         case EHS_ML_HWACCEL_AMD:
         {
             /* TODO */
@@ -179,6 +198,15 @@ EhsML_Err EhsML_InfEngine_SetInputData(EhsML_Context* ctx, const void* input_dat
         {
         #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
             return EhsML_FW_TensorRT_SetInputData(ctx, input_data, data_size);
+        #else
+            return EHS_ML_NOT_SUPPORTED;
+        #endif
+            break;
+        }
+        case EHS_ML_HWACCEL_AXELERA:
+        {
+        #ifdef EHS_ML_HWACCEL_SUPPORT_AXELERA
+            return EhsML_FW_Axelera_SetInputData(ctx, input_data, data_size);
         #else
             return EHS_ML_NOT_SUPPORTED;
         #endif
@@ -228,6 +256,15 @@ EhsML_Err EhsML_InfEngine_RunInference(EhsML_Context* ctx)
         {
         #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
             err = EhsML_FW_TensorRT_GetOutputData(ctx);
+        #else
+            err = EHS_ML_NOT_SUPPORTED;
+        #endif
+            break;
+        }
+        case EHS_ML_HWACCEL_AXELERA:
+        {
+        #ifdef EHS_ML_HWACCEL_SUPPORT_AXELERA
+            err = EhsML_FW_Axelera_GetOutputData(ctx);
         #else
             err = EHS_ML_NOT_SUPPORTED;
         #endif

@@ -58,7 +58,7 @@ EHS_FB_INIT_FUNCTION(TanInt)
 	//this is the reference to the object data for this instance of the function block
 	inx_TanInt_state_type* inx_TanInt_state = (inx_TanInt_state_type*)EHS_FB_INIT_CONTEXT;
 	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d",&inx_TanInt_state->unit);
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhu",&inx_TanInt_state->unit); /* unit is ehs_bool */
 
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */
@@ -69,6 +69,7 @@ EHS_FB_DESTROY_FUNCTION(TanInt)
 {
 	inx_TanInt_state_type *inx_TanInt_state = (inx_TanInt_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
+	return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION calc MACRO START -- DO NOT ALTER
@@ -89,7 +90,7 @@ EHS_FB_RUN_FUNCTION(TanInt_calc)
 	if (EHS_FB_IN_CONNECTED_API2(INX_TanInt_ARG_calc_input))
 		input = EHS_FB_IN_I_API2(INX_TanInt_ARG_calc_input) ;
 	if (inx_TanInt_state->unit)
-		input = (input * 180) / INX_FB_TanInt_unit;
+		input = (input * 180) / INX_TANGENT_PI_1000; /* unit is a radians/degrees flag, not a divisor */
 	coscos = EhsTgtInt_cos(1000, input);
 	if (EHS_FB_OUT_CONNECTED_API2(INX_TanInt_ARG_calc_output))
 		EHS_FB_OUT_I_API2(INX_TanInt_ARG_calc_output) = coscos == 0 ? 2147483647 : (EhsTgtInt_sin(1000, input) * 1000) / coscos;

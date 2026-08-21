@@ -34,6 +34,7 @@
 #include "hal_file.h"
 #include "hal_time.h"
 #include "hal_string.h"
+#include "hal_process.h" /* EhsHProcess_getStackRemaining() - used by EhsHLogger_stackOk() */
 #include "messages.h"
 
 //#ifdef EHS_ANDROID  this is only needed in the hal_logger.h file?
@@ -56,9 +57,6 @@
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
 ehs_FILE* EhsLLogFile=NULL;
 //ehs_bool bLogToFile = EHS_TRUE; //we will just use the file handle status
-
-/* set to max logging before the init function is called */
-EhsHLoggerLogLevel nLogLevel = EHSH_LOG_DEFAULT_LEVEL; 
 
 //Set the maximum global verbosoty to all if there is on config.mk override.
 #ifndef EHSH_LOG_MAX_GLOBAL_LEVEL
@@ -102,6 +100,7 @@ ehs_char* EhsLModuleNames[] =
     "Network",
     "Devman",
     "file",
+    "console",
     NULL
 };
 #endif
@@ -123,6 +122,7 @@ ehs_char* EhsLModuleNames[] =
         EhsHLogger_setLogLevel("Network",EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
         EhsHLogger_setLogLevel("Devman", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
         EhsHLogger_setLogLevel("file", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
+        EhsHLogger_setLogLevel("console", EHSH_LOG_LEVEL_INFO | EHSH_LOG_LEVEL_WARNING | EHSH_LOG_LEVEL_ERROR);
     }
 #else
 
@@ -164,6 +164,9 @@ ehs_char* EhsLModuleNames[] =
 #ifndef EHS_LOG_LEVEL_FILE
 #define EHS_LOG_LEVEL_FILE         EHSH_LOG_LEVEL_ERROR
 #endif
+#ifndef EHS_LOG_LEVEL_CONSOLE
+#define EHS_LOG_LEVEL_CONSOLE      EHSH_LOG_LEVEL_ERROR
+#endif
 
     void EhsHSetLogLevels()
     {
@@ -178,6 +181,7 @@ ehs_char* EhsLModuleNames[] =
         EhsHLogger_setLogLevel("Network",     EHS_LOG_LEVEL_NETWORK);
         EhsHLogger_setLogLevel("Devman",      EHS_LOG_LEVEL_DEVMAN);
         EhsHLogger_setLogLevel("file",        EHS_LOG_LEVEL_FILE);
+        EhsHLogger_setLogLevel("console",     EHS_LOG_LEVEL_CONSOLE);
     }
 #endif
 
@@ -216,6 +220,27 @@ ehs_char* EhsHLogger_Buffer()
 #endif
 }
 
+#ifndef EHS_LOGGER_MIN_STACK_BYTES
+#define EHS_LOGGER_MIN_STACK_BYTES 512u
+#endif
+
+ehs_uint32 EhsHLogger_nLowStackDrops = 0u;
+
+ehs_bool EhsHLogger_stackOk()
+{
+    /* EhsHProcess_getStackRemaining() returns -1 on targets with no cheap way to read
+     * remaining stack - treat that as "assume OK" rather than gate every log call on
+     * nothing. Where it IS supported it's typically a historical low-water mark, not a
+     * live reading - see the prototype's doc comment (hal_process.h). */
+    ehs_sint32 nRemaining = EhsHProcess_getStackRemaining();
+    return (nRemaining < 0 || (ehs_uint32)nRemaining >= EHS_LOGGER_MIN_STACK_BYTES) ? EHS_TRUE : EHS_FALSE;
+}
+
+void EhsHLogger_lowStackDrop()
+{
+    EhsHLogger_nLowStackDrops++;
+}
+
 /**
  * Initialise the logger subsystem
  */
@@ -223,14 +248,13 @@ void EhsHLogger_init()
 {
 #ifdef EHS_RUNTIME_LOGGER_ENABLED
     ehs_uint16 nId;
-    //nLogLevel = EHSH_LOG_DEFAULT_LEVEL; @todo this should be set by something sensible.
 #ifdef EHS_RUNTIME_FILELOGGER_ENABLED
 //@todo need to add file renaming function here to keep a rolling list of old log files.
     EhsLLogFile = Ehs_SysFopen(EHSH_LOG_FILENAME,"w"); /* if sysdata doesn't exist create in default directory */
     if (!EhsLLogFile)
     {
-        //nLogLevel = 0; /* no logging to file */
-        EhsConsolePrintf("**Error: Can't open log file\n");
+        /* Can't log this through the logger, and the console is kernel-only. */
+        EhsStdioSimplePrintf("**Error: Can't open log file\n");
     }
     else
     {
@@ -272,7 +296,9 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const
     if (nModule < EHSH_LOG_MODULE_UNDEFINED) nModule = EHSH_LOG_MODULE_UNDEFINED;
     if (nModule > EHS_LOG_MODULE_QUANTITY) nModule = EHSH_LOG_MODULE_UNDEFINED;
 
-    ehs_uint32 time=0;
+    /* Was gated behind EHS_RUNTIME_FILELOGGER_ENABLED below, so plain stdio output (the
+     * common case) always printed a timestamp of 0 - fixed so both sinks get a real one. */
+    ehs_uint32 time = EHS_CURRENT_TIME;
     //EhsStdioPrintf("LOGGING time=%d,level=%s nMod=%d nLevel%d] %s",0,"somelevel", nModule,nLevel,szMsg);
     const char* szLevel;
     //const char* szModule;
@@ -282,10 +308,14 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const
         goto end;
     }
     #endif
-     if (!(nLevel & nLogLevel)) /* Check the module filter*/
-    {
-        goto end;
-    }
+    /* The per-module filter was already checked by EHSH_LOG_CHECK (hal_logger.h) at the call
+     * site, against EhsHLoggerModuleLogLevel[EHSL_MODULE_ID], before this function was ever
+     * called - that's the real, correctly per-module check. A second, redundant check used
+     * to sit here against a single file-scope `nLogLevel` global that `EhsHLogger_setLogLevel`
+     * never actually updated (it only ever wrote EhsHLoggerModuleLogLevel[]) - so nLogLevel
+     * stayed at its initial EHSH_LOG_DEFAULT_LEVEL (ERROR only) forever, silently rejecting
+     * every non-ERROR message here regardless of any EHS_LOG_LEVEL_<MODULE> setting. Removed
+     * rather than fixed in place, since the correct check already happened upstream. */
 
     switch (nLevel)
     {
@@ -319,7 +349,6 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const
     }
 #ifdef EHS_RUNTIME_FILELOGGER_ENABLED
     if (EhsLLogFile) { /* Don't want all that crashing do we!! */ //@todo need to put this in sysinfo/var
-        time=EhsTgtTimer_now(); /* Note this is in ticks not real time....*/
         EhsFprintf(EhsLLogFile, "%u,",time);
         EhsFprintf(EhsLLogFile, "%s,",szLevel);
         EhsFprintf(EhsLLogFile, "%s,",EhsLModuleNames[nModule]);
@@ -330,18 +359,15 @@ void EhsHLogger_log(EhsHLoggerModuleId nModule, EhsHLoggerLogLevel nLevel, const
 #endif
 
 #ifdef EHS_LOG_TO_STDIO
-    if (szLevel && nModule > 0 && nModule < 11 && szFilename && nLine && szMsg)   //to do make this nModule check better!
+    /* szFilename/nLine are intentionally allowed to be NULL/0 here - EHS_LOGGER_REPORT_
+     * SOURCEFILE/_SOURCE_LINENO being compiled off means every EHSH_LOG_* call site passes
+     * exactly that. EHS_LOGGER_HEADER_FORMAT's zero-precision specifiers print nothing for
+     * a disabled field either way; szFilename is defaulted to "" below purely so a %s
+     * conversion never receives a NULL pointer. */
+    if (szLevel && nModule > 0 && nModule < EHS_LOG_MODULE_QUANTITY && szMsg)
     {
-        EhsStdioPrintf("\n[%u][%s][%s][%s]:%d:\"%s\"",time,szLevel,EhsLModuleNames[nModule],szFilename,nLine,szMsg);
-    }
-    else
-    {
-        if (szMsg)
-        {
-        }
-        else
-        {
-        }
+        EhsStdioPrintf(EHS_LOGGER_HEADER_FORMAT, time, szLevel,
+                       EhsLModuleNames[nModule], (szFilename ? szFilename : ""), nLine, szMsg);
     }
 #endif
 end:

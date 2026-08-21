@@ -213,6 +213,7 @@ void EhsTPMutex_unlock(EhsTPMutexClass pMutexRef)
 
 /**
  * Execute a function from a function block in a separate thread
+ *  NOTE_ASSUMING THIS IS NEVER COMPILED HTESE DAYS AS DOES NOT MATCH NEW API
  */
 EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType* pfRun, void* context)
 {
@@ -251,7 +252,7 @@ void EhsTP_shellExecute(const ehs_char* szCmd)
 
     /* split command line into s1 (executable) and s2 (parameters) */
     s1 = szCmd;
-    s2 = EhsGetWordFromString(szData1, s1);
+    s2 = EhsGetWordFromString(szData1, s1, sizeof(szData1));
 
     /* convert s1 and s2 into wide character strings */
     mbstowcs(ws1, szData1, EHS_STRING_LENGTH_MAX);
@@ -283,4 +284,10 @@ void EhsTargetReboot( void )
 {
     while (0);
     EHSH_LOG_ERROR("Reboot Not Implemented on this target!");
+}
+
+ehs_sint32 EhsHProcess_getStackRemaining(void)
+{
+    /* No cheap stack-remaining primitive wired up for this target. */
+    return -1;
 }

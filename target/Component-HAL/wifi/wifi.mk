@@ -12,3 +12,5 @@ INC_DIRS += $(EHS_TARGET_WIFI_PATH)
 # OBJECTS += xxxxxx.$(OBJ)
 
 DEFS += EHS_NETWORK_WIFI_SUPPORT
+
+#TODO this will need to be a multi-platform thing at sme point.

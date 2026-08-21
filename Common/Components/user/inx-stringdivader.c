@@ -71,15 +71,15 @@ EHS_FB_INIT_FUNCTION(StringDivader)
 	inx_StringDivader_state->delim2[0] = '\0';
 	inx_StringDivader_state->delim3[0] = '\0';
 	const ehs_char* pParams = EHS_FB_INIT_PARAMETERS;
-	pParams = EhsGetWordFromString(inx_StringDivader_state->delim1, pParams);
+	pParams = EhsGetWordFromString(inx_StringDivader_state->delim1, pParams, sizeof(inx_StringDivader_state->delim1));
 	if(EhsStrcmp(inx_StringDivader_state->delim1, "NULL") == 0){
         EhsMemset(inx_StringDivader_state->delim1, '\0', EHS_STR_DIV_DELIM_MAX_SIZE);
     }
-	pParams = EhsGetWordFromString(inx_StringDivader_state->delim2, pParams);
+	pParams = EhsGetWordFromString(inx_StringDivader_state->delim2, pParams, sizeof(inx_StringDivader_state->delim2));
 	if(EhsStrcmp(inx_StringDivader_state->delim2, "NULL") == 0){
         EhsMemset(inx_StringDivader_state->delim2, '\0', EHS_STR_DIV_DELIM_MAX_SIZE);
     }
-	pParams = EhsGetWordFromString(inx_StringDivader_state->delim3, pParams);
+	pParams = EhsGetWordFromString(inx_StringDivader_state->delim3, pParams, sizeof(inx_StringDivader_state->delim3));
 	if(EhsStrcmp(inx_StringDivader_state->delim3, "NULL") == 0){
         EhsMemset(inx_StringDivader_state->delim3, '\0', EHS_STR_DIV_DELIM_MAX_SIZE);
     }

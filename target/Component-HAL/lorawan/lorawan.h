@@ -32,6 +32,12 @@
 
 typedef enum {
     E_EHS_LWTARGET_WIO_E5 = 0,
+    E_EHS_LWTARGET_RAK3112 = 1,
+    /* @todo collapse this enum + the per-case dispatch in lorawan.c. Only
+     * one module_ backend is linked per build (selected by EHS_LORAWAN_SUPPORT
+     * in lorawan.mk), so the switch-on-target is vestigial. Kept now so the
+     * FB 'Target' parameter on CDFs doesn't silently fall through to -100
+     * when it's set to anything non-zero. */
 } e_ehs_lw_target_t;
 
 typedef enum {
@@ -150,5 +156,11 @@ ehs_lorawan_api_errno_t LoRaWAN_link_check( void );
 
 void Common_LoRaWAN_onReceive(char *recv_msg, ehs_bool has_message);
 void Common_LoRaWAN_FBCBs(e_ehs_lorawan_api_cmd_t cmd);
+
+/* Synchronous identity / state accessors used for diagnostics
+ * and similar (e.g. the serial-console "L" key. */
+void LoRaWAN_module_peekDevEui(ehs_uint8 out_8[8]);
+ehs_bool LoRaWAN_module_peekJoined(void);
+ehs_uint32 LoRaWAN_module_peekDevAddr(void);
 
 #endif

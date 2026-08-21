@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+    <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container">
+        <span class="toc_span">Frame Fmt</span>
+        <!--these display in reverse order because they use float:right-->
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+      </div>
+
+      <!--General Description-->
+      <p class="component">
+        <strong>Frame Fmt</strong> converts a camera frame from its current pixel format
+        to a different one (e.g. colour to greyscale, or 8-bit to normalised float for ML
+        input) and writes the result into a new frame buffer. The converted frame can then
+        be passed to downstream blocks such as <em>Frame Crop</em>,
+        <em>Frame Resize</em>, <em>Frame Show</em>, or ML inference blocks, exactly like
+        any other frame.
+      </p>
+      <p>
+        The target format is given by <strong>format</strong>, which can be set as a
+        static parameter and/or overridden at runtime via the <strong>data_format</strong>
+        input port.
+      </p>
+      <p>
+        If the target format resolves to <code>0</code> (the default BGR format) the
+        block fires <strong>err</strong> with errno <strong>2</strong> (UNUSED) and does
+        not produce a converted frame — there is nothing to convert to. This lets you
+        conditionally bypass formatting without disconnecting the block.
+      </p>
+      <p>
+        <strong>Note:</strong> this is a slow, CPU-only conversion — it does not use the
+        GPU. Avoid running it every frame on a high-resolution stream if it can instead be
+        placed after a <em>Frame Crop</em> / <em>Frame Resize</em> that has already
+        reduced the frame to the size actually needed downstream (e.g. an ML model's
+        input tensor size).
+      </p>
+
+      <!--Parameters-->
+      <div class="section_heading">
+        <span class="toc_span" id="parameters">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><a name="[Param]format">format</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Static target pixel format. Can be overridden at runtime by connecting the
+            <strong>data_format</strong> input port. <code>0</code> means formatting is
+            unused (there is no target to convert to).
+            <table class="errno_table">
+              <thead>
+                <tr><th>Value</th><th>Format</th><th>Notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>0</td><td>Default (BGR, 3-channel 8-bit)</td><td>Bypasses conversion — fires <strong>err</strong> (UNUSED).</td></tr>
+                <tr><td>1</td><td>Greyscale (8-bit, 1-channel)</td><td>Converts to single-channel 8-bit.</td></tr>
+                <tr><td>2</td><td>Normalised float (32-bit, 1-channel)</td><td>Pixel values scaled to 0.0&ndash;1.0. Typical for greyscale ML model inputs.</td></tr>
+                <tr><td>3</td><td>Normalised float (32-bit, 3-channel)</td><td>Pixel values scaled to 0.0&ndash;1.0. Typical for colour ML model inputs.</td></tr>
+              </tbody>
+            </table>
+            Although the CDF allows values up to 10, only 0&ndash;3 are currently
+            implemented; other values behave as an unrecognised format and the conversion
+            fails (errno 1).
+          </td>
+        </tr>
+      </table>
+
+      <!--Ports-->
+      <div class="section_heading">
+        <span class="toc_span" id="ports">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <table class="table">
+        <!-- format -->
+        <tr>
+          <th colspan="3">format</th>
+        </tr>
+        <tr>
+          <th>In Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]run_fmt">run</a></td>
+          <td></td>
+          <td>
+            Triggers the format conversion. Reads the source frame identified by
+            <strong>stream_id</strong>, converts it to the current target format, and
+            stores the result in this block's private frame buffer. Fires
+            <strong>--</strong> on success or <strong>err</strong> on failure.
+          </td>
+        </tr>
+        <tr>
+          <th>Data In</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]frame_id">stream_id</a></td>
+          <td>I</td>
+          <td>
+            Frame slot ID of the source frame to convert. Obtain this from the
+            <strong>stream_id</strong> output of <em>Camera</em>, <em>Frame Crop</em>,
+            <em>Frame Resize</em>, or another upstream frame block.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]data_format">format</a></td>
+          <td>I</td>
+          <td>
+            Runtime target format override. If connected, this value takes precedence
+            over the <strong>format</strong> parameter for this invocation. See the
+            format table under <a href="#parameters">Parameters</a> above.
+          </td>
+        </tr>
+        <tr>
+          <th>Out Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]start_ok">--</a></td>
+          <td></td>
+          <td>Fired when the format conversion completed successfully. The converted frame is available on <strong>stream_id</strong>.</td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]start_error">err</a></td>
+          <td></td>
+          <td>
+            Fired when the conversion failed or was bypassed. Connect <strong>errno</strong>
+            to determine the reason (see <a href="#errors">Error Codes</a>).
+          </td>
+        </tr>
+        <tr>
+          <th>Data Out</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]start_errno">errno</a></td>
+          <td>I</td>
+          <td>
+            Error code set after each invocation of <em>format</em>.
+            <code>0</code> = success. See <a href="#errors">Error Codes</a> below.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]formated_frame_id">stream_id</a></td>
+          <td>I</td>
+          <td>
+            Frame slot ID of the converted output frame. Only valid after
+            <strong>--</strong> fires. Pass this to downstream blocks
+            (<em>Frame Crop</em>, <em>Frame Resize</em>, <em>Frame Show</em>, ML
+            inference, etc.).
+          </td>
+        </tr>
+      </table>
+
+      <!--Error Codes-->
+      <div class="section_heading">
+        <span class="toc_span" id="errors">Error Codes</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <p>
+        The <strong>errno</strong> output port carries one of the following values after
+        each invocation of <em>format</em>.
+      </p>
+      <table class="table">
+        <tr>
+          <th>Value</th>
+          <th>Name</th>
+          <th>Meaning</th>
+          <th>Common causes &amp; remedies</th>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>OK</td>
+          <td>Format conversion succeeded.</td>
+          <td>&mdash; <strong>--</strong> event fires.</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>FAILED</td>
+          <td>Format conversion failed.</td>
+          <td>
+            <ul>
+              <li>No valid source frame: the <strong>stream_id</strong> input is not
+                connected or the upstream block has not yet produced a frame.</li>
+              <li>This block's internal frame buffer is not initialised (frame slot
+                allocation failed at startup).</li>
+              <li>The requested format value is not one of the implemented values
+                (0&ndash;3) — see the format table under
+                <a href="#parameters">Parameters</a>.</li>
+              <li>The HAL format-conversion function returned an error (e.g. memory
+                allocation failure).</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>UNUSED</td>
+          <td>Target format resolves to 0 (default) — conversion was skipped.</td>
+          <td>
+            Set <strong>format</strong> to a non-zero, implemented value (1&ndash;3),
+            either as a parameter or via a connected <strong>data_format</strong> input
+            port. If zero-bypass is intentional, ignore this event or connect it to a
+            pass-through path.
+          </td>
+        </tr>
+      </table>
+
+      <!--Miscellaneous-->
+      <div class="section_heading">
+        <span class="toc_span" id="misc">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8593;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <table>
+        <tr class="fsm_row">
+          <td style="width:90px;">
+            <b>State Machine</b>
+          </td>
+          <td colspan="5">
+            (format)*
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Toolbox</b>
+          </td>
+          <td>
+            Machine Vision &gt; Frame Formatter
+          </td>
+          <td class="heading-cell">
+            <b>Version</b>
+          </td>
+          <td>
+            v1.0
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Licence Type</b>
+          </td>
+          <td>
+            LGPLv3
+          </td>
+          <td class="heading-cell">
+            <b>Component Supplier</b>
+          </td>
+          <td>
+            <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Minimum DCC</b>
+          </td>
+          <td>A0000</td>
+          <td class="heading-cell">
+            <b>Profiles</b>
+          </td>
+          <td>
+            Linux x86_64, Linux ARM64, Raspberry Pi, Jetson.
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

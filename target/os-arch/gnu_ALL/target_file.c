@@ -30,6 +30,7 @@
 /* Included files */
 #define _XOPEN_SOURCE 500
 
+#include <stdio.h>
 #include <sys/stat.h>
 
 //todo2022 MINGW hs it's own ile now so presumable these conditioanl bits can be removed

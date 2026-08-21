@@ -74,9 +74,8 @@ public class EHS_QuadHandler : EHS_ObjectHandler
         return material;
     }
 
-    public static void UpdateBackgroundColor(EHS_Object ehsObject, GameObject unityObject, Color color, string sufixId){ 
+    public static void UpdateBackgroundColor(EHS_Object ehsObject, GameObject unityObject, Color color, string sufixId){
         var material = GetMaterial(ehsObject, unityObject, sufixId);
-        material.color = color;
         material.SetColor("_BackgroundColor", color);
     }
 
@@ -97,7 +96,6 @@ public class EHS_QuadHandler : EHS_ObjectHandler
         var material = GetMaterial(ehsObject, unityObject, sufixId);
         if(!string.IsNullOrEmpty(bgrColor)){
             Color color = EHS_Utils.PareseColor(bgrColor, Color.white);
-            material.color = color;
             material.SetColor("_BackgroundColor", color);
         }
         if(!string.IsNullOrEmpty(fgrColor)){

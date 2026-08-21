@@ -22,6 +22,10 @@
 ehs_sint32 parseKeyValuePair(ehs_char *content, jsmntok_t *output_buffer, ehs_uint32 buffer_size, ehs_sint32 *n_elements, ehs_uint8 *ret_code)
 {
 	ehs_uint8 ret = 0;
+	/* Declared before the early gotos: the 'end:' block reads parser_result, so jumping
+	 * over its initialisation returned a garbage count and return value. */
+	jsmn_parser parser;
+	ehs_sint32 parser_result = 0;
 	if (content == NULL)
 	{
 		ret = 1;
@@ -32,8 +36,6 @@ ehs_sint32 parseKeyValuePair(ehs_char *content, jsmntok_t *output_buffer, ehs_ui
 		ret = 3;
 		goto end;
 	}
-	jsmn_parser parser;
-	ehs_sint32 parser_result = 0;
 	// First pass to get the total number of tokens
 	jsmn_init(&parser);
 	parser_result = jsmn_parse(&parser, content, EhsStrlen(content), NULL, INT_MAX);

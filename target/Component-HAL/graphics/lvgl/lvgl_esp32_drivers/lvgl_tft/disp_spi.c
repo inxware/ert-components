@@ -98,6 +98,19 @@ static transaction_cb_t chained_post_cb;
 /**********************
  *      MACROS
  **********************/
+#if defined (EHS_CONFIG_OVERRIDE_LCD_SPI_PINDRIVE)
+#if EHS_CONFIG_OVERRIDE_LCD_SPI_PINDRIVE < 0
+#define EHS_LCD_SPI_GPIO_DRIVE_CAP GPIO_DRIVE_CAP_0
+#elif EHS_CONFIG_OVERRIDE_LCD_SPI_PINDRIVE > 3
+#define EHS_LCD_SPI_GPIO_DRIVE_CAP GPIO_DRIVE_CAP_3
+#elif (EHS_CONFIG_OVERRIDE_LCD_SPI_PINDRIVE >= 0 && EHS_CONFIG_OVERRIDE_LCD_SPI_PINDRIVE <= 3)
+#define EHS_LCD_SPI_GPIO_DRIVE_CAP EHS_CONFIG_OVERRIDE_LCD_SPI_PINDRIVE
+#else
+#define EHS_LCD_SPI_GPIO_DRIVE_CAP GPIO_DRIVE_CAP_DEFAULT
+#endif
+#else
+#define EHS_LCD_SPI_GPIO_DRIVE_CAP GPIO_DRIVE_CAP_DEFAULT
+#endif
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -114,6 +127,12 @@ void disp_spi_add_device_config(spi_host_device_t host, spi_device_interface_con
 void disp_spi_add_device(spi_host_device_t host)
 {
     disp_spi_add_device_with_speed(host, SPI_TFT_CLOCK_SPEED_HZ);
+    // This is to set the lowest SPI driving force for SPI to display driver so that the EMI is minimised
+    gpio_set_drive_capability(CONFIG_LV_DISP_SPI_MISO, EHS_LCD_SPI_GPIO_DRIVE_CAP);
+    gpio_set_drive_capability(CONFIG_LV_DISP_SPI_MOSI, EHS_LCD_SPI_GPIO_DRIVE_CAP);
+    gpio_set_drive_capability(CONFIG_LV_DISP_SPI_CLK, EHS_LCD_SPI_GPIO_DRIVE_CAP);
+    gpio_set_drive_capability(CONFIG_LV_DISP_SPI_CS, EHS_LCD_SPI_GPIO_DRIVE_CAP);
+    gpio_set_drive_capability(CONFIG_LV_DISP_PIN_RST, EHS_LCD_SPI_GPIO_DRIVE_CAP);
 }
 
 void disp_spi_add_device_with_speed(spi_host_device_t host, int clock_speed_hz)

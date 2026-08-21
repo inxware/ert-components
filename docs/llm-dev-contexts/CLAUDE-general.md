@@ -25,10 +25,19 @@ The project uses a sophisticated Make-based build system with Docker support for
 ### Key Commands
 
 **Configuration:**
-- `./configure` - List available build targets
-- `./configure [target]` - Configure for specific platform (e.g., `linux_x86_64_clang`)
+- `./configure` - List available build targets interactively (supports number, name, or `/search`)
+- `./configure [target]` - Configure for specific platform (e.g., `./configure linux_x86_64_clang`).
+  Writes `TARGET=<name>` to `TARGET.cfg`. **All subsequent `make` commands read `TARGET.cfg` — never
+  pass `TARGET=` on the command line manually.**
 - `./configure -run` - Run the target on current host
 - `./configure -debug` - Debug the target with GDB
+
+**IMPORTANT — always use `./configure` to set the target, not `make TARGET=...`:**
+```bash
+./configure zephyr_arm-nrf5340_nrf5340dk   # sets TARGET.cfg
+make zephyr_cmake_gen                       # uses TARGET.cfg automatically
+make zephyr_build_docker                    # uses TARGET.cfg automatically
+```
 
 **Building:**
 - `make help` - Show all available build targets and options
@@ -39,13 +48,21 @@ The project uses a sophisticated Make-based build system with Docker support for
   instructions if not). Re-run when switching to a new target platform. Do not run on every build.
 - `make build_docker_local` - Build the platform's Docker image locally from its `Dockerfile`.
   Required once before `make all_docker` for targets whose Docker image contains proprietary
-  toolchain binaries that cannot be pushed to a public registry (e.g. XMOS xcore targets).
+  toolchain binaries that cannot be pushed to a public registry (e.g. XMOS xcore targets, QNX).
 - `make all` - Build the eRT binary directly on the host. Only works if the host has all required
   dependencies installed; use `make all_docker` for cross-compilation targets.
 - `make all_docker` - Build inside the platform's Docker container. Reads `Dockerimagename` from
   the platform directory; pulls from DockerHub or uses a locally built image. The reliable option
   for all cross-compilation targets.
 - `make clean` - Clean build artifacts
+
+> **Always use `make` targets for Docker operations — never call `docker build` or `docker run` directly.**
+> The make targets in `target/envbuildscripts/` contain important platform-specific logic:
+> credential gathering hooks (`build_docker_pre.sh`), correct context paths, BuildKit secret
+> forwarding, volume mounts, UID/GID mapping, environment variable export, and device passthrough.
+> Bypassing them with raw `docker` commands creates undocumented SOPs and is a common source of
+> hard-to-reproduce build failures. If a make target does not yet exist for an operation you need,
+> add one — do not accumulate shell one-liners outside the build system.
 
 **Runtime Environment:**
 - `make targetenv` - Create runtime file structure in staging directory
@@ -54,6 +71,19 @@ The project uses a sophisticated Make-based build system with Docker support for
 - `make targetenv_deb` - Create Debian package (Linux targets)
 - `make targetenv_apk` - Create Android APK
 - `make targetenv_esp32` - Build ESP32 firmware image
+
+### Zephyr RTOS Targets (`zephyr_arm-*`)
+
+Zephyr targets use a **CMake-master** two-step build:
+
+```bash
+make zephyr_cmake_gen       # Step 1 — host-side, resolves sources → CMakeLists.txt
+make zephyr_build_docker    # Step 2 — west build inside Zephyr CI Docker
+```
+
+For full details — key variables (`ERT_ZEPHYR_VERSION`, `ERT_ZEPHYR_PRISTINE`, `ERT_ZEPHYR_BOARD`),
+Docker/Zephyr version pairings, DTS alias contract, kernel stub status, known build gotchas, and
+new-board checklist — see **[docs/llm-dev-contexts/CLAUDE-zephyr.md](CLAUDE-zephyr.md)**.
 
 **Testing:**
 - `make targetenv_run_tests` - Run regression tests
@@ -232,7 +262,7 @@ CDF (Component Description File) files are XML-based descriptions located in `Co
 **Generating CDF Files:**
 New CDF files can be generated from natural language specifications by following the XML schema structure. The schema validates component structure and ensures compatibility with the eRT IDE and runtime system.
 
-> **See also:** [`CLAUDE-function-blocks.md`](CLAUDE-function-blocks.md) for precise rules on port `argument=` numbering (the one-OutputPort-per-argument rule, the confirmed arg=1/arg=2 pattern, help file conventions, and worked examples).
+> **See also:** [`CLAUDE-function-blocks.md`](CLAUDE-function-blocks.md) for precise rules on port `argument=` numbering (the one-OutputPort-per-argument rule, the confirmed arg=1/arg=2 pattern, help file conventions, and worked examples). Canonical summary: `../ert-porting-guide.md` § "Port Argument Numbers" — each port type has its own independent 1..N range; argument=0 is always the trigger.
 
 #### Component Implementation Structure
 
@@ -503,6 +533,8 @@ Note: the `ifneq (...,none)` wrapper in the old style provides an opt-out mechan
 
 > **TODO**: Consider converting all existing `ifndef VAR / VAR=val / endif` patterns in os-arch `config.mk` files to `VAR ?= val` for consistency. Caveat: the old style sometimes wraps additional `ifneq` guards — review each before converting. Policy: `?=` should be standard for all new additions to os-arch config files.
 
+> **TODO — `gnu_ALL` directory naming:** `target/os-arch/gnu_ALL/toolchain.mk` is included as the base toolchain driver by both Linux targets (`linux-arm64`, `linux-arm`, `linux-amd64`, etc.) and the QNX target (`qnx-arm64`). It is no longer purely a "GNU/Linux" artifact — it is a generic GCC/Clang driver shim covering CC selection, ert-build-support sysroot resolution, and flag assembly, which works for any ELF-based POSIX OS that uses a GCC-compatible toolchain. The name `gnu_ALL` is therefore becoming misleading. Consider renaming to `gcc_driver_ALL` or `posix_elf_ALL` to better reflect its actual scope. The key question before renaming: **is this truly a "POSIX" layer, or a "GCC/Clang compiler driver" layer?** The sysroot resolution and `LD_LIBRARY_PATH` logic is compiler-driver-specific (GCC/Clang), not a POSIX concept — so `gcc_driver_ALL` is probably the more accurate name. Renaming requires updating the `include` line in every `os-arch/*/toolchain.mk` that references it.
+
 #### When adding a new HAL subsystem
 
 After creating the HAL and stub files, add `?=` defaults to **every** os-arch `config.mk` that should stub the feature by default. Do not add defaults to `component-hal.mk` itself — that file should contain only `ifdef/include` logic, not defaults.
@@ -513,33 +545,6 @@ After creating the HAL and stub files, add `?=` defaults to **every** os-arch `c
 - **Always use `ehs_` types in `Common/` code:** `ehs_uint8`, `ehs_uint16`, `ehs_uint32`, `ehs_bool`, `ehs_char`
 - **Use `ehs_` types in HAL headers:** ensures cross-platform compatibility
 - **Platform-specific types only in `.c` files:** OK internally, but the interface must use `ehs_` types
-
-
-#### OS & Libc Abstraction
-
-**Never include OS/POSIX headers directly in `Common/` code.** Headers such as `<pthread.h>`, `<semaphore.h>`, `<unistd.h>`, and `<sched.h>` are platform-specific and must not appear under `Common/Components/` or `Common/HAL/`.
-
-#### Threading
-
-**Never include OS/POSIX headers directly in `Common/` code.** Headers such as `<pthread.h>`, `<semaphore.h>`, `<unistd.h>`, and `<sched.h>` are platform-specific and must not appear under `Common/Components/` or `Common/HAL/`.
-
-Use the EHS HAL abstractions from `hal_process.h` instead:
-
-| Operation | HAL abstraction |
-|-----------|----------------|
-| Create a mutex (heap) | `EhsHMutex_create(EhsTPMutexClass* ref)` |
-| Destroy a mutex | `EhsHMutex_destroy(EhsTPMutexClass* ref)` |
-| Lock / unlock | `EhsTPMutex_lock(ref)` / `EhsTPMutex_unlock(ref)` |
-| Create a condition variable (heap) | `EhsHCond_create(EhsTPConditionClass* ref)` |
-| Destroy a condition variable | `EhsHCond_destroy(EhsTPConditionClass* ref)` |
-| Signal / wait | `EhsTPCondition_signal(ref)` / `EhsTPCondition_wait(condRef, mutexRef)` |
-| Broadcast | `EhsTPCondition_broadcast(ref)` |
-| Spawn a thread | `EhsHThread_execute(func, ctx, priority, stackSize)` |
-| Yield the current thread | `EhsHThread_yield()` |
-
-`EhsHThread_execute` creates a **detached** thread — there is no join. To wait for a thread to finish, have the thread signal a `EhsTPConditionClass` variable (`worker_done_cond`) just before returning and wait on it from the caller.
-
-Platform-specific implementations of these primitives live under `target/os-arch/` and `target/Component-HAL/` where direct OS headers are permitted.
 
 #### Callback Pattern
 HAL implementations often need to trigger component InternalPorts from interrupts or threads:
@@ -562,6 +567,56 @@ See the BLE service component for a complete HAL implementation example:
 - **NimBLE HAL:** `target/Component-HAL/ble/nimble/ble_service_nimble.c`
 - **Stubbed HAL:** `target/Component-HAL/ble/stubbed/ble_service_stubbed.c`
 - **Build Integration:** `target/Component-HAL/ble/ble.mk`
+
+## Logging vs Console Output
+
+Two completely separate output paths — use the right one. **Never call raw `printf()` from common (non-target) code.** `printf` assumes stdout is wired to a terminal, which isn't universally true (Zephyr may have no stdio, Linux services have none, some targets route stdio somewhere the operator can't see).
+
+### Cross-platform logger — `EHSH_LOG_*` (see `Common/HAL/include/hal_logger.h`)
+
+For **diagnostic/debug output**: error conditions, internal state transitions, attempt counters, API return codes, anything that's useful when chasing a bug but noise in normal operation.
+
+Usage in a common-code `.c` file:
+```c
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_NETWORK   /* MUST come before the include */
+#include "hal_logger.h"
+
+EHSH_LOG_ERROR("NVS open failed: %d", (int)ret);
+EHSH_LOG_WARNING("scan returned 0 APs on attempt %d", n);
+EHSH_LOG_INFO("scan attempt %d/%d for '%s'", n, max, ssid);
+EHSH_LOG_ENTER("connect(ssid=%s)", ssid);
+EHSH_LOG_EXIT("connect -> %d", rc);
+```
+
+Module IDs live in the `EhsHLoggerModuleId` enum (`EHSH_LOG_MODULE_KERNEL`, `…_GRAPHICS`, `…_HAL_NETWORK`, `…_HAL_FILE`, etc.). Add a new entry there if your subsystem doesn't have one (and also add a matching string to `EhsLModuleNames[]` in `logger.c`).
+
+Log levels are bitmask-based (`ERROR=0x01`, `WARNING=0x02`, `INFO=0x04`, `ENTER=0x08`, `EXIT=0x10`). Runtime verbosity is set per-module via `EhsHLogger_setLogLevel("HAL_NETWORK", EHSH_LOG_LEVEL_ERROR | EHSH_LOG_LEVEL_WARNING)`. Default level is `EHSH_LOG_DEFAULT_LEVEL` (ERROR only unless overridden). Below-threshold calls compile to near-nothing when `EHS_RUNTIME_LOGGER_ENABLED` is off, and compile to a level-check + optional `EhsSnprintf` + `EhsHLogger_log()` call when on.
+
+**Don't add source markers to log messages.** The macro expansion passes `__FILE__` and `__LINE__` to `EhsHLogger_log()` automatically, so manually tacking on `__func__` or `#expr` is redundant noise that makes log lines longer and makes refactors harder. Write the message as if you were the reader with the source file in front of you. `EHSH_LOG_ERROR("NVS op failed: %d", rc)` is better than `EHSH_LOG_ERROR("[%s] %s failed: %d", __func__, #call, rc)`.
+
+### Interactive console — `EhsConsolePrintf` (see `Common/HAL/include/hal_console.h`)
+
+For **explicit user-visible console output**: connect progress the operator is waiting for, command results, error messages that should always appear regardless of log level.
+
+```c
+#include "hal_console.h"
+
+EhsConsolePrintf("WiFi: 'MEH' found on ch %d (%d dBm) — associating\n", ch, rssi);
+EhsConsolePrintf("WiFi: Online — IP %s\n", ip);
+```
+
+The target HAL implements `EhsConsolePrintf` — on ESP32/Linux it routes to stdout/UART, on targets without a console it can be a no-op or route to a network console. Either way the common code doesn't care.
+
+### Rule of thumb
+
+| Output is…                                      | Use                                      |
+|-------------------------------------------------|------------------------------------------|
+| diagnostic/debug (attempt counts, trace, …)     | `EHSH_LOG_INFO` / `_WARNING` / `_ERROR`  |
+| user-facing interactive ("Found MEH, …")        | `EhsConsolePrintf`                       |
+| both (e.g. disconnect reason shown AND logged)  | both — with distinct wording             |
+| from a tiny-stack event handler (ISR / sys_evt) | **neither** — set a flag, print in a task with adequate stack |
+
+Raw `printf` is only acceptable inside a target-specific source file (`target/...`) where you've already bought into that target's stdio guarantees — and even there, prefer the HAL call for consistency.
 
 ## Important Notes
 
@@ -626,3 +681,70 @@ The Lucid IDE source marks this as `@TODO - this is not done yet`. Leave it as `
 - Each Port must reference a Function via `<Function_ERT1_ID>` element
 - The `argument` attribute on Function element specifies port evaluation order
 - Multiple ports can reference the same Function (grouped as inputs/outputs for that operation)
+
+---
+
+## MCU Target Thread Model
+
+The task names `MCU_SLOW_HP_THR`, `MCU_SLOW_LP_THR`, and `CommandPrompt` are **generic
+across all FreeRTOS-based MCU os-arch targets** (`esp32s3_freertos-xtensa`,
+`esp32_freertos-xtensa`, `nxp-redlib-freertos-arm`, and any future MCU ports).
+They are not ESP32-specific.
+
+Thread name constants: `ehs_threadname_t` enum in `Common/HAL/include/hal.h`.
+Priority macros: `EHS_PRI_*` in `target/os-arch/base_small/base_config.h` and `base_full/base_config.h`.
+
+**Canonical reference with full design rationale:** `docs/ert-porting-guide.md`
+§ *MCU Target Thread Architecture* (under MCU SDKs → FreeRTOS Integration).
+
+### Per-Task Rules (quick reference)
+
+#### `MCU_SLOW_HP_THR` (priority 17) — strictly no-I/O zone
+- **Never** add `printf`, `ESP_LOG*`, console output, MQTT, HTTP, OTA, socket, or file calls.
+- **Never** add work with variable or unbounded execution time.
+- Non-blocking protocol polling only (currently Modbus). Verify any new work is non-blocking.
+
+#### `MCU_SLOW_LP_THR` (priority 1)
+- Background services that may block briefly: MQTT loop, OTA polling, UART TX drain, I2C/RTC sync.
+- Keep call-chain depth shallow (stack is shared with OS entry point on some targets).
+- `printf` acceptable for brief diagnostics only.
+- **WiFi scan results must not be printed here** — use `CommandPrompt` task.
+- Use only non-blocking or timeout-bounded APIs.
+
+#### `CommandPrompt` (priority 0)
+- Lowest priority; owns all console output and deferred event handler results.
+- Checks `WifiStationIsScanResultReady()` every 50 ms; calls `WifiStationPrintAndClearScanResults()`.
+- Do not add real-time or latency-sensitive work.
+
+#### OS event handler tasks (e.g. ESP-IDF `sys_evt`, ~2 KB stack)
+- Return in microseconds. No `printf`, no blocking calls.
+- Set flags or post to a queue only. All output deferred to `CommandPrompt`.
+- Violation → hard-to-diagnose stack overflow in the event task, not the triggering task.
+
+### Adding New Work — Decision Tree
+
+```
+Is the work time-sensitive (fixed deadline)?
+  Yes → Does it involve I/O, blocking calls, or printf?
+          Yes  → cannot go in MCU_SLOW_HP_THR; redesign as non-blocking
+          No   → MCU_SLOW_HP_THR (verify non-blocking, check stack budget)
+  No  → Is it triggered from an OS event handler (WiFi, network, ISR)?
+          Yes  → set a flag in the handler; process in CommandPrompt or MCU_SLOW_LP_THR
+  No  → Is it console/user-facing output or formatting?
+          Yes  → CommandPrompt task
+  No  → MCU_SLOW_LP_THR (background services, low priority)
+```
+
+### ESP32-S3 Concrete Stack Sizes
+
+| Task                  | Priority                        | Stack       | Created by             |
+|-----------------------|---------------------------------|-------------|------------------------|
+| `EhsMain`             | 18 (`EHS_PRI_EHS_MAIN`)         | 10000 B     | xTaskCreate            |
+| `MCU_SLOW_HP_THR`     | 17 (`EHS_PRI_MCU_SLOW_HP_THR`)  | 3072 B      | xTaskCreate            |
+| `MCU_SLOW_LP_THR`     | 1  (`EHS_PRI_MCU_SLOW_LP_THR`)  | 5120 B†     | app_main direct call   |
+| `CommandPrompt`       | 0  (`EHS_PRI_SERIAL_CMD`)       | 4096 B      | xTaskCreate            |
+| `wifi_station_thread` | -99 (lowest)                    | per FB      | EhsStartWifiStationThread |
+| `sys_evt`             | IDF-managed                     | ~2048 B     | IDF default event loop |
+
+† `MCU_SLOW_LP_THR` runs directly in `app_main`'s task on ESP32; stack is
+`CONFIG_ESP_MAIN_TASK_STACK_SIZE` = 5120 B in ert-contrib-middleware pre-built libs.

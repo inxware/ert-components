@@ -1,0 +1,30 @@
+/*
+ * nRF5340 DK (cpuapp) DTS overlay for eRT Zephyr HAL.
+ *
+ * Defines the mandatory 'inx-*' aliases that target/os-arch/zephyr-arm/
+ * HAL source files expect.
+ *
+ * On the nRF5340 DK:
+ *   uart0  — VCOM port via on-board SEGGER J-Link (Zephyr console default)
+ *   uart1  — Available on DK headers (P0.22/P0.24 by default)
+ *   gpio0  — nRF5340 P0 port
+ *   gpio1  — nRF5340 P1 port
+ */
+
+/ {
+	aliases {
+		/* UART used by eRT HAL.  Shares uart0 with the Zephyr console
+		 * for bring-up; move to uart1 once console is redirected. */
+		inx-uart0 = &uart0;
+
+		/* GPIO ports used by eRT HAL */
+		inx-gpio0 = &gpio0;
+		inx-gpio1 = &gpio1;
+	};
+};
+
+/* Ensure UART0 is enabled for bring-up */
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+};

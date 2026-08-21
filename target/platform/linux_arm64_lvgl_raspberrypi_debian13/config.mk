@@ -53,8 +53,7 @@ EHS_DEVMAN_SUPPORT=http
 #----- Machine Vision / ML Features -----
 EHS_ML_SUPPORT=yes
 EHS_ML_IE_IMAGE_SUPPORT=tensorflow-lite
-#TODO make a duplicate of this for hailo to avoid the dependency
-#EHS_ML_HARDWARE_ACCELERATION=hailo
+EHS_ML_HARDWARE_ACCELERATION=hailo
 
 EHS_ML_MODEL_SUPPORT_YOLOV5_OBJDET=yes
 EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET=yes

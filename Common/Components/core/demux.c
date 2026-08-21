@@ -867,7 +867,7 @@ EHS_FB_INIT_FUNCTION(DemultiplexTwoOutputString)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputString1)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -881,7 +881,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputString1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexTwoOutputString2)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -932,7 +932,7 @@ EHS_FB_INIT_FUNCTION(DemultiplexThreeOutputString)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString1)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -946,7 +946,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString2)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -960,7 +960,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexThreeOutputString3)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1013,7 +1013,7 @@ EHS_FB_INIT_FUNCTION(DemultiplexFourOutputString)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString1)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1027,7 +1027,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString2)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1041,7 +1041,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString3)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1055,7 +1055,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString3)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexFourOutputString4)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1116,7 +1116,7 @@ EHS_FB_INIT_FUNCTION(DemultiplexEightOutputString)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString1)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1130,7 +1130,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString1)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString2)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1144,7 +1144,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString2)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString3)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1158,7 +1158,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString3)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString4)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1172,7 +1172,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString4)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString5)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1186,7 +1186,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString5)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString6)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1200,7 +1200,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString6)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString7)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1214,7 +1214,7 @@ EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString7)
  */
 EHS_FB_RUN_FUNCTION(DemultiplexEightOutputString8)
 {
-    strcpy(EHS_FB_OUT_S(0), EHS_FB_IN_S(0));
+    EHS_FB_OUT_S_SET(0, EHS_FB_IN_S(0));
     SetCompletes((structFuncArg*)EHS_FB_RUN_CONTEXT_REF);
     return;
 }
@@ -1291,7 +1291,7 @@ EHS_FB_RUN_FUNCTION(IndexedDemultiplexer_String)
     }
     else   //Everything OK !
     {
-        EhsStrcpy(EHS_FB_OUT_S(index-1), EHS_FB_IN_S(0)); // index-1+1: the output is offset by one as the offset is first output)
+        EHS_FB_OUT_S_SET(index-1, EHS_FB_IN_S(0)); // index-1+1: the output is offset by one as the offset is first output)
         EHS_FB_OUT_I(8)=0;
         EhsFunctionInstanceData_triggerEvent((structFuncArg*)EHS_FB_RUN_CONTEXT_REF,index); /** only trigger the appropriate output @todo these are not 0 indexed */
     }
@@ -1483,7 +1483,7 @@ EHS_FB_INIT_FUNCTION(TextCaseDemultiplexer_Event)
             }
             else   // assume we have some bare text
             {
-                pParams = EhsGetWordFromString(temp, pParams);
+                pParams = EhsGetWordFromString(temp, pParams, sizeof(temp));
             }
 
             const ehs_sint32 len = EhsStrlen(temp);

@@ -2,10 +2,10 @@
 
 <head>
   <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
-  <LINK REL=StyleSheet HREF="iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../iabStyle.css" TYPE="text/css">
-  <LINK REL=StyleSheet HREF="../../../iabStyle.css" TYPE="text/css">
+  <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
 </head>
 
 <body>
@@ -18,14 +18,39 @@
       <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
     </div>
 
-    <!--General Description-->
-    <p class=component>
-      _todo_  : use links to ports like this: <a href="#[Out]xxx">cnt</a>
-      ...
-      ...
+    <!-- General Description.
+         Multiple short paragraphs are fine. Use links to ports / params like:
+            <a href="#[Out]xxx">cnt</a>     <a href="#[Param]Mode">Mode</a>
+         For numbered or bulleted lists inside the description, use
+         <ol class="component"> or <ul class="component"> so the items
+         render in the same 12px Arial as <p class="component">. Do NOT
+         nest a list inside a <p> - the browser auto-closes the <p> at
+         the list start, which causes the bullets to fall back to the
+         default body font. -->
+    <p class="component">
+      _todo_ short tagline for the function block.
     </p>
-  
-    <!--Parameters - form - short desc: long desc-->
+    <p class="component">
+      _todo_ longer description of what the block does and any external
+      services / hardware required.
+    </p>
+    <!-- Optional bulleted list inside the description prose:
+    <ol class="component">
+      <li>_todo_ first thing the user needs.</li>
+      <li>_todo_ second thing.</li>
+    </ol>
+    -->
+
+    <!-- Parameters table.
+         Column order is fixed: name | type | description | default | min. | max.
+         Widths are set globally in iabStyle.css:
+            name     : 90px (nowrap)
+            type     : 40px, centred
+            description : flex, min-width 80ch
+            default  : 120px (wraps long hex defaults)
+            min./max.: 55px each, centred
+         Do not add inline width/style overrides - keep the layout consistent
+         across blocks. -->
     <div class="section_heading">
       <span id="parameters" class="toc_span">Parameters</span>
       <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
@@ -34,32 +59,38 @@
     </div>
     <table class="table_params">
       <tr>
-        <th  style="width:60px;">name</th>
+        <th>name</th>
         <th>type</th>
+        <th>description</th>
         <th>default</th>
         <th>min.</th>
         <th>max.</th>
-        <th>description</th>
+      </tr>
+      <tr>
+        <td><a name="[Param]_todo_">_todo_</a></td>
+        <td>I</td>
+        <td>_todo_ what the parameter controls; valid range; cross-link related ports/params.</td>
+        <td>_todo_</td>
+        <td>_todo_</td>
+        <td>_todo_</td>
       </tr>
       <tr>
         <td>_todo_</td>
+        <td>B</td>
         <td>_todo_</td>
-        <td>_todo_</td>
-        <td>_todo_</td>
-        <td>_todo_</td>
-        <td>_todo_.</td>
-      </tr>
-      <tr>
-        <td>_todo_</td>
-        <td>_todo_</td>
-        <td>_todo_</td>
-        <td>_todo_</td>
-        <td>_todo_</td>
-        <td>_todo__todo_</td>
+        <td>0</td>
+        <td></td>
+        <td></td>
       </tr>
     </table>
 
-    <!--Ports - form - short desc: long desc-->
+    <!-- Ports table.
+         Column 1 holds the section header ("In Ev." / "Data In" /
+         "Data Out" / "Out Ev.") and the port label. iabStyle.css caps
+         it at max(30ch, 20%); column 2 (description sentence) takes
+         the remainder.
+         Order the four sections as: In Ev. -> Data In -> Data Out -> Out Ev.
+         -->
     <div class="section_heading">
       <span id="ports" class="toc_span">Ports</span>
       <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
@@ -71,39 +102,54 @@
         <th>In Ev.</th><th></th>
       </tr>
       <tr>
-        <td class=portsInt/portsBool/portsStr/portsReal/portsEvent><a name=[In]xxxx>dec</a></td>
-        <td>_todo_</td>
-      </tr>
-      <tr>
-        <td>_todo_</td>
-        <td>_todo_</td>
-      </tr>
-      <tr>
-        <td>_todo_</td>
-        <td>_todo_</td>
-      </tr>
-      <tr>
-        <th >Data In</th><th></th>
-      </tr>
-      <tr>
-        <td>...</td>
-        <td>_todo_</td>
-      </tr>
-      <tr>
-        <th >Data Out</th><th></th>
-      </tr>
-      <tr>
-        <td>_todo_</td>
-        <td>_todo_</td>
-      </tr>
-      <tr>
-        <th >Out Ev.</th><th></th>
-      </tr>
-      <tr>
-        <td></td>
-        <td>_todo_</td>
+        <td class="ports"><a name="[In]_todo_">_todo_</a></td>
+        <td>_todo_ what triggering this StartPort does.</td>
       </tr>
 
+      <tr>
+        <th>Data In</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[In]_todo_">_todo_</a></td>
+        <td>_todo_ what this InputPort feeds in (and which function consumes it).</td>
+      </tr>
+
+      <tr>
+        <th>Data Out</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[Out]_todo_">_todo_</a></td>
+        <td>_todo_ what this OutputPort holds, and which finish event it is paired with.</td>
+      </tr>
+
+      <tr>
+        <th>Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[Out]_todo_">_todo_</a></td>
+        <td>_todo_ when this FinishPort fires.</td>
+      </tr>
+
+      <!-- Optional: errno enumeration appended to the bottom of the ports table.
+           Use class="errno_table" so iabStyle.css applies the narrow
+           name / value layout.
+      <tr>
+        <th colspan="2">errno values (used by <a href="#[Out]_todo_errno">_todo_errno</a>)</th>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <table class="errno_table">
+            <thead>
+              <tr><th>Enumeration</th><th>Value</th><th>Meaning</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>OK</td><td>0</td><td>Success.</td></tr>
+              <tr><td>_TODO_</td><td>1</td><td>_todo_</td></tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      -->
     </table>
 
 
@@ -164,7 +210,7 @@
       <tr>
         <td class=heading-cell>
           <b>Minumum DCC</b>
-        </td><td>A0000</td> 
+        </td><td>A0000</td>
         <td class=heading-cell>
           <b>Profiles</b>
         </td>

@@ -32,9 +32,6 @@ EHS_OS=esp32_freertos
 # TOOLCHAIN_NAME - original ESP32 toolchain
 TOOLCHAIN_NAME=xtensa-esp32-elf-4.4.1
 
-# Export ESP32 platform flag
-export EHS_ESP32=yes
-
 
 #################################################################################################################
 # Debug and Startup Modifiers
@@ -92,9 +89,6 @@ include ./target/devman-configs/inx-systems.com.mk
 # Legacy Preprocessor Definitions (DEFS)
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
-
-# Platform identification
-#DEFS += EHS_ESP32
 
 # File system workarounds for ESP32 (not S3) - feof linked in 4.4.1 libraries
 DEFS += EHS_FEOF_MISSING_WORKAROUND

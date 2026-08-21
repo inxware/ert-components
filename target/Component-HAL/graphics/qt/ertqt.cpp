@@ -59,14 +59,17 @@
 #include "ertqt.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QEventLoop>
 #include <QtCore/QString>
 #include <QtGui/QGuiApplication>
 #include <QtQml/QQmlApplicationEngine>
+#include <QtQml/QQmlError>
 #ifdef ERTQT_SINGLETON_SCAN
 #include <QtQml/QQmlExpression>
 #include <QtQml/QQmlContext>
 #endif
 #include <QtQuick/QQuickItem>
+#include <QtQuick/QQuickWindow>
 #include <QtCore/QTimer>
 #include <QtCore/QVariant>
 #include <QtCore/QMetaObject>
@@ -87,6 +90,7 @@
 #include <vector>
 #include <string>
 #include <mutex>
+#include <atomic>
 #include <cstring>
 
 namespace
@@ -100,6 +104,14 @@ struct ObjectRecord
 
 static QGuiApplication * g_app = nullptr;
 static QQmlApplicationEngine * g_engine = nullptr;
+static QQuickWindow * g_root_window = nullptr; // created when QML root is Item, not Window
+
+// Cached "engine has root objects" flag. notify() runs on every dispatched
+// Qt event (thousands per second) and previously called g_engine->rootObjects()
+// — which returns a QList copy — on every call. Cache the state instead and
+// only update it when the engine is loaded/destroyed. std::atomic for safety
+// in case events ever arrive from a non-main thread.
+static std::atomic<bool> g_engine_ready{false};
 
 static std::vector<ObjectRecord> g_objects;
 static std::mutex g_objects_mutex;
@@ -144,27 +156,40 @@ public:
 
     bool notify(QObject *receiver, QEvent *event) override
     {
-        if (!g_engine || g_engine->rootObjects().isEmpty())
+        // Fast path: only the input event types below are candidates for
+        // suppression-while-QML-not-loaded. Every other event type (paint,
+        // timer, child, metacall, deferred-delete, etc.) bypasses the engine
+        // check entirely. This means the engine-state lookup runs at input-
+        // event rate, not at total-dispatch rate.
+        //
+        // Filtering type first is ALSO a safety win: notify() is invoked
+        // during QQmlApplicationEngine's construction and destruction (when
+        // Qt fires ChildEvents internally). A naive engine-state check in
+        // those windows would dereference a half-constructed or already-
+        // freed engine pointer. The cached g_engine_ready flag plus the
+        // type-first dispatch closes that hole.
+        switch (event->type())
         {
-            switch (event->type())
+        case QEvent::MouseMove:
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::HoverMove:
+        case QEvent::HoverEnter:
+        case QEvent::HoverLeave:
+        case QEvent::Wheel:
+        case QEvent::TouchBegin:
+        case QEvent::TouchUpdate:
+        case QEvent::TouchEnd:
+        case QEvent::TouchCancel:
+            if (!g_engine_ready.load(std::memory_order_acquire))
             {
-            case QEvent::MouseMove:
-            case QEvent::MouseButtonPress:
-            case QEvent::MouseButtonRelease:
-            case QEvent::MouseButtonDblClick:
-            case QEvent::HoverMove:
-            case QEvent::HoverEnter:
-            case QEvent::HoverLeave:
-            case QEvent::Wheel:
-            case QEvent::TouchBegin:
-            case QEvent::TouchUpdate:
-            case QEvent::TouchEnd:
-            case QEvent::TouchCancel:
-                event->accept(); // This eats the event so that it isen't passed up. (It doesn't solve anything with apps existing when the mouse moves).
+                event->accept(); // eat the event so it can't crash QML before it's loaded
                 return true;
-            default:
-                break;
             }
+            break;
+        default:
+            break;
         }
         return QGuiApplication::notify(receiver, event);
     }
@@ -239,15 +264,15 @@ static void rebuild_object_table()
                 QVariant val = expr.evaluate(&isUndefined);
                 if (isUndefined || !val.isValid())
                 {
-                    printf("ertqt: singleton scan '%s': not found in context\n",
-                           expr_str.c_str());
+                    //printf("ertqt: singleton scan '%s': not found in context\n",
+                    //       expr_str.c_str());
                     continue;
                 }
                 QObject *obj = val.value<QObject *>();
                 if (!obj)
                 {
-                    printf("ertqt: singleton scan '%s': result is not a QObject\n",
-                           expr_str.c_str());
+                    //printf("ertqt: singleton scan '%s': result is not a QObject\n",
+                    //       expr_str.c_str());
                     continue;
                 }
                 // Add the singleton root itself
@@ -267,13 +292,14 @@ static void rebuild_object_table()
                     g_objects.push_back(crec);
                     if (!crec.name.empty()) named_count++;
                 }
-                printf("ertqt: singleton scan '%s': added %d objects\n",
-                       expr_str.c_str(), (int)schildren.size() + 1);
+               //printf("ertqt: singleton scan '%s': added %d objects\n",
+               //        expr_str.c_str(), (int)schildren.size() + 1);
             }
         }
     }
 #endif /* ERTQT_SINGLETON_SCAN */
 
+#if 0
     printf("ertqt: object table rebuilt: %d total, %d named:\n", (int)g_objects.size(), named_count);
     for (size_t i = 0; i < g_objects.size(); ++i)
     {
@@ -282,6 +308,7 @@ static void rebuild_object_table()
             printf("  [%zu] '%s'\n", i, g_objects[i].name.c_str());
         }
     }
+#endif
 }
 
 // Internal helper used as the QTimer callback for driving the registered tick callback.
@@ -470,6 +497,59 @@ ertqt_status ertqt_init(int argc, char ** argv)
 // - ERTQT_ERR_GENERIC if ertqt_init() has not been called successfully.
 // - ERTQT_ERR_BACKEND_FAILURE if the QML file failed to produce a root object.
 //
+// See header for contract.
+ertqt_status ertqt_destroy_engine(void)
+{
+    // Stop any active QtMultimedia elements (Camera, MediaPlayer,
+    // CaptureSession) in the current QML tree. Their underlying GStreamer
+    // pipelines need to transition through NULL state — if disposed while
+    // in READY/PLAYING they leak state and break the next load
+    // ("Trying to dispose element qgstvideorenderersink0, but it is in
+    // READY instead of the NULL state").
+    if (g_engine)
+    {
+        const QList<QObject *> roots = g_engine->rootObjects();
+        for (QObject *root : roots)
+        {
+            QList<QObject *> kids = root->findChildren<QObject *>();
+            kids.prepend(root);
+            for (QObject *child : kids)
+            {
+                const QVariant active_prop = child->property("active");
+                if (active_prop.isValid() && active_prop.userType() == QMetaType::Bool && active_prop.toBool())
+                {
+                    child->setProperty("active", false);
+                }
+            }
+        }
+        // Give Qt / GStreamer a chance to actually run the state-down
+        // transitions before the destructors fire.
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 200);
+    }
+
+    // Critical: clear g_engine_ready and null g_engine BEFORE delete.
+    // ErtQtApplication::notify() runs on every dispatched event; the engine's
+    // destructor fires ChildEvents that flow through notify(). Clearing the
+    // ready flag here means notify() short-circuits via the cached flag and
+    // never touches g_engine during the destructor.
+    g_engine_ready.store(false, std::memory_order_release);
+    QQmlApplicationEngine *old_engine = g_engine;
+    g_engine = nullptr;
+    delete old_engine;
+
+    delete g_root_window;
+    g_root_window = nullptr;
+
+    // Clear the cached object table so a fresh scan starts empty.
+    {
+        std::lock_guard<std::mutex> lock(g_objects_mutex);
+        g_objects.clear();
+    }
+
+    g_app_state = ERTQT_APP_STATE_IDLE;
+    return ERTQT_OK;
+}
+
 ertqt_status ertqt_load_app(const char * qml_path)
 {
     if (!qml_path)
@@ -477,19 +557,20 @@ ertqt_status ertqt_load_app(const char * qml_path)
         return ERTQT_ERR_INVALID_ARGUMENT;
     }
 
-    if (!g_initialised || !g_engine)
+    if (!g_initialised)
     {
         return ERTQT_ERR_GENERIC;
     }
 
     g_app_state = ERTQT_APP_STATE_LOADING;
 
-    // Delete and recreate the engine on each load so that rootObjects() starts
-    // empty. QQmlApplicationEngine::load() appends to rootObjects() rather than
-    // replacing them, so reusing the engine causes the object table to double on
-    // every reload.
-    delete g_engine;
-    g_engine = new QQmlApplicationEngine();
+    // Tear down any leftover engine state before creating a fresh one. This
+    // call is idempotent — on first boot (or after EhsApp_teardown) there's
+    // nothing alive and it falls through.
+    ertqt_destroy_engine();
+
+    QQmlApplicationEngine *new_engine = new QQmlApplicationEngine();
+    g_engine = new_engine;
     QObject::connect(g_engine, &QQmlApplicationEngine::objectCreated, g_engine, [](QObject *obj, const QUrl &url)
     {
         Q_UNUSED(url);
@@ -499,11 +580,34 @@ ertqt_status ertqt_load_app(const char * qml_path)
         }
     });
 
+    // Surface QML errors. Without this a failed load is silent from eRT's side:
+    // load_current_app_qml() only sees ERTQT_ERR_BACKEND_FAILURE and cannot say
+    // whether it was a missing import, a syntax error or a missing type.
+    QObject::connect(g_engine, &QQmlApplicationEngine::warnings, g_engine,
+                     [](const QList<QQmlError> &warnings)
+    {
+        for (const QQmlError &e : warnings)
+        {
+            qCritical("QML: %s", qPrintable(e.toString()));
+        }
+    });
+
     // Add the QML file's directory as an import path so that the
-    // application can import sibling QML modules and components.
+    // application can import sibling QML modules and components (this also
+    // resolves dotted module names laid out as subdirectories, e.g.
+    // "import Generated.DesignSystem" -> <appdir>/Generated/DesignSystem).
     QString qml_file = QString::fromUtf8(qml_path);
     QString qml_dir = QFileInfo(qml_file).absolutePath();
     g_engine->addImportPath(qml_dir);
+
+    // Also expose the conventional "imports" subdirectory (if present) so apps
+    // can ship reusable QML modules under <appdir>/imports/<Module>/qmldir
+    // (e.g. Constants, UIState) and import them by bare name.
+    QString imports_dir = qml_dir + QStringLiteral("/imports");
+    if (QFileInfo::exists(imports_dir))
+    {
+        g_engine->addImportPath(imports_dir);
+    }
 
     // load() blocks until the QML tree is fully constructed
     g_engine->load(QUrl::fromLocalFile(qml_file));
@@ -512,6 +616,32 @@ ertqt_status ertqt_load_app(const char * qml_path)
     {
         g_app_state = ERTQT_APP_STATE_IDLE;
         return ERTQT_ERR_BACKEND_FAILURE;
+    }
+
+    // QML loaded successfully — publish the ready flag so notify() stops
+    // suppressing input events. Release ordering pairs with the acquire in
+    // notify() so any event-thread observer sees a fully-constructed engine.
+    g_engine_ready.store(true, std::memory_order_release);
+
+    // QQmlApplicationEngine only auto-shows Window roots. If the QML root is
+    // a plain Item, create a QQuickWindow, place the item inside it, and show
+    // it. The window is owned here and torn down on the next load.
+    QObject *first_root = g_engine->rootObjects().first();
+    QQuickItem *root_item = qobject_cast<QQuickItem *>(first_root);
+    if (root_item && !qobject_cast<QQuickWindow *>(first_root))
+    {
+        g_root_window = new QQuickWindow();
+        root_item->setParentItem(g_root_window->contentItem());
+        g_root_window->setWidth(static_cast<int>(root_item->width()));
+        g_root_window->setHeight(static_cast<int>(root_item->height()));
+        g_root_window->show();
+        // The root Item was component-completed *before* we re-parented it,
+        // so its `focus: true` declaration never claimed active focus from
+        // the window's focus chain. Force it now so Keys.onPressed fires.
+        root_item->forceActiveFocus();
+        //printf("ertqt: wrapped Item root in QQuickWindow (%dx%d)\n",
+        //       g_root_window->width(), g_root_window->height());
+        //fflush(stdout);
     }
 
     // QML tree is ready — signal that the object table needs scanning.
@@ -612,6 +742,17 @@ ertqt_object_handle ertqt_get_object_by_name(const char * name)
         return ERTQT_ERR_INVALID_ARGUMENT;
     }
 
+    // Sentinel: return the first root object without requiring objectName in QML
+    if (strcmp(name, "_qml_root_object_") == 0)
+    {
+        if (g_engine && !g_engine->rootObjects().isEmpty())
+        {
+            QObject *root = g_engine->rootObjects().first();
+            return reinterpret_cast<ertqt_object_handle>(root);
+        }
+        return ERTQT_ERR_NOT_FOUND;
+    }
+
     std::lock_guard<std::mutex> lock(g_objects_mutex);
 
     for (size_t i = 0; i < g_objects.size(); ++i)
@@ -623,12 +764,10 @@ ertqt_object_handle ertqt_get_object_by_name(const char * name)
         }
         if (rec.name == name)
         {
-            printf("ertqt: object found: '%s'\n", name);
             return reinterpret_cast<ertqt_object_handle>(rec.ptr);
         }
     }
 
-    printf("ertqt: object NOT found: '%s' (table has %zu entries)\n", name, g_objects.size());
     return ERTQT_ERR_NOT_FOUND;
 }
 
@@ -1210,7 +1349,6 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
 
     if (signal_idx < 0)
     {
-        // Signal not found in metaobject
         return ERTQT_ERR_BACKEND_FAILURE;
     }
 
@@ -1233,9 +1371,9 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
         return ERTQT_ERR_BACKEND_FAILURE;
     }
 
-    // Connect: mapper.mapped(int) -> lambda
+    // Connect: mapper.mapped(int) -> lambda.
     QObject::connect(mapper, ERTQT_SIGNAL_MAPPER_MAPPED_INT,
-                    g_app, [cb, user_data, signal_name](int) {
+                    g_app, [cb, user_data](int) {
                         cb(user_data);
                     });
     return ERTQT_OK;
@@ -1252,6 +1390,30 @@ static ertqt_status connect_signal_by_name(QObject *obj, const char *signal_name
     // return connected ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
 }
 
+ertqt_status ertqt_bind_signal(ertqt_object_handle h, const char * signal_name,
+                               ertqt_void_callback cb, void * user_data)
+{
+    if (!h || !cb || !signal_name)
+        return ERTQT_ERR_INVALID_ARGUMENT;
+    QObject *obj = reinterpret_cast<QObject*>(h);
+    if (!obj)
+        return ERTQT_ERR_INVALID_HANDLE;
+    return connect_signal_by_name(obj, signal_name, cb, user_data);
+}
+
+ertqt_status ertqt_invoke_signal(ertqt_object_handle h, const char * signal_name)
+{
+    if (!h || !signal_name)
+        return ERTQT_ERR_INVALID_ARGUMENT;
+    QObject *obj = reinterpret_cast<QObject*>(h);
+    if (!obj)
+        return ERTQT_ERR_INVALID_HANDLE;
+    // QMetaObject::invokeMethod can fire signals (signals are auto-generated slots
+    // in the meta-object) — works for both C++ and QML-declared signals.
+    bool ok = QMetaObject::invokeMethod(obj, signal_name, Qt::AutoConnection);
+    return ok ? ERTQT_OK : ERTQT_ERR_BACKEND_FAILURE;
+}
+
 ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, void * user_data)
 {
     if (!h || !cb)
@@ -1259,9 +1421,6 @@ ertqt_status ertqt_bind_clicked(ertqt_object_handle h, ertqt_void_callback cb, v
 
     QObject *obj = reinterpret_cast<QObject*>(h);
     ertqt_status st = connect_signal_by_name(obj, "clicked", cb, user_data);
-  //  printf("[TRACE] ertqt_bind_clicked: handle=%p, cb=%p, user_data=%p -> %s\n",
-   //        (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
-    fflush(stdout);
     return st;
 }
 
@@ -1272,9 +1431,6 @@ ertqt_status ertqt_bind_pressed(ertqt_object_handle h, ertqt_void_callback cb, v
 
     QObject *obj = reinterpret_cast<QObject*>(h);
     ertqt_status st = connect_signal_by_name(obj, "pressed", cb, user_data);
-   // printf("[TRACE] ertqt_bind_pressed: handle=%p, cb=%p, user_data=%p -> %s\n",
-   //        (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
-    fflush(stdout);
     return st;
 }
 
@@ -1285,9 +1441,6 @@ ertqt_status ertqt_bind_released(ertqt_object_handle h, ertqt_void_callback cb, 
 
     QObject *obj = reinterpret_cast<QObject*>(h);
     ertqt_status st = connect_signal_by_name(obj, "released", cb, user_data);
-    //printf("[TRACE] ertqt_bind_released: handle=%p, cb=%p, user_data=%p -> %s\n",
-    //       (void*)h, (void*)(intptr_t)cb, user_data, st == ERTQT_OK ? "OK" : "FAILED");
-    fflush(stdout);
     return st;
 }
 

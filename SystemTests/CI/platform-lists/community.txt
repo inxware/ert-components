@@ -1,0 +1,25 @@
+# community.txt — Platforms in the public / community release.
+# Used by:  run_regression.sh --platform-list community
+# One platform directory name per line.  Lines starting with # are ignored.
+
+linux_x86_64-lucid-debian11
+linux_android_arm_p64_h6_player-sandbox
+linux_amd64_gtk_gst
+linux_x86_64_gtk_gst_debian11
+linux_x86_64_gtk_gst_debian11-debug
+linux_x86_64_clang_gtk
+linux_x86_64_clang_gg_debian11
+linux_x86_64_clang_gtk_gst_gg_debian11
+linux_x86_gtk_gst_debian8
+linux_armv7l_clang_debian10
+linux_armv7l_clang_gtk_gst_debian10
+win_x86_gtk_gst
+win_x86_32-lucid-win10
+esp32_freertos-xtensor-base
+esp32s3_freertos-xtensa-base
+linux_android_arm
+linux_android_arm_legacy
+arduino_arduino-mbed-nano_community_library
+arduino_arduino-mbed-nano_lib
+linux_arm64_lvgl_gg_debian11
+linux_arm64_lvgl_raspberrypi_demo

@@ -28,7 +28,7 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     echo
     echo "--------------------------------------------------------------------"
     echo
-    ./target/envbuildscripts/target_buildenv_run_command.sh sh -c "pwd && ls -l .. &&  make -j 8 "
+    ./target/envbuildscripts/target_buildenv_run_command.sh sh -c "pwd && ls -l .. &&  make -j$(nproc) "
     echo
     echo "--------------------------------------------------------------------"
     echo
@@ -46,7 +46,7 @@ else
 
     # We need to run this from a clean normal login shell environment, because we have already run make,
     # which pollutes the environment
-    env -i bash -l -c make -j 8
+    env -i bash -l -c make -j$(nproc)
 
     echo
     echo "--------------------------------------------------------------------"

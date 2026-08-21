@@ -37,8 +37,12 @@
 
 #ifndef EHSStdioPrintf
   #define TAG "ESP32_LOG"
-  #define EhsStdioPrintf(x, y, z, ...) {if (strcmp(z,"Error") == 0) ESP_LOGE(TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Warning") == 0) ESP_LOGW(TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Info")) ESP_LOGI(TAG, x, y, z, __VA_ARGS__);else ESP_LOGD(TAG, x, y, z, __VA_ARGS__);}
-  #define EhsStdioSimplePrintf(...)  ESP_LOGD(TAG, __VA_ARGS__)
+  #define EhsStdioPrintf(x, y, z, ...) {if (strcmp(z,"Error") == 0) ESP_LOGE(TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Warning") == 0) ESP_LOGW(TAG, x, y, z, __VA_ARGS__);else if (strcmp(z,"Info") == 0) ESP_LOGI(TAG, x, y, z, __VA_ARGS__);else ESP_LOGD(TAG, x, y, z, __VA_ARGS__);}
+  /* See esp32s3 sibling target_specific.h for the rationale: ESP_LOGD is
+   * silently dropped at the default IDF runtime log level, so kernel
+   * messages (EhsParserError etc.) never reach the UART. Match the other
+   * targets and use plain printf(). */
+  #define EhsStdioSimplePrintf(...)  printf(__VA_ARGS__)
 #endif
 
 /* math functions not implemented in Windows */

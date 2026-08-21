@@ -28,10 +28,6 @@
 /* #define EHS_MEMORY_ATTRIB */
 /* #define EHS_DATA_MEMORY_ATTRIB */
 
-/* Zephyr k_mutex provides full memory barriers —
- * volatile is not needed for inter-thread shared variables. */
-#define EHS_VOLATILE
-
 #include "../base_small/base_types.h"
 
 #endif

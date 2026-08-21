@@ -13,17 +13,10 @@ source TARGET.cfg
 TARGET_ENV_NAME="ehs_env-${TARGET}"
 EXE_FILE=../TARGET_TREES/${TARGET_ENV_NAME}/bin/ehs.exe
 
-text=$1
+text="$*"
 
-# Use awk to extract values before ':'
-result=$(echo "$text" | awk -F ':' '{ for (i = 1; i < NF; i++) printf $i " "; }')
-
-# Split the extracted values into an array
-IFS=' ' read -ra values <<< "$result"
-
-# Iterate through the extracted values
-for value in "${values[@]}"; do
-    if [ "$value" != "Backtrace:" ]; then
-        ../ert-build-support/toolchains/x86_64/xtensa-esp32s3-elf-5.1/bin/xtensa-esp32s3-elf-addr2line -pfiaC -e ${EXE_FILE} "$value"
-    fi
+# Extract only the PC address (left side of each PC:SP pair, e.g. 0x420c193a:0x3fcc8ae0)
+for pair in $(echo "$text" | tr ' ' '\n' | grep -E '^0x[0-9a-fA-F]+:0x[0-9a-fA-F]+$'); do
+    pc="${pair%%:*}"
+    ../ert-build-support/toolchains/x86_64/xtensa-esp32s3-elf-5.1/bin/xtensa-esp32s3-elf-addr2line -pfiaC -e ${EXE_FILE} "$pc"
 done

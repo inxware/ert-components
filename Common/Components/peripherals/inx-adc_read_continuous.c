@@ -1,8 +1,13 @@
+/* Module-scoped logger ID. Must precede every include: several headers pull in
+ * hal_logger.h, which latches EHSL_MODULE_ID to UNDEFINED if it is not set yet. */
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_UNDEFINED
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-adc_read_continuous.h"
 #include "target_adcdac.h"
+#include "hal_logger.h"
 
 //ICB HEADER MACRO END -- DO NOT ALTER
 //ICB STATE VAR MACRO START -- DO NOT ALTER
@@ -100,6 +105,16 @@ EHS_FB_INIT_FUNCTION(adc_read_continuous)
 	
 	// Init failed if Device ID or channel ID is out of range
 	if (inx_adc_read_continuous_state->channel > EHS_TARGET_ADC_CHANNEL_NUMBER || inx_adc_read_continuous_state->device_id > EHS_TARGET_ADC_UNIT_NUMBER) return EHS_FALSE;
+	/* A zero decimation can only arrive from a malformed parameter string - the CDF sets
+	 * MinValue 1. The ISR ignores such a channel rather than dividing by zero or firing a
+	 * callback per conversion; don't fail init or assert an event over it, since the same
+	 * state occurs transiently before this block has written its config. */
+	if (inx_adc_read_continuous_state->decimation == 0u)
+	{
+		EHSH_LOG_ERROR("adc_read_continuous: decimation 0 on device %d channel %d - channel will produce no readings",
+		               (int)inx_adc_read_continuous_state->device_id,
+		               (int)inx_adc_read_continuous_state->channel);
+	}
 	EhsCallbackQueue_register(&xAdcReadContinuousCallbackQueue[inx_adc_read_continuous_state->device_id][inx_adc_read_continuous_state->channel],
 			   EHS_FB_RUN_NAME(adc_read_continuous_convert),
 			   EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(-1), //TODO
@@ -117,8 +132,22 @@ EHS_FB_INIT_FUNCTION(adc_read_continuous)
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
 EHS_FB_DESTROY_FUNCTION(adc_read_continuous)
 {
-	//inx_adc_read_continuous_state_type *inx_adc_read_continuous_state = (inx_adc_read_continuous_state_type*)EHS_FB_DESTROY_CONTEXT;
-	//Your code below here
+	inx_adc_read_continuous_state_type *inx_adc_read_continuous_state = (inx_adc_read_continuous_state_type*)EHS_FB_DESTROY_CONTEXT;
+	/* xAdcReadContinuousCallbackQueue is a file-scope static holding a pointer to xEntry,
+	 * which lives in this pool-allocated context. Leaving it registered lets the ADC DMA
+	 * ISR dispatch through a freed entry after the pool is flushed - observed as a jump to
+	 * a small bogus address from EhsCallbackQueue_execute. Gate the ISR first, then drop
+	 * the entry. */
+	if (inx_adc_read_continuous_state == NULL) return EHS_TRUE;
+	if (inx_adc_read_continuous_state->device_id < EHS_TARGET_ADC_UNIT_NUMBER &&
+	    inx_adc_read_continuous_state->channel  < EHS_TARGET_ADC_CHANNEL_NUMBER)
+	{
+		if (g_ehs_adc_continuous_enabled_bitmask)
+			EHS_CLEAR_BIT_N(g_ehs_adc_continuous_enabled_bitmask[inx_adc_read_continuous_state->device_id],
+			                inx_adc_read_continuous_state->channel);
+		EhsCallbackQueue_clear(&xAdcReadContinuousCallbackQueue[inx_adc_read_continuous_state->device_id]
+		                                                      [inx_adc_read_continuous_state->channel]);
+	}
 	return EHS_TRUE;
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE

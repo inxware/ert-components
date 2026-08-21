@@ -103,7 +103,7 @@ EHS_FB_INIT_FUNCTION(indexed_mux_str)
 		if (pFbInitParam[0] != '"')
 		{
 			/* When it's not a string containing spaces */
-			pFbInitParam = EhsGetWordFromString(in_temp, pFbInitParam);
+			pFbInitParam = EhsGetWordFromString(in_temp, pFbInitParam, sizeof(in_temp));
 			str_count = EhsStrlen(in_temp);
 			if (str_count == 4 && EhsStrncmp(in_temp, "NULL", 4) == 0)
 			{

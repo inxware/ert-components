@@ -19,4 +19,6 @@ make targetenv_littlefs
 make all_docker
 make targetenv_esp32_docker
 ./scripts/build-deploy/esp32/esp32_flash.sh esp32s3-5.1
-./scripts/build-deploy/esp32/esp32_monitor_console.sh esp32s3-5.1
+if [ "$1" != "--skip-monitor" ]; then
+./scripts/build-deploy/esp32/esp32_monitor_console.sh
+fi

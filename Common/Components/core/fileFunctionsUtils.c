@@ -37,13 +37,17 @@ int GetFilename(const char *pParams, char *szFileName, char *tempExtension)
     do
     {
         nChar = pParams[nCount];
-        szFileName[nCount] = nChar;
+        if (nChar == 0x1F)
+           szFileName[nCount] = ' '; //lucid may send these instead of spaces and we would want to do this for files anyway
+        else
+           szFileName[nCount] = nChar;
         nCount++;
     }
     while(
-        (nChar != '\0')
+           (nChar != 0x1E )    // accept endof recordalso
+        && (nChar != '\0')
         && (nChar != ' ' ) //PBB 20201221 removed due to bad escape char || (nCount > 2 && pParams[nCount-2] == '\ ' )) // stop at a space or an escaped spaces - TODO - do we really want to stop at spaces is this the parm delimeter?
-        && nChar != '?'  // this means we have a temp extension to read while writing truncated files.
+        && (nChar != '?' ) // this means we have a temp extension to read while writing truncated files.
         && (nCount < EHS_STRING_LENGTH_MAX) ); //TODO:STRINGLENGTH! Shoud this be max file path or string length? We prolly need a max value argument for this function or declare it trusted client.
     if ( nCount > 0 )szFileName[nCount-1] = '\0';
 
@@ -76,11 +80,15 @@ int GetFilenameSplit_allowSpaces(const char *FullFilename, char *szFileName, cha
     do
     {
         nChar = FullFilename[nCount];
-        szFileName[nCount] = nChar;
+        if (nChar == 0x1F)
+           szFileName[nCount] = ' '; //lucid may send these instead of spaces and we would want to do this for files anyway
+        else
+           szFileName[nCount] = nChar;
         nCount++;
     }
     while(
-        (nChar != '\0')
+           (nChar != 0x1E )    // accept endof recordalso
+        && (nChar != '\0')
         && nChar != '?'  // this means we have a temp extension to read while writing truncated files.
         && (nCount < EHS_STRING_LENGTH_MAX) ); //TODO:STRINGLENGTH!
     if (nCount > 0 && nChar == '?') szFileName[nCount-1] = '\0';

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Cell Modem Manager</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">Brings the LTE-M / NB-IoT link up and down, and reports modem and network identity.</p>
+<p class="component">Owns the cellular connection. Triggering <a href="#[In]connect">Connect</a> starts an attach and returns immediately - an attach takes seconds on LTE-M and can take tens of minutes on NB-IoT, so the outcome arrives later on <a href="#[Out]connected">Connected</a> or <a href="#[Out]connect_failed">Failed</a>, not on <a href="#[Out]do_connect_OK">CDone</a>.</p>
+<p class="component">The identity outputs (operator, MCC/MNC, cell ID, band) are only meaningful once the link is up, which is why they live on this block rather than a separate info block: an app would otherwise have to know when a separate block's data became valid.</p>
+<p class="component">Connected, Failed and Disconnected are driven by an internal monitor thread and fire asynchronously, independently of any function you trigger. PSM sleep is deliberately NOT reported as a disconnect - the modem is still registered and data resumes on wake.</p>
+<div class="section_heading">
+<span id="parameters" class="toc_span">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr><th>name</th><th>type</th><th>description</th><th>default</th><th>min.</th><th>max.</th></tr>
+<tr>
+<td><a name="[Param]onStartup">onStartup</a></td>
+<td>B</td>
+<td>Connect on startup, before the app is loaded.</td>
+<td>1</td>
+<td>0</td><td>1</td>
+</tr>
+<tr>
+<td><a name="[Param]rat">rat</a></td>
+<td>I</td>
+<td>Radio access technology. 0 leaves the modem default, 1 for LTE-M, 2 for NB-IoT, 3 for both. LTE-M attaches far more quickly than NB-IoT; prefer it unless the operator only deploys NB-IoT.</td>
+<td>1</td>
+<td>0</td><td>3</td>
+</tr>
+<tr>
+<td><a name="[Param]ratPreference">ratPreference</a></td>
+<td>I</td>
+<td>Which technology the modem should prefer when both are enabled. 0 automatic, 1 LTE-M, 2 NB-IoT, 3 LTE-M with SIM operator priority, 4 NB-IoT with SIM operator priority.</td>
+<td>0</td>
+<td>0</td><td>4</td>
+</tr>
+<tr>
+<td><a name="[Param]tryReconnect">tryReconnect</a></td>
+<td>B</td>
+<td>Re-attach automatically after the link is lost, using an increasing delay between attempts.</td>
+<td>1</td>
+<td>0</td><td>1</td>
+</tr>
+<tr>
+<td><a name="[Param]backoffInitial">backoffInitial</a></td>
+<td>I</td>
+<td>Delay in seconds before the first re-attach attempt. The delay doubles after each failure up to backoffMax. Short values waste battery without improving the chance of success.</td>
+<td>60</td>
+<td>10</td><td>3600</td>
+</tr>
+<tr>
+<td><a name="[Param]backoffMax">backoffMax</a></td>
+<td>I</td>
+<td>Longest delay in seconds between re-attach attempts.</td>
+<td>3600</td>
+<td>60</td><td>86400</td>
+</tr>
+</table>
+<div class="section_heading">
+<span id="ports" class="toc_span">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[In]connect">Connect</a></td>
+<td>Start an attach using the current APN and RAT settings. Returns immediately; watch Connected / Failed for the outcome.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]disconnect">Disconnect</a></td>
+<td>Detach and release the PDN context.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]set">Set</a></td>
+<td>Apply the APN / RAT values presented on the data inputs. Settings take effect on the next Connect - changing RAT on a live link would drop it.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]read_info">ReadInfo</a></td>
+<td>Sample modem and network identity into the Data Out ports below. Only meaningful once online.</td>
+</tr>
+<tr><th>Data In</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[In]apn">APN</a></td>
+<td>Access Point Name. Leave empty for network-assigned, which is correct on most modern networks and on pre-activated IoT SIMs.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]apn_user">APNUser</a></td>
+<td>APN username, when the operator requires PAP/CHAP authentication. Usually empty.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]apn_pass">APNPass</a></td>
+<td>APN password. Usually empty.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]set_rat">RAT</a></td>
+<td>Radio access technology to use on the next connect: 0 leave modem default, 1 LTE-M, 2 NB-IoT, 3 both.</td>
+</tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]state">state</a></td>
+<td>Connection state: 0 Idle, 1 ModemInit, 2 SimWait, 3 SimPinRequired, 4 SimFailed, 5 RadioOn, 6 Searching, 7 NoCoverage, 8 RegDenied, 9 Registered, 10 Online, 11 PsmSleep, 12 Reconnecting, 13 Disconnecting, 14 Failed.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]reg_status">regStatus</a></td>
+<td>Network registration status as reported by the modem.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]ip_address">ipAddr</a></td>
+<td>IP address assigned to the PDN context. Empty when not online.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]is_roaming">isRoaming</a></td>
+<td>True when registered on a visited network rather than the home network.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]active_rat">activeRAT</a></td>
+<td>The RAT actually in use once attached: 1 LTE-M, 2 NB-IoT.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]fail_reason">failReason</a></td>
+<td>Why the last attempt failed. See the enumeration at the foot of this table.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]imei">IMEI</a></td>
+<td>Modem IMEI. Answered by the modem itself, so readable as soon as the modem is up.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]operator_name">Operator</a></td>
+<td>Registered operator name.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]mcc">MCC</a></td>
+<td>Mobile Country Code of the serving network.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]mnc">MNC</a></td>
+<td>Mobile Network Code of the serving network.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]cell_id">CellID</a></td>
+<td>Serving cell identifier.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]tac">TAC</a></td>
+<td>Tracking Area Code.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]band">Band</a></td>
+<td>LTE band number in use.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]modem_fw">ModemFW</a></td>
+<td>Modem firmware version string.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]err_code">errCode</a></td>
+<td>Reason the first failing identity read failed, or 0 when all succeeded. Lets an empty IMEI / Operator / ModemFW port be told apart from a read that never worked - an empty string with err_code 0 means the modem genuinely has nothing to report. See the enumeration at the foot of this table.</td>
+</tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]do_connect_OK">CDone</a></td>
+<td>Fires immediately after Connect is accepted. This is NOT 'connected' - it only means the request was taken.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]do_disconnect_OK">DDone</a></td>
+<td>Fires once the disconnect request has been issued.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]connected">Connected</a></td>
+<td>Asynchronous. Fires when the link reaches Online (or PSM sleep, which still counts as online).</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]connect_failed">Failed</a></td>
+<td>Asynchronous. Fires on a terminal failure - see failReason for which.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]disconnected">Disconnected</a></td>
+<td>Asynchronous. Fires when an established link is lost and the state machine begins reconnecting.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_ok">SDone</a></td>
+<td>Fires once the APN / RAT settings have been stored.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]read_info_ok">IDone</a></td>
+<td>Fires once the identity outputs have been refreshed. Fires even on a partial read - the ports that did resolve are still valid, and err_code says whether anything was missed.</td>
+</tr>
+<tr><th colspan="2">errno values (used by <a href="#[Out]fail_reason">fail_reason</a>)</th></tr>
+<tr><td colspan="2">
+<table class="errno_table">
+<thead><tr><th>Enumeration</th><th>Value</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>None</td><td>0</td><td>No failure recorded.</td></tr>
+<tr><td>ModemInit</td><td>1</td><td>Modem library or firmware failed to start.</td></tr>
+<tr><td>SimAbsent</td><td>2</td><td>No UICC responded.</td></tr>
+<tr><td>SimPinRequired</td><td>3</td><td>SIM is PIN locked.</td></tr>
+<tr><td>SimPukRequired</td><td>4</td><td>SIM is PUK locked - needs the operator.</td></tr>
+<tr><td>SimFailure</td><td>5</td><td>UICC fault.</td></tr>
+<tr><td>RegistrationDenied</td><td>6</td><td>Network refused registration.</td></tr>
+<tr><td>NoCoverage</td><td>7</td><td>No usable cell found.</td></tr>
+<tr><td>AttachTimeout</td><td>8</td><td>Attach did not complete in time.</td></tr>
+<tr><td>PdnTimeout</td><td>9</td><td>PDN activation timed out.</td></tr>
+<tr><td>PdnRejected</td><td>10</td><td>APN wrong or not permitted.</td></tr>
+<tr><td>ModemResetLoop</td><td>11</td><td>Modem reset-loop protection tripped.</td></tr>
+<tr><td>Overheated</td><td>12</td><td>Modem shut down on temperature.</td></tr>
+<tr><td>NotSupported</td><td>13</td><td>Capability absent on this target.</td></tr>
+<tr><td>InvalidArg</td><td>14</td><td>Bad argument from the caller.</td></tr>
+<tr><td>Internal</td><td>15</td><td>Internal error.</td></tr>
+</tbody></table>
+</td></tr>
+</table>
+<div class="section_heading">
+<span id="misc" class="toc_span">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr><td class="heading-cell"><b>Toolbox</b></td><td>net</td><td class="heading-cell"><b>Version</b></td><td>v1.0</td></tr>
+<tr><td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td><td class="heading-cell"><b>Component Supplier</b></td><td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td></tr>
+<tr><td class="heading-cell"><b>Minumum DCC</b></td><td>A0000</td><td class="heading-cell"><b>Profiles</b></td><td>All.</td></tr>
+</table>
+</div>
+</body>
+
+</html>

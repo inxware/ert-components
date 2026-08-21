@@ -22,7 +22,8 @@
 
 #include "hal_process.h"
 #include "hal_time.h"
-// We don't include this because it has a dependency on hal.h 
+#include "hal_bootstate.h"
+// We don't include this because it has a dependency on hal.h
 // #include "hal_file.h"
 /*****************************************************************************/
 /* Define macros  */
@@ -70,6 +71,27 @@
 #ifndef EHS_MODULE_LIST_LENGTH_MAX
 #define EHS_MODULE_LIST_LENGTH_MAX EHS_STRING_LENGTH_MAX
 #endif
+
+/* Platform-agnostic reset-reason enum. Targets map their native reset cause onto one
+ * of these values via EhsHMetaSetLastResetReason so code that cares about the reason
+ * (logging, boot-time diagnostics, fallback decisions) can branch on the enum rather
+ * than parse strings. Use EhsHResetReasonToString for display. */
+typedef enum {
+    EHS_RESET_REASON_UNKNOWN = 0,
+    EHS_RESET_REASON_POWER_ON,          /* cold boot / power cycle */
+    EHS_RESET_REASON_SOFTWARE,          /* deliberate restart from code (e.g. OTA) */
+    EHS_RESET_REASON_EXTERNAL,          /* external reset pin / debugger */
+    EHS_RESET_REASON_PANIC,             /* CPU exception / panic handler */
+    EHS_RESET_REASON_INT_WATCHDOG,      /* interrupt watchdog */
+    EHS_RESET_REASON_TASK_WATCHDOG,     /* task watchdog */
+    EHS_RESET_REASON_OTHER_WATCHDOG,    /* any other hardware watchdog */
+    EHS_RESET_REASON_BROWNOUT,          /* supply voltage dip */
+    EHS_RESET_REASON_DEEP_SLEEP_WAKE,   /* resumed from deep sleep */
+    EHS_RESET_REASON_SDIO,
+    EHS_RESET_REASON_USB,
+    EHS_RESET_REASON_JTAG,
+    EHS_RESET_REASON_MAX
+} EhsResetReasonType;
 
 /* App status id */
 #define EHS_APP_LOAD_FAILED      0x00
@@ -190,6 +212,10 @@ typedef struct EhsMetaDataType
     ehs_char zDevmanMiscULData[EHS_STRING_LENGTH_MAX];
 #endif
     ehs_char zSysInfo[EHS_STRING_LENGTH_MAX];
+    /* Reset reason captured at boot by the target layer. Stored as a platform-agnostic
+     * enum so the kernel can classify it (normal vs abnormal) and Lucid can display
+     * a human-readable string via EhsHResetReasonToString. */
+    EhsResetReasonType eLastResetReason;
     /* EHS state machine */
 } EhsMetaDataType;
 
@@ -286,6 +312,30 @@ const ehs_char * EhsHAppMetaGetAppDate() ;
 const ehs_char * EhsHAppMetaGetAppName() ; /* @todo what is the difference of this and EhsHMetaAppSetCurrent? - one is sourced from parser and one from SODL?*/
 void EhsHMetaAppSetCurrent(ehs_char * App);
 const ehs_char* EhsHMetaAppGetCurrent();
+
+/* Last reset reason — captured once at boot by the target layer */
+void EhsHMetaSetLastResetReason(EhsResetReasonType reason);
+EhsResetReasonType EhsHMetaGetLastResetReason();
+/* Static classifier + stringifier. Both safe to call on unset/unknown values. */
+ehs_bool EhsHResetReasonIsAbnormal(EhsResetReasonType reason);
+const ehs_char* EhsHResetReasonToString(EhsResetReasonType reason);
+
+/* True if the reset reason is consistent with a software-caused crash of the app
+ * (panic / task-wdt / int-wdt / other-wdt). Brownout and external-reset are
+ * intentionally excluded — they're not the app's fault. */
+ehs_bool EhsHResetReasonIsAppCrash(EhsResetReasonType reason);
+
+/* Policy: should the current app be deleted in response to this reset reason?
+ * Today returns EhsHResetReasonIsAppCrash(reason) directly. A future version
+ * will consult a consecutive-crash counter (RTC / NVRAM) and only return
+ * TRUE after N consecutive crashes — see porting guide TODO. Keep callers
+ * using this helper rather than calling IsAppCrash directly so the policy
+ * change is a single-site edit. */
+ehs_bool EhsHShouldDeleteAppForCrashReason(EhsResetReasonType reason);
+
+/* Persistent boot-state flag API — full prototypes in hal_bootstate.h, included
+ * above so kernel-side callers (ehs_main.c) only need hal-api.h. */
+
 void EhsHMetaSetNextAppToRun(ehs_char * App);
 const ehs_char* EhsHMetaGetNextAppToRun();
 
@@ -326,6 +376,17 @@ void EhsHApp_init(void);
  * an existing application)
  */
 void EhsHApp_reset(void);
+
+/**
+ * Called by the kernel at the start of app teardown (EhsApplicationReset) and
+ * again at the end. Gives the HAL a chance to pause/resume any persistent
+ * background work that holds pointers into app memory — render threads,
+ * DMA engines, event dispatchers, etc. — so they can't dereference memory
+ * that the kernel is about to free. Must be paired; must be safe to call on
+ * a target with no such workers (default impl is a no-op).
+ */
+void EhsHApp_quiesce(void);
+void EhsHApp_resume(void);
 
 /**
  * Called to activate the thread to show the app

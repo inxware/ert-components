@@ -1,0 +1,188 @@
+1
+1	100000	90000
+BEGIN gui_text_string2
+%%%_localfile g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 2 -1 
+show	1	1	2	0 	0 	1 -1 
+update	1	1	3	6 I -1 I -1 I -1 I -1 I -1 S 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_Got g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	4	6 I -1 I -1 I -1 I -1 I -1 S 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+http://devman.inx-systems.com/ 
+Run_ConstantString	1	1	-1	0 	1 S -1 	0 
+END
+BEGIN Constant_String1
+../userdata/media/ 
+Run_ConstantString	1	1	-1	0 	1 S -1 	0 
+END
+BEGIN gui_text_string2
+%%%_GetURL g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	3	6 I -1 I -1 I -1 I -1 I -1 S 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_string2
+%%%_LocalFilePath g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	5	6 I -1 I -1 I -1 I -1 I -1 S 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN PlayManager
+*
+Next_Playlist	1	1	6	1 S 4 	3 S -1 S 3 S 1 	2 0 15 
+Played	1	1	7	0 	1 S 7 	2 11 -1 
+Next_URL	1	1	8	0 	2 S 3 S 1 	2 -1 15 
+Got	1	1	9	2 S 3 S 1 	2 S -1 S -1 	1 -1 
+Set_Paths	1	1	10	2 S 5 S 6 	2 S -1 S -1 	1 -1 
+Tick	1	1	-1	0 	1 S 7 	1 11 
+END
+BEGIN gui_text_string2
+%%%_mediafile g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	11	6 I -1 I -1 I -1 I -1 I -1 S 7 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN DtvPvrPlay2
+*
+setinput	1	1	12	1 S 7 	0 	1 14 
+get	1	1	13	0 	6 S -1 I -1 I -1 I -1 I -1 I -1 	1 -1 
+play	1	1	14	0 	0 	1 -1 
+stop	1	1	11	0 	0 	1 12 
+end	1	1	-1	0 	0 	1 7 
+END
+BEGIN time_clock
+1000000 1 1 
+start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 13 
+END
+BEGIN DevmanPlayer
+http://www.inx-systems.com ../userdata/media 10 0 0 
+startchecking	1	1	1	0 	0 	1 -1 
+out	1	1	-1	0 	8 S 10 S 2 S -1 S -1 I -1 I -1 B -1 I -1 	8 4 -1 -1 -1 -1 -1 -1 -1 
+END
+BEGIN Exec
+mkdir ../userdata/media 
+run	1	1	1	1 S -1 	1 S -1 	1 -1 
+END
+BEGIN Exec
+wget -r -nH -l 20 -P ../userdata/media/ 
+run	1	1	3	1 S 3 	1 S -1 	1 9 
+END
+BEGIN gui_Patch
+%%%_Background g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN time_clock
+1000000 0 1 
+start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 17 
+END
+BEGIN EventTwoInputOr
+*
+Or2	1	1	15	0 	0 	1 3 
+END
+BEGIN Exec
+wget -r -nH -l 20 -P ../userdata/media  
+run	1	1	16	1 S 8 	1 S -1 	1 6 
+END
+BEGIN CatString
+*
+Run_CatString	1	1	4	2 S 2 S 9 	1 S 5 	1 10 
+END
+BEGIN CatString
+*
+Run_CatString	1	1	4	2 S 6 S 10 	1 S 4 	1 5 
+END
+BEGIN Constant_String1
+../userdata/media/download/ 
+Run_ConstantString	1	1	-1	0 	1 S 6 	0 
+END
+BEGIN CatString
+*
+Run_CatString	1	1	10	2 S 5 S 10 	1 S 8 	1 16 
+END
+BEGIN Constant_String1
+/ 
+Run_ConstantString	1	1	-1	0 	1 S 9 	0 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	17	0 	0 	1 8 
+Or2	1	1	9	0 	0 	1 8 
+END
+BEGIN gui_text_string2
+%%%_LocalFileName_Label g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 11 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+Playlist 
+Run_ConstantString	1	1	-1	0 	1 S 11 	0 
+END
+BEGIN gui_text_string2
+%%%_LocalFileDirLabel g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 12 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+Downloading From 
+Run_ConstantString	1	1	-1	0 	1 S 13 	0 
+END
+BEGIN gui_text_string2
+%%%_GetURL_Label g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 13 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+Base URL 
+Run_ConstantString	1	1	-1	0 	1 S 14 	0 
+END
+BEGIN gui_text_string2
+%%%_GotURL_Label g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 14 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+Downloaded as: 
+Run_ConstantString	1	1	-1	0 	1 S 12 	0 
+END
+BEGIN gui_text_string2
+%%%_mediaFile_Label g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	1	6 I -1 I -1 I -1 I -1 I -1 S 15 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+CURRENTLY PLAYING 
+Run_ConstantString	1	1	-1	0 	1 S 15 	0 
+END
+BEGIN gui_text_string2
+%%%_Dowloading g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	3	0 	0 	1 18 
+hide	1	1	9	0 	0 	1 -1 
+update	1	1	18	6 I -1 I -1 I -1 I -1 I -1 S 16 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN Constant_String1
+Downloading... 
+Run_ConstantString	1	1	-1	0 	1 S 16 	0 
+END
+BEGIN GUI_Image_File
+%%%_BannerImage g0000000.gui 
+create	1	1	1	1 S -1 	0 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

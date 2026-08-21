@@ -24,7 +24,9 @@
 #include "esp_attr.h" // needed for IRAM_ATTR
 
 /* Memory specific compiler attribute e.g. 'IRAM_ATTR' on esp32s3 */
+//use this for function declerations
 #define EHS_MEMORY_ATTRIB IRAM_ATTR
+//use this for data that must be in IRAM/DRAM (not PSRAM)
 #define EHS_DATA_MEMORY_ATTRIB DRAM_ATTR
 
 /* ESP32-S3 IDF uses pthread wrappers over FreeRTOS mutexes which include full

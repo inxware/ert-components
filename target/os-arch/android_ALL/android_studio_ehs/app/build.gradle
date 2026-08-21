@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.inx.ehs"
-        minSdkVersion 16
+        minSdkVersion project.hasProperty('EHS_ANDROID_MIN_SDK') ? project.EHS_ANDROID_MIN_SDK.toInteger() : 23
         targetSdkVersion 30
         versionCode 1
         versionName "1.0.0"

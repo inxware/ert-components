@@ -27,6 +27,23 @@
 EHS_PERIPHERALS_GUI_KEYBOARD=yes
 EHS_PERIPHERALS_RCU=yes
 
+
+# Make the dependency list: note this depends on how the component libraries are generated 
+# Permutations on static dynamic linking .
+
+LVGL_DIR_NAME ?= lvgl
+# Set LVGL_DIR to HS_TARGET_GRAPHICS_PATH because lots of sub make files are using this.
+LVGL_DIR=$(EHS_TARGET_GRAPHICS_PATH)
+
+include $(EHS_TARGET_GRAPHICS_PATH)/$(LVGL_DIR_NAME)/lvgl.mk
+include $(EHS_TARGET_GRAPHICS_PATH)/inx_lv_fonts/inx_lv_fonts.mk
+include $(EHS_TARGET_GRAPHICS_PATH)/lv_drivers/lv_drivers.mk
+
+INC_DIRS+=$(EHS_TARGET_GRAPHICS_PATH)
+ifeq ($(EHS_OS),esp32s3_freertos)
+INC_DIRS+=$(EHS_TARGET_GRAPHICS_PATH)/lvgl_esp32_drivers/
+endif
+
 # include sourcecode from this dir in build
 include $(EHS_TARGET_GRAPHICS_PATH)/deps.mk
 VPATH+=$(EHS_TARGET_GRAPHICS_PATH)
@@ -36,7 +53,7 @@ INC_DIRS+=$(EHS_TARGET_GRAPHICS_PATH)
 include $(EHS_TARGET_GRAPHICS_PATH)/Components/deps.mk
 VPATH+= $(EHS_TARGET_GRAPHICS_PATH)/Components
 INC_DIRS += $(EHS_TARGET_GRAPHICS_PATH)/Components
-# No extra lib paths - all are in the target_libs dir
+
 
 
 # PPP: Moved to Video Diectory OBJECTS += target_dtv.$(OBJ)
@@ -44,16 +61,6 @@ OBJECTS+=target_viewport_style.$(OBJ)
 OBJECTS+=target_viewport.$(OBJ) 
 OBJECTS+=targetgfx_init.$(OBJ)
 
-# Make the dependency list: note this depends on how the component libraries are generated 
-# Permutations on static dynamic linking .
-
-LVGL_DIR_NAME ?= lvgl
-LVGL_DIR=$(EHS_TARGET_GRAPHICS_PATH)
-include $(LVGL_DIR)/$(LVGL_DIR_NAME)/lvgl.mk
-include $(LVGL_DIR)/inx_lv_fonts/inx_lv_fonts.mk
-include $(LVGL_DIR)/lv_drivers/lv_drivers.mk
-
-#EHS_GUI_SUPPORT=lvgl
 
 DEFS+=EHS_GUI_SUPPORT_MODE_B
 DEFS+=EHS_GUI_SUPPORT_MODE_B_LVGL
@@ -85,16 +92,22 @@ ifeq ($(EHS_OS), linux)
 		endif
 		LIB+=SDL2
 	endif
-else
-	ifeq ($(EHS_OS), mingw)
-		LIB+=SDL2
-	endif
+else ifeq ($(EHS_OS), macos)
+	# SDL2 backend via Homebrew (Intel Mac: /usr/local/opt/sdl2).
+	# Install with: brew install sdl2
+	INC_DIRS += /usr/local/opt/sdl2/include
+	LNKFLAGS += -L/usr/local/opt/sdl2/lib
+	LIB += SDL2
+else ifeq ($(EHS_OS), mingw)
+	LIB+=SDL2
 endif
 
+# Why math here?? - we do need a single LIB+=m triggered by a multiply setable EHS_NEEDS_LIBMATH or soemthing.
 LIB+=m
 
-#TODO - this #if should be on the GRAPHICS_SUPPORT=lvgl?
-ifdef EHS_ESP32
+# The following are defined in the sp32 IDF version only
+ifeq ($(EHS_OS),esp32s3_freertos)
+
 # Display drivers
 ifeq ($(EHS_LVGL_DISPLAY_DRIVER),gc9a01)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/GC9A01.$(OBJ)
@@ -205,6 +218,9 @@ DEFS += CONFIG_LV_TOUCH_CONTROLLER_GT911
 DEFS += CONFIG_LV_I2C
 endif
 # Common files
+# Tells the shared LVGL HAL code that the lvgl_esp32_drivers panel layer
+# (disp_driver_init() et al) is part of this build.
+DEFS+=EHS_LVGL_ESP32_DRIVERS_SUPPORT=1
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_helpers.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/disp_driver.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/disp_spi.$(OBJ)

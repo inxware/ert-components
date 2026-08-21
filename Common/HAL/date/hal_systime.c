@@ -31,8 +31,8 @@
 */
 ehs_bool EhsHSetDateTimeSec(time_t sec)
 {
-#if defined(EHS_MINGW) || defined(EHS_NXP_SUPPORT) || defined(EHS_ARDUINO_SUPPORT)
- //#warning "OS Doesn't  support settimeofday"
+#if defined(EHS_MINGW) || defined(EHS_NXP_SUPPORT) || defined(EHS_ARDUINO_SUPPORT) || defined(EHS_ZEPHYR_RTOS)
+ /* settimeofday not available on these platforms */
 #else
     struct timeval tv = {
         .tv_sec = sec,

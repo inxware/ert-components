@@ -39,7 +39,9 @@ EHS_OS=linux
 #EHS_GNU_OS=linux
 
 #Select a specific version of contrib libraries and build support
-#EHS_GNU_OS_VERSION=-1.0
+# Must match EHS-kernel/target/platform/linux_amd64_debian11. Comment kept on its
+# own line: a trailing '#' comment leaves the spaces before it IN the value.
+EHS_TARGET_LIB_VARIANT=-debian-11
 
 #EHS_TOOLCHAIN_TYPE=gcc - leaving as default
 
@@ -61,7 +63,6 @@ COMPONENT_VARIANT=gtk_gst
 
 # For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms rather than built in ert-contrib-middleware):
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
 
 
 #################################################################################################################

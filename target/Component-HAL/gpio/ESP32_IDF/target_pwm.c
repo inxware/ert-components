@@ -165,6 +165,7 @@ inx_hw_pwm_port_errcode_t EhsTPortPwmDeinit(ehs_sint32 channel)
     esp_err = ledc_timer_pause(LEDC_LOW_SPEED_MODE, channel);
     if (esp_err != ESP_OK) return INX_HW_PWM_PORT_EINTERNAL_CLK;
     gLedcEnabled[channel] = 0;
+    return ret; /* success path returned an uninitialised error code */
 }
 
 inx_hw_pwm_port_errcode_t EhsTPortPwmSetFreq(ehs_sint32 channel, ehs_sint32 freq)

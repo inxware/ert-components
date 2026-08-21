@@ -287,7 +287,13 @@ echo "WARNING: Not Using a specific signing key"
 fi
  
 
-#cat $GRADLE_PROPS_FILE
+# Inject EHS_ANDROID_MIN_SDK into gradle.properties so build.gradle modules can read it.
+# Platforms targeting modern hardware / Play Store leave this unset (defaults to 23 in build.gradle).
+# Legacy embedded platforms that must run on very old Android set EHS_ANDROID_MIN_SDK=16 in config.mk.
+_MIN_SDK=${EHS_ANDROID_MIN_SDK:-23}
+echo "EHS_ANDROID_MIN_SDK=${_MIN_SDK}" >> ${ANDROID_PROJECT_ROOT}/gradle.properties
+echo "Using Android minSdkVersion=${_MIN_SDK}"
+
 pushd $ANDROID_PROJECT_ROOT
 chmod +x ./gradlew
 

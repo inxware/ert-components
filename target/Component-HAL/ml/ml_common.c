@@ -1913,6 +1913,10 @@ EhsML_Err EhsML_GetModelInfoJson(EhsML_Context* ctx, const ehs_char* model_path,
         case EHS_ML_HWACCEL_HAILO:
             return EHS_ML_NOT_SUPPORTED;
 #endif
+#ifdef EHS_ML_HWACCEL_SUPPORT_AXELERA
+        case EHS_ML_HWACCEL_AXELERA:
+            return EHS_ML_NOT_SUPPORTED;
+#endif
 #ifdef EHS_ML_HWACCEL_SUPPORT_NVIDIA
         case EHS_ML_HWACCEL_NVIDIA:
             err = EhsML_FW_TensorRT_GetModelInfoJson(ctx, model_path, json_buf, json_size);

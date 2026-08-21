@@ -66,10 +66,6 @@ EHS_USE_LIBCAMERA=yes
 # Enables a floating 'debug_cam_X' window with camera preview
 #DEFS+=EHS_OPENCV_FRAMEGRAB_DEBUG_PREVIEW=1
 
-EHS_PERIPHERALS_GPIO_SUPPORT=gui
-#EHS_PERIPHERALS_GPIO_SUPPORT=stubbed
-EHS_PERIPHERALS_ADC_DAC_SUPPORT=stubbed
-
 #----- Peripheral Features -----
 # (Inherits from parent config)
 

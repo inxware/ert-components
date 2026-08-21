@@ -1,4 +1,3 @@
-# inxware/zephyr-sdk-arm-nrf52840
 # Dockerfile for Zephyr SDK build environment targeting nRF52840
 # Based on Ubuntu 22.04 with Zephyr SDK and west tools installed
 

@@ -97,7 +97,7 @@ static int reformat_null(void * ctx)
     EhsFunctionInstanceDataType* pFIdata=state->pParseFid;
     if(EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_parse_parseDataOut))
     {
-        strcpy(EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut),"null");
+        EHS_FB_OUT_S_SET_API2(INX_json_stream_parser_ARG_parse_parseDataOut, "null");
         ((ehs_char*)EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut))[4]='\0';
     }
     if(EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_parse_DataType))
@@ -116,11 +116,11 @@ static int reformat_boolean(void * ctx, int boolean)
     {
         if(boolean==0)
         {
-            strcpy(EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut),"0");
+            EHS_FB_OUT_S_SET_API2(INX_json_stream_parser_ARG_parse_parseDataOut, "0");
         }
         else
         {
-            strcpy(EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut),"1");
+            EHS_FB_OUT_S_SET_API2(INX_json_stream_parser_ARG_parse_parseDataOut, "1");
         }
         ((ehs_char*)EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut))[1]='\0';
     }
@@ -138,7 +138,7 @@ static int reformat_number(void * ctx, const char * s, size_t l)
     EhsFunctionInstanceDataType* pFIdata=state->pParseFid;
     if(EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_parse_parseDataOut))
     {
-        strncpy(EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut),s,l);
+        EHS_FB_OUT_S_SETN_API2(INX_json_stream_parser_ARG_parse_parseDataOut, s, l);
         ((ehs_char*)EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut))[l]='\0';
     }
     if(EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_parse_DataType))
@@ -157,7 +157,7 @@ static int reformat_string(void * ctx, const unsigned char * stringVal,
     //copy stringVal to output
     if(EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_parse_parseDataOut))
     {
-        strncpy(EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut),stringVal,stringLen);
+        EHS_FB_OUT_S_SETN_API2(INX_json_stream_parser_ARG_parse_parseDataOut, stringVal, stringLen);
         ((ehs_char*)EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_parseDataOut))[stringLen]='\0';
     }
     if(EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_parse_DataType))
@@ -176,7 +176,7 @@ static int reformat_map_key(void * ctx, const unsigned char * stringVal,
     //copy stringVal to output
     if (EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_parse_Key))
     {
-        strncpy(EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_Key),stringVal,stringLen);
+        EHS_FB_OUT_S_SETN_API2(INX_json_stream_parser_ARG_parse_Key, stringVal, stringLen);
         ((ehs_char*)EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_parse_Key))[stringLen]='\0';
     }
     EHS_FB_FINISH(INX_json_stream_parser_ARG_parse_mapKey);
@@ -332,7 +332,7 @@ EHS_FB_RUN_FUNCTION(json_stream_parser_read)
         strcpy(chunk,EHS_FB_IN_S_API2(INX_json_stream_parser_ARG_read_data));
         if (EHS_FB_OUT_CONNECTED_API2(INX_json_stream_parser_ARG_read_readDataOut))
         {
-            strcpy(EHS_FB_OUT_S_API2(INX_json_stream_parser_ARG_read_readDataOut),chunk);
+            EHS_FB_OUT_S_SET_API2(INX_json_stream_parser_ARG_read_readDataOut, chunk);
         }
     }
     EHS_FB_FINISH(INX_json_stream_parser_ARG_read_read_finish);

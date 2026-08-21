@@ -260,7 +260,7 @@ inx_xml_stream_parser_character_data(void *data,const XML_Char *s,int len)
         {
             //clean the string before copying
             //todo 2023 - check the length is not larger than the ERT max string legnth
-            strncpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_cdata),state->cdataString,state->cdataLength);
+            EHS_FB_OUT_S_SETN_API2(INX_xml_stream_parser_ARG_parse_cdata, state->cdataString, state->cdataLength);
             inx_xml_stream_parser_replace_ampersands(state->ampersandReplace,EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_cdata),state->cdataLength);
         }
         EHS_FB_FINISH(INX_xml_stream_parser_ARG_parse_character_data);
@@ -273,7 +273,7 @@ inx_xml_stream_parser_character_data(void *data,const XML_Char *s,int len)
     //if we got here then we have no existing data and we are not in a cdata section so just output the string
     if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_cdata))
     {
-        strncpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_cdata),s,len);
+        EHS_FB_OUT_S_SETN_API2(INX_xml_stream_parser_ARG_parse_cdata, s, len);
         inx_xml_stream_parser_replace_ampersands(state->ampersandReplace,EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_cdata),len);
     }
     EHS_FB_FINISH(INX_xml_stream_parser_ARG_parse_character_data);
@@ -298,7 +298,7 @@ inx_xml_stream_parser_start(void *data, const char *el, const char **attr)
     //badstate=1;
     if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_name))
     {
-        strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_name),el);
+        EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_parse_name, el);
     }
     EHS_FB_FINISH(INX_xml_stream_parser_ARG_parse_start_element);
     state->startTag=EHS_TRUE; //set this because if it is a self closing tag there is no guarantee it will stop
@@ -327,7 +327,7 @@ inx_xml_stream_parser_end(void *data, const char *el)
         //copy the name to the output
         if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_name))
         {
-            strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_name),el);
+            EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_parse_name, el);
         }
         EHS_FB_FINISH(INX_xml_stream_parser_ARG_parse_finish_element);
     }
@@ -345,12 +345,12 @@ inx_xml_stream_parser_processing(void *data,const XML_Char *target,const XML_Cha
     //copy the target to the output
     if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_processing_target))
     {
-        strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_processing_target),target);
+        EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_parse_processing_target, target);
     }
     //copy the data
     if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_processing_instruction))
     {
-        strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_processing_instruction),instruction);
+        EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_parse_processing_instruction, instruction);
     }
     EHS_FB_FINISH(INX_xml_stream_parser_ARG_parse_processing_finish);
 }
@@ -367,7 +367,7 @@ inx_xml_stream_parser_comment(void *data, const XML_Char *comment)
     //copy the comment to the output
     if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_comment))
     {
-        strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_comment),comment);
+        EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_parse_comment, comment);
         inx_xml_stream_parser_replace_ampersands(state->ampersandReplace,EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_comment),EhsStrlen(comment));
     }
     EHS_FB_FINISH(INX_xml_stream_parser_ARG_parse_comment_finish);
@@ -676,14 +676,14 @@ static const char** inx_xml_stream_parser_handle_attributes(const char **attrs,E
         //copy name to the output
         if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_attr_name))
         {
-            strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_attr_name),attr);
+            EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_parse_attr_name, attr);
         }
         //copy value to the output
         attrs++; //move to the next string in the list for the value
         attr=attrs[0];
         if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_attr_value))
         {
-            strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_attr_value),attr);
+            EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_parse_attr_value, attr);
             inx_xml_stream_parser_replace_ampersands(
                 state->ampersandReplace,
                 EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_attr_value),
@@ -765,7 +765,7 @@ static void inx_xml_stream_parser_parse(inx_xml_stream_parser_state_type* state)
                 {
                     if(EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_parse_name))
                     {
-                        strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_parse_name),state->endTagName);
+                        EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_parse_name, state->endTagName);
                     }
                     EHS_FB_FINISH(INX_xml_stream_parser_ARG_parse_finish_element);
                     state->endTagName=NULL;
@@ -1016,7 +1016,7 @@ EHS_FB_RUN_FUNCTION(xml_stream_parser_read)
         //}
         if (EHS_FB_OUT_CONNECTED_API2(INX_xml_stream_parser_ARG_read_data_out))
         {
-            strcpy(EHS_FB_OUT_S_API2(INX_xml_stream_parser_ARG_read_data_out),chunk);
+            EHS_FB_OUT_S_SET_API2(INX_xml_stream_parser_ARG_read_data_out, chunk);
         }
         //do we need to fire the parser off again?
         if(state->waitingForInput==EHS_TRUE)

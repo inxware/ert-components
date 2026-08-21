@@ -33,7 +33,11 @@ EHS_GNU_ARCH=i686
 EHS_GNU_OS=mingw32posix
 
 TOOLCHAIN_NAME=HOST
-CC_OVERRIDE=i686-w64-mingw32-gcc-10-posix
+# Unversioned on purpose: the gcc version belongs to the Docker image
+# (Dockerimagename), not to this config. Both jammy (gcc 10) and noble
+# (gcc 13) provide this driver name, so the image can move without
+# touching seven platform configs.
+CC_OVERRIDE=i686-w64-mingw32-gcc-posix
 
 SYSTEM_VARIANT=windesktop
 

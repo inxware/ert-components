@@ -67,6 +67,7 @@ EHS_FB_DESTROY_FUNCTION(elapsed_timer)
 {
 	inx_elapsed_timer_state_type *inx_elapsed_timer_state = (inx_elapsed_timer_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
+	return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION count_elasped MACRO START -- DO NOT ALTER

@@ -138,6 +138,39 @@ python3 scripts/software-utilities/fb_platform_matrix.py \
   e.g. `MultiplexFourInputInt` / `MultiplexEightInputBool` → `Multiplex`) so the
   matrix shows one representative row per functional family
 
+**Known limitations — config.mk parsing is a static approximation**
+
+The script reads each platform's `config.mk` directly and applies the
+`target/os-arch/` defaults as a second pass.  It does **not** follow `include`
+directives inside config.mk files.  Many platforms inherit most of their
+`EHS_*_SUPPORT` values through an include chain, for example:
+
+```
+linux_android_arm_rk3566_firefly_stm2_ambifier/config.mk
+  └─ include linux_android_arm_legacy/config.mk
+       └─ include linux_android_arm/config.mk
+```
+
+Variables set only in an included parent are invisible to the parser, so
+support for those platforms will be under-reported in the matrix.
+
+The stub/real distinction (✅ / ○) is similarly approximate: it detects
+whether a resolved `EHS_*_SUPPORT` value contains the substring `"stub"`,
+which matches the project naming convention (`stubbed`, `android_stub`,
+`EHS_HAL_*_STUBBED`) but is not structurally enforced.
+
+**TODO — replace static parsing with make-resolved variable dumps**
+
+The correct long-term fix is to have `make` itself write out the fully-resolved
+variable set for each platform after processing the complete include chain.
+Candidate approach: a `make print-platform-vars` target (or a build step in
+the regression runner) that writes `TARGET_TREES/<platform>/platform-vars.mk`
+containing the final `EHS_*_SUPPORT` assignments.  The matrix script would then
+read those dumps instead of parsing config.mk directly.
+
+This would also benefit SBOM generation, which has the same need for
+authoritative per-platform variable resolution.
+
 ---
 
 ### cdf_to_ascii.py

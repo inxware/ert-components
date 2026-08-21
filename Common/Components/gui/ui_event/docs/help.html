@@ -1,0 +1,208 @@
+<html>
+
+<head>
+  <title>help</title>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+
+<body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">UI Event</span>
+      <!--these display in reverse order because they use float:right-->
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+    </div>
+
+    <!-- General Description -->
+    <p class="component">
+      Two-way binding between the application and a single <b>signal</b> on a named object in the
+      user interface. <a href="#[Out]received">received</a> fires when the UI emits the signal
+      &#8212; a button click being the everyday case &#8212; and triggering
+      <a href="#[In]emit">emit</a> raises the same signal on the UI object from the application
+      side.
+    </p>
+    <p class="component">
+      This is the event counterpart to the UI Bool / Int / Real / String blocks, which carry
+      values. UI Event carries no data at all: it is a pure notification in either direction.
+      Where a click needs to be accompanied by a value, pair this block with the matching UI data
+      block on the same object.
+    </p>
+    <p class="component">
+      The target is named by the two parameters: <a href="#[Param]Object">Object</a> selects the
+      UI object and <a href="#[Param]Signal">Signal</a> selects the signal on it. The default
+      Object <code>_qml_root_object_</code> is a sentinel meaning &#8220;the first root object of
+      the UI&#8221;, so a single-window UI needs no naming at all. For anything else, set Object to
+      the name the object is declared with in the UI definition (<code>objectName</code> in QML).
+    </p>
+    <p class="component">
+      <b>Only parameterless signals are supported.</b> The name is used exactly as written, with no
+      <code>Changed</code> suffix and no camel-casing. A signal declared
+      <code>signal accepted()</code> in QML, or any C++ signal of the same shape, binds directly.
+      For receiving, a single-boolean form such as <code>clicked(bool)</code> also binds as a
+      fallback, but the argument is discarded &#8212; only the fact that the signal fired reaches
+      the application. Any other signature will not bind. Emitting always uses the parameterless
+      form, so a signal that requires arguments cannot be raised from
+      <a href="#[In]emit">emit</a>.
+    </p>
+    <p class="component">
+      <b>Binding is deferred.</b> The UI often loads after the application starts, so the object
+      lookup is retried in the background until the object appears. An
+      <a href="#[In]emit">emit</a> issued before the UI has loaded raises no signal.
+    </p>
+    <p class="component">
+      <b>Watch for feedback loops.</b> Emitting a signal is indistinguishable, from the UI's point
+      of view, from the UI emitting it itself &#8212; so an <a href="#[In]emit">emit</a> on a
+      bound signal comes straight back as <a href="#[Out]received">received</a> on this same
+      block. Wiring <a href="#[Out]received">received</a> back to <a href="#[In]emit">emit</a>
+      gives an unbounded loop with nothing to break it.
+    </p>
+    <p class="component">
+      The block is only built for targets whose HAL implements the UI binding layer (currently the
+      Qt/QML targets).
+    </p>
+
+    <!-- Parameters -->
+    <div class="section_heading">
+      <span id="parameters" class="toc_span">Parameters</span>
+      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
+      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
+      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
+    </div>
+    <table class="table_params">
+      <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>description</th>
+        <th>default</th>
+        <th>min.</th>
+        <th>max.</th>
+      </tr>
+      <tr>
+        <td><a name="[Param]Object">Object</a></td>
+        <td>UO</td>
+        <td>Name of the UI object to bind to, matching the object's name in the UI definition
+          (<code>objectName</code> in QML). The sentinel <code>_qml_root_object_</code> selects the
+          first root object of the UI without requiring it to be named.</td>
+        <td>_qml_root_object_</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a name="[Param]Signal">Signal</a></td>
+        <td>US</td>
+        <td>Name of the signal on that object to listen for and to emit. Used verbatim, and it must
+          take no parameters (a <code>(bool)</code> form binds for receive only, with the argument
+          discarded). <code>clicked</code>, <code>pressed</code>, <code>released</code> and
+          <code>accepted</code> are the usual QML choices.</td>
+        <td>clicked</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <!-- Ports -->
+    <div class="section_heading">
+      <span id="ports" class="toc_span">Ports</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+    <table class="table">
+      <tr>
+        <th>In Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[In]emit">emit</a></td>
+        <td>Raise <a href="#[Param]Signal">Signal</a> on <a href="#[Param]Object">Object</a>, as
+          though the UI had emitted it, then fire <a href="#[Out]done">done</a>. Anything the UI
+          has connected to that signal runs, and this block's own
+          <a href="#[Out]received">received</a> fires too.</td>
+      </tr>
+
+      <tr>
+        <th>Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[Out]done">done</a></td>
+        <td>Fires once the emit request has been handed to the UI layer. It does not indicate that
+          the signal was accepted &#8212; if the object has not loaded yet, or the signal name does
+          not resolve, nothing is raised and <a href="#[Out]done">done</a> still fires.</td>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[Out]received">received</a></td>
+        <td>Fires when the bound signal is emitted in the UI, for example when the user clicks the
+          bound button. Asynchronous: it is not a response to any input event on this block.</td>
+      </tr>
+    </table>
+
+
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+     <table>
+      <tr class="fsm_row">
+        <td style="width:90px;">
+          <b>State Machine</b>
+        </td>
+        <td colspan=5>None</td>
+        <td>
+          <b></b>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Toolbox</b>
+        </td>
+        <td>
+          GUI.
+        </td>
+        <td class=heading-cell>
+          <b>Version</b>
+        </td>
+        <td>
+          v1.0.
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          LGPLv3
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Minumum DCC</b>
+        </td><td>A0000</td>
+        <td class=heading-cell>
+          <b>Profiles</b>
+        </td>
+        <td>
+          Targets with UI-binding HAL support (Qt/QML).
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+
+</html>

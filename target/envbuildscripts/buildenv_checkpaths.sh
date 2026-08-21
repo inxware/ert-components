@@ -31,14 +31,20 @@ else
 fi
 echo
 echo "${TXT_FG_GREY}--${TXT_FG_CYAN}DEPENDENCIES${TXT_FG_GREY}----------------------------------------------------"
-echo -n "${TXT_FG_BLUE}EHS KERNEL:${TXT_FG} ${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/${EHS_KERNEL_LIB} - "
-test -f "${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/${EHS_KERNEL_LIB}" && echo "${TXT_FG_GREEN}EXISTS" || err "N/A"
+# Use the resolved EHS_KERNEL_DIR exported by platform.mk rather than composing
+# the path again here. This file used to duplicate the expression, so when the
+# kernel archives moved to ../ert-kernels it kept reporting the old location —
+# and check_target_keys.sh parses this line, so the assertion would have been
+# checking a path the build no longer uses.
+echo -n "${TXT_FG_BLUE}EHS KERNEL:${TXT_FG} ${EHS_KERNEL_DIR}${EHS_KERNEL_LIB} - "
+test -f "${EHS_KERNEL_DIR}${EHS_KERNEL_LIB}" && echo "${TXT_FG_GREEN}EXISTS" || err "N/A"
 
 
 if [ "${EHS_HOST_DEBIAN_BUILD}" != "" ]; then
     echo "HOST_BUILD is set. Using build host and contributed middleware in ert-contrib-middleware"
-    echo -n "${TXT_FG_BLUE}KERNEL:${TXT_FG}    ${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/ - "
-    test -d "${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/" && echo "${TXT_FG_GREEN}EXISTS" || echo "${TXT_FG_WHITE}INFO: N/A"
+    # Kernels live in ert-kernels now; EHS_KERNEL_DIR is exported by platform.mk.
+    echo -n "${TXT_FG_BLUE}KERNEL:${TXT_FG}    ${EHS_KERNEL_DIR} - "
+    test -d "${EHS_KERNEL_DIR}" && echo "${TXT_FG_GREEN}EXISTS" || echo "${TXT_FG_WHITE}INFO: N/A"
 else
     # Add paths the ert-build-support's LIBC
     if [ "${EHS_CLIB_OVERRIDE_PATH}" != "" ]; then
@@ -51,8 +57,8 @@ else
         # export LIB_DIRS+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/kernel/
         # done properly gnu toolchain.mk export LD_LIBRARY_PATH+=$(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_CLIB_OVERRIDE_PATH)/lib/
     else
-       echo -n "${TXT_FG_BLUE}BUILD SUPP:${TXT_FG} ${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/build/ - "
-       test -d "${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/build/" && echo "${TXT_FG_GREEN}EXISTS" || echo "${TXT_FG_WHITE}INFO: N/A"
+       echo -n "${TXT_FG_BLUE}BUILD SUPP:${TXT_FG} ${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}/build/ - "
+       test -d "${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}/build/" && echo "${TXT_FG_GREEN}EXISTS" || echo "${TXT_FG_WHITE}INFO: N/A"
     fi
 fi
 

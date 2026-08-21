@@ -108,7 +108,8 @@ EHS_FB_INIT_FUNCTION(uart_config)
     //this is the reference to the object data for this instance of the function block
     inx_uart_config_state_type* inx_uart_config_state = (inx_uart_config_state_type*)EHS_FB_INIT_CONTEXT;
     /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d %d %d %d",&Port,&Baud,&Data_Length,&Parity,&Stop_bits,&Hardware_Control);
+    /* Hardware_Control is ehs_bool (1 byte) - %d would write 4 */
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d %d %d %hhu",&Port,&Baud,&Data_Length,&Parity,&Stop_bits,&Hardware_Control);
     inx_uart_config_state->Port = Port;
     inx_uart_config_state->Baud = Baud;
     inx_uart_config_state->Data_Length = Data_Length;

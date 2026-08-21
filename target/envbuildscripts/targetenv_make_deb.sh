@@ -142,6 +142,25 @@ fi
 # TODO2023 - this should be changed to a specific set of dependencies defined in config.mk
 echo "Building package for SYSTEM_VARIANT=$SYSTEM_VARIANT"
 
+if [ "${SYSTEM_VARIANT}" = "ambifier2" -o "${SYSTEM_VARIANT}" = "ambifier-deb11" -o "${SYSTEM_VARIANT}" = "ambifier2-debug" \
+	-o "${SYSTEM_VARIANT}" = "ambifier2-adnoc" -o "${SYSTEM_VARIANT}" = "ambifier2-deb11" ]; then
+#### AMBIFIER BUILDS ### 
+  #echo "Depends: xorg,ambifier" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+  #todo these packages should mostly if not all be in DEBIAN_PACKAGE_EXTRA
+  if [ "${EHS_DEBIAN_VERSION}" = "11" ]; then
+  	echo "Depends: ${DEBIAN_PACKAGE_EXTRA},ambifier,lm-sensors,libarchive13,libxml2,libpng16-16,libgstreamer1.0-0,libgstreamer-plugins-base1.0-0,gstreamer1.0-plugins-good,gstreamer1.0-plugins-bad,gstreamer1.0-plugins-ugly,libgtk2.0-0,libcurl4" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+  else	
+	echo "Depends: ${DEBIAN_PACKAGE_EXTRA},ambifier,lm-sensors,libarchive13,libxml2,libpng16-16,libgstreamer1.0-0,libgstreamer-plugins-base1.0-0,gstreamer1.0-plugins-good,gstreamer1.0-plugins-bad,gstreamer1.0-plugins-ugly,libgtk2.0-0,libcurl3" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+  fi
+  ##todo2022 these two arch options should be made as one outside of the SYSTEM VARIANT condition.
+  if [ "${EHS_ARCH}" = "arm64" ];then
+      echo "Architecture: arm64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"	
+  elif [ "${EHS_ARCH}" = "arm" ];then
+      echo "Architecture: armhf" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"	
+  else
+      echo "Architecture: amd64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+  fi
+else
 #### GENERAL BUILDS ###
  if [ "${EHS_GNU_ARCH}" = "arm64" ];then
       echo "Architecture: arm64" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"	
@@ -154,7 +173,11 @@ echo "Building package for SYSTEM_VARIANT=$SYSTEM_VARIANT"
   else
       echo "Architecture: i386" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
    fi
-
+#echo "Depends: " >> ./debian/DEBIAN/control
+#todo2023 - see above this should be replaced by config.mk
+  if [ "${SYSTEM_VARIANT}" = "ambifier" -o "${SYSTEM_VARIANT}" = "ambifier-debug" ]; then
+    echo "Depends: ${DEBIAN_PACKAGE_EXTRA},ambifier" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
+  else
     if [ -n "${WITH_TOOLS}" ]; then
       echo "Depends: ${DEBIAN_PACKAGE_EXTRA},wine" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
 	elif [ "${SYSTEM_VARIANT}" = "msg200_supervisor" ]; then
@@ -164,7 +187,8 @@ echo "Building package for SYSTEM_VARIANT=$SYSTEM_VARIANT"
     else
 	  echo "Depends: ${DEBIAN_PACKAGE_EXTRA}" >> "${DEBIAN_WORKING_BASE}/debian/DEBIAN/control"
     fi
-
+  fi
+fi
 
 # Allow plain "ehs.deb" versions to be replaced with others.
 

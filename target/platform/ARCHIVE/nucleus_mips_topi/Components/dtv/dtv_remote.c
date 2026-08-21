@@ -1,0 +1,109 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
+ * not, please visit
+ *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+ ***************************************************************/
+
+/**
+ * @file dtv_remote.c
+ *
+ * Implementation of the remote control function in the DTV toolkit.
+ * Includes target-specific code.
+ *
+ *
+ * @author: inx limited
+ *
+ */
+
+#include "target.h"
+
+#include "dtv_remote.h"
+#include "globals.h"
+#include "setCompletes.h"
+#include "callback_queue.h"
+#include "ehs_fb_types.h"
+
+EHS_FB_FUNCTIONS_START(DtvRemote)
+EHS_FB_FUNCTION_ENTRY("run", 0x00, DtvRemote)
+EHS_FB_FUNCTIONS_END
+
+#define EHS_FB_DTV_REMOTE_MENU 1 /**< Event number for connection 'menu' */
+#define EHS_FB_DTV_REMOTE_OK 2 /**< Event number for connection 'ok' */
+#define EHS_FB_DTV_REMOTE_EXIT 3 /**< Event number for connection 'exit' */
+#define EHS_FB_DTV_REMOTE_UP 4 /**< Event number for connection 'up' */
+#define EHS_FB_DTV_REMOTE_DOWN 5 /**< Event number for connection 'down' */
+#define EHS_FB_DTV_REMOTE_PRESS -1 /**< Event number for callback event */
+
+/*
+ * Indicates the first function instance to callback when a keypress is detected
+ *
+ * @todo ensure that this gets reset every time SODL is reloaded.
+ */
+EHS_GLOBAL EhsFunctionInstanceDataType* EhsTopfieldRemoteCallback;
+
+/**
+ * Character received from keyboard input
+ */
+EHS_GLOBAL ehs_uint32 EhsTopfieldRemoteValue;
+
+/**
+ * Define the identify function. If multiple keypress objects appear in the application,
+ * we create a linked list between them.
+ */
+EHS_FB_IDENTIFY_FUNCTION(DtvRemote)
+{
+    EHS_FB_IDENTIFY_MEMORY = sizeof(EhsCallbackQueueEntryType);
+}
+
+/**
+ * Load the GUI parameters into the params structure, load
+ * the associated bitmap into memory
+ */
+EHS_FB_INIT_FUNCTION(DtvRemote)
+{
+    EhsCallbackQueueEntryType *pParams = (EhsCallbackQueueEntryType*)EHS_FB_INIT_CONTEXT;
+
+    /* put this item into the keypress callback queue */
+    EhsCallbackQueue_register(&EhsTopfieldRemoteCallback,
+                              EHS_FB_RUN_NAME(DtvRemote),
+                              EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(EHS_FB_DTV_REMOTE_PRESS),
+                              (EhsCallbackQueueEntryType*)pParams);
+}
+
+
+
+/**
+ * A key has been pressed. Send out the output value, and see if there are any other
+ * instances of this function block to tell about it.
+ *
+ * Note: This is called from the main Windows thread, rather than the EHS
+ * thread, so we need to be sure that we don't trample over EHS.
+ */
+EHS_FB_RUN_FUNCTION(DtvRemote)
+{
+
+    switch (EhsTopfieldRemoteValue)
+    {
+    case RKEY_Menu: /* menu */
+        SetCompletes1((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+        break;
+    case RKEY_Ok: /* ok */
+        SetCompletes2((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+        break;
+    case RKEY_Exit: /* exit */
+        SetCompletes3((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+        break;
+    case RKEY_ChUp: /* up */
+        SetCompletes4((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+        break;
+    case RKEY_ChDown: /* down */
+        SetCompletes5((structFuncArg*)&EHS_FB_RUN_CONTEXT);
+        break;
+    default:
+        break;
+    }
+    return;
+}

@@ -18,3 +18,32 @@ EHS_PERIPHERALS_GPIO_SUPPORT ?= stubbed
 
 # System console: use Zephyr shell/UART console
 EHS_SYSTEM_CONSOLE ?= yes
+
+# No Wi-Fi by default - platform config.mk sets EHS_WIFI_SUPPORT=zephyr_nrf70
+# (currently the only backend) to opt in on boards with an nRF70-series chip
+# wired up. The actual Kconfig list lives in wifi_nrf70.mk, not the platform
+# config, so it's defined once and shared across every nRF70-equipped board.
+EHS_WIFI_SUPPORT ?= none
+ifneq ($(EHS_WIFI_SUPPORT),none)
+    include $(EHS_TARGET_OS_HW_PATH)/wifi_$(EHS_WIFI_SUPPORT:zephyr_%=%).mk
+endif
+
+# No cellular by default - platform config.mk sets EHS_CELLULAR_SUPPORT=zephyr_nrf91
+# on boards with an nRF91-series modem. Same arrangement as Wi-Fi above: the
+# Kconfig list lives in cellular_nrf91.mk so it is defined once and shared
+# across every nRF91 board, and the platform config carries only the selector.
+#
+# Wi-Fi and cellular are MUTUALLY EXCLUSIVE on nRF91 (measured RAM overflow of
+# 57,076 bytes with both). The guard that enforces it lives in
+# target/Component-HAL/cellular/cellular.mk, which runs for any target that
+# enables the eRT cellular subsystem.
+EHS_CELLULAR_SUPPORT ?= none
+ifneq ($(filter-out none stubbed,$(EHS_CELLULAR_SUPPORT)),)
+    include $(EHS_TARGET_OS_HW_PATH)/cellular_$(EHS_CELLULAR_SUPPORT:zephyr_%=%).mk
+endif
+
+# Default packager for this os-arch. A platform config.mk may override it with a
+# plain '=' -- this file is included after the platform's own config (see
+# target/platform/platform.mk, "include $(EHS_TARGET_OS_HW_PATH)/config.mk"),
+# so '?=' here yields to the platform. 'make targetenv_package' dispatches on it.
+EHS_PACKAGER_TYPE ?= none

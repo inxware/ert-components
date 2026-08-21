@@ -75,12 +75,10 @@ ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size)
  */
 EHS_MEMORY_ATTRIB ehs_uint16 EhsConsolePrintf(const ehs_char *fmt, ...) /*lint !e960 Allowable derrogation to MISRA 16.1. Variable args permitted */
 {
-#ifndef EHS_MEMORY_ATTRIB
-    /* format the message into a chunk of memory allocated especially */
     va_list args;
     va_start(args, fmt);
-    printf(fmt, args); /*lint !e534 Not interested in the return value */
-#endif
+    vprintf(fmt, args);
+    va_end(args);
     return 1;
 }
 

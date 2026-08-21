@@ -128,6 +128,27 @@ endif
 endif
 endif
 
+# Cellular (LTE-M / NB-IoT) support — the shared connect state machine and the
+# Cell_* / EhsSim_* unified API. Platform-independent; the target backend that
+# implements the doCellular* contract is selected by EHS_CELLULAR_SUPPORT in
+# target/Component-HAL/cellular/cellular.mk.
+ifdef EHS_NETWORK_CELLULAR_SUPPORT
+ifneq ($(EHS_NETWORK_CELLULAR_SUPPORT),none)
+ifneq ($(EHS_NETWORK_CELLULAR_SUPPORT),)
+	OBJECTS += inx-cellular_link.$(OBJ)
+	# Function blocks: Networking -> Cellular (and -> SIM Provisioning)
+	OBJECTS += inx-cell_modem_manager.$(OBJ)
+	OBJECTS += inx-cell_status.$(OBJ)
+	OBJECTS += inx-cell_power_manager.$(OBJ)
+	OBJECTS += inx-sim_manager.$(OBJ)
+	OBJECTS += inx-softsim_prov.$(OBJ)
+	OBJECTS += inx-esim_profile_mgr.$(OBJ)
+	OBJECTS += inx-sgp32_download.$(OBJ)
+	OBJECTS += inx-esim_factory_prov.$(OBJ)
+endif
+endif
+endif
+
 # BLE service support
 ifdef EHS_NETWORK_BLE_SUPPORT
 ifneq ($(EHS_NETWORK_BLE_SUPPORT),none)

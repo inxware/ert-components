@@ -56,6 +56,14 @@
 
 #define EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW "**Z" // short message that Lucid should be able to spot in both non-debug and degug modes.
 #define EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW_LEN 3u // sizeof(EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW)/sizeof(EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW[0])
+
+/* Record was delivered but cut short: "**T<delivered>,<formatted>\n" (0 formatted = unknown).
+ * Payload is digits and commas only so it stays safe inside the debugger's '#' framing. */
+#define EHS_FLAG_CONSOLE_TRUNCATED "**T"
+#define EHS_FLAG_CONSOLE_TRUNCATED_LEN 3u
+/* "**T" + up to 5 delivered digits + ',' + up to 10 formatted digits + newline.
+ * Self-contained (no EHS_MSG_END_OF_MESSAGE_LEN) so it is usable in #if before that define. */
+#define EHS_FLAG_CONSOLE_TRUNCATED_MAX_LEN (EHS_FLAG_CONSOLE_TRUNCATED_LEN + 5u + 1u + 10u + 1u)
 /* These should only be used for local console messaging (see above short versions for FIFO buffer)*/
 #define EHS_MSG_CONSOLE_BUFFER_OVERFLOW "**Warning: Console overflow!\n"
 #define EHS_MSG_CONSOLE_BUFFER_OVERFLOW_LEN (sizeof(EHS_MSG_CONSOLE_BUFFER_OVERFLOW)/sizeof(EHS_MSG_CONSOLE_BUFFER_OVERFLOW[0]))

@@ -14,9 +14,9 @@
 #include "ble_service_nimble.h"
 #include "globals.h"
 #include "hal-api.h"
-#include <string.h>
-#include <stdio.h>
+#include "hal_string.h"
 
+#include <stdio.h>
 #include "esp_log.h"
 #include "esp_nimble_hci.h"
 #include "nimble/nimble_port.h"
@@ -27,31 +27,61 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 
+
+//#define ble_debug_printf printf
+#define ble_debug_printf 
+
 static const char *TAG = "BLE_SERVICE_HAL";
 
-/* Maximum number of characteristics per service */
-#define MAX_CHARACTERISTICS 16
-#define MAX_CHAR_VALUE_LEN 512
+#define MAX_CHAR_VALUE_LEN  512
+/* Upper bound for the nimble-specific per-char runtime state array.
+ * Independent of any FB limit — sized to what this backend can support. */
+#define BLE_HAL_MAX_CHARS    16
+
+/*
+ * Module-level lifecycle state for the BLE HAL.
+ *
+ * Used by inx_ble_service_hal_init / _deinit to be idempotent and to recover
+ * from partial-teardown by tearing down before re-init. NimBLE's
+ * esp_bt_controller_init returns ESP_ERR_INVALID_STATE (0x103) if called
+ * again while the controller is not in IDLE — see
+ * ert-contrib-middleware/.../bt/controller/esp32c3/bt.c:1110.
+ *
+ * NOTE: this is a target-local copy. There is an open TODO (see the BLE
+ * section in docs/ert-porting-guide.md) to lift the state machine into a
+ * shared Common/HAL helper so other BLE backends (Zephyr, BlueZ, Win32) do
+ * not need to reinvent it — the pattern is the same as the WiFi station SM.
+ */
+typedef enum {
+    BLE_HAL_STATE_UNINIT = 0,    /* before first init / after full deinit */
+    BLE_HAL_STATE_INITIALIZED,   /* nimble_port_init + freertos_init done  */
+    BLE_HAL_STATE_RUNNING,       /* registered & advertising                */
+    BLE_HAL_STATE_ERROR,         /* last transition failed; safe to retry  */
+} ble_hal_state_t;
+
+static volatile ble_hal_state_t g_ble_hal_state = BLE_HAL_STATE_UNINIT;
 
 /* BLE service context structure */
 typedef struct {
     /* Service configuration */
     ble_uuid_any_t service_uuid;
-    char service_name[64];
+    char service_name[INX_BLE_NAME_MAX + 1];
     uint8_t num_chars;
-    uint16_t mtu_size;
     uint32_t adv_interval_ms;
 
-    /* Characteristic configuration */
+    /* Pointer to the caller's inx_ble_char_config_t array — holds config
+     * fields (uuid in inx format, name, properties, max_len).  The caller's
+     * state struct outlives the HAL so this pointer remains valid. */
+    const inx_ble_char_config_t* char_configs;
+
+    /* Per-characteristic NimBLE-specific runtime state only.
+     * Config fields (properties, max_len, name) are read from char_configs. */
     struct {
-        ble_uuid_any_t uuid;
-        char name[32];
-        uint8_t properties;  /* Read=1, Write=2, Notify=4, Indicate=8 */
-        uint16_t max_len;
-        uint16_t value_handle;
-        uint8_t value[MAX_CHAR_VALUE_LEN];
-        uint16_t value_len;
-    } chars[MAX_CHARACTERISTICS];
+        ble_uuid_any_t uuid;          /* converted to NimBLE byte order at init */
+        uint16_t       value_handle;  /* assigned by NimBLE at GATT registration */
+        uint8_t        value[MAX_CHAR_VALUE_LEN];
+        uint16_t       value_len;
+    } chars[BLE_HAL_MAX_CHARS];
 
     /* Connection state */
     uint16_t conn_handle;
@@ -61,10 +91,18 @@ typedef struct {
     /* GATT service handle */
     uint16_t service_handle;
 
+    /* Host-sync handshake state. host_synced is set by the NimBLE
+     * sync callback once the host has finished syncing with the
+     * controller; advertising must wait for this. want_adv is set
+     * by inx_ble_service_hal_start_adv() if it is called before
+     * sync — the sync callback will then start advertising. */
+    ehs_bool host_synced;
+    ehs_bool want_adv;
+
     /* Component context for callbacks */
     void* component_context;
 
-    /* Callback function pointers (to internal ports) */
+    /* Callback function pointers */
     inx_ble_service_callbacks_t callbacks;
 
 } ble_service_context_t;
@@ -75,40 +113,37 @@ static ble_service_context_t g_ble_ctx = {0};
 static ehs_sint32 ble_gap_event_handler(struct ble_gap_event *event, void *arg);
 static ehs_sint32 ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_handle,
                                     struct ble_gatt_access_ctxt *ctxt, void *arg);
+static void ble_on_sync(void);
+static void ble_on_reset(int reason);
+static ehs_sint32 ble_do_start_adv(void);
+static ehs_sint32 register_gatt(void);
 
-/**
- * Parse UUID string to ble_uuid_any_t structure
- * Supports both 16-bit and 128-bit UUIDs
- */
-static ehs_sint32 parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
+/* Convert a pre-parsed inx_ble_uuid_t to the NimBLE ble_uuid_any_t.
+ *
+ * NimBLE stores 128-bit UUIDs in little-endian byte order (wire order).
+ * inx_ble_uuid_t stores them in big-endian (network) order matching the
+ * standard "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" string. We reverse the
+ * bytes on the way in. 16-bit UUIDs are just a direct copy of the value. */
+static ehs_sint32 INX_PARSE_UUID(const inx_ble_uuid_t* inx_uuid, ble_uuid_any_t* out)
 {
-    //TODO2026 Check this out properly
-    if (1/*strlen(uuid_str) == 4*/) {
-        /* 16-bit UUID (e.g., "180A") */
-        uint16_t uuid16 = 6154;
-        //printf("[%s] string length 4\n", __func__);
-        printf("1\n");
-        //if (sscanf(uuid_str, "%04hx", &uuid16) != 1) {
-        //    return -1;
-        //}
-        uuid->u.type = BLE_UUID_TYPE_16;
-        uuid->u16.value = uuid16;
-        return 0;
-    } else if (strlen(uuid_str) == 36) {
-        /* 128-bit UUID (e.g., "0000180A-0000-1000-8000-00805F9B34FB") */
-        uint8_t uuid128[16] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-                            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
-        if (ble_uuid_init_from_buf(uuid, uuid128, 16) != 0) {
-            return -1;
-        }
-        //TODO: non-existant function for esp-idf version 5.1
-        //  Need to come up with a custom function to convert the UUID string to the UUID object
-        // if (ble_uuid_from_str(uuid_str, &uuid->u128.u) != 0) {
-        //     return -1;
-        // }
+    if (!inx_uuid || !out) return -1;
+
+    if (inx_uuid->type == INX_BLE_UUID_TYPE_16) {
+        out->u.type    = BLE_UUID_TYPE_16;
+        out->u16.value = inx_uuid->value.u16;
         return 0;
     }
 
+    if (inx_uuid->type == INX_BLE_UUID_TYPE_128) {
+        out->u.type = BLE_UUID_TYPE_128;
+        /* Reverse byte order: inx big-endian → NimBLE little-endian */
+        for (int i = 0; i < 16; i++) {
+            out->u128.value[i] = inx_uuid->value.u128[15 - i];
+        }
+        return 0;
+    }
+
+    ble_debug_printf("[BLE_HAL] INX_PARSE_UUID: unset or unknown UUID type %d\n", inx_uuid->type);
     return -1;
 }
 
@@ -122,41 +157,50 @@ static ehs_sint32 ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_ha
     ehs_sint32 char_idx = (ehs_sint32)(intptr_t)arg;
 
     if (char_idx < 0 || char_idx >= g_ble_ctx.num_chars) {
-        ESP_LOGE(TAG, "Invalid characteristic index: %d", char_idx);
+        ble_debug_printf("[BLE_HAL] gatt_access_cb: bad char_idx=%d (num_chars=%d)\n",
+               char_idx, g_ble_ctx.num_chars);
         return BLE_ATT_ERR_UNLIKELY;
     }
 
-    ESP_LOGI(TAG, "Char access: idx=%d, op=%d, handle=%d",
-             char_idx, ctxt->op, attr_handle);
+    ble_debug_printf("[BLE_HAL] gatt_access_cb: char=%d op=%d attr_handle=%d name=%s\n",
+           char_idx, ctxt->op, attr_handle,
+           g_ble_ctx.char_configs[char_idx].name);
 
     switch (ctxt->op) {
         case BLE_GATT_ACCESS_OP_READ_CHR:
-            /* Client is reading the characteristic */
-            if (g_ble_ctx.chars[char_idx].properties & 0x01) { /* Read property */
+            if (g_ble_ctx.char_configs[char_idx].properties & 0x01) { /* Read */
+                ble_debug_printf("[BLE_HAL] gatt_access_cb: READ char=%d len=%d\n",
+                       char_idx, g_ble_ctx.chars[char_idx].value_len);
                 ehs_sint32 rc = os_mbuf_append(ctxt->om,
                                        g_ble_ctx.chars[char_idx].value,
                                        g_ble_ctx.chars[char_idx].value_len);
                 return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
             }
+            ble_debug_printf("[BLE_HAL] gatt_access_cb: READ not permitted on char=%d props=0x%02x\n",
+                   char_idx, g_ble_ctx.char_configs[char_idx].properties);
             return BLE_ATT_ERR_READ_NOT_PERMITTED;
 
         case BLE_GATT_ACCESS_OP_WRITE_CHR:
-            /* Client is writing to the characteristic */
-            if (g_ble_ctx.chars[char_idx].properties & 0x02) { /* Write property */
+            if (g_ble_ctx.char_configs[char_idx].properties & 0x02) { /* Write */
                 uint16_t len = OS_MBUF_PKTLEN(ctxt->om);
-                if (len > g_ble_ctx.chars[char_idx].max_len) {
+                ble_debug_printf("[BLE_HAL] gatt_access_cb: WRITE char=%d len=%d max=%d\n",
+                       char_idx, len, g_ble_ctx.char_configs[char_idx].max_len);
+                if (len > (uint16_t)g_ble_ctx.char_configs[char_idx].max_len) {
+                    ble_debug_printf("[BLE_HAL] gatt_access_cb: WRITE too long, rejecting\n");
                     return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
                 }
 
-                /* Copy the data */
                 ehs_sint32 rc = ble_hs_mbuf_to_flat(ctxt->om,
                                             g_ble_ctx.chars[char_idx].value,
-                                            g_ble_ctx.chars[char_idx].max_len,
+                                            (uint16_t)g_ble_ctx.char_configs[char_idx].max_len,
                                             &g_ble_ctx.chars[char_idx].value_len);
                 if (rc != 0) {
+                    ble_debug_printf("[BLE_HAL] gatt_access_cb: ble_hs_mbuf_to_flat failed rc=%d\n", rc);
                     return BLE_ATT_ERR_UNLIKELY;
                 }
 
+                ble_debug_printf("[BLE_HAL] gatt_access_cb: WRITE done, firing on_client_write cb=%s\n",
+                       g_ble_ctx.callbacks.on_client_write ? "set" : "NULL");
                 /* Trigger on_client_write callback */
                 if (g_ble_ctx.callbacks.on_client_write) {
                     g_ble_ctx.callbacks.on_client_write(
@@ -168,6 +212,8 @@ static ehs_sint32 ble_gatt_char_access_cb(uint16_t conn_handle, uint16_t attr_ha
 
                 return 0;
             }
+            ble_debug_printf("[BLE_HAL] gatt_access_cb: WRITE not permitted on char=%d props=0x%02x\n",
+                   char_idx, g_ble_ctx.char_configs[char_idx].properties);
             return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
 
         default:
@@ -183,32 +229,35 @@ static ehs_sint32 ble_gap_event_handler(struct ble_gap_event *event, void *arg)
 {
     switch (event->type) {
         case BLE_GAP_EVENT_CONNECT:
-            ESP_LOGI(TAG, "Connection %s; status=%d",
-                    event->connect.status == 0 ? "established" : "failed",
-                    event->connect.status);
+            ble_debug_printf("[BLE_HAL] GAP CONNECT: status=%d handle=%d\n",
+                   event->connect.status, event->connect.conn_handle);
 
             if (event->connect.status == 0) {
                 g_ble_ctx.conn_handle = event->connect.conn_handle;
                 g_ble_ctx.connected = true;
+                g_ble_ctx.advertising = false;  /* controller stops adv on connect */
 
-                /* Trigger on_connect callback */
+                ble_debug_printf("[BLE_HAL] GAP CONNECT: connected OK, firing on_connect cb=%s\n",
+                       g_ble_ctx.callbacks.on_connect ? "set" : "NULL");
                 if (g_ble_ctx.callbacks.on_connect) {
                     g_ble_ctx.callbacks.on_connect(
                         g_ble_ctx.component_context,
                         event->connect.conn_handle);
                 }
             } else {
-                /* Connection failed, resume advertising */
+                ble_debug_printf("[BLE_HAL] GAP CONNECT: connection failed, clearing advertising flag\n");
                 g_ble_ctx.advertising = false;
             }
             break;
 
         case BLE_GAP_EVENT_DISCONNECT:
-            ESP_LOGI(TAG, "Disconnect; reason=%d", event->disconnect.reason);
+            ble_debug_printf("[BLE_HAL] GAP DISCONNECT: handle=%d reason=%d\n",
+                   event->disconnect.conn.conn_handle, event->disconnect.reason);
             g_ble_ctx.connected = false;
             g_ble_ctx.advertising = false;
 
-            /* Trigger on_disconnect callback */
+            ble_debug_printf("[BLE_HAL] GAP DISCONNECT: firing on_disconnect cb=%s\n",
+                   g_ble_ctx.callbacks.on_disconnect ? "set" : "NULL");
             if (g_ble_ctx.callbacks.on_disconnect) {
                 g_ble_ctx.callbacks.on_disconnect(
                     g_ble_ctx.component_context,
@@ -218,28 +267,31 @@ static ehs_sint32 ble_gap_event_handler(struct ble_gap_event *event, void *arg)
             break;
 
         case BLE_GAP_EVENT_ADV_COMPLETE:
-            ESP_LOGI(TAG, "Advertising complete; reason=%d", event->adv_complete.reason);
+            ble_debug_printf("[BLE_HAL] GAP ADV_COMPLETE: reason=%d\n", event->adv_complete.reason);
             g_ble_ctx.advertising = false;
             break;
 
         case BLE_GAP_EVENT_MTU:
-            ESP_LOGI(TAG, "MTU update: conn_handle=%d, mtu=%d",
-                    event->mtu.conn_handle, event->mtu.value);
+            ble_debug_printf("[BLE_HAL] GAP MTU: conn_handle=%d mtu=%d\n",
+                   event->mtu.conn_handle, event->mtu.value);
+            break;
+
+        case BLE_GAP_EVENT_CONN_UPDATE:
+            ble_debug_printf("[BLE_HAL] GAP CONN_UPDATE: conn_handle=%d status=%d\n",
+                   event->conn_update.conn_handle, event->conn_update.status);
             break;
 
         case BLE_GAP_EVENT_SUBSCRIBE:
-            ESP_LOGI(TAG, "Subscribe event; conn_handle=%d, attr_handle=%d, "
-                    "reason=%d, prevn=%d, curn=%d, previ=%d, curi=%d",
-                    event->subscribe.conn_handle,
-                    event->subscribe.attr_handle,
-                    event->subscribe.reason,
-                    event->subscribe.prev_notify,
-                    event->subscribe.cur_notify,
-                    event->subscribe.prev_indicate,
-                    event->subscribe.cur_indicate);
+            ble_debug_printf("[BLE_HAL] GAP SUBSCRIBE: conn=%d attr=%d reason=%d notify=%d->%d indicate=%d->%d\n",
+                   event->subscribe.conn_handle,
+                   event->subscribe.attr_handle,
+                   event->subscribe.reason,
+                   event->subscribe.prev_notify, event->subscribe.cur_notify,
+                   event->subscribe.prev_indicate, event->subscribe.cur_indicate);
             break;
 
         default:
+            ble_debug_printf("[BLE_HAL] GAP event type=%d (unhandled)\n", event->type);
             break;
     }
 
@@ -251,93 +303,229 @@ static ehs_sint32 ble_gap_event_handler(struct ble_gap_event *event, void *arg)
  */
 static void ble_host_task(void *param)
 {
-    ESP_LOGI(TAG, "BLE Host Task Started");
+    ble_debug_printf("[BLE_HAL] ble_host_task: started\n");
     nimble_port_run();
+    ble_debug_printf("[BLE_HAL] ble_host_task: nimble_port_run returned, calling deinit\n");
     nimble_port_freertos_deinit();
+    ble_debug_printf("[BLE_HAL] ble_host_task: exited\n");
+}
+
+/*
+ * Bring the NimBLE host + ESP BT controller back to a clean UNINIT state.
+ * Used by inx_ble_service_hal_init() to recover from a previous failed init
+ * and by inx_ble_service_hal_deinit().
+ *
+ * Order matters: nimble_port_stop() makes nimble_port_run() return inside
+ * the host task; after that returns, nimble_port_freertos_deinit() removes
+ * the host task; then nimble_port_deinit() disables and deinits the
+ * controller. Skipping any step leaves the controller in a non-IDLE state
+ * which makes the next esp_bt_controller_init() return ESP_ERR_INVALID_STATE.
+ */
+static void ble_full_teardown(void)
+{
+    ble_debug_printf("[BLE_HAL] ble_full_teardown: state=%d\n", (int)g_ble_hal_state);
+    if (g_ble_hal_state == BLE_HAL_STATE_UNINIT) {
+        ble_debug_printf("[BLE_HAL] ble_full_teardown: already uninit, skipping\n");
+        return;
+    }
+
+    if (g_ble_ctx.advertising) {
+        ble_debug_printf("[BLE_HAL] ble_full_teardown: stopping advertising\n");
+        ble_gap_adv_stop();
+        g_ble_ctx.advertising = false;
+    }
+    if (g_ble_ctx.connected) {
+        ble_debug_printf("[BLE_HAL] ble_full_teardown: terminating connection handle=%d\n",
+               g_ble_ctx.conn_handle);
+        ble_gap_terminate(g_ble_ctx.conn_handle, BLE_ERR_REM_USER_CONN_TERM);
+        g_ble_ctx.connected = false;
+    }
+
+    ble_debug_printf("[BLE_HAL] ble_full_teardown: calling nimble_port_stop\n");
+    int rc = nimble_port_stop();
+    if (rc != 0) {
+        ble_debug_printf("[BLE_HAL] ble_full_teardown: nimble_port_stop returned %d\n", rc);
+    }
+
+    ble_debug_printf("[BLE_HAL] ble_full_teardown: calling nimble_port_deinit\n");
+    esp_err_t err = nimble_port_deinit();
+    if (err != ESP_OK) {
+        ble_debug_printf("[BLE_HAL] ble_full_teardown: nimble_port_deinit returned 0x%x\n", err);
+    }
+
+    memset(&g_ble_ctx, 0, sizeof(g_ble_ctx));
+    g_ble_hal_state = BLE_HAL_STATE_UNINIT;
+    ble_debug_printf("[BLE_HAL] ble_full_teardown: done\n");
+}
+
+/*
+ * NimBLE host sync callback. Fires on the nimble_host task once the host has
+ * finished its initial sync with the controller. Until this fires, no GAP
+ * action (advertising, scanning, connecting) will succeed — this is the
+ * canonical barrier in every IDF NimBLE example.
+ *
+ * If start_adv was requested before sync, honour it now.
+ */
+static void ble_on_sync(void)
+{
+    ble_debug_printf("[BLE_HAL] ble_on_sync: NimBLE host synced, want_adv=%d advertising=%d\n",
+           g_ble_ctx.want_adv, g_ble_ctx.advertising);
+    g_ble_ctx.host_synced = EHS_TRUE;
+    g_ble_hal_state = BLE_HAL_STATE_RUNNING;
+
+    if (g_ble_ctx.want_adv && !g_ble_ctx.advertising) {
+        ble_debug_printf("[BLE_HAL] ble_on_sync: deferred adv request pending, starting now\n");
+        g_ble_ctx.want_adv = EHS_FALSE;
+        ble_do_start_adv();
+    } else {
+        ble_debug_printf("[BLE_HAL] ble_on_sync: no pending adv request\n");
+    }
+}
+
+/*
+ * NimBLE host reset callback. Fires on the nimble_host task if the host
+ * loses sync with the controller (e.g. controller HW reset). After this
+ * fires the host re-syncs and ble_on_sync will fire again — clear our
+ * cached sync state here.
+ */
+static void ble_on_reset(int reason)
+{
+    ble_debug_printf("[BLE_HAL] ble_on_reset: host reset reason=%d, clearing synced/advertising/connected\n",
+           reason);
+    g_ble_ctx.host_synced = EHS_FALSE;
+    g_ble_ctx.advertising = EHS_FALSE;
+    g_ble_ctx.connected   = EHS_FALSE;
 }
 
 /**
  * Initialize BLE service with configuration
+ *
+ * Idempotent: if the HAL is already initialized this performs a full
+ * teardown first so we always start from a known-IDLE controller state.
+ * This avoids esp_bt_controller_init() returning ESP_ERR_INVALID_STATE
+ * (0x103) on a second call (FB block destroy/re-init cycle).
  */
 ehs_sint32 inx_ble_service_hal_init(
-    const char* service_uuid,
+    const inx_ble_uuid_t* service_uuid,
     const char* service_name,
     ehs_uint8 num_chars,
     ehs_uint32 adv_interval_ms,
-    ehs_uint16 mtu_size,
     inx_ble_char_config_t* char_configs,
     inx_ble_service_callbacks_t* callbacks,
     void* component_context)
 {
-    esp_log_level_set(TAG, ESP_LOG_DEBUG);
-    esp_log_level_set("BLE_INIT", ESP_LOG_DEBUG);
-    if (num_chars > MAX_CHARACTERISTICS) {
-        ESP_LOGE(TAG, "Too many characteristics: %d (max %d)",
-                 num_chars, MAX_CHARACTERISTICS);
+    ble_debug_printf("[BLE_HAL] hal_init: name=%s num_chars=%d adv_ms=%d state=%d\n",
+           service_name, (int)num_chars, (int)adv_interval_ms, (int)g_ble_hal_state);
+
+    if (num_chars > BLE_HAL_MAX_CHARS) {
+        ble_debug_printf("[BLE_HAL] hal_init: ERROR too many characteristics %d (max %d)\n",
+               num_chars, BLE_HAL_MAX_CHARS);
         return -1;
     }
 
-    ESP_LOGI(TAG, "Initializing BLE service: %s", service_name);
+    /* HACK: init-once policy — NimBLE controller cannot be re-initialised
+     * without a full teardown (esp_bt_controller_init returns INVALID_STATE).
+     * On app reload we just refresh the context pointers and return. */
+    if (g_ble_hal_state != BLE_HAL_STATE_UNINIT) {
+        ble_debug_printf("[BLE_HAL] hal_init: already initialised (state=%d), refreshing context pointers only\n",
+               (int)g_ble_hal_state);
+        g_ble_ctx.component_context = component_context;
+        g_ble_ctx.char_configs = char_configs;
+        if (callbacks) {
+            EhsMemcpy(&g_ble_ctx.callbacks, callbacks,
+                      sizeof(inx_ble_service_callbacks_t));
+        }
+        ble_debug_printf("[BLE_HAL] hal_init: context refreshed, callbacks.on_write=%s\n",
+               g_ble_ctx.callbacks.on_client_write ? "set" : "NULL");
+        return 0;
+    }
 
-    /* Store configuration */
+    ble_debug_printf("[BLE_HAL] hal_init: first init, zeroing context\n");
     memset(&g_ble_ctx, 0, sizeof(g_ble_ctx));
 
-    if (parse_uuid(service_uuid, &g_ble_ctx.service_uuid) != 0) {
-        ESP_LOGE(TAG, "Failed to parse service UUID: %s", service_uuid);
+    ble_debug_printf("[BLE_HAL] hal_init: parsing service UUID (type=%d)\n",
+           service_uuid ? service_uuid->type : -1);
+    if (INX_PARSE_UUID(service_uuid, &g_ble_ctx.service_uuid) != 0) {
+        ble_debug_printf("[BLE_HAL] hal_init: ERROR failed to parse service UUID\n");
+        g_ble_hal_state = BLE_HAL_STATE_ERROR;
         return -1;
     }
-
-    strncpy(g_ble_ctx.service_name, service_name, sizeof(g_ble_ctx.service_name) - 1);
+    EhsSnprintf(g_ble_ctx.service_name, sizeof(g_ble_ctx.service_name),"%s",service_name); //safe version of strncpy with null termination/
+    //EhsStrcpyUpTo(g_ble_ctx.service_name, service_name, sizeof(g_ble_ctx.service_name) - 1);
     g_ble_ctx.num_chars = num_chars;
     g_ble_ctx.adv_interval_ms = adv_interval_ms;
-    g_ble_ctx.mtu_size = mtu_size;
     g_ble_ctx.component_context = component_context;
-
+    g_ble_ctx.char_configs = char_configs;
     if (callbacks) {
-        memcpy(&g_ble_ctx.callbacks, callbacks, sizeof(inx_ble_service_callbacks_t));
+        EhsMemcpy(&g_ble_ctx.callbacks, callbacks, sizeof(inx_ble_service_callbacks_t));
     }
+    ble_debug_printf("[BLE_HAL] hal_init: callbacks.on_write=%s on_connect=%s on_disconnect=%s\n",
+           g_ble_ctx.callbacks.on_client_write ? "set" : "NULL",
+           g_ble_ctx.callbacks.on_connect      ? "set" : "NULL",
+           g_ble_ctx.callbacks.on_disconnect   ? "set" : "NULL");
 
-    /* Store characteristic configurations */
     for (ehs_sint32 i = 0; i < num_chars; i++) {
-        if (parse_uuid(char_configs[i].uuid, &g_ble_ctx.chars[i].uuid) != 0) {
-            ESP_LOGE(TAG, "Failed to parse char UUID: %s", char_configs[i].uuid);
+        ble_debug_printf("[BLE_HAL] hal_init: parsing char[%d] uuid type=%d name=%s props=0x%02x max_len=%d\n",
+               i, char_configs[i].uuid.type, char_configs[i].name,
+               char_configs[i].properties, char_configs[i].max_len);
+        if (INX_PARSE_UUID(&char_configs[i].uuid, &g_ble_ctx.chars[i].uuid) != 0) {
+            ble_debug_printf("[BLE_HAL] hal_init: ERROR failed to parse char[%d] UUID\n", i);
+            g_ble_hal_state = BLE_HAL_STATE_ERROR;
             return -1;
         }
-
-        strncpy(g_ble_ctx.chars[i].name, char_configs[i].name,
-                sizeof(g_ble_ctx.chars[i].name) - 1);
-        g_ble_ctx.chars[i].properties = char_configs[i].properties;
-        g_ble_ctx.chars[i].max_len = char_configs[i].max_len;
         g_ble_ctx.chars[i].value_len = 0;
     }
 
-    /* Initialize NimBLE */
-    // esp_err_t ret = esp_nimble_hci_and_controller_init();
-    // if (ret != ESP_OK) {
-    //     ESP_LOGE(TAG, "Failed to initialize controller: %d", ret);
-    //     return -1;
-    // }
-
+    ble_debug_printf("[BLE_HAL] hal_init: step 1 — nimble_port_init\n");
     esp_err_t err = nimble_port_init();
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Init failed @%d", err);
+        ble_debug_printf("[BLE_HAL] hal_init: ERROR nimble_port_init failed 0x%x\n", err);
+        g_ble_hal_state = BLE_HAL_STATE_ERROR;
+        return -1;
+    }
+    ble_debug_printf("[BLE_HAL] hal_init: step 1 OK\n");
+
+    ble_debug_printf("[BLE_HAL] hal_init: step 2 — setting sync/reset callbacks\n");
+    ble_hs_cfg.sync_cb  = ble_on_sync;
+    ble_hs_cfg.reset_cb = ble_on_reset;
+
+    ble_debug_printf("[BLE_HAL] hal_init: step 3 — ble_svc_gap_init + ble_svc_gatt_init\n");
+    ble_svc_gap_init();
+    ble_svc_gatt_init();
+
+    ble_debug_printf("[BLE_HAL] hal_init: step 4 — ble_svc_gap_device_name_set(\"%s\")\n",
+           g_ble_ctx.service_name);
+    int rc = ble_svc_gap_device_name_set(g_ble_ctx.service_name);
+    if (rc != 0) {
+        ble_debug_printf("[BLE_HAL] hal_init: WARNING ble_svc_gap_device_name_set failed rc=%d (non-fatal)\n", rc);
+    } else {
+        ble_debug_printf("[BLE_HAL] hal_init: step 4 OK\n");
     }
 
-    /* Initialize the NimBLE host configuration */
-    ble_hs_cfg.sync_cb = NULL;
-    ble_hs_cfg.reset_cb = NULL;
+    ble_debug_printf("[BLE_HAL] hal_init: step 5 — register_gatt (must be before host task starts)\n");
+    rc = register_gatt();
+    if (rc != 0) {
+        ble_debug_printf("[BLE_HAL] hal_init: ERROR register_gatt failed rc=%d\n", rc);
+        g_ble_hal_state = BLE_HAL_STATE_ERROR;
+        return -1;
+    }
+    ble_debug_printf("[BLE_HAL] hal_init: step 5 OK\n");
 
-    /* Start the BLE host task */
+    ble_debug_printf("[BLE_HAL] hal_init: step 6 — nimble_port_freertos_init (spawning host task)\n");
     nimble_port_freertos_init(ble_host_task);
 
-    ESP_LOGI(TAG, "BLE service initialized successfully");
+    g_ble_hal_state = BLE_HAL_STATE_INITIALIZED;
+    ble_debug_printf("[BLE_HAL] hal_init: done, state=INITIALIZED, awaiting ble_on_sync\n");
     return 0;
 }
 
-/**
- * Register GATT service and characteristics
+/*
+ * Register custom GATT services and characteristics.
+ *
+ * Called from inx_ble_service_hal_init() before nimble_port_freertos_init()
+ * so the table is populated before ble_hs_start() → ble_gatts_start() freezes it.
  */
-ehs_sint32 inx_ble_service_hal_register_gatt(void)
+static ehs_sint32 register_gatt(void)
 {
     struct ble_gatt_svc_def *gatt_svcs;
     struct ble_gatt_chr_def *gatt_chrs;
@@ -348,8 +536,11 @@ ehs_sint32 inx_ble_service_hal_register_gatt(void)
     gatt_chrs = calloc(g_ble_ctx.num_chars + 1,
                       sizeof(struct ble_gatt_chr_def)); /* Chars + NULL terminator */
 
+    ble_debug_printf("[BLE_HAL] register_gatt: num_chars=%d\n", g_ble_ctx.num_chars);
+
     if (!gatt_svcs || !gatt_chrs) {
-        ESP_LOGE(TAG, "Failed to allocate memory for GATT definitions");
+        ble_debug_printf("[BLE_HAL] register_gatt: ERROR alloc failed gatt_svcs=%p gatt_chrs=%p\n",
+               gatt_svcs, gatt_chrs);
         free(gatt_svcs);
         free(gatt_chrs);
         return -1;
@@ -362,21 +553,15 @@ ehs_sint32 inx_ble_service_hal_register_gatt(void)
         gatt_chrs[i].arg = (void*)(intptr_t)i;
         gatt_chrs[i].val_handle = &g_ble_ctx.chars[i].value_handle;
 
-        /* Set flags based on properties */
+        ehs_sint32 props = g_ble_ctx.char_configs[i].properties;
         uint8_t flags = 0;
-        if (g_ble_ctx.chars[i].properties & 0x01) { /* Read */
-            flags |= BLE_GATT_CHR_F_READ;
-        }
-        if (g_ble_ctx.chars[i].properties & 0x02) { /* Write */
-            flags |= BLE_GATT_CHR_F_WRITE;
-        }
-        if (g_ble_ctx.chars[i].properties & 0x04) { /* Notify */
-            flags |= BLE_GATT_CHR_F_NOTIFY;
-        }
-        if (g_ble_ctx.chars[i].properties & 0x08) { /* Indicate */
-            flags |= BLE_GATT_CHR_F_INDICATE;
-        }
+        if (props & 0x01) flags |= BLE_GATT_CHR_F_READ;
+        if (props & 0x02) flags |= BLE_GATT_CHR_F_WRITE;
+        if (props & 0x04) flags |= BLE_GATT_CHR_F_NOTIFY;
+        if (props & 0x08) flags |= BLE_GATT_CHR_F_INDICATE;
         gatt_chrs[i].flags = flags;
+        ble_debug_printf("[BLE_HAL] register_gatt: char[%d] name=%s props=0x%02x nimble_flags=0x%02x\n",
+               i, g_ble_ctx.char_configs[i].name, props, flags);
     }
 
     /* Build service definition */
@@ -384,87 +569,128 @@ ehs_sint32 inx_ble_service_hal_register_gatt(void)
     gatt_svcs[0].uuid = &g_ble_ctx.service_uuid.u;
     gatt_svcs[0].characteristics = gatt_chrs;
 
-    /* Register the GATT services */
+    ble_debug_printf("[BLE_HAL] register_gatt: calling ble_gatts_count_cfg\n");
     rc = ble_gatts_count_cfg(gatt_svcs);
     if (rc != 0) {
-        ESP_LOGE(TAG, "Failed to count GATT config: %d", rc);
+        ble_debug_printf("[BLE_HAL] register_gatt: ERROR ble_gatts_count_cfg rc=%d\n", rc);
         free(gatt_svcs);
         free(gatt_chrs);
         return -1;
     }
 
+    ble_debug_printf("[BLE_HAL] register_gatt: calling ble_gatts_add_svcs\n");
     rc = ble_gatts_add_svcs(gatt_svcs);
     if (rc != 0) {
-        ESP_LOGE(TAG, "Failed to add GATT services: %d", rc);
+        ble_debug_printf("[BLE_HAL] register_gatt: ERROR ble_gatts_add_svcs rc=%d\n", rc);
         free(gatt_svcs);
         free(gatt_chrs);
         return -1;
     }
 
-    /* Start GATT services */
-    ble_gatts_start();
+    /* NOTE: do NOT call ble_gatts_start() here — NimBLE calls it automatically
+     * from ble_hs_start() inside nimble_port_run() on the host task. */
 
-    ESP_LOGI(TAG, "GATT service registered with %d characteristics",
-             g_ble_ctx.num_chars);
+    ble_debug_printf("[BLE_HAL] register_gatt: OK, %d characteristics registered\n",
+           g_ble_ctx.num_chars);
 
     /* Note: Don't free gatt_svcs and gatt_chrs as they're still in use by NimBLE */
     return 0;
 }
 
-/**
- * Start BLE advertising
+/*
+ * Internal: actually program the controller to advertise. Callable only
+ * after host sync. Runs either on the EHS thread (if start_adv arrived
+ * after sync) or on the nimble_host task (if start_adv arrived before
+ * sync and ble_on_sync replays it). NimBLE's GAP API is thread-safe via
+ * its event queue.
  */
-ehs_sint32 inx_ble_service_hal_start_adv(void)
+static ehs_sint32 ble_do_start_adv(void)
 {
-    if (g_ble_ctx.advertising) {
-        ESP_LOGW(TAG, "Already advertising");
-        return -1;
-    }
-
     struct ble_gap_adv_params adv_params;
     struct ble_hs_adv_fields fields;
     ehs_sint32 rc;
+    uint8_t own_addr_type;
 
-    /* Set advertising data */
+    /* Pick a usable own address. ble_hs_id_infer_auto chooses public if
+     * the controller has one, otherwise random — matches every IDF
+     * NimBLE example. */
+    ble_debug_printf("[BLE_HAL] do_start_adv: ble_hs_id_infer_auto\n");
+    rc = ble_hs_id_infer_auto(0, &own_addr_type);
+    if (rc != 0) {
+        ble_debug_printf("[BLE_HAL] do_start_adv: ERROR ble_hs_id_infer_auto rc=%d\n", rc);
+        return -1;
+    }
+    ble_debug_printf("[BLE_HAL] do_start_adv: own_addr_type=%d\n", own_addr_type);
+
     memset(&fields, 0, sizeof(fields));
     fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
     fields.name = (uint8_t *)g_ble_ctx.service_name;
     fields.name_len = strlen(g_ble_ctx.service_name);
     fields.name_is_complete = 1;
-    
     fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
     fields.tx_pwr_lvl_is_present = 1;
 
-    rc = ble_hs_start();
-    if (rc != 0)
-    {
-        ESP_LOGE(TAG, "Failed to start host controller: %d", rc);
-        //return -1;
-    }
-
+    ble_debug_printf("[BLE_HAL] do_start_adv: ble_gap_adv_set_fields name=\"%s\"\n",
+           g_ble_ctx.service_name);
     rc = ble_gap_adv_set_fields(&fields);
     if (rc != 0) {
-        ESP_LOGE(TAG, "Failed to set advertising data: %d", rc);
+        ble_debug_printf("[BLE_HAL] do_start_adv: ERROR ble_gap_adv_set_fields rc=%d\n", rc);
         return -1;
     }
 
-    /* Start advertising */
     memset(&adv_params, 0, sizeof(adv_params));
     adv_params.conn_mode = BLE_GAP_CONN_MODE_UND;
     adv_params.disc_mode = BLE_GAP_DISC_MODE_GEN;
-    adv_params.itvl_min = (g_ble_ctx.adv_interval_ms * 1000) / 625; /* Convert ms to 0.625ms units */
+    adv_params.itvl_min = (g_ble_ctx.adv_interval_ms * 1000) / 625;
     adv_params.itvl_max = (g_ble_ctx.adv_interval_ms * 1000) / 625;
 
-    rc = ble_gap_adv_start(BLE_OWN_ADDR_PUBLIC, NULL, BLE_HS_FOREVER,
-                          &adv_params, ble_gap_event_handler, NULL);
+    ble_debug_printf("[BLE_HAL] do_start_adv: ble_gap_adv_start itvl=%lu units (%lu ms)\n",
+           (unsigned long)adv_params.itvl_min,
+           (unsigned long)g_ble_ctx.adv_interval_ms);
+    rc = ble_gap_adv_start(own_addr_type, NULL, BLE_HS_FOREVER,
+                           &adv_params, ble_gap_event_handler, NULL);
     if (rc != 0) {
-        ESP_LOGE(TAG, "Failed to start advertising: %d", rc);
+        ble_debug_printf("[BLE_HAL] do_start_adv: ERROR ble_gap_adv_start rc=%d\n", rc);
         return -1;
     }
 
     g_ble_ctx.advertising = true;
-    ESP_LOGI(TAG, "Advertising started");
+    ble_debug_printf("[BLE_HAL] do_start_adv: advertising started OK\n");
     return 0;
+}
+
+/**
+ * Start BLE advertising
+ *
+ * If the host has not yet synced with the controller this call defers —
+ * it sets g_ble_ctx.want_adv and ble_on_sync() will start advertising
+ * once sync completes. This avoids the race where start_adv runs before
+ * sync and ble_gap_adv_start returns BLE_HS_EAGAIN / BLE_HS_EBUSY.
+ */
+ehs_sint32 inx_ble_service_hal_start_adv(void)
+{
+    ble_debug_printf("[BLE_HAL] hal_start_adv: state=%d synced=%d advertising=%d\n",
+           (int)g_ble_hal_state, g_ble_ctx.host_synced, g_ble_ctx.advertising);
+
+    if (g_ble_hal_state == BLE_HAL_STATE_UNINIT ||
+        g_ble_hal_state == BLE_HAL_STATE_ERROR) {
+        ble_debug_printf("[BLE_HAL] hal_start_adv: ERROR called before init (state=%d)\n",
+               (int)g_ble_hal_state);
+        return -1;
+    }
+
+    if (g_ble_ctx.advertising) {
+        ble_debug_printf("[BLE_HAL] hal_start_adv: already advertising, ignoring\n");
+        return -1;
+    }
+
+    if (!g_ble_ctx.host_synced) {
+        ble_debug_printf("[BLE_HAL] hal_start_adv: host not yet synced, deferring (want_adv=true)\n");
+        g_ble_ctx.want_adv = EHS_TRUE;
+        return 0;
+    }
+
+    return ble_do_start_adv();
 }
 
 /**
@@ -472,19 +698,20 @@ ehs_sint32 inx_ble_service_hal_start_adv(void)
  */
 ehs_sint32 inx_ble_service_hal_stop_adv(void)
 {
+    ble_debug_printf("[BLE_HAL] hal_stop_adv: advertising=%d\n", g_ble_ctx.advertising);
     if (!g_ble_ctx.advertising) {
-        ESP_LOGW(TAG, "Not advertising");
+        ble_debug_printf("[BLE_HAL] hal_stop_adv: not advertising, ignoring\n");
         return -1;
     }
 
     ehs_sint32 rc = ble_gap_adv_stop();
     if (rc != 0) {
-        ESP_LOGE(TAG, "Failed to stop advertising: %d", rc);
+        ble_debug_printf("[BLE_HAL] hal_stop_adv: ERROR ble_gap_adv_stop rc=%d\n", rc);
         return -1;
     }
 
     g_ble_ctx.advertising = false;
-    ESP_LOGI(TAG, "Advertising stopped");
+    ble_debug_printf("[BLE_HAL] hal_stop_adv: advertising stopped\n");
     return 0;
 }
 
@@ -493,21 +720,21 @@ ehs_sint32 inx_ble_service_hal_stop_adv(void)
  */
 ehs_sint32 inx_ble_service_hal_write_char(uint8_t char_idx, const char* data, uint16_t length)
 {
+    ble_debug_printf("[BLE_HAL] hal_write_char: char=%d len=%d\n", char_idx, length);
     if (char_idx >= g_ble_ctx.num_chars) {
-        ESP_LOGE(TAG, "Invalid characteristic index: %d", char_idx);
+        ble_debug_printf("[BLE_HAL] hal_write_char: ERROR bad char_idx=%d\n", char_idx);
         return -1;
     }
 
-    if (length > g_ble_ctx.chars[char_idx].max_len) {
-        ESP_LOGE(TAG, "Data too long: %d (max %d)", length,
-                 g_ble_ctx.chars[char_idx].max_len);
+    if (length > (uint16_t)g_ble_ctx.char_configs[char_idx].max_len) {
+        ble_debug_printf("[BLE_HAL] hal_write_char: ERROR data too long %d (max %d)\n",
+               length, g_ble_ctx.char_configs[char_idx].max_len);
         return -2;
     }
 
-    memcpy(g_ble_ctx.chars[char_idx].value, data, length);
+    EhsMemcpy(g_ble_ctx.chars[char_idx].value, data, length);
     g_ble_ctx.chars[char_idx].value_len = length;
-
-    ESP_LOGI(TAG, "Characteristic %d value updated locally", char_idx);
+    ble_debug_printf("[BLE_HAL] hal_write_char: char=%d updated, len=%d\n", char_idx, length);
     return 0;
 }
 
@@ -518,19 +745,16 @@ ehs_sint32 inx_ble_service_hal_read_char(uint8_t char_idx, char* data,
                                    uint16_t* length, uint16_t max_len)
 {
     if (char_idx >= g_ble_ctx.num_chars) {
-        ESP_LOGE(TAG, "Invalid characteristic index: %d", char_idx);
+        ble_debug_printf("[BLE_HAL] hal_read_char: ERROR bad char_idx=%d\n", char_idx);
         return -1;
     }
 
     uint16_t copy_len = g_ble_ctx.chars[char_idx].value_len;
-    if (copy_len > max_len) {
-        copy_len = max_len;
-    }
+    if (copy_len > max_len) copy_len = max_len;
 
-    memcpy(data, g_ble_ctx.chars[char_idx].value, copy_len);
+    EhsMemcpy(data, g_ble_ctx.chars[char_idx].value, copy_len);
     *length = copy_len;
-
-    ESP_LOGI(TAG, "Characteristic %d value read: %d bytes", char_idx, copy_len);
+    ble_debug_printf("[BLE_HAL] hal_read_char: char=%d read %d bytes\n", char_idx, copy_len);
     return 0;
 }
 
@@ -539,44 +763,49 @@ ehs_sint32 inx_ble_service_hal_read_char(uint8_t char_idx, char* data,
  */
 ehs_sint32 inx_ble_service_hal_notify(uint8_t char_idx, const char* data, uint16_t length)
 {
+    ble_debug_printf("[BLE_HAL] hal_notify: char=%d len=%d connected=%d\n",
+           char_idx, length, g_ble_ctx.connected);
     if (!g_ble_ctx.connected) {
-        ESP_LOGW(TAG, "Cannot notify: not connected");
+        ble_debug_printf("[BLE_HAL] hal_notify: not connected\n");
         return -1;
     }
 
     if (char_idx >= g_ble_ctx.num_chars) {
-        ESP_LOGE(TAG, "Invalid characteristic index: %d", char_idx);
+        ble_debug_printf("[BLE_HAL] hal_notify: ERROR bad char_idx=%d\n", char_idx);
         return -2;
     }
 
-    if (!(g_ble_ctx.chars[char_idx].properties & 0x04)) {
-        ESP_LOGE(TAG, "Characteristic %d does not support notifications", char_idx);
+    if (!(g_ble_ctx.char_configs[char_idx].properties & 0x04)) {
+        ble_debug_printf("[BLE_HAL] hal_notify: ERROR char=%d props=0x%02x does not support notify\n",
+               char_idx, g_ble_ctx.char_configs[char_idx].properties);
         return -3;
     }
 
-    /* Update local value */
-    if (length > g_ble_ctx.chars[char_idx].max_len) {
-        length = g_ble_ctx.chars[char_idx].max_len;
+    if (length > (uint16_t)g_ble_ctx.char_configs[char_idx].max_len) {
+        ble_debug_printf("[BLE_HAL] hal_notify: clamping len %d -> %d\n",
+               length, g_ble_ctx.char_configs[char_idx].max_len);
+        length = (uint16_t)g_ble_ctx.char_configs[char_idx].max_len;
     }
-    memcpy(g_ble_ctx.chars[char_idx].value, data, length);
+    EhsMemcpy(g_ble_ctx.chars[char_idx].value, data, length);
     g_ble_ctx.chars[char_idx].value_len = length;
 
-    /* Create mbuf for notification */
+    ble_debug_printf("[BLE_HAL] hal_notify: ble_hs_mbuf_from_flat len=%d\n", length);
     struct os_mbuf *om = ble_hs_mbuf_from_flat(data, length);
     if (om == NULL) {
-        ESP_LOGE(TAG, "Failed to allocate mbuf for notification");
+        ble_debug_printf("[BLE_HAL] hal_notify: ERROR mbuf alloc failed\n");
         return -4;
     }
 
-    /* Send notification */
+    ble_debug_printf("[BLE_HAL] hal_notify: ble_gattc_notify_custom conn=%d val_handle=%d\n",
+           g_ble_ctx.conn_handle, g_ble_ctx.chars[char_idx].value_handle);
     ehs_sint32 rc = ble_gattc_notify_custom(g_ble_ctx.conn_handle,
                                      g_ble_ctx.chars[char_idx].value_handle, om);
     if (rc != 0) {
-        ESP_LOGE(TAG, "Failed to send notification: %d", rc);
+        ble_debug_printf("[BLE_HAL] hal_notify: ERROR ble_gattc_notify_custom rc=%d\n", rc);
         return -5;
     }
 
-    ESP_LOGI(TAG, "Notification sent for characteristic %d", char_idx);
+    ble_debug_printf("[BLE_HAL] hal_notify: notification sent OK char=%d\n", char_idx);
     return 0;
 }
 
@@ -598,21 +827,25 @@ ehs_bool inx_ble_service_hal_is_advertising(void)
 
 /**
  * Deinitialize BLE service
+ *
+ * Lifecycle policy: init-once, stay-initialised.
+ *
+ * This is intentionally a no-op for now. We do not tear down the
+ * NimBLE stack on FB destroy / app reload because:
+ *   - It is undefined whether teardown + re-init across application
+ *     transitions is the desired behaviour, vs leaving BLE up so
+ *     advertising / GATT remain available between apps.
+ *   - We have not yet seen a path that legitimately wants a teardown.
+ *
+ * The full-teardown helper (ble_full_teardown) is preserved in source
+ * for the day this policy is revisited. See
+ * docs/ert-porting-guide.md § BLE Subsystem › "Lifecycle policy —
+ * open questions" for the unresolved design points.
  */
 void inx_ble_service_hal_deinit(void)
 {
-    if (g_ble_ctx.advertising) {
-        ble_gap_adv_stop();
-    }
-
-    if (g_ble_ctx.connected) {
-        ble_gap_terminate(g_ble_ctx.conn_handle, BLE_ERR_REM_USER_CONN_TERM);
-    }
-
-    nimble_port_stop();
-    // esp_nimble_hci_and_controller_deinit();
-
-    memset(&g_ble_ctx, 0, sizeof(g_ble_ctx));
-    ESP_LOGI(TAG, "BLE service deinitialized");
+    (void)ble_full_teardown;  /* keep symbol referenced */
+    ble_debug_printf("[BLE_HAL] hal_deinit: no-op (stay-initialised policy), state=%d\n",
+           (int)g_ble_hal_state);
 }
 

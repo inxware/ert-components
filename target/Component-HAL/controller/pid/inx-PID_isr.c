@@ -7,6 +7,7 @@
 //#endif//EHS_MAX31343_SUPPORT
 
 // isr friendly printf (needed especally for esp32 adc isr)
+/* TODO2026: This is done in the wrong place - it needs to be in os-arch target headers*/
 #ifdef EHS_ESP32_SUPPORT
 #define isr_printf(...) ets_printf(__VA_ARGS__)
 #else
@@ -298,7 +299,7 @@ inxSensorType_t gSensorType = {0};
 //PBB not doing this for now as it is out of band functionality
 //static uint32_t* gpWatchDogFlag = 0x1fff0000; //the flag that tells us when we got shut down, current points to first chunk of SRAM_LOWER
 
-volatile dutyCycleState_t dutyCycleStates[CONFIG_DUTY_CYCLES_NUM]={0};
+volatile dutyCycleState_t EHS_DATA_MEMORY_ATTRIB dutyCycleStates[CONFIG_DUTY_CYCLES_NUM]={0};
 
 static dutyCycleHistory_t dutyCycleHistory0={0};
 static uint8_t gAdcCurrentElementCount=0;
@@ -1082,9 +1083,9 @@ static int32_t EHS_MEMORY_ATTRIB convert10VToTemperature(const int32_t in, const
         offset_ = 0;
         scale_ = FIXED_POINT_TO(1);
     }
-    adjusted = FIXED_POINT_FROM(voltage * EHS_PID_10V_AMP_GAIN_DIVIDER_FACTOR) + offset_;
-    adjusted = FIXED_POINT_FROM(adjusted * EHS_PID_10V_AMP_GAIN_CORRECTION_FACTOR);
-    return FIXED_POINT_FROM(FIXED_POINT_FROM(adjusted * scale_));
+    adjusted = FIXED_POINT_FROM(voltage) * EHS_PID_10V_AMP_GAIN_DIVIDER_FACTOR + offset_;
+    adjusted = FIXED_POINT_FROM(adjusted) * EHS_PID_10V_AMP_GAIN_CORRECTION_FACTOR;
+    return FIXED_POINT_FROM(FIXED_POINT_FROM(adjusted) * scale_);
 }
 
 #ifndef EHS_PID_20MA_AMP_GAIN_DIVIDER_FACTOR
@@ -1468,7 +1469,7 @@ void EHS_MEMORY_ATTRIB calculateAverageAndVariance(globalADCValues_t* pValues) {
 #endif
 }
 
-#warning "why is this file called heatrod - should it be being built or is this an accident?
+#warning "why is this file called heatrod - should it be being built or is this an accident?"
 
 #ifdef INX_ERT_WDT_ENABLED
 /* Should this go?*/

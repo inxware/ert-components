@@ -10,6 +10,11 @@
 #include "sdkconfig.h"
 #include "driver/spi_master.h"
 
+#include "esp_event.h"
+//#include "esp_netif_types.h"
+#include "esp_netif.h"
+
+
 
 #define TAG "target_ethernet"
 
@@ -20,6 +25,14 @@ typedef struct {
     uint8_t phy_addr;
     uint8_t *mac_addr;
 } spi_eth_module_config_t;
+
+/* exported global used to check at boot and startup etc.*/
+/* This is probably used by wifi also?? */
+//todo2024 - review this - the bts below shouldn't be here probablt
+extern volatile ehs_bool gNetworkConnected;
+
+ehs_char* gEthHostNameBuffer[32] = {'\0'};
+
 
 /**
  * @brief SPI bus initialisation
@@ -144,6 +157,10 @@ This implementation is Specific to W5500 Ehternet MAC chip (Module or chipdown c
 returns ESPRESSIF#s errornumber 
 */
 
+
+
+
+
 esp_err_t target_eth_init(esp_eth_handle_t *eth_handles_out)
 {
     esp_err_t ret = ESP_OK;
@@ -196,4 +213,127 @@ esp_err_t target_eth_deinit(esp_eth_handle_t eth_handle)
     return ret;
 err:
     return ret;
+}
+
+
+/* TODO - the following looks like it should be common code but has some esp32 specific API 
+   calls that may not be abstracted and many random uses of esp32 specific logging.
+   Consider if this should be generalised for Ethernet Phy management.
+*/
+
+/* Flag gets set to true once the network interface stack has been initalised and started */
+volatile ehs_bool gNetworkStarted = EHS_FALSE;//NOT CURRENTLY USED ANYWHERE
+
+
+static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    uint8_t mac_addr[6] = {0};
+    esp_eth_handle_t eth_handle = *(esp_eth_handle_t *) event_data;
+
+    switch (event_id) {
+    case ETHERNET_EVENT_CONNECTED:
+        esp_eth_ioctl(eth_handle, ETH_CMD_G_MAC_ADDR, mac_addr);
+        ESP_LOGI(TAG, "Ethernet Link Up");
+        ESP_LOGI(TAG, "Ethernet HW Addr %02x:%02x:%02x:%02x:%02x:%02x",
+                    mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+        gNetworkConnected = EHS_TRUE;
+        break;
+    case ETHERNET_EVENT_DISCONNECTED:
+        ESP_LOGI(TAG, "Ethernet Link Down");
+        gNetworkConnected = EHS_FALSE;
+        break;
+    case ETHERNET_EVENT_START:
+        ESP_LOGI(TAG, "Ethernet Started");
+        gNetworkStarted = EHS_TRUE;
+        break;
+    case ETHERNET_EVENT_STOP:
+        ESP_LOGI(TAG, "Ethernet Stopped");
+        gNetworkStarted = EHS_FALSE;
+        break;
+    default:
+        break;
+    }
+}
+
+static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
+    const esp_netif_ip_info_t *ip_info = &event->ip_info;
+
+    ESP_LOGI(TAG, "Ethernet Got IP Address");
+    ESP_LOGI(TAG, "#######################");
+    ESP_LOGI(TAG, "ETHIP:" IPSTR, IP2STR(&ip_info->ip));
+    ESP_LOGI(TAG, "ETHMASK:" IPSTR, IP2STR(&ip_info->netmask));
+    ESP_LOGI(TAG, "ETHGW:" IPSTR, IP2STR(&ip_info->gw));
+    ESP_LOGI(TAG, "#######################");
+    // make sure ip address/mac is updated after establishing connection 
+    EhsHMetaUpdateDynamic();
+}
+
+static esp_eth_handle_t eth_handle = NULL;
+static esp_netif_t *eth_netif = NULL;
+
+/* Initialise an Ethernet MAC (if one is fitted)
+   Currently this is hardwired to call initialisation of only W5500 ethernet MAC via a specific SPI line)
+*/
+
+ehs_bool ehs_eth_init()
+{
+    esp_err_t ret = ESP_OK;
+    ESP_ERROR_CHECK_WITHOUT_ABORT(target_eth_init(&eth_handle));
+
+    // Initialise TCP/IP network interface
+    if (sfNetifStatusGet() != EHS_TRUE)
+    {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_init());
+        sfNetifStatusSet(EHS_TRUE);
+    }
+
+    // Create defaultevent loop running in the background
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_loop_create_default());
+
+    // Create instance fo eps-netif for Ethernet
+    esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
+    eth_netif = esp_netif_new(&cfg);
+
+    // Append unique suffix from MAC
+    uint8_t mac[6];
+    esp_mac_type_t mac_type = ESP_MAC_EFUSE_FACTORY; // Use the efuse which was burnt by Espressif in production
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_read_mac(mac, mac_type));
+    snprintf(gEthHostNameBuffer, sizeof(gEthHostNameBuffer), TARGET_HOSTNAME"-e%02X%02X%02X%02X", mac[2], mac[3], mac[4], mac[5]);
+    ESP_LOGI(TAG, "Eth host name : %s", gEthHostNameBuffer);
+    // Set the hostname
+    esp_netif_set_hostname(eth_netif, gEthHostNameBuffer);
+
+    // Attach Ethernet driver to TCP/IP stack
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(eth_handle)));
+
+    // Register user defined event handler
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler, NULL));
+
+    // Start Ethernet driver state machine
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_eth_start(eth_handle));
+
+    return (ret == ESP_OK);
+}
+
+ehs_bool eth_deinit()
+{
+    esp_err_t ret = ESP_OK;
+    if(eth_handle){
+        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_eth_stop(eth_handle));
+        ESP_LOGI(TAG, "Unregistering Ethernet event handlers");
+        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_unregister(IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler));
+        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_unregister(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler));
+        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_loop_delete_default());
+        if (eth_netif != NULL)
+        {
+            esp_netif_destroy(eth_netif);
+            eth_netif = NULL;
+        }
+        ESP_ERROR_CHECK_WITHOUT_ABORT(target_eth_deinit(eth_handle));
+        eth_handle = NULL;
+    }
+    return ( ret == ESP_OK );
 }

@@ -12,9 +12,6 @@
 
 #  OBJ - File extension for object files
 
-# This is used for some build conditionals - it shouldn't really be neeeded, be because, where it has it's been based on "this code was written on Tuesday" conventions. 
-EHS_ESP32=yes
-
 #os-arch-wide platform component-HAL settings:
 ifndef EHS_PERIPHERALS_GPIO_SUPPORT
 EHS_PERIPHERALS_GPIO_SUPPORT=ESP32S3_IDF
@@ -50,6 +47,21 @@ EHS_COMMS_TASK=tcp_server_common
 EHS_COMMS_API_SUPPORT=lwip
 EHS_ESP32_SUPPORT=1
 DEFS += EHS_ESP32_SUPPORT=1
+
+# Export ESP32_* partition variables from config.mk into targetenv_esp32.sh's
+# subshell. When ESP32_FLASH_SIZE is set, targetenv_esp32.sh generates
+# partitions.csv + partition-table.bin locally from these vars and derives
+# merge_bin offsets from the resulting table. When unset, the legacy
+# ert-contrib-middleware-supplied partition table is used unchanged.
+export ESP32_FLASH_SIZE
+export ESP32_PARTITION_TABLE_OFFSET
+export ESP32_PART_NVS_SIZE
+export ESP32_PART_PHY_INIT_SIZE
+export ESP32_PART_OTA_ENABLED
+export ESP32_PART_OTA_SIZE
+export ESP32_PART_FACTORY_SIZE
+export ESP32_PART_STORAGE_SIZE
+export ESP32_PART_APPDATA_SIZE
 
 include TARGET.cfg
 DEFS += 'TARGET_OS_VERSION_STRING="$(shell head -c -1 ./Releases/version_strings | tr '\n' '.')\x20:$(TARGET)"'
@@ -96,27 +108,41 @@ OBJECTS += target_sys_stat.$(OBJ)
 ifdef EHS_NETWORK_WIFI_SUPPORT
 ifneq ($(EHS_NETWORK_WIFI_SUPPORT),none)
 OBJECTS += target_wifi.${OBJ}
+DEFS += EHS_NETWORK_WIFI_SUPPORT
 endif
 endif
 
 ifdef EHS_NETWORK_ETHERNET_SUPPORT
 ifneq ($(EHS_NETWORK_ETHERNET_SUPPORT),none)
 OBJECTS += target_ethernet.${OBJ}
+DEFS += EHS_NETWORK_ETHERNET_SUPPORT
 endif
 endif
 # We deal with MODBUS specifically for ESP32 IDF because it has a native implementation.
 # otherwise this should have gone in the target/Component-HAL/ under the appropriate directory.
 ifdef EHS_MODBUS_SUPPORT
-ifneq (EHS_MODBUS_SUPPORT,none)
+ifneq ($(EHS_MODBUS_SUPPORT),none)
 OBJECTS += target_mbport.$(OBJ)
+DEFS += EHS_MODBUS_SUPPORT
 endif
 endif
 
 ifdef EHS_GUI_SUPPORT
 ifneq ($(EHS_GUI_SUPPORT),none)
 OBJECTS += target_display.$(OBJ)
+DEFS += EHS_GUI_SUPPORT
 endif
 endif
+
+# Per-target serial-console HAL — backs the cross-platform console code in
+# Common/Ehs/serial_console.c. Contract in Common/HAL/include/hal_serial.h.
+ifdef EHS_SERIAL_CONSOLE_SUPPORT
+ifneq ($(EHS_SERIAL_CONSOLE_SUPPORT),none)
+OBJECTS += target_serial.$(OBJ)
+DEFS += EHS_SERIAL_CONSOLE_SUPPORT
+endif
+endif
+
 # IF there are some data partition sources present then add them too 
 ifneq (,$(wildcard $(_TARGET_PATH)/target_data_bin.c))
 OBJECTS += target_data_bin.${OBJ}
@@ -228,4 +254,11 @@ endif
 
 #LNKFLAGS+= -lulp -lunity -lvfs -lwear_levelling -lwifi_provisioning -lwpa_supplicant -lxtensa
 
-# include $(EHS_TARGET_COMPONENT_HAL_PATH)/graphics/lvgl/lvgl_test.mk
+
+# Task watchdog. Off by default: app_main calls esp_task_wdt_deinit() so a blocked or
+# spinning task hangs silently. Set EHS_TARGET_TASK_WATCHDOG=yes in config.mk to keep it
+# running instead, so a hang panics with a backtrace naming the stuck task. Timeout
+# defaults to 8 s in target_main.c; override EHS_TARGET_TASK_WATCHDOG_MS if needed.
+ifeq ($(EHS_TARGET_TASK_WATCHDOG),yes)
+DEFS += EHS_TARGET_TASK_WATCHDOG
+endif

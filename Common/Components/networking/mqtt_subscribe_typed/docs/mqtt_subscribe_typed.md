@@ -1,5 +1,5 @@
 mqtt_subscribe_typed
-Subscribe to an MQTT topic and receive the payload parsed as integer, float, and
+Subscribe to an MQTT topic whose payload is ASCII text, and receive that text pa
 Menu: 
             Networking
              > MQTT > MQTT Subscribe Typed

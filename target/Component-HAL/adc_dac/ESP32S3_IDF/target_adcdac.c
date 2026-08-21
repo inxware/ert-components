@@ -52,7 +52,7 @@ static DRAM_ATTR adc_cali_handle_t adc1_cali_chan_handle[EHS_TARGET_ADC_UNIT_NUM
 static bool do_calibration_chan[EHS_TARGET_ADC_UNIT_NUMBER][EHS_TARGET_ADC_CHANNEL_NUMBER] = EHS_TARGET_ADC_UNIT_DEFAULT(EHS_TARGET_ADC_CHANNEL_DEFAULT(false));
 
 static adc_oneshot_unit_handle_t adc1_oneshot_handle[EHS_TARGET_ADC_UNIT_NUMBER] = EHS_TARGET_ADC_UNIT_DEFAULT(NULL);
-static adc_continuous_handle_t adc1_continuous_handle[EHS_TARGET_ADC_UNIT_NUMBER] = EHS_TARGET_ADC_CHANNEL_DEFAULT(NULL);
+static adc_continuous_handle_t adc1_continuous_handle[EHS_TARGET_ADC_UNIT_NUMBER] = EHS_TARGET_ADC_UNIT_DEFAULT(NULL);
 
 /***************************** ADC START *****************************/
 #ifdef USE_ESP32S3_LEGACY_API
@@ -357,7 +357,7 @@ static adc_digi_pattern_config_t adc_pattern[SOC_ADC_PATT_LEN_MAX] = {0};
 static bool g_b_adc_init = false;
 static bool g_b_adc_configured[SOC_ADC_PATT_LEN_MAX] = {0};
 static int g_i_adc_dig_pattern_num = 0;
-static bool IRAM_ATTR s_conv_done_cb(adc_continuous_handle_t handle, const adc_continuous_evt_data_t* edata, void* user_data);
+static bool s_conv_done_cb(adc_continuous_handle_t handle, const adc_continuous_evt_data_t* edata, void* user_data); /* IRAM_ATTR on the definition */
 /* continuous adc functions */
 static void configure_adc_continuous(adc_continuous_handle_t* adc_handle, adc_continuous_callback_t on_conv_done, adc_channel_t channel,
                                      const adc_unit_t unit_id, const adc_bitwidth_t bitwidth, const uint8_t atten)
@@ -432,7 +432,7 @@ static bool IRAM_ATTR s_conv_done_cb(adc_continuous_handle_t handle, const adc_c
         uint32_t chan_num = p->type2.channel;
         if (chan_num >= EHS_TARGET_ADC_CHANNEL_NUMBER) continue;
         uint32_t data = p->type2.data;
-        uint32_t cali_data = 0;
+        int cali_data = 0; /* inx_adc_cali_raw_to_voltage writes an int */
         if (adc1_cali_chan_handle[0][chan_num] != NULL)
         {
             inx_adc_cali_raw_to_voltage(adc1_cali_chan_handle[0][chan_num], data, &cali_data);
@@ -478,6 +478,10 @@ EHS_GLOBAL ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous,
      * ADC_ATTEN_DB_11  - 11dB attenuation  (0 mV ~ 3100 mV)
      */
     if (channel >= EHS_TARGET_ADC_CHANNEL_NUMBER) return EHS_FALSE;
+    /* This deprecated path indexes adc1_oneshot_handle/adc1_continuous_handle - which are
+     * sized by ADC unit, not by channel - with the channel number. Refuse rather than write
+     * past them; use adc_config/adc_read_continuous for channels beyond the unit count. */
+    if (channel >= EHS_TARGET_ADC_UNIT_NUMBER) return EHS_FALSE;
     const uint8_t atten = ADC_ATTEN_DB_6;
     const adc_bitwidth_t bitwidth = ADC_BITWIDTH_12;
     adc_conv_num_samples[0][channel] = num_samples;
@@ -536,6 +540,8 @@ EHS_GLOBAL ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *
 
 ehs_bool legacy_destroy_adc(ehs_uint8 channel)
 {
+    /* Same unit-sized-array-indexed-by-channel hazard as legacy_configure_adc. */
+    if (channel >= EHS_TARGET_ADC_UNIT_NUMBER) return EHS_FALSE;
 #ifdef USE_ESP32S3_LEGACY_API
     // not applying
 #else
@@ -579,7 +585,7 @@ static bool IRAM_ATTR ehs_s_conv_done_cb(adc_continuous_handle_t handle, const a
         if (!EHS_IS_BIT_N_SET(g_ehs_adc_continuous_enabled_bitmask[unit], chan_num)) continue;
         uint32_t data = p->type2.data;
 #if USE_ESP32S3_ADC_CALIBRATION == 1
-        uint32_t cali_data = 0;
+        int cali_data = 0; /* inx_adc_cali_raw_to_voltage writes an int */
         if (adc1_cali_chan_handle[unit][chan_num] != NULL)
         {
             inx_adc_cali_raw_to_voltage(adc1_cali_chan_handle[unit][chan_num], data, &cali_data);
@@ -587,6 +593,13 @@ static bool IRAM_ATTR ehs_s_conv_done_cb(adc_continuous_handle_t handle, const a
         data = cali_data;
 #endif // USE_ESP32S3_ADC_CALIBRATION
         uint32_t decimate_average = g_ehs_adc_configs[unit].channel_configs[chan_num].decimate_average >= g_ehs_adc_configs[unit].channel_configs[chan_num].decimation ? g_ehs_adc_configs[unit].channel_configs[chan_num].decimation : g_ehs_adc_configs[unit].channel_configs[chan_num].decimate_average;
+        /* Config error - do nothing at all for this channel. A zero decimation divides by
+         * zero below, and makes the count test true on every conversion, which would run
+         * the FB callback queue from ISR context at the full sample rate. */
+        if ((g_ehs_adc_configs[unit].channel_configs[chan_num].decimation == 0u) || (decimate_average == 0u))
+        {
+            continue;
+        }
         if (adc_conv_count[unit][chan_num]++ >= g_ehs_adc_configs[unit].channel_configs[chan_num].decimation - decimate_average)
         {
             adc_conv_data_accum[unit][chan_num] += (((int64_t)((int32_t)data - g_ehs_adc_configs[unit].channel_configs[chan_num].bias) / 1024) * (((int32_t)data - g_ehs_adc_configs[unit].channel_configs[chan_num].bias) / 1024));
@@ -613,8 +626,16 @@ static bool IRAM_ATTR ehs_s_conv_done_cb(adc_continuous_handle_t handle, const a
 
 #endif
 
-static void IRAM_ATTR ehs_s_pool_ovf_cb(void *arg) {
-    //ets_printf("[%s] DMA pool overflow occured!\n", __func__);
+/* Must match adc_continuous_callback_t exactly - it is called through that pointer type
+ * from the ADC ISR. Returns whether a higher-priority task was woken; nothing is woken
+ * here, so always false. No logging: this runs in interrupt context. */
+static bool IRAM_ATTR ehs_s_pool_ovf_cb(adc_continuous_handle_t handle,
+                                        const adc_continuous_evt_data_t *edata,
+                                        void *user_data) {
+    (void)handle;
+    (void)edata;
+    (void)user_data;
+    return false;
 }
 
 ehs_sint32 EhsTAdcUnitConfigure(ehs_uint8 unit)
@@ -716,10 +737,10 @@ ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel)
     if (g_ehs_adc_configs[unit].unit_config.mode != 0) return 0;
     // This ADC channel is not configured
     if (g_ehs_adc_configs[unit].unit_config.channel[channel] == -1) return 0;
-    ehs_uint32 value = 0;
+    int value = 0; /* adc_oneshot_read writes an int */
     ESP_ERROR_CHECK_WITHOUT_ABORT(adc_oneshot_read(adc1_oneshot_handle[unit], channel, &value));
 #if USE_ESP32S3_ADC_CALIBRATION == 1
-    ehs_uint32 cali_value = 0;
+    int cali_value = 0; /* inx_adc_cali_raw_to_voltage writes an int */
     ESP_ERROR_CHECK_WITHOUT_ABORT(inx_adc_cali_raw_to_voltage(adc1_cali_chan_handle[unit][channel], value, &cali_value));
     return cali_value;
 #endif // USE_ESP32S3_ADC_CALIBRATION
@@ -728,38 +749,47 @@ ehs_uint32 EhsTAdcChannelSingleRead(ehs_uint8 unit, ehs_uint8 channel)
 
 ehs_bool EhsTAdcUnitDestroy(ehs_uint8 unit)
 {
+    ehs_bool bRet = EHS_FALSE;
+
     // Total supported unit count is 2
     if (unit >= EHS_TARGET_ADC_UNIT_NUMBER) return EHS_FALSE;
-    if (g_ehs_adc_configs[unit].unit_config.init == 0) return EHS_FALSE;
+
+    /* Tear down on real resource state, not on unit_config.init: the flag is only set on
+     * the success path of configure, so an aborted configure would leave a running
+     * conversion that this function then refused to stop. Idempotent - safe to call twice.
+     * Stop the ISR seeing this unit before anything is freed. */
+    g_ehs_adc_continuous_enabled_bitmask[unit] = 0u;
+    /* Stop conversion first: the ISR dereferences the calibration handles freed below. */
+    if (adc1_continuous_handle[unit] != NULL)
+    {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(adc_continuous_stop(adc1_continuous_handle[unit]));
+        ESP_ERROR_CHECK_WITHOUT_ABORT(adc_continuous_deinit(adc1_continuous_handle[unit]));
+        adc1_continuous_handle[unit] = NULL;
+        bRet = EHS_TRUE;
+    }
+    if (adc1_oneshot_handle[unit] != NULL)
+    {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(adc_oneshot_del_unit(adc1_oneshot_handle[unit]));
+        adc1_oneshot_handle[unit] = NULL;
+        bRet = EHS_TRUE;
+    }
 #if USE_ESP32S3_ADC_CALIBRATION == 1
     for (int i = 0 ; i < EHS_TARGET_ADC_CHANNEL_NUMBER ; i++)
     {
-        if (g_ehs_adc_configs[unit].unit_config.channel[i] != -1)
+        // A non-NULL handle is the only reliable test for "still allocated" - channel[]
+        // may have been reconfigured since this handle was created.
+        if (adc1_cali_chan_handle[unit][i])
         {
             ESP_ERROR_CHECK_WITHOUT_ABORT(adc_cali_delete_scheme_curve_fitting(adc1_cali_chan_handle[unit][i]));
+            adc1_cali_chan_handle[unit][i] = NULL;
             do_calibration_chan[unit][i] = false;
+            bRet = EHS_TRUE;
         }
     }
 #endif // USE_ESP32S3_ADC_CALIBRATION
-    switch (g_ehs_adc_configs[unit].unit_config.mode)
-    {
-        case 0:
-        {
-            // Single-shot conversion mode
-            ESP_ERROR_CHECK_WITHOUT_ABORT(adc_oneshot_del_unit(adc1_oneshot_handle[unit]));
-            adc1_oneshot_handle[unit] = NULL;
-            break;
-        }
-        case 1:
-        {
-            // Continuous conversion mode
-            ESP_ERROR_CHECK_WITHOUT_ABORT(adc_continuous_stop(adc1_continuous_handle[unit]));
-            ESP_ERROR_CHECK_WITHOUT_ABORT(adc_continuous_deinit(adc1_continuous_handle[unit]));
-        }
-        default:
-            return EHS_FALSE;
-    }
-    return EHS_TRUE;
+    // Clear here rather than relying on the caller, so a second destroy is always a no-op
+    g_ehs_adc_configs[unit].unit_config.init = 0;
+    return bRet;
 }
 
 /***************************** ADC ENDED *****************************/
@@ -780,7 +810,9 @@ ehs_bool EhsTDacConfigure(ehs_uint8 channel, ehs_sint32 max, ehs_sint32 sample_r
         .sample_rate_hz = sample_rate
     };
     ESP_ERROR_CHECK_WITHOUT_ABORT(sdm_new_channel(&config, &(dac_channel_handles[channel])));
-    ESP_ERROR_CHECK_WITHOUT_ABORT(sdm_channel_enable(&(dac_channel_handles[channel])));
+    /* sdm_channel_enable takes the handle, not its address - sdm_new_channel above is the
+     * out-param call that needs the '&'. */
+    ESP_ERROR_CHECK_WITHOUT_ABORT(sdm_channel_enable(dac_channel_handles[channel]));
     dac_channel_max[channel] = max;
     return EHS_TRUE;
 }

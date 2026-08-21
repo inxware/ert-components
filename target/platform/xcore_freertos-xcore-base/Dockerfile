@@ -1,4 +1,3 @@
-# inxware/xcore_ubuntu22.04-xtc-tools
 # Dockerfile for XMOS xcore.ai / FreeRTOS build environment
 #
 # Installs XMOS XTC Tools (proprietary, free-to-use, NOT redistributable).

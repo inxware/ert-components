@@ -1064,7 +1064,7 @@ static void parseWallClockValue(ehs_char* value, EhsPlayManagerEvent *pEvent, eh
 
                         }
                         break;
-                    case 22: /* /* YY-mm-dd{W1/2}D{T}HH:MM:SS      12 */ //strptime(pWallClockValue, "%Y-%m-%dT%H:%M:%S", &tm);
+                    case 22: /* YY-mm-dd{W1/2}D{T}HH:MM:SS      12 */ //strptime(pWallClockValue, "%Y-%m-%dT%H:%M:%S", &tm);
                     {
 
                         EhsStrncpy(refdatestr,(char*) pWallClockValue,10);
@@ -3228,11 +3228,11 @@ EHS_LOCAL ehs_bool readSrcs(EhsPlayManagerType* pPlayManager,
                     EhsStrcpy(preparedOutput, pPlayManager->downloadURL);
                     EhsStrcat(preparedOutput, value);
                     EhsTPMutex_lock(EhsTPMutex_fbIO);
-                    EhsStrcpy(EHS_FB_OUT_S(urlPortNumber), preparedOutput);
+                    EHS_FB_OUT_S_SET(urlPortNumber, preparedOutput);
                     /* and set the play path */
                     EhsStrcpy(preparedOutput, pPlayManager->downloadPath);
                     EhsStrcat(preparedOutput, value);
-                    EhsStrcpy(EHS_FB_OUT_S(pathPortNumber), preparedOutput);
+                    EHS_FB_OUT_S_SET(pathPortNumber, preparedOutput);
                     xmlFree(value);
 
                     //xmlTextReaderRead(pPlayManager->srcFileReader); //
@@ -3546,15 +3546,15 @@ ehs_bool assertLayoutOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayManage
             if (layoutJSON)
             {
                 /* and output the Aspect ratio values */
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_LAYOUT), layoutJSON);
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_ASPECTRATIO),sectionAspectRatioJSON );
+                EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_LAYOUT, layoutJSON);
+                EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_ASPECTRATIO, sectionAspectRatioJSON);
                 /* and output the new region layout database for this section */
 
                 EhsHMem_tempFree(layoutJSON);
             }
             else
             {
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_LAYOUT), "");
+                EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_LAYOUT, "");
                 EHSH_LOG_WARNING("Could not create layout for %s",pEvent->layoutSection);
             }
 
@@ -3610,9 +3610,9 @@ ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayM
 
         if (pEvent->class)
         {
-            EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_CLASS), pEvent->class);
+            EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_CLASS, pEvent->class);
         }
-        else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_CLASS), "");
+        else EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_CLASS, "");
 
         EHS_FB_OUT_I(EHS_FB_PLAYMANAGER_TICK_FADE) = pEvent->fade;
 
@@ -3632,13 +3632,13 @@ ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayM
                 doImmediate = EHS_TRUE; // we don't wantto emitthis start event as a remote content type (e.g. a slowstarting stream...
             }
         }
-        EhsStrncpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_TEXT), pEvent->smilText,EHS_STRING_LENGTH_MAX);
+        EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_TEXT, pEvent->smilText);
 
         if (pEvent->tagType)
         {
-            EhsStrncpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_TYPE), pEvent->tagType,EHS_STRING_LENGTH_MAX);
+            EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_TYPE, pEvent->tagType);
         }
-        else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_TYPE), "");
+        else EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_TYPE, "");
         /* @todo
         if (pEvent->srcType) {
         	EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_TYPE), pEvent->srcType);
@@ -3649,14 +3649,14 @@ ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayM
         if (pEvent->region)
         {
 
-            EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_REGION), pEvent->region);
+            EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_REGION, pEvent->region);
         }
-        else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_REGION), "");
+        else EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_REGION, "");
 
         if (path != NULL)
         {
             EhsTPMutex_lock(EhsTPMutex_fbIO);
-            EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE),path);
+            EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE, path);
             EhsTPMutex_unlock(EhsTPMutex_fbIO);
         }
         else     // @todo: this should be a config parameter - we try to play the file we would expect in any case - it may already be there - we just on't know yet.
@@ -3667,12 +3667,12 @@ ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayM
                 if (EhsStrncmp(pEvent->pMediaSource,"http:",EhsStrlen("http:"))==0 || EhsStrncmp(pEvent->pMediaSource,"ftp:",EhsStrlen("ftp:"))==0 || EhsStrncmp(pEvent->pMediaSource,"https:",EhsStrlen("https:"))==0)
                 {
 
-                    EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE),pEvent->pMediaSource);
+                    EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE, pEvent->pMediaSource);
                 }
                 else
                 {
-                    EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE),pPlayManager->downloadPath);
-                    EhsStrcat(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE),pEvent->pMediaSource);
+                    EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE, pPlayManager->downloadPath);
+                    EHS_FB_OUT_S_CAT(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE, pEvent->pMediaSource);
 
                 }
                 EhsTPMutex_unlock(EhsTPMutex_fbIO);
@@ -3680,7 +3680,7 @@ ehs_bool assertObjectEventOutputs(EhsFunctionInstanceDataType* pFIdata, EhsPlayM
             else
             {
                 EhsTPMutex_lock(EhsTPMutex_fbIO);
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE), "");
+                EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_MEDIAFILE, "");
                 EhsTPMutex_unlock(EhsTPMutex_fbIO);
             }
         }
@@ -4314,7 +4314,7 @@ void AssertTimeWindowPorts(EhsFunctionInstanceDataType* pFIdata, EhsPlayManagerT
     {
         if (*earliestPlayTime == 0)
         {
-            EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_START),"");
+            EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_START, "");
         }
         else
         {
@@ -4326,15 +4326,14 @@ void AssertTimeWindowPorts(EhsFunctionInstanceDataType* pFIdata, EhsPlayManagerT
             mktime(&tm);
 #endif
 
-            EhsSprintf(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_START), "%02d-%02d-%02d %02d:%02d:%02d", (tm.tm_year) % 100,
-                       tm.tm_mon+1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);//, tm.tm_wday, tm.tm_yday);
+            EhsSnprintf(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_START), EHS_FB_OUT_S_CAP(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_START), "%02d-%02d-%02d %02d:%02d:%02d", (tm.tm_year) % 100, tm.tm_mon+1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);//, tm.tm_wday, tm.tm_yday);
         }
     }
     if (pPlayManager->changedEnd == EHS_TRUE)
     {
         if (*earliestEndTime == 0)
         {
-            EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_END),"");
+            EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_END, "");
         }
         else
         {
@@ -4345,8 +4344,7 @@ void AssertTimeWindowPorts(EhsFunctionInstanceDataType* pFIdata, EhsPlayManagerT
             tm.tm_isdst = -1; // check the DST is correct if localtime_r doesn't sort it out properly
             mktime(&tm);
 #endif
-            EhsSprintf(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_END), "%02d-%02d-%02d %02d:%02d:%02d", (tm.tm_year) % 100,
-                       tm.tm_mon+1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);//, tm.tm_wday, tm.tm_yday);
+            EhsSnprintf(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_END), EHS_FB_OUT_S_CAP(EHS_FB_PLAYMANAGER_TICK_NEXT_EVENT_END), "%02d-%02d-%02d %02d:%02d:%02d", (tm.tm_year) % 100, tm.tm_mon+1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);//, tm.tm_wday, tm.tm_yday);
         }
     }
 
@@ -5229,8 +5227,8 @@ EHS_FB_RUN_FUNCTION(PlayManager_Got)
     {
         EhsStrcpy(inLocalFile, EHS_FB_IN_S(EHS_FB_PLAYMANAGER_GOT_LOCAL));
     }
-    EhsStrcpy(EHS_FB_OUT_S(0), inURL); //@todo this could be removed to save some space
-    EhsStrcpy(EHS_FB_OUT_S(1), inLocalFile); //@todo this could be removed to save some space
+    EHS_FB_OUT_S_SET(0, inURL); //@todo this could be removed to save some space
+    EHS_FB_OUT_S_SET(1, inLocalFile); //@todo this could be removed to save some space
 
     //EHSH_LOG_ERROR("GOT %s",inURL);
     //Create a new media location object
@@ -5279,12 +5277,12 @@ EHS_FB_RUN_FUNCTION(PlayManager_Set_Paths)
         {
             EhsStrcat(pPlayManager->downloadURL,"/");
         }
-        EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_URL), pPlayManager->downloadURL);
+        EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_SETPATHS_DL_URL, pPlayManager->downloadURL);
     }
     if (EHS_FB_IN_CONNECTED(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL))
     {
         EhsStrcpy(pPlayManager->downloadPath, EHS_FB_IN_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL));
-        EhsStrcpy(EHS_FB_OUT_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL), EHS_FB_IN_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL));
+        EHS_FB_OUT_S_SET(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL, EHS_FB_IN_S(EHS_FB_PLAYMANAGER_SETPATHS_DL_LOCAL));
     }
     if (EHS_FB_IN_CONNECTED(EHS_FB_PLAYMANAGER_SETPATHS_START_MODE))
     {

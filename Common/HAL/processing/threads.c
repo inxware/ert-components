@@ -16,9 +16,11 @@
  * It simply calls the target specific function EhsHThread_execute()
  * */
 
-ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize)
+ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize, ehs_char * _szThreadname)
 {
-    return EhsHThread_execute((EhsGeneralThreadFuncType)pfRun, (void *) context, priority, stackSize) ;
+    return EhsHThread_execute((EhsGeneralThreadFuncType)pfRun, (void *) context, priority, stackSize,_szThreadname) ;
 }
+
+
 
 

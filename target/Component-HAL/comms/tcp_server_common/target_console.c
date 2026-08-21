@@ -35,6 +35,9 @@
  */
 #define EHS_TARGET_CODE
 
+/* This file implements the console, so it needs the kernel-only prototypes */
+#define EHS_CONSOLE_IMPLEMENTATION
+
 /*****************************************************************************/
 /* Included files */
 #include "globals.h"
@@ -54,6 +57,10 @@
 
 #include <stdarg.h>
 
+/* Set the Logger module before ANY header that pulls in hal_logger.h - messages.h does,
+ * and hal_logger.h latches EHSL_MODULE_ID to UNDEFINED if it isn't set yet. */
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_CONSOLE
+#include "hal_logger.h"
 #include "messages.h"
 #include "hal_string.h"
 #include "hal_process.h"
@@ -64,8 +71,55 @@
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
+
+#ifndef EHS_DEBUG_CONSOLE_BUFFER_SIZE
+#error "EHS_DEBUG_CONSOLE_BUFFER_SIZE must be set by the platform config"
+#endif
+
+/* EHS_CONSOLE_QUEUE_INDEX masks with (size-1), so the ring must be a power of two. */
+#if (EHS_DEBUG_CONSOLE_BUFFER_SIZE & (EHS_DEBUG_CONSOLE_BUFFER_SIZE - 1)) != 0
+#error "EHS_DEBUG_CONSOLE_BUFFER_SIZE must be a power of two"
+#endif
+
+/**< Overflow flag record - emitted when a message had to be dropped entirely */
+#define EHS_CONSOLE_OVERFLOW_RECORD (EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW EHS_MSG_END_OF_MESSAGE)
+#define EHS_CONSOLE_OVERFLOW_RECORD_LEN (EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW_LEN + EHS_MSG_END_OF_MESSAGE_LEN)
+
+/* Space kept free so a flag record can always be pushed alongside or instead of a message.
+ * Sized for the longest flag record (the truncation flag), not the shortest. */
+#define EHS_CONSOLE_FLAG_RESERVE EHS_FLAG_CONSOLE_TRUNCATED_MAX_LEN
+
+/* Longest message EhsConsolePrintf will stage, including its record terminator. A message
+ * bigger than the ring can never be pushed atomically, so it would have to be split across
+ * retries and would reach the tools as a torn record. Derive from whatever ring size the
+ * platform configured rather than requiring the ring to grow to EHS_STRING_LENGTH_MAX. */
+#define EHS_CONSOLE_RING_MSG_MAX (EHS_DEBUG_CONSOLE_BUFFER_SIZE - EHS_CONSOLE_FLAG_RESERVE)
+#if EHS_CONSOLE_RING_MSG_MAX < EHS_STRING_LENGTH_MAX
+#define EHS_CONSOLE_MSG_MAX EHS_CONSOLE_RING_MSG_MAX
+#else
+#define EHS_CONSOLE_MSG_MAX EHS_STRING_LENGTH_MAX
+#endif
+
+/* Anything this small can't carry a useful record plus its terminator. */
+#if EHS_CONSOLE_MSG_MAX < 16u
+#error "EHS_DEBUG_CONSOLE_BUFFER_SIZE is too small to carry a console record"
+#endif
+
+/**< Chunk size used to discard the tail of an over-long console command line */
+#define EHS_CONSOLE_DISCARD_CHUNK 32u
+
 /*****************************************************************************/
 /* Declare prototypes of local functions */
+
+/**
+ * Append an unsigned decimal to a buffer, returning the new length. Local so a flag
+ * record doesn't depend on which snprintf alias a given target happens to define.
+ * @param pBuf   Buffer to append to - caller guarantees room for 10 digits
+ * @param nLen   Current length of pBuf
+ * @param nValue Value to append
+ * @return new length of pBuf
+ */
+EHS_LOCAL ehs_uint32 EhsL_appendUint(ehs_char* pBuf, ehs_uint32 nLen, ehs_uint32 nValue);
 /*****************************************************************************/
 /* Variables defined with file-scope */
 /*****************************************************************************/
@@ -83,6 +137,12 @@ EhsConsoleQueueType *EhsTgtConsoleInputQueueRef = NULL;
  * Pointer initialised by EhsTargetInitSharedMemory, queue initialised by EhsTargetInit
  */
 EhsConsoleQueueType *EhsTgtConsoleOutputQueueRef = NULL;
+
+/**
+ * Set once a record has been dropped, so a run of drops emits a single overflow marker
+ * rather than one per record. Cleared by the next record that is successfully queued.
+ */
+EHS_LOCAL volatile ehs_bool bConsoleLossFlagged = EHS_FALSE;
 
 /**
  * Contains input from the console
@@ -105,6 +165,10 @@ EhsConsoleQueueType EhsTgtConsoleOutputQueue;
  * (i.e. if a \n is available). Partially received lines are buffered
  * until the end of line character has been received).
  *
+ * A line longer than "size" is truncated, and the remainder is discarded rather than
+ * left in the queue to be parsed as a further command. The returned text is always
+ * NUL-terminated within "size" bytes.
+ *
  * @param buff Buffer to read the line into. Must be at least "size" long
  * @param size Size of buff
  * @return number of characters read (or zero if no line is available)
@@ -115,7 +179,7 @@ ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size)
     ehs_uint32 nRead = 0u;
 
     EhsTPMutex_lock(EhsTPMutex_consoleInputQueue);
-    if (EhsTgtConsoleInputQueueRef && size > 0) // don't bother of we only have small chunk of data it wont be a full reading.
+    if (EhsTgtConsoleInputQueueRef && size > 1u) // don't bother of we only have small chunk of data it wont be a full reading.
     {
         // EHSH_LOG_ERROR("EhsConsoleGetLine %d - max size",size );
         nLineSize = EhsConsoleQueue_peek(EhsTgtConsoleInputQueueRef, EHS_CHAR_LF);
@@ -126,131 +190,154 @@ ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size)
 
         if (nLineSize > 0) // also wait for smallest chunk..
         {
-            if (nLineSize > size)
+            ehs_uint32 nDiscard = 0u; /* tail of an over-long line, dropped below */
+
+            if (nLineSize > (ehs_uint32)(size - 1u))
             {
-                nLineSize = size;
+                nDiscard = nLineSize - (ehs_uint32)(size - 1u);
+                nLineSize = (ehs_uint32)(size - 1u);
             }
             nRead = EhsConsoleQueue_pop(EhsTgtConsoleInputQueueRef, (ehs_uint8 *)buff, nLineSize);
+            buff[nRead] = (ehs_char)'\0';
+
+            while (nDiscard > 0u)
+            {
+                ehs_uint8 scratch[EHS_CONSOLE_DISCARD_CHUNK];
+                ehs_uint32 nChunk = (nDiscard > EHS_CONSOLE_DISCARD_CHUNK) ? EHS_CONSOLE_DISCARD_CHUNK : nDiscard;
+                ehs_uint32 nPopped = EhsConsoleQueue_pop(EhsTgtConsoleInputQueueRef, scratch, nChunk);
+                if (0u == nPopped)
+                {
+                    break;
+                }
+                nDiscard -= nPopped;
+            }
         }
     }
     EhsTPMutex_unlock(EhsTPMutex_consoleInputQueue);
     return nRead;
 }
 
-/**EHSH_LOG_ERROR("Writing to file %s",appPath );
- * Print text into the console output. This function blocks as long
- * as necessary to send the output.
+/**
+ * Append an unsigned decimal to a buffer, returning the new length.
+ */
+EHS_LOCAL ehs_uint32 EhsL_appendUint(ehs_char* pBuf, ehs_uint32 nLen, ehs_uint32 nValue)
+{
+    ehs_char szDigits[10]; /* widest ehs_uint32 is 4294967295 */
+    ehs_uint32 nDigits = 0u;
+
+    do
+    {
+        szDigits[nDigits] = (ehs_char)('0' + (nValue % 10u));
+        nDigits++;
+        nValue /= 10u;
+    } while ((nValue > 0u) && (nDigits < (ehs_uint32)sizeof(szDigits)));
+
+    while (nDigits > 0u)
+    {
+        nDigits--;
+        pBuf[nLen] = szDigits[nDigits];
+        nLen++;
+    }
+    return nLen;
+}
+
+/**
+ * Print text into the console output.
+ *
+ * Never blocks. The record is queued whole or dropped whole, decided once by
+ * EhsConsoleQueue_pushRecord - there is no retry, no wait and no queue flush, so this is
+ * safe to call from the EHS event thread and from small-stack handlers.
+ *
+ * Loss policy is drop-newest: already-queued records survive, this one does not, and a
+ * '**Z' marker is emitted from the reserve so the reader sees the gap.
+ *
+ * A message longer than EHS_CONSOLE_MSG_MAX cannot be queued atomically, so it is cut
+ * there and followed by a '**T' record giving the delivered and formatted lengths.
+ * See docs/ert-porting-guide.md § "Console queue behaviour and sizing".
  *
  * @param fmt Format specifier for output (as per printf)
- * 
+ *
  * todo2024 - this should return void as we never check the result.
  */
 EHS_MEMORY_ATTRIB ehs_uint16 EhsConsolePrintf(const ehs_char *fmt, ...) /*lint !e960 Allowable derrogation to MISRA 16.1. Variable args permitted */
 {
-    ehs_char szBuffer[EHS_STRING_LENGTH_MAX];
-    ehs_char *pBuff;
+    ehs_char szBuffer[EHS_CONSOLE_MSG_MAX];
+    ehs_char szFlag[EHS_CONSOLE_FLAG_RESERVE];
     ehs_uint32 nBuff;
-    ehs_uint32 nPushed;
-    ehs_uint32 nPushCounter = 0u;
-    /* format the message into a chunk of memory allocated especially */
+    ehs_uint32 nFlag = 0u;
+    int nFormatted;
     va_list args;
+
+    if (NULL == EhsTgtConsoleOutputQueueRef)
+    {
+        return 0; /* console not set up yet, or this target has none */
+    }
+
     va_start(args, fmt);
-    EhsVsnprintf(szBuffer, (size_t)EHS_STRING_LENGTH_MAX, fmt, args); /*lint !e534 Not interested in the return value */
+    /* one byte held back for the record terminator appended below */
+    nFormatted = EhsVsnprintf(szBuffer, (size_t)(EHS_CONSOLE_MSG_MAX - 1u), fmt, args);
     va_end(args);
-    /* keep pushing the message until it's all gone */
+
     nBuff = EhsStrlen(szBuffer);
-    pBuff = szBuffer;
+    szBuffer[nBuff] = (ehs_char)EHS_CHAR_LF;
+    nBuff++;
+
     #if !defined(EHS_ESP32_SUPPORT)
         fflush(stdout); /*lint !e534 Safe to ignore return value here */
     #endif
 
-//#define EHS_EHS_CONSOLE_HACKY_VERSION_THAT_MIGHT_WORK_BETTER_SOMETIMES_FOR_MCUS
-#ifdef EHS_EHS_CONSOLE_HACKY_VERSION_THAT_MIGHT_WORK_BETTER_SOMETIMES_FOR_MCUS
-    #warning "This is using a no-retry/concatenation console method!"
-    ehs_uint32 consoleSpace = EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef);
-    if (consoleSpace > nBuff)
+    /* EhsVsnprintf returns the length it would have written, so a value at or beyond the
+     * buffer size means the record was cut. Build "**T<delivered>,<formatted>"; a
+     * formatted count of 0 means the count itself was unusable. */
+    if ((nFormatted < 0) || ((ehs_uint32)nFormatted >= (EHS_CONSOLE_MSG_MAX - 1u)))
     {
-        nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)pBuff, nBuff);
-        if (nPushed == -1)
+        ehs_uint32 nTotal = (nFormatted < 0) ? 0u : (ehs_uint32)nFormatted;
+        EhsMemcpy(szFlag,(void*)EHS_FLAG_CONSOLE_TRUNCATED,EHS_FLAG_CONSOLE_TRUNCATED_LEN);
+        nFlag = EhsL_appendUint(szFlag,EHS_FLAG_CONSOLE_TRUNCATED_LEN,nBuff - 1u);
+        szFlag[nFlag] = (ehs_char)',';
+        nFlag++;
+        nFlag = EhsL_appendUint(szFlag,nFlag,nTotal);
+        szFlag[nFlag] = (ehs_char)EHS_CHAR_LF;
+        nFlag++;
+        EHSH_LOG_ERROR("Console record truncated - sent %u of %u bytes (queue used=%u/%u left=%u)",
+                       (unsigned int)(nBuff - 1u),(unsigned int)nTotal,
+                       (unsigned int)EhsConsoleQueue_length(EhsTgtConsoleOutputQueueRef),
+                       (unsigned int)EhsConsoleQueue_maxSize(), (unsigned int)EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef));
+    }
+
+    /* Keep the reserve free so a failure notice always fits; spend it only on one. */
+    if (EhsConsoleQueue_pushRecord(EhsTgtConsoleOutputQueueRef,(const ehs_uint8*)szBuffer,
+                                   nBuff,EHS_CONSOLE_FLAG_RESERVE))
+    {
+        bConsoleLossFlagged = EHS_FALSE;
+#ifdef EHS_CONSOLE_QUEUE_STATS
+        /* Same shape as the drop/truncate lines above, but for the normal, non-dropped
+         * path - lets you compare buffer state during quiet periods against right before
+         * an overflow, not just see the overflow after the fact. Gated (unlike those two
+         * error lines) since this fires on every successful console record, not just the
+         * rare failure cases. */
+        EHSH_LOG_INFO("Console record sent (%u bytes, used=%u/%u left=%u)",
+                      (unsigned int)nBuff, (unsigned int)EhsConsoleQueue_length(EhsTgtConsoleOutputQueueRef),
+                      (unsigned int)EhsConsoleQueue_maxSize(), (unsigned int)EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef));
+#endif
+        if (nFlag > 0u)
         {
-            /* queue is full so empty it so we can keep writing. */ 
-            EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
-            #ifndef EHS_MEMORY_ATTRIB // @TODO - THIS should you the logger when is fixed and we should add another flag for ISR context
-            EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_OVERFLOW);
-            #endif
-            /* This should issue a warning to Lucid that data has been lost, which would also work if 
-            the queue was partially through sending a debug string.
-            The debug strings and all other data are separated by '#' chars, so if we add one of these in the message 
-            that would make sure Lucid is aware of a warnings amongst strings.
-            */            
-            EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, 
-                (ehs_uint8 *)(EHS_MSG_END_OF_MESSAGE EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW EHS_MSG_END_OF_MESSAGE),
-                (sizeof(EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW) + 2 * sizeof(EHS_MSG_END_OF_MESSAGE))/sizeof(EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW[0]));
-            nPushed = 0;
+            (void)EhsConsoleQueue_pushRecord(EhsTgtConsoleOutputQueueRef,
+                                             (const ehs_uint8*)szFlag,nFlag,0u);
         }
-        else {
-            pBuff += nPushed;
-            nBuff -= nPushed;
-        }
-        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)"\n", 1); /* Send end of record we couldn't push*/
     }
-    else {
-        /* queue is full so empty it so we can keep writing */
-        EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
-        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, (ehs_uint8 *)
-            (EHS_MSG_END_OF_MESSAGE EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW ), 
-             EHS_MSG_END_OF_MESSAGE_LEN + EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW_LEN ); 
-        #ifndef EHS_MEMORY_ATTRIB // @TODO - THIS should you the logger when is fixed and we should add another flag for ISR context
-        EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL);
-        #endif
-       /* We could send this if the message to Lucid is too long but will just send the above short message instead.
-            EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, 
-            (ehs_uint8 *)(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL EHS_MSG_END_OF_MESSAGE), 
-            EHS_MSG_CONSOLE_BUFFER_TOO_SMALL_LEN + EHS_MSG_END_OF_MESSAGE_LEN); 
-        */
-    }
-#else /* Original console queue overrung handling we probably want to keep fix rather than coming up with something worse */        
-        /* you may want to temporarily abandoned this because it breaks the debugger completely if too many retries are needed */
-    do
+    else if (!bConsoleLossFlagged)
     {
-        nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef,(ehs_uint8*)pBuff,nBuff);
-        nPushCounter++;
-        if (nPushed == 0u && nPushCounter > EHS_CONSOLE_BUFFER_MAX_RETRIES)
-        {
-            /* queue is full so empty it so we can keep writing out an warning */
-            EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
-            #ifndef EHS_MEMORY_ATTRIB 
-            EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_OVERFLOW);
-            #endif
-            nPushed = EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, 
-                (ehs_uint8 *) (EHS_MSG_END_OF_MESSAGE EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW), 
-                EHS_MSG_END_OF_MESSAGE_LEN + EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW_LEN);
-        }
-        else {
-            pBuff += nPushed;
-            nBuff -= nPushed;
-        }
-        /* if we need to loop then we also need to sleep to let other threads read things from the buffer */
-        if (nBuff > 0u) {
-            #if defined(EHS_MEMORY_ATTRIB) && defined(EHS_DEBUG_ALL) 
-            EhsStdioSimplePrintf("Info: Waiting to write more console data...\n");
-            #endif
-            EhsSleepUs(EHS_CONSOLE_BUFFER_CONTINUE_PAUSE_US); 
-        }
-    } while ( (nBuff > 0u ) && ( nPushCounter <= EHS_CONSOLE_BUFFER_MAX_TOTAL_TRIES ));
-    if (nBuff > 0u)
-    {
-        /* we have given up trying to write the entire buffer */
-        #ifndef EHS_MEMORY_ATTRIB 
-        EhsStdioSimplePrintf(EHS_MSG_CONSOLE_BUFFER_TOO_SMALL);
-        #endif
-        EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef, 
-            (ehs_uint8 *)(EHS_MSG_END_OF_MESSAGE EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW ), 
-            EHS_MSG_END_OF_MESSAGE_LEN + EHS_FLAG_CONSOLE_CONSOLE_OVERFLOW_LEN); 
+        /* Drop-newest: queued records survive, this one does not. One marker per loss run
+         * tells the reader there is a gap; repeating it would just fill the reserve. */
+        (void)EhsConsoleQueue_pushRecord(EhsTgtConsoleOutputQueueRef,
+                                         (const ehs_uint8*)EHS_CONSOLE_OVERFLOW_RECORD,
+                                         EHS_CONSOLE_OVERFLOW_RECORD_LEN,0u);
+        bConsoleLossFlagged = EHS_TRUE;
+        EHSH_LOG_ERROR("Console full - dropping records (%u bytes wanted, used=%u/%u left=%u)",
+                       (unsigned int)nBuff, (unsigned int)EhsConsoleQueue_length(EhsTgtConsoleOutputQueueRef),
+                       (unsigned int)EhsConsoleQueue_maxSize(), (unsigned int)EhsConsoleQueue_space(EhsTgtConsoleOutputQueueRef));
     }
-    /* Always send a new line char at the end of a message */
-    EhsConsoleQueue_push(EhsTgtConsoleOutputQueueRef,(ehs_uint8*)"\n",1);
-#endif // end of #ifdef EHS_EHS_CONSOLE_HACKY_VERSION_THAT_MIGHT_WORK_BETTER_SOMETIMES_FOR_MCUs
     return 0;
 }
 

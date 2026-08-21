@@ -44,8 +44,12 @@
     //#define  __USE_UNIX98
     #include <sys/resource.h>
     #ifndef EHS_ANDROID
-        #include <bits/pthreadtypes.h>
-    #else 
+        #ifndef EHS_MACOS
+            #include <bits/pthreadtypes.h>
+        #else
+            #include <pthread.h>
+        #endif
+    #else
         // #include <bits/pthreadtypes.h>
     #endif
 #endif
@@ -300,8 +304,11 @@ EHS_GLOBAL void EhsTPMutex_init(void)
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     /* set up the posix(ish) ,utex type depending in the flavour of the platform toolchain */
-#ifndef EHS_MINGW
-    /* Set some fairly safe (minimal deadlock) mutex parameters */
+#if defined(EHS_MINGW) || defined(EHS_MACOS)
+    /* MINGW and macOS: use portable POSIX recursive mutex */
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+#else
+    /* Linux: use NP (non-portable) variant + priority inheritance */
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
     // Not including priority inheritence for Android using ABI >= 28
 #if EHS_ANDROID_INSTALL_VERSION==7
@@ -309,9 +316,6 @@ EHS_GLOBAL void EhsTPMutex_init(void)
 #else
     pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
 #endif
-#else //MINGW supports recursive without the non-portable posic extension NP
-    /* Set some fairly safe (minimal deadlock) mutex parameters */
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 #endif
     /* Note no idea why we used the memsets here - possibly an old platform that needed it, but lets remove for now. */
     //memset(&EhsL_globalTimer,0,sizeof(pthread_mutex_t));
@@ -459,7 +463,7 @@ if (EhsTPMutex_playManager) pthread_mutex_destroy((pthread_mutex_t *)EhsTPMutex_
  */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
+EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize,ehs_char * _szThreadname)
 {
     EhsTPThread thread;
     pthread_attr_t tattr_param;
@@ -472,7 +476,7 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
     int maxpri=sched_get_priority_max(SCHED_OTHER);
     int minpri=sched_get_priority_min(SCHED_OTHER);
 #endif
-
+    // todo add threadName (ehs_char * _szThreadname)
     /*Todo thread priorities should be made relative to Current priority */
     /* We will assume althese are done under sched_other for linux */
     /* initialized with default attributes */
@@ -675,4 +679,10 @@ void EhsTargetReboot( void )
 {
     while (0);
     EHSH_LOG_ERROR("Reboot Not Implemented on this target!");
+}
+
+ehs_sint32 EhsHProcess_getStackRemaining(void)
+{
+    /* No cheap stack-remaining primitive wired up for this target. */
+    return -1;
 }

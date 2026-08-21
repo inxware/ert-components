@@ -173,6 +173,10 @@ ifndef EHS_SKIP_GNULIBRARIES
 	ifndef EHS_NO_LIBXML2_SUPPORT
 		OBJECTS += inx-application_info_getter.$(OBJ)
 	endif
+	else
+		# Propagate the skip flag as a C preprocessor define so that
+		# usercomponents.c can guard the include and blockref entry.
+		DEFS += EHS_SKIP_APPLICATION_INFO_GETTER=1
 	endif
 endif
 

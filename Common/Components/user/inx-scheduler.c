@@ -52,7 +52,7 @@ ehs_uint8 target_readScheduleFromFile(inx_DevmanScheduler_state_type* state, ehs
 {
     if (state == NULL || schedule == NULL || pfile_size == NULL) return 1;
     if (id > CONFIG_SCHEDULE_MAX) return 2;
-    ehs_char filename[20] = {0};
+    ehs_char filename[24] = {0}; /* "_sched" + up to 11 digits + ".scd" + NUL = 22 */
     EhsSprintf(filename, "_sched%d.scd", id);
     ehs_FILE *fp = Ehs_UserFopen(filename, "rb");
     if (fp == NULL) return 2;
@@ -110,7 +110,7 @@ ehs_uint8 target_writeScheduleIntoFile(ehs_uint8* schedule, ehs_uint32 size, ehs
 {
     if (schedule == NULL) return 1;
     if (id > CONFIG_SCHEDULE_MAX) return 2;
-    ehs_char filename[20] = {0};
+    ehs_char filename[24] = {0}; /* "_sched" + up to 11 digits + ".scd" + NUL = 22 */
     EhsSprintf(filename, "_sched%d.scd", id);
     ehs_FILE *fp = Ehs_UserFopen(filename, mode);
     if (fp == NULL) return 3;
@@ -421,7 +421,7 @@ EHS_FB_RUN_FUNCTION(DevmanScheduler_set_schedule)
                 return;
             }
             
-            printf("ver=%u,crc=%u,id=%u,paylen=%d\n",version,crc,id,payloadSize);
+            //printf("ver=%u,crc=%u,id=%u,paylen=%d\n",version,crc,id,payloadSize);
             
             ehs_bool bAppend = EHS_FALSE;
 
@@ -431,7 +431,7 @@ EHS_FB_RUN_FUNCTION(DevmanScheduler_set_schedule)
                 }else{
                     // check if we missed any pending data
                     if(pending != state->pendingChunks+1){
-                        printf("Scheduler error. missed pending data! curr=(%d),next=(%d)\n",state->pendingChunks,pending);
+                        EHSH_LOG_ERROR("Scheduler error. missed pending data! curr=(%d),next=(%d)",state->pendingChunks,pending);
                         errno_ = 4;
                         state->pendingChunks = 0;
                         state->crc32 = 0;
@@ -452,7 +452,7 @@ EHS_FB_RUN_FUNCTION(DevmanScheduler_set_schedule)
                 state->crc32 = crc;
                 ehs_bool bDone = (state->pendingChunks==0);
                 if(bAppend == EHS_TRUE){
-                    printf("append more scheduler data id=(%d) size=(%d)\n", id, payloadSize);
+                    //printf("append more scheduler data id=(%d) size=(%d)\n", id, payloadSize);
                     ehs_sint32 start = state->dataSize;
                     state->dataSize += payloadSize;
                     if(state->dataSize <= CONFIG_MAX_SCHEDULE_SIZE_BYTES){
@@ -463,14 +463,14 @@ EHS_FB_RUN_FUNCTION(DevmanScheduler_set_schedule)
                             "ab"
                         );
                     }else{
-                        printf("Scheduler error. No more room in the buffer!\n");
+                        EHSH_LOG_ERROR("Scheduler error. No more room in the buffer!");
                         errno_ = 4;
                         state->pendingChunks = 0;
                         state->crc32 = 0;
                         // @TODO - remove bin file
                     }
                 }else{ // write all data
-                    printf("write scheduler data id=(%d) size=(%d)\n", id, dataSize);
+                    //printf("write scheduler data id=(%d) size=(%d)\n", id, dataSize);
                     state->dataSize = payloadSize;
                     EhsMemcpy(&state->data[0], payloadData, state->dataSize); // copy payload data to buffer
                     // write both header and payload to the file

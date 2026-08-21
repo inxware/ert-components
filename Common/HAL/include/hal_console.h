@@ -56,14 +56,19 @@
  */
 ehs_uint32 EhsConsoleGetLine(ehs_char *buff, ehs_uint16 size);
 /**
- * Print text into the console output. This function blocks as long
- * as necessary to send the output.
+ * Print a record into the console output.
+ *
+ * KERNEL ONLY. This queue carries the tools protocol (see docs/ert-porting-guide.md
+ * § "Console stream framing"); it is not a general-purpose output path. Everything else
+ * uses EHSH_LOG_* for diagnostics, or the target's own stdio for human-facing serial
+ * output. Declared only for the kernel and for the HAL that implements it, so a misuse
+ * is a compile error rather than protocol traffic nobody asked for.
  *
  * @param fmt Format specifier for output (as per printf)
  */
-//#ifndef EhsConsolePrintf
+#if defined(EHS_KERNEL_BUILD) || defined(EHS_CONSOLE_IMPLEMENTATION)
 extern EHS_MEMORY_ATTRIB ehs_uint16 EhsConsolePrintf(const ehs_char* fmt, ...); /*lint !e960 Variable arguments required to support generalized printf */
-//#endif
+#endif
 /**
  * Check whether console input is available
  *
@@ -88,6 +93,25 @@ ehs_bool EhsConsoleLineReady(void);
  * @return true if load is successful
  */
 ehs_bool EhsConsoleToFile(ehs_uint32 size, const ehs_char* name);
+/**
+ * Unpack a tarball that was previously received via the console (and saved by
+ * EhsConsoleToFile into the temp directory) into the current application's
+ * live directory.
+ *
+ * This is an adjacent operation to the SODL/file handling in the console "load"
+ * command. It is only implemented on platforms built with libarchive
+ * (EHS_LIBARCHIVE_SUPPORT=yes); on all other os-arches it is a no-op stub that
+ * logs a warning and returns false.
+ *
+ * @param name Name of the archive file as saved in the temp directory
+ *             (e.g. "myapp.tar"). Conforms to the EHS 8.3 filename standard.
+ * @param removeArchive If true, delete the source archive file after a
+ *             successful extraction (the kernel passes true so the - often
+ *             large - tarball is not left behind / promoted with the app).
+ *
+ * @return true if the archive was unpacked successfully
+ */
+ehs_bool EhsConsoleUnpackArchive(const ehs_char* name, ehs_bool removeArchive);
 /**
  * Contains input from the console.
  * Initialised by EhsHSys_init

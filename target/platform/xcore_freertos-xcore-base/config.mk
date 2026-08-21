@@ -41,6 +41,12 @@ XMOS_BOARD_TARGET=XCORE-AI-EXPLORER
 
 EHS_DEBUGALL=yes
 
+# Networking is not yet implemented on xcore (EHS_COMMS_API_SUPPORT=none below),
+# so the TCP-IP debug console must stay stubbed. Without this, EHS_DEBUGALL
+# auto-promotes EHS_DEBUG_TCPIP_CONSOLE=yes (Common/Ehs/ehs.mk:44-49) which
+# pulls in console_server.c and the EhsSvcTcp_* call sites in hal.c.
+EHS_DEBUG_TCPIP_CONSOLE=stubbed
+
 
 #################################################################################################################
 # Feature Configuration

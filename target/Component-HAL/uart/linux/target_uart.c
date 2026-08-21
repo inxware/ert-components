@@ -33,6 +33,16 @@
 #include <string.h>
 #include <sched.h>
 #include <stdio.h>
+
+/* macOS termios only defines up to B230400; higher rates use raw numeric values */
+#ifdef EHS_MACOS
+#ifndef B460800
+#define B460800 460800
+#endif
+#ifndef B921600
+#define B921600 921600
+#endif
+#endif
 #include "globals.h"
 #include "target_uart.h"
 #include "hal_logger.h"
@@ -376,7 +386,11 @@ int TgtUart_Send(int UART_num, char *payload, unsigned int length)
 void TgtUART_SendThread(int UART_num, char *payload, unsigned int length)
 {
     int ret = TgtUart_Send(UART_num, payload, length);
+#ifdef EHS_UART_SUPPORT
     Common_UART_onSendComplete(ret);
+#else
+    (void)ret;
+#endif
 }
 
 int TgtUART_SendInThread(int UART_num)
@@ -418,12 +432,3 @@ int TgtUART_Intr_register(int UART_num, uart_cb_func_t cb_func)
     return TgtUART_OK;
 }
 
-/* Weak defaults */
-__attribute__((weak)) void Common_UART_onReceive(char *recv_msg, int length)
-{
-    (void)recv_msg; (void)length;
-}
-__attribute__((weak)) void Common_UART_onSendComplete(int retCode)
-{
-    (void)retCode;
-}

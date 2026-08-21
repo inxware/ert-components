@@ -185,15 +185,19 @@ void EhsTRtcMAX31343Init( void )
     extern EhsConsoleQueueType EhsTgtConsoleInputQueue;
     extern EhsConsoleQueueType EhsTgtConsoleOutputQueue;
     static void EhsTOS_ConsoleQueue_init(){
+    
         //EhsTgtConsoleInputQueue.xQueue=consoleQueueInputBuffer;
         //EhsTgtConsoleOutputQueue.xQueue=consoleQueueOutputBuffer;
         EhsTgtConsoleInputQueue.xQueue=(ehs_uint8*)EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
         EhsTgtConsoleOutputQueue.xQueue=(ehs_uint8*)EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
     }
 #else //#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    
     static void EhsTOS_ConsoleQueue_init(){
     }
 #endif //#else #ifdef EHS_DEBUG_TCPIP_CONSOLE
+
+
 void EhsTOsSys_init(void)
 {
     EhsTOS_ConsoleQueue_init();
@@ -202,6 +206,7 @@ void EhsTOsSys_init(void)
     #ifdef EHS_MAX31343_SUPPORT
     EhsTRtcMAX31343Init();
     #endif
+   
     ESP_LOGI(TAG, "EHS inited");
 }
 
@@ -225,12 +230,35 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
     inet_ntoa_r(ip_info.ip.addr, (char*)bufIP, 16);
 }
 
+#ifdef EHS_NETWORK_ETHERNET_SUPPORT
+extern volatile ehs_bool gNetworkConnected;
+#endif
+#ifdef EHS_NETWORK_WIFI_SUPPORT
+#include "wifi_station.h"
+#endif
+
+/* Prefer the interface whose link is actually up. In dual-support builds the
+ * enable flags can both be TRUE while only one interface has carrier; returning
+ * the dead one here makes DNS / IP metadata lookups report stale-or-empty
+ * values from the wrong netif. */
 EHS_LOCAL esp_netif_t* EhsTOS_GetNetworkInterface()
 {
+#ifdef EHS_NETWORK_ETHERNET_SUPPORT
+    if (EhsNetworkInterfaceEthIsEnabled() && gNetworkConnected)
+        return esp_netif_get_handle_from_ifkey("ETH_DEF");
+#endif
+#ifdef EHS_NETWORK_WIFI_SUPPORT
+    if (EhsNetworkInterfaceWifiIsEnabled() && isWifiStationConnected())
+        return esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+#endif
+#ifdef EHS_NETWORK_ETHERNET_SUPPORT
     if (EhsNetworkInterfaceEthIsEnabled())
         return esp_netif_get_handle_from_ifkey("ETH_DEF");
+#endif
+#ifdef EHS_NETWORK_WIFI_SUPPORT
     if (EhsNetworkInterfaceWifiIsEnabled())
         return esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+#endif
     return NULL;
 }
 
@@ -432,6 +460,7 @@ void EhsTOsApp_init(void)
 //	#ifdef EHS_GUI_SUPPORT //@todo and this (as above)
 //            EhsGtkKeypressCallback = NULL;
 //        #endif
+    EhsTargetWidget_refr_scr_period_lvgl(25); // Refresh screen every configured seconds
 }
 
 /**

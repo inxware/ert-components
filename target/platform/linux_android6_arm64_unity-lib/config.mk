@@ -84,4 +84,12 @@ DEVMAN_SERVER_PROTOCOL=https
 # (Inherits from parent config)
 
 
+EHS_UNITY_VERSION=6000.4.1f1
+
 ################################### END OF CONFIGURATION ###################################################
+
+# This target produces a Unity .so plugin, not an installable package, so there is nothing for
+# 'make targetenv_package' to build. Set explicitly: the os-arch default would
+# otherwise select targetenv_apk, and a plugin has no APK, which fails here.
+# A platform '=' overrides the os-arch '?=' (target/os-arch/*/config.mk).
+EHS_PACKAGER_TYPE=none

@@ -40,7 +40,9 @@ typedef long long suseconds_t;
 
 
 #ifndef suseconds_t
+#ifndef __APPLE__
 typedef long suseconds_t;
+#endif
 #endif
 
 #ifdef _MSC_VER

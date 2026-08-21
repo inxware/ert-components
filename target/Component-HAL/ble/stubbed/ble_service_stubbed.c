@@ -20,7 +20,7 @@
  * Parse UUID string to ble_uuid_any_t structure
  * Supports both 16-bit and 128-bit UUIDs
  */
-//static ehs_sint32 parse_uuid(const char* uuid_str, ble_uuid_any_t* uuid)
+//static ehs_sint32 INX_PARSE_UUID(const char* uuid_str, ble_uuid_any_t* uuid)
 //{
 //    return -1;//
 //}

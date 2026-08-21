@@ -49,7 +49,7 @@ EHS_HOST_DEBIAN_BUILD = arm64
 
 # Toolchain: clang from the NGC cross-compilation Docker container.
 EHS_TOOLCHAIN_TYPE  = clang
-EHS_GNU_OS_VERSION  = -clang15_ubuntu2204
+EHS_TARGET_LIB_VARIANT  = -clang15_ubuntu2204
 TOOLCHAIN_NAME      = HOST
 LINK_OVERRIDE       = clang
 
@@ -99,9 +99,9 @@ EHS_ML_MODEL_SUPPORT_YOLOV8_OBJDET  = yes
 
 #----- Peripheral Features -----
 EHS_PERIPHERAL_DEVICE_SUPPORT   = all
-EHS_PERIPHERALS_GPIO_SUPPORT     = stubbed
-EHS_PERIPHERALS_UART_SUPPORT     = linux
-EHS_PERIPHERALS_ADC_DAC_SUPPORT  = none
+EHS_PERIPHERALS_GPIO_SUPPORT    = stubbed
+EHS_PERIPHERALS_UART_SUPPORT    = linux
+EHS_PERIPHERALS_ADC_DAC_SUPPORT = none
 
 # New peripheral HAL defaults — stubbed unless a Jetson-specific HAL is added later
 EHS_WATCHDOG_SUPPORT      ?= stubbed

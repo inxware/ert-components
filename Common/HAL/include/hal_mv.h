@@ -227,6 +227,15 @@ ehs_bool EhsCameraFrameDrawBBox(EhsCameraFrame* frame,
  * Implementations must be thread-safe (e.g. hold EhsTPMutex_viewport while
  * touching LVGL objects).
  *
+ * @param pHandle  In/out opaque handle owned by the calling FB instance.
+ *                 *pHandle is NULL on that instance's first call; the
+ *                 implementation allocates whatever it needs (e.g. a canvas
+ *                 plus backing buffer) and stores it back through *pHandle.
+ *                 Later calls from the same instance pass the same handle
+ *                 back, so each instance gets and keeps its own render
+ *                 target rather than instances sharing (and fighting over)
+ *                 one. Release it via EhsCamEmbeddedRendererReleaseFn when
+ *                 the owning instance is destroyed.
  * @param x        Left edge of the target region in screen/UI coordinates.
  * @param y        Top edge of the target region.
  * @param dst_w    Width of the rendered image in pixels (0 = use frame width).
@@ -237,6 +246,7 @@ ehs_bool EhsCameraFrameDrawBBox(EhsCameraFrame* frame,
  * @param channels Bytes per pixel (3 = BGR, 1 = grayscale).
  */
 typedef void (*EhsCamEmbeddedRendererFn)(
+    void** pHandle,
     ehs_sint32 x, ehs_sint32 y,
     ehs_sint32 dst_w, ehs_sint32 dst_h,
     const void* data,
@@ -244,12 +254,22 @@ typedef void (*EhsCamEmbeddedRendererFn)(
     ehs_sint32 channels);
 
 /**
- * Register an embedded frame renderer.  Pass NULL to clear.
- * Only one renderer can be registered at a time.
+ * @brief Releases a handle previously produced by EhsCamEmbeddedRendererFn.
+ * Called once, by the owning FB instance's destroy function. Must tolerate
+ * a NULL handle (an instance that never actually rendered a frame).
  */
-void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn);
+typedef void (*EhsCamEmbeddedRendererReleaseFn)(void* handle);
+
+/**
+ * Register an embedded frame renderer and its matching release function.
+ * Pass NULL for both to clear. Only one renderer can be registered at a time.
+ */
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn, EhsCamEmbeddedRendererReleaseFn releaseFn);
 
 /** Return the currently registered embedded renderer (may be NULL). */
 EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void);
+
+/** Return the currently registered renderer's release function (may be NULL). */
+EhsCamEmbeddedRendererReleaseFn EhsCameraFrameGetEmbeddedRendererRelease(void);
 
 #endif // _EHS_HAL_MV_H

@@ -1,0 +1,32 @@
+/*
+ * RAK4631 (nRF52840) DTS overlay for eRT Zephyr HAL.
+ *
+ * Defines the mandatory 'inx-*' aliases that target/os-arch/zephyr-arm/
+ * HAL source files expect.  Any board ported to this os-arch must provide
+ * the same alias names; the implementation files use DT_ALIAS(inx_uart0)
+ * etc. (hyphens become underscores in C DT macros).
+ *
+ * On the RAK4631 / WisBlock Base Board:
+ *   uart0  — UART routed to the Base Board USB-to-serial (VCOM, Zephyr console)
+ *   gpio0  — nRF52840 P0 port (pins 0-31)
+ *   gpio1  — nRF52840 P1 port (pins 32-47, aka P1.xx)
+ */
+
+/ {
+	aliases {
+		/* UART used by eRT HAL (inx_uart0 in C).
+		 * Shares uart0 with the Zephyr logging/shell backend for
+		 * bring-up; split onto uart1 later when available. */
+		inx-uart0 = &uart0;
+
+		/* GPIO ports used by eRT HAL */
+		inx-gpio0 = &gpio0;
+		inx-gpio1 = &gpio1;
+	};
+};
+
+/* Ensure UART0 is enabled and at a sensible baud rate for bring-up */
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+};

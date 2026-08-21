@@ -88,12 +88,19 @@ EHS_FB_RUN_FUNCTION(HexString2String_convert)
 	// inx_HexString2String_state_type* inx_HexString2String_state = (inx_HexString2String_state_type*)EHS_FB_RUN_CONTEXT;
 
 	// Your code here
-	size_t len;
+	size_t len = 0; /* the length output is written unconditionally below */
 	char* output = NULL;
 	if (EHS_FB_IN_CONNECTED_API2(INX_HexString2String_ARG_convert_hexStringInput))
 		output = datahex(EHS_FB_IN_S_API2(INX_HexString2String_ARG_convert_hexStringInput), &len) ;
 	if (EHS_FB_OUT_CONNECTED_API2(INX_HexString2String_ARG_convert_stringOutput) && output != NULL)
-		memcpy(EHS_FB_OUT_S_API2(INX_HexString2String_ARG_convert_stringOutput), output, len) ;
+	{
+		/* Decoded bytes may contain NULs, so this stays a memcpy - but len comes
+		 * from the input string's length, which is unrelated to the output row. */
+		ehs_uint32 nMax = EHS_FB_OUT_S_MAXLEN_API2(INX_HexString2String_ARG_convert_stringOutput);
+		ehs_uint32 nLen = ((ehs_uint32)len > nMax) ? nMax : (ehs_uint32)len;
+		memcpy(EHS_FB_OUT_S_API2(INX_HexString2String_ARG_convert_stringOutput), output, nLen) ;
+		((ehs_char*)EHS_FB_OUT_S_API2(INX_HexString2String_ARG_convert_stringOutput))[nLen] = '\0';
+	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_HexString2String_ARG_convert_length))
 		EHS_FB_OUT_I_API2(INX_HexString2String_ARG_convert_length) = len;
 	if (output != NULL) free(output);

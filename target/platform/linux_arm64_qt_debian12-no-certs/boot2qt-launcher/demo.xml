@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application title="inxware eRT" priority="10" scalable="1" icon="preview.png" binary="/usr/share/examples/ert/run_ert_wayland.sh">
+    <description>
+        The inxware eRT runtime (ehs.exe), running as a Wayland client inside
+        the launcher.  Started via run_ert_wayland.sh, which overrides the
+        image-wide eglfs platform so the app composites into the launcher
+        instead of taking over the display.
+    </description>
+</application>

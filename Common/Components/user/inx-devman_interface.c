@@ -254,7 +254,7 @@ EHS_FB_RUN_FUNCTION(DevmanInterface_getMiscData)
 
     // Your code here
     if (EHS_FB_OUT_CONNECTED_API2(INX_DevmanInterface_ARG_getMiscData_newJSON))
-        EhsStrcpy(EHS_FB_OUT_S_API2(INX_DevmanInterface_ARG_getMiscData_newJSON),"Not Implemented") ;
+        EHS_FB_OUT_S_SET_API2(INX_DevmanInterface_ARG_getMiscData_newJSON, "Not Implemented") ;
     EHS_FB_FINISH(INX_DevmanInterface_ARG_getMiscData_new);
 }//ICB FUNCTION getMiscData MACRO END -- DO NOT ALTER THIS LINE
 

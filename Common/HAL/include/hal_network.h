@@ -64,4 +64,9 @@ ehs_bool EhsNetworkInterfaceWifiIsEnabled();
 
 ehs_bool EhsNetworkInterfaceEthIsEnabled();
 
+/* Ethernet Specific functions called generally */
+
+ehs_bool ehs_eth_init();
+ehs_bool eth_deinit();
+
 #endif

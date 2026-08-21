@@ -362,12 +362,12 @@ void EhsTPMutex_term(void)  //@todo and these need to gp too when we have the te
  */
 
 //@todo this function should allow values below -100 to revert sched other scheduling - and adopt the processe's default native values
-ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
+ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize, ehs_char * _szThreadname)
 {
     uint32_t ssize = ( stackSize > 0 ) ? (uint32_t)stackSize : OS_STACK_SIZE;
-    EhsTPThread * t = new EhsTPThread((osPriority)priority, ssize, nullptr, nullptr);
+    EhsTPThread * t = new EhsTPThread((osPriority)priority, ssize, nullptr, nullptr); // todo one of these would be the thread name we have now
     t->start( mbed::callback([=]() { pfRun(context); }) );
-    EhsStdioPrintf("EhsHThread_execute (id=%d) pri=%d stk=%d\n", t->get_id(), priority, (int)ssize);
+    //EhsStdioPrintf("EhsHThread_execute (id=%d) pri=%d stk=%d\n", t->get_id(), priority, (int)ssize);
     return EHS_TRUE;
 }
 
@@ -444,5 +444,11 @@ ehs_bool EhsTP_shellExecuteStdout(char* sZstdout,const char * szCmd, int max_buf
 
 void EhsTargetReboot( void )
 {
-    
+
+}
+
+ehs_sint32 EhsHProcess_getStackRemaining(void)
+{
+    /* No cheap stack-remaining primitive wired up for this target. */
+    return -1;
 }

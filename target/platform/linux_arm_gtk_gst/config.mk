@@ -37,7 +37,7 @@ EHS_OS=linux
 # - Select the os-arch directory with these
 EHS_GNU_ARCH=arm
 EHS_GNU_OS=linux-gnu
-EHS_GNU_OS_VERSION=glibc-2.12.2
+EHS_TARGET_LIB_VARIANT=glibc-2.12.2
 
 #todo do we really need this?
 KERNEL_VERSION=linux/2.6.35.9
@@ -62,7 +62,6 @@ COMPONENT_VARIANT=gtk_gst
 
 # For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms rather than built in ert-contrib-middleware):
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
 
 
 #################################################################################################################

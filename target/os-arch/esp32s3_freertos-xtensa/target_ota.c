@@ -75,7 +75,7 @@ ehs_sint32 thOTA_begin(ehs_bool alt_partition, ehs_sint32 partition_num)
     {
         ESP_LOGE(TAG, "OTA begin aborted.");
         esp_ota_abort(gESP_OTA_handle);
-        gESP_OTA_handle = NULL;
+        gESP_OTA_handle = 0; /* esp_ota_handle_t is an integer, not a pointer */
         if (err == ESP_ERR_NO_MEM) return 3;
         return 4;
     }
@@ -95,7 +95,7 @@ ehs_uint8 thOTA_write_passthrough(ehs_char * databuf, ehs_sint32 size, ehs_sint3
     gOffset = offset;
     // if (gData == NULL) gData = (ehs_uint8 *) calloc(gSize, sizeof(ehs_uint8));
     // else gData = realloc(gData, gSize * sizeof(ehs_uint8));
-    if (gData == NULL) return 5;
+    /* gData is a static array (see declaration) - it can never be NULL */
     if (gSize > EHS_STRING_LENGTH_MAX) return 6;
     memcpy(gData, databuf, gSize * sizeof(ehs_uint8));
     //ESP_LOGD(TAG, "OTA Write %d -> %d", offset, offset + size);
@@ -107,7 +107,7 @@ ehs_uint8 thOTA_write_passthrough(ehs_char * databuf, ehs_sint32 size, ehs_sint3
 
 void thOTA_end(void)
 {
-    if (ota_state == TARGET_OTA_IDLE || gESP_OTA_handle == NULL) return;
+    if (ota_state == TARGET_OTA_IDLE || gESP_OTA_handle == 0) return;
     // xTaskNotify(gOTA_task_handle, OTA_FLAG_END, eSetValueWithOverwrite);
     gOtaTaskNotify = EHS_TRUE;
     gOtaTaskNotifyValue = OTA_FLAG_END;
@@ -206,17 +206,17 @@ void target_OTA_task(void *pvParameters)
             if ((notificationValue & OTA_FLAG_ABORT) != 0)
             {
                 esp_ota_abort(gESP_OTA_handle);
-                gESP_OTA_handle = NULL;
+                gESP_OTA_handle = 0; /* esp_ota_handle_t is an integer, not a pointer */
                 ota_state = TARGET_OTA_IDLE;
                 if(gOnAbortCallback != NULL) gOnAbortCallback();
             }
             else if ((notificationValue & OTA_FLAG_END) != 0)
             {
                 esp_ota_end(gESP_OTA_handle);
-                gESP_OTA_handle = NULL;
+                gESP_OTA_handle = 0; /* esp_ota_handle_t is an integer, not a pointer */
                 ota_state = TARGET_OTA_ENDED;
             }
-            else if ((notificationValue & OTA_FLAG_WRITE) != 0 && gData != NULL)
+            else if ((notificationValue & OTA_FLAG_WRITE) != 0)
             {
                 gsWriting = EHS_TRUE;
                 err = esp_ota_write_with_offset(gESP_OTA_handle, gData, gSize, gOffset);

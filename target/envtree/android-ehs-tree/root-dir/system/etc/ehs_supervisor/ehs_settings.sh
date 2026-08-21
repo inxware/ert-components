@@ -10,6 +10,7 @@ CloseSettings(){
 	StopApp com.android.settings
 }
 
+#TODO This should check for Both com.android.settings and com.android.tv.settings to be compatible with Androidtv and AOSP android
 IsSettingsOpen(){
 	IsPackageFocused com.android.settings
 }

@@ -175,7 +175,9 @@ typedef void (*uart_cb_func_t)(char *payload, int length);
 static uart_cb_func_t UART_CALLBACK_FUNCTIONS[UART_COUNT] = {NULL};
 #elif UART_COUNT == 2
 static uart_cb_func_t UART_CALLBACK_FUNCTIONS[UART_COUNT] = {NULL, NULL};
-#elif UART_COUNT >= 3
+#elif UART_COUNT == 3
+static uart_cb_func_t UART_CALLBACK_FUNCTIONS[UART_COUNT] = {NULL, NULL, NULL};
+#elif UART_COUNT >= 4
 static uart_cb_func_t UART_CALLBACK_FUNCTIONS[UART_COUNT] = {NULL, NULL, NULL, NULL};
 #endif
 

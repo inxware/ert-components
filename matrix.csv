@@ -1,0 +1,196 @@
+Class,Description,Menu,arduino,esp32_freertos,esp32s3_freertos,linux_amd64,linux_android_arm64,linux_android_arm,linux_arm64,linux_arm,linux_armv7l,linux_x86,linux_x86_64,nxp_arm,win_x86,xcore_freertos,zephyr_arm
+DtvDiagnostic,,System / Host OS,—,—,—,✓,✓,✓,✓,✓,✓,✓,✓,—,✓,—,—
+DtvPvrPlay,,AV / Players,—,—,—,✓,✓,✓,✓,✓,✓,✓,✓,—,✓,—,—
+Array,,Data Utilities / Buffers,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+AvailableLanguages,,User Interface / National Language Support,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventCounterVersatile,,Event / Counters/Iterators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+SelectLang,,User Interface / National Language Support,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+AppGet,,System / Remote,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+AppInfo,,System / Local,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+FIFO,,Data Utilities / Buffers,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+LIFO,,Data Utilities / Buffers,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ICalc,,Math / Calculation,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+cgi2json,CGI to JSON,Data Utilities / JSON,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Constant,,Data Utilities / Constant,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Convertor,,Data Utilities / Conversion,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Demultiplex,,Data Utilities / Switcher,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+IndexedDemultiplexer,,Data Utilities / Switcher,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+elapsed_timer,Get elapsed time (in microseconds) between two event triggers.,Event / Elapsed Timer,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+IndexedMultiplexer,,Event / Combiners/Flow,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+TextCaseDemultiplexer,,Event / Combiners/Flow,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+FILE,,File System / File Access,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+FileSystemDirCreateRemove,,File System / Directories,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+FileSystemDirList,,File System / Directories,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+indexed_demux,Demultiplex the boolean according to the input index,Data Utilities / Indexed Demux,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+indexed_mux,Multiplex the boolean inputs according to the index.,Data Utilities / Indexed Mux,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Integrator,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+json_parser,Parse the boolean values from json string input or file.,Data Utilities / JSON,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+json_stream_parser,JSON Stream Parser,Data Utilities / JSON,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+LogicAnd,,Logic / AND,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+LogicNand,,Logic / NAND,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+LogicNor,,Logic / NOR,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+LogicNot,,Logic / NOT,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+LogicOr,,Logic / OR,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+LogicXor,,Logic / XOR,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Multiplex,,Data Utilities / Selector,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Abs,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ArcHyperbolicCosine,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ArcCosine,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Addition,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ArcHyperbolicSine,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ArcSine,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ArcHyperbolicTan,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ArcTan,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ComparatorGreaterEqual,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ComparatorGreater,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+HyperbolicCosine,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Cosine,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Division,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ComparatorEqual,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Exponential,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+LogBaseTen,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Log,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Max,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Min,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Modulus,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Multiply,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Power,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+HyperbolicSine,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Sine,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Square,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+SquareRoot,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Subtraction,,Math / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+HyperbolicTan,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Tan,,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+rng,random number generator,Math / Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+state_condition,,Software Structure / State Machine,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+state_debug,,Software Structure / State Machine,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+state_manager,,Software Structure / State Machine,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Sub,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Cat,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+CharAt,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Cmp,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Find,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+string_format,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Insert,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Len,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ToLower,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+stringfn_scan,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+StrAt,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ToUpper,,Data Utilities / String Functions,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Exec,,System / Host OS,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+time_clock,,Event / Timer,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventCounter,,Event / Counters/Iterators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventManRstAnd,,Event / Combiners/Flow,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventLatchingAnd,,Event / Combiners/Flow,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventBooleanControl,,Event / Boolean Control,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventEdgeDetect,,Event / Boolean Control,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventOr,,Event / Combiners/Flow,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventSelfResetLatchingAnd,,Event / Combiners/Flow,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventSetReset,,Event / Boolean Control,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventToggleBoolean,,Event / Boolean Control,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventNegativeEdgeDetect,,Event / Boolean Control,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+EventPositiveEdgeDetect,,Event / Boolean Control,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+wall_clock,,System / Local,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+xml_stream_parser,XML Stream Parser,Data Utilities / XML,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+DtvPvrList,,Deprecated / DTV,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+DtvRemoteKey,,Deprecated / DTV,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+gui_text,,User Interface / Graphics,—,—,✓,✓,✓,✓,✓,✓,✓,✓,✓,—,✓,—,—
+GUI_Image,,Deprecated / GUI_Image,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+GUI_OutputTextBox,,Deprecated / GUI_Output,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ml_frame_inference,Machine learning Tensorflow Lite model from image frame.,Deprecated / Machine Learning,—,—,—,—,—,—,✓,—,—,—,—,—,✓,—,—
+AddAccumulate,,Deprecated / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+SubAccumulate,,Deprecated / Operators,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+RuntimeInfo,,Deprecated / System,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+GUI_Image_File,,User Interface / Graphics,—,—,✓,✓,✓,✓,✓,✓,✓,✓,✓,—,✓,—,—
+gui_patch,,User Interface / Graphics,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+gui_viewport,,User Interface / View Port,—,—,✓,✓,✓,✓,✓,✓,✓,✓,✓,—,✓,—,—
+ui_chart,,User Interface / Graphics,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ui_list,,User Interface / Graphics,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ui_spinner,,User Interface / Graphics,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+html_java,Run Javascript and render HTML,Languages / JavaScript,—,—,✓,✓,✓,✓,✓,✓,✓,✓,✓,—,✓,—,—
+PlayManager,,AV / Media Management,—,—,—,✓,✓,✓,✓,✓,✓,✓,✓,—,✓,—,—
+ml_image_inference,Machine Learning Inference for Images,Machine Learning / Image Inference,—,—,—,—,—,—,✓,—,—,—,✓,—,✓,—,—
+ml_svm_inference,Run machine learning models with limited resources,Machine Learning / SVM Inference,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+apriltag,Apriltag detector,Machine Vision / AprilTag,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+Camera,Run machine learning camera,Machine Vision / Camera,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+FrameCrop,Crops camera frame,Machine Vision / Frame Crop,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+FrameFormatter,Modifies camera frame format,Machine Vision / Frame Formatter,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+FrameReadFromFile,Reads frame from a file,Machine Vision / Frame Read From File,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+FrameResize,Resize camera frame,Machine Vision / Frame Resize,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+frame_show,Show the frame in a pop window.,Machine Vision / Frame Show,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+ble_service,BLE Service Manager,Networking / Bluetooth,—,—,✓,—,—,—,—,—,—,—,—,—,—,—,—
+DevmanPlayer,,AV / Media Management,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+interface_manager,Manage the network interface,Networking / Interface Manager,—,✓,—,—,—,—,—,—,—,—,—,—,—,—,—
+netSocket,network Socket Component,Networking / Sockets,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+mqtt_client,mqtt_client,Networking / MQTT,✓,✓,✓,—,—,—,✓,—,—,—,✓,✓,✓,—,—
+mqtt_publish,mqtt_publish,Networking / MQTT,✓,✓,✓,—,—,—,✓,—,—,—,✓,✓,✓,—,—
+mqtt_subscribe,mqtt_subscribe,Networking / MQTT,✓,✓,✓,—,—,—,✓,—,—,—,✓,✓,✓,—,—
+netsocketsrvr,Network Socket Server,Networking / Sockets,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+network_config,Configures network interface,Networking / Network Config,—,✓,—,—,—,—,—,—,—,—,—,—,—,—,—
+UrlGet,,Networking / HTTP,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+wifi_station,Connect to a Wi-Fi access point,Networking / Wi-Fi,—,—,✓,—,—,—,—,—,—,—,—,—,—,—,—
+NewComponent,,Software Structure / Function Blocks,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+state,,Software Structure / State Machine,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+xcomment,,Comment Block,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+xfinish,,Software Structure / Function Blocks,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+xinput,,Software Structure / Function Blocks,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+xoutput,,Software Structure / Function Blocks,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+xstart,,Software Structure / Function Blocks,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓,✓
+accel_gyro,Accelerometer and Gyroscope,Peripherals / Accelerometer and Gyroscope,✓,—,—,—,—,—,✓,—,—,—,—,—,—,—,—
+accelerometer,Accelerometer,Peripherals / Accelerometer,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+adc_config,Configure the ADC unit,Peripherals / ADC,✓,—,—,—,—,—,✓,—,—,—,✓,—,✓,✓,—
+adc_read,adc_read,Peripherals / ADC,✓,—,—,—,—,—,✓,—,—,—,✓,—,✓,✓,—
+adc_read_continuous,Continuously read ADC value,Peripherals / ADC,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+adc_read_single,Read ADC value on request,Peripherals / ADC,✓,—,—,—,—,—,✓,—,—,—,✓,—,✓,✓,—
+buzzer,Buzzer,Peripherals / Buzzer,—,—,—,—,—,—,✓,—,—,—,—,—,—,—,—
+dac,DAC,Peripherals / DAC,✓,—,—,—,—,—,✓,—,—,—,✓,—,✓,✓,—
+gpio_in,GPIO Input,Peripherals / GPIO,✓,—,—,✓,—,—,✓,—,—,—,✓,✓,✓,✓,✓
+gpio_out,GPIO Output,Peripherals / GPIO,✓,—,—,✓,—,—,✓,—,—,—,✓,✓,✓,✓,✓
+gui_leds,,User Interface / Hardware,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+GUI_keypress,,User Interface / Hardware,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+led,LED,Peripherals / LED,✓,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+modbus_config,MODBUS-RT config,Peripherals / MODBUS,—,—,✓,—,—,—,—,—,—,—,✓,—,✓,—,—
+modbus_read,MODBUS-RT value input/read,Peripherals / MODBUS,—,—,✓,—,—,—,—,—,—,—,✓,—,✓,—,—
+modbus_slave_register,Slave register for the MODBUS protocol.,Peripherals / MODBUS,—,—,✓,—,—,—,—,—,—,—,✓,—,✓,—,—
+modbus_write,MODBUS-RT value output/write,Peripherals / MODBUS,—,—,✓,—,—,—,—,—,—,—,✓,—,✓,—,—
+pwm,pwm,Deprecated / Peripherals,✓,—,✓,—,—,—,✓,—,—,—,—,—,—,—,—
+pwm_gen,Pulse Width Modulation Generator,Peripherals / GPIO,✓,—,✓,—,—,—,✓,—,—,—,—,—,—,—,—
+rs485_config,RS-485 Config,Peripherals / Serial,—,—,—,—,—,—,✓,—,—,—,—,—,—,—,—
+sd_select,SD Card Select,Peripherals / Storage,—,—,—,—,—,—,✓,—,—,—,—,—,—,—,—
+UART,UART transceive messages,Peripherals / Serial,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+uart_config,uart_config,Peripherals / Serial,—,—,✓,—,—,—,—,—,—,—,—,—,—,—,—
+ups,UPS,Peripherals / UPS,—,—,—,—,—,—,✓,—,—,—,—,—,—,—,—
+usb_power,USB Power,Peripherals / USB,—,—,—,—,—,—,✓,—,—,—,—,—,—,—,—
+watchdog,Watchdog,Peripherals / Watchdog,—,—,✓,—,—,—,✓,—,—,—,—,—,—,—,—
+Int2Hex,"Convert an integer to the string that contains hex data, e.g. 10 to ""0A"".",Data Utilities / Conversion,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+JSONObject,JSON Object,Data Utilities / JSON,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+PID,PID controller,Control Systems / PID Controller,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+application_info_getter,Gets information about locally installed apps.,System / Local,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+application_run,Runs an app,System / Local,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+audio_input_level,Get the RMS value of the audio input.,AV / Sound,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+bin2dec,Convert an 8-bit bool binary to an integer.,Data Utilities / Conversion,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+Calibrate,Calibrate,Control Systems / Calibrate,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+console_print,Prints string to the operating systems console (if available),User Interface / Console Print,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+DevmanInterface,Interface to Devman functionality,System / Remote,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+Backlight,Display backlight intensity,User Interface / Backlight Intensity,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+ehs_controller,System operations to control EHS,System / Local,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+HexString2String,This will convert the string that contains the hex to the string that contains the actual characters.,Data Utilities / String Functions,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+permanent_storage,permanent_storage_bool,File System / NV Storage,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+key_value,Key Value Pair Storage,Data Utilities / Key Value Pair,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+lorawan,LoRaWAN module,Networking / LoraWAN,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+Map,,Data Utilities / Num,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+NumDemultiplex,,Data Utilities / Num,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+NumMultiplex,,Data Utilities / Num,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+ndc,numeric_display_char,Peripherals / Displays,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+OTA,Over-the-air update,System / OTA Tools,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+ota_data_parser,,System / OTA Tools,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+pid_hdwr_config,PID Hardware Config int,Control Systems / Hardware Config (int),—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+pid_relay_config,Relay Config,Control Systems / Relay Config,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+Reboot,Reboot the device,System / Host OS,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+rtc,rtc,Peripherals / RTC,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+sample2str,,Data Utilities / Num,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+DevmanScheduler,This function will retrieve data from the schedule information stored on a device.,Control Systems / Devman Scheduler,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+StringDivader,String Divider,Data Utilities / String Functions,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+unity,unity,System / Unity 3D,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—
+Unsigned2Int,Convert signed integer with any length to a supported signed integer.,Data Utilities / Conversion,—,—,—,—,—,—,—,—,—,—,—,—,—,—,—

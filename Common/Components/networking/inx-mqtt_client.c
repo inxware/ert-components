@@ -186,20 +186,21 @@ EHS_FB_INIT_FUNCTION(mqtt_client)
 
     if(gMqttClientInstanceCount >= EHS_MQTT_CLIENT_INSTANCE_MAX){
         EHSH_LOG_ERROR("Exceeded number of allowed MQTT clinet instance (%d)", EHS_MQTT_CLIENT_INSTANCE_MAX);
+        printf("Exceeded number of allowed MQTT clinet instance (%d)\n", EHS_MQTT_CLIENT_INSTANCE_MAX);
         return EHS_FALSE;
     }
 
     const char* pParams = EHS_FB_INIT_PARAMETERS;
     if (pParams) {
-        pParams = EhsGetWordFromString(inx_mqtt_client_state->host, pParams);
+        pParams = EhsGetRecordFromString(inx_mqtt_client_state->host, pParams, sizeof(inx_mqtt_client_state->host));
         pParams = EhsGetUint16FromString(&inx_mqtt_client_state->port, pParams);
-        pParams = EhsGetWordFromString(inx_mqtt_client_state->clientid, pParams);
-        pParams = EhsGetWordFromString(inx_mqtt_client_state->username, pParams);
-        pParams = EhsGetWordFromString(inx_mqtt_client_state->password, pParams);
+        pParams = EhsGetRecordFromString(inx_mqtt_client_state->clientid, pParams, sizeof(inx_mqtt_client_state->clientid));
+        pParams = EhsGetRecordFromString(inx_mqtt_client_state->username, pParams, sizeof(inx_mqtt_client_state->username));
+        pParams = EhsGetRecordFromString(inx_mqtt_client_state->password, pParams, sizeof(inx_mqtt_client_state->password));
         pParams = EhsGetUint8FromString(&inx_mqtt_client_state->tls, pParams);
-        pParams = EhsGetWordFromString(inx_mqtt_client_state->clientCertFileName, pParams);
-        pParams = EhsGetWordFromString(inx_mqtt_client_state->clientKeyFileName, pParams);
-        pParams = EhsGetWordFromString(inx_mqtt_client_state->rootCAFileName, pParams);
+        pParams = EhsGetRecordFromString(inx_mqtt_client_state->clientCertFileName, pParams, sizeof(inx_mqtt_client_state->clientCertFileName));
+        pParams = EhsGetRecordFromString(inx_mqtt_client_state->clientKeyFileName, pParams, sizeof(inx_mqtt_client_state->clientKeyFileName));
+        pParams = EhsGetRecordFromString(inx_mqtt_client_state->rootCAFileName, pParams, sizeof(inx_mqtt_client_state->rootCAFileName));
         /* Check for Lucid tools use of NULL as place holder for missing strings */
         handle_mqtt_param_string(inx_mqtt_client_state->host, EHS_STRING_LENGTH_MAX); //TODO:STRINGLENGTH!
         handle_mqtt_param_string(inx_mqtt_client_state->clientid, EHS_STRING_LENGTH_MAX);//TODO:STRINGLENGTH!
@@ -213,10 +214,17 @@ EHS_FB_INIT_FUNCTION(mqtt_client)
     else {
         EHSH_LOG_ERROR("No MQTT connection client paramters found");
     }
+#if 0
+printf("MQTT HOST       = [%s] - port=%hd\n",inx_mqtt_client_state->host,inx_mqtt_client_state->port);
+printf("MQTT clientid   = [%s] - tls=%hhd\n",inx_mqtt_client_state->clientid,inx_mqtt_client_state->tls);
+printf("MQTT cert paths = [%s] - [%s]]\n",inx_mqtt_client_state->clientCertFileName,inx_mqtt_client_state->clientKeyFileName);
+#endif
+
+
     /* Add any further intialisation code here */
     inxMQTTClientRegister(inx_mqtt_client_state);
 #if defined(EHS_MQTT_CLIENT_FB_THREAD)
-//todo2024 - could we make this conditional on a DevmanMon thread not running (if thie function block is set to use the Devman config broker and the DevmanMon is enabled)
+//#error "If you need to check!!//todo2024 - could we make this conditional on a DevmanMon thread not running (if thie function block is set to use the Devman config broker and the DevmanMon is enabled)
 // or does it not reall matter if we have two clients open on the same broker on the same machine?
     EHS_FB_START_THREAD(mqtt_client_thread,-99);
 #endif
@@ -227,7 +235,7 @@ EHS_FB_INIT_FUNCTION(mqtt_client)
         EHSH_LOG_INFO("Increase MQTT clinet instace count (%d) ", gMqttClientInstanceCount);
     }
     
-    return bRet; /* initialisation always succeeds */
+    return EHS_TRUE; /* initialisation always succeeds */
 }
 //ICB INITIALISE FUNCTION MACRO END -- DO NOT ALTER
 //ICB DESTROY FUNCTION MACRO START -- DO NOT ALTER
@@ -408,7 +416,7 @@ void EhsMQTTReportError(const ehs_char* err_msg)
                 EhsTPMutex_lock(EhsTPMutex_fbIO);
                 if (EHS_FB_OUT_CONNECTED_API2(INX_mqtt_client_ARG_connect_err_msg))
                 {
-                    EhsStrcpy(EHS_FB_OUT_S_API2(INX_mqtt_client_ARG_connect_err_msg), err_msg);
+                    EHS_FB_OUT_S_SET_API2(INX_mqtt_client_ARG_connect_err_msg, err_msg);
                     EHS_FB_FINISH(INX_mqtt_client_ARG_connect_err_connect);
                 }
                 EhsTPMutex_unlock(EhsTPMutex_fbIO);

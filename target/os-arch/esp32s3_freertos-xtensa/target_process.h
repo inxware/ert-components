@@ -32,30 +32,7 @@ typedef void (*lwip_thread_fn)(void *arg);
 /*****************************************************************************/
 /* Included target API files */
 
-/* Define macros  */
-#define PTHREAD_COND_INITIALIZER 0
-#define PTHREAD_MUTEX_INITIALIZER 0
-
-//#todo2022 @xiaosheng :
-// Is it intended that we don't use mutexes in the build (are there problems we have not reported?
-// THis config needs to be the same as that used in the kernel (We are duplicating these file currently, 
-// on all platforms but wehen we know they are the same the kernel code will reference these ones here in ert-components. 
-
-//#define pthread_mutex_lock(x) sys_mutex_lock(x)
-#define pthread_mutex_lock(x)                                                  \
-  do {                                                                         \
-  } while (0)
-//#define pthread_mutex_unlock(x) sys_mutex_unlock(x)
-#define pthread_mutex_unlock(x)                                                \
-  do {                                                                         \
-  } while (0)
-#define pthread_cond_broadcast(x)                                              \
-  do {                                                                         \
-  } while (0)
-//#define pthread_mutex_destroy(x) sys_mutex_free(x)
-#define pthread_mutex_destroy(x)                                               \
-  do {                                                                         \
-  } while (0)
+#include <pthread.h>
 /**
  * Lock a mutex to indicate the start of a region where we perform exclusive
  * handling by a thread/process

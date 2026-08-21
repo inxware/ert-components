@@ -43,7 +43,9 @@ TOOLCHAIN_NAME=arm-linux-android
 #todo most of the followinf should be in the os-arch/ configs :
 CC_SWITCHES+=-fpic
 
-COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm64-linux-android
+# No override needed: the contrib directory is now named
+# arm64-linux-android-arm-linux-android, which is exactly what the composition
+# rule derives (EHS_GNU_OS_ARCH + '-' + TOOLCHAIN_NAME).
 
 # There are some #ifdeferies in some general code specific to Android rather than duplicating code
 EHS_ANDROID=yes

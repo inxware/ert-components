@@ -58,7 +58,7 @@ EHS_FB_INIT_FUNCTION(SineInt)
 	//this is the reference to the object data for this instance of the function block
 	inx_SineInt_state_type* inx_SineInt_state = (inx_SineInt_state_type*)EHS_FB_INIT_CONTEXT;
 	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d",&inx_SineInt_state->unit);
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhu",&inx_SineInt_state->unit); /* unit is ehs_bool */
 
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */
@@ -69,6 +69,7 @@ EHS_FB_DESTROY_FUNCTION(SineInt)
 {
 	inx_SineInt_state_type *inx_SineInt_state = (inx_SineInt_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
+	return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION calc MACRO START -- DO NOT ALTER

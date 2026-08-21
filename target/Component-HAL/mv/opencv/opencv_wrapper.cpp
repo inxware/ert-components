@@ -163,7 +163,18 @@ public:
 #endif // CV_LIBCAMERA_SUPPORT
         }else{
             if (running_ || cap_.isOpened()) return false; // already running, make sure to close it first
+            /* A numeric id is always a local V4L2 device. Force that backend
+             * rather than OpenCV's auto-selection: on distros built with both
+             * GStreamer and V4L2 support, auto-selection picks GStreamer, whose
+             * v4l2src element can't cleanly renegotiate caps once setup() below
+             * applies width/height/fps post-open — it opens, then fails with
+             * "Internal data stream error" instead of just using the requested
+             * mode. V4L2 applies these directly via VIDIOC_S_FMT. */
+#ifdef __linux__
+            if (!cap_.open(id, cv::CAP_V4L2)) return false;
+#else
             if (!cap_.open(id)) return false;
+#endif
         }
         return setup(w, h, fps, buffer_size, monochrome, async_mode);
     }

@@ -1,0 +1,223 @@
+/***************************************************************
+ * Copyright (C) 2008-2022 inx limited, UK - All Rights Reserved
+ * You may use, distribute and modify this code under the terms
+ * of the LGPLv3 license. You should have received a copy of the
+ * LGPLv3 (GNU LESSER GENERAL PUBLIC LICENSE Version 3) license with this file. If
+ * not, please visit
+ *	<https://www.gnu.org/licenses/lgpl-3.0.txt>
+ ***************************************************************/
+ 
+/** @file base_config.h
+ * In this file, all of the base-specific configuration required by EHS are  given.
+ * This file is normally used by being included by target.h
+ *
+ * @author: inx limited
+ *
+ */
+
+/* IMPORTANT THIS MUST THE SAME VALUES BETWEEEN EHS-KERNEL AND ert-components curently*/
+//todo2022 remove the need for this inEHS kernel so the config comes from ert-components.
+
+
+#ifndef ERT_COMPONENTS_FULL_CONFIG_H
+#define ERT_COMPONENTS_FULL_CONFIG_H
+
+#ifndef EHS_STRING_LENGTH_MAX
+#define EHS_STRING_LENGTH_MAX 2048
+#endif
+
+#ifndef EHS_MAXPATHLENGTH
+#define EHS_MAXPATHLENGTH 2048
+#endif
+
+#ifndef EHS_SYS_MAXPATHLENGTH
+#define EHS_SYS_MAXPATHLENGTH 2048
+#endif
+
+#ifndef EHS_MAX_URL_LENGTH
+#define EHS_MAX_URL_LENGTH 2048
+#endif
+
+#ifndef EHS_TD_FILES_MAX_PATH
+#define EHS_TD_FILES_MAX_PATH 2048
+#endif
+
+#ifndef EHS_TD_FILES_MAX_FILENAME
+#define EHS_TD_FILES_MAX_FILENAME 2048
+#endif
+
+#ifndef EHS_MAXDEVMANNAMELEN
+#define EHS_MAXDEVMANNAMELEN 2048
+#endif
+
+#ifndef EHS_DEVMAN_FILE_PATH_LENGTH
+#define EHS_DEVMAN_FILE_PATH_LENGTH 4096
+#endif
+
+/*
+ * Default data table string size, for every string connection the kernel
+ * creates that the app does not give an explicit size. A platform that wants a
+ * different budget defines this in its own config.mk; the #ifndef is what makes
+ * that possible, so don't define it unconditionally here.
+ */
+#ifndef EHS_DATA_TABLE_STRING_DEFAULT_LENGTH
+#define EHS_DATA_TABLE_STRING_DEFAULT_LENGTH (1u << 15)  // 2^15 = 32768 (32 KB)
+#endif
+
+#if EHS_DATA_TABLE_STRING_DEFAULT_LENGTH < EHS_STRING_LENGTH_MAX
+#error "EHS_DATA_TABLE_STRING_DEFAULT_LENGTH is smaller than EHS_STRING_LENGTH_MAX, is there something wrong?"
+#endif
+
+// EHS_MAXDEVMANNAMELEN must be smaller than default string length
+#if EHS_STRING_LENGTH_MAX < EHS_MAXDEVMANNAMELEN
+#error "EHS_MAXDEVMANNAMELEN must be smaller than default string length"
+#endif
+
+/**
+ * Defines the default target identifier for this instance of EHS
+ */
+
+//@todo all macros should be assigned values so that the override works
+#ifndef EHS_TARGET_FP_SUPPORT
+#define EHS_TARGET_FP_SUPPORT 1 /**< defined if the target has floating point support */
+#endif
+/* #define EHS_TARGET_TRACE_SUPPORT */ /**< Defined if the target supports RTA-TRACE (experimental) */
+/* #define EHS_CALLBACKS_CONFIGURED */ /**< Defined if the target uses callbacks */
+/* #define EHS_TARGET_FIXED_TIMER_RESOLUTION */ /**< Defined if the timer resolution cannot be changed during (or before) init */
+
+/* #define EHS_TARGET_BIGENDIAN */ /**< Defined if the target is bigendian */
+#ifndef EHS_MAX_FONTS
+#define EHS_MAX_FONTS 10 /**< Maximum number of fonts that can be held on this target at one time */
+#endif
+
+
+
+
+/* Warning! these must match the kernel values (until they can be published to the kernel */
+#ifdef EHS_TOOLKIT_DEPRECATED  //@todo careful that compiler doesn't calculate vales that are overriden
+#ifndef EHS_TOOLKIT_DEPRECATED_QTY
+#define EHS_TOOLKIT_DEPRECATED_QTY 1
+#endif
+#else
+#ifndef EHS_TOOLKIT_DEPRECATED_QTY
+#define EHS_TOOLKIT_DEPRECATED_QTY 0
+#endif
+#endif
+#ifdef EHS_TOOLKIT_SANDBOX
+#ifndef EHS_TOOLKIT_SANDBOX_QTY
+#define EHS_TOOLKIT_SANDBOX_QTY 1
+#endif
+#else
+#ifndef EHS_TOOLKIT_SANDBOX_QTY
+#define EHS_TOOLKIT_SANDBOX_QTY 0
+#endif
+#endif
+
+/* EHS_MAX_TOOLKITS is no longer defined here.
+ *
+ * The toolkit table's length is EHS_TOOLKIT_TABLE_SLOTS in
+ * Common/KAPI/blockref_table.h - one number, in the one header both repos compile,
+ * because both sides must agree on it. It is deliberately not per-platform
+ * configurable: a per-platform value would have to be duplicated in each repo's own
+ * target_config.h and kept equal by hand, which is the defect it replaced. Nor is
+ * there anything worth tuning - the table holds pointers to static const toolkit
+ * arrays, so the whole object is about 52 bytes on 32-bit and 104 on 64-bit, once.
+ *
+ * EHS_TOOLKIT_DEPRECATED_QTY and EHS_TOOLKIT_SANDBOX_QTY above now feed nothing;
+ * they were only addends in the old formula. Left in place rather than removed in
+ * case an out-of-tree config sets them. */
+
+#ifndef EHS_MAX_WIDGET_INSTANCES
+#define EHS_MAX_WIDGET_INSTANCES 1000 /**< Defines the maximum number of widgets that are supported */
+#endif
+
+#ifndef EHS_FILE_BUFF_SIZE
+#define EHS_FILE_BUFF_SIZE 1024 /**< Size of buffers used to read/write to files */
+#endif
+
+/* Maximum event queue size. Due to implementation approach,
+ * this *must* be a power of 2, and less than 2<<15. See EhsEventQueueType
+*/
+#ifndef EHS_MAX_EVENT_QUEUE_SIZE
+#define EHS_MAX_EVENT_QUEUE_SIZE (1u<<16) /* 64k */
+#endif
+/**
+ * Maximum console queue size. This *must* be a power of 2 and less than 2<<31.
+ */
+#ifndef EHS_DEBUG_CONSOLE_BUFFER_SIZE
+#define EHS_DEBUG_CONSOLE_BUFFER_SIZE (1u<<18) //262144 - give as preprocessor friendly value for validation  = ((ehs_uint32)((ehs_uint32)(1u)<<16)) /* 64k */
+#endif
+
+#ifndef EHS_CONFIG_DISPLAY_HEIGHT
+#define EHS_CONFIG_DISPLAY_HEIGHT 768	/**< Height for the OSD part of the display */
+#endif
+
+#ifndef EHS_CONFIG_DISPLAY_WIDTH
+#define EHS_CONFIG_DISPLAY_WIDTH 1024	/**< Width for the OSD part of the display */
+#endif
+
+
+#ifndef EHS_TIME_BETWEEN_FRAMES
+#define EHS_TIME_BETWEEN_FRAMES 40 /*Desired framerate of GTK window*/
+#endif
+
+/*Amount of memory to initially let SVG player have*/
+/*
+#ifndef EHS_SVG_MEMORY_INIT_SIZE
+#define EHS_SVG_MEMORY_INIT_SIZE 1310720
+#endif
+*/
+
+/*Indicates target's X server is capable of compositing/transparency effects*/
+#ifndef COMPOSITING_AVAILABLE //@todo should this be switched off?
+#define COMPOSITING_AVAILABLE
+#endif
+
+/* Thread priorities */
+
+#ifndef EHS_PRI_EHS_MAIN
+#define EHS_PRI_EHS_MAIN                   18
+#endif
+
+#ifndef EHS_PRI_TCP_IP_CONSOLE
+#define EHS_PRI_TCP_IP_CONSOLE            -15
+#endif
+
+#ifndef EHS_PRI_SERIAL_CMD
+#define EHS_PRI_SERIAL_CMD                  0
+#endif
+
+#ifndef EHS_PRI_LVGL_TICK
+#define EHS_PRI_LVGL_TICK                  -5
+#endif
+
+#ifndef EHS_PRI_LVGL_GUI
+#define EHS_PRI_LVGL_GUI                  -99
+#endif
+
+#ifndef EHS_PRI_MCU_SLOW_HP_THR
+#define EHS_PRI_MCU_SLOW_HP_THR            17
+#endif
+
+#ifndef EHS_PRI_MCU_SLOW_LP_THR
+#define EHS_PRI_MCU_SLOW_LP_THR             1
+#endif
+
+#ifndef EHS_PRI_UART
+#define EHS_PRI_UART                       12
+#endif
+
+#ifndef EHS_PRI_MODBUS_MASTER_CTRL
+#define EHS_PRI_MODBUS_MASTER_CTRL          2
+#endif
+
+
+
+/* Canonical System Paths */
+
+/* These are optional overrides for the following defaults */
+
+/* Most likely to change default parameters */
+
+
+#endif /* TARGET_CONFIG_H */

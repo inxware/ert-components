@@ -55,8 +55,19 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
         -e DEBIAN_PACKAGE_EXTRA -e EHS_AUTO_START -e DEVMAN_SERVER_DOMAIN_1 -e DEVMAN_SERVER_DOMAIN_2 -e EHS_DEVMAN_SUPERVISOR_REQUIRED \
         -e EHS_ML_SUPPORT -e EHS_MV_SUPPORT -e EHS_USE_LIBCAMERA -e TOOLCHAIN_NAME -e COMPONENT_BASE_TECHNOLOGIES -e FLASH_BOARD -e ANDROID_STUDIO_EHS_PROJECT \
         -e FLASH_BOARD -e TEST_FUNC -e ERT_INIT -e EHS_NO_LIBXML2_SUPPORT -e EHS_EXCLUDE_XML_PARSER -e EHS_SKIP_GNULIBRARIES \
-        -e UNITY_LICENSE $DOCKER_EXTRA_ENVS"
+        -e UNITY_LICENSE -e ERT_ZEPHYR_BOARD -e ERT_ZEPHYR_VERSION -e ERT_ZEPHYR_PRISTINE -e ZEPHYR_BASE \
+        -e ERT_ZEPHYR_MANIFEST \
+        -e ESP32_FLASH_SIZE -e ESP32_PARTITION_TABLE_OFFSET -e ESP32_PART_NVS_SIZE -e ESP32_PART_PHY_INIT_SIZE \
+        -e ESP32_PART_OTA_ENABLED -e ESP32_PART_OTA_SIZE -e ESP32_PART_FACTORY_SIZE -e ESP32_PART_STORAGE_SIZE \
+        -e ESP32_PART_APPDATA_SIZE $DOCKER_EXTRA_ENVS"
         
+    # EHS_DOCKER_EXTRA_RUN_ARGS: optional extra 'docker run' flags, set by the
+    # calling script (e.g. '--network host' for a fetch step that needs to
+    # work around a host that blocks the default Docker bridge network but
+    # still allows containers using the host's own network stack). Empty by
+    # default — every other caller is unaffected.
+    DOCKER_EXTRA_RUN_ARGS="${EHS_DOCKER_EXTRA_RUN_ARGS:-}"
+
     #echo -n "Found Docker image ${PATH_TO_TARGET_DOCKER_IMAGE} ... "
     DOCKER_STAGING_DIR="${PWD}/../TARGET_TREES/DOCKER/cachespace"
     mkdir -p  ${DOCKER_STAGING_DIR} || { err ""; exit 1; }
@@ -69,8 +80,10 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
     if ${SUDO_COMMAND} docker image inspect ${DOCKER_IMAGE}  &> /dev/null ; then
         echo "Using existing Docker image"
         
+        # Only pass --device if the device node actually exists on the host
+        DEVICE_FLAGS=$([ -e /dev/ttyACM0 ] && echo "--device=/dev/ttyACM0" || echo "")
         ${SUDO_COMMAND} docker run ${INX_ERTCOMPONENTS_BUILDENV}  \
-            --user $(id -u):$(id -g) --rm --privileged -i $([ -t 0 ] && echo "-t") --device=/dev/ttyACM0 \
+            --user $(id -u):$(id -g) --rm --privileged -i $([ -t 0 ] && echo "-t") ${DEVICE_FLAGS} ${DOCKER_EXTRA_RUN_ARGS} \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             "$@"
@@ -86,8 +99,9 @@ if [ -f  ${PATH_TO_TARGET_DOCKER_IMAGE} ]; then
         ${SUDO_COMMAND} docker pull  ${DOCKER_IMAGE} || echo "Could not find ${DOCKER_IMAGE} in remote repository. Use 'make publish_docker_image' to fix this if you have a Dockerfile"
 
         echo "Current PWD = $(pwd)"
+        DEVICE_FLAGS=$([ -e /dev/ttyACM0 ] && echo "--device=/dev/ttyACM0" || echo "")
         ${SUDO_COMMAND} docker run $INX_ERTCOMPONENTS_BUILDENV  \
-            --user $(id -u):$(id -g) --rm --privileged -i $([ -t 0 ] && echo "-t") --device=/dev/ttyACM0 \
+            --user $(id -u):$(id -g) --rm --privileged -i $([ -t 0 ] && echo "-t") ${DEVICE_FLAGS} ${DOCKER_EXTRA_RUN_ARGS} \
             -v "$(pwd)/../../../:/inxware"  -w "/inxware/ert-components/"\
             ${DOCKER_IMAGE}\
             "$@"

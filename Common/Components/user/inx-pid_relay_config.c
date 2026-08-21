@@ -76,6 +76,7 @@ EHS_FB_DESTROY_FUNCTION(pid_relay_config)
 {
 	inx_pid_relay_config_state_type *inx_pid_relay_config_state = (inx_pid_relay_config_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
+	return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION configure MACRO START -- DO NOT ALTER

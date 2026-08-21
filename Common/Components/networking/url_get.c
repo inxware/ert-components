@@ -184,14 +184,30 @@ EHS_FB_INIT_FUNCTION(UrlGet)
     EhsStrcpy(pUrlGet->szPpasswd, "");
     EhsStrcpy(pUrlGet->szHeaderToSend, "");
     EhsStrcpy(pUrlGet->szHeadersReceived, "");
-    EhsSscanf(EHS_FB_INIT_PARAMETERS, "%s%s%s%hhd%hhd%d%d%d%hhd%s%s%s%s%s%hd%hhd%hhd",
-              pUrlGet->szURL, pUrlGet->szPostData, pUrlGet->szSavePath,
-              &pUrlGet->bPost, &pUrlGet->bKeepPath,
-              &pUrlGet->nPathLevelsToIgnore, &pUrlGet->nPriority,
-              &pUrlGet->nConnectTmeout, &pUrlGet->bSendCookies,
-              pUrlGet->szUname, pUrlGet->szPasswd,
-              pUrlGet->szSslCertificatePath, pUrlGet->szSslCertificatePassword, pUrlGet->szCaSslCertificate,&pUrlGet->nCertificateLocation,
-              &pUrlGet->bUseproxy, &pUrlGet->bOverwriteAll); //@todo may need to make temp vars of int * type and convert as scanf wont do this properly.
+    /* Each %s needs a field width, or sscanf writes as many characters as the
+     * parameter happens to hold. The widths come from sizeof so they cannot
+     * drift from the buffers, which are not all the same size. */
+    {
+        ehs_char szScanFmt[160];
+        EhsSnprintf(szScanFmt, sizeof(szScanFmt),
+                    "%%%us%%%us%%%us%%hhd%%hhd%%d%%d%%d%%hhd%%%us%%%us%%%us%%%us%%%us%%hd%%hhd%%hhd",
+                    (unsigned int)(sizeof(pUrlGet->szURL) - 1u),
+                    (unsigned int)(sizeof(pUrlGet->szPostData) - 1u),
+                    (unsigned int)(sizeof(pUrlGet->szSavePath) - 1u),
+                    (unsigned int)(sizeof(pUrlGet->szUname) - 1u),
+                    (unsigned int)(sizeof(pUrlGet->szPasswd) - 1u),
+                    (unsigned int)(sizeof(pUrlGet->szSslCertificatePath) - 1u),
+                    (unsigned int)(sizeof(pUrlGet->szSslCertificatePassword) - 1u),
+                    (unsigned int)(sizeof(pUrlGet->szCaSslCertificate) - 1u));
+        EhsSscanf(EHS_FB_INIT_PARAMETERS, szScanFmt,
+                  pUrlGet->szURL, pUrlGet->szPostData, pUrlGet->szSavePath,
+                  &pUrlGet->bPost, &pUrlGet->bKeepPath,
+                  &pUrlGet->nPathLevelsToIgnore, &pUrlGet->nPriority,
+                  &pUrlGet->nConnectTmeout, &pUrlGet->bSendCookies,
+                  pUrlGet->szUname, pUrlGet->szPasswd,
+                  pUrlGet->szSslCertificatePath, pUrlGet->szSslCertificatePassword, pUrlGet->szCaSslCertificate,&pUrlGet->nCertificateLocation,
+                  &pUrlGet->bUseproxy, &pUrlGet->bOverwriteAll); //@todo may need to make temp vars of int * type and convert as scanf wont do this properly.
+    }
     /* remove any NULL strings*/
     if (EhsStrcmp(pUrlGet->szPostData, "NULL") == 0)
         pUrlGet->szPostData[0] = '\0';
@@ -862,8 +878,8 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
             ehs_char *szRedirect = NULL;
             success = curl_easy_getinfo(PURLLGET_CURL, CURLINFO_EFFECTIVE_URL,&szRedirect);
             EHSH_LOG_INFO(" Effective URL = [%s]",szRedirect);
-            if (szRedirect && success == CURLE_OK) EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_FINALURL), szRedirect);
-            else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_FINALURL), "");
+            if (szRedirect && success == CURLE_OK) EHS_FB_OUT_S_SET(EHS_FB_URLGET_FINALURL, szRedirect);
+            else EHS_FB_OUT_S_SET(EHS_FB_URLGET_FINALURL, "");
         }
 /* todo 2024 - re-instate this for community version*/
 #ifdef ENABLE_GET_HEADERS
@@ -873,15 +889,15 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
             success = curl_easy_getinfo(PURLLGET_CURL, CURLINFO_HEADERLIST,&slist);
             if ((success == CURLE_OK) && slist)
             {
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES),"");
+                EHS_FB_OUT_S_SET(EHS_FB_URLGET_COOKIES, "");
                 while (slist && ((EhsStrlen(slist->data) + EhsStrlen(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES))) < (EHS_STRING_LENGTH_MAX-2) ))   //@todo this truncates if longer than string size...
                 {
-                    EhsStrcat(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES),slist->data);
-                    EhsStrcat(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES),"\n");
+                    EHS_FB_OUT_S_CAT(EHS_FB_URLGET_COOKIES, slist->data);
+                    EHS_FB_OUT_S_CAT(EHS_FB_URLGET_COOKIES, "\n");
                     slist=slist->next;
                 }
             }
-            else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES),"");
+            else EHS_FB_OUT_S_SET(EHS_FB_URLGET_COOKIES, "");
             if (slist) curl_slist_free_all(slist);
 
         }
@@ -895,15 +911,15 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
             success = curl_easy_getinfo(PURLLGET_CURL, CURLINFO_COOKIELIST,&slist);
             if ((success == CURLE_OK) && slist)
             {
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES),"");
+                EHS_FB_OUT_S_SET(EHS_FB_URLGET_COOKIES, "");
                 while (slist && ((EhsStrlen(slist->data) + EhsStrlen(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES))) < (EHS_STRING_LENGTH_MAX-2) ))   //@todo this truncates if longer than string size...
                 {
-                    EhsStrcat(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES),slist->data);
-                    EhsStrcat(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES),"\n");
+                    EHS_FB_OUT_S_CAT(EHS_FB_URLGET_COOKIES, slist->data);
+                    EHS_FB_OUT_S_CAT(EHS_FB_URLGET_COOKIES, "\n");
                     slist=slist->next;
                 }
             }
-            else EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_COOKIES),"");
+            else EHS_FB_OUT_S_SET(EHS_FB_URLGET_COOKIES, "");
             if (slist) curl_slist_free_all(slist);
 
         }
@@ -918,7 +934,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
         {
             EhsTPMutex_lock(EhsTPMutex_fbIO);
             if(pUrlGet->write_data_buffer_struct->bAbort==EHS_FALSE){ // only notify compleate if not aborted
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), "OK: HTTP: 200"); //@todo add the errornumber "ERROR: HTTP %d",ret)
+                EHS_FB_OUT_S_SET(EHS_FB_URLGET_ESTRING, "OK: HTTP: 200"); //@todo add the errornumber "ERROR: HTTP %d",ret)
                 EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = ret32; //@todo this have the actual http return value.
                 EHS_FB_FINISH(EHS_FB_URLGET_DATACOMPLETE); //@todo we Need a all data complete version of this and a chunk version
             }
@@ -927,7 +943,7 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
         else
         {
             EhsTPMutex_lock(EhsTPMutex_fbIO);
-            EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), "Internal File System Error"); //@todo add the errornumber "ERROR: HTTP %d",ret)
+            EHS_FB_OUT_S_SET(EHS_FB_URLGET_ESTRING, "Internal File System Error"); //@todo add the errornumber "ERROR: HTTP %d",ret)
             EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = ret32;
             EHS_FB_FINISH(EHS_FB_URLGET_ERROR);
             EhsTPMutex_unlock(EhsTPMutex_fbIO);
@@ -1010,21 +1026,21 @@ EHS_FB_THREAD_FUNCTION(GetUrl_thread)
                         EhsSprintf(szTempString, "CURL Error No. [%d]",-1 * ret32);
                     }
                 }
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), szTempString); //@todo add the errornumber "ERROR: HTTP %d",ret)
+                EHS_FB_OUT_S_SET(EHS_FB_URLGET_ESTRING, szTempString); //@todo add the errornumber "ERROR: HTTP %d",ret)
                 EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = ret32;
                 EHS_FB_FINISH(EHS_FB_URLGET_ERROR);
             }
             else   // Shouldn't get to this one
             {
                 EhsSprintf(szTempString, "unknown errno %d", ret32);
-                EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), szTempString); //@todo add the errornumber "ERROR: HTTP %d",ret)
+                EHS_FB_OUT_S_SET(EHS_FB_URLGET_ESTRING, szTempString); //@todo add the errornumber "ERROR: HTTP %d",ret)
                 EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = ret32;
                 EHS_FB_FINISH(EHS_FB_URLGET_DATACOMPLETE); //@todo we Need a all data complete version of this and a chunk version
             }
         }
         else     /* Didn't need to do - we can ignore network errors as we would only get here if the network worked sifficiently to know what we have is OK*/
         {
-            EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), "OK: FILE EXISTS"); //@todo add the errornumber "ERROR: HTTP %d",ret)
+            EHS_FB_OUT_S_SET(EHS_FB_URLGET_ESTRING, "OK: FILE EXISTS"); //@todo add the errornumber "ERROR: HTTP %d",ret)
             EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = 0; //@todo this have the actual http return value.
             EHS_FB_FINISH(EHS_FB_URLGET_DATACOMPLETE); //@todo we Need a all data complete version of this and a chunk version
         }
@@ -1106,13 +1122,13 @@ EHS_GLOBAL EHS_FB_RUN_FUNCTION(UrlGet_get)
     if (pUrlGet->bBusy == EHS_TRUE)
     {
         EHS_FB_OUT_I(EHS_FB_URLGET_ENUM) = -1; // @todo define the error flags
-        EhsSnprintf(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING),EHS_STRING_LENGTH_MAX,"Busy with %s",pUrlGet->szURL);
+        EhsSnprintf(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING), EHS_FB_OUT_S_CAP(EHS_FB_URLGET_ESTRING), "Busy with %s", pUrlGet->szURL);
         //EHSH_LOG_ERROR("xxxxxxxx BUSY with %s getting [%s]",pUrlGet->szURL,EHS_FB_IN_S(EHS_FB_URLGET_URL ));
         OK = EHS_FALSE;
     }
     else
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_FB_URLGET_ESTRING),"");
+        EHS_FB_OUT_S_SET(EHS_FB_URLGET_ESTRING, "");
         EhsFunctionInstanceDataType* blob = (EhsFunctionInstanceDataType*) pFIdata;
         if (EHS_FB_IN_CONNECTED(EHS_FB_URLGET_URL ))
         {

@@ -104,7 +104,7 @@ EHS_FB_INIT_FUNCTION(UART)
 			   &(inx_UART_state->xEntry1)
 	);
 	/* read the initialisation parameters */
-	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d",&GPIO_switch,&RS485,&ComPort);
+	EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %hhu %d",&GPIO_switch,&RS485,&ComPort); /* RS485 is ehs_bool */
 	inx_UART_state->GPIO_switch = GPIO_switch;
 	inx_UART_state->RS485= RS485;
 	inx_UART_state->ComPort = ComPort;

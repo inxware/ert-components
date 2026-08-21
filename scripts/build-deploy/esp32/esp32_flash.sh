@@ -14,11 +14,11 @@ _PATH="${TOOLCHAIN_PATH}/bin"
 #This is for docker environments: (Do we want this)?
 export IDF_PYTHON_ENV_PATH="/opt/python_env/bin"
 
-if [ ! -d ${IDF_PYTHON_ENV_PATH} ]; then
-  echo "You do not have the python virtual environmwnt with the esptools installed in $IDF_PYTHON_ENV_PATH."
-  echo "Please install using ..." 
- exit 1  
-fi
+# if [ ! -d ${IDF_PYTHON_ENV_PATH} ]; then
+#   echo "You do not have the python virtual environmwnt with the esptools installed in $IDF_PYTHON_ENV_PATH."
+#   echo "Please install using ..." 
+#  exit 1  
+# fi
 
 #TODO 2025 - This all looks like a duplication of esptool across random directories?
 
@@ -84,6 +84,8 @@ if [ "${ESP32_CHIP_VERSION}" = "esp32s3" ]; then
   echo "Flashing ESP32-S3"
    # For ESP32S£s we combine the images into a single image file (ehs.img)
    python ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip ${ESP32_CHIP_VERSION} --port ${DEVICE_TTY_PATH} -b 460800 --before default_reset --after hard_reset write_flash -fm dio -fs 8MB -ff 80m 0x0 $PATH_TO_BINARIES/ehs.img
+#Parently we should be using the newer version of the flash tools
+##   python ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py --chip ${ESP32_CHIP_VERSION} --port ${DEVICE_TTY_PATH} -b 460800 --before default_reset --after hard_reset write-flash -fm dio -fs 8MB -ff 80m 0x0 $PATH_TO_BINARIES/ehs.img
 else
 #esp32 still used seperate partition and boot.bin files
    python ../ert-contrib-middleware/contrib/esp-idf/${CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION}/components/esptool_py/esptool/esptool.py -p ${DEVICE_TTY_PATH} -b 460800 --before default_reset --after hard_reset --chip ${ESP32_CHIP_VERSION}  write_flash -z --flash_mode "dio" --flash_size detect --flash_freq 40m 0x1000 ${PATH_TO_BINARIES}/bootloader.bin 0x8000 ${PATH_TO_BINARIES}/partition-table.bin 0x10000 ${PATH_TO_BINARIES}/ehs.bin 0x2ff000 ${PATH_TO_BINARIES}/app_data.bin

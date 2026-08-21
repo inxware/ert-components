@@ -1,7 +1,0 @@
-
-
-This directory contains scripts for installing server configs and certifiates on devices. 
-
-This method is soon to be made obsolete for normal procuction device configuration, as it uses unsecure features of the device supervisor/downloader packages.
-
-Leaving temporary reference for developers.

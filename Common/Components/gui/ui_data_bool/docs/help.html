@@ -1,0 +1,218 @@
+<html>
+
+<head>
+  <title>help</title>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+  <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+
+<body>
+  <div class="page_container">
+    <div id="toc_container">
+      <span class="toc_span">UI Bool</span>
+      <!--these display in reverse order because they use float:right-->
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &darr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &darr;</a></span>
+    </div>
+
+    <!-- General Description -->
+    <p class="component">
+      Two-way binding between the application and a single <b>boolean</b> property on a named
+      object in the user interface. Trigger <a href="#[In]set">set</a> to push a value into the
+      property; <a href="#[Out]changed">changed</a> fires when the property is altered from the
+      UI side, delivering the new value on <a href="#[Out]value_out">value_out</a>.
+    </p>
+    <p class="component">
+      The target is named by the two parameters: <a href="#[Param]Object">Object</a> selects the
+      UI object and <a href="#[Param]Property">Property</a> selects the property on it. The
+      default Object <code>_qml_root_object_</code> is a sentinel meaning &#8220;the first root
+      object of the UI&#8221;, so a single-window UI needs no naming at all. For anything else,
+      set Object to the name the object is declared with in the UI definition
+      (<code>objectName</code> in QML).
+    </p>
+    <p class="component">
+      <b>Property names are used exactly as written.</b> Change notifications bind to
+      <code>&lt;Property&gt;Changed</code>, the Qt/QML convention &#8212; a property declared in
+      QML gets that signal automatically, and a C++-backed property needs a NOTIFY signal of the
+      same name. Snake-case names are <i>not</i> camel-cased, so <code>my_flag</code> binds
+      <code>my_flagChanged</code>.
+    </p>
+    <p class="component">
+      <b>Binding is deferred and there is no initial read.</b> The UI often loads after the
+      application starts, so the object lookup is retried in the background until the object
+      appears. Nothing is emitted at bind time: <a href="#[Out]changed">changed</a> fires only on
+      the first real property change. If the application needs a known starting state, drive
+      <a href="#[In]set">set</a> once during start-up.
+    </p>
+    <p class="component">
+      <b>Watch for feedback loops.</b> A <a href="#[In]set">set</a> that actually alters the value
+      normally makes the UI emit the property's change signal, so
+      <a href="#[Out]changed">changed</a> fires shortly afterwards on this same block. Take care
+      when wiring <a href="#[Out]changed">changed</a> back to <a href="#[In]set">set</a>, directly
+      or through other blocks.
+    </p>
+    <p class="component">
+      The block is only built for targets whose HAL implements the UI binding layer (currently the
+      Qt/QML targets).
+    </p>
+
+    <!-- Parameters -->
+    <div class="section_heading">
+      <span id="parameters" class="toc_span">Parameters</span>
+      <div class="toc_span_items"><a href="#toc_container">Top &uarr;</a></div>
+      <div class="toc_span_items"><a href="#misc">Misc &darr;</a></div>
+      <div class="toc_span_items"><a href="#ports">Ports &darr;</a></div>
+    </div>
+    <table class="table_params">
+      <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>description</th>
+        <th>default</th>
+        <th>min.</th>
+        <th>max.</th>
+      </tr>
+      <tr>
+        <td><a name="[Param]Object">Object</a></td>
+        <td>UO</td>
+        <td>Name of the UI object to bind to, matching the object's name in the UI definition
+          (<code>objectName</code> in QML). The sentinel <code>_qml_root_object_</code> selects the
+          first root object of the UI without requiring it to be named.</td>
+        <td>_qml_root_object_</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a name="[Param]Property">Property</a></td>
+        <td>UA</td>
+        <td>Name of the boolean property on that object to read and write. Used verbatim; the
+          change notification binds to <code>&lt;Property&gt;Changed</code>. Typical QML boolean
+          properties are <code>checked</code>, <code>visible</code> and <code>enabled</code>.</td>
+        <td>checked</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <!-- Ports -->
+    <div class="section_heading">
+      <span id="ports" class="toc_span">Ports</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#misc">Misc &darr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+    <table class="table">
+      <tr>
+        <th>In Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[In]set">set</a></td>
+        <td>Write the value on <a href="#[In]value">value</a> into the bound property, then fire
+          <a href="#[Out]done">done</a>.</td>
+      </tr>
+
+      <tr>
+        <th>Data In</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[In]value">value</a></td>
+        <td>Boolean written to <a href="#[Param]Property">Property</a> on
+          <a href="#[Param]Object">Object</a> when <a href="#[In]set">set</a> fires.</td>
+      </tr>
+
+      <tr>
+        <th>Data Out</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[Out]value_out">value_out</a></td>
+        <td>New value of the bound property, read back from the UI. Valid when
+          <a href="#[Out]changed">changed</a> fires, and only written when this port is
+          connected.</td>
+      </tr>
+
+      <tr>
+        <th>Out Ev.</th><th></th>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[Out]done">done</a></td>
+        <td>Fires once the value has been handed to the UI layer. It does not indicate that the UI
+          has repainted, nor that the named object exists yet &#8212; a write issued before the UI
+          has loaded is applied when the object appears.</td>
+      </tr>
+      <tr>
+        <td class="ports"><a name="[Out]changed">changed</a></td>
+        <td>Fires when the bound property changes in the UI, for example through user interaction.
+          Asynchronous: it is not a response to any input event on this block. The new value is on
+          <a href="#[Out]value_out">value_out</a>.</td>
+      </tr>
+    </table>
+
+
+    <div class="section_heading">
+      <span id="misc" class="toc_span">Misc</span>
+      <span class="toc_span_items"><a href="#toc_container">Top &uarr;</a></span>
+      <span class="toc_span_items"><a href="#ports">Ports &uarr;</a></span>
+      <span class="toc_span_items"><a href="#parameters">Params &uarr; </a></span>
+    </div>
+     <table>
+      <tr class="fsm_row">
+        <td style="width:90px;">
+          <b>State Machine</b>
+        </td>
+        <td colspan=5>None</td>
+        <td>
+          <b></b>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Toolbox</b>
+        </td>
+        <td>
+          GUI.
+        </td>
+        <td class=heading-cell>
+          <b>Version</b>
+        </td>
+        <td>
+          v1.0.
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Licence Type</b>
+        </td>
+        <td>
+          LGPLv3
+        </td>
+        <td class=heading-cell>
+          <b>Component Supplier</b>
+        </td>
+        <td>
+          <a href=http://www.inx-systems.net target=_blank>inx ltd.</a>
+        </td>
+      </tr>
+      <tr>
+        <td class=heading-cell>
+          <b>Minumum DCC</b>
+        </td><td>A0000</td>
+        <td class=heading-cell>
+          <b>Profiles</b>
+        </td>
+        <td>
+          Targets with UI-binding HAL support (Qt/QML).
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+
+</html>

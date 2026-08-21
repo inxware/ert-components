@@ -1,0 +1,38 @@
+/*
+ * Nordic Thingy:91 X (nRF9151 application core) DTS overlay for eRT Zephyr HAL.
+ *
+ * Defines the mandatory 'inx-*' aliases that target/os-arch/zephyr-arm/
+ * HAL source files expect.
+ *
+ * On the Thingy:91 X:
+ *   uart0  — nRF9151 <-> nRF5340 connectivity-bridge link (serves as console)
+ *   gpio0  — nRF9151 P0 port (the SiP exposes a single GPIO port)
+ *
+ * The nRF9151 has only one GPIO peripheral, so inx-gpio1 is aliased to the
+ * same node as inx-gpio0 to satisfy the HAL's two-port contract; the second
+ * port is unused on this SiP.
+ *
+ * nRF7002 Wi-Fi: this board's nRF7002 companion IC is wired via SPI directly
+ * to the nRF9151 (confirmed against NCS's thingy91x_nrf9151_common.dtsi —
+ * the `nrf70`/`pmic_wifi`/`ldsw_*` labels this include needs all live in the
+ * nRF9151 board tree, not the nRF5340's), so Wi-Fi runs on this core, not the
+ * 5340. thingy91x_wifi.dtsi is NCS's standard "power the nRF7002 on" include
+ * (boards/nordic/thingy91x/dts/thingy91x_wifi.dtsi) - same one the official
+ * modem_shell Wi-Fi sample uses for this exact board.
+ */
+
+#include <thingy91x_wifi.dtsi>
+
+/ {
+	aliases {
+		inx-uart0 = &uart0;
+
+		inx-gpio0 = &gpio0;
+		inx-gpio1 = &gpio0;
+	};
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+};

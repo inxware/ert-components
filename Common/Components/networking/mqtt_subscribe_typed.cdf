@@ -7,7 +7,7 @@
     </CDFInfo>
     <Description>
         <ShortDescription>mqtt_subscribe_typed</ShortDescription>
-        <LongDescription>Subscribe to an MQTT topic and receive the payload parsed as integer, float, and boolean values.</LongDescription>
+        <LongDescription>Subscribe to an MQTT topic whose payload is ASCII text, and receive that text parsed as integer, float, and boolean values. For use with platforms that carry numeric information as strings, such as Blynk, Node-RED and Home Assistant. Not for binary payloads: use the untyped MQTT Subscribe block with the raw-data conversion blocks (Data Utilities - String Functions - Raw Data Conversion) to decode those.</LongDescription>
         <UserName/>
         <Menu>
             Networking
@@ -135,7 +135,7 @@
             <XCoordinate>100</XCoordinate>
             <YCoordinate>30</YCoordinate>
             <CName>value_i</CName>
-            <Function argument="2">
+            <Function argument="1">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>
@@ -146,7 +146,7 @@
             <XCoordinate>100</XCoordinate>
             <YCoordinate>40</YCoordinate>
             <CName>value_f</CName>
-            <Function argument="3">
+            <Function argument="2">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>
@@ -157,7 +157,7 @@
             <XCoordinate>100</XCoordinate>
             <YCoordinate>50</YCoordinate>
             <CName>value_b</CName>
-            <Function argument="4">
+            <Function argument="3">
                 <Function_ERT1_ID>1</Function_ERT1_ID>
             </Function>
         </Port>

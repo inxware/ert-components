@@ -103,6 +103,8 @@
 #define EHS_DEFAULT_CONFIG_NAME "t.cnf" /**< Defines the standard name for the EHS config file */
 #define EHS_SODL_EXTENSION "sdl"
 #define EHS_SODL_EXT_SIZE 3
+#define EHS_TAR_EXTENSION "tar" /**< Console-loaded tarballs are unpacked into the application directory (libarchive builds only) */
+#define EHS_TAR_EXT_SIZE 3
 
 /**
  * Defines the states that the debugger can be in
@@ -181,6 +183,44 @@ EHS_EXTERN ehs_uint32 EhsDebugSequenceNumber;
 	#warning "EHS_STRING_LENGTH_MAX is not configured for this platform using the default value of 2047"
 #endif
 #endif //EHS_STRING_LENGTH_MAX
+
+/* Longest printf/scanf format a function block will accept on a run-time input
+ * port. A format arriving on a port has to be copied into a scratch buffer in
+ * the block's run function before it can be processed, and that buffer is on
+ * the stack - so this is capped well below a large row size. A format that
+ * comes from the block's own parameter is not bound by this: it lives in the
+ * block context, sized from the parameter. Override per target if a target
+ * genuinely needs longer run-time formats, but never raise it to the row size. */
+#ifndef EHS_FB_FORMAT_MAX
+#if defined(EHS_DATA_TABLE_STRING_DEFAULT_LENGTH) && (EHS_DATA_TABLE_STRING_DEFAULT_LENGTH < 512u)
+#define EHS_FB_FORMAT_MAX EHS_DATA_TABLE_STRING_DEFAULT_LENGTH
+#else
+#define EHS_FB_FORMAT_MAX 512u
+#endif
+#endif //EHS_FB_FORMAT_MAX
+
+/* The three string size limits must nest:
+ *
+ *     EHS_FB_FORMAT_MAX <= EHS_STRING_LENGTH_MAX <= EHS_DATA_TABLE_STRING_DEFAULT_LENGTH
+ *
+ * Each is a bound on a buffer that the next one along is copied into, so an
+ * inversion means some copy is bounded by more than its destination holds.
+ * There is no legitimate reason to configure a target outside these bounds; if
+ * a target appears to need it, the buffer sizing is wrong rather than the
+ * limits. Guarded on the data-table constant being defined at all, so a target
+ * that pulls in neither base_config.h gets its own missing-definition error
+ * rather than a misleading one from here. */
+#if defined(EHS_DATA_TABLE_STRING_DEFAULT_LENGTH)
+
+#if EHS_FB_FORMAT_MAX > EHS_STRING_LENGTH_MAX
+#error "EHS_FB_FORMAT_MAX exceeds EHS_STRING_LENGTH_MAX - a run-time format buffer would be larger than the longest string the system handles. Lower EHS_FB_FORMAT_MAX in this target's config."
+#endif
+
+#if EHS_STRING_LENGTH_MAX > EHS_DATA_TABLE_STRING_DEFAULT_LENGTH
+#error "EHS_STRING_LENGTH_MAX exceeds EHS_DATA_TABLE_STRING_DEFAULT_LENGTH - string connection rows would be smaller than the strings copied into them. Raise EHS_DATA_TABLE_STRING_DEFAULT_LENGTH or lower EHS_STRING_LENGTH_MAX in this target's config."
+#endif
+
+#endif //EHS_DATA_TABLE_STRING_DEFAULT_LENGTH
 
 #ifndef MAX_FILENAME_LEN
 #define MAX_FILENAME_LEN EHS_STRING_LENGTH_MAX
@@ -308,5 +348,19 @@ EHS_EXTERN ehs_uint32 EhsDebugSequenceNumber;
 
 /*****************************************************************************/
 /* Declare macro utilities  */
+
+/**
+ * Trust model for runtime kernel/HAL paths.
+ *   0 — defensive: NULL checks at sites where a malformed app or memory
+ *       corruption would otherwise hit a HW fault. On detection the offending
+ *       app is denied (deleted from the live dir) and the target is rebooted;
+ *       on next boot SetupApplication() falls back to the previous version
+ *       or the default. See EHS_TRUSTLESS_NULL_FATAL in hal_logger.h.
+ *   1 — trusted: checks compile out. Use only for factory/built-in images
+ *       with no field-loaded SODL.
+ */
+#ifndef EHS_APP_TRUST_MODEL
+#define EHS_APP_TRUST_MODEL 0
+#endif
 
 #endif /* EHS_GLOBALS */

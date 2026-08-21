@@ -76,8 +76,13 @@ EHS_FB_RUN_FUNCTION(string_cat)
         len1 = EhsStrlen(s1);
         len2 = EhsStrlen(s2);
         totallen = len1 + len2;
-        if (totallen >= EHS_DATA_TABLE_STRING_DEFAULT_LENGTH) // @TODO - we should using macro for checking max output port size
-            len2 = EHS_DATA_TABLE_STRING_DEFAULT_LENGTH - len1;
+        /* Bound against this output row's own capacity - a per-connection size
+         * can be smaller than EHS_DATA_TABLE_STRING_DEFAULT_LENGTH. */
+        ehs_uint32 nOutMax = EhsDataString_maxLen(sOut);
+        if (len1 > nOutMax)
+            len1 = nOutMax;
+        if (totallen > nOutMax)
+            len2 = nOutMax - len1;
         EhsStrncpy(sOut, s1, len1);/*Use numbered copy here to avoid issue when the inout and output are the same buffer*/
         EhsStrncpy(&sOut[len1], s2, len2);
         sOut[len1 + len2] = '\0';// terminate it too
@@ -171,6 +176,166 @@ EHS_FB_RUN_FUNCTION(string_cmp)
     return;
 }
 /******************************************************************************/
+/* Shared plumbing for the string_format* blocks.
+ *
+ * Each block hands a printf format - from its Format parameter, or for the
+ * 8-input variants from the fmt input port - to EhsSnprintf with a fixed number
+ * of arguments chosen by a switch. That number must be exactly what printf will
+ * consume, so it comes from EhsFormatScan (hal_string.c). Nothing here may
+ * derive it by counting '%' characters.
+ *
+ * The parameter is escaped once, at init, in place in the context, so the
+ * parameter path needs no run-time buffer. A format arriving on the fmt port
+ * has to be copied instead: that memory is the upstream block's connection row,
+ * and escaping it in place would both corrupt the producer's value and, on the
+ * next scan, re-escape the result.
+ */
+
+/* EHS_FB_FORMAT_MAX, and the check that it nests inside EHS_STRING_LENGTH_MAX
+ * and EHS_DATA_TABLE_STRING_DEFAULT_LENGTH, are in globals.h with the other
+ * string size limits. */
+
+/** Context shared by the string_format* blocks. */
+typedef struct
+{
+    ehs_bool bReported;   /**< a bad format has already been logged for this block */
+    ehs_char szFormat[1]; /**< escaped format from the parameter, sized at identify */
+} EhsFormatCtxType;
+
+/** What a run function needs in order to make the EhsSnprintf call. */
+typedef struct
+{
+    const ehs_char* szFormat; /**< escaped and validated, never NULL */
+    ehs_uint32      nArgs;    /**< arguments the format consumes, 0..nMaxArgs */
+    ehs_bool        bValid;   /**< EHS_FALSE if the format was rejected */
+} EhsFormatRunType;
+
+/** Memory for a context holding szParams. Escaping never expands, so space
+ * sized from the raw parameter always holds the escaped form. */
+static ehs_uint32 EhsFormat_contextSize(const ehs_char* szParams)
+{
+    ehs_uint32 nLen = (szParams != NULL) ? (ehs_uint32)EhsStrlen(szParams) : 0u;
+    return (ehs_uint32)sizeof(EhsFormatCtxType) + nLen; /* szFormat[1] covers the NUL */
+}
+
+/** Populate the context: copy the parameter in, then escape it where it lies. */
+static ehs_bool EhsFormat_initContext(void* pContext, const ehs_char* szParams)
+{
+    EhsFormatCtxType* pCtx = (EhsFormatCtxType*)pContext;
+
+    if (pCtx == NULL)
+    {
+        return EHS_TRUE; /* no parameter - the block formats an empty string */
+    }
+    pCtx->bReported = EHS_FALSE;
+    pCtx->szFormat[0] = '\0';
+
+    if (szParams != NULL)
+    {
+        ehs_uint32 nCap = (ehs_uint32)EhsStrlen(szParams) + 1u;
+        EhsStrcpy(pCtx->szFormat, szParams);
+        /* the whole parameter is one free-text value, so the SODL space
+         * escaping has to be undone here - nothing else will do it */
+        EhsParamUnescapeSpaces(pCtx->szFormat);
+        (void)EhsParseEscapeChars(pCtx->szFormat, nCap, pCtx->szFormat);
+    }
+    return EHS_TRUE;
+}
+
+/** Log a rejected format once per block. Run functions execute every scan, so
+ * an unlatched message would flood the log. */
+static void EhsFormat_report(EhsFormatCtxType* pCtx, const ehs_char* szBlock,
+                             const ehs_char* szReason, ehs_uint32 nOffset)
+{
+    if ((pCtx != NULL) && pCtx->bReported)
+    {
+        return;
+    }
+    if (pCtx != NULL)
+    {
+        pCtx->bReported = EHS_TRUE;
+    }
+    EHSH_LOG_ERROR("%s: format rejected at offset %u - %s",
+                   szBlock, (unsigned int)nOffset,
+                   (szReason != NULL) ? szReason : "unsupported format");
+    /* EHSH_LOG_ERROR is empty when logging is compiled out */
+    (void)szBlock;
+    (void)szReason;
+    (void)nOffset;
+}
+
+/**
+ * Resolve, escape and validate the format for one run.
+ *
+ * @param pContext   the block's context (EhsFormatCtxType), may be NULL
+ * @param szPortFmt  format from the fmt input port, or NULL when unconnected
+ * @param szScratch  buffer for the fmt-port copy, may be NULL if the block has no fmt port
+ * @param nScratchCap capacity of szScratch
+ * @param eAllowed   argument class this block can supply
+ * @param nMaxArgs   number of input ports the block can pass
+ * @param szBlock    block name, for the log message
+ */
+static EhsFormatRunType EhsFormat_prepare(void* pContext,
+                                          const ehs_char* szPortFmt,
+                                          ehs_char* szScratch,
+                                          ehs_uint32 nScratchCap,
+                                          EhsFormatArgType eAllowed,
+                                          ehs_uint32 nMaxArgs,
+                                          const ehs_char* szBlock)
+{
+    EhsFormatCtxType* pCtx = (EhsFormatCtxType*)pContext;
+    EhsFormatScanType scan;
+    EhsFormatRunType res;
+
+    res.szFormat = "";
+    res.nArgs = 0u;
+    res.bValid = EHS_TRUE;
+
+    if (szPortFmt != NULL)
+    {
+        /* A run-time format is data, not SODL text: it carries real spaces, so
+         * the parameter-only space un-escaping must not be applied to it. The
+         * escape pass and everything after it are common to both paths. */
+        ehs_bool bWhole = EhsParseEscapeChars(szScratch, nScratchCap, szPortFmt);
+        res.szFormat = szScratch;
+        if (!bWhole)
+        {
+            EhsFormat_report(pCtx, szBlock,
+                             "format on the fmt input is too long (see EHS_FB_FORMAT_MAX)", 0u);
+            res.bValid = EHS_FALSE; /* szFormat holds the truncated text, shown as plain text */
+            return res;
+        }
+    }
+    else if (pCtx != NULL)
+    {
+        res.szFormat = pCtx->szFormat; /* escaped at init */
+    }
+    else
+    {
+        /* nothing configured and nothing connected */
+    }
+
+    if (res.szFormat[0] == '\0')
+    {
+        return res; /* an empty format produces empty output, and is not an error */
+    }
+
+    if (!EhsFormatScan(&scan, res.szFormat, eAllowed, nMaxArgs))
+    {
+        EhsFormat_report(pCtx, szBlock, scan.szError, scan.nErrorOffset);
+        res.bValid = EHS_FALSE;
+        return res;
+    }
+
+    if (pCtx != NULL)
+    {
+        pCtx->bReported = EHS_FALSE; /* re-arm the log latch for the next bad format */
+    }
+    res.nArgs = scan.nArgs;
+    return res;
+}
+
+/******************************************************************************/
 /* Define FormatString function block 2 input*/
 
 EHS_FB_FUNCTIONS_START(string_format)
@@ -189,7 +354,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(string_format)
 {
-    EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1;
+    EHS_FB_IDENTIFY_MEMORY = EhsFormat_contextSize(EHS_FB_IDENTIFY_PARAMETERS);
 }
 
 /**
@@ -201,13 +366,15 @@ EHS_FB_IDENTIFY_FUNCTION(string_format)
  */
 EHS_FB_INIT_FUNCTION(string_format)
 {
-    EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
-    return EHS_TRUE; /* initialisation always succeeds */
+    return EhsFormat_initContext(EHS_FB_INIT_CONTEXT, EHS_FB_INIT_PARAMETERS);
 }
 
 /**
  * Run the function. Use the inputs to format a string using our context
  * as the format parameter.
+ *
+ * This block has no fmt input port: the format is always the escaped parameter
+ * held in the context.
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -215,41 +382,43 @@ EHS_FB_INIT_FUNCTION(string_format)
  */
 EHS_FB_RUN_FUNCTION(string_format)
 {
-    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
+    static const ehs_char* empty = "";
+    const ehs_char* in_ptrs[2];
+    ehs_char* szOut = EHS_FB_OUT_S(0);
+    ehs_uint32 nOutCap = EHS_FB_OUT_S_CAP(0);
+    EhsFormatRunType fmt;
+    ehs_uint32 i;
 
-    ehs_char * empty="";
-    ehs_char *in_ptrs[2];
-    ehs_uint8 i;
-    for (i=0; i<2; i++) /* if we have missing inputs we will insert empty strings */
+    for (i = 0u; i < 2u; i++) /* missing inputs format as empty strings, silently */
     {
-        if (EHS_FB_IN_CONNECTED(i))
-        {
-            in_ptrs[i]=EHS_FB_IN_S(i); /* point at the connections */
-        }
-        else in_ptrs[i]=empty;
+        in_ptrs[i] = EHS_FB_IN_CONNECTED(i) ? (const ehs_char*)EHS_FB_IN_S(i) : empty;
     }
 
-    EhsParseEscapeChars(escaped, EHS_FB_RUN_CONTEXT);
-#ifdef INX_DEPRECATED
-    if (EHS_FB_IN_CONNECTED(0) && EHS_FB_IN_CONNECTED(1))
+    fmt = EhsFormat_prepare(EHS_FB_RUN_CONTEXT, NULL, NULL, 0u,
+                            EHS_FMT_ARG_STRING, 2u, EHS_FB_NAME_string_format);
+
+    if (!fmt.bValid)
     {
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,EHS_FB_IN_S(0),EHS_FB_IN_S(1));
+        /* Show the format as plain text. Passing it to EhsSnprintf as data
+         * rather than as a format means no conversion is interpreted, and the
+         * user sees what they typed instead of an empty string. */
+        EhsSnprintf(szOut, nOutCap, "%s", fmt.szFormat);
+        EHS_FB_FINISH(1);
+        return;
     }
-    else if (EHS_FB_IN_CONNECTED(0))
+
+    switch (fmt.nArgs)
     {
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,EHS_FB_IN_S(0));
+    case 0:
+    case 1:
+        /* A zero-placeholder format still goes through EhsSnprintf so "%%"
+         * renders as "%". The surplus argument is ignored by printf. */
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0]);
+        break;
+    default:
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1]);
+        break;
     }
-    else if (EHS_FB_IN_CONNECTED(1))
-    {
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,EHS_FB_IN_S(1));
-    }
-    else
-    {
-        EhsSprintf(EHS_FB_OUT_S(0),"%s",escaped);
-    }
-#else
-    EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1]);
-#endif
 
     EHS_FB_FINISH(1);
 }
@@ -273,7 +442,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(string_format8)
 {
-    EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1; /* only the formatting string is stored */
+    EHS_FB_IDENTIFY_MEMORY = EhsFormat_contextSize(EHS_FB_IDENTIFY_PARAMETERS);
 }
 
 /**
@@ -285,13 +454,12 @@ EHS_FB_IDENTIFY_FUNCTION(string_format8)
  */
 EHS_FB_INIT_FUNCTION(string_format8)
 {
-    EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
-    return EHS_TRUE; /* initialisation always succeeds */
+    return EhsFormat_initContext(EHS_FB_INIT_CONTEXT, EHS_FB_INIT_PARAMETERS);
 }
 
 /**
  * Run the function. Use the inputs to format a string using our context
- * as the format parameter.
+ * as the format parameter, or the fmt input port when it is connected.
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -299,94 +467,63 @@ EHS_FB_INIT_FUNCTION(string_format8)
  */
 EHS_FB_RUN_FUNCTION(string_format8)
 {
-    ehs_uint8 i,connectioncount=0;
-    ehs_uint8 fmt_count=0;
-    ehs_char * empty="";
-    ehs_char * fmt;
-    ehs_char *in_ptrs[8];
-    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
+    static const ehs_char* empty = "";
+    ehs_char szScratch[EHS_FB_FORMAT_MAX];
+    const ehs_char* in_ptrs[8];
+    ehs_char* szOut = EHS_FB_OUT_S(0);
+    ehs_uint32 nOutCap = EHS_FB_OUT_S_CAP(0);
+    EhsFormatRunType fmt;
+    ehs_uint32 i;
 
-    for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
+    for (i = 0u; i < 8u; i++) /* missing inputs format as empty strings, silently */
     {
-        if (EHS_FB_IN_CONNECTED(i))
-        {
-            in_ptrs[i]=EHS_FB_IN_S(i); /* point at the connections */
-            connectioncount++;
-        }
-        else in_ptrs[i]=empty;
-    }
-    if (EHS_FB_IN_CONNECTED(8)) fmt=EHS_FB_IN_S(8);
-    else fmt=EHS_FB_RUN_CONTEXT;
-    for (i=0; i<EhsStrlen(fmt)-1; i++)
-    {
-        if (fmt[i]=='%' && fmt[i+1]=='s') fmt_count++;
+        in_ptrs[i] = EHS_FB_IN_CONNECTED(i) ? (const ehs_char*)EHS_FB_IN_S(i) : empty;
     }
 
-    EhsParseEscapeChars(escaped, fmt);
+    fmt = EhsFormat_prepare(EHS_FB_RUN_CONTEXT,
+                            EHS_FB_IN_CONNECTED(8) ? (const ehs_char*)EHS_FB_IN_S(8) : NULL,
+                            szScratch, (ehs_uint32)sizeof(szScratch),
+                            EHS_FMT_ARG_STRING, 8u, EHS_FB_NAME_string_format8);
 
-    for (i=0; i<EhsStrlen(escaped)-1; i++) // remove non-string formatters that would need a different sink pointer type.
+    if (!fmt.bValid)
     {
-        if (i == 0 || escaped[i-1] != '*')    // we can parse discarded numbers
-        {
-            if (escaped[i] == '%' && (
-                        escaped[i+1] == 'i' ||
-                        escaped[i+1] == 'd' ||
-                        escaped[i+1] == 'u' ||
-                        escaped[i+1] == 'o' ||
-                        escaped[i+1] == 'x' ||
-                        escaped[i+1] == 'f' ||
-                        escaped[i+1] == 'e' ||
-                        escaped[i+1] == 'g' ||
-                        escaped[i+1] == 'a' ||
-                        escaped[i+1] == 'p' ||
-                        escaped[i+1] == 'n' ||
-                        escaped[i+1] == 'h' ||
-                        escaped[i+1] == 'l' ||
-                        escaped[i+1] == 'j' ||
-                        escaped[i+1] == 'z' ||
-                        escaped[i+1] == 't' ||
-                        escaped[i+1] == 'L'
-                    ))
-            {
-                EHSH_LOG_ERROR(" Formatter contains non string specifiers, which are not supported");
-                EHS_FB_FINISH(1);
-                return;
-            }
-
-        }
+        /* Show the format as plain text. Passing it to EhsSnprintf as data
+         * rather than as a format means no conversion is interpreted, and the
+         * user sees what they typed instead of an empty string. */
+        EhsSnprintf(szOut, nOutCap, "%s", fmt.szFormat);
+        EHS_FB_FINISH(1);
+        return;
     }
 
-    switch (fmt_count)
+    switch (fmt.nArgs)
     {
     case 0 :
-        EhsSprintf(EHS_FB_OUT_S(0),"%s",escaped); /* no string insertions */
-        break;
     case 1 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);
+        /* A zero-placeholder format still goes through EhsSnprintf so "%%"
+         * renders as "%". The surplus argument is ignored by printf. */
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0]);
         break;
     case 2 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1]);
         break;
     case 3 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2]);
         break;
     case 4 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3]);
         break;
     case 5 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4]);
         break;
     case 6 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5]);
         break;
     case 7 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6]);
-        break;
-    case 8 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6],in_ptrs[7]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5], in_ptrs[6]);
         break;
     default :
-        EHSH_LOG_ERROR("Format Specifier in string_format8 contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5], in_ptrs[6], in_ptrs[7]);
+        break;
     }
     EHS_FB_FINISH(1);
 }
@@ -409,7 +546,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(string_format8_int)
 {
-    EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1; /* only the formatting string is stored */
+    EHS_FB_IDENTIFY_MEMORY = EhsFormat_contextSize(EHS_FB_IDENTIFY_PARAMETERS);
 }
 
 /**
@@ -421,13 +558,15 @@ EHS_FB_IDENTIFY_FUNCTION(string_format8_int)
  */
 EHS_FB_INIT_FUNCTION(string_format8_int)
 {
-    EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
-    return EHS_TRUE; /* initialisation always succeeds */
+    return EhsFormat_initContext(EHS_FB_INIT_CONTEXT, EHS_FB_INIT_PARAMETERS);
 }
 
 /**
  * Run the function. Use the inputs to format a string using our context
- * as the format parameter.
+ * as the format parameter, or the fmt input port when it is connected.
+ *
+ * An unconnected numeric input formats as 0; an integer conversion has no
+ * blank rendering.
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -435,84 +574,62 @@ EHS_FB_INIT_FUNCTION(string_format8_int)
  */
 EHS_FB_RUN_FUNCTION(string_format8_int)
 {
-    ehs_uint8 i,connectioncount=0;
-    ehs_uint8 fmt_count=0;
-    ehs_char * fmt;
+    ehs_char szScratch[EHS_FB_FORMAT_MAX];
     ehs_sint32 in_ptrs[8];
-    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
+    ehs_char* szOut = EHS_FB_OUT_S(0);
+    ehs_uint32 nOutCap = EHS_FB_OUT_S_CAP(0);
+    EhsFormatRunType fmt;
+    ehs_uint32 i;
 
-    for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
+    for (i = 0u; i < 8u; i++)
     {
-        if (EHS_FB_IN_CONNECTED(i))
-        {
-            in_ptrs[i]=EHS_FB_IN_I(i); /* point at the connections */
-            connectioncount++;
-        }
-        else in_ptrs[i]=0;
-    }
-    if (EHS_FB_IN_CONNECTED(8)) fmt=EHS_FB_IN_S(8);
-    else fmt=EHS_FB_RUN_CONTEXT;
-    for (i=0; i<EhsStrlen(fmt)-1; i++)
-    {
-        int d = i+1;
-        if (fmt[i]=='%' && (fmt[d]=='d' || fmt[d]=='u' || fmt[d]=='i' || fmt[d]=='o' || fmt[d]=='x' || fmt[d]=='X')) fmt_count++;
+        in_ptrs[i] = EHS_FB_IN_CONNECTED(i) ? EHS_FB_IN_I(i) : 0;
     }
 
-    EhsParseEscapeChars(escaped, fmt);
+    fmt = EhsFormat_prepare(EHS_FB_RUN_CONTEXT,
+                            EHS_FB_IN_CONNECTED(8) ? (const ehs_char*)EHS_FB_IN_S(8) : NULL,
+                            szScratch, (ehs_uint32)sizeof(szScratch),
+                            EHS_FMT_ARG_INT, 8u, EHS_FB_NAME_string_format8_int);
 
-    for (i=0; i<EhsStrlen(escaped)-1; i++) // remove non-integer formatters that would need a different sink pointer type.
+    if (!fmt.bValid)
     {
-        if (i == 0 || escaped[i-1] != '*')    // we can parse discarded numbers
-        {
-            int d = i+1;
-            if (escaped[i] == '%' && !(
-                        escaped[d] == 'i' || // integer (base 10)
-                        escaped[d] == 'd' || // decimal (integer) number (base 10)
-                        escaped[d] == 'u' || // unsigned decimal (integer) number
-                        escaped[d] == 'o' || // octal number (base 8)
-                        escaped[d] == 'x' || // number in hexadecimal (base 16)
-                        escaped[d] == 'X'
-                    ))
-            {
-                EHSH_LOG_ERROR(" Formatter contains non integer specifiers, which are not supported");
-                EHS_FB_FINISH(1);
-                return;
-            }
-
-        }
+        /* Show the format as plain text. Passing it to EhsSnprintf as data
+         * rather than as a format means no conversion is interpreted, and the
+         * user sees what they typed instead of an empty string. */
+        EhsSnprintf(szOut, nOutCap, "%s", fmt.szFormat);
+        EHS_FB_FINISH(1);
+        return;
     }
 
-    switch (fmt_count)
+    switch (fmt.nArgs)
     {
     case 0 :
-        EhsSprintf(EHS_FB_OUT_S(0),"%s",escaped); /* no string insertions */
-        break;
     case 1 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);
+        /* A zero-placeholder format still goes through EhsSnprintf so "%%"
+         * renders as "%". The surplus argument is ignored by printf. */
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0]);
         break;
     case 2 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1]);
         break;
     case 3 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2]);
         break;
     case 4 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3]);
         break;
     case 5 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4]);
         break;
     case 6 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5]);
         break;
     case 7 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6]);
-        break;
-    case 8 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6],in_ptrs[7]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5], in_ptrs[6]);
         break;
     default :
-        EHSH_LOG_ERROR("Format Specifier in string_format8_int contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5], in_ptrs[6], in_ptrs[7]);
+        break;
     }
     EHS_FB_FINISH(1);
 }
@@ -536,7 +653,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(string_format8_real)
 {
-    EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1; /* only the formatting string is stored */
+    EHS_FB_IDENTIFY_MEMORY = EhsFormat_contextSize(EHS_FB_IDENTIFY_PARAMETERS);
 }
 
 /**
@@ -548,13 +665,15 @@ EHS_FB_IDENTIFY_FUNCTION(string_format8_real)
  */
 EHS_FB_INIT_FUNCTION(string_format8_real)
 {
-    EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
-    return EHS_TRUE; /* initialisation always succeeds */
+    return EhsFormat_initContext(EHS_FB_INIT_CONTEXT, EHS_FB_INIT_PARAMETERS);
 }
 
 /**
  * Run the function. Use the inputs to format a string using our context
- * as the format parameter.
+ * as the format parameter, or the fmt input port when it is connected.
+ *
+ * An unconnected numeric input formats as 0. Any real conversion is accepted:
+ * "%f", "%.2f", "%8.3f", "%e", "%g".
  *
  * This function provides access to:
  *  EHS_FB_RUN_CONTEXT - pointer to the context area for this function block
@@ -562,76 +681,62 @@ EHS_FB_INIT_FUNCTION(string_format8_real)
  */
 EHS_FB_RUN_FUNCTION(string_format8_real)
 {
-    ehs_uint8 i,connectioncount=0;
-    ehs_uint8 fmt_count=0;
-    ehs_char * fmt;
+    ehs_char szScratch[EHS_FB_FORMAT_MAX];
     ehs_float in_ptrs[8];
-    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
+    ehs_char* szOut = EHS_FB_OUT_S(0);
+    ehs_uint32 nOutCap = EHS_FB_OUT_S_CAP(0);
+    EhsFormatRunType fmt;
+    ehs_uint32 i;
 
-    for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
+    for (i = 0u; i < 8u; i++)
     {
-        if (EHS_FB_IN_CONNECTED(i))
-        {
-            in_ptrs[i]=EHS_FB_IN_F(i); /* point at the connections */
-            connectioncount++;
-        }
-        else in_ptrs[i]=(ehs_float)0;
-    }
-    if (EHS_FB_IN_CONNECTED(8)) fmt=EHS_FB_IN_S(8);
-    else fmt=EHS_FB_RUN_CONTEXT;
-    for (i=0; i<EhsStrlen(fmt)-1; i++)
-    {
-        if (fmt[i]=='%' && (fmt[i+1]=='.' /*&& fmt[i+2]=='2'*/ && fmt[i+3]== 'f')) fmt_count++;
+        in_ptrs[i] = EHS_FB_IN_CONNECTED(i) ? EHS_FB_IN_F(i) : (ehs_float)0;
     }
 
-    EhsParseEscapeChars(escaped, fmt);
+    fmt = EhsFormat_prepare(EHS_FB_RUN_CONTEXT,
+                            EHS_FB_IN_CONNECTED(8) ? (const ehs_char*)EHS_FB_IN_S(8) : NULL,
+                            szScratch, (ehs_uint32)sizeof(szScratch),
+                            EHS_FMT_ARG_REAL, 8u, EHS_FB_NAME_string_format8_real);
 
-    for (i=0; i<EhsStrlen(escaped)-1; i++) // remove non-real formatters that would need a different sink pointer type.
+    if (!fmt.bValid)
     {
-        if (i == 0 || escaped[i-1] != '*')    // we can parse discarded numbers
-        {
-            if (escaped[i] == '%' && !(
-                        (escaped[i+1]=='.' /*&& escaped[i+2]=='2'*/ && escaped[i+3]== 'f')
-                    ))
-            {
-                EHSH_LOG_ERROR(" Formatter contains non real specifiers, which are not supported");
-                EHS_FB_FINISH(1);
-                return;
-            }
-        }
+        /* Show the format as plain text. Passing it to EhsSnprintf as data
+         * rather than as a format means no conversion is interpreted, and the
+         * user sees what they typed instead of an empty string. */
+        EhsSnprintf(szOut, nOutCap, "%s", fmt.szFormat);
+        EHS_FB_FINISH(1);
+        return;
     }
 
-    switch (fmt_count)
+    switch (fmt.nArgs)
     {
     case 0 :
-        EhsSprintf(EHS_FB_OUT_S(0),""); /* no string insertions */
-        break;
     case 1 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0]);
+        /* A zero-placeholder format still goes through EhsSnprintf so "%%"
+         * renders as "%". The surplus argument is ignored by printf. */
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0]);
         break;
     case 2 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1]);
         break;
     case 3 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2]);
         break;
     case 4 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3]);
         break;
     case 5 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4]);
         break;
     case 6 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5]);
         break;
     case 7 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6]);
-        break;
-    case 8 :
-        EhsSprintf(EHS_FB_OUT_S(0),escaped,in_ptrs[0],in_ptrs[1],in_ptrs[2],in_ptrs[3],in_ptrs[4],in_ptrs[5],in_ptrs[6],in_ptrs[7]);
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5], in_ptrs[6]);
         break;
     default :
-        EHSH_LOG_ERROR("Format Specifier in string_format8_real contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
+        EhsSnprintf(szOut, nOutCap, fmt.szFormat, in_ptrs[0], in_ptrs[1], in_ptrs[2], in_ptrs[3], in_ptrs[4], in_ptrs[5], in_ptrs[6], in_ptrs[7]);
+        break;
     }
     EHS_FB_FINISH(1);
 }
@@ -655,7 +760,7 @@ EHS_FB_FUNCTIONS_END
  */
 EHS_FB_IDENTIFY_FUNCTION(stringfn_scanf8)
 {
-    EHS_FB_IDENTIFY_MEMORY = EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1; /* only the formatting string is stored */
+    EHS_FB_IDENTIFY_MEMORY = EhsFormat_contextSize(EHS_FB_IDENTIFY_PARAMETERS);
 }
 
 /**
@@ -667,7 +772,25 @@ EHS_FB_IDENTIFY_FUNCTION(stringfn_scanf8)
  */
 EHS_FB_INIT_FUNCTION(stringfn_scanf8)
 {
-    EhsStrcpy(EHS_FB_INIT_CONTEXT,EHS_FB_INIT_PARAMETERS);
+    /* Shares EhsFormatCtxType with the format blocks for its log latch. The
+     * backslash escaping is not done here: this block rewrites the format at
+     * run time and escapes the result, so doing it twice is avoided by doing
+     * it once, there. */
+    EhsFormatCtxType* pCtx = (EhsFormatCtxType*)EHS_FB_INIT_CONTEXT;
+
+    if (pCtx == NULL)
+    {
+        return EHS_TRUE;
+    }
+    pCtx->bReported = EHS_FALSE;
+    pCtx->szFormat[0] = '\0';
+    if (EHS_FB_INIT_PARAMETERS != NULL)
+    {
+        EhsStrcpy(pCtx->szFormat, EHS_FB_INIT_PARAMETERS);
+        /* the whole parameter is one free-text format, so the SODL space
+         * escaping has to be undone here - nothing else will do it */
+        EhsParamUnescapeSpaces(pCtx->szFormat);
+    }
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -686,125 +809,115 @@ EHS_FB_RUN_FUNCTION(stringfn_scanf8)
 {
     static const ehs_uint8 SCANF_INPUT_FMT_PORT = 0;
     static const ehs_uint8 SCANF_INPUT_STR_PORT = 1;
-    ehs_uint8 i,connectioncount=0; /* not really used - we need to know sequence */
-    ehs_uint8 fmt_count=0;
-    //ehs_char * empty="";
-    ehs_char * fmt;
-    ehs_char *out_ptrs[8];
-    ehs_char escaped[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
-    ehs_bool allgood = EHS_TRUE;
 
+    ehs_char* out_ptrs[EHS_SCANF_MAX_ARGS];
+    ehs_uint32 anMaxChars[EHS_SCANF_MAX_ARGS];
+    /* One buffer, not two: the width injection runs first and the escape pass
+     * then runs over its result in place. The two are independent - escaping
+     * only rewrites backslash pairs, which are never part of a conversion
+     * specifier - and this runs on the 2 kB dbgconsole stack. */
+    ehs_char bounded[EHS_FB_FORMAT_MAX];
+    EhsScanfBuildType build;
+    EhsFormatCtxType* pCtx;
+    const ehs_char* fmt;
+    ehs_uint32 i;
+    ehs_sint32 nAssigned = 0;
 
-    if (EHS_FB_IN_CONNECTED(SCANF_INPUT_FMT_PORT)) {
-        fmt=EHS_FB_IN_S(SCANF_INPUT_FMT_PORT);
-    }else{ 
-        fmt=EHS_FB_RUN_CONTEXT;
-    }
-    if (EhsStrlen(fmt) > 0)
+    /* Every output is blanked first, so a conversion that does not match leaves
+     * an empty string rather than the previous run's value. anMaxChars is what
+     * bounds sscanf: each row can have its own capacity. */
+    for (i = 0u; i < EHS_SCANF_MAX_ARGS; i++)
     {
-        for (i=0; i<EhsStrlen(fmt)-1; i++)
+        out_ptrs[i] = EHS_FB_OUT_S(i);
+        anMaxChars[i] = EHS_FB_OUT_S_MAXLEN(i);
+        if (out_ptrs[i] != NULL)
         {
-            if (fmt[i]=='%' && (fmt[i+1]=='s' ||  fmt[i+1]=='['))  fmt_count++;
-            /* also count fixed width chars and ID them so we can null blank where they are written to */
-            if (	(fmt[i]=='%' && fmt[i+1]=='c') ||
-                    ((fmt[i+1] >= '0' && fmt[i+1] <= '9') && (fmt[i+2] == 'c')) ||
-                    ((fmt[i+1] >= '0' && fmt[i+1] <= '9') && (fmt[i+2] >= '0' && fmt[i+2] <= '9' && fmt[i+3] == 'c')) )
-            {
-                fmt_count++;
-
-                if (fmt_count < 8 && EHS_FB_OUT_CONNECTED(fmt_count)) {
-                    EhsMemset(EHS_FB_OUT_S(fmt_count),'\0',EHS_STRING_LENGTH_MAX-1); // null everywhere as scanf doesn't for characters
-                }
-            }
-
+            out_ptrs[i][0] = '\0';
         }
-
-        /* check we are all connected properly and fail if we are not */
-        for (i=0; i<8; i++) /* if we have missing inputs we will insert empty strings */
-        {
-            if (EHS_FB_OUT_CONNECTED(i))
-            {
-                
-                connectioncount++;
-            }
-            out_ptrs[i]=EHS_FB_OUT_S(i); /* point at the connections */
-            out_ptrs[i][0]='\0';
-        }
-
-        EhsParseEscapeChars(escaped, fmt);
-        for (i=0; i<EhsStrlen(escaped)-1; i++) // remove non-string formatters that would need a different sink pointer type.
-        {
-            if (i == 0 || escaped[i-1] != '*')    // we can parse discarded numbers
-            {
-                if (escaped[i] == '%' && (
-                            escaped[i+1] == 'i' ||
-                            escaped[i+1] == 'd' ||
-                            escaped[i+1] == 'u' ||
-                            escaped[i+1] == 'o' ||
-                            escaped[i+1] == 'x' ||
-                            escaped[i+1] == 'f' ||
-                            escaped[i+1] == 'e' ||
-                            escaped[i+1] == 'g' ||
-                            escaped[i+1] == 'a' ||
-                            escaped[i+1] == 'p' ||
-                            escaped[i+1] == 'n' ||
-                            escaped[i+1] == 'h' ||
-                            escaped[i+1] == 'l' ||
-                            escaped[i+1] == 'j' ||
-                            escaped[i+1] == 'z' ||
-                            escaped[i+1] == 't' ||
-                            escaped[i+1] == 'L'
-                        ))
-                {
-                    EHSH_LOG_ERROR(" Formatter contains non string specifiers, which are not supported");
-                    allgood = EHS_FALSE;
-                }
-            }
-        }
-
-        if (allgood && EHS_FB_IN_CONNECTED(SCANF_INPUT_STR_PORT))
-        {
-            switch (fmt_count)
-            {
-            case 0 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped); /* no string insertions */
-                break;
-            case 1 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0]);
-                break;
-            case 2 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1]);
-                break;
-            case 3 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2]);
-                break;
-            case 4 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3]);
-                break;
-            case 5 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4]);
-                break;
-            case 6 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5]);
-                break;
-            case 7 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5],out_ptrs[6]);
-                break;
-            case 8 :
-                EhsSscanf(EHS_FB_IN_S(SCANF_INPUT_STR_PORT),escaped,out_ptrs[0],out_ptrs[1],out_ptrs[2],out_ptrs[3],out_ptrs[4],out_ptrs[5],out_ptrs[6],out_ptrs[7]);
-                break;
-            default :
-                EHSH_LOG_ERROR("Format Specifier in string_format8 contain more than 8 place holders"); /*Tdo should allow for a variable arg list, and should assert an error event of more then 8 placeholders are found*/
-                allgood = EHS_FALSE;
-            }
-        }
-        if ( allgood ) EHS_FB_FINISH(1);
-        else EHS_FB_FINISH(2);
     }
-    else
+
+    pCtx = (EhsFormatCtxType*)EHS_FB_RUN_CONTEXT;
+    fmt = EHS_FB_IN_CONNECTED(SCANF_INPUT_FMT_PORT)
+              ? (const ehs_char*)EHS_FB_IN_S(SCANF_INPUT_FMT_PORT)
+              : ((pCtx != NULL) ? (const ehs_char*)pCtx->szFormat : (const ehs_char*)NULL);
+
+    if ((fmt == NULL) || (fmt[0] == '\0'))
     {
-        EHS_FB_FINISH(1); /* Don't show an error for an empty format */
+        EHS_FB_FINISH(1); /* an empty format is not an error */
+        return;
     }
+
+    if (!EhsScanfFormatBuild(bounded, (ehs_uint32)sizeof(bounded), fmt,
+                             anMaxChars, EHS_SCANF_MAX_ARGS, &build))
+    {
+        /* latched: a run function executes every scan */
+        EhsFormat_report(pCtx, "stringfn_scanf8",
+                         build.szError, build.nErrorOffset);
+        EHS_FB_FINISH(2);
+        return;
+    }
+    if (pCtx != NULL)
+    {
+        pCtx->bReported = EHS_FALSE; /* re-arm for the next bad format */
+    }
+
+    /* in place: the escape conversion never expands */
+    (void)EhsParseEscapeChars(bounded, (ehs_uint32)sizeof(bounded), bounded);
+
+    if (EHS_FB_IN_CONNECTED(SCANF_INPUT_STR_PORT))
+    {
+        const ehs_char* szIn = EHS_FB_IN_S(SCANF_INPUT_STR_PORT);
+        switch (build.nArgs)
+        {
+        case 0 :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded);
+            break;
+        case 1 :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded, out_ptrs[0]);
+            break;
+        case 2 :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded, out_ptrs[0], out_ptrs[1]);
+            break;
+        case 3 :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded, out_ptrs[0], out_ptrs[1], out_ptrs[2]);
+            break;
+        case 4 :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded, out_ptrs[0], out_ptrs[1], out_ptrs[2], out_ptrs[3]);
+            break;
+        case 5 :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded, out_ptrs[0], out_ptrs[1], out_ptrs[2], out_ptrs[3],
+                                              out_ptrs[4]);
+            break;
+        case 6 :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded, out_ptrs[0], out_ptrs[1], out_ptrs[2], out_ptrs[3],
+                                              out_ptrs[4], out_ptrs[5]);
+            break;
+        case 7 :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded, out_ptrs[0], out_ptrs[1], out_ptrs[2], out_ptrs[3],
+                                              out_ptrs[4], out_ptrs[5], out_ptrs[6]);
+            break;
+        default :
+            nAssigned = (ehs_sint32)EhsSscanf(szIn, bounded, out_ptrs[0], out_ptrs[1], out_ptrs[2], out_ptrs[3],
+                                              out_ptrs[4], out_ptrs[5], out_ptrs[6], out_ptrs[7]);
+            break;
+        }
+
+        if (nAssigned < 0) /* EOF - nothing matched */
+        {
+            nAssigned = 0;
+        }
+        /* %c writes an exact character count and no terminator, so terminate
+         * the conversions scanf reports it actually assigned. */
+        for (i = 0u; (i < build.nArgs) && ((ehs_sint32)i < nAssigned); i++)
+        {
+            if (build.anFixedWidth[i] > 0u)
+            {
+                out_ptrs[i][build.anFixedWidth[i]] = '\0';
+            }
+        }
+    }
+
+    EHS_FB_FINISH(1);
 }
 
 
@@ -851,23 +964,37 @@ EHS_FB_FUNCTIONS_END
 struct String_find_struct
 {
     ehs_bool backwards;
-    ehs_char findstring[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH];
+    ehs_char findstring[1]; /* sized at identify from the parameter */
 } ;
 
 EHS_FB_IDENTIFY_FUNCTION(string_find)
 {
-    //if (EHS_FB_INIT_PARAMETERS && EhsStrcmp(EHS_FB_IDENTIFY_PARAMETERS,"null")) { /* replace these nulls with a const (inited from a header MACRO) to save memory*/
-    EHS_FB_IDENTIFY_MEMORY = sizeof(struct String_find_struct);//EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS)+1;
-    //	}
-    //else EHS_FB_IDENTIFY_MEMORY=0; /* This will cause a null to be sent as the parameter */
+    /* The search string comes out of the parameter, so it cannot be longer
+     * than the parameter. Sizing from a string-table constant instead cost
+     * EHS_DATA_TABLE_STRING_DEFAULT_LENGTH - 32 KB on base_full - per instance. */
+    ehs_uint32 nLen = (EHS_FB_IDENTIFY_PARAMETERS != NULL)
+                          ? (ehs_uint32)EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS) : 0u;
+    EHS_FB_IDENTIFY_MEMORY = (ehs_uint32)sizeof(struct String_find_struct) + nLen;
 }
 
 EHS_FB_INIT_FUNCTION(string_find)
 {
     struct String_find_struct *parms=(struct String_find_struct*)EHS_FB_INIT_CONTEXT;
+    if (parms == NULL)
+    {
+        return EHS_TRUE;
+    }
+    parms->backwards = EHS_FALSE;
+    parms->findstring[0] = '\0';
     if (EHS_FB_INIT_PARAMETERS)
     {
-        EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhd%s",&parms->backwards,parms->findstring);
+        /* findstring holds EhsStrlen(parameters) characters plus the NUL, so a
+         * width of that length can never overflow it */
+        ehs_char szScanFmt[32];
+        EhsSnprintf(szScanFmt, sizeof(szScanFmt), "%%hhd%%%us",
+                    (unsigned int)EhsStrlen(EHS_FB_INIT_PARAMETERS));
+        EhsSscanf(EHS_FB_INIT_PARAMETERS,szScanFmt,&parms->backwards,parms->findstring);
+        EhsParamUnescapeSpaces(parms->findstring);
     }
     return EHS_TRUE; /* initialisation always succeeds */
 }
@@ -931,13 +1058,13 @@ EHS_FB_RUN_FUNCTION(string_find)
 
     if (s3 && s2 && EHS_FB_IN_CONNECTED(0)) /* Only if we have something to find */
     {
-        EhsStrcpy(EHS_FB_OUT_S(0), s3);
+        EHS_FB_OUT_S_SET(0, s3);
         EHS_FB_OUT_I(2) = s3-s1; /* return the 0-based index - Todo we should do pointer arithmatic.. */
         EHS_FB_OUT_B(1) = EHS_TRUE;
     }
     else
     {
-        strcpy(EHS_FB_OUT_S(0), "");
+        EHS_FB_OUT_S_SET(0, "");
         EHS_FB_OUT_I(2) = -1; /* further error signal */
         EHS_FB_OUT_B(1) = EHS_FALSE;
     }
@@ -1077,7 +1204,7 @@ EHS_FB_RUN_FUNCTION(string_strAt)
 
     if (EHS_FB_IN_CONNECTED(1) && index >= 0 && index < EhsStrlen(szData1))
     {
-        strcpy(szData2, &szData1[index]);
+        EhsDataString_set(szData2, &szData1[index]);
     }
     else
     {
@@ -1101,21 +1228,39 @@ EHS_FB_FUNCTIONS_END
 struct EhsT_Insertstringparms
 {
     ehs_uint16 index;
-    ehs_char string[EHS_DATA_TABLE_STRING_DEFAULT_LENGTH]; /* should make this dynamic */
+    ehs_char string[1]; /* sized at identify from the parameter */
 };
 
 EHS_FB_IDENTIFY_FUNCTION(string_insert)
 {
-    EHS_FB_IDENTIFY_MEMORY = sizeof(struct EhsT_Insertstringparms);
+    /* The insert string comes out of the parameter, so it cannot be longer
+     * than the parameter. Sizing from a string-table constant instead cost
+     * EHS_DATA_TABLE_STRING_DEFAULT_LENGTH - 32 KB on base_full - per instance. */
+    ehs_uint32 nLen = (EHS_FB_IDENTIFY_PARAMETERS != NULL)
+                          ? (ehs_uint32)EhsStrlen(EHS_FB_IDENTIFY_PARAMETERS) : 0u;
+    EHS_FB_IDENTIFY_MEMORY = (ehs_uint32)sizeof(struct EhsT_Insertstringparms) + nLen;
 }
 
 EHS_FB_INIT_FUNCTION(string_insert)
 {
     struct EhsT_Insertstringparms *parms=EHS_FB_INIT_CONTEXT;
+    if (parms == NULL)
+    {
+        return EHS_TRUE;
+    }
     parms->index=0;
     parms->string[0]='\0';
-    EhsSscanf(EHS_FB_INIT_PARAMETERS, "%hd%s",&parms->index,parms->string);
-    if (EhsStrcmp(parms->string,"null")==0||EhsStrcmp(parms->string,"NULL")==0) EhsStrcpy(parms->string,"");
+    if (EHS_FB_INIT_PARAMETERS)
+    {
+        /* string holds EhsStrlen(parameters) characters plus the NUL, so a
+         * width of that length can never overflow it */
+        ehs_char szScanFmt[32];
+        EhsSnprintf(szScanFmt, sizeof(szScanFmt), "%%hd%%%us",
+                    (unsigned int)EhsStrlen(EHS_FB_INIT_PARAMETERS));
+        EhsSscanf(EHS_FB_INIT_PARAMETERS, szScanFmt,&parms->index,parms->string);
+        EhsParamUnescapeSpaces(parms->string);
+    }
+    if (EhsStrcmp(parms->string,"null")==0||EhsStrcmp(parms->string,"NULL")==0) parms->string[0]='\0';
     return EHS_TRUE; /* initialisation always succeeds */
 }
 
@@ -1132,7 +1277,7 @@ EHS_FB_RUN_FUNCTION(string_insert)
     char *szData1; //base string
     char *szData2; //string to insert
     char *tmp;
-    int index, size2;
+    int index;
     struct EhsT_Insertstringparms *parms = EHS_FB_RUN_CONTEXT;
 
     if (EHS_FB_IN_CONNECTED(0))
@@ -1152,17 +1297,23 @@ EHS_FB_RUN_FUNCTION(string_insert)
 
         if (index >= 0 && index < EhsStrlen(szData1))
         {
-            size2 = EhsStrlen(szData2);
-            EhsStrncpy(tmp, szData1, index);
-            EhsStrcat(&tmp[index], szData2);
-            EhsStrcat(&tmp[size2 + index], &szData1[index]);
+            /* Built in three pieces. The prefix is copied by offset (numbered
+             * copy, so an in-place edit where input and output share a row still
+             * works); the two appends find the current end of the row for
+             * themselves and clamp to its capacity. */
+            ehs_uint32 nMax = EhsDataString_maxLen(tmp);
+            ehs_uint32 nPos = ((ehs_uint32)index > nMax) ? nMax : (ehs_uint32)index;
+            EhsStrncpy(tmp, szData1, nPos);
+            tmp[nPos] = '\0';
+            EhsDataString_append(tmp, szData2);
+            EhsDataString_append(tmp, &szData1[index]);
         }
         else
-            EhsStrcpy(EHS_FB_OUT_S(0), "");
+            EHS_FB_OUT_S_SET(0, "");
 
     }
     else
-        EhsStrcpy(EHS_FB_OUT_S(0), "");/* Nout if there is no inout */
+        EHS_FB_OUT_S_SET(0, "");/* Nout if there is no inout */
     EHS_FB_FINISH(1);
     return;
 }

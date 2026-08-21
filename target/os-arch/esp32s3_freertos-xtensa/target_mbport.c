@@ -3,7 +3,6 @@
 TODO2025 - this needs to be moved to a component HAL.
 
 */
-
 #include "target_mbconfig.h"
 #include "target_mbport.h"
 #include "mbport.h"
@@ -35,6 +34,8 @@ TODO2025 - this needs to be moved to a component HAL.
 #include "target_mbport_port.h"
 #include "target_types.h"
 #include "target_uart.h"
+
+
 
 /* ----------------------- Variables ----------------------------------------*/
 static QueueHandle_t xQueueEventHdl;

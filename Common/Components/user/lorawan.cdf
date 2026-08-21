@@ -392,7 +392,7 @@
             <Description>received</Description>
             <PortType>FinishPort</PortType>
             <XCoordinate>165</XCoordinate>
-            <YCoordinate>115</YCoordinate>
+            <YCoordinate>80</YCoordinate>
             <Wcet>0</Wcet>
             <CName>received</CName>
             <Function argument="1">
@@ -682,10 +682,10 @@
             </Function>
         </Port>
         <Port>
-            <Description>ok</Description>
+            <Description>DR set ok</Description>
             <PortType>FinishPort</PortType>
             <XCoordinate>165</XCoordinate>
-            <YCoordinate>355</YCoordinate>
+            <YCoordinate>362</YCoordinate>
             <Wcet>0</Wcet>
             <CName>set_datarate_ok</CName>
             <Function argument="1">
@@ -795,7 +795,7 @@
             <Description>fport</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>165</XCoordinate>
-            <YCoordinate>135</YCoordinate>
+            <YCoordinate>100</YCoordinate>
             <CName>fport_rx</CName>
             <Function argument="1">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -806,7 +806,7 @@
             <Description>lnkStat</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>165</XCoordinate>
-            <YCoordinate>145</YCoordinate>
+            <YCoordinate>110</YCoordinate>
             <CName>link_status</CName>
             <Function argument="2">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -905,7 +905,7 @@
             <Description>message</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>165</XCoordinate>
-            <YCoordinate>125</YCoordinate>
+            <YCoordinate>90</YCoordinate>
             <CName>recv_msg</CName>
             <Function argument="3">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -965,16 +965,6 @@
             </Function>
         </Port>
         <Port>
-            <Description>ormsgi</Description>
-            <PortType>InternalPort</PortType>
-            <XCoordinate>-1</XCoordinate>
-            <YCoordinate>-1</YCoordinate>
-            <CName>ormsgi</CName>
-            <Function argument="0">
-                <Function_ERT1_ID>2</Function_ERT1_ID>
-            </Function>
-        </Port>
-        <Port>
             <DataType>S</DataType>
             <Description>status</Description>
             <PortType>OutputPort</PortType>
@@ -1023,7 +1013,7 @@
             <Description>rssi</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>165</XCoordinate>
-            <YCoordinate>155</YCoordinate>
+            <YCoordinate>120</YCoordinate>
             <CName>rssi</CName>
             <Function argument="4">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -1034,7 +1024,7 @@
             <Description>snr</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>165</XCoordinate>
-            <YCoordinate>163</YCoordinate>
+            <YCoordinate>130</YCoordinate>
             <CName>snr</CName>
             <Function argument="5">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -1045,7 +1035,7 @@
             <Description>rxwin</Description>
             <PortType>OutputPort</PortType>
             <XCoordinate>165</XCoordinate>
-            <YCoordinate>171</YCoordinate>
+            <YCoordinate>140</YCoordinate>
             <CName>rxwin</CName>
             <Function argument="6">
                 <Function_ERT1_ID>2</Function_ERT1_ID>
@@ -1268,6 +1258,25 @@
                 <Function_ERT1_ID>21</Function_ERT1_ID>
             </Function>
         </Port>
+        <!-- on_receive_msg's InternalPort MUST stay at the end of the
+             InternalPort sequence — Lucid serialises InternalPorts to SODL in
+             <Ports>-block order, and the FB-init code in inx-lorawan.c maps
+             SODL slots 0..E_LORAWAN_API__MAX_VALUE-1 to e_ehs_lorawan_api_cmd_t
+             entries (connect, send_msg, … link_check) and slot
+             E_LORAWAN_API__MAX_VALUE to on_receive_msg. Inserting any new
+             InternalPort before this entry shifts every cb FB-instance and
+             produces a runtime LoadProhibited at EXCVADDR=0x18 on the first
+             cb dispatch. -->
+        <Port>
+            <Description>ormsgi</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>ormsgi</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
         <Port>
             <Description>done</Description>
             <PortType>FinishPort</PortType>
@@ -1286,7 +1295,7 @@
             <XCoordinate>165</XCoordinate>
             <YCoordinate>582</YCoordinate>
             <CName>link_margin_out</CName>
-            <Function argument="2">
+            <Function argument="1">
                 <Function_ERT1_ID>21</Function_ERT1_ID>
             </Function>
         </Port>
@@ -1297,7 +1306,7 @@
             <XCoordinate>165</XCoordinate>
             <YCoordinate>592</YCoordinate>
             <CName>gateway_count_out</CName>
-            <Function argument="3">
+            <Function argument="2">
                 <Function_ERT1_ID>21</Function_ERT1_ID>
             </Function>
         </Port>

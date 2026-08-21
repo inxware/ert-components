@@ -113,9 +113,6 @@ DEFS += EHS_NANOPRINTF_SUPPORT=1
 # Main task stack size
 DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
 
-# Maximum wi-fi SSID records buffer size
-DEFS += ESP32_MAX_AP_RECORDS=20
-
 # Wi-Fi credentials
 DEFS += EHS_CONFIG_WIFI_SSID="\"Wireless-XXX\""
 DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXX\""

@@ -120,15 +120,29 @@ EHS_FB_INIT_FUNCTION(ConstantString1)
     else if (EhsStrncmp(EHS_FB_INIT_PARAMETERS, "NULL", EhsStrlen("NULL")) == 0)
     {
         obj[0] = '\0';
-    }/* @todo temp hack: the following is an issue with iAB adding extra spaces in the parms when blank */
+    }/* if we have two spaces as the first byte then shift everything to the beginning (not sure why, but something Lucid shouldn't e doing and will be replacing spaces with 0xF1s now anyway)*/
     else if (EHS_FB_INIT_PARAMETERS[0] == ' ' && (EHS_FB_INIT_PARAMETERS[1] == ' ' || EHS_FB_INIT_PARAMETERS[1] == '\0' ))
     {
         //for (i=0;i<EnsStrlen(EHS_FB_INIT_PARAMETERS);i++) {if (EHS_FB_INIT_PARAMETERS[i]!=0) deleteme=1;}
-        EhsStrcpy(obj, &EHS_FB_INIT_PARAMETERS[1]);
+        //EhsStrcpy(obj, &EHS_FB_INIT_PARAMETERS[1]);
+        //if (NULL == 
+            EhsGetRecordFromString(obj, &EHS_FB_INIT_PARAMETERS[1],(ehs_uint32)(( EhsStrlen(EHS_FB_INIT_PARAMETERS)+ 1) *sizeof(ehs_char)) ); 
+        // ) {
+        //    printf ("Bad constant value - too long?\n");
+        //    return EHS_FALSE; // yes we do want to bail if the constant is not right.
+        //}
     }
     else
     {
-        EhsStrcpy(obj, EHS_FB_INIT_PARAMETERS);
+    //    EhsStrcpy(obj, EHS_FB_INIT_PARAMETERS);
+
+        //if (NULL == we can't actually test for this after all - if only one record is present the return value is NULL too.
+            EhsGetRecordFromString(obj, EHS_FB_INIT_PARAMETERS,(ehs_uint32)(( EhsStrlen(EHS_FB_INIT_PARAMETERS) + 1) * sizeof(ehs_char)) ) ;
+            // ) {
+            //printf ("Bad constant value - too long?\n");
+            //return EHS_FALSE; // yes we do want to bail if the constant is not right.
+        //}
+    
     }
 
     EhsRunConstantString1(&pCallbackTable[0]); // run the callback function now with the callback PFI data supplied to init
@@ -138,7 +152,7 @@ EHS_FB_INIT_FUNCTION(ConstantString1)
 //called by call-back
 EHS_FB_RUN_FUNCTION(ConstantString1)
 {
-    EhsStrcpy(EHS_FB_OUT_S(0), (ehs_char*)EHS_FB_RUN_CONTEXT);
+    EHS_FB_OUT_S_SET(0, (ehs_char*)EHS_FB_RUN_CONTEXT);
 }
 
 /******************************************************************************/

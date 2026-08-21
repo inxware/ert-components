@@ -2,6 +2,7 @@
 #include "inx-parameters.h"
 #include "inx-component.h"
 #include "inx-pid_hdwr_config_int.h"
+#include "hal_pid.h"
 //ICB HEADER MACRO END -- DO NOT ALTER
 //ICB STATE VAR MACRO START -- DO NOT ALTER
 /* My Component state data structure. - Use this in your code! */

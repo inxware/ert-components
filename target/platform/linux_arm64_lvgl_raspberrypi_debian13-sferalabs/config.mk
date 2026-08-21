@@ -55,8 +55,8 @@ EHS_PERIPHERALS_ADC_DAC_SUPPORT=sferalabs
 
 # Strato Pi Max slot capacity (4 slots × up to 4 channels each)
 # Upper nibble encodes slot (1-4), lower nibble encodes channel within slot (1-4)
-DEFS+=EHS_TARGET_ADC_UNIT_NUMBER=1
-DEFS+=EHS_TARGET_ADC_CHANNEL_NUMBER=4
+EHS_TARGET_ADC_UNIT_NUMBER=4
+EHS_TARGET_ADC_CHANNEL_NUMBER=4
 
 #----- Peripheral Features — Serial / RS-485 / RS-422 -----
 # Replaces the always-included UART stub with the Sfera Labs termios implementation.
@@ -73,8 +73,7 @@ DEFS+=SFERALABS_UART1_DEV=\"/dev/ttyAMA2\"
 #   - Expandable to 4 I/O expansion board slots
 #   - Per-slot: 7-ch industrial digital I/O, quad RS-422, 24-bit ADC/DAC, LTE (M.2)
 #   - Base board: watchdog, UPS, dual SD, USB control, accelerometer, secure element
-#DEFS+=EHS_SFERALABS_BOARD_STRATOPIMAX
-DEFS+=EHS_SFERALABS_BOARD_IONOPI
+DEFS+=EHS_SFERALABS_BOARD_STRATOPIMAX
 
 
 #################################################################################################################

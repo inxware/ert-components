@@ -3,26 +3,49 @@
 fb_platform_matrix.py — function-block × platform support matrix.
 
 Reads all CDF files and platform config.mk files and generates a table
-showing which HAL variant (or "—") each function block has on each platform.
+showing which function blocks are supported on which platform OS-arch group.
 
 Usage:
     python3 fb_platform_matrix.py [options]
 
 Options:
-    --repo PATH         Repository root (default: auto-detect from script location)
-    --format {md,csv,html}
-                        Output format (default: csv)
-    --platform GLOB     Filter platform names, e.g. '*sferalabs*' or 'linux_arm64*'
-    --component GLOB    Filter component class names, e.g. '*accel*' or 'watchdog'
-    --no-always         Omit components that are always built (no support variable)
-    --no-never          Omit components that are never built on any shown platform
+    --repo PATH             Repository root (default: auto-detected from script location)
+    --format {md,csv,html,all}
+                            Output format (default: csv).  Repeatable.
+                            'all' produces csv+md+html.
+                            Single format → stdout; multiple → matrix.<ext> files.
+    --platform-list NAME    Filter platforms to those listed in a named platform list
+                            (e.g. 'published', 'community') resolved from
+                            SystemTests/CI/platform-lists/<NAME>.txt, or an explicit
+                            path to any .txt file in the same format.
+                            Default: all platforms found under target/platform/.
+    --platform GLOB         Further filter platform names by glob (repeatable).
+                            Applied after --platform-list if both are given.
+    --component GLOB        Filter component class names by glob (repeatable).
+    --no-always             Omit components that are always built (no support variable).
+    --no-never              Omit components with no support on any shown platform.
+
+Default platform set:
+    Without --platform-list every directory under target/platform/ that contains
+    a config.mk is used (~80+ platforms on a full checkout, collapsed to ~15
+    OS-arch columns).  Use --platform-list published or --platform-list community
+    to restrict to a curated subset.
+
+Markdown format:
+    Columns are fixed at 1 character wide.  Column headings are printed
+    vertically (one character per row) so wide OS-arch names do not blow out
+    the table.  Cell values: '+' = supported, '-' = not supported.
 
 Examples:
-    # All components vs all platforms (CSV, pipe to file):
+    # All components vs all platforms (CSV, to stdout):
     python3 fb_platform_matrix.py > matrix.csv
 
-    # Sfera Labs peripheral blocks only, markdown:
-    python3 fb_platform_matrix.py --format md --platform '*sferalabs*' --component '*'
+    # Published platforms only, markdown:
+    python3 fb_platform_matrix.py --format md --platform-list published
+
+    # Sfera Labs peripheral blocks only, community platforms, markdown:
+    python3 fb_platform_matrix.py --format md --platform-list community \\
+        --platform '*sferalabs*'
 
     # Just the accel/gyro and watchdog rows:
     python3 fb_platform_matrix.py --component '*accel*' --component 'watchdog'
@@ -227,6 +250,36 @@ def find_platforms(repo: Path) -> list[str]:
     )
 
 
+def load_platform_list(repo: Path, name_or_path: str) -> list[str]:
+    """Return the platform names from a named list or an explicit file path.
+
+    Resolution order:
+      1. If name_or_path is an existing file path (absolute or relative to cwd)
+         → read it directly.
+      2. Otherwise treat it as a bare name and look up
+         SystemTests/CI/platform-lists/<name>.txt inside the repo.
+
+    File format: one platform directory name per line; lines starting with '#'
+    and blank lines are ignored (same format as run_regression.sh uses).
+    """
+    p = Path(name_or_path)
+    if not p.exists():
+        candidate = repo / "SystemTests" / "CI" / "platform-lists" / f"{name_or_path}.txt"
+        if candidate.exists():
+            p = candidate
+        else:
+            raise FileNotFoundError(
+                f"Platform list '{name_or_path}' not found as a file path "
+                f"or as a named list under SystemTests/CI/platform-lists/"
+            )
+    platforms = []
+    for line in p.read_text(errors="replace").splitlines():
+        line = line.split("#")[0].strip()
+        if line:
+            platforms.append(line)
+    return platforms
+
+
 def _platform_osarch(platform: str) -> str | None:
     """Map a platform directory name to its OS-architecture column key.
 
@@ -289,7 +342,25 @@ def _platform_osarch(platform: str) -> str | None:
 
 
 def _parse_config_file(path: Path, result: dict[str, str]) -> None:
-    """Parse one config.mk file into result, respecting ?= (setdefault) semantics."""
+    """Parse one config.mk file into result, respecting ?= (setdefault) semantics.
+
+    LIMITATION — include directives are silently ignored.  Many platform
+    config.mk files include a parent config (e.g. a hardware-specific platform
+    includes linux_android_arm_legacy which includes linux_android_arm).  Only
+    the top-level file and the os-arch defaults (loaded separately in
+    parse_platform_config) are read; variables set exclusively in an included
+    parent are therefore invisible to this parser.
+
+    Consequence: for platforms that inherit most of their EHS_*_SUPPORT values
+    through an include chain, this script will under-report support — variables
+    will appear absent rather than reflecting the inherited value.
+
+    TODO: The correct fix is to have make itself dump the fully-resolved variable
+    set for each platform (e.g. via a 'make print-vars' target writing to
+    TARGET_TREES/<platform>/vars.mk, or similar).  That resolved dump would also
+    serve SBOM mapping.  See scripts/software-utilities/README.md for the full
+    TODO description.
+    """
     try:
         text = path.read_text(errors="replace")
     except FileNotFoundError:
@@ -334,18 +405,42 @@ NONE_VALUES = {"none", "0", "false", "no", ""}
 
 PRESENT = "✅"
 ABSENT  = "—"
+STUBBED = "🔵"  # supported only via a stub/placeholder implementation
+
+
+def is_stubbed(val: str) -> bool:
+    """Return True if a SUPPORT variable value names a stub implementation.
+
+    Matches:
+      - "stubbed"                               (plain value, most common)
+      - "*_stub"    e.g. android_stub, gtk_stub (named stub variants)
+      - "*STUBBED"  e.g. EHS_HAL_*_STUBBED      (constant-style values)
+
+    This relies on the project convention that all stub HAL implementation
+    directory names and constant values contain the word "stub".  A survey of
+    all EHS_*_SUPPORT values in target/platform/ and target/os-arch/ found no
+    false positives or known false negatives at the time of writing, but the
+    detection is convention-based, not structurally enforced.
+    """
+    return "stub" in val.lower()
+
 
 def cell_value(support_var: str, platform_vars: dict[str, str]) -> str:
-    """Return PRESENT (✅) if the component is supported, ABSENT (—) if not.
+    """Return PRESENT (✅), STUBBED (○), or ABSENT (—) for the component.
 
-    platform_vars is the merged variable dict for an OS-arch group: a variable
-    is present if any platform in that group sets it to a non-none value.
+    platform_vars is the merged variable dict for an OS-arch group.  The merge
+    logic (see main()) prefers real implementations over stubbed ones, so:
+      - Real value present  → PRESENT
+      - Only stubbed values → STUBBED (○)
+      - Not set / none      → ABSENT
     """
     if support_var == "ALWAYS":
         return PRESENT
     val = platform_vars.get(support_var, "").strip()
     if not val or val.lower() in NONE_VALUES:
         return ABSENT
+    if is_stubbed(val):
+        return STUBBED
     return PRESENT
 
 
@@ -368,24 +463,104 @@ def render_csv(components: list[dict], osarch_list: list[str],
     return buf.getvalue()
 
 
+_MD_COL_W = 4   # fixed column width (chars) for all OS-arch columns
+
+
+def _md_col_parts(oa: str) -> tuple[str, str, str]:
+    """Split an OS-arch key into (os, arch, last) for the key table and column header.
+
+    Splits on '_', discarding empty segments so underscores never appear in cells.
+      os  : first segment  ('linux', 'win', 'esp32', 'arduino')
+      arch: second segment ('x86', 'arm64', 'android', 'freertos'); '' if absent
+      last: final segment  ('64', 'arm', 'arm64', 'freertos', 'x86')
+    """
+    parts = [p for p in oa.split('_') if p]
+    os_  = parts[0]  if len(parts) >= 1 else oa
+    arch = parts[1]  if len(parts) >= 2 else ''
+    last = parts[-1] if parts           else oa
+    return os_, arch, last
+
+
+def _mcell(s: str) -> str:
+    """Truncate or pad s to exactly _MD_COL_W characters."""
+    return s[:_MD_COL_W].ljust(_MD_COL_W)
+
+def _dcell(v: str) -> str:
+    """Pad a data cell value (✅ / —) to _MD_COL_W display columns.
+
+    ✅ is a 2-column wide Unicode character, so it needs _MD_COL_W-2 spaces.
+    — is 1-column wide, so it needs _MD_COL_W-1 spaces.
+    Anything else (ASCII) is padded normally with ljust.
+    """
+    widths = {"✅": 2, "🔵": 2, "—": 1}
+    display_w = widths.get(v, len(v))
+    pad = max(0, _MD_COL_W - display_w)
+    return v + " " * pad
+
+
 def render_markdown(components: list[dict], osarch_list: list[str],
                     osarch_platform_vars: dict[str, dict[str, str]]) -> str:
-    col_w = [max(len(oa), 3) for oa in osarch_list]
+    """Two-table markdown output.
 
-    header = "| Component                 |"
-    sep    = "|---------------------------|"
-    for oa, w in zip(osarch_list, col_w):
-        header += f" {oa:<{w}} |"
-        sep    += "-" * (w + 2) + "|"
-    lines = [header, sep]
+    Key table (above the data table):
+        Header row = OS  (first '_'-delimited word, truncated to _MD_COL_W chars)
+        Data row   = arch (second word, truncated; blank for single-word names)
+        All columns _MD_COL_W chars wide.  Underscores are never displayed —
+        splitting on '_' means each cell contains only a plain word fragment.
+
+    Main data table:
+        Column header = first _MD_COL_W chars of the last '_'-delimited word of
+                        the OS-arch name (e.g. 'arm6' for linux_android_arm64,
+                        'frer' for esp32_freertos).
+        Cell values   = ✅ (supported) / — (not supported).
+        Both tables share the same column order; the key table acts as a legend.
+
+    Example (columns linux_x86_64, linux_android_arm, win_x86):
+
+        |                           | linu | linu | win  |
+        |---------------------------|------|------|------|
+        |                           | x86  | andr | x86  |
+
+        | Component                 | 64   | arm  | x86  |
+        |---------------------------|------|------|------|
+        | DtvDiagnostic             | ✅   | ✅   | —    |
+    """
+    comp_w = 25
+    cw     = _MD_COL_W
+
+    col_parts = [_md_col_parts(oa) for oa in osarch_list]
+
+    col_seg  = f"{'-' * (cw + 2)}|"   # one column segment (no leading |)
+    comp_seg = f"{'-' * (comp_w + 2)}|"
+
+    def _sep(n_cols: int) -> str:
+        return "|" + comp_seg + col_seg * n_cols
+
+    def _row(label: str, cells: list[str]) -> str:
+        return f"| {label:<{comp_w}} |" + "".join(f" {c} |" for c in cells)
+
+    def _pad_label(s: str) -> str:
+        """Pad label to comp_w with underscores so markdown renderers don't trim the cell."""
+        return s + "_" * max(0, comp_w - len(s))
+
+    # ── Key table ─────────────────────────────────────────────────────────────
+    key_hdr  = _row(_pad_label("Operating System"), [_mcell(os_)  for os_, _,    _ in col_parts])
+    key_sep  = _sep(len(osarch_list))
+    key_arch = _row(_pad_label("Architecture"),     [_mcell(arch) for _,    arch, _ in col_parts])
+
+    # ── Main table ─────────────────────────────────────────────────────────────
+    main_hdr = _row("Component", [_mcell(last) for _, _, last in col_parts])
+    main_sep = _sep(len(osarch_list))
+
+    legend = f"{PRESENT} supported  {STUBBED} stub only  {ABSENT} not supported"
+    lines = [legend, "", key_hdr, key_sep, key_arch, "", main_hdr, main_sep]
 
     for comp in components:
         var = comp.get("_var", "?")
-        row = f"| {comp['class']:<25} |"
-        for oa, w in zip(osarch_list, col_w):
-            v = cell_value(var, osarch_platform_vars.get(oa, {}))
-            row += f" {v:<{w}} |"
-        lines.append(row)
+        lines.append(_row(comp['class'], [
+            _dcell(cell_value(var, osarch_platform_vars.get(oa, {})))
+            for oa in osarch_list
+        ]))
 
     return "\n".join(lines) + "\n"
 
@@ -407,7 +582,12 @@ def render_html(components: list[dict], osarch_list: list[str],
         rows.append(f"<td>{esc(comp['class'])}</td><td>{esc(comp['menu'])}</td>")
         for oa in osarch_list:
             v = cell_value(var, osarch_platform_vars.get(oa, {}))
-            colour = " style='background:#d4edda'" if v == PRESENT else ""
+            if v == PRESENT:
+                colour = " style='background:#d4edda'"   # green
+            elif v == STUBBED:
+                colour = " style='background:#fff3cd'"   # amber
+            else:
+                colour = ""
             rows.append(f"<td{colour}>{esc(v)}</td>")
         rows.append("</tr>")
 
@@ -434,8 +614,14 @@ def main() -> None:
                              "'all' produces csv+md+html. "
                              "Single format → stdout; multiple → matrix.<ext> files. "
                              "(default: csv)")
+    parser.add_argument("--platform-list", metavar="NAME_OR_PATH", dest="platform_list",
+                        help="Restrict platforms to those in a named list "
+                             "('published', 'community') from "
+                             "SystemTests/CI/platform-lists/, or an explicit .txt path. "
+                             "Default: all platforms under target/platform/.")
     parser.add_argument("--platform", action="append", metavar="GLOB", dest="platform_globs",
-                        help="Filter platforms by glob pattern (repeatable)")
+                        help="Further filter platforms by glob pattern (repeatable). "
+                             "Applied after --platform-list if both are given.")
     parser.add_argument("--component", action="append", metavar="GLOB", dest="comp_globs",
                         help="Filter components by class name glob (repeatable)")
     parser.add_argument("--no-always", action="store_true",
@@ -502,6 +688,17 @@ def main() -> None:
 
     # Discover platforms and group by OS-architecture
     all_platforms = find_platforms(repo)
+
+    # Apply --platform-list filter first
+    if args.platform_list:
+        try:
+            listed = load_platform_list(repo, args.platform_list)
+        except FileNotFoundError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            sys.exit(1)
+        listed_set = set(listed)
+        all_platforms = [p for p in all_platforms if p in listed_set]
+
     if args.platform_globs:
         all_platforms = [
             p for p in all_platforms
@@ -531,8 +728,15 @@ def main() -> None:
         merged: dict[str, str] = {}
         for p in plats:
             for var, val in platform_vars.get(p, {}).items():
-                if var not in merged and val.strip().lower() not in NONE_VALUES:
-                    merged[var] = val
+                v = val.strip()
+                if not v or v.lower() in NONE_VALUES:
+                    continue
+                existing = merged.get(var, "")
+                # Prefer a real implementation over a stub so that an OS-arch
+                # group shows PRESENT (✅) if at least one platform has a real HAL,
+                # even if others in the same group only have a stub.
+                if not existing or (is_stubbed(existing) and not is_stubbed(v)):
+                    merged[var] = v
         osarch_platform_vars[oa] = merged
 
     # Optional filters

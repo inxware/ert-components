@@ -13,6 +13,43 @@
 # Zephyr SDK ARM toolchain configuration
 # This follows the same pattern as esp32s3_freertos-xtensa/toolchain_idf_5_1_x.mk
 
+# ---------------------------------------------------------------------------
+# Toolchain path resolution — current state and future options
+#
+# The arm-zephyr-eabi-* binaries below are bare names with no path prefix.
+# They are resolved via $PATH at build time.  This works today because the
+# Zephyr Docker image (ghcr.io/zephyrproject-rtos/ci:v0.27.4) places the
+# Zephyr SDK under /opt/toolchains/zephyr-sdk-<ver>/arm-zephyr-eabi/bin and
+# adds that directory to $PATH.  Outside the Docker container the tools will
+# not be found unless the user has set up $PATH manually.
+#
+# Three realistic installation scenarios to support in future:
+#
+#   1. Docker / /opt/ install  — current behaviour; tools are on $PATH
+#      (equivalent to TOOLCHAIN_NAME=HOST for other targets).
+#
+#   2. ert-build-support tree  — place the SDK under
+#      ../ert-build-support/toolchains/x86_64/arm-zephyr-eabi/
+#      and set TOOLCHAIN_NAME=arm-zephyr-eabi in config.mk.  platform.mk
+#      would then construct TOOLCHAIN_PATH and prepend bin/ to CC etc.,
+#      exactly as it does for arm-none-eabi and xtensa toolchains.
+#
+#   3. User-defined path       — e.g. Nordic's nRF Connect SDK installs its
+#      own Zephyr SDK at an arbitrary location.  A new make variable such as
+#      ERT_ZEPHYR_SDK_PATH could be set in config.mk or the environment to
+#      override the bare-name resolution.
+#
+# TODO: Decide whether we need a new TOOLCHAIN_NAME keyword "OPT" (analogous
+# to "HOST") meaning "the toolchain is installed at an absolute /opt/ path on
+# this machine".  "HOST" already means "on $PATH" and currently covers the
+# Docker case implicitly.  An explicit "OPT" keyword would only add value if
+# we want platform.mk to auto-construct the /opt/toolchains/<sdk>/... prefix
+# rather than relying on the Docker image's PATH setup.  The cleaner long-term
+# option is probably scenario 2 (ert-build-support) or scenario 3
+# (ERT_ZEPHYR_SDK_PATH) rather than hardcoding /opt/ semantics into the
+# keyword.
+# ---------------------------------------------------------------------------
+
 # Setup the toolchain path - Zephyr SDK provides arm-zephyr-eabi-* tools
 ifndef CC_OVERRIDE
    CC_OVERRIDE:=arm-zephyr-eabi-gcc
@@ -62,7 +99,7 @@ CFLAGS += -std=gnu17 -Og -ggdb -ffunction-sections -fdata-sections -nostdlib -Wa
 endif
 CFLAGS += -MMD -MP
 CFLAGS += -D_GNU_SOURCE -D_POSIX_READER_WRITER_LOCKS
-CFLAGS += -DZEPHYR_RTOS=1
+CFLAGS += -DEHS_ZEPHYR_RTOS=1
 
 # Linker flags
 LNKFLAGS += -nostdlib -Wl,--gc-sections -Wl,--warn-common

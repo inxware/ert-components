@@ -1,4 +1,3 @@
-# inxware/inx-debian12-clang-arm-qt
 FROM debian:12
 RUN echo "Successfully entered and fetched debian:12"
 RUN apt update
@@ -14,6 +13,16 @@ RUN apt update -y --fix-missing
 # Core build tools
 #######################################################
 
+# NOTE: crossbuild-essential-arm64 was removed here (2026-08).  It pulls
+# gcc-aarch64-linux-gnu / g++-12-aarch64-linux-gnu, which pin
+# gcc-12-aarch64-linux-gnu (= 12.2.0-14cross1).  A bookworm point release moved the
+# arm64 runtime to 12.2.0-14+deb12u1 but the amd64 *cross* packages were never
+# rebuilt, so that metapackage is now uninstallable and made the whole image
+# unbuildable ("held broken packages").
+# We compile with clang --target=aarch64-linux-gnu (see target/os-arch/linux-arm64/
+# toolchain.mk), not the GCC cross driver, so all clang needs is the aarch64
+# assembler/linker from binutils plus the arm64 crt/libgcc/libstdc++ bits, which
+# come from the multiarch :arm64 dev packages requested explicitly below.
 RUN apt install -y \
     build-essential \
     cmake \
@@ -22,11 +31,13 @@ RUN apt install -y \
     git-lfs \
     clang \
     llvm \
+    lld \
     gcc-multilib \
     g++-multilib \
     binutils-aarch64-linux-gnu \
     libc6-arm64-cross \
-    crossbuild-essential-arm64 \
+    libgcc-12-dev:arm64 \
+    libstdc++-12-dev:arm64 \
     wget \
     sudo
 
@@ -87,15 +98,32 @@ RUN echo "deb [ trusted=yes ] http://archive.raspberrypi.com/debian/ bookworm ma
 RUN apt update && apt install -y pigpio:arm64
 
 #Add the hailo headers and library for linking
-
-RUN pwd
-ARG HAILO_SDK_VERSION=4.22.0
+#
+# OPTIONAL.  This target does not enable EHS_ML_HARDWARE_ACCELERATION=hailo
+# (see config.mk - it, EHS_ML_SUPPORT and EHS_MV_SUPPORT=opencv are all commented
+# out), and the .deb is not committed anywhere in the repo.  An unconditional COPY
+# of a file that isn't in the build context makes `make build_docker_local` fail
+# outright, which is what stopped this image being rebuilt and left it without
+# wiringPi/pigpio.  So it is now off by default:
+#
+#   make build_docker_local                          -> no HailoRT (default)
+#   ERT_DOCKER_BUILD_ARGS=INSTALL_HAILO=1 make build_docker_local
+#                                                    -> installs HailoRT
+#
+# For the ON case, drop hailort_${HAILO_SDK_VERSION}_arm64.deb into <repo-root>/temp/
+# first.  COPY itself cannot be made conditional, so temp/ is committed with a
+# .gitkeep and the whole directory is copied; the conditional lives in the RUN.
 #TODO -We need to be ablt to copy tis from the ert-contrib middleware as a prebuild step?
 # from ./ert-contrib-middleware/contrib/hailort/hailort_4.22.0_arm64.deb
-# COPY ../ert-contrib-middleware/contrib/hailort/hailort_${HAILO_SDK_VERSION}_arm64.deb /tmp/hailort_${HAILO_SDK_VERSION}_arm64.deb
-COPY temp/hailort_${HAILO_SDK_VERSION}_arm64.deb /tmp/hailort_${HAILO_SDK_VERSION}_arm64.deb
-#COPY ../target/platform/linux_arm64_lvgl_raspberrypi_demo/hailort_${HAILO_SDK_VERSION}_arm64.deb /tmp/hailort_${HAILO_SDK_VERSION}_arm64.deb
-RUN dpkg -i /tmp/hailort_${HAILO_SDK_VERSION}_arm64.deb ; rm /tmp/hailort_*_arm64.deb
+ARG HAILO_SDK_VERSION=4.22.0
+ARG INSTALL_HAILO=0
+COPY temp/ /tmp/hailo/
+RUN if [ "${INSTALL_HAILO}" = "1" ]; then \
+        dpkg -i /tmp/hailo/hailort_${HAILO_SDK_VERSION}_arm64.deb ; \
+    else \
+        echo "Skipping HailoRT install (INSTALL_HAILO=${INSTALL_HAILO})" ; \
+    fi ; \
+    rm -rf /tmp/hailo
 
 # We awnt to sudo to experiment with a few things:
 #RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo

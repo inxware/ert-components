@@ -37,7 +37,7 @@ EHS_GNU_ARCH=x86_64
 EHS_GNU_OS=linux-gnu
 
 #It seems the Debian 10 greengrass build works fine with debian 11 so we are using this for now.
-EHS_GNU_OS_VERSION=-clang10_clang10
+EHS_TARGET_LIB_VARIANT=-clang10_clang10
 
 EHS_TOOLCHAIN_TYPE=clang
 TOOLCHAIN_NAME=HOST
@@ -55,7 +55,6 @@ COMPONENT_VARIANT=base
 
 # For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms rather than built in ert-contrib-middleware):
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
 
 
 #################################################################################################################

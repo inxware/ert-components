@@ -44,7 +44,7 @@ TOOLCHAIN_NAME=HOST
 # SET THIS ONLY IF YOU ALSO WANT TO USE THE HOST'S /usr/include and library paths for depedencies
 EHS_HOST_DEBIAN_BUILD=armhf
 
-#EHS_GNU_OS_VERSION=-clang10ubuntu18
+#EHS_TARGET_LIB_VARIANT=-clang10ubuntu18
 EHS_DEBIAN_VERSION=9
 
 # Contributed library dependencies variant
@@ -52,7 +52,6 @@ COMPONENT_VARIANT=base
 
 # For non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms rather than built in ert-contrib-middleware):
 # COMPONENT_BASE_TECHNOLOGIES_OVERRIDE allows non-conformal paths to component libraries (e.g. those wrenched from pre-built platforms).
-#COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
 
 
 #################################################################################################################

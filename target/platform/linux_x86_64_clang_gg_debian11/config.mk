@@ -37,10 +37,10 @@ EHS_OS=linux
 EHS_GNU_ARCH=x86_64
 EHS_GNU_OS=linux-gnu
 #use toolchain clib environment
-#EHS_GNU_OS_VERSION=-clang10_clang10
+#EHS_TARGET_LIB_VARIANT=-clang10_clang10
 #todo2025 - We whould be supporting debian11 and debian 12 - still using debian 10 built libraries?
-#EHS_GNU_OS_VERSION=-clang11_debian11
-EHS_GNU_OS_VERSION=-clang10_clang10
+#EHS_TARGET_LIB_VARIANT=-clang11_debian11
+EHS_TARGET_LIB_VARIANT=-clang10_clang10
 
 EHS_TOOLCHAIN_TYPE=clang
 #CC_OVERRIDE=clang

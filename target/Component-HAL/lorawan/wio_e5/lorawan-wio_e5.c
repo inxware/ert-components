@@ -5,10 +5,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include "globals.h"
-#include "lorawan-wio_e5.h"
+#include "lorawan_module.h"
 #include "lorawan.h"
 #include "target_uart.h"
 #include "lorawan_helper.h"
+
+/**
+ * @brief TODO
+ *  1. Change the function name from LoRaWAN_module_* to LoRaWAN_wioe5_*
+ *  2. Rename "lorawan_module.h" to "lorawan_wioe5.h"
+ */
 
 /**
  * @brief Notes
@@ -206,7 +212,7 @@ static char lw_misc_buffer[LW_MISC_BUFFER_SIZE] = {0};
     snprintf(x, LW_SEND_BUFFER_SIZE - 1, __VA_ARGS__); \
 } while (0)
 
-static void LoRaWAN_wioe5_onUart(char *payload, int length);
+static void LoRaWAN_module_onUart(char *payload, int length);
 
 /*
  * Send the UART message until "DONE" or "ERROR" received.
@@ -244,7 +250,7 @@ static ehs_lorawan_api_errno_t sendWaitUntilComplete(char *UART_payload, int at_
  * Init the communication interface with LoRaWAN module
  *
  * */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_init(ehs_sint32 com_port)
+ehs_lorawan_api_errno_t LoRaWAN_module_init(ehs_sint32 com_port)
 {
     ehs_lorawan_api_errno_t ret = TgtUART_OK;
     if ((ret = TgtUart_Stage0(LORA_UART_PORT)) != TgtUART_OK) return ret;
@@ -258,7 +264,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_init(ehs_sint32 com_port)
                              LORA_UART_CTS_PIN,
                              9600, 8, 0, 0, 0)) != TgtUART_OK) {ehs_lorawan_debug("Uart Start ret: %d\n", ret); return ret;}
 //	if ((ret = TgtUart_Start(LORA_UART_PORT)) != TgtUART_OK) { ehs_lorawan_debug("UART Start ret: %d\n", ret); return ret; }
-    if ((ret = TgtUART_Intr_register(LORA_UART_PORT, &LoRaWAN_wioe5_onUart)) != TgtUART_OK) {ehs_lorawan_debug("Uart Intr Reg ret: %d\n", ret); return ret;}
+    if ((ret = TgtUART_Intr_register(LORA_UART_PORT, &LoRaWAN_module_onUart)) != TgtUART_OK) {ehs_lorawan_debug("Uart Intr Reg ret: %d\n", ret); return ret;}
 
     return ret;
 }
@@ -267,7 +273,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_init(ehs_sint32 com_port)
  * De-init (destroy) the UART interface
  *
  * */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_deinit()
+ehs_lorawan_api_errno_t LoRaWAN_module_deinit()
 {
     ehs_lorawan_api_errno_t ret = TgtUART_OK;
     ret = TgtUart_Stop(LORA_UART_PORT);
@@ -279,7 +285,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_deinit()
  *  Note that the DevAddr_OUT should be allocated with sufficient memory.
  *
  * */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT, e_ehs_lw_class_t class_type, ehs_sint32 subband, ehs_float rxwin2_freq, ehs_sint32 rxwin2_dr, ehs_sint32 tx_power)
+ehs_lorawan_api_errno_t LoRaWAN_module_connect(char *AppKey, char *AppEui, ehs_bool mode, char *DevAddr_ABP, char *AppSKey, char *NwkSKey, ehs_sint32 REPT, ehs_sint32 RETRY, e_ehs_lw_region_t region, ehs_bool ADR, ehs_sint32 DR, ehs_sint32 autoJoin, char *DevAddr_OUT, e_ehs_lw_class_t class_type, ehs_sint32 subband, ehs_float rxwin2_freq, ehs_sint32 rxwin2_dr, ehs_sint32 tx_power)
 {
     loraConnecting = EHS_TRUE;
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
@@ -364,7 +370,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bo
      * TODO: implement AT+LW=BAND,<n> for sub-band selection once firmware support is confirmed.
      * For now, log a warning if subband != 0. */
     if (subband != 0) {
-        ehs_lorawan_debug("[LoRaWAN_wioe5_connect] WARNING: subband=%d requested but not yet implemented\n", subband);
+        ehs_lorawan_debug("[LoRaWAN_module_connect] WARNING: subband=%d requested but not yet implemented\n", subband);
     }
 
     return ret;
@@ -374,7 +380,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_connect(char *AppKey, char *AppEui, ehs_bo
  * Send message to the server, either unconfirmed or confirmed
  *
  * */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_send_msg(char *payload, ehs_uint8 fport, ehs_bool confirmed)
+ehs_lorawan_api_errno_t LoRaWAN_module_send_msg(char *payload, ehs_uint8 fport, ehs_bool confirmed)
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     char send_buffer[LW_SEND_BUFFER_SIZE];
@@ -396,7 +402,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_send_msg(char *payload, ehs_uint8 fport, e
  * LoRaWAN module software reset
  *
  * */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_reset( void )
+ehs_lorawan_api_errno_t LoRaWAN_module_reset( void )
 {
     char send_buffer[LW_SEND_BUFFER_SIZE];
     _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s\r\n", AT_COMMAND_STRING[AT_RESET]);
@@ -408,11 +414,13 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_reset( void )
  * Note that the passed argument should have memory allocated. If that is
  *
  * */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_get_sysData(char *data, char *DevEui)
+ehs_lorawan_api_errno_t LoRaWAN_module_get_sysData(char *data, char *DevEui)
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     char send_buffer[LW_SEND_BUFFER_SIZE] = {0};
-    lw_sysdata_t sysData;
+    /* Zeroed: every 'goto LoRaWAN_wio_e5_get_sysData_Return' below can fire before these
+     * pointers are malloc'd, and the cleanup label free()s them. */
+    lw_sysdata_t sysData = {0};
     char result_data[LW_MISC_BUFFER_SIZE] = {0};
 
     _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s\r\n", AT_COMMAND_STRING[AT_RTC]);
@@ -442,13 +450,72 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_get_sysData(char *data, char *DevEui)
     else DevEui = strdup(sysData.DevEui);
     if (data != NULL) memcpy(data, result_data, strlen(result_data) + 1);
     else data = strdup(result_data);
-    ehs_lorawan_debug("LoRaWAN_wioe5_get_sysData: data: [%s] DevEui: [%s]\n", data, DevEui);
+    ehs_lorawan_debug("LoRaWAN_module_get_sysData: data: [%s] DevEui: [%s]\n", data, DevEui);
 LoRaWAN_wio_e5_get_sysData_Return:
-    if (sysData.rtc    != NULL) free(sysData.rtc);    sysData.rtc = NULL;
-    if (sysData.temp   != NULL) free(sysData.temp);   sysData.temp = NULL;
-    if (sysData.vdd    != NULL) free(sysData.vdd);    sysData.vdd = NULL;
-    if (sysData.DevEui != NULL) free(sysData.DevEui); sysData.DevEui = NULL;
+    if (sysData.rtc != NULL)
+    {
+        free(sysData.rtc);
+    }
+    sysData.rtc = NULL;
+    if (sysData.temp != NULL)
+    {
+        free(sysData.temp);
+    }
+    sysData.temp = NULL;
+    if (sysData.vdd != NULL)
+    {
+        free(sysData.vdd);
+    }
+    sysData.vdd = NULL;
+    if (sysData.DevEui != NULL)
+    {
+        free(sysData.DevEui);
+    }
+    sysData.DevEui = NULL;
     return ret;
+}
+
+/* Synchronous accessors for console "?l" — see lorawan_module.h. wio_e5
+ * stores DevEui / DevAddr as hex ASCII strings (gLW_idData), populated by
+ * the AT-command parser. peekJoined infers joined state from DevAddr being
+ * non-empty (set on +JOIN OK response). */
+static ehs_uint8 _wio_hex_nibble(char c)
+{
+    if (c >= '0' && c <= '9') return (ehs_uint8)(c - '0');
+    if (c >= 'a' && c <= 'f') return (ehs_uint8)(c - 'a' + 10);
+    if (c >= 'A' && c <= 'F') return (ehs_uint8)(c - 'A' + 10);
+    return 0xFF;
+}
+
+void LoRaWAN_module_peekDevEui(ehs_uint8 out_8[8])
+{
+    if (out_8 == NULL) return;
+    for (int i = 0; i < 8; i++) out_8[i] = 0;
+    const char *s = gLW_idData.DevEui;
+    for (int i = 0; i < 8 && s[2*i] && s[2*i + 1]; i++) {
+        ehs_uint8 hi = _wio_hex_nibble(s[2*i]);
+        ehs_uint8 lo = _wio_hex_nibble(s[2*i + 1]);
+        if (hi == 0xFF || lo == 0xFF) break;
+        out_8[i] = (ehs_uint8)((hi << 4) | lo);
+    }
+}
+
+ehs_bool LoRaWAN_module_peekJoined(void)
+{
+    return (gLW_idData.DevAddr[0] != '\0') ? EHS_TRUE : EHS_FALSE;
+}
+
+ehs_uint32 LoRaWAN_module_peekDevAddr(void)
+{
+    /* DevAddr stored as 8-char hex ASCII (e.g. "260BA880"). */
+    const char *s = gLW_idData.DevAddr;
+    ehs_uint32 v = 0;
+    for (int i = 0; i < 8 && s[i]; i++) {
+        ehs_uint8 n = _wio_hex_nibble(s[i]);
+        if (n == 0xFF) return 0;
+        v = (v << 4) | n;
+    }
+    return v;
 }
 
 /**
@@ -457,7 +524,7 @@ LoRaWAN_wio_e5_get_sysData_Return:
  * @param datarate The level of datarate to set
  * @return ehs_lorawan_api_errno_t
  */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_datarate(ehs_sint32 datarate)
+ehs_lorawan_api_errno_t LoRaWAN_module_set_datarate(ehs_sint32 datarate)
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     char send_buffer[LW_SEND_BUFFER_SIZE];
@@ -473,7 +540,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_datarate(ehs_sint32 datarate)
  * @param length
  * @return ehs_lorawan_api_errno_t
  */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_get_payloadLength(ehs_sint32 *length_out)
+ehs_lorawan_api_errno_t LoRaWAN_module_get_payloadLength(ehs_sint32 *length_out)
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     char send_buffer[LW_SEND_BUFFER_SIZE];
@@ -495,7 +562,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_get_payloadLength(ehs_sint32 *length_out)
  *
  * @return ehs_lorawan_api_errno_t
  */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_disable( void )
+ehs_lorawan_api_errno_t LoRaWAN_module_disable( void )
 {
     ehs_lorawan_api_errno_t ret = E_LWAPIERRNO_OK;
     char send_buffer[LW_SEND_BUFFER_SIZE];
@@ -513,7 +580,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_disable( void )
 /**
  * @brief Set the LoRaWAN device class (A, B or C)
  */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_class(e_ehs_lw_class_t class_type)
+ehs_lorawan_api_errno_t LoRaWAN_module_set_class(e_ehs_lw_class_t class_type)
 {
     char send_buffer[LW_SEND_BUFFER_SIZE];
     const char class_char = (class_type == E_LWCLASS_B) ? 'B' : (class_type == E_LWCLASS_C) ? 'C' : 'A';
@@ -524,7 +591,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_class(e_ehs_lw_class_t class_type)
 /**
  * @brief Set the TX power index (0 = max EIRP for region, higher = lower power)
  */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_txpower(ehs_sint32 tx_power)
+ehs_lorawan_api_errno_t LoRaWAN_module_set_txpower(ehs_sint32 tx_power)
 {
     char send_buffer[LW_SEND_BUFFER_SIZE];
     _COPY_INTO_SEND_BUFFER(send_buffer, "AT%s=%d\r\n", AT_COMMAND_STRING[AT_POWER], tx_power);
@@ -542,7 +609,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_set_txpower(ehs_sint32 tx_power)
  * TODO: send a short empty frame immediately to force the link check uplink
  * without requiring the application to send a data frame first.
  */
-ehs_lorawan_api_errno_t LoRaWAN_wioe5_link_check( void )
+ehs_lorawan_api_errno_t LoRaWAN_module_link_check( void )
 {
     char send_buffer[LW_SEND_BUFFER_SIZE];
     /* Schedule LinkCheckReq on next message */
@@ -550,7 +617,7 @@ ehs_lorawan_api_errno_t LoRaWAN_wioe5_link_check( void )
     return sendWaitUntilComplete(send_buffer, AT_LW);
 }
 
-static void LoRaWAN_wioe5_onUart(char *payload, int length)
+static void LoRaWAN_module_onUart(char *payload, int length)
 {
     ehs_lorawan_debug("[%s] {%s}\n", __func__, payload);
     assert(buffer_index + length < LW_BUFFER_SIZE);
@@ -565,7 +632,7 @@ static void LoRaWAN_wioe5_onUart(char *payload, int length)
         _bufferFlag = EHS_FALSE;
         memcpy(buffer + buffer_index, payload, length);
         buffer_index += length;
-        goto LoRaWAN_wioe5_onUart_Return;
+        goto LoRaWAN_module_onUart_Return;
     } else {
         _bufferFlag = EHS_TRUE;
         memcpy(buffer + buffer_index, payload, length);
@@ -697,19 +764,19 @@ static void LoRaWAN_wioe5_onUart(char *payload, int length)
                         /* When it gets the link status */
                         switch (msg_type) {
                             case AT_MSG: {
-                                sscanf(temp_buf, "+MSG: LINK %d, %d", &gEhsLoraApiData.link_margin, &gEhsLoraApiData.gateway_count);
+                                sscanf(temp_buf, "+MSG: LINK %hhu, %hhu", &gEhsLoraApiData.link_margin, &gEhsLoraApiData.gateway_count);
                                 break;
                             }
                             case AT_CMSG: {
-                                sscanf(temp_buf, "+CMSG: LINK %d, %d", &gEhsLoraApiData.link_margin, &gEhsLoraApiData.gateway_count);
+                                sscanf(temp_buf, "+CMSG: LINK %hhu, %hhu", &gEhsLoraApiData.link_margin, &gEhsLoraApiData.gateway_count);
                                 break;
                             }
                             case AT_MSGHEX: {
-                                sscanf(temp_buf, "+MSGHEX: LINK %d, %d", &gEhsLoraApiData.link_margin, &gEhsLoraApiData.gateway_count);
+                                sscanf(temp_buf, "+MSGHEX: LINK %hhu, %hhu", &gEhsLoraApiData.link_margin, &gEhsLoraApiData.gateway_count);
                                 break;
                             }
                             case AT_CMSGHEX: {
-                                sscanf(temp_buf, "+CMSGHEX: LINK %d, %d", &gEhsLoraApiData.link_margin, &gEhsLoraApiData.gateway_count);
+                                sscanf(temp_buf, "+CMSGHEX: LINK %hhu, %hhu", &gEhsLoraApiData.link_margin, &gEhsLoraApiData.gateway_count);
                                 break;
                             }
                             default: {
@@ -870,7 +937,7 @@ static void LoRaWAN_wioe5_onUart(char *payload, int length)
         }
     }
 
-LoRaWAN_wioe5_onUart_Return:
+LoRaWAN_module_onUart_Return:
     if (_bufferFlag == EHS_TRUE)
     {
         memset(buffer, 0, LW_BUFFER_SIZE);

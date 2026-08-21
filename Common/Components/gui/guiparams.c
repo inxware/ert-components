@@ -203,7 +203,7 @@ ehs_bool EhsParseGuiParameters_bitmap(const char** pParam, EhsGuiParamsType* pGu
         {
             if (nParamsRead >= (2+nParsed))
             {
-                EhsGetWordFromString(pGuiParams->uClass.xBitmap.szBitmapName, pParam[nParsed++]);
+                EhsGetWordFromString(pGuiParams->uClass.xBitmap.szBitmapName, pParam[nParsed++], sizeof(pGuiParams->uClass.xBitmap.szBitmapName));
                 pTmp = strchr(pGuiParams->uClass.xBitmap.szBitmapName,EHS_PARAM_SEPARATOR);
                 *pTmp = '\0';
                 /* get z-order into pParams->nZorder without conversion - we can address
@@ -223,7 +223,7 @@ ehs_bool EhsParseGuiParameters_bitmap(const char** pParam, EhsGuiParamsType* pGu
                  * The version number of the gui file has been left as 1.3 to reflect this
                  */
                 EhsGetUint8FromString(&(pGuiParams->uClass.xBitmap.nImageAlpha),pParam[nParsed++]);
-                EhsGetWordFromString(pGuiParams->uClass.xBitmap.szBitmapName, pParam[nParsed++]);
+                EhsGetWordFromString(pGuiParams->uClass.xBitmap.szBitmapName, pParam[nParsed++], sizeof(pGuiParams->uClass.xBitmap.szBitmapName));
                 pTmp = strchr(pGuiParams->uClass.xBitmap.szBitmapName,EHS_PARAM_SEPARATOR);
                 if (pTmp)
                 {
@@ -286,7 +286,7 @@ ehs_bool EhsParseGuiParameters_textbox(const char** pParam, EhsGuiParamsType* pG
                 {
                     if (nParamsRead >= (6+nParsed))
                     {
-                        EhsGetWordFromString((pGuiParams->uClass.xTextbox.szFontName),pParam[nParsed++]);
+                        EhsGetWordFromString((pGuiParams->uClass.xTextbox.szFontName),pParam[nParsed++], sizeof(pGuiParams->uClass.xTextbox.szFontName));
                         EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentL),pParam[nParsed++]);
                         EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentR),pParam[nParsed++]);
                         EhsGetUint16FromString(&(pGuiParams->uClass.xTextbox.nIndentT),pParam[nParsed++]);
@@ -432,11 +432,11 @@ ehs_bool EhsParseGuiParametersTextbox(const char* szParamsText, EhsGuiParamsType
     nParam++;
 
     /* Read object name (token 1) */
-    EhsGetWordFromString(szObjectName, pParam[nParam++]);
+    EhsGetWordFromString(szObjectName, pParam[nParam++], sizeof(szObjectName));
 
     /* Read object type (token 2) and validate it matches the expected purpose class.
        The widget class is authoritative; a mismatch means the .gui file is wrong. */
-    EhsGetWordFromString(szObjectType, pParam[nParam++]);
+    EhsGetWordFromString(szObjectType, pParam[nParam++], sizeof(szObjectType));
     pTmp = strchr(szObjectType, EHS_PARAM_SEPARATOR);
     if (pTmp) *pTmp = '\0';
 
@@ -534,11 +534,11 @@ void EhsParseGuiParameters(const char* szParamsText, EhsGuiParamsType* pParams)
 
         EHSH_LOG_INFO("  GUI file format version: %u", nVersion);
 
-        EhsGetWordFromString(szObjectName,pParam[nParam]);
+        EhsGetWordFromString(szObjectName,pParam[nParam], sizeof(szObjectName));
         nParam++;
        
         /* identify widget type & load params */
-        EhsGetWordFromString(szObjectType,pParam[nParam++]);
+        EhsGetWordFromString(szObjectType,pParam[nParam++], sizeof(szObjectType));
         pTmp = strchr(szObjectType,EHS_PARAM_SEPARATOR);
         if (pTmp)
         {

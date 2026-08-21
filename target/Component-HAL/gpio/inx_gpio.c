@@ -7,7 +7,7 @@
 void EhsTOsInitGpio( void )
 {
    // gpioInitialise(); @xiasheng needs to sort this out? where is this???
-   // gGPIOInitialised = EHS_TRUE; - this is usually done by the target if needed ??/
+   // gGPIOInitialised = EHS_TRUE; - this is usually done by the target if needed
 }
 
 /**
@@ -17,7 +17,7 @@ void EhsTOsInitGpio( void )
 void EhsTOsTermGpio( void )
 {
     // gpioTerminate();
-    // gGPIOInitialised = EHS_FALSE; - this is usually done by the target if needed ??/
+    // gGPIOInitialised = EHS_FALSE; - this is usually done by the target if needed
 }
 
 #if 0

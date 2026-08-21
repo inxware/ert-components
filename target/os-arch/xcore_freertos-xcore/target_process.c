@@ -246,7 +246,7 @@ void EhsTPMutex_term(void)
  * priority is an EHS relative value; mapped to FreeRTOS absolute priority.
  */
 ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void *context,
-                             ehs_sint16 priority, ehs_sint32 stackSize)
+                             ehs_sint16 priority, ehs_sint32 stackSize,ehs_char * _szThreadname)
 {
     UBaseType_t freertos_priority;
     uint32_t stack_words;
@@ -259,9 +259,9 @@ ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void *context,
     stack_words = (stackSize > 0) ? (uint32_t)((uint32_t)stackSize / sizeof(StackType_t))
                                   : EHS_XCORE_MIN_STACK_WORDS;
     if (stack_words < EHS_XCORE_MIN_STACK_WORDS)    stack_words = EHS_XCORE_MIN_STACK_WORDS;
-
+    // not the pcnmane (arg22) can be null which is supported in modern FreeRTOS
     result = xTaskCreate((TaskFunction_t)pfRun,
-                         "ehs",
+                         ehs_char * _szThreadname,
                          (configSTACK_DEPTH_TYPE)stack_words,
                          context,
                          freertos_priority,
@@ -269,7 +269,7 @@ ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void *context,
 
     if (result != pdPASS)
     {
-        EHSH_LOG_ERROR("EhsHThread_execute: xTaskCreate failed");
+        EHSH_LOG_ERROR("EhsHThread_execute: xTaskCreate failed (%s)",_szThreadname); // assume logger will translate NULL into "NULL" OK for %s
         return EHS_FALSE;
     }
     return EHS_TRUE;
@@ -334,4 +334,10 @@ void EhsTargetReboot(void)
     /* TODO: implement XMOS reboot via rtos_support watchdog */
     printf("EhsTargetReboot: reboot requested (not yet implemented on xcore)\n");
     while (1) { }
+}
+
+ehs_sint32 EhsHProcess_getStackRemaining(void)
+{
+    /* No cheap stack-remaining primitive wired up for this target. */
+    return -1;
 }

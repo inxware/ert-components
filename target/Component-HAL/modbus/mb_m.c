@@ -620,8 +620,8 @@ EhsThreadFuncReturnType eMBMasterControlThread( void* arg )
         }
         // write master modbus
         if(gMBMasterWriteHashMap != NULL){
-            mbUCHAR  device_id;
-            mbUSHORT reg_type, reg_addr, data;
+            mbUCHAR  device_id = 0;
+            mbUSHORT reg_type = 0, reg_addr = 0, data = 0;
             EhsTPMutex_lock(EhsTPMutex_MBMaster);
             ehs_uint32 map_size = EhsHashMapSize(gMBMasterWriteHashMap);
             EhsTPMutex_unlock(EhsTPMutex_MBMaster);
@@ -690,7 +690,7 @@ void eMBMasterControlThreadStart( void )
             gMBMasterWriteHashMap = EhsCreateHashMap(2);
         }
         // start modbus control thread
-        if( EhsHThread_execute(eMBMasterControlThread, NULL, EHS_PRI_MODBUS_MASTER_CTRL, EHS_THREAD_USE_DEFAULT_STACK_SIZE) == EHS_FALSE ) {
+        if( EhsHThread_execute(eMBMasterControlThread, NULL, EHS_PRI_MODBUS_MASTER_CTRL, EHS_THREAD_USE_DEFAULT_STACK_SIZE,"modbusms") == EHS_FALSE ) {
             atomic_store(&(xMBCtrlThreadRunning), FALSE);
         }
     }

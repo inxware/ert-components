@@ -174,7 +174,9 @@ extern ehs_uint16 g_ehs_adc_continuous_enabled_bitmask[EHS_TARGET_ADC_UNIT_NUMBE
 #define EHS_PID_ADC_CALIBRATION_MAGIC_NUMBER    11091 // round(10.8309621710526 * 1024)
 /****************************** !DO NOT EDIT THIS! ************************************/
 
-esp_err_t IRAM_ATTR inx_adc_cali_raw_to_voltage(adc_cali_handle_t handle, int raw, int *voltage);
+/* IRAM_ATTR is on the definition only - IRAM_ATTR uses __COUNTER__, so repeating it here
+ * would name a second section and GCC would ignore one of them. */
+esp_err_t inx_adc_cali_raw_to_voltage(adc_cali_handle_t handle, int raw, int *voltage);
 ehs_bool legacy_target_read_adc_sample(ehs_uint8 channel, ehs_float *value,
                                 ehs_uint8 config);
 ehs_bool legacy_configure_adc(ehs_uint8 channel, ehs_bool continuous, ehs_float f_s, ehs_sint32 num_samples, ehs_float bias, ehs_uint8 configuration,

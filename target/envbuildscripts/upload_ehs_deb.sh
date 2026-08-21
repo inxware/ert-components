@@ -39,7 +39,7 @@ if [ -z "${UPLOAD}" ]; then
     fi
     if [ "$SSHPORT" = "" ]; then
         echo "WARNING: SSHPORT is not set - using port 22"
-        export SSHPORT=22
+        SSHPORT=22
     fi
 
     #we sometimes provide the server on another URL (currently assumes same username as Devman server host)

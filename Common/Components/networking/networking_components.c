@@ -25,6 +25,8 @@
 #ifdef EHS_MQTT_SUPPORT
 #include "inx-mqtt_publish.h"
 #include "inx-mqtt_subscribe.h"
+#include "inx-mqtt_publish_typed.h"
+#include "inx-mqtt_subscribe_typed.h"
 #include "inx-mqtt_client.h"
 #endif
 
@@ -35,6 +37,17 @@
 #ifdef EHS_NETWORK_BLE_SUPPORT
 #include "inx-ble_service.h"
 #endif//EHS_NETWORK_BLE_SUPPORT
+
+#ifdef EHS_NETWORK_CELLULAR_SUPPORT
+#include "inx-cell_modem_manager.h"
+#include "inx-cell_status.h"
+#include "inx-cell_power_manager.h"
+#include "inx-sim_manager.h"
+#include "inx-softsim_prov.h"
+#include "inx-esim_profile_mgr.h"
+#include "inx-sgp32_download.h"
+#include "inx-esim_factory_prov.h"
+#endif//EHS_NETWORK_CELLULAR_SUPPORT
 
 #include "devman_player.h"
 #include "url_get.h"
@@ -72,6 +85,8 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_networking[] =
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_mqtt_client ,INXWARE_FB_ID_mqtt_client,mqtt_client),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_mqtt_subscribe,INXWARE_FB_ID_mqtt_subscribe ,mqtt_subscribe),
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_mqtt_publish,INXWARE_FB_ID_mqtt_publish ,mqtt_publish),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_mqtt_subscribe_typed,INXWARE_FB_ID_mqtt_subscribe_typed ,mqtt_subscribe_typed),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_mqtt_publish_typed,INXWARE_FB_ID_mqtt_publish_typed ,mqtt_publish_typed),
 #endif
 
 #ifdef EHS_NETWORK_WIFI_SUPPORT
@@ -82,6 +97,16 @@ EHS_C_CPP_EXPORT const EhsBlockRefType EhsBlockRefTable_networking[] =
 #endif
 #ifdef EHS_NETWORK_BLE_SUPPORT
 	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_ble_service,INXWARE_FB_ID_ble_service,ble_service),
+#endif
+#ifdef EHS_NETWORK_CELLULAR_SUPPORT
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_cell_modem_manager,INXWARE_FB_ID_cell_modem_manager,cell_modem_manager),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_cell_status,INXWARE_FB_ID_cell_status,cell_status),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_cell_power_manager,INXWARE_FB_ID_cell_power_manager,cell_power_manager),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_sim_manager,INXWARE_FB_ID_sim_manager,sim_manager),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_softsim_prov,INXWARE_FB_ID_softsim_prov,softsim_prov),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_esim_profile_mgr,INXWARE_FB_ID_esim_profile_mgr,esim_profile_mgr),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_sgp32_download,INXWARE_FB_ID_sgp32_download,sgp32_download),
+	EHS_BLOCKREF_ENTRY_WITH_DESTROY(INXWARE_FB_NAME_esim_factory_prov,INXWARE_FB_ID_esim_factory_prov,esim_factory_prov),
 #endif
 	{0}
 };

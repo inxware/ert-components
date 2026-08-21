@@ -206,18 +206,22 @@ EHS_FB_RUN_FUNCTION(appget_getapp)
             //@todo Install as Home App - This should could some credentials service - or be removed from 3rd -party component profiles
             EhsAppMakeDownloadString(ObjData->szpDownloadDir, EHS_SYS_APP_DEFAULT_NAME);
             EhsStrcpy(ObjData->szAppLocalName,EHS_SYS_APP_DEFAULT_NAME);
+            EHSH_LOG_WARNING("[APPSTORAGE-TRACE] appget FB: install mode 1 (HOME) — target %s", ObjData->szpDownloadDir);
         }
         else if (ObjData->nInstallMode == 2)
         {
             // install as temp app
             EhsAppMakeDownloadString(ObjData->szpDownloadDir,EHS_SYS_APP_TEMP_NAME);
             EhsStrcpy(ObjData->szAppLocalName,EHS_SYS_APP_TEMP_NAME);
+            EHSH_LOG_WARNING("[APPSTORAGE-TRACE] appget FB: install mode 2 (TEMP / debugger) — target %s", ObjData->szpDownloadDir);
         }
         else
         {
             // install as standard app
             EhsAppMakeDownloadString(ObjData->szpDownloadDir,ObjData->szAppCanonicalName);
             EhsStrcpy(ObjData->szAppLocalName,ObjData->szAppCanonicalName);
+            EHSH_LOG_WARNING("[APPSTORAGE-TRACE] appget FB: install mode 0 (standard, canonical=[%s]) — target %s",
+                             ObjData->szAppCanonicalName, ObjData->szpDownloadDir);
         }
 
         /* Start URL get thread to pump data into a buffer */
@@ -228,7 +232,7 @@ EHS_FB_RUN_FUNCTION(appget_getapp)
     else
     {
         EHS_FB_FINISH(EHS_GETAPP_GETAPP_ERROR_EO);
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETAPP_ERROR_DO),"busy");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETAPP_ERROR_DO, "busy");
     }
 }
 
@@ -306,7 +310,7 @@ EHS_FB_THREAD_FUNCTION(appget_getinfo_thread)
     PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?ehs_char * PostString; // TODO2024 why we do this here but not for the above
     if (!PostString)
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Insufficient memory");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_ERROR_DO, "Insufficient memory");
         EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
         goto error;
     }
@@ -322,7 +326,7 @@ EHS_FB_THREAD_FUNCTION(appget_getinfo_thread)
     EhsHSetUpLocalProxy(ObjData->curl);
     if (!ObjData->URL_write_data_buffer_struct)
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"Could not configure URL get");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_ERROR_DO, "Could not configure URL get");
         EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
         goto error;
     }
@@ -349,7 +353,7 @@ EHS_FB_THREAD_FUNCTION(appget_getinfo_thread)
         szXml=EhsHURLget_write_data_buffer(ObjData->URL_write_data_buffer_struct);
         if (szXml != NULL)
         {
-            EhsStrncpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO), szXml,EHS_STRING_LENGTH_MAX);
+            EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_INFO_DO, szXml);
 
             // very dirty bit of xml parsing - assuming tags always arrive in this order
             EhsStrcpy(cName,"No Name Found");
@@ -357,43 +361,43 @@ EHS_FB_THREAD_FUNCTION(appget_getinfo_thread)
             EhsStrcpy(cVersion,"No Version Found");
             EhsStrcpy(cDescription,"No Description Found");
 
-            if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_NAME))
+            if ((element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_NAME)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsStrcpy(cName,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_COMM_NAME))
+            if ((element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_COMM_NAME)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsStrcpy(cCommercialName,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_VERSION))
+            if ((element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_VERSION)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsStrcpy(cVersion,element_cropped);
             }
-            if (element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_DESCRIPTION))
+            if ((element_start = Ehs_ReadXMLTag(szXml, EHS_SYS_APP_INFO_XMLTAG_DESCRIPTION)))
             {
                 Ehs_CopyXMLTagElement(element_cropped, element_start, EHS_STRING_LENGTH_MAX, EHS_TRUE);
                 EhsStrcpy(cDescription,element_cropped);
             }
-            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_NAME_DO), cName);
-            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_COMM_NAME_DO), cCommercialName);
-            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_VERSION_DO), cVersion);
-            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_DESCRIPTION_DO), cDescription);
+            EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_NAME_DO, cName);
+            EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_COMM_NAME_DO, cCommercialName);
+            EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_VERSION_DO, cVersion);
+            EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_DESCRIPTION_DO, cDescription);
 
-            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "OK");
+            EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_ERROR_DO, "OK");
             EHS_FB_FINISH(EHS_GETAPP_GETINFO_OK_EO);
         }
         else
         {
-            EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Can not read internal data buffer");
+            EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_ERROR_DO, "Can not read internal data buffer");
             EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
         }
     }
     else
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO), "Can not access info URL");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_ERROR_DO, "Can not access info URL");
         EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
     }
     EhsHURLfree_write_data_buffer(ObjData->URL_write_data_buffer_struct);
@@ -419,8 +423,8 @@ EHS_FB_RUN_FUNCTION(appget_getinfo)
     appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
     if (!ObjData->curl)
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO),"");
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"initialisation failed");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_INFO_DO, "");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_ERROR_DO, "initialisation failed");
         EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
         return;
     }
@@ -435,8 +439,8 @@ EHS_FB_RUN_FUNCTION(appget_getinfo)
     {
         ObjData->bBusy=EHS_TRUE;
         EHS_FB_FINISH(EHS_GETAPP_GETINFO_ERROR_EO);
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_INFO_DO),"");
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETINFO_ERROR_DO),"busy");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_INFO_DO, "");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETINFO_ERROR_DO, "busy");
     }
 }
 
@@ -464,7 +468,7 @@ EHS_FB_THREAD_FUNCTION(appget_list_remote)
     PostString = EhsHMem_tempAlloc(EHS_POST_STRING_LENGTH_MAX); //more than enough?ehs_char * PostString;
     if (!PostString)
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Insufficient memory");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_ERROR_DO, "Insufficient memory");
         EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
         goto memory_error;
     }
@@ -474,7 +478,7 @@ EHS_FB_THREAD_FUNCTION(appget_list_remote)
     EhsHSetUpLocalProxy(ObjData->curl);
     if (!ObjData->URL_write_data_buffer_struct)
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Could not configure URL get");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_ERROR_DO, "Could not configure URL get");
         EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
         goto memory_error;
     }
@@ -494,14 +498,14 @@ EHS_FB_THREAD_FUNCTION(appget_list_remote)
     if (http_no == 200)
     {
         szXml=EhsHURLget_write_data_buffer(ObjData->URL_write_data_buffer_struct);
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO), szXml);
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "OK");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_LIST_DO, szXml);
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_ERROR_DO, "OK");
         EHS_FB_FINISH(EHS_GETAPP_GETLIST_FINISH_EO);
     }
     else
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO), "Can not access URL");
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO), "");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_ERROR_DO, "Can not access URL");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_LIST_DO, "");
         EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
     }
 
@@ -521,8 +525,8 @@ EHS_FB_RUN_FUNCTION(appget_list_remote)
     appgetObj *ObjData = (appgetObj*)EHS_FB_RUN_CONTEXT;
     if (!ObjData->curl)
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO),"");
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO),"initialisation failed");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_LIST_DO, "");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_ERROR_DO, "initialisation failed");
         EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
         return;
     }
@@ -534,7 +538,7 @@ EHS_FB_RUN_FUNCTION(appget_list_remote)
     {
         ObjData->bBusy=EHS_TRUE;
         EHS_FB_FINISH(EHS_GETAPP_GETLIST_ERROR_EO);
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_LIST_DO),"");
-        EhsStrcpy(EHS_FB_OUT_S(EHS_GETAPP_GETLIST_ERROR_DO),"busy");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_LIST_DO, "");
+        EHS_FB_OUT_S_SET(EHS_GETAPP_GETLIST_ERROR_DO, "busy");
     }
 }

@@ -18,7 +18,8 @@ RunEventHandler(){
 		EVENT=$( getevent -q -l -c 4 )
 		# launch settings
 		if [[ "$EVENT" == *"$SETTINGS_TOGGLE_KEY_CODE"* ]] && 
-		   [[ "$EVENT" == *"$SETTINGS_KEY_MODIFIER"* ]]; then
+		   [[ "$EVENT" == *"$SETTINGS_KEY_MODIFIER"* ]] || 
+		   [[ "$EVENT" == *"KEYM_ENU"* ]]; then
 			IS_SETTINGS=$( IsSettingsOpen )
 			if [ "$IS_SETTINGS" = "YES" ]; then
 				# close settings

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">SoftSIM Provisioning</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">Loads a SoftSIM subscription profile into the modem and reports whether one is present.</p>
+<p class="component">A SoftSIM is a subscription implemented entirely in software, with no physical card. This block installs the profile; selecting SoftSIM as the active type afterwards is the SIM Manager's job.</p>
+<p class="component"><strong>The profile blob carries the subscription's secret keys.</strong> It is never logged by this block, and it should not be routed through ports or storage that end up in a log, a debug console, or an over-the-air message.</p>
+<p class="component"><a href="#[In]check">Check</a> is always safe and always answers; it is the right way to find out whether provisioning is needed before sending a blob anywhere.</p>
+<div class="section_heading">
+<span id="parameters" class="toc_span">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr><th>name</th><th>type</th><th>description</th><th>default</th><th>min.</th><th>max.</th></tr>
+<tr>
+<td><a name="[Param]provider">provider</a></td>
+<td>I</td>
+<td>Profile format. 0 generic, 1 Onomondo.</td>
+<td>0</td>
+<td>0</td><td>1</td>
+</tr>
+</table>
+<div class="section_heading">
+<span id="ports" class="toc_span">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[In]provision">Provision</a></td>
+<td>Install the profile presented on the Profile input.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]check">Check</a></td>
+<td>Report whether a SoftSIM profile is already installed.</td>
+</tr>
+<tr><th>Data In</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[In]blob">Profile</a></td>
+<td>The SoftSIM profile. Secret - see the note above.</td>
+</tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]err_code">errCode</a></td>
+<td>Reason for a provisioning failure. See the enumeration at the foot of this table.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]provisioned">provisioned</a></td>
+<td>True when a SoftSIM profile is installed.</td>
+</tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]prov_ok">Done</a></td>
+<td>Fires when the profile was installed.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]prov_fail">Fail</a></td>
+<td>Fires when installation failed, no profile was supplied, or SoftSIM is unsupported on this target.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]check_ok">CDone</a></td>
+<td>Fires once the provisioned output has been refreshed. Always fires - it does not indicate that a profile exists.</td>
+</tr>
+<tr><th colspan="2">errno values (used by <a href="#[Out]err_code">err_code</a>)</th></tr>
+<tr><td colspan="2">
+<table class="errno_table">
+<thead><tr><th>Enumeration</th><th>Value</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>None</td><td>0</td><td>No failure recorded.</td></tr>
+<tr><td>ModemInit</td><td>1</td><td>Modem library or firmware failed to start.</td></tr>
+<tr><td>SimAbsent</td><td>2</td><td>No UICC responded.</td></tr>
+<tr><td>SimPinRequired</td><td>3</td><td>SIM is PIN locked.</td></tr>
+<tr><td>SimPukRequired</td><td>4</td><td>SIM is PUK locked - needs the operator.</td></tr>
+<tr><td>SimFailure</td><td>5</td><td>UICC fault.</td></tr>
+<tr><td>RegistrationDenied</td><td>6</td><td>Network refused registration.</td></tr>
+<tr><td>NoCoverage</td><td>7</td><td>No usable cell found.</td></tr>
+<tr><td>AttachTimeout</td><td>8</td><td>Attach did not complete in time.</td></tr>
+<tr><td>PdnTimeout</td><td>9</td><td>PDN activation timed out.</td></tr>
+<tr><td>PdnRejected</td><td>10</td><td>APN wrong or not permitted.</td></tr>
+<tr><td>ModemResetLoop</td><td>11</td><td>Modem reset-loop protection tripped.</td></tr>
+<tr><td>Overheated</td><td>12</td><td>Modem shut down on temperature.</td></tr>
+<tr><td>NotSupported</td><td>13</td><td>Capability absent on this target.</td></tr>
+<tr><td>InvalidArg</td><td>14</td><td>Bad argument from the caller.</td></tr>
+<tr><td>Internal</td><td>15</td><td>Internal error.</td></tr>
+</tbody></table>
+</td></tr>
+</table>
+<div class="section_heading">
+<span id="misc" class="toc_span">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr><td class="heading-cell"><b>Toolbox</b></td><td>net</td><td class="heading-cell"><b>Version</b></td><td>v1.0</td></tr>
+<tr><td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td><td class="heading-cell"><b>Component Supplier</b></td><td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td></tr>
+<tr><td class="heading-cell"><b>Minumum DCC</b></td><td>A0000</td><td class="heading-cell"><b>Profiles</b></td><td>All.</td></tr>
+</table>
+</div>
+</body>
+
+</html>

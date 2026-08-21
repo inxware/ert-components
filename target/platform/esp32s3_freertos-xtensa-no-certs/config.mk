@@ -81,9 +81,6 @@ EHS_APPLAND_INST_OS_NAME=xtensa-esp32-s3
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# Maximum wi-fi SSID records buffer size
-DEFS += ESP32_MAX_AP_RECORDS=40
-
 # Wi-Fi credentials (uncomment and set to configure)
 #DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""
 #DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""

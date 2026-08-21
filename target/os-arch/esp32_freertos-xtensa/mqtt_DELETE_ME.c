@@ -2251,8 +2251,10 @@ void mqttMainLoop()
     char *clientKeyFileName = NULL;
     char *rootCAFileName = NULL;
     uint16_t port = 0;
+    printf("XX1\n");
     EhsMQTTConnectPoll(&connect, &host, &port, &gUseTLS, &clientid, &username, &password, &clientCertFileName, &clientKeyFileName, &rootCAFileName);
     err_t err = ERR_OK;
+    printf("XX2\n");
     char publishPayload[INX_MQTT_MAX_PAYLOAD_SIZE];
     switch (MQTT_state)
     {
@@ -2262,6 +2264,7 @@ void mqttMainLoop()
         {
             // after we have inited then start connection
             mqttSetGlobalState(MQTT_STATE_DNS_LOOKUP);
+            printf("XX4\n");
         }
         break;
     case MQTT_STATE_IDLE:
@@ -2365,6 +2368,7 @@ void mqttMainLoop()
                 // PRINTF("do disconnect because mqtt publish connectivity failed\n");
                 //   MQTT_state=MQTT_STATE_DO_DISCONNECT;
                 // }else{
+                printf("XX\n");
                 EhsMQTTConnectEvent(true);
                 //}
             }

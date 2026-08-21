@@ -16,8 +16,8 @@
     </Description>
     <Block>
         <Type>Data_Processor</Type>
-        <Width>120</Width>
-        <Height>200</Height>
+        <Width>115</Width>
+        <Height>373</Height>
         <Text>BLE Service</Text>
         <TextX>20</TextX>
         <TextY>5</TextY>
@@ -75,16 +75,6 @@
             <Description>Advertising interval in milliseconds (20-10240ms). Standard: 100ms for fast, 1000ms for slow.</Description>
             <ListPlacement>4</ListPlacement>
             <ArgPlacement>4</ArgPlacement>
-        </Parameter>
-        <Parameter>
-            <Name>mtu_size</Name>
-            <DataType>I</DataType>
-            <DefaultValue>23</DefaultValue>
-            <MinValue>23</MinValue>
-            <MaxValue>512</MaxValue>
-            <Description>Maximum Transmission Unit size in bytes (23-512). Default is 23 (BLE minimum).</Description>
-            <ListPlacement>5</ListPlacement>
-            <ArgPlacement>5</ArgPlacement>
         </Parameter>
         <Parameter>
             <Name>char_0_uuid</Name>
@@ -319,7 +309,7 @@
             <DataType>I</DataType>
             <Description>status</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>40</YCoordinate>
             <CName>status</CName>
             <Function argument="1">
@@ -329,7 +319,7 @@
         <Port>
             <Description>init_done</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>20</YCoordinate>
             <Wcet>0</Wcet>
             <CName>init_done</CName>
@@ -340,7 +330,7 @@
         <Port>
             <Description>init_error</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>30</YCoordinate>
             <Wcet>0</Wcet>
             <CName>init_error</CName>
@@ -362,7 +352,7 @@
         <Port>
             <Description>adv_started</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>57</YCoordinate>
             <Wcet>0</Wcet>
             <CName>adv_started</CName>
@@ -373,7 +363,7 @@
         <Port>
             <Description>adv_error</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>67</YCoordinate>
             <Wcet>0</Wcet>
             <CName>adv_error</CName>
@@ -395,7 +385,7 @@
         <Port>
             <Description>adv_stopped</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>85</YCoordinate>
             <Wcet>0</Wcet>
             <CName>adv_stopped</CName>
@@ -451,7 +441,7 @@
             <DataType>I</DataType>
             <Description>write_status</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>115</YCoordinate>
             <CName>write_status</CName>
             <Function argument="1">
@@ -461,7 +451,7 @@
         <Port>
             <Description>write_done</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>105</YCoordinate>
             <Wcet>0</Wcet>
             <CName>write_done</CName>
@@ -472,7 +462,7 @@
         <Port>
             <Description>write_error</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>125</YCoordinate>
             <Wcet>0</Wcet>
             <CName>write_error</CName>
@@ -506,7 +496,7 @@
             <DataType>S</DataType>
             <Description>read_data</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>167</YCoordinate>
             <CName>read_data</CName>
             <Function argument="1">
@@ -517,7 +507,7 @@
             <DataType>I</DataType>
             <Description>read_length</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>177</YCoordinate>
             <CName>read_length</CName>
             <Function argument="2">
@@ -528,7 +518,7 @@
             <DataType>I</DataType>
             <Description>read_status</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>187</YCoordinate>
             <CName>read_status</CName>
             <Function argument="3">
@@ -538,7 +528,7 @@
         <Port>
             <Description>read_done</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>157</YCoordinate>
             <Wcet>0</Wcet>
             <CName>read_done</CName>
@@ -549,7 +539,7 @@
         <Port>
             <Description>read_error</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>197</YCoordinate>
             <Wcet>0</Wcet>
             <CName>read_error</CName>
@@ -605,7 +595,7 @@
             <DataType>I</DataType>
             <Description>notify_status</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>227</YCoordinate>
             <CName>notify_status</CName>
             <Function argument="1">
@@ -615,7 +605,7 @@
         <Port>
             <Description>notify_sent</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>217</YCoordinate>
             <Wcet>0</Wcet>
             <CName>notify_sent</CName>
@@ -626,7 +616,7 @@
         <Port>
             <Description>notify_error</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>237</YCoordinate>
             <Wcet>0</Wcet>
             <CName>notify_error</CName>
@@ -648,7 +638,7 @@
             <DataType>I</DataType>
             <Description>wrote_idx</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>275</YCoordinate>
             <CName>wrote_idx</CName>
             <Function argument="1">
@@ -659,7 +649,7 @@
             <DataType>S</DataType>
             <Description>wrote_data</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>285</YCoordinate>
             <CName>wrote_data</CName>
             <Function argument="2">
@@ -670,7 +660,7 @@
             <DataType>I</DataType>
             <Description>wrote_len</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>295</YCoordinate>
             <CName>wrote_len</CName>
             <Function argument="3">
@@ -680,7 +670,7 @@
         <Port>
             <Description>client_wrote_evt</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>265</YCoordinate>
             <Wcet>0</Wcet>
             <CName>client_wrote_evt</CName>
@@ -702,7 +692,7 @@
             <DataType>I</DataType>
             <Description>conn_handle</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>322</YCoordinate>
             <CName>conn_handle</CName>
             <Function argument="1">
@@ -712,7 +702,7 @@
         <Port>
             <Description>connect_evt</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>312</YCoordinate>
             <Wcet>0</Wcet>
             <CName>connect_evt</CName>
@@ -734,7 +724,7 @@
             <DataType>I</DataType>
             <Description>disc_handle</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>350</YCoordinate>
             <CName>disc_handle</CName>
             <Function argument="1">
@@ -745,7 +735,7 @@
             <DataType>I</DataType>
             <Description>disc_reason</Description>
             <PortType>OutputPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>360</YCoordinate>
             <CName>disc_reason</CName>
             <Function argument="2">
@@ -755,7 +745,7 @@
         <Port>
             <Description>disconnect_evt</Description>
             <PortType>FinishPort</PortType>
-            <XCoordinate>125</XCoordinate>
+            <XCoordinate>110</XCoordinate>
             <YCoordinate>340</YCoordinate>
             <Wcet>0</Wcet>
             <CName>disconnect_evt</CName>

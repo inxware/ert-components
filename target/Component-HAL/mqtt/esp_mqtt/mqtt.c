@@ -11,6 +11,7 @@
 #include "mqtt_client.h"
 #include "hal-api.h"
 #include "esp_heap_caps.h"
+#include "esp_log.h"
 //#include "hal_file.h"
 #include "targetos_init.h"
 
@@ -20,12 +21,8 @@
 #define INX_MQTT_MAX_ERROR_MSG_BUFFER_SIZE (EHS_STRING_LENGTH_MAX)
 
 
-#if 1
-//EHS_ESP32_ENABLE_LOGS != 1
-#define EHS_ESP32_MQTT_LOG(fmt, ...)
-#else
-#define EHS_ESP32_MQTT_LOG(fmt, ...) printf(fmt, ##__VA_ARGS__)
-#endif
+#define TAG "mqtt"
+#define EHS_ESP32_MQTT_LOG(fmt, ...) ESP_LOGD(TAG, fmt, ##__VA_ARGS__)
 
 static bool gSubscribe = false;
 static bool gPublish= false;
@@ -159,16 +156,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
     char *temp_buf, *temp_topic;
-    EHS_ESP32_MQTT_LOG("MQTT event handler...");
     switch ((esp_mqtt_event_id_t)event_id)
     {
     case MQTT_EVENT_CONNECTED:
-        EHS_ESP32_MQTT_LOG("MQTT msgid= %d event: %d. MQTT_EVENT_CONNECTED to: %s\n", event->msg_id, event->event_id, host);
+        ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED to: %s (msg_id=%d)", host, event->msg_id);
         mqttSetGlobalState(MQTT_STATE_CONNECTED);
         EhsMQTTConnectEvent(true);
         break;
     case MQTT_EVENT_DISCONNECTED:
-        EHS_ESP32_MQTT_LOG("MQTT event: %d. MQTT_EVENT_DISCONNECTED\n", event->event_id);
+        ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
         if (gUsingDevmanMon == EHS_FALSE && (*bNewSodlFlagRef == EHS_TRUE || EhsMqttClientInstanceCount() < 1)){
              mqttSetGlobalState(MQTT_STATE_DISCONNECTED_NEW);
         } else {
@@ -325,7 +321,6 @@ void* EhsMqttClientLoop(void* args)
     {
 
     case MQTT_STATE_IDLE:
-        EHS_ESP32_MQTT_LOG("MQTT_STATE_IDLE\n");
         if(gUsingDevmanMon == EHS_TRUE)
         {
             mqttSetGlobalState(MQTT_STATE_INIT);
@@ -333,12 +328,11 @@ void* EhsMqttClientLoop(void* args)
         else if (*bNewSodlFlagRef != EHS_TRUE)
         {
             mqttSetGlobalState(MQTT_STATE_INIT);
-            Ehs_FB_ThreadStarted();
+            // why on earth would this be here? Ehs_FB_ThreadStarted();
         }
         break;
 
     case MQTT_STATE_INIT:
-        //EHS_ESP32_MQTT_LOG("MQTT_STATE_INIT\n");
         if (gUsingDevmanMon == EHS_FALSE && *bNewSodlFlagRef == EHS_TRUE)
         {
             /* If we are using Devman mon we want to keep the previous connection open (possibly?) not sure why we would be doingthis otherwise*/
@@ -372,11 +366,15 @@ void* EhsMqttClientLoop(void* args)
             //mqtt_cfg.event_handle = mqtt_event_handler;
             if(gUseTLS==EHS_TRUE){
                 EHS_ESP32_MQTT_LOG("using tls mqtt\n\n");
-                
-                
+                ESP_LOGI(TAG, "MQTT TLS: CA='%s' clientCert='%s' clientKey='%s'",
+                       rootCAFileName ? rootCAFileName : "(null)",
+                       clientCertFileName ? clientCertFileName : "(null)",
+                       clientKeyFileName ? clientKeyFileName : "(null)");
+
                 #ifndef MQTT_CERT_TEST
                 if(rootCAFileName && rootCAFileName[0] != '\0'){
                     ret = readAppFileIntoString(gUsingDevmanMon, rootCAFileName, &CA_str);
+                    ESP_LOGI(TAG, "MQTT CA cert load %s", ret == EHS_TRUE ? "OK" : "FAILED");
                     if (ret == EHS_TRUE)
                     {
 #ifdef USE_ESP32S3_LEGACY_API
@@ -386,12 +384,12 @@ void* EhsMqttClientLoop(void* args)
                         mqtt_cfg.broker.verification.certificate = CA_str;
                         //mqtt_cfg.broker.verification.certificate_len = strlen(CA_str);
 #endif
-                        
+
                     }else{
                         EhsMQTTReportError("failed to open ca cert");
                     }
                 }else{
-                    EHS_ESP32_MQTT_LOG("CA Cert not specified.\n");
+                    ESP_LOGI(TAG, "MQTT CA cert not specified");
                 }
                 #else
                 {
@@ -408,7 +406,8 @@ void* EhsMqttClientLoop(void* args)
                 #ifndef MQTT_CERT_TEST
                 if(clientCertFileName && clientCertFileName[0] != '\0'){
                     ret = readAppFileIntoString(gUsingDevmanMon, clientCertFileName, &ClientCRT_str);
-                    if (ret == EHS_TRUE) 
+                    ESP_LOGI(TAG, "MQTT client cert load %s", ret == EHS_TRUE ? "OK" : "FAILED");
+                    if (ret == EHS_TRUE)
                     {
 #ifdef USE_ESP32S3_LEGACY_API
                         mqtt_cfg.client_cert_pem = ClientCRT_str;
@@ -422,7 +421,7 @@ void* EhsMqttClientLoop(void* args)
                         EHS_ESP32_MQTT_LOG("failed to open client cert\n");
                     }
                 }else{
-                    EHS_ESP32_MQTT_LOG("Client Cert not specified.\n");
+                    ESP_LOGI(TAG, "MQTT client cert not specified");
                 }
                 #else 
                 {
@@ -439,6 +438,7 @@ void* EhsMqttClientLoop(void* args)
                 #ifndef MQTT_CERT_TEST
                 if(clientKeyFileName && clientKeyFileName[0] != '\0'){
                     ret = readAppFileIntoString(gUsingDevmanMon, clientKeyFileName, &ClientKEY_str);
+                    ESP_LOGI(TAG, "MQTT client key load %s", ret == EHS_TRUE ? "OK" : "FAILED");
                     if (ret == EHS_TRUE)
                     {
 #ifdef USE_ESP32S3_LEGACY_API
@@ -452,7 +452,7 @@ void* EhsMqttClientLoop(void* args)
                       EhsMQTTReportError("failed to open client key");
                     }
                 }else{
-                    EHS_ESP32_MQTT_LOG("Client Key not specified.\n");
+                    ESP_LOGI(TAG, "MQTT client key not specified");
                 }
                 #else
                 {
@@ -484,7 +484,6 @@ void* EhsMqttClientLoop(void* args)
             }
             
             client = esp_mqtt_client_init(&mqtt_cfg);
-            //printf("MQTT_CLient = %d\n",client);
             
             esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
 
@@ -498,13 +497,9 @@ void* EhsMqttClientLoop(void* args)
         mqttSetGlobalState(MQTT_STATE_WAIT_FOR_CONNECTION);
         if (connect && gMqttConnectionAttempts == 0)
         {
-            EHS_ESP32_MQTT_LOG("MQTT_STATE_DIDNT_CONNECT \n");
             err = esp_mqtt_client_start(client);
+            ESP_LOGI(TAG, "MQTT connecting to %s:%d (tls=%d) rc=%d", host ? host : "(null)", (int)port, (int)gUseTLS, (int)err);
             gMqttConnectionAttempts++;
-
-        }
-        else {
-
         }
         //if (*bNewSodlFlagRef == EHS_TRUE) mqttSetGlobalState(MQTT_STATE_DO_DISCONNECT);
 
@@ -717,9 +712,18 @@ void* EhsMqttClientLoop(void* args)
             ClientCRT_str = NULL;
         }
         mqttSetGlobalState(MQTT_STATE_IDLE);
-        if(gUsingDevmanMon == EHS_FALSE){
-            Ehs_FB_ThreadComplete();
-        }
+        // we don't crate threads dynamically for esp32
+        //if(gUsingDevmanMon == EHS_FALSE){
+        //    Ehs_FB_ThreadComplete();
+        //}
+        break;
+
+    default:
+        /* MQTT_STATE_DNS_LOOKUP / DO_TLS_HANDSHAKE / RECV_DATA / DO_PUBLISH / INVALID are
+         * paho-implementation states in the shared hal_mqtt.h enum; this backend never sets
+         * them. Without this the state machine would stall silently if one ever appeared. */
+        EHS_ESP32_MQTT_LOG("MQTT unexpected state %d - resetting to IDLE\n", (int)MQTT_state);
+        mqttSetGlobalState(MQTT_STATE_IDLE);
         break;
     }
 

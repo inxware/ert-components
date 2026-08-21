@@ -169,15 +169,16 @@ typedef EhsThreadFuncReturnType (*EhsGeneralThreadFuncType)(void* context);
  * */
 
 #ifndef EHS_SKIP_COMPONENT_ONLY_HAL
-
+// This means the target will choose a default value
 #define EHS_THREAD_USE_DEFAULT_STACK_SIZE -1 
 
-ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize);
+/* This is for non function block facing calls - it just calls EhsHThread_execute() below and should be removed unless we seperate the scope one day */
+ehs_bool EhsTPThread_execute(EhsThreadFuncType pfRun, struct EhsFunctionInstanceDataStruct* context, ehs_sint16 priority, ehs_sint32 stackSize, ehs_char * _szThreadName);
 
 /**
  * Execute a function from a function block in a separate thread - generic
  */
-ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void * context, ehs_sint16 priority, ehs_sint32 stackSize);
+ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void * context, ehs_sint16 priority, ehs_sint32 stackSize, ehs_char * _stackName);
 void EhsTPThread_exit();
 #define EhsHThread_yield() EhsTPThread_yield();	// Yield thread
 #define EhsHThread_exit() EhsTPThread_exit();return 0l	//< Value that can be safely used for returning from thread functions
@@ -308,6 +309,15 @@ void EhsTP_shellExecute(const ehs_char* szCmd);
  */
 void EhsExit(ehs_uint16 exitCode);
 #endif //ifndef EHS_SKIP_COMPONENT_ONLY_HAL
+
+/**
+ * Best-effort remaining-stack query for the calling thread, in bytes. Returns -1 if this
+ * target has no cheap way to determine it - callers must treat -1 as "unknown", not as a
+ * huge/small number. Where available (e.g. FreeRTOS's uxTaskGetStackHighWaterMark()) this
+ * is the historical *low-water mark* since the thread started, not a live reading of stack
+ * used right now - a conservative but not perfect proxy.
+ */
+ehs_sint32 EhsHProcess_getStackRemaining(void);
 
 
 #endif /* EHS_HAL_PROCESS_H */

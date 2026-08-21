@@ -160,6 +160,13 @@ ehs_sint16 EhsSscanf(ehs_char *pBuff, const ehs_char* fmt, ...); /*lint !e960 Va
 ehs_sint16 EhsFflush(ehs_FILE* f);
 #endif
 
+/* End-of-file test. Defaults to libc feof() (identical to the prior direct
+ * feof() call); targets whose ehs_FILE is not a stdio FILE* (e.g. the Zephyr
+ * fd-backed HAL) override EhsFeof in their target_file.h. */
+#ifndef EhsFeof
+#define EhsFeof(f) feof(f)
+#endif
+
 #ifndef EhsFseek
 ehs_sint8 EhsFseek(ehs_FILE f,ehs_sint8 x,ehs_sint8 y); 
 #endif

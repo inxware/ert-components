@@ -1,0 +1,5 @@
+set logging on
+monitor reset
+monitor semihosting enable
+mon semihosting IOClient 2
+c

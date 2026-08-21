@@ -1,0 +1,36 @@
+# smoke.txt — the fast gate. One target per os-arch family, build + targetenv +
+# packaging, under ten minutes.
+#
+#   ./SystemTests/CI/run_regression.sh --platform-list smoke --package --local-apps
+#
+# --local-apps matters: without it targetenv switches ../apps to
+# RELEASE-PRODUCTION and fails if that repo has uncommitted changes, so anyone
+# editing an app breaks the gate for unrelated reasons.
+#
+# Rules for this list:
+#   * one representative per os-arch family, biased to the cheapest that still
+#     exercises a real feature set (GUI/AV where the family has one)
+#   * every entry must build clean — a broken target belongs in
+#     known-broken-keys.txt, or the gate stops meaning anything
+#   * no unity targets: targetenv_unity_export is the slowest stage there is
+#   * Windows is represented by the 64-bit target; win_x86_32-lucid-win10 costs
+#     more than the rest of the list combined and is covered by `published`
+#
+# linux -- simple, and the fastest real build in the tree
+linux_x86_64_clang_ehrt1
+# linux amd64 -- complex: GTK + GStreamer
+linux_amd64_gtk_gst_debian9
+# linux arm 32-bit
+linux_armv7l_clang_debian10
+# linux arm64 -- complex: LVGL + greengrass. NOT linux_arm64_debian13_base:
+# that one cannot build (missing MQTTAsync.h, paho is absent from its contrib
+# tree) and was in this list while broken.
+linux_arm64_lvgl_gg_debian11
+# android (APK packaging path)
+linux_android_arm
+# windows -- complex: GTK + GStreamer, and the NSIS installer path
+win_x86_64_gtk_gst
+# MCU: xtensa/FreeRTOS
+esp32s3_freertos-xtensa-no-certs
+# MCU: arduino toolchain and its static-library packaging
+arduino_arduino-mbed-nano_lib

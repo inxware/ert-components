@@ -220,7 +220,7 @@ EHS_FB_INIT_FUNCTION(mqtt_subscribe)
     inx_mqtt_subscribe_state->pPrev=NULL;
     const char* pParams = EHS_FB_INIT_PARAMETERS;
     if (pParams) {
-        pParams = EhsGetWordFromString(inx_mqtt_subscribe_state->topic, pParams);
+        pParams = EhsGetWordFromString(inx_mqtt_subscribe_state->topic, pParams, sizeof(inx_mqtt_subscribe_state->topic));
         pParams = EhsGetUint8FromString(&inx_mqtt_subscribe_state->qos, pParams);
         handle_mqtt_param_string(inx_mqtt_subscribe_state->topic, EHS_STRING_LENGTH_MAX);
     }
@@ -248,9 +248,19 @@ ehs_bool EhsMqttSubscribeCallback(struct inx_mqtt_subscribe_state* pState, char*
     //create pFIData variable so we can use the APIs
     EhsFunctionInstanceDataType* pFIdata=(EhsFunctionInstanceDataType*)pState->pFIdata;
     EhsTPMutex_lock(EhsTPMutex_fbIO);
-    EHS_FB_OUT_I_API2(INX_mqtt_subscribe_ARG_subscribe_data_size) = payloadSize;
-    EhsMemcpy(EHS_FB_OUT_S_API2(INX_mqtt_subscribe_ARG_subscribe_event),payload,payloadSize);
-    ((ehs_char*)EHS_FB_OUT_S_API2(INX_mqtt_subscribe_ARG_subscribe_event))[payloadSize] = '\0'; // null terminate payload for non-binary read (payloadSize < EHS_STRING_LENGTH_MAX)
+    /* payloadSize comes from the broker, so it is clamped to the output row
+     * rather than assumed to fit. memcpy rather than the string setter because
+     * a payload may be binary and contain embedded NULs. */
+    ehs_uint32 nPayloadMax = EHS_FB_OUT_S_MAXLEN_API2(INX_mqtt_subscribe_ARG_subscribe_event);
+    ehs_uint32 nPayloadLen = (payloadSize > 0) ? (ehs_uint32)payloadSize : 0u;
+    if (nPayloadLen > nPayloadMax) {
+        nPayloadLen = nPayloadMax;
+    }
+    EHS_FB_OUT_I_API2(INX_mqtt_subscribe_ARG_subscribe_data_size) = (EhsDataflowIntType)nPayloadLen;
+    if (nPayloadMax > 0u) {
+        EhsMemcpy(EHS_FB_OUT_S_API2(INX_mqtt_subscribe_ARG_subscribe_event),payload,nPayloadLen);
+        ((ehs_char*)EHS_FB_OUT_S_API2(INX_mqtt_subscribe_ARG_subscribe_event))[nPayloadLen] = '\0'; // null terminate payload for non-binary read
+    }
     EHS_FB_FINISH(INX_mqtt_subscribe_ARG_subscribe_finishevent);
     EhsTPMutex_unlock(EhsTPMutex_fbIO);
 

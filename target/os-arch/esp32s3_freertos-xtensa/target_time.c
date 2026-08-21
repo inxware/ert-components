@@ -37,11 +37,30 @@ EHS_LOCAL EhsTickType EhsTgtTimerExpiryTime;
 unsigned long gTimerCount;
 volatile static EhsTickType gTimeTest = EhsTgtTimer_usToTick(5000);
 
-/* This hould return the counter value in "tick time" */
-EHS_MEMORY_ATTRIB EhsTickType EhsTgtTimer_now() 
+/* Tracks whether EhsTgtTimer_reset() has installed the timer-group
+ * peripheral.  Until this is EHS_TRUE, calling the deprecated
+ * timer_legacy *_in_isr() helpers can dereference a NULL register
+ * base (LoadProhibited @ 0x00000000).  Any pre-init caller now gets
+ * a harmless 0 instead of a crash. */
+static volatile ehs_bool gEhsTgtTimerReady = EHS_FALSE;
+
+/* This hould return the counter value in "tick time".
+ * Safe against pre-init callers: returns 0 before EhsTgtTimer_reset()
+ * has configured the timer-group peripheral.  Hot-path callers that
+ * can prove the kernel has finished booting may bypass the check via
+ * EhsTgtTimer_now_trusted() / EHS_CURRENT_TIME_TRUSTED_CLIENT. */
+EHS_MEMORY_ATTRIB EhsTickType EhsTgtTimer_now()
+{
+    if (!gEhsTgtTimerReady) return (EhsTickType)0;
+    EhsTickType __time = timer_group_get_counter_value_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER);
+
+    return (EhsTickType)(__time);
+}
+
+/* Unchecked variant — caller guarantees EhsTgtTimer_reset() has run. */
+EHS_MEMORY_ATTRIB EhsTickType EhsTgtTimer_now_trusted()
 {
     EhsTickType __time = timer_group_get_counter_value_in_isr(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER);
-    
     return (EhsTickType)(__time);
 }
 
@@ -82,6 +101,7 @@ void EhsTgtTimer_reset()
     ESP_ERROR_CHECK_WITHOUT_ABORT(timer_isr_callback_remove(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER));
     ESP_ERROR_CHECK_WITHOUT_ABORT(timer_isr_callback_add(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,EhsEsp32TgtTimer_tick, NULL, 0)); // ESP_INTR_FLAG_NMI // EhsTgtTimer_tick() - don't sent it any data it already has it
     ESP_ERROR_CHECK_WITHOUT_ABORT(timer_start(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER));
+    gEhsTgtTimerReady = EHS_TRUE;  /* peripheral is live — EhsTgtTimer_now() is now safe */
     // timer_isr_register(EHS_ESP32_MAIN_TIMER_GROUP, EHS_ESP32_MAIN_TIMER_NUMBER,
     // &timer_tg0_isr, NULL, 0, &s_timer_handle);
     // don't need this if we set initial state to disabled : EhsTgtTimer_clear(); // clear any logical timer values. necessary?

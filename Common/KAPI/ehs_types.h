@@ -36,7 +36,7 @@ typedef enum EhsStateEnum {EHSKE_STATE_EMPTY, EHSKE_STATE_READY, EHSKE_STATE_RUN
 typedef enum
 {
     EHS_RELOAD_EHS_FROM_FILE,			/* stop and reload from a file */
-    EHS_RELOAD_EHS_FROM_FILE_DONTSTART, /* used only for debug mode */
+    EHS_RELOAD_EHS_FROM_FILE_DONTSTART, /* Same as EHS_RELOAD_FROM_FILE except the app is not run after loading */
     EHS_EXIT_EHS,						/* exit EHS completely */
     EHS_CONTINUE,						/* Carry on - nothing has happened! */
     //EHS_RUN,							/* todo this doesn't seem to be used anywhere */

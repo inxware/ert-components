@@ -139,11 +139,11 @@ endif
 endif
 
 ########################################################################################################
-## Serial Console (Used to configure networks etc)
+## Cellular (LTE-M / NB-IoT)
 ########################################################################################################
-ifdef EHS_SERIAL_CONSOLE_SUPPORT
-ifneq ($(EHS_SERIAL_CONSOLE_SUPPORT),none)
-DEFS += EHS_SERIAL_CONSOLE_SUPPORT
+ifdef EHS_NETWORK_CELLULAR_SUPPORT
+ifneq ($(EHS_NETWORK_CELLULAR_SUPPORT),none)
+include $(EHS_TARGET_COMPONENT_HAL_PATH)/cellular/cellular.mk
 endif
 endif
 

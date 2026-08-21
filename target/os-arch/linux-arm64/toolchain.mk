@@ -36,7 +36,7 @@ ifeq ($(EHS_TOOLCHAIN_TYPE),clang)
 	# Set PKG_CONFIG_PATH for cross-compilation to find ARM64 libraries
 	export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
 endif
-# We need the maths lib - todo2-022, why not just have these as LIB+=m?
+# We need the maths lib
 LIB+=m 
 
 #gcc flags sometimes useful

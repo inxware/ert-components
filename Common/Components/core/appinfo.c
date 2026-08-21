@@ -114,13 +114,13 @@ EHS_FB_RUN_FUNCTION( appinfo_getinfo)
     }
     if (EhsStrlen(ObjData->szAppName) == 0 || EhsStrcmp(ObjData->szAppName,"*") || EhsStrcmp(ObjData->szAppName,"default"))   /* If nothing then assume the current application */
     {
-        EhsStrcpy(EHS_FB_OUT_S(EHS_APPINFO_GETINFO_VERSION_OUT),EhsHAppMetaGetVersionNumber());
+        EHS_FB_OUT_S_SET(EHS_APPINFO_GETINFO_VERSION_OUT, EhsHAppMetaGetVersionNumber());
         EHS_FB_OUT_I(EHS_APPINFO_GETINFO_ITERATION_OUT)= EhsHAppMetaGetBuildNumber();
-        EhsStrcpy(EHS_FB_OUT_S(EHS_APPINFO_GETINFO_DATE_OUT),EhsHAppMetaGetAppDate());
-        EhsStrcpy(EHS_FB_OUT_S(EHS_APPINFO_GETINFO_MIN_EHS_OUT), "n/a");//@todo
-        EhsStrcpy(EHS_FB_OUT_S(EHS_APPINFO_GETINFO_DEPENDENCIES_OUT), "n/a"); //@todo
-        EhsStrcpy(EHS_FB_OUT_S(EHS_APPINFO_GETINFO_PROC_GRPS_OUT), "n/a");//@todo
-        EhsStrcpy(EHS_FB_OUT_S(EHS_APPINFO_GETINFO_APP_NAME),EhsHAppMetaGetAppName());
+        EHS_FB_OUT_S_SET(EHS_APPINFO_GETINFO_DATE_OUT, EhsHAppMetaGetAppDate());
+        EHS_FB_OUT_S_SET(EHS_APPINFO_GETINFO_MIN_EHS_OUT, "n/a");//@todo
+        EHS_FB_OUT_S_SET(EHS_APPINFO_GETINFO_DEPENDENCIES_OUT, "n/a"); //@todo
+        EHS_FB_OUT_S_SET(EHS_APPINFO_GETINFO_PROC_GRPS_OUT, "n/a");//@todo
+        EHS_FB_OUT_S_SET(EHS_APPINFO_GETINFO_APP_NAME, EhsHAppMetaGetAppName());
         EHS_FB_FINISH(EHS_APPINFO_GETSTAT_PORT_FINISH);
     }
     else     /* This might be slow so create a thread*/

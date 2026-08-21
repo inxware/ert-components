@@ -123,6 +123,8 @@ EhsThreadFuncReturnType HAL_appGetWaitForURLDataAndWrite(void *XObjData)
     {
         /* Opened File OK */
     }
+    EHSH_LOG_INFO("Clearing download dir before unpacking: %s (canonical=[%s] local=[%s])",
+                     ObjData->szpDownloadDir, ObjData->szAppCanonicalName, ObjData->szAppLocalName);
     EhsTF_rmdir(ObjData->szpDownloadDir); /* in case it exists is a directory*/
     EhsHRemove(ObjData->szpDownloadDir); /* in case it exists as a file*/
     //if (EhsTF_mkdir(ObjData->szpDownloadDir)) { /* Don't need this - libarchive creates the directory */
@@ -212,6 +214,8 @@ error:
 
     if (appget_success == EHS_TRUE)
     {
+        EHSH_LOG_WARNING("Archive unpacked OK, setting DL in %s and switching live",
+                         ObjData->szpDownloadDir);
         EhsAppSetDownloadOKToken(ObjData->szpDownloadDir); // make it live.
 
         EhsAppCheckAndSwitchDownloadDir(ObjData->szAppLocalName); /* Check for download dir and shuffle if required - do this here in case don't run immediately, we don't want app folder left with '_dl' suffix */
@@ -386,6 +390,7 @@ EhsThreadFuncReturnType HAL_AppGetRead_data(void *XObjData)
     }
 error:
     //EhsAppMakeDownloadString(szTempString,ObjData->szAppCanonicalNameX);
+    EHSH_LOG_ERROR("Devappget: download FAILED — rmdir %s", ObjData->szpDownloadDir);
     EhsTF_rmdir(ObjData->szpDownloadDir); /* download broken so remove download directory*/
     //EHS_FB_FINISH(EHS_GETAPP_GETAPP_ERROR_EO);
 end_done: /* tidy up */
@@ -469,9 +474,9 @@ ehs_bool start_appget_getapp(const ehs_char * appname, const ehs_char * localnam
             EHSH_LOG_ERROR("ObjData->szpDownloadDir=[%s]",ObjData->szpDownloadDir);
 #endif
             /* Start URL get thread to pump data into a buffer */
-            EhsHThread_execute( HAL_AppGetRead_data, (void*) ObjData, -95, EHS_THREAD_USE_DEFAULT_STACK_SIZE) ;
+            EhsHThread_execute( HAL_AppGetRead_data, (void*) ObjData, -95, EHS_THREAD_USE_DEFAULT_STACK_SIZE,NULL) ;
             /* Start Incremental archive decoder/writer */
-            EhsHThread_execute(HAL_appGetWaitForURLDataAndWrite, (void*) ObjData, -95, EHS_THREAD_USE_DEFAULT_STACK_SIZE) ; /* this thread will deallocate ObjData when done */
+            EhsHThread_execute(HAL_appGetWaitForURLDataAndWrite, (void*) ObjData, -95, EHS_THREAD_USE_DEFAULT_STACK_SIZE,NULL) ; /* this thread will deallocate ObjData when done */
             if (block)
             {
 

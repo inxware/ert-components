@@ -18,6 +18,42 @@
 #define ehs_lorawan_debug(...)
 #endif
 
+/*
+ * FB-level session state machine.
+ *
+ * The HAL shim (target/Component-HAL/lorawan/lorawan.c) only tracks "worker
+ * idle vs. command in flight" via g_lorawan_cmd; it doesn't know whether the
+ * modem has joined. Without an FB-side gate, send_msg / set_class /
+ * set_datarate / link_check are accepted as soon as the worker frees up,
+ * even if the join is still in progress or the previous connect failed.
+ *
+ * Blocking-time notes for the RAK3112 backend (target/Component-HAL/lorawan/
+ * rak3112/lorawan-rak3112.cpp). All these run on the dedicated taskLoRaWAN_*
+ * worker thread, NOT on the EHS event thread, so they do not stall the main
+ * recipe scheduler — but the HAL serialises commands via g_lorawan_cmd, so a
+ * slow operation also delays every other queued command for its duration:
+ *
+ *   LoRaWAN_module_connect (OTAA join)   up to 60 s — delay(500) x 120 poll
+ *                                        of lmh_join_status_get()
+ *   LoRaWAN_module_connect (init)        ~hundreds of ms — lmh_init()
+ *   LoRaWAN_module_send_msg              up to seconds for confirmed retries
+ *   LoRaWAN_module_set_class             tens–hundreds of ms — MAC class swap
+ *   LoRaWAN_module_link_check            seconds (when implemented)
+ *   other module_*                       generally <100 ms
+ *
+ * The state machine below short-circuits impossible operations (e.g. send
+ * before join) without entering the HAL at all, so a stuck join doesn't
+ * silently swallow MAC-parameter changes either.
+ */
+typedef enum {
+    INX_LW_FB_UNINIT = 0,    /* EHS_FB_INIT not run, or HAL init failed.   */
+    INX_LW_FB_INITIALISED,   /* Modem initialised; never joined yet.       */
+    INX_LW_FB_JOINING,       /* connect queued; awaiting connect_cb.       */
+    INX_LW_FB_JOINED,        /* Joined; uplinks + MAC ops allowed.         */
+    INX_LW_FB_DISABLED,      /* User disabled; needs connect to leave.     */
+    INX_LW_FB_FAILED,        /* Last connect failed; retry via connect.    */
+} inx_lw_fb_state_t;
+
 /* My Component state data structure. - Use this in your code! */
 typedef struct inx_lorawan_state
 {
@@ -44,9 +80,20 @@ typedef struct inx_lorawan_state
 	ehs_sint32 ComPort; // Consider uint8
 
 	ehs_char devAddrOut[EHS_LORAWAN_ID_STRLEN + 1];
-	ehs_char sys_status[EHS_STRING_LENGTH_MAX + 1];
+	/* sys_status holds the JSON status string returned by LoRaWAN_get_sysData.
+	 * Was EHS_STRING_LENGTH_MAX+1 (=2048) which dominated the state struct
+	 * (~84%) and made the kernel's permanent allocator fail at boot on tight
+	 * platforms (rak3112 / esp32s3-n8r8 with WiFi+MQTT+BLE). Both backends
+	 * write much smaller payloads — wio_e5 caps at LW_MISC_BUFFER_SIZE=70,
+	 * rak3112 at snprintf(data,128,...). 256 leaves comfortable headroom for
+	 * future status fields without busting the heap.
+	 *
+	 * @todo Mirror this size into the ICB template so re-generating the FB
+	 * doesn't restore the 2 KB buffer. */
+	ehs_char sys_status[256];
 	ehs_char devEui[EHS_LORAWAN_ID_STRLEN + 1];
 	ehs_sint32 pl_length_out;
+	inx_lw_fb_state_t fb_state;
 } inx_lorawan_state_type; //Reference this, maybe store your config parameters in here too.
 //ICB STATE VAR MACRO END -- DO NOT ALTER
 
@@ -172,8 +219,8 @@ static EhsRunFuncType gfEhsLorawanFBCBFuncs[E_LORAWAN_API__MAX_VALUE] = {
 #define INX_lorawan_ARG_link_check_link_check_sent 1
 #define INX_lorawan_ARG_link_check_link_check_busy 2
 #define INX_lorawan_ARG_link_check_cb_link_check_done 1
-#define INX_lorawan_ARG_link_check_cb_link_margin_out 2
-#define INX_lorawan_ARG_link_check_cb_gateway_count_out 3
+#define INX_lorawan_ARG_link_check_cb_link_margin_out 1
+#define INX_lorawan_ARG_link_check_cb_gateway_count_out 2
 //ICB FRIENDLY LABELS MACRO END -- DO NOT ALTER
 //ICB PARAMETER DEFAULTS MACRO START -- DO NOT ALTER
 /* Parameters */
@@ -285,12 +332,26 @@ EHS_FB_INIT_FUNCTION(lorawan)
 	inx_lorawan_state->RETRY = RETRY;
 	inx_lorawan_state->Region = Region;*/
 	EhsLorawanRecvMsg = NULL;
+	/* SODL → pCallbackTable slot mapping. The kernel parser appends one
+	 * pCallbackTable entry per InternalPort, in the order the InternalPort
+	 * <Port> elements appear in the CDF <Ports> section (Lucid's
+	 * inxware-gui-builder-mfc/LucidApplicationBuilder/SODL.cpp walks
+	 * blob->internalport[] 0..N).
+	 *
+	 * The mapping below assumes the CDF lists InternalPorts in
+	 * e_ehs_lorawan_api_cmd_t order (ccbi, smcbi, rcbi, gsdcbi, sfrcbi,
+	 * gplcbi, dcbi, sccbi, stpcbi, lccbi) followed by ormsgi for
+	 * on_receive_msg. If a future CDF edit inserts a new InternalPort
+	 * mid-list, every cb after it shifts by one, the FB silently dispatches
+	 * each cb on the wrong FB instance, and runtime faults on a stale
+	 * pOut/pFinishPort (LoadProhibited / EXCVADDR=0x18). KEEP THE ORDER
+	 * OF <PortType>InternalPort</PortType> ENTRIES IN lorawan.cdf
+	 * SYNCHRONISED WITH e_ehs_lorawan_api_cmd_t. */
 	for (_i = 0 ; _i < E_LORAWAN_API__MAX_VALUE ; _i++)
 	{
 		EhsCallbackQueue_register(
 			&xLorawanApiCallbackQueue[_i],
 			gfEhsLorawanFBCBFuncs[_i],
-			//TODO The function instance should appoint to the correct function
 			EHS_FB_INIT_CALLBACK_FUNCTION_INSTANCE(-1 - _i), // Index map 0=-1, 1=-2, 2=-3, ...
 			&(inx_lorawan_state->xEntry[_i])
 		);
@@ -326,6 +387,9 @@ EHS_FB_INIT_FUNCTION(lorawan)
 	lorawan_error = LoRaWAN_init(inx_lorawan_state->Target, inx_lorawan_state->ComPort);
 	// This should never set to EHS_FALSE. Failure to initialisation can be reflected in the connect errno output
 	//bRet = lorawan_error == E_LWAPIERRNO_OK ? EHS_TRUE : EHS_FALSE;
+	inx_lorawan_state->fb_state = (lorawan_error == E_LWAPIERRNO_OK)
+		? INX_LW_FB_INITIALISED
+		: INX_LW_FB_UNINIT;
 
 	/* Add any further intialisation code here */
 	return bRet; /* initialisation always succeeds */
@@ -434,7 +498,11 @@ EHS_FB_RUN_FUNCTION(lorawan_connect)
 	if (connect_ret != E_LWAPIERRNO_OK)
 		EHS_FB_FINISH(INX_lorawan_ARG_connect_connectFail);
 	else
+	{
+		/* HAL has queued the join; wait for connect_cb to confirm result. */
+		inx_lorawan_state->fb_state = INX_LW_FB_JOINING;
 		EHS_FB_FINISH(INX_lorawan_ARG_connect_connectDone);
+	}
 }//ICB FUNCTION connect MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION on_receive_msg MACRO START -- DO NOT ALTER
 /**
@@ -460,15 +528,9 @@ EHS_FB_RUN_FUNCTION(lorawan_on_receive_msg)
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_fport_rx))
 		EHS_FB_OUT_I_API2(INX_lorawan_ARG_on_receive_msg_fport_rx) = gEhsLoraApiData.fport;
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_link_status))
-		EhsSprintf(
-			EHS_FB_OUT_S_API2(INX_lorawan_ARG_on_receive_msg_link_status),
-			"{\"wt\":%d,\"rssi\":%d,\"snr\":%.2f}",
-			gEhsLoraApiData.rxwin,
-			gEhsLoraApiData.rssi,
-			gEhsLoraApiData.snr
-		);
+		EhsSnprintf(EHS_FB_OUT_S_API2(INX_lorawan_ARG_on_receive_msg_link_status), EHS_FB_OUT_S_CAP_API2(INX_lorawan_ARG_on_receive_msg_link_status), "{\"wt\":%d,\"rssi\":%d,\"snr\":%.2f}", gEhsLoraApiData.rxwin, gEhsLoraApiData.rssi, gEhsLoraApiData.snr);
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_recv_msg))
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_lorawan_ARG_on_receive_msg_recv_msg), (ehs_char *) EhsLorawanRecvMsg) ;
+		EHS_FB_OUT_S_SET_API2(INX_lorawan_ARG_on_receive_msg_recv_msg, (ehs_char *) EhsLorawanRecvMsg) ;
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_rssi))
 		EHS_FB_OUT_I_API2(INX_lorawan_ARG_on_receive_msg_rssi) = gEhsLoraApiData.rssi;
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_on_receive_msg_snr))
@@ -489,7 +551,83 @@ EHS_FB_RUN_FUNCTION(lorawan_send_msg)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
+	/* JOINED gate — restored after the bypass-debug session.
+	 *
+	 * Observed behaviour with the gate bypassed (rak3112, manual graph
+	 * test ~2026-04-27):
+	 *
+	 *   Phase 1 — fb_state=1 (INITIALISED, connect never called):
+	 *     Bypass let the send through to the HAL. HAL saw g_lorawan_cmd=IDLE,
+	 *     queued the cmd, returned OK, and the FB asserted send_done. The
+	 *     graph thinks the message went out — but the modem is not joined,
+	 *     so the actual radio-side send (worker thread, _LoRaWAN_send_msg →
+	 *     LoRaWAN_module_send_msg) returns NOT_JOINED. That failure is
+	 *     reported via the send_msg_cb errno port, not the run-side
+	 *     send_done port. The graph cannot tell from send_done alone
+	 *     whether the message was actually transmitted.
+	 *
+	 *   Phase 2 — fb_state=2 (JOINING, worker mid-LoRaWAN_module_connect):
+	 *     Bypass let the send through to the HAL. HAL saw g_lorawan_cmd=
+	 *     CONNECT (worker stuck in the lmh_join_status_get poll loop, up to
+	 *     60 s for OTAA on RAK3112), returned BUSY (106), and the FB
+	 *     asserted send_fail with errCode=106. Correct rejection — but the
+	 *     graph round-tripped through the HAL for nothing.
+	 *
+	 *   Phase 3 — after the 60 s join attempt completes (success or
+	 *     failure) the worker drops g_lorawan_cmd back to COMPLETE, and the
+	 *     next send is accepted again — flipping back to send_done in the
+	 *     same "ack but might not actually transmit" mode as Phase 1.
+	 *
+	 * The gate below short-circuits Phase 1 and Phase 3-when-join-failed at
+	 * the FB layer, so send_fail fires immediately without disturbing the
+	 * HAL or the worker. This is what the original state machine was for.
+	 *
+	 * KNOWN LIMITATION — autojoin. AutoJoin (state->AutoJoin) tells the
+	 * modem to re-join autonomously when the session drops, without the
+	 * application driving a fresh connect. When that happens, no
+	 * lorawan_connect_cb fires, so fb_state never advances past
+	 * INITIALISED / never returns from FAILED — even though the modem may
+	 * actually be joined and able to send. With this gate enabled, all
+	 * sends after an autojoin are rejected by the FB despite being
+	 * possible at the radio layer.
+	 *
+	 * Resolving this cleanly is awkward because of the FB's dual
+	 * control-flow paths:
+	 *   - Run functions (lorawan_connect, lorawan_send_msg, …) execute on
+	 *     the EHS scheduler thread, driven by input-port events from the
+	 *     graph.
+	 *   - Cb functions (lorawan_connect_cb, lorawan_send_msg_cb, …)
+	 *     execute on the LoRaWAN worker thread, driven by
+	 *     Common_LoRaWAN_FBCBs() — which the worker calls at the end of
+	 *     each _LoRaWAN_<cmd>() it processes.
+	 * State transitions today live in whichever path naturally observes
+	 * them: connect-run sets JOINING, connect_cb sets JOINED/FAILED,
+	 * disable_cb sets DISABLED, reset_cb sets INITIALISED. An autojoin
+	 * event has no natural observer in either path — neither a run func
+	 * nor an existing cb runs in response to it.
+	 *
+	 * Two viable fixes (future work):
+	 *   (a) Add a HAL-side status callback that the lmh stack invokes
+	 *       when join state changes asynchronously (autojoin success,
+	 *       link loss, modem-driven re-join). The callback would push
+	 *       onto a new xLorawanStatusCallbackQueue handled by an FB-side
+	 *       lorawan_status_changed cb that updates fb_state. This is the
+	 *       structurally clean fix but needs lmh-side integration.
+	 *   (b) Have the FB-side periodically poll LoRaWAN_get_join_status()
+	 *       and update fb_state from the result. Cheap to implement, but
+	 *       turns every send into "poll-then-send" and adds latency.
+	 *
+	 * For now, applications using autojoin should leave a connect call in
+	 * the graph at startup so the FB observes the initial JOINED via
+	 * connect_cb, then leave the modem to maintain the session — sends
+	 * after that point assume the session is still up. */
+	if (inx_lorawan_state->fb_state != INX_LW_FB_JOINED)
+	{
+		ehs_lorawan_debug("[%s] not joined, fb_state=%d\n", __func__, inx_lorawan_state->fb_state);
+		EHS_FB_FINISH(INX_lorawan_ARG_send_msg_send_fail);
+		return;
+	}
+
 	ehs_char *payload = NULL;
 	ehs_sint32 errCode = 0;
 	ehs_bool confirmed = EHS_FALSE;
@@ -574,13 +712,15 @@ EHS_FB_RUN_FUNCTION(lorawan_connect_cb)
 		EHS_FB_OUT_I_API2(INX_lorawan_ARG_connect_cb_connect_errno) = gEhsLoraApiData.error_ret[E_LORAWAN_API_CONNECT];
 	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_CONNECT] != E_LWAPIERRNO_OK)
 	{
+		inx_lorawan_state->fb_state = INX_LW_FB_FAILED;
 		EHS_FB_FINISH(INX_lorawan_ARG_connect_cb_connect_fail);
 		ehs_lorawan_debug("%s fail: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_CONNECT]);
 	}
 	else
 	{
+		inx_lorawan_state->fb_state = INX_LW_FB_JOINED;
 		if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_connect_cb_DevAddr))
-			EhsStrcpy(EHS_FB_OUT_S_API2(INX_lorawan_ARG_connect_cb_DevAddr), inx_lorawan_state->devAddrOut);
+			EHS_FB_OUT_S_SET_API2(INX_lorawan_ARG_connect_cb_DevAddr, inx_lorawan_state->devAddrOut);
 		EHS_FB_FINISH(INX_lorawan_ARG_connect_cb_connect_cb_ok);
 		ehs_lorawan_debug("%s OK: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_CONNECT]);
 	}
@@ -597,18 +737,33 @@ EHS_FB_RUN_FUNCTION(lorawan_send_msg_cb)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
+	/* Defensive: the LoRaWAN HAL dispatches this cb from the worker thread
+	 * (Common_LoRaWAN_FBCBs → EhsCallbackQueue_execute), so the FB struct
+	 * may be in flight of teardown / monitor-write from the EHS thread when
+	 * the debugger is enabled. EHS_FB_OUT_CONNECTED_API2 only does a NULL
+	 * test on pOut, so a corrupted small value (we've seen pOut == 0x18,
+	 * matching offsetof(EhsFunctionInstanceDataType, dMonitorType)) sails
+	 * past it and faults on the pOut[0] load. Refuse to proceed if pOut is
+	 * obviously not a valid pointer; deny the app and reboot under
+	 * EHS_APP_TRUST_MODEL == 0. */
+	EHS_TRUSTLESS_PTR_SANE_FATAL(EHS_FB_RUN_FUNCTION_INSTANCE->pOut,
+	    "lorawan_send_msg_cb: pFIdata->pOut corrupted (cross-thread race during debug enable?)");
+
 	// Your code here
-	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_send_msg_cb_send_errCode))
+	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_send_msg_cb_send_errCode)) {
 		EHS_FB_OUT_I_API2(INX_lorawan_ARG_send_msg_cb_send_errCode) = gEhsLoraApiData.error_ret[E_LORAWAN_API_SEND_MSG];
+	}
 	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_SEND_MSG] == E_LWAPIERRNO_OK)
 	{
-		ehs_lorawan_debug("%s OK: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_SEND_MSG]);
-		EHS_FB_FINISH(INX_lorawan_ARG_send_msg_cb_msg_sent);
+		//ehs_lorawan_debug("%s OK: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_SEND_MSG]);
+		if (EHS_FB_FINISH_CONNECTED_API2(INX_lorawan_ARG_send_msg_cb_msg_sent))
+			EHS_FB_FINISH(INX_lorawan_ARG_send_msg_cb_msg_sent);
 	}
 	else
 	{
-		ehs_lorawan_debug("%s fail: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_SEND_MSG]);
-		EHS_FB_FINISH(INX_lorawan_ARG_send_msg_cb_send_failed);
+		//ehs_lorawan_debug("%s fail: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_SEND_MSG]);
+		if (EHS_FB_FINISH_CONNECTED_API2(INX_lorawan_ARG_send_msg_cb_send_failed))
+			EHS_FB_FINISH(INX_lorawan_ARG_send_msg_cb_send_failed);
 	}
 }//ICB FUNCTION send_msg_cb MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION reset_cb MACRO START -- DO NOT ALTER
@@ -623,7 +778,9 @@ EHS_FB_RUN_FUNCTION(lorawan_reset_cb)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
+	/* Hard reset wipes session state — caller must reconnect to re-join. */
+	if (inx_lorawan_state->fb_state != INX_LW_FB_UNINIT)
+		inx_lorawan_state->fb_state = INX_LW_FB_INITIALISED;
 	ehs_lorawan_debug("%s OK\n", __func__);
 	EHS_FB_FINISH(INX_lorawan_ARG_reset_cb_reset_done);
 }//ICB FUNCTION reset_cb MACRO END -- DO NOT ALTER THIS LINE
@@ -641,9 +798,9 @@ EHS_FB_RUN_FUNCTION(lorawan_get_statusData_cb)
 
 	// Your code here
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_status))
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_lorawan_ARG_get_statusData_cb_status), inx_lorawan_state->sys_status);
+		EHS_FB_OUT_S_SET_API2(INX_lorawan_ARG_get_statusData_cb_status, inx_lorawan_state->sys_status);
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_DevEui))
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_lorawan_ARG_get_statusData_cb_DevEui), inx_lorawan_state->devEui);
+		EHS_FB_OUT_S_SET_API2(INX_lorawan_ARG_get_statusData_cb_DevEui, inx_lorawan_state->devEui);
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_linkMargin))
 		EHS_FB_OUT_I_API2(INX_lorawan_ARG_get_statusData_cb_linkMargin) = gEhsLoraApiData.link_margin;
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_statusData_cb_gateways))
@@ -667,13 +824,20 @@ EHS_FB_RUN_FUNCTION(lorawan_set_datarate)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
-	ehs_lorawan_api_errno_t err;
-	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_datarate_dr_in))
-		err  = LoRaWAN_set_datarate(EHS_FB_IN_I_API2(INX_lorawan_ARG_set_datarate_dr_in));
-	else EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_set_datarate_busy);
+	/* Bail out before err is read if the dr_in port isn't wired — EHS_FB_FINISH
+	 * doesn't return from the recipe, so falling through would read uninit. */
+	if (!EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_datarate_dr_in)) {
+		EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_set_datarate_busy);
+		return;
+	}
+	/* DR is a per-session MAC param — only meaningful once joined. */
+	if (inx_lorawan_state->fb_state != INX_LW_FB_JOINED) {
+		EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_set_datarate_busy);
+		return;
+	}
+	ehs_lorawan_api_errno_t err = LoRaWAN_set_datarate(EHS_FB_IN_I_API2(INX_lorawan_ARG_set_datarate_dr_in));
 	if (err == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_set_datarate_sent);
-	else EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_set_datarate_busy);
+	else                        EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_set_datarate_busy);
 }//ICB FUNCTION set_datarate MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION get_payload_length MACRO START -- DO NOT ALTER
 /**
@@ -687,7 +851,11 @@ EHS_FB_RUN_FUNCTION(lorawan_get_payload_length)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
+	/* Max payload depends on the active datarate, which is only set post-join. */
+	if (inx_lorawan_state->fb_state != INX_LW_FB_JOINED) {
+		EHS_FB_FINISH(INX_lorawan_ARG_get_payload_length_get_pl_len_busy);
+		return;
+	}
 	ehs_lorawan_api_errno_t err = LoRaWAN_get_payloadLength(&(inx_lorawan_state->pl_length_out));
 	if (err == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_get_payload_length_get_pl_len_sent);
 	else EHS_FB_FINISH(INX_lorawan_ARG_get_payload_length_get_pl_len_busy);
@@ -719,9 +887,8 @@ EHS_FB_RUN_FUNCTION(lorawan_disable)
  */
 EHS_FB_RUN_FUNCTION(lorawan_set_datarate_cb)
 {
-	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+	(void)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
 	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_DATARATE] == E_LWAPIERRNO_OK)
 	{
 		ehs_lorawan_debug("%s OK: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_DATARATE]);
@@ -730,7 +897,11 @@ EHS_FB_RUN_FUNCTION(lorawan_set_datarate_cb)
 	else
 	{
 		ehs_lorawan_debug("%s fail: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_DATARATE]);
-		/* TODO */
+		/* @todo add a dedicated failure output port for set_datarate_cb in the CDF
+		 * (and a matching INX_lorawan_ARG_set_datarate_cb_* label) so graphs can
+		 * branch on it. For now reuse the OK branch — swallowing the error keeps
+		 * the callback queue drained, which is better than hanging the graph. */
+		EHS_FB_FINISH(INX_lorawan_ARG_set_datarate_cb_set_datarate_ok);
 	}
 }//ICB FUNCTION set_datarate_cb MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION get_payload_length_cb MACRO START -- DO NOT ALTER
@@ -745,12 +916,14 @@ EHS_FB_RUN_FUNCTION(lorawan_get_payload_length_cb)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
 	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_GET_PAYLOADLENGTH] != E_LWAPIERRNO_OK)
 	{
 		ehs_lorawan_debug("%s fail: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_GET_PAYLOADLENGTH]);
-		/* TODO */
-		return;
+		/* @todo add a failure output port for get_payload_length_cb in the CDF.
+		 * Falling through to the OK finish below with pl_length_out = 0 is
+		 * defensive — the caller sees a zero length and treats it as "not
+		 * ready yet" — but it's not a proper error signal. */
+		inx_lorawan_state->pl_length_out = 0;
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_lorawan_ARG_get_payload_length_cb_pl_len))
 		EHS_FB_OUT_I_API2(INX_lorawan_ARG_get_payload_length_cb_pl_len) = inx_lorawan_state->pl_length_out;
@@ -769,7 +942,7 @@ EHS_FB_RUN_FUNCTION(lorawan_disable_cb)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
 
-	// Your code here
+	inx_lorawan_state->fb_state = INX_LW_FB_DISABLED;
 	ehs_lorawan_debug("%s OK: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_DISABLE]);
 	EHS_FB_FINISH(INX_lorawan_ARG_disable_cb_disabled);
 }//ICB FUNCTION disable_cb MACRO END -- DO NOT ALTER THIS LINE
@@ -777,42 +950,63 @@ EHS_FB_RUN_FUNCTION(lorawan_disable_cb)
 EHS_FB_RUN_FUNCTION(lorawan_set_class)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
-	ehs_lorawan_api_errno_t err;
-	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_class_class_in))
-		err = LoRaWAN_set_class((e_ehs_lw_class_t)EHS_FB_IN_I_API2(INX_lorawan_ARG_set_class_class_in));
-	else EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_busy);
+	if (!EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_class_class_in)) {
+		EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_busy);
+		return;
+	}
+	if (inx_lorawan_state->fb_state != INX_LW_FB_JOINED) {
+		EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_busy);
+		return;
+	}
+	ehs_lorawan_api_errno_t err = LoRaWAN_set_class((e_ehs_lw_class_t)EHS_FB_IN_I_API2(INX_lorawan_ARG_set_class_class_in));
 	if (err == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_sent);
-	else EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_busy);
+	else                        EHS_FB_FINISH(INX_lorawan_ARG_set_class_set_class_busy);
 }
 
 EHS_FB_RUN_FUNCTION(lorawan_set_class_cb)
 {
-	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
-	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_CLASS] == E_LWAPIERRNO_OK)
-		EHS_FB_FINISH(INX_lorawan_ARG_set_class_cb_set_class_ok);
+	(void)EHS_FB_RUN_CONTEXT;
+	/* @todo the CDF only defines a success output port (set_class_ok); failure
+	 * is silent. Same story as set_datarate_cb / set_tx_power_cb — finish on
+	 * the OK branch either way so the callback queue drains. A dedicated
+	 * failure port is a CDF-side change. */
+	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_CLASS] != E_LWAPIERRNO_OK)
+		ehs_lorawan_debug("%s fail: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_CLASS]);
+	EHS_FB_FINISH(INX_lorawan_ARG_set_class_cb_set_class_ok);
 }
 
 EHS_FB_RUN_FUNCTION(lorawan_set_tx_power)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
-	ehs_lorawan_api_errno_t err;
-	if (EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_tx_power_tx_power_in))
-		err = LoRaWAN_set_txpower(EHS_FB_IN_I_API2(INX_lorawan_ARG_set_tx_power_tx_power_in));
-	else EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_busy);
+	if (!EHS_FB_IN_CONNECTED_API2(INX_lorawan_ARG_set_tx_power_tx_power_in)) {
+		EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_busy);
+		return;
+	}
+	if (inx_lorawan_state->fb_state != INX_LW_FB_JOINED) {
+		EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_busy);
+		return;
+	}
+	ehs_lorawan_api_errno_t err = LoRaWAN_set_txpower(EHS_FB_IN_I_API2(INX_lorawan_ARG_set_tx_power_tx_power_in));
 	if (err == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_sent);
-	else EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_busy);
+	else                        EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_set_tx_power_busy);
 }
 
 EHS_FB_RUN_FUNCTION(lorawan_set_tx_power_cb)
 {
-	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
-	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_TXPOWER] == E_LWAPIERRNO_OK)
-		EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_cb_set_tx_power_ok);
+	(void)EHS_FB_RUN_CONTEXT;
+	/* @todo dedicated failure output port in the CDF — see set_class_cb. */
+	if (gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_TXPOWER] != E_LWAPIERRNO_OK)
+		ehs_lorawan_debug("%s fail: %d\n", __func__, gEhsLoraApiData.error_ret[E_LORAWAN_API_SET_TXPOWER]);
+	EHS_FB_FINISH(INX_lorawan_ARG_set_tx_power_cb_set_tx_power_ok);
 }
 
 EHS_FB_RUN_FUNCTION(lorawan_link_check)
 {
 	inx_lorawan_state_type* inx_lorawan_state = (inx_lorawan_state_type*)EHS_FB_RUN_CONTEXT;
+	if (inx_lorawan_state->fb_state != INX_LW_FB_JOINED) {
+		EHS_FB_FINISH(INX_lorawan_ARG_link_check_link_check_busy);
+		return;
+	}
 	ehs_lorawan_api_errno_t err = LoRaWAN_link_check();
 	if (err == E_LWAPIERRNO_OK) EHS_FB_FINISH(INX_lorawan_ARG_link_check_link_check_sent);
 	else EHS_FB_FINISH(INX_lorawan_ARG_link_check_link_check_busy);
@@ -845,7 +1039,13 @@ void Common_LoRaWAN_onReceive(char *recv_msg, ehs_bool has_message)
 	if (has_message)
 		EhsLorawanRecvMsg = (EhsDataflowStringType) recv_msg;
 	else EhsLorawanRecvMsg = (EhsDataflowStringType) EhsLorawanRecvMsg_empty;
+	/* Serialise cb dispatch with other non-EHS-thread FB writers via the
+	 * fbIO mutex. EhsCallbackQueue_execute calls the cb run-func
+	 * synchronously here on the LoRaWAN HAL worker thread; matching the
+	 * pattern in mqtt_publish.c / mqtt_subscribe.c / devman_mon_mqtt.c. */
+	EhsTPMutex_lock(EhsTPMutex_fbIO);
 	EhsCallbackQueue_execute(&xLorawanCallbackQueue);
+	EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }
 
 // All the data should be from gEhsLoraApiData global variable
@@ -901,5 +1101,8 @@ void Common_LoRaWAN_FBCBs(e_ehs_lorawan_api_cmd_t cmd)
 		}
 	}
 	ehs_lorawan_debug("[%s] execute %d\n", __func__, cmd);
+	/* Same fbIO serialisation as Common_LoRaWAN_onReceive — see comment there. */
+	EhsTPMutex_lock(EhsTPMutex_fbIO);
 	EhsCallbackQueue_execute(&xLorawanApiCallbackQueue[cmd]);
+	EhsTPMutex_unlock(EhsTPMutex_fbIO);
 }

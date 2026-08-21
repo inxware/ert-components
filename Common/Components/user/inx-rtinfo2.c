@@ -90,6 +90,7 @@ EHS_FB_DESTROY_FUNCTION(RuntimeInfo2)
 {
 	inx_RuntimeInfo2_state_type *inx_RuntimeInfo2_state = (inx_RuntimeInfo2_state_type*)EHS_FB_DESTROY_CONTEXT;
 	//Your code below here
+	return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION getstat MACRO START -- DO NOT ALTER
@@ -110,7 +111,7 @@ EHS_FB_RUN_FUNCTION(RuntimeInfo2_getstat)
         EhsHMetaUpdateStatic();
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_Device_ID))
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getstat_Device_ID),EhsHMetaGetHWID());
+		EHS_FB_OUT_S_SET_API2(INX_RuntimeInfo2_ARG_getstat_Device_ID, EhsHMetaGetHWID());
 		 
 	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_RAM__KB__))
 		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getstat_RAM__KB__)=EhsHMetaGetRAMTotal();
@@ -119,13 +120,13 @@ EHS_FB_RUN_FUNCTION(RuntimeInfo2_getstat)
 		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getstat_Stor__KB_)=EhsHMetaGetStorTotal();
 
 	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_EHS_version))
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getstat_EHS_version),EhsHMetaGetEHSVersion());
+		EHS_FB_OUT_S_SET_API2(INX_RuntimeInfo2_ARG_getstat_EHS_version, EhsHMetaGetEHSVersion());
 
 	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_ModuleList))
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getstat_ModuleList),"N/A");
+		EHS_FB_OUT_S_SET_API2(INX_RuntimeInfo2_ARG_getstat_ModuleList, "N/A");
 
 	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getstat_Install_Dir))
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getstat_Install_Dir),EhsHMetaGetInstPath());
+		EHS_FB_OUT_S_SET_API2(INX_RuntimeInfo2_ARG_getstat_Install_Dir, EhsHMetaGetInstPath());
 
 	EHS_FB_FINISH(INX_RuntimeInfo2_ARG_getstat_);
 }//ICB FUNCTION getstat MACRO END -- DO NOT ALTER THIS LINE
@@ -149,7 +150,7 @@ EHS_FB_RUN_FUNCTION(RuntimeInfo2_getdyn)
 	#endif
 	// Your code here
 	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_IP_Addr))
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_RuntimeInfo2_ARG_getdyn_IP_Addr),EhsHMetaGetIPAddr());
+		EHS_FB_OUT_S_SET_API2(INX_RuntimeInfo2_ARG_getdyn_IP_Addr, EhsHMetaGetIPAddr());
 		
 	if (EHS_FB_OUT_CONNECTED_API2(INX_RuntimeInfo2_ARG_getdyn_RAM_Avail__KB_))
 		EHS_FB_OUT_I_API2(INX_RuntimeInfo2_ARG_getdyn_RAM_Avail__KB_)=EhsHMetaGetRAMAvail();             /* Get total spare RAM */

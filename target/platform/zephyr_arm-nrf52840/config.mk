@@ -13,6 +13,10 @@
 EHS_ARCH=arm
 EHS_OS=zephyr
 TOOLCHAIN_NAME=arm-zephyr-eabi
+# Selects the kernel archive: support_libs/target_libs/arm-zephyr-cortexm4/.
+# Without it the key truncates to `arm-zephyr`, which has no directory, and the
+# link has no libehs to find. nRF52840 is Cortex-M4F (see ZEPHYR_CPU_FLAGS below).
+EHS_TARGET_LIB_VARIANT = -cortexm4
 EHS_MCU_TARGET=yes
 
 # Zephyr build output directory (set by Docker or user environment)

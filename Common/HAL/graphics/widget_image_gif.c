@@ -254,7 +254,7 @@ EHS_LOCAL GifExtension* EhsWidgetImageGif_commitExtension(GifExtension* pOldExt)
 void * gif_alloc(long bytes);
 void *	app_zero_alloc(long size);
 void *	app_alloc(long size);
-void *	app_realloc(void *ptr, long newsize);
+void *	app_realloc(void *ptr, long oldsize, long newsize);
 
 
 int 	read_gif_int(FILE *file);
@@ -933,7 +933,7 @@ ehs_bool read_gif_extension(FILE *file, GifExtension *ext)
     {
         /* Append the data object: */
         i = ++ext->data_count;
-        ext->data = app_realloc(ext->data, i * sizeof(GifData *));
+        ext->data = app_realloc(ext->data, (i-1) * sizeof(GifData *), i * sizeof(GifData *));
         if (!ext->data)
         {
             bRet = EHS_FALSE;
@@ -1396,7 +1396,7 @@ ehs_bool read_gif(FILE *file, EhsWidgetImageGifSubclass *gif)
             {
                 /* Append the block: */
                 i = ++gif->block_count;
-                gif->blocks = app_realloc(gif->blocks, i * sizeof(EhsWidgetImageGifBlockType *));
+                gif->blocks = app_realloc(gif->blocks, (i-1) * sizeof(EhsWidgetImageGifBlockType *), i * sizeof(EhsWidgetImageGifBlockType *));
                 if (gif->blocks)
                     gif->blocks[i-1] = block;
                 else
@@ -1406,7 +1406,7 @@ ehs_bool read_gif(FILE *file, EhsWidgetImageGifSubclass *gif)
             {
                 /* Append the block: */
                 i = ++gif->block_count;
-                gif->blocks = app_realloc(gif->blocks, i * sizeof(EhsWidgetImageGifBlockType *));
+                gif->blocks = app_realloc(gif->blocks, (i-1) * sizeof(EhsWidgetImageGifBlockType *), i * sizeof(EhsWidgetImageGifBlockType *));
                 if (gif->blocks)
                     gif->blocks[i-1] = block;
                 else
@@ -1455,7 +1455,7 @@ ehs_bool read_one_gif_picture(FILE *file, EhsWidgetImageGifSubclass *gif)
         {
             /* Append the block: */
             i = ++gif->block_count;
-            gif->blocks = app_realloc(gif->blocks, i * sizeof(EhsWidgetImageGifBlockType *));
+            gif->blocks = app_realloc(gif->blocks, (i-1) * sizeof(EhsWidgetImageGifBlockType *), i * sizeof(EhsWidgetImageGifBlockType *));
             if (gif->blocks)
                 gif->blocks[i-1] = block;
             else
@@ -1466,7 +1466,7 @@ ehs_bool read_one_gif_picture(FILE *file, EhsWidgetImageGifSubclass *gif)
         {
             /* Append the block: */
             i = ++gif->block_count;
-            gif->blocks = app_realloc(gif->blocks, i * sizeof(EhsWidgetImageGifBlockType *));
+            gif->blocks = app_realloc(gif->blocks, (i-1) * sizeof(EhsWidgetImageGifBlockType *), i * sizeof(EhsWidgetImageGifBlockType *));
             if (gif->blocks)
                 gif->blocks[i-1] = block;
             else
@@ -1502,19 +1502,24 @@ void *	app_alloc(long size)
 
 /**
  * Reallocate memory - in order to fit in with the EHS approach, we actually
- * just allocate more memory, and delete all allocated memory at a later stage
+ * just allocate more memory, and delete all allocated memory at a later stage.
+ * oldsize is the current size of ptr; only that much is copied.
  */
-void *	app_realloc(void *ptr, long newsize)
+void *	app_realloc(void *ptr, long oldsize, long newsize)
 {
     void* pMem = app_alloc(newsize);
+    long nCopy = (ptr && (oldsize > 0)) ? ((oldsize < newsize) ? oldsize : newsize) : 0;
 
-    if (ptr)
+    if (pMem)
     {
-        memcpy(pMem,ptr,newsize);
-    }
-    else
-    {
-        memset(pMem,0,newsize);
+        if (nCopy > 0)
+        {
+            memcpy(pMem,ptr,nCopy);
+        }
+        if (newsize > nCopy)
+        {
+            memset((ehs_uint8*)pMem + nCopy,0,newsize - nCopy);
+        }
     }
     return pMem;
 }

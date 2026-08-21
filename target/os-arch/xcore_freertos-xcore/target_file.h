@@ -19,6 +19,13 @@
 #ifndef EHS_TARGET_FILE_H
 #define EHS_TARGET_FILE_H
 
+/* The XMOS libc / fwk_rtos POSIX layer does not provide <utime.h>, so the
+ * stat/utime functions in hal_file.[ch] would be declared with `struct utimbuf*`
+ * and defined the same way — but `struct utimbuf` is never declared, leading
+ * to "conflicting types for 'Ehs_UserUtime'" at hal_file.c:735. Match the
+ * esp32 / zephyr precedent and switch hal_file to the void* stub branch. */
+#define EHS_TARGET_FILE_SKIP_STAT yes
+
 #include <stdio.h>
 #include <sys/stat.h>
 #include <fcntl.h>

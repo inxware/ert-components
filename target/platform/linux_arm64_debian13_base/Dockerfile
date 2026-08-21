@@ -1,4 +1,3 @@
-# inxware/inx-debian13-arm64
 FROM debian:13
 RUN echo "Successfully entered and fetched debian:13"
 RUN apt update

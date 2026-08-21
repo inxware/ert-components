@@ -1,0 +1,47 @@
+# published.txt — Full published / internal platform list.
+# Used by:  run_regression.sh --platform-list published
+# One platform directory name per line.  Lines starting with # are ignored.
+# Add --include-slow on the command line to also build linux_android_arm64_unity-lib.
+
+#linux_x86_64-lucid-debian11
+#linux_android_arm_legacy
+
+
+linux_x86_64_clang_ehrt1
+linux_x86_gtk_gst_ambifier
+linux_x86_gtk_gst_ambifier-debug
+linux_amd64_gtk_gst_debian9_ambifier2
+linux_amd64_gtk_gst_debian9_ambifier-tsa
+linux_x86_64_gtk_gst_debian11
+linux_x86_64_gtk_gst_debian11-debug
+linux_x86_64_gtk_gst_debian11_ambifier2
+linux_x86_64_gtk_gst_debian11_ambifier-tsa
+linux_android_arm_p64_a6_ambifier
+linux_android_arm_p64_h6_ambifier
+linux_android_arm_p64_h6_player-sandbox
+linux_android_arm_p64_h6_player-sandbox-debug
+linux_amd64_debian9
+linux_amd64_gtk_gst_debian9
+linux_x86_64_clang
+linux_x86_64_clang_gg_debian11
+linux_x86_64_clang_gtk_gst_gg_debian11-devman-inxsystems
+linux_x86_gtk_gst_debian8
+linux_armv7l_clang_debian10
+linux_x86_64_clang_gtk_debian10
+linux_armv7l_clang_gtk_gst_debian10
+linux_arm64_clang_a64_supervisor
+linux_arm64_lvgl_gg_debian11
+linux_arm64_lvgl_raspberrypi_demo
+win_x86_gtk_gst
+win_x86_32-lucid-win10
+nxp_arm_inx_hrcdispv1_ehs_debug
+nxp_arm_inx_hri_ehs_debug
+esp32s3_freertos-xtensa-no-certs
+esp32_freertos-xtensor-base
+esp32s3_freertos-xtensa-base
+esp32s3_freertos-xtensa-hrdcv2
+linux_android_arm
+arduino_arduino-mbed-nano_community_library
+arduino_arduino-mbed-nano_lib
+win_x86_64_gtk_gst
+win_x86_64-lucid-win10

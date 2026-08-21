@@ -1,0 +1,11 @@
+install https://www.nxp.com/design/microcontrollers-developer-resources/lpc-microcontroller-utilities/lpcscrypt-v2.1.0:LPCSCRYPT
+remove all jumpers from lpclink
+plug in
+cd /usr/local/lpcscrypt/scripts/
+use hexedit to alter the /usr/local/lpcscrypt/probe_firmware/LPCLink2/Firmware_JLink_LPC-Link2_20160923.bin at address 00003e3c to alter serial number of the firmware
+update /home/inx-devman/debuggerInformation.json so that the new serial number is paired to a device id
+./program_JLINK
+unplug
+put jp1 on
+plug back in
+should be a JLINK now

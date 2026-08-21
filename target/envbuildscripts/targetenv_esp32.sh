@@ -74,10 +74,14 @@ fi
 
 export TEMP_PWD=${PWD}
 INX_HOST_ARCH=$(uname -m)
-TOOLCHAIN_PATH="${TEMP_PWD}/../ert-build-support/toolchains/${INX_HOST_ARCH}/${TOOLCHAIN_VERSION}"
+# Absolute, unlike make's exported TOOLCHAIN_PATH which is relative to
+# ert-build-support/toolchains/. Named apart so the two are not confused; this
+# script runs as its own process (Makefile: targetenv_esp32) so it does not
+# clobber the make value for anything else.
+ESP_TOOLCHAIN_DIR="${TEMP_PWD}/../ert-build-support/toolchains/${INX_HOST_ARCH}/${TOOLCHAIN_VERSION}"
 
 export IDF_PYTHON_ENV_BASE="../../TARGET_TREES/esp32_venv/"
-export IDF_ESPTOOL_BASE="${TOOLCHAIN_PATH}/${TOOLCHAIN_FLASHING_VERSION}/tools"
+export IDF_ESPTOOL_BASE="${ESP_TOOLCHAIN_DIR}/${TOOLCHAIN_FLASHING_VERSION}/tools"
 
 #Check if we are in docker sowe don't try to install IDF's grim python tools again
 if [ -f /.dockerenv ]; then
@@ -89,10 +93,10 @@ else
 
     # The following would be better picked from config.mk rather than hardwired, but would need to passed in for Docker builds.
 
-    _PATH="${TOOLCHAIN_PATH}/bin"
+    _PATH="${ESP_TOOLCHAIN_DIR}/bin"
     
     ## Create python virtual environment, install requirements and export it to PATH
-    echo "TOOLCHAIN PATH IS $TOOLCHAIN_PATH"
+    echo "TOOLCHAIN PATH IS $ESP_TOOLCHAIN_DIR"
     
     ## We don't need this of we are relying on the docker one, but will inclide in we are not (e.g. system for flashing should have this VM.)
     # todo-we should consider if we need a nother temporary directory for tools that are built per host machine (TARHGET_TREES is not very descriptive)
@@ -102,7 +106,7 @@ else
     export IDF_PYTHON_ENV_PATH="${IDF_PYTHON_ENV_BASE}/bin"
 
     #Set path to the python and toolchain.
-    _PATH="${TOOLCHAIN_PATH}/bin"
+    _PATH="${ESP_TOOLCHAIN_DIR}/bin"
     _PATH="${_PATH:+${_PATH}:}${IDF_ESPTOOL_BASE}/openocd-esp32/v0.11.0-esp32-20211220/openocd-esp32/bin"
     _PATH="${_PATH:+${_PATH}:}${IDF_PYTHON_ENV_PATH}"
     _PATH="${_PATH:+${_PATH}:}${IDF_ESPTOOL_BASE}/esptool_py/esptool"
@@ -159,7 +163,21 @@ else
 fi
 
 # previously know as? "$PWD/../ert-contrib-middleware/contrib/esp-idf/esp-idf-4.4.1/build/partitions.bin"
-if test -f "$PWD/../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/build/lib/partition-table.bin"
+if [ -n "${ESP32_FLASH_SIZE}" ]; then
+    # Custom partition table: generate locally from ESP32_PART_* vars in config.mk.
+    # Middleware bootloader is reused; CONFIG_ESPTOOLPY_FLASHSIZE is build-system-only
+    # and the bootloader reads the actual flash size from the image header at runtime.
+    CSV_OUT="$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partitions.csv"
+    PART_ENV="$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partitions.env"
+    PART_BIN="$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin"
+    PT_OFFSET="${ESP32_PARTITION_TABLE_OFFSET:-0x9000}"
+
+    python3 ./target/envbuildscripts/esp32_gen_partitions.py "${CSV_OUT}" "${PART_ENV}" || exit 1
+    python3 "${IDF_ESPTOOL_BASE}/partition_table/gen_esp32part.py" --offset "${PT_OFFSET}" "${CSV_OUT}" "${PART_BIN}" || exit 1
+    # shellcheck disable=SC1090
+    source "${PART_ENV}"
+    echo "### Generated partition-table.bin locally from ESP32_PART_* vars (flash ${ESP32_GEN_FLASH_SIZE_HEX}) ###"
+elif test -f "$PWD/../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/build/lib/partition-table.bin"
 then
     cp "$PWD/../ert-contrib-middleware/target_libs/${COMPONENT_BASE_TECHNOLOGIES}/build/lib/partition-table.bin" "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/" || echo "ERROR: Could not copy the partition table"
     echo "### Copied the pre built partition table binary (partition-table.bin) into TARGET_TREES                              ###"
@@ -186,13 +204,73 @@ fi
 done
 
 # TODO See comments in head of this document, why we are using the venv scripts here
-#todo Presumably we wantthe hardwired sies etc in here to be paramterised so they can be set for speciic platform builds
-/opt/python_env/bin/littlefs-python create -v --block-size 4096 --fs-size 1572864 --name-max 64 --image $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/data_partition/ || exit
+if [ -n "${ESP32_FLASH_SIZE}" ]; then
+    # Custom-partitions path. Sizes and offsets come from the generated partitions.env.
+    # data.bin is sized to ESP32_PART_STORAGE_SIZE so the image fits the partition.
+    DATA_FS_SIZE=$(( ESP32_GEN_STORAGE_SIZE ))
+    /opt/python_env/bin/littlefs-python create -v --block-size 4096 --fs-size "${DATA_FS_SIZE}" --name-max 64 --image $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/data_partition/ || exit
+else
+    # DEFAULT PATH — taken whenever ESP32_FLASH_SIZE is unset, which is nearly
+    # every esp32 target. Offsets and flash size are fixed here rather than
+    # derived, so a board with a different layout needs the branch above:
+    # set ESP32_FLASH_SIZE in its config.mk and let esp32_gen_partitions.py
+    # generate the table.
+    # /opt/python_env/bin/littlefs-python create -v --block-size 4096 --fs-size 1572864 --name-max 64 --image $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/data_partition/ || exit
+    /opt/python_env/bin/littlefs-python create -v --block-size 4096 --fs-size 512000 --name-max 64 --image $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/data_partition/ || exit
+fi
 
 #Lets build the binary (todo2023 - we should do this in a packer target in the future?? )
 echo "Converting the elf file to binary image.... (This is usually done by make targetenv_esp32s3)"
-#python3 ../ert-contrib-middleware/contrib/esp-idf/CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION/components/esptool_py/esptool/esptool.py --chip esp32s3 merge_bin -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img --flash_mode dio --flash_size 8MB 0x0 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin  0x9000 ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin 0x10000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin 0x410000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin
-python3 ${IDF_ESPTOOL_BASE}/esptool_py/esptool/esptool.py --chip esp32s3 merge_bin -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img --flash_mode dio --flash_size 8MB 0x0 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin  0x9000 ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin 0x20000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin 0x67c000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin 0x5ff000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/app_data.bin ||exit 1
+if [ -n "${ESP32_FLASH_SIZE}" ]; then
+    # Custom-partitions path. Every offset is derived from the generated partition table,
+    # so the merged image is self-consistent with partition-table.bin by construction.
+    # --flash_size re-stamps the image header byte so the middleware-built bootloader
+    # works across arbitrary flash sizes (the C bootloader reads the header at runtime
+    # via update_flash_config()).
+    MERGE_ARGS=(
+        --chip esp32s3 merge_bin
+        -o "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img"
+        --flash_mode dio
+        --flash_size "${ESP32_FLASH_SIZE}"
+        0x0 "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin"
+        "${ESP32_GEN_PARTITION_TABLE_OFFSET}" "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin"
+        "${ESP32_GEN_FACTORY_OFFSET}" "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin"
+        "${ESP32_GEN_STORAGE_OFFSET}" "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin"
+    )
+    if [ "${ESP32_GEN_HAS_APPDATA}" = "yes" ] && [ -f "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/app_data.bin" ]; then
+        MERGE_ARGS+=( "${ESP32_GEN_APPDATA_OFFSET}" "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/app_data.bin" )
+    fi
+    python3 ${IDF_ESPTOOL_BASE}/esptool_py/esptool/esptool.py "${MERGE_ARGS[@]}" || exit 1
+else
+    # DEFAULT PATH — taken whenever ESP32_FLASH_SIZE is unset, which is nearly
+    # every esp32 target. Offsets and flash size are fixed here rather than
+    # derived, so a board with a different layout needs the branch above:
+    # set ESP32_FLASH_SIZE in its config.mk and let esp32_gen_partitions.py
+    # generate the table.
+    #python3 ../ert-contrib-middleware/contrib/esp-idf/CONTRIB_MIDDLWARE_FLASHINGTOOLS_VERSION/components/esptool_py/esptool/esptool.py --chip esp32s3 merge_bin -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img --flash_mode dio --flash_size 8MB 0x0 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin  0x9000 ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin 0x10000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin 0x410000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin
+
+    #python3 ${IDF_ESPTOOL_BASE}/esptool_py/esptool/esptool.py --chip esp32s3 merge_bin -o $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img --flash_mode dio --flash_size 8MB 0x0 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin  0x9000 ../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin 0x20000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin 0x67c000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin 0x5ff000 $PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/app_data.bin ||exit 1
+    # app_data.bin is produced by `make targetenv_littlefs`, a separate goal, so
+    # it is absent unless that has been run. esptool merge_bin fails outright if
+    # given a path that does not exist, hence the guard.
+    LEGACY_ARGS=(
+        --chip esp32s3 merge_bin
+        -o "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.img"
+        --flash_mode dio
+        --flash_size 8MB
+        0x0      "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/bootloader.bin"
+        0x9000   "../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/partition-table.bin"
+        0x20000  "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/ehs.bin"
+        0x77d000 "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/data.bin"
+    )
+    if [ -f "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/app_data.bin" ]; then
+        LEGACY_ARGS+=( 0x700000 "$PWD/../TARGET_TREES/ehs_env-$SPECIFIC_TARGET/bin/app_data.bin" )
+    else
+        echo "Note: bin/app_data.bin absent - image built without an app-data partition."
+        echo "      Run 'make targetenv_littlefs' first if this target needs one."
+    fi
+    python3 ${IDF_ESPTOOL_BASE}/esptool_py/esptool/esptool.py "${LEGACY_ARGS[@]}" || exit 1
+fi
 
 echo "---------------------------------------------------------------------------------------------------------------------------"
 echo "All Done!"

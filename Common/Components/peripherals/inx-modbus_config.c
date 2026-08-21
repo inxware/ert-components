@@ -105,7 +105,8 @@ EHS_FB_INIT_FUNCTION(modbus_config)
     inx_modbus_config_state_type* inx_modbus_config_state = (inx_modbus_config_state_type*)EHS_FB_INIT_CONTEXT;
     /* read the initialisation parameters */
     // Directly allocate to the structure data
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d %d %s %s",&bus_id,&master,&data_mode,&port_id,inx_modbus_config_state->ip,inx_modbus_config_state->cert);
+    /* master is ehs_bool (1 byte) - %d would write 4 */
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %hhu %d %d %s %s",&bus_id,&master,&data_mode,&port_id,inx_modbus_config_state->ip,inx_modbus_config_state->cert);
 
     inx_modbus_config_state->bus_id = bus_id;
     inx_modbus_config_state->master = master;

@@ -101,7 +101,7 @@ EHS_FB_INIT_FUNCTION(key_value)
 		if (pFbInitParam[0] != '"')
 		{
 			/* When it's not a string containing spaces */
-			pFbInitParam = EhsGetWordFromString(in_temp, pFbInitParam);
+			pFbInitParam = EhsGetWordFromString(in_temp, pFbInitParam, sizeof(in_temp));
 			str_count = EhsStrlen(in_temp);
 			if (str_count == 4 && EhsStrncmp(in_temp, "NULL", 4) == 0)
 			{
@@ -490,7 +490,7 @@ for_end:
 
 function_end:
 	if (EHS_FB_OUT_CONNECTED_API2(INX_key_value_ARG_query_value_out))
-		EhsSprintf(EHS_FB_OUT_S_API2(INX_key_value_ARG_query_value_out), "%.*s", value_length, value);
+		EhsSnprintf(EHS_FB_OUT_S_API2(INX_key_value_ARG_query_value_out), EHS_FB_OUT_S_CAP_API2(INX_key_value_ARG_query_value_out), "%.*s", value_length, value);
 	if (fp != NULL)
 	{
 		EhsFclose(fp);

@@ -54,7 +54,6 @@ LIB+=opencv_plot
 #LIB+=opencv_videostab
 
 LIB+=opencv_videoio
-#debian 13 libopencv-videoio410 
 
 #LIB+=opencv_viz
 #LIB+=opencv_wechat_qrcode

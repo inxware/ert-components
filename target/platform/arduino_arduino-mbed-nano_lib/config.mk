@@ -99,3 +99,9 @@ DEFS += EHS_TGT_TCP_OUT_BUFF_SIZE=256
 
 
 ################################### END OF CONFIGURATION ###################################################
+
+# This target produces an Arduino static library, not an installable package, so there is nothing for
+# 'make targetenv_package' to build. Set explicitly: the os-arch default would
+# otherwise select targetenv_arduino, which links a sketch this target does not have, which fails here.
+# A platform '=' overrides the os-arch '?=' (target/os-arch/*/config.mk).
+EHS_PACKAGER_TYPE=none

@@ -17,11 +17,35 @@
 </div>
 <!--General Description-->
 <p class="component">
-    LoRaWAN module
-    </p>
+    LoRaWAN end-device modem driver.
+</p>
 <p class="component">
-    This function block describes the LoRaWAN communication with external LoRaWAN module. The communication between the platform and this module is UART or something else. The UART port on the platform is hardware to the first instance (e.g. UART0). The authentication mode is either OTAA or ABP mode. Device class (A, B or C) is configurable via the Class parameter or the class_in port on connect.
-    </p>
+    LoRaWAN is a long-range, low-power wide-area network protocol built on the LoRa physical layer. End devices transmit small payloads (typically &lt; 256 bytes) over many kilometres at sub-GHz ISM frequencies (EU868, US915, AS923, &#8230;) with a duty cycle of seconds to minutes. The architecture is &ldquo;star-of-stars&rdquo;: end devices broadcast to one or more <b>gateways</b>, which forward every received frame over IP to a <b>LoRaWAN Network Server (LNS)</b>. The LNS deduplicates, decrypts, runs MAC-layer logic and hands the application payload off to your application server.
+</p>
+<p class="component">
+    To use this block in production you need three things outside of the device itself:
+</p>
+<ol class="component">
+<li>A <b>LoRaWAN gateway</b> within radio range &mdash; either operate one yourself (e.g. a RAK / MikroTik / Kerlink concentrator) or rely on coverage from a community / commercial network.</li>
+<li>An account on a <b>LoRaWAN Network Server</b>. Common options are
+<a href="https://www.thethingsnetwork.org/" target="_blank">The Things Network</a> /
+<a href="https://www.thethingsindustries.com/" target="_blank">The Things Industries</a> (free community + paid hosted),
+<a href="https://aws.amazon.com/iot-core/lorawan/" target="_blank">AWS IoT Core for LoRaWAN</a> (managed, integrates with AWS IoT rules), or self-hosting an open-source LNS such as
+<a href="https://www.chirpstack.io/" target="_blank">ChirpStack</a>. Other commercial offerings include Actility ThingPark, Senet and Loriot.</li>
+<li>The <b>device credentials</b> registered on that LNS. For OTAA you need <a href="#[Param]appKey">AppKey</a> and <a href="#[Param]appEui">AppEui</a> (JoinEUI) plus the device's DevEui; for ABP you need <a href="#[Param]nwkSKey">NwkSKey</a>, <a href="#[Param]appSKey">AppSKey</a> and <a href="#[Param]devAddrABP">DevAddr</a>. The device-side region, sub-band and RX2 settings configured here must match what the LNS expects for your gateway.</li>
+</ol>
+<p class="component">
+    This function block drives an external LoRaWAN modem (e.g. Wio-E5, RAK3112) over UART or another transport configured in the target HAL. It supports class A / B / C operation, OTAA and ABP join, runtime data-rate / TX-power / class changes, MAC-layer link checks and a status query for diagnostics.
+</p>
+<p class="component">
+    A typical flow is: configure the device-identity parameters (or override them on the input ports), trigger
+    <a href="#[In]connect">join</a>, wait for <a href="#[Out]connect_cb_ok">ok (connect_cb)</a>, then use
+    <a href="#[In]send_msg">send</a> to push uplinks and listen on
+    <a href="#[Out]received">received</a> for downlinks. Most start ports are non-blocking &mdash; they only confirm the request was queued (<code>--</code>) or the modem is already busy (<code>busy</code>); the real result arrives later on the matching <code>_cb</code> finish port (<code>ok</code> / <code>failed</code> / <code>done</code>).
+</p>
+<p class="component">
+    Behaviour that varies by target: AutoJoin scheduling, sub-band selection, link-margin reporting and runtime TX-power adjustment may be ignored on modems that do not expose them &mdash; the corresponding callback still fires <code>ok</code> in that case. See the target HAL implementation for the authoritative behaviour matrix.
+</p>
 <!--Parameters - form - short desc: long desc-->
 <div class="section_heading">
 <span class="toc_span" id="parameters">Parameters</span>
@@ -31,8 +55,9 @@
 </div>
 <table class="table_params">
 <tr>
-<th style="width:60px;">name</th>
-<th>type</th><th>description</th>
+<th>name</th>
+<th>type</th>
+<th>description</th>
 <th>default</th>
 <th>min.</th>
 <th>max.</th>
@@ -40,39 +65,39 @@
 
 <tr>
 <td>Target</td>
-<td>I</td><td>The LoRaWAN target module. Default to 0 (WIO-E5). 0 for Wio-E5.</td>
+<td>I</td><td>LoRaWAN modem target selector. Currently 0 = Wio-E5. Other modems (RAK3112, etc.) are selected by the target HAL build, not by this parameter.</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 </tr>
 
 <tr>
-<td>Mode</td>
-<td>B</td><td>The connection mode of LoRaWAN. 0 for OTAA, 1 for ABP. Default to 0 (OTAA).</td>
-<td>False</td>
-<td>None</td>
-<td>None</td>
+<td><a name="[Param]Mode">Mode</a></td>
+<td>B</td><td>Join mode. 0 = OTAA (over-the-air activation, uses <a href="#[Param]appKey">appKey</a> / <a href="#[Param]appEui">appEui</a>), 1 = ABP (activation by personalisation, uses <a href="#[Param]nwkSKey">nwkSKey</a> / <a href="#[Param]appSKey">appSKey</a> / <a href="#[Param]devAddrABP">devAddrABP</a>).</td>
+<td>0</td>
+<td></td>
+<td></td>
 </tr>
 
 <tr>
 <td><a name="[Param]Region">Region</a></td>
-<td>I</td><td>Region Parameters of LoRaWAN communications. Default to 0("EU868"). The options are (from 0 to 10): "EU868", "US915", "CN779", "EU433", "AU915", "CN470", "AS923", "KR920", "IN865", "RU864", "STE920".</td>
+<td>I</td><td>Regional parameter set. Default 0 (EU868). Values 0..10 map to: 0 = EU868, 1 = US915, 2 = CN779, 3 = EU433, 4 = AU915, 5 = CN470, 6 = AS923, 7 = KR920, 8 = IN865, 9 = RU864, 10 = STE920. Can be overridden at join time via the <a href="#[In]region">region</a> input port.</td>
 <td>0</td>
 <td>0</td>
 <td>10</td>
 </tr>
 
 <tr>
-<td>Repeat</td>
-<td>I</td><td>Unconfirmed message repeat time. From 1 to 15.</td>
+<td><a name="[Param]Repeat">Repeat</a></td>
+<td>I</td><td>Number of times each unconfirmed uplink is repeated by the MAC layer (1..15). Higher values increase delivery probability at the cost of duty cycle and battery life.</td>
 <td>1</td>
 <td>1</td>
 <td>15</td>
 </tr>
 
 <tr>
-<td>Retry</td>
-<td>I</td><td>Confirmed message retry times. From 0 to 254.</td>
+<td><a name="[Param]Retry">Retry</a></td>
+<td>I</td><td>Maximum number of retransmissions for a confirmed uplink that is not acknowledged (0..254). Set to 0 to disable retries.</td>
 <td>3</td>
 <td>0</td>
 <td>254</td>
@@ -80,71 +105,71 @@
 
 <tr>
 <td>AutoJoin</td>
-<td>I</td><td>Fixed period in seconds up to 24 hours to join the network after disconnection. 0 to disable auto join feature. For the targets that do not have interval settings, any non-zero value would enable the feature. If the target does not support auto-join, this parameter has no effect.</td>
+<td>I</td><td>Auto-rejoin period in seconds (0..86400, i.e. up to 24 h). 0 disables auto-rejoin; any non-zero value enables it on modems that don't expose a configurable interval. Has no effect on modems that don't support auto-rejoin.</td>
 <td>300</td>
 <td>0</td>
 <td>86400</td>
 </tr>
 
 <tr>
-<td>ADR</td>
-<td>B</td><td>Adaptive Data Rate. With this on, the DR setting would be ignored.</td>
+<td><a name="[Param]ADR">ADR</a></td>
+<td>B</td><td>Adaptive Data Rate. When enabled the network controls DR / TX power and the <a href="#[Param]DR">DR</a> parameter is ignored.</td>
 <td>0</td>
 <td>0</td>
 <td>1</td>
 </tr>
 
 <tr>
-<td>DR</td>
-<td>I</td><td>Data Rate. Varies from 0 to 15.</td>
+<td><a name="[Param]DR">DR</a></td>
+<td>I</td><td>Initial data-rate index (0..15). The valid range and meaning of each index depends on <a href="#[Param]Region">Region</a>. Ignored when ADR is on. Can be changed at runtime via <a href="#[In]set_datarate">set</a>.</td>
 <td>0</td>
 <td>0</td>
 <td>15</td>
 </tr>
 
 <tr>
-<td>RXWIN2</td>
-<td>F</td><td>Second RX window frequency in MHz.</td>
+<td><a name="[Param]RXWIN2">RXWIN2</a></td>
+<td>F</td><td>Frequency of the second RX window (RX2) in MHz. Must match the network server's RX2 configuration.</td>
 <td>869.525</td>
 <td>400</td>
 <td>999</td>
 </tr>
 
 <tr>
-<td>appKey</td>
-<td>S</td><td>Default Application key for OTAA join mode. It must contain exact 32 CAPITAL characters in hexidecimal range (i.e. '0'~'9' and 'A'~'F'), or the join method will always output busy.</td>
+<td><a name="[Param]appKey">appKey</a></td>
+<td>S</td><td>OTAA Application Key. Exactly 32 hex characters [0-9A-F]. Used only when <a href="#[Param]Mode">Mode</a> = 0 (OTAA). An invalid string causes <a href="#[In]connect">join</a> to fail with <a href="#[Out]connect_errno">errno</a> = INVALID_PARAMETERS.</td>
 <td>00000000000000000000000000000000</td>
 <td></td>
 <td></td>
 </tr>
 
 <tr>
-<td>appEui</td>
-<td>S</td><td>Application Unique ID for OTAA join mode. It must contain exact 16 CAPITAL characters in hexidecimal range (i.e. '0'~'9' and 'A'~'F'), or the join method will always output busy.</td>
+<td><a name="[Param]appEui">appEui</a></td>
+<td>S</td><td>OTAA Application / Join EUI. Exactly 16 hex characters [0-9A-F]. Used only when Mode = 0 (OTAA).</td>
 <td>0000000000000000</td>
 <td></td>
 <td></td>
 </tr>
 
 <tr>
-<td>nwkSKey</td>
-<td>S</td><td>Network Session Key for ABP join mode. It must contain exact 32 CAPITAL characters in hexidecimal range (i.e. '0'~'9' and 'A'~'F'), or the join method will always output busy.</td>
+<td><a name="[Param]nwkSKey">nwkSKey</a></td>
+<td>S</td><td>ABP Network Session Key. Exactly 32 hex characters [0-9A-F]. Used only when Mode = 1 (ABP).</td>
 <td>00000000000000000000000000000000</td>
 <td></td>
 <td></td>
 </tr>
 
 <tr>
-<td>appSKey</td>
-<td>S</td><td>Application Session Key for ABP join mode. It must contain exact 32 CAPITAL characters in hexidecimal range (i.e. '0'~'9' and 'A'~'F'), or the join method will always output busy.</td>
+<td><a name="[Param]appSKey">appSKey</a></td>
+<td>S</td><td>ABP Application Session Key. Exactly 32 hex characters [0-9A-F]. Used only when Mode = 1 (ABP).</td>
 <td>00000000000000000000000000000000</td>
 <td></td>
 <td></td>
 </tr>
 
 <tr>
-<td>devAddrABP</td>
-<td>S</td><td>Device Address for ABP join mode. It must contain exact 8 CAPITAL characters in hexidecimal range (i.e. '0'~'9' and 'A'~'F'), or the join method will always output busy.</td>
+<td><a name="[Param]devAddrABP">devAddrABP</a></td>
+<td>S</td><td>ABP DevAddr. Exactly 8 hex characters [0-9A-F]. Used only when Mode = 1 (ABP).</td>
 <td>00000000</td>
 <td></td>
 <td></td>
@@ -152,7 +177,7 @@
 
 <tr>
 <td><a name="[Param]Class">Class</a></td>
-<td>I</td><td>Device class. 0=A (default), 1=B, 2=C. Class A is lowest power (receive windows only after uplink). Class B adds scheduled receive slots. Class C enables continuous receive. Can also be overridden dynamically via the <a href="#[In]class_in">class_in</a> port on each join.</td>
+<td>I</td><td>Device class. 0 = A (lowest power, RX windows only after uplink), 1 = B (scheduled receive slots), 2 = C (continuous receive). Can be overridden at join time via the <a href="#[In]class_in">class</a> input port and changed dynamically via <a href="#[In]set_class">set_class</a>.</td>
 <td>0</td>
 <td>0</td>
 <td>2</td>
@@ -160,7 +185,7 @@
 
 <tr>
 <td><a name="[Param]SubBand">SubBand</a></td>
-<td>I</td><td>Sub-band selection for US915, AU915 and CN470 regions (1–8). 0 = all channels or not applicable (EU868, AS923, etc.). Must match the gateway sub-band configured in the LNS.</td>
+<td>I</td><td>Sub-band selection for US915, AU915 and CN470 (1..8). 0 = all channels / not applicable (EU868, AS923, &#8230;). Must match the LNS gateway sub-band.</td>
 <td>0</td>
 <td>0</td>
 <td>8</td>
@@ -168,7 +193,7 @@
 
 <tr>
 <td><a name="[Param]RXWIN2_DR">RXWIN2_DR</a></td>
-<td>I</td><td>Data rate index for the second receive window (RX2). Paired with the RXWIN2 frequency parameter. Default 0 (SF12/125 kHz for EU868). Must match the network server RX2 configuration.</td>
+<td>I</td><td>Data-rate index for the RX2 window. Paired with the <a href="#[Param]RXWIN2">RXWIN2</a> frequency. Default 0 (SF12/125 kHz on EU868). Must match the network server RX2 configuration.</td>
 <td>0</td>
 <td>0</td>
 <td>15</td>
@@ -176,7 +201,7 @@
 
 <tr>
 <td><a name="[Param]TxPower">TxPower</a></td>
-<td>I</td><td>TX power index. 0 = maximum EIRP allowed for the region; higher values reduce output power in approximately 2 dB steps. Can also be changed at runtime via the <a href="#[In]set_tx_power">set_tx_power</a> port.</td>
+<td>I</td><td>Initial TX-power index. 0 = maximum EIRP allowed for the region; higher values reduce output in approximately 2 dB steps. Can be changed at runtime via <a href="#[In]set_tx_power">set_tx_power</a>.</td>
 <td>0</td>
 <td>0</td>
 <td>7</td>
@@ -184,13 +209,14 @@
 
 <tr>
 <td><a name="[Param]ComPort">ComPort</a></td>
-<td>I</td><td>Serial port number for the LoRaWAN modem connection. On Windows this selects the COM port (e.g. 3 = COM3). On Linux targets this parameter has no effect — use the device path configured in the target HAL instead. Set to 0 to use the platform default.</td>
+<td>I</td><td>Serial port number for the modem connection (Windows-only host targets; e.g. 3 = COM3). 0 = use the platform default. Has no effect on Linux / MCU targets &mdash; those use the device path or UART instance configured in the target HAL.</td>
 <td>3</td>
 <td>0</td>
 <td>255</td>
 </tr>
 
 </table>
+
 <!--Ports - form - short desc: long desc-->
 <div class="section_heading">
 <span class="toc_span" id="ports">Ports</span>
@@ -198,215 +224,142 @@
 <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
 <span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
 </div>
+
+<p class="component">
+    Each command port (<i>connect, send, reset, status, set, getLength, disable, set_class, set_tx_power, link_check</i>) has a synchronous &ldquo;request accepted&rdquo; finish (<code>--</code>) and a <code>busy</code> finish that fires immediately when the modem cannot accept a new command. The eventual result is delivered later on a separate finish port that belongs to the matching <code>_cb</code> callback function (<code>ok</code> / <code>failed</code> / <code>done</code>) together with any returned data.
+</p>
+
 <table class="table">
 <tr>
 <th>In Ev.</th><th></th>
 </tr>
 <tr>
 <td class="ports"><a name="[In]connect">join</a></td>
-<td>Connect to LoRaWAN server</td>
+<td>Initiate a join to the LoRaWAN network. In OTAA mode the modem performs a Join procedure with the network server; in ABP mode the keys are loaded and the device is marked joined.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]send_msg"></a>send</td>
-<td>Send message encoded in hex format to a connected LoRaWAN server</td>
+<td class="ports"><a name="[In]send_msg">send</a></td>
+<td>Send an uplink message. <a href="#[In]payload">payload</a> (hex string), <a href="#[In]frame_port">fport</a> and <a href="#[In]msg_confirmed">confirm</a> select the data, frame port and confirmation mode. Must be joined first.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]reset">reset</a></td>
-<td>Reset the LoRaWAN module</td>
+<td>Reset the LoRaWAN modem. Drops any current session; a fresh <a href="#[In]connect">join</a> is required afterwards.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]get_data">status</a></td>
-<td>Get the module specific data in JSON string and DevEui</td>
+<td>Query the modem for status (DevEui, link margin, gateway count, current TX power, current DR, etc.). Result is delivered on the <a href="#[Out]get_sd_cb_ok">ok (get_statusData_cb)</a> finish port.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]set_datarate">set</a></td>
-<td>Set Datarate</td>
+<td>Apply a new data-rate index (read from <a href="#[In]dr_in">DR</a>) at runtime. Has no effect when <a href="#[Param]ADR">ADR</a> is on (the network controls DR).</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]get_pl_len">getLength</a></td>
-<td>Get current maximum payload length</td>
+<td>Query the modem for the current maximum payload length (depends on Region, DR and any pending MAC commands). Result delivered on <a href="#[Out]pl_len_got">ok (get_payload_length_cb)</a>.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]disable">disable</a></td>
-<td>Disable the LoRaWAN connection (unjoin from network)</td>
+<td>Leave the network and disable the radio. Following <a href="#[Out]disabled">disabled</a>, no uplinks or downlinks are processed until <a href="#[In]connect">join</a> is fired again.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]set_class">set_class</a></td>
-<td>Dynamically change the device class (A, B or C) without a full rejoin</td>
+<td>Change the device class (A / B / C) at runtime without a full rejoin. Class read from <a href="#[In]class_in_sc">class</a> input port. Must be joined.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]set_tx_power">set_tx_power</a></td>
-<td>Dynamically change the TX power index at runtime</td>
+<td>Change the TX-power index at runtime. Power index read from <a href="#[In]tx_power_in">txPwr</a>. Must be joined.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]link_check">link_check</a></td>
-<td>Schedule a LoRaWAN LinkCheckReq MAC command. The result (link margin and gateway count) is returned via the link_check_cb ports.</td>
+<td>Schedule a LoRaWAN <code>LinkCheckReq</code> MAC command. The next uplink piggybacks the request; the network's <code>LinkCheckAns</code> reply yields link margin and gateway count via the <a href="#[Out]link_check_done">link_check_cb</a> finish ports.</td>
 </tr>
+
 <tr>
 <th>Data In</th><th></th>
 </tr>
 <tr>
-<td class="ports"><a name="[In]region">region</a></td>
-<td>Set operation region with integer enumeration as mentioned in <a href="#[Param]Region">Region</a> parameter.</td>
+<td class="ports"><a name="[In]region">region</a> (join)</td>
+<td>Override the <a href="#[Param]Region">Region</a> parameter for this and subsequent joins. Integer enumeration as listed under <a href="#[Param]Region">Region</a>.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]adr_in">ADR</a></td>
-<td>Whether to enable Adaptive Datarate mode. DR setting is ignored if it's on.</td>
+<td class="ports"><a name="[In]adr_in">ADR</a> (join)</td>
+<td>Override the <a href="#[Param]ADR">ADR</a> parameter at join time. When true, the modem requests ADR control from the network; the <a href="#[Param]DR">DR</a> setting is ignored.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]AppKey">appKey</a></td>
-<td>OTAA AppKey for connection. Used only when Mode=False.</td>
+<td class="ports"><a name="[In]AppKey">appKey</a> (join)</td>
+<td>OTAA AppKey override. Used only when <a href="#[Param]Mode">Mode</a> = 0 (OTAA). 32 hex characters [0-9A-F].</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]AppEui">appEui</a></td>
-<td>OTAA AppEui for connection. Used only when Mode=False.</td>
+<td class="ports"><a name="[In]AppEui">appEui</a> (join)</td>
+<td>OTAA AppEui (Join EUI) override. Used only when Mode = 0 (OTAA). 16 hex characters.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]NwkSKey">nwkSKey</a></td>
-<td>ABP NwkSKey (Network Session Key) for connection. Used only when Mode=True.</td>
+<td class="ports"><a name="[In]NwkSKey">nwkSKey</a> (join)</td>
+<td>ABP Network Session Key override. Used only when Mode = 1 (ABP). 32 hex characters.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]AppSKey">appSKey</a></td>
-<td>ABP AppSKey (App Session Key) for connection. Used only when Mode=True.</td>
+<td class="ports"><a name="[In]AppSKey">appSKey</a> (join)</td>
+<td>ABP Application Session Key override. Used only when Mode = 1 (ABP). 32 hex characters.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]DevAddr_ABP">devAddr</a></td>
-<td>ABP DevAddr_ABP for connection. Used only when Mode=True.</td>
+<td class="ports"><a name="[In]DevAddr_ABP">devAddr</a> (join)</td>
+<td>ABP DevAddr override. Used only when Mode = 1 (ABP). 8 hex characters. <i>(Distinct from the OTAA-assigned DevAddr returned on the <a href="#[Out]devAddr">DevAddr</a> output port.)</i></td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]class_in">class_in</a> (connect)</td>
-<td>Override the <a href="#[Param]Class">Class</a> parameter for this join. Integer: 0=A, 1=B, 2=C. If not connected, the Class parameter value is used.</td>
+<td class="ports"><a name="[In]miscOpt">miscOpt</a> (join)</td>
+<td>Optional vendor-specific configuration string passed through to the modem driver at join. Format and meaning are HAL-defined (currently a no-op on the WIO-E5 backend).</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]msg_confirmed">confirm</a></td>
-<td>Whether to send the unconfirmed or the confirmed message to the LoRaWAN server.</td>
+<td class="ports"><a name="[In]class_in">class</a> (join)</td>
+<td>Override the <a href="#[Param]Class">Class</a> parameter for this join. Integer: 0 = A, 1 = B, 2 = C.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]frame_port">fport</a></td>
-<td>Frame Port where the message is sent to.</td>
+<td class="ports"><a name="[In]msg_confirmed">confirm</a> (send)</td>
+<td>Send as a confirmed (true) or unconfirmed (false) uplink. Confirmed messages trigger acknowledgements and use the <a href="#[Param]Retry">Retry</a> count; unconfirmed messages use the <a href="#[Param]Repeat">Repeat</a> count.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]payload">payload</a></td>
-<td>The payload in hexidecimal string (e.g. "0AAB34") to be sent.</td>
+<td class="ports"><a name="[In]frame_port">fport</a> (send)</td>
+<td>LoRaWAN application frame-port number (1..223) for the uplink.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]dr_in">DR</a></td>
-<td>Data rate setting.</td>
+<td class="ports"><a name="[In]payload">payload</a> (send)</td>
+<td>Uplink payload as an even-length hex string, e.g. <code>"0AAB34"</code>. Length must not exceed the modem's current maximum payload (see <a href="#[In]get_pl_len">getLength</a>).</td>
 </tr>
 <tr>
-<td class="ports"><a name="[In]class_in_sc">class_in</a> (set_class)</td>
-<td>Device class to switch to: 0=A, 1=B, 2=C. Must be connected for the set_class event to execute.</td>
+<td class="ports"><a name="[In]dr_in">DR</a> (set)</td>
+<td>New data-rate index for <a href="#[In]set_datarate">set</a>. Same encoding as the <a href="#[Param]DR">DR</a> parameter. Ignored when ADR is on.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]class_in_sc">class</a> (set_class)</td>
+<td>New device class for <a href="#[In]set_class">set_class</a>: 0 = A, 1 = B, 2 = C.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[In]tx_power_in">txPwr</a> (set_tx_power)</td>
-<td>TX power index to apply: 0 = max EIRP, higher = lower power (~2 dB steps). Must be connected for the set_tx_power event to execute.</td>
+<td>New TX-power index for <a href="#[In]set_tx_power">set_tx_power</a>. Same encoding as the <a href="#[Param]TxPower">TxPower</a> parameter (0 = max EIRP).</td>
 </tr>
+
 <tr>
 <th>Data Out</th><th></th>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]devAddr">DevAddr</a></td>
-<td>The DevAddr after the connection</td>
+<td class="ports"><a name="[Out]devAddr">DevAddr</a> (connect_cb)</td>
+<td>Network-assigned DevAddr after a successful OTAA join. For ABP joins this echoes the <a href="#[Param]devAddrABP">devAddrABP</a> input.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]errno">errno</a></td>
-<td>LoRaWAN command error number when joining or sending failed. Error code as following:
-  <table><thead>
-  <tr>
-    <th>Enumeration</th>
-    <th>Errno</th>
-  </tr></thead>
-<tbody>
-  <tr>
-    <td>OK</td>
-    <td>0</td>
-  </tr>
-  <tr>
-    <td>INVALID_PARAMETERS</td>
-    <td>101</td>
-  </tr>
-  <tr>
-    <td>NOT_INITIALISED</td>
-    <td>102</td>
-  </tr>
-  <tr>
-    <td>ALREADY_INITIALISED</td>
-    <td>103</td>
-  </tr>
-  <tr>
-    <td>INTERNAL_ERROR</td>
-    <td>104</td>
-  </tr>
-  <tr>
-    <td>GENERIC_ERROR</td>
-    <td>105</td>
-  </tr>
-  <tr>
-    <td>BUSY</td>
-    <td>106</td>
-  </tr>
-  <tr>
-    <td>JOIN_FAILED</td>
-    <td>107</td>
-  </tr>
-  <tr>
-    <td>ALREADY_JOINED</td>
-    <td>108</td>
-  </tr>
-  <tr>
-    <td>MODEM_BUSY</td>
-    <td>109</td>
-  </tr>
-  <tr>
-    <td>INVALID_REGION</td>
-    <td>110</td>
-  </tr>
-  <tr>
-    <td>NOT_JOINED</td>
-    <td>111</td>
-  </tr>
-  <tr>
-    <td>ALL_CHANNEL_OCCUPIED</td>
-    <td>112</td>
-  </tr>
-  <tr>
-    <td>NO_BAND_AVAILABLE</td>
-    <td>113</td>
-  </tr>
-  <tr>
-    <td>DR_ERROR</td>
-    <td>114</td>
-  </tr>
-  <tr>
-    <td>PAYLOAD_TOO_LONG</td>
-    <td>115</td>
-  </tr>
-  <tr>
-    <td>INVALID_CLASS</td>
-    <td>116</td>
-  </tr>
-  <tr>
-    <td>INVALID_ID</td>
-    <td>117</td>
-  </tr>
-  <tr>
-    <td>INTERNAL_INVALID_CTRLSEQ</td>
-    <td>118</td>
-  </tr>
-</tbody></table>
-</td>
+<td class="ports"><a name="[Out]connect_errno">errno</a> (connect_cb)</td>
+<td>Result code from the join attempt. 0 = OK; non-zero values are the LoRaWAN API errnos listed at the bottom of this section.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]recv_msg">message</a></td>
-<td>The received message in hexidecimal string format</td>
+<td class="ports"><a name="[Out]recv_msg">message</a> (received)</td>
+<td>Downlink payload as a hex string.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]fport_rx">fport</a></td>
-<td>The frame port where the message was received</td>
+<td class="ports"><a name="[Out]fport_rx">fport</a> (received)</td>
+<td>LoRaWAN frame-port number on which the downlink arrived.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]link_status">lnkStat</a></td>
-<td>Link Status in JSON format.
+<td class="ports"><a name="[Out]link_status">lnkStat</a> (received)</td>
+<td>Per-frame link status as a JSON string.
               <table>
 <tbody>
 <tr style="background-color:#333333;">
@@ -427,97 +380,231 @@
 </td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]rssi">rssi</a> (on_receive_msg)</td>
+<td class="ports"><a name="[Out]rssi">rssi</a> (received)</td>
 <td>Received signal strength indicator (dBm) of the last downlink frame.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]snr">snr</a> (on_receive_msg)</td>
+<td class="ports"><a name="[Out]snr">snr</a> (received)</td>
 <td>Signal-to-noise ratio (dB) of the last downlink frame.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]rxwin">rxwin</a> (on_receive_msg)</td>
+<td class="ports"><a name="[Out]rxwin">rxwin</a> (received)</td>
 <td>Receive window index (1 or 2) in which the last downlink was received.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]status">status</a></td>
-<td>The status data (e.g. RTC, Temperature, Voltage) in a JSON format.</td>
+<td class="ports"><a name="[Out]send_errCode">errno</a> (send_msg_cb)</td>
+<td>Result code from the most recent send attempt. 0 = OK; non-zero values use the LoRaWAN API errno table at the bottom of this section.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]DevEui">devEui</a></td>
-<td>The DevEui of this LoRaWAN device</td>
+<td class="ports"><a name="[Out]status">status</a> (get_statusData_cb)</td>
+<td>Modem-specific status payload as a JSON string (e.g. RTC, temperature, voltage). Schema depends on the target modem.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]DevEui">devEui</a> (get_statusData_cb)</td>
+<td>The 64-bit Device EUI of this end device, as a hex string.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]linkMargin">linkMargin</a> (get_statusData_cb)</td>
-<td>Link margin from the most recent LinkCheckAns response (dB).</td>
+<td>Link margin in dB from the most recent <code>LinkCheckAns</code> response (cached by the modem). For a fresh value, trigger <a href="#[In]link_check">link_check</a>.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]gateways">gateways</a> (get_statusData_cb)</td>
-<td>Number of gateways that received the last link-check uplink.</td>
+<td>Number of gateways that received the last link-check uplink (cached). For a fresh value, trigger <a href="#[In]link_check">link_check</a>.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]txPower">txPower</a> (get_statusData_cb)</td>
-<td>Current TX power index reported by the module.</td>
+<td>Current TX-power index reported by the modem.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]currentDR">currentDR</a> (get_statusData_cb)</td>
-<td>Current data rate index in use (updated by ADR or set_datarate).</td>
+<td>Current data-rate index in use (updated by ADR or <a href="#[In]set_datarate">set</a>).</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]pl_len">len</a></td>
-<td>Current maximum payload length</td>
+<td class="ports"><a name="[Out]pl_len">len</a> (get_payload_length_cb)</td>
+<td>Current maximum payload length in bytes for the active region / DR.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]link_margin_out">linkMargin</a> (link_check_cb)</td>
-<td>Link margin returned by the network server in the LinkCheckAns response (dB).</td>
+<td>Fresh link margin (dB) returned by the network in <code>LinkCheckAns</code>.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]gateway_count_out">gateways</a> (link_check_cb)</td>
-<td>Number of gateways that received the link-check uplink, as reported by the network server.</td>
+<td>Fresh gateway count from the network's <code>LinkCheckAns</code>.</td>
 </tr>
+
 <tr>
 <th>Out Ev.</th><th></th>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]xxxDone">--</a></td>
-<td>Action is requested.</td>
+<td class="ports"><a name="[Out]connectDone">--</a> (join)</td>
+<td>Join request was accepted by the modem driver and the join procedure has been started.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]xxxFail">busy</a></td>
-<td>Client is busy. Try later.</td>
+<td class="ports"><a name="[Out]connectFail">busy</a> (join)</td>
+<td>Modem is busy and cannot accept a new join request right now &mdash; retry later.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]xxxDone">ok</a></td>
-<td>Command is completed without any error.</td>
+<td class="ports"><a name="[Out]connect_cb_ok">ok</a> (connect_cb)</td>
+<td>Join succeeded. <a href="#[Out]devAddr">DevAddr</a> is valid; the device is ready to send and receive.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]xxxFail">failed</a></td>
-<td>Command execution failed.</td>
+<td class="ports"><a name="[Out]connect_fail">failed</a> (connect_cb)</td>
+<td>Join failed. <a href="#[Out]connect_errno">errno</a> contains the reason.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]received">received</a></td>
-<td>Message is received from the LoRaWAN server.</td>
+<td class="ports"><a name="[Out]received">received</a> (on_receive_msg)</td>
+<td>A downlink message arrived. The associated data outputs (<a href="#[Out]recv_msg">message</a>, <a href="#[Out]fport_rx">fport</a>, <a href="#[Out]link_status">lnkStat</a>, <a href="#[Out]rssi">rssi</a>, <a href="#[Out]snr">snr</a>, <a href="#[Out]rxwin">rxwin</a>) hold the frame.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]reset_done">done</a></td>
-<td>LoRaWAN module reset completes.</td>
+<td class="ports"><a name="[Out]send_done">--</a> (send)</td>
+<td>Uplink request accepted by the modem driver.</td>
 </tr>
 <tr>
-<td class="ports"><a name="[Out]disabled">disabled</a></td>
-<td>The LoRaWAN connection is disabled.</td>
+<td class="ports"><a name="[Out]send_fail">busy</a> (send)</td>
+<td>Modem busy &mdash; uplink not queued.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]msg_sent">ok</a> (send_msg_cb)</td>
+<td>Uplink completed successfully (confirmed: ACK received; unconfirmed: TX done).</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]send_failed">failed</a> (send_msg_cb)</td>
+<td>Uplink failed. <a href="#[Out]send_errCode">errno</a> contains the reason.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]reset_sent">--</a> (reset)</td>
+<td>Reset request accepted by the modem driver.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]reset_send_failed">busy</a> (reset)</td>
+<td>Modem busy &mdash; reset not started.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]reset_done">done</a> (reset_cb)</td>
+<td>Modem reset has completed; a fresh <a href="#[In]connect">join</a> is required.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]data_got">--</a> (status)</td>
+<td>Status query accepted by the modem driver.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]get_sd_failed">busy</a> (status)</td>
+<td>Modem busy &mdash; status query not queued.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]get_sd_cb_ok">ok</a> (get_statusData_cb)</td>
+<td>Status data is ready. See the <a href="#[Out]status">status</a>, <a href="#[Out]DevEui">devEui</a> and related outputs above.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_datarate_sent">--</a> (set)</td>
+<td>Data-rate change request accepted by the modem driver.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_datarate_busy">busy</a> (set)</td>
+<td>Modem busy &mdash; data-rate change not queued.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_datarate_ok">DR set ok</a> (set_datarate_cb)</td>
+<td>Data-rate change applied by the modem.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]get_pl_len_sent">--</a> (getLength)</td>
+<td>Payload-length query accepted by the modem driver.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]get_pl_len_busy">busy</a> (getLength)</td>
+<td>Modem busy &mdash; query not queued.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]pl_len_got">ok</a> (get_payload_length_cb)</td>
+<td>Maximum payload length is ready on the <a href="#[Out]pl_len">len</a> output.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]disable_sent">--</a> (disable)</td>
+<td>Disable request accepted by the modem driver.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]disable_busy">busy</a> (disable)</td>
+<td>Modem busy &mdash; disable not started.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]disabled">disabled</a> (disable_cb)</td>
+<td>The LoRaWAN session has been torn down and the radio disabled.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_class_sent">--</a> (set_class)</td>
+<td>Class change request accepted by the modem driver.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_class_busy">busy</a> (set_class)</td>
+<td>Modem busy or not joined &mdash; class change not started.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]set_class_ok">ok</a> (set_class_cb)</td>
-<td>Class change command completed successfully.</td>
+<td>Class change has been applied by the modem.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_tx_power_sent">--</a> (set_tx_power)</td>
+<td>TX-power change request accepted by the modem driver.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]set_tx_power_busy">busy</a> (set_tx_power)</td>
+<td>Modem busy or not joined &mdash; TX-power change not started.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]set_tx_power_ok">ok</a> (set_tx_power_cb)</td>
-<td>TX power change command completed successfully.</td>
+<td>TX-power change has been applied by the modem.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]link_check_sent">--</a> (link_check)</td>
+<td>Link-check request scheduled; the next uplink will carry the <code>LinkCheckReq</code> MAC command.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]link_check_busy">busy</a> (link_check)</td>
+<td>Modem busy or not joined &mdash; link check not scheduled.</td>
 </tr>
 <tr>
 <td class="ports"><a name="[Out]link_check_done">done</a> (link_check_cb)</td>
-<td>LinkCheckReq scheduled and response received. Check link_margin_out and gateway_count_out for results.</td>
+<td>Network's <code>LinkCheckAns</code> has been received. <a href="#[Out]link_margin_out">linkMargin</a> and <a href="#[Out]gateway_count_out">gateways</a> hold the result.</td>
 </tr>
+
+<tr>
+<th colspan="2">errno values (used by <a href="#[Out]connect_errno">connect_errno</a> and <a href="#[Out]send_errCode">send_errCode</a>)</th>
+</tr>
+<tr>
+<td colspan="2">
+  <table class="errno_table"><thead>
+  <tr>
+    <th>Enumeration</th>
+    <th>Value</th>
+    <th>Meaning</th>
+  </tr></thead>
+<tbody>
+  <tr><td>OK</td><td>0</td><td>Success.</td></tr>
+  <tr><td>INVALID_PARAMETERS</td><td>101</td><td>One of the configuration / key strings is malformed (e.g. wrong length, non-hex characters).</td></tr>
+  <tr><td>NOT_INITIALISED</td><td>102</td><td>HAL not yet initialised.</td></tr>
+  <tr><td>ALREADY_INITIALISED</td><td>103</td><td>HAL already initialised.</td></tr>
+  <tr><td>INTERNAL_ERROR</td><td>104</td><td>Unexpected internal failure.</td></tr>
+  <tr><td>GENERIC_ERROR</td><td>105</td><td>Unspecified failure reported by the modem.</td></tr>
+  <tr><td>BUSY</td><td>106</td><td>Operation rejected because the modem is currently busy.</td></tr>
+  <tr><td>JOIN_FAILED</td><td>107</td><td>OTAA join did not complete (no Join-Accept).</td></tr>
+  <tr><td>ALREADY_JOINED</td><td>108</td><td>Join requested but device is already joined.</td></tr>
+  <tr><td>MODEM_BUSY</td><td>109</td><td>Modem reports busy at the AT / driver layer.</td></tr>
+  <tr><td>INVALID_REGION</td><td>110</td><td>Region value not supported by the modem.</td></tr>
+  <tr><td>NOT_JOINED</td><td>111</td><td>Operation requires the device to be joined first.</td></tr>
+  <tr><td>ALL_CHANNEL_OCCUPIED</td><td>112</td><td>Duty-cycle / channel-occupancy limit hit; retry later.</td></tr>
+  <tr><td>NO_BAND_AVAILABLE</td><td>113</td><td>No usable channel in the active band.</td></tr>
+  <tr><td>DR_ERROR</td><td>114</td><td>Requested DR is invalid for the current Region / channel mask.</td></tr>
+  <tr><td>PAYLOAD_TOO_LONG</td><td>115</td><td>Uplink payload exceeds the maximum allowed for the active DR.</td></tr>
+  <tr><td>INVALID_CLASS</td><td>116</td><td>Requested class is invalid or not supported.</td></tr>
+  <tr><td>INVALID_ID</td><td>117</td><td>Invalid ID parameter (DevEui / AppEui / DevAddr).</td></tr>
+  <tr><td>INTERNAL_INVALID_CTRLSEQ</td><td>118</td><td>Internal control-sequence error in the modem driver.</td></tr>
+</tbody></table>
+</td>
+</tr>
+
 </table>
+
 <div class="section_heading">
 <span class="toc_span" id="misc">Misc</span>
 <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
@@ -530,15 +617,15 @@
 <b>State Machine</b>
 </td>
 <td colspan="5">
-<!--  <span class="fsm_blob">state0<sub>0</sub></span> [doa,dob]&rarr;
-          <span class="fsm_blob">state1</span> [doc]&rarr;&larr;[dod,doe]
-          <span class="fsm_blob">state2</span>
-          &otimes;&nbsp;
-          <span class="fsm_blob">state1</span> [dof]&rarr;[dog,dog]
-          <span class="fsm_blob">state3</span> [doh]&rarr;
-          <span class="fsm_blob">state5</span> -->
-          None
-        </td>
+<span class="fsm_blob">idle</span> [join]&rarr;
+<span class="fsm_blob">joining</span> [ok]&rarr;&larr;[disable]
+<span class="fsm_blob">joined</span> [send / set_* / link_check]&rarr;&larr;
+<span class="fsm_blob">joined</span>
+&otimes;&nbsp;
+<span class="fsm_blob">joining</span> [failed]&rarr;
+<span class="fsm_blob">idle</span> [reset]&rarr;
+<span class="fsm_blob">idle</span>
+</td>
 <td>
 <b></b>
 </td>
@@ -550,7 +637,7 @@
 <b>Toolbox</b>
 </td>
 <td>
-          Core
+          Networking &raquo; LoraWAN
         </td>
 <td class="heading-cell">
 <b>Version</b>

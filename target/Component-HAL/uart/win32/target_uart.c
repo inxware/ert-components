@@ -417,7 +417,11 @@ int TgtUart_Send(int UART_num, char *payload, unsigned int length)
 void TgtUART_SendThread(int UART_num, char *payload, unsigned int length)
 {
     int ret = TgtUart_Send(UART_num, payload, length);
+#ifdef EHS_UART_SUPPORT
     Common_UART_onSendComplete(ret);
+#else
+    (void)ret;
+#endif
 }
 
 int TgtUART_SendInThread(int UART_num)
@@ -457,12 +461,3 @@ int TgtUART_Intr_register(int UART_num, uart_cb_func_t cb_func)
     return TgtUART_OK;
 }
 
-/* Weak defaults — the serial component overrides these */
-__attribute__((weak)) void Common_UART_onReceive(char *recv_msg, int length)
-{
-    (void)recv_msg; (void)length;
-}
-__attribute__((weak)) void Common_UART_onSendComplete(int retCode)
-{
-    (void)retCode;
-}

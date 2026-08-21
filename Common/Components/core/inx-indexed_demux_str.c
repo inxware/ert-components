@@ -84,7 +84,7 @@ EHS_FB_INIT_FUNCTION(indexed_demux_str)
         inx_indexed_demux_str_state->init_failed = EHS_TRUE;
         return bRet;
     }
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s",&inx_indexed_demux_str_state->default_v);
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s",inx_indexed_demux_str_state->default_v); /* array, not &array */
 
     /* Add any further intialisation code here */
     return bRet; /* initialisation always succeeds */
@@ -95,6 +95,7 @@ EHS_FB_DESTROY_FUNCTION(indexed_demux_str)
 {
     inx_indexed_demux_str_state_type *inx_indexed_demux_str_state = (inx_indexed_demux_str_state_type*)EHS_FB_DESTROY_CONTEXT;
     //Your code below here
+    return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION demux MACRO START -- DO NOT ALTER
@@ -145,7 +146,7 @@ EHS_FB_RUN_FUNCTION(indexed_demux_str_demux)
         if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_offset))
             EHS_FB_OUT_I_API2(INX_indexed_demux_str_ARG_demux_offset) = index - 8;
         if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_passthrough))
-            EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_passthrough), input);
+            EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_passthrough, input);
         EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_ovf);
         return;
     }
@@ -155,56 +156,56 @@ EHS_FB_RUN_FUNCTION(indexed_demux_str_demux)
         case 1:
         {
             if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_out1))
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_out1), input);
+                EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_out1, input);
             EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_evt1);
             break;
         }
         case 2:
         {
             if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_out2))
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_out2), input);
+                EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_out2, input);
             EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_evt2);
             break;
         }
         case 3:
         {
             if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_out3))
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_out3), input);
+                EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_out3, input);
             EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_evt3);
             break;
         }
         case 4:
         {
             if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_out4))
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_out4), input);
+                EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_out4, input);
             EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_evt4);
             break;
         }
         case 5:
         {
             if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_out5))
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_out5), input);
+                EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_out5, input);
             EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_evt5);
             break;
         }
         case 6:
         {
             if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_out6))
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_out6), input);
+                EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_out6, input);
             EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_evt6);
             break;
         }
         case 7:
         {
             if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_out7))
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_out7), input);
+                EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_out7, input);
             EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_evt7);
             break;
         }
         case 8:
         {
             if (EHS_FB_OUT_CONNECTED_API2(INX_indexed_demux_str_ARG_demux_out8))
-                EhsStrcpy(EHS_FB_OUT_S_API2(INX_indexed_demux_str_ARG_demux_out8), input);
+                EHS_FB_OUT_S_SET_API2(INX_indexed_demux_str_ARG_demux_out8, input);
             EHS_FB_FINISH(INX_indexed_demux_str_ARG_demux_evt8);
             break;
         }

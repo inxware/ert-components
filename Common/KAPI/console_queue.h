@@ -56,6 +56,24 @@ ehs_uint32 EhsConsoleQueue_maxSize();
 ehs_sint32 EhsConsoleQueue_push(EhsConsoleQueueType* xQueue, ehs_uint8* pData, ehs_uint32 nSize);
 
 /**
+ * Add a whole record to the console queue, or nothing at all.
+ *
+ * The space test and the copy happen together under the queue lock, so the record can
+ * never be split or interleaved with another writer's, and the answer is final on the
+ * first call - callers must not retry or wait.
+ *
+ * @param xQueue    Queue to add the record to.
+ * @param pData     Record to add.
+ * @param nSize     Length of the record.
+ * @param nKeepFree Bytes that must remain free afterwards. Normal records pass the
+ *                  caller's reserve so that a failure notice can always be emitted;
+ *                  the failure notice itself passes 0 to spend that reserve.
+ * @return true if the whole record was queued, false if it was not queued at all.
+ */
+ehs_bool EhsConsoleQueue_pushRecord(EhsConsoleQueueType* xQueue, const ehs_uint8* pData,
+                                    ehs_uint32 nSize, ehs_uint32 nKeepFree);
+
+/**
  * Remove data from the console queue
  * @param xQueue Queue to remove data from.
  * @param pData pointer to the data that we want to retrieve

@@ -2,6 +2,8 @@
 
 Reference for working on the machine learning HAL layer and ML function blocks in eRT.
 
+> **CDF port argument numbers:** canonical spec in `../ert-porting-guide.md` § "Port Argument Numbers" — each port type has its own independent 1..N range; `argument="0"` is the trigger.
+
 ---
 
 ## Architecture Overview

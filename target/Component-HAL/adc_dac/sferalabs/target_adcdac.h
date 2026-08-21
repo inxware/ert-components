@@ -52,11 +52,20 @@
 
 #define EHS_TARGET_ADC_COMMA ,
 
+/* Safe fallbacks for a Sfera Labs board that doesn't declare its own geometry in
+ * config.mk.  One ADC unit is the smallest thing this backend can describe - the
+ * guards below reject 0, and EHS_TARGET_ADC_UNIT_DEFAULT()/_CHANNEL_DEFAULT() have
+ * no expansion for 0 either.  A variant with no analog input at all is expressed in
+ * config.mk as EHS_PERIPHERALS_ADC_DAC_SUPPORT=none (or EHS_TARGET_ADC_UNIT_NUMBER=0,
+ * which drops this whole backend in adc_dac_common.mk before the header is reached).
+ *
+ * 1 unit x 8 channels covers the single-board parts (Iono Pi = 6 ch, Iono Pi Max =
+ * 10 ch needs an explicit override).  Strato Pi Max declares 4 x 4 in its config.mk.
+ */
 #ifndef EHS_TARGET_ADC_UNIT_NUMBER
-#define EHS_TARGET_ADC_UNIT_NUMBER 0
+#define EHS_TARGET_ADC_UNIT_NUMBER 1
 #endif
 
-// No such thing:
 #ifndef EHS_TARGET_ADC_CHANNEL_NUMBER
 #define EHS_TARGET_ADC_CHANNEL_NUMBER 8
 #endif

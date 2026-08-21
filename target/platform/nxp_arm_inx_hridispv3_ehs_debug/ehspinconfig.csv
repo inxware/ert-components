@@ -1,0 +1,16 @@
+id,name,hardwarename
+0,Power LED Red,PTE5
+1,Power LED Green,PTE4
+2,Network LED Red,PTE2
+3,Network LED Green,PTE0
+4,Set Button,PTE25
+5,Mode Button,PTC13
+6,Down Button,PTC5
+7,Up Button,PTC4
+8,Internal Relay 1,PTB3
+11,External Relay 1,PTB11
+12,External Relay 2,PTB18
+13,External Relay 3,PTB19
+14,GPIO 1,PTC2
+15,GPIO 2,PTC1
+Also single digit block for the display

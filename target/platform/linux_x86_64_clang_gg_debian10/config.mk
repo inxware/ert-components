@@ -33,7 +33,7 @@ EHS_OS=linux
 EHS_GNU_ARCH=x86_64
 EHS_GNU_OS=linux-gnu
 #use toolchain clib environment
-EHS_GNU_OS_VERSION=-clang10_clang10
+EHS_TARGET_LIB_VARIANT=-clang10_clang10
 
 EHS_TOOLCHAIN_TYPE=clang
 #CC_OVERRIDE=clang

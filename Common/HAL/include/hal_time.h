@@ -80,9 +80,24 @@ ehs_bool EhsHSetDateTime(ehs_char * date_string, ehs_uint32 unix_time, ehs_char 
 
 
 /**
- * Read current time in target-specific ticks - using a fairly coarse-grained timer
+ * Read current time in target-specific ticks - using a fairly coarse-grained timer.
+ * Safe to call at any time; returns 0 on targets whose EhsTgtTimer_now() gates
+ * pre-init access.  Prefer EHS_CURRENT_TIME_TRUSTED_CLIENT on hot paths where
+ * the caller can guarantee the target timer is live.
  */
 #define EHS_CURRENT_TIME (EhsTgtTimer_now())
+
+/**
+ * Unchecked hot-path variant.  On targets whose EhsTgtTimer_now() performs a
+ * readiness check, this skips the check by calling EhsTgtTimer_now_trusted()
+ * directly.  Only use when the caller can prove the kernel (and thus the
+ * target timer) has finished booting — otherwise use EHS_CURRENT_TIME.
+ * On targets without a gated EhsTgtTimer_now(), this is defined to
+ * EHS_CURRENT_TIME by the target's target_time.h.
+ */
+#ifndef EHS_CURRENT_TIME_TRUSTED_CLIENT
+#define EHS_CURRENT_TIME_TRUSTED_CLIENT EHS_CURRENT_TIME
+#endif
 
 /**
  * Provides old definition of Current time function.
@@ -187,8 +202,18 @@ EHS_GLOBAL EhsTickType EhsTgtTimer_expiry(void);
 /**
  * Read current time in target-specific ticks - using a fairly coarse-grained timer
  * Returns a value in the range 0 to EHS_TICKTYPE_MAX.
+ * Targets may gate this against pre-init access and return 0 until the
+ * target timer peripheral is live (see EhsTgtTimer_now_trusted).
  */
 EHS_GLOBAL EhsTickType EhsTgtTimer_now(void);
+
+/**
+ * Unchecked hot-path variant of EhsTgtTimer_now().  Skips any readiness
+ * gate the target may impose.  Only call when the caller can prove the
+ * target timer has been initialised.  Targets without a gated
+ * EhsTgtTimer_now() may simply alias this to EhsTgtTimer_now().
+ */
+EHS_GLOBAL EhsTickType EhsTgtTimer_now_trusted(void);
 
 
 /**

@@ -79,7 +79,7 @@ EHS_FB_INIT_FUNCTION(Camera)
 	/* read the initialisation parameters */
 	const char* pParams = EHS_FB_INIT_PARAMETERS;
 		if (pParams) {
-		pParams = EhsGetWordFromString(inx_Camera_state->camera_id, pParams);
+		pParams = EhsGetWordFromString(inx_Camera_state->camera_id, pParams, sizeof(inx_Camera_state->camera_id));
 		pParams = EhsGetUint16FromString(&inx_Camera_state->camera.fps, pParams);
 		pParams = EhsGetUint32FromString(&inx_Camera_state->camera.width, pParams);
 		pParams = EhsGetUint32FromString(&inx_Camera_state->camera.height, pParams);

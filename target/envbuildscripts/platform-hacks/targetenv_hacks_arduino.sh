@@ -18,13 +18,16 @@ mkdir -p ${ARDUINO_LIB_DIR}
 # copy eRT static libary to the arduino lib structure
 cp ${TARGET_ROOT}/bin/ehs.a ${ARDUINO_LIB_DIR}/libeRT.a
 # copy eRT Kernel static libary to the arduino lib structure
-ARDUINO_KERNEL_LIB=
-if [ -n "${EHS_CLIB_OVERRIDE_PATH}" ]; then
-    ARDUINO_KERNEL_LIB="${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_CLIB_OVERRIDE_PATH}/kernel/libehs_ehrt1.a"
-else
-    ARDUINO_KERNEL_LIB="${EHS_CORE_SUPPORT_BASE}/support_libs/target_libs/${EHS_GNU_OS_ARCH}${EHS_SPECIAL_CLIB_EXT}/kernel/libehs_ehrt1.a"
+# Use the exported EHS_KERNEL_DIR rather than recomposing the path: it is the
+# same directory the link used, so the archive copied here cannot differ from
+# the one the binary was built against.
+ARDUINO_KERNEL_LIB="${EHS_KERNEL_DIR}libehs_ehrt1.a"
+if [ ! -f "${ARDUINO_KERNEL_LIB}" ]; then
+    echo "ERROR: kernel archive not found: ${ARDUINO_KERNEL_LIB}" >&2
+    echo "       Check out ../ert-kernels, or set EHS_KERNEL_BASE." >&2
+    exit 1
 fi
-cp ${ARDUINO_KERNEL_LIB} ${ARDUINO_LIB_DIR}/libeRT_Kernel.a
+cp "${ARDUINO_KERNEL_LIB}" "${ARDUINO_LIB_DIR}/libeRT_Kernel.a"
 
 else
 

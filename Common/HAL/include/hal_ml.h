@@ -144,7 +144,8 @@ typedef enum {
     EHS_ML_HWACCEL_EIQ = 4,
     EHS_ML_HWACCEL_DEEPX = 5,
     EHS_ML_HWACCEL_GEMMA = 6,
-    EHS_ML_HWACCEL_CUSTOM_NPU=7,
+    EHS_ML_HWACCEL_CUSTOM_NPU = 7,
+    EHS_ML_HWACCEL_AXELERA = 8,
     // ...
     EHS_ML_HWACCEL_MAX
 } EhsML_HWAccel_t;
@@ -299,6 +300,7 @@ typedef enum {
     EHS_ML_TECH_TENSORRT        = 5,  /**< TensorRT SDK (NVIDIA Jetson GPU/DLA) */
     EHS_ML_TECH_ERT_MODEL       = 6,  /**< eRT model-specific code (postprocessing/model/) */
     EHS_ML_TECH_ERT_GENERIC     = 7,  /**< eRT shared/generic code (postprocessing/logical/ etc.) */
+    EHS_ML_TECH_AXELERA         = 8,  /**< Axelera Voyager SDK (Metis NPU) */
     /* Future: EHS_ML_TECH_RKNN, EHS_ML_TECH_COREML, EHS_ML_TECH_EIQ, … */
 } EhsML_StageTech_t;
 

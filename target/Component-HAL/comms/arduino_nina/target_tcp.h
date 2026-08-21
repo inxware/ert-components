@@ -40,8 +40,8 @@
 
 #define EHS_TGT_TCP_PORTNUM 11425u			/**< Port number to use for receiving TCP/IP connections */
 
-#define EHS_TGT_TCP_LISTENTIME_us 20000u /**< Time to listen (uS) for incoming TCP/IP data */
-#define EHS_TGT_TCP_SUSPENDTIME_us 20000u /**< Time to sleep (uS) to allow main EHS thread to do processing */
+#define EHS_TGT_TCP_LISTENTIME_us 5000u /**< Time to listen (uS) for incoming TCP/IP data */
+#define EHS_TGT_TCP_SUSPENDTIME_us 5000u /**< Time to sleep (uS) to allow main EHS thread to do processing */
 
 #define EHS_TGT_TCP_INVALID_SOCKET (-1)	/**< Value returned from socket to indicate failure */
 #define EHS_TGT_TCP_SOCKET_ERROR (-1) /**< Value to be returned from socket-using functions to indicate failure */

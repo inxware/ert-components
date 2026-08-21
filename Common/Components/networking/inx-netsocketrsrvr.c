@@ -150,8 +150,14 @@ EHS_FB_INIT_FUNCTION(netsocketsrvr)
     ehs_bool bRet = EHS_TRUE; /* assume success */
     //this is the reference to the object data for this instance of the function block
     inx_netsocketsrvr_state_type* inx_netsocketsrvr_state = (inx_netsocketsrvr_state_type*)EHS_FB_INIT_CONTEXT;
-    /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%s %d %d",inx_netsocketsrvr_state->Interface,&Port,&tcp);
+    /* read the initialisation parameters - the %s carries a field width from
+     * sizeof, or sscanf writes as many characters as the parameter holds */
+    {
+        ehs_char szScanFmt[32];
+        EhsSnprintf(szScanFmt, sizeof(szScanFmt), "%%%us %%d %%d",
+                    (unsigned int)(sizeof(inx_netsocketsrvr_state->Interface) - 1u));
+        EhsSscanf(EHS_FB_INIT_PARAMETERS,szScanFmt,inx_netsocketsrvr_state->Interface,&Port,&tcp);
+    }
 
     inx_netsocketsrvr_state->Port=Port;
     inx_netsocketsrvr_state->listen_port=Port;
@@ -411,7 +417,7 @@ EHS_FB_THREAD_FUNCTION(netSocket_listen)
     /* todo2023 - try to avoid using this on the stack */
     ehs_uint8 bBuffIn[EHS_TGT_TCP_IN_BUFF_SIZE]; /* buffer for incoming data */
     Ehs_FB_ThreadStarted();
-    ehs_sint32 nDataReceived;
+    ehs_sint32 nDataReceived = 0; /* indexes data_recv_buf below - never leave it garbage */
     struct sockaddr_in si_me;
     /* amount of data received by TCP/IP */
     ehs_uint8 *pData = bBuffIn;
@@ -548,14 +554,14 @@ EHS_FB_THREAD_FUNCTION(netSocket_listen)
                     {
                         /* Note we are not expecting date lengths > EHS_STRING_LENGTH_MAX because the recvfrom function should limit this */
                         inx_netSocket_state->data_recv_buf[nDataReceived] = '\0'; /* this is probably unnescesery, but loosing 1 byte to save a missuse of the outpout as a null terminated string may save lives*/
-                        EhsStrncpy(EHS_FB_OUT_S_API2( INX_netsocketsrvr_ARG_open_data ), inx_netSocket_state->data_recv_buf, nDataReceived+1);
+                        EHS_FB_OUT_S_SETN_API2(INX_netsocketsrvr_ARG_open_data, inx_netSocket_state->data_recv_buf, nDataReceived+1);
                         //((ehs_char*) (EHS_FB_OUT_S_API2(INX_netsocketsrvr_ARG_open_data)))[nDataReceived] = '\0';
                     }
                     if (EHS_FB_OUT_CONNECTED_API2(INX_netsocketsrvr_ARG_open_size))
                         EHS_FB_OUT_I_API2(INX_netsocketsrvr_ARG_open_size) = nDataReceived ;
 
                     if (EHS_FB_OUT_CONNECTED_API2(INX_netsocketsrvr_ARG_open_source))
-                        EhsStrcpy( EHS_FB_OUT_S_API2(INX_netsocketsrvr_ARG_open_source),inet_ntoa(connection_addr->sin_addr));
+                        EHS_FB_OUT_S_SET_API2(INX_netsocketsrvr_ARG_open_source, inet_ntoa(connection_addr->sin_addr));
 
                     EHS_FB_FINISH_API2(INX_netsocketsrvr_ARG_open_received);
                     EhsTPMutex_unlock(EhsTPMutex_fbIO);

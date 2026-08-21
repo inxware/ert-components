@@ -60,7 +60,7 @@ _SBOM_CONTRIB_ROOT  := $(EHS_COMPONENT_SUPPORT_BUILD)
 
 # 2. ert-build-support target-libs root for this arch
 #    Contains kernel/ (EHS kernel .a) and build/ (sysroot headers + libs)
-_SBOM_BUILDSUP_ROOT := $(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)
+_SBOM_BUILDSUP_ROOT := $(EHS_CORE_SUPPORT_BASE)/support_libs/target_libs/$(EHS_GNU_OS_ARCH)
 
 # 3. Toolchain root — only when a named (non-HOST) toolchain is used
 _SBOM_TOOLCHAIN_ROOT :=
@@ -75,12 +75,27 @@ _SBOM_ALL_ROOTS := $(_SBOM_CONTRIB_ROOT) $(_SBOM_BUILDSUP_ROOT) $(_SBOM_TOOLCHAI
 _SBOM_ROOTS     := $(strip $(foreach _d,$(_SBOM_ALL_ROOTS),$(if $(wildcard $(_d)),$(_d))))
 
 # =========================================================================
-# Output paths (forward SBOM — written inside ert-components/sbom/)
+# Output paths (forward SBOM)
+# Default layout: Releases/SBOM/<ert-components-version>/<platform>/
+#
+# Override SBOM_OUT_DIR on the make command line to redirect output for
+# CI / routine regression use (avoids polluting Releases/ with per-run data):
+#
+#   make sbom SBOM_OUT_DIR=/path/to/ci/results/platform/sbom \
+#             SBOM_SKIP_DEPENDENTS=1
+#
+# update_release_report.sh (and run_regression.sh --release-report) use the
+# default path so that versioned artefacts accumulate under Releases/SBOM/.
 # =========================================================================
 
-_SBOM_OUT_DIR    := $(EHS_ROOT_PATH)/sbom/$(_SBOM_PLAT)
+SBOM_OUT_DIR     ?= $(EHS_ROOT_PATH)/Releases/SBOM/$(_SBOM_VER)/$(_SBOM_PLAT)
+_SBOM_OUT_DIR    := $(SBOM_OUT_DIR)
 _SBOM_SPDX       := $(_SBOM_OUT_DIR)/SBOM.spdx
 _SBOM_SUMMARY    := $(_SBOM_OUT_DIR)/SBOM_SUMMARY.md
+
+# Set SBOM_SKIP_DEPENDENTS=1 to suppress writing DEPENDENTS.md files.
+# Appropriate for CI/routine builds; release reports should leave this unset.
+SBOM_SKIP_DEPENDENTS ?=
 
 # =========================================================================
 # DEPENDENTS.md table geometry (reverse record written to each dep root)
@@ -168,7 +183,7 @@ else
 	  echo "PackageVersion: $(_SBOM_VER_BUILDSUP)"; \
 	  echo "PackageDownloadLocation: NOASSERTION"; \
 	  echo "FilesAnalyzed: false"; \
-	  echo "PackageComment: Build support kernel and target libraries — $(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)"; \
+	  echo "PackageComment: Build support kernel and target libraries — $(EHS_GNU_OS_ARCH)"; \
 	  echo "ExternalRef: OTHER local-path $(_SBOM_BUILDSUP_ROOT)"; \
 	  if [ -d "$(_SBOM_BUILDSUP_ROOT)" ]; then \
 	    echo "PackageChecksum: SHA1: NOASSERTION"; \
@@ -213,7 +228,7 @@ else
 	  printf "| %-14s | %-66s |\n" "Version"      "$(_SBOM_VER)"; \
 	  printf "| %-14s | %-66s |\n" "Docker Image" "$(_SBOM_IMG)"; \
 	  printf "| %-14s | %-66s |\n" "Toolchain"    "$(EHS_TOOLCHAIN_TYPE) / $(TOOLCHAIN_PATH)"; \
-	  printf "| %-14s | %-66s |\n" "Arch"         "$(EHS_GNU_OS_ARCH)$(EHS_SPECIAL_CLIB_EXT)"; \
+	  printf "| %-14s | %-66s |\n" "Arch"         "$(EHS_GNU_OS_ARCH)"; \
 	  echo ""; \
 	  echo "## Dependencies"; \
 	  echo ""; \
@@ -247,35 +262,47 @@ else
 
 	@# -----------------------------------------------------------------
 	@# 3. Reverse dependents record — append to DEPENDENTS.md in each root
+	@#    Skipped when SBOM_SKIP_DEPENDENTS=1 (CI / routine regression use)
 	@# -----------------------------------------------------------------
-	@echo "--- Updating DEPENDENTS.md in dependency roots"
-	@if [ -z "$(_SBOM_ROOTS)" ]; then \
-	    echo "    WARNING: No dependency roots found on disk — skipping DEPENDENTS.md update."; \
-	    echo "             Ensure ert-build-support and ert-contrib-middleware are checked out."; \
+	@if [ -n "$(SBOM_SKIP_DEPENDENTS)" ]; then \
+	    echo "--- DEPENDENTS.md update skipped (SBOM_SKIP_DEPENDENTS set)"; \
 	else \
-	    for _root in $(_SBOM_ROOTS); do \
-	        _f="$$_root/DEPENDENTS.md"; \
-	        if [ ! -f "$$_f" ]; then \
-	            printf "$(_SBOM_DEP_HDR)" \
-	                "Platform" "Date/Time (UTC)" "Version" "Docker Image" > "$$_f"; \
-	            printf "$(_SBOM_DEP_SEP)" \
-	                "--------------------------------------------------" \
-	                "----------------------" \
-	                "--------------------" \
-	                "--------------------------------------------------" >> "$$_f"; \
-	        fi; \
-	        printf "$(_SBOM_DEP_ROW)" \
-	            "$(_SBOM_PLAT)" "$(_SBOM_TS)" "$(_SBOM_VER)" "$(_SBOM_IMG)" >> "$$_f"; \
-	        echo "    -> $$_f"; \
-	    done; \
+	    echo "--- Updating DEPENDENTS.md in dependency roots"; \
+	    if [ -z "$(_SBOM_ROOTS)" ]; then \
+	        echo "    WARNING: No dependency roots found on disk — skipping DEPENDENTS.md update."; \
+	        echo "             Ensure ert-build-support and ert-contrib-middleware are checked out."; \
+	    else \
+	        for _root in $(_SBOM_ROOTS); do \
+	            _f="$$_root/DEPENDENTS.md"; \
+	            if [ ! -f "$$_f" ]; then \
+	                printf "$(_SBOM_DEP_HDR)" \
+	                    "Platform" "Date/Time (UTC)" "Version" "Docker Image" > "$$_f"; \
+	                printf "$(_SBOM_DEP_SEP)" \
+	                    "--------------------------------------------------" \
+	                    "----------------------" \
+	                    "--------------------" \
+	                    "--------------------------------------------------" >> "$$_f"; \
+	            fi; \
+	            printf "$(_SBOM_DEP_ROW)" \
+	                "$(_SBOM_PLAT)" "$(_SBOM_TS)" "$(_SBOM_VER)" "$(_SBOM_IMG)" >> "$$_f"; \
+	            echo "    -> $$_f"; \
+	        done; \
+	    fi; \
 	fi
 
 	@echo ""
 	@echo "Done."
 	@echo "  Forward SBOM : $(_SBOM_OUT_DIR)/"
-	@echo "  Dep roots    : $(words $(_SBOM_ROOTS)) DEPENDENTS.md file(s) updated"
+	@if [ -n "$(SBOM_SKIP_DEPENDENTS)" ]; then \
+	    echo "  Dep roots    : DEPENDENTS.md not written (SBOM_SKIP_DEPENDENTS set)"; \
+	else \
+	    echo "  Dep roots    : $(words $(_SBOM_ROOTS)) DEPENDENTS.md file(s) updated"; \
+	fi
 	@echo ""
-	@echo "Tip: Run 'make sbom' for each platform to build a complete dependency matrix."
+	@echo "Tip: Run './Releases/update_release_report.sh' to generate SBOMs for all"
+	@echo "     published platforms, rebuild DEPENDENTS.md from scratch, and produce"
+	@echo "     the feature compliance matrix under Releases/SBOM/$(_SBOM_VER)/FEATURES/."
+	@echo "     Or run 'make sbom' per platform to append to existing DEPENDENTS.md files."
 	@echo "     SBOM.spdx can be consumed by SPDX-aware supply-chain tools."
 	@echo "     DEPENDENTS.md files use '|' as field delimiter — importable as CSV."
 	@echo ""

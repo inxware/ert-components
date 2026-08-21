@@ -27,7 +27,7 @@
 
 /* nRF52840 has 256KB RAM - constrain resource usage */
 #ifndef EHS_MAX_WIDGET_INSTANCES
-#define EHS_MAX_WIDGET_INSTANCES 32
+#define EHS_MAX_WIDGET_INSTANCES 120
 #endif
 
 #ifndef EHS_DEBUG_CONSOLE_BUFFER_SIZE

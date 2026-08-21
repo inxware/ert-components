@@ -62,7 +62,7 @@ EHS_RUNTIME_LOGGER_ENABLED=no
 EHS_TARGET_NO_MAIN_ARGS=yes
 
 # Reboot after app load
-EHS_TARGET_APPLOAD_RESTARTING_REBOOT=yes
+EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
 
 
 #################################################################################################################
@@ -98,9 +98,10 @@ EHS_EXCLUDE_XML_PARSER=yes
 EHS_NETWORK_BLE_SUPPORT=nimble
 
 #----- GUI Features -----
-EHS_GUI_SUPPORT=lvgl
-EHS_LVGL_DISPLAY_DRIVER=ft81x
-EHS_LVGL_TOUCH_DRIVER=ft81x
+# Stub graphics by default as there is no standard config for all exp32 types
+EHS_GUI_SUPPORT=stubbed
+#EHS_LVGL_DISPLAY_DRIVER=ft81x
+#EHS_LVGL_TOUCH_DRIVER=ft81x
 
 #----- Peripheral Features -----
 EHS_PERIPHERAL_DEVICE_SUPPORT=all
@@ -148,14 +149,11 @@ include ./target/devman-configs/esp32s3-base-inx-systems.com.mk
 # Direct preprocessor definitions - should be migrated to proper make variables where possible
 #################################################################################################################
 
-# Platform identification
-#DEFS += EHS_ESP32
-
 # Networking stack
 DEFS += EHS_LWIP
 
 # Console/debug buffer sizes
-DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
+DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=1024
 DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=2048
 
 # Numeric type configurations

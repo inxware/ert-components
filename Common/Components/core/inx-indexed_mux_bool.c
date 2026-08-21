@@ -97,7 +97,9 @@ EHS_FB_INIT_FUNCTION(indexed_mux_bool)
     //this is the reference to the object data for this instance of the function block
     inx_indexed_mux_bool_state_type* inx_indexed_mux_bool_state = (inx_indexed_mux_bool_state_type*)EHS_FB_INIT_CONTEXT;
     /* read the initialisation parameters */
-    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%d %d %d %d %d %d %d %d",
+    /* All eight fields are ehs_bool (1 byte) and adjacent: %d wrote 4 bytes each, so every
+     * field clobbered its successors and the last write ran 3 bytes past the context. */
+    EhsSscanf(EHS_FB_INIT_PARAMETERS,"%hhu %hhu %hhu %hhu %hhu %hhu %hhu %hhu",
                 &inx_indexed_mux_bool_state->in1,
                 &inx_indexed_mux_bool_state->in2,
                 &inx_indexed_mux_bool_state->in3,

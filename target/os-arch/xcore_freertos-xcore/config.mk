@@ -46,3 +46,9 @@ ifndef EHS_COMMS_API_SUPPORT
 endif
 ## TODO: This needs moving to the LWIP make files if it is actually needed:
 DEFS += EHS_LWIP=1
+
+# Default packager for this os-arch. A platform config.mk may override it with a
+# plain '=' -- this file is included after the platform's own config (see
+# target/platform/platform.mk, "include $(EHS_TARGET_OS_HW_PATH)/config.mk"),
+# so '?=' here yields to the platform. 'make targetenv_package' dispatches on it.
+EHS_PACKAGER_TYPE ?= xmos

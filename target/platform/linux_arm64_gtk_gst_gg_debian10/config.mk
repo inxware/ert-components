@@ -39,7 +39,7 @@ EHS_GNU_OS=linux-gnu
 EHS_HOST_DEBIAN_BUILD=arm64
 
 #This will indicate what ert-contrib-middleware is used and toolchains if not using a host toolchain
-EHS_GNU_OS_VERSION=-clang10_debian10
+EHS_TARGET_LIB_VARIANT=-clang10_debian10
 
 #This determines some library version choices and for the deb packager
 EHS_DEBIAN_VERSION=10
@@ -47,7 +47,6 @@ EHS_DEBIAN_VERSION=10
 #select the os-arch directory with these
 EHS_TOOLCHAIN_TYPE=clang
 #if we have a specific version of the toolchain to suffix on the os-arch defined toolchain path
-#COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=arm64-linux-VX_VX_base
 #todo2023 - lets finally make this bit automatic tuple of $EHS_OS-$EHS_ARCH-$EHS_TOOLCHAIN_TYPE-$EHS_DEBIAN_VERSION (OR Make this a new variable EHS_OS_TYPE_VERSION) to allow for non debian
 
 # Toolchain Selection

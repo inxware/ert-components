@@ -38,9 +38,9 @@ OBJECTS += mv_components.$(OBJ)
 
 OBJECTS += inx-frame_read_file.$(OBJ)
 
-OBJECTS += inx-apriltag.$(OBJ)
-
 OBJECTS += inx-frame_show.$(OBJ)
+
+OBJECTS += inx-apriltag.$(OBJ)
 
 OBJECTS += inx-mv_objdet_annotate.$(OBJ)
 

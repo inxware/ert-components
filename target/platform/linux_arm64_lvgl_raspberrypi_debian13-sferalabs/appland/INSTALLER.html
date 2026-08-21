@@ -1,0 +1,41 @@
+<h3>eRT on Sfera Labs Strato Pi Max — Setup Guide</h3>
+
+<span class="step">About Sfera Labs and the Strato Pi Range</span>
+<span><a href="https://sferalabs.cc/" target="_blank">Sfera Labs</a> produces a range of industrial Raspberry Pi platforms designed for automation, building management, and edge computing. Their products combine the accessibility of open-hardware Raspberry Pi compute with hardened industrial I/O and enclosures suited to DIN-rail and panel mounting.</span>
+
+<span>Key Sfera Labs product families supported by inxware eRT:</span>
+<span><strong>Strato Pi Max</strong> — Industrial controller built on Raspberry Pi CM4 or CM5. Dual Ethernet, Wi-Fi, Bluetooth 5.0. Up to four expansion slots, each providing seven-channel industrial digital I/O, quad RS-422/485, 24-bit ADC/DAC, and optional LTE (M.2). Base board includes hardware watchdog, UPS power management, dual SD card, USB power control, and an accelerometer/gyroscope. The primary target for this eRT build.</span>
+<span><strong>Strato Pi Plus</strong> — Industrial Raspberry Pi 4 or 5 edge server, DIN rail mounted, 10–50 V DC input, multi-protocol connectivity.</span>
+<span><strong>Strato Pi CAN</strong> — Server variant adding CAN bus and RS-485 interfaces.</span>
+<span><strong>Strato Pi UPS</strong> — Server with integrated UPS, RS-232, and RS-485.</span>
+<span><strong>Iono Pi Max v2</strong> — Industrial PLC with digital and analog inputs, NO/NC relays, UPS, RS-232/485, and CAN — ideal for I/O-heavy automation tasks.</span>
+<span><strong>Iono Pi v3</strong> — Raspberry Pi 4 or 5 I/O module (PLC) with analog inputs, relays, and GPIO for lighter automation workloads.</span>
+<span><strong>Exo Sense Pi</strong> — Multi-sensor module providing temperature, humidity, air quality, and light intensity — a natural companion for edge-AI inference with eRT.</span>
+
+<span>All Sfera Labs hardware runs standard Raspberry Pi OS (Debian-based), so inxware eRT installs from a single <span class="command">.deb</span> package with no custom kernel or vendor toolchain required.</span>
+
+<span class="step">Why inxware eRT on Sfera Labs Hardware?</span>
+<span>inxware eRT provides a rapid roadmap from single-threaded Python demos to rock-solid event-driven C/C++ speed IoT and edge-AI implementations, while providing the no-code approach demanded by automation and building-management engineers. On Sfera Labs hardware this means:</span>
+<span>— Wire up industrial I/O, RS-485 buses, analog sensors, and LTE modem connectivity directly in the eRT no-code function-block editor.</span>
+<span>— Drop in pre-built machine-learning inference blocks targeting the Raspberry Pi NPU (CM5) or TFLite CPU inference without writing a line of C.</span>
+<span>— When performance headroom matters, replace any function block with a C/C++ implementation — the same block ports and parameters, no protocol change, no re-wiring of the application graph.</span>
+<span>— The hardware watchdog, UPS state, and dual SD failover provided by the Strato Pi Max are all exposed as native eRT function blocks, making fault-tolerant field deployments straightforward.</span>
+
+<span class="step">1. Prepare Your Raspberry Pi CM4 or CM5</span>
+<span>Flash your Compute Module with <span class="command">Raspberry Pi OS (64-bit) based on Debian 13 (trixie)</span> using the official Raspberry Pi Imager:</span>
+<span><a href="https://www.raspberrypi.com/software/" target="_blank">https://www.raspberrypi.com/software/</a></span>
+<span>Refer to the Sfera Labs documentation for CM4/CM5 flashing and carrier board boot configuration:</span>
+<span><a href="https://sferalabs.cc/" target="_blank">https://sferalabs.cc/</a></span>
+
+<span class="step">2. Install eRT on Your Strato Pi Max</span>
+<span>Open a terminal on the device and run:</span>
+
+<span class="command">cd ~/Downloads</span>
+<span>Download the Debian package:</span>
+<span class="command">wget https://appland.inxware.io/downloads/appland/runtimes/sferalabs/SferaLabs-StratoPiMax-Debian-13-64bit.deb</span>
+<span>Install the package:</span>
+<span class="command">sudo apt install ./SferaLabs-StratoPiMax-Debian-13-64bit.deb</span>
+
+<span class="step">3. Run eRT</span>
+<span>Run eRT from the terminal:</span>
+<span class="command">/opt/ehs/bin/ehs.exe</span>

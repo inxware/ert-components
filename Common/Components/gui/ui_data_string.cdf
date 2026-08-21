@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2026-05-19T15:37:01Z</CreationDate>
+        <UpdatedDate>2026-05-19T15:37:01Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Bind a string property on a UI object</ShortDescription>
+        <LongDescription>Provides bidirectional access to a string property on a UI object. The set port pushes the input value to the named property; the changed callback fires when the property changes externally (e.g. via user interaction in the UI), emitting the new value on value_out.</LongDescription>
+        <UserName/>
+        <Menu>User Interface
+                <Menu>Bindings
+                    <Menu>String</Menu></Menu></Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>150</Width>
+        <Height>58</Height>
+        <Text>UI String</Text>
+        <TextX>10</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>ui_data_string</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x47A7</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32>00000000</FbApiDescriptorHash_CRC32>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>Object</Name>
+            <DataType>UO</DataType>
+            <DefaultValue>_qml_root_object_</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>Name of the UI object to bind to (matches the object's name in the UI definition).</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>Property</Name>
+            <DataType>UA</DataType>
+            <DefaultValue>text</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>0</MaxValue>
+            <Description>Name of the string property on the UI object to read and write.</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+            <DisplayOnWidget>
+                <x>10</x>
+                <y>45</y>
+            </DisplayOnWidget>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>set</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>changed_cb</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>set</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <CName>set</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description/>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <CName>value</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>---</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>145</XCoordinate>
+            <YCoordinate>10</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>done</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--&gt;</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>145</XCoordinate>
+            <YCoordinate>20</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>changed</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description/>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>145</XCoordinate>
+            <YCoordinate>30</YCoordinate>
+            <CName>value_out</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>changed_cb_start</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>-1</XCoordinate>
+            <YCoordinate>-1</YCoordinate>
+            <CName>changed_cb_start</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

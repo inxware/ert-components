@@ -1,0 +1,52 @@
+{
+  "class": "ui_event",
+  "label": "UI Event",
+  "short_description": "Bind a signal on a UI object",
+  "long_description": "Provides bidirectional event access to a signal on a UI object. The emit port fires the named signal on the UI object; the received callback fires when the UI emits the signal (e.g. a button click).",
+  "menu": [
+    "User Interface",
+    "Bindings",
+    "Event"
+  ],
+  "block_type": "IO",
+  "parameters": [
+    {
+      "name": "Object",
+      "type": "ST",
+      "default": "root",
+      "description": "Name of the UI object to bind to (matches the object's name in the UI definition)."
+    },
+    {
+      "name": "Signal",
+      "type": "ST",
+      "default": "clicked",
+      "description": "Name of the signal on the UI object to emit and listen for."
+    }
+  ],
+  "functions": [
+    {
+      "name": "emit",
+      "ports": [
+        {
+          "role": "start",
+          "cname": "emit"
+        },
+        {
+          "role": "finish",
+          "cname": "done"
+        }
+      ]
+    },
+    {
+      "name": "received_cb",
+      "internal": true,
+      "ports": [
+        {
+          "role": "finish",
+          "cname": "received"
+        }
+      ]
+    }
+  ],
+  "log_module": "GRAPHICS"
+}

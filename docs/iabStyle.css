@@ -186,3 +186,48 @@ li.dependencies {
 display:none;
 }
 
+/* ------------------------------------------------------------------
+ * Help-page table column layout (kept in sync with
+ * Common/Components/iabStyle.css). See that file for the authoring
+ * contract.
+ * ------------------------------------------------------------------ */
+
+table.table_params { width: 100%; }
+table.table_params td:nth-child(1),
+table.table_params th:nth-child(1) { width: 90px; white-space: nowrap; }
+table.table_params td:nth-child(2),
+table.table_params th:nth-child(2) { width: 40px; text-align: center; }
+table.table_params td:nth-child(3),
+table.table_params th:nth-child(3) { min-width: 80ch; width: auto; }
+table.table_params td:nth-child(4),
+table.table_params th:nth-child(4) { width: 120px; word-break: break-all; }
+table.table_params td:nth-child(5),
+table.table_params td:nth-child(6),
+table.table_params th:nth-child(5),
+table.table_params th:nth-child(6) { width: 55px; text-align: center; white-space: nowrap; }
+
+table.table { width: 100%; table-layout: fixed; }
+table.table > tbody > tr > td:first-child,
+table.table > tr > td:first-child,
+table.table > tbody > tr > th:first-child,
+table.table > tr > th:first-child {
+    width: 20%;
+    min-width: 30ch;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+table.errno_table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+table.errno_table td, table.errno_table th { padding: 2px 6px; word-break: break-word; }
+table.errno_table td:nth-child(1),
+table.errno_table th:nth-child(1) {
+    width: 20%;
+    min-width: 30ch;
+    font-family: monospace;
+}
+table.errno_table td:nth-child(2),
+table.errno_table th:nth-child(2) { width: 6ch; text-align: center; }
+
+ol.component, ul.component { font-family: arial; font-size: 12px; color: black; }
+ol.component li, ul.component li { font-family: arial; font-size: 12px; color: black; margin-bottom: 4px; }

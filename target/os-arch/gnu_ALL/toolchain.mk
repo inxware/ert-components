@@ -7,8 +7,19 @@
 #	<https://www.gnu.org/licenses/lgpl-3.0.txt>
 #---------------------------------------------------------------#
 
-# This file can be included bny any linux hardware toolchain.mk file
+# This file can be included by any GCC/Clang-based toolchain.mk file.
 # It does the following:
+#
+# TODO — naming: this directory is called 'gnu_ALL' but it is included by both
+# Linux targets (linux-arm64, linux-arm, linux-amd64, etc.) and QNX targets
+# (qnx-arm64).  It is not Linux-specific — it is a generic GCC/Clang compiler
+# driver shim: CC/LINK/AS selection, ert-build-support sysroot resolution, and
+# flag assembly for any ELF-based OS using a GCC-compatible toolchain.
+# Candidates for a more accurate name: gcc_driver_ALL or posix_elf_ALL.
+# Note: the sysroot and LD_LIBRARY_PATH logic here is compiler-driver-specific,
+# not a POSIX concept, so gcc_driver_ALL is probably more precise than posix_ALL.
+# Renaming requires updating the include line in every os-arch/*/toolchain.mk
+# that references this file.  See also: CLAUDE-general.md os-arch section TODO.
 # 1. Setup the toolchain path (defaulting to HOST or EHS_DISTRO_VERSION [or EHS_DISTRO_VERSION] if TOOLCHAIN_NAME=HOST)
 #    This step identifies the build host's machine's architecture and selects the target from there
 # 2. Sets the basic compiler and linker flags to build and create an executable
@@ -35,7 +46,11 @@ ifndef LINK_OVERRIDE
    CPP_SOURCES := $(wildcard *.cpp) $(wildcard */*.cpp) $(wildcard target/Component-HAL/*/*.cpp) $(wildcard target/Component-HAL/*/*/*.cpp)
    ifneq ($(CPP_SOURCES),)
       export LINK:=$(CPP)
-      LIB+=stdc++
+      ifeq ($(EHS_OS),macos)
+         LIB+=c++
+      else
+         LIB+=stdc++
+      endif
    else
       export LINK:=$(CC)
    endif
@@ -128,12 +143,29 @@ CFLAGS+=$(foreach i,$(DEFS),-D$i )
 CPPFLAGS+=$(foreach i,$(DEFS),-D$i )
 CFLAGS+= -c $(INC)
 
-#todo - This should be a specific macro to not use c99 that is set in the esp32's toolchain.mk file -
-ifndef EHS_ESP32
+# C standard baseline for every toolchain that includes this file.
+#
+# Without it each compiler uses its own default, and those span 25 years: the
+# oldest toolchain still in use (i686 gcc 4.4.6, the linux_x86 ambifier / gtk
+# platforms) defaults to gnu89, while modern gcc defaults to gnu17. The tree
+# requires C99 - declarations in for initialisers, used in our own sources and
+# heavily in the vendored AprilTag code under target/Component-HAL - so the
+# standard is stated rather than inherited.
+#
+# gnu99 and not c99: strict ISO mode defines __STRICT_ANSI__, which makes glibc
+# hide strdup / usleep / random and turns them into implicit declarations.
+#
+# EHS-kernel/target/os-arch/gnu_ALL/toolchain.mk has set this unconditionally
+# for a long time; this brings ert-components in line with it.
+#
+# A platform that genuinely needs a newer standard sets EHS_C_STD in its own
+# config.mk. There is no performance reason to: measured at -O2, the generated
+# .text is byte-identical across gnu99 / gnu11 / gnu17.
+EHS_C_STD ?= gnu99
+CFLAGS += -std=$(EHS_C_STD)
+
+ifeq ($(EHS_OS),esp32_freertos)
    CFLAGS+= -g
-   # provide support for long long constants
-   #CFLAGS+=-std=c99
-   CFLAGS+=-std=gnu99
    # Note: _POSIX_C_SOURCE=199309 was previously set here but removed because:
    # 1. The codebase uses strdup, random, usleep, inet_aton etc. which require newer POSIX/BSD
    # 2. It only "worked" on older toolchains (Clang <19) because implicit function declarations
@@ -143,8 +175,7 @@ endif
 
 # CXX_INC_DIRS holds C++-only include paths (e.g. Qt headers that require C++17)
 CXX_INC=$(foreach i,$(CXX_INC_DIRS),-I$i)
-# CPPFLAGS+= -c $(INC) $(CXX_INC)
-CPPFLAGS+= -c $(CXX_INC)
+CPPFLAGS+= -c $(INC) $(CXX_INC)
 
 #setup linker paths
 LIB_DIRS+=$(EHS_ROOT_PATH)
@@ -172,13 +203,24 @@ else
    ifeq ($(LINK),clang)
       ifeq ($(EHS_GNU_ARCH),x86_64)
       #todo2023 - the following is hack because the arm clang compiler doesn't like this
+      # Apple clang on macOS does not ship lld; skip for macOS targets.
+      ifneq ($(EHS_OS),macos)
          LD_SWITCHES += -fuse-ld=lld
+      endif
       endif
       LIB += m
    endif
-   #gnu ld:
+   #gnu ld: macOS Apple ld requires -o and filename as separate args (comma form);
+   # GNU ld accepts both the fused -oFILE and the -o,FILE forms.
+ifeq ($(EHS_OS),macos)
+   LNKFLAGS+= -Wl,-o,$(TARGET_NAME).$(EXE)
+else
    LNKFLAGS+= -Wl,-o$(TARGET_NAME).$(EXE)
+endif
+   # -Wl,-E exports all dynamic symbols — Linux ELF only; macOS ld does not support it.
+   ifneq ($(EHS_OS),macos)
    LNKFLAGS+= -Wl,-E
+   endif
    # Concatentate linker options, source and paths with -Wl for linkers called via gcc and clang
    # SYS_LIB_DIRS comes after LIB_DIRS so middleware static libs take priority
    # over same-named system libs (e.g. middleware libcrypto.a over system OpenSSL 3.x).

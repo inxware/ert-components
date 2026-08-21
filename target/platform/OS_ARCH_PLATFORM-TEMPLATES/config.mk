@@ -34,7 +34,7 @@ EHS_OS=linux
 # GNU-specific naming conventions (for contrib builds)
 #EHS_GNU_ARCH=x86_64
 #EHS_GNU_OS=linux-gnu
-#EHS_GNU_OS_VERSION=
+#EHS_TARGET_LIB_VARIANT=
 
 # TOOLCHAIN_NAME is an optional alternative location to find the toolchain
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_
@@ -55,7 +55,6 @@ COMPONENT_VARIANT=base
 #or COMPONENT_VARIANT=gtk_gst add -gtk_gst to the contrib middleware path
 
 # For non-conformal paths to component libraries
-#COMPONENT_BASE_TECHNOLOGIES_OVERRIDE_PATH=
 
 
 #################################################################################################################
@@ -79,7 +78,7 @@ EHS_DEBUGALL=yes
 #EHS_TARGET_NO_MAIN_ARGS=yes
 
 # Reboot after app load
-#EHS_TARGET_APPLOAD_RESTARTING_REBOOT=yes
+#EHS_TARGET_APPLOAD_RESTARTING_REBOOT=no
 
 
 #################################################################################################################
@@ -226,8 +225,12 @@ EHS_PERIPHERAL_DEVICE_SUPPORT=all
 #DEFS += EHS_LWIP
 
 # Console/debug buffer sizes
-#DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=256
+#DEFS += EHS_DEBUG_CONSOLE_BUFFER_SIZE=512
 #DEFS += EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=4096
+
+# set EHS_CONSOLE_QUEUE_STATS to log every console queue push (bytes pushed, %% of buffer
+# used) via EHSH_LOG_INFO - use to size EHS_DEBUG_CONSOLE_BUFFER_SIZE per target/application
+#DEFS += EHS_CONSOLE_QUEUE_STATS
 
 # Task stack size
 #DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=10000

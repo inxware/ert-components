@@ -108,9 +108,6 @@ DEFS += EHS_ESP32_CMD_PROMPT_SUPPORT
 # Main task stack size
 DEFS += EHS_MAIN_ESP32_TASK_STACK_SIZE=16000
 
-# Maximum wi-fi SSID records buffer size
-DEFS += ESP32_MAX_AP_RECORDS=20
-
 # Wi-Fi credentials (defaults if none saved)
 DEFS += EHS_CONFIG_WIFI_SSID="\"SSIDXXXXX\""
 DEFS += EHS_CONFIG_WIFI_PASSWORD="\"XXXXXXXX\""

@@ -392,5 +392,6 @@ ehs_bool EhsCameraFrameCopy(const EhsCameraFrame* src, EhsCameraFrame* dst)
 }
 
 /* Embedded renderer stubs — not supported on Jetson */
-void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn) { (void)fn; }
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn, EhsCamEmbeddedRendererReleaseFn releaseFn) { (void)fn; (void)releaseFn; }
 EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void) { return NULL; }
+EhsCamEmbeddedRendererReleaseFn EhsCameraFrameGetEmbeddedRendererRelease(void) { return NULL; }

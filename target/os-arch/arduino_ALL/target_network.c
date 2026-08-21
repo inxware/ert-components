@@ -39,7 +39,7 @@ ehs_bool EhsTgtNetworkInit()
     if(gNetworkCtrl.initalised == 0){
         gNetworkCtrl.app_status = -1;
         gNetworkCtrl.stop = EHS_FALSE;
-        EhsHThread_execute(EhsTgtNetworkLoop, (void*)NULL, EHS_PRI_MCU_SLOW_LP_THR, EHS_TARGET_NETWORK_THREAD_STACK_SIZE);
+        EhsHThread_execute(EhsTgtNetworkLoop, (void*)NULL, EHS_PRI_MCU_SLOW_LP_THR, EHS_TARGET_NETWORK_THREAD_STACK_SIZE,"ardnetwork");
         gNetworkCtrl.initalised = 1;
     }else{
         ret = EHS_FALSE; // already initalised

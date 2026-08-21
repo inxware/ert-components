@@ -150,16 +150,16 @@ EHS_FB_RUN_FUNCTION(network_config_get_config)
 		EHS_FB_OUT_I_API2(INX_network_config_ARG_get_config_get_mode) = EhsHMetaGetNetworkMode();
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_network_config_ARG_get_config_get_address)){
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_network_config_ARG_get_config_get_address), EhsHMetaGetIPAddr());
+		EHS_FB_OUT_S_SET_API2(INX_network_config_ARG_get_config_get_address, EhsHMetaGetIPAddr());
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_network_config_ARG_get_config_get_gateway)){
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_network_config_ARG_get_config_get_gateway), EhsHMetaGetGateway());
+		EHS_FB_OUT_S_SET_API2(INX_network_config_ARG_get_config_get_gateway, EhsHMetaGetGateway());
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_network_config_ARG_get_config_get_mask)){
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_network_config_ARG_get_config_get_mask), EhsHMetaGetMask());
+		EHS_FB_OUT_S_SET_API2(INX_network_config_ARG_get_config_get_mask, EhsHMetaGetMask());
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_network_config_ARG_get_config_get_dns)){
-		EhsStrcpy(EHS_FB_OUT_S_API2(INX_network_config_ARG_get_config_get_dns), EhsHMetaGetDNS1());
+		EHS_FB_OUT_S_SET_API2(INX_network_config_ARG_get_config_get_dns, EhsHMetaGetDNS1());
 	}
 	if (EHS_FB_OUT_CONNECTED_API2(INX_network_config_ARG_get_config_get_config_err)){
 		EHS_FB_OUT_I_API2(INX_network_config_ARG_get_config_get_config_err) = nError;

@@ -1507,7 +1507,7 @@ const char* EhsICalcGetToken(const char* szInput, EhsICalcTokenInfoType **peToke
             (*peToken)->nConst = 1 + (EhsDataflowIntType)EHS_TO_LOWER(*szInput) - 'a';
             szInput++;
         }
-        else if (isdigit(*szInput))
+        else if (isdigit((ehs_uint8)*szInput))
         {
             *peToken = EhsICalcToken_const;
             szInput = EhsGetSint32FromString(&((*peToken)->nConst),szInput);

@@ -3,15 +3,15 @@
 # this is called from the ehs supervisor
 
 InitAppManger(){
-	SupervisorLog "(InitAppManger) Replace this script, with a system specific script e.g tellisign, sso etc."
+	SupervisorLog "(InitAppManger) Replace this script, with a system specific script e.g ambifier, sso etc."
 }
 
 RunAppManger(){
-	SupervisorLog "(RunAppManger) Replace this script, with a system specific script e.g tellisign, sso etc."
+	SupervisorLog "(RunAppManger) Replace this script, with a system specific script e.g ambifier, sso etc."
 }
 
 RestartApp(){
-	SupervisorLog "(RestartApp) Replace this script, with a system specific script e.g tellisign, sso etc."
+	SupervisorLog "(RestartApp) Replace this script, with a system specific script e.g ambifier, sso etc."
 }
 
 DevicePrefix(){

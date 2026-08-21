@@ -63,7 +63,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#ifdef EHS_GRAPHICS
+#ifdef EHS_GUI_SUPPORT
 #include "hal_viewport.h"
 #endif
 

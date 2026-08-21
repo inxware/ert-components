@@ -19,9 +19,6 @@
 #  VPATH - where to look for source code
 #  EHS_TARGET_OS_HW_PATH - path to the current directory (set by platform makefile)
 
-# This is used for some build conditionals - it shouldn't really be neeeded, be because, where it has it's been based on "this code was written on Tuesday" conventions. 
-EHS_ESP32=yes
-
 # Default OS Features Supported
 
 # (auto included) include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/config.mk
@@ -34,6 +31,22 @@ VPATH += $(EHS_TARGETS_ROOT_PATH)/os-arch/freertos_esp32-xtensa/
 EHS_COMMS_TASK=tcp_server_common
 EHS_COMMS_API_SUPPORT=lwip
 EHS_ESP32_SUPPORT=1
+DEFS += EHS_ESP32_SUPPORT=1
+
+# Export ESP32_* partition variables from config.mk into targetenv_esp32.sh's
+# subshell. When ESP32_FLASH_SIZE is set, targetenv_esp32.sh generates
+# partitions.csv + partition-table.bin locally from these vars and derives
+# merge_bin offsets from the resulting table. When unset, the legacy
+# ert-contrib-middleware-supplied partition table is used unchanged.
+export ESP32_FLASH_SIZE
+export ESP32_PARTITION_TABLE_OFFSET
+export ESP32_PART_NVS_SIZE
+export ESP32_PART_PHY_INIT_SIZE
+export ESP32_PART_OTA_ENABLED
+export ESP32_PART_OTA_SIZE
+export ESP32_PART_FACTORY_SIZE
+export ESP32_PART_STORAGE_SIZE
+export ESP32_PART_APPDATA_SIZE
 
 #os-arch-wide platform component-HAL settings:
 ifndef EHS_PERIPHERALS_GPIO_SUPPORT
@@ -82,6 +95,14 @@ OBJECTS += target_process.$(OBJ)
 OBJECTS += target_main.$(OBJ)
 OBJECTS += target_time.$(OBJ)
 OBJECTS += ping.$(OBJ)
+
+# Per-target serial-console HAL — backs Common/Ehs/serial_console.c.
+# Contract: Common/HAL/include/hal_serial.h.
+ifdef EHS_SERIAL_CONSOLE_SUPPORT
+ifneq ($(EHS_SERIAL_CONSOLE_SUPPORT),none)
+OBJECTS += target_serial.$(OBJ)
+endif
+endif
 #OBJECTS += wifi_test.$(OBJ)
 #OBJECTS += target_math.$(OBJ) 
 #OBJECTS += esp_main_example.$(OBJ) 

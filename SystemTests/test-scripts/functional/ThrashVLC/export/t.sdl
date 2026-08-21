@@ -1,0 +1,97 @@
+1
+1	100000	90000
+BEGIN DtvPvrPlay2
+*
+setinput	1	1	2	1 S 1 	0 	1 5 
+get	1	1	3	0 	6 S 4 I 2 I 1 I 3 I 4 I 5 	1 8 
+play	1	1	4	0 	0 	1 -1 
+stop	1	1	5	0 	0 	1 4 
+end	1	1	-1	0 	0 	1 -1 
+END
+BEGIN Constant_String1
+../userdata/media/ShortPlay.mp3 
+Run_ConstantString	1	1	-1	0 	1 S 1 	0 
+END
+BEGIN Constant_String1
+No Network: Playing Downloaded Tracks 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN Constant_String1
+Streaming from Server 
+Run_ConstantString	1	1	-1	0 	1 S 2 	0 
+END
+BEGIN MultiplexTwoInputString
+*
+Run_Input1	1	1	6	1 S 2 	1 S -1 	1 -1 
+END
+BEGIN Constant_Int1
+0 
+Run_ConstantInt	1	1	-1	0 	1 I -1 	0 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	1	0 	0 	1 -1 
+Or2	1	1	7	0 	0 	1 -1 
+END
+BEGIN Constant_Bool1
+1 
+Run_ConstantBool	1	1	-1	0 	1 B 2 	0 
+END
+BEGIN Constant_Bool1
+0 
+Run_ConstantBool	1	1	-1	0 	1 B 3 	0 
+END
+BEGIN gui_text_string2
+%%%_TerackName g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	8	6 I -1 I -1 I -1 I -1 I -1 S 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN time_clock
+100000 1 1 
+start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 3 
+END
+BEGIN gui_text_int2
+%%%_time g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	8	6 I -1 I -1 I -1 I -1 I -1 I 1 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_position g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	8	6 I -1 I -1 I -1 I -1 I -1 I 2 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_length g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	8	6 I -1 I -1 I -1 I -1 I -1 I 3 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_speed g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	8	6 I -1 I -1 I -1 I -1 I -1 I 4 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN gui_text_int2
+%%%_index g0000000.gui 
+create	1	1	1	0 	4 I -1 I -1 I -1 I -1 	2 -1 -1 
+show	1	1	1	0 	0 	1 -1 
+update	1	1	8	6 I -1 I -1 I -1 I -1 I -1 I 5 	4 I -1 I -1 I -1 I -1 	1 -1 
+END
+BEGIN time_clock
+1000000 1 1 
+start	1	1	1	3 I -1 B -1 B -1 	0 	1 -1 
+tick	1	1	-1	0 	0 	1 9 
+END
+BEGIN EventTwoInputOr
+*
+Or1	1	1	9	0 	0 	1 2 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

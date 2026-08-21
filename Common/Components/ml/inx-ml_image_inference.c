@@ -28,6 +28,12 @@
  *   calls or removed before production use.
  */
 
+/* Must precede every #include below (even transitively) — hal_logger.h locks
+ * EHSH_LOG_CHECK to a no-op literal 0 if included before this is defined.
+ * Without this, the EHSH_LOG_ERROR calls below were silently dead: they
+ * compiled fine but never actually logged anything at any runtime level. */
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_GRAPHICS
+
 //ICB HEADER MACRO START -- DO NOT ALTER
 #include "inx-parameters.h"
 #include "inx-component.h"
@@ -37,6 +43,8 @@
 #include "hal_mv.h"
 #include "hal_file.h"
 //ICB HEADER MACRO END -- DO NOT ALTER
+
+#include "hal_logger.h"
 
 /* Threading via EHS HAL — do NOT include <pthread.h> directly in Common/ code.
  * All thread/mutex/condition operations must go through hal_process.h abstractions. */
@@ -226,6 +234,8 @@ static EhsThreadFuncReturnType _ml_inference_worker(void* arg)
 				EHSH_LOG_ERROR("[ml_inference_worker] Failed to get frame data");
 				goto worker_done;
 			}
+			EHSH_LOG_INFO("[ml_inference_worker] frame_id=%d size=%dx%d fmt=%d bytes=%u",
+			              frame_id, (int)frame->width, (int)frame->height, (int)frame->fmt, frame_size);
 			EhsCameraFrameEnsureCPU(frame);
 			err = EhsML_SetInputData(&state->ml_ctx, frame_data, frame_size);
 			if (err != EHS_ML_OK) {
@@ -239,6 +249,10 @@ static EhsThreadFuncReturnType _ml_inference_worker(void* arg)
 				EHSH_LOG_ERROR("[ml_inference_worker] EhsML_RunOutputJson failed: %d", err);
 				goto worker_done;
 			}
+			EHSH_LOG_INFO("[ml_inference_worker] inference complete for frame_id=%d", frame_id);
+		} else {
+			EHSH_LOG_WARNING("[ml_inference_worker] json output port not connected — skipping inference for frame_id=%d",
+			                 frame_id);
 		}
 
 	worker_done:
@@ -306,7 +320,7 @@ static EhsThreadFuncReturnType _ml_load_model_worker(void* arg)
 	state->worker_busy = 0;
 	state->worker_exit = 0;
 	state->worker_done = 0;
-	if (!EhsHThread_execute(_ml_inference_worker, state, 0, EHS_THREAD_USE_DEFAULT_STACK_SIZE)) {
+	if (!EhsHThread_execute(_ml_inference_worker, state, 0, EHS_THREAD_USE_DEFAULT_STACK_SIZE, NULL)) {
 		err = EHS_ML_INIT_ERR;
 		EhsHMutex_destroy(&state->worker_mutex);
 		EhsHCond_destroy(&state->worker_cond);
@@ -466,7 +480,7 @@ EHS_FB_RUN_FUNCTION(ml_image_inference_load_model)
 	inx_ml_image_inference_state->load_pFIdata = (void*)pFIdata;
 	inx_ml_image_inference_state->load_busy    = 1;
 	if (!EhsHThread_execute(_ml_load_model_worker, inx_ml_image_inference_state,
-	                         0, EHS_THREAD_USE_DEFAULT_STACK_SIZE)) {
+	                         0, EHS_THREAD_USE_DEFAULT_STACK_SIZE,NULL)) {
 		inx_ml_image_inference_state->load_busy = 0;
 		err = EHS_ML_INIT_ERR;
 		_EHS_ML_IMG_INFERENCE_GOTO_ON_ERROR(err, load_err, __func__, "Failed to start load thread!");

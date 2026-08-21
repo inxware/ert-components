@@ -1,0 +1,154 @@
+# publish_set.txt — the ONLY platform targets published to the public GitHub
+# mirror (github.com/inxware/ert-components).
+# ── INPUT — hand-maintained. Nothing generates this file. ─────────────────────
+#
+# Used by:  scripts/git-utilities/publish_set.py  (and merge_into_github.sh)
+#
+# It also works as a regression platform list, which is how you test exactly what
+# is published — run_regression.sh takes an explicit path as well as a bare name:
+#   ./SystemTests/CI/run_regression.sh --platform-list scripts/git-utilities/publish_set.txt
+#
+# It lives here rather than in SystemTests/CI/platform-lists/ to pair with the
+# tool that consumes it, and to avoid sitting next to published.txt — which is
+# the internal regression list and means something entirely different.
+#
+# This is an allow-list, not a filter. A platform reaches GitHub only if it is
+# named here or is pulled in as a base by one that is. Anything not listed stays
+# private by default — that is the point: customer- and product-named targets
+# (hrdcv2*, ambifier*, tellisign*, adnoc*, quensus*, caravan/Willerbys, heatrod,
+# moodsonic, sysboiler, revolver, nxp_arm_inx_hri*/hrc*, *-sferalabs,
+# *-devman-inxsystems) must never appear on GitHub.
+#
+# List only the platforms you want published. The sync tool resolves each one's
+# `include ./target/platform/<base>/config.mk` chain and copies the bases too,
+# so `./configure <target>` works on the mirror.
+#
+# Entry criteria — a target belongs here only if ALL hold:
+#   1. Generic name: describes hardware/OS/UI stack, never a customer or product.
+#   2. Its Docker image is public on Docker Hub (or ghcr.io) — see the image
+#      column in docs/_working_notes/community-mirror-plan.md.
+#   3. Its SDK is redistributable (no NCS nrfxlib blobs, no QNX SDP, no vendor
+#      NDA toolchain).
+#   4. It builds from a clean checkout with no private repo other than `apps`.
+
+# ── Tier 1 — built by a GitHub Actions workflow today ─────────────────────────
+linux_x86_64_clang_lvgl_debian11-no-certs
+linux_x86_64_clang_gtk_gst_gg_debian11-no-certs
+linux_arm64_lvgl_gg_debian11
+linux_arm64_gtk_gst_gg_debian11-no-certs
+linux_android_arm-no-certs
+linux_android_arm64-no-certs
+win_x86_32-lucid-win10
+esp32s3_freertos-xtensa-no-certs
+arduino_arduino-mbed-nano-image_community
+
+# Ones to add:
+linux_arm64_lvgl_raspberrypi_debian12
+linux_arm64_lvgl_raspberrypi_debian13
+zephyr_arm-nrf5340_nrf5340dk
+zephyr_arm-nrf52840_rak4631
+esp32s3_freertos-xtensa-rak3112
+
+
+# ── Tier 2 — generic, public image, no workflow yet ───────────────────────────
+# Publish with the sync; add a workflow per target as CI budget allows.
+linux_x86_64_qt_debian12-no-certs
+linux_x86_64_clang_lvgl_gg_debian12
+linux_arm64_qt_debian12-no-certs
+linux_arm64_debian13_base
+esp32_freertos-xtensa-base
+esp32s3_freertos-xtensa-community
+
+# xcore_freertos-xcore-base — REMOVED, cannot link.
+#   Its kernel key `xcore-xcore_freertos` is correct per the composition rule
+#   (the kernel key has no toolchain component — the audit's "missing toolchain
+#   suffix" diagnosis conflated it with the contrib key). The real problem is
+#   that ../EHS-kernel has no xcore target at all, so no archive can exist.
+#   Not a config fix. Restore once a kernel is produced — see
+#   docs/llm-dev-contexts/CLAUDE-xcore.md, phase 2 is incomplete.
+
+# ⚠ Ten entries below are the `-no-certs` form of a target that pulls
+#   certificates (and for Android, signing keys) from ../DevmanSecurity/, which
+#   is not part of the community release. The parent builds but cannot complete
+#   `make targetenv`. See item 9c.
+#
+# ── Tier 3 — already published, kept ─────────────────────────────────────────
+# Added 2026-08-19 when publish_set.py --diff showed the list was a sample, not
+# the published set: 53 of the mirror's 75 platform directories fell outside it
+# and would have been deleted on the first sync. These are the ones that both
+# exist in source and currently link.
+#
+# Excluded from this group and therefore removed by the next sync:
+#   - 3 private        …-sferalabs, …-devman-inxsystems, nxp_arm_inx_hri_ehs_debug
+#   - 1 gone           linux_x86_64-lucid-debian13 (mirror-only, absent in source)
+#   - 8 cannot link    see SystemTests/CI/known-broken-keys.txt; owned by A3
+#
+# Nothing here matches the hrdc/ambifier/customer pattern — publish_set.py's
+# PRIVATE check enforces that on every regression run, across 61 source targets.
+#
+# ⚠ linux_armv7l_clang_gtk_debian10 was last touched 2024-04-01 and is the only
+#   entry with no Dockerimagename. Retirement candidate — kept for now because it
+#   is already published and removing it is a separate decision.
+#
+# ⚠ win_x86_unity was in this group and has been REMOVED. Its config.mk:90 does
+#   `include ./target/devman-configs/tellisign.com.mk`, a customer config that is
+#   correctly not published. So the target is already in the mirror today and
+#   cannot even parse there — a class the naming audit could not see, because it
+#   ran against the internal tree where that include resolves. A sweep found it is
+#   the only such case. If a community Unity target is wanted, point it at
+#   inx-systems.com.mk and re-add it.
+
+OS_ARCH_PLATFORM-TEMPLATES
+arduino_arduino-mbed-nano-lib_community
+arduino_arduino-mbed-nano_lib
+esp32_freertos-xtensa-lilygo-t-display
+esp32s3_freertos-xtensa-base_n8r2
+esp32s3_freertos-xtensa-demo-loradisp
+esp32s3_freertos-xtensa-n8r2_waveshare_wearable
+esp32s3_freertos-xtensa-waveshare-esp32-s3-touch-lcd-4
+esp32s3_freertos-xtensa-waveshare-touchlcd-1_28
+esp32s3_freertos-xtensa-waveshare-touchlcd-1_69
+linux_amd64_debian9
+linux_amd64_gtk_gst_debian9
+linux_arm64_gtk_gst_gg_debian10-no-certs
+linux_arm64_lvgl_arduino-uno-q
+linux_arm64_lvgl_gg_debian10
+linux_arm64_lvgl_gg_debian11-fullscreen-800x480
+linux_arm64_lvgl_jetson_nano_ngc
+linux_arm64_lvgl_raspberrypi_debian11
+linux_arm64_lvgl_raspberrypi_debian13-sferalabs
+linux_arm64_lvgl_rubik_pi_3_drm
+linux_arm64_qt_arduino-uno-q
+linux_armv7l_clang_debian10-no-certs
+linux_armv7l_clang_debian9-no-certs
+linux_armv7l_clang_gtk_debian10
+linux_armv7l_clang_gtk_debian9-no-certs
+linux_x86
+linux_x86_64_clang
+linux_x86_64_clang_gg_debian10
+linux_x86_64_clang_gg_debian11
+linux_x86_64_clang_lvgl_debian11-no-certs
+linux_x86_64_clang_lvgl_debian13
+linux_x86_64_gtk_gst_debian11-no-certs
+linux_x86_64_gtk_gst_debian11-debug-no-certs
+linux_x86_64_lvgl_debian11-debug-no-certs
+linux_x86_gtk_gst_deb_withtools
+win_x86
+win_x86_gtk_gst
+win_x86_unity
+zephyr_arm-nrf52840
+
+# ── Deliberately excluded — do not add without a decision ─────────────────────
+# qnx8_arm64_rpi4                     image `inxware/qnx800-arm64:local` is not
+#                                     published; QNX SDP is licence-restricted.
+# zephyr_arm-nrf9151_thingy91x-*      NCS / nrfxlib blobs are redistribution-
+#                                     restricted; needs a private registry.
+# macos_x86_64_clang*                 no Docker image (needs a macOS runner);
+#                                     revisit once a workflow exists.
+# linux_x86_64_clang_lvgl_debian13    its image is `…-lvgl-axelera`; confirm the
+#                                     Axelera SDK licence before publishing.
+# nxp_arm                             withdrawn: its os-arch tree
+#                                     (target/os-arch/nxp-redlib-freertos-arm)
+#                                     is on NEVER_PUBLISH, so the platform
+#                                     could not configure on the mirror.
+# nxp_arm_inx_*                       all other variants are customer displays.

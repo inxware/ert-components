@@ -26,6 +26,9 @@
 #include "devman_mon_mqtt.h"
 #include "devman_mon_ota.h"
 #endif
+#ifdef ESP_PLATFORM
+#include "esp_pthread.h" /* only for esp_pthread_set_cfg() - naming the pthreads below */
+#endif
 
 #ifdef EHS_DEVMAN_LUA_VERSION
 #ifdef EHS_LUA_SUPPORT
@@ -444,7 +447,6 @@ void* DevmanMonThreadMqtt(void* arg)
 
             // read and set clinet id
             const char* clientid = EhsHMetaGetHWID();
-            printf("Devman mon mqtt clinet id = %s \n", clientid);
             EhsStrcpy(pMqttClient->clientid, clientid);
 
             // read and set username and password
@@ -472,19 +474,21 @@ void* DevmanMonThreadMqtt(void* arg)
             pMqttClient->tls = EHS_FALSE;
             pMqttClient->port = 1883;
             #endif
-
+            EHSH_LOG_INFO("Devman mon connecting, client id = %s", clientid);
             EhsSetMqttDevmanMonState(MQTT_DEVMAN_MON_CONNECT);
             break;
         }
         case MQTT_DEVMAN_MON_CONNECT:
         {
             pMqttClient->connect=EHS_TRUE;
+            EHSH_LOG_INFO("Devman mon MQTT connect");
             EhsSetMqttDevmanMonState(MQTT_DEVMAN_MON_CONNECTING);
             break;
         }
         case MQTT_DEVMAN_MON_CONNECTING:
         {
             if(EhsGetMqttDevmanMonConnected()){ // check if mqtt clinet has connected
+                EHSH_LOG_INFO("Devman mon MQTT connected");
                 EhsSetMqttDevmanMonState(MQTT_DEVMAN_MON_PUB_SUB_INIT);
             }
             break;
@@ -1046,6 +1050,17 @@ void DevmanMon_init(void)
     // for targets which use function block thread for running a blocking mqtt clinet loop e.g. linux
     // we need to create a thread that runs mqtt client loop for devman mon
     pthread_t t1;
+#ifdef ESP_PLATFORM
+    /* ESP-IDF's pthread wrapper names every thread it creates "pthread" unless told
+     * otherwise via esp_pthread_set_cfg() beforehand - this file is shared/portable (this
+     * exact code path also runs on Linux, per the comment above), so this is guarded to
+     * ESP-IDF targets only rather than calling an ESP-IDF-only API unconditionally. */
+    {
+        esp_pthread_cfg_t cfg = esp_pthread_get_default_config();
+        cfg.thread_name = "devman_mqtt";
+        (void)esp_pthread_set_cfg(&cfg);
+    }
+#endif
     if (pthread_create(&t1, NULL, EhsMqttClientLoop, (void*)EhsMqttDevmanMonSupport()))
     {
         EHSH_LOG_ERROR("Error creating Devman monitor thread");
@@ -1057,6 +1072,13 @@ void DevmanMon_init(void)
 #endif    
 #if EHS_DEVMAN_SUPPORT==EHS_DEVMAN_HTTP
     pthread_t t1;
+#ifdef ESP_PLATFORM
+    {
+        esp_pthread_cfg_t cfg = esp_pthread_get_default_config();
+        cfg.thread_name = "devman_http";
+        (void)esp_pthread_set_cfg(&cfg);
+    }
+#endif
     if (pthread_create(&t1, NULL, DevmanMonThreadHttp, NULL))
     {
         EHSH_LOG_ERROR("Error creating Devman monitor thread");

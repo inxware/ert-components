@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">Cell Power Manager</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">Requests PSM and eDRX power saving, and reports what the network actually granted.</p>
+<p class="component">Power saving on cellular is <em>negotiated</em>, never simply set. The device asks; the network grants what it chooses, which is frequently different from and worse than the request, and sometimes nothing at all.</p>
+<p class="component">That is why every output here is named 'granted'. Always read back after applying - an app that assumes it got the timers it asked for will size its wake schedule wrongly and either drain the battery or miss downlink windows.</p>
+<p class="component"><a href="#[Out]apply_ok">ADone</a> means the request was accepted by the modem, not that the network agreed to it.</p>
+<div class="section_heading">
+<span id="parameters" class="toc_span">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr><th>name</th><th>type</th><th>description</th><th>default</th><th>min.</th><th>max.</th></tr>
+<tr>
+<td><a name="[Param]psmEnable">psmEnable</a></td>
+<td>B</td>
+<td>Request Power Saving Mode. The modem sleeps deeply between periodic wake-ups; the device stays registered.</td>
+<td>1</td>
+<td>0</td><td>1</td>
+</tr>
+<tr>
+<td><a name="[Param]tauSeconds">tauSeconds</a></td>
+<td>I</td>
+<td>Requested periodic tracking-area-update interval in seconds - how long the device may sleep before it must contact the network.</td>
+<td>3600</td>
+<td>0</td><td>35712000</td>
+</tr>
+<tr>
+<td><a name="[Param]activeSeconds">activeSeconds</a></td>
+<td>I</td>
+<td>Requested active time in seconds - how long the device stays reachable after each transmission.</td>
+<td>60</td>
+<td>0</td><td>11160</td>
+</tr>
+<tr>
+<td><a name="[Param]edrxEnable">edrxEnable</a></td>
+<td>B</td>
+<td>Request extended Discontinuous Reception, which lengthens the paging interval so the device can be reached with less power than always-on but more often than PSM.</td>
+<td>0</td>
+<td>0</td><td>1</td>
+</tr>
+<tr>
+<td><a name="[Param]edrxCycleMs">edrxCycleMs</a></td>
+<td>I</td>
+<td>Requested eDRX cycle in milliseconds. 0 lets the modem choose.</td>
+<td>0</td>
+<td>0</td><td>2621440</td>
+</tr>
+<tr>
+<td><a name="[Param]asRai">asRai</a></td>
+<td>B</td>
+<td>Request Access Stratum release assistance, which tells the network the device has finished sending so the radio can release sooner.</td>
+<td>0</td>
+<td>0</td><td>1</td>
+</tr>
+<tr>
+<td><a name="[Param]cpRai">cpRai</a></td>
+<td>B</td>
+<td>Request Control Plane release assistance.</td>
+<td>0</td>
+<td>0</td><td>1</td>
+</tr>
+</table>
+<div class="section_heading">
+<span id="ports" class="toc_span">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[In]apply">Apply</a></td>
+<td>Send the configured PSM / eDRX request to the network.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]read">Read</a></td>
+<td>Read back what the network actually granted.</td>
+</tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]psm_granted">psmGranted</a></td>
+<td>True when the network granted PSM at all.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]granted_tau">grantedTau</a></td>
+<td>Granted Tracking Area Update period in seconds - effectively how long the modem may sleep.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]granted_active">grantedActive</a></td>
+<td>Granted active time in seconds: how long the modem stays reachable after activity before sleeping.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]edrx_granted">edrxGranted</a></td>
+<td>True when the network granted eDRX.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]granted_edrx_ms">grantedEdrxMs</a></td>
+<td>Granted eDRX cycle length in milliseconds.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]granted_ptw_ms">grantedPtwMs</a></td>
+<td>Granted Paging Time Window in milliseconds.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]rai_ok">raiOk</a></td>
+<td>True when Release Assistance Indication is available - lets the modem release the radio immediately after a final message instead of idling.</td>
+</tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]apply_ok">ADone</a></td>
+<td>Fires when the modem accepted the request. Read back to see what was granted.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]apply_fail">AFail</a></td>
+<td>Fires when the request could not be issued - typically the capability is absent on this target.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]read_ok">RDone</a></td>
+<td>Fires once the granted values have been refreshed.</td>
+</tr>
+</table>
+<div class="section_heading">
+<span id="misc" class="toc_span">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr><td class="heading-cell"><b>Toolbox</b></td><td>net</td><td class="heading-cell"><b>Version</b></td><td>v1.0</td></tr>
+<tr><td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td><td class="heading-cell"><b>Component Supplier</b></td><td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td></tr>
+<tr><td class="heading-cell"><b>Minumum DCC</b></td><td>A0000</td><td class="heading-cell"><b>Profiles</b></td><td>All.</td></tr>
+</table>
+</div>
+</body>
+
+</html>

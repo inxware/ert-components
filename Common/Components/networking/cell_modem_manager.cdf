@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?><Component>
+    <Module>usercomponents</Module>
+    <CDFInfo>
+        <Version>3</Version>
+        <CreationDate>2026-08-06T09:00:00Z</CreationDate>
+        <UpdatedDate>2026-08-06T09:00:00Z</UpdatedDate>
+    </CDFInfo>
+    <Description>
+        <ShortDescription>Connect to a cellular network (LTE-M / NB-IoT)</ShortDescription>
+        <LongDescription>Brings the cellular link up and down and reports both connection state and modem/network identity.
+
+Attach times are far longer than Wi-Fi: LTE-M is typically 5-60 seconds, NB-IoT is minutes, and a cold search on an unknown network can legitimately take tens of minutes. Wire the Connected and Failed events rather than polling with a short timeout.
+
+Three failure states are terminal and are never retried automatically: SIM PIN required, SIM failure, and registration denied. Retrying a PIN can permanently lock the SIM; retrying a denied registration wastes battery and can trip the modem's own reset-loop protection.</LongDescription>
+        <UserName/>
+        <Menu>
+            Networking
+            <Menu>
+                Cellular
+                <Menu>Modem Manager</Menu>
+            </Menu>
+        </Menu>
+    </Description>
+    <Block>
+        <Type>IO</Type>
+        <Width>95</Width>
+        <Height>333</Height>
+        <Text>Cell Modem</Text>
+        <TextX>11</TextX>
+        <TextY>5</TextY>
+        <TextScale>1.25</TextScale>
+        <TextVertical>0</TextVertical>
+        <LocationX>0</LocationX>
+        <LocationY>-15</LocationY>
+    </Block>
+    <FBID>
+        <ERT1_ID>1</ERT1_ID>
+        <Class>cell_modem_manager</Class>
+    </FBID>
+    <Hashes>
+        <NameHash_CRC16>0x6AD8</NameHash_CRC16>
+        <FbApiDescriptorHash_CRC32/>
+        <FbApiDescriptorHash/>
+    </Hashes>
+    <Parameters>
+        <Parameter>
+            <Name>onStartup</Name>
+            <DataType>B</DataType>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Connect on startup, before the app is loaded.</Description>
+            <ListPlacement>1</ListPlacement>
+            <ArgPlacement>1</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>rat</Name>
+            <DataType>I</DataType>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>3</MaxValue>
+            <Description>Radio access technology. 0 leaves the modem default, 1 for LTE-M, 2 for NB-IoT, 3 for both. LTE-M attaches far more quickly than NB-IoT; prefer it unless the operator only deploys NB-IoT.</Description>
+            <ListPlacement>2</ListPlacement>
+            <ArgPlacement>2</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>ratPreference</Name>
+            <DataType>I</DataType>
+            <DefaultValue>0</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>4</MaxValue>
+            <Description>Which technology the modem should prefer when both are enabled. 0 automatic, 1 LTE-M, 2 NB-IoT, 3 LTE-M with SIM operator priority, 4 NB-IoT with SIM operator priority.</Description>
+            <ListPlacement>3</ListPlacement>
+            <ArgPlacement>3</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>tryReconnect</Name>
+            <DataType>B</DataType>
+            <DefaultValue>1</DefaultValue>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <Description>Re-attach automatically after the link is lost, using an increasing delay between attempts.</Description>
+            <ListPlacement>4</ListPlacement>
+            <ArgPlacement>4</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>backoffInitial</Name>
+            <DataType>I</DataType>
+            <DefaultValue>60</DefaultValue>
+            <MinValue>10</MinValue>
+            <MaxValue>3600</MaxValue>
+            <Description>Delay in seconds before the first re-attach attempt. The delay doubles after each failure up to backoffMax. Short values waste battery without improving the chance of success.</Description>
+            <ListPlacement>5</ListPlacement>
+            <ArgPlacement>5</ArgPlacement>
+        </Parameter>
+        <Parameter>
+            <Name>backoffMax</Name>
+            <DataType>I</DataType>
+            <DefaultValue>3600</DefaultValue>
+            <MinValue>60</MinValue>
+            <MaxValue>86400</MaxValue>
+            <Description>Longest delay in seconds between re-attach attempts.</Description>
+            <ListPlacement>6</ListPlacement>
+            <ArgPlacement>6</ArgPlacement>
+        </Parameter>
+    </Parameters>
+    <Functions>
+        <Function>
+            <name>do_connect</name>
+            <ID>
+                <ERT1_ID>1</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>do_disconnect</name>
+            <ID>
+                <ERT1_ID>2</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>internal_monitor</name>
+            <ID>
+                <ERT1_ID>3</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>do_set</name>
+            <ID>
+                <ERT1_ID>4</ERT1_ID>
+            </ID>
+        </Function>
+        <Function>
+            <name>do_read_info</name>
+            <ID>
+                <ERT1_ID>5</ERT1_ID>
+            </ID>
+        </Function>
+    </Functions>
+    <Ports>
+        <Port>
+            <Description>Connect</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>15</YCoordinate>
+            <CName>connect</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>CDone</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>15</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>do_connect_OK</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>1</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Disconnect</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <CName>disconnect</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>DDone</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>35</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>do_disconnect_OK</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>2</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>--</Description>
+            <PortType>InternalPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <CName>do_int</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Connected</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>55</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>connected</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Failed</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>65</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>connect_failed</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Disconnected</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>75</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>disconnected</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>state</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>85</YCoordinate>
+            <CName>state</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>regStatus</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>95</YCoordinate>
+            <CName>reg_status</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>ipAddr</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>105</YCoordinate>
+            <CName>ip_address</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>B</DataType>
+            <Description>isRoaming</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>115</YCoordinate>
+            <CName>is_roaming</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>activeRAT</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>125</YCoordinate>
+            <CName>active_rat</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>failReason</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>135</YCoordinate>
+            <CName>fail_reason</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>3</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>Set</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>155</YCoordinate>
+            <CName>set</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>APN</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>165</YCoordinate>
+            <CName>apn</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>APNUser</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>175</YCoordinate>
+            <CName>apn_user</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>APNPass</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>185</YCoordinate>
+            <CName>apn_pass</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>RAT</Description>
+            <PortType>InputPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>195</YCoordinate>
+            <CName>set_rat</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>SDone</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>155</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>set_ok</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>4</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <Description>ReadInfo</Description>
+            <PortType>StartPort</PortType>
+            <XCoordinate>0</XCoordinate>
+            <YCoordinate>215</YCoordinate>
+            <CName>read_info</CName>
+            <Function argument="0">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+                <AtomicFlag>0</AtomicFlag>
+            </Function>
+        </Port>
+        <Port>
+            <Description>IDone</Description>
+            <PortType>FinishPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>215</YCoordinate>
+            <Wcet>0</Wcet>
+            <CName>read_info_ok</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>IMEI</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>225</YCoordinate>
+            <CName>imei</CName>
+            <Function argument="1">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>Operator</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>235</YCoordinate>
+            <CName>operator_name</CName>
+            <Function argument="2">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>MCC</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>245</YCoordinate>
+            <CName>mcc</CName>
+            <Function argument="3">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>MNC</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>255</YCoordinate>
+            <CName>mnc</CName>
+            <Function argument="4">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>CellID</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>265</YCoordinate>
+            <CName>cell_id</CName>
+            <Function argument="5">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>TAC</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>275</YCoordinate>
+            <CName>tac</CName>
+            <Function argument="6">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>Band</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>285</YCoordinate>
+            <CName>band</CName>
+            <Function argument="7">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>S</DataType>
+            <Description>ModemFW</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>295</YCoordinate>
+            <CName>modem_fw</CName>
+            <Function argument="8">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+        <Port>
+            <DataType>I</DataType>
+            <Description>errCode</Description>
+            <PortType>OutputPort</PortType>
+            <XCoordinate>90</XCoordinate>
+            <YCoordinate>305</YCoordinate>
+            <CName>err_code</CName>
+            <Function argument="9">
+                <Function_ERT1_ID>5</Function_ERT1_ID>
+            </Function>
+        </Port>
+    </Ports>
+</Component>

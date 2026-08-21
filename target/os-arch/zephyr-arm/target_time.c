@@ -30,6 +30,9 @@ EHS_LOCAL EhsTickType EhsTgtTimerExpiryTime;
 
 static struct k_timer ehs_kernel_timer;
 static volatile bool ehs_timer_running = false;
+/* k_timer_init() is a one-shot construction step, not a reset - see the long
+ * note in EhsTgtTimer_reset(). This latches whether it has been done. */
+static bool ehs_timer_initialised = false;
 
 /* Timer expiry callback - called from ISR context */
 static void ehs_timer_expiry_fn(struct k_timer *timer)
@@ -58,7 +61,39 @@ EhsTickType EhsTgtTimer_now(void)
 void EhsTgtTimer_reset(void)
 {
     EhsTgtTimerExpiryTime = EHS_TICKTYPE_INVALID;
-    k_timer_init(&ehs_kernel_timer, ehs_timer_expiry_fn, NULL);
+
+    /* k_timer_init() must run EXACTLY ONCE per k_timer, and must never be
+     * called on a started timer.
+     *
+     * It re-runs z_init_timeout(), which does sys_dnode_init() on the timer's
+     * embedded struct _timeout - zeroing that node's prev/next WHILE the
+     * kernel's global timeout list still links to it. The list is then
+     * corrupt: a neighbour still points here, but this node points nowhere.
+     * The next timeout armed anywhere in the system (any k_sleep, work
+     * delayable, or driver timeout) reaches sys_dlist_insert(), does
+     *     prev = successor->prev;   -> NULL
+     *     prev->next = node;        -> store to address 0
+     * On this part that is a SECURE FAULT / "Attribution unit violation" at
+     * Address 0x0, because address 0 is secure-attributed flash and we run
+     * non-secure. The reported PC is inside Zephyr's dlist/timeout code, a
+     * long way from the actual culprit - resolve it with
+     * arm-zephyr-eabi-addr2line against zephyr.elf and it lands on
+     * z_add_timeout, which is the tell.
+     *
+     * This fired on every app teardown: KILL APP -> EhsResetStaticModules()
+     * -> EhsTimer_init() -> here, with the eRT timer still armed from the
+     * running app.
+     *
+     * k_timer_stop() is the correct reset for an already-initialised timer -
+     * it unlinks the timeout cleanly, and is safe on a timer that is not
+     * running. */
+    if (!ehs_timer_initialised) {
+        k_timer_init(&ehs_kernel_timer, ehs_timer_expiry_fn, NULL);
+        ehs_timer_initialised = true;
+    } else {
+        k_timer_stop(&ehs_kernel_timer);
+    }
+
     ehs_timer_running = false;
 }
 

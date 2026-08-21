@@ -35,7 +35,7 @@ EHS_OS=linux
 #EHS_GNU_OS=linux
 
 #Select a specific version of contrib libraries and build support
-EHS_GNU_OS_VERSION=-debian-9.4
+EHS_TARGET_LIB_VARIANT=-debian-9.4
 
 # Toolchain path defaults ../ert-build-support/<BUILD HOST TYPE>/$EHS_
 TOOLCHAIN_NAME=HOST

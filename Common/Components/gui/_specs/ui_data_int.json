@@ -1,0 +1,62 @@
+{
+  "class": "ui_data_int",
+  "label": "UI Int",
+  "short_description": "Bind an integer property on a UI object",
+  "long_description": "Provides bidirectional access to an integer property on a UI object. The set port pushes the input value to the named property; the changed callback fires when the property changes externally (e.g. via user interaction in the UI), emitting the new value on value_out.",
+  "menu": [
+    "User Interface",
+    "Bindings",
+    "Integer"
+  ],
+  "block_type": "IO",
+  "parameters": [
+    {
+      "name": "Object",
+      "type": "ST",
+      "default": "root",
+      "description": "Name of the UI object to bind to (matches the object's name in the UI definition)."
+    },
+    {
+      "name": "Property",
+      "type": "ST",
+      "default": "value",
+      "description": "Name of the integer property on the UI object to read and write."
+    }
+  ],
+  "functions": [
+    {
+      "name": "set",
+      "ports": [
+        {
+          "role": "start",
+          "cname": "set"
+        },
+        {
+          "role": "input",
+          "cname": "value",
+          "dtype": "I"
+        },
+        {
+          "role": "finish",
+          "cname": "done"
+        }
+      ]
+    },
+    {
+      "name": "changed_cb",
+      "internal": true,
+      "ports": [
+        {
+          "role": "finish",
+          "cname": "changed"
+        },
+        {
+          "role": "output",
+          "cname": "value_out",
+          "dtype": "I"
+        }
+      ]
+    }
+  ],
+  "log_module": "GRAPHICS"
+}

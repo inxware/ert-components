@@ -39,7 +39,7 @@ EHS_GNU_OS=linux-gnu
 EHS_HOST_DEBIAN_BUILD=arm64
 
 #This will indicate what ert-contrib-middleware is used and toolchains if not using a host toolchain
-EHS_GNU_OS_VERSION=-clang19_debian13
+EHS_TARGET_LIB_VARIANT=-clang19_debian13
 
 #This determines some library version choices and for the deb packager
 EHS_DEBIAN_VERSION=13
@@ -79,8 +79,7 @@ EHS_DEBUGALL=true
 #----- Networking Features -----
 EHS_NETWORKING_SUPPORT=all
 EHS_COMPONENT_NETWORKING_SUPPORT=all
-#EHS_MQTT_SUPPORT=paho
-EHS_MQTT_SUPPORT=aws_green_grass
+EHS_MQTT_SUPPORT=paho
 
 EHS_DEVMAN_SUPPORT=http
 

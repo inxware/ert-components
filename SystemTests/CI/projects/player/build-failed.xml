@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<testsuites>
+    <testsuite errors="1" failures="1" name="Build" tests="1">
+        <testcase classname="inx.player.android.sandbox" name="build" time="">
+            <system-out></system-out>
+            <system-err>Failed.</system-err>
+            <failure message="Could not send to device" type="WARNING">Failed. Could not send to device.</failure>
+        </testcase>
+    </testsuite>
+</testsuites>

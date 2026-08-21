@@ -52,6 +52,10 @@ include $(EHS_TARGET_ML_ENGINE_PATH)/hailo/ml_ie_hailo.mk
 DEFS += EHS_ML_HWACCEL_SUPPORT_HAILO
 endif
 
+ifeq ($(EHS_ML_HARDWARE_ACCELERATION),axelera)
+include $(EHS_TARGET_ML_ENGINE_PATH)/axelera/ml_ie_axelera.mk
+endif
+
 # ── Audio / text engines (future) ────────────────────────────────────────────
 # EHS_ML_IE_TEXT_SUPPORT and EHS_ML_IE_AUDIO_SUPPORT are
 # reserved for future engine integrations (LLMs, audio classifiers, etc.).

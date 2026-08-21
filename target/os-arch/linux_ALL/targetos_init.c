@@ -48,7 +48,6 @@
 /* OS Specific Stuff */
 #include "sys/types.h"
 #include "netinet/in.h"
-#include "linux/if.h"
 #include "net/if.h"
 #include "sys/ioctl.h"
 #include "sys/types.h"
@@ -56,6 +55,10 @@
 #include "sys/socket.h"
 #include "arpa/inet.h"
 #include "sys/param.h"
+#ifdef EHS_MACOS
+#include <signal.h>
+#include <execinfo.h>
+#endif
 //File system HW access
 #include "sys/types.h"
 #ifndef EHS_ANDROID
@@ -66,7 +69,14 @@
 // For system CPU usage
 #include "sys/time.h"
 #include "sys/resource.h"
+#ifndef EHS_MACOS
 #include "sys/sysinfo.h"
+#else
+/* macOS replacements for Linux-only system headers */
+#include <sys/sysctl.h>
+#include <net/if_dl.h>
+#include <mach/mach.h>
+#endif
 #include "unistd.h"
 #include "hal_target_sys_stat.h"
 
@@ -113,8 +123,30 @@
     }
 #endif //#else #ifdef EHS_DEBUG_TCPIP_CONSOLE
 
+#ifdef EHS_MACOS
+static void ehs_macos_sigill_handler(int sig, siginfo_t *info, void *ctx)
+{
+    (void)ctx;
+    void *bt[32];
+    int n = backtrace(bt, 32);
+    fprintf(stderr, "\n*** EHS SIGILL (signal %d) at %p — stack trace:\n", sig, info->si_addr);
+    backtrace_symbols_fd(bt, n, 2 /* stderr fd */);
+    fprintf(stderr, "*** Tip: run under lldb and type 'bt' for symbol names\n");
+    fflush(stderr);
+    _exit(1);
+}
+#endif
+
 void EhsTOsSys_init(void)
 {
+#ifdef EHS_MACOS
+    struct sigaction sa;
+    sa.sa_sigaction = ehs_macos_sigill_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_SIGINFO;
+    sigaction(SIGILL, &sa, NULL);
+    sigaction(SIGABRT, &sa, NULL);
+#endif
     EhsTOS_ConsoleQueue_init();
     EhsTPMutex_init();
 #ifdef EHS_MINGW
@@ -234,13 +266,16 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
 #elif defined(EHS_ANDROID)
     // I guess this is because most of our android boards are using ethernet
     strcpy(buffer.ifr_name, "eth0");
+#elif defined(EHS_MACOS)
+    strcpy(buffer.ifr_name, "en0"); /* primary Ethernet/Wi-Fi on macOS */
 #else
     strcpy(buffer.ifr_name, "enp2s0"); //This is the default one we try first, then we iterate other options below
 #endif
 // @TODO - check other network interface for android ?
 #ifndef EHS_ANDROID
+#ifndef EHS_MACOS
     int s = socket(PF_INET, SOCK_DGRAM, 0);
-    EHSH_LOG_INFO("IFR NAME = %s",buffer.ifr_name);
+    EHSH_LOG_ENTER("IFR NAME = %s",buffer.ifr_name);
     if (ioctl(s, SIOCGIFHWADDR, &buffer) != -1 )
     {
         // don't duplucate this strning munching as it'sthe same for each case
@@ -316,6 +351,36 @@ EHS_GLOBAL void EhsTOS_GetMACandIPaddr(ehs_char * buf, ehs_char * bufIP)
     }
     close(s);
     //EHSH_LOG_INFO("XXXXXXXXXXXXX MAC ID = %s",buf);
+#else /* EHS_MACOS — use AF_LINK entries from getifaddrs for the hardware address */
+    {
+        static const char * const macos_ifaces[] = {"en0","en1","en2","en3",NULL};
+        struct ifaddrs *ifalist = NULL;
+        int mac_found = 0;
+        EhsStrcpy(buf, "na-xx-xx-xx-xx-xx");
+        if (getifaddrs(&ifalist) == 0) {
+            int ni;
+            for (ni = 0; macos_ifaces[ni] != NULL && !mac_found; ni++) {
+                const struct ifaddrs *p;
+                for (p = ifalist; p != NULL; p = p->ifa_next) {
+                    if (p->ifa_addr == NULL) continue;
+                    if (p->ifa_addr->sa_family != AF_LINK) continue;
+                    if (strcmp(p->ifa_name, macos_ifaces[ni]) != 0) continue;
+                    const struct sockaddr_dl *sdl = (const struct sockaddr_dl *)p->ifa_addr;
+                    if (sdl->sdl_alen == 6) {
+                        const unsigned char *mac = (const unsigned char *)LLADDR(sdl);
+                        EhsSprintf(buf, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
+                                   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                        strncpy(buffer.ifr_name, macos_ifaces[ni], IFNAMSIZ - 1);
+                        buffer.ifr_name[IFNAMSIZ - 1] = '\0';
+                        mac_found = 1;
+                        break;
+                    }
+                }
+            }
+            freeifaddrs(ifalist);
+        }
+    }
+#endif /* EHS_MACOS */
 #endif //EHS_ANDROID
 
     /* and get the IP address */
@@ -423,8 +488,10 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
     long   ru_nivcsw;        // involuntary context switches
      *
      */
-    struct sysinfo info;
     struct rusage rusage;
+#ifndef EHS_MACOS
+    struct sysinfo info;
+#endif
     ehs_bool ret = EHS_FALSE;
     static ehs_uint16 last_cpu_usage_percent=0; //remember the last one if we can't get a value.
     static timeval_t Last_timeVal; // 0 at start of program is valid time interval
@@ -494,6 +561,7 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
         *RAM_Used = (ehs_uint32) 0;
         *cpu_usage_percent = (ehs_uint16) 0;
     }
+#ifndef EHS_MACOS
 //#ifndef EHS_ANDROID
 //#ifndef EFAULT
 //#define EFAULT -1
@@ -515,6 +583,28 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
 //#ifndef EHS_ANDROID
     }
 //#endif
+#else /* EHS_MACOS: use sysctl + Mach VM statistics for RAM info */
+    {
+        uint64_t total_mem = 0;
+        size_t sz = sizeof(total_mem);
+        if (sysctlbyname("hw.memsize", &total_mem, &sz, NULL, 0) == 0)
+            *RAM_Size = (ehs_uint32)(total_mem / 1024);
+        else
+            *RAM_Size = (ehs_uint32)0;
+
+        mach_port_t host_port = mach_host_self();
+        vm_statistics64_data_t vmstat;
+        mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+        if (host_statistics64(host_port, HOST_VM_INFO64, (host_info64_t)&vmstat, &count) == KERN_SUCCESS) {
+            uint64_t free_kb = ((uint64_t)(vmstat.free_count) + (uint64_t)(vmstat.inactive_count))
+                               * (uint64_t)vm_page_size / 1024ULL;
+            *RAM_Free = (ehs_uint32)free_kb;
+        } else {
+            *RAM_Free = (ehs_uint32)0;
+        }
+        mach_port_deallocate(mach_task_self(), host_port);
+    }
+#endif /* EHS_MACOS */
     //+rusage->ru_nswap;
     ret = EHS_TRUE; //@todo tidy up with error trapping (currently not used).
     return ret;
@@ -524,6 +614,11 @@ ehs_bool get_cpu_ram_info(ehs_uint16 *cpu_usage_percent,ehs_uint32 * RAM_Size, e
 #define EHS_MAX_PROC_ENTRYS_TO_SEARCH 1000000
 ehs_uint32  get_procid_from_procname(ehs_char * procname)
 {
+#ifdef EHS_MACOS
+    /* macOS has no /proc filesystem — process lookup not supported */
+    (void)procname;
+    return 0;
+#else
      ehs_uint32 i=1; // we don'#'t care about 0 as this is (init)
      ehs_uint32 ret=0;
      ehs_uint32 found=0;
@@ -535,7 +630,7 @@ ehs_uint32  get_procid_from_procname(ehs_char * procname)
         //EhsSprintf(proc_path,"/proc/%d/cmdline",i); // this has args and spam in it.
         EhsSprintf(proc_path,"/proc/%d/comm",i); // this is usually limited to 16 bytes (or what ever TASK_COMM_LEN is set to )
         //printf("Checking %s\n",proc_path);
-        if (procfile = EhsFopen(proc_path,"r")) {
+        if ((procfile = EhsFopen(proc_path,"r"))) {
             //printf("Opening Proc...%d\n",i);
             found++;
             EhsFgets(proc_name_test,EHS_STRING_LENGTH_MAX,procfile);
@@ -553,6 +648,7 @@ ehs_uint32  get_procid_from_procname(ehs_char * procname)
         //printf("Another...%d & %d \n");
      } while (ret == 0 && (found < EHS_MAX_PROC_ENTRYS_TO_SEARCH) && (i < EHS_MAX_PROC_ENTRYS_TO_SEARCH));
      return ret;
+#endif /* EHS_MACOS */
 }
 
 /* This gets the miscelaneous information for an arbitrary process given by process ID */
@@ -852,6 +948,13 @@ ehs_uint32  get_procid_from_procname(ehs_char * procname)
 */
 ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_Used, ehs_uint32 procid)
 {
+#ifdef EHS_MACOS
+    /* macOS has no /proc filesystem — per-process stats not available this way */
+    (void)procid;
+    *cpu_usage_percent = 0;
+    *RAM_Used = 0;
+    return EHS_FALSE;
+#else
     ehs_char proc_path[EHS_STRING_LENGTH_MAX];
     ehs_bool ret = EHS_FALSE;
     ehs_bool scanOK;
@@ -931,6 +1034,7 @@ ehs_bool get_cpu_ram_info_misc(ehs_uint16 *cpu_usage_percent, ehs_uint32 * RAM_U
         *cpu_usage_percent = (ehs_uint16) 0;
     }
     return ret;
+#endif /* EHS_MACOS */
 }
 
 
@@ -991,6 +1095,16 @@ void getNextValue(ehs_char * dst, ehs_FILE *pFile, char * buffer)
 
 void getOSVersion(ehs_char * dst)
 {
+#ifdef EHS_MACOS
+    /* macOS: report OS version via sysctl kern.osproductversion */
+    char ver[32] = "";
+    size_t vsz = sizeof(ver);
+    if (sysctlbyname("kern.osproductversion", ver, &vsz, NULL, 0) == 0)
+        EhsSprintf(dst, "macOS %s", ver);
+    else
+        EhsStrcpy(dst, "macOS");
+    return;
+#else
     //@todo - use shell command uname -a, instead of reading from file /etc/lsb-release ?
     EhsStrcpy(dst,"Unknown");
     ehs_char * buffer;
@@ -1025,6 +1139,7 @@ void getOSVersion(ehs_char * dst)
         EhsFclose(pFile);
     }
     EhsHMem_tempFree(buffer);
+#endif /* EHS_MACOS */
 }
 
 /* updated dynamic and static data
@@ -1054,7 +1169,7 @@ ehs_bool EhsTOsSys_UpdateEnvironment(EhsMetaDataType * pEhsMetaData, ehs_uint8 w
         {
             // get disk space in user directory
             //EhsStrcpy(szTemp,pEhsMetaData->zUserDirectory);
-            get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,&pEhsMetaData->zUserDirectory);
+            get_dir_stats(&pEhsMetaData->nUserSpaceTotal_KB,&pEhsMetaData->nUserSpaceUsed_KB,&tempint,pEhsMetaData->zUserDirectory);
         }
         else
         {

@@ -105,5 +105,6 @@ ehs_bool EhsCameraFrameCopy(const EhsCameraFrame* src, EhsCameraFrame* dst)
 }
 
 /* Embedded renderer stubs — no display on this target */
-void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn) { (void)fn; }
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn, EhsCamEmbeddedRendererReleaseFn releaseFn) { (void)fn; (void)releaseFn; }
 EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void) { return NULL; }
+EhsCamEmbeddedRendererReleaseFn EhsCameraFrameGetEmbeddedRendererRelease(void) { return NULL; }

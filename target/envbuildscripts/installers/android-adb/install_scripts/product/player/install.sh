@@ -10,8 +10,8 @@ shell_exec 'chown root:shell /system/etc/ehs_supervisor/ehs_app_manager.sh; chmo
 
 # uninstall all apps which might have been previously installed
 EHS_APP="com.inx.ehs"
-UNITY_APP="com.inx.appx"
+AMBIFIER_APP="com.TheSoundAgency.Ambifier2"
 SSO_APP="online.show.signplayer"
 uninstall ${SSO_APP}
 uninstall ${EHS_APP}
-uninstall ${UNITY_APP}
+uninstall ${AMBIFIER_APP}

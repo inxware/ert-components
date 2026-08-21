@@ -26,9 +26,18 @@ else
    OBJECTS += target_file.$(OBJ)
    EHS_FILESYSTEM_SUPPORT=yes
 endif
-OBJECTS += target_process.$(OBJ) 
+OBJECTS += target_process.$(OBJ)
 OBJECTS += target_main.$(OBJ)
-OBJECTS += target_math.$(OBJ) 
+OBJECTS += target_math.$(OBJ)
+OBJECTS += target_app_lifecycle.$(OBJ)
+
+# Per-target serial-console HAL — backs Common/Ehs/serial_console.c.
+# Contract: Common/HAL/include/hal_serial.h.
+ifdef EHS_SERIAL_CONSOLE_SUPPORT
+ifneq ($(EHS_SERIAL_CONSOLE_SUPPORT),none)
+OBJECTS += target_serial.$(OBJ)
+endif
+endif
 
 
 # We nearly always need this for GNU targets
@@ -38,11 +47,12 @@ OBJECTS += target_math.$(OBJ)
   
 ifdef EHS_MINGW2
 	LIB+=archive-2
+	EHS_LIBARCHIVE_SUPPORT?=yes
 else
-	ifdef EHS_SKIP_GNULIBRARIES
+	# Allow targets to opt out by pre-setting EHS_LIBARCHIVE_SUPPORT=stub (or no).
+	EHS_LIBARCHIVE_SUPPORT?=yes
+	ifeq ($(EHS_LIBARCHIVE_SUPPORT),yes)
 		LIB+=archive
-	else			
-		LIB+=archive	
 	endif
 endif
 

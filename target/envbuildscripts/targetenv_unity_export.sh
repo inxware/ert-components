@@ -100,6 +100,29 @@ function PrepareUnityToolchain(){
         return
     fi
 
+    # --- Path 3: INX ONLY! legacy tarball from inx build server (scp) ------------------
+    # @TODO - move Unity toolchain to ert-contrib-middleware
+    if [ -d "$UNITY_BUILD_TOOLS" ]; then
+        echo "Unity3d build support tools are present (legacy tarball)."
+    else
+        DATA_SERVER="tech-data@dev.inx-systems.net"
+        DATA_FILE="unity3d-build-support.tar.gz"
+        # Attempt download only if the server is reachable (2-second connect timeout).
+        # Fail silently — if the server is unavailable the error block below explains
+        # the supported install options.
+        if ssh -o ConnectTimeout=2 -o BatchMode=yes -o StrictHostKeyChecking=no \
+               -p 8822 "$DATA_SERVER" true 2>/dev/null; then
+            echo "Legacy Unity build server reachable. Downloading ..."
+            mkdir -p "$UNITY_BUILD_TOOLS_ROOT"
+            scp -P 8822 "${DATA_SERVER}:/home/inx-data/data/Unity/${DATA_FILE}" \
+                "${UNITY_BUILD_TOOLS_ROOT}" 2>/dev/null || true
+            if [ -f "${UNITY_BUILD_TOOLS_ROOT}/${DATA_FILE}" ]; then
+                pushd "${UNITY_BUILD_TOOLS_ROOT}"
+                tar xfz "${DATA_FILE}" && rm "${DATA_FILE}"
+                popd
+            fi
+        fi
+    fi
 
     if ! [ -d "$UNITY_BUILD_TOOLS" ]; then
         echo ""

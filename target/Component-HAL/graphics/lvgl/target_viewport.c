@@ -34,6 +34,17 @@
 
 #include <stdio.h>
 #include "globals.h"
+#include "lvgl/src/core/lv_disp.h"
+#include "lvgl/src/core/lv_obj_pos.h"
+#include "lvgl/src/core/lv_refr.h"
+#include "lvgl/src/misc/lv_timer.h"
+#if EHS_LVGL_ESP32_DRIVERS_SUPPORT == 1
+/* Panel driver layer - only compiled in for targets whose graphics.mk builds
+ * lvgl_esp32_drivers (see target/Component-HAL/graphics/lvgl/graphics.mk). */
+#include "lvgl_esp32_drivers/lvgl_tft/disp_driver.h"
+#elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_FT81X
+#error "CONFIG_LV_TFT_DISPLAY_CONTROLLER_FT81X needs the lvgl_esp32_drivers panel layer - set EHS_LVGL_ESP32_DRIVERS_SUPPORT=1"
+#endif
 #define EHS_TARGET_CODE
 
 /*****************************************************************************/
@@ -47,7 +58,8 @@
 #include "graphics.h"
 #include "hal-api.h"
 #include "messages.h"
-#include "keypress.h" 
+#include "keypress.h"
+#include "targetgfx_init.h"
 
 #if EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_GUI
 #include "ehs_hal_gpio.h"
@@ -64,6 +76,15 @@
 #include "target_graphics.h"
 
 #include "target_viewport_style.h"
+
+#if defined(EHS_MACOS)
+/* On macOS, SDL2's Cocoa backend requires NSWindow creation and SDL_PollEvent
+ * to run on the OS main POSIX thread (pthread_main_np()==1).
+ * EhsTV_init() signals g_ehs_macos_lvgl_ready so target_main.c's main() can
+ * call EhsTV_LVGL_gui_thread() directly on the OS main thread. */
+#include <stdatomic.h>
+extern _Atomic int g_ehs_macos_lvgl_ready; /* defined in target_main.c */
+#endif
 
 /*****************************************************************************/
 /* Declare macros and local typedefs used by this file */
@@ -97,7 +118,7 @@ static char* currentFunc;
 #define EHS_LVGL_STATE_CLEAN               0x0010
 #define EHS_LVGL_STATE_DEINIT              0x0020
 
-#define EHS_LVGL_FONT_TABLE_SIZE 50 // (100 / 2)
+#define EHS_LVGL_FONT_TABLE_SIZE 51 // (100 / 2) + 1 - sizes 0..100 step 2 INCLUSIVE
 #define EHS_LVGL_FONT_MIN_SIZE 4 // (8 / 2)
 
 #define EHS_ROLLER_OPTION_SIZE 256
@@ -371,6 +392,7 @@ static const lv_font_t* gLvglFontTable[EHS_LVGL_FONT_TABLE_SIZE] = {    // 21 av
 
 /* Include inx custom symbol fonts */
 static char* gUnescapeUnicodeBuffer[EHS_STRING_LENGTH_MAX] = {0};
+static lv_timer_t *gRefrScrTimer = NULL;
 
 /*****************************************************************************/
 /* Function prototypes */
@@ -380,11 +402,48 @@ void EhsTargetWidgetUi_draw_lvgl(struct EhsWidgetStruct* pWidget);
 void EhsTargetWidgetUi_style(lv_obj_t* obj, struct EhsWidgetStruct* pWidget);
 void EhsTargetWidget_hide(lv_obj_t *obj);
 void EhsTargetWidget_unhide(lv_obj_t *obj);
+void EhsTargetWidget_refr_scr_period_lvgl(ehs_uint32 period_s);
+#if EHS_LVGL_ESP32_DRIVERS_SUPPORT == 1
+void EhsTargetWidgetUi_restart_driver_lvgl();
+#endif
 
 #if EHS_PERIPHERALS_GPIO_SUPPORT == EHS_PERIPHERALS_GPIO_TYPE_GUI
 lv_obj_t* EhsTargetWidget_create_gpio(struct EhsWidgetStruct* pWidget);
 void EhsTargetWidget_update_gpio(struct EhsWidgetStruct* pWidget);
 #endif
+
+static void _EhsRefrScrTimerFunc(lv_timer_t *data)
+{
+    (void) data;
+
+#if defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_FT81X
+    ehs_uint32 _frame = EVE_cmd_frames();
+#endif
+    lv_obj_invalidate(lv_scr_act());
+    lv_refr_now(NULL);
+#if defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_FT81X
+    if (_frame >= (EVE_cmd_frames()))
+    {
+        printf("Frame counters not increasing. Restart display driver.\r\n");
+        EhsTargetWidgetUi_restart_driver_lvgl();
+    }
+#endif
+}
+
+void EhsTargetWidget_refr_scr_period_lvgl(ehs_uint32 period_s)
+{
+    if (gRefrScrTimer != NULL)
+    {
+        lv_timer_del(gRefrScrTimer);
+        gRefrScrTimer = NULL;
+    }
+
+    gRefrScrTimer = lv_timer_create_basic();
+    lv_timer_set_cb(gRefrScrTimer, _EhsRefrScrTimerFunc);
+    lv_timer_set_period(gRefrScrTimer, period_s * 1000);
+    lv_timer_enable(EHS_TRUE);
+    lv_timer_ready(gRefrScrTimer);
+}
 
 static const lv_font_t * Ehs_LVGL_find_font(ehs_uint16 size)
 {
@@ -455,9 +514,9 @@ ehs_bool EhsTargetWidget_lvgl_extract_color(char* text, lv_color_t* color){
     char *p = text;
     while (*p != '\0') {
         if (*p == '\\' && *(p+1) == 'c' &&
-            isxdigit(*(p+2)) && isxdigit(*(p+3)) &&
-            isxdigit(*(p+4)) && isxdigit(*(p+5)) &&
-            isxdigit(*(p+6)) && isxdigit(*(p+7))) {
+            isxdigit((ehs_uint8)*(p+2)) && isxdigit((ehs_uint8)*(p+3)) &&
+            isxdigit((ehs_uint8)*(p+4)) && isxdigit((ehs_uint8)*(p+5)) &&
+            isxdigit((ehs_uint8)*(p+6)) && isxdigit((ehs_uint8)*(p+7))) {
             
             // Extract the R, G, B values
             char hex_r[3] = {*(p+2), *(p+3), '\0'};
@@ -568,7 +627,20 @@ static void EhsTV_LVGL_handle_ui_calls(lv_timer_t* timer)
 
     if(gEhsLvglState & EHS_LVGL_STATE_CLEAN)
     {
+        /* Destroys every object on the active screen, including any embedded
+         * renderer's objects (e.g. the camera canvas) created outside the
+         * widget table. Must take the same lock those renderers are
+         * documented to hold (hal_mv.h) or the two threads race on the
+         * object being torn down mid-render. */
+        EhsTPMutex_lock(EhsTPMutex_viewport);
         lv_obj_clean(lv_scr_act());
+        /* EhsTGfxApp_init() only runs once at boot (called from
+         * EhsApplicationInit(), never from the per-reload reset path), but
+         * this clean runs on every reload. Without also resetting here, the
+         * camera renderer's tracking pointer survives this destroy and the
+         * next frame renders into a dangling lv_obj_t. */
+        EhsTGfxApp_init();
+        EhsTPMutex_unlock(EhsTPMutex_viewport);
         gEhsLvglState = gEhsLvglState & (~EHS_LVGL_STATE_CLEAN);
     }
 }
@@ -595,8 +667,8 @@ EhsThreadFuncReturnType EhsTV_LVGL_gui_thread(void *p)
     if(gEhsLvglState == EHS_LVGL_STATE_INIT)
     {
         EhsTargetWidgetUi_init_lvgl();
-        const ehs_sint32 stackSize = 2048; // tick thread shouldn't need much stack //todo2024 we may want to include the tick function in a more generic "fast loop" thread
-        EhsHThread_execute(EhsTV_LVGL_tick_thread, NULL, EHS_PRI_LVGL_TICK, stackSize);
+        //const ehs_sint32 stackSize = 2048; // tick thread shouldn't need much stack //todo2024 we may want to include the tick function in a more generic "fast loop" thread
+        EhsHThread_execute(EhsTV_LVGL_tick_thread, NULL, EHS_PRI_LVGL_TICK, 2048,"lvgltick"); // todo we might want an overridable #define for this for different targets .screen sizes.
         
         gEhsLvglState = EHS_LVGL_STATE_IDLE;
     }
@@ -766,6 +838,15 @@ void EhsTargetWidgetUi_init_lvgl()
     #endif
 }
 
+#if EHS_LVGL_ESP32_DRIVERS_SUPPORT == 1
+void EhsTargetWidgetUi_restart_driver_lvgl()
+{
+    disp_driver_init();
+    lv_obj_invalidate(lv_scr_act());
+    lv_refr_now(NULL);
+}
+#endif
+
 /* non user dependent parameter initialisation - this is called before any SODL is read*/
 ehs_bool EhsTV_init(EhsTVClass* pViewport)
 {
@@ -779,7 +860,13 @@ ehs_bool EhsTV_init(EhsTVClass* pViewport)
 
     gEhsLvglState = EHS_LVGL_STATE_INIT;
 
-    EhsHThread_execute(EhsTV_LVGL_gui_thread, NULL, EHS_PRI_LVGL_GUI, EHS_THREAD_USE_DEFAULT_STACK_SIZE);
+#if defined(EHS_MACOS)
+    /* macOS: signal target_main.c's main() to call EhsTV_LVGL_gui_thread()
+     * on the OS main POSIX thread (SDL2's Cocoa backend requires this). */
+    atomic_store_explicit(&g_ehs_macos_lvgl_ready, 1, memory_order_release);
+#else
+    EhsHThread_execute(EhsTV_LVGL_gui_thread, NULL, EHS_PRI_LVGL_GUI, EHS_THREAD_USE_DEFAULT_STACK_SIZE,"lvglgui");
+#endif
 
     EhsTargetWidget_lvgl_state_wait(EHS_LVGL_STATE_INIT);
 

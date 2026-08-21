@@ -35,22 +35,45 @@ endif
 
 
 #The following shouldn't be hardwired - we at least should use the base path
-CFLAGS += -I$(EHS_ROOT_PATH)/../ert-contrib-middleware/target_libs/xtensa-esp32s3_freertos-xtensa-esp32s3-elf-5.1/build/include/deprecated
+CFLAGS += -I$(EHS_COMPONENT_SUPPORT_BASE)/target_libs/$(COMPONENT_BASE_TECHNOLOGIES)/build/include/deprecated
 ifndef ESP32S3_DEBUG_BUILD # non-debug - optimise for size
 CFLAGS += -std=gnu17 -Os -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
 ##CFLAGS += -std=gnu17 -Os -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
 CFLAGS += -DNDEBUG
+# Mirror the arch/codegen flags onto C++ compilation. -mlongcalls is essential:
+# without it the C++ compiler emits `call8`, whose ±1MiB reach triggers
+# "dangerous relocation: call8: call target out of range" at link time for
+# ESP32-S3 images beyond that size (e.g. lorawan-rak3112.cpp → libsx126x-arduino).
+# The other flags match the .c rule so .cpp objects land in the same code
+# generation regime (function/data sections, volatile-bitfields, etc.).
+CPPFLAGS += -Os -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
+CPPFLAGS += -DNDEBUG
 else
 CFLAGS += -std=gnu17 -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
 ##CFLAGS += -std=gnu17 -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
+CPPFLAGS += -Og -ggdb -Wno-frame-address -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fno-jump-tables -fno-tree-switch-conversion -Wall
 endif
 CFLAGS += -DESP_PLATFORM -DIDF_VER=\"v5.1.2\" -MMD -MP
+CPPFLAGS += -DESP_PLATFORM -DIDF_VER=\"v5.1.2\" -MMD -MP
+# xtensa GCC 12.2 treats static_assert as a library macro (from <assert.h>), not a keyword; define it explicitly so ESP_STATIC_ASSERT works regardless of include order.
+CFLAGS += -Dstatic_assert=_Static_assert
 CFLAGS += -DUNITY_INCLUDE_CONFIG_H -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DUNITY_INCLUDE_CONFIG_H
 
 CFLAGS += -DSOC_MMU_PAGE_SIZE=CONFIG_MMU_PAGE_SIZE -DUNITY_INCLUDE_CONFIG_H -D_GNU_SOURCE -D_POSIX_READER_WRITER_LOCKS
 
 
-LNKFLAGS += -mlongcalls  -Wl,--cref -Wl,--defsym=IDF_TARGET_ESP32S3=0 -Wl,--Map=$(EHS_ROOT_PATH)/main.map -Wl,--no-warn-rwx-segments -fno-rtti -fno-lto -Wl,--gc-sections -Wl,--warn-common -T esp32s3.peripherals.ld -T esp32s3.rom.ld -T esp32s3.rom.api.ld -T esp32s3.rom.libgcc.ld -T esp32s3.rom.newlib.ld -T esp32s3.rom.version.ld 
+# Archive-group wrap: GNU ld scans static archives left-to-right, one pass each.
+# With the IDF stack's -l flags hard-coded here and user libs (arduino,
+# sx126x-arduino from lorawan rak3112, etc.) appended later via LIB, cross-lib
+# references (e.g. libarduino → rmt_* in libdriver, libarduino → xTimerPendFunctionCallFromISR
+# in libfreertos, libsx126x-arduino → rint in libm) fail to resolve because the
+# provider archive was already scanned before the consumer showed up. Wrapping
+# everything in a group makes ld iterate the archives until fixed-point, which
+# is harmless for the already-correctly-ordered IDF libs and fixes the later
+# additions without requiring per-target -l ordering surgery. Closed at the
+# tail of this file after the gnu_ALL include has appended the LIB -l flags.
+LNKFLAGS += -Wl,--start-group
+LNKFLAGS += -mlongcalls  -Wl,--cref -Wl,--defsym=IDF_TARGET_ESP32S3=0 -Wl,--Map=$(EHS_ROOT_PATH)/main.map -Wl,--no-warn-rwx-segments -fno-rtti -fno-lto -Wl,--gc-sections -Wl,--warn-common -T esp32s3.peripherals.ld -T esp32s3.rom.ld -T esp32s3.rom.api.ld -T esp32s3.rom.libgcc.ld -T esp32s3.rom.newlib.ld -T esp32s3.rom.version.ld
 LNKFLAGS += -T memory.ld -T sections.ld -lxtensa -lesp_ringbuf -lefuse -ldriver -lesp_pm -lmbedtls -lesp_app_format -lbootloader_support -lesp_partition -lapp_update -lesp_mm -lspi_flash  
 LNKFLAGS += -lpthread -lesp_system -lesp_rom -lhal -llog -lheap -lsoc -lesp_hw_support -lfreertos -lnewlib -lcxx -lesp_common -lesp_timer -lapp_trace -lesp_event  
 LNKFLAGS += -lnvs_flash -lesp_phy -lvfs -llwip -lesp_netif -lwpa_supplicant -lbt -lesp_coex -lbtdm_app -lcoexist -lesp_wifi -lunity -lcmock -lconsole -lhttp_parser -lesp-tls -lesp_adc -lesp_eth  
@@ -129,6 +152,10 @@ EXE=elf
 
 # use the usual gcc/clang tool chain config
 include $(EHS_TARGETS_ROOT_PATH)/os-arch/gnu_ALL/toolchain.mk # toolchain is gnu
+
+# Close the archive group opened near the top of this file. Must come AFTER
+# the gnu_ALL include so the $(LIB)-derived -l flags land inside the group.
+LNKFLAGS += -Wl,--end-group
 
 LNKFLAGS+= -Wl,-lc
 

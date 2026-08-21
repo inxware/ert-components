@@ -97,9 +97,12 @@ EhsTPMutexClass EhsTPMutex_MBMaster;
 EhsTPMutexClass EhsTPMutex_subMQTT;
 EhsTPMutexClass EhsTPMutex_pubMQTT;
 
-/** Reference to PID of parent process (not applicable on Zephyr but kept for API compat) */
+/* pid_t not available in Zephyr's picolibc; these variables are unused on MCU targets */
+/* TODO: We should be able to delete these because we are in a Zephyr only file anyway?*/
+#ifndef EHS_ZEPHYR_RTOS
 EHS_GLOBAL pid_t* EhsT_pidParent;
 EHS_GLOBAL pid_t* EhsT_pidTcpIp;
+#endif
 
 /*****************************************************************************/
 /* Function definitions */
@@ -195,9 +198,31 @@ void EhsTPMutex_term(void)
  * Default thread stack size for dynamically spawned threads on Zephyr.
  * Zephyr requires statically allocated stacks. For dynamic thread creation
  * we use a pool of pre-allocated stacks.
+ *
+ * SIZE THIS DELIBERATELY - the pool is stacks x slots of BSS and it is
+ * allocated WHETHER OR NOT the slots are ever used. On a part where
+ * CONFIG_COMMON_LIBC_MALLOC_ARENA_SIZE=-1 (nRF9151), every unused slot is
+ * taken straight out of the malloc arena that EhsTMem_alloc/hal_mem.c hands to
+ * the EHS kernel for SODL parsing and function-block instances - so an
+ * over-generous pool shows up as "**Error: Out of memory" when an app loads,
+ * with nothing to point at the thread pool as the cause.
+ *
+ * The default of 8 x 4096 = 32 KB was fine on parts with RAM to spare. Both
+ * are overridable from a platform config.mk via DEFS. Running out of slots is
+ * handled gracefully (EhsHThread_execute logs and returns EHS_FALSE), so trim
+ * to what the target actually spawns plus a margin. Typical users: the Wi-Fi
+ * station SM, the Lucid console server, and any FB that starts a thread.
+ *
+ * Do not trim the STACK size below 4096 without checking the Wi-Fi station
+ * thread: its scan-result handler puts a 2047-byte ehs_char[EHS_STRING_LENGTH_MAX]
+ * on the stack.
  */
+#ifndef EHS_ZEPHYR_DEFAULT_STACK_SIZE
 #define EHS_ZEPHYR_DEFAULT_STACK_SIZE 4096
+#endif
+#ifndef EHS_ZEPHYR_MAX_DYNAMIC_THREADS
 #define EHS_ZEPHYR_MAX_DYNAMIC_THREADS 8
+#endif
 
 /* Pool of thread stacks and thread structs for dynamic thread creation */
 static K_THREAD_STACK_ARRAY_DEFINE(ehs_thread_stacks, EHS_ZEPHYR_MAX_DYNAMIC_THREADS, EHS_ZEPHYR_DEFAULT_STACK_SIZE);
@@ -238,7 +263,7 @@ static int ehs_alloc_thread_slot(void)
  * @param stackSize Stack size (ignored on Zephyr - uses pool default)
  * @return EHS_TRUE on success, EHS_FALSE on failure
  */
-EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize)
+EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* context, ehs_sint16 priority, ehs_sint32 stackSize, ehs_char * _szThreadname)
 {
     int slot = ehs_alloc_thread_slot();
     if (slot < 0) {
@@ -260,6 +285,21 @@ EHS_GLOBAL ehs_bool EhsHThread_execute(EhsGeneralThreadFuncType pfRun, void* con
                     (k_thread_entry_t)pfRun,
                     context, NULL, NULL,
                     zephyr_prio, 0, K_NO_WAIT);
+
+    /* Name the thread. The caller always passes one and it used to be dropped
+     * on the floor, so every EHS dynamic thread - the Wi-Fi station state
+     * machine, the Lucid console server, any FB thread - was anonymous in a
+     * fault dump: "Current thread: 0x20011a80 (unknown)", which is the one
+     * piece of information you actually need. Needs CONFIG_THREAD_NAME=y (set
+     * in target.mk); without it k_thread_name_set is a harmless no-op. */
+    if (_szThreadname != NULL)
+    {
+        k_thread_name_set(&ehs_thread_data[slot], (const char *)_szThreadname);
+    }
+    else
+    {
+        k_thread_name_set(&ehs_thread_data[slot], "ehs_dyn");
+    }
 
     return EHS_TRUE;
 }
@@ -323,4 +363,11 @@ void EhsTargetReboot(void)
     EHSH_LOG_INFO("Target Rebooting...");
     EhsApplicationReset();
     sys_reboot(SYS_REBOOT_COLD);
+}
+
+ehs_sint32 EhsHProcess_getStackRemaining(void)
+{
+    /* Zephyr has k_thread_stack_space_get() (needs CONFIG_THREAD_STACK_INFO) but it isn't
+     * wired up on this target yet - not implemented rather than guessed. */
+    return -1;
 }

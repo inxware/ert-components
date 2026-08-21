@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <!-- Place the style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html -->
+    <link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+    <link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+  </head>
+  <body>
+    <div class="page_container">
+      <div id="toc_container">
+        <span class="toc_span">Frame Resize</span>
+        <!--these display in reverse order because they use float:right-->
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+      </div>
+
+      <!--General Description-->
+      <p class="component">
+        <strong>Frame Resize</strong> scales a camera frame to a new width and height and
+        writes the result into a new frame buffer. The resized frame can then be passed to
+        downstream blocks such as <em>Frame Crop</em>, <em>Frame Format</em>,
+        <em>Frame Show</em>, or ML inference blocks, exactly like any other frame.
+      </p>
+      <p>
+        The target size is given by <strong>size_x</strong> and <strong>size_y</strong>
+        (pixels). Both can be set as static parameters and/or overridden at runtime via
+        the input ports. The interpolation method used for the scale is fixed per
+        instance by the <strong>Interpolation</strong> parameter.
+      </p>
+      <p>
+        If both <strong>size_x</strong> and <strong>size_y</strong> resolve to zero the
+        block fires <strong>err</strong> with errno <strong>2</strong> (UNUSED) and does
+        not produce a resized frame. This lets you conditionally bypass resizing without
+        disconnecting the block.
+      </p>
+      <p>
+        The block works on frames in any pixel format: default BGR (format&nbsp;0),
+        greyscale 8-bit (format&nbsp;1), normalised 32-bit float single-channel
+        (format&nbsp;2), and normalised 32-bit float three-channel (format&nbsp;3).
+        Connect the output of <em>Frame Format</em> directly to <em>Frame Resize</em>
+        when working with converted frames.
+      </p>
+
+      <!--Parameters-->
+      <div class="section_heading">
+        <span class="toc_span" id="parameters">Parameters</span>
+        <div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+        <div class="toc_span_items"><a href="#errors">Errors &#8595;</a></div>
+        <div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><a name="[Param]size_x">size_x</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Static target width in pixels. Can be overridden at runtime by connecting the
+            <strong>size_x</strong> input port. <code>0</code> (with <strong>size_y</strong>
+            also <code>0</code>) means resizing is unused.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]size_y">size_y</a></td>
+          <td>I</td>
+          <td>0</td>
+          <td>
+            Static target height in pixels. Can be overridden at runtime by connecting the
+            <strong>size_y</strong> input port. <code>0</code> (with <strong>size_x</strong>
+            also <code>0</code>) means resizing is unused.
+          </td>
+        </tr>
+        <tr>
+          <td><a name="[Param]Interpolation">Interpolation</a></td>
+          <td>I</td>
+          <td>1</td>
+          <td>
+            Interpolation method used to scale the frame. Fixed for this block instance —
+            there is no runtime override port.
+            <table class="errno_table">
+              <thead>
+                <tr><th>Value</th><th>Method</th><th>Notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>0</td><td>Nearest</td><td>Fastest; best match for feeding ML inference input tensors.</td></tr>
+                <tr><td>1</td><td>Linear</td><td>Default; good general-purpose quality/speed balance.</td></tr>
+                <tr><td>2</td><td>Cubic</td><td>Best visual quality; more expensive than linear.</td></tr>
+                <tr><td>3</td><td>Area</td><td>Best choice when shrinking a frame (downscaling).</td></tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <!--Ports-->
+      <div class="section_heading">
+        <span class="toc_span" id="ports">Ports</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8595;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <table class="table">
+        <!-- resize -->
+        <tr>
+          <th colspan="3">resize</th>
+        </tr>
+        <tr>
+          <th>In Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[In]run_fmt">run</a></td>
+          <td></td>
+          <td>
+            Triggers the resize operation. Reads the source frame identified by
+            <strong>stream_id</strong>, scales it using the current size values and the
+            <strong>Interpolation</strong> parameter, and stores the result in this
+            block's private frame buffer. Fires <strong>--</strong> on success or
+            <strong>err</strong> on failure.
+          </td>
+        </tr>
+        <tr>
+          <th>Data In</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]frame_id">stream_id</a></td>
+          <td>I</td>
+          <td>
+            Frame slot ID of the source frame to resize. Obtain this from the
+            <strong>stream_id</strong> output of <em>Camera</em>, <em>Frame Crop</em>,
+            <em>Frame Format</em>, or another upstream frame block.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]size_x">size_x</a></td>
+          <td>I</td>
+          <td>
+            Runtime target width override. If connected, this value takes precedence over
+            the <strong>size_x</strong> parameter for this invocation.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[In]size_y">size_y</a></td>
+          <td>I</td>
+          <td>
+            Runtime target height override. If connected, this value takes precedence over
+            the <strong>size_y</strong> parameter for this invocation.
+          </td>
+        </tr>
+        <tr>
+          <th>Out Ev.</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]start_ok">--</a></td>
+          <td></td>
+          <td>Fired when the resize completed successfully. The resized frame is available on <strong>stream_id</strong>.</td>
+        </tr>
+        <tr>
+          <td class="portsEvent"><a name="[Out]start_error">err</a></td>
+          <td></td>
+          <td>
+            Fired when the resize failed or was bypassed. Connect <strong>errno</strong>
+            to determine the reason (see <a href="#errors">Error Codes</a>).
+          </td>
+        </tr>
+        <tr>
+          <th>Data Out</th><th>Type</th><th></th>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]start_errno">errno</a></td>
+          <td>I</td>
+          <td>
+            Error code set after each invocation of <em>resize</em>.
+            <code>0</code> = success. See <a href="#errors">Error Codes</a> below.
+          </td>
+        </tr>
+        <tr>
+          <td class="portsData"><a name="[Out]formated_frame_id">stream_id</a></td>
+          <td>I</td>
+          <td>
+            Frame slot ID of the resized output frame. Only valid after
+            <strong>--</strong> fires. Pass this to downstream blocks
+            (<em>Frame Crop</em>, <em>Frame Show</em>, ML inference, etc.).
+          </td>
+        </tr>
+      </table>
+
+      <!--Error Codes-->
+      <div class="section_heading">
+        <span class="toc_span" id="errors">Error Codes</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <p>
+        The <strong>errno</strong> output port carries one of the following values after
+        each invocation of <em>resize</em>.
+      </p>
+      <table class="table">
+        <tr>
+          <th>Value</th>
+          <th>Name</th>
+          <th>Meaning</th>
+          <th>Common causes &amp; remedies</th>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>OK</td>
+          <td>Resize succeeded.</td>
+          <td>&mdash; <strong>--</strong> event fires.</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>FAILED</td>
+          <td>Resize operation failed.</td>
+          <td>
+            <ul>
+              <li>No valid source frame: the <strong>stream_id</strong> input is not
+                connected or the upstream block has not yet produced a frame.</li>
+              <li>This block's internal frame buffer is not initialised (frame slot
+                allocation failed at startup).</li>
+              <li>The HAL resize function returned an error (e.g. memory allocation
+                failure, or an unsupported combination of size and format).</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>UNUSED</td>
+          <td>Both size_x and size_y resolve to zero — resizing was skipped.</td>
+          <td>
+            Set at least one of <strong>size_x</strong> or <strong>size_y</strong> to a
+            non-zero value, either as a parameter or via a connected input port. If
+            zero-bypass is intentional, ignore this event or connect it to a pass-through
+            path.
+          </td>
+        </tr>
+      </table>
+
+      <!--Miscellaneous-->
+      <div class="section_heading">
+        <span class="toc_span" id="misc">Misc</span>
+        <span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+        <span class="toc_span_items"><a href="#errors">Errors &#8593;</a></span>
+        <span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+        <span class="toc_span_items"><a href="#parameters">Params &#8593;</a></span>
+      </div>
+      <table>
+        <tr class="fsm_row">
+          <td style="width:90px;">
+            <b>State Machine</b>
+          </td>
+          <td colspan="5">
+            (resize)*
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Toolbox</b>
+          </td>
+          <td>
+            Machine Vision &gt; Frame Resize
+          </td>
+          <td class="heading-cell">
+            <b>Version</b>
+          </td>
+          <td>
+            v1.0
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Licence Type</b>
+          </td>
+          <td>
+            LGPLv3
+          </td>
+          <td class="heading-cell">
+            <b>Component Supplier</b>
+          </td>
+          <td>
+            <a href="http://www.inx-systems.net" target="_blank">inx ltd.</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="heading-cell">
+            <b>Minimum DCC</b>
+          </td>
+          <td>A0000</td>
+          <td class="heading-cell">
+            <b>Profiles</b>
+          </td>
+          <td>
+            Linux x86_64, Linux ARM64, Raspberry Pi, Jetson.
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

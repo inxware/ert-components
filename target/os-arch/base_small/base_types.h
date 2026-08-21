@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef EHS_BASE_FULL_TYPES_H
-#define EHS_BASE_FULL_TYPES_H
+#ifndef EHS_BASE_SMALL_TYPES_H
+#define EHS_BASE_SMALL_TYPES_H
 /*lint -e(829) Project permitted derogation from the standard */
 #include <stdio.h>
 

@@ -111,11 +111,14 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
     ehs_uint8 ret = 2;
     ehs_char appdir[EHS_SYS_MAXPATHLENGTH];
     ehs_char appdir_x[EHS_SYS_MAXPATHLENGTH];
+
+    EHSH_LOG_INFO("Swirching app to [%s]", canonicalName);
+
 #if defined(EHS_ANDROID) || defined(EHS_ALWAYS_START_DEFAULT_APP)
     if (EhsStrcmp(canonicalName, EHS_SYS_DEFAULT_APP2RUN) == 0)
     {
         // Android devices always use 'default' app
-        EHSH_LOG_INFO("Always use 'default' app, provided it exists.");
+        EHSH_LOG_INFO("[APPSTORAGE-TRACE] EHS_ANDROID/EHS_ALWAYS_START_DEFAULT_APP: forcing 'default' for [%s]", canonicalName);
         EhsAppMakeLiveDirString(appdir, canonicalName);
         if(EhsTF_exists(appdir))
         {
@@ -123,7 +126,7 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
         }
     }
 #endif
-    /* this checks if download token exists in *_dl directory, then moves it to 
+    /* this checks if download token exists in *_dl directory, then moves it to
      * a live direcory (removes _dl postfix)
      */
     EhsAppMakeDownloadString(appdir_x, canonicalName); /* First check if the download is valid */
@@ -131,47 +134,46 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
     EhsStrcat(appdir_x, EHS_SYS_APP_DOWNLOAD_OK_TOKEN);
     if (EhsTF_exists(appdir_x) > 0)   /* We only do this if there is valid version or the debugger's temp apps*/
     {
-        EHSH_LOG_INFO("Found valid download for %s",canonicalName);
+        EHSH_LOG_WARNING("[APPSTORAGE-TRACE] Found valid DOWNLOAD for [%s] — will promote _dl over live", canonicalName);
         EhsAppMakePreviousDirString(appdir_x, canonicalName); /* Shift Current to previous */
-        //EHSH_LOG_INFO("PBB Removing %s",appdir_x);
+        EHSH_LOG_WARNING("[APPSTORAGE-TRACE] rmdir _prev: %s", appdir_x);
         if (EhsTF_rmdir(appdir_x) == EHS_FALSE)
         {
-            EHSH_LOG_INFO("Can't remove old app version for %s",canonicalName);
+            EHSH_LOG_INFO("[APPSTORAGE-TRACE] rmdir _prev failed (probably did not exist): %s", appdir_x);
             ret = 1; /* can't remove old version */
         }
         /* Demote current to previous */
-        //EhsAppMakeLiveDirString(appdir, canonicalName);
-        //if (EhsHRename(appdir, appdir_x) == EHS_FALSE) {
-        //	EHSH_LOG_WARNING("Can'tbackup current app %s", canonicalName);
-        //	ret = 1;/* Can't backup up current app */
-        //}
         /*Switch download app to live */
         EhsAppMakeLiveDirString(appdir, canonicalName);
 
         if (EhsHRename(appdir, appdir_x) == EHS_FALSE)
         {
-            EHSH_LOG_WARNING("Can't backup current app %s\n to \n%s",appdir,appdir_x);
+            EHSH_LOG_WARNING("[ename live->_prev FAILED — deleting live dir: %s", appdir);
             ret = 1;/* Can't backup up current app */
+        } else { /* We can't make a back up so we delete the current live version*/
+            EHSH_LOG_WARNING("[APPSTORAGE-TRACE] rename live->_prev OK — now rmdir live: %s", appdir);
+            if (EhsTF_rmdir(appdir) == EHS_FALSE) {
+                EHSH_LOG_WARNING("[APPSTORAGE-TRACE] rmdir live failed: %s", appdir);
+                ret = 1;
+            }
         }
-
-        //} else { /* We can't make a back up so we delete the current live version*/
-        //	if (EhsTF_rmdir(appdir) == EHS_FALSE) {
-        //		EHSH_LOG_WARNING("Can't remove current application %s",canonicalName);
-        //		ret = 1;
-        //	}
-        //}
         EhsAppMakeDownloadString(appdir_x, canonicalName);
 
+        EHSH_LOG_WARNING("[APPSTORAGE-TRACE] rename _dl->live: %s -> %s", appdir_x, appdir);
         if (EhsHRename(appdir_x, appdir) == EHS_FALSE)
         {
-            //EHSH_LOG_INFO
+            EHSH_LOG_WARNING("[APPSTORAGE-TRACE] rename _dl->live FAILED (no live app now): %s", appdir);
             ret = 0; /* default to default make download live */
         }
         else
         {
             ret = 2; /* made directory OK - don't need this... */
-            EHSH_LOG_INFO("Set app %s to live\n%s\n->%s",canonicalName,appdir_x,appdir);
+            EHSH_LOG_WARNING("[APPSTORAGE-TRACE] Promoted download for [%s] -> live (%s)", canonicalName, appdir);
         }
+    }
+    else
+    {
+        EHSH_LOG_INFO("No download apps available for [%s]", canonicalName);
     }
     // make sure that we have a valid app, and if not request download of default app
     if(ret > 0){
@@ -179,6 +181,7 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
         EhsStrcat(appdir, EHS_TD_FILES_SEPARATOR_STR );
         EhsStrcat(appdir, EHS_DEFAULT_SODL_NAME );
         if (EhsTF_exists(appdir) == EHS_FALSE) { // check if the app exists
+            EHSH_LOG_WARNING("[APPSTORAGE-TRACE] live SODL missing at %s — falling back to default", appdir);
             ret = 0; // try default
         }
     }
@@ -187,10 +190,11 @@ ehs_uint8 EhsAppCheckAndSwitchDownloadDir(ehs_char * canonicalName)
         EhsStrcat(appdir, EHS_TD_FILES_SEPARATOR_STR );
         EhsStrcat(appdir, EHS_DEFAULT_SODL_NAME );
         if (EhsTF_exists(appdir) == EHS_FALSE) { // check if the app exists
+            EHSH_LOG_WARNING("[APPSTORAGE-TRACE] default SODL missing at %s — requesting devman download", appdir);
             ret = 10; // no app even in the default directy, return download default request if not installed
         }
     }
-    
+
     return ret;
 #else
     return 2;
@@ -247,7 +251,9 @@ ehs_bool EhsAppGetDefaultApp(ehs_char * cDefaultApp)
         ehs_char * s;
         s = cDefaultApp;
         int end = strlen(s) - 1;
-        while (isspace(s[end]) && (end >= 0))
+        /* Guard first: s[end] was read before the bounds test, and end is -1 for an
+         * empty string. Cast for the ctype table lookup. */
+        while ((end >= 0) && isspace((ehs_uint8)s[end]))
         {
             end--;
         }
@@ -314,7 +320,9 @@ ehs_bool EhsAppInitLiveAppDir()
                 ehs_char * s;
                 s = AppCanonical;
                 int end = strlen(s) - 1;
-                while (isspace(s[end]) && (end >= 0))
+                /* Guard first: s[end] was read before the bounds test, and end is -1 for an
+         * empty string. Cast for the ctype table lookup. */
+        while ((end >= 0) && isspace((ehs_uint8)s[end]))
                 {
                     end--;
                 }
@@ -426,6 +434,7 @@ do_rest: /* Finally check of there is a downloaded version  and do switch if so 
         break;
 
     }
+    EHSH_LOG_INFO("App to run [%s]", EhsHMetaAppGetCurrent());
     return EHS_TRUE; // don't need this - EhsTF_cd(appdir); /* we don't return an error if we ran the default rather than requested app */
 #else // else SODL in flash.
     return EHS_TRUE;
@@ -440,52 +449,69 @@ void EhsAppConfirmCurrentApp()
     // ehs_FILE* app2run_FILE;
     EhsStrcpy(appdir,EhsHMetaAppGetCurrent());
     EhsStrcat(appdir,EHS_SYS_APP2RUN_PREVIOUS_FILENAME_POSTFIX);
+    EHSH_LOG_WARNING("[APPSTORAGE-TRACE] EhsAppConfirmCurrentApp: current=[%s] rmdir _prev=%s",
+                     EhsHMetaAppGetCurrent(), appdir);
     Ehs_SysRmdir(appdir); /* todo we may not want to do this so that revert can be used for each app*/
     EhsTF_cd(appdir); /* we don't return an error if we ran the default rather than requested app */
+#endif
+}
+
+/* Deny an app by name — remove its live dir, try to revert to its _prev version,
+ * and return TRUE if a previous version was reinstated. If the denied app was the
+ * live-meta current, the metadata is rolled to the default so the default runs
+ * next. Refuses the default app itself.
+ *
+ * This is the by-name generalisation of EhsAppDenyCurrentApp(). The console 'X'
+ * command, the application_info_getter.deleteApp FB port, and the boot-time
+ * crash-auto-delete path all go through here so the semantics (rm-live + try-
+ * revert-to-prev + roll-current-to-default-on-no-prev) stay identical to what
+ * SetupApplication already uses on SODL parse failure.
+ * */
+ehs_bool EhsAppDenyApp(const ehs_char *app)
+{
+#ifdef INX_SODL_IN_FLASH
+    (void)app;
+    return EHS_TRUE;
+#else
+    if (app == NULL || app[0] == '\0') {
+        return EHS_FALSE;
+    }
+    if (EhsStrcmp(app, EHS_SYS_APP_DEFAULT_NAME) == 0) {
+        EHSH_LOG_WARNING("Unable to remmove default app");
+        return EHS_FALSE;
+    }
+    ehs_char appdir[EHS_SYS_MAXPATHLENGTH];
+    ehs_char old_appdir[EHS_SYS_MAXPATHLENGTH];
+    EhsAppMakePreviousDirString(old_appdir, app);
+    EhsAppMakeLiveDirString(appdir, app);
+    EhsTF_rmdir(appdir); /* Dump this app unconditionally */
+    if (EhsHRename(old_appdir, appdir)) { /* reinstate previous version if it existed */
+        EHSH_LOG_WARNING("Reverted current aoo [%s] from _prev (%s -> %s)", app, old_appdir, appdir);
+        return EHS_TRUE;
+    }
+    /* No previous version — if this was the live-meta current, roll to default. */
+    if (EhsStrcmp(EhsHMetaAppGetCurrent(), app) == 0) {
+        EHSH_LOG_WARNING("No previous version of %s, reverting to default", app);
+        EhsHMetaAppSetCurrent(EHS_SYS_APP_DEFAULT_NAME);
+    }
+    return EHS_FALSE;
 #endif
 }
 
 /* This will try and revive any old versions and remove the failed one.
  * If there is no old one then the default app is configured to run next
  * Returns true if an old version was found, false if it has switched to the default app.
- * It will also repair the default directory path if it is not there.
  * */
 ehs_bool EhsAppDenyCurrentApp()
 {
 #ifdef INX_SODL_IN_FLASH
     return EHS_TRUE;
 #else
-    if (EhsHMetaAppGetCurrent()>0)   // rally souldn't happn unless w have trampled over a structure
-    {
-        if (EhsStrlen(EhsHMetaAppGetCurrent()) > 0 )
-        {
-            ehs_char appdir[EHS_SYS_MAXPATHLENGTH];
-            ehs_char old_appdir[EHS_SYS_MAXPATHLENGTH];
-            EhsAppMakePreviousDirString( old_appdir,EhsHMetaAppGetCurrent());
-            EhsAppMakeLiveDirString( appdir,EhsHMetaAppGetCurrent());
-            EhsTF_rmdir(appdir); /* Dump this app unconditionally */
-            if (EhsHRename(old_appdir,appdir) )   /* reinstate previous version (if it existed).*/
-            {
-                // todo we may want to remove the default application file here?
-                EHSH_LOG_INFO("Reverted Denied App");
-                return EHS_TRUE;
-            }
-            else return EHS_FALSE;
-        }
-        else
-        {
-            return EHS_FALSE;
-
-        }
+    const ehs_char *cur = EhsHMetaAppGetCurrent();
+    if (cur == NULL || *cur == '\0') {
+        EhsHMetaAppSetCurrent(EHS_SYS_APP_DEFAULT_NAME);
+        return EHS_FALSE;
     }
-    //else EHSH_LOG_ERROR("EHS APP DENY TRAMPLED MTATA DATA");
-    /* Nothing to revert to - so set to default app*/
-    //EHSH_LOG_INFO("Reverted to Default app. No version of %s is runnable",EhsHMetaAppGetCurrent());
-    //Ehs_SysRm(EHS_SYS_APP2RUN_FILENAME); /* remove the app2run file to avoid at next start-up*/
-    //EhsTF_rmdir(old_appdir); /* just in case to be tidy */
-    //EhsAppMakeLiveDirString( ,EHS_SYS_APP_DEFAULT_NAME); /* Check we do have a default app dir and create empty if not*/
-    //if (EhsTF_exists(appdir) != 2) EhsTF_mkdir(appdir);
-    EhsHMetaAppSetCurrent(EHS_SYS_APP_DEFAULT_NAME);/* Update internal structure */
-    return EHS_FALSE;
+    return EhsAppDenyApp(cur);
 #endif
 }

@@ -9,7 +9,7 @@ make clean
 
 ./configure $1
 
-make -j 8
+make -j$(nproc)
 
 make targetenv # note does this have a tartenv clean option?? Use it if so
 

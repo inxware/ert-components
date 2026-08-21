@@ -1,5 +1,5 @@
 mqtt_publish_typed
-Publish a typed integer, float, or boolean value to an MQTT topic.
+Publish an integer, float, or boolean to an MQTT topic as ASCII text: 21.75 is s
 Menu: 
             Networking
              > MQTT > MQTT Publish Typed

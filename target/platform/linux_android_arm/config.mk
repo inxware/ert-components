@@ -11,10 +11,12 @@
 # inxware ERT configuration file for linux_android_arm
 # @author: inx limited
 
-#Target Platform Uses
-# This target siimply builds a standard linux version of EHS with android toolchain.
-# It does not manage any events or resources such as graphics, so is unlikely to be useful
-# other than to test compilation of standard code. It would run an exe using sysecec I expect.
+# Base configuration for Play Store and modern-hardware Android ARM deployments.
+# Sets EHS_ANDROID_MIN_SDK=23 (Android 6.0 / Marshmallow) — the minimum required
+# by Google Play for new submissions.
+#
+# For fixed/embedded hardware that may ship with older Android OS images, use
+# linux_android_arm_legacy (minSdkVersion 16) as the parent instead.
 
 
 #################################################################################################################
@@ -109,6 +111,10 @@ EHS_PACKAGER_TYPE=apk
 ## todo make the base scripts export the above...
 #EHS_ANDROID_PACKAGE_SIGNING_PATH=show.online.google.play
 EHS_ANDROID_PACKAGE_SIGNING_PATH=ehs.google.play
+
+# Minimum SDK for Play Store compliance (Android 6.0 / API 23).
+# Set EHS_ANDROID_MIN_SDK=16 in a child config for legacy embedded hardware.
+EHS_ANDROID_MIN_SDK=23
 
 
 #################################################################################################################

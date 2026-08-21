@@ -74,6 +74,10 @@ DEFS += EHS_GST_010
 
 
 # LoRaWAN modem support (WIO-E5 via UART/serial)
-EHS_LORAWAN_SUPPORT=wio_e5
+# Disabled: wio_e5 is a UART-attached module and this target builds no UART
+# HAL, so Component-HAL/lorawan/wio_e5/lorawan_module.mk aborted the parse
+# with "LoRaWAN wio_e5 requires a UART HAL". A desktop .deb target has no
+# LoRaWAN radio to talk to.
+EHS_LORAWAN_SUPPORT=stubbed
 
 ################################### END OF CONFIGURATION ###################################################

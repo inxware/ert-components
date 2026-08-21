@@ -109,4 +109,8 @@ typedef ehs_uint64 EhsTickType;
 /*****************************************************************************/
 /* Declare function prototypes  */
 
+/* Override the generic TRUSTED_CLIENT macro so hot-path callers bypass the
+ * readiness gate in EhsTgtTimer_now() and read the timer register directly. */
+#define EHS_CURRENT_TIME_TRUSTED_CLIENT (EhsTgtTimer_now_trusted())
+
 #endif /* EHS_TARGET_TIME_H */

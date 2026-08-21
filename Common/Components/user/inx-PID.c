@@ -118,6 +118,7 @@ EHS_FB_DESTROY_FUNCTION(PID)
 	ehs_pid_ctrl_type* pid_ctrl = (ehs_pid_ctrl_type*)EHS_FB_DESTROY_CONTEXT;
 	
 	EhsPIDCtrlDestroy(pid_ctrl);
+	return EHS_TRUE; /* destroy functions return ehs_bool */
 }
 //ICB DESTROY FUNCTION MACRO END -- DO NOT ALTER THIS LINE
 //ICB FUNCTION init MACRO START -- DO NOT ALTER

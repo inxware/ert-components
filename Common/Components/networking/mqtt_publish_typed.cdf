@@ -7,7 +7,7 @@
     </CDFInfo>
     <Description>
         <ShortDescription>mqtt_publish_typed</ShortDescription>
-        <LongDescription>Publish a typed integer, float, or boolean value to an MQTT topic.</LongDescription>
+        <LongDescription>Publish an integer, float, or boolean to an MQTT topic as ASCII text: 21.75 is sent as the characters "21.75", not as a binary float. For use with platforms that expect numeric information as strings, such as Blynk, Node-RED and Home Assistant. Not for binary payloads: build those with the raw-data conversion blocks (Data Utilities - String Functions - Raw Data Conversion) and send them with the untyped MQTT Publish block.</LongDescription>
         <UserName/>
         <Menu>
             Networking

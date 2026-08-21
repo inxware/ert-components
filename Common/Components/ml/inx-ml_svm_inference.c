@@ -193,7 +193,7 @@ EHS_FB_RUN_FUNCTION(ml_svm_inference_do_inference)
 
 	if (EHS_FB_OUT_CONNECTED_API2(INX_ml_svm_inference_ARG_do_inference_output))
 	{
-		EhsSnprintf(EHS_FB_OUT_S_API2(INX_ml_svm_inference_ARG_do_inference_output), EHS_STRING_LENGTH_MAX, "%f", prediction);
+		EhsSnprintf(EHS_FB_OUT_S_API2(INX_ml_svm_inference_ARG_do_inference_output), EHS_FB_OUT_S_CAP_API2(INX_ml_svm_inference_ARG_do_inference_output), "%f", prediction);
 	}
 
 	EHS_FB_FINISH(INX_ml_svm_inference_ARG_do_inference_done_inference);

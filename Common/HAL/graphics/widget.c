@@ -490,9 +490,12 @@ void EhsWidget_move(EhsWidgetClass* pWidget, EhsDataflowIntType nX, EhsDataflowI
                 * That depends if we have an overlap
                 */
                 /*This should use the proper if statement but it leaves artifacts for some reason so just force two updates*/
-                if (EhsGraphicsRectangle_overlap(&(pWidget->xCurRect),&xOldPos)) /* this function needs to be made more choosy*/
+                /* Copy out of the packed struct: &pWidget->xCurRect may be unaligned, which
+                 * faults on targets that require aligned loads (e.g. Xtensa). */
+                EhsGraphicsRectangleClass xCurCopy = pWidget->xCurRect;
+                if (EhsGraphicsRectangle_overlap(&xCurCopy,&xOldPos)) /* this function needs to be made more choosy*/
                 {
-                    EhsGraphicsRectangle_union(&xOldPos,&(pWidget->xCurRect),&xOldPos);
+                    EhsGraphicsRectangle_union(&xOldPos,&xCurCopy,&xOldPos);
                     EhsTV_updateRect(&EhsTV, xOldPos.nLeft, xOldPos.nTop, xOldPos.nWidth, xOldPos.nHeight); /* this might be faster if we passed in a rect reference */
                 }
                 else
@@ -550,7 +553,8 @@ void EhsWidget_draw(EhsWidgetClass* pWidget, EhsTVClass* pViewport, EhsGraphicsR
 
         if (EHS_WIDGET_STATE_SHOWN(pWidget->nState))
         {
-            if (EhsGraphicsRectangle_overlap(&(pWidget->xCurRect), pClipRect))
+            EhsGraphicsRectangleClass xCurCopy = pWidget->xCurRect; /* packed member - copy before taking its address */
+            if (EhsGraphicsRectangle_overlap(&xCurCopy, pClipRect))
             {
                 /* only display widgets if there is an overlap between the clip rectangle and the bounding rectangle for the widget */
                 pWidget->pfDrawFunc(pWidget, pViewport, pClipRect);
@@ -923,7 +927,10 @@ void EhsWidget_resizeWidgetToMaintainAspectRatio(EhsWidgetClass* pWidget)  //, c
     //dWHsrc = (ehs_float)pWidget->MediaRect.nWidth/(ehs_float)pWidget->MediaRect.nHeight;
 
 
-    EhsGraphicsRectangle_proportionalScale(&xDstRect,&(pWidget->xCurRect)/*&(pWidget->xDesignRect)*/,&(pWidget->MediaRect));
+    /* Both members are in a packed struct - copy before taking their addresses. */
+    EhsGraphicsRectangleClass xCurCopy = pWidget->xCurRect;
+    __typeof__(pWidget->MediaRect) xMediaCopy = pWidget->MediaRect; /* type differs Mode A vs Mode B */
+    EhsGraphicsRectangle_proportionalScale(&xDstRect,&xCurCopy/*&(pWidget->xDesignRect)*/,&xMediaCopy);
     pWidget->xOrigRect.nHeight = xDstRect.nHeight;
     pWidget->xOrigRect.nWidth = xDstRect.nWidth;
     pWidget->xOrigRect.nTop = xDstRect.nTop;

@@ -692,9 +692,9 @@ EHS_FB_INIT_FUNCTION(DevmanPlayer)
     pDevmanPlayer->CurrentURLindex=-2; /*Start Looking at the input port URL */
     pDevmanPlayer->nHTTPReturnNo=0;
     /* set the static defaults - maybe overwritten by persistane user configs */
-    pBuff = EhsGetWordFromString(pDevmanPlayer->szUrl, pBuff); //We will read in the default value the app requests and use this if nothing else comes along.
+    pBuff = EhsGetWordFromString(pDevmanPlayer->szUrl, pBuff, sizeof(pDevmanPlayer->szUrl)); //We will read in the default value the app requests and use this if nothing else comes along.
     EhsStrcpy(pDevmanPlayer->szUrl_parameter, pDevmanPlayer->szUrl); //Make a copy in case we want to revert
-    pBuff = EhsGetWordFromString(pDevmanPlayer->szLocalMediaPath, pBuff); //@todo this paramter is not currently used and shoud not be written into this place!! is not the playlist URL this is the local path
+    pBuff = EhsGetWordFromString(pDevmanPlayer->szLocalMediaPath, pBuff, sizeof(pDevmanPlayer->szLocalMediaPath)); //@todo this paramter is not currently used and shoud not be written into this place!! is not the playlist URL this is the local path
     pBuff = EhsGetUint16FromString(&pDevmanPlayer->iPingPeriod, pBuff);
 
     /* If this is the first run then create the directories for any updates */
@@ -763,7 +763,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_start_checking)
     EhsTPMutex_lock(EhsTPMutex_devmanPlayerData);
 
     LoadStateFromFile(pDevmanPlayer); /* called unconditionally - for the case where start on it is not set: todo - we might want a different flag to separate loading media data from persistance on any start type */
-    EhsStrcpy(EHS_FB_OUT_S(0), pDevmanPlayer->szUrl);
+    EHS_FB_OUT_S_SET(0, pDevmanPlayer->szUrl);
     EhsTPMutex_unlock(EhsTPMutex_devmanPlayerData);
 
     EHS_FB_FINISH(PORT_FINISH_START);
@@ -816,7 +816,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_change_url)
     	}
     */
     EhsTPMutex_unlock(EhsTPMutex_devmanPlayerData);
-    EhsStrcpy(EHS_FB_OUT_S(0), pDevmanPlayer->szUrl);
+    EHS_FB_OUT_S_SET(0, pDevmanPlayer->szUrl);
     EHS_FB_FINISH(PORT_FINISH_CHANGE);
 }
 
@@ -952,7 +952,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_pass_thru_get_next)
         EhsNode* node = list->back;
         if((node->data_size + 1) < EHS_STRING_LENGTH_MAX)
         {
-            EhsStrncpy(EHS_FB_OUT_S(0),node->data,node->data_size);
+            EHS_FB_OUT_S_SETN(0, node->data, node->data_size);
             (EHS_FB_OUT_S(0))[node->data_size]='\0';
             EHS_FB_FINISH(1);
         }
@@ -1090,7 +1090,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                 			"ERROR: Cant Write to configs/devman-player/url.cfg\n");
                 			*/
                 /* ouput to environments */
-                EhsStrcpy(EHS_FB_OUT_S(11), pDevmanPlayer->szUrl);
+                EHS_FB_OUT_S_SET(11, pDevmanPlayer->szUrl);
                 EHS_FB_FINISH(9); // Set the Set Url Complete
             }
         }
@@ -1098,7 +1098,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
         {
             if (0 == getAttributeValue("playlist=", zTempStr2, pTempStr))
             {
-                EhsStrncpy(EHS_FB_OUT_S(2), pTempStr, EHS_STRING_LENGTH_MAX);
+                EHS_FB_OUT_S_SET(2, pTempStr);
                 EHS_FB_FINISH(2);
             }
         }
@@ -1123,7 +1123,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                 /* Override is not persistent - If needed the logic of undoing override needs to be defined (e.g. stop overriding on any  next new Playlist).
                  }
                  */
-                EhsStrncpy(EHS_FB_OUT_S(3), pTempStr, EHS_STRING_LENGTH_MAX);
+                EHS_FB_OUT_S_SET(3, pTempStr);
                 EHS_FB_FINISH(5);
             }
         }
@@ -1155,7 +1155,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                     EhsFprintf(file, "%s\n", pDevmanPlayer->jsonPlayerParameters); //@tdp this shoud be fired by start of it is active
                     EhsFclose(file);
                 }
-                EhsStrcpy(EHS_FB_OUT_S(4),pDevmanPlayer->jsonPlayerParameters);
+                EHS_FB_OUT_S_SET(4, pDevmanPlayer->jsonPlayerParameters);
                 bSome = 1;
             }
         }
@@ -1185,7 +1185,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
             	EhsFclose(file);
             }
             */
-            EhsStrcpy(EHS_FB_OUT_S(4),pDevmanPlayer->jsonPlayerParameters);
+            EHS_FB_OUT_S_SET(4, pDevmanPlayer->jsonPlayerParameters);
 
 	   bSome = 1;
             //bPlayerParmsChanged=EHS_TRUE;
@@ -1214,7 +1214,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
                         EhsNode* node = list->back;
                         if((node->data_size + 1) < EHS_STRING_LENGTH_MAX)
                         {
-                            EhsStrncpy(EHS_FB_OUT_S(12),node->data,node->data_size);
+                            EHS_FB_OUT_S_SETN(12, node->data, node->data_size);
                             (EHS_FB_OUT_S(12))[node->data_size]='\0';
                             EHS_FB_FINISH(11);
                         }
@@ -1254,17 +1254,16 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
     {
         if (EhsStrlen(pDevmanPlayer->szMediaSrcUrl) > 0)
         {
-            EhsStrncpy(EHS_FB_OUT_S(1), pDevmanPlayer->szMediaSrcUrl,
-                       EHS_STRING_LENGTH_MAX);
-            EhsStrncpy(EHS_FB_OUT_S(8), EhsGetPathFromURL(pDevmanPlayer->szMediaSrcUrl,0), EHS_STRING_LENGTH_MAX);
+            EHS_FB_OUT_S_SET(1, pDevmanPlayer->szMediaSrcUrl);
+            EHS_FB_OUT_S_SET(8, EhsGetPathFromURL(pDevmanPlayer->szMediaSrcUrl,0));
         }
         else
         {
-            EhsStrcpy(EHS_FB_OUT_S(1), "");
-            EhsStrcpy(EHS_FB_OUT_S(8), "");
+            EHS_FB_OUT_S_SET(1, "");
+            EHS_FB_OUT_S_SET(8, "");
         }
-        EhsStrncpy(EHS_FB_OUT_S(0), pDevmanPlayer->szPlaylistURL,EHS_STRING_LENGTH_MAX);
-        EhsStrncpy(EHS_FB_OUT_S(9), pDevmanPlayer->szPlaylistFile,EHS_STRING_LENGTH_MAX);
+        EHS_FB_OUT_S_SET(0, pDevmanPlayer->szPlaylistURL);
+        EHS_FB_OUT_S_SET(9, pDevmanPlayer->szPlaylistFile);
 
         /* and all the other static parameters - note we might be doing these twice, but we don't care? @todo do we care?*/
         if (nNewPlaylistFromDevMan)
@@ -1303,7 +1302,7 @@ EHS_FB_RUN_FUNCTION(DevmanPlayer_out)
     //@todo this crashes when the app is stopped and started again with iab specially when run under GDB.
     if (pDevmanPlayer->szXml)
     {
-        EhsStrncpy(EHS_FB_OUT_S(10), pDevmanPlayer->szXml, EHS_STRING_LENGTH_MAX); // ouptut some debug
+        EHS_FB_OUT_S_SET(10, pDevmanPlayer->szXml); // ouptut some debug
         (EHS_FB_OUT_S(10))[EHS_STRING_LENGTH_MAX - 2] = '\0';
 
         if ((EhsStrcmp(pDevmanPlayer->szXml, "ERROR_INTERNAL1") == 0)

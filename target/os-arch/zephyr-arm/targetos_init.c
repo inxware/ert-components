@@ -47,12 +47,72 @@
 /* Function definitions */
 
 /**
+ * Allocate the backing store for the Lucid console's ring buffers.
+ *
+ * EhsConsoleQueueType holds a POINTER (xQueue) rather than an inline array, and
+ * neither EhsConsoleQueue_reset() nor the bsdsockets EhsTCommsSys_init() ever
+ * allocates it - every target does this itself in its own targetos_init.c
+ * (esp32/esp32s3, nxp-redlib, arduino, qnx all have the identical block). Miss
+ * it and the console dereferences NULL the first time the queue is measured:
+ * EhsConsoleQueue_push() happens to guard against a NULL queue, but
+ * EhsConsoleQueue_length()/_space() do not. Nothing catches this at build time.
+ */
+#ifdef EHS_DEBUG_TCPIP_CONSOLE
+    #include "console_queue.h"
+    #include "target_mem.h"
+
+    extern EhsConsoleQueueType EhsTgtConsoleInputQueue;
+    extern EhsConsoleQueueType EhsTgtConsoleOutputQueue;
+
+    static void EhsTOS_ConsoleQueue_init(void)
+    {
+        /* MUST be idempotent. Unlike the other targets, this port calls
+         * EhsTOsSys_init() twice: once from main() at boot (so the Wi-Fi HAL
+         * has mutexes before the kernel exists) and again from hal.c's
+         * EhsHSys_init(). Allocating unconditionally would leak the first pair
+         * of buffers and swap them out from under a console server that may
+         * already hold the old pointers. */
+        if (EhsTgtConsoleInputQueue.xQueue != NULL && EhsTgtConsoleOutputQueue.xQueue != NULL)
+        {
+            return;
+        }
+
+        /* EhsTMem_alloc is plain malloc here, so this is safe on the early
+         * call too - it does not depend on EhsHMem_init() having run. */
+        if (EhsTgtConsoleInputQueue.xQueue == NULL)
+        {
+            EhsTgtConsoleInputQueue.xQueue  = (ehs_uint8*)EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+        }
+        if (EhsTgtConsoleOutputQueue.xQueue == NULL)
+        {
+            EhsTgtConsoleOutputQueue.xQueue = (ehs_uint8*)EhsTMem_alloc(EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+        }
+
+        if (EhsTgtConsoleInputQueue.xQueue == NULL || EhsTgtConsoleOutputQueue.xQueue == NULL)
+        {
+            /* Out of heap. Say so rather than faulting later inside the console
+             * server thread, where the backtrace points at the queue code and
+             * not at the real cause. */
+            EHSH_LOG_ERROR("Console queue allocation failed (%d bytes x2) - "
+                           "the Lucid console will not work",
+                           (int)EHS_DEBUG_CONSOLE_BUFFER_SIZE);
+        }
+    }
+#else
+    static void EhsTOS_ConsoleQueue_init(void)
+    {
+    }
+#endif /* EHS_DEBUG_TCPIP_CONSOLE */
+
+/**
  * Perform necessary Operating system setup upon system initialisation.
  * Initialises mutexes and any Zephyr-specific subsystems.
  */
 EHS_GLOBAL void EhsTOsSys_init(void)
 {
     EhsTPMutex_init();
+
+    EhsTOS_ConsoleQueue_init();
 
     /* TODO: Add Zephyr-specific init here:
      * - NVS / settings subsystem init

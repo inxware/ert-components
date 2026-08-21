@@ -321,6 +321,8 @@ ehs_bool EhsCameraFrameDrawBBox(EhsCameraFrame *frame,
  * ------------------------------------------------------------------------- */
 
 static EhsCamEmbeddedRendererFn s_renderer = NULL;
+static EhsCamEmbeddedRendererReleaseFn s_renderer_release = NULL;
 
-void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn) { s_renderer = fn; }
+void EhsCameraFrameRegisterEmbeddedRenderer(EhsCamEmbeddedRendererFn fn, EhsCamEmbeddedRendererReleaseFn releaseFn) { s_renderer = fn; s_renderer_release = releaseFn; }
 EhsCamEmbeddedRendererFn EhsCameraFrameGetEmbeddedRenderer(void) { return s_renderer; }
+EhsCamEmbeddedRendererReleaseFn EhsCameraFrameGetEmbeddedRendererRelease(void) { return s_renderer_release; }

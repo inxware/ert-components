@@ -19,7 +19,7 @@
 
 #define EHS_TARGET_CODE
 
-// #define EHSL_MODULE_ID (EHSH_LOG_MODULE_HAL_NETWORK) /* define before hal_logger.h */
+#define EHSL_MODULE_ID EHSH_LOG_MODULE_HAL_CONSOLE /* define before hal_logger.h */
 #include "globals.h"
 #include "hal_logger.h"
 
@@ -91,6 +91,88 @@ EHS_LOCAL EhsTgtTcpSocketType EhsSvcTcpSocketListen;
  * Socket used for the main connection between EHS and its client
  */
 EHS_LOCAL EhsTgtTcpSocketType EhsSvcTcpSocketConnection;
+
+/**
+ * Whether the idle-timeout close below is compiled in at all. Off by default: we still don't
+ * know Lucid's real idle-ping/reconnect behaviour, and there is no reliable way to key this
+ * off *sent* data instead (see EhsSvcTcp_tLastRecvActivity's comment - a send into a dead
+ * socket can keep appearing to succeed), so until that's known this stays an opt-in per
+ * target: DEFS += EHS_TGT_TCP_IDLE_TIMEOUT_ENABLE=yes.
+ */
+#ifdef EHS_TGT_TCP_IDLE_TIMEOUT_ENABLE
+/**
+ * Ticks (EHS_CURRENT_TIME) of the last data actually received from the client. Used to
+ * detect a zombied connection - a client that crashed/lost network without a clean FIN/RST
+ * leaves this socket looking connected indefinitely; nothing here will notice until a
+ * send() eventually fails, which depends on the underlying TCP stack's own retransmission
+ * timeout (observed ~2 minutes on lwIP) - far slower than needed, and blocks
+ * EhsSvcTcp_waitForClient from ever running again in the meantime, so no new client (Lucid
+ * reconnecting, or another debugger) can attach either.
+ *
+ * Deliberately keyed off RECEIVED data, not sent data: a send() into a dead socket can keep
+ * "succeeding" (buffered locally) for a while before the peer's absence is ever detected,
+ * so treating a successful send as proof of life would under-detect a dead peer - it would
+ * re-introduce the exact multi-minute-plus blind spot this feature exists to close, since
+ * ert's own console output keeps flowing out (and appearing to succeed) whether or not
+ * Lucid is still there to read it. Received data is the reliable signal - and per the
+ * reported protocol behaviour, a live client is expected to ping periodically even when
+ * otherwise idle, so an extended silence really does indicate the connection is gone rather
+ * than merely quiet.
+ *
+ * Type is EhsTickType (matches EHS_CURRENT_TIME's actual return type), NOT ehs_uint32 -
+ * EhsTickType is 64-bit on this target (esp32s3_freertos-xtensa/target_time.h) and several
+ * others (esp32, zephyr-arm, xcore, arduino). Storing into a 32-bit variable truncated every
+ * assignment and made the elapsed-time computation below wrap incorrectly after ~71 minutes
+ * of uptime (2^32 us) regardless of the configured timeout.
+ */
+EHS_LOCAL EhsTickType EhsSvcTcp_tLastRecvActivity;
+
+/**
+ * How long a connection may go without receiving anything before it's treated as dead and
+ * closed, freeing the slot for a new client. Independent of the underlying TCP stack's own
+ * retransmission-based dead-peer detection - see EhsSvcTcp_tLastRecvActivity's comment.
+ *
+ * 8 hours is a deliberately conservative default: we do not know Lucid's actual idle ping
+ * interval or whether it detects a dropped connection and reconnects on its own, so this
+ * errs heavily toward never false-positive-disconnecting a live-but-quiet session. Retune
+ * once Lucid's real keepalive behaviour is known - a value around 2-3x its actual ping
+ * interval is the usual rule of thumb once that's known. Written as an explicit EhsTickType
+ * expression (not a plain integer literal) so the multiplication happens in the same width
+ * as EhsTickType on every target rather than overflowing in `int` arithmetic first; on a
+ * target where EhsTickType is 32-bit (see the type list on EhsSvcTcp_tLastRecvActivity above)
+ * the maximum representable microsecond delta is ~71 minutes (2^32 us) regardless of what
+ * this is set to - EHS_TGT_TCP_IDLE_TIMEOUT_ENABLE should stay off there until this is
+ * ported to a wider unit for those targets.
+ */
+#ifndef EHS_TGT_TCP_IDLE_TIMEOUT_us
+#define EHS_TGT_TCP_IDLE_TIMEOUT_us ((EhsTickType)8u * 60u * 60u * 1000000u) /* 8 hours */
+#endif
+
+#endif /* EHS_TGT_TCP_IDLE_TIMEOUT_ENABLE */
+
+/**
+ * True if the last character of the last packet received was ESC. File-scope (rather than
+ * function-static inside EhsSvcTcp_expandEscapes) so EhsSvcTcp_resetSessionState can clear it
+ * between client sessions - otherwise a client that crashes/disconnects mid-escape-sequence
+ * leaves this set, and the next client's first byte is silently misinterpreted.
+ */
+EHS_LOCAL ehs_bool bLastCharEsc = EHS_FALSE;
+
+/**
+ * Connection-lifecycle logging ("DBGCON: listening/accept-failed/no-client/connected/
+ * disconnected"). Off by default - confirmed by real device testing that these calls'
+ * EhsSnprintf/ESP_LOGx cascade contribute enough stack depth to overflow
+ * EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE=2048 even with EHS_STACK_MONITORING_ENABLED's
+ * low-stack check active (that check only guards its own call site, not the rest of the
+ * thread - see the porting guide's "Stack-aware logging" section). Re-enable with
+ * DEFS += EHS_DBGCON_LIFECYCLE_LOG=yes, and bump EHS_DEBUG_CONSOLE_THREAD_STACK_SIZE back
+ * up (4096 previously) if you do.
+ */
+#ifdef EHS_DBGCON_LIFECYCLE_LOG
+#define EHS_DBGCON_LOG(msg) EHSH_LOG_INFO(msg)
+#else
+#define EHS_DBGCON_LOG(msg) ((void)0)
+#endif
 
 /*****************************************************************************/
 /* Provide configurable logging support */
@@ -314,12 +396,14 @@ ehs_bool EhsSvcTcp_waitForClient()
     // ehs_uint8 retVal;
 
     EhsSvcTcp_log("***Waiting for client\n");
+    EHS_DBGCON_LOG("DBGCON: listening, slot free");
     EhsSvcTcpSocketConnection = EHS_TGT_TCP_INVALID_SOCKET;
     while (EhsSvcTcpSocketConnection == EHS_TGT_TCP_INVALID_SOCKET)
     {
         EhsSvcTcpSocketConnection = accept(EhsSvcTcpSocketListen, NULL, NULL);
         if (EhsSvcTcpSocketConnection == EHS_TGT_TCP_INVALID_SOCKET)
         {
+            EHS_DBGCON_LOG("DBGCON: accept failed");
             EhsSvcTcp_logSocketError("EhsSvcTcp_waitForClient.accept (ignoring)", EhsTgtTcp_getErrorCode(EHS_TRUE));
             return EHS_FALSE;
         }
@@ -349,8 +433,6 @@ ehs_bool EhsSvcTcp_waitForClient()
 // We shouls also write up what the format is in a doc as it is a tool API too.
 ehs_uint32 EhsSvcTcp_expandEscapes(ehs_uint8 *pData, ehs_uint32 nSize, ehs_bool *pbDisconnect)
 {
-    static ehs_bool bLastCharEsc = EHS_FALSE; /* true if the last character of the last packet was 'ESC' */
-    /**@todo handle unlikely situation where last packet received ended with ESC, and then we lost the connection */
     ehs_uint32 nCount = 0u;
     while (nCount < nSize)
     {
@@ -412,15 +494,42 @@ ehs_uint32 EhsSvcTcp_expandEscapes(ehs_uint8 *pData, ehs_uint32 nSize, ehs_bool 
  */
 ehs_bool EhsSvcTcp_receive(void)
 {
-    ehs_uint8 bBuffIn[EHS_TGT_TCP_IN_BUFF_SIZE]; /* buffer for incoming data */
+    /* Static, not stack-local: EhsSvcTcp_receive only ever runs on the single dedicated
+     * console server thread (EhsSvcTcp_server's own loop), called sequentially - never
+     * concurrently, never re-entrantly. Moving this off the stack removes EHS_TGT_TCP_IN_
+     * BUFF_SIZE bytes from that thread's stack footprint, which matters on targets sizing
+     * that thread as small as 2048 bytes. */
+    static ehs_uint8 bBuffIn[EHS_TGT_TCP_IN_BUFF_SIZE]; /* buffer for incoming data */
     ehs_sint32 nDataReceived;
     /* amount of data received by TCP/IP */
     ehs_uint8 *pData = bBuffIn;
     ehs_bool bDisconnect = EHS_FALSE; /* assume we want to stay connected */
     nDataReceived = EhsTgtTcp_recvNonblock(EhsSvcTcpSocketConnection, pData, EHS_TGT_TCP_IN_BUFF_SIZE);
+#ifdef EHS_CONSOLE_QUEUE_STATS
+    /* Logged every call (0-byte polls included), not just when data arrived - see the
+     * matching comment in EhsSvcTcp_send() for why: a "log on non-zero only" line can't
+     * tell "nothing arrived" apart from "the loop stopped ticking". Skipped only for the
+     * error-sentinel case, which is already logged separately below. */
+    if (nDataReceived != EHS_TGT_TCP_SOCKET_ERROR)
+    {
+        /* Mirrors the CQ pop/send lines in EhsSvcTcp_send() for the input side. recv() is
+         * capped at EHS_TGT_TCP_IN_BUFF_SIZE (128 here) the same way the output side is
+         * capped at EHS_TGT_TCP_OUT_BUFF_SIZE - both are ert's own compile-time chunk sizes,
+         * not anything the far end (Lucid) controls. EHS_CONSOLE_QUEUE_STATS_SKIP_ZERO quiets
+         * the n=0 idle-poll case specifically, same as in EhsSvcTcp_send(). */
+#ifdef EHS_CONSOLE_QUEUE_STATS_SKIP_ZERO
+        if (nDataReceived > 0)
+#endif
+        {
+            EHSH_LOG_INFO("CQ recv +%d bytes (cap=%u)", nDataReceived, (unsigned int)EHS_TGT_TCP_IN_BUFF_SIZE);
+        }
+    }
+#endif
     if (nDataReceived > 0) /* did we receive data? */
     {
-
+#ifdef EHS_TGT_TCP_IDLE_TIMEOUT_ENABLE
+        EhsSvcTcp_tLastRecvActivity = EHS_CURRENT_TIME; /* see its doc comment for why recv, not send */
+#endif
         // do this in the queue pop/push - EhsConsole_buffer_empty = EHS_FALSE; //stop any further reads until this is set back to true.Assuming single threaded write so no mutexing.
         nDataReceived = (ehs_sint32)EhsSvcTcp_expandEscapes(pData, (ehs_uint32)nDataReceived, &bDisconnect);
         if (bDisconnect)
@@ -462,7 +571,7 @@ ehs_bool EhsSvcTcp_receive(void)
     }
     else if (nDataReceived == EHS_TGT_TCP_SOCKET_ERROR)
     {
-        // PBB 2022-04-14 in my testing nDataReceive==-1 and EhsTgtTcp_getErrorCode(EHS_TRUE)==11
+        // nDataReceive==-1 and EhsTgtTcp_getErrorCode(EHS_TRUE)==11
         // indicates the other side has disconnected so we should disconnect as well
         // if(EhsTgtTcp_getErrorCode(EHS_TRUE) != EHS_TGT_TCP_ERR_AGAIN)
         //{
@@ -479,7 +588,7 @@ ehs_bool EhsSvcTcp_receive(void)
         /* we didn't receive anything, but it's ok */
         bDisconnect = EHS_FALSE;
 #ifdef EHS_LWIP
-        EhsSleepUs(10000);
+        EhsSleepUs(EHS_TGT_TCP_SUSPENDTIME_us); /* Free up some more CPU time for other threads  */
 #endif
     }
 
@@ -491,46 +600,142 @@ ehs_bool EhsSvcTcp_receive(void)
  *
  * @return true if we remain connected to the target
  */
+/**
+ * Hard cap on how many pop/send chunks EhsSvcTcp_send drains in a single call. Draining
+ * to empty (instead of one chunk per polling tick) is bounded by this rather than left
+ * unbounded, so a producer that never stops feeding the queue can't starve this thread's
+ * own recv()/orphan-check turn - see EhsSvcTcp_send's doc comment.
+ */
+#ifndef EHS_TGT_TCP_SEND_DRAIN_MAX
+#define EHS_TGT_TCP_SEND_DRAIN_MAX 10u
+#endif
+
+/**
+ * Hard cap on how many times EhsSvcTcp_send retries a single short send() before giving up
+ * and logging a loss - see the retry loop's comment in EhsSvcTcp_send.
+ */
+#ifndef EHS_TGT_TCP_SEND_RETRY_MAX
+#define EHS_TGT_TCP_SEND_RETRY_MAX 10u
+#endif
+
+/**
+ * Send data from EHS to the target.
+ *
+ * Drains the output queue in a loop (up to EHS_TGT_TCP_SEND_DRAIN_MAX chunks) rather than
+ * one EHS_TGT_TCP_OUT_BUFF_SIZE chunk per call - a backlog bigger than one chunk used to
+ * have to wait for the next ~20-30ms polling tick per remaining chunk, during which new
+ * pushes were rejected even though the CPU was otherwise idle. With the ring at 256 bytes
+ * and the chunk at 128, a fully-full queue only ever needs 2 iterations to empty, so the
+ * cap above is generous headroom against a producer still pushing while this drains, not
+ * a limit expected to bind in normal operation.
+ *
+ * @return true if we remain connected to the target
+ */
 ehs_bool EhsSvcTcp_send()
 {
     ehs_bool bConnected = EHS_TRUE; /* assume that we stay connected */
     if (EhsTgtConsoleOutputQueueRef != NULL)
     {
-        /* do we have any data to send? */
-        if (!EhsConsoleQueue_isEmpty(EhsTgtConsoleOutputQueueRef))
-        {
-            ehs_uint8 bBuffOut[EHS_TGT_TCP_OUT_BUFF_SIZE];
-            ehs_sint32 nDataSize;
+        /* Static, not stack-local - same reasoning as bBuffIn in EhsSvcTcp_receive:
+         * this function only ever runs on the single dedicated console server thread. */
+        static ehs_uint8 bBuffOut[EHS_TGT_TCP_OUT_BUFF_SIZE];
+        ehs_uint32 nDrainIterations = 0u;
+        ehs_bool bMore = EHS_TRUE;
 
-            /* send one bufferful of data. This prevents EHS from monopolising a conversation. */
-            // EHSH_LOG_INFO("QPop: in = %d, out = %d", EhsTgtConsoleOutputQueueRef->uInIdx, EhsTgtConsoleOutputQueueRef->uOutIdx);
+        while (bMore && bConnected && (nDrainIterations < EHS_TGT_TCP_SEND_DRAIN_MAX))
+        {
+            ehs_sint32 nDataSize;
+            nDrainIterations++;
+#ifdef EHS_CONSOLE_QUEUE_STATS
+            /* Snapshot BEFORE the pop - length()/space() are documented hints only (no
+             * mutex), but that's fine here: this is diagnostic visibility, not a decision. */
+            ehs_uint32 nBeforeLen = EhsConsoleQueue_length(EhsTgtConsoleOutputQueueRef);
+#endif
+
+            /* Unconditional now - EhsConsoleQueue_pop is a safe no-op (returns 0) on an empty
+             * queue. On the FIRST iteration this also logs the n=0 idle-poll case (see the
+             * comment this replaced) so cadence stays visible even when nothing was queued;
+             * on later iterations within the same call, n=0 just means the drain is done. */
             nDataSize = (ehs_sint32)EhsConsoleQueue_pop(EhsTgtConsoleOutputQueueRef, bBuffOut, EHS_TGT_TCP_OUT_BUFF_SIZE);
-            EhsSvcTcp_log("***Sent %d bytes\n", nDataSize);
-            // printf("***Sent %d bytes\n", nDataSize);
-            EhsSvcTcp_logBinaryData((const ehs_uint8 *)bBuffOut, (ehs_uint32)nDataSize);
-            // bBuffOut[nDataSize] = '\0';
-            /***** send bBuff to TCP/IP ****/
-            if (EhsSvcTcpSocketConnection)
+#ifdef EHS_CONSOLE_QUEUE_STATS
+            /* EhsConsoleQueue_pop is purely byte-oriented - it has no concept of the record
+             * boundaries EhsConsoleQueue_pushRecord enforced at push time, and is bounded by
+             * EHS_TGT_TCP_OUT_BUFF_SIZE per call, not by whatever was pushed as one record.
+             * A record therefore routinely spans more than one pop/send() here; that's normal
+             * for a TCP byte stream and relies on Lucid's wire framing to reassemble it, not
+             * on send() boundaries. before=/-N/left= together show occupancy going in, how
+             * much drained, and occupancy coming out - every iteration, not just non-empty
+             * ones, unless EHS_CONSOLE_QUEUE_STATS_SKIP_ZERO is defined to quiet the n=0
+             * idle-poll lines specifically while keeping everything else. */
+#ifdef EHS_CONSOLE_QUEUE_STATS_SKIP_ZERO
+            if (nDataSize > 0)
+#endif
             {
-                if (EHS_TGT_TCP_SOCKET_ERROR == send((EhsTgtTcpSocketType)EhsSvcTcpSocketConnection, (const ehs_char *)bBuffOut, (ehs_sint32)nDataSize, (ehs_sint32)0))
+                EHSH_LOG_INFO("CQ pop queue=%p before=%u/%u -%d bytes: left=%u/%u", (void*)EhsTgtConsoleOutputQueueRef,
+                              nBeforeLen, EhsConsoleQueue_maxSize(), nDataSize,
+                              EhsConsoleQueue_length(EhsTgtConsoleOutputQueueRef), EhsConsoleQueue_maxSize());
+            }
+#endif
+            if (nDataSize > 0)
+            {
+                EhsSvcTcp_log("***Sent %d bytes\n", nDataSize);
+                // printf("***Sent %d bytes\n", nDataSize);
+                EhsSvcTcp_logBinaryData((const ehs_uint8 *)bBuffOut, (ehs_uint32)nDataSize);
+                // bBuffOut[nDataSize] = '\0';
+                /***** send bBuff to TCP/IP ****/
+                if (EhsSvcTcpSocketConnection)
                 {
-                    EhsSvcTcp_logSocketError("EhsSvcTcp_send.send", EhsTgtTcp_getErrorCode(EHS_TRUE));
-                    bConnected = EHS_FALSE;
+                    /* send() can legally return fewer bytes than requested even on a blocking
+                     * socket. Retry with the remainder rather than dropping it - the bytes
+                     * were already popped off the queue above, so failing to retry here would
+                     * be silent, permanent data loss on every short write, not just on a real
+                     * error. Bounded (not an unconditional while-true) so a socket that
+                     * pathologically keeps returning 0 with no error can't hang this thread
+                     * forever - mirrors the EHS_TGT_TCP_SEND_DRAIN_MAX bound above. */
+                    ehs_sint32 nTotalSent = 0;
+                    ehs_uint32 nRetries = 0u;
+                    while ((nTotalSent < nDataSize) && (nRetries < EHS_TGT_TCP_SEND_RETRY_MAX))
+                    {
+                        ehs_sint32 nSent = (ehs_sint32)send((EhsTgtTcpSocketType)EhsSvcTcpSocketConnection,
+                                                            (const ehs_char *)(bBuffOut + nTotalSent),
+                                                            (ehs_sint32)(nDataSize - nTotalSent), (ehs_sint32)0);
+                        if (EHS_TGT_TCP_SOCKET_ERROR == nSent)
+                        {
+                            EhsSvcTcp_logSocketError("EhsSvcTcp_send.send", EhsTgtTcp_getErrorCode(EHS_TRUE));
+                            bConnected = EHS_FALSE;
+                            break;
+                        }
+                        nTotalSent += nSent;
+                        nRetries++;
+#ifdef EHS_CONSOLE_QUEUE_STATS
+                        if (nSent > 0)
+                        {
+                            EHSH_LOG_INFO("CQ send wrote %d/%d bytes to socket (retry %u)", nSent, nDataSize, nRetries);
+                        }
+#endif
+                    }
+                    if (bConnected && (nTotalSent < nDataSize))
+                    {
+                        /* Only reachable by exhausting EHS_TGT_TCP_SEND_RETRY_MAX without a
+                         * real socket error - i.e. send() kept returning short with no error,
+                         * which is the pathological case the retry loop can't fix on its own. */
+                        EHSH_LOG_ERROR("EhsSvcTcp_send.send SHORT WRITE after %u retries: wrote %d of %d bytes - %d bytes lost",
+                                      nRetries, nTotalSent, nDataSize, nDataSize - nTotalSent);
+                    }
                 }
                 else
                 {
-                    // printf("PBB console_server:497 %d\n",nDataSize);
+                    EHSH_LOG_ERROR("EhsSvcTcpSocketConnection is NULL");
+                    bConnected = EHS_FALSE;
                 }
+                /* Keep draining only if there's still more queued - re-check rather than
+                 * assume, since a concurrent producer could have added more since the pop. */
+                bMore = !EhsConsoleQueue_isEmpty(EhsTgtConsoleOutputQueueRef);
             }
             else
             {
-                EHSH_LOG_ERROR("EhsSvcTcpSocketConnection is NULL");
-                bConnected = EHS_FALSE;
+                bMore = EHS_FALSE; /* nothing was queued (or nothing left) - stop draining */
             }
-        }
-        else
-        {
-            // printf("PBB 506 queue is empty\n");
         }
     }
     else
@@ -539,6 +744,24 @@ ehs_bool EhsSvcTcp_send()
         bConnected = EHS_FALSE;
     }
     return bConnected;
+}
+
+/**
+ * Clear all per-session state so a crashed or abnormally-disconnected client can never
+ * corrupt or wedge the session with the next client that connects: resets the escape-parse
+ * state and empties both console queues of any partial data left over from the last session.
+ */
+EHS_LOCAL void EhsSvcTcp_resetSessionState(void)
+{
+    bLastCharEsc = EHS_FALSE;
+    if (EhsTgtConsoleInputQueueRef)
+    {
+        EhsConsoleQueue_reset(EhsTgtConsoleInputQueueRef);
+    }
+    if (EhsTgtConsoleOutputQueueRef)
+    {
+        EhsConsoleQueue_reset(EhsTgtConsoleOutputQueueRef);
+    }
 }
 
 /**
@@ -582,13 +805,16 @@ EhsThreadFuncReturnType EhsSvcTcp_server(void *pData)
         /* tcpip initialisation */
         ehs_bool ClientConnected = EHS_TRUE;
         ehs_uint32 TestUsageCount = 0u;
+        EhsSvcTcp_resetSessionState(); /* start each session clean of any state left by the previous client */
         //printf("SS 3\n");
         if (EhsSvcTcp_waitForClient() == EHS_FALSE)
         {
+            EHS_DBGCON_LOG("DBGCON: no client obtained");
             failCount++;
             if (failCount > 10)
             {
                 EHSH_LOG_ERROR("Exiting debug listening socket");
+//                printf("Exiting debug listening socket\n");
                 break; /* Block until we get a client or bail if we get something nasty*/
             }
             else
@@ -597,13 +823,17 @@ EhsThreadFuncReturnType EhsSvcTcp_server(void *pData)
                 continue;
             }
         }
+        EHS_DBGCON_LOG("DBGCON: client connected, slot BUSY");
         failCount = 0;
+#ifdef EHS_TGT_TCP_IDLE_TIMEOUT_ENABLE
+        EhsSvcTcp_tLastRecvActivity = EHS_CURRENT_TIME; /* fresh baseline for this session */
+#endif
         EhsSvcTcp_log("***Client connected\n");
         //printf("ClientConnected = %d\n", ClientConnected);
         while (ClientConnected) /*shunt data in and out of client and detect if we close somehow */
         {
             TestUsageCount++;
-
+            //printf("OOOOOOOOOOOOOOOOOOOOOOOOO1\n");
             // todo2022 is there a way to compare vlues in preprocessor?
             // #if (EHS_TGT_TCP_IN_BUFF_SIZE > (EHS_DEBUG_CONSOLE_BUFFER_SIZE - EHS_FILE_BUFF_SIZE )) // we eill assume the EHS_FILE_BUFF_SIZE is always bigger that what need to red the next command.
             // #error "Your console queue size is smaller than the socket buffer + space for maximum remaining data from previous reads ()"
@@ -633,17 +863,41 @@ EhsThreadFuncReturnType EhsSvcTcp_server(void *pData)
 #endif
             if (ClientConnected)
             {
+                //printf("Client connected\n");
                 ClientConnected = EhsSvcTcp_send();
             }
 
+#ifdef EHS_TGT_TCP_IDLE_TIMEOUT_ENABLE
+            if (ClientConnected && ((EHS_CURRENT_TIME - EhsSvcTcp_tLastRecvActivity) >= EHS_TGT_TCP_IDLE_TIMEOUT_us))
+            {
+                /* Nothing received for EHS_TGT_TCP_IDLE_TIMEOUT_us - likely a client that
+                 * crashed or lost network without a clean FIN/RST. Close proactively rather
+                 * than wait on the TCP stack's own retransmission-based detection (minutes),
+                 * which would otherwise block waitForClient() from accepting a new client (or
+                 * the same one reconnecting) for that whole time. See
+                 * EhsSvcTcp_tLastRecvActivity's doc comment. */
+                EHSH_LOG_ERROR("EhsSvcTcp_server: idle timeout (no data received for >=%llu us) - closing possibly-dead connection",
+                              (unsigned long long)EHS_TGT_TCP_IDLE_TIMEOUT_us);
+                ClientConnected = EHS_FALSE;
+            }
+#endif
+
             if (EhsTgtProcess_isOrphan()) /* todo this needs implementing */
             {
+ //               printf("bother\n");
                 EhsSvcTgtTcp_closeConnection(EhsSvcTcpSocketConnection);
                 init = EHS_FALSE;
                 break;
             }
         }
-        init = EhsSvcTgtTcp_closeConnection(EhsSvcTcpSocketConnection);
+        if (!EhsSvcTgtTcp_closeConnection(EhsSvcTcpSocketConnection))
+        {
+            /* Log only - a low-level close() failure (e.g. already-invalid socket) must not stop
+             * us accepting the next client; conflating it with the accept-loop's continue
+             * condition used to kill the whole console server thread with no recovery. */
+            EHSH_LOG_ERROR("EhsSvcTcp_server: closeConnection failed, continuing to accept clients");
+        }
+        EHS_DBGCON_LOG("DBGCON: client disconnected, slot released");
         EhsSvcTcp_log("UsageCount %d\n", TestUsageCount);
         //printf("UsageCount closed %d\n", TestUsageCount);
     }

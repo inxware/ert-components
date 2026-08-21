@@ -1,0 +1,515 @@
+#!/usr/bin/env python3
+"""
+zephyr_cmake_gen.py
+===================
+Generates a Zephyr CMake application directory from the eRT make variable
+dump produced by 'make zephyr_cmake_gen'.
+
+Separation of concerns
+-----------------------
+ALL source-file resolution and variable expansion is performed by make before
+this script runs.  The Makefile recipe:
+  1. Processes the full include chain (platform/config.mk, components.mk,
+     ehs.mk, HAL.mk, ...) to build up OBJECTS, INC_DIRS, DEFS, VPATH, etc.
+  2. Uses $(wildcard) + VPATH to resolve OBJECTS → actual source file paths,
+     stored in ERT_ZEPHYR_SOURCES.
+  3. Writes all fully-resolved values to make_vars.env via $(file ...).
+
+This script's only job is to read that file and format the data into the
+files that Zephyr's CMake build system expects.  It performs no path
+searching and does not emulate any make logic.
+
+Inputs (make_vars.env written by the Makefile recipe)
+------------------------------------------------------
+  EHS_ROOT_PATH        Absolute path to ert-components on the build host.
+  TARGET               Current make TARGET name.
+  EHS_PLATFORM_PATH    Path to the current platform config dir (abs or rel).
+  ERT_ZEPHYR_BASE_PLATFORM
+                       Optional. Name of a base platform directory under
+                       target/platform/ whose zephyr/boards/ and
+                       zephyr/pm_static.yml are used as defaults, overridden
+                       file-by-file by this platform's own. Lets a
+                       base+variants family share DTS overlays and the
+                       partition layout instead of duplicating them.
+  ERT_ZEPHYR_SOURCES   Space-separated list of source file paths already
+                       resolved by make via VPATH wildcard search.
+                       Paths are relative to EHS_ROOT_PATH.
+  INC_DIRS             Space-separated include directories (rel or abs).
+  DEFS                 Space-separated preprocessor definitions (KEY[=VAL]).
+  ERT_ZEPHYR_BOARD     Zephyr board identifier (documented in output only).
+  ERT_ZEPHYR_KCONFIG   Space-separated CONFIG_KEY=value tokens for prj.conf.
+
+Outputs (written to --output directory)
+----------------------------------------
+  CMakeLists.txt   Zephyr application cmake referencing all resolved sources.
+  prj.conf         Kconfig configuration derived from ERT_ZEPHYR_KCONFIG.
+  boards/          Overlay and .conf files copied from platform zephyr/boards/.
+
+Path convention in CMakeLists.txt
+----------------------------------
+Source files and relative include dirs are expressed as ${EHS_ROOT}/path so
+the generated file is host-path-independent.  The caller passes
+-DEHS_ROOT=<abs-path> to west build / cmake.
+"""
+
+import argparse
+import os
+import re
+import shutil
+import sys
+from pathlib import Path
+
+
+# ---------------------------------------------------------------------------
+# Parsing
+# ---------------------------------------------------------------------------
+
+def parse_vars_file(path: Path) -> dict:
+    """Parse the KEY=VALUE file written by the Makefile $(file ...) calls.
+    Splits only on the first '=' so values containing '=' (e.g. DEFS entries
+    like FOO=1) are preserved intact."""
+    result = {}
+    with path.open() as f:
+        for line in f:
+            line = line.rstrip('\n')
+            if not line or line.startswith('#'):
+                continue
+            key, _, value = line.partition('=')
+            result[key.strip()] = value
+    return result
+
+
+def split_tokens(s: str) -> list:
+    """Split a space-separated make variable value, dropping empty strings."""
+    return [t for t in s.split() if t]
+
+
+# ---------------------------------------------------------------------------
+# Include-directory filtering
+# ---------------------------------------------------------------------------
+
+def classify_inc_dirs(inc_dirs: list, ehs_root: Path) -> tuple:
+    """Split include dirs into two lists:
+      - rel_dirs: paths within EHS_ROOT, returned as root-relative strings.
+      - abs_dirs: absolute paths outside EHS_ROOT (logged; written as-is).
+    """
+    rel_dirs = []
+    abs_dirs = []
+    for entry in inc_dirs:
+        p = Path(entry)
+        if p.is_absolute():
+            try:
+                rel = p.relative_to(ehs_root)
+                rel_dirs.append(str(rel).replace('\\', '/'))
+            except ValueError:
+                print(f"INFO: include dir outside EHS_ROOT (written as absolute, "
+                      f"verify it exists in the build environment): {entry}",
+                      file=sys.stderr)
+                abs_dirs.append(entry)
+        else:
+            # Already relative — pass through as-is
+            rel_dirs.append(entry.replace('\\', '/'))
+    return rel_dirs, abs_dirs
+
+
+# ---------------------------------------------------------------------------
+# CMakeLists.txt generation
+# ---------------------------------------------------------------------------
+
+CMAKELISTS_HEADER = """\
+# CMakeLists.txt — AUTO-GENERATED by scripts/zephyr_cmake_gen.py
+# DO NOT EDIT BY HAND.  Regenerate with:  make zephyr_cmake_gen
+#
+# EHS_ROOT must be the absolute path to ert-components inside the build
+# environment.  Pass it to west build / cmake, e.g.:
+#   west build -b {board} -d build app/ -- -DEHS_ROOT=/inxware/ert-components
+#
+cmake_minimum_required(VERSION 3.20.0)
+
+# EHS_ROOT normally arrives as -DEHS_ROOT= on the west build command line. Under
+# sysbuild (MCUboot multi-image) the top-level -D is NOT forwarded to this app
+# sub-image, so fall back to the EHS_ROOT environment variable that
+# zephyr_build.sh exports (inherited by every sysbuild sub-cmake).
+if(NOT DEFINED EHS_ROOT AND DEFINED ENV{{EHS_ROOT}})
+    set(EHS_ROOT $ENV{{EHS_ROOT}})
+endif()
+if(NOT DEFINED EHS_ROOT)
+    message(FATAL_ERROR
+        "EHS_ROOT is not defined.\\n"
+        "Pass it via: cmake ... -DEHS_ROOT=/path/to/ert-components")
+endif()
+
+find_package(Zephyr REQUIRED HINTS $ENV{{ZEPHYR_BASE}})
+project(ehs-{target})
+
+"""
+
+
+def write_cmakelists(output_dir: Path, target: str, board: str,
+                     sources: list, rel_inc: list, abs_inc: list,
+                     defs: list, ehs_root: Path, toolbox_hashes_raw: str = '',
+                     gnu_os_arch: str = '', sodl_version: str = '',
+                     monolithic_kernel: str = ''):
+    out = output_dir / 'CMakeLists.txt'
+    lines = [CMAKELISTS_HEADER.format(board=board, target=target)]
+
+    # Source files — make resolves absolute paths via VPATH wildcard.
+    # Convert paths inside EHS_ROOT to ${EHS_ROOT}/relative so the generated
+    # CMakeLists.txt is portable (host vs Docker mount at different prefixes).
+    lines.append('# --- eRT source files (resolved by make VPATH search) ---\n')
+    lines.append('target_sources(app PRIVATE\n')
+    for src in sources:
+        p = Path(src)
+        if p.is_absolute():
+            try:
+                rel = p.relative_to(ehs_root)
+                lines.append(f'    ${{EHS_ROOT}}/{str(rel).replace(chr(92), "/")}\n')
+            except ValueError:
+                # Outside EHS_ROOT — use as-is (warn, may break in Docker)
+                print(f"INFO: source file outside EHS_ROOT (written as absolute, "
+                      f"may not be accessible in Docker): {src}", file=sys.stderr)
+                lines.append(f'    {src}\n')
+        else:
+            lines.append(f'    ${{EHS_ROOT}}/{src}\n')
+    lines.append(')\n\n')
+
+    # Include directories
+    lines.append('# --- eRT include directories ---\n')
+    lines.append('target_include_directories(app PRIVATE\n')
+    for d in rel_inc:
+        lines.append(f'    ${{EHS_ROOT}}/{d}\n')
+    for d in abs_inc:
+        lines.append(f'    {d}\n')
+    lines.append(')\n\n')
+
+    # Compile definitions
+    # make DEFS can contain shell-quoted and backslash-escaped tokens that need
+    # translation for CMake's target_compile_definitions syntax:
+    #   - 'KEY="value with \x20 spaces"' → "KEY=\"value with  spaces\""
+    #   - Bare quote fragments (e.g. "\" from a split pair) — skipped
+    #   - EHS_TOOLBOX_HASHES is handled separately via toolbox_hashes_raw
+    lines.append('# --- eRT preprocessor definitions ---\n')
+    lines.append('target_compile_definitions(app PRIVATE\n')
+
+    # EHS_TOOLBOX_HASHES: written as a dedicated make_vars.env line to preserve
+    # spaces in the value.  Emit the properly-formed CMake define here, and
+    # suppress the broken split fragments in the DEFS loop below.
+    if toolbox_hashes_raw.strip():
+        h = toolbox_hashes_raw.strip()
+        # The raw value is e.g. '"0x583cfb49 "' (literal double-quotes included).
+        # Strip surrounding literal double-quotes to get the bare hash string.
+        if h.startswith('"') and h.endswith('"') and len(h) > 1:
+            h = h[1:-1]
+        # Emit: "EHS_TOOLBOX_HASHES=\"<value>\""
+        lines.append(f'    "EHS_TOOLBOX_HASHES=\\"{h}\\""\n')
+
+    skip_next = False
+    for d in defs:
+        if skip_next:
+            skip_next = False
+            lines.append(f'    # SKIPPED (continuation fragment): {d}\n')
+            continue
+
+        # EHS_TOOLBOX_HASHES is emitted separately above; skip split fragments here.
+        if d.startswith('EHS_TOOLBOX_HASHES') and toolbox_hashes_raw.strip():
+            continue
+
+        if d.startswith("'") and d.endswith("'") and len(d) > 1:
+            # Shell-quoted token: strip outer single quotes, translate \x20 → space,
+            # strip inner backslash-escaping of double quotes, then re-emit with
+            # CMake double-quote wrapping.
+            inner = d[1:-1]
+            inner = inner.replace('\\x20', ' ')
+            inner = inner.replace('\\"', '"')
+            # CMake escapes: backslash and double-quote need escaping inside "..."
+            inner_cmake = inner.replace('\\', '\\\\').replace('"', '\\"')
+            lines.append(f'    "{inner_cmake}"\n')
+        elif d.startswith("'"):
+            # Unclosed shell-quote — spans multiple split tokens; skip with comment.
+            lines.append(f'    # SKIPPED (unclosed shell-quote, add manually): {d}\n')
+        elif d.startswith('"') or (not re.match(r'^[A-Za-z_][A-Za-z0-9_]', d)):
+            lines.append(f'    # SKIPPED (not a valid define token): {d}\n')
+        elif '\\"' in d:
+            # Backslash-escaped inner quotes — strip escaping and check balance.
+            # If the value has an odd number of double-quotes the token was split
+            # by make on a space inside the string value; skip it.
+            inner = d.replace('\\"', '"')
+            val_part = inner.split('=', 1)[1] if '=' in inner else ''
+            if val_part.count('"') % 2 != 0 or '""' in val_part:
+                lines.append(f'    # SKIPPED (split string value, add manually): {d}\n')
+            else:
+                inner_cmake = inner.replace('\\', '\\\\').replace('"', '\\"')
+                lines.append(f'    "{inner_cmake}"\n')
+        elif ' ' in d:
+            lines.append(f'    # SKIPPED (contains spaces, add manually): {d}\n')
+        else:
+            lines.append(f'    {d}\n')
+    lines.append(')\n')
+
+    # Kernel library — linked when EHS_BUILD_MONOLITHIC_KERNEL is set in config.mk.
+    # The pre-built library lives in ert-build-support at a path keyed by EHS_GNU_OS_ARCH.
+    # EHS_BUILD_SUPPORT is passed to west build by zephyr_build.sh so the path works
+    # both inside Docker (/inxware/ert-build-support) and natively.
+    if monolithic_kernel.strip() and gnu_os_arch.strip():
+        lib_name = 'ehs_ehrt1' if sodl_version.strip() == '1' else 'ehs'
+        lines.append('\n# --- eRT kernel library (pre-built by EHS-kernel) ---\n')
+        # Under sysbuild the top-level -DEHS_BUILD_SUPPORT is not forwarded to
+        # this app sub-image; fall back to the env var zephyr_build.sh exports.
+        lines.append('if(NOT DEFINED EHS_BUILD_SUPPORT AND DEFINED ENV{EHS_BUILD_SUPPORT})\n')
+        lines.append('    set(EHS_BUILD_SUPPORT $ENV{EHS_BUILD_SUPPORT})\n')
+        lines.append('endif()\n')
+        lines.append('if(NOT DEFINED EHS_BUILD_SUPPORT)\n')
+        lines.append('    message(FATAL_ERROR\n')
+        lines.append('        "EHS_BUILD_SUPPORT is not defined.\\n"\n')
+        lines.append('        "Pass it via: cmake ... -DEHS_BUILD_SUPPORT=/path/to/ert-build-support")\n')
+        lines.append('endif()\n')
+        lines.append(
+            f'set(EHS_KERNEL_LIB '
+            f'"${{EHS_BUILD_SUPPORT}}/support_libs/target_libs/{gnu_os_arch}/kernel/lib{lib_name}.a")\n'
+        )
+        lines.append('if(NOT EXISTS "${EHS_KERNEL_LIB}")\n')
+        lines.append('    message(FATAL_ERROR\n')
+        lines.append(f'        "eRT kernel library not found: ${{EHS_KERNEL_LIB}}\\n"\n')
+        lines.append(f'        "Build EHS-kernel for zephyr_arm_cortexm33_ehrt1 first:\\n"\n')
+        lines.append(f'        "  cd ../EHS-kernel && ./configure zephyr_arm_cortexm33_ehrt1 && make all_docker")\n')
+        lines.append('endif()\n')
+        # Link the pre-built kernel library.
+        #
+        # PUBLIC propagates libehs_ehrt1.a to the final zephyr_pre0.elf link
+        # via CMake's transitive link resolution.
+        #
+        # Why --start-group / --end-group:
+        # libehs_ehrt1.a has intra-archive circular dependencies (ehs_main.o ↔
+        # fid.o, app_data.o, etc.) that a single-pass archive scan cannot resolve.
+        # --start-group/--end-group tells the linker to rescan the group until
+        # no new symbols are resolved, breaking those cycles.
+        #
+        # Why NOT --whole-archive:
+        # --whole-archive/--no-whole-archive suffer from CMake flag deduplication:
+        # Zephyr's toolchain_ld_link_elf already emits one --no-whole-archive
+        # (before libkernel.a), so CMake deduplicates our closing --no-whole-archive
+        # away.  This leaves the subsequent libisr_tables.a and picolibc libc.a
+        # (pulled in by -specs=picolibc.specs) inside an unclosed --whole-archive,
+        # causing hundreds of duplicate-symbol errors.
+        # --start-group/--end-group are unique in the Zephyr link and survive CMake.
+        #
+        # z_impl_k_mutex_lock / z_impl_k_mutex_unlock cross-archive dependency:
+        # EHS-kernel objects reference these symbols directly (see EHS-kernel
+        # target_process.h).  target_process.c (in libapp.a) calls the inline
+        # Zephyr k_mutex_lock wrapper which resolves to z_impl_k_mutex_lock, so
+        # libkernel.a is already scanned and mutex.c.obj pulled in BEFORE the
+        # --start-group.  The group therefore sees z_impl_k_mutex_lock as already
+        # defined.  No need to include libkernel.a inside the group.
+        lines.append(
+            'target_link_libraries(app PUBLIC\n'
+            '    -Wl,--start-group "${EHS_KERNEL_LIB}" -Wl,--end-group)\n'
+        )
+        lines.append('message(STATUS "eRT kernel: ${EHS_KERNEL_LIB}")\n')
+
+    out.write_text(''.join(lines))
+    print(f"Written: {out}")
+
+
+# ---------------------------------------------------------------------------
+# prj.conf generation
+# ---------------------------------------------------------------------------
+
+def write_prj_conf(output_dir: Path, kconfig_tokens: list):
+    out = output_dir / 'prj.conf'
+    lines = [
+        '# prj.conf — AUTO-GENERATED by scripts/zephyr_cmake_gen.py\n',
+        '# DO NOT EDIT BY HAND.  Regenerate with:  make zephyr_cmake_gen\n',
+        '# Board-specific Kconfig overrides live in boards/<board>.conf\n',
+        '\n',
+    ]
+    for token in kconfig_tokens:
+        lines.append(token + '\n')
+    out.write_text(''.join(lines))
+    print(f"Written: {out}")
+
+
+# ---------------------------------------------------------------------------
+# sysbuild.conf generation
+# ---------------------------------------------------------------------------
+
+def write_sysbuild_conf(output_dir: Path, sysbuild_kconfig_tokens: list):
+    """sysbuild has its own Kconfig namespace (SB_CONFIG_*), entirely separate
+    from the per-image prj.conf - e.g. SB_CONFIG_WIFI_NRF70 controls a
+    sysbuild-level Kconfig.wifi menuconfig that defaults to n and, if left
+    unset, gets merged into the app image's .config *after* prj.conf, silently
+    overriding any CONFIG_WIFI_NRF70=y request there. Only written when there
+    are tokens, so targets that don't need sysbuild-level config don't get an
+    empty file CMake would otherwise still pick up."""
+    if not sysbuild_kconfig_tokens:
+        return
+    out = output_dir / 'sysbuild.conf'
+    lines = [
+        '# sysbuild.conf — AUTO-GENERATED by scripts/zephyr_cmake_gen.py\n',
+        '# DO NOT EDIT BY HAND.  Regenerate with:  make zephyr_cmake_gen\n',
+        '# sysbuild-level Kconfig (SB_CONFIG_*) - a separate namespace from\n'
+        '# prj.conf; see ERT_ZEPHYR_SYSBUILD_KCONFIG in the platform config.mk.\n',
+        '\n',
+    ]
+    for token in sysbuild_kconfig_tokens:
+        lines.append(token + '\n')
+    out.write_text(''.join(lines))
+    print(f"Written: {out}")
+
+
+# ---------------------------------------------------------------------------
+# Board overlay / conf copy
+# ---------------------------------------------------------------------------
+
+def _asset_search_path(platform_path: Path, base_platform_path):
+    """Ordered list of platform dirs to take Zephyr assets from, least specific
+    first, so a variant's own file overwrites the base's.
+
+    config.mk inherits by `include` and target_config.h by relative `#include`,
+    but the Zephyr asset files (boards/*.overlay, boards/*.conf, pm_static.yml)
+    have no such mechanism — they were copied from the active platform dir and
+    nowhere else. That forced every variant in a base+variants family to
+    restate the whole set, which is exactly the copy-paste drift the .mk
+    inheritance exists to prevent, on the two files where staleness is hardest
+    to spot (a wrong DTS alias, a partition layout that no longer matches).
+
+    ERT_ZEPHYR_BASE_PLATFORM in the variant's config.mk names the base; assets
+    are then layered base-then-variant."""
+    paths = []
+    if base_platform_path is not None:
+        paths.append(base_platform_path)
+    paths.append(platform_path)
+    return paths
+
+
+def copy_board_files(platform_path: Path, output_dir: Path, base_platform_path=None):
+    """Copy boards/*.overlay / *.conf / *.cmake into output_dir/boards/.
+
+    Layered: the base platform's files are copied first, then the variant's own
+    overwrite them by name. A variant may therefore override one .conf without
+    restating the .overlay it shares with its siblings."""
+    dest = output_dir / 'boards'
+    copied_any = False
+
+    for src_platform in _asset_search_path(platform_path, base_platform_path):
+        src = src_platform / 'zephyr' / 'boards'
+        if not src.is_dir():
+            continue
+        dest.mkdir(parents=True, exist_ok=True)
+        for f in sorted(src.iterdir()):
+            if f.suffix in ('.overlay', '.conf', '.cmake'):
+                overriding = (dest / f.name).exists()
+                shutil.copy2(f, dest / f.name)
+                print(f"Copied: {dest / f.name}"
+                      f"{'  (variant overrides base)' if overriding else ''}")
+                copied_any = True
+
+    if not copied_any:
+        print(f"INFO: no boards/ files found for {platform_path} — skipping overlay copy",
+              file=sys.stderr)
+
+
+def copy_pm_static(platform_path: Path, output_dir: Path, base_platform_path=None):
+    """Copy zephyr/pm_static.yml (NCS partition-manager static layout) into the
+    app dir root, where the sysbuild partition manager looks for it. Optional —
+    absent for targets that use the board default layout.
+
+    Layered like copy_board_files(): the variant's own file wins if present,
+    otherwise the base platform's is used."""
+    for src_platform in _asset_search_path(platform_path, base_platform_path):
+        src = src_platform / 'zephyr' / 'pm_static.yml'
+        if src.is_file():
+            shutil.copy2(src, output_dir / 'pm_static.yml')
+            print(f"Copied: {output_dir / 'pm_static.yml'}  (from {src_platform.name})")
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('--vars', required=True, type=Path,
+                    help='make_vars.env written by the Makefile recipe.')
+    ap.add_argument('--output', required=True, type=Path,
+                    help='Directory to write CMakeLists.txt, prj.conf, boards/.')
+    args = ap.parse_args()
+
+    if not args.vars.is_file():
+        sys.exit(f"ERROR: vars file not found: {args.vars}")
+
+    v = parse_vars_file(args.vars)
+
+    ehs_root     = Path(v.get('EHS_ROOT_PATH', '.')).resolve()
+    target       = v.get('TARGET', 'unknown')
+    platform_str = v.get('EHS_PLATFORM_PATH', '')
+    base_plat    = v.get('ERT_ZEPHYR_BASE_PLATFORM', '').strip()
+    board        = v.get('ERT_ZEPHYR_BOARD', 'unknown_board')
+
+    # Source files: fully resolved by make — Python does not search for them.
+    sources              = split_tokens(v.get('ERT_ZEPHYR_SOURCES', ''))
+    inc_dirs_raw         = split_tokens(v.get('INC_DIRS', ''))
+    defs_raw             = split_tokens(v.get('DEFS', ''))
+    kconfig              = split_tokens(v.get('ERT_ZEPHYR_KCONFIG', ''))
+    sysbuild_kconfig     = split_tokens(v.get('ERT_ZEPHYR_SYSBUILD_KCONFIG', ''))
+    toolbox_hashes_raw   = v.get('EHS_TOOLBOX_HASHES_VALUE', '')
+    gnu_os_arch          = v.get('EHS_GNU_OS_ARCH', '')
+    sodl_version         = v.get('ERT_SODL_VERSION', '')
+    monolithic_kernel    = v.get('EHS_BUILD_MONOLITHIC_KERNEL', '')
+
+    platform_path = Path(platform_str)
+    if not platform_path.is_absolute():
+        platform_path = ehs_root / platform_str
+    platform_path = platform_path.resolve()
+
+    # Base platform for Zephyr-asset inheritance. Named, not pathed: it is
+    # always a sibling under target/platform/.
+    base_platform_path = None
+    if base_plat:
+        base_platform_path = (ehs_root / 'target' / 'platform' / base_plat).resolve()
+        if not base_platform_path.is_dir():
+            sys.exit(f"ERROR: ERT_ZEPHYR_BASE_PLATFORM='{base_plat}' does not exist "
+                     f"at {base_platform_path}")
+        if base_platform_path == platform_path:
+            sys.exit(f"ERROR: ERT_ZEPHYR_BASE_PLATFORM='{base_plat}' is the platform "
+                     f"itself — a target cannot be its own base.")
+
+    print(f"EHS_ROOT           : {ehs_root}")
+    print(f"TARGET             : {target}")
+    print(f"ERT_ZEPHYR_BOARD   : {board}")
+    if base_platform_path is not None:
+        print(f"Base platform      : {base_platform_path.name} (Zephyr assets inherited)")
+    print(f"Source files       : {len(sources)}")
+    print(f"INC_DIRS           : {len(inc_dirs_raw)}")
+    print(f"DEFS               : {len(defs_raw)}")
+    print(f"ERT_ZEPHYR_KCONFIG : {len(kconfig)} tokens")
+    print(f"ERT_ZEPHYR_SYSBUILD_KCONFIG : {len(sysbuild_kconfig)} tokens")
+    print()
+
+    if not sources:
+        print("WARNING: ERT_ZEPHYR_SOURCES is empty.  Either the TARGET is not a "
+              "Zephyr platform (EHS_ZEPHYR not set) or no OBJECTS were resolved.",
+              file=sys.stderr)
+
+    args.output.mkdir(parents=True, exist_ok=True)
+
+    rel_inc, abs_inc = classify_inc_dirs(inc_dirs_raw, ehs_root)
+
+    write_cmakelists(args.output, target, board,
+                     sources, rel_inc, abs_inc, defs_raw, ehs_root,
+                     toolbox_hashes_raw, gnu_os_arch, sodl_version,
+                     monolithic_kernel)
+    write_prj_conf(args.output, kconfig)
+    write_sysbuild_conf(args.output, sysbuild_kconfig)
+    copy_board_files(platform_path, args.output, base_platform_path)
+    copy_pm_static(platform_path, args.output, base_platform_path)
+
+    print()
+    print(f"Zephyr app generated at: {args.output}")
+    print(f"Build with:")
+    print(f"  west build -b {board} -d <staging>/build {args.output} \\")
+    print(f"             -- -DEHS_ROOT=/inxware/ert-components")
+
+
+if __name__ == '__main__':
+    main()

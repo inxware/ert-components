@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+<!--place style sheet in the same directory as the help.html for each component, or in any directory up to 3 levels above help.html-->
+<link href="iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+<link href="../../../iabStyle.css" rel="StyleSheet" type="text/css"/>
+</head>
+<body>
+<div class="page_container">
+<div id="toc_container">
+<span class="toc_span">SIM Manager</span>
+<!--these display in reverse order because they use float:right-->
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8595;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8595;</a></span>
+</div>
+<p class="component">Reports SIM state and identity, and switches between SIM types where the hardware allows.</p>
+<p class="component">Covers all three SIM flavours - physical SIM, SoftSIM and eSIM - behind one block. Which of them actually exist, and which can be switched to at runtime, differ per board and are reported separately by <a href="#[Out]available_types">availableTypes</a> and <a href="#[Out]selectable_types">selectableTypes</a>. A type can exist but not be selectable - an eSIM sitting behind a card-detect autoswitch is chosen by hardware, not by software.</p>
+<p class="component"><strong>Trigger Read from the modem manager's Connected event, not from app start.</strong> ICCID and IMSI are read from the SIM itself and need the modem initialised; reading at app start returns empty strings.</p>
+<p class="component"><strong>PIN entry gets exactly one attempt, by design.</strong> There is no retry anywhere in this block or below it, and entry is refused outright when only one attempt remains. Three wrong PINs require a PUK from the operator to recover, and no automatic behaviour is worth that risk.</p>
+<div class="section_heading">
+<span id="parameters" class="toc_span">Parameters</span>
+<div class="toc_span_items"><a href="#toc_container">Top &#8593;</a></div>
+<div class="toc_span_items"><a href="#misc">Misc &#8595;</a></div>
+<div class="toc_span_items"><a href="#ports">Ports &#8595;</a></div>
+</div>
+<table class="table_params">
+<tr><th>name</th><th>type</th><th>description</th><th>default</th><th>min.</th><th>max.</th></tr>
+<tr>
+<td><a name="[Param]autoEnterPin">autoEnterPin</a></td>
+<td>B</td>
+<td>Enter the stored PIN automatically at startup. OFF by default and best left off: a wrong stored PIN is retried on every boot and permanently locks the SIM after three attempts.</td>
+<td>0</td>
+<td>0</td><td>1</td>
+</tr>
+<tr>
+<td><a name="[Param]preferredType">preferredType</a></td>
+<td>I</td>
+<td>SIM type to select at startup if it is selectable. 0 SIM, 1 SoftSIM, 2 eSIM.</td>
+<td>0</td>
+<td>0</td><td>2</td>
+</tr>
+</table>
+<div class="section_heading">
+<span id="ports" class="toc_span">Ports</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#misc">Misc &#8595;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table class="table">
+<tr><th>In Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[In]read">Read</a></td>
+<td>Sample SIM state and identity into the outputs below. Trigger this after the link is up.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]select_type">SelectType</a></td>
+<td>Switch to the SIM type on simType. Fails unless that type is in selectableTypes. A successful switch drops the link and re-attaches on the new SIM.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]enter_pin">EnterPin</a></td>
+<td>Submit the PIN on the PIN input. One attempt only.</td>
+</tr>
+<tr><th>Data In</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[In]sim_type">simType</a></td>
+<td>SIM type to select: 0 SIM, 1 SoftSIM, 2 eSIM. When unconnected the preferredType parameter is used.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[In]pin">PIN</a></td>
+<td>The PIN to submit. Never retried automatically.</td>
+</tr>
+<tr><th>Data Out</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]sim_state">simState</a></td>
+<td>0 Absent, 1 PIN required, 2 PUK required, 3 Ready, 4 Failed, 5 Unknown. Ready is the only good value.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]active_type">activeType</a></td>
+<td>SIM type currently in use: 0 SIM, 1 SoftSIM, 2 eSIM.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]available_types">availableTypes</a></td>
+<td>Bitmask of types present on this board: bit 0 SIM, bit 1 SoftSIM, bit 2 eSIM.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]selectable_types">selectableTypes</a></td>
+<td>Bitmask, same bit order, of the types software can actually switch to. Always a subset of availableTypes.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]iccid">ICCID</a></td>
+<td>Integrated Circuit Card ID of the active SIM. Read from the SIM, so needs the modem up.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]imsi">IMSI</a></td>
+<td>International Mobile Subscriber Identity. Read from the SIM, so needs the modem up.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]pin_attempts_left">pinAttemptsLeft</a></td>
+<td>Attempts remaining before the SIM locks. -1 means the modem does not report it - treat unknown as 'do not risk an attempt', never as 'plenty left'.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]err_code">errCode</a></td>
+<td>Reason for the last failure. See the enumeration at the foot of this table.</td>
+</tr>
+<tr><th>Out Ev.</th><th></th></tr>
+<tr>
+<td class="ports"><a name="[Out]read_ok">Done</a></td>
+<td>Fires once the outputs have been refreshed.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]select_ok">SDone</a></td>
+<td>Fires when the switch was accepted, including the no-op case of selecting the already-active type.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]select_fail">SFail</a></td>
+<td>Fires when the type is not runtime-selectable on this board, or does not exist.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]pin_ok">PDone</a></td>
+<td>Fires when the PIN was accepted.</td>
+</tr>
+<tr>
+<td class="ports"><a name="[Out]pin_fail">PFail</a></td>
+<td>Fires when the PIN was rejected, none was supplied, or PIN entry is not supported on this target. Not retried.</td>
+</tr>
+<tr><th colspan="2">errno values (used by <a href="#[Out]err_code">err_code</a>)</th></tr>
+<tr><td colspan="2">
+<table class="errno_table">
+<thead><tr><th>Enumeration</th><th>Value</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>None</td><td>0</td><td>No failure recorded.</td></tr>
+<tr><td>ModemInit</td><td>1</td><td>Modem library or firmware failed to start.</td></tr>
+<tr><td>SimAbsent</td><td>2</td><td>No UICC responded.</td></tr>
+<tr><td>SimPinRequired</td><td>3</td><td>SIM is PIN locked.</td></tr>
+<tr><td>SimPukRequired</td><td>4</td><td>SIM is PUK locked - needs the operator.</td></tr>
+<tr><td>SimFailure</td><td>5</td><td>UICC fault.</td></tr>
+<tr><td>RegistrationDenied</td><td>6</td><td>Network refused registration.</td></tr>
+<tr><td>NoCoverage</td><td>7</td><td>No usable cell found.</td></tr>
+<tr><td>AttachTimeout</td><td>8</td><td>Attach did not complete in time.</td></tr>
+<tr><td>PdnTimeout</td><td>9</td><td>PDN activation timed out.</td></tr>
+<tr><td>PdnRejected</td><td>10</td><td>APN wrong or not permitted.</td></tr>
+<tr><td>ModemResetLoop</td><td>11</td><td>Modem reset-loop protection tripped.</td></tr>
+<tr><td>Overheated</td><td>12</td><td>Modem shut down on temperature.</td></tr>
+<tr><td>NotSupported</td><td>13</td><td>Capability absent on this target.</td></tr>
+<tr><td>InvalidArg</td><td>14</td><td>Bad argument from the caller.</td></tr>
+<tr><td>Internal</td><td>15</td><td>Internal error.</td></tr>
+</tbody></table>
+</td></tr>
+</table>
+<div class="section_heading">
+<span id="misc" class="toc_span">Misc</span>
+<span class="toc_span_items"><a href="#toc_container">Top &#8593;</a></span>
+<span class="toc_span_items"><a href="#ports">Ports &#8593;</a></span>
+<span class="toc_span_items"><a href="#parameters">Params &#8593; </a></span>
+</div>
+<table>
+<tr><td class="heading-cell"><b>Toolbox</b></td><td>net</td><td class="heading-cell"><b>Version</b></td><td>v1.0</td></tr>
+<tr><td class="heading-cell"><b>Licence Type</b></td><td>LGPLv3</td><td class="heading-cell"><b>Component Supplier</b></td><td><a href="http://www.inx-systems.net" target="_blank">inx ltd.</a></td></tr>
+<tr><td class="heading-cell"><b>Minumum DCC</b></td><td>A0000</td><td class="heading-cell"><b>Profiles</b></td><td>All.</td></tr>
+</table>
+</div>
+</body>
+
+</html>
