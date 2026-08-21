@@ -329,6 +329,8 @@ One badge per build workflow. Each links to its run history.
 
 [![linux x86_64 — LVGL](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-linux_x86_64_clang_lvgl_debian11-no-certs.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-linux_x86_64_clang_lvgl_debian11-no-certs.yml)
 
+[![linux x86_64 — Qt](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_qt_debian12.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_qt_debian12.yml)
+
 [![linux arm64 — GTK/GStreamer](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml)
 
 [![linux arm64 — LVGL](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)

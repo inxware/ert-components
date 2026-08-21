@@ -1,0 +1,72 @@
+name: build-linux_x86_64_qt_debian12
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Using_Pulled_container:
+
+    runs-on: ubuntu-22.04
+    container:
+      image: inxware/inx-debian12-clang14-qt
+      options: --user root
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ert-components
+
+    # No ert-build-support checkout: TOOLCHAIN_NAME=HOST, so clang comes from
+    # the image, and support_libs/target_libs is not published.
+
+    - name: Checkout ert-kernels
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-kernels
+        fetch-depth: 1
+        path: ert-kernels
+        sparse-checkout: x86_64-linux-gnu-clang14_debian12/kernel
+        ref: refs/heads/main
+
+    - name: Checkout ert-contrib-middleware
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-contrib-middleware
+        fetch-depth: 1
+        path: ert-contrib-middleware
+        sparse-checkout: target_libs/x86_64-linux-gnu-clang14_debian12_base
+        ref: refs/heads/main
+        lfs: true
+
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        fetch-depth: 1
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+
+    - name: configure
+      run: |
+           cd ert-components
+           ./configure linux_x86_64_qt_debian12-no-certs
+
+    - name: make
+      run: |
+           cd ert-components
+           pwd
+           make -j 8
+
+    - name: make targetenv
+      run: |
+           cd ert-components
+           pwd
+           make targetenv
+
+    - name: make package
+      run: |
+           cd ert-components
+           pwd
+           make targetenv_package
