@@ -150,7 +150,23 @@ def osarch_closure(root, platforms):
             text = open(f, errors="ignore").read()
             queue += INC_OSARCH.findall(text)
             queue += INC_OSARCH_REL.findall(text)
-    return {d for d in found if os.path.isdir(os.path.join(root, "target/os-arch", d))}
+    return {d for d in found if _is_osarch_dir(root, d)}
+
+
+def _is_osarch_dir(root, d):
+    """True only for a real directory directly under target/os-arch.
+
+    The relative-include regexes capture the leading '..' of a '../../x/' path,
+    and a bare os.path.isdir() accepts it because target/os-arch/.. is target/.
+    That put 'target/os-arch/../' in the plan, which rsync resolves to target/ --
+    so every platform was published regardless of the allow-list, and anything
+    prune_mirror.sh removed came straight back on the next publish.
+    """
+    if d in (".", "..") or "/" in d or os.sep in d:
+        return False
+    base = os.path.realpath(os.path.join(root, "target/os-arch"))
+    cand = os.path.realpath(os.path.join(base, d))
+    return cand.startswith(base + os.sep) and os.path.isdir(cand)
 
 
 def devman_closure(root, platforms):
