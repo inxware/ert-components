@@ -366,11 +366,29 @@ targetenv_littlefs: chkconfig
 # config is included after the platform's own, so the default uses ?= and a
 # platform setting wins. "none" is valid — a firmware image or a library has
 # nothing to install.
+# Four of the packagers normally re-enter Docker to get the right tooling. When
+# make is ALREADY running inside a container -- a GitHub Actions container job,
+# or a manual 'docker run' -- there is no docker binary to re-enter with, and the
+# _docker goals fail with 'docker: command not found'. Inside a container the
+# tooling is already present, so the plain goal is both correct and what was
+# wanted. /.dockerenv is the same probe targetenv_esp32.sh already uses.
+#
+# Overridable: not every runtime drops /.dockerenv (podman, some rootless
+# setups), so a caller can force it with EHS_IN_CONTAINER=1 in the environment.
+EHS_IN_CONTAINER ?= $(wildcard /.dockerenv)
+
+ifeq ($(EHS_IN_CONTAINER),)
 EHS_PACKAGER_MAP_deb     := targetenv_deb_docker
-EHS_PACKAGER_MAP_apk     := targetenv_apk
 EHS_PACKAGER_MAP_nsis    := targetenv_nsis_docker
 EHS_PACKAGER_MAP_esp32   := targetenv_esp32_docker
 EHS_PACKAGER_MAP_xmos    := targetenv_xmos_docker
+else
+EHS_PACKAGER_MAP_deb     := targetenv_deb
+EHS_PACKAGER_MAP_nsis    := targetenv_nsis
+EHS_PACKAGER_MAP_esp32   := targetenv_esp32
+EHS_PACKAGER_MAP_xmos    := targetenv_xmos
+endif
+EHS_PACKAGER_MAP_apk     := targetenv_apk
 EHS_PACKAGER_MAP_arduino := targetenv_arduino
 EHS_PACKAGER_KNOWN       := deb apk nsis esp32 xmos arduino none
 
