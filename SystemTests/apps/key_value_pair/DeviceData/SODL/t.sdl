@@ -1,0 +1,140 @@
+#V:2.0.0
+#B:23
+#D:Y2024M10d28h12m15s43
+#N:key_value_pair
+1
+1	100000	90000
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 1 0 
+Run_OpenFILE_WriteOnly_String	1	1	2	1 S 1 	1 I -1 	2 19 7 
+Run_CloseFILE_WriteOnly_String	1	1	3	0 	1 I -1 	2 -1 9 
+Run_WriteFILE_WriteOnly_String	1	1	4	2 S 2 I -1 	1 I -1 	2 32 8 
+END
+BEGIN FileSystemDirCreateRemove 0
+NULL 0 
+create	1	1	1	1 S 3 	0 	2 5 6 
+END
+BEGIN Constant_String1 0
+inx-tests/results 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN CatString 0
+/test_result.txt 
+Run_CatString	1	1	5	2 S 3 S -1 	1 S 1 	1 2 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	6	0 	0 	1 -1 
+Or2	1	1	7	0 	0 	1 -1 
+Or3	1	1	8	0 	0 	1 -1 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	9	0 	0 	1 3 
+Or2	1	1	8	0 	0 	1 3 
+Or3	1	1	10	0 	0 	1 3 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 0 0 
+Run_OpenFILE_WriteOnly_String	1	1	11	1 S 4 	1 I -1 	2 13 14 
+Run_CloseFILE_WriteOnly_String	1	1	12	0 	1 I -1 	2 15 16 
+Run_WriteFILE_WriteOnly_String	1	1	13	2 S 5 I -1 	1 I -1 	2 12 17 
+END
+BEGIN Constant_String1 0
+done 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	14	0 	0 	1 10 
+Or2	1	1	15	0 	0 	1 10 
+Or3	1	1	16	0 	0 	1 10 
+Or4	1	1	17	0 	0 	1 10 
+END
+BEGIN CatString 0
+/test_done 
+Run_CatString	1	1	18	2 S 3 S -1 	1 S 4 	1 11 
+END
+BEGIN key_value 0
+default str NULL 
+upsert	1	1	19	1 S 6 	1 I -1 	1 20 
+query	1	1	20	0 	2 S 7 I -1 	1 27 
+END
+BEGIN key_value_bool 0
+default bool 0 
+upsert	1	1	21	1 B 1 	1 I -1 	1 22 
+query	1	1	22	0 	2 B 2 I -1 	1 33 
+END
+BEGIN key_value_int 0
+default int 0 
+upsert	1	1	23	1 I 1 	1 I -1 	1 24 
+query	1	1	24	0 	2 I 2 I -1 	1 36 
+END
+BEGIN key_value_real 0
+default float 0 
+upsert	1	1	25	1 F 1 	1 I -1 	1 26 
+query	1	1	26	0 	2 F 2 I -1 	1 37 
+END
+BEGIN Constant_String1 0
+test_str 
+Run_ConstantString	1	1	-1	0 	1 S 6 	0 
+END
+BEGIN MultiplexFourInputString 0
+*
+Run_Input1	1	1	27	1 S 7 	1 S 2 	1 4 
+Run_Input2	1	1	28	1 S 8 	1 S 2 	1 4 
+Run_Input3	1	1	29	1 S 9 	1 S 2 	1 4 
+Run_Input4	1	1	30	1 S 10 	1 S 2 	1 4 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	31	0 	0 	1 21 
+And2	1	1	32	0 	0 	1 21 
+Reset	1	1	27	0 	0 	1 31 
+END
+BEGIN Constant_Bool1 0
+1 
+Run_ConstantBool	1	1	-1	0 	1 B 1 	0 
+END
+BEGIN ConvertorBoolToString 0
+*
+Run_ConvertorBoolToString	1	1	33	1 B 2 	1 S 8 	1 28 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	34	0 	0 	1 23 
+And2	1	1	32	0 	0 	1 23 
+Reset	1	1	33	0 	0 	1 34 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	35	0 	0 	1 25 
+And2	1	1	32	0 	0 	1 25 
+Reset	1	1	36	0 	0 	1 35 
+END
+BEGIN ConvertorIntToString 0
+*
+Run_ConvertorIntToString	1	1	36	1 I 2 	1 S 9 	1 29 
+END
+BEGIN ConvertorRealToString 0
+5 
+Run_ConvertorRealToString	1	1	37	1 F 2 	1 S 10 	1 30 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	38	0 	0 	1 18 
+And2	1	1	32	0 	0 	1 18 
+Reset	1	1	30	0 	0 	1 38 
+END
+BEGIN Constant_Int1 0
+123456789 
+Run_ConstantInt	1	1	-1	0 	1 I 1 	0 
+END
+BEGIN Constant_Real1 0
+1234.56789 
+Run_ConstantReal	1	1	-1	0 	1 F 1 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

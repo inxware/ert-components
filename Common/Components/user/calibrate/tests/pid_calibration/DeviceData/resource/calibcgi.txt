@@ -1,0 +1,1 @@
+noResetSettings=1&p1s=1.2&p1o=0.2&p2s=0.5&p2o=3&t1s=1&t1o=1&z1s=3.33&z1o=0&f1s=1&f1o=0.44&

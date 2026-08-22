@@ -1412,8 +1412,8 @@ See also [eRT Component Test System](https://docs.google.com/document/d/1SfMc0sS
 Documentation is wor in progress!
 
 - [ ] Make the regression testing scripts more uniform:
-      - [ ] Multi-platform build tests are run as a script from ./SystemTests/CI/ - should any bash scripts we use for per-target runtime testing on Linux also be in here (not sure where they are currently - it’s not really a targetenv process - so shouldn’t be in there really.
-      - [ ] make **targetenv_run_tests** should be called **make test_run_components**
+      - [x] Per-target runtime testing now lives in ./SystemTests/CI/ alongside the build tests. It was never a targetenv process.
+      - [x] The make target is gone. App tests run across builds x apps, which make cannot express while bound to one TARGET.cfg: `./SystemTests/CI/run_lucid_apps.sh --suite unit|system|external`.
       - [ ] Create a new make target as a place holder for now for running a single profile-specific smoke test that includes some level of stress and testing a full app, including kernel and platform features. **make test_run_smoke**
       - [ ] Move the function blocks specific tests apps in ./tests/root/ to the function block’s test directories
 - [ ] Should we implement the test reporting function block as above before creating too many more regression test apps? The main advantage of the above proposed approach is that is can run on any target type and we can get it to report the status to Devman as ready flags off files on targets will not generally be possible or likely to succeed in most cases.
@@ -1433,15 +1433,18 @@ for the targets to run instead of the “published only”.
 
  Single target component regression tests - runs all the component tests runs all the component tests fr the given target.
 
-`./make targetenv_run_tests` (see proposed change of name above!)
+`./SystemTests/CI/run_lucid_apps.sh --suite unit`
 
 
-At the moment the test can only be run for the linux ert build host targets.
+The build must exist first; the runner never triggers one. Any target whose
+env tree runs on this host works, and `--docker` covers targets that need
+their build image's system libraries.
 
 ```
-./configure linux_x86_64-lucid-debian11
+./configure linux_x86_64_clang_ehrt1
 make clean; make all_docker
-make targetenv_run_tests
+make targetenv
+./SystemTests/CI/run_lucid_apps.sh --target linux_x86_64_clang_ehrt1 --suite unit
 ```
 
 The tests in the terminal should look like this
@@ -1467,8 +1470,8 @@ All test results get saved to this directory with following structure
 1. Using Lucid open a template project located in **ert-components/tests/TEST-TEMPLATE**
 2. Use ‘Save Project As’ to create a new test with a unique name from this template. For now store it in **ert-components/tests/root/core** or any other category e.g. **network**. WARNING! - this is a temporary location and all tests will be moved to Common/Components (once all old tests placed in there are sorted out)
 3. Close the TEST-TEMPLATE project and now you can add function blocks to your new test project. Make sure the following events are fired for start,write and end of your test.![][image7]
-4. To generate your project results. Make sure this directory is present **~/inxware/inx-tests/** (it gets created when running targetenv_run_tests or it can be added manually) and **empty** (clear it if it has some old data). Next ‘Run’ project in Lucid and once successful check results file content and copy it to the root of your new project e.g **~/inxware/inx-tests/results/test_result.txt -> ./ert-components/tests/root/core/NewTest/test_result.txt**
-5. This should be it. Run tests using targetenv_run_tests to see if your new test is passing.
+4. To generate your project results. Make sure this directory is present **~/inxware/inx-tests/** (the runner creates it inside its own staging copy; add it manually for a Lucid run) and **empty** (clear it if it has some old data). Next ‘Run’ project in Lucid and once successful check results file content and copy it to the root of your new project e.g **~/inxware/inx-tests/results/test_result.txt -> ./ert-components/tests/root/core/NewTest/test_result.txt**
+5. This should be it. Run `./SystemTests/CI/run_lucid_apps.sh --suite unit` to see if your new test is passing.
 
 ## Example of a working test
 

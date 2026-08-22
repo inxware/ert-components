@@ -141,20 +141,32 @@ ifneq ($(EHS_MODBUS_SUPPORT),)
 	OBJECTS += inx-modbus_read.$(OBJ)
 	OBJECTS += inx-modbus_write.$(OBJ)
 	OBJECTS += inx-modbus_slave_register.$(OBJ)
-#make sure the UART is enabled (assumein MODBUS always has UART)
-ifndef HS_UART_SUPPORT
+# Modbus is UART-based, so enable the UART blocks unless the platform already
+# chose a value. Was 'ifndef HS_UART_SUPPORT' — that name exists nowhere, so the
+# branch always fired and overrode a platform's deliberate EHS_UART_SUPPORT=none.
+ifndef EHS_UART_SUPPORT
  EHS_UART_SUPPORT=yes
 endif
 endif
 endif
 endif
 
+# The inx-uart blocks are written against the Component-HAL UART contract, not
+# just the TgtUart_* entry points: they reference gTargetUartPin*, gUARTBaudRate,
+# gUARTParity, gUARTStopBits, gUARTHWCTRL, Common_UART_onReceive and
+# TgtUART_CONFIG_ERROR, all of which come from target/Component-HAL/uart/<impl>.
+# So the blocks need EHS_PERIPHERALS_UART_SUPPORT (which selects that backend),
+# not merely EHS_UART_SUPPORT (which some os-arch trees use for their own UART
+# HAL). Every target that builds these blocks today sets both. Requiring only
+# the latter compiled the blocks with no backend and failed on undefined symbols.
 ifdef EHS_UART_SUPPORT
 ifneq ($(EHS_UART_SUPPORT),none)
 ifneq ($(EHS_UART_SUPPORT),)
+ifneq ($(filter-out none,$(EHS_PERIPHERALS_UART_SUPPORT)),)
 	OBJECTS += inx-uart.$(OBJ)
 	OBJECTS += inx-uart_config.$(OBJ)
 	DEFS += EHS_UART_SUPPORT
+endif
 endif
 endif
 endif

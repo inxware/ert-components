@@ -1,0 +1,376 @@
+#V:2.0.0
+#B:46
+#D:Y2024M5d2h18m4s55
+#N:mux_demux_sw_8_ports
+1
+1	100000	90000
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 1 0 
+Run_OpenFILE_WriteOnly_String	1	1	2	1 S 1 	1 I -1 	2 19 7 
+Run_CloseFILE_WriteOnly_String	1	1	3	0 	1 I -1 	2 -1 9 
+Run_WriteFILE_WriteOnly_String	1	1	4	2 S 2 I -1 	1 I -1 	2 85 8 
+END
+BEGIN FileSystemDirCreateRemove 0
+NULL 0 
+create	1	1	1	1 S 3 	0 	2 5 6 
+END
+BEGIN Constant_String1 0
+inx-tests/results 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN CatString 0
+/test_result.txt 
+Run_CatString	1	1	5	2 S 3 S -1 	1 S 1 	1 2 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	6	0 	0 	1 -1 
+Or2	1	1	7	0 	0 	1 -1 
+Or3	1	1	8	0 	0 	1 -1 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	9	0 	0 	1 3 
+Or2	1	1	8	0 	0 	1 3 
+Or3	1	1	10	0 	0 	1 3 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 0 0 
+Run_OpenFILE_WriteOnly_String	1	1	11	1 S 4 	1 I -1 	2 13 14 
+Run_CloseFILE_WriteOnly_String	1	1	12	0 	1 I -1 	2 15 16 
+Run_WriteFILE_WriteOnly_String	1	1	13	2 S 5 I -1 	1 I -1 	2 12 17 
+END
+BEGIN Constant_String1 0
+done 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	14	0 	0 	1 10 
+Or2	1	1	15	0 	0 	1 10 
+Or3	1	1	16	0 	0 	1 10 
+Or4	1	1	17	0 	0 	1 10 
+END
+BEGIN CatString 0
+/test_done 
+Run_CatString	1	1	18	2 S 3 S -1 	1 S 4 	1 11 
+END
+BEGIN DemultiplexEightOutputInt 0
+*
+Run_Output1	1	1	19	1 I 1 	1 I 2 	1 59 
+Run_Output2	1	1	20	1 I 1 	1 I 3 	1 60 
+Run_Output3	1	1	21	1 I 1 	1 I 4 	1 61 
+Run_Output4	1	1	22	1 I 1 	1 I 5 	1 62 
+Run_Output5	1	1	23	1 I 1 	1 I 6 	1 63 
+Run_Output6	1	1	24	1 I 1 	1 I 7 	1 64 
+Run_Output7	1	1	25	1 I 1 	1 I 8 	1 65 
+Run_Output8	1	1	26	1 I 1 	1 I 9 	1 66 
+END
+BEGIN DemultiplexEightOutputReal 0
+*
+Run_Output1	1	1	27	1 F 1 	1 F 2 	1 51 
+Run_Output2	1	1	28	1 F 1 	1 F 3 	1 52 
+Run_Output3	1	1	29	1 F 1 	1 F 4 	1 53 
+Run_Output4	1	1	30	1 F 1 	1 F 5 	1 54 
+Run_Output5	1	1	31	1 F 1 	1 F 6 	1 55 
+Run_Output6	1	1	32	1 F 1 	1 F 7 	1 56 
+Run_Output7	1	1	33	1 F 1 	1 F 8 	1 57 
+Run_Output8	1	1	34	1 F 1 	1 F 9 	1 58 
+END
+BEGIN DemultiplexEightOutputString 0
+*
+Run_Output1	1	1	35	1 S 6 	1 S 7 	1 67 
+Run_Output2	1	1	36	1 S 6 	1 S 8 	1 68 
+Run_Output3	1	1	37	1 S 6 	1 S 9 	1 69 
+Run_Output4	1	1	38	1 S 6 	1 S 10 	1 70 
+Run_Output5	1	1	39	1 S 6 	1 S 11 	1 71 
+Run_Output6	1	1	40	1 S 6 	1 S 12 	1 72 
+Run_Output7	1	1	41	1 S 6 	1 S 13 	1 73 
+Run_Output8	1	1	42	1 S 6 	1 S 14 	1 74 
+END
+BEGIN DemultiplexEightOutputBool 0
+*
+Run_Output1	1	1	43	1 B 1 	1 B 2 	1 75 
+Run_Output2	1	1	44	1 B 1 	1 B 3 	1 76 
+Run_Output3	1	1	45	1 B 1 	1 B 4 	1 77 
+Run_Output4	1	1	46	1 B 1 	1 B 5 	1 78 
+Run_Output5	1	1	47	1 B 1 	1 B 6 	1 79 
+Run_Output6	1	1	48	1 B 1 	1 B 7 	1 80 
+Run_Output7	1	1	49	1 B 1 	1 B 8 	1 81 
+Run_Output8	1	1	50	1 B 1 	1 B 9 	1 82 
+END
+BEGIN MultiplexEightInputReal 0
+*
+Run_Input1	1	1	51	1 F 2 	1 F 10 	1 98 
+Run_Input2	1	1	52	1 F 3 	1 F 10 	1 98 
+Run_Input3	1	1	53	1 F 4 	1 F 10 	1 98 
+Run_Input4	1	1	54	1 F 5 	1 F 10 	1 98 
+Run_Input5	1	1	55	1 F 6 	1 F 10 	1 98 
+Run_Input6	1	1	56	1 F 7 	1 F 10 	1 98 
+Run_Input7	1	1	57	1 F 8 	1 F 10 	1 98 
+Run_Input8	1	1	58	1 F 9 	1 F 10 	1 98 
+END
+BEGIN MultiplexEightInputInt 0
+*
+Run_Input1	1	1	59	1 I 2 	1 I 10 	1 83 
+Run_Input2	1	1	60	1 I 3 	1 I 10 	1 83 
+Run_Input3	1	1	61	1 I 4 	1 I 10 	1 83 
+Run_Input4	1	1	62	1 I 5 	1 I 10 	1 83 
+Run_Input5	1	1	63	1 I 6 	1 I 10 	1 83 
+Run_Input6	1	1	64	1 I 7 	1 I 10 	1 83 
+Run_Input7	1	1	65	1 I 8 	1 I 10 	1 83 
+Run_Input8	1	1	66	1 I 9 	1 I 10 	1 83 
+END
+BEGIN MultiplexEightInputString 0
+*
+Run_Input1	1	1	67	1 S 7 	1 S 17 	1 94 
+Run_Input2	1	1	68	1 S 8 	1 S 17 	1 94 
+Run_Input3	1	1	69	1 S 9 	1 S 17 	1 94 
+Run_Input4	1	1	70	1 S 10 	1 S 17 	1 94 
+Run_Input5	1	1	71	1 S 11 	1 S 17 	1 94 
+Run_Input6	1	1	72	1 S 12 	1 S 17 	1 94 
+Run_Input7	1	1	73	1 S 13 	1 S 17 	1 94 
+Run_Input8	1	1	74	1 S 14 	1 S 17 	1 94 
+END
+BEGIN MultiplexEightInputBool 0
+*
+Run_Input1	1	1	75	1 B 2 	1 B 10 	1 115 
+Run_Input2	1	1	76	1 B 3 	1 B 10 	1 115 
+Run_Input3	1	1	77	1 B 4 	1 B 10 	1 115 
+Run_Input4	1	1	78	1 B 5 	1 B 10 	1 115 
+Run_Input5	1	1	79	1 B 6 	1 B 10 	1 115 
+Run_Input6	1	1	80	1 B 7 	1 B 10 	1 115 
+Run_Input7	1	1	81	1 B 8 	1 B 10 	1 115 
+Run_Input8	1	1	82	1 B 9 	1 B 10 	1 115 
+END
+BEGIN Constant_Int1 0
+5 
+Run_ConstantInt	1	1	-1	0 	1 I 1 	0 
+END
+BEGIN ConvertorIntToString 0
+*
+Run_ConvertorIntToString	1	1	83	1 I 10 	1 S 15 	1 92 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	84	0 	0 	1 20 
+And2	1	1	85	0 	0 	1 20 
+Reset	1	1	59	0 	0 	1 84 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	86	0 	0 	1 21 
+And2	1	1	85	0 	0 	1 21 
+Reset	1	1	60	0 	0 	1 86 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	87	0 	0 	1 22 
+And2	1	1	85	0 	0 	1 22 
+Reset	1	1	61	0 	0 	1 87 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	88	0 	0 	1 23 
+And2	1	1	85	0 	0 	1 23 
+Reset	1	1	62	0 	0 	1 88 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	89	0 	0 	1 24 
+And2	1	1	85	0 	0 	1 24 
+Reset	1	1	63	0 	0 	1 89 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	90	0 	0 	1 25 
+And2	1	1	85	0 	0 	1 25 
+Reset	1	1	64	0 	0 	1 90 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	91	0 	0 	1 26 
+And2	1	1	85	0 	0 	1 26 
+Reset	1	1	65	0 	0 	1 91 
+END
+BEGIN MultiplexFourInputString 0
+*
+Run_Input1	1	1	92	1 S 15 	1 S 2 	1 4 
+Run_Input2	1	1	93	1 S 16 	1 S 2 	1 4 
+Run_Input3	1	1	94	1 S 17 	1 S 2 	1 4 
+Run_Input4	1	1	95	1 S 18 	1 S 2 	1 4 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	96	0 	0 	1 27 
+And2	1	1	85	0 	0 	1 27 
+Reset	1	1	66	0 	0 	1 96 
+END
+BEGIN Constant_Real1 0
+2 
+Run_ConstantReal	1	1	-1	0 	1 F 1 	0 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	97	0 	0 	1 43 
+And2	1	1	85	0 	0 	1 43 
+Reset	1	1	74	0 	0 	1 97 
+END
+BEGIN ConvertorRealToString 0
+*
+Run_ConvertorRealToString	1	1	98	1 F 10 	1 S 16 	1 93 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	99	0 	0 	1 28 
+And2	1	1	85	0 	0 	1 28 
+Reset	1	1	51	0 	0 	1 99 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	100	0 	0 	1 29 
+And2	1	1	85	0 	0 	1 29 
+Reset	1	1	52	0 	0 	1 100 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	101	0 	0 	1 30 
+And2	1	1	85	0 	0 	1 30 
+Reset	1	1	53	0 	0 	1 101 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	102	0 	0 	1 31 
+And2	1	1	85	0 	0 	1 31 
+Reset	1	1	54	0 	0 	1 102 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	103	0 	0 	1 32 
+And2	1	1	85	0 	0 	1 32 
+Reset	1	1	55	0 	0 	1 103 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	104	0 	0 	1 33 
+And2	1	1	85	0 	0 	1 33 
+Reset	1	1	56	0 	0 	1 104 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	105	0 	0 	1 34 
+And2	1	1	85	0 	0 	1 34 
+Reset	1	1	57	0 	0 	1 105 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	106	0 	0 	1 35 
+And2	1	1	85	0 	0 	1 35 
+Reset	1	1	58	0 	0 	1 106 
+END
+BEGIN Constant_String1 0
+test 
+Run_ConstantString	1	1	-1	0 	1 S 6 	0 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	107	0 	0 	1 18 
+And2	1	1	85	0 	0 	1 18 
+Reset	1	1	82	0 	0 	1 107 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	108	0 	0 	1 36 
+And2	1	1	85	0 	0 	1 36 
+Reset	1	1	67	0 	0 	1 108 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	109	0 	0 	1 37 
+And2	1	1	85	0 	0 	1 37 
+Reset	1	1	68	0 	0 	1 109 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	110	0 	0 	1 38 
+And2	1	1	85	0 	0 	1 38 
+Reset	1	1	69	0 	0 	1 110 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	111	0 	0 	1 39 
+And2	1	1	85	0 	0 	1 39 
+Reset	1	1	70	0 	0 	1 111 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	112	0 	0 	1 40 
+And2	1	1	85	0 	0 	1 40 
+Reset	1	1	71	0 	0 	1 112 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	113	0 	0 	1 41 
+And2	1	1	85	0 	0 	1 41 
+Reset	1	1	72	0 	0 	1 113 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	114	0 	0 	1 42 
+And2	1	1	85	0 	0 	1 42 
+Reset	1	1	73	0 	0 	1 114 
+END
+BEGIN ConvertorBoolToString 0
+*
+Run_ConvertorBoolToString	1	1	115	1 B 10 	1 S 18 	1 95 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	116	0 	0 	1 44 
+And2	1	1	85	0 	0 	1 44 
+Reset	1	1	75	0 	0 	1 116 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	117	0 	0 	1 45 
+And2	1	1	85	0 	0 	1 45 
+Reset	1	1	76	0 	0 	1 117 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	118	0 	0 	1 46 
+And2	1	1	85	0 	0 	1 46 
+Reset	1	1	77	0 	0 	1 118 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	119	0 	0 	1 47 
+And2	1	1	85	0 	0 	1 47 
+Reset	1	1	78	0 	0 	1 119 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	120	0 	0 	1 48 
+And2	1	1	85	0 	0 	1 48 
+Reset	1	1	79	0 	0 	1 120 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	121	0 	0 	1 49 
+And2	1	1	85	0 	0 	1 49 
+Reset	1	1	80	0 	0 	1 121 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	122	0 	0 	1 50 
+And2	1	1	85	0 	0 	1 50 
+Reset	1	1	81	0 	0 	1 122 
+END
+BEGIN Constant_Bool1 0
+1 
+Run_ConstantBool	1	1	-1	0 	1 B 1 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

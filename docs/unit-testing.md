@@ -140,7 +140,7 @@ rather than hard-coding it — see below.
 | `make unit_tests_asan` | the same under ASan + UBSan |
 | `make static_analysis` | cppcheck over the tree, using `suppressions.txt` |
 | `make stack_report` | per-function stack frames, largest first |
-| `make targetenv_run_tests` | on-target regression tests (needs a built target tree) |
+| `./SystemTests/CI/run_lucid_apps.sh --suite unit` | on-target regression tests (needs a built target tree) |
 
 Bounds tests should allocate **exact-sized heap buffers** rather than generous
 stack arrays, so ASan traps an overrun that an assertion would miss. The
@@ -163,8 +163,8 @@ further than it had to be. Known places it should change:
   a particular target's os-arch layer, HAL implementation or toolchain. The
   likely shape is `UnitTest/common/` for host-buildable target-independent
   units, and `UnitTest/target/<os-arch>/` for anything that has to be built by
-  the cross toolchain and run on device or in an emulator, hooked into
-  `targetenv_run_tests` rather than `unit_tests`.
+  the cross toolchain and run on device or in an emulator, hooked into the app
+  test engine (`SystemTests/CI/run_lucid_apps.sh`) rather than `unit_tests`.
 - **Stop hard-coding the os-arch include set.** It should follow `PLATFORM` the
   way `target_config.h` already does, which would also make macOS hosts work.
 - **Share the boilerplate.** Every suite currently repeats the same `INCLUDES`

@@ -48,7 +48,11 @@ if [ -z "${ERT_ZEPHYR_MANIFEST}" ] && [ -f "${VARS_FILE}" ]; then
 fi
 
 STAGING_DIR="${PWD}/../TARGET_TREES/ehs_env-${TARGET}/zephyr-staging"
-WEST_WORKSPACE="${STAGING_DIR}/west-workspace"
+
+# The SDK source is shared across every target on the same (manifest, version);
+# only the app and build directories stay per-target under STAGING_DIR.
+# shellcheck source=zephyr_sdk_paths.sh
+. "$(dirname "$0")/zephyr_sdk_paths.sh"
 # Written only after 'west update' succeeds. 'west init' alone creates
 # '.west/' before any real data transfer happens, so checking for '.west'
 # is not sufficient — a network drop during 'west init's manifest clone or
@@ -126,7 +130,17 @@ else
     west init ${WEST_MANIFEST_ARG} "${WEST_WORKSPACE}"
 fi
 pushd "${WEST_WORKSPACE}" >/dev/null
-west update
+# EHS_ZEPHYR_SHALLOW=yes fetches only the pinned revision of each module rather
+# than its full history. The tree is a build input we never commit from, so the
+# history is dead weight: it is the bulk of the ~7 GB. Off by default because a
+# developer may want to bisect Zephyr itself; worth setting in CI, where the
+# workspace is discarded after the run.
+if [ "${EHS_ZEPHYR_SHALLOW}" = "yes" ]; then
+    echo "  EHS_ZEPHYR_SHALLOW=yes — fetching pinned revisions only (no history)"
+    west update --narrow --fetch-opt=--depth=1
+else
+    west update
+fi
 popd >/dev/null
 
 trap - ERR INT TERM

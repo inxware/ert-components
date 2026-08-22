@@ -42,8 +42,8 @@
 # Reporting options:
 #   --generate-sbom            Generate a per-platform SBOM (Software Bill of Materials)
 #                              after each platform builds.  Output goes to
-#                              SystemTests/CI/results/<platform>/sbom/ — local to the
-#                              CI results tree; does NOT write to Releases/ and does NOT
+#                              ../CI_RESULTS/<platform>/sbom/ — outside the source
+#                              tree; does NOT write to Releases/ and does NOT
 #                              update DEPENDENTS.md.  Suitable for routine/nightly runs.
 #                              Skipped if configure failed for a platform.
 #   --release-report           Like --generate-sbom but writes to Releases/SBOM/<version>/
@@ -61,8 +61,10 @@
 # Platform list format (SystemTests/CI/platform-lists/*.txt):
 #   One platform directory name per line.  Blank lines and # comments are ignored.
 #
-# Results are written to SystemTests/CI/results/<platform>/.
-# See SystemTests/CI/README.md for the full results file layout.
+# Build logs and pass/fail flags go to ../CI_RESULTS/<platform>/ (outside the
+# source tree, rotated to ../CI_RESULTS.prev each run). Durable summaries --
+# feature matrix, timings -- go to SystemTests/reports/ and are committed.
+# See SystemTests/CI/README.md for the layout.
 
 set -uo pipefail
 
@@ -367,10 +369,19 @@ for platform in "${platforms[@]}"; do
     fi
 
     # ── Smoke tests on Linux targets (opt-in via --run-apps) ─────────────────
+    # Runs the unit suite through the single app-test engine; see
+    # SystemTests/apps/README.md. Flag files keep the previous names so the
+    # results layout in SystemTests/CI/README.md still holds.
     if [ "$RUN_APPS" -eq 1 ]; then
         if [[ "${platform}" =~ ^linux_x86 ]] \
            || [[ "${platform}" == "${TOOL_TEST_EHS_VARIANT}" ]]; then
-            ci_test_run_apps
+            if "${ROOT_DIR}/../ert-components/SystemTests/CI/run_lucid_apps.sh" \
+                    --target "${platform}" --suite unit \
+                    >> "${CI_RESULT_DIR}/${platform}/build.log" 2>&1; then
+                touch "${CI_RESULT_DIR}/${platform}/exe-host-run-app.pass"
+            else
+                touch "${CI_RESULT_DIR}/${platform}/exe-host-run-app.fail"
+            fi
         fi
     fi
 
@@ -378,7 +389,7 @@ for platform in "${platforms[@]}"; do
     # list can be chosen from measurement rather than guesswork -- there was no
     # timing data at all before this.
     _plat_secs=$((SECONDS - _plat_start))
-    printf '%s\t%s\n' "${platform}" "${_plat_secs}" >> "${CI_RESULT_DIR}/timings.tsv"
+    printf '%s\t%s\n' "${platform}" "${_plat_secs}" >> "${CI_REPORT_DIR}/timings.tsv"
     echo "  ${platform} took ${_plat_secs}s"
 
     ci_teardown_platform_dir

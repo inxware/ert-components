@@ -1,0 +1,326 @@
+#V:2.0.0
+#B:57
+#D:Y2024M5d11h9m33s25
+#N:hrdcv2_scheduler
+1
+1	100000	90000
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 1 
+Run_OpenFILE_WriteOnly_String	1	1	2	1 S 1 	1 I -1 	2 22 7 
+Run_CloseFILE_WriteOnly_String	1	1	3	0 	1 I -1 	2 -1 9 
+Run_WriteFILE_WriteOnly_String	1	1	4	1 S 2 	1 I -1 	2 24 8 
+END
+BEGIN FileSystemDirCreateRemove 0
+NULL 0 
+create	1	1	1	1 S 3 	0 	2 5 6 
+END
+BEGIN Constant_String1 0
+inx-tests/results 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN CatString 0
+/test_result.txt 
+Run_CatString	1	1	5	2 S 3 S -1 	1 S 1 	1 2 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	6	0 	0 	1 -1 
+Or2	1	1	7	0 	0 	1 -1 
+Or3	1	1	8	0 	0 	1 -1 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	9	0 	0 	1 3 
+Or2	1	1	8	0 	0 	1 3 
+Or3	1	1	10	0 	0 	1 3 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 0 
+Run_OpenFILE_WriteOnly_String	1	1	11	1 S 4 	1 I -1 	2 13 14 
+Run_CloseFILE_WriteOnly_String	1	1	12	0 	1 I -1 	2 15 16 
+Run_WriteFILE_WriteOnly_String	1	1	13	1 S 5 	1 I -1 	2 12 17 
+END
+BEGIN Constant_String1 0
+done 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	14	0 	0 	1 10 
+Or2	1	1	15	0 	0 	1 10 
+Or3	1	1	16	0 	0 	1 10 
+Or4	1	1	17	0 	0 	1 10 
+END
+BEGIN CatString 0
+/test_done 
+Run_CatString	1	1	18	2 S 3 S -1 	1 S 4 	1 11 
+END
+BEGIN FILE_ReadOnly_String 0
+sched1.scd 0 ( ) 1 1 
+Run_OpenFILE_ReadOnly_String	1	1	19	1 S -1 	1 I -1 	2 21 -1 
+Run_CloseFILE_ReadOnly_String	1	1	20	0 	1 I -1 	2 28 -1 
+Run_ReadFILE_ReadOnly_String	1	1	21	0 	3 S 12 I -1 I 11 	2 57 -1 
+END
+BEGIN state_manager 0
+53 
+enabled	1	1	22	0 	2 U 1 I -1 	2 23 -1 
+END
+BEGIN state_condition 0
+53 55 
+doCondition	1	1	23	1 U 1 	0 	1 19 
+END
+BEGIN state_condition 0
+55 109 
+doCondition	1	1	24	1 U 1 	0 	1 25 
+END
+BEGIN FILE_ReadOnly_String 0
+sched2.scd 0 ( ) 1 1 
+Run_OpenFILE_ReadOnly_String	1	1	25	1 S -1 	1 I -1 	2 27 -1 
+Run_CloseFILE_ReadOnly_String	1	1	26	0 	1 I -1 	2 29 -1 
+Run_ReadFILE_ReadOnly_String	1	1	27	0 	3 S 13 I -1 I 14 	2 59 -1 
+END
+BEGIN MultiplexEightInputString 0
+*
+Run_Input1	1	1	28	1 S 6 	1 S 2 	1 4 
+Run_Input2	1	1	29	1 S 7 	1 S 2 	1 4 
+Run_Input3	1	1	30	1 S 8 	1 S 2 	1 4 
+Run_Input4	1	1	31	1 S 9 	1 S 2 	1 4 
+Run_Input5	1	1	32	1 S 10 	1 S 2 	1 4 
+Run_Input6	1	1	33	1 S 11 	1 S 2 	1 4 
+END
+BEGIN Constant_String1 0
+[sched1_loaded] 
+Run_ConstantString	1	1	-1	0 	1 S 6 	0 
+END
+BEGIN Constant_String1 0
+[sched2_loaded] 
+Run_ConstantString	1	1	-1	0 	1 S 7 	0 
+END
+BEGIN Constant_String1 0
+[sched3_loaded] 
+Run_ConstantString	1	1	-1	0 	1 S 8 	0 
+END
+BEGIN FILE_ReadOnly_String 0
+sched3.scd 0 ( ) 1 1 
+Run_OpenFILE_ReadOnly_String	1	1	34	1 S -1 	1 I -1 	2 36 -1 
+Run_CloseFILE_ReadOnly_String	1	1	35	0 	1 I -1 	2 30 -1 
+Run_ReadFILE_ReadOnly_String	1	1	36	0 	3 S 14 I -1 I 17 	2 61 -1 
+END
+BEGIN state_condition 0
+109 229 
+doCondition	1	1	24	1 U 1 	0 	1 34 
+END
+BEGIN state_condition 0
+137 -1 
+doCondition	1	1	24	1 U 1 	0 	1 18 
+END
+BEGIN MultiplexFourInputInt 0
+*
+Run_Input1	1	1	37	1 I 1 	1 I 9 	1 41 
+Run_Input2	1	1	38	1 I 2 	1 I 9 	1 41 
+Run_Input3	1	1	39	1 I 3 	1 I 9 	1 41 
+Run_Input4	1	1	40	1 I 4 	1 I 9 	1 41 
+END
+BEGIN MultiplexFourInputInt 0
+*
+Run_Input1	1	1	37	1 I 1 	1 I 10 	1 42 
+Run_Input2	1	1	38	1 I 5 	1 I 10 	1 42 
+Run_Input3	1	1	39	1 I 6 	1 I 10 	1 42 
+Run_Input4	1	1	40	1 I 7 	1 I 10 	1 42 
+END
+BEGIN EventSelfResetTwoInputLatchingAnd 0
+*
+And1	1	1	41	0 	0 	1 56 
+And2	1	1	42	0 	0 	1 56 
+END
+BEGIN ConvertorIntToString 0
+*
+Run_ConvertorIntToString	1	1	43	1 I 8 	1 S 15 	1 62 
+END
+BEGIN Constant_Int1 0
+0 
+Run_ConstantInt	1	1	-1	0 	1 I 1 	0 
+END
+BEGIN Constant_Int1 0
+6 
+Run_ConstantInt	1	1	-1	0 	1 I 7 	0 
+END
+BEGIN Constant_Int1 0
+84600 
+Run_ConstantInt	1	1	-1	0 	1 I 4 	0 
+END
+BEGIN Constant_Int1 0
+4 
+Run_ConstantInt	1	1	-1	0 	1 I 5 	0 
+END
+BEGIN Constant_Int1 0
+45000 
+Run_ConstantInt	1	1	-1	0 	1 I 3 	0 
+END
+BEGIN Constant_Int1 0
+2 
+Run_ConstantInt	1	1	-1	0 	1 I 6 	0 
+END
+BEGIN state_condition 0
+229 231 
+doCondition	1	1	24	1 U 1 	0 	1 37 
+END
+BEGIN state_condition 0
+231 329 
+doCondition	1	1	24	1 U 1 	0 	1 38 
+END
+BEGIN Constant_Int1 0
+34200 
+Run_ConstantInt	1	1	-1	0 	1 I 2 	0 
+END
+BEGIN Constant_Int1 0
+61200 
+Run_ConstantInt	1	1	-1	0 	1 I -1 	0 
+END
+BEGIN state_condition 0
+329 331 
+doCondition	1	1	24	1 U 1 	0 	1 39 
+END
+BEGIN state_condition 0
+331 444 
+doCondition	1	1	24	1 U 1 	0 	1 40 
+END
+BEGIN MultiplexFourInputInt 0
+*
+Run_Input1	1	1	44	1 I 1 	1 I 12 	1 48 
+Run_Input2	1	1	45	1 I 2 	1 I 12 	1 48 
+Run_Input3	1	1	46	1 I 3 	1 I 12 	1 48 
+Run_Input4	1	1	47	1 I 4 	1 I 12 	1 48 
+END
+BEGIN MultiplexFourInputInt 0
+*
+Run_Input1	1	1	44	1 I 1 	1 I 13 	1 49 
+Run_Input2	1	1	45	1 I 5 	1 I 13 	1 49 
+Run_Input3	1	1	46	1 I 6 	1 I 13 	1 49 
+Run_Input4	1	1	47	1 I 7 	1 I 13 	1 49 
+END
+BEGIN EventSelfResetTwoInputLatchingAnd 0
+*
+And1	1	1	48	0 	0 	1 58 
+And2	1	1	49	0 	0 	1 58 
+END
+BEGIN state_condition 0
+444 446 
+doCondition	1	1	24	1 U 1 	0 	1 44 
+END
+BEGIN state_condition 0
+446 448 
+doCondition	1	1	24	1 U 1 	0 	1 45 
+END
+BEGIN state_condition 0
+448 451 
+doCondition	1	1	24	1 U 1 	0 	1 46 
+END
+BEGIN state_condition 0
+451 602 
+doCondition	1	1	24	1 U 1 	0 	1 47 
+END
+BEGIN MultiplexFourInputInt 0
+*
+Run_Input1	1	1	50	1 I 1 	1 I 15 	1 54 
+Run_Input2	1	1	51	1 I 2 	1 I 15 	1 54 
+Run_Input3	1	1	52	1 I 3 	1 I 15 	1 54 
+Run_Input4	1	1	53	1 I 4 	1 I 15 	1 54 
+END
+BEGIN MultiplexFourInputInt 0
+*
+Run_Input1	1	1	50	1 I 1 	1 I 16 	1 55 
+Run_Input2	1	1	51	1 I 5 	1 I 16 	1 55 
+Run_Input3	1	1	52	1 I 7 	1 I 16 	1 55 
+Run_Input4	1	1	53	1 I 7 	1 I 16 	1 55 
+END
+BEGIN EventSelfResetTwoInputLatchingAnd 0
+*
+And1	1	1	54	0 	0 	1 60 
+And2	1	1	55	0 	0 	1 60 
+END
+BEGIN state_condition 0
+602 522 
+doCondition	1	1	24	1 U 1 	0 	1 50 
+END
+BEGIN state_condition 0
+522 524 
+doCondition	1	1	24	1 U 1 	0 	1 51 
+END
+BEGIN state_condition 0
+524 526 
+doCondition	1	1	24	1 U 1 	0 	1 52 
+END
+BEGIN state_condition 0
+526 137 
+doCondition	1	1	24	1 U 1 	0 	1 53 
+END
+BEGIN DevmanScheduler 0
+1 0 
+init_schedule	1	1	1	0 	1 I -1 	1 -1 
+get_schedule	1	1	56	2 I 9 I 10 	4 I 8 I -1 B 1 B -1 	2 64 -1 
+set_schedule	1	1	57	2 S 12 I 11 	2 I -1 I -1 	2 20 -1 
+END
+BEGIN DevmanScheduler 0
+2 0 
+init_schedule	1	1	1	0 	1 I -1 	1 -1 
+get_schedule	1	1	58	2 I 12 I 13 	4 I 18 I -1 B 2 B -1 	2 68 -1 
+set_schedule	1	1	59	2 S 13 I 14 	2 I -1 I -1 	2 26 -1 
+END
+BEGIN DevmanScheduler 0
+3 0 
+init_schedule	1	1	1	0 	1 I -1 	1 -1 
+get_schedule	1	1	60	2 I 15 I 16 	4 I 19 I -1 B 3 B -1 	2 72 -1 
+set_schedule	1	1	61	2 S 14 I 17 	2 I -1 I -1 	2 35 -1 
+END
+BEGIN MultiplexTwoInputString 0
+*
+Run_Input1	1	1	62	1 S 15 	1 S 9 	1 31 
+Run_Input2	1	1	63	1 S 16 	1 S 9 	1 31 
+END
+BEGIN EventBooleanControl 0
+*
+Update	1	1	64	1 B 1 	0 	2 43 63 
+END
+BEGIN Constant_String1 0
+OFF 
+Run_ConstantString	1	1	-1	0 	1 S 16 	0 
+END
+BEGIN ConvertorIntToString 0
+*
+Run_ConvertorIntToString	1	1	65	1 I 18 	1 S 17 	1 66 
+END
+BEGIN MultiplexTwoInputString 0
+*
+Run_Input1	1	1	66	1 S 17 	1 S 10 	1 32 
+Run_Input2	1	1	67	1 S 18 	1 S 10 	1 32 
+END
+BEGIN EventBooleanControl 0
+*
+Update	1	1	68	1 B 2 	0 	2 65 67 
+END
+BEGIN Constant_String1 0
+OFF 
+Run_ConstantString	1	1	-1	0 	1 S 18 	0 
+END
+BEGIN ConvertorIntToString 0
+*
+Run_ConvertorIntToString	1	1	69	1 I 19 	1 S 19 	1 70 
+END
+BEGIN MultiplexTwoInputString 0
+*
+Run_Input1	1	1	70	1 S 19 	1 S 11 	1 33 
+Run_Input2	1	1	71	1 S 20 	1 S 11 	1 33 
+END
+BEGIN EventBooleanControl 0
+*
+Update	1	1	72	1 B 3 	0 	2 69 71 
+END
+BEGIN Constant_String1 0
+OFF 
+Run_ConstantString	1	1	-1	0 	1 S 20 	0 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

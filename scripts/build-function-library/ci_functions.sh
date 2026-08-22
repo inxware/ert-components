@@ -12,13 +12,13 @@
 #   source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../scripts/build-function-library/ci_functions.sh"
 #
 # Call ci_setup_paths immediately after sourcing to initialise the standard
-# path variables (ROOT_DIR, CI_RESULT_DIR, TARGET_TREE_DIR, etc.).
+# path variables (ROOT_DIR, CI_RESULT_DIR, CI_REPORT_DIR, TARGET_TREE_DIR).
 #
 # Globals consumed by the per-platform functions (set by the entry-point):
 #   platform          — current platform name  (e.g. linux_x86_64_gtk_gst_debian11)
-#   CI_RESULT_DIR     — path to results root (set by ci_setup_paths)
+#   CI_RESULT_DIR     — build logs / flags, ../CI_RESULTS (set by ci_setup_paths)
+#   CI_REPORT_DIR     — committed summaries, SystemTests/reports (ditto)
 #   TARGET_TREE_DIR   — path to TARGET_TREES (set by ci_setup_paths)
-#   SYSTEM_TESTS_DIR  — path to default test app export (set by ci_setup_paths)
 #   COMPILE_ONLY      — "yes" to skip APK/Unity/exe-presence steps
 #   BUILD_ONLY        — "yes" to run only the compile step (make all_docker/make -j8);
 #                       skips targetenv, APK, Unity.  Writes build-target.skip.
@@ -45,11 +45,20 @@ function ci_setup_paths {
     else
         ROOT_DIR="$PWD"
     fi
-    CI_RESULT_DIR="${ROOT_DIR}/SystemTests/CI/results"
+    # Two homes, split on whether the artefact is worth reading next month.
+    #
+    # CI_RESULT_DIR — build logs and pass/fail flags for one run. Debris: a
+    # single platform's build.log runs to tens of MB. Lives outside the repo
+    # next to TARGET_TREES, the same place the rest of the build output goes,
+    # so the source tree cannot accumulate it and no .gitignore is needed.
+    #
+    # CI_REPORT_DIR — small durable summaries that are committed for history
+    # (feature matrix, timings, app-test reports).
+    CI_RESULT_DIR="${ROOT_DIR}/../CI_RESULTS"
+    CI_REPORT_DIR="${ROOT_DIR}/SystemTests/reports"
     TARGET_TREE_DIR="${ROOT_DIR}/../TARGET_TREES"
-    SYSTEM_TESTS_DIR="${ROOT_DIR}/SystemTests/LucidTestApps/DefaultTestApp/export/"
     TOOL_TEST_EHS_VARIANT="linux_x86_gtk"
-    export ROOT_DIR CI_RESULT_DIR TARGET_TREE_DIR SYSTEM_TESTS_DIR TOOL_TEST_EHS_VARIANT
+    export ROOT_DIR CI_RESULT_DIR CI_REPORT_DIR TARGET_TREE_DIR TOOL_TEST_EHS_VARIANT
 }
 
 # ── Platform filtering ────────────────────────────────────────────────────────
@@ -223,8 +232,28 @@ function ci_build_target {
 
     touch "${CI_RESULT_DIR}/${platform}/build"
 
+    # ── Zephyr: three-step CMake-master build ────────────────────────────────
+    # Zephyr targets reject 'make all_docker' at parse time, so without this they
+    # fail on the build command rather than on anything real. The SDK fetch is a
+    # no-op once the shared ../TARGET_SRC_STAGING tree for that (manifest,
+    # version) exists, so only the first Zephyr target in a sweep pays for it.
+    if [ -f "target/platform/${platform}/zephyr" ] \
+       || case "$platform" in zephyr_*) true ;; *) false ;; esac; then
+        if make zephyr_cmake_gen    >>"$build_log" 2>&1 \
+        && make zephyr_prepdeps     >>"$build_log" 2>&1 \
+        && make zephyr_build_docker >>"$build_log" 2>&1; then
+            heading "${platform} Zephyr build success"
+            touch "${CI_RESULT_DIR}/${platform}/build.pass"
+        else
+            err "${platform} Zephyr build failed — targetenv not run"
+            ci_display_log_tail "$build_log"
+            touch "${CI_RESULT_DIR}/${platform}/build.fail"
+            touch "${CI_RESULT_DIR}/${platform}/build-target.notrun"
+            ci_on_build_failure "$build_log" "zephyr build"
+            return 1
+        fi
     # ── Docker or host compile ────────────────────────────────────────────────
-    if [ -f "target/platform/${platform}/Dockerimagename" ]; then
+    elif [ -f "target/platform/${platform}/Dockerimagename" ]; then
         if make all_docker >>"$build_log" 2>&1; then
             heading "${platform} Docker build success"
             touch "${CI_RESULT_DIR}/${platform}/build.pass"
@@ -257,6 +286,15 @@ function ci_build_target {
     fi
 
     # ── targetenv ─────────────────────────────────────────────────────────────
+    # Zephyr has no targetenv stage: zephyr_build_docker already places
+    # zephyr.hex/.elf/.bin in ehs_env-<target>/bin/, which is what targetenv
+    # produces for other targets. Running it would fail on a stage that does not
+    # exist for this os-arch.
+    if case "$platform" in zephyr_*) true ;; *) false ;; esac; then
+        touch "${CI_RESULT_DIR}/${platform}/build-target.skip"
+        return 0
+    fi
+
     if make targetenv >>"$build_log" 2>&1; then
         heading "${platform} targetenv success"
         touch "${CI_RESULT_DIR}/${platform}/build-target.pass"
@@ -318,36 +356,6 @@ function ci_build_target {
     fi
 
     return $fail
-}
-
-# ── Application smoke tests ───────────────────────────────────────────────────
-# Copies the default test application into the platform's appdata/ directory,
-# launches the runtime, polls for up to 60 s, and checks for a test.pass
-# marker written by the app on success.
-function ci_test_run_apps {
-    pushd . || return 1
-    cp -f "${SYSTEM_TESTS_DIR}"/* "${TARGET_TREE_DIR}/ehs_env-${platform}/appdata/" \
-        || { popd || true; return 1; }
-    rm -f "${TARGET_TREE_DIR}/ehs_env-${platform}/userdata/test.pass"
-    cd "${TARGET_TREE_DIR}/ehs_env-${platform}/bin" \
-        || { popd || true; return 1; }
-
-    ./run_ehs.sh NO_RESTART LIB_HOST &
-    for (( i = 1; i <= 10; i++ )); do
-        sleep 6
-        test -n "$(pidof -s ehs.exe)" || break
-    done
-
-    if [ -n "$(pidof -s ehs.exe)" ]; then
-        touch "${CI_RESULT_DIR}/${platform}/exe-host-run-app.timedout"
-    elif test -e "${TARGET_TREE_DIR}/ehs_env-${platform}/userdata/test.pass"; then
-        touch "${CI_RESULT_DIR}/${platform}/exe-host-run-app.pass"
-    else
-        touch "${CI_RESULT_DIR}/${platform}/exe-host-run-app.fail"
-    fi
-
-    ./restart.sh
-    popd || true
 }
 
 # ── SBOM generation ──────────────────────────────────────────────────────────
@@ -487,18 +495,18 @@ function ci_generate_matrix {
     local fmt="${1:-md}"
 
     if [ "$fmt" = "all" ]; then
-        echo "Generating feature compliance matrix (all formats) → ${CI_RESULT_DIR}/matrix.{csv,md,html}"
+        echo "Generating feature compliance matrix (all formats) → ${CI_REPORT_DIR}/matrix.{csv,md,html}"
         # fb_platform_matrix.py writes matrix.csv/md/html to cwd when given 'all'
-        if ( cd "${CI_RESULT_DIR}" && \
+        if ( cd "${CI_REPORT_DIR}" && \
              python3 "${OLDPWD}/scripts/software-utilities/fb_platform_matrix.py" \
                      --format all ); then
-            heading "Feature matrices written to ${CI_RESULT_DIR}/matrix.{csv,md,html}"
+            heading "Feature matrices written to ${CI_REPORT_DIR}/matrix.{csv,md,html}"
         else
             err "Feature matrix generation failed"
             return 1
         fi
     else
-        local out="${CI_RESULT_DIR}/feature_matrix.${fmt}"
+        local out="${CI_REPORT_DIR}/feature_matrix.${fmt}"
         echo "Generating feature compliance matrix (${fmt}) → ${out}"
         # Single-format output goes to stdout; redirect it to the results dir.
         if python3 scripts/software-utilities/fb_platform_matrix.py \

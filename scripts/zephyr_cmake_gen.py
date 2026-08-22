@@ -148,8 +148,7 @@ project(ehs-{target})
 def write_cmakelists(output_dir: Path, target: str, board: str,
                      sources: list, rel_inc: list, abs_inc: list,
                      defs: list, ehs_root: Path, toolbox_hashes_raw: str = '',
-                     gnu_os_arch: str = '', sodl_version: str = '',
-                     monolithic_kernel: str = ''):
+                     gnu_os_arch: str = '', sodl_version: str = ''):
     out = output_dir / 'CMakeLists.txt'
     lines = [CMAKELISTS_HEADER.format(board=board, target=target)]
 
@@ -246,32 +245,38 @@ def write_cmakelists(output_dir: Path, target: str, board: str,
             lines.append(f'    {d}\n')
     lines.append(')\n')
 
-    # Kernel library — linked when EHS_BUILD_MONOLITHIC_KERNEL is set in config.mk.
-    # The pre-built library lives in ert-build-support at a path keyed by EHS_GNU_OS_ARCH.
-    # EHS_BUILD_SUPPORT is passed to west build by zephyr_build.sh so the path works
-    # both inside Docker (/inxware/ert-build-support) and natively.
-    if monolithic_kernel.strip() and gnu_os_arch.strip():
+    # Kernel library — always linked. The pre-built library lives in
+    # ert-build-support at a path keyed by EHS_GNU_OS_ARCH. EHS_BUILD_SUPPORT is
+    # passed to west build by zephyr_build.sh so the path works both inside
+    # Docker (/inxware/ert-build-support) and natively. A missing archive is a
+    # CMake FATAL_ERROR below, which is the correct failure: there is no
+    # meaningful eRT build without the kernel.
+    if gnu_os_arch.strip():
         lib_name = 'ehs_ehrt1' if sodl_version.strip() == '1' else 'ehs'
         lines.append('\n# --- eRT kernel library (pre-built by EHS-kernel) ---\n')
-        # Under sysbuild the top-level -DEHS_BUILD_SUPPORT is not forwarded to
-        # this app sub-image; fall back to the env var zephyr_build.sh exports.
-        lines.append('if(NOT DEFINED EHS_BUILD_SUPPORT AND DEFINED ENV{EHS_BUILD_SUPPORT})\n')
-        lines.append('    set(EHS_BUILD_SUPPORT $ENV{EHS_BUILD_SUPPORT})\n')
+        # Under sysbuild the top-level -DEHS_KERNELS is not forwarded to this
+        # app sub-image; fall back to the env var zephyr_build.sh exports.
+        lines.append('if(NOT DEFINED EHS_KERNELS AND DEFINED ENV{EHS_KERNELS})\n')
+        lines.append('    set(EHS_KERNELS $ENV{EHS_KERNELS})\n')
         lines.append('endif()\n')
-        lines.append('if(NOT DEFINED EHS_BUILD_SUPPORT)\n')
+        lines.append('if(NOT DEFINED EHS_KERNELS)\n')
         lines.append('    message(FATAL_ERROR\n')
-        lines.append('        "EHS_BUILD_SUPPORT is not defined.\\n"\n')
-        lines.append('        "Pass it via: cmake ... -DEHS_BUILD_SUPPORT=/path/to/ert-build-support")\n')
+        lines.append('        "EHS_KERNELS is not defined.\\n"\n')
+        lines.append('        "Pass it via: cmake ... -DEHS_KERNELS=/path/to/ert-kernels")\n')
         lines.append('endif()\n')
         lines.append(
-            f'set(EHS_KERNEL_LIB '
-            f'"${{EHS_BUILD_SUPPORT}}/support_libs/target_libs/{gnu_os_arch}/kernel/lib{lib_name}.a")\n'
+            f'set(EHS_KERNEL_LIB "${{EHS_KERNELS}}/{gnu_os_arch}/kernel/lib{lib_name}.a")\n'
         )
         lines.append('if(NOT EXISTS "${EHS_KERNEL_LIB}")\n')
         lines.append('    message(FATAL_ERROR\n')
         lines.append(f'        "eRT kernel library not found: ${{EHS_KERNEL_LIB}}\\n"\n')
-        lines.append(f'        "Build EHS-kernel for zephyr_arm_cortexm33_ehrt1 first:\\n"\n')
-        lines.append(f'        "  cd ../EHS-kernel && ./configure zephyr_arm_cortexm33_ehrt1 && make all_docker")\n')
+        # Kernel target name is derived, not hardcoded: cortexm33 was named here
+        # regardless of the actual core, which sends anyone building a cortex-m4
+        # board to the wrong kernel target.
+        _core = gnu_os_arch.rsplit('-', 1)[-1]
+        _ktgt = f"zephyr_arm_{_core}" + ("_ehrt1" if sodl_version.strip() == '1' else "")
+        lines.append(f'        "Build EHS-kernel for {_ktgt} first:\\n"\n')
+        lines.append(f'        "  cd ../EHS-kernel && ./configure {_ktgt} && make all_docker")\n')
         lines.append('endif()\n')
         # Link the pre-built kernel library.
         #
@@ -455,7 +460,6 @@ def main():
     toolbox_hashes_raw   = v.get('EHS_TOOLBOX_HASHES_VALUE', '')
     gnu_os_arch          = v.get('EHS_GNU_OS_ARCH', '')
     sodl_version         = v.get('ERT_SODL_VERSION', '')
-    monolithic_kernel    = v.get('EHS_BUILD_MONOLITHIC_KERNEL', '')
 
     platform_path = Path(platform_str)
     if not platform_path.is_absolute():
@@ -497,8 +501,7 @@ def main():
 
     write_cmakelists(args.output, target, board,
                      sources, rel_inc, abs_inc, defs_raw, ehs_root,
-                     toolbox_hashes_raw, gnu_os_arch, sodl_version,
-                     monolithic_kernel)
+                     toolbox_hashes_raw, gnu_os_arch, sodl_version)
     write_prj_conf(args.output, kconfig)
     write_sysbuild_conf(args.output, sysbuild_kconfig)
     copy_board_files(platform_path, args.output, base_platform_path)

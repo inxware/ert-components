@@ -44,6 +44,32 @@ Hand-maintained. Editing these changes what ships.
 
 ---
 
+## Withdrawing things already published
+
+Run by hand, never from `publish_release.sh`. Both report only until given
+`--apply`.
+
+`prune_mirror.sh`: Deletes directories the allow-list no longer includes from the
+mirror's **working tree**. Needed because `publish_release.sh` rsyncs each
+platform individually, so its `--delete` can add and update a platform but never
+withdraw one. Removes from HEAD only — the content stays in history.
+
+`truncate_remote_history.sh`: Replaces a remote's history with one commit of the
+current tree. For (a) content that should never have been published and (b)
+clone size. Writes a backup bundle first and refuses on a dirty tree, unpushed
+commits, or any fork.
+
+> Read the header before using it for (a). It **reduces** exposure rather than
+> ending it: unreachable commits stay fetchable by SHA until GitHub Support
+> purges them, forks and PRs survive, and existing clones are unaffected. For a
+> leaked credential the only real remedy is rotating it.
+>
+> Truncating one branch is not enough. Every other branch and tag is a root that
+> keeps the whole old history reachable — pass `--drop-branches --drop-tags`, or
+> nothing is achieved. LFS objects are not freed either way.
+
+---
+
 ## Miscellaneous git helpers
 
 Unrelated to mirroring. Neither is called by anything else.

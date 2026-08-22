@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Name>simple_mqtt</Name>
+  <CommercialName>TEST-TEMPLATE</CommercialName>
+  <Version>1.4</Version>
+  <Description>Test simple mqtt sub/pub</Description>
+</root>

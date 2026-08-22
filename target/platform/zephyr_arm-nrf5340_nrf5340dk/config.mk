@@ -25,9 +25,6 @@ EHS_TARGET_LIB_VARIANT = -cortexm33
 
 EHS_MCU_TARGET    = yes
 
-# Use the pre-built kernel library (from EHS-kernel/zephyr_arm_cortexm33_ehrt1).
-# This excludes target/os-arch/zephyr-arm/ehs_kernel_stub.c from the build.
-EHS_BUILD_MONOLITHIC_KERNEL = yes
 
 
 #################################################################################################################

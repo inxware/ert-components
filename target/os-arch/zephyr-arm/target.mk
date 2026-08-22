@@ -107,12 +107,6 @@ endif
 endif
 endif
 
-# Kernel stub: placeholder EhsInit/EhsMain until libehs_ehrt1.a is available
-# for arm-zephyr-eabi.  Remove when the real kernel library is integrated.
-ifndef EHS_BUILD_MONOLITHIC_KERNEL
-OBJECTS += ehs_kernel_stub.$(OBJ)
-endif
-
 # Optional objects depending on platform build
 ifdef EHS_UART_SUPPORT
 ifneq ($(EHS_UART_SUPPORT),none)

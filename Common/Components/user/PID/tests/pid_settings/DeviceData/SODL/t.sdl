@@ -1,0 +1,534 @@
+#V:2.0.0
+#B:173
+#D:Y2024M4d21h16m51s26
+#N:pid_settings
+1
+1	100000	90000
+BEGIN FILE_ReadOnly_String 0
+calib.json 0 ( ) 0 
+Run_OpenFILE_ReadOnly_String	1	1	2	1 S 1 	1 I -1 	2 4 5 
+Run_CloseFILE_ReadOnly_String	1	1	3	0 	1 I -1 	2 -1 -1 
+Run_ReadFILE_ReadOnly_String	1	1	4	0 	2 S 2 I -1 	2 8 6 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	5	0 	0 	1 3 
+Or2	1	1	6	0 	0 	1 3 
+Or3	1	1	7	0 	0 	1 3 
+END
+BEGIN Constant_String1 0
+p1s 
+Run_ConstantString	1	1	-1	0 	1 S8 4 	0 
+END
+BEGIN Constant_String1 0
+p1o 
+Run_ConstantString	1	1	-1	0 	1 S8 5 	0 
+END
+BEGIN Constant_String1 0
+p2s 
+Run_ConstantString	1	1	-1	0 	1 S8 6 	0 
+END
+BEGIN Constant_String1 0
+z1s 
+Run_ConstantString	1	1	-1	0 	1 S8 10 	0 
+END
+BEGIN Constant_String1 0
+z1o 
+Run_ConstantString	1	1	-1	0 	1 S8 11 	0 
+END
+BEGIN Constant_String1 0
+f1s 
+Run_ConstantString	1	1	-1	0 	1 S8 12 	0 
+END
+BEGIN Constant_String1 0
+f1o 
+Run_ConstantString	1	1	-1	0 	1 S8 13 	0 
+END
+BEGIN Constant_String1 0
+p2o 
+Run_ConstantString	1	1	-1	0 	1 S8 7 	0 
+END
+BEGIN Constant_String1 0
+t1s 
+Run_ConstantString	1	1	-1	0 	1 S8 8 	0 
+END
+BEGIN Constant_String1 0
+t1o 
+Run_ConstantString	1	1	-1	0 	1 S8 9 	0 
+END
+BEGIN json_stream_parser 0
+*
+read	1	1	8	1 S 2 	1 S -1 	1 7 
+parse	1	1	9	0 	5 I -1 S 38 S 3 S -1 I -1 	8 -1 13 12 15 -1 -1 73 11 
+eos	1	1	10	0 	0 	1 71 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	11	0 	0 	1 10 
+Or2	1	1	12	0 	0 	1 10 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	7	0 	0 	1 9 
+Or2	1	1	13	0 	0 	1 9 
+Or3	1	1	14	0 	0 	1 9 
+Or4	1	1	15	0 	0 	1 9 
+END
+BEGIN TextCaseDemultiplexer_Event 0
+NULL NULL NULL NULL NULL NULL NULL NULL 
+Run	1	1	14	9 S 3 S 4 S 5 S 6 S 7 S 8 S 9 S 10 S 11 	0 	9 111 112 113 114 115 116 117 118 -1 
+END
+BEGIN TextCaseDemultiplexer_Event 0
+NULL NULL NULL NULL NULL NULL NULL NULL 
+Run	1	1	14	9 S 3 S 12 S 13 S 14 S 15 S 16 S 17 S 18 S 19 	0 	9 137 138 120 121 122 123 124 125 -1 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 1 
+Run_OpenFILE_WriteOnly_String	1	1	16	1 S 20 	1 I -1 	2 33 21 
+Run_CloseFILE_WriteOnly_String	1	1	17	0 	1 I -1 	2 -1 23 
+Run_WriteFILE_WriteOnly_String	1	1	18	1 S 21 	1 I -1 	2 61 22 
+END
+BEGIN FileSystemDirCreateRemove 0
+NULL 0 
+create	1	1	1	1 S 22 	0 	2 19 20 
+END
+BEGIN Constant_String1 0
+inx-tests/results 
+Run_ConstantString	1	1	-1	0 	1 S 22 	0 
+END
+BEGIN CatString 0
+/test_result.txt 
+Run_CatString	1	1	19	2 S 22 S -1 	1 S 20 	1 16 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	20	0 	0 	1 -1 
+Or2	1	1	21	0 	0 	1 -1 
+Or3	1	1	22	0 	0 	1 -1 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	23	0 	0 	1 17 
+Or2	1	1	22	0 	0 	1 17 
+Or3	1	1	24	0 	0 	1 17 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 0 
+Run_OpenFILE_WriteOnly_String	1	1	25	1 S 23 	1 I -1 	2 27 28 
+Run_CloseFILE_WriteOnly_String	1	1	26	0 	1 I -1 	2 29 30 
+Run_WriteFILE_WriteOnly_String	1	1	27	1 S 24 	1 I -1 	2 26 31 
+END
+BEGIN Constant_String1 0
+done 
+Run_ConstantString	1	1	-1	0 	1 S 24 	0 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	28	0 	0 	1 24 
+Or2	1	1	29	0 	0 	1 24 
+Or3	1	1	30	0 	0 	1 24 
+Or4	1	1	31	0 	0 	1 24 
+END
+BEGIN CatString 0
+/test_done 
+Run_CatString	1	1	32	2 S 22 S -1 	1 S 23 	1 25 
+END
+BEGIN FILE_ReadOnly_String 0
+calibration.dat 0 ( ) 1 
+Run_OpenFILE_ReadOnly_String	1	1	33	1 S -1 	1 I -1 	2 35 36 
+Run_CloseFILE_ReadOnly_String	1	1	34	0 	1 I -1 	2 65 -1 
+Run_ReadFILE_ReadOnly_String	1	1	35	0 	2 S 30 I -1 	2 38 37 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	36	0 	0 	1 34 
+Or2	1	1	37	0 	0 	1 34 
+Or3	1	1	38	0 	0 	1 34 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 0 
+Run_OpenFILE_WriteOnly_String	1	1	39	1 S 25 	1 I -1 	2 41 58 
+Run_CloseFILE_WriteOnly_String	1	1	40	0 	1 I -1 	2 66 59 
+Run_WriteFILE_WriteOnly_String	1	1	41	1 S 26 	1 I -1 	2 40 60 
+END
+BEGIN FindString 0
+0 NULL 
+Run_FindString	1	1	42	2 S 26 S 27 	3 S -1 B 3 I -1 	1 47 
+END
+BEGIN FindString 0
+0 NULL 
+Run_FindString	1	1	43	2 S 26 S 28 	3 S -1 B 2 I -1 	1 46 
+END
+BEGIN FindString 0
+0 "id":1 
+Run_FindString	1	1	44	2 S 26 S 29 	3 S -1 B 1 I -1 	1 45 
+END
+BEGIN EventBooleanControl 0
+*
+Update	1	1	45	1 B 1 	0 	2 92 95 
+END
+BEGIN EventBooleanControl 0
+*
+Update	1	1	46	1 B 2 	0 	2 56 44 
+END
+BEGIN EventBooleanControl 0
+*
+Update	1	1	47	1 B 3 	0 	2 55 43 
+END
+BEGIN MultiplexFourInputString 0
+*
+Run_Input1	1	1	38	1 S 30 	1 S 26 	1 42 
+Run_Input2	1	1	48	1 S 31 	1 S 26 	1 42 
+Run_Input4	1	1	49	1 S 32 	1 S 26 	1 42 
+END
+BEGIN FILE_ReadOnly_String 0
+controller1.dat 0 ( ) 1 
+Run_OpenFILE_ReadOnly_String	1	1	50	1 S -1 	1 I -1 	2 52 53 
+Run_CloseFILE_ReadOnly_String	1	1	51	0 	1 I -1 	2 83 -1 
+Run_ReadFILE_ReadOnly_String	1	1	52	0 	2 S 31 I -1 	2 48 54 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	53	0 	0 	1 51 
+Or2	1	1	54	0 	0 	1 51 
+Or3	1	1	48	0 	0 	1 51 
+END
+BEGIN MultiplexThreeInputString 0
+*
+Run_Input1	1	1	55	1 S 33 	1 S 25 	1 39 
+Run_Input2	1	1	56	1 S 34 	1 S 25 	1 39 
+Run_Input3	1	1	57	1 S 35 	1 S 25 	1 39 
+END
+BEGIN Constant_String1 0
+calib.json 
+Run_ConstantString	1	1	-1	0 	1 S10 33 	0 
+END
+BEGIN Constant_String1 0
+hrdw.json 
+Run_ConstantString	1	1	-1	0 	1 S10 34 	0 
+END
+BEGIN Constant_String1 0
+ctrl1.json 
+Run_ConstantString	1	1	-1	0 	1 S10 41 	0 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	58	0 	0 	1 62 
+Or2	1	1	59	0 	0 	1 62 
+Or3	1	1	60	0 	0 	1 62 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	61	0 	0 	1 64 
+Or2	1	1	62	0 	0 	1 64 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	63	0 	0 	1 50 
+And2	1	1	64	0 	0 	1 50 
+Reset	1	1	65	0 	0 	1 63 
+END
+BEGIN MultiplexFourInputString 0
+*
+Run_Input1	1	1	66	1 S 25 	1 S 1 	1 2 
+END
+BEGIN string_format8_real 0
+{"id":3,"p1s":%.2f,"p1o":%.2f,"p2s":%.2f,"p2o":%.2f,"t1s":%.2f,"t1o":%.2f,"z1s":%.2f,"z1o":%.2f, 
+run	1	1	67	9 F 1 F 2 F 3 F 4 F 5 F 6 F 7 F 8 S -1 	1 S 36 	1 68 
+END
+BEGIN string_format8_real 0
+"f1s":%.2f,"f1o":%.2f} 
+run	1	1	68	9 F 9 F 10 F -1 F -1 F -1 F -1 F -1 F -1 S -1 	1 S 37 	1 69 
+END
+BEGIN CatString 0
+ 
+Run_CatString	1	1	69	2 S 36 S 37 	1 S 61 	1 106 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	70	0 	0 	1 67 
+And2	1	1	71	0 	0 	1 67 
+Reset	1	1	72	0 	0 	1 70 
+END
+BEGIN ConvertorStringToReal 0
+*
+Run_ConvertorStringToReal	1	1	73	1 S 38 	1 F 18 	1 119 
+END
+BEGIN Constant_String1 0
+ctrl2.json 
+Run_ConstantString	1	1	-1	0 	1 S10 42 	0 
+END
+BEGIN Constant_String1 0
+ctrl3.json 
+Run_ConstantString	1	1	-1	0 	1 S10 43 	0 
+END
+BEGIN MultiplexFourInputString 0
+*
+Run_Input1	1	1	74	1 S 39 	1 S 32 	1 49 
+Run_Input2	1	1	75	1 S 40 	1 S 32 	1 49 
+END
+BEGIN FILE_ReadOnly_String 0
+controller2.dat 0 ( ) 1 
+Run_OpenFILE_ReadOnly_String	1	1	76	1 S -1 	1 I -1 	2 78 79 
+Run_CloseFILE_ReadOnly_String	1	1	77	0 	1 I -1 	2 91 -1 
+Run_ReadFILE_ReadOnly_String	1	1	78	0 	2 S 39 I -1 	2 74 80 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	79	0 	0 	1 77 
+Or2	1	1	80	0 	0 	1 77 
+Or3	1	1	74	0 	0 	1 77 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	61	0 	0 	1 82 
+Or2	1	1	62	0 	0 	1 82 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	81	0 	0 	1 76 
+And2	1	1	82	0 	0 	1 76 
+Reset	1	1	83	0 	0 	1 81 
+END
+BEGIN FILE_ReadOnly_String 0
+controller3.dat 0 ( ) 1 
+Run_OpenFILE_ReadOnly_String	1	1	84	1 S -1 	1 I -1 	2 86 87 
+Run_CloseFILE_ReadOnly_String	1	1	85	0 	1 I -1 	2 110 -1 
+Run_ReadFILE_ReadOnly_String	1	1	86	0 	2 S 40 I -1 	2 75 88 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	87	0 	0 	1 85 
+Or2	1	1	88	0 	0 	1 85 
+Or3	1	1	75	0 	0 	1 85 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	61	0 	0 	1 90 
+Or2	1	1	62	0 	0 	1 90 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	89	0 	0 	1 84 
+And2	1	1	90	0 	0 	1 84 
+Reset	1	1	91	0 	0 	1 89 
+END
+BEGIN MultiplexThreeInputString 0
+*
+Run_Input1	1	1	92	1 S 41 	1 S 35 	1 57 
+Run_Input2	1	1	93	1 S 42 	1 S 35 	1 57 
+Run_Input3	1	1	94	1 S 43 	1 S 35 	1 57 
+END
+BEGIN FindString 0
+0 "id":3 
+Run_FindString	1	1	95	2 S 26 S 44 	3 S -1 B 5 I -1 	1 98 
+END
+BEGIN FindString 0
+0 "id":2 
+Run_FindString	1	1	96	2 S 26 S 45 	3 S -1 B 4 I -1 	1 97 
+END
+BEGIN EventBooleanControl 0
+*
+Update	1	1	97	1 B 4 	0 	2 94 -1 
+END
+BEGIN EventBooleanControl 0
+*
+Update	1	1	98	1 B 5 	0 	2 93 96 
+END
+BEGIN Constant_String1 0
+"id":3 
+Run_ConstantString	1	1	-1	0 	1 S10 27 	0 
+END
+BEGIN Constant_String1 0
+"id":2 
+Run_ConstantString	1	1	-1	0 	1 S10 28 	0 
+END
+BEGIN Constant_String1 0
+"pid":0 
+Run_ConstantString	1	1	-1	0 	1 S10 29 	0 
+END
+BEGIN Constant_String1 0
+"pid":1 
+Run_ConstantString	1	1	-1	0 	1 S10 44 	0 
+END
+BEGIN Constant_String1 0
+"pid":2 
+Run_ConstantString	1	1	-1	0 	1 S10 45 	0 
+END
+BEGIN Constant_String1 0
+pid 
+Run_ConstantString	1	1	-1	0 	1 S8 14 	0 
+END
+BEGIN Constant_String1 0
+cs 
+Run_ConstantString	1	1	-1	0 	1 S8 15 	0 
+END
+BEGIN Constant_String1 0
+ct 
+Run_ConstantString	1	1	-1	0 	1 S8 16 	0 
+END
+BEGIN Constant_String1 0
+cm3 
+Run_ConstantString	1	1	-1	0 	1 S8 46 	0 
+END
+BEGIN Constant_String1 0
+sm 
+Run_ConstantString	1	1	-1	0 	1 S8 47 	0 
+END
+BEGIN Constant_String1 0
+td 
+Run_ConstantString	1	1	-1	0 	1 S8 48 	0 
+END
+BEGIN Constant_String1 0
+ram 
+Run_ConstantString	1	1	-1	0 	1 S8 49 	0 
+END
+BEGIN Constant_String1 0
+em 
+Run_ConstantString	1	1	-1	0 	1 S8 17 	0 
+END
+BEGIN Constant_String1 0
+cm1 
+Run_ConstantString	1	1	-1	0 	1 S8 18 	0 
+END
+BEGIN Constant_String1 0
+cm2 
+Run_ConstantString	1	1	-1	0 	1 S8 19 	0 
+END
+BEGIN Constant_String1 0
+msp 
+Run_ConstantString	1	1	-1	0 	1 S8 50 	0 
+END
+BEGIN Constant_String1 0
+tsp 
+Run_ConstantString	1	1	-1	0 	1 S8 51 	0 
+END
+BEGIN Constant_String1 0
+la 
+Run_ConstantString	1	1	-1	0 	1 S8 52 	0 
+END
+BEGIN Constant_String1 0
+ua 
+Run_ConstantString	1	1	-1	0 	1 S8 53 	0 
+END
+BEGIN Constant_String1 0
+pp 
+Run_ConstantString	1	1	-1	0 	1 S8 54 	0 
+END
+BEGIN Constant_String1 0
+pi 
+Run_ConstantString	1	1	-1	0 	1 S8 55 	0 
+END
+BEGIN Constant_String1 0
+pd 
+Run_ConstantString	1	1	-1	0 	1 S8 56 	0 
+END
+BEGIN TextCaseDemultiplexer_Event 0
+NULL NULL NULL NULL NULL NULL NULL NULL 
+Run	1	1	14	9 S 3 S 46 S 47 S 48 S 49 S 50 S 51 S 52 S 53 	0 	9 126 127 128 129 130 131 132 133 -1 
+END
+BEGIN TextCaseDemultiplexer_Event 0
+NULL NULL NULL NULL NULL NULL NULL NULL 
+Run	1	1	14	9 S 3 S 54 S 55 S 56 S -1 S -1 S -1 S -1 S -1 	0 	9 134 135 136 -1 -1 -1 -1 -1 -1 
+END
+BEGIN string_format8_int 0
+{"id":1,"pid":%d,"cs":%d,"ct":%d,"em":%d,"erk":0,"cm1":%d,"cm2":%d,"cm3":%d,"sm":%d, 
+run	1	1	99	9 I 1 I 2 I 3 I 4 I 5 I 6 I 7 I 8 S -1 	1 S 57 	1 100 
+END
+BEGIN string_format8_int 0
+"td":%d,"ram":%d, 
+run	1	1	100	9 I 9 I 10 I -1 I -1 I -1 I -1 I -1 I -1 S -1 	1 S 58 	1 104 
+END
+BEGIN string_format8_real 0
+"msp":%.2f,"tsp":%.2f,"la":%.2f,"ua":%.2f,"p":%.4f,"i":%.4f,"d":%.4f,"cl1":100.0001,"cl2":200.0002,"cl3":300.0003} 
+run	1	1	101	9 F 11 F 12 F 13 F 14 F 15 F 16 F 17 F -1 S -1 	1 S 60 	1 105 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	102	0 	0 	1 99 
+And2	1	1	71	0 	0 	1 99 
+Reset	1	1	103	0 	0 	1 102 
+END
+BEGIN CatString 0
+ 
+Run_CatString	1	1	104	2 S 57 S 58 	1 S 59 	1 101 
+END
+BEGIN CatString 0
+ 
+Run_CatString	1	1	105	2 S 59 S 60 	1 S 62 	1 107 
+END
+BEGIN MultiplexThreeInputString 0
+*
+Run_Input1	1	1	106	1 S 61 	1 S 21 	1 18 
+Run_Input2	1	1	107	1 S 62 	1 S 21 	1 18 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	61	0 	0 	1 109 
+Or2	1	1	62	0 	0 	1 109 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	108	0 	0 	1 32 
+And2	1	1	109	0 	0 	1 32 
+Reset	1	1	110	0 	0 	1 108 
+END
+BEGIN DemultiplexFourOutputReal 0
+*
+Run_Output1	1	1	111	1 F 18 	1 F 1 	1 72 
+Run_Output2	1	1	112	1 F 18 	1 F 2 	1 -1 
+Run_Output3	1	1	113	1 F 18 	1 F 3 	1 -1 
+Run_Output4	1	1	114	1 F 18 	1 F 4 	1 -1 
+END
+BEGIN DemultiplexFourOutputReal 0
+*
+Run_Output1	1	1	115	1 F 18 	1 F 5 	1 -1 
+Run_Output2	1	1	116	1 F 18 	1 F 6 	1 -1 
+Run_Output3	1	1	117	1 F 18 	1 F 7 	1 -1 
+Run_Output4	1	1	118	1 F 18 	1 F 8 	1 -1 
+END
+BEGIN ConvertorRealToInt 0
+*
+Run_ConvertorRealToInt	1	1	119	1 F 18 	1 I 11 	1 14 
+END
+BEGIN DemultiplexFourOutputInt 0
+*
+Run_Output1	1	1	120	1 I 11 	1 I 1 	1 103 
+Run_Output2	1	1	121	1 I 11 	1 I 2 	1 -1 
+Run_Output3	1	1	122	1 I 11 	1 I 3 	1 -1 
+Run_Output4	1	1	123	1 I 11 	1 I 4 	1 -1 
+END
+BEGIN DemultiplexFourOutputInt 0
+*
+Run_Output1	1	1	124	1 I 11 	1 I 5 	1 -1 
+Run_Output2	1	1	125	1 I 11 	1 I 6 	1 -1 
+Run_Output3	1	1	126	1 I 11 	1 I 7 	1 -1 
+Run_Output4	1	1	127	1 I 11 	1 I 8 	1 -1 
+END
+BEGIN DemultiplexTwoOutputInt 0
+*
+Run_Output1	1	1	128	1 I 11 	1 I 9 	1 -1 
+Run_Output2	1	1	129	1 I 11 	1 I 10 	1 -1 
+END
+BEGIN DemultiplexFourOutputReal 0
+*
+Run_Output1	1	1	130	1 F 18 	1 F 11 	1 -1 
+Run_Output2	1	1	131	1 F 18 	1 F 12 	1 -1 
+Run_Output3	1	1	132	1 F 18 	1 F 13 	1 -1 
+Run_Output4	1	1	133	1 F 18 	1 F 14 	1 -1 
+END
+BEGIN DemultiplexThreeOutputReal 0
+*
+Run_Output1	1	1	134	1 F 18 	1 F 15 	1 -1 
+Run_Output2	1	1	135	1 F 18 	1 F 16 	1 -1 
+Run_Output3	1	1	136	1 F 18 	1 F 17 	1 -1 
+END
+BEGIN DemultiplexTwoOutputReal 0
+*
+Run_Output1	1	1	137	1 F 18 	1 F 9 	1 -1 
+Run_Output2	1	1	138	1 F 18 	1 F 10 	1 -1 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

@@ -1,0 +1,119 @@
+#V:2.0.0
+#B:17
+#D:Y2024M4d9h10m21s15
+#N:math_int
+1
+1	100000	90000
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 1 
+Run_OpenFILE_WriteOnly_String	1	1	2	1 S 1 	1 I -1 	2 19 7 
+Run_CloseFILE_WriteOnly_String	1	1	3	0 	1 I -1 	2 -1 9 
+Run_WriteFILE_WriteOnly_String	1	1	4	1 S 2 	1 I -1 	2 30 8 
+END
+BEGIN FileSystemDirCreateRemove 0
+NULL 0 
+create	1	1	1	1 S 3 	0 	2 5 6 
+END
+BEGIN Constant_String1 0
+inx-tests/results 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN CatString 0
+/test_result.txt 
+Run_CatString	1	1	5	2 S 3 S -1 	1 S 1 	1 2 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	6	0 	0 	1 -1 
+Or2	1	1	7	0 	0 	1 -1 
+Or3	1	1	8	0 	0 	1 -1 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	9	0 	0 	1 3 
+Or2	1	1	8	0 	0 	1 3 
+Or3	1	1	10	0 	0 	1 3 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 0 
+Run_OpenFILE_WriteOnly_String	1	1	11	1 S 4 	1 I -1 	2 13 14 
+Run_CloseFILE_WriteOnly_String	1	1	12	0 	1 I -1 	2 15 16 
+Run_WriteFILE_WriteOnly_String	1	1	13	1 S 5 	1 I -1 	2 12 17 
+END
+BEGIN Constant_String1 0
+done 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	14	0 	0 	1 10 
+Or2	1	1	15	0 	0 	1 10 
+Or3	1	1	16	0 	0 	1 10 
+Or4	1	1	17	0 	0 	1 10 
+END
+BEGIN CatString 0
+/test_done 
+Run_CatString	1	1	18	2 S 3 S -1 	1 S 4 	1 11 
+END
+BEGIN AbsInt 0
+*
+Run_AbsInt	1	1	19	1 I 1 	1 I 2 	1 23 
+END
+BEGIN string_format8_int 0
+%d,%d,%d,%d,%d,%d,%d,%d 
+run	1	1	20	9 I 2 I 3 I 4 I 5 I 6 I 7 I 8 I 9 S -1 	1 S 6 	1 21 
+END
+BEGIN MultiplexFourInputString 0
+*
+Run_Input1	1	1	21	1 S 6 	1 S 2 	1 4 
+Run_Input2	1	1	22	1 S 7 	1 S 2 	1 4 
+END
+BEGIN ModulusInt 0
+*
+Run_ModulusInt	1	1	23	2 I 10 I 11 	1 I 3 	1 24 
+END
+BEGIN PowerInt 0
+*
+Run_PowerInt	1	1	24	2 I 10 I 11 	1 I 4 	1 25 
+END
+BEGIN SquareInt 0
+*
+Run_SquareInt	1	1	25	1 I 10 	1 I 5 	1 26 
+END
+BEGIN AdditionTwoInputInt 0
+*
+Run_AdditionTwoInputInt	1	1	26	2 I 10 I 11 	1 I 6 	1 27 
+END
+BEGIN AdditionThreeInputInt 0
+*
+Run_AdditionThreeInputInt	1	1	27	3 I 10 I 10 I 11 	1 I 7 	1 28 
+END
+BEGIN AdditionFourInputInt 0
+*
+Run_AdditionFourInputInt	1	1	28	4 I 10 I 10 I 11 I 11 	1 I 8 	1 29 
+END
+BEGIN SubtractionInt 0
+*
+Run_SubtractionInt	1	1	29	2 I 10 I 11 	1 I 9 	1 20 
+END
+BEGIN Constant_Int1 0
+-1234 
+Run_ConstantInt	1	1	-1	0 	1 I 1 	0 
+END
+BEGIN Constant_Int1 0
+10 
+Run_ConstantInt	1	1	-1	0 	1 I 10 	0 
+END
+BEGIN Constant_Int1 0
+4 
+Run_ConstantInt	1	1	-1	0 	1 I 11 	0 
+END
+BEGIN EventTwoInputManRstAnd 0
+*
+And1	1	1	20	0 	0 	1 18 
+And2	1	1	30	0 	0 	1 18 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

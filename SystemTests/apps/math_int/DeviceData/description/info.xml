@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Name>math_int</Name>
+  <CommercialName>TEST-TEMPLATE</CommercialName>
+  <Version>1.4</Version>
+  <Description>test all integer math function blocks</Description>
+</root>

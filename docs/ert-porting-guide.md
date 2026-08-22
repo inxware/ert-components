@@ -510,7 +510,7 @@ make help                     # Show all available build targets and options
 *                             - update patches on the final distation. You may also set DEVMAN_INTERMEDIATE_UNAME & DEVMAN_INTERMEDIATE_SSHPORT
 * toolsenv_update      - Updates the dist directory's IDF and CDF directories with this EHS's version component description files
 * static_analysis      - runs rhe static analyser suite on the full source code tree for all configurations.
-* targetenv_run_tests  - Runs all regression tests.
+* (app tests are not make targets - see SystemTests/apps/README.md)
 ```
 
 For the first time build all necessary dependencies can be downloaded using
@@ -543,7 +543,7 @@ For IoT applications using Devman the following private repo may also be require
 make targetenv               # Create runtime file structure in staging directory
 make targetenv_version       # Create new version and tag commit
 make targetenv_package       # Create target-specific package
-make targetenv_run_tests     # Run regression tests for this configuration on the host
+./SystemTests/CI/run_lucid_apps.sh --suite unit     # Run regression tests for this configuration on the host
 ```
 
 See also the multi-plafform build regression scripts in section **Build Smoke Test Across Multiple Targets**
@@ -1844,7 +1844,7 @@ The CI system includes automated build verification for all supported platforms.
 Each build configuration that will run on your host linux/WSL environment can be tested across all defined function-blocks in a unit test process using the following `make` command  
 
 ```bash
-make targetenv_run_tests     # Run regression tests
+./SystemTests/CI/run_lucid_apps.sh --suite unit     # Run regression tests
 ```
 
 
@@ -2887,7 +2887,7 @@ The total staging directory under `../TARGET_TREES/ehs_env-<TARGET>/` grows to r
 
 The `zephyr_prepdeps` / `zephyr_build_docker` split (`zephyr_prepdeps.sh` + `zephyr_prepdeps_docker.sh` / `zephyr_build.sh` + `zephyr_build_docker.sh`) keeps the one step that needs the network isolated from the one that doesn't. `zephyr_prepdeps_docker.sh` launches its container with `--network host` (via `EHS_DOCKER_EXTRA_RUN_ARGS`, read by `target_buildenv_run_command.sh`) specifically to work around hosts that block Docker's default bridge network for containers but still allow the host's own network traffic through; `zephyr_build_docker.sh` never sets this, so the compile container keeps normal Docker network isolation. `zephyr_build.sh` itself never calls `west init`/`west update` — it errors out with a pointer back to `make zephyr_prepdeps` if the workspace isn't already there.
 
-> **This per-target fetch is a bring-up shortcut, not the target architecture.** The west workspace (the SDK *source*) is byte-identical for every target sharing the same manifest + version, so fetching it separately into each `ehs_env-<TARGET>/` duplicates ~7 GB per target — which contradicts the repo's SDK-sharing principle (see repo-root `CLAUDE.md` § *SDKs are shared across targets*). Because Zephyr/NCS is CMake-master (compiled from source per board), the source fits neither `ert-build-support` (toolchains) nor `ert-contrib-middleware` (pre-built libs). **The committed plan is to replace this with a single shared SDK-source tree per `(manifest, version)`, consumed via `ZEPHYR_BASE`** (that skip-fetch code path already exists) — see § *Planned direction (committed)* below for the decided keying and the still-open method/location choices. NCS `nrfxlib` blobs are redistribution-restricted, so a shared NCS tree stays on disk or in a private registry — never git or public Docker Hub.
+> **Superseded.** The per-target fetch described below has been replaced by a single shared SDK-source tree under `../TARGET_SRC_STAGING/` — see § *Planned direction (committed)*, now implemented. The rationale is kept because it explains the keying. The west workspace (the SDK *source*) is byte-identical for every target sharing the same manifest + version, so fetching it separately into each `ehs_env-<TARGET>/` duplicates ~7 GB per target — which contradicts the repo's SDK-sharing principle (see repo-root `CLAUDE.md` § *SDKs are shared across targets*). Because Zephyr/NCS is CMake-master (compiled from source per board), the source fits neither `ert-build-support` (toolchains) nor `ert-contrib-middleware` (pre-built libs). **The committed plan is to replace this with a single shared SDK-source tree per `(manifest, version)`, consumed via `ZEPHYR_BASE`** (that skip-fetch code path already exists) — see § *Planned direction (committed)* below for the decided keying and the still-open method/location choices. NCS `nrfxlib` blobs are redistribution-restricted, so a shared NCS tree stays on disk or in a private registry — never git or public Docker Hub.
 
 ### SDK source hosting — entities and options
 
@@ -2940,8 +2940,8 @@ Only `SDK_SOURCE` is currently mis-placed (fetched per target); the committed pl
 
 | Method                                   | Where SDK source lives                          | Public-safe | Extra disk / target | Setup effort                          |
 | ---------------------------------------- | ----------------------------------------------- | ----------- | ------------------- | ------------------------------------- |
-| Per-target west fetch (current)          | `TARGET_TREES/<t>/…/west-workspace` (duplicated)| n/a (local) | +~7 GB              | none                                  |
-| Shared on-disk checkout (`ZEPHYR_BASE`)  | `TARGET_TREES/zephyr-src/<sdk-ver>` (one copy)  | n/a (local) | ~0                  | small (path resolver + `ZEPHYR_BASE`) |
+| Per-target west fetch (removed)          | `TARGET_TREES/<t>/…/west-workspace` (duplicated)| n/a (local) | +~7 GB              | none                                  |
+| **Shared on-disk checkout (in use)**     | `../TARGET_SRC_STAGING/<manifest>-<ver>` (one copy) | n/a (local) | ~0              | done — `zephyr_sdk_paths.sh`          |
 | Baked private Docker image               | inside `inxware/ncs-sdk-<ver>` on a private reg | no → private| ~0 (Docker store)   | Dockerfile + private registry (ACR)   |
 | ert-contrib-middleware-prepared (private)| contrib pipeline fetches/hosts it, consumed via `ZEPHYR_BASE` | no → private | ~0        | contrib build script                  |
 
@@ -2955,7 +2955,36 @@ The bottom two match the house SDK-sharing pattern (private, shared, versioned);
 - **The key is arch-free**, i.e. **not** the `target_libs/<OS-ARCH+variant>` key. The SDK source compiles per-board, so one tree (e.g. `zephyr-v4.1.0`) serves both cortex-m33 and cortex-m4; only the *compiled* artefacts (contrib `target_libs`, EHS kernel archive, and the per-target build dir) are ABI-keyed. Worked example: nRF5340 DK (m33) + RAK4631 (m4) share one `zephyr-v4.1.0` tree; the Thingy:91 X (NCS v3.3.0) needs its own — 3 targets → **2 source trees + 2 ABI lib sets**.
 - **Non-OSS SDKs stay private** — NCS `nrfxlib` blobs must never go to git or a public registry; a shared NCS tree lives on disk or in a private registry only.
 
-Still to finalise (does not change the direction above): the exact hosting method (shared on-disk checkout vs contrib-prepared vs baked private image) and the staging location (a new pre-build `../TARGET_SRC_STAGING/` vs a shared `TARGET_TREES/sdk-src/` subtree — `TARGET_TREES` remains the post-build product-assembly area, as used by the Android/Unity APK packaging). Tracked in `docs/llm-dev-contexts/CLAUDE-zephyr.md`.
+**Implemented.** The shared on-disk checkout is in place and is now the only
+behaviour — the per-target fetch is gone, not merely deprecated.
+
+| Decision | Resolution |
+|--------------------|--------------------------------------------------------------|
+| Hosting method | shared on-disk checkout (the zero-infra option) |
+| Staging location | `../TARGET_SRC_STAGING/<manifest>-<version>/` |
+| Key | `(manifest, version)`, arch-free — e.g. `zephyr-v4.1.0` |
+| Resolver | `target/envbuildscripts/zephyr_sdk_paths.sh`, sourced by both `zephyr_prepdeps.sh` and `zephyr_build.sh` so they cannot disagree |
+| Override | `EHS_ZEPHYR_SRC_STAGING` moves the store; `ZEPHYR_BASE` bypasses it entirely |
+
+`../TARGET_SRC_STAGING/` rather than a `TARGET_TREES/` subtree because
+`TARGET_TREES` is the post-build product-assembly area — one directory per target
+holding what that build produced. SDK source is neither per-target nor a product;
+it is a pre-build input shared across targets. Encoding a target in its path is
+precisely what made the old layout unshareable:
+`TARGET_TREES/ehs_env-<target>/zephyr-staging/west-workspace` could only ever
+belong to one target, so every target fetched its own ~7 GB copy.
+
+Per-target app and build directories are unchanged, still under
+`TARGET_TREES/ehs_env-<target>/zephyr-staging/{app,build}`.
+
+Worked example on the current targets: RAK4631 (cortex-m4) and nRF5340 DK
+(cortex-m33) share one `zephyr-v4.1.0` tree; a Thingy:91 X would need its own
+`sdk-nrf-v2.9.0`. Two trees for three targets, and adding another upstream board
+costs no additional disk.
+
+The contrib-prepared and baked-private-image routes remain the options if this
+ever needs to be shared between machines or CI; nothing about the layout above
+blocks them, since both would also be consumed via `ZEPHYR_BASE`.
 
 #### Is one shared tree safe for many targets? Yes
 
@@ -3119,6 +3148,78 @@ build minimal. Cellular/softSIM work switches `ERT_ZEPHYR_BOARD` to the
 non-secure `thingy91x/nrf9151/ns` variant, which pulls in TF-M + sysbuild
 (multi-image) — `zephyr_cmake_gen.py` will need sysbuild awareness and the
 output artefact becomes `merged.hex` (already collected by `zephyr_build.sh`).
+
+### Publishing and licensing: why NCS targets cannot go to the community mirror
+
+**`ERT_ZEPHYR_MANIFEST` is the licence boundary.** Absent, the build takes the
+upstream Zephyr manifest — Apache-2.0 throughout, publishable without
+qualification. Set to `nrfconnect/sdk-nrf`, the west workspace additionally
+pulls `sdk-nrfxlib`, which carries **pre-compiled binary blobs** (the `nrf_modem`
+LTE library, `nrf_wifi` firmware, crypto backends) under
+`LicenseRef-Nordic-5-Clause`. That licence permits use only in connection with
+Nordic Semiconductor integrated circuits, so those artefacts must not be
+redistributed generally, and a public CI image containing them would do exactly
+that.
+
+Consequences, all of them already in force:
+
+- `zephyr_arm-nrf9151_thingy91x-*` is on the "deliberately excluded" list in
+  `scripts/git-utilities/publish_set.txt`. Its platform directory is therefore
+  absent from the mirror, so `./configure` for it fails there and **no GitHub
+  Actions workflow can build it**. Adding one is not a matter of writing the
+  YAML.
+- A shared NCS SDK tree (the fix for the ~7 GB per-target fetch) has to live on
+  local disk or in a **private** registry. The same optimisation for upstream
+  Zephyr may use public Docker Hub freely.
+- The nRF9151 has no upstream-Zephyr route to work around this: the LTE modem
+  and softSIM exist only in NCS. The restriction follows the *part*, not a
+  packaging choice.
+
+**Nordic hardware is not the problem — the NCS manifest is.** Two Nordic targets
+are published today and build entirely from upstream Zephyr:
+
+| Target | Board | Manifest | Image | Published |
+|---------------------------------|-------------------------|----------|--------------------------------------|-----------|
+| `zephyr_arm-nrf52840_rak4631` | `rak4631` | upstream | `ghcr.io/zephyrproject-rtos/ci:v0.27.4` | yes |
+| `zephyr_arm-nrf5340_nrf5340dk` | `nrf5340dk/nrf5340/cpuapp` | upstream | `ghcr.io/zephyrproject-rtos/ci:v0.27.4` | yes |
+| `zephyr_arm-nrf9151_thingy91x-*` | `thingy91x/nrf9151/ns` | **NCS** | `ghcr.io/nrfconnect/sdk-nrf-toolchain:v2.9.0` | **no** |
+
+So the test for any prospective board is simply: *can it build against the
+upstream manifest?* If yes it is publishable and needs no private
+infrastructure. Nothing Nordic-licensed is vendored into any of the four repos —
+audited, see
+[`docs/llm-dev-contexts/CLAUDE-zephyr.md`](llm-dev-contexts/CLAUDE-zephyr.md)
+§ *Nordic compliance guards* for the audit and the outstanding guard work.
+
+### Fully open-source board candidates
+
+Upstream Zephyr is Apache-2.0 and its vendor HALs are permissive (NXP's
+`hal_nxp` is BSD-3-Clause, the RP2040 HAL likewise), so any board supported by
+the upstream manifest is publishable on the same footing as the two above.
+
+The cost of a new board is dominated by one question: **does a kernel archive
+already exist for its core?** Only `arm-zephyr-cortexm4` and
+`arm-zephyr-cortexm33` are built today, so an M4 or M33 board is a config-plus-
+overlay job, while anything else needs an EHS-kernel target added and built
+first (see § *Rebuilding the kernel archive*).
+
+| Board | Core | Zephyr board id | Kernel archive | Effort |
+|-------------------------|------------|------------------------|----------------------|-----------------------------|
+| NXP FRDM-K64F | Cortex-M4 | `frdm_k64f` | exists | config + overlay only |
+| Arduino Nano 33 BLE | Cortex-M4 (nRF52840) | `arduino_nano_33_ble` | exists | config + overlay only |
+| Raspberry Pi Pico / RP2040 | Cortex-M0+ | `rpi_pico` | **missing** | new kernel target first |
+| Arduino GIGA / Portenta H7 | Cortex-M7 | `arduino_giga_r1` | **missing** | new kernel target first |
+
+FRDM-K64F is the cheapest genuine addition — a different silicon vendor, an
+Ethernet-capable Cortex-M4, and no new kernel build. Arduino Nano 33 BLE is
+cheaper still but adds little coverage, being the same nRF52840 the RAK4631
+target already exercises.
+
+**Raspberry Pi is not a Zephyr target here.** Zephyr's `rpi_4b`/`rpi_5` support
+is experimental and gives up Linux entirely. A Pi is an MPU and is already served
+properly by the `linux_arm64_*` platforms — including
+`linux_arm64_lvgl_raspberrypi_debian13`, which carries TensorFlow Lite and Hailo
+acceleration. Use those.
 
 ## QNX Neutrino RTOS
 

@@ -66,27 +66,22 @@ The instructions below will allow you to get a clean build environment set up an
 
 ## Build status
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/inxware/ert-components/actions)
+Per-target badges, and what each one covers, are in the
+[README build status table](README.md#github-build-status). Every badge is a
+clean-checkout build of that target on each push to `main`; click one for its
+log.
 
-[![build-linux_arm64_lvgl_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_lvgl_gg_debian11.yml)
+Two things worth knowing before reading a red badge as a code defect:
 
-[![build-linux_arm64_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_arm64_gtk_gst_gg_debian11.yml)
+- A target must be listed in `scripts/git-utilities/publish_set.txt` and have
+  been published, or `configure` fails on the mirror because its platform
+  directory is not there.
+- Some targets cannot be built in public CI at all for licensing reasons — the
+  Nordic NCS ones most notably. See
+  [`docs/ert-porting-guide.md`](docs/ert-porting-guide.md) § *Publishing and
+  licensing*.
 
-[![build-linux_android_arm64](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_android_arm64.yml)
-
-[![build-esp32s3_freertos-xtensa-community](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-esp32s3_freertos-xtensa-community.yml)
-
-[![build-linux_x86_64_clang_lvgl_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-linux_x86_64_clang_lvgl_debian11-no-certs.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64-linux_x86_64_clang_lvgl_debian11-no-certs.yml)
-
-[![build-linux_x86_64_clang_gtk_gst_gg_debian11](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11-no-certs.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-linux_x86_64_clang_gtk_gst_gg_debian11-no-certs.yml)
-
-[![build-win_x86_32-lucid-win10](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-win_x86_32-lucid-win10.yml)
-
-[![build-arduino-mbed-nano-community](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml/badge.svg)](https://github.com/inxware/ert-components/actions/workflows/build-arduino-mbed-nano_community.yml)
-
-# How inxware Builds Work
-
-Building inxware's ert-components runtime automatically manages dependencies with a combination of Docker containers and additional repositories.
+Adding a workflow: [`docs/github-actions-ci.md`](docs/github-actions-ci.md).
 
 ## Host pre-requisites
 
@@ -248,7 +243,7 @@ Variables set directly in the Dockerfile with `ENV` are baked into the image and
    make targetenv                 # Assemble runtime files
    make targetenv_version         # Create versioned release
    make targetenv_package         # Create target-specific package
-   make targetenv_run_tests       # Run regression tests
+   ./SystemTests/CI/run_lucid_apps.sh --suite unit       # Run regression tests
    ```
 
 2. Alternative package formats (optional)

@@ -41,7 +41,7 @@ if [[ ! "$FMT" =~ ^(md|csv|html|all)$ ]]; then
 fi
 
 # ── Ensure results directory exists ──────────────────────────────────────────
-mkdir -p "${CI_RESULT_DIR}"
+mkdir -p "${CI_REPORT_DIR}"
 
 # ── Generate ──────────────────────────────────────────────────────────────────
 cd "${ROOT_DIR}/../ert-components" || { err "Cannot cd to ert-components"; exit 1; }

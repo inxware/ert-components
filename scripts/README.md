@@ -119,7 +119,6 @@ Reusable shell functions for build automation.  Source these files from other sc
 | `ci_build_target` | Full build: clean → configure → Docker-or-host → targetenv → APK → Unity |
 | `ci_display_log_tail` | Prints last 20 lines of a log to the console |
 | `ci_on_build_failure <log> <stage>` | Invokes `claude --print` or interactive session if enabled |
-| `ci_test_run_apps` | Launches runtime, polls for `userdata/test.pass` |
 | `ci_run_preflight [root]` | Runs `check_cdf_hashes.py`; returns 1 on failure |
 | `ci_generate_sbom` | Runs `make sbom` for the current platform (guards on `TARGET.cfg` match); writes `sbom.pass/.fail/.skip` |
 | `ci_generate_matrix [fmt]` | Runs `fb_platform_matrix.py`; writes output to `CI_RESULT_DIR` |

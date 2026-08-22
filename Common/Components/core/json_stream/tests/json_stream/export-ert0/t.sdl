@@ -1,0 +1,132 @@
+#V:2.0.0
+#B:35
+#D:Y2024M5d11h19m19s40
+#N:json_stream
+1
+1	100000	90000
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 1 0 
+Run_OpenFILE_WriteOnly_String	1	1	2	1 S 1 	1 I -1 	2 31 7 
+Run_CloseFILE_WriteOnly_String	1	1	3	0 	1 I -1 	2 -1 9 
+Run_WriteFILE_WriteOnly_String	1	1	4	2 S 2 I -1 	1 I -1 	2 34 8 
+END
+BEGIN FileSystemDirCreateRemove 0
+NULL 0 
+create	1	1	1	1 S 3 	0 	2 5 6 
+END
+BEGIN Constant_String1 0
+inx-tests/results 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN CatString 0
+/test_result.txt 
+Run_CatString	1	1	5	2 S 3 S -1 	1 S 1 	1 2 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	6	0 	0 	1 -1 
+Or2	1	1	7	0 	0 	1 -1 
+Or3	1	1	8	0 	0 	1 -1 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	9	0 	0 	1 3 
+Or2	1	1	8	0 	0 	1 3 
+Or3	1	1	10	0 	0 	1 3 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 0 0 
+Run_OpenFILE_WriteOnly_String	1	1	11	1 S 4 	1 I -1 	2 13 14 
+Run_CloseFILE_WriteOnly_String	1	1	12	0 	1 I -1 	2 15 16 
+Run_WriteFILE_WriteOnly_String	1	1	13	2 S 5 I -1 	1 I -1 	2 12 17 
+END
+BEGIN Constant_String1 0
+done 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	14	0 	0 	1 10 
+Or2	1	1	15	0 	0 	1 10 
+Or3	1	1	16	0 	0 	1 10 
+Or4	1	1	17	0 	0 	1 10 
+END
+BEGIN CatString 0
+/test_done 
+Run_CatString	1	1	18	2 S 3 S -1 	1 S 4 	1 11 
+END
+BEGIN json_stream_parser 0
+*
+read	1	1	19	1 S 6 	1 S -1 	1 24 
+parse	1	1	20	0 	5 I -1 S 11 S 10 S -1 I -1 	8 -1 25 23 27 35 36 38 22 
+eos	1	1	21	0 	0 	1 33 
+END
+BEGIN EventTwoInputOr 0
+*
+Or1	1	1	22	0 	0 	1 21 
+Or2	1	1	23	0 	0 	1 21 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	24	0 	0 	1 20 
+Or2	1	1	25	0 	0 	1 20 
+Or3	1	1	26	0 	0 	1 20 
+Or4	1	1	27	0 	0 	1 20 
+END
+BEGIN MultiplexFourInputString 0
+*
+Run_Input1	1	1	28	1 S 7 	1 S 6 	1 19 
+Run_Input2	1	1	29	1 S 8 	1 S 6 	1 19 
+Run_Input3	1	1	30	1 S 9 	1 S 6 	1 19 
+END
+BEGIN Constant_String1 0
+{"x":1,"y":2,"z":3,"t":"text"} 
+Run_ConstantString	1	1	-1	0 	1 S 7 	0 
+END
+BEGIN state_manager 0
+138329 
+enabled	1	1	31	0 	2 U 1 I -1 	2 32 -1 
+END
+BEGIN state_condition 0
+138329 138331 
+doCondition	1	1	32	1 U 1 	0 	1 28 
+END
+BEGIN state_condition 0
+138372 138336 
+doCondition	1	1	33	1 U 1 	0 	1 18 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	34	0 	0 	1 26 
+Or2	1	1	35	0 	0 	1 26 
+Or3	1	1	36	0 	0 	1 26 
+END
+BEGIN Constant_String1 0
+{"obj":{"item1":1,"item2":2}} 
+Run_ConstantString	1	1	-1	0 	1 S 8 	0 
+END
+BEGIN state_condition 0
+138331 138369 
+doCondition	1	1	33	1 U 1 	0 	1 29 
+END
+BEGIN state_condition 0
+138369 138372 
+doCondition	1	1	33	1 U 1 	0 	1 30 
+END
+BEGIN Constant_String1 0
+[{"a1x":1,"a1y":2,"a1z":3},{"a2x":1,"a2y":2,"a2z":3},{"a3x":1,"a3y":2,"a3z":3}] 
+Run_ConstantString	1	1	-1	0 	1 S 9 	0 
+END
+BEGIN string_format 0
+k=%s,v=%s  
+run	1	1	37	2 S 10 S 11 	1 S 2 	1 4 
+END
+BEGIN EventSelfResetTwoInputLatchingAnd 0
+*
+And1	1	1	27	0 	0 	1 37 
+And2	1	1	38	0 	0 	1 37 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

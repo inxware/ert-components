@@ -290,7 +290,6 @@ help:
 	@$(ECHO) "  $(TXT_FG_WHITE)toolsenv_update$(TXT_FG_BRIGHT_GREEN)                - Updates the dist directory's IDF and CDF directories with this EHS's version component description files."
 	@$(ECHO) "  $(TXT_FG_WHITE)components_gendocs$(TXT_FG_BRIGHT_GREEN)             - Generates markdown documentation for all CDF files in component docs directories."
 	@$(ECHO) "  $(TXT_FG_WHITE)static_analysis$(TXT_FG_BRIGHT_GREEN)                - Runs rhe static analyser suite on the full source code tree for all configurations."
-	@$(ECHO) "  $(TXT_FG_WHITE)targetenv_run_tests$(TXT_FG_BRIGHT_GREEN)            - Runs all regression tests."
 	@$(ECHO) "  $(TXT_FG_WHITE)configure-host$(TXT_FG_BRIGHT_GREEN)                 - Installs the build tools this machine needs. Run once per machine."
 	@$(ECHO) "  $(TXT_FG_WHITE)unit_tests$(TXT_FG_BRIGHT_GREEN)                     - Runs the host unit tests in UnitTest/ (no target or hardware needed)."
 	@$(ECHO) "  $(TXT_FG_WHITE)unit_tests_asan$(TXT_FG_BRIGHT_GREEN)                - As unit_tests, under AddressSanitizer + UndefinedBehaviorSanitizer."
@@ -502,7 +501,6 @@ zephyr_cmake_gen: chkconfig ert_bundle_default_app
 	$(file >>.zephyr_vars.env.tmp,EHS_TOOLBOX_HASHES_VALUE=$(EHS_TOOLBOX_HASHES))
 	$(file >>.zephyr_vars.env.tmp,EHS_GNU_OS_ARCH=$(EHS_GNU_OS_ARCH))
 	$(file >>.zephyr_vars.env.tmp,ERT_SODL_VERSION=$(ERT_SODL_VERSION))
-	$(file >>.zephyr_vars.env.tmp,EHS_BUILD_MONOLITHIC_KERNEL=$(EHS_BUILD_MONOLITHIC_KERNEL))
 	@mkdir -p $(ERT_ZEPHYR_STAGING_DIR)/app/boards
 	@mv .zephyr_vars.env.tmp $(ERT_ZEPHYR_STAGING_DIR)/make_vars.env
 	@./target/envbuildscripts/zephyr_cmake_gen.sh $(TARGET)
@@ -601,8 +599,10 @@ targetenv_upload_appland: chkconfig
 targetenv_upload_ota: chkconfig
 	@./target/envbuildscripts/targetenv_upload_ota.sh $(TARGET)
 
-targetenv_run_tests: chkconfig
-	@./target/envbuildscripts/targetenv_run_tests.sh $(TARGET)
+# App tests are not make targets: they run across builds x apps, which make
+# cannot express while bound to one TARGET.cfg.
+#   ./SystemTests/CI/run_lucid_apps.sh --suite unit|system|external
+# See SystemTests/apps/README.md.
 
 targetenv_cleancfg: chkconfig
 	@./target/envbuildscripts/targetenv_clean_config.sh $(TARGET)

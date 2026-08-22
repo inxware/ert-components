@@ -16,6 +16,14 @@ EHS_FILESYSTEM_SUPPORT ?= posix
 # No GPIO support by default - platform config should enable specific driver
 EHS_PERIPHERALS_GPIO_SUPPORT ?= stubbed
 
+# Admits the peripherals toolbox. Common/Components/components.mk gates the whole
+# of Common/Components/peripherals on 'ifdef EHS_PERIPHERAL_DEVICE_SUPPORT', so
+# while it was undefined the GPIO and UART *function blocks* were not compiled
+# even though both HALs were — a Lucid app had no way to reach either. The
+# individual blocks still gate on their own EHS_PERIPHERALS_*_SUPPORT /
+# EHS_UART_SUPPORT values, so this admits the toolbox without forcing any driver.
+EHS_PERIPHERAL_DEVICE_SUPPORT ?= yes
+
 # System console: use Zephyr shell/UART console
 EHS_SYSTEM_CONSOLE ?= yes
 

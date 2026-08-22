@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<testsuites>
-    <testsuite errors="0" failures="0" name="Build" tests="1">
-        <testcase classname="inx.player.android.sandbox" name="build" time="">
-            <system-out>Built.</system-out>
-            <system-err></system-err>
-        </testcase>
-    </testsuite>
-</testsuites>

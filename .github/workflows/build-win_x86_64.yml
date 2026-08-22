@@ -1,0 +1,72 @@
+name: build-win_x86_64
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Using_Pulled_container:
+
+    runs-on: ubuntu-22.04
+    container:
+      # 64-bit Windows uses the newer mingw image (gcc 13.2, NSIS 3.09). The
+      # 32-bit targets stay on inxware/ubuntu22.04-build-essential-mingw, pinned
+      # to the toolchain their MSYS2 contrib libraries were proven against.
+      image: inxware/ubuntu24.04-build-essential-mingw
+      options: --user root
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ert-components
+
+    # No ert-build-support checkout: TOOLCHAIN_NAME=HOST, so the compiler comes
+    # from the image and support_libs/target_libs is not published.
+
+    - name: Checkout ert-kernels
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-kernels
+        fetch-depth: 1
+        path: ert-kernels
+        sparse-checkout: x86_64-mingw32posix/kernel
+        ref: refs/heads/main
+
+    - name: Checkout ert-contrib-middleware
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-contrib-middleware
+        fetch-depth: 1
+        path: ert-contrib-middleware
+        sparse-checkout: target_libs/x86_64-mingw32posix_base
+        ref: refs/heads/main
+        lfs: true
+
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        fetch-depth: 1
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+
+    - name: configure
+      run: |
+           cd ert-components
+           ./configure win_x86_64
+
+    - name: make
+      run: |
+           cd ert-components
+           make -j 8
+
+    - name: make targetenv
+      run: |
+           cd ert-components
+           make targetenv
+
+    - name: make package
+      run: |
+           cd ert-components
+           make targetenv_package

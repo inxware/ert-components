@@ -113,18 +113,22 @@ echo "========================================================="
 if [ -n "${ZEPHYR_BASE}" ]; then
     echo "Using provided ZEPHYR_BASE: ${ZEPHYR_BASE}"
 else
-    WEST_WORKSPACE="${STAGING_DIR}/west-workspace"
+    # Shared SDK source, one tree per (manifest, version) — see
+    # zephyr_sdk_paths.sh for why it is arch-free and lives outside TARGET_TREES.
+    # shellcheck source=zephyr_sdk_paths.sh
+    . "$(dirname "$0")/zephyr_sdk_paths.sh"
     ZEPHYR_BASE="${WEST_WORKSPACE}/zephyr"
 
     # Gate on the completion stamp zephyr_prepdeps.sh writes, not just '.west'
     # existing — '.west' is created before the actual clone happens, so a
     # workspace interrupted mid-fetch would otherwise look ready when it isn't.
     if [ ! -f "${WEST_WORKSPACE}/.zephyr_prepdeps_complete" ]; then
-        echo "ERROR: West workspace not found (or incomplete) at ${WEST_WORKSPACE}." >&2
+        echo "ERROR: SDK source not found (or incomplete) at ${WEST_WORKSPACE}." >&2
+        echo "       That is the shared ${EHS_ZEPHYR_SDK_ID} tree." >&2
         echo "       Run 'make zephyr_prepdeps' first (needs internet)." >&2
         exit 1
     fi
-    echo "Using existing west workspace at ${WEST_WORKSPACE}"
+    echo "Using shared SDK source ${EHS_ZEPHYR_SDK_ID} at ${WEST_WORKSPACE}"
     # Optionally run west update to keep modules current:
     # pushd "${WEST_WORKSPACE}" >/dev/null && west update && popd >/dev/null
 fi
@@ -136,15 +140,19 @@ echo "ZEPHYR_BASE   : ${ZEPHYR_BASE}"
 # EHS_ROOT: path to ert-components inside the current environment.
 # Inside Docker this is /inxware/ert-components; natively it is PWD.
 # EHS_BUILD_SUPPORT: path to ert-build-support (one level up from ert-components).
+# EHS_KERNELS: path to ert-kernels, which is where the pre-built kernel archives
+# live since they moved out of ert-build-support into their own repo.
 # -----------------------------------------------------------------------
 EHS_ROOT="${PWD}"
 EHS_BUILD_SUPPORT="${EHS_ROOT%/ert-components}/ert-build-support"
+EHS_KERNELS="${EHS_ROOT%/ert-components}/ert-kernels"
 # Exported (not only passed as -D) so the generated app CMakeLists can pick them
 # up from the environment under sysbuild, where the top-level -D is not forwarded
 # to the app sub-image (see scripts/zephyr_cmake_gen.py).
-export EHS_ROOT EHS_BUILD_SUPPORT
+export EHS_ROOT EHS_BUILD_SUPPORT EHS_KERNELS
 echo "EHS_ROOT         : ${EHS_ROOT}"
 echo "EHS_BUILD_SUPPORT: ${EHS_BUILD_SUPPORT}"
+echo "EHS_KERNELS      : ${EHS_KERNELS}"
 
 # -----------------------------------------------------------------------
 # Pristine / incremental build selection
@@ -191,6 +199,7 @@ west build \
     "${APP_DIR}" \
     -- -DEHS_ROOT="${EHS_ROOT}" \
        -DEHS_BUILD_SUPPORT="${EHS_BUILD_SUPPORT}" \
+       -DEHS_KERNELS="${EHS_KERNELS}" \
        ${PM_STATIC_ARG}
 
 echo "---------------------------------------------------------"

@@ -1,0 +1,93 @@
+#V:2.0.0
+#B:27
+#D:Y2024M11d3h11m9s22
+#N:tcp_sockets_simple
+1
+1	100000	90000
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 1 0 
+Run_OpenFILE_WriteOnly_String	1	1	2	1 S 1 	1 I -1 	2 19 7 
+Run_CloseFILE_WriteOnly_String	1	1	3	0 	1 I -1 	2 -1 9 
+Run_WriteFILE_WriteOnly_String	1	1	4	2 S 2 I -1 	1 I -1 	2 23 8 
+END
+BEGIN FileSystemDirCreateRemove 0
+NULL 0 
+create	1	1	1	1 S 3 	0 	2 5 6 
+END
+BEGIN Constant_String1 0
+inx-tests/results 
+Run_ConstantString	1	1	-1	0 	1 S 3 	0 
+END
+BEGIN CatString 0
+/test_result.txt 
+Run_CatString	1	1	5	2 S 3 S -1 	1 S 1 	1 2 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	6	0 	0 	1 -1 
+Or2	1	1	7	0 	0 	1 -1 
+Or3	1	1	8	0 	0 	1 -1 
+END
+BEGIN EventThreeInputOr 0
+*
+Or1	1	1	9	0 	0 	1 3 
+Or2	1	1	8	0 	0 	1 3 
+Or3	1	1	10	0 	0 	1 3 
+END
+BEGIN FILE_WriteOnly_String 0
+out.txt 0 ( ) 0 0 
+Run_OpenFILE_WriteOnly_String	1	1	11	1 S 4 	1 I -1 	2 13 14 
+Run_CloseFILE_WriteOnly_String	1	1	12	0 	1 I -1 	2 15 16 
+Run_WriteFILE_WriteOnly_String	1	1	13	2 S 5 I -1 	1 I -1 	2 12 17 
+END
+BEGIN Constant_String1 0
+done 
+Run_ConstantString	1	1	-1	0 	1 S 5 	0 
+END
+BEGIN EventFourInputOr 0
+*
+Or1	1	1	14	0 	0 	1 10 
+Or2	1	1	15	0 	0 	1 10 
+Or3	1	1	16	0 	0 	1 10 
+Or4	1	1	17	0 	0 	1 10 
+END
+BEGIN CatString 0
+/test_done 
+Run_CatString	1	1	18	2 S 3 S -1 	1 S 4 	1 11 
+END
+BEGIN netsocketsrvr 0
+0 8000 0 
+open	1	1	19	2 S -1 I -1 	3 S 10 I -1 S 11 	7 22 -1 28 18 -1 -1 -1 
+close	1	1	20	0 	0 	2 18 -1 
+sendData	1	1	21	2 S 6 I -1 	0 	2 -1 -1 
+END
+BEGIN netSocket 0
+127.0.0.1 8000 0 
+open	1	1	22	2 I -1 S -1 	3 I -1 S 8 I 2 	7 -1 -1 25 -1 26 20 -1 
+close	1	1	23	0 	1 I -1 	2 -1 20 
+send	1	1	24	2 S 7 I 1 	1 I -1 	2 -1 -1 
+END
+BEGIN Constant_String1 0
+Test String 
+Run_ConstantString	1	1	-1	0 	1 S 7 	0 
+END
+BEGIN LenString 0
+*
+Run_LenString	1	1	25	1 S 7 	1 I 1 	1 24 
+END
+BEGIN ConvertorIntToString 0
+*
+Run_ConvertorIntToString	1	1	26	1 I 2 	1 S 9 	1 27 
+END
+BEGIN string_format8 0
+%s, size=%s 
+run	1	1	27	9 S 8 S 9 S -1 S -1 S -1 S -1 S -1 S -1 S -1 	1 S 2 	1 4 
+END
+BEGIN string_format 0
+Recv! msg=%s src=%s 
+run	1	1	28	2 S 10 S 11 	1 S 6 	1 21 
+END
+BEGIN Start
+*
+Run_Start	1	1	0	0 	0 	1 1
+END

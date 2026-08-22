@@ -1,0 +1,1 @@
+[sched1_loaded] [sched2_loaded] [sched3_loaded] 40 OFF 90 75 65 5 OFF OFF 85 OFF 95 80 

@@ -31,3 +31,11 @@ include ./target/platform/linux_x86_64_gtk_gst_debian11-debug/config.mk
 DEVMAN_SERVER_DOMAIN=
 
 ################################### END OF CONFIGURATION ###################################################
+
+# Cleared explicitly, not left to the parent. A -no-certs variant that only
+# clears DEVMAN_SERVER_DOMAIN still asks for a CA bundle if its parent sets one,
+# and targetenv then fails with "you have specified
+# DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE, but a bundle does not exist" — the bundle
+# lives in the private DevmanSecurity repo, so it is never present in public CI.
+DEVMAN_SERVER_CERTS_FULL_CA_BUNDLE=
+DEVMAN_SERVER_CERTS_CLIENT_AUTH_REQUIRED=

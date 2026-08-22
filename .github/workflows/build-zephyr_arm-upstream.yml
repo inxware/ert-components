@@ -1,0 +1,87 @@
+name: build-zephyr_arm-upstream
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Upstream-Zephyr ARM targets. Both boards build from the same Apache-2.0
+# manifest, so both are publishable; the Nordic NCS targets are not and have no
+# workflow (see docs/ert-porting-guide.md § Publishing and licensing).
+#
+# ONE JOB, TWO BOARDS — deliberately. Zephyr targets share a single SDK source
+# tree per (manifest, version), and the key is arch-free, so cortex-M4 (RAK4631)
+# and cortex-M33 (nRF5340 DK) both build from one zephyr-v4.1.0 checkout. Two
+# separate jobs would fetch it twice; here the second build reuses the first
+# job's tree on the same runner filesystem.
+#
+# EHS_ZEPHYR_SHALLOW=yes fetches only each module's pinned revision. The full
+# history is ~7 GB, which does not fit a runner comfortably and is useless to a
+# build. Local developer fetches keep the history (the default) so Zephyr itself
+# stays bisectable.
+#
+# Not a smoke-list candidate: even shallow, the fetch dominates the run.
+
+jobs:
+  Using_Pulled_container:
+
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    container:
+      image: ghcr.io/zephyrproject-rtos/ci:v0.27.4
+      options: --user root
+    env:
+      EHS_ZEPHYR_SHALLOW: "yes"
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ert-components
+
+    # No ert-build-support or contrib checkout: the Zephyr SDK toolchain is in
+    # the image, and these targets link no contrib libraries.
+
+    - name: Checkout ert-kernels
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-kernels
+        fetch-depth: 1
+        path: ert-kernels
+        sparse-checkout: |
+            arm-zephyr-cortexm4/kernel
+            arm-zephyr-cortexm33/kernel
+        ref: refs/heads/main
+
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        fetch-depth: 1
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+
+    - name: Fetch shared Zephyr SDK source (once, for both boards)
+      run: |
+           cd ert-components
+           ./configure zephyr_arm-nrf52840_rak4631
+           make zephyr_cmake_gen
+           make zephyr_prepdeps
+
+    - name: Build rak4631 (cortex-M4)
+      run: |
+           cd ert-components
+           make zephyr_build_docker
+
+    - name: Build nrf5340dk (cortex-M33, same SDK tree)
+      run: |
+           cd ert-components
+           ./configure zephyr_arm-nrf5340_nrf5340dk
+           make zephyr_cmake_gen
+           make zephyr_build_docker
+
+    - name: Firmware present
+      run: |
+           for t in zephyr_arm-nrf52840_rak4631 zephyr_arm-nrf5340_nrf5340dk; do
+             ls -l "TARGET_TREES/ehs_env-$t/bin/zephyr.hex"
+           done

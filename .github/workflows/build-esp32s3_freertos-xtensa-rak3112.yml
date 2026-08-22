@@ -1,0 +1,83 @@
+name: build-esp32s3_freertos-xtensa-rak3112
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# RAK3112 (ESP32-S3 + SX1262 LoRa, 8 MB flash / 8 MB PSRAM). Distinct from the
+# generic esp32s3 job in two ways that matter to the checkouts below: it uses
+# the esp32s3-specific image, and its contrib key carries the n8r8 memory
+# variant. Default app is demos/lorawan, which is in the published apps set.
+
+jobs:
+  Using_Pulled_container:
+
+    runs-on: ubuntu-22.04
+    container:
+      image: inxware/esp32s3_ubuntu22.04-build-essential
+      options: --user root
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ert-components
+
+    - name: Checkout ert build support repo
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-build-support
+        fetch-depth: 1
+        path: ert-build-support
+        sparse-checkout: |
+            toolchains/x86_64/xtensa-esp32s3-elf-5.1
+            support_libs/target_libs/xtensa-esp32s3_freertos
+        ref: refs/heads/main
+        lfs: true
+
+    - name: Checkout ert-kernels
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-kernels
+        fetch-depth: 1
+        path: ert-kernels
+        sparse-checkout: xtensa-esp32s3_freertos/kernel
+        ref: refs/heads/main
+
+    - name: Checkout ert-contrib-middleware
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/ert-contrib-middleware
+        fetch-depth: 1
+        path: ert-contrib-middleware
+        sparse-checkout: target_libs/xtensa-esp32s3_freertos_n8r8-xtensa-esp32s3-elf-5.1
+        ref: refs/heads/main
+        lfs: true
+
+    - name: Checkout apps
+      uses: actions/checkout@v4
+      with:
+        repository: inxware/apps
+        fetch-depth: 1
+        path: apps
+        ref: refs/heads/RELEASE-PRODUCTION
+
+    - name: configure
+      run: |
+           cd ert-components
+           ./configure esp32s3_freertos-xtensa-rak3112
+
+    - name: make
+      run: |
+           cd ert-components
+           make -j 8
+
+    - name: make targetenv
+      run: |
+           cd ert-components
+           make targetenv
+
+    - name: make package
+      run: |
+           cd ert-components
+           make targetenv_package

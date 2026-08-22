@@ -1,6 +1,11 @@
 Continuous Integration — Regression Workflow
 ============================================
 
+> **GitHub Actions is a separate thing.** This document covers the local
+> regression runner. For the public build workflows in the community mirror —
+> adding one, and inspecting runs with `gh` — see
+> [`docs/github-actions-ci.md`](../../docs/github-actions-ci.md).
+
 ## Script inventory
 
 ```
@@ -233,7 +238,6 @@ build scripts in `scripts/build-deploy/` without creating circular dependencies.
 | `ci_build_target` | Full build: clean → configure → Docker-or-host → targetenv → APK → Unity |
 | `ci_display_log_tail` | Prints last 20 lines of a log file to the console |
 | `ci_on_build_failure <log> <stage>` | Calls Claude autofix or interactive session if enabled |
-| `ci_test_run_apps` | Copies default test app, launches runtime, polls for `test.pass` |
 | `ci_run_preflight [root]` | Runs `check_cdf_hashes.py`; returns 1 on failure |
 | `ci_generate_sbom` | Runs `make sbom` for the current platform (guards on `TARGET.cfg` match); writes `sbom.pass/.fail/.skip` |
 | `ci_generate_matrix [fmt]` | Runs `fb_platform_matrix.py`; writes output to `results/` |

@@ -86,7 +86,7 @@ Docker/Zephyr version pairings, DTS alias contract, kernel stub status, known bu
 new-board checklist — see **[docs/llm-dev-contexts/CLAUDE-zephyr.md](CLAUDE-zephyr.md)**.
 
 **Testing:**
-- `make targetenv_run_tests` - Run regression tests
+- `./SystemTests/CI/run_lucid_apps.sh --suite unit` - Run regression tests
 - `make static_analysis` - Run static analysis suite
 
 **Development:**
@@ -350,7 +350,7 @@ Each target has its own configuration in `target/platform/[target_name]/`.
 
 1. **Setup:** Run `./configure [target]` and `make prepdeps`
 2. **Build:** Use `make all` or `make all_docker`
-3. **Test:** Create runtime with `make targetenv`, then `make targetenv_run_tests`
+3. **Test:** Create runtime with `make targetenv`, then `./SystemTests/CI/run_lucid_apps.sh --suite unit`
 4. **Package:** Use target-specific packaging commands (`make targetenv_deb`, etc.)
 
 ### Development Tools

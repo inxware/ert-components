@@ -91,7 +91,7 @@ ehs_uint32 i; /* i indexes the format string characters, which can be a full row
    ./configure my_new_platform
    make prepdeps
    make all
-   make targetenv_run_tests
+   ./SystemTests/CI/run_lucid_apps.sh --suite unit
    ```
 
 For detailed porting instructions, see [Porting Guide](docs/ert-porting-guide.md).
