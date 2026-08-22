@@ -72,7 +72,7 @@ jobs:
       run: |
          cd ert-components
          pwd
-         ./configure linux_android_arm
+         ./configure linux_android_arm-no-certs
     - name: make
       run: |
          cd ert-components

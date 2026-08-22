@@ -8,15 +8,22 @@ on:
 
 # RAK3112 (ESP32-S3 + SX1262 LoRa, 8 MB flash / 8 MB PSRAM). Distinct from the
 # generic esp32s3 job in two ways that matter to the checkouts below: it uses
-# the esp32s3-specific image, and its contrib key carries the n8r8 memory
-# variant. Default app is demos/lorawan, which is in the published apps set.
+# the image (see the container comment) and its contrib key, which carries the
+# n8r8 memory variant. Default app is demos/lorawan, in the published apps set.
 
 jobs:
   Using_Pulled_container:
 
     runs-on: ubuntu-22.04
     container:
-      image: inxware/esp32s3_ubuntu22.04-build-essential
+      # NOT inxware/esp32s3_ubuntu22.04-build-essential, which the platform's
+      # Dockerimagename names: it ships git 2.25.1 and actions/checkout needs
+      # >= 2.28 for sparse-checkout, so every dependency checkout fails before
+      # the build starts. Both images are generic build-essential (neither bakes
+      # ESP-IDF; the toolchain comes from ert-build-support), and this one
+      # already builds an esp32s3 target in the sibling workflow. The esp32s3
+      # image wants its git refreshed or retiring.
+      image: inxware/esp32_ubuntu22.04-build-essential
       options: --user root
     steps:
     - uses: actions/checkout@v4

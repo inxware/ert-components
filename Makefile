@@ -523,8 +523,16 @@ zephyr_cmake_gen: chkconfig ert_bundle_default_app
 	@mv .zephyr_vars.env.tmp $(ERT_ZEPHYR_STAGING_DIR)/make_vars.env
 	@./target/envbuildscripts/zephyr_cmake_gen.sh $(TARGET)
 
+# The _docker wrappers re-enter Docker for the right toolchain. Inside a
+# container (CI) there is no docker to re-enter with and the tooling is already
+# present, so call the script directly. Same EHS_IN_CONTAINER probe as the
+# packager map above.
 zephyr_prepdeps: chkconfig
+ifeq ($(EHS_IN_CONTAINER),)
 	@./target/envbuildscripts/zephyr_prepdeps_docker.sh $(TARGET)
+else
+	@./target/envbuildscripts/zephyr_prepdeps.sh $(TARGET)
+endif
 
 # Staleness guard for the two-step Zephyr flow.
 #
@@ -573,7 +581,11 @@ zephyr_build: chkconfig zephyr_check_staging_fresh zephyr_prepdeps
 	@./target/envbuildscripts/zephyr_build.sh $(TARGET)
 
 zephyr_build_docker: chkconfig ert_bundle_default_app zephyr_check_staging_fresh zephyr_prepdeps
+ifeq ($(EHS_IN_CONTAINER),)
 	@./target/envbuildscripts/zephyr_build_docker.sh $(TARGET)
+else
+	@./target/envbuildscripts/zephyr_build.sh $(TARGET)
+endif
 
 targetenv_esp32: chkconfig
 	@./target/envbuildscripts/targetenv_esp32.sh $(TARGET)

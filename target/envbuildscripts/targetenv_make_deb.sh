@@ -386,7 +386,18 @@ chmod 0755 "${DEBIAN_WORKING_BASE}/debian/DEBIAN/preinst"
 #And create the package
 find "${DEBIAN_WORKING_BASE}/debian" -type d | xargs chmod 755
 pushd "${DEBIAN_WORKING_BASE}"
-fakeroot dpkg-deb --build debian ./
+# --root-owner-group gives every file uid/gid 0 without needing fakeroot, which
+# is not present in every build image (the debian12-qt CI image has no fakeroot,
+# and the packager now runs directly in-container rather than shelling out to a
+# host that did). Supported since dpkg 1.19; fall back for anything older.
+if dpkg-deb --help 2>&1 | grep -q -- --root-owner-group; then
+    dpkg-deb --root-owner-group --build debian ./
+elif command -v fakeroot >/dev/null 2>&1; then
+    fakeroot dpkg-deb --build debian ./
+else
+    echo "ERROR: need dpkg-deb with --root-owner-group (dpkg >= 1.19) or fakeroot" >&2
+    exit 1
+fi
 popd
 
 echo "*****************************************************************************************************************"
