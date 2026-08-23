@@ -294,6 +294,12 @@ def resolve_env(root, platform):
 # SystemTests/ is the transfer root the relative path is only "CI/projects".
 # That exact mistake published the customer CI projects to the mirror.
 NEVER_PUBLISH = [
+    # Build output. The sync rsyncs the WORKING TREE, so .gitignore does not
+    # protect the mirror -- a routine build left 676 .o and 352 .su files that
+    # would otherwise have been published, invisible in git status.
+    "*.o",
+    "*.d",
+    "*.su",
     "_working_notes/",
     "__pycache__/",
     ".pytest_cache/",

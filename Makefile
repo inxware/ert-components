@@ -722,6 +722,8 @@ target_buildenv:
 
 clean:
 	find -name "*.o" -delete
+	find -name "*.su" -delete
+	find -name "*.d" -not -path "./.git/*" -delete
 	rm -f *.log
 	rm -f *.map
 	rm -f *.elf
