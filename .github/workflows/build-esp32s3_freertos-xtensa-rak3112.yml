@@ -38,6 +38,12 @@ jobs:
         path: ert-build-support
         sparse-checkout: |
             toolchains/x86_64/xtensa-esp32s3-elf-5.1
+            # esptool, needed by 'make targetenv_package'. Not part of the s3
+            # toolchain: targetenv_esp32_sdk-packager_paths.sh maps every ESP
+            # toolchain to this one copy of the flashing tools, since it is the
+            # only one in ert-build-support. Scripts only, so the cost is
+            # negligible against the 378 MB full toolchain.
+            toolchains/x86_64/xtensa-esp32-elf-4.4.1/espressif-4.4.1
             support_libs/target_libs/xtensa-esp32s3_freertos
         ref: refs/heads/main
         lfs: true
