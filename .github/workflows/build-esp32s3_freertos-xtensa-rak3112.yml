@@ -30,6 +30,21 @@ jobs:
       with:
         path: ert-components
 
+    # sparse-checkout paths, in order:
+    #   1. the S3 toolchain this target compiles with
+    #   2+3. esptool for 'make targetenv_package'.
+    #        targetenv_esp32_sdk-packager_paths.sh maps EVERY ESP toolchain to
+    #        this one copy of the flashing tools, so an S3 build still needs the
+    #        esp32-4.4.1 path. BOTH are required because the first is a symlink,
+    #        xtensa-esp32-elf-4.4.1/espressif-4.4.1 -> ../espressif-4.4.1, and
+    #        sparse-checkout materialises the link but not its target; alone it
+    #        dangles and esptool fails with "can't open file". The second is the
+    #        real 84 MB directory.
+    #   4. the prebuilt support libs for this os-arch
+    #
+    # Keep comments OUT of the sparse-checkout block: actions/checkout passes
+    # every line straight to 'git sparse-checkout set', '#' included, so they
+    # become literal path patterns.
     - name: Checkout ert build support repo
       uses: actions/checkout@v4
       with:
@@ -38,16 +53,6 @@ jobs:
         path: ert-build-support
         sparse-checkout: |
             toolchains/x86_64/xtensa-esp32s3-elf-5.1
-            # esptool, needed by 'make targetenv_package'. Not part of the s3
-            # toolchain: targetenv_esp32_sdk-packager_paths.sh maps every ESP
-            # toolchain to this one copy of the flashing tools, since it is the
-            # only one in ert-build-support.
-            #
-            # BOTH paths are required. The first is a SYMLINK
-            #   xtensa-esp32-elf-4.4.1/espressif-4.4.1 -> ../espressif-4.4.1
-            # and sparse-checkout materialises the link but not its target, so
-            # checking out only that one leaves it dangling and esptool is
-            # "can't open file". The second is the real 84 MB directory.
             toolchains/x86_64/xtensa-esp32-elf-4.4.1/espressif-4.4.1
             toolchains/x86_64/espressif-4.4.1
             support_libs/target_libs/xtensa-esp32s3_freertos
