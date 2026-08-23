@@ -12,7 +12,7 @@
 # Usage:
 #   ./regression_test-published-only.sh [OPTIONS]
 #
-# List selection options (choose one; defaults to "published"):
+# List selection options (choose one; defaults to "deployed"):
 #   --community-only     Use the community platform list
 #   --platform-list <n>  Use a named list from platform-lists/ (overrides default)
 #
@@ -24,7 +24,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-LIST="published"
+LIST="deployed"
 passthrough_args=()
 
 while [[ $# -gt 0 ]]; do

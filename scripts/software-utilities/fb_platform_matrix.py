@@ -15,7 +15,7 @@ Options:
                             'all' produces csv+md+html.
                             Single format → stdout; multiple → matrix.<ext> files.
     --platform-list NAME    Filter platforms to those listed in a named platform list
-                            (e.g. 'published', 'community') resolved from
+                            (e.g. 'deployed', 'community') resolved from
                             SystemTests/CI/platform-lists/<NAME>.txt, or an explicit
                             path to any .txt file in the same format.
                             Default: all platforms found under target/platform/.
@@ -28,7 +28,7 @@ Options:
 Default platform set:
     Without --platform-list every directory under target/platform/ that contains
     a config.mk is used (~80+ platforms on a full checkout, collapsed to ~15
-    OS-arch columns).  Use --platform-list published or --platform-list community
+    OS-arch columns).  Use --platform-list deployed or --platform-list community
     to restrict to a curated subset.
 
 Markdown format:
@@ -41,7 +41,7 @@ Examples:
     python3 fb_platform_matrix.py > matrix.csv
 
     # Published platforms only, markdown:
-    python3 fb_platform_matrix.py --format md --platform-list published
+    python3 fb_platform_matrix.py --format md --platform-list deployed
 
     # Sfera Labs peripheral blocks only, community platforms, markdown:
     python3 fb_platform_matrix.py --format md --platform-list community \\
@@ -616,7 +616,7 @@ def main() -> None:
                              "(default: csv)")
     parser.add_argument("--platform-list", metavar="NAME_OR_PATH", dest="platform_list",
                         help="Restrict platforms to those in a named list "
-                             "('published', 'community') from "
+                             "('deployed', 'community') from "
                              "SystemTests/CI/platform-lists/, or an explicit .txt path. "
                              "Default: all platforms under target/platform/.")
     parser.add_argument("--platform", action="append", metavar="GLOB", dest="platform_globs",

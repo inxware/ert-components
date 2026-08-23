@@ -226,7 +226,18 @@ OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/disp_driver.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/disp_spi.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_tft/esp_lcd_backlight.$(OBJ)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/touch_driver.$(OBJ)
+# tp_spi.c is the SPI transport for the SPI touch controllers. It dereferences
+# CONFIG_LV_TOUCH_SPI_* which the touch-driver blocks above are what bring into
+# existence, so building it unconditionally makes a display-only LVGL target
+# fail on a missing Kconfig symbol rather than on the real cause -- the eRT
+# platform simply has no touch driver named.
+#
+# touch_driver.o stays unconditional: lvgl_helpers.c calls touch_driver_init()
+# whatever the configuration, and touch_driver.c only reaches tp_spi under
+# CONFIG_LV_TOUCH_CONTROLLER_XPT2046, so it compiles clean without it.
+ifneq ($(EHS_LVGL_TOUCH_DRIVER),)
 OBJECTS+=$(LVGL_DIR)/lvgl_esp32_drivers/lvgl_touch/tp_spi.$(OBJ)
+endif
 INC_DIRS+=$(LVGL_DIR)/lvgl_esp32_drivers/
 else
 # asuming linux or windows (give it at least 1G)

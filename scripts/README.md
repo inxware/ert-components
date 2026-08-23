@@ -15,10 +15,10 @@ All examples are run from the **repo root** (`ert-components/`).
 ./SystemTests/CI/run_regression.sh --discover --generate-sbom --generate-matrix all
 
 # Build the published list, compile only (fast check, no packaging)
-./SystemTests/CI/run_regression.sh --platform-list published --compile-only
+./SystemTests/CI/run_regression.sh --platform-list deployed --compile-only
 
 # Full nightly with smoke tests, SBOM and matrix
-./SystemTests/CI/run_regression.sh --platform-list published \
+./SystemTests/CI/run_regression.sh --platform-list deployed \
     --run-apps --generate-sbom --generate-matrix all
 
 # See SystemTests/CI/README.md for the full option reference

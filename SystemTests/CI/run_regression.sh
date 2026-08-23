@@ -16,7 +16,7 @@
 # Modes (mutually exclusive; interactive menu shown if omitted):
 #   --discover                 Enumerate every directory under target/platform/
 #   --platform-list <name>     Use a named list from SystemTests/CI/platform-lists/
-#                              (e.g. "community", "published") or a direct file path
+#                              (e.g. "community", "deployed", "smoke") or a direct file path
 #
 # Build options:
 #   --build-only               Compile only — run make all_docker/make -j8, skip targetenv,

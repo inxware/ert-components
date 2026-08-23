@@ -134,6 +134,22 @@ else
 fi
 export ZEPHYR_BASE
 
+# Zephyr locates its SDK through the CMake user package registry under
+# $HOME/.cmake/packages/Zephyr-sdk, which the image writes as root. GitHub
+# Actions overrides HOME to /github/home in container jobs, so that registry is
+# invisible and CMake fails with "Could not find a package configuration file
+# provided by Zephyr-sdk". Point at the SDK explicitly instead; globbed rather
+# than hardcoded so bumping the image version does not silently break it.
+if [ -z "${ZEPHYR_SDK_INSTALL_DIR}" ]; then
+    for _sdk in /opt/toolchains/zephyr-sdk-* "${HOME}"/zephyr-sdk-*; do
+        [ -d "${_sdk}" ] || continue
+        export ZEPHYR_SDK_INSTALL_DIR="${_sdk}"
+        echo "ZEPHYR_SDK    : ${ZEPHYR_SDK_INSTALL_DIR} (registry not readable under this HOME)"
+        break
+    done
+fi
+
+
 echo "ZEPHYR_BASE   : ${ZEPHYR_BASE}"
 
 # -----------------------------------------------------------------------

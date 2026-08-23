@@ -69,22 +69,28 @@ jobs:
         path: apps
         ref: refs/heads/RELEASE-PRODUCTION
 
-    - name: configure
+    # Both variants in one job: they share every checkout above, so a second
+    # job would re-fetch the toolchain and contrib for nothing. The headless
+    # variant is the shipping LoRa configuration; -lvgl adds an ft81x display.
+    - name: Build rak3112 (headless)
       run: |
            cd ert-components
            ./configure esp32s3_freertos-xtensa-rak3112
-
-    - name: make
-      run: |
-           cd ert-components
            make -j 8
-
-    - name: make targetenv
-      run: |
-           cd ert-components
            make targetenv
+           make targetenv_package
 
-    - name: make package
+    - name: Build rak3112-lvgl (ft81x display)
       run: |
            cd ert-components
+           make clean
+           ./configure esp32s3_freertos-xtensa-rak3112-lvgl
+           make -j 8
+           make targetenv
            make targetenv_package
+
+    - name: Both binaries present
+      run: |
+           for t in esp32s3_freertos-xtensa-rak3112 esp32s3_freertos-xtensa-rak3112-lvgl; do
+             ls -l "TARGET_TREES/ehs_env-$t/bin/ehs.exe"
+           done

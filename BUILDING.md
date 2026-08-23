@@ -207,10 +207,26 @@ For optimal performance, configure Docker as follows:
    make static_analysis              # Run code analysis
    make toolsenv_update              # Update Lucid IDE with new components
    # Runs a collection of target build tests (it may try and run the linux ones.)
-   ./SystemTests/CI/regression_test-published-only.sh 
-   # Redisplay the results of the last build regression test. 
-   ./SystemTests/CI/display_regression_tests.sh 
+   ./SystemTests/CI/regression_test-published-only.sh
+   # Redisplay the results of the last build regression test.
+   ./SystemTests/CI/display_regression_tests.sh
    ```
+
+### Platform lists
+
+A regression run builds a named list from `SystemTests/CI/platform-lists/`,
+selected with `run_regression.sh --platform-list <name>`:
+
+| List | What it is |
+|--------------|-----------------------------------------------------------|
+| `smoke`      | the fast gate — one target per os-arch family, build + targetenv + packaging, under ten minutes |
+| `community`  | every platform in this public release. Each entry must exist in the published set, or `configure` fails because the platform directory was never published |
+| `deployed`   | internal only, absent from this repository: the full set of platforms shipped as products |
+
+`deployed` was called `published` until it was renamed — that read as "published
+to the community mirror" and meant the opposite, since it is the one list that is
+deliberately *not* published. `--platform-list published` no longer resolves; use
+`deployed` (internally) or `community`.
 
 ## Docker-based building
 

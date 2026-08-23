@@ -71,7 +71,13 @@ EHS_DEVMAN_SUPPORT=mqtt
 
 #----- GUI Features -----
 EHS_LVGL_DISPLAY_DRIVER=gc9a01
-EHS_LVGL_TOUCH_DRIVER=
+# Was blank, which left the only LVGL target in the tree with a display and no
+# touch. Set to match the 1.69 sibling in the same Waveshare touchlcd family
+# (CST816 over I2C); the panel is not identifiable from the repo, so confirm on
+# hardware -- blank it again if this board really has no touch, which now builds
+# cleanly since tp_spi.o is gated on this variable.
+EHS_LVGL_TOUCH_DRIVER=cst816t
+CONFIG_LV_I2C=1
 
 
 #################################################################################################################

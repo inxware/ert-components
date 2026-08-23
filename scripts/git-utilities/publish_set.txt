@@ -9,7 +9,7 @@
 #   ./SystemTests/CI/run_regression.sh --platform-list scripts/git-utilities/publish_set.txt
 #
 # It lives here rather than in SystemTests/CI/platform-lists/ to pair with the
-# tool that consumes it, and to avoid sitting next to published.txt — which is
+# tool that consumes it, and to avoid sitting next to deployed.txt — which is
 # the internal regression list and means something entirely different.
 #
 # This is an allow-list, not a filter. A platform reaches GitHub only if it is
@@ -48,6 +48,7 @@ linux_arm64_lvgl_raspberrypi_debian13
 zephyr_arm-nrf5340_nrf5340dk
 zephyr_arm-nrf52840_rak4631
 esp32s3_freertos-xtensa-rak3112
+esp32s3_freertos-xtensa-rak3112-lvgl
 
 
 # ── Tier 2 — generic, public image, no workflow yet ───────────────────────────

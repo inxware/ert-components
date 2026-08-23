@@ -17,7 +17,8 @@ SystemTests/CI/
 ├── generate_feature_matrix.sh          ← generate feature matrix without a build
 ├── platform-lists/
 │   ├── community.txt                   ← public / community platforms
-│   └── published.txt                   ← full internal platform list
+│   ├── deployed.txt                    ← full INTERNAL product list (not published)
+│   └── smoke.txt                       ← fast gate, one target per os-arch family
 └── results/
     └── <platform>/                     ← per-platform pass/fail flags + build.log
 
@@ -45,7 +46,7 @@ All examples are run from the **repo root** (`ert-components/`).
 ./SystemTests/CI/run_regression.sh --discover
 
 # Build only the published curated list
-./SystemTests/CI/run_regression.sh --platform-list published
+./SystemTests/CI/run_regression.sh --platform-list deployed
 
 # Build only the community (public) list
 ./SystemTests/CI/run_regression.sh --platform-list community
@@ -57,7 +58,7 @@ All examples are run from the **repo root** (`ert-components/`).
 ./SystemTests/CI/run_regression.sh --discover --compile-only
 
 # Include the slow Unity-lib target
-./SystemTests/CI/run_regression.sh --platform-list published --include-slow
+./SystemTests/CI/run_regression.sh --platform-list deployed --include-slow
 ```
 
 ### Adding runtime smoke tests
@@ -67,7 +68,7 @@ All examples are run from the **repo root** (`ert-components/`).
 ./SystemTests/CI/run_regression.sh --discover --run-apps
 
 # Compile-only first pass, then full run with tests
-./SystemTests/CI/run_regression.sh --platform-list published --run-apps
+./SystemTests/CI/run_regression.sh --platform-list deployed --run-apps
 ```
 
 ### Generating release reports (recommended entry point)
@@ -122,7 +123,7 @@ make sbom
 ./SystemTests/CI/run_regression.sh --discover --claude-interactive
 
 # Autofix + full reporting for a CI pipeline
-./SystemTests/CI/run_regression.sh --platform-list published \
+./SystemTests/CI/run_regression.sh --platform-list deployed \
     --generate-sbom --generate-matrix --claude-autofix
 ```
 
@@ -146,7 +147,7 @@ python3 scripts/inxware-id-tool/check_cdf_hashes.py Common/Components
 # equivalent to: run_regression.sh --discover [OPTIONS]
 
 ./SystemTests/CI/regression_test-published-only.sh [OPTIONS]
-# equivalent to: run_regression.sh --platform-list published [OPTIONS]
+# equivalent to: run_regression.sh --platform-list deployed [OPTIONS]
 
 ./SystemTests/CI/regression_test-published-only.sh --community-only [OPTIONS]
 # equivalent to: run_regression.sh --platform-list community [OPTIONS]
@@ -161,7 +162,7 @@ python3 scripts/inxware-id-tool/check_cdf_hashes.py Common/Components
 | Flag | Effect |
 |---|---|
 | `--discover` | Enumerate every directory under `target/platform/` — always in sync with the repo |
-| `--platform-list <name\|file>` | Use a named list from `platform-lists/` (e.g. `community`, `published`) or a direct file path |
+| `--platform-list <name\|file>` | Use a named list from `platform-lists/` (e.g. `community`, `deployed`, `smoke`) or a direct file path |
 
 When stdin is a terminal and no mode flag is given, an interactive menu lets you pick from the available lists or enter a custom file path.  When stdin is not a terminal (CI/cron), `--discover` is assumed.
 
@@ -409,7 +410,7 @@ The divergences are resolved in `ci_functions.sh`:
 | Script | Status | Notes |
 |---|---|---|
 | `display_regression_tests.sh` | Current | Colourised `ls` of results; no changes needed |
-| ~~`build_linux_tools_installer.sh`~~ | **Deleted** | Hardcoded `linux_x86_gtk_gst_withtools` — a platform name that no longer exists (the real platform is `linux_x86_gtk_gst_deb_withtools`). Would have failed at `./configure` on any current checkout. `test_build`/`test_run_apps` were commented out. Did not reference `../inxware-tools`, `../dis`, or `../inxware-installer`; only built a `.deb` that bundled the pre-built Windows IDE installer as a Wine postinst step. Fully covered by `run_regression.sh --platform-list published`. |
+| ~~`build_linux_tools_installer.sh`~~ | **Deleted** | Hardcoded `linux_x86_gtk_gst_withtools` — a platform name that no longer exists (the real platform is `linux_x86_gtk_gst_deb_withtools`). Would have failed at `./configure` on any current checkout. `test_build`/`test_run_apps` were commented out. Did not reference `../inxware-tools`, `../dis`, or `../inxware-installer`; only built a `.deb` that bundled the pre-built Windows IDE installer as a Wine postinst step. Fully covered by `run_regression.sh --platform-list deployed`. |
 | `deploy_files.sh` | Consider moving | SCP wrapper for copying binaries to test machines. Candidate for `scripts/build-deploy/linux-general/`. |
 | `start_remote_ehs.sh` | Consider moving | SSH wrapper to launch EHS on a remote device. Same candidate path. |
 | `send_schedule.sh` | Consider deprecating | 4-line curl wrapper for sending a playlist over HTTP. |

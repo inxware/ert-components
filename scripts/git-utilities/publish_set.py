@@ -320,7 +320,7 @@ NEVER_PUBLISH = [
     # Internal regression lists. Both name customer targets, and the mirror does
     # not need them: community.txt and smoke.txt are the public-facing lists and
     # no workflow references these.
-    "published.txt",
+    "deployed.txt",
     "known-broken-keys.txt",
 ]
 

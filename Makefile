@@ -419,8 +419,13 @@ else
 	@$(ECHO) "$(TXT_FG_BRIGHT_GREEN)Packaged $(TARGET) via $(EHS_PACKAGER_GOAL) (EHS_PACKAGER_TYPE=$(EHS_PACKAGER_TYPE))$(TXT_FG)"
 endif
 
+# The script takes the package name and exe name as $2/$3 and does
+# 'export ERT_PACKAGE_NAME="$2"', which BLANKS the exported make variable when
+# they are not passed. targetenv_make_nsis_docker.sh passes all three; this rule
+# passed only TARGET, so the direct path failed with "ERT package name is not
+# specified". Only surfaced once EHS_IN_CONTAINER started selecting it in CI.
 targetenv_nsis: chkconfig
-	@./target/envbuildscripts/targetenv_make_nsis.sh $(TARGET)
+	@./target/envbuildscripts/targetenv_make_nsis.sh $(TARGET) $(ERT_PACKAGE_NAME) $(ERT_NSIS_EXE_NAME)
 
 targetenv_nsis_docker: chkconfig
 	@./target/envbuildscripts/targetenv_make_nsis_docker.sh $(TARGET)

@@ -1,25 +1,29 @@
-# community.txt — Platforms in the public / community release.
+# community.txt — the community-gate subset of the public mirror.
 # Used by:  run_regression.sh --platform-list community
 # One platform directory name per line.  Lines starting with # are ignored.
-
-linux_x86_64-lucid-debian11
-linux_android_arm_p64_h6_player-sandbox
-linux_amd64_gtk_gst
+#
+# INVARIANT: every entry must be in the mirror's resolved plan, or the community
+# gate is testing a target the community cannot obtain -- 'configure' fails there
+# because the platform directory was never published. Check with:
+#
+#   python3 scripts/git-utilities/publish_set.py --plan \
+#     | grep -oE 'target/platform/[^/]+/' | sed 's|target/platform/||;s|/||' | sort -u
+#
+# This is a curated SUBSET, not the whole allow-list: publish_set.txt resolves to
+# 79 platforms and the gate does not need all of them.
+#
+# NOT the same thing as deployed.txt, which is the full INTERNAL product list
+# and legitimately contains customer targets.
 linux_x86_64_gtk_gst_debian11
 linux_x86_64_gtk_gst_debian11-debug
-linux_x86_64_clang_gtk
 linux_x86_64_clang_gg_debian11
-linux_x86_64_clang_gtk_gst_gg_debian11
 linux_x86_gtk_gst_debian8
 linux_armv7l_clang_debian10
-linux_armv7l_clang_gtk_gst_debian10
 win_x86_gtk_gst
 win_x86_32-lucid-win10
-esp32_freertos-xtensor-base
 esp32s3_freertos-xtensa-base
 linux_android_arm
-linux_android_arm_legacy
-arduino_arduino-mbed-nano_community_library
 arduino_arduino-mbed-nano_lib
 linux_arm64_lvgl_gg_debian11
-linux_arm64_lvgl_raspberrypi_demo
+esp32s3_freertos-xtensa-rak3112
+esp32s3_freertos-xtensa-rak3112-lvgl

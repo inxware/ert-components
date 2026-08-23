@@ -457,10 +457,13 @@ void EhsTOsSys_term(void)
  */
 void EhsTOsApp_init(void)
 {
-//	#ifdef EHS_GUI_SUPPORT //@todo and this (as above)
-//            EhsGtkKeypressCallback = NULL;
-//        #endif
-    EhsTargetWidget_refr_scr_period_lvgl(25); // Refresh screen every configured seconds
+    /* target_viewport.c and this define both come from
+     * target/Component-HAL/graphics/lvgl/graphics.mk, so the guard matches
+     * exactly when the symbol exists. Unguarded, every esp32s3 target without a
+     * GUI failed to link (rak3112: undefined reference here). */
+#ifdef EHS_GUI_SUPPORT_MODE_B_LVGL
+    EhsTargetWidget_refr_scr_period_lvgl(25); /* screen refresh period, seconds */
+#endif
 }
 
 /**
